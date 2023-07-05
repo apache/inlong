@@ -33,16 +33,16 @@ export interface Props extends ModalProps {
 
 const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   const [form] = useForm();
-  const userName = useSelector<State, State['userName']>(state => state.userName);
+  const tenant = useSelector<State, State['tenant']>(state => state.tenant);
 
   const formContent = useMemo(() => {
     return [
-      {
-        type: 'input',
-        label: i18n.t('pages.TenantRole.config.Name'),
-        name: 'tenant',
-        rules: [{ required: true }],
-      },
+      // {
+      //   type: 'input',
+      //   label: i18n.t('pages.TenantRole.config.Name'),
+      //   name: 'tenant',
+      //   rules: [{ required: true }],
+      // },
       {
         type: 'select',
         label: i18n.t('pages.TenantRole.config.UserName'),
@@ -111,6 +111,7 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   const onOk = async () => {
     const values = await form.validateFields();
     const submitData = {
+      tenant,
       ...values,
     };
     const isUpdate = Boolean(id);

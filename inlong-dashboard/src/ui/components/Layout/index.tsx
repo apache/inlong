@@ -54,6 +54,8 @@ const BasicLayout: React.FC = props => {
   const [getLocalStorage, setLocalStorage, removeLocalStorage] = useLocalStorage('tenant');
   const tenant = getLocalStorage('tenant');
   console.log(tenant, 'tenant1');
+  console.log(roles, 'roles');
+  const test = ['TENANT_ADMIN', 'INLONG_ADMIN'];
   const { breadcrumbMap, menuData } = useMemo(() => {
     const _menus = menusTree.filter(
       item => (item.isAdmin && roles?.includes('INLONG_ADMIN')) || !item.isAdmin,

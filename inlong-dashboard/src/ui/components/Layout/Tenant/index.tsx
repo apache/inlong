@@ -53,7 +53,7 @@ const Comp: React.FC = () => {
 
   const { data: savedData, run: getStreamData } = useRequest(
     {
-      url: '/tenant/list',
+      url: '/role/tenant/list',
       method: 'POST',
       data: {
         ...options,
@@ -65,8 +65,8 @@ const Comp: React.FC = () => {
       onSuccess: result => {
         result.list.map(item => {
           return data.push({
-            label: item.name,
-            key: item.name,
+            label: item.tenant,
+            key: item.tenant,
           });
         });
       },
@@ -92,18 +92,34 @@ const Comp: React.FC = () => {
     },
   ];
 
+  const { run: getData } = useRequest(
+    name => ({
+      url: `/user/currentUser`,
+      method: 'post',
+      headers: {
+        rname: 'tenant',
+        tenant: name,
+      },
+    }),
+    {
+      manual: true,
+    },
+  );
+
   const onClick: MenuProps['onClick'] = ({ key }) => {
     setLocalStorage({ name: key });
-    extendRequest.interceptors.request.use((url, options) => {
-      return {
-        options: {
-          ...options,
-          interceptors: true,
-          headers: { rname: 'tenant', value: key },
-        },
-      };
-    });
+    getData(key);
+    // extendRequest.interceptors.request.use((url, options) => {
+    //   return {
+    //     options: {
+    //       ...options,
+    //       interceptors: true,
+    //       headers: { rname: 'tenant', value: key },
+    //     },
+    //   };
+    // });
     message.success(t('切换成功'));
+    window.location.reload();
   };
 
   const onFilter = allValues => {
