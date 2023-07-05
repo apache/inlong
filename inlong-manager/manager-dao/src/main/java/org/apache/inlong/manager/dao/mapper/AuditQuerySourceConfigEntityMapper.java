@@ -26,9 +26,7 @@ public interface AuditQuerySourceConfigEntityMapper {
 
     AuditQuerySourceConfigEntity findByStatus();
 
-    void resetStatus();
-
-    void setStatusToOne(String hosts);
+    void offlineAuditQuerySourceByHosts(String hosts);
 
     void insert(AuditQuerySourceConfigEntity auditQuerySourceConfig);
 }

@@ -24,13 +24,12 @@ import java.util.Date;
 
 @Data
 public class AuditQuerySourceConfigEntity implements Serializable {
-
-    private Integer status = 0;
     private String auditQuerySource;
     private String hosts;
     private String userName;
     private String password;
     private Integer authEnable = 1;
+    private Integer status;
     private Date createTime;
     private Date updateTime;
 }

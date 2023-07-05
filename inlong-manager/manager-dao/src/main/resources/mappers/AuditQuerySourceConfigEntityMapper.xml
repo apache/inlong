@@ -21,18 +21,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.inlong.manager.dao.mapper.AuditQuerySourceConfigEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity">
-        <result column="status" jdbcType="TINYINT" property="status"/>
         <result column="audit_query_source" jdbcType="VARCHAR" property="auditQuerySource"/>
         <result column="hosts" jdbcType="VARCHAR" property="hosts"/>
         <result column="user_name" jdbcType="VARCHAR" property="userName"/>
         <result column="password" jdbcType="VARCHAR" property="password"/>
         <result column="auth_enable" jdbcType="TINYINT" property="authEnable"/>
+        <result column="status" jdbcType="TINYINT" property="status"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        status, audit_query_source, hosts, user_name, password, auth_enable, create_time, update_time
+        audit_query_source, hosts, user_name, password, auth_enable, status, create_time, update_time
     </sql>
 
     <select id="findByStatus" resultType="org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity"
@@ -43,22 +43,22 @@
         where status = 1 LIMIT 1
     </select>
 
-    <update id="resetStatus">
-        update audit_query_source_config set status = 0 where status = 1;
+    <update id="offlineAuditQuerySourceByHosts">
+        update audit_query_source_config set status = 0 where hosts = #{hosts};
     </update>
 
-    <update id="setStatusToOne">
+    <update id="onlineAuditQuerySourceByHosts">
     update audit_query_source_config set status = 1 where hosts = #{hosts};
     </update>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="hosts">
-        insert into audit_query_source_config (status, audit_query_source, hosts, user_name, password, auth_enable, create_time, update_time)
-        values (#{status}, #{auditQuerySource}, #{hosts}, #{userName}, #{password}, #{authEnable}, #{createTime}, #{updateTime})
-        ON DUPLICATE KEY UPDATE status = VALUES(status),
-                                audit_query_source = VALUES(audit_query_source),
+        insert into audit_query_source_config (audit_query_source, hosts, user_name, password, auth_enable, status, create_time, update_time)
+        values (#{auditQuerySource}, #{hosts}, #{userName}, #{password}, #{authEnable}, #{status}, #{createTime}, #{updateTime})
+        ON DUPLICATE KEY UPDATE audit_query_source = VALUES(audit_query_source),
                                 user_name = VALUES(user_name),
                                 password = VALUES(password),
                                 auth_enable = VALUES(auth_enable),
+                                status = VALUES(status),
                                 update_time = VALUES(update_time)
     </insert>
 </mapper>

@@ -61,27 +61,8 @@ public interface AuditService {
      * @param authEnable
      * @return
      */
-    Boolean updateAuditQuerySource(String auditQuerySource, String hosts, String userName, String password,
+    Boolean updateAuditQuerySource(String oldHosts, String auditQuerySource, String hosts, String userName, String password,
             Integer authEnable);
-
-    /**
-     * Insert a new source.
-     * @param auditQuerySource MYSQL, CLICKHOUSE, ELASTICSEARCH
-     * @param hosts
-     * @param userName
-     * @param password
-     * @param authEnable
-     * @return
-     */
-    Boolean insertAuditSource(String auditQuerySource, String hosts, String userName, String password,
-            Integer authEnable);
-
-    /**
-     * Connect a source according its hosts, only one source can be connected in one time.
-     * @param hosts
-     * @return
-     */
-    Boolean updateSourceByHosts(String hosts);
 
     /**
      * Query which source is connected.

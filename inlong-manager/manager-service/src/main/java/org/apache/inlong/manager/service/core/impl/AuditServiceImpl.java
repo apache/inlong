@@ -168,59 +168,32 @@ public class AuditServiceImpl implements AuditService {
     private AuditQuerySourceConfigEntity createAuditQuerySource(String auditQuerySource, String hosts, String userName,
             String password, Integer auth_Enable) {
         AuditQuerySourceConfigEntity auditQuerySourceConfig = new AuditQuerySourceConfigEntity();
-        auditQuerySourceConfig.setStatus(0);
         auditQuerySourceConfig.setAuditQuerySource(auditQuerySource);
         auditQuerySourceConfig.setHosts(hosts);
         auditQuerySourceConfig.setUserName(userName);
         auditQuerySourceConfig.setPassword(password);
         auditQuerySourceConfig.setAuthEnable(auth_Enable);
+        auditQuerySourceConfig.setStatus(1);
         auditQuerySourceConfig.setCreateTime(new Date());
         auditQuerySourceConfig.setUpdateTime(new Date());
         return auditQuerySourceConfig;
     }
     @Override
-    public Boolean updateAuditQuerySource(String auditQuerySource, String hosts, String userName, String password,
+    public Boolean updateAuditQuerySource(String oldHosts, String auditQuerySource, String hosts, String userName, String password,
             Integer authEnable) {
         try {
-            insertAuditSource(auditQuerySource, hosts, userName, password, authEnable);
-            updateSourceByHosts(hosts);
+            if (oldHosts != null){
+                querySourceConfigEntityMapper.offlineAuditQuerySourceByHosts(oldHosts);
+            }
+            AuditQuerySourceConfigEntity entity = createAuditQuerySource(auditQuerySource, hosts, userName, password, authEnable);
+            querySourceConfigEntityMapper.insert(entity);
+            config.updateCkSource();
         } catch (Exception e) {
             LOGGER.error("fail to update audit query source!");
             LOGGER.error(e.toString());
             return false;
         }
         LOGGER.info("success to update audit source!");
-        return true;
-    }
-
-    @Override
-    public Boolean insertAuditSource(String auditQuerySource, String hosts, String userName, String password,
-            Integer auth_Enable) {
-        try {
-            AuditQuerySourceConfigEntity entity =
-                    createAuditQuerySource(auditQuerySource, hosts, userName, password, auth_Enable);
-            querySourceConfigEntityMapper.insert(entity);
-        } catch (Exception e) {
-            LOGGER.error("fail to insert audit source!");
-            LOGGER.error(e.toString());
-            return false;
-        }
-        LOGGER.error("success to insert audit source!");
-        return true;
-    }
-
-    @Override
-    public Boolean updateSourceByHosts(String hosts) {
-        try {
-            querySourceConfigEntityMapper.resetStatus();
-            querySourceConfigEntityMapper.setStatusToOne(hosts);
-            config.updateCkSource();
-        } catch (Exception e) {
-            LOGGER.error("fail to update audit source by host!");
-            LOGGER.error(e.toString());
-            return false;
-        }
-        LOGGER.error("success to update audit source by host!");
         return true;
     }
 

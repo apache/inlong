@@ -64,30 +64,15 @@ public class AuditController {
 
     @ApiOperation(value = "insert a source and connect to the source")
     @PostMapping(value = "/audit/updateSource")
-    public Response<Boolean> updateAuditQuerySource(@RequestParam("auditQuerySource") String auditQuerySource,
+    public Response<Boolean> updateAuditQuerySource(@RequestParam(value = "oldHosts", required = false) String oldHosts, @RequestParam("auditQuerySource") String auditQuerySource,
             @RequestParam("hosts") String hosts, @RequestParam("userName") String userName,
             @RequestParam("password") String password, @RequestParam("authEnable") Integer authEnable) {
         return Response.success(
-                auditService.updateAuditQuerySource(auditQuerySource, hosts, userName, password, authEnable));
-    }
-
-    @ApiOperation(value = "insert audit query source")
-    @PostMapping(value = "/audit/insertSource")
-    public Response<Boolean> insertAuditQuerySource(@RequestParam("auditQuerySource") String auditQuerySource,
-            @RequestParam("hosts") String hosts, @RequestParam("userName") String userName,
-            @RequestParam("password") String password, @RequestParam("authEnable") Integer authEnable) {
-        return Response
-                .success(auditService.insertAuditSource(auditQuerySource, hosts, userName, password, authEnable));
-    }
-
-    @ApiOperation(value = "connect to a source according its hosts which is existed in db")
-    @PostMapping("/audit/updateByHosts")
-    public Response<Boolean> updateSourceByHosts(@RequestParam("hosts") String hosts) {
-        return Response.success(auditService.updateSourceByHosts(hosts));
+                auditService.updateAuditQuerySource(oldHosts, auditQuerySource, hosts, userName, password, authEnable));
     }
 
     @ApiOperation(value = "query which source is connected")
-    @GetMapping("/audit/source")
+    @GetMapping("/audit/querySource")
     public Response<AuditQuerySourceConfigEntity> queryCurrentSource() {
         return Response.success(auditService.queryCurrentSource());
     }
