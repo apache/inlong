@@ -39,7 +39,7 @@ public interface TenantRoleService {
     int save(TenantRoleRequest record, String operator);
 
     /**
-     * Update one tanant role
+     * Update one tenant role
      */
     boolean update(TenantRoleRequest record, String operator);
 
