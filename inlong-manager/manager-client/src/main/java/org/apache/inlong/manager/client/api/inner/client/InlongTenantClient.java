@@ -38,7 +38,7 @@ public class InlongTenantClient {
     }
 
     /**
-     * get inlong tenant by tenant name
+     * Get inlong tenant by tenant name
      *
      * @param name tenant name
      * @return {@link InlongTenantInfo}
@@ -50,7 +50,7 @@ public class InlongTenantClient {
     }
 
     /**
-     * create inlong tenant
+     * Create inlong tenant
      *
      * @param inlongTenantRequest tenant info
      * @return inlong tenant id
@@ -63,7 +63,7 @@ public class InlongTenantClient {
     }
 
     /**
-     * Paging query stream sink info based on conditions.
+     * Paging query tenant info based on conditions.
      *
      * @param inlongTenantPageRequest paging request
      * @return tenant page list
