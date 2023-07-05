@@ -22,7 +22,6 @@ import lombok.Data;
 import java.io.Serializable;
 @Data
 public class AuditQuerySourceConfigEntity implements Serializable {
-
     private Integer inUse = 0;
     private String auditQuerySource;
     private String hosts;
