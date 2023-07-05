@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Divider, Dropdown, Input, MenuProps, message, Space, theme } from 'antd';
 import { useRequest, useSelector } from '@/ui/hooks';
 import { State } from '@/core/stores';
@@ -30,6 +30,7 @@ const Comp: React.FC = () => {
   const { t } = useTranslation();
   const tenant = useSelector<State, State['tenant']>(state => state.tenant);
   const userName = useSelector<State, State['userName']>(state => state.userName);
+  const roles = useSelector<State, State['roles']>(state => state.roles);
   const [getLocalStorage, setLocalStorage, removeLocalStorage] = useLocalStorage('tenant');
 
   const { token } = useToken();
@@ -40,7 +41,7 @@ const Comp: React.FC = () => {
   };
   const [filter, setFilter] = useState(true);
   const [filterData, setFilterData] = useState([]);
-  const [data] = useState([]);
+  const [data, setData] = useState([]);
 
   const defaultOptions = {
     keyword: '',
@@ -50,9 +51,12 @@ const Comp: React.FC = () => {
 
   const [options, setOptions] = useState(defaultOptions);
 
+  const isAdmin = roles.indexOf('INLONG_ADMIN') === -1 ? false : true;
+  const isOperator = roles.indexOf('INLONG_OPERATOR') === -1 ? false : true;
+
   const { data: savedData, run: getStreamData } = useRequest(
     {
-      url: '/role/tenant/list',
+      url: isAdmin || isOperator ? '/tenant/list' : '/role/tenant/list',
       method: 'POST',
       data: {
         ...options,
@@ -61,13 +65,16 @@ const Comp: React.FC = () => {
     },
     {
       refreshDeps: [options],
+      manual: userName !== undefined ? false : true,
       onSuccess: result => {
+        let tenant = [];
         result.list.map(item => {
-          return data.push({
-            label: item.tenant,
-            key: item.tenant,
+          tenant.push({
+            label: isAdmin || isOperator ? item.name : item.tenant,
+            key: isAdmin || isOperator ? item.name : item.tenant,
           });
         });
+        setData(tenant);
       },
     },
   );
@@ -96,6 +103,12 @@ const Comp: React.FC = () => {
     setFilterData(data.filter(item => item.key === allValues));
     setFilter(false);
   };
+
+  useEffect(() => {
+    if (userName !== undefined) {
+      getStreamData();
+    }
+  }, [userName]);
 
   return (
     <>
