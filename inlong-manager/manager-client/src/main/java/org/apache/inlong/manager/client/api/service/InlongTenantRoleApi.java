@@ -26,5 +26,5 @@ public interface InlongTenantRoleApi {
     Call<Response<Boolean>> update(@Body TenantRoleRequest request);
 
     @POST("/role/tenant/list")
-    Call<Response<PageInfo<TenantRoleInfo>>> listByCondition(@RequestBody TenantRolePageRequest request);
+    Call<Response<PageInfo<TenantRoleInfo>>> listByCondition(@Body TenantRolePageRequest request);
 }
