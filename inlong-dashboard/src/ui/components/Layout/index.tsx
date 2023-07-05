@@ -36,9 +36,6 @@ import type { MenuProps } from 'antd/es/menu';
 import { State } from '@/core/stores';
 import NavWidget from './NavWidget';
 import LocaleSelect from './NavWidget/LocaleSelect';
-import menus from '@/configs/menus';
-import { useLocalStorage } from '@/core/utils/localStorage';
-import { extendRequest } from '@/core/utils/request';
 import Tenant from './Tenant';
 
 const BasicLayout: React.FC = props => {
@@ -49,54 +46,29 @@ const BasicLayout: React.FC = props => {
   const isDev = isDevelopEnv();
   const { pathname } = location;
   const roles = useSelector<State, State['roles']>(state => state.roles);
-  // const tenant = useSelector<State, State['tenant']>(state => state.tenant);
-  // const tenantName = useSelector<State, State['tenantName']>(state => state.tenantName);
-  const [getLocalStorage, setLocalStorage, removeLocalStorage] = useLocalStorage('tenant');
-  const tenant = getLocalStorage('tenant');
-  console.log(tenant, 'tenant1');
-  // console.log(roles, 'roles');
-  const test = ['TENANT_ADMIN', 'INLONG_ADMIN', 'TENANT_OPERATOR', 'INLONG_OPERATOR'];
-  const test1 = ['TENANT_OPERATOR', 'INLONG_OPERATOR'];
-  // const test = ['TENANT_ADMIN', 'INLONG_ADMIN', 'TENANT_OPERATOR', 'INLONG_OPERATOR'];
-  // const test = ['TENANT_ADMIN', 'INLONG_ADMIN', 'TENANT_OPERATOR', 'INLONG_OPERATOR'];
   const { breadcrumbMap, menuData } = useMemo(() => {
-    // if (test?.includes('INLONG_ADMIN')) {
-    //   const _menus = menusTree.filter(
-    //     item => (item.isAdmin && test?.includes('INLONG_ADMIN')) || !item.isAdmin,
-    //   );
-    //   return getMenuData(_menus);
-    // }
-    // if (test1?.includes('INLONG_ADMIN')) {
-    //   // const _menus = menusTree.filter(
-    //   //   item => (item.isAdmin && test?.includes('INLONG_ADMIN')) || !item.isAdmin,
-    //   // );
-    // }
-
-    // const _menus = menusTree.filter(
-    //   item => (item.isAdmin && test?.includes('INLONG_ADMIN')) || !item.isAdmin,
-    // );
+    if (roles?.includes('INLONG_ADMIN') || roles?.includes('INLONG_OPERATOR')) {
+      const _menus = menusTree.filter(
+        item => (item.isAdmin && roles?.includes('INLONG_ADMIN')) || !item.isAdmin,
+      );
+      return getMenuData(_menus);
+    }
+    if (roles?.includes('TENANT_ADMIN')) {
+      const _menus = menusTree.filter(item => {
+        if (item.isAdmin) {
+          item.children = item.children?.filter(
+            i => (!i.isTenant && roles.includes('TENANT_ADMIN')) || !i.isTenant,
+          );
+        }
+        return item;
+      });
+      return getMenuData(_menus);
+    }
     const _menus = menusTree.filter(
-      item => (item.isAdmin && roles?.includes('INLONG_ADMIN')) || !item.isAdmin,
+      item => (!item.isAdmin && roles?.includes('TENANT_OPERATOR')) || !item.isAdmin,
     );
-    // console.log(_menus, '_________________');
-    // console.log(getMenuData(_menus), '_________________11111111');
     return getMenuData(_menus);
   }, [roles]);
-
-  useEffect(() => {
-    if (tenant !== null) {
-      // const tenantName = getLocalStorage('tenant')['name'];
-      // extendRequest.interceptors.request.use((url, options) => {
-      //   return {
-      //     options: {
-      //       ...options,
-      //       interceptors: true,
-      //       headers: { rname: 'tenant', value: tenantName },
-      //     },
-      //   };
-      // });
-    }
-  }, [getLocalStorage, tenant]);
 
   useEffect(() => {
     const firstPathname = `/${pathname.slice(1).split('/')?.[0]}`;

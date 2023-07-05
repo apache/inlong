@@ -44,6 +44,15 @@ const Provider = ({ children }) => {
     {
       onSuccess: result => {
         setLocalStorage({ name: result.tenant });
+        extendRequest.interceptors.request.use((url, options) => {
+          return {
+            options: {
+              ...options,
+              interceptors: true,
+              headers: { tenant: result.tenant },
+            },
+          };
+        });
         dispatch({
           type: 'setUserInfo',
           payload: {
@@ -56,17 +65,6 @@ const Provider = ({ children }) => {
       },
     },
   );
-
-  const tenantName = getLocalStorage('tenant')['name'];
-  extendRequest.interceptors.request.use((url, options) => {
-    return {
-      options: {
-        ...options,
-        interceptors: true,
-        headers: { tenant: tenantName },
-      },
-    };
-  });
 
   const importLocale = useCallback(async locale => {
     if (!localesConfig[locale]) return;

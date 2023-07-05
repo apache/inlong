@@ -536,6 +536,7 @@
   "components.Layout.NavWidget.NewPassword": "New password",
   "components.Layout.NavWidget.ConfirmPassword": "Confirm password",
   "components.Layout.NavWidget.Remind": "Password does not match, please re-enter",
+  "components.Layout.Tenant.Success": "Success",
   "components.HighSelect.Customize": "Customize",
   "components.HighSelect.SearchPlaceholder": "Please enter keyword...",
   "components.NodeSelect.Create": "Create Node",

@@ -18,12 +18,10 @@
  */
 
 import React, { useState } from 'react';
-import { Button, Divider, Dropdown, Input, MenuProps, message, Select, Space, theme } from 'antd';
+import { Divider, Dropdown, Input, MenuProps, message, Space, theme } from 'antd';
 import { useRequest, useSelector } from '@/ui/hooks';
 import { State } from '@/core/stores';
 import { useTranslation } from 'react-i18next';
-import request, { extendRequest } from '@/core/utils/request';
-import { useLocalStorage } from '@/core/utils/localStorage';
 
 const { useToken } = theme;
 
@@ -31,7 +29,6 @@ const Comp: React.FC = () => {
   const { t } = useTranslation();
   const tenant = useSelector<State, State['tenant']>(state => state.tenant);
   const userName = useSelector<State, State['userName']>(state => state.userName);
-  const [getLocalStorage, setLocalStorage, removeLocalStorage] = useLocalStorage('tenant');
 
   const { token } = useToken();
   const contentStyle = {
@@ -73,31 +70,11 @@ const Comp: React.FC = () => {
     },
   );
 
-  const menuItems = [
-    {
-      label: 'tenant1',
-      key: 'tenant11',
-    },
-    {
-      label: 'tenant2',
-      key: 'tenant22',
-    },
-    {
-      label: 'tenant3',
-      key: 'tenant33',
-    },
-    {
-      label: 'tenant4',
-      key: 'tenant44',
-    },
-  ];
-
   const { run: getData } = useRequest(
     name => ({
       url: `/user/currentUser`,
       method: 'post',
       headers: {
-        rname: 'tenant',
         tenant: name,
       },
     }),
@@ -107,18 +84,8 @@ const Comp: React.FC = () => {
   );
 
   const onClick: MenuProps['onClick'] = ({ key }) => {
-    setLocalStorage({ name: key });
     getData(key);
-    // extendRequest.interceptors.request.use((url, options) => {
-    //   return {
-    //     options: {
-    //       ...options,
-    //       interceptors: true,
-    //       headers: { rname: 'tenant', value: key },
-    //     },
-    //   };
-    // });
-    message.success(t('切换成功'));
+    message.success(t('components.Layout.Tenant.Success'));
     window.location.reload();
   };
 

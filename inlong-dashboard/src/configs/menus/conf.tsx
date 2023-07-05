@@ -82,10 +82,12 @@ const conf: MenuItemType[] = [
       },
       {
         path: '/approval',
+        isTenant: true,
         name: i18n.t('configs.menus.ProcessManagement'),
       },
       {
         path: '/tenantRole',
+        isTenant: true,
         name: i18n.t('configs.menus.TenantRole'),
       },
       {
