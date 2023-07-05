@@ -44,7 +44,7 @@ const Comp: React.FC = () => {
   const [data] = useState([]);
 
   const defaultOptions = {
-    keyword: tenant,
+    keyword: '',
     pageSize: 10,
     pageNum: 1,
   };
