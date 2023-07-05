@@ -78,7 +78,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-json</artifactId>
+            <artifactId>sort-format-json-v1.13</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>

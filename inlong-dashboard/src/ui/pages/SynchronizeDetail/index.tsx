@@ -176,7 +176,7 @@ const Comp: React.FC = () => {
         <Steps
           current={current}
           size="small"
-          style={{ marginBottom: 20, width: 600 }}
+          style={{ width: 900, margin: 'auto' }}
           onChange={c => setCurrent(c)}
         >
           {list.map((item, index) => (
@@ -189,7 +189,7 @@ const Comp: React.FC = () => {
         </Steps>
       )}
 
-      <Div>
+      <Div style={{ marginTop: 30 }}>
         {list.map(({ content: Content, ...item }, index) => {
           // Lazy load the content of the step, and at the same time make the loaded useCache content not destroy
           const child =

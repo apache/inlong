@@ -770,7 +770,7 @@
   "pages.ApprovalManagement.CreateProcess": "Create Process",
   "pages.Nodes.TestConnection": "Test Connection",
   "pages.SynchronizeDetail.Info": "Info",
-  "pages.SynchronizeDetail.SourceAndSink": "SourceAndSink",
+  "pages.SynchronizeDetail.SourceAndSink": "DataStream",
   "pages.SynchronizeDashboard.Create": "Create",
   "pages.SynchronizeDashboard.config.Total": "Total",
   "pages.SynchronizeDashboard.config.WaitAssignCount": "WaitAssignCount",

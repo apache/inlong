@@ -86,7 +86,7 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @Range(min = 0, max = 1, message = "default is 1, only supports [0: disable, 1: enable]")
     private Integer enableCreateResource = 1;
 
-    @ApiModelProperty(value = "Standard mode: 0, DataSync mode: 1")
+    @ApiModelProperty(value = "Standard mode(include Data Ingestion and Synchronization): 0, DataSync mode(only Data Synchronization): 1")
     @Range(min = 0, max = 1, message = "default is 0, only supports [0: Standard, 1: DataSync]")
     private Integer inlongGroupMode = 0;
 

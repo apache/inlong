@@ -197,7 +197,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
               type="link"
               onClick={() => setCreateModal({ open: true })}
             >
-              {i18n.t('pages.GroupDetail.Sink.New')}
+              {i18n.t('basic.Create')}
             </Button>
           ),
           <Segmented
