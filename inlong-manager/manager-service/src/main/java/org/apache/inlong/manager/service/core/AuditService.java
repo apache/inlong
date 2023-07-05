@@ -53,16 +53,16 @@ public interface AuditService {
     Boolean refreshBaseItemCache();
 
     /**
-     * Insert a new source and make the source in use.
+     * Insert a new source and connect the source.
      * @param auditQuerySource MYSQL, CLICKHOUSE, ELASTICSEARCH
      * @param hosts
      * @param userName
      * @param password
-     * @param esAuthEnable a param related to Elasticsearch which can be written as any integer when writing the ClickHouse source
+     * @param authEnable
      * @return
      */
     Boolean updateAuditQuerySource(String auditQuerySource, String hosts, String userName, String password,
-            Integer esAuthEnable);
+            Integer authEnable);
 
     /**
      * Insert a new source.
@@ -70,22 +70,22 @@ public interface AuditService {
      * @param hosts
      * @param userName
      * @param password
-     * @param esAuthEnable a param related to Elasticsearch which can be written as any integer when writing the ClickHouse source
+     * @param authEnable
      * @return
      */
     Boolean insertAuditSource(String auditQuerySource, String hosts, String userName, String password,
-            Integer esAuthEnable);
+            Integer authEnable);
 
     /**
-     * Make a source in use according its hosts, only one source can be in use in one time.
+     * Connect a source according its hosts, only one source can be connected in one time.
      * @param hosts
      * @return
      */
     Boolean updateSourceByHosts(String hosts);
 
     /**
-     * Query which source is in use.
+     * Query which source is connected.
      * @return
      */
-    AuditQuerySourceConfigEntity queryInUse();
+    AuditQuerySourceConfigEntity queryCurrentSource();
 }

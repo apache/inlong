@@ -20,12 +20,17 @@ package org.apache.inlong.manager.dao.entity;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
+
 @Data
 public class AuditQuerySourceConfigEntity implements Serializable {
-    private Integer inUse = 0;
+
+    private Integer status = 0;
     private String auditQuerySource;
     private String hosts;
     private String userName;
     private String password;
-    private Integer esAuthEnable = 0;
+    private Integer authEnable = 1;
+    private Date createTime;
+    private Date updateTime;
 }

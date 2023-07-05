@@ -24,12 +24,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AuditQuerySourceConfigEntityMapper {
 
-    AuditQuerySourceConfigEntity findByInUse();
+    AuditQuerySourceConfigEntity findByStatus();
 
-    void cancelInUse();
+    void resetStatus();
 
-    void startInUse(String hosts);
+    void setStatusToOne(String hosts);
 
     void insert(AuditQuerySourceConfigEntity auditQuerySourceConfig);
-
 }

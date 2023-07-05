@@ -51,7 +51,7 @@ public class ClickHouseConfig {
             if (querySourceConfigEntityMapper == null) {
                 log.warn("querySourceConfigEntityMapper is null");
             }
-            AuditQuerySourceConfigEntity querySourceConfigEntity = querySourceConfigEntityMapper.findByInUse();
+            AuditQuerySourceConfigEntity querySourceConfigEntity = querySourceConfigEntityMapper.findByStatus();
             String jdbcUrl = querySourceConfigEntity.getHosts();
             String username = querySourceConfigEntity.getUserName();
             String password = querySourceConfigEntity.getPassword();

@@ -87,12 +87,14 @@ ALTER TABLE `inlong_stream` MODIFY COLUMN `name` varchar(256) DEFAULT NULL COMME
 
 CREATE TABLE IF NOT EXISTS `audit_query_source_config`
 (
-    `in_use`                TINYINT(1) DEFAULT 0 COMMENT 'Whether the current source is in use, 1: in use, other: out of use, only one source can be in use at a time' ,
+    `status`                TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Is the source currently connected？ 1: connected, other: disconnected' ,
     `audit_query_source`    varchar(256)  NOT NULL COMMENT 'MYSQL, ELASTICSEARCH, CLICKHOUSE' ,
     `hosts`                 varchar(256) NOT NULL COMMENT 'If source is ck: jdbcUrl, if source is es: hostname' ,
-    `user_name`             varchar(256) NOT NULL,
-    `password`              varchar(256),
-    `es_auth_enable`        TINYINT(1) DEFAULT 0,
+    `user_name`             varchar(256) NOT NULL COMMENT 'user name' ,
+    `password`              varchar(256) NOT NULL ,
+    `auth_enable`           TINYINT(1) DEFAULT 1,
+    `create_time`           timestamp NOT NULL COMMENT 'create time',
+    `update_time`           timestamp NOT NULL COMMENT 'update time',
     PRIMARY KEY (`hosts`)
     ) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4 COMMENT ='Audit Query Source Config Table';

@@ -21,41 +21,44 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.inlong.manager.dao.mapper.AuditQuerySourceConfigEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity">
-        <result column="in_use" jdbcType="TINYINT" property="inUse"/>
+        <result column="status" jdbcType="TINYINT" property="status"/>
         <result column="audit_query_source" jdbcType="VARCHAR" property="auditQuerySource"/>
         <result column="hosts" jdbcType="VARCHAR" property="hosts"/>
         <result column="user_name" jdbcType="VARCHAR" property="userName"/>
         <result column="password" jdbcType="VARCHAR" property="password"/>
-        <result column="es_auth_enable" jdbcType="TINYINT" property="esAuthEnable"/>
+        <result column="auth_enable" jdbcType="TINYINT" property="authEnable"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        in_use, audit_query_source, hosts, user_name, password, es_auth_enable
+        status, audit_query_source, hosts, user_name, password, auth_enable, create_time, update_time
     </sql>
 
-    <select id="findByInUse" resultType="org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity"
+    <select id="findByStatus" resultType="org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity"
     resultMap="BaseResultMap">
         select
             <include refid="Base_Column_List"></include>
         from audit_query_source_config
-        where in_use = 1 LIMIT 1
+        where status = 1 LIMIT 1
     </select>
 
-    <update id="cancelInUse">
-        update audit_query_source_config set in_use = 0 where in_use = 1;
+    <update id="resetStatus">
+        update audit_query_source_config set status = 0 where status = 1;
     </update>
 
-    <update id="startInUse">
-    update audit_query_source_config set in_use = 1 where hosts = #{hosts};
+    <update id="setStatusToOne">
+    update audit_query_source_config set status = 1 where hosts = #{hosts};
     </update>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="hosts">
-        insert into audit_query_source_config (in_use, audit_query_source, hosts, user_name, password, es_auth_enable)
-        values (#{inUse}, #{auditQuerySource}, #{hosts}, #{userName}, #{password}, #{esAuthEnable})
-        ON DUPLICATE KEY UPDATE in_use = VALUES(in_use),
+        insert into audit_query_source_config (status, audit_query_source, hosts, user_name, password, auth_enable, create_time, update_time)
+        values (#{status}, #{auditQuerySource}, #{hosts}, #{userName}, #{password}, #{authEnable}, #{createTime}, #{updateTime})
+        ON DUPLICATE KEY UPDATE status = VALUES(status),
                                 audit_query_source = VALUES(audit_query_source),
                                 user_name = VALUES(user_name),
                                 password = VALUES(password),
-                                es_auth_enable = VALUES(es_auth_enable)
+                                auth_enable = VALUES(auth_enable),
+                                update_time = VALUES(update_time)
     </insert>
 </mapper>
