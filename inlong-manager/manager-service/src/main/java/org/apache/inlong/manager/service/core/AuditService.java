@@ -61,7 +61,8 @@ public interface AuditService {
      * @param authEnable
      * @return
      */
-    Boolean updateAuditQuerySource(String oldHosts, String auditQuerySource, String hosts, String userName, String password,
+    Boolean updateAuditQuerySource(String oldHosts, String auditQuerySource, String hosts, String userName,
+            String password,
             Integer authEnable);
 
     /**

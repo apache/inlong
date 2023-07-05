@@ -64,7 +64,8 @@ public class AuditController {
 
     @ApiOperation(value = "insert a source and connect to the source")
     @PostMapping(value = "/audit/updateSource")
-    public Response<Boolean> updateAuditQuerySource(@RequestParam(value = "oldHosts", required = false) String oldHosts, @RequestParam("auditQuerySource") String auditQuerySource,
+    public Response<Boolean> updateAuditQuerySource(@RequestParam(value = "oldHosts", required = false) String oldHosts,
+            @RequestParam("auditQuerySource") String auditQuerySource,
             @RequestParam("hosts") String hosts, @RequestParam("userName") String userName,
             @RequestParam("password") String password, @RequestParam("authEnable") Integer authEnable) {
         return Response.success(

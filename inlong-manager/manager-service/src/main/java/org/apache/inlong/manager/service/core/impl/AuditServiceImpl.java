@@ -179,13 +179,15 @@ public class AuditServiceImpl implements AuditService {
         return auditQuerySourceConfig;
     }
     @Override
-    public Boolean updateAuditQuerySource(String oldHosts, String auditQuerySource, String hosts, String userName, String password,
+    public Boolean updateAuditQuerySource(String oldHosts, String auditQuerySource, String hosts, String userName,
+            String password,
             Integer authEnable) {
         try {
-            if (oldHosts != null){
+            if (oldHosts != null) {
                 querySourceConfigEntityMapper.offlineAuditQuerySourceByHosts(oldHosts);
             }
-            AuditQuerySourceConfigEntity entity = createAuditQuerySource(auditQuerySource, hosts, userName, password, authEnable);
+            AuditQuerySourceConfigEntity entity =
+                    createAuditQuerySource(auditQuerySource, hosts, userName, password, authEnable);
             querySourceConfigEntityMapper.insert(entity);
             config.updateCkSource();
         } catch (Exception e) {
