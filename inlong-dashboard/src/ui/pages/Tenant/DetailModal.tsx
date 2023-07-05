@@ -97,7 +97,7 @@ const Comp: React.FC<Props> = ({ name, ...modalProps }) => {
       onOk={onOk}
     >
       <FormGenerator
-        labelCol={{ span: 4 }}
+        labelCol={{ span: 5 }}
         wrapperCol={{ span: 20 }}
         content={formContent}
         initialValues={name ? data : ''}
