@@ -144,7 +144,7 @@ public class PluginClassLoader extends URLClassLoader {
 
         List<PluginDefinition> definitions = new ArrayList<>();
         for (File jarFile : files) {
-            if (!jarFile.getName().endsWith(".jar")) {
+            if (!jarFile.getName().endsWith(".jar") || jarFile.getName().contains("flink")) {
                 log.warn("invalid plugin jar {}, skip to load", jarFile);
                 continue;
             }

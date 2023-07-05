@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.plugin.util;
 
+import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
+import org.apache.inlong.manager.plugin.flink.enums.Constants;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.configuration.Configuration;
 
@@ -29,13 +32,16 @@ import java.net.URLClassLoader;
 @Slf4j
 public class FlinkServiceUtils {
 
-    private static final String FLINK_CLIENT_SERVICE_PATH = "file://xxx.jar";
-    private static final String CLASS_PATH = "org.apache.inlong.manager.plugin.flink.FlinkClientService";
+    public static Object getFlinkClientService(Configuration configuration, FlinkConfig flinkConfig) {
+        log.info("Start to load Flink {}", flinkConfig.getVersion());
 
-    public static Object getFlinkClientService(Configuration configuration) {
-        Class<?> flinkClientService;
-        try (URLClassLoader classLoader = new URLClassLoader(new URL[]{new URL(FLINK_CLIENT_SERVICE_PATH)})) {
-            flinkClientService = classLoader.loadClass(CLASS_PATH);
+        String flinkJarName = String.format(Constants.FLINK_JAR_NAME, flinkConfig.getVersion());
+        String path = Thread.currentThread().getContextClassLoader().getResource("").getPath() + "plugins/";
+        log.info("Plugin path: {}", path);
+
+        String flinkClientPath = path + flinkJarName;
+        try (URLClassLoader classLoader = new URLClassLoader(new URL[]{new URL(flinkClientPath)})) {
+            Class<?> flinkClientService = classLoader.loadClass(Constants.FLINK_CLIENT_CLASS);
             Constructor<?> con = flinkClientService.getDeclaredConstructor(Configuration.class);
             return con.newInstance(configuration);
         } catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException

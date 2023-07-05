@@ -33,5 +33,41 @@
                 <include>${project.artifactId}-${project.version}.jar</include>
             </includes>
         </fileSet>
+
+        <!-- Plugins Flink v1.13 -->
+        <fileSet>
+            <directory>../manager-plugins-flink-v1.13/target</directory>
+            <outputDirectory>./</outputDirectory>
+            <includes>
+                <include>manager-plugins-flink-v1.13.jar</include>
+            </includes>
+        </fileSet>
+
+        <!-- Plugins Flink v1.15 -->
+        <fileSet>
+            <directory>../manager-plugins-flink-v1.15/target</directory>
+            <outputDirectory>./</outputDirectory>
+            <includes>
+                <include>manager-plugins-flink-v1.15.jar</include>
+            </includes>
+        </fileSet>
+
+        <!-- Flink v1.13 dependencies -->
+        <fileSet>
+            <directory>../manager-plugins-flink-v1.13/target</directory>
+            <outputDirectory>./flink-v1.13</outputDirectory>
+            <includes>
+                <include>*flink*.jar</include>
+            </includes>
+        </fileSet>
+
+        <!-- Flink v1.15 dependencies -->
+        <fileSet>
+            <directory>../manager-plugins-flink-v1.15/target</directory>
+            <outputDirectory>./flink-v1.15</outputDirectory>
+            <includes>
+                <include>*flink*.jar</include>
+            </includes>
+        </fileSet>
     </fileSets>
 </assembly>

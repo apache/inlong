@@ -38,32 +38,4 @@
         <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
     </properties>
 
-    <profiles>
-        <profile>
-            <id>flink-all-version</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>base</module>
-                <module>manager-plugins-flink-v1.13</module>
-                <module>manager-plugins-flink-v1.15</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>v1.13</id>
-            <modules>
-                <module>base</module>
-                <module>manager-plugins-flink-v1.13</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>v1.15</id>
-            <modules>
-                <module>base</module>
-                <module>manager-plugins-flink-v1.15</module>
-            </modules>
-        </profile>
-    </profiles>
-
 </project>

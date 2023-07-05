@@ -41,6 +41,8 @@ public class Constants {
 
     public static final String DRAIN = "flink.drain";
 
+    public static final String VERSION = "flink.version";
+
     // dataflow
     public static final String SOURCE_INFO = "source_info";
 
@@ -57,6 +59,11 @@ public class Constants {
     public static final String DEFAULT_SORT_JOB_NAME = SORT_JOB_NAME_PREFIX + "Job";
 
     public static final String RESOURCE_ID = "resource_id";
+
+    // flink
+    public static final String FLINK_CLIENT_CLASS = "org.apache.inlong.manager.plugin.flink.FlinkClientService";
+
+    public static final String FLINK_JAR_NAME = "manager-plugins-flink-v%s.jar";
 
     // REST API URL
     public static final String JOB_URL = "/jobs";

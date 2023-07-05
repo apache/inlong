@@ -96,7 +96,7 @@ public class FlinkService {
         configuration.setString(JobManagerOptions.ADDRESS, address);
         configuration.setInteger(RestOptions.PORT, port);
 
-        clientService = (FlinkClientService) FlinkServiceUtils.getFlinkClientService(configuration);
+        clientService = (FlinkClientService) FlinkServiceUtils.getFlinkClientService(configuration, flinkConfig);
     }
 
     /**

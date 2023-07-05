@@ -75,8 +75,16 @@
 
         <!-- Package the manager plugins -->
         <fileSet>
-            <directory>../manager-plugins/target/plugins</directory>
+            <directory>../manager-plugins/base/target/plugins</directory>
             <outputDirectory>plugins</outputDirectory>
+        </fileSet>
+
+        <fileSet>
+            <directory>../manager-plugins/manager-plugins-flink-v1.13/target</directory>
+            <outputDirectory>lib</outputDirectory>
+            <includes>
+                <include>*flink*.jar</include>
+            </includes>
         </fileSet>
 
         <!-- Package the client jars into the lib directory -->
