@@ -22,6 +22,7 @@ import { Divider, Dropdown, Input, MenuProps, message, Space, theme } from 'antd
 import { useRequest, useSelector } from '@/ui/hooks';
 import { State } from '@/core/stores';
 import { useTranslation } from 'react-i18next';
+import { useLocalStorage } from '@/core/utils/localStorage';
 
 const { useToken } = theme;
 
@@ -29,6 +30,7 @@ const Comp: React.FC = () => {
   const { t } = useTranslation();
   const tenant = useSelector<State, State['tenant']>(state => state.tenant);
   const userName = useSelector<State, State['userName']>(state => state.userName);
+  const [getLocalStorage, setLocalStorage, removeLocalStorage] = useLocalStorage('tenant');
 
   const { token } = useToken();
   const contentStyle = {
@@ -85,6 +87,7 @@ const Comp: React.FC = () => {
 
   const onClick: MenuProps['onClick'] = ({ key }) => {
     getData(key);
+    setLocalStorage({ name: key });
     message.success(t('components.Layout.Tenant.Success'));
     window.location.reload();
   };

@@ -57,7 +57,7 @@ const BasicLayout: React.FC = props => {
       const _menus = menusTree.filter(item => {
         if (item.isAdmin) {
           item.children = item.children?.filter(
-            i => (!i.isTenant && roles.includes('TENANT_ADMIN')) || !i.isTenant,
+            i => (i.isTenant && roles.includes('TENANT_ADMIN')) || i.isTenant,
           );
         }
         return item;

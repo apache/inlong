@@ -40,16 +40,18 @@ const Provider = ({ children }) => {
     {
       url: '/user/currentUser',
       method: 'POST',
+      headers: {
+        tenant: getLocalStorage('tenant')?.['name'],
+      },
     },
     {
       onSuccess: result => {
-        setLocalStorage({ name: result.tenant });
         extendRequest.interceptors.request.use((url, options) => {
           return {
             options: {
               ...options,
               interceptors: true,
-              headers: { tenant: result.tenant },
+              headers: { tenant: result.tenant === null ? '' : result.tenant },
             },
           };
         });
