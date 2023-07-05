@@ -81,15 +81,3 @@ UPDATE inlong_group SET ext_params = replace(ext_params, '"tenant"', '"pulsarTen
 UPDATE inlong_cluster SET ext_params = replace(ext_params, '"tenant"', '"pulsarTenant"');
 
 ALTER TABLE `inlong_stream` MODIFY COLUMN `name` varchar(256) DEFAULT NULL COMMENT 'The name of the inlong stream page display, can be Chinese';
-
-CREATE TABLE IF NOT EXISTS `audit_query_source_config`
-(
-    `in_use`                TINYINT(1) DEFAULT 0 COMMENT 'Whether the current source is in use, 1: in use, other: out of use, only one source can be in use at a time' ,
-    `audit_query_source`    varchar(256)  NOT NULL COMMENT 'MYSQL, ELASTICSEARCH, CLICKHOUSE' ,
-    `hosts`                 varchar(256) NOT NULL COMMENT 'If source is ck: jdbcUrl, if source is es: hostname' ,
-    `user_name`             varchar(256) NOT NULL,
-    `password`              varchar(256),
-    `es_auth_enable`        TINYINT(1) DEFAULT 0,
-    PRIMARY KEY (`hosts`)
-    ) ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4 COMMENT ='Audit Query Source Config Table';
