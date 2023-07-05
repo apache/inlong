@@ -17,35 +17,43 @@
 
 package org.apache.inlong.manager.plugin.util;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.configuration.Configuration;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
 import org.apache.inlong.manager.plugin.flink.enums.Constants;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.configuration.Configuration;
-
+import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Slf4j
 public class FlinkServiceUtils {
 
+    private static final String DEFAULT_PLUGINS = "plugins";
+
+    private static final String FILE_PREFIX = "file://";
+
     public static Object getFlinkClientService(Configuration configuration, FlinkConfig flinkConfig) {
-        log.info("Start to load Flink {}", flinkConfig.getVersion());
+        log.info("Flink version {}", flinkConfig.getVersion());
 
+        Path pluginPath = Paths.get(DEFAULT_PLUGINS).toAbsolutePath();
         String flinkJarName = String.format(Constants.FLINK_JAR_NAME, flinkConfig.getVersion());
-        String path = Thread.currentThread().getContextClassLoader().getResource("").getPath() + "plugins/";
-        log.info("Plugin path: {}", path);
+        String flinkClientPath = FILE_PREFIX + pluginPath + File.separator + flinkJarName;
+        log.info("Start to load Flink jar: {}", flinkClientPath);
 
-        String flinkClientPath = path + flinkJarName;
-        try (URLClassLoader classLoader = new URLClassLoader(new URL[]{new URL(flinkClientPath)})) {
+        try (URLClassLoader classLoader = new URLClassLoader(new URL[]{new URL(flinkClientPath)}, Thread.currentThread()
+                .getContextClassLoader())) {
             Class<?> flinkClientService = classLoader.loadClass(Constants.FLINK_CLIENT_CLASS);
-            Constructor<?> con = flinkClientService.getDeclaredConstructor(Configuration.class);
-            return con.newInstance(configuration);
+            Object flinkService = flinkClientService.getDeclaredConstructor(Configuration.class)
+                    .newInstance(configuration);
+            log.info("Successfully loaded Flink service");
+            return flinkService;
         } catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException
-                | InstantiationException | IllegalAccessException e) {
+                 | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }

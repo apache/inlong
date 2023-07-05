@@ -57,7 +57,8 @@
             <directory>../manager-plugins-flink-v1.13/target</directory>
             <outputDirectory>./flink-v1.13</outputDirectory>
             <includes>
-                <include>*flink*.jar</include>
+                <include>flink-*.jar</include>
+                <include>sort-flink-*.jar</include>
             </includes>
         </fileSet>
 
@@ -66,7 +67,8 @@
             <directory>../manager-plugins-flink-v1.15/target</directory>
             <outputDirectory>./flink-v1.15</outputDirectory>
             <includes>
-                <include>*flink*.jar</include>
+                <include>flink-*.jar</include>
+                <include>sort-flink-*.jar</include>
             </includes>
         </fileSet>
     </fileSets>
