@@ -18,7 +18,6 @@
 package org.apache.inlong.sort.cdc.mongodb.debezium.utils;
 
 import com.google.common.collect.ImmutableMap;
-import com.mongodb.client.model.changestream.OperationType;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.relational.TableId;
 import org.apache.flink.table.types.logical.ArrayType;
