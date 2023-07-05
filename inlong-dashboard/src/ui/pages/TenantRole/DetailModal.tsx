@@ -43,12 +43,56 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
         name: 'tenant',
         rules: [{ required: true }],
       },
-      // {
-      //   type: 'input',
-      //   label: i18n.t('pages.Tenant.config.Description'),
-      //   name: 'roleCode',
-      //   rules: [{ required: true }],
-      // },
+      {
+        type: 'select',
+        label: i18n.t('pages.TenantRole.config.UserName'),
+        name: 'username',
+        rules: [{ required: true }],
+        props: values => ({
+          disabled: values?.status === 101,
+          showSearch: true,
+          allowClear: true,
+          filterOption: false,
+          options: {
+            requestTrigger: ['onOpen', 'onSearch'],
+            requestService: keyword => ({
+              url: '/user/listAll',
+              method: 'POST',
+              data: {
+                keyword,
+                pageNum: 1,
+                pageSize: 10,
+              },
+            }),
+            requestParams: {
+              formatResult: result =>
+                result?.list?.map(item => ({
+                  ...item,
+                  label: item.name,
+                  value: item.name,
+                })),
+            },
+          },
+        }),
+      },
+      {
+        type: 'select',
+        label: i18n.t('pages.TenantRole.config.TenantRole'),
+        name: 'roleCode',
+        rules: [{ required: true }],
+        props: {
+          options: [
+            {
+              label: 'TENANT_ADMIN',
+              value: 'TENANT_ADMIN',
+            },
+            {
+              label: 'TENANT_OPERATOR',
+              value: 'TENANT_OPERATOR',
+            },
+          ],
+        },
+      },
     ];
   }, []);
 
@@ -67,8 +111,6 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   const onOk = async () => {
     const values = await form.validateFields();
     const submitData = {
-      username: userName,
-      roleCode: 'TENANT_ADMIN',
       ...values,
     };
     const isUpdate = Boolean(id);

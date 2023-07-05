@@ -35,6 +35,8 @@ const resources = {
       'configs.menus.ProcessManagement': 'Process Management',
       'configs.menus.Nodes': 'DataNodes',
       'configs.menus.DataSynchronize': 'Synchronization',
+      'configs.menus.TenantRole': 'TenantRole',
+      'configs.menus.TenantManagement': 'Tenant Management',
     },
   },
   cn: {
@@ -49,6 +51,8 @@ const resources = {
       'configs.menus.ProcessManagement': '流程管理',
       'configs.menus.Nodes': '数据节点',
       'configs.menus.DataSynchronize': '数据同步',
+      'configs.menus.TenantRole': '租户角色',
+      'configs.menus.TenantManagement': '租户管理',
     },
   },
 };

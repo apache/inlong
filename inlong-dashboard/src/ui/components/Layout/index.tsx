@@ -58,6 +58,8 @@ const BasicLayout: React.FC = props => {
     const _menus = menusTree.filter(
       item => (item.isAdmin && roles?.includes('INLONG_ADMIN')) || !item.isAdmin,
     );
+    // console.log(_menus, '_________________');
+    // console.log(getMenuData(_menus), '_________________11111111');
     return getMenuData(_menus);
   }, [roles]);
 

@@ -86,11 +86,11 @@ const conf: MenuItemType[] = [
       },
       {
         path: '/tenantRole',
-        name: '租户角色',
+        name: i18n.t('configs.menus.TenantRole'),
       },
       {
         path: '/tenant',
-        name: '租户管理',
+        name: i18n.t('configs.menus.TenantManagement'),
       },
     ],
   },

@@ -23,7 +23,6 @@ import { useRequest, useSelector } from '@/ui/hooks';
 import { State } from '@/core/stores';
 import { useTranslation } from 'react-i18next';
 import request, { extendRequest } from '@/core/utils/request';
-import KeyModal from '../NavWidget/KeyModal';
 import { useLocalStorage } from '@/core/utils/localStorage';
 
 const { useToken } = theme;
@@ -32,18 +31,20 @@ const Comp: React.FC = () => {
   const { t } = useTranslation();
   const tenant = useSelector<State, State['tenant']>(state => state.tenant);
   const userName = useSelector<State, State['userName']>(state => state.userName);
-  const roles = useSelector<State, State['roles']>(state => state.roles);
+  const [getLocalStorage, setLocalStorage, removeLocalStorage] = useLocalStorage('tenant');
 
-  const [createModal, setCreateModal] = useState<Record<string, unknown>>({
-    open: false,
-  });
-
-  const [keyModal, setKeyModal] = useState<Record<string, unknown>>({
-    open: false,
-  });
+  const { token } = useToken();
+  const contentStyle = {
+    backgroundColor: token.colorBgElevated,
+    borderRadius: token.borderRadiusLG,
+    boxShadow: token.boxShadowSecondary,
+  };
+  const [filter, setFilter] = useState(true);
+  const [filterData, setFilterData] = useState([]);
+  const [data] = useState([]);
 
   const defaultOptions = {
-    keyword: '',
+    keyword: tenant,
     pageSize: 10,
     pageNum: 1,
   };
@@ -52,76 +53,44 @@ const Comp: React.FC = () => {
 
   const { data: savedData, run: getStreamData } = useRequest(
     {
-      url: '/role/tenant/list',
+      url: '/tenant/list',
       method: 'POST',
       data: {
         ...options,
         username: userName,
       },
     },
-    { refreshDeps: [options] },
+    {
+      refreshDeps: [options],
+      onSuccess: result => {
+        result.list.map(item => {
+          return data.push({
+            label: item.name,
+            key: item.name,
+          });
+        });
+      },
+    },
   );
 
-  const onOk = async () => {
-    await request({
-      url: '/role/tenant/save',
-      method: 'POST',
-      data: {
-        roleCode: 'TENANT_ADMIN',
-        tenant: 'tenant2',
-        username: 'admin',
-      },
-    });
-  };
-
-  const [getLocalStorage, setLocalStorage, removeLocalStorage] = useLocalStorage('tenant');
-
-  const runLogout = async () => {
-    await request('/anno/logout');
-    window.location.href = '/';
-  };
-  const tenantData = { list: [] };
-
-  // for (let i = 0; i < 5; i++) {
-  //   const t = {
-  //     label: 'tenant_test_' + i,
-  //     value: 'tenant_test_' + i,
-  //     onClick: testClick(),
-  //   };
-  //   tenantData.list.push(t);
-  // }
-  // console.log(savedData, 'savedData');
-  // console.log(roles, 'roles');
   const menuItems = [
     {
       label: 'tenant1',
-      key: 'tenant1',
+      key: 'tenant11',
     },
     {
       label: 'tenant2',
-      key: 'tenant2',
+      key: 'tenant22',
     },
     {
       label: 'tenant3',
-      key: 'tenant3',
+      key: 'tenant33',
     },
     {
       label: 'tenant4',
-      key: 'tenant4',
+      key: 'tenant44',
     },
   ];
-
-  const { token } = useToken();
-
-  const contentStyle = {
-    backgroundColor: token.colorBgElevated,
-    borderRadius: token.borderRadiusLG,
-    boxShadow: token.boxShadowSecondary,
-  };
-
-  const menuStyle = {
-    boxShadow: 'none',
-  };
 
   const onClick: MenuProps['onClick'] = ({ key }) => {
     setLocalStorage({ name: key });
@@ -135,48 +104,30 @@ const Comp: React.FC = () => {
       };
     });
     message.success(t('切换成功'));
-    window.location.reload();
   };
 
   const onFilter = allValues => {
-    console.log(allValues, 'allValues');
+    setFilterData(data.filter(item => item.key === allValues));
+    setFilter(false);
   };
 
   return (
     <>
       <Dropdown
-        menu={{ items: menuItems, onClick }}
-        // menu={{ items: tenantData.list }}
+        menu={{ items: filter ? data : filterData, onClick }}
         placement="bottomLeft"
         dropdownRender={menu => (
           <div style={contentStyle}>
-            {React.cloneElement(menu as React.ReactElement, { style: menuStyle })}
+            {React.cloneElement(menu as React.ReactElement, { style: { boxShadow: 'none' } })}
             <Divider style={{ margin: 0 }} />
             <Space style={{ padding: 8 }}>
-              <Input.Search
-                // placeholder={t('请输入租户名称')}
-                allowClear
-                onSearch={onFilter}
-                style={{ width: 130 }}
-              />
-              {/* <Button type="primary" onClick={onOk}>
-                Click me!
-              </Button> */}
+              <Input.Search allowClear onSearch={onFilter} style={{ width: 130 }} />
             </Space>
           </div>
         )}
       >
         <span style={{ fontSize: 14 }}>{tenant}</span>
       </Dropdown>
-      {/* <Select style={{ width: 100 }} /> */}
-      <KeyModal
-        {...keyModal}
-        open={keyModal.open as boolean}
-        onCancel={() => setKeyModal({ open: false })}
-        onOk={async () => {
-          setKeyModal({ open: false });
-        }}
-      />
     </>
   );
 };
