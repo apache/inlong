@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.controller;
 
+import org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.common.Response;
@@ -29,6 +30,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -57,6 +59,36 @@ public class AuditController {
     @PostMapping("/audit/refreshCache")
     public Response<Boolean> refreshCache() {
         return Response.success(auditService.refreshBaseItemCache());
+    }
+
+    @ApiOperation(value = "insert a source and make it in use")
+    @PostMapping(value = "/audit/updateSource")
+    public Response<Boolean> updateAuditQuerySource(@RequestParam("auditQuerySource") String auditQuerySource,
+            @RequestParam("hosts") String hosts, @RequestParam("userName") String userName,
+            @RequestParam("password") String password, @RequestParam("esAuthEnable") Integer esAuthEnable) {
+        return Response.success(
+                auditService.updateAuditQuerySource(auditQuerySource, hosts, userName, password, esAuthEnable));
+    }
+
+    @ApiOperation(value = "insert audit query source")
+    @PostMapping(value = "/audit/insertSource")
+    public Response<Boolean> insertAuditQuerySource(@RequestParam("auditQuerySource") String auditQuerySource,
+            @RequestParam("hosts") String hosts, @RequestParam("userName") String userName,
+            @RequestParam("password") String password, @RequestParam("esAuthEnable") Integer esAuthEnable) {
+        return Response
+                .success(auditService.insertAuditSource(auditQuerySource, hosts, userName, password, esAuthEnable));
+    }
+
+    @ApiOperation(value = "make a source in use which is existed in db")
+    @PostMapping("/audit/updateByHosts")
+    public Response<Boolean> updateSourceByHosts(@RequestParam("hosts") String hosts) {
+        return Response.success(auditService.updateSourceByHosts(hosts));
+    }
+
+    @ApiOperation(value = "query which source is in use")
+    @GetMapping("/audit/source")
+    public Response<AuditQuerySourceConfigEntity> queryInUse() {
+        return Response.success(auditService.queryInUse());
     }
 
 }
