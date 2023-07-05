@@ -32,6 +32,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
+import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.group.InlongGroupProcessService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
@@ -40,6 +41,8 @@ import org.apache.inlong.manager.service.operationlog.OperationLog;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -70,6 +73,7 @@ public class InlongGroupController {
     @RequestMapping(value = "/group/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save inlong group")
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<String> save(@Validated(SaveValidation.class) @RequestBody InlongGroupRequest groupRequest) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupService.save(groupRequest, operator));
@@ -128,6 +132,7 @@ public class InlongGroupController {
     @RequestMapping(value = "/group/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update inlong group")
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<String> update(@Validated(UpdateValidation.class) @RequestBody InlongGroupRequest groupRequest) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupService.update(groupRequest, operator));
@@ -137,6 +142,7 @@ public class InlongGroupController {
     @ApiOperation(value = "Delete inlong group info")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<Boolean> delete(@PathVariable String groupId) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupProcessOperation.deleteProcess(groupId, operator));
@@ -146,6 +152,7 @@ public class InlongGroupController {
     @ApiOperation(value = "Delete inlong group info")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<String> deleteAsync(@PathVariable String groupId) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupProcessOperation.deleteProcessAsync(groupId, operator));
@@ -154,6 +161,7 @@ public class InlongGroupController {
     @RequestMapping(value = "/group/startProcess/{groupId}", method = RequestMethod.POST)
     @ApiOperation(value = "Start inlong approval process")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<WorkflowResult> startProcess(@PathVariable String groupId) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupProcessOperation.startProcess(groupId, operator));
@@ -162,6 +170,7 @@ public class InlongGroupController {
     @RequestMapping(value = "/group/suspendProcess/{groupId}", method = RequestMethod.POST)
     @ApiOperation(value = "Suspend inlong group process")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<WorkflowResult> suspendProcess(@PathVariable String groupId) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupProcessOperation.suspendProcess(groupId, operator));
@@ -170,6 +179,7 @@ public class InlongGroupController {
     @RequestMapping(value = "/group/restartProcess/{groupId}", method = RequestMethod.POST)
     @ApiOperation(value = "Restart inlong group process")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<WorkflowResult> restartProcess(@PathVariable String groupId) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupProcessOperation.restartProcess(groupId, operator));
@@ -178,6 +188,7 @@ public class InlongGroupController {
     @RequestMapping(value = "/group/suspendProcessAsync/{groupId}", method = RequestMethod.POST)
     @ApiOperation(value = "Suspend inlong group process")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<String> suspendProcessAsync(@PathVariable String groupId) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupProcessOperation.suspendProcessAsync(groupId, operator));
@@ -186,6 +197,7 @@ public class InlongGroupController {
     @RequestMapping(value = "/group/restartProcessAsync/{groupId}", method = RequestMethod.POST)
     @ApiOperation(value = "Restart inlong group process")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<String> restartProcessAsync(@PathVariable String groupId) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupProcessOperation.restartProcessAsync(groupId, operator));
@@ -193,6 +205,7 @@ public class InlongGroupController {
 
     @PostMapping(value = "/group/reset")
     @ApiOperation(value = "Reset group status when group is in CONFIG_ING|SUSPENDING|RESTARTING|DELETING")
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<Boolean> reset(@RequestBody @Validated InlongGroupResetRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupProcessOperation.resetGroupStatus(request, operator));

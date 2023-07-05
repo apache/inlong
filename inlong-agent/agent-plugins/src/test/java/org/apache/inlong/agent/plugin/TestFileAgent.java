@@ -131,7 +131,9 @@ public class TestFileAgent {
                 profile.set(JOB_READ_WAIT_TIMEOUT, String.valueOf(readWaitTimeMilliseconds));
                 profile.set(PROXY_INLONG_GROUP_ID, "groupid");
                 profile.set(PROXY_INLONG_STREAM_ID, "streamid");
-                agent.submitJob(profile);
+                synchronized (this) {
+                    agent.submitJob(profile);
+                }
             }
         }
     }
@@ -146,13 +148,15 @@ public class TestFileAgent {
         triggerProfile.set(JOB_DIR_FILTER_PATTERNS, Paths.get(testRootDir.toString(),
                 "test.dat").toString());
         triggerProfile.set(JOB_FILE_MAX_WAIT, "-1");
-        agent.submitTrigger(triggerProfile);
-        TestUtils.createHugeFiles("test.dat", testRootDir.toString(), RECORD);
-        TestUtils.createHugeFiles("te1.dat", testRootDir.toString(), RECORD);
-        await().atMost(10, TimeUnit.SECONDS).until(() -> {
-            Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
-            return jobs.size() == 1;
-        });
+        synchronized (this) {
+            agent.submitTrigger(triggerProfile);
+            TestUtils.createHugeFiles("test.dat", testRootDir.toString(), RECORD);
+            TestUtils.createHugeFiles("te1.dat", testRootDir.toString(), RECORD);
+            await().atMost(10, TimeUnit.SECONDS).until(() -> {
+                Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
+                return jobs.size() == 1;
+            });
+        }
     }
 
     @Test
@@ -165,11 +169,13 @@ public class TestFileAgent {
         triggerProfile.set(JOB_FILE_MAX_WAIT, "-1");
         triggerProfile.set(JOB_FILE_TRIGGER_TYPE, FileTriggerType.FULL);
         triggerProfile.set(JOB_ID, "10");
-        agent.submitTrigger(triggerProfile);
-        await().atMost(10, TimeUnit.SECONDS).until(() -> {
-            Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
-            return jobs.size() == 1;
-        });
+        synchronized (this) {
+            agent.submitTrigger(triggerProfile);
+            await().atMost(10, TimeUnit.SECONDS).until(() -> {
+                Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
+                return jobs.size() == 1;
+            });
+        }
     }
 
     @Test
@@ -182,7 +188,9 @@ public class TestFileAgent {
                 profile.set(JOB_DIR_FILTER_PATTERNS, Paths.get(testRootDir.toString(),
                         "YYYYMMDD").toString());
                 profile.set(JOB_CYCLE_UNIT, "D");
-                agent.submitTrigger(TriggerProfile.parseJobProfile(profile));
+                synchronized (this) {
+                    agent.submitTrigger(TriggerProfile.parseJobProfile(profile));
+                }
             }
         }
         createFiles(nowDate);
@@ -201,7 +209,9 @@ public class TestFileAgent {
                 profile.set(JOB_CYCLE_UNIT, "D");
                 profile.set(AGENT_MESSAGE_FILTER_CLASSNAME,
                         "org.apache.inlong.agent.plugin.filter.DefaultMessageFilter");
-                agent.submitTrigger(TriggerProfile.parseJobProfile(profile));
+                synchronized (this) {
+                    agent.submitTrigger(TriggerProfile.parseJobProfile(profile));
+                }
             }
         }
         createFiles(nowDate);
@@ -219,7 +229,9 @@ public class TestFileAgent {
                         "YYYYMMDD").toString());
                 profile.set(JOB_FILE_TIME_OFFSET, "-1d");
                 profile.set(JOB_CYCLE_UNIT, "D");
-                agent.submitTrigger(TriggerProfile.parseJobProfile(profile));
+                synchronized (this) {
+                    agent.submitTrigger(TriggerProfile.parseJobProfile(profile));
+                }
             }
         }
         createFiles(theDateBefore);
@@ -227,10 +239,11 @@ public class TestFileAgent {
     }
 
     private void assertJobSuccess() {
-        JobProfile jobConf = agent.getManager().getJobManager().getJobConfDb().getJob(StateSearchKey.SUCCESS);
-        if (jobConf != null) {
-            Assert.assertEquals(1, jobConf.getInt("job.id"));
+        synchronized (this) {
+            JobProfile jobConf = agent.getManager().getJobManager().getJobConfDb().getJob(StateSearchKey.SUCCESS);
+            if (jobConf != null) {
+                Assert.assertEquals(1, jobConf.getInt("job.id"));
+            }
         }
     }
-
 }

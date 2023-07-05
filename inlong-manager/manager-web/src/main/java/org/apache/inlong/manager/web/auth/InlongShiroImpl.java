@@ -89,7 +89,7 @@ public class InlongShiroImpl implements InlongShiro {
     public Collection<Realm> getShiroRealms() {
         AuthorizingRealm webRealm = new WebAuthorizingRealm(userService);
         webRealm.setCredentialsMatcher(getCredentialsMatcher());
-        Realm apiRealm = new OpenAPIAuthenticatingRealm(userService);
+        Realm apiRealm = new OpenAPIAuthenticatingRealm(userService, openAPIAuthEnabled);
         Realm tenantRealm = new TenantAuthenticatingRealm(tenantRoleService, inlongRoleService,
                 userService, tenantService);
         return Arrays.asList(webRealm, apiRealm, tenantRealm);
@@ -132,12 +132,8 @@ public class InlongShiroImpl implements InlongShiro {
         pathDefinitions.put("/swagger-resources", "anon");
 
         // openapi
-        if (openAPIAuthEnabled) {
-            filters.put(FILTER_NAME_API, new OpenAPIFilter());
-            pathDefinitions.put("/openapi/**/*", genFiltersInOrder(FILTER_NAME_API, FILTER_NAME_TENANT));
-        } else {
-            pathDefinitions.put("/openapi/**/*", "anon");
-        }
+        filters.put(FILTER_NAME_API, new OpenAPIFilter(openAPIAuthEnabled));
+        pathDefinitions.put("/openapi/**/*", genFiltersInOrder(FILTER_NAME_API, FILTER_NAME_TENANT));
 
         // other web
         pathDefinitions.put("/**", genFiltersInOrder(FILTER_NAME_WEB, FILTER_NAME_TENANT));

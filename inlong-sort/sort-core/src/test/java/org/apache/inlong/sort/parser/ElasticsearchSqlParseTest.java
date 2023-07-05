@@ -103,7 +103,6 @@ public abstract class ElasticsearchSqlParseTest extends AbstractTestBase {
     public void testMysqlToElasticsearch(Node node) throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

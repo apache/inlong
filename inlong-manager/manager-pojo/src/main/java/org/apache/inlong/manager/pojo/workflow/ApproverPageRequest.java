@@ -47,6 +47,9 @@ public class ApproverPageRequest extends PageRequest {
     @ApiModelProperty("Workflow task name")
     private String taskName;
 
+    @ApiModelProperty("Inlong tenant name")
+    private String tenant;
+
     @ApiModelProperty("Specified workflow approver")
     private String approver;
 

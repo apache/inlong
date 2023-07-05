@@ -137,7 +137,6 @@ public class RedisNodeSqlParserTest extends AbstractTestBase {
     public void testRedis() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

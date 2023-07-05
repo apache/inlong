@@ -68,7 +68,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-test-utils_${flink.scala.binary.version}</artifactId>
+            <artifactId>${flink.test.utils.artifactId}</artifactId>
             <version>${flink.version}</version>
             <scope>test</scope>
             <exclusions>
@@ -95,7 +95,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-runtime_${scala.binary.version}</artifactId>
+            <artifactId>${flink.runtime.artifactId}</artifactId>
             <version>${flink.version}</version>
             <scope>test</scope>
         </dependency>

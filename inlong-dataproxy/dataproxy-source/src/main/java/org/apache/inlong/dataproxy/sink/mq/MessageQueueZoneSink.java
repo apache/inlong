@@ -281,6 +281,10 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
         return this.dispatchQueue.pollRecord();
     }
 
+    public PackProfile takeDispatchedRecord() {
+        return this.dispatchQueue.takeRecord();
+    }
+
     public void releaseAcquiredSizePermit(PackProfile record) {
         this.dispatchQueue.release(record.getSize());
     }

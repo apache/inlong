@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.inlong.manager.common.tenant.MultiTenantQuery;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.pojo.common.CountInfo;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
@@ -31,6 +32,7 @@ import java.util.List;
  * Workflow process mapper
  */
 @Repository
+@MultiTenantQuery
 public interface WorkflowProcessEntityMapper {
 
     Integer insert(WorkflowProcessEntity workflowProcessEntity);

@@ -64,8 +64,10 @@
         <if test="roleCode != null and roleCode != ''">
             and role_code = #{roleCode,jdbcType=VARCHAR}
         </if>
-        <if test="tenant != null and tenant != ''">
-            and tenant = #{tenant, jdbcType=VARCHAR}
+        <if test="keyword != null and keyword != ''">
+            and (
+            tenant like CONCAT('%', #{keyword}, '%')
+            )
         </if>
         <if test="disabled != null">
             and disabled = #{disabled, jdbcType=SMALLINT}

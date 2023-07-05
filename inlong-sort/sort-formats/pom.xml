@@ -37,7 +37,7 @@
         <module>format-kv</module>
         <module>format-inlongmsg-base</module>
         <module>format-inlongmsg-csv</module>
-        <module>format-json</module>
+        <module>format-json-v1.13</module>
         <module>format-inlongmsg-pb</module>
         <module>format-json-v1.15</module>
     </modules>

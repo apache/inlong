@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.stream;
 
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
@@ -256,4 +257,16 @@ public interface InlongStreamService {
      * Converts an Excel file to a streamFields
      */
     List<StreamField> parseFields(MultipartFile file);
+
+    /**
+     * List brief mq message info
+     *
+     * @param groupId inlong group id
+     * @param streamId inlong stream id
+     * @param messageCount Count of messages to query'
+     * @param operator operator
+     * @return list of brief mq message info
+     */
+    List<BriefMQMessage> listMessages(String groupId, String streamId, Integer messageCount, String operator);
+
 }

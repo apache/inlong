@@ -30,6 +30,7 @@ public class BasicAuth {
     public static final String BASIC_AUTH_HEADER = "authorization";
     public static final String BASIC_AUTH_TENANT_HEADER = "tenant";
 
+    public static final String DEFAULT_USER = "admin";
     public static final String DEFAULT_TENANT = "public";
     public static final String BASIC_AUTH_PREFIX = "Basic";
     public static final String BASIC_AUTH_SEPARATOR = " ";

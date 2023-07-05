@@ -24,7 +24,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 USE `apache_inlong_manager`;
 
 ALTER TABLE inlong_group
-    CHANGE lightweight inlong_group_mode tinyint(1) DEFAULT 0 NULL COMMENT 'Inlong group mode, Standard mode: 0, DataSync mode: 1';
+    CHANGE lightweight inlong_group_mode tinyint(1) DEFAULT 0 NULL COMMENT 'InLong group mode, Standard mode(include Data Ingestion and Synchronization): 0, DataSync mode(only Data Synchronization): 1';
 
 -- To support multi-tenant management in InLong, see https://github.com/apache/inlong/issues/7914
 CREATE TABLE IF NOT EXISTS `inlong_tenant`
@@ -69,10 +69,12 @@ VALUES ('admin', 'INLONG_ADMIN', 'inlong_init');
 
 RENAME TABLE user_role TO tenant_user_role;
 ALTER TABLE tenant_user_role
+    CHANGE `user_name` `username` varchar(256) NOT NULL COMMENT 'Username';
+
+ALTER TABLE tenant_user_role
     ADD tenant VARCHAR(256) DEFAULT 'public' NOT NULL comment 'User tenant';
 ALTER TABLE tenant_user_role
-    ADD CONSTRAINT unique_tenant_user
-        UNIQUE (username, tenant, is_deleted);
+    ADD CONSTRAINT unique_tenant_user UNIQUE (username, tenant, is_deleted);
 CREATE INDEX index_tenant
     ON tenant_user_role (tenant, is_deleted);
 
@@ -81,6 +83,7 @@ UPDATE inlong_group SET ext_params = replace(ext_params, '"tenant"', '"pulsarTen
 UPDATE inlong_cluster SET ext_params = replace(ext_params, '"tenant"', '"pulsarTenant"');
 
 ALTER TABLE `inlong_stream` MODIFY COLUMN `name` varchar(256) DEFAULT NULL COMMENT 'The name of the inlong stream page display, can be Chinese';
+
 
 CREATE TABLE IF NOT EXISTS `audit_query_source_config`
 (
@@ -93,3 +96,39 @@ CREATE TABLE IF NOT EXISTS `audit_query_source_config`
     PRIMARY KEY (`hosts`)
     ) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4 COMMENT ='Audit Query Source Config Table';
+
+ALTER TABLE `inlong_group`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of group' after `ext_params`;
+CREATE INDEX tenant_index
+    ON inlong_group (`tenant`, `is_deleted`);
+
+-- To support multi-tenancy of datanode. Please see #8349
+ALTER TABLE `data_node`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of datanode' after `description`;
+CREATE INDEX datanode_tenant_index
+    ON data_node (`tenant`, `is_deleted`);
+
+-- To support multi-tenancy of cluster. Please see #8365
+ALTER TABLE `inlong_cluster`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of cluster' after `heartbeat`;
+CREATE INDEX cluster_tenant_index
+    ON inlong_cluster (`tenant`, `is_deleted`);
+
+-- To support multi-tenancy of cluster tag. Please see #8378
+ALTER TABLE `inlong_cluster_tag`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of inlong cluster tag' after `description`;
+
+-- To support multi-tenancy of inlong consume. Please see #8378
+ALTER TABLE `inlong_consume`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of consume' after `ext_params`;
+CREATE INDEX consume_tenant_index
+    ON inlong_consume (`tenant`, `is_deleted`);
+
+-- To support multi-tenancy of workflow. Please see #8404
+ALTER TABLE `workflow_approver`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of workflow approver' after `task_name`;
+ALTER TABLE `workflow_process`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of workflow process' after `inlong_stream_id`;
+ALTER TABLE `workflow_task`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of workflow task' after `display_name`;
+

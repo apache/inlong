@@ -27,6 +27,7 @@ import { useDefaultMeta, useLoadMeta, TransformMetaType } from '@/plugins';
 import request from '@/core/utils/request';
 import EditableTable, { ColumnsItemProps } from '../EditableTable';
 import i18n from '@/i18n';
+import { fieldAllTypes } from './FieldTypeConf';
 
 export interface Props extends ModalProps {
   // When editing, use the ID to call the interface for obtaining details
@@ -114,10 +115,10 @@ const Comp: React.FC<Props> = ({
       title: i18n.t('meta.Stream.FieldType'),
       dataIndex: 'fieldType',
       type: 'select',
-      initialValue: fieldTypes[0].value,
+      initialValue: '',
       props: (text, record) => ({
         disabled: record.id,
-        options: fieldTypes,
+        options: isSource === true ? fieldTypes : fieldAllTypes[sinkType],
       }),
       rules: [{ required: true }],
     },
@@ -170,6 +171,7 @@ const Comp: React.FC<Props> = ({
     if (inlongStreamId) {
       getData(inlongStreamId);
       getSinkData();
+      setSinkType(sinkData?.list[0]?.sinkType);
     }
   }, [getData, getSinkData, inlongStreamId]);
 

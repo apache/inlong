@@ -41,10 +41,11 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     `max_length`             int(11)               DEFAULT '10240' COMMENT 'The maximum length of a single piece of data, unit: Byte',
     `enable_zookeeper`       tinyint(1)            DEFAULT '0' COMMENT 'Whether to enable the zookeeper, 0-disable, 1-enable',
     `enable_create_resource` tinyint(1)            DEFAULT '1' COMMENT 'Whether to enable create resource? 0-disable, 1-enable',
-    `inlong_group_mode`      tinyint(1)            DEFAULT '0' COMMENT 'Inlong group mode, Standard mode: 0, DataSync mode: 1',
+    `inlong_group_mode`      tinyint(1)            DEFAULT '0' COMMENT 'InLong group mode, Standard mode(include Data Ingestion and Synchronization): 0, DataSync mode(only Data Synchronization): 1',
     `data_report_type`       int(4)                DEFAULT '0' COMMENT 'Data report type. 0: report to DataProxy and respond when the DataProxy received data. 1: report to DataProxy and respond after DataProxy sends data. 2: report to MQ and respond when the MQ received data',
     `inlong_cluster_tag`     varchar(128)          DEFAULT NULL COMMENT 'The cluster tag, which links to inlong_cluster table',
     `ext_params`             mediumtext            DEFAULT NULL COMMENT 'Extended params, will be saved as JSON string',
+    `tenant`                 varchar(256)          DEFAULT 'public' COMMENT 'Inlong tenant of the inlong group',
     `in_charges`             varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
     `followers`              varchar(512)          DEFAULT NULL COMMENT 'Name of followers, separated by commas',
     `status`                 int(4)                DEFAULT '100' COMMENT 'Inlong group status',
@@ -58,6 +59,7 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_group` (`inlong_group_id`, `is_deleted`),
     INDEX `group_status_deleted_index` (`status`, `is_deleted`),
+    INDEX `tenant_index` (`tenant`, `is_deleted`),
     INDEX `group_modify_time_index` (`modify_time`),
     INDEX `group_cluster_tag_index` (`inlong_cluster_tag`)
 ) ENGINE = InnoDB
@@ -88,6 +90,7 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster_tag`
     `cluster_tag` varchar(128) NOT NULL COMMENT 'Cluster tag',
     `ext_params`  mediumtext            DEFAULT NULL COMMENT 'Extended params, will be saved as JSON string',
     `description` varchar(256)          DEFAULT '' COMMENT 'Description of cluster tag',
+    `tenant`      varchar(256)          DEFAULT 'public' COMMENT 'Inlong tenant of the inlong cluster tag',
     `in_charges`  varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
     `status`      int(4)                DEFAULT '0' COMMENT 'Cluster status',
     `is_deleted`  int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
@@ -117,6 +120,7 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster`
     `ext_params`            mediumtext            DEFAULT NULL COMMENT 'Extended params, will be saved as JSON string',
     `description`           varchar(256)          DEFAULT '' COMMENT 'Description of cluster',
     `heartbeat`             mediumtext            DEFAULT NULL COMMENT 'Cluster heartbeat info',
+    `tenant`                varchar(256) NOT NULL DEFAULT 'public' COMMENT 'Inlong tenant of cluster',
     `in_charges`            varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
     `status`                int(4)                DEFAULT '0' COMMENT 'Cluster status',
     `is_deleted`            int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
@@ -127,7 +131,8 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster`
     `version`               int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_cluster` (`name`, `type`, `is_deleted`),
-    INDEX `cluster_type_index` (`type`)
+    INDEX `cluster_type_index` (`type`),
+    INDEX `cluster_tenant_index` (`tenant`, `is_deleted`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong cluster table';
 
@@ -171,6 +176,7 @@ CREATE TABLE IF NOT EXISTS `inlong_consume`
     `filter_enabled`   int(2)                DEFAULT '0' COMMENT 'Whether to filter consume, 0: not filter, 1: filter',
     `inlong_stream_id` varchar(256)          DEFAULT NULL COMMENT 'The target inlong stream id of this consume, needed if the filter_enabled=1',
     `ext_params`       mediumtext            DEFAULT NULL COMMENT 'Extended params, will be saved as JSON string',
+    `tenant`           varchar(256) NOT NULL DEFAULT 'public' COMMENT 'Inlong tenant of the inlong consume',
     `in_charges`       varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
     `status`           int(4)                DEFAULT '100' COMMENT 'Inlong consume status',
     `previous_status`  int(4)                DEFAULT '100' COMMENT 'Previous status',
@@ -181,7 +187,8 @@ CREATE TABLE IF NOT EXISTS `inlong_consume`
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `version`          int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_inlong_consume` (`consumer_group`, `is_deleted`)
+    UNIQUE KEY `unique_inlong_consume` (`consumer_group`, `is_deleted`),
+    INDEX `consume_tenant_index` (`tenant`, `is_deleted`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong consume table';
 
@@ -199,6 +206,7 @@ CREATE TABLE IF NOT EXISTS `data_node`
     `token`                   varchar(512)          DEFAULT NULL COMMENT 'Node token',
     `ext_params`              mediumtext            DEFAULT NULL COMMENT 'Extended params, will be saved as JSON string',
     `description`             varchar(256)          DEFAULT '' COMMENT 'Description of data node',
+    `tenant`                  varchar(256) NOT NULL DEFAULT 'public' COMMENT 'Inlong tenant of the data node',
     `in_charges`              varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
     `status`                  int(4)                DEFAULT '0' COMMENT 'Node status',
     `is_deleted`              int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
@@ -614,6 +622,7 @@ CREATE TABLE IF NOT EXISTS `workflow_approver`
     `id`           int(11)       NOT NULL AUTO_INCREMENT,
     `process_name` varchar(256)  NOT NULL COMMENT 'Process name',
     `task_name`    varchar(256)  NOT NULL COMMENT 'Approval task name',
+    `tenant`       varchar(256)  NOT NULL DEFAULT 'public' COMMENT 'Inlong tenant of workflow approver',
     `approvers`    varchar(1024) NOT NULL COMMENT 'Approvers, separated by commas',
     `creator`      varchar(64)   NOT NULL COMMENT 'Creator name',
     `modifier`     varchar(64)            DEFAULT NULL COMMENT 'Modifier name',
@@ -627,9 +636,9 @@ CREATE TABLE IF NOT EXISTS `workflow_approver`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow approver table';
 
 -- create workflow approver for newly inlong group and inlong consume.
-INSERT INTO `workflow_approver`(`process_name`, `task_name`, `approvers`, `creator`, `modifier`)
-VALUES ('APPLY_GROUP_PROCESS', 'ut_admin', 'admin', 'inlong_init', 'inlong_init'),
-       ('APPLY_CONSUME_PROCESS', 'ut_admin', 'admin', 'inlong_init', 'inlong_init');
+INSERT INTO `workflow_approver`(`process_name`, `task_name`, `tenant`, `approvers`, `creator`, `modifier`)
+VALUES ('APPLY_GROUP_PROCESS', 'ut_admin', 'public', 'admin', 'inlong_init', 'inlong_init'),
+       ('APPLY_CONSUME_PROCESS', 'ut_admin', 'public', 'admin', 'inlong_init', 'inlong_init');
 
 -- ----------------------------
 -- Table structure for workflow_event_log
@@ -672,6 +681,7 @@ CREATE TABLE IF NOT EXISTS `workflow_process`
     `title`            varchar(256)          DEFAULT NULL COMMENT 'Process title',
     `inlong_group_id`  varchar(256)          DEFAULT NULL COMMENT 'Inlong group id to which this process belongs',
     `inlong_stream_id` varchar(256)          DEFAULT NULL COMMENT 'Inlong stream id to which this process belongs',
+    `tenant`           varchar(256) NOT NULL DEFAULT 'public' COMMENT 'Inlong tenant of workflow process',
     `applicant`        varchar(256) NOT NULL COMMENT 'Applicant',
     `status`           varchar(64)  NOT NULL COMMENT 'Status',
     `form_data`        mediumtext COMMENT 'Form information',
@@ -696,6 +706,7 @@ CREATE TABLE IF NOT EXISTS `workflow_task`
     `process_display_name` varchar(256)  NOT NULL COMMENT 'Process name',
     `name`                 varchar(256)  NOT NULL COMMENT 'Task name',
     `display_name`         varchar(256)  NOT NULL COMMENT 'Task display name',
+    `tenant`               varchar(256)  NOT NULL DEFAULT 'public' COMMENT 'Inlong tenant of workflow task',
     `applicant`            varchar(64)   DEFAULT NULL COMMENT 'Applicant',
     `approvers`            varchar(1024) NOT NULL COMMENT 'Approvers',
     `status`               varchar(64)   NOT NULL COMMENT 'Status',

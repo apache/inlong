@@ -161,4 +161,42 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>v1.13</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <sort.flink.version>v1.13</sort.flink.version>
+                <flink.version>1.13.5</flink.version>
+                <flink.minor.version>1.13</flink.minor.version>
+                <flink.scala.binary.version>2.11</flink.scala.binary.version>
+                <flink.jackson.version>2.12.1-13.0</flink.jackson.version>
+                <flink.protobuf.version>2.7.6</flink.protobuf.version>
+                <flink.cdc.base.version>2.3.0</flink.cdc.base.version>
+                <flink.streaming.artifactId>flink-streaming-java_${flink.scala.binary.version}</flink.streaming.artifactId>
+                <flink.test.utils.artifactId>flink-test-utils_${flink.scala.binary.version}</flink.test.utils.artifactId>
+                <flink.runtime.artifactId>flink-runtime_${scala.binary.version}</flink.runtime.artifactId>
+                <flink.docker.image.name>flink:1.13.5-scala_2.11</flink.docker.image.name>
+            </properties>
+        </profile>
+        <profile>
+            <id>v1.15</id>
+            <properties>
+                <sort.flink.version>v1.15</sort.flink.version>
+                <flink.version>1.15.4</flink.version>
+                <flink.minor.version>1.15</flink.minor.version>
+                <flink.scala.binary.version>2.12</flink.scala.binary.version>
+                <flink.jackson.version>2.12.1-13.0</flink.jackson.version>
+                <flink.protobuf.version>2.7.6</flink.protobuf.version>
+                <flink.cdc.base.version>2.3.0</flink.cdc.base.version>
+                <flink.streaming.artifactId>flink-streaming-java</flink.streaming.artifactId>
+                <flink.test.utils.artifactId>flink-test-utils</flink.test.utils.artifactId>
+                <flink.runtime.artifactId>flink-runtime</flink.runtime.artifactId>
+                <flink.docker.image.name>flink:1.15.4-scala_2.12</flink.docker.image.name>
+            </properties>
+        </profile>
+    </profiles>
 </project>

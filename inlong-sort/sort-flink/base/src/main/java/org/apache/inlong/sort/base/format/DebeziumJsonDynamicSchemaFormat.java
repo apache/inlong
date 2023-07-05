@@ -19,26 +19,18 @@ package org.apache.inlong.sort.base.format;
 
 import org.apache.inlong.sort.base.format.JsonToRowDataConverters.JsonToRowDataConverter;
 
-import org.apache.flink.shaded.guava18.com.google.common.collect.ImmutableMap;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.types.logical.BigIntType;
-import org.apache.flink.table.types.logical.BooleanType;
-import org.apache.flink.table.types.logical.DoubleType;
-import org.apache.flink.table.types.logical.FloatType;
-import org.apache.flink.table.types.logical.IntType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.flink.table.types.logical.SmallIntType;
-import org.apache.flink.table.types.logical.TinyIntType;
-import org.apache.flink.table.types.logical.VarBinaryType;
-import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.flink.types.RowKind;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.inlong.sort.formats.json.utils.FormatJsonUtil.DEBEZIUM_TYPE_2_FLINK_TYPE_MAPPING;
 
 /**
  * Debezium json dynamic format
@@ -48,6 +40,8 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
     private static final String DDL = "ddl";
     private static final String SCHEMA = "schema";
     private static final String SQL_TYPE = "sqlType";
+    private static final String MYSQL_TYPE = "mysqlType";
+    private static final String ORACLE_TYE = "oracleType";
     private static final String AFTER = "after";
     private static final String BEFORE = "before";
     private static final String SOURCE = "source";
@@ -73,19 +67,6 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
      * Delete
      */
     private static final String OP_DELETE = "d";
-
-    private static final Map<String, LogicalType> DEBEZIUM_TYPE_2_FLINK_TYPE_MAPPING =
-            ImmutableMap.<String, LogicalType>builder()
-                    .put("BOOLEAN", new BooleanType())
-                    .put("INT8", new TinyIntType())
-                    .put("INT16", new SmallIntType())
-                    .put("INT32", new IntType())
-                    .put("INT64", new BigIntType())
-                    .put("FLOAT32", new FloatType())
-                    .put("FLOAT64", new DoubleType())
-                    .put("STRING", new VarCharType())
-                    .put("BYTES", new VarBinaryType())
-                    .build();
 
     protected DebeziumJsonDynamicSchemaFormat(Map<String, String> props) {
         super(props);
@@ -220,10 +201,14 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
                 throw new IllegalArgumentException(String.format("Error schema: %s.", data));
             }
             JsonNode schemaNode = sourceNode.get(SQL_TYPE);
+            JsonNode dialectSchema = sourceNode.get(MYSQL_TYPE);
+            if (dialectSchema == null) {
+                dialectSchema = sourceNode.get(ORACLE_TYE);
+            }
             if (schemaNode == null) {
                 throw new IllegalArgumentException(String.format("Error schema: %s.", data));
             }
-            return super.extractSchemaNode(schemaNode, pkNames);
+            return super.extractSchemaNode(schemaNode, dialectSchema, pkNames);
         }
         return extractSchemaFromExtractInfo(payload, pkNames);
     }
@@ -240,7 +225,7 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
             }
             for (JsonNode field : schema.get(FIELDS)) {
                 if (AFTER.equals(field.get(FIELD).asText())) {
-                    return extractSchemaNode(field.get(FIELDS), pkNames);
+                    return extractSchemaNode(field.get(FIELDS), null, pkNames);
                 }
             }
             throw new IllegalArgumentException(String.format("Error schema: %s.", schema));
@@ -248,11 +233,15 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
     }
 
     @Override
-    public RowType extractSchemaNode(JsonNode schema, List<String> pkNames) {
+    public RowType extractSchemaNode(JsonNode schema, JsonNode dialectSchema, List<String> pkNames) {
         List<RowType.RowField> fields = new ArrayList<>();
         for (JsonNode field : schema) {
             String name = field.get(FIELD).asText();
             LogicalType type = debeziumType2FlinkType(field.get(TYPE).asText());
+            if (dialectSchema != null) {
+                String dialectType = dialectSchema.get(name) != null ? dialectSchema.get(name).asText() : null;
+                type = handleDialectSqlType(type, dialectType);
+            }
             if (pkNames.contains(name)) {
                 type = type.copy(false);
             }

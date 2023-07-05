@@ -106,7 +106,6 @@ public class DorisMultipleSinkTest extends AbstractTestBase {
     public void testDorisMultipleSinkParse() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

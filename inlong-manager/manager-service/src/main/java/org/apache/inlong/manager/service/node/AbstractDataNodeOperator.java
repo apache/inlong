@@ -31,6 +31,7 @@ import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,6 +116,10 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
         LOGGER.info("begin to update stream source status by dataNodeName={}, status={}, by operator={}",
                 dataNodeName, status, operator);
         List<Integer> needUpdateIds = sourceMapper.selectNeedUpdateIdsByClusterAndDataNode(null, dataNodeName, type);
+        if (CollectionUtils.isEmpty(needUpdateIds)) {
+            LOGGER.warn("no found stream source by dataNodeName = {}", dataNodeName);
+            return;
+        }
         try {
             sourceMapper.updateStatusByIds(needUpdateIds, status, operator);
             LOGGER.info("success to update stream source status by dataNodeName={}, status={}, by operator={}",

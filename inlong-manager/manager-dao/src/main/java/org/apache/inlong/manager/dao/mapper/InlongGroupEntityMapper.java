@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.inlong.manager.common.tenant.MultiTenantQuery;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
@@ -33,6 +34,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+@MultiTenantQuery
 @Repository
 public interface InlongGroupEntityMapper {
 
@@ -60,6 +62,7 @@ public interface InlongGroupEntityMapper {
      *
      * @return All inlong group info.
      */
+    @MultiTenantQuery(with = false)
     @Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = Integer.MIN_VALUE)
     Cursor<SortSourceGroupInfo> selectAllGroups();
 

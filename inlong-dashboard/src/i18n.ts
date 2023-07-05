@@ -26,7 +26,7 @@ const resources = {
   en: {
     translation: {
       'configs.menus.Process': 'Approval',
-      'configs.menus.Groups': 'Integration',
+      'configs.menus.Groups': 'Ingestion',
       'configs.menus.Subscribe': 'Subscription',
       'configs.menus.Clusters': 'Clusters',
       'configs.menus.ClusterTags': 'ClusterTags',
@@ -40,7 +40,7 @@ const resources = {
   cn: {
     translation: {
       'configs.menus.Process': '审批管理',
-      'configs.menus.Groups': '数据集成',
+      'configs.menus.Groups': '数据接入',
       'configs.menus.Subscribe': '数据订阅',
       'configs.menus.Clusters': '集群管理',
       'configs.menus.ClusterTags': '标签管理',

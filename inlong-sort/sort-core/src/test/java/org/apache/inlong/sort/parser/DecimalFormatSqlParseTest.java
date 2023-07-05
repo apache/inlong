@@ -87,7 +87,6 @@ public class DecimalFormatSqlParseTest extends AbstractTestBase {
     public void testDecimalFormatSqlParse() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

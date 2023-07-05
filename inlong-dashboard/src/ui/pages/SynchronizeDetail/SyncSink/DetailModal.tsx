@@ -94,7 +94,7 @@ const Comp: React.FC<DetailModalProps> = ({
 
   const formContent = useMemo(() => {
     if (Entity) {
-      const row = new Entity().renderRow();
+      const row = new Entity().renderSyncRow();
       return row.map(item => ({
         ...item,
         col: item.name === 'sinkType' || item.type === EditableTable ? 24 : 12,
