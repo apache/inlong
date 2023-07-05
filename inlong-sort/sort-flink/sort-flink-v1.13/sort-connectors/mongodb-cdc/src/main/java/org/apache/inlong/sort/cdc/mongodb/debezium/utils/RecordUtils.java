@@ -127,14 +127,4 @@ public class RecordUtils {
         return null;
     }
 
-    /**
-     * Whether the MongoDB event's operation is a dml operation.
-     */
-    public static boolean isDMLOperation(OperationType op) {
-        if (OperationType.INSERT.equals(op) || OperationType.DELETE.equals(op)
-                || OperationType.UPDATE.equals(op) || OperationType.REPLACE.equals(op)) {
-            return true;
-        }
-        return false;
-    }
 }
