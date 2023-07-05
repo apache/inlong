@@ -26,6 +26,7 @@ import { localesConfig } from '@/configs/locales';
 import i18n from '@/i18n';
 import './antd.cover.less';
 import { useLocalStorage } from '@/core/utils/localStorage';
+import { extendRequest } from '@/core/utils/request';
 
 const Provider = ({ children }) => {
   const dispatch = useDispatch();
@@ -55,6 +56,17 @@ const Provider = ({ children }) => {
       },
     },
   );
+
+  const tenantName = getLocalStorage('tenant')['name'];
+  extendRequest.interceptors.request.use((url, options) => {
+    return {
+      options: {
+        ...options,
+        interceptors: true,
+        headers: { rname: 'tenant', value: tenantName },
+      },
+    };
+  });
 
   const importLocale = useCallback(async locale => {
     if (!localesConfig[locale]) return;

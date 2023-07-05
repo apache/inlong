@@ -54,9 +54,27 @@ const BasicLayout: React.FC = props => {
   const [getLocalStorage, setLocalStorage, removeLocalStorage] = useLocalStorage('tenant');
   const tenant = getLocalStorage('tenant');
   console.log(tenant, 'tenant1');
-  console.log(roles, 'roles');
-  const test = ['TENANT_ADMIN', 'INLONG_ADMIN'];
+  // console.log(roles, 'roles');
+  const test = ['TENANT_ADMIN', 'INLONG_ADMIN', 'TENANT_OPERATOR', 'INLONG_OPERATOR'];
+  const test1 = ['TENANT_OPERATOR', 'INLONG_OPERATOR'];
+  // const test = ['TENANT_ADMIN', 'INLONG_ADMIN', 'TENANT_OPERATOR', 'INLONG_OPERATOR'];
+  // const test = ['TENANT_ADMIN', 'INLONG_ADMIN', 'TENANT_OPERATOR', 'INLONG_OPERATOR'];
   const { breadcrumbMap, menuData } = useMemo(() => {
+    // if (test?.includes('INLONG_ADMIN')) {
+    //   const _menus = menusTree.filter(
+    //     item => (item.isAdmin && test?.includes('INLONG_ADMIN')) || !item.isAdmin,
+    //   );
+    //   return getMenuData(_menus);
+    // }
+    // if (test1?.includes('INLONG_ADMIN')) {
+    //   // const _menus = menusTree.filter(
+    //   //   item => (item.isAdmin && test?.includes('INLONG_ADMIN')) || !item.isAdmin,
+    //   // );
+    // }
+
+    // const _menus = menusTree.filter(
+    //   item => (item.isAdmin && test?.includes('INLONG_ADMIN')) || !item.isAdmin,
+    // );
     const _menus = menusTree.filter(
       item => (item.isAdmin && roles?.includes('INLONG_ADMIN')) || !item.isAdmin,
     );
@@ -67,16 +85,16 @@ const BasicLayout: React.FC = props => {
 
   useEffect(() => {
     if (tenant !== null) {
-      const tenantName = getLocalStorage('tenant')['name'];
-      extendRequest.interceptors.request.use((url, options) => {
-        return {
-          options: {
-            ...options,
-            interceptors: true,
-            headers: { rname: 'tenant', value: tenantName },
-          },
-        };
-      });
+      // const tenantName = getLocalStorage('tenant')['name'];
+      // extendRequest.interceptors.request.use((url, options) => {
+      //   return {
+      //     options: {
+      //       ...options,
+      //       interceptors: true,
+      //       headers: { rname: 'tenant', value: tenantName },
+      //     },
+      //   };
+      // });
     }
   }, [getLocalStorage, tenant]);
 
