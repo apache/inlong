@@ -61,14 +61,14 @@ public class AuditController {
         return Response.success(auditService.refreshBaseItemCache());
     }
 
-    @ApiOperation(value = "insert a source and connect to the source")
+    @ApiOperation(value = "Offline the old audit source and online the new audit source.")
     @PostMapping(value = "/audit/updateSource")
     public Response<Boolean> updateAuditQuerySource(@RequestBody AuditSourceRequest request) {
         return Response.success(
                 auditService.updateAuditQuerySource(request));
     }
 
-    @ApiOperation(value = "query which source is connected")
+    @ApiOperation(value = "Get the audit source of the current connection")
     @GetMapping("/audit/getSource")
     public Response<AuditSourceRequest> queryCurrentSource() {
         return Response.success(auditService.queryCurrentSource());
