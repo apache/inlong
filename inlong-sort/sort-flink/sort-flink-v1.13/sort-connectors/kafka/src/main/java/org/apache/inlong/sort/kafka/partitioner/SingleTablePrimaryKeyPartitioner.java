@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * The PrimaryKey Partitioner is used to extract primary key from single table messages:
+ * The PrimaryKey Partitioner is used to extract primary key from single table messages
  *
  * @param <T>
  */
