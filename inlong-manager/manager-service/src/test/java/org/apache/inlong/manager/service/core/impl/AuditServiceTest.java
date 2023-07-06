@@ -17,9 +17,11 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import org.apache.inlong.manager.dao.mapper.AuditQuerySourceConfigEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
+import org.apache.inlong.manager.pojo.audit.UpdateAuditSourceRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.AuditService;
 
@@ -74,5 +76,29 @@ class AuditServiceTest extends ServiceBaseTest {
         request.setStartDate("2022-01-01");
         request.setEndDate("2022-01-01");
         Assertions.assertNotNull(auditService.listByCondition(request));
+    }
+
+    @Autowired
+    AuditQuerySourceConfigEntityMapper querySourceConfigEntityMapper;
+    @Test
+    void testUpdateAuditQuerySource() {
+        UpdateAuditSourceRequest request = new UpdateAuditSourceRequest(null, "source1",
+                "host1",
+                "default", "123456", 1);
+        auditService.updateAuditQuerySource(request);
+        UpdateAuditSourceRequest request2 = new UpdateAuditSourceRequest("host1", "source2",
+                "host2",
+                "default", "123456", 1);
+        auditService.updateAuditQuerySource(request2);
+        Assertions.assertEquals(auditService.queryCurrentSource().getHosts(),
+                request2.getHosts());
+    }
+    @Test
+    void testQueryAuditSource() {
+        UpdateAuditSourceRequest request = new UpdateAuditSourceRequest(null, "test",
+                "host",
+                "default", "123456", 1);
+        auditService.updateAuditQuerySource(request);
+        Assertions.assertEquals(auditService.queryCurrentSource().getHosts(), request.getHosts());
     }
 }

@@ -22,6 +22,7 @@ import org.apache.inlong.manager.dao.mapper.AuditQuerySourceConfigEntityMapper;
 
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -50,26 +51,26 @@ public class ClickHouseConfig {
         try {
             if (querySourceConfigEntityMapper == null) {
                 log.warn("querySourceConfigEntityMapper is null");
+                return;
             }
             AuditQuerySourceConfigEntity querySourceConfigEntity = querySourceConfigEntityMapper.findByStatus();
             String jdbcUrl = querySourceConfigEntity.getHosts();
             String username = querySourceConfigEntity.getUserName();
-            String password = querySourceConfigEntity.getPassword();
-            String pwd = (password == null) ? "" : password;
-            log.info("current jdbc is: {}", currentJdbcUrl);
-            log.info("jdbc in db is: {}", jdbcUrl);
-            if (currentJdbcUrl == null || currentUserName == null || currentPassword == null
+            String password = StringUtils.isBlank(querySourceConfigEntity.getPassword()) ? ""
+                    : querySourceConfigEntity.getPassword();
+            if (StringUtils.isBlank(currentJdbcUrl) || StringUtils.isBlank(currentUserName)
+                    || StringUtils.isBlank(currentPassword)
                     || !(currentJdbcUrl.equals(jdbcUrl) && currentUserName.equals(username)
-                            && currentPassword.equals(pwd))) {
+                            && currentPassword.equals(password))) {
                 synchronized (ClickHouseConfig.class) {
                     currentJdbcUrl = jdbcUrl;
                     currentUserName = username;
-                    currentPassword = pwd;
+                    currentPassword = password;
 
                     Properties pros = new Properties();
                     pros.put("url", jdbcUrl);
                     pros.put("username", username);
-                    pros.put("password", pwd);
+                    pros.put("password", password);
                     try {
                         source = DruidDataSourceFactory.createDataSource(pros);
                     } catch (Exception e) {
@@ -87,9 +88,14 @@ public class ClickHouseConfig {
      * Get ClickHouse connection from data source
      */
     public Connection getCkConnection() throws Exception {
-        log.info("Start to get connection to CLICKHOUSE...");
-        while (source == null) {
+        log.info("start to get connection to CLICKHOUSE");
+        int retry = 0;
+        while (source == null && retry < 3) {
             updateCkSource();
+            retry += 1;
+        }
+        if (source == null) {
+            return null;
         }
         return source.getConnection();
     }

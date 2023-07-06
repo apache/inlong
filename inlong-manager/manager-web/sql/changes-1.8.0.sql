@@ -89,9 +89,9 @@ CREATE TABLE IF NOT EXISTS `audit_query_source_config`
 (
     `audit_query_source`    varchar(256)  NOT NULL COMMENT 'MYSQL, ELASTICSEARCH, CLICKHOUSE' ,
     `hosts`                 varchar(256) NOT NULL COMMENT 'If source is ck: jdbcUrl, if source is es: hostname' ,
-    `user_name`             varchar(256) NOT NULL COMMENT 'user name' ,
+    `username`             varchar(256) NOT NULL COMMENT 'username' ,
     `password`              varchar(256) NOT NULL ,
-    `auth_enable`           TINYINT(1) DEFAULT 1 CMMENT '1:enable, 0:disable',
+    `auth_enable`           TINYINT(1) DEFAULT 1 COMMENT '1:enable, 0:disable',
     `status`                TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1: online, 0: offline' ,
     `create_time`           timestamp NOT NULL COMMENT 'create time',
     `update_time`           timestamp NOT NULL COMMENT 'update time',

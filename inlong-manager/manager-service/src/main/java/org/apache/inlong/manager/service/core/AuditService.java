@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.core;
 import org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
+import org.apache.inlong.manager.pojo.audit.UpdateAuditSourceRequest;
 
 import java.util.List;
 
@@ -53,17 +54,11 @@ public interface AuditService {
     Boolean refreshBaseItemCache();
 
     /**
-     * Insert a new source and connect the source.
-     * @param auditQuerySource MYSQL, CLICKHOUSE, ELASTICSEARCH
-     * @param hosts
-     * @param userName
-     * @param password
-     * @param authEnable
+     *offline old hosts and online new audit query source
+     * @param request
      * @return
      */
-    Boolean updateAuditQuerySource(String oldHosts, String auditQuerySource, String hosts, String userName,
-            String password,
-            Integer authEnable);
+    Boolean updateAuditQuerySource(UpdateAuditSourceRequest request);
 
     /**
      * Query which source is connected.

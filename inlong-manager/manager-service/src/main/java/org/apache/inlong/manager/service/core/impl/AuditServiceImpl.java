@@ -35,6 +35,7 @@ import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
+import org.apache.inlong.manager.pojo.audit.UpdateAuditSourceRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.core.AuditService;
@@ -179,9 +180,13 @@ public class AuditServiceImpl implements AuditService {
         return auditQuerySourceConfig;
     }
     @Override
-    public Boolean updateAuditQuerySource(String oldHosts, String auditQuerySource, String hosts, String userName,
-            String password,
-            Integer authEnable) {
+    public Boolean updateAuditQuerySource(UpdateAuditSourceRequest request) {
+        String oldHosts = request.getOldHosts();
+        String auditQuerySource = request.getAuditQuerySource();
+        String hosts = request.getHosts();
+        String userName = request.getUserName();
+        String password = request.getPassword();
+        Integer authEnable = request.getAuthEnable();
         try {
             if (oldHosts != null) {
                 querySourceConfigEntityMapper.offlineAuditQuerySourceByHosts(oldHosts);

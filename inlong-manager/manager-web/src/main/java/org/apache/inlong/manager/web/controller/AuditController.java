@@ -20,6 +20,7 @@ package org.apache.inlong.manager.web.controller;
 import org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
+import org.apache.inlong.manager.pojo.audit.UpdateAuditSourceRequest;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.service.core.AuditService;
 
@@ -31,7 +32,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -64,12 +64,9 @@ public class AuditController {
 
     @ApiOperation(value = "insert a source and connect to the source")
     @PostMapping(value = "/audit/updateSource")
-    public Response<Boolean> updateAuditQuerySource(@RequestParam(value = "oldHosts", required = false) String oldHosts,
-            @RequestParam("auditQuerySource") String auditQuerySource,
-            @RequestParam("hosts") String hosts, @RequestParam("userName") String userName,
-            @RequestParam("password") String password, @RequestParam("authEnable") Integer authEnable) {
+    public Response<Boolean> updateAuditQuerySource(@RequestBody UpdateAuditSourceRequest request) {
         return Response.success(
-                auditService.updateAuditQuerySource(oldHosts, auditQuerySource, hosts, userName, password, authEnable));
+                auditService.updateAuditQuerySource(request));
     }
 
     @ApiOperation(value = "query which source is connected")
