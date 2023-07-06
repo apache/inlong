@@ -26,7 +26,7 @@ import java.util.Date;
 public class AuditQuerySourceConfigEntity implements Serializable {
 
     private String auditQuerySource;
-    private String hosts;
+    private String url;
     private String userName;
     private String password;
     private Integer authEnable = 1;

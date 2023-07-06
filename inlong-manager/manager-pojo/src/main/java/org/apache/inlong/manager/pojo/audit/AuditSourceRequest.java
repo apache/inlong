@@ -26,32 +26,39 @@ import javax.validation.constraints.NotBlank;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ApiModel("Update audit query source request")
+@ApiModel("Audit source request")
 public class AuditSourceRequest {
 
-    @ApiModelProperty(value = "old hosts you want to offline", name = "oldHosts")
-    private String oldHosts;
+    @ApiModelProperty(value = "Old url that will be offline. It can be null.", name = "oldUrl")
+    private String oldUrl;
+
     @NotBlank
-    @ApiModelProperty(name = "auditQuerySource", required = true)
+    @ApiModelProperty(value = "MYSQL, CLICKHOUSE or ELASTICSEARCH", name = "auditQuerySource", required = true)
     private String auditQuerySource;
+
+    @NotBlank
+    @ApiModelProperty(name = "url", required = true)
+    private String url;
+
     @NotBlank
     @ApiModelProperty(name = "userName", required = true)
     private String userName;
-    @NotBlank
-    @ApiModelProperty(name = "hosts", required = true)
-    private String hosts;
+
     @NotBlank
     @ApiModelProperty(name = "password", required = true)
     String password;
-    @ApiModelProperty(name = "authEnable", required = true)
+
+    @ApiModelProperty(name = "authEnable")
     Integer authEnable;
+
     public AuditSourceRequest() {
     }
-    public AuditSourceRequest(String oldHosts, String auditQuerySource, String hosts, String userName,
+
+    public AuditSourceRequest(String oldUrl, String auditQuerySource, String url, String userName,
             String password, Integer authEnable) {
-        this.oldHosts = oldHosts;
+        this.oldUrl = oldUrl;
         this.auditQuerySource = auditQuerySource;
-        this.hosts = hosts;
+        this.url = url;
         this.userName = userName;
         this.password = password;
         this.authEnable = authEnable;

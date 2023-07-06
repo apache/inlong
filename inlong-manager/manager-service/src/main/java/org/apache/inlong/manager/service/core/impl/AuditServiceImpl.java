@@ -167,11 +167,11 @@ public class AuditServiceImpl implements AuditService {
         return true;
     }
 
-    private AuditQuerySourceConfigEntity createAuditQuerySource(String auditQuerySource, String hosts, String userName,
+    private AuditQuerySourceConfigEntity createAuditQuerySource(String auditQuerySource, String url, String userName,
             String password, Integer auth_Enable) {
         AuditQuerySourceConfigEntity auditQuerySourceConfig = new AuditQuerySourceConfigEntity();
         auditQuerySourceConfig.setAuditQuerySource(auditQuerySource);
-        auditQuerySourceConfig.setHosts(hosts);
+        auditQuerySourceConfig.setUrl(url);
         auditQuerySourceConfig.setUserName(userName);
         auditQuerySourceConfig.setPassword(password);
         auditQuerySourceConfig.setAuthEnable(auth_Enable);
@@ -182,18 +182,18 @@ public class AuditServiceImpl implements AuditService {
     }
     @Override
     public Boolean updateAuditQuerySource(AuditSourceRequest request) {
-        String oldHosts = request.getOldHosts();
+        String oldUrl = request.getOldUrl();
         String auditQuerySource = request.getAuditQuerySource();
-        String hosts = request.getHosts();
+        String url = request.getUrl();
         String userName = request.getUserName();
         String password = request.getPassword();
-        Integer authEnable = request.getAuthEnable();
+        Integer authEnable = (request.getAuthEnable() == null) ? 1 : request.getAuthEnable();
         try {
-            if (oldHosts != null) {
-                querySourceConfigEntityMapper.offlineAuditQuerySourceByHosts(oldHosts);
+            if (!StringUtils.isBlank(oldUrl)) {
+                querySourceConfigEntityMapper.offlineAuditQuerySourceByUrl(oldUrl);
             }
             AuditQuerySourceConfigEntity entity =
-                    createAuditQuerySource(auditQuerySource, hosts, userName, password, authEnable);
+                    createAuditQuerySource(auditQuerySource, url, userName, password, authEnable);
             querySourceConfigEntityMapper.insert(entity);
             config.updateCkSource();
         } catch (Exception e) {

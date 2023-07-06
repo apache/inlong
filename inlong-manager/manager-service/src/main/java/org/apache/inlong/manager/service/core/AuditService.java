@@ -53,14 +53,17 @@ public interface AuditService {
     Boolean refreshBaseItemCache();
 
     /**
-     *offline old hosts and online new audit query source
+     * Offline the old audit source through url, and insert and online a new audit source.
+     * If the new url already exists in the table, the insert operation will become an update operation.
+     *
      * @param request
      * @return
      */
     Boolean updateAuditQuerySource(AuditSourceRequest request);
 
     /**
-     * Query which source is connected.
+     * Get audit source that has been online.
+     *
      * @return
      */
     AuditSourceRequest queryCurrentSource();

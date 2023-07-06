@@ -22,7 +22,7 @@
 <mapper namespace="org.apache.inlong.manager.dao.mapper.AuditQuerySourceConfigEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity">
         <result column="audit_query_source" jdbcType="VARCHAR" property="auditQuerySource"/>
-        <result column="hosts" jdbcType="VARCHAR" property="hosts"/>
+        <result column="url" jdbcType="VARCHAR" property="url"/>
         <result column="username" jdbcType="VARCHAR" property="userName"/>
         <result column="password" jdbcType="VARCHAR" property="password"/>
         <result column="auth_enable" jdbcType="TINYINT" property="authEnable"/>
@@ -31,7 +31,7 @@
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        audit_query_source, hosts, username, password, auth_enable, status, create_time, update_time
+        audit_query_source, url, username, password, auth_enable, status, create_time, update_time
     </sql>
     <select id="findByStatus" resultType="org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity"
     resultMap="BaseResultMap">
@@ -40,15 +40,15 @@
         from audit_source
         where status = 1 LIMIT 1
     </select>
-    <update id="offlineAuditQuerySourceByHosts">
-        update audit_source set status = 0 where hosts = #{hosts};
+    <update id="offlineAuditQuerySourceByUrl">
+        update audit_source set status = 0 where url = #{url};
     </update>
-    <update id="onlineAuditQuerySourceByHosts">
-    update audit_source set status = 1 where hosts = #{hosts};
+    <update id="onlineAuditQuerySourceByUrl">
+    update audit_source set status = 1 where url = #{url};
     </update>
-    <insert id="insert" useGeneratedKeys="true" keyProperty="hosts">
-        insert into audit_source (audit_query_source, hosts, username, password, auth_enable, status, create_time, update_time)
-        values (#{auditQuerySource}, #{hosts}, #{userName}, #{password}, #{authEnable}, #{status}, #{createTime}, #{updateTime})
+    <insert id="insert" useGeneratedKeys="true" keyProperty="url">
+        insert into audit_source (audit_query_source, url, username, password, auth_enable, status, create_time, update_time)
+        values (#{auditQuerySource}, #{url}, #{userName}, #{password}, #{authEnable}, #{status}, #{createTime}, #{updateTime})
         ON DUPLICATE KEY UPDATE audit_query_source = VALUES(audit_query_source),
                                 username = VALUES(username),
                                 password = VALUES(password),
