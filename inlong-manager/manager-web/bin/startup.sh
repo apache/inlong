@@ -55,7 +55,7 @@ BASE_PATH=$(pwd)
 # If you specify a directory, spring will read all configuration files in the directory
 FLINK_VERSION=$(grep "^flink.version=" ${BASE_PATH}"/plugins/flink-sort-plugin.properties | awk -F= '{print $2}')
 CONFIG_DIR=${BASE_PATH}"/conf/"
-JAR_LIBS=${BASE_PATH}"/lib/*:"${BASE_PATH}"/plugins/flink-v"${FLINK_VERSION}
+JAR_LIBS=${BASE_PATH}"/lib/*:"${BASE_PATH}"/plugins/flink-v"${FLINK_VERSION}"/*"
 JAR_MAIN=${BASE_PATH}"/lib/"${APPLICATION_JAR}
 CLASSPATH=${CONFIG_DIR}:${JAR_LIBS}:${JAR_MAIN}
 MAIN_CLASS=org.apache.inlong.manager.web.InlongManagerMain
