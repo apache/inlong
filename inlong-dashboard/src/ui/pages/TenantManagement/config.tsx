@@ -36,7 +36,7 @@ export const getColumns = ({ onEdit }) => {
       dataIndex: 'tenant',
     },
     {
-      title: i18n.t('pages.Tenant.config.UserName'),
+      title: i18n.t('pages.Tenant.config.Username'),
       dataIndex: 'username',
     },
     {

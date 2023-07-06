@@ -91,7 +91,7 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
       },
       {
         type: 'select',
-        label: i18n.t('pages.Tenant.config.UserName'),
+        label: i18n.t('pages.Tenant.config.Username'),
         name: 'username',
         rules: [{ required: true }],
         props: values => ({
@@ -122,7 +122,7 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
       },
       {
         type: 'select',
-        label: i18n.t('pages.Tenant.config.Tenant'),
+        label: i18n.t('pages.Tenant.config.TenantRole'),
         name: 'roleCode',
         rules: [{ required: true }],
         props: {
