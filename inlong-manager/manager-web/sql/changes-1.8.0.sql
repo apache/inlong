@@ -129,4 +129,4 @@ DROP INDEX unique_group_heartbeat on group_heartbeat;
 
 ALTER TABLE stream_heartbeat DROP COLUMN id;
 ALTER TABLE `stream_heartbeat` ADD PRIMARY KEY (`component`, `instance`, `inlong_group_id`, `inlong_stream_id`);
-DROP INDEX unique_stream_heartbeat on component_heartbeat;
+DROP INDEX unique_stream_heartbeat on stream_heartbeat;
