@@ -35,7 +35,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-flink-dependencies-v1.13</artifactId>
+            <artifactId>sort-flink-dependencies-${sort.flink.version}</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
@@ -53,22 +53,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong.</groupId>
-            <artifactId>sort-flink-dependencies-v1.13</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.scala-lang</groupId>
-                    <artifactId>scala-library</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink.</groupId>
-            <artifactId>flink-table-api-java</artifactId>
-            <version>${flink.version}</version>
         </dependency>
     </dependencies>
 

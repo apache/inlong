@@ -17,17 +17,15 @@
 
 package org.apache.inlong.manager.service.plugin;
 
-import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.plugin.Plugin;
-import org.apache.inlong.manager.common.plugin.PluginBinder;
-import org.apache.inlong.manager.common.plugin.PluginDefinition;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.plugin.Plugin;
+import org.apache.inlong.manager.common.plugin.PluginBinder;
+import org.apache.inlong.manager.common.plugin.PluginDefinition;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,16 +33,11 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * PluginService is designed to load all plugin from ${BASE_PATH}/plugins
@@ -104,8 +97,6 @@ public class PluginService implements InitializingBean {
             return;
         }
 
-        replaceFlinkDependency(path);
-
         PluginClassLoader pluginLoader = PluginClassLoader.getFromPluginUrl(path.toString(),
                 Thread.currentThread().getContextClassLoader());
         Map<String, PluginDefinition> pluginDefinitions = pluginLoader.getPluginDefinitions();
@@ -135,71 +126,6 @@ public class PluginService implements InitializingBean {
                 binder.acceptPlugin(plugin);
                 log.info("plugin {} loaded by plugin binder {}", plugin.getClass(), binder.getClass());
             }
-        }
-    }
-
-    /**
-     * Replace the flink dependencies in the lib directory according to the flink version
-     */
-    public void replaceFlinkDependency(Path sourcePath) {
-        String flinkVersion = getFlinkVersion(sourcePath);
-
-        File sourceFile;
-        switch (flinkVersion) {
-            case FLINK_13:
-                sourceFile = new File(sourcePath + File.separator + FLINK_PREFIX + FLINK_13);
-                break;
-            case FLINK_15:
-                sourceFile = new File(sourcePath + File.separator + FLINK_PREFIX + FLINK_15);
-                break;
-            default:
-                log.error("Unsupported flink version: {}", flinkVersion);
-                return;
-        }
-        log.info("sourcePath: {}", sourceFile);
-
-        Path targetPath = Paths.get(DEFAULT_LIB_LOCATION).toAbsolutePath();
-        File targetFile = new File(targetPath.toUri());
-        log.info("targetPath: {}", targetFile);
-
-        if (!targetFile.isDirectory()) {
-            log.error("{} is not a directory, failed to replace dependency", targetFile);
-            return;
-        }
-
-        try {
-            for (File file : targetFile.listFiles()) {
-                if (file.isFile() && file.getName().contains("flink")) {
-                    file.delete();
-                }
-            }
-            FileUtils.copyDirectory(sourceFile, targetFile);
-        } catch (IOException e) {
-            log.error("Failed to replace dependency from {} to {}", sourceFile, targetFile);
-            throw new BusinessException(e.getMessage());
-        }
-        log.info("Successfully replaced dependencies from {} to {}", sourceFile, targetFile);
-    }
-
-    /**
-     * get flink version from config file
-     */
-    public String getFlinkVersion(Path path) {
-        log.info("config file path: {}", path);
-        String fileName = path + File.separator + DEFAULT_CONFIG_FILE;
-        File file = new File(fileName);
-        if (!file.exists()) {
-            String message = String.format("not found %s in path %s", DEFAULT_CONFIG_FILE, path);
-            log.error(message);
-            throw new BusinessException(message);
-        }
-        Properties properties = new Properties();
-
-        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName))) {
-            properties.load(bufferedReader);
-            return properties.getProperty(FLINK_VERSION);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 }
