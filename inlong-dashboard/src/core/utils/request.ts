@@ -23,6 +23,7 @@ import nprogress from 'nprogress';
 import { config } from '@/configs/default';
 import requestConcurrentMiddleware from './requestConcurrentMiddleware';
 import 'nprogress/nprogress.css';
+import { useLocalStorage } from './localStorage';
 
 export interface FetchOptions extends RequestOptionsInit {
   url: string;
@@ -41,12 +42,24 @@ export interface RequestOptions extends FetchOptions {
   responseParse?: (res: any) => SuccessResponse;
 }
 
-export const extendRequest = extend({
+const extendRequest = extend({
   prefix: config.requestPrefix,
   timeout: 60 * 1000,
 });
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
+const [getLocalStorage, setLocalStorage, removeLocalStorage] = useLocalStorage('tenant');
+
 extendRequest.use(requestConcurrentMiddleware);
+extendRequest.interceptors.request.use((url, options) => {
+  return {
+    options: {
+      ...options,
+      interceptors: true,
+      headers: { tenant: getLocalStorage('tenant')?.['name'] },
+    },
+  };
+});
 
 const fetch = (options: FetchOptions) => {
   const { method = 'get', url, fetchType = 'FETCH' } = options;

@@ -26,7 +26,6 @@ import { localesConfig } from '@/configs/locales';
 import i18n from '@/i18n';
 import './antd.cover.less';
 import { useLocalStorage } from '@/core/utils/localStorage';
-import { extendRequest } from '@/core/utils/request';
 
 const Provider = ({ children }) => {
   const dispatch = useDispatch();
@@ -46,15 +45,6 @@ const Provider = ({ children }) => {
     },
     {
       onSuccess: result => {
-        extendRequest.interceptors.request.use((url, options) => {
-          return {
-            options: {
-              ...options,
-              interceptors: true,
-              headers: { tenant: result.tenant === null ? '' : result.tenant },
-            },
-          };
-        });
         dispatch({
           type: 'setUserInfo',
           payload: {

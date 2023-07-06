@@ -19,7 +19,7 @@ export const useLocalStorage = name => {
   const getLocalStorage = () => {
     const local = localStorage.getItem(name);
 
-    if (local != null) {
+    if (local !== null) {
       return JSON.parse(local);
     }
 
