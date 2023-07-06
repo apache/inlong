@@ -35,71 +35,20 @@ import java.util.List;
  * org.apache.inlong.sort.kafka.partitioner.SingleTablePrimaryKeyPartitioner}.
  */
 public class SingleTablePrimaryKeyPartitionerTest {
-
-    private String databasePattern = "${database}";
-    private String tablePattern = "${table}";
-    private AbstractDynamicSchemaFormat dynamicSchemaFormat = new TestDynamicSchemaFormat();
-    class TestDynamicSchemaFormat extends AbstractDynamicSchemaFormat {
-
-        @Override
-        public String extract(Object data, String key) {
-            return null;
-        }
-
-        @Override
-        public List<String> extractPrimaryKeyNames(Object data) {
-            return null;
-        }
-
-        @Override
-        public boolean extractDDLFlag(Object data) {
-            return false;
-        }
-
-        @Override
-        public String extractDDL(Object data) {
-            return null;
-        }
-
-        @Override
-        public Object extractOperation(Object data) {
-            return null;
-        }
-
-        @Override
-        public List<RowData> extractRowData(Object data, RowType rowType) {
-            return null;
-        }
-
-        @Override
-        public Object deserialize(byte[] message) throws IOException {
-            return null;
-        }
-
-        @Override
-        public String parse(Object data, String pattern) throws IOException {
-            if (databasePattern.equals(pattern))
-                return "db1";
-            if (tablePattern.equals(pattern))
-                return "tb1";
-            return null;
-        }
-
-        @Override
-        public RowType extractSchema(Object data, List pkNames) {
-            return null;
-        }
-    }
-
     @Test
     public void testPrimaryKeyPartitioner() {
         SingleTablePrimaryKeyPartitioner singleTablePrimaryKeyPartitioner =
                 new SingleTablePrimaryKeyPartitioner();
-        RowData record = new GenericRowData(2);
-        RowKind kind = RowKind.fromByteValue((byte) 0);
-        record.setRowKind(kind);
+
+        TableSchema schema = new TableSchema
+
+        singleTablePrimaryKeyPartitioner.setSchema(schema);
+        singleTablePrimaryKeyPartitioner.setPartitionKey();
+        singleTablePrimaryKeyPartitioner.setValueFieldGetters();
+
         int partition = singleTablePrimaryKeyPartitioner.partition(record, null,
                 null, null, new int[]{0, 1, 2, 3});
-        Assert.assertEquals(0, partition);
+        
+        Assert.assertEquals(3, partition);
     }
 }
