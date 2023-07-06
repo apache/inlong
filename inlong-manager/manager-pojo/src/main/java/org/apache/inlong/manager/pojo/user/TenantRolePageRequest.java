@@ -37,7 +37,7 @@ public class TenantRolePageRequest extends PageRequest {
     @ApiModelProperty(value = "User name")
     private String username;
 
-    @ApiModelProperty(value = "target tenant list")
+    @ApiModelProperty(value = "Target tenant list")
     private List<String> tenantList;
 
     @ApiModelProperty(value = "Role code")
