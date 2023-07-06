@@ -17,11 +17,10 @@
 
 package org.apache.inlong.manager.service.user;
 
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
 import org.apache.inlong.manager.pojo.user.TenantRoleRequest;
-
-import com.github.pagehelper.PageInfo;
 
 /**
  * Tenant Role service
@@ -31,7 +30,7 @@ public interface TenantRoleService {
     /**
      * List all tenant role by paginating
      */
-    PageInfo<TenantRoleInfo> listByCondition(TenantRolePageRequest request);
+    PageResult<TenantRoleInfo> listByCondition(TenantRolePageRequest request);
 
     /**
      * Save one tenant role
