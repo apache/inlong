@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.user;
 
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
@@ -106,8 +107,8 @@ public class TenantRoleServiceTest extends ServiceBaseTest {
         }
         TenantRolePageRequest pageRequest = new TenantRolePageRequest();
         pageRequest.setKeyword("pub");
-        PageInfo<TenantRoleInfo> infos = service.listByCondition(pageRequest);
-        Assertions.assertEquals(max, infos.getSize());
+        PageResult<TenantRoleInfo> infos = service.listByCondition(pageRequest);
+        Assertions.assertEquals(max, infos.getTotal());
     }
 
 }
