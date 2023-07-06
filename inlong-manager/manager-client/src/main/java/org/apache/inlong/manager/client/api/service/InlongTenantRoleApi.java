@@ -31,15 +31,15 @@ import retrofit2.http.Path;
 
 public interface InlongTenantRoleApi {
 
-    @GET("/role/tenant/get/{id}")
+    @GET("role/tenant/get/{id}")
     Call<Response<TenantRoleInfo>> get(@Path("id") int id);
 
-    @POST("/role/tenant/save")
+    @POST("role/tenant/save")
     Call<Response<Integer>> save(@Body TenantRoleRequest request);
 
-    @POST("/role/tenant/update")
+    @POST("role/tenant/update")
     Call<Response<Boolean>> update(@Body TenantRoleRequest request);
 
-    @POST("/role/tenant/list")
+    @POST("role/tenant/list")
     Call<Response<PageResult<TenantRoleInfo>>> listByCondition(@Body TenantRolePageRequest request);
 }
