@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.service;
 
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
@@ -41,5 +42,5 @@ public interface InlongTenantRoleApi {
     Call<Response<Boolean>> update(@Body TenantRoleRequest request);
 
     @POST("/role/tenant/list")
-    Call<Response<PageInfo<TenantRoleInfo>>> listByCondition(@Body TenantRolePageRequest request);
+    Call<Response<PageResult<TenantRoleInfo>>> listByCondition(@Body TenantRolePageRequest request);
 }

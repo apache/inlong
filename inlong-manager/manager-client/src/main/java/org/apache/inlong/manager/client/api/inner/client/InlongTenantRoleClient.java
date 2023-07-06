@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.api.inner.client;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.InlongTenantRoleApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
@@ -39,10 +40,10 @@ public class InlongTenantRoleClient {
      * List all tenant role by paginating
      *
      * @param request tenant page info
-     * @return {@link PageInfo}
+     * @return {@link PageResult}
      */
-    public PageInfo<TenantRoleInfo> listByCondition(TenantRolePageRequest request) {
-        Response<PageInfo<TenantRoleInfo>> pageInfoResponse = ClientUtils.executeHttpCall(
+    public PageResult<TenantRoleInfo> listByCondition(TenantRolePageRequest request) {
+        Response<PageResult<TenantRoleInfo>> pageInfoResponse = ClientUtils.executeHttpCall(
                 inlongTenantRoleApi.listByCondition(request));
         ClientUtils.assertRespSuccess(pageInfoResponse);
         return pageInfoResponse.getData();
