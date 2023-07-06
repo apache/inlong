@@ -34,13 +34,9 @@ public interface GroupHeartbeatEntityMapper {
     int insertOrUpdateAll(@Param("component") String component, @Param("instance") String instance,
             @Param("reportTime") Long reportTime, @Param("list") List<GroupHeartbeat> list);
 
-    GroupHeartbeatEntity selectByPrimaryKey(Integer id);
-
     GroupHeartbeatEntity selectByKey(@Param("component") String component, @Param("instance") String instance,
             @Param("inlongGroupId") String inlongGroupId);
 
     List<GroupHeartbeatEntity> selectByCondition(@Param("request") HeartbeatPageRequest request);
-
-    int deleteByPrimaryKey(Integer id);
 
 }
