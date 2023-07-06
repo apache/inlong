@@ -27,7 +27,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("Update audit query source request")
-public class UpdateAuditSourceRequest {
+public class AuditSourceRequest {
 
     @ApiModelProperty(value = "old hosts you want to offline", name = "oldHosts")
     private String oldHosts;
@@ -45,9 +45,9 @@ public class UpdateAuditSourceRequest {
     String password;
     @ApiModelProperty(name = "authEnable", required = true)
     Integer authEnable;
-    public UpdateAuditSourceRequest() {
+    public AuditSourceRequest() {
     }
-    public UpdateAuditSourceRequest(String oldHosts, String auditQuerySource, String hosts, String userName,
+    public AuditSourceRequest(String oldHosts, String auditQuerySource, String hosts, String userName,
             String password, Integer authEnable) {
         this.oldHosts = oldHosts;
         this.auditQuerySource = auditQuerySource;

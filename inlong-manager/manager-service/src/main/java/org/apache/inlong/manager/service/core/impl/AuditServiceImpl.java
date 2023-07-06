@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.enums.AuditQuerySource;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.AuditBaseEntity;
 import org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity;
@@ -34,8 +35,8 @@ import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
+import org.apache.inlong.manager.pojo.audit.AuditSourceRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
-import org.apache.inlong.manager.pojo.audit.UpdateAuditSourceRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.core.AuditService;
@@ -180,7 +181,7 @@ public class AuditServiceImpl implements AuditService {
         return auditQuerySourceConfig;
     }
     @Override
-    public Boolean updateAuditQuerySource(UpdateAuditSourceRequest request) {
+    public Boolean updateAuditQuerySource(AuditSourceRequest request) {
         String oldHosts = request.getOldHosts();
         String auditQuerySource = request.getAuditQuerySource();
         String hosts = request.getHosts();
@@ -205,8 +206,8 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public AuditQuerySourceConfigEntity queryCurrentSource() {
-        return querySourceConfigEntityMapper.findByStatus();
+    public AuditSourceRequest queryCurrentSource() {
+        return CommonBeanUtils.copyProperties(querySourceConfigEntityMapper.findByStatus(), AuditSourceRequest::new);
     }
 
     @Override

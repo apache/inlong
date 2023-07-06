@@ -17,10 +17,9 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
+import org.apache.inlong.manager.pojo.audit.AuditSourceRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
-import org.apache.inlong.manager.pojo.audit.UpdateAuditSourceRequest;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.service.core.AuditService;
 
@@ -64,14 +63,14 @@ public class AuditController {
 
     @ApiOperation(value = "insert a source and connect to the source")
     @PostMapping(value = "/audit/updateSource")
-    public Response<Boolean> updateAuditQuerySource(@RequestBody UpdateAuditSourceRequest request) {
+    public Response<Boolean> updateAuditQuerySource(@RequestBody AuditSourceRequest request) {
         return Response.success(
                 auditService.updateAuditQuerySource(request));
     }
 
     @ApiOperation(value = "query which source is connected")
-    @GetMapping("/audit/querySource")
-    public Response<AuditQuerySourceConfigEntity> queryCurrentSource() {
+    @GetMapping("/audit/getSource")
+    public Response<AuditSourceRequest> queryCurrentSource() {
         return Response.success(auditService.queryCurrentSource());
     }
 

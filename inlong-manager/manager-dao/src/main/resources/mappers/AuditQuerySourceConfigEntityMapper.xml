@@ -37,17 +37,17 @@
     resultMap="BaseResultMap">
         select
             <include refid="Base_Column_List"></include>
-        from audit_query_source_config
+        from audit_source
         where status = 1 LIMIT 1
     </select>
     <update id="offlineAuditQuerySourceByHosts">
-        update audit_query_source_config set status = 0 where hosts = #{hosts};
+        update audit_source set status = 0 where hosts = #{hosts};
     </update>
     <update id="onlineAuditQuerySourceByHosts">
-    update audit_query_source_config set status = 1 where hosts = #{hosts};
+    update audit_source set status = 1 where hosts = #{hosts};
     </update>
     <insert id="insert" useGeneratedKeys="true" keyProperty="hosts">
-        insert into audit_query_source_config (audit_query_source, hosts, username, password, auth_enable, status, create_time, update_time)
+        insert into audit_source (audit_query_source, hosts, username, password, auth_enable, status, create_time, update_time)
         values (#{auditQuerySource}, #{hosts}, #{userName}, #{password}, #{authEnable}, #{status}, #{createTime}, #{updateTime})
         ON DUPLICATE KEY UPDATE audit_query_source = VALUES(audit_query_source),
                                 username = VALUES(username),

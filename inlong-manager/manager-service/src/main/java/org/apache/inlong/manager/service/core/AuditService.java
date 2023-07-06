@@ -17,10 +17,9 @@
 
 package org.apache.inlong.manager.service.core;
 
-import org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
+import org.apache.inlong.manager.pojo.audit.AuditSourceRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
-import org.apache.inlong.manager.pojo.audit.UpdateAuditSourceRequest;
 
 import java.util.List;
 
@@ -58,11 +57,11 @@ public interface AuditService {
      * @param request
      * @return
      */
-    Boolean updateAuditQuerySource(UpdateAuditSourceRequest request);
+    Boolean updateAuditQuerySource(AuditSourceRequest request);
 
     /**
      * Query which source is connected.
      * @return
      */
-    AuditQuerySourceConfigEntity queryCurrentSource();
+    AuditSourceRequest queryCurrentSource();
 }

@@ -856,7 +856,7 @@ VALUES ('audit_sdk_collect', 'SDK', 0, '1'),
 
 SET FOREIGN_KEY_CHECKS = 1;
 
-CREATE TABLE IF NOT EXISTS `audit_query_source_config`
+CREATE TABLE IF NOT EXISTS `audit_source`
 (
     `audit_query_source`    varchar(256)  NOT NULL COMMENT 'MYSQL, ELASTICSEARCH, CLICKHOUSE' ,
     `hosts`                 varchar(256) NOT NULL COMMENT 'If source is ck: jdbcUrl, if source is es: hostname' ,
