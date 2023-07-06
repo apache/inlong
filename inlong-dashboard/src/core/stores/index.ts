@@ -29,6 +29,7 @@ export interface State {
   userId: number;
   roles: string[];
   tenant: string;
+  tenantList: string[];
   currentMenu: null | Omit<MenuItemType, 'children'>;
 }
 
@@ -38,6 +39,7 @@ const state: State = {
   userId: 0,
   roles: [],
   tenant: '',
+  tenantList: [],
   currentMenu: null,
 };
 
@@ -56,6 +58,13 @@ const reducers = {
     return {
       ...state,
       locale: payload.locale,
+    };
+  },
+
+  setTenantInfo(state, payload) {
+    return {
+      ...state,
+      tenantList: payload.tenantList,
     };
   },
 

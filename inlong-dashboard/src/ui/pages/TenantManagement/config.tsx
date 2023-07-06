@@ -20,7 +20,6 @@
 import React from 'react';
 import { Button } from 'antd';
 import i18n from '@/i18n';
-import { genStatusTag } from './status';
 import { timestampFormat } from '@/core/utils';
 
 export const getFilterFormContent = () => [
@@ -30,30 +29,30 @@ export const getFilterFormContent = () => [
   },
 ];
 
-export const getColumns = ({ onEdit, onDelete }) => {
+export const getColumns = ({ onEdit }) => {
   return [
     {
-      title: i18n.t('pages.TenantRole.config.Name'),
+      title: i18n.t('pages.Tenant.config.Name'),
       dataIndex: 'tenant',
     },
     {
-      title: i18n.t('pages.TenantRole.config.UserName'),
+      title: i18n.t('pages.Tenant.config.UserName'),
       dataIndex: 'username',
     },
     {
-      title: i18n.t('pages.TenantRole.config.TenantRole'),
+      title: i18n.t('pages.Tenant.config.TenantRole'),
       dataIndex: 'roleCode',
       render: text =>
         text === 'TENANT_ADMIN'
-          ? i18n.t('pages.TenantRole.config.Admin')
-          : i18n.t('pages.TenantRole.config.GeneralUser'),
+          ? i18n.t('pages.Tenant.config.Admin')
+          : i18n.t('pages.Tenant.config.GeneralUser'),
     },
     {
-      title: i18n.t('pages.TenantRole.config.Creator'),
+      title: i18n.t('pages.Tenant.config.Creator'),
       dataIndex: 'creator',
     },
     {
-      title: i18n.t('pages.TenantRole.config.CreateTime'),
+      title: i18n.t('pages.Tenant.config.CreateTime'),
       dataIndex: 'createTime',
       render: text => text && timestampFormat(text),
     },
@@ -64,9 +63,6 @@ export const getColumns = ({ onEdit, onDelete }) => {
         <>
           <Button type="link" onClick={() => onEdit(record)}>
             {i18n.t('basic.Edit')}
-          </Button>
-          <Button type="link" onClick={() => onDelete(record)}>
-            {i18n.t('basic.Delete')}
           </Button>
         </>
       ),

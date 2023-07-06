@@ -27,7 +27,6 @@ export interface MenuItemType {
   children?: MenuItemType[];
   path?: string;
   isAdmin?: boolean;
-  isTenant?: boolean;
   icon?: React.ReactNode;
 }
 

@@ -17,14 +17,15 @@
  * under the License.
  */
 
-import React, { useMemo } from 'react';
-import { Modal, message } from 'antd';
+import React, { useMemo, useState } from 'react';
+import { Modal, message, Button } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import { useRequest, useSelector, useUpdateEffect } from '@/ui/hooks';
 import i18n from '@/i18n';
 import request from '@/core/utils/request';
 import { State } from '@/core/stores';
+import TenantModal from './TenantModal';
 
 export interface Props extends ModalProps {
   id?: number;
@@ -34,22 +35,66 @@ export interface Props extends ModalProps {
 const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   const [form] = useForm();
   const tenant = useSelector<State, State['tenant']>(state => state.tenant);
+  const roles = useSelector<State, State['roles']>(state => state.roles);
+  const [createModal, setCreateModal] = useState<Record<string, unknown>>({
+    open: false,
+  });
+
+  const onClick = () => {
+    setCreateModal({ open: true });
+  };
 
   const formContent = useMemo(() => {
     return [
-      // {
-      //   type: 'input',
-      //   label: i18n.t('pages.TenantRole.config.Name'),
-      //   name: 'tenant',
-      //   rules: [{ required: true }],
-      // },
       {
         type: 'select',
-        label: i18n.t('pages.TenantRole.config.UserName'),
+        label: i18n.t('pages.Tenant.config.Name'),
+        name: 'tenant',
+        rules: [{ required: true }],
+        props: {
+          showSearch: true,
+          allowClear: true,
+          filterOption: false,
+          options: {
+            requestTrigger: ['onOpen', 'onSearch'],
+            requestService: keyword => ({
+              url: '/tenant/listByUser',
+              method: 'POST',
+              data: {
+                keyword,
+                pageNum: 1,
+                pageSize: 10,
+              },
+            }),
+            requestParams: {
+              formatResult: result =>
+                result?.list?.map(item => ({
+                  ...item,
+                  label: item.name,
+                  value: item.name,
+                })),
+            },
+          },
+          dropdownRender: menu => (
+            <>
+              {roles.includes('INLONG_ADMIN') || roles.includes('INLONG_OPERATOR') ? (
+                <Button type="link" onClick={onClick} style={{ marginLeft: 0 }}>
+                  {i18n.t('pages.Tenant.New')}
+                </Button>
+              ) : (
+                ''
+              )}
+              {menu}
+            </>
+          ),
+        },
+      },
+      {
+        type: 'select',
+        label: i18n.t('pages.Tenant.config.UserName'),
         name: 'username',
         rules: [{ required: true }],
         props: values => ({
-          disabled: values?.status === 101,
           showSearch: true,
           allowClear: true,
           filterOption: false,
@@ -77,17 +122,17 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
       },
       {
         type: 'select',
-        label: i18n.t('pages.TenantRole.config.TenantRole'),
+        label: i18n.t('pages.Tenant.config.Tenant'),
         name: 'roleCode',
         rules: [{ required: true }],
         props: {
           options: [
             {
-              label: 'TENANT_ADMIN',
+              label: i18n.t('pages.Tenant.config.Admin'),
               value: 'TENANT_ADMIN',
             },
             {
-              label: 'TENANT_OPERATOR',
+              label: i18n.t('pages.Tenant.config.GeneralUser'),
               value: 'TENANT_OPERATOR',
             },
           ],
@@ -139,21 +184,30 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   }, [modalProps.open]);
 
   return (
-    <Modal
-      {...modalProps}
-      title={id ? i18n.t('basic.Edit') : i18n.t('pages.TenantRole.New')}
-      width={600}
-      onOk={onOk}
-    >
-      <FormGenerator
-        labelCol={{ span: 5 }}
-        wrapperCol={{ span: 20 }}
-        content={formContent}
-        form={form}
-        initialValues={id ? data : ''}
-        useMaxWidth
+    <>
+      <Modal
+        {...modalProps}
+        title={id ? i18n.t('basic.Edit') : i18n.t('pages.Tenant.New')}
+        width={600}
+        onOk={onOk}
+      >
+        <FormGenerator
+          labelCol={{ span: 5 }}
+          wrapperCol={{ span: 20 }}
+          content={formContent}
+          form={form}
+          initialValues={id ? data : ''}
+          useMaxWidth
+        />
+      </Modal>
+      <TenantModal
+        {...createModal}
+        onOk={async () => {
+          setCreateModal(prev => ({ ...prev, open: false }));
+        }}
+        onCancel={() => setCreateModal(prev => ({ ...prev, open: false }))}
       />
-    </Modal>
+    </>
   );
 };
 

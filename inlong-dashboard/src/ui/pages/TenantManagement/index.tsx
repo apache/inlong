@@ -18,25 +18,26 @@
  */
 
 import React, { useState } from 'react';
-import { Button, Card, Modal, message } from 'antd';
+import { Button, Card } from 'antd';
 import { PageContainer, Container } from '@/ui/components/PageContainer';
 import HighTable from '@/ui/components/HighTable';
 import { useRequest, useSelector } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
-import request from '@/core/utils/request';
 import { defaultSize } from '@/configs/pagination';
-import DataSourcesCreateModal from './DetailModal';
+import DetailModal from './DetailModal';
 import { getFilterFormContent, getColumns } from './config';
 import { State } from '@/core/stores';
 
 const Comp: React.FC = () => {
   const { t } = useTranslation();
-  const tenant = useSelector<State, State['tenant']>(state => state.tenant);
+
+  const tenantList = useSelector<State, State['tenantList']>(state => state.tenantList);
 
   const [options, setOptions] = useState({
-    keyword: tenant,
+    keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
+    tenantList: tenantList,
   });
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
@@ -62,23 +63,6 @@ const Comp: React.FC = () => {
     setCreateModal({
       open: true,
       id,
-    });
-  };
-
-  const onDelete = async ({ id }) => {
-    Modal.confirm({
-      title: t('basic.DeleteConfirm'),
-      onOk: async () => {
-        await request({
-          url: '/user/delete',
-          method: 'DELETE',
-          params: {
-            id,
-          },
-        });
-        await getList();
-        message.success(t('basic.DeleteSuccess'));
-      },
     });
   };
 
@@ -111,7 +95,7 @@ const Comp: React.FC = () => {
           <HighTable
             suffix={
               <Button type="primary" onClick={() => setCreateModal({ open: true })}>
-                {t('pages.TenantRole.New')}
+                {t('pages.Tenant.New')}
               </Button>
             }
             filterForm={{
@@ -119,7 +103,7 @@ const Comp: React.FC = () => {
               onFilter,
             }}
             table={{
-              columns: getColumns({ onEdit, onDelete }),
+              columns: getColumns({ onEdit }),
               rowKey: 'id',
               dataSource: data?.list,
               pagination,
@@ -130,7 +114,7 @@ const Comp: React.FC = () => {
         </Card>
       </Container>
 
-      <DataSourcesCreateModal
+      <DetailModal
         {...createModal}
         open={createModal.open as boolean}
         onOk={async () => {

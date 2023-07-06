@@ -21,7 +21,7 @@ import React, { useMemo } from 'react';
 import { Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
-import { useRequest, useUpdateEffect } from '@/ui/hooks';
+import { useUpdateEffect } from '@/ui/hooks';
 import i18n from '@/i18n';
 import request from '@/core/utils/request';
 
@@ -50,30 +50,12 @@ const Comp: React.FC<Props> = ({ name, ...modalProps }) => {
     ];
   }, []);
 
-  const { data, run: getData } = useRequest(
-    name => ({
-      url: `/tenant/get/${name}`,
-    }),
-    {
-      manual: true,
-      onSuccess: result => {
-        form.setFieldsValue(result);
-      },
-    },
-  );
-
   const onOk = async () => {
     const values = await form.validateFields();
-    const isUpdate = Boolean(name !== undefined);
-    const submitData = { ...values };
-    if (isUpdate) {
-      submitData.id = data?.id;
-      submitData.version = data?.version;
-    }
     await request({
-      url: isUpdate ? '/tenant/update' : '/tenant/save',
+      url: '/tenant/save',
       method: 'POST',
-      data: { ...submitData },
+      data: { ...values },
     });
     await modalProps?.onOk(values);
     message.success(i18n.t('basic.OperatingSuccess'));
@@ -81,26 +63,16 @@ const Comp: React.FC<Props> = ({ name, ...modalProps }) => {
 
   useUpdateEffect(() => {
     if (modalProps.open) {
-      if (name !== undefined) {
-        getData(name);
-      }
-    } else {
       form.resetFields();
     }
   }, [modalProps.open]);
 
   return (
-    <Modal
-      {...modalProps}
-      title={name !== undefined ? i18n.t('basic.Edit') : i18n.t('pages.Tenant.New')}
-      width={600}
-      onOk={onOk}
-    >
+    <Modal {...modalProps} title={i18n.t('pages.Tenant.New')} width={600} onOk={onOk}>
       <FormGenerator
         labelCol={{ span: 5 }}
         wrapperCol={{ span: 20 }}
         content={formContent}
-        initialValues={name ? data : ''}
         form={form}
         useMaxWidth
       />

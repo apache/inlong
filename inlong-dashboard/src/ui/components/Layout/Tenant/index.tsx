@@ -19,7 +19,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Divider, Dropdown, Input, MenuProps, message, Space, theme } from 'antd';
-import { useRequest, useSelector } from '@/ui/hooks';
+import { useDispatch, useRequest, useSelector } from '@/ui/hooks';
 import { State } from '@/core/stores';
 import { useTranslation } from 'react-i18next';
 import { useLocalStorage } from '@/core/utils/localStorage';
@@ -48,31 +48,36 @@ const Comp: React.FC = () => {
     pageSize: 10,
     pageNum: 1,
   };
+  const dispatch = useDispatch();
 
   const [options, setOptions] = useState(defaultOptions);
 
-  const isAdmin = roles.indexOf('INLONG_ADMIN') === -1 ? false : true;
-  const isOperator = roles.indexOf('INLONG_OPERATOR') === -1 ? false : true;
-
-  const { data: savedData, run: getStreamData } = useRequest(
+  const { run: getStreamData } = useRequest(
     {
-      url: isAdmin || isOperator ? '/tenant/list' : '/role/tenant/list',
+      url: '/tenant/listByUser',
       method: 'POST',
       data: {
         ...options,
-        username: userName,
       },
     },
     {
       refreshDeps: [options],
       manual: userName !== undefined ? false : true,
       onSuccess: result => {
-        let tenant = [];
+        const tenant = [];
+        const tenantList = [];
         result.list.map(item => {
+          tenantList.push(item.name);
           tenant.push({
-            label: isAdmin || isOperator ? item.name : item.tenant,
-            key: isAdmin || isOperator ? item.name : item.tenant,
+            label: item.name,
+            key: item.name,
           });
+        });
+        dispatch({
+          type: 'setTenantInfo',
+          payload: {
+            tenantList: tenantList,
+          },
         });
         setData(tenant);
       },

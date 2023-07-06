@@ -112,12 +112,8 @@ const conf: RouteProps[] = [
     ],
   },
   {
-    path: '/tenantRole',
-    component: () => import('@/ui/pages/TenantRole'),
-  },
-  {
     path: '/tenant',
-    component: () => import('@/ui/pages/Tenant'),
+    component: () => import('@/ui/pages/TenantManagement'),
   },
   {
     component: () => import('@/ui/pages/Error/404'),
