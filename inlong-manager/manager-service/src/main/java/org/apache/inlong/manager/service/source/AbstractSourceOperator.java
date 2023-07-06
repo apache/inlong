@@ -48,7 +48,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Default operator of stream source.
@@ -112,11 +111,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         if (CollectionUtils.isEmpty(entityPage)) {
             return PageResult.empty();
         }
-
-        List<StreamSource> streamSources = entityPage.stream()
-                .map(this::getFromEntity)
-                .collect(Collectors.toList());
-        return new PageResult<>(streamSources, entityPage.getTotal(), entityPage.getPageNum(), entityPage.size());
+        return PageResult.fromPage(entityPage).map(this::getFromEntity);
     }
 
     @Override

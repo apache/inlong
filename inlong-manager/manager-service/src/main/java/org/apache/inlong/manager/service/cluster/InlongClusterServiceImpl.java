@@ -232,11 +232,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongClusterTagEntity> entityPage = (Page<InlongClusterTagEntity>) clusterTagMapper
                 .selectByCondition(request);
+        PageResult<ClusterTagResponse> pageResult = PageResult.fromPage(entityPage)
+                .map(entity -> CommonBeanUtils.copyProperties(entity, ClusterTagResponse::new));
 
-        List<ClusterTagResponse> tagList = CommonBeanUtils.copyListProperties(entityPage, ClusterTagResponse::new);
-
-        PageResult<ClusterTagResponse> pageResult = new PageResult<>(tagList,
-                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
         LOGGER.debug("success to list cluster tag by {}", request);
         return pageResult;
     }
@@ -567,16 +565,11 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     public PageResult<ClusterInfo> list(ClusterPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongClusterEntity> entityPage = (Page<InlongClusterEntity>) clusterMapper.selectByCondition(request);
-        List<ClusterInfo> list = entityPage.stream()
+        PageResult<ClusterInfo> pageResult = PageResult.fromPage(entityPage)
                 .map(entity -> {
                     InlongClusterOperator instance = clusterOperatorFactory.getInstance(entity.getType());
                     return instance.getFromEntity(entity);
-                })
-                .collect(Collectors.toList());
-
-        PageResult<ClusterInfo> pageResult = new PageResult<>(
-                list, entityPage.getTotal(),
-                entityPage.getPageNum(), entityPage.getPageSize());
+                });
 
         LOGGER.debug("success to list inlong cluster by {}", request);
         return pageResult;
@@ -926,10 +919,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongClusterNodeEntity> entityPage =
                 (Page<InlongClusterNodeEntity>) clusterNodeMapper.selectByCondition(request);
-        List<ClusterNodeResponse> nodeList = CommonBeanUtils.copyListProperties(entityPage, ClusterNodeResponse::new);
-
-        PageResult<ClusterNodeResponse> pageResult = new PageResult<>(nodeList, entityPage.getTotal(),
-                entityPage.getPageNum(), entityPage.getPageSize());
+        PageResult<ClusterNodeResponse> pageResult = PageResult.fromPage(entityPage)
+                .map(entity -> CommonBeanUtils.copyProperties(entity, ClusterNodeResponse::new));
 
         LOGGER.debug("success to list inlong cluster node by {}", request);
         return pageResult;
