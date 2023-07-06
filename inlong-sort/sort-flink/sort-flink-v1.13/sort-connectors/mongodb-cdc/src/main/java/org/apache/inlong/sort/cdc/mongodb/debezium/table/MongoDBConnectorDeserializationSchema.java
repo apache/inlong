@@ -80,7 +80,6 @@ import java.util.Map;
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.inlong.sort.cdc.mongodb.debezium.utils.RecordUtils.isDMLOperation;
 
 public class MongoDBConnectorDeserializationSchema
         implements
@@ -145,17 +144,12 @@ public class MongoDBConnectorDeserializationSchema
         Schema valueSchema = record.valueSchema();
 
         OperationType op = operationTypeFor(record);
-        BsonDocument documentKey = new BsonDocument();
-        BsonDocument fullDocument = new BsonDocument();
 
-        if (isDMLOperation(op)) {
-            documentKey =
-                    checkNotNull(
-                            extractBsonDocument(
-                                    value, valueSchema, MongoDBEnvelope.DOCUMENT_KEY_FIELD));
-            fullDocument =
-                    extractBsonDocument(value, valueSchema, MongoDBEnvelope.FULL_DOCUMENT_FIELD);
-        }
+        BsonDocument documentKey =
+                extractBsonDocument(
+                        value, valueSchema, MongoDBEnvelope.DOCUMENT_KEY_FIELD);
+        BsonDocument fullDocument =
+                extractBsonDocument(value, valueSchema, MongoDBEnvelope.FULL_DOCUMENT_FIELD);
 
         switch (op) {
             case INSERT:
