@@ -859,7 +859,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 CREATE TABLE IF NOT EXISTS `audit_source`
 (
     `audit_query_source`    varchar(256)  NOT NULL COMMENT 'MYSQL, ELASTICSEARCH, CLICKHOUSE' ,
-    `url`                 varchar(256) NOT NULL COMMENT 'If source is CLICKHOUSE or MYSQL: jdbcUrl, if source is ELASTICSEARCH: hostname:port' ,
+    `url`                   varchar(256) NOT NULL COMMENT 'If source is CLICKHOUSE or MYSQL: jdbcUrl, if source is ELASTICSEARCH: hostname:port' ,
     `username`              varchar(256) NOT NULL COMMENT 'User name' ,
     `password`              varchar(256) NOT NULL ,
     `auth_enable`           TINYINT(1) DEFAULT 1 COMMENT '1:enable, 0:disable',
