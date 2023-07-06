@@ -799,12 +799,12 @@
   "components.FieldList.CreateSink": "Create SinkField",
   "components.FieldList.AddField": "Add Field",
   "pages.Tenant.config.Description": "Description",
-  "pages.Tenant.config.Name": "TenantName",
+  "pages.Tenant.config.Name": "Tenant Name",
   "pages.Tenant.New": "Create",
-  "pages.Tenant.config.Username": "Username",
-  "pages.Tenant.config.TenantRole": "TenantRole",
+  "pages.Tenant.config.Username": "User Name",
+  "pages.Tenant.config.TenantRole": "Tenant Role",
   "pages.Tenant.config.Admin": "Tenant Admin",
   "pages.Tenant.config.GeneralUser": "General User",
   "pages.Tenant.config.Creator": "Creator",
-  "pages.Tenant.config.CreateTime": "CreateTime"
+  "pages.Tenant.config.CreateTime": "Create Time"
 }
