@@ -61,8 +61,8 @@ public interface InlongTenantService {
 
     /**
      * List tenant by current user
-     * @param request
-     * @return
+     * @param request paging request
+     * @return User related tenant info
      */
     PageResult<InlongTenantInfo> listTenantByUser(InlongTenantPageRequest request);
 

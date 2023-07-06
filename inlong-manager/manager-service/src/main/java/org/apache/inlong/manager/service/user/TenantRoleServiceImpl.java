@@ -124,11 +124,11 @@ public class TenantRoleServiceImpl implements TenantRoleService {
     }
 
     @Override
-    public List<String> listTenantByUser(String user) {
+    public List<String> listTenantByUsername(String username) {
         TenantRolePageRequest request = new TenantRolePageRequest();
-        request.setPageSize(1);
-        request.setPageNum(Integer.MAX_VALUE);
-        request.setUsername(user);
+        request.setPageNum(1);
+        request.setPageSize(Integer.MAX_VALUE);
+        request.setUsername(username);
         PageResult<TenantRoleInfo> tenantRoleInfoList = listByCondition(request);
         return tenantRoleInfoList.getList().stream()
                 .map(TenantRoleInfo::getTenant)

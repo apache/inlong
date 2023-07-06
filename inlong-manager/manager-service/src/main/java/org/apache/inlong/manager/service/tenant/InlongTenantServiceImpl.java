@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.tenant;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -121,7 +122,10 @@ public class InlongTenantServiceImpl implements InlongTenantService {
         if (currentUser.getRoles().contains(INLONG_ADMIN) || currentUser.getRoles().contains(INLONG_OPERATOR)) {
             request.setTenantList(null);
         } else {
-            List<String> tenants = tenantRoleService.listTenantByUser(currentUser.getName());
+            List<String> tenants = tenantRoleService.listTenantByUsername(currentUser.getName());
+            if (CollectionUtils.isEmpty(tenants)) {
+                return new PageResult<>();
+            }
             request.setTenantList(tenants);
         }
         Page<InlongTenantEntity> entityPage = inlongTenantEntityMapper.selectByCondition(request);

@@ -57,5 +57,5 @@ public interface TenantRoleService {
     /**
      * List tenant by given username
      */
-    List<String> listTenantByUser(String user);
+    List<String> listTenantByUsername(String username);
 }

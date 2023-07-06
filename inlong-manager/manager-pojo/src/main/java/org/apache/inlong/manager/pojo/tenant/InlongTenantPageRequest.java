@@ -34,7 +34,7 @@ public class InlongTenantPageRequest extends PageRequest {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "target tenant list")
+    @ApiModelProperty(value = "Tenant list")
     private List<String> tenantList;
 
     @ApiModelProperty(value = "Keyword")
