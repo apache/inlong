@@ -49,7 +49,7 @@ public class InlongTenantRoleClient {
     }
 
     /**
-     * Save one tenant role
+     * Save  tenant role
      *
      * @param record tenant role info
      *
@@ -62,7 +62,7 @@ public class InlongTenantRoleClient {
     }
 
     /**
-     * Update one tenant role
+     * Update  tenant role
      *
      * @param  record tenant role info
      * @return true/false
@@ -74,7 +74,7 @@ public class InlongTenantRoleClient {
     }
 
     /**
-     * Get one tenant role by id
+     * Get tenant role by id
      */
     public TenantRoleInfo get(int id) {
         Response<TenantRoleInfo> tenantRoleInfoResponse = ClientUtils.executeHttpCall(inlongTenantRoleApi.get(id));
