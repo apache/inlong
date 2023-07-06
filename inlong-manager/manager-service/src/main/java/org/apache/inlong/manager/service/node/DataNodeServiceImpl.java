@@ -93,10 +93,6 @@ public class DataNodeServiceImpl implements DataNodeService {
             request.setName(name);
         }
 
-        // only the person in charges can query
-        if (!opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
-            throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED);
-        }
         // check if data node already exist
         DataNodeEntity existEntity =
                 dataNodeMapper.selectByUniqueKey(request.getName(), request.getType());
@@ -222,10 +218,6 @@ public class DataNodeServiceImpl implements DataNodeService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean update(DataNodeRequest request, UserInfo opInfo) {
-        // only the person in charges can query
-        if (!opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
-            throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED);
-        }
         // check the record existed
         DataNodeEntity curEntity = dataNodeMapper.selectById(request.getId());
         if (curEntity == null) {
@@ -290,10 +282,6 @@ public class DataNodeServiceImpl implements DataNodeService {
 
     @Override
     public Boolean delete(Integer id, UserInfo opInfo) {
-        // only the person in charges can query
-        if (!opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
-            throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED);
-        }
         DataNodeEntity entity = dataNodeMapper.selectById(id);
         Preconditions.expectNotNull(entity, ErrorCodeEnum.DATA_NODE_NOT_FOUND,
                 ErrorCodeEnum.DATA_NODE_NOT_FOUND.getMessage());
