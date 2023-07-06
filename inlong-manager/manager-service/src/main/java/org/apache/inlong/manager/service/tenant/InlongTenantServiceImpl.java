@@ -21,9 +21,14 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongTenantEntity;
+import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongTenantEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
@@ -43,6 +48,10 @@ public class InlongTenantServiceImpl implements InlongTenantService {
 
     @Autowired
     private InlongTenantEntityMapper inlongTenantEntityMapper;
+    @Autowired
+    private InlongGroupEntityMapper inlongGroupEntityMapper;
+    @Autowired
+    private InlongClusterNodeEntityMapper inlongClusterNodeEntityMapper;
 
     @Override
     public InlongTenantInfo getByName(String name) {
@@ -107,4 +116,12 @@ public class InlongTenantServiceImpl implements InlongTenantService {
         }
         return true;
     }
+
+    @Override
+    public Boolean delete(String name) {
+        InlongGroupPageRequest inlongGroupPageRequest = new InlongGroupPageRequest();
+
+        return null;
+    }
+
 }

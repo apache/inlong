@@ -59,4 +59,5 @@ public interface InlongTenantService {
      */
     Boolean update(InlongTenantRequest request);
 
+    Boolean delete(String name);
 }

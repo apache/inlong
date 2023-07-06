@@ -57,6 +57,7 @@ public interface InlongGroupEntityMapper {
 
     List<InlongGroupEntity> selectByTopicRequest(InlongGroupTopicRequest request);
 
+    List<InlongGroupEntity> selectAllGroupByTenant();
     /**
      * Select all group info for sort sdk.
      *
