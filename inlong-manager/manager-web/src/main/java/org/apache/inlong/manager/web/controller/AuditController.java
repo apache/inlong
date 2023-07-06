@@ -61,7 +61,7 @@ public class AuditController {
         return Response.success(auditService.refreshBaseItemCache());
     }
 
-    @ApiOperation(value = "Offline the old audit source and online the new audit source.")
+    @ApiOperation(value = "Offline the old audit source and online the new audit source")
     @PostMapping(value = "/audit/updateSource")
     public Response<Boolean> updateAuditQuerySource(@RequestBody AuditSourceRequest request) {
         return Response.success(
