@@ -28,6 +28,8 @@ import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
+import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.service.user.TenantRoleService;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -37,12 +39,17 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_ADMIN;
+import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_OPERATOR;
+
 @Service
 @Slf4j
 public class InlongTenantServiceImpl implements InlongTenantService {
 
     @Autowired
     private InlongTenantEntityMapper inlongTenantEntityMapper;
+    @Autowired
+    private TenantRoleService tenantRoleService;
 
     @Override
     public InlongTenantInfo getByName(String name) {
@@ -106,5 +113,20 @@ public class InlongTenantServiceImpl implements InlongTenantService {
                             request.getName(), request.getVersion(), rowCount));
         }
         return true;
+    }
+
+    @Override
+    public PageResult<InlongTenantInfo> listTenantByUser(InlongTenantPageRequest request) {
+        UserInfo currentUser = LoginUserUtils.getLoginUser();
+        if (currentUser.getRoles().contains(INLONG_ADMIN) || currentUser.getRoles().contains(INLONG_OPERATOR)) {
+            request.setTenantList(null);
+        } else {
+            List<String> tenants = tenantRoleService.listTenantByUser(currentUser.getName());
+            request.setTenantList(tenants);
+        }
+        Page<InlongTenantEntity> entityPage = inlongTenantEntityMapper.selectByCondition(request);
+        List<InlongTenantInfo> tenantList = CommonBeanUtils.copyListProperties(entityPage, InlongTenantInfo::new);
+        return new PageResult<>(tenantList,
+                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
     }
 }

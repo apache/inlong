@@ -74,6 +74,12 @@ public class InlongTenantController {
         return Response.success(tenantService.listByCondition(request));
     }
 
+    @RequestMapping(value = "/tenant/listByUser", method = RequestMethod.POST)
+    @ApiOperation(value = "List tenant by specific user")
+    public Response<PageResult<InlongTenantInfo>> listTenantByUser(@RequestBody InlongTenantPageRequest request) {
+        return Response.success(tenantService.listTenantByUser(request));
+    }
+
     @RequestMapping(value = "/tenant/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update inlong tenant")

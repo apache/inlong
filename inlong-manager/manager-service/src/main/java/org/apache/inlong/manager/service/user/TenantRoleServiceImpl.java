@@ -33,11 +33,13 @@ import org.apache.inlong.manager.pojo.user.TenantRoleRequest;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.common.enums.ErrorCodeEnum.TENANT_NOT_EXIST;
 
@@ -119,6 +121,19 @@ public class TenantRoleServiceImpl implements TenantRoleService {
             return null;
         }
         return CommonBeanUtils.copyProperties(entity, TenantRoleInfo::new);
+    }
+
+    @Override
+    public List<String> listTenantByUser(String user) {
+        TenantRolePageRequest request = new TenantRolePageRequest();
+        request.setPageSize(1);
+        request.setPageNum(Integer.MAX_VALUE);
+        request.setUsername(user);
+        PageResult<TenantRoleInfo> tenantRoleInfoList = listByCondition(request);
+        return tenantRoleInfoList.getList().stream()
+                .map(TenantRoleInfo::getTenant)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
 }

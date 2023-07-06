@@ -59,4 +59,11 @@ public interface InlongTenantService {
      */
     Boolean update(InlongTenantRequest request);
 
+    /**
+     * List tenant by current user
+     * @param request
+     * @return
+     */
+    PageResult<InlongTenantInfo> listTenantByUser(InlongTenantPageRequest request);
+
 }

@@ -69,6 +69,12 @@
             tenant like CONCAT('%', #{keyword}, '%')
             )
         </if>
+        <if test="tenantList != null and tenantList.size() > 0">
+            and tenant in
+            <foreach collection="tenantList" item="targetTenant" index="index" open="(" close=")" separator=",">
+                #{targetTenant}
+            </foreach>
+        </if>
         <if test="disabled != null">
             and disabled = #{disabled, jdbcType=SMALLINT}
         </if>
