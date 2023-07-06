@@ -38,8 +38,8 @@ public class InlongTenantRoleClient {
     /**
      * List all tenant role by paginating
      *
-     *@param request tenant page info
-     *@return {@link PageInfo<TenantRoleInfo>}
+     * @param request tenant page info
+     * @return {@link PageInfo}
      */
     public PageInfo<TenantRoleInfo> listByCondition(TenantRolePageRequest request) {
         Response<PageInfo<TenantRoleInfo>> pageInfoResponse = ClientUtils.executeHttpCall(
@@ -52,7 +52,6 @@ public class InlongTenantRoleClient {
      * Save  tenant role
      *
      * @param record tenant role info
-     *
      * @return tenant id
      */
     public int save(TenantRoleRequest record) {
@@ -75,6 +74,9 @@ public class InlongTenantRoleClient {
 
     /**
      * Get tenant role by id
+     *
+     * @param id tenantRole id
+     * @return {@link TenantRoleInfo}
      */
     public TenantRoleInfo get(int id) {
         Response<TenantRoleInfo> tenantRoleInfoResponse = ClientUtils.executeHttpCall(inlongTenantRoleApi.get(id));
