@@ -797,6 +797,7 @@
   "components.FieldList.Sink": "目标字段",
   "components.FieldList.CreateSource": "新建源字段",
   "components.FieldList.CreateSink": "新建目标字段",
+  "components.FieldList.AddField": "添加字段",
   "pages.Tenant.config.Description": "描述",
   "pages.Tenant.config.Name": "租户名称",
   "pages.Tenant.New": "新建角色",

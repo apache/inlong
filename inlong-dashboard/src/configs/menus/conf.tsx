@@ -27,7 +27,6 @@ import {
   SafetyOutlined,
   ShopOutlined,
   InteractionOutlined,
-  UserOutlined,
 } from '@ant-design/icons';
 import type { MenuItemType } from '.';
 
