@@ -51,15 +51,6 @@ const extendRequest = extend({
 const [getLocalStorage, setLocalStorage, removeLocalStorage] = useLocalStorage('tenant');
 
 extendRequest.use(requestConcurrentMiddleware);
-extendRequest.interceptors.request.use((url, options) => {
-  return {
-    options: {
-      ...options,
-      interceptors: true,
-      headers: { tenant: getLocalStorage('tenant')?.['name'] },
-    },
-  };
-});
 
 const fetch = (options: FetchOptions) => {
   const { method = 'get', url, fetchType = 'FETCH' } = options;
@@ -76,10 +67,11 @@ const fetch = (options: FetchOptions) => {
     //     });
     // });
   }
-
+  const tenantName = getLocalStorage('tenant')?.['name'];
   const config = { ...options };
   delete config.url;
   delete config.fetchType;
+  config.headers = tenantName === undefined ? {} : { tenant: tenantName };
 
   return extendRequest(url, {
     method,

@@ -25,8 +25,6 @@ import { config } from '@/configs/default';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import request from '@/core/utils/request';
 import styles from './index.module.less';
-import { useLocalStorage } from '@/core/utils/localStorage';
-import { useRequest } from '@/ui/hooks';
 
 const Comp: React.FC = () => {
   const { t } = useTranslation();
@@ -58,20 +56,6 @@ const Comp: React.FC = () => {
     },
   ];
 
-  const [getLocalStorage, setLocalStorage, removeLocalStorage] = useLocalStorage('tenant');
-
-  const { run: getCurrentUser } = useRequest(
-    {
-      url: '/user/currentUser',
-      method: 'POST',
-    },
-    {
-      onSuccess: result => {
-        setLocalStorage({ name: result.tenant });
-      },
-    },
-  );
-
   const login = async () => {
     const data = await form.validateFields();
     await request({
@@ -79,7 +63,6 @@ const Comp: React.FC = () => {
       method: 'POST',
       data,
     });
-    getCurrentUser();
     window.location.href = '/';
   };
 

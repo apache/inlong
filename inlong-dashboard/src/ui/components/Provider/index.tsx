@@ -39,12 +39,10 @@ const Provider = ({ children }) => {
     {
       url: '/user/currentUser',
       method: 'POST',
-      headers: {
-        tenant: getLocalStorage('tenant')?.['name'],
-      },
     },
     {
       onSuccess: result => {
+        setLocalStorage({ name: result.tenant });
         dispatch({
           type: 'setUserInfo',
           payload: {
