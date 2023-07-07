@@ -38,7 +38,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.common.enums.ErrorCodeEnum.TENANT_NOT_EXIST;
 
@@ -124,15 +123,7 @@ public class TenantRoleServiceImpl implements TenantRoleService {
 
     @Override
     public List<String> listTenantByUsername(String username) {
-        TenantRolePageRequest request = new TenantRolePageRequest();
-        request.setPageNum(1);
-        request.setPageSize(Integer.MAX_VALUE);
-        request.setUsername(username);
-        PageResult<TenantRoleInfo> tenantRoleInfoList = listByCondition(request);
-        return tenantRoleInfoList.getList().stream()
-                .map(TenantRoleInfo::getTenant)
-                .distinct()
-                .collect(Collectors.toList());
+        return tenantUserRoleEntityMapper.listByUsername(username);
     }
 
 }

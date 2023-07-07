@@ -80,8 +80,13 @@ public class InlongTenantServiceImpl implements InlongTenantService {
     }
 
     @Override
-    public PageResult<InlongTenantInfo> listByCondition(InlongTenantPageRequest request) {
+    public PageResult<InlongTenantInfo> listByCondition(InlongTenantPageRequest request, UserInfo userInfo) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
+
+        if (request.getListByLoginUser()) {
+            setTargetTenantList(request, userInfo);
+        }
+
         Page<InlongTenantEntity> entityPage = inlongTenantEntityMapper.selectByCondition(request);
 
         List<InlongTenantInfo> tenantList = CommonBeanUtils.copyListProperties(entityPage, InlongTenantInfo::new);
@@ -116,21 +121,22 @@ public class InlongTenantServiceImpl implements InlongTenantService {
         return true;
     }
 
-    @Override
-    public PageResult<InlongTenantInfo> listTenantByUser(InlongTenantPageRequest request) {
-        UserInfo currentUser = LoginUserUtils.getLoginUser();
-        if (currentUser.getRoles().contains(INLONG_ADMIN) || currentUser.getRoles().contains(INLONG_OPERATOR)) {
+    private void setTargetTenantList(InlongTenantPageRequest request, UserInfo userInfo) {
+        request.setKeyword(null);
+        if (isInlongRoles(userInfo)) {
             request.setTenantList(null);
-        } else {
-            List<String> tenants = tenantRoleService.listTenantByUsername(currentUser.getName());
-            if (CollectionUtils.isEmpty(tenants)) {
-                return new PageResult<>();
-            }
-            request.setTenantList(tenants);
+            return;
         }
-        Page<InlongTenantEntity> entityPage = inlongTenantEntityMapper.selectByCondition(request);
-        List<InlongTenantInfo> tenantList = CommonBeanUtils.copyListProperties(entityPage, InlongTenantInfo::new);
-        return new PageResult<>(tenantList,
-                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
+
+        List<String> tenants = tenantRoleService.listTenantByUsername(userInfo.getName());
+        if (CollectionUtils.isEmpty(tenants)) {
+            request.setTenantList(null);
+            return;
+        }
+        request.setTenantList(tenants);
+    }
+
+    private boolean isInlongRoles(UserInfo userInfo) {
+        return userInfo.getRoles().contains(INLONG_ADMIN) || userInfo.getRoles().contains(INLONG_OPERATOR);
     }
 }

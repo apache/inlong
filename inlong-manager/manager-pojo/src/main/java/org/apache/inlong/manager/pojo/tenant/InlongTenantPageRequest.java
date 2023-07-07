@@ -40,6 +40,9 @@ public class InlongTenantPageRequest extends PageRequest {
     @ApiModelProperty(value = "Keyword")
     private String keyword;
 
+    @ApiModelProperty(value = "Whether list tenant info of login user")
+    private Boolean listByLoginUser = false;
+
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
 

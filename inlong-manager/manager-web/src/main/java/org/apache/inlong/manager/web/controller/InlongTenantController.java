@@ -24,6 +24,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.tenant.InlongTenantService;
 
@@ -69,15 +70,8 @@ public class InlongTenantController {
 
     @RequestMapping(value = "/tenant/list", method = RequestMethod.POST)
     @ApiOperation(value = "List tenant by paginating")
-    @RequiresRoles(logical = Logical.OR, value = {INLONG_ADMIN, INLONG_OPERATOR})
     public Response<PageResult<InlongTenantInfo>> listByCondition(@RequestBody InlongTenantPageRequest request) {
-        return Response.success(tenantService.listByCondition(request));
-    }
-
-    @RequestMapping(value = "/tenant/listByUser", method = RequestMethod.POST)
-    @ApiOperation(value = "List tenant by specific user")
-    public Response<PageResult<InlongTenantInfo>> listTenantByUser(@RequestBody InlongTenantPageRequest request) {
-        return Response.success(tenantService.listTenantByUser(request));
+        return Response.success(tenantService.listByCondition(request, LoginUserUtils.getLoginUser()));
     }
 
     @RequestMapping(value = "/tenant/update", method = RequestMethod.POST)

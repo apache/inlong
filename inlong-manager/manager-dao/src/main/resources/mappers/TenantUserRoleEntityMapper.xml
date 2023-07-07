@@ -79,7 +79,13 @@
             and disabled = #{disabled, jdbcType=SMALLINT}
         </if>
     </select>
-
+    <select id="listByUsername" resultType="java.lang.String">
+        select tenant
+        from tenant_user_role
+        where is_deleted = 0
+        and username  = #{username,jdbcType=VARCHAR}
+        group by tenant
+    </select>
 
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.TenantUserRoleEntity">
         update tenant_user_role
