@@ -51,18 +51,6 @@ public class PluginService implements InitializingBean {
 
     public static final String DEFAULT_PLUGIN_LOCATION = "plugins";
 
-    public static final String DEFAULT_LIB_LOCATION = "lib";
-
-    public static final String DEFAULT_CONFIG_FILE = "flink-sort-plugin.properties";
-
-    public static final String FLINK_VERSION = "flink.version";
-
-    public static final String FLINK_PREFIX = "flink-v";
-
-    public static final String FLINK_13 = "1.13";
-
-    public static final String FLINK_15 = "1.15";
-
     @Getter
     private final List<Plugin> plugins = new ArrayList<>();
 

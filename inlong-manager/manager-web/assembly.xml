@@ -62,6 +62,9 @@
         <fileSet>
             <directory>${build.directory}/lib</directory>
             <outputDirectory>lib</outputDirectory>
+            <excludes>
+                <exclude>*scala*.jar</exclude>
+            </excludes>
         </fileSet>
 
         <!-- Package the project startup jar into the lib directory -->
