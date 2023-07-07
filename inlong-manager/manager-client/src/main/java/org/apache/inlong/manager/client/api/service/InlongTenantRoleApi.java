@@ -15,54 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.user;
+package org.apache.inlong.manager.client.api.service;
 
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
 import org.apache.inlong.manager.pojo.user.TenantRoleRequest;
 
-import java.util.List;
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.Path;
 
-/**
- * Tenant Role service
- */
-public interface TenantRoleService {
+public interface InlongTenantRoleApi {
 
-    /**
-     * List all tenant role by paginating
-     */
-    PageResult<TenantRoleInfo> listByCondition(TenantRolePageRequest request);
+    @GET("role/tenant/get/{id}")
+    Call<Response<TenantRoleInfo>> get(@Path("id") int id);
 
-    /**
-     * Save one tenant role
-     */
-    int save(TenantRoleRequest record, String operator);
+    @POST("role/tenant/save")
+    Call<Response<Integer>> save(@Body TenantRoleRequest request);
 
-    /**
-     * Update one tenant role
-     */
-    boolean update(TenantRoleRequest record, String operator);
+    @POST("role/tenant/update")
+    Call<Response<Boolean>> update(@Body TenantRoleRequest request);
 
-    /**
-     * Get one tenant role by id
-     */
-    TenantRoleInfo get(int id);
-
-    /**
-     * Get one tenant role by name and tenant
-     */
-    TenantRoleInfo getByUsernameAndTenant(String name, String tenant);
-
-    /**
-     * List tenant by given username
-     */
-    List<String> listTenantByUsername(String username);
-
-    /**
-     * Delete tenant role by id
-     * @param id tenant role
-     * @return true = delete success/ false = delete fail
-     */
-    boolean delete(Integer id);
+    @POST("role/tenant/list")
+    Call<Response<PageResult<TenantRoleInfo>>> listByCondition(@Body TenantRolePageRequest request);
 }

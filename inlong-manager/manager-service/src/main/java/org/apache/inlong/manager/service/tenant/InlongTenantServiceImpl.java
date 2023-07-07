@@ -28,14 +28,20 @@ import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
+import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.service.user.TenantRoleService;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_ADMIN;
+import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_OPERATOR;
 
 @Service
 @Slf4j
@@ -43,6 +49,8 @@ public class InlongTenantServiceImpl implements InlongTenantService {
 
     @Autowired
     private InlongTenantEntityMapper inlongTenantEntityMapper;
+    @Autowired
+    private TenantRoleService tenantRoleService;
 
     @Override
     public InlongTenantInfo getByName(String name) {
@@ -72,8 +80,13 @@ public class InlongTenantServiceImpl implements InlongTenantService {
     }
 
     @Override
-    public PageResult<InlongTenantInfo> listByCondition(InlongTenantPageRequest request) {
+    public PageResult<InlongTenantInfo> listByCondition(InlongTenantPageRequest request, UserInfo userInfo) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
+
+        if (request.getListByLoginUser()) {
+            setTargetTenantList(request, userInfo);
+        }
+
         Page<InlongTenantEntity> entityPage = inlongTenantEntityMapper.selectByCondition(request);
 
         List<InlongTenantInfo> tenantList = CommonBeanUtils.copyListProperties(entityPage, InlongTenantInfo::new);
@@ -114,4 +127,23 @@ public class InlongTenantServiceImpl implements InlongTenantService {
         return inlongTenantEntityMapper.deleteById(inlongTenantEntity.getId()) > 0;
     }
 
+
+    private void setTargetTenantList(InlongTenantPageRequest request, UserInfo userInfo) {
+        request.setKeyword(null);
+        if (isInlongRoles(userInfo)) {
+            request.setTenantList(null);
+            return;
+        }
+
+        List<String> tenants = tenantRoleService.listTenantByUsername(userInfo.getName());
+        if (CollectionUtils.isEmpty(tenants)) {
+            request.setTenantList(null);
+            return;
+        }
+        request.setTenantList(tenants);
+    }
+
+    private boolean isInlongRoles(UserInfo userInfo) {
+        return userInfo.getRoles().contains(INLONG_ADMIN) || userInfo.getRoles().contains(INLONG_OPERATOR);
+    }
 }

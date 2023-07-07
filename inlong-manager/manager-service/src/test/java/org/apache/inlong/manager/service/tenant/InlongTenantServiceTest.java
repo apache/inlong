@@ -92,7 +92,8 @@ public class InlongTenantServiceTest extends ServiceBaseTest {
         }
         InlongTenantPageRequest pageRequest = new InlongTenantPageRequest();
         pageRequest.setKeyword("test");
-        PageResult<InlongTenantInfo> infoPage = tenantService.listByCondition(pageRequest);
+        PageResult<InlongTenantInfo> infoPage = tenantService.listByCondition(pageRequest,
+                LoginUserUtils.getLoginUser());
         Assertions.assertEquals(size, infoPage.getList().size());
     }
 }

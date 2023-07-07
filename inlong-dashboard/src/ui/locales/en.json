@@ -536,6 +536,7 @@
   "components.Layout.NavWidget.NewPassword": "New password",
   "components.Layout.NavWidget.ConfirmPassword": "Confirm password",
   "components.Layout.NavWidget.Remind": "Password does not match, please re-enter",
+  "components.Layout.Tenant.Success": "Success",
   "components.HighSelect.Customize": "Customize",
   "components.HighSelect.SearchPlaceholder": "Please enter keyword...",
   "components.NodeSelect.Create": "Create Node",
@@ -796,5 +797,14 @@
   "components.FieldList.Sink": "SinkField",
   "components.FieldList.CreateSource": "Create SourceField",
   "components.FieldList.CreateSink": "Create SinkField",
-  "components.FieldList.AddField": "Add Field"
+  "components.FieldList.AddField": "Add Field",
+  "pages.Tenant.config.Description": "Description",
+  "pages.Tenant.config.Name": "Tenant Name",
+  "pages.Tenant.New": "Create",
+  "pages.Tenant.config.Username": "User Name",
+  "pages.Tenant.config.TenantRole": "Tenant Role",
+  "pages.Tenant.config.Admin": "Tenant Admin",
+  "pages.Tenant.config.GeneralUser": "General User",
+  "pages.Tenant.config.Creator": "Creator",
+  "pages.Tenant.config.CreateTime": "Create Time"
 }

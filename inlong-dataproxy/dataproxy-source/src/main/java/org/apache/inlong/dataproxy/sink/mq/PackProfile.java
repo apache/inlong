@@ -33,8 +33,8 @@ public abstract class PackProfile {
     private final long dispatchTime;
     private final long createTime = System.currentTimeMillis();
     private final String uid;
-    protected int count = 0;
-    protected int size = 0;
+    protected long count = 0;
+    protected long size = 0;
     protected final boolean enableRetryAfterFailure;
     protected final int maxRetries;
     protected int retries = 0;
@@ -96,7 +96,7 @@ public abstract class PackProfile {
      *
      * @return the count
      */
-    public int getCount() {
+    public long getCount() {
         return count;
     }
 
@@ -105,7 +105,7 @@ public abstract class PackProfile {
      *
      * @param count the count to set
      */
-    public void setCount(int count) {
+    public void setCount(long count) {
         this.count = count;
     }
 
@@ -114,7 +114,7 @@ public abstract class PackProfile {
      *
      * @return the size
      */
-    public int getSize() {
+    public long getSize() {
         return size;
     }
 
@@ -123,7 +123,7 @@ public abstract class PackProfile {
      *
      * @param size the size to set
      */
-    public void setSize(int size) {
+    public void setSize(long size) {
         this.size = size;
     }
 

@@ -70,9 +70,8 @@ public class InlongTenantController {
 
     @RequestMapping(value = "/tenant/list", method = RequestMethod.POST)
     @ApiOperation(value = "List tenant by paginating")
-    @RequiresRoles(logical = Logical.OR, value = {INLONG_ADMIN, INLONG_OPERATOR})
     public Response<PageResult<InlongTenantInfo>> listByCondition(@RequestBody InlongTenantPageRequest request) {
-        return Response.success(tenantService.listByCondition(request));
+        return Response.success(tenantService.listByCondition(request, LoginUserUtils.getLoginUser()));
     }
 
     @RequestMapping(value = "/tenant/update", method = RequestMethod.POST)
