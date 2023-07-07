@@ -56,12 +56,12 @@ const conf: MenuItemType[] = [
     icon: <DeploymentUnitOutlined />,
     children: [
       {
-        path: '/clusters',
-        name: i18n.t('configs.menus.Clusters'),
-      },
-      {
         path: '/clusterTags',
         name: i18n.t('configs.menus.ClusterTags'),
+      },
+      {
+        path: '/clusters',
+        name: i18n.t('configs.menus.Clusters'),
       },
     ],
   },

@@ -54,9 +54,10 @@ const Comp: React.FC = () => {
 
   const { run: getStreamData } = useRequest(
     {
-      url: '/tenant/listByUser',
+      url: '/tenant/list',
       method: 'POST',
       data: {
+        listByLoginUser: true,
         ...options,
       },
     },
