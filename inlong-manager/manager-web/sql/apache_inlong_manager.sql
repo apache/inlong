@@ -900,22 +900,22 @@ VALUES ('audit_sdk_collect', 'SDK', 0, '1'),
        ('audit_sort_postgres_output', 'POSTGRESQL', 1, '28');
 
 -- ----------------------------
-
-SET FOREIGN_KEY_CHECKS = 1;
-
--- ----------------------------
--- Table structure for audit_base
+-- Table structure for audit_source
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `audit_source`
 (
-    `audit_query_source`    varchar(256)  NOT NULL COMMENT 'MYSQL, ELASTICSEARCH, CLICKHOUSE' ,
-    `url`                   varchar(256) NOT NULL COMMENT 'If source is CLICKHOUSE or MYSQL: jdbcUrl, if source is ELASTICSEARCH: hostname:port' ,
-    `username`              varchar(256) NOT NULL COMMENT 'User name' ,
-    `password`              varchar(256) NOT NULL ,
-    `auth_enable`           TINYINT(1) DEFAULT 1 COMMENT '1:enable, 0:disable',
-    `status`                TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1: online, 0: offline' ,
-    `create_time`           timestamp NOT NULL COMMENT 'Create time',
-    `update_time`           timestamp NOT NULL COMMENT 'Update time',
-    PRIMARY KEY (`url`)
-    ) ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4 COMMENT ='Audit Query Source Config Table';
+    `source_type` varchar(256) NOT NULL COMMENT 'Source type, including: MYSQL, CLICKHOUSE, ELASTICSEARCH',
+    `source_url`  varchar(256) NOT NULL COMMENT 'Source URL, for MYSQL or CLICKHOUSE, is jdbcUrl, and for ELASTICSEARCH is the access URL with hostname:port',
+    `auth_enable` tinyint(1)            DEFAULT 1 COMMENT 'Enable auth or not, 0: disable, 1: enable',
+    `username`    varchar(256) NOT NULL COMMENT 'Source username, needed if auth_enable is 1' ,
+    `password`    varchar(256) NOT NULL COMMENT 'Source password, needed if auth_enable is 1',
+    `status`      smallint(4)  NOT NULL DEFAULT 0 COMMENT 'Whether the audit source is online or offline, 0: offline, 1: online' ,
+    `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`source_type`, `source_url`, `auth_enable`, `username`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Audit source table';
+
+-- ----------------------------
+
+SET FOREIGN_KEY_CHECKS = 1;
