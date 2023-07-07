@@ -169,7 +169,7 @@ public class AuditServiceImpl implements AuditService {
 
     private AuditQuerySourceConfigEntity createAuditQuerySource(String sourceType, String sourceUrl,
             Integer auth_Enable, String userName,
-            String password) {
+            String password, String modifier) {
         AuditQuerySourceConfigEntity auditQuerySourceConfig = new AuditQuerySourceConfigEntity();
         auditQuerySourceConfig.setSourceType(sourceType);
         auditQuerySourceConfig.setSourceUrl(sourceUrl);
@@ -177,8 +177,12 @@ public class AuditServiceImpl implements AuditService {
         auditQuerySourceConfig.setUserName(userName);
         auditQuerySourceConfig.setPassword(password);
         auditQuerySourceConfig.setStatus(1);
+        auditQuerySourceConfig.setCreator(modifier);
         auditQuerySourceConfig.setCreateTime(new Date());
+        auditQuerySourceConfig.setModifier(modifier);
         auditQuerySourceConfig.setModifyTime(new Date());
+        auditQuerySourceConfig.setIsDeleted(0);
+        auditQuerySourceConfig.setVersion(1);
         return auditQuerySourceConfig;
     }
     @Override
@@ -189,12 +193,14 @@ public class AuditServiceImpl implements AuditService {
         String userName = request.getUserName();
         String password = request.getPassword();
         Integer authEnable = (request.getAuthEnable() == null) ? 1 : request.getAuthEnable();
+        String modifier = request.getModifier();
+        System.out.println(request);
         try {
             if (!StringUtils.isBlank(oldUrl)) {
                 querySourceConfigEntityMapper.offlineAuditQuerySourceByUrl(oldUrl);
             }
             AuditQuerySourceConfigEntity entity =
-                    createAuditQuerySource(sourceType, sourceUrl, authEnable, userName, password);
+                    createAuditQuerySource(sourceType, sourceUrl, authEnable, userName, password, modifier);
             querySourceConfigEntityMapper.insert(entity);
             config.updateCkSource();
         } catch (Exception e) {

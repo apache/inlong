@@ -21,39 +21,46 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.inlong.manager.dao.mapper.AuditQuerySourceConfigEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity">
+        <result column="id" jdbcType="INTEGER" property="id"/>
         <result column="source_type" jdbcType="VARCHAR" property="sourceType"/>
-        <result column="source_url" jdbcType="VARCHAR" property="source_url"/>
+        <result column="source_url" jdbcType="VARCHAR" property="sourceUrl"/>
         <result column="auth_enable" jdbcType="TINYINT" property="authEnable"/>
         <result column="username" jdbcType="VARCHAR" property="userName"/>
         <result column="password" jdbcType="VARCHAR" property="password"/>
         <result column="status" jdbcType="SMALLINT" property="status"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+        <result column="is_deleted" jdbcType="TINYINT" property="isDeleted"/>
+        <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        source_type, source_url, auth_enable, username, password, status, create_time, modify_time
+        id, source_type, source_url, auth_enable, username, password, status, creator, create_time, modifier, modify_time, version
     </sql>
     <select id="findByStatus" resultType="org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity"
     resultMap="BaseResultMap">
         select
             <include refid="Base_Column_List"></include>
         from audit_source
-        where status = 1 LIMIT 1
+        where status = 1 and is_deleted = 0 LIMIT 1
     </select>
     <update id="offlineAuditQuerySourceByUrl">
-        update audit_source set status = 0 where source_url = #{source_url};
+        update audit_source set status = 0 where source_url = #{sourceUrl} and is_deleted = 0;
     </update>
     <update id="onlineAuditQuerySourceByUrl">
-    update audit_source set status = 1 where source_url = #{source_url};
+    update audit_source set status = 1 where source_url = #{sourceUrl} and is_deleted = 0;
     </update>
-    <insert id="insert" useGeneratedKeys="true" keyProperty="source_url">
-        insert into audit_source (source_type, source_url, auth_enable, username, password, status, create_time, modify_time)
-        values (#{sourceType}, #{source_url}, #{authEnable}, #{userName}, #{password}, #{status}, #{createTime}, #{modifyTime})
+    <insert id="insert" keyProperty="source_url">
+        insert into audit_source (source_type, source_url, auth_enable, username, password, status, creator, create_time, modifier, modify_time, is_deleted, version)
+        values (#{sourceType}, #{sourceUrl}, #{authEnable}, #{userName}, #{password}, #{status}, #{creator}, #{createTime}, #{modifier}, #{modifyTime}, #{isDeleted}, #{version})
         ON DUPLICATE KEY UPDATE source_type = VALUES(source_type),
                                 auth_enable = VALUES(auth_enable),
                                 username = VALUES(username),
                                 password = VALUES(password),
                                 status = VALUES(status),
-                                modify_time = VALUES(modify_time)
+                                modifier = VALUES(modifier),
+                                modify_time = VALUES(modify_time),
+                                version = (select version from audit_source where source_url = #{sourceUrl} and is_deleted = #{isDeleted}) + 1;
     </insert>
 </mapper>

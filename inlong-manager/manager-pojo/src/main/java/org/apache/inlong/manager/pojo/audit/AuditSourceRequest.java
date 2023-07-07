@@ -24,10 +24,15 @@ import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotBlank;
 
+import java.util.Date;
+
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("Audit source request")
 public class AuditSourceRequest {
+
+    @ApiModelProperty(name = "id")
+    Integer id;
 
     @ApiModelProperty(value = "Old url that will be offline. It can be null.", name = "oldUrl")
     private String oldUrl;
@@ -51,16 +56,36 @@ public class AuditSourceRequest {
     @ApiModelProperty(name = "password", required = true)
     String password;
 
+    @NotBlank
+    @ApiModelProperty(name = "creator")
+    String creator;
+
+    @NotBlank
+    @ApiModelProperty(name = "createTime")
+    Date createTime;
+
+    @NotBlank
+    @ApiModelProperty(name = "modifier", required = true)
+    String modifier;
+
+    @NotBlank
+    @ApiModelProperty(name = "modifyTime")
+    Date modifyTime;
+
+    @ApiModelProperty(name = "modifier")
+    Integer version;
+
     public AuditSourceRequest() {
     }
 
     public AuditSourceRequest(String oldUrl, String sourceType, String sourceUrl, Integer authEnable, String userName,
-            String password) {
+            String password, String modifier) {
         this.oldUrl = oldUrl;
         this.sourceType = sourceType;
         this.sourceUrl = sourceUrl;
         this.authEnable = authEnable;
         this.userName = userName;
         this.password = password;
+        this.modifier = modifier;
     }
 }
