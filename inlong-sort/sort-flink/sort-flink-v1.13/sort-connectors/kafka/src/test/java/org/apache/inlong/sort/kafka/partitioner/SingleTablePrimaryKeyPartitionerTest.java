@@ -17,38 +17,64 @@
 
 package org.apache.inlong.sort.kafka.partitioner;
 
-import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
 import org.apache.inlong.sort.kafka.SingleTablePrimaryKeyPartitioner;
 
-import org.apache.flink.table.data.GenericRowData;
+import org.apache.flink.table.api.DataTypes;
+import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.flink.types.RowKind;
+import org.apache.flink.table.data.RowData.FieldGetter;
+import org.apache.flink.table.data.binary.BinaryRowData;
+import org.apache.flink.table.data.writer.BinaryRowWriter;
+import org.apache.flink.table.types.logical.IntType;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.util.List;
 
 /**
  * The unit tests for {@link
  * org.apache.inlong.sort.kafka.partitioner.SingleTablePrimaryKeyPartitioner}.
  */
 public class SingleTablePrimaryKeyPartitionerTest {
+
     @Test
     public void testPrimaryKeyPartitioner() {
         SingleTablePrimaryKeyPartitioner singleTablePrimaryKeyPartitioner =
                 new SingleTablePrimaryKeyPartitioner();
 
-        TableSchema schema = new TableSchema
+        TableSchema schema = TableSchema.builder()
+                .field("id", DataTypes.INT())
+                .field("age", DataTypes.INT())
+                .build();
 
         singleTablePrimaryKeyPartitioner.setSchema(schema);
-        singleTablePrimaryKeyPartitioner.setPartitionKey();
-        singleTablePrimaryKeyPartitioner.setValueFieldGetters();
+        singleTablePrimaryKeyPartitioner.setPartitionKey("age");
 
-        int partition = singleTablePrimaryKeyPartitioner.partition(record, null,
-                null, null, new int[]{0, 1, 2, 3});
-        
-        Assert.assertEquals(3, partition);
+        FieldGetter getter0 = RowData.createFieldGetter(new IntType(), 0);
+        FieldGetter getter1 = RowData.createFieldGetter(new IntType(), 1);
+        FieldGetter[] valuefieldgetters = {getter0, getter1};
+
+        singleTablePrimaryKeyPartitioner.setValueFieldGetters(valuefieldgetters);
+
+        BinaryRowData rowData1 = new BinaryRowData(2);
+        BinaryRowWriter writer1 = new BinaryRowWriter(rowData1);
+        BinaryRowData rowData2 = new BinaryRowData(2);
+        BinaryRowWriter writer2 = new BinaryRowWriter(rowData2);
+
+        writer1.writeInt(0, 1);
+        writer1.writeInt(1, 786819156);
+
+        writer2.writeInt(0, 2);
+        writer2.writeInt(1, 786819156);
+
+        // key is null since the actual key is being calculated from deserialized json
+        int partition1 = singleTablePrimaryKeyPartitioner.partition(rowData1, null,
+                null, null, new int[]{0, 1, 2, 3, 4});
+
+        int partition2 = singleTablePrimaryKeyPartitioner.partition(rowData2, null,
+                null, null, new int[]{0, 1, 2, 3, 4});
+
+        writer1.complete();
+        writer2.complete();
+
+        Assert.assertEquals(partition1, partition2);
     }
 }
