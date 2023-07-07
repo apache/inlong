@@ -25,7 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
 
 /**
- * The clickHouse field type mapping strategy
+ * The ClickHouse field type mapping strategy
  */
 public class ClickHouseFieldTypeStrategy implements FieldTypeMappingStrategy {
 
