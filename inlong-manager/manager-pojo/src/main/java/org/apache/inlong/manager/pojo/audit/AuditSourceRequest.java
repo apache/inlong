@@ -17,47 +17,54 @@
 
 package org.apache.inlong.manager.pojo.audit;
 
+import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
+/**
+ * Audit source request
+ */
 @Data
-@EqualsAndHashCode(callSuper = false)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ApiModel("Audit source request")
 public class AuditSourceRequest {
 
-    @ApiModelProperty(value = "Old url that will be offline. It can be null.", name = "oldUrl")
-    private String oldUrl;
+    @NotBlank
+    @ApiModelProperty(value = "Audit source name")
+    private String name;
 
     @NotBlank
-    @ApiModelProperty(value = "MYSQL, CLICKHOUSE or ELASTICSEARCH", name = "sourceType", required = true)
-    private String sourceType;
+    @ApiModelProperty(value = "Audit source type, including: MYSQL, CLICKHOUSE, ELASTICSEARCH", required = true)
+    private String type;
 
     @NotBlank
-    @ApiModelProperty(name = "sourceUrl", required = true)
-    private String sourceUrl;
+    @ApiModelProperty(value = "Audit source URL, for MYSQL or CLICKHOUSE, is jdbcUrl, and for ELASTICSEARCH is the access URL with hostname:port", required = true)
+    private String url;
 
-    @ApiModelProperty(name = "authEnable")
-    Integer authEnable;
+    @ApiModelProperty(value = "Offline the url if not null")
+    private String offlineUrl;
 
-    @NotBlank
-    @ApiModelProperty(name = "username", required = true)
+    @ApiModelProperty(value = "Enable auth or not, 0: disable, 1: enable")
+    private Integer enableAuth;
+
+    @ApiModelProperty(value = "Source username, needed if auth_enable is 1")
     private String username;
 
-    @NotBlank
-    @ApiModelProperty(name = "password", required = true)
-    String password;
+    @ApiModelProperty(value = "Source password, needed if auth_enable is 1")
+    private String password;
 
-    public AuditSourceRequest(String oldUrl, String sourceType, String sourceUrl, Integer authEnable, String username,
-            String password) {
-        this.oldUrl = oldUrl;
-        this.sourceType = sourceType;
-        this.sourceUrl = sourceUrl;
-        this.authEnable = authEnable;
-        this.username = username;
-        this.password = password;
-    }
+    @ApiModelProperty(value = "Version number")
+    @NotNull(groups = {UpdateByIdValidation.class}, message = "version cannot be null")
+    private Integer version;
+
 }

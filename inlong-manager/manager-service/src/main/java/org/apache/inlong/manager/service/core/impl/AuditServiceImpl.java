@@ -22,15 +22,16 @@ import org.apache.inlong.manager.common.enums.AuditQuerySource;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.AuditBaseEntity;
-import org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity;
+import org.apache.inlong.manager.dao.entity.AuditSourceEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.AuditBaseEntityMapper;
 import org.apache.inlong.manager.dao.mapper.AuditEntityMapper;
-import org.apache.inlong.manager.dao.mapper.AuditQuerySourceConfigEntityMapper;
+import org.apache.inlong.manager.dao.mapper.AuditSourceEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
@@ -66,7 +67,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 
@@ -133,7 +133,7 @@ public class AuditServiceImpl implements AuditService {
     @Autowired
     private ClickHouseConfig config;
     @Autowired
-    private AuditQuerySourceConfigEntityMapper querySourceConfigEntityMapper;
+    private AuditSourceEntityMapper auditSourceMapper;
 
     @PostConstruct
     public void initialize() {
@@ -146,7 +146,6 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public Boolean refreshBaseItemCache() {
         LOGGER.debug("start to reload audit base item info");
         try {
@@ -168,51 +167,38 @@ public class AuditServiceImpl implements AuditService {
         return true;
     }
 
-    private AuditQuerySourceConfigEntity createAuditQuerySource(String sourceType, String sourceUrl,
-            Integer auth_Enable, String username,
-            String password) {
-        AuditQuerySourceConfigEntity auditQuerySourceConfig = new AuditQuerySourceConfigEntity();
-        auditQuerySourceConfig.setSourceType(sourceType);
-        auditQuerySourceConfig.setSourceUrl(sourceUrl);
-        auditQuerySourceConfig.setAuthEnable(auth_Enable);
-        auditQuerySourceConfig.setUsername(username);
-        auditQuerySourceConfig.setPassword(password);
-        auditQuerySourceConfig.setStatus(1);
-        auditQuerySourceConfig.setCreator(LoginUserUtils.getLoginUser().getName());
-        auditQuerySourceConfig.setCreateTime(new Date());
-        auditQuerySourceConfig.setModifier(LoginUserUtils.getLoginUser().getName());
-        auditQuerySourceConfig.setModifyTime(new Date());
-        auditQuerySourceConfig.setIsDeleted(0);
-        auditQuerySourceConfig.setVersion(1);
-        return auditQuerySourceConfig;
-    }
     @Override
-    public Boolean updateAuditQuerySource(AuditSourceRequest request) {
-        String oldUrl = request.getOldUrl();
-        String sourceType = request.getSourceType();
-        String sourceUrl = request.getSourceUrl();
-        String username = request.getUsername();
-        String password = request.getPassword();
-        Integer authEnable = (request.getAuthEnable() == null) ? 1 : request.getAuthEnable();
-        try {
-            if (!StringUtils.isBlank(oldUrl)) {
-                querySourceConfigEntityMapper.offlineAuditQuerySourceByUrl(oldUrl);
-            }
-            AuditQuerySourceConfigEntity entity =
-                    createAuditQuerySource(sourceType, sourceUrl, authEnable, username, password);
-            querySourceConfigEntityMapper.insert(entity);
-            config.updateCkSource();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+    public Integer updateAuditSource(AuditSourceRequest request, String operator) {
+        String offlineUrl = request.getOfflineUrl();
+        if (StringUtils.isNotBlank(offlineUrl)) {
+            auditSourceMapper.offlineSourceByUrl(offlineUrl);
+            LOGGER.info("success offline the audit source with url: {}", offlineUrl);
         }
-        LOGGER.info("success to update audit source!");
-        return true;
+
+        // TODO firstly we should check to see if it exists, updated if it exists, and created if it doesn't exist
+        AuditSourceEntity entity = CommonBeanUtils.copyProperties(request, AuditSourceEntity::new);
+        entity.setCreator(operator);
+        entity.setModifier(operator);
+        auditSourceMapper.insert(entity);
+        Integer id = entity.getId();
+        LOGGER.info("success to insert audit source with id={}", id);
+
+        // TODO we should select the config that needs to be updated according to the source type
+        config.updateRuntimeConfig();
+        LOGGER.info("success to update audit source with id={}", id);
+
+        return id;
     }
 
     @Override
-    public AuditSourceResponse queryCurrentSource() {
-        return CommonBeanUtils.copyProperties(querySourceConfigEntityMapper.findByStatus(), AuditSourceResponse::new);
+    public AuditSourceResponse getAuditSource() {
+        AuditSourceEntity entity = auditSourceMapper.selectOnlineSource();
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND);
+        }
+
+        LOGGER.debug("success to get audit source, id={}", entity.getId());
+        return CommonBeanUtils.copyProperties(entity, AuditSourceResponse::new);
     }
 
     @Override
@@ -487,4 +473,5 @@ public class AuditServiceImpl implements AuditService {
         }
         return formatDateString;
     }
+
 }

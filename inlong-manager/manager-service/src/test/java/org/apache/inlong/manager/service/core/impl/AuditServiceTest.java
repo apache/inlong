@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import org.apache.inlong.manager.dao.mapper.AuditQuerySourceConfigEntityMapper;
+import org.apache.inlong.manager.dao.mapper.AuditSourceEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditSourceRequest;
@@ -43,7 +43,7 @@ class AuditServiceTest extends ServiceBaseTest {
     private AuditService auditService;
 
     @Test
-    void testQueryFromMySQL() throws IOException {
+    void testQueryFromMySQL() {
         AuditRequest request = new AuditRequest();
         request.setAuditIds(Arrays.asList("3", "4"));
         request.setInlongGroupId("g1");
@@ -79,18 +79,29 @@ class AuditServiceTest extends ServiceBaseTest {
     }
 
     @Autowired
-    AuditQuerySourceConfigEntityMapper querySourceConfigEntityMapper;
+    AuditSourceEntityMapper querySourceConfigEntityMapper;
+
     @Test
-    void testUpdateAuditQuerySource() {
-        AuditSourceRequest request = new AuditSourceRequest(null, "source1",
-                "host1", null,
-                "default", "123456");
-        auditService.updateAuditQuerySource(request);
-        AuditSourceRequest request2 = new AuditSourceRequest("host1", "source2",
-                "host2", null,
-                "default", "123456");
-        auditService.updateAuditQuerySource(request2);
-        Assertions.assertEquals(auditService.queryCurrentSource().getSourceUrl(),
-                request2.getSourceUrl());
+    void testUpdateAuditSource() {
+        AuditSourceRequest request1 = AuditSourceRequest.builder()
+                .offlineUrl(null)
+                .type("CLICKHOUSE")
+                .url("jdbc:clickhouse://127.0.0.1:8123/db1")
+                .enableAuth(0)
+                .build();
+        auditService.updateAuditSource(request1, GLOBAL_OPERATOR);
+
+        AuditSourceRequest request2 = AuditSourceRequest.builder()
+                .offlineUrl("jdbc:clickhouse://127.0.0.1:8123/db1")
+                .type("CLICKHOUSE")
+                .url("jdbc:clickhouse://127.0.0.1:8123/db2")
+                .enableAuth(1)
+                .username("default")
+                .password("123456")
+                .build();
+        auditService.updateAuditSource(request2, GLOBAL_OPERATOR);
+
+        Assertions.assertEquals(auditService.getAuditSource().getUrl(), request2.getUrl());
     }
+
 }

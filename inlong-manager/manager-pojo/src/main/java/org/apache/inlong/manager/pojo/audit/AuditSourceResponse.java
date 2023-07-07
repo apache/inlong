@@ -24,41 +24,50 @@ import lombok.Data;
 
 import java.util.Date;
 
+/**
+ * Audit source response
+ */
 @Data
 @ApiModel("Audit source response")
 public class AuditSourceResponse {
 
-    @ApiModelProperty(value = "Id")
-    Integer id;
+    @ApiModelProperty(value = "Primary key")
+    private Integer id;
 
-    @ApiModelProperty(value = "MYSQL, CLICKHOUSE or ELASTICSEARCH")
-    private String sourceType;
+    @ApiModelProperty(value = "Audit source name")
+    private String name;
 
-    @ApiModelProperty(value = "Source url")
-    private String sourceUrl;
+    @ApiModelProperty(value = "Source type, including: MYSQL, CLICKHOUSE, ELASTICSEARCH", required = true)
+    private String type;
 
-    @ApiModelProperty(value = "Auth enable")
-    Integer authEnable;
+    @ApiModelProperty(value = "Source URL, for MYSQL or CLICKHOUSE, is jdbcUrl, and for ELASTICSEARCH is the access URL with hostname:port", required = true)
+    private String url;
 
-    @ApiModelProperty(value = "Username")
+    @ApiModelProperty(value = "Offline the url if not null")
+    private String offlineUrl;
+
+    @ApiModelProperty(value = "Enable auth or not, 0: disable, 1: enable")
+    private Integer enableAuth;
+
+    @ApiModelProperty(value = "Source username, needed if auth_enable is 1")
     private String username;
 
-    @ApiModelProperty(value = "Password")
-    String password;
+    @ApiModelProperty(value = "Source password, needed if auth_enable is 1")
+    private String password;
 
     @ApiModelProperty(value = "Creator")
-    String creator;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    Date createTime;
+    private String creator;
 
     @ApiModelProperty(value = "Modifier")
-    String modifier;
+    private String modifier;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    Date modifyTime;
+    private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
 
     @ApiModelProperty(value = "Version")
-    Integer version;
+    private Integer version;
 
 }

@@ -57,15 +57,17 @@ public interface AuditService {
      * Offline the old audit source through url, and insert and online a new audit source.
      * If the new url already exists in the table, the insert operation will become an update operation.
      *
-     * @param request audit source request.
-     * @return true if not exception, or false if it has exception.
+     * @param operator current operator
+     * @param request audit source request
+     * @return audit source id after updating or saving
      */
-    Boolean updateAuditQuerySource(AuditSourceRequest request);
+    Integer updateAuditSource(AuditSourceRequest request, String operator);
 
     /**
-     * Get audit source that has been online.
+     * Get audit source that is online.
      *
      * @return audit source response.
      */
-    AuditSourceResponse queryCurrentSource();
+    AuditSourceResponse getAuditSource();
+
 }

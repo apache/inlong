@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.service.resource.sink.ck;
 
-import org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity;
-import org.apache.inlong.manager.dao.mapper.AuditQuerySourceConfigEntityMapper;
+import org.apache.inlong.manager.dao.entity.AuditSourceEntity;
+import org.apache.inlong.manager.dao.mapper.AuditSourceEntityMapper;
 
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -29,56 +29,51 @@ import org.springframework.stereotype.Service;
 import javax.sql.DataSource;
 
 import java.sql.Connection;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
- * Clickhouse config information, including url, user, etc.
+ * ClickHouse config, including url, user, etc.
  */
-@Service
 @Slf4j
+@Service
 public class ClickHouseConfig {
 
     @Autowired
-    private AuditQuerySourceConfigEntityMapper querySourceConfigEntityMapper;
+    private AuditSourceEntityMapper auditSourceMapper;
     private static volatile DataSource source;
     private static volatile String currentJdbcUrl = null;
-    private static volatile String currentUserName = null;
+    private static volatile String currentUsername = null;
     private static volatile String currentPassword = null;
 
-    public void updateCkSource() {
+    /**
+     * Update the runtime config of ClickHouse connection.
+     */
+    public synchronized void updateRuntimeConfig() {
         try {
-            if (querySourceConfigEntityMapper == null) {
-                log.warn("querySourceConfigEntityMapper is null");
-                return;
-            }
-            AuditQuerySourceConfigEntity querySourceConfigEntity = querySourceConfigEntityMapper.findByStatus();
-            String jdbcUrl = querySourceConfigEntity.getSourceUrl();
-            String username = querySourceConfigEntity.getUsername();
-            String password = StringUtils.isBlank(querySourceConfigEntity.getPassword()) ? ""
-                    : querySourceConfigEntity.getPassword();
-            if (StringUtils.isBlank(currentJdbcUrl) || StringUtils.isBlank(currentUserName)
-                    || StringUtils.isBlank(currentPassword)
-                    || !(currentJdbcUrl.equals(jdbcUrl) && currentUserName.equals(username)
-                            && currentPassword.equals(password))) {
-                synchronized (ClickHouseConfig.class) {
-                    currentJdbcUrl = jdbcUrl;
-                    currentUserName = username;
-                    currentPassword = password;
+            AuditSourceEntity auditSource = auditSourceMapper.selectOnlineSource();
+            String jdbcUrl = auditSource.getUrl();
+            String username = auditSource.getUsername();
+            String password = StringUtils.isBlank(auditSource.getPassword()) ? "" : auditSource.getPassword();
 
-                    Properties pros = new Properties();
-                    pros.put("url", jdbcUrl);
-                    pros.put("username", username);
-                    pros.put("password", password);
-                    try {
-                        source = DruidDataSourceFactory.createDataSource(pros);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                    log.info("Connected to {}", jdbcUrl);
-                }
+            boolean changed = Objects.equals(currentJdbcUrl, jdbcUrl)
+                    || Objects.equals(currentUsername, username)
+                    || Objects.equals(currentPassword, password);
+            if (changed) {
+                currentJdbcUrl = jdbcUrl;
+                currentUsername = username;
+                currentPassword = password;
+
+                Properties pros = new Properties();
+                pros.put("url", jdbcUrl);
+                pros.put("username", username);
+                pros.put("password", password);
+
+                source = DruidDataSourceFactory.createDataSource(pros);
+                log.info("success to create connection to {}", jdbcUrl);
             }
         } catch (Exception e) {
-            log.error("Error occurred while reading CK source: {}", e.getCause());
+            log.error("failed to read click house audit source: ", e);
         }
     }
 
@@ -86,15 +81,20 @@ public class ClickHouseConfig {
      * Get ClickHouse connection from data source
      */
     public Connection getCkConnection() throws Exception {
-        log.info("start to get connection to CLICKHOUSE");
+        log.debug("start to get connection for CLICKHOUSE");
         int retry = 0;
         while (source == null && retry < 3) {
-            updateCkSource();
+            updateRuntimeConfig();
             retry += 1;
         }
+
         if (source == null) {
+            log.warn("jdbc source is null for CLICKHOUSE");
             return null;
         }
-        return source.getConnection();
+
+        Connection connection = source.getConnection();
+        log.info("success to get connection for CLICKHOUSE");
+        return connection;
     }
 }

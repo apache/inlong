@@ -899,22 +899,22 @@ VALUES ('audit_sdk_collect', 'SDK', 0, '1'),
 CREATE TABLE IF NOT EXISTS `audit_source`
 (
     `id`          int(11)      NOT NULL AUTO_INCREMENT,
-    `source_type` varchar(256) NOT NULL COMMENT 'Source type, including: MYSQL, CLICKHOUSE, ELASTICSEARCH',
-    `source_url`  varchar(256) NOT NULL COMMENT 'Source URL, for MYSQL or CLICKHOUSE, is jdbcUrl, and for ELASTICSEARCH is the access URL with hostname:port',
-    `auth_enable` tinyint(1)            DEFAULT '1' COMMENT 'Enable auth or not, 0: disable, 1: enable',
+    `type`        varchar(256) NOT NULL COMMENT 'Source type, including: MYSQL, CLICKHOUSE, ELASTICSEARCH',
+    `url`         varchar(256) NOT NULL COMMENT 'Source URL, for MYSQL or CLICKHOUSE, is jdbcUrl, and for ELASTICSEARCH is the access URL with hostname:port',
+    `enable_auth` tinyint(1)            DEFAULT '1' COMMENT 'Enable auth or not, 0: disable, 1: enable',
     `username`    varchar(256) NOT NULL COMMENT 'Source username, needed if auth_enable is 1' ,
     `password`    varchar(256) NOT NULL COMMENT 'Source password, needed if auth_enable is 1',
-    `status`      smallint(4)  NOT NULL DEFAULT '0' COMMENT 'Whether the audit source is online or offline, 0: offline, 1: online' ,
-    `creator`     varchar(256) NOT NULL COMMENT 'Creator',
+    `status`      smallint(4)  NOT NULL DEFAULT '1' COMMENT 'Whether the audit source is online or offline, 0: offline, 1: online' ,
+    `is_deleted`  int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
+    `modifier`    varchar(64)  NOT NULL COMMENT 'Modifier name',
     `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modifier`    varchar(256) NOT NULL COMMENT 'Modifier',
     `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `is_deleted`  tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Is this audit source deleted, 0: no, 1: yes',
     `version`     int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_source_url` (`source_url`, `is_deleted`)
-    ) ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4 COMMENT ='Audit source table';
+    UNIQUE KEY `unique_source_url` (url, `is_deleted`)
+) ENGINE = InnoDB
+ DEFAULT CHARSET = utf8mb4 COMMENT ='Audit source table';
 
 -- ----------------------------
 

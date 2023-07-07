@@ -17,17 +17,20 @@
 
 package org.apache.inlong.manager.web.controller;
 
+import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditSourceRequest;
 import org.apache.inlong.manager.pojo.audit.AuditSourceResponse;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.service.core.AuditService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,17 +65,18 @@ public class AuditController {
         return Response.success(auditService.refreshBaseItemCache());
     }
 
-    @ApiOperation(value = "Offline the old audit source and online the new audit source")
+    @ApiOperation(value = "Update the audit source")
     @PostMapping(value = "/audit/updateSource")
-    public Response<Boolean> updateAuditQuerySource(@RequestBody AuditSourceRequest request) {
-        return Response.success(
-                auditService.updateAuditQuerySource(request));
+    public Response<Integer> updateAuditSource(
+            @Validated(UpdateByIdValidation.class) @RequestBody AuditSourceRequest request) {
+        return Response.success(auditService.updateAuditSource(request, LoginUserUtils.getLoginUser().getName()));
     }
 
-    @ApiOperation(value = "Get the audit source of the current connection")
+    @ApiOperation(value = "Get the audit source")
     @GetMapping("/audit/getSource")
-    public Response<AuditSourceResponse> queryCurrentSource() {
-        return Response.success(auditService.queryCurrentSource());
+    public Response<AuditSourceResponse> getAuditSource() {
+        // TODO support more parameters to query
+        return Response.success(auditService.getAuditSource());
     }
 
 }

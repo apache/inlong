@@ -15,18 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.dao.entity;
 
-import org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity;
+import lombok.Data;
 
-import org.springframework.stereotype.Repository;
+import java.io.Serializable;
+import java.util.Date;
 
-@Repository
-public interface AuditQuerySourceConfigEntityMapper {
+/**
+ * Audit source entity, including id, name, type, etc.
+ */
+@Data
+public class AuditSourceEntity implements Serializable {
 
-    AuditQuerySourceConfigEntity findByStatus();
+    private Integer id;
+    private String name;
+    private String type;
+    private String url;
+    private Integer enableAuth;
+    private String username;
+    private String password;
+    private Integer status;
+    private Integer isDeleted;
+    private String creator;
+    private String modifier;
+    private Date createTime;
+    private Date modifyTime;
+    private Integer version;
 
-    void offlineAuditQuerySourceByUrl(String sourceUrl);
-
-    void insert(AuditQuerySourceConfigEntity auditQuerySourceConfig);
 }
