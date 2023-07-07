@@ -87,8 +87,7 @@ public class InlongTenantController {
     @ApiImplicitParam(name = "name", dataTypeClass = String.class, required = true)
     @RequiresRoles(logical = Logical.OR, value = {INLONG_ADMIN})
     public Response<Boolean> delete(@PathVariable String name) {
-        String username = LoginUserUtils.getLoginUser().getName();
-        return Response.success(tenantService.delete(name, username));
+        return Response.success(tenantService.delete(name));
     }
 
 }
