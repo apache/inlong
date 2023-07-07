@@ -58,12 +58,13 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
           options: {
             requestTrigger: ['onOpen', 'onSearch'],
             requestService: keyword => ({
-              url: '/tenant/listByUser',
+              url: '/tenant/list',
               method: 'POST',
               data: {
                 keyword,
                 pageNum: 1,
                 pageSize: 10,
+                listByLoginUser: true,
               },
             }),
             requestParams: {
