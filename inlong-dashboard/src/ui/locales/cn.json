@@ -619,7 +619,7 @@
   "pages.GroupDetail.Resource": "资源详情",
   "pages.GroupDetail.Resource.Info": " 信息",
   "pages.GroupDetail.Audit.DataStream": "数据流",
-  "pages.GroupDetail.Audit.Date": "日期",
+  "pages.GroupDetail.Audit.StartDate": "开始日期",
   "pages.GroupDetail.Audit.AuditIds": "展示内容",
   "pages.GroupDetail.Audit.Search": "查询",
   "pages.GroupDetail.Audit.Time": "时间",
