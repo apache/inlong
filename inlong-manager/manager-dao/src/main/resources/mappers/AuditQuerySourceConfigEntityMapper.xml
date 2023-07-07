@@ -43,13 +43,21 @@
         select
             <include refid="Base_Column_List"></include>
         from audit_source
-        where status = 1 and is_deleted = 0 LIMIT 1
+        where status = 1
+        and is_deleted = 0
+        limit 1
     </select>
     <update id="offlineAuditQuerySourceByUrl">
-        update audit_source set status = 0 where source_url = #{sourceUrl} and is_deleted = 0;
+        update audit_source
+        set status = 0
+        where source_url = #{sourceUrl}
+        and is_deleted = 0;
     </update>
     <update id="onlineAuditQuerySourceByUrl">
-    update audit_source set status = 1 where source_url = #{sourceUrl} and is_deleted = 0;
+        update audit_source
+        set status = 1
+        where source_url = #{sourceUrl}
+        and is_deleted = 0;
     </update>
     <insert id="insert" keyProperty="source_url">
         insert into audit_source (source_type, source_url, auth_enable, username, password, status, creator, create_time, modifier, modify_time, is_deleted, version)
@@ -61,6 +69,6 @@
                                 status = VALUES(status),
                                 modifier = VALUES(modifier),
                                 modify_time = VALUES(modify_time),
-                                version = (select version from audit_source where source_url = #{sourceUrl} and is_deleted = #{isDeleted}) + 1;
+                                version = #{version} + 1;
     </insert>
 </mapper>
