@@ -120,19 +120,13 @@ ALTER TABLE `workflow_task`
     ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of workflow task' after `display_name`;
 
 ALTER TABLE component_heartbeat DROP COLUMN id;
-
 ALTER TABLE `component_heartbeat` ADD PRIMARY KEY (`component`, `instance`);
-
 DROP INDEX unique_component_heartbeat on component_heartbeat;
 
 ALTER TABLE group_heartbeat DROP COLUMN id;
-
 ALTER TABLE `group_heartbeat` ADD PRIMARY KEY  (`component`, `instance`, `inlong_group_id`);
-
 DROP INDEX unique_group_heartbeat on group_heartbeat;
 
 ALTER TABLE stream_heartbeat DROP COLUMN id;
-
 ALTER TABLE `stream_heartbeat` ADD PRIMARY KEY (`component`, `instance`, `inlong_group_id`, `inlong_stream_id`);
-
 DROP INDEX unique_stream_heartbeat on stream_heartbeat;
