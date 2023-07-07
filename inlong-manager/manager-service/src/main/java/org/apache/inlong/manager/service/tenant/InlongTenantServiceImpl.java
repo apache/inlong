@@ -124,6 +124,8 @@ public class InlongTenantServiceImpl implements InlongTenantService {
 
     @Override
     public Boolean delete(String name) {
+        String operator = LoginUserUtils.getLoginUser().getName();
+        log.info("begin to delete inlong tenant name={} by user={}", name, operator);
         InlongTenantEntity inlongTenantEntity = inlongTenantEntityMapper.selectByName(name);
         int success = inlongTenantEntityMapper.deleteById(inlongTenantEntity.getId());
         Preconditions.expectTrue(success == 1, "delete failed");
