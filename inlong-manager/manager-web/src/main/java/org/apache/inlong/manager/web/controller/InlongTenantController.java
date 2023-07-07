@@ -86,7 +86,7 @@ public class InlongTenantController {
     @RequestMapping(value = "/tenant/delete/{name}", method = RequestMethod.GET)
     @ApiOperation(value = "Delete inlong tenant by name")
     @ApiImplicitParam(name = "name", dataTypeClass = String.class, required = true)
-    @RequiresRoles(logical = Logical.OR, value = {INLONG_ADMIN, INLONG_OPERATOR})
+    @RequiresRoles(logical = Logical.OR, value = {INLONG_ADMIN})
     public Response<Boolean> delete(@PathVariable String name) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(tenantService.delete(name, username));

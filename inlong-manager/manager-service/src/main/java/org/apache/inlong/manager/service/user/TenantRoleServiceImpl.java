@@ -118,7 +118,14 @@ public class TenantRoleServiceImpl implements TenantRoleService {
 
     @Override
     public boolean delete(Integer id) {
-        return tenantUserRoleEntityMapper.deleteById(id) > 0;
+        int rowCount = tenantUserRoleEntityMapper.deleteById(id);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                    String.format(
+                            "failure to delete tenant user role with id=%d,delete row=%d",
+                            id, rowCount));
+        }
+        return true;
     }
 
 }
