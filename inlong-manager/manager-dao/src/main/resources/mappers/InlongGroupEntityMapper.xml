@@ -232,16 +232,6 @@
         from inlong_group
         where is_deleted = 0
     </select>
-    <select id="selectAllGroupByTenant" resultType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
-        select inlong_group_id    as groupId,
-               inlong_cluster_tag as clusterTag,
-               mq_resource        as mqResource,
-               ext_params         as extParams,
-               mq_type            as mqType
-        from inlong_group
-        where is_deleted = 0
-            and tenant = #{tenant}
-    </select>
     <select id="selectDeletedGroupIds" resultType="java.lang.String">
         select inlong_group_id
         from inlong_group
