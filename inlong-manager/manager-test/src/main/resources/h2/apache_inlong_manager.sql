@@ -730,7 +730,6 @@ CREATE TABLE IF NOT EXISTS `sort_source_config`
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `component_heartbeat`
 (
-    `id`               int(11)     NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `component`        varchar(64) NOT NULL DEFAULT '' COMMENT 'Component name, such as: Agent, Sort...',
     `instance`         varchar(64) NOT NULL DEFAULT '' COMMENT 'Component instance, can be ip, name...',
     `status_heartbeat` mediumtext           DEFAULT NULL COMMENT 'Status heartbeat info',
@@ -738,8 +737,7 @@ CREATE TABLE IF NOT EXISTS `component_heartbeat`
     `report_time`      bigint(20)  NOT NULL COMMENT 'Report time',
     `create_time`      timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_component_heartbeat` (`component`, `instance`)
+    PRIMARY KEY (`component`, `instance`)
 );
 
 -- ----------------------------
@@ -747,7 +745,6 @@ CREATE TABLE IF NOT EXISTS `component_heartbeat`
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `group_heartbeat`
 (
-    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `component`        varchar(64)  NOT NULL DEFAULT '' COMMENT 'Component name, such as: Agent, Sort...',
     `instance`         varchar(64)  NOT NULL DEFAULT '' COMMENT 'Component instance, can be ip, name...',
     `inlong_group_id`  varchar(256) NOT NULL DEFAULT '' COMMENT 'Owning inlong group id',
@@ -756,8 +753,7 @@ CREATE TABLE IF NOT EXISTS `group_heartbeat`
     `report_time`      bigint(20)   NOT NULL COMMENT 'Report time',
     `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_group_heartbeat` (`component`, `instance`, `inlong_group_id`)
+    PRIMARY KEY (`component`, `instance`, `inlong_group_id`)
 );
 
 -- ----------------------------
@@ -765,7 +761,6 @@ CREATE TABLE IF NOT EXISTS `group_heartbeat`
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `stream_heartbeat`
 (
-    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `component`        varchar(64)  NOT NULL DEFAULT '' COMMENT 'Component name, such as: Agent, Sort...',
     `instance`         varchar(64)  NOT NULL DEFAULT '' COMMENT 'Component instance, can be ip, name...',
     `inlong_group_id`  varchar(256) NOT NULL DEFAULT '' COMMENT 'Owning inlong group id',
@@ -775,8 +770,7 @@ CREATE TABLE IF NOT EXISTS `stream_heartbeat`
     `report_time`      bigint(20)   NOT NULL COMMENT 'Report time',
     `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_stream_heartbeat` (`component`, `instance`, `inlong_group_id`, `inlong_stream_id`)
+    PRIMARY KEY (`component`, `instance`, `inlong_group_id`, `inlong_stream_id`)
 );
 
 -- ----------------------------

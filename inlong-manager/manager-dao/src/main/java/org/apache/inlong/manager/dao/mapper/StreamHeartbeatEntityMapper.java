@@ -34,13 +34,9 @@ public interface StreamHeartbeatEntityMapper {
     int insertOrUpdateAll(@Param("component") String component, @Param("instance") String instance,
             @Param("reportTime") Long reportTime, @Param("list") List<StreamHeartbeat> list);
 
-    StreamHeartbeatEntity selectByPrimaryKey(Integer id);
-
     StreamHeartbeatEntity selectByKey(@Param("component") String component, @Param("instance") String instance,
             @Param("inlongGroupId") String inlongGroupId, @Param("inlongStreamId") String inlongStreamId);
 
     List<StreamHeartbeatEntity> selectByCondition(@Param("request") HeartbeatPageRequest request);
-
-    int deleteByPrimaryKey(Integer id);
 
 }

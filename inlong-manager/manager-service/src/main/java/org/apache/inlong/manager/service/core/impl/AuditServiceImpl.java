@@ -248,11 +248,16 @@ public class AuditServiceImpl implements AuditService {
         // this is temporary behavior before multiple sinks in one stream is fully supported.
         String sinkNodeType = null;
         Integer sinkId = request.getSinkId();
-        if (sinkId == null) {
-            List<StreamSinkEntity> sinkEntityList = sinkEntityMapper.selectByRelatedId(groupId, streamId);
-            sinkNodeType = sinkEntityList.get(0).getSinkType();
-        } else {
-            StreamSinkEntity sinkEntity = sinkEntityMapper.selectByPrimaryKey(sinkId);
+        StreamSinkEntity sinkEntity = null;
+        List<StreamSinkEntity> sinkEntityList = sinkEntityMapper.selectByRelatedId(groupId, streamId);
+        if (sinkId != null) {
+            sinkEntity = sinkEntityMapper.selectByPrimaryKey(sinkId);
+        } else if (CollectionUtils.isNotEmpty(sinkEntityList)) {
+            sinkEntity = sinkEntityList.get(0);
+        }
+
+        // if sink info is existed, get sink type for query audit info.
+        if (sinkEntity != null) {
             sinkNodeType = sinkEntity.getSinkType();
         }
 
