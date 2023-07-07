@@ -50,7 +50,7 @@
                 #{reportTime,jdbcType=BIGINT})
             ON DUPLICATE KEY UPDATE status_heartbeat = values(status_heartbeat),
             metric_heartbeat = values(metric_heartbeat),
-                                 report_time      = values(report_time)
+            report_time      = values(report_time)
     </insert>
 
     <select id="selectByKey" parameterType="java.lang.String" resultMap="BaseResultMap">
