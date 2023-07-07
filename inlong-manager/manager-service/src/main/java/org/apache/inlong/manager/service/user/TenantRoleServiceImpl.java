@@ -121,4 +121,9 @@ public class TenantRoleServiceImpl implements TenantRoleService {
         return CommonBeanUtils.copyProperties(entity, TenantRoleInfo::new);
     }
 
+    @Override
+    public List<String> listTenantByUsername(String username) {
+        return tenantUserRoleEntityMapper.listByUsername(username);
+    }
+
 }

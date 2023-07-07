@@ -22,6 +22,8 @@ import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
 import org.apache.inlong.manager.pojo.user.TenantRoleRequest;
 
+import java.util.List;
+
 /**
  * Tenant Role service
  */
@@ -51,4 +53,9 @@ public interface TenantRoleService {
      * Get one tenant role by name and tenant
      */
     TenantRoleInfo getByUsernameAndTenant(String name, String tenant);
+
+    /**
+     * List tenant by given username
+     */
+    List<String> listTenantByUsername(String username);
 }

@@ -24,8 +24,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -35,13 +34,14 @@ public class InlongTenantPageRequest extends PageRequest {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Tenant name")
-    @Pattern(regexp = "^[A-Za-z0-9_-]{1,256}$", message = "only supports letters, numbers, '-', or '_'")
-    @NotBlank
-    private String name;
+    @ApiModelProperty(value = "Tenant list")
+    private List<String> tenantList;
 
     @ApiModelProperty(value = "Keyword")
     private String keyword;
+
+    @ApiModelProperty(value = "Whether list tenant info of login user")
+    private Boolean listByLoginUser = false;
 
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
