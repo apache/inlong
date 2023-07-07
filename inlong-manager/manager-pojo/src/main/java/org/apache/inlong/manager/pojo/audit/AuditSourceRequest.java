@@ -72,7 +72,7 @@ public class AuditSourceRequest {
     @ApiModelProperty(name = "modifyTime")
     Date modifyTime;
 
-    @ApiModelProperty(name = "version")
+    @ApiModelProperty(name = "modifier")
     Integer version;
 
     public AuditSourceRequest() {
