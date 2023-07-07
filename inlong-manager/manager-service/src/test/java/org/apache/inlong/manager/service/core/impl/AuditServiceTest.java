@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import org.apache.inlong.manager.dao.mapper.AuditSourceEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditSourceRequest;
@@ -77,9 +76,6 @@ class AuditServiceTest extends ServiceBaseTest {
         request.setEndDate("2022-01-01");
         Assertions.assertNotNull(auditService.listByCondition(request));
     }
-
-    @Autowired
-    AuditSourceEntityMapper querySourceConfigEntityMapper;
 
     @Test
     void testUpdateAuditSource() {
