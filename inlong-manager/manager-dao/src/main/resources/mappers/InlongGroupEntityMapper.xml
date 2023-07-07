@@ -106,8 +106,8 @@
             <if test="enableCreateResource != null">
                 enable_create_resource,
             </if>
-            <if test="lightweight != null">
-                lightweight,
+            <if test="inlongGroupMode != null">
+                inlong_group_mode,
             </if>
             <if test="dataReportType != null">
                 data_report_type,
@@ -177,8 +177,8 @@
             <if test="enableCreateResource != null">
                 #{enableCreateResource,jdbcType=INTEGER},
             </if>
-            <if test="lightweight != null">
-                #{lightweight,jdbcType=INTEGER},
+            <if test="inlongGroupMode != null">
+                inlong_group_mode = #{inlongGroupMode,jdbcType=INTEGER},
             </if>
             <if test="dataReportType != null">
                 #{dataReportType,jdbcType=INTEGER},
