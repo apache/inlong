@@ -27,6 +27,7 @@ import org.apache.inlong.manager.dao.entity.TenantUserRoleEntity;
 import org.apache.inlong.manager.dao.mapper.InlongTenantEntityMapper;
 import org.apache.inlong.manager.dao.mapper.TenantUserRoleEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
 import org.apache.inlong.manager.pojo.user.TenantRoleRequest;
@@ -124,6 +125,16 @@ public class TenantRoleServiceImpl implements TenantRoleService {
     @Override
     public List<String> listTenantByUsername(String username) {
         return tenantUserRoleEntityMapper.listByUsername(username);
+    }
+
+    @Override
+    public Boolean delete(Integer id) {
+        String operator = LoginUserUtils.getLoginUser().getName();
+        log.info("begin to delete inlong tenant role id={} by user={}", id, operator);
+        int success = tenantUserRoleEntityMapper.deleteById(id);
+        Preconditions.expectTrue(success == 1, "delete tenant role failed");
+        log.info("success delete inlong tenant role id={} by user={}", id, operator);
+        return true;
     }
 
 }

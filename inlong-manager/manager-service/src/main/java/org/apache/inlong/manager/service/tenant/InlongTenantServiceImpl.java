@@ -21,6 +21,7 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongTenantEntity;
 import org.apache.inlong.manager.dao.mapper.InlongTenantEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -118,6 +119,17 @@ public class InlongTenantServiceImpl implements InlongTenantService {
                             "failure to update tenant with name=%s, request version=%d, updated row=%d",
                             request.getName(), request.getVersion(), rowCount));
         }
+        return true;
+    }
+
+    @Override
+    public Boolean delete(String name) {
+        String operator = LoginUserUtils.getLoginUser().getName();
+        log.info("begin to delete inlong tenant name={} by user={}", name, operator);
+        InlongTenantEntity inlongTenantEntity = inlongTenantEntityMapper.selectByName(name);
+        int success = inlongTenantEntityMapper.deleteById(inlongTenantEntity.getId());
+        Preconditions.expectTrue(success == 1, "delete failed");
+        log.info("success delete inlong tenant name={} by user={}", name, operator);
         return true;
     }
 

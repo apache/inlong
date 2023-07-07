@@ -58,4 +58,12 @@ public interface TenantRoleService {
      * List tenant by given username
      */
     List<String> listTenantByUsername(String username);
+
+    /**
+     * Delete tenant role by id
+     *
+     * @param id tenant role
+     * @return true = delete success/ false = delete fail
+     */
+    Boolean delete(Integer id);
 }
