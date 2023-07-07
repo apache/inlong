@@ -280,13 +280,13 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
             return Optional.of(rawHashPartitioner);
         } else if (tableOptions.getOptional(SINK_PARTITIONER).isPresent()
                 && SINK_PARTITIONER_VALUE_PRIMARY_KEY.equals(tableOptions.getOptional(SINK_PARTITIONER).get())) {
-            SingleTableCustomFieldsPartitioner<RowData> customFIeldsPartitioner = new SingleTableCustomFieldsPartitioner<>();
+            SingleTableCustomFieldsPartitioner<RowData> customFieldsPartitioner = new SingleTableCustomFieldsPartitioner<>();
             // the pattern is different from the ${} pattern, it is a truncated string of schema fields.
-            customFIeldsPartitioner.setPartitionNumber(tableOptions.getOptional(SINK_FIXED_IDENTIFIER).orElse(null));
-            customFIeldsPartitioner.setPartitionKey(tableOptions.getOptional(SINK_MULTIPLE_PARTITION_PATTERN)
+            customFieldsPartitioner.setPartitionNumber(tableOptions.getOptional(SINK_FIXED_IDENTIFIER).orElse(null));
+            customFieldsPartitioner.setPartitionKey(tableOptions.getOptional(SINK_MULTIPLE_PARTITION_PATTERN)
                     .orElse(null));
-            customFIeldsPartitioner.setSchema(schema);
-            return Optional.of(customFIeldsPartitioner);
+            customFieldsPartitioner.setSchema(schema);
+            return Optional.of(customFieldsPartitioner);
         }
         Optional<FlinkKafkaPartitioner<RowData>> partitioner = KafkaOptions
                 .getFlinkKafkaPartitioner(tableOptions, classLoader);
