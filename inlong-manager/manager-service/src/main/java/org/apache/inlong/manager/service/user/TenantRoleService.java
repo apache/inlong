@@ -61,8 +61,9 @@ public interface TenantRoleService {
 
     /**
      * Delete tenant role by id
+     *
      * @param id tenant role
      * @return true = delete success/ false = delete fail
      */
-    boolean delete(Integer id);
+    Boolean delete(Integer id);
 }
