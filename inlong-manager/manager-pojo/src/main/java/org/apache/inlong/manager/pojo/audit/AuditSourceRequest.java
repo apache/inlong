@@ -33,12 +33,15 @@ public class AuditSourceRequest {
     private String oldUrl;
 
     @NotBlank
-    @ApiModelProperty(value = "MYSQL, CLICKHOUSE or ELASTICSEARCH", name = "auditQuerySource", required = true)
-    private String auditQuerySource;
+    @ApiModelProperty(value = "MYSQL, CLICKHOUSE or ELASTICSEARCH", name = "sourceType", required = true)
+    private String sourceType;
 
     @NotBlank
-    @ApiModelProperty(name = "url", required = true)
-    private String url;
+    @ApiModelProperty(name = "sourceUrl", required = true)
+    private String sourceUrl;
+
+    @ApiModelProperty(name = "authEnable")
+    Integer authEnable;
 
     @NotBlank
     @ApiModelProperty(name = "userName", required = true)
@@ -48,19 +51,16 @@ public class AuditSourceRequest {
     @ApiModelProperty(name = "password", required = true)
     String password;
 
-    @ApiModelProperty(name = "authEnable")
-    Integer authEnable;
-
     public AuditSourceRequest() {
     }
 
-    public AuditSourceRequest(String oldUrl, String auditQuerySource, String url, String userName,
-            String password, Integer authEnable) {
+    public AuditSourceRequest(String oldUrl, String sourceType, String sourceUrl, Integer authEnable, String userName,
+            String password) {
         this.oldUrl = oldUrl;
-        this.auditQuerySource = auditQuerySource;
-        this.url = url;
+        this.sourceType = sourceType;
+        this.sourceUrl = sourceUrl;
+        this.authEnable = authEnable;
         this.userName = userName;
         this.password = password;
-        this.authEnable = authEnable;
     }
 }

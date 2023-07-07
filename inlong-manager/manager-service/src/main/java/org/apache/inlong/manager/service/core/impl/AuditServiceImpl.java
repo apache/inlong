@@ -167,24 +167,25 @@ public class AuditServiceImpl implements AuditService {
         return true;
     }
 
-    private AuditQuerySourceConfigEntity createAuditQuerySource(String auditQuerySource, String url, String userName,
-            String password, Integer auth_Enable) {
+    private AuditQuerySourceConfigEntity createAuditQuerySource(String sourceType, String sourceUrl,
+            Integer auth_Enable, String userName,
+            String password) {
         AuditQuerySourceConfigEntity auditQuerySourceConfig = new AuditQuerySourceConfigEntity();
-        auditQuerySourceConfig.setAuditQuerySource(auditQuerySource);
-        auditQuerySourceConfig.setUrl(url);
+        auditQuerySourceConfig.setSourceType(sourceType);
+        auditQuerySourceConfig.setSourceUrl(sourceUrl);
+        auditQuerySourceConfig.setAuthEnable(auth_Enable);
         auditQuerySourceConfig.setUserName(userName);
         auditQuerySourceConfig.setPassword(password);
-        auditQuerySourceConfig.setAuthEnable(auth_Enable);
         auditQuerySourceConfig.setStatus(1);
         auditQuerySourceConfig.setCreateTime(new Date());
-        auditQuerySourceConfig.setUpdateTime(new Date());
+        auditQuerySourceConfig.setModifyTime(new Date());
         return auditQuerySourceConfig;
     }
     @Override
     public Boolean updateAuditQuerySource(AuditSourceRequest request) {
         String oldUrl = request.getOldUrl();
-        String auditQuerySource = request.getAuditQuerySource();
-        String url = request.getUrl();
+        String sourceType = request.getSourceType();
+        String sourceUrl = request.getSourceUrl();
         String userName = request.getUserName();
         String password = request.getPassword();
         Integer authEnable = (request.getAuthEnable() == null) ? 1 : request.getAuthEnable();
@@ -193,7 +194,7 @@ public class AuditServiceImpl implements AuditService {
                 querySourceConfigEntityMapper.offlineAuditQuerySourceByUrl(oldUrl);
             }
             AuditQuerySourceConfigEntity entity =
-                    createAuditQuerySource(auditQuerySource, url, userName, password, authEnable);
+                    createAuditQuerySource(sourceType, sourceUrl, authEnable, userName, password);
             querySourceConfigEntityMapper.insert(entity);
             config.updateCkSource();
         } catch (Exception e) {

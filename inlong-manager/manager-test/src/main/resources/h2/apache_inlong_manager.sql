@@ -865,7 +865,7 @@ CREATE TABLE IF NOT EXISTS `audit_source`
     `status`      smallint(4)  NOT NULL DEFAULT 0 COMMENT 'Whether the audit source is online or offline, 0: offline, 1: online' ,
     `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`source_type`, `source_url`, `auth_enable`, `username`)
+    PRIMARY KEY (`source_url`)
 );
 
 -- ----------------------------

@@ -26,7 +26,7 @@ public interface AuditQuerySourceConfigEntityMapper {
 
     AuditQuerySourceConfigEntity findByStatus();
 
-    void offlineAuditQuerySourceByUrl(String url);
+    void offlineAuditQuerySourceByUrl(String sourceUrl);
 
     void insert(AuditQuerySourceConfigEntity auditQuerySourceConfig);
 }

@@ -84,21 +84,6 @@ UPDATE inlong_cluster SET ext_params = replace(ext_params, '"tenant"', '"pulsarT
 
 ALTER TABLE `inlong_stream` MODIFY COLUMN `name` varchar(256) DEFAULT NULL COMMENT 'The name of the inlong stream page display, can be Chinese';
 
-
-CREATE TABLE IF NOT EXISTS `audit_source`
-(
-    `audit_query_source`    varchar(256)  NOT NULL COMMENT 'MYSQL, ELASTICSEARCH, CLICKHOUSE' ,
-    `url`                   varchar(256) NOT NULL COMMENT 'If source is CLICKHOUSE or MYSQL: jdbcUrl, if source is ELASTICSEARCH: hostname:port' ,
-    `username`              varchar(256) NOT NULL COMMENT 'User name' ,
-    `password`              varchar(256) NOT NULL ,
-    `auth_enable`           TINYINT(1) DEFAULT 1 COMMENT '1:enable, 0:disable',
-    `status`                TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1: online, 0: offline' ,
-    `create_time`           timestamp NOT NULL COMMENT 'Create time',
-    `update_time`           timestamp NOT NULL COMMENT 'Update time',
-    PRIMARY KEY (`url`)
-    ) ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4 COMMENT ='Audit Query Source Config Table';
-
 ALTER TABLE `inlong_group`
     ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of group' after `ext_params`;
 CREATE INDEX tenant_index
@@ -145,6 +130,6 @@ CREATE TABLE IF NOT EXISTS `audit_source`
     `status`      smallint(4)  NOT NULL DEFAULT 0 COMMENT 'Whether the audit source is online or offline, 0: offline, 1: online' ,
     `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`source_type`, `source_url`, `auth_enable`, `username`)
+    PRIMARY KEY (`source_url`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Audit source table';
