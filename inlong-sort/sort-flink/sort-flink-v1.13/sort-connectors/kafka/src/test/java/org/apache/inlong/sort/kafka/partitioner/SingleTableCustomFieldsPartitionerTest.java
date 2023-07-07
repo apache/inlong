@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.kafka.partitioner;
 
-import org.apache.inlong.sort.kafka.SingleTablePrimaryKeyPartitioner;
+import org.apache.inlong.sort.kafka.SingleTableCustomFieldsPartitioner;
 
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.TableSchema;
@@ -31,14 +31,14 @@ import org.junit.Test;
 
 /**
  * The unit tests for {@link
- * org.apache.inlong.sort.kafka.partitioner.SingleTablePrimaryKeyPartitioner}.
+ * org.apache.inlong.sort.kafka.partitioner.SingleTableCustomFieldsPartitioner}.
  */
-public class SingleTablePrimaryKeyPartitionerTest {
+public class SingleTableCustomFieldsPartitionerTest {
 
     @Test
     public void testPrimaryKeyPartitioner() {
-        SingleTablePrimaryKeyPartitioner singleTablePrimaryKeyPartitioner =
-                new SingleTablePrimaryKeyPartitioner();
+        SingleTableCustomFieldsPartitioner singleTablePrimaryKeyPartitioner =
+                new SingleTableCustomFieldsPartitioner();
 
         TableSchema schema = TableSchema.builder()
                 .field("id", DataTypes.INT())

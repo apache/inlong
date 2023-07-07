@@ -34,9 +34,9 @@ import java.util.List;
  *
  * @param <T>
  */
-public class SingleTablePrimaryKeyPartitioner<T> extends FlinkKafkaPartitioner<T> {
+public class SingleTableCustomFieldsPartitioner<T> extends FlinkKafkaPartitioner<T> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SingleTablePrimaryKeyPartitioner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SingleTableCustomFieldsPartitioner.class);
     private static final long serialVersionUID = 1L;
 
     /**
@@ -140,11 +140,11 @@ public class SingleTablePrimaryKeyPartitioner<T> extends FlinkKafkaPartitioner<T
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof SingleTablePrimaryKeyPartitioner;
+        return o instanceof SingleTableCustomFieldsPartitioner;
     }
 
     @Override
     public int hashCode() {
-        return SingleTablePrimaryKeyPartitioner.class.hashCode();
+        return SingleTableCustomFieldsPartitioner.class.hashCode();
     }
 }

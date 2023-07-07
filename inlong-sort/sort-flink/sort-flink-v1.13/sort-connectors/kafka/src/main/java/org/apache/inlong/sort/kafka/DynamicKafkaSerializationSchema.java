@@ -175,8 +175,8 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
                     (JsonDynamicSchemaFormat) DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat);
         }
 
-        if (partitioner instanceof SingleTablePrimaryKeyPartitioner) {
-            ((SingleTablePrimaryKeyPartitioner<?>) partitioner).setValueFieldGetters(valueFieldGetters);
+        if (partitioner instanceof SingleTableCustomFieldsPartitioner) {
+            ((SingleTableCustomFieldsPartitioner<?>) partitioner).setValueFieldGetters(valueFieldGetters);
         }
     }
 

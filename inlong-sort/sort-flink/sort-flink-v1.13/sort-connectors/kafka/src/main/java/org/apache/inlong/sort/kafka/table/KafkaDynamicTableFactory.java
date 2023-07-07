@@ -22,7 +22,7 @@ import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink;
-import org.apache.inlong.sort.kafka.SingleTablePrimaryKeyPartitioner;
+import org.apache.inlong.sort.kafka.SingleTableCustomFieldsPartitioner;
 import org.apache.inlong.sort.kafka.partitioner.InLongFixedPartitionPartitioner;
 import org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner;
 import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
@@ -280,13 +280,13 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
             return Optional.of(rawHashPartitioner);
         } else if (tableOptions.getOptional(SINK_PARTITIONER).isPresent()
                 && SINK_PARTITIONER_VALUE_PRIMARY_KEY.equals(tableOptions.getOptional(SINK_PARTITIONER).get())) {
-            SingleTablePrimaryKeyPartitioner<RowData> primaryKeyPartitioner = new SingleTablePrimaryKeyPartitioner<>();
+            SingleTableCustomFieldsPartitioner<RowData> customFIeldsPartitioner = new SingleTableCustomFieldsPartitioner<>();
             // the pattern is different from the ${} pattern, it is a truncated string of schema fields.
-            primaryKeyPartitioner.setPartitionNumber(tableOptions.getOptional(SINK_FIXED_IDENTIFIER).orElse(null));
-            primaryKeyPartitioner.setPartitionKey(tableOptions.getOptional(SINK_MULTIPLE_PARTITION_PATTERN)
+            customFIeldsPartitioner.setPartitionNumber(tableOptions.getOptional(SINK_FIXED_IDENTIFIER).orElse(null));
+            customFIeldsPartitioner.setPartitionKey(tableOptions.getOptional(SINK_MULTIPLE_PARTITION_PATTERN)
                     .orElse(null));
-            primaryKeyPartitioner.setSchema(schema);
-            return Optional.of(primaryKeyPartitioner);
+            customFIeldsPartitioner.setSchema(schema);
+            return Optional.of(customFIeldsPartitioner);
         }
         Optional<FlinkKafkaPartitioner<RowData>> partitioner = KafkaOptions
                 .getFlinkKafkaPartitioner(tableOptions, classLoader);

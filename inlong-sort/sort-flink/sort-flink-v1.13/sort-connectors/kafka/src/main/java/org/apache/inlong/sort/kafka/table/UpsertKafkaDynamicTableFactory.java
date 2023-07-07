@@ -21,7 +21,7 @@ import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink;
-import org.apache.inlong.sort.kafka.SingleTablePrimaryKeyPartitioner;
+import org.apache.inlong.sort.kafka.SingleTableCustomFieldsPartitioner;
 import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
 import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
 import org.apache.inlong.sort.util.SchemaChangeUtils;
@@ -274,12 +274,12 @@ public class UpsertKafkaDynamicTableFactory
             ReadableConfig tableOptions, ClassLoader classLoader, TableSchema schema) {
         if (tableOptions.getOptional(SINK_PARTITIONER).isPresent()
                 && SINK_PARTITIONER_VALUE_PRIMARY_KEY.equals(tableOptions.getOptional(SINK_PARTITIONER).get())) {
-            SingleTablePrimaryKeyPartitioner<RowData> primaryKeyPartitioner = new SingleTablePrimaryKeyPartitioner<>();
-            primaryKeyPartitioner.setPartitionNumber(tableOptions.getOptional(SINK_FIXED_IDENTIFIER).orElse(null));
-            primaryKeyPartitioner.setPartitionKey(tableOptions.getOptional(SINK_MULTIPLE_PARTITION_PATTERN)
+            SingleTableCustomFieldsPartitioner<RowData> customFIeldsPartitioner = new SingleTableCustomFieldsPartitioner<>();
+            customFIeldsPartitioner.setPartitionNumber(tableOptions.getOptional(SINK_FIXED_IDENTIFIER).orElse(null));
+            customFIeldsPartitioner.setPartitionKey(tableOptions.getOptional(SINK_MULTIPLE_PARTITION_PATTERN)
                     .orElse(null));
-            primaryKeyPartitioner.setSchema(schema);
-            return Optional.of(primaryKeyPartitioner);
+            customFIeldsPartitioner.setSchema(schema);
+            return Optional.of(customFIeldsPartitioner);
         }
         Optional<FlinkKafkaPartitioner<RowData>> partitioner = KafkaOptions
                 .getFlinkKafkaPartitioner(tableOptions, classLoader);
