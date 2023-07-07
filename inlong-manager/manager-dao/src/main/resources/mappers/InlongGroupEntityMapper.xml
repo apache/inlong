@@ -65,28 +65,149 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
-        insert into inlong_group (id, inlong_group_id,
-                                  name, description, tenant,
-                                  mq_type, mq_resource,
-                                  daily_records, daily_storage,
-                                  peak_records, max_length,
-                                  enable_zookeeper, enable_create_resource,
-                                  inlong_group_mode, data_report_type,
-                                  inlong_cluster_tag, ext_params,
-                                  in_charges, followers,
-                                  status, previous_status,
-                                  creator, modifier)
-        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR},
-                #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{tenant,jdbcType=VARCHAR},
-                #{mqType,jdbcType=VARCHAR}, #{mqResource,jdbcType=VARCHAR},
-                #{dailyRecords,jdbcType=INTEGER}, #{dailyStorage,jdbcType=INTEGER},
-                #{peakRecords,jdbcType=INTEGER}, #{maxLength,jdbcType=INTEGER},
-                #{enableZookeeper,jdbcType=INTEGER}, #{enableCreateResource,jdbcType=INTEGER},
-                #{inlongGroupMode,jdbcType=INTEGER}, #{dataReportType,jdbcType=INTEGER},
-                #{inlongClusterTag,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
-                #{inCharges,jdbcType=VARCHAR}, #{followers,jdbcType=VARCHAR},
-                #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER},
-                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
+        insert into inlong_group
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="id != null">
+                id,
+            </if>
+            <if test="inlongGroupId != null and inlongGroupId != ''">
+                inlong_group_id,
+            </if>
+            <if test="name != null and name != ''">
+                name,
+            </if>
+            <if test="tenant != null and tenant != ''">
+                tenant,
+            </if>
+            <if test="description != null and description != ''">
+                description,
+            </if>
+            <if test="mqType != null and mqType != ''">
+                mq_type,
+            </if>
+            <if test="mqResource != null and mqResource != ''">
+                mq_resource,
+            </if>
+            <if test="dailyRecords != null">
+                daily_records,
+            </if>
+            <if test="dailyStorage != null">
+                daily_storage,
+            </if>
+            <if test="peakRecords != null">
+                peak_records,
+            </if>
+            <if test="maxLength != null">
+                max_length,
+            </if>
+            <if test="enableZookeeper != null">
+                enable_zookeeper,
+            </if>
+            <if test="enableCreateResource != null">
+                enable_create_resource,
+            </if>
+            <if test="lightweight != null">
+                lightweight,
+            </if>
+            <if test="dataReportType != null">
+                data_report_type,
+            </if>
+            <if test="inlongClusterTag != null and inlongClusterTag != ''">
+                inlong_cluster_tag,
+            </if>
+            <if test="extParams != null and extParams != ''">
+                ext_params,
+            </if>
+            <if test="inCharges != null and inCharges != ''">
+                in_charges,
+            </if>
+            <if test="followers != null and followers != ''">
+                followers,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="previousStatus != null">
+                previous_status,
+            </if>
+            <if test="creator != null and creator != ''">
+                creator,
+            </if>
+            <if test="modifier != null and modifier != ''">
+                modifier
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="inlongGroupId != null and inlongGroupId != ''">
+                #{inlongGroupId,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null and name != ''">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null and description != ''">
+                #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="tenant != null and tenant != ''">
+                t#{tenant,jdbcType=VARCHAR},
+            </if>
+            <if test="mqType != null and mqType != ''">
+                #{mqType,jdbcType=VARCHAR},
+            </if>
+            <if test="mqResource != null and mqResource != ''">
+                #{mqResource,jdbcType=VARCHAR},
+            </if>
+            <if test="dailyRecords != null">
+                #{dailyRecords,jdbcType=INTEGER},
+            </if>
+            <if test="dailyStorage != null">
+                #{dailyStorage,jdbcType=INTEGER},
+            </if>
+            <if test="peakRecords != null">
+                #{peakRecords,jdbcType=INTEGER},
+            </if>
+            <if test="maxLength != null">
+                #{maxLength,jdbcType=INTEGER},
+            </if>
+            <if test="enableZookeeper != null">
+                #{enableZookeeper,jdbcType=INTEGER},
+            </if>
+            <if test="enableCreateResource != null">
+                #{enableCreateResource,jdbcType=INTEGER},
+            </if>
+            <if test="lightweight != null">
+                #{lightweight,jdbcType=INTEGER},
+            </if>
+            <if test="dataReportType != null">
+                #{dataReportType,jdbcType=INTEGER},
+            </if>
+            <if test="inlongClusterTag != null and inlongClusterTag != ''">
+                #{inlongClusterTag,jdbcType=VARCHAR},
+            </if>
+            <if test="extParams != null and extParams != ''">
+                #{extParams,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="inCharges != null and inCharges != ''">
+                #{inCharges,jdbcType=VARCHAR},
+            </if>
+            <if test="followers != null and followers != ''">
+                #{followers,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="previousStatus != null">
+                #{previousStatus,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null and creator != ''">
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null and modifier != ''">
+                #{modifier,jdbcType=VARCHAR}
+            </if>
+        </trim>
     </insert>
 
     <select id="selectByPrimaryKey" resultMap="BaseResultMap">
