@@ -133,7 +133,7 @@ public class TenantRoleServiceImpl implements TenantRoleService {
         log.info("begin to delete inlong tenant role id={} by user={}", id, operator);
         int success = tenantUserRoleEntityMapper.deleteById(id);
         Preconditions.expectTrue(success == 1, "delete tenant role failed");
-        log.info("delete inlong tenant role id={} by user={} success", id, operator);
+        log.info("success delete inlong tenant role id={} by user={}", id, operator);
         return true;
     }
 
