@@ -84,11 +84,11 @@ class AuditServiceTest extends ServiceBaseTest {
     void testUpdateAuditQuerySource() {
         AuditSourceRequest request = new AuditSourceRequest(null, "source1",
                 "host1", null,
-                "default", "123456", "megru");
+                "default", "123456");
         auditService.updateAuditQuerySource(request);
         AuditSourceRequest request2 = new AuditSourceRequest("host1", "source2",
                 "host2", null,
-                "default", "123456", "zzmr");
+                "default", "123456");
         auditService.updateAuditQuerySource(request2);
         Assertions.assertEquals(auditService.queryCurrentSource().getSourceUrl(),
                 request2.getSourceUrl());

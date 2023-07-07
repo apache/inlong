@@ -19,6 +19,7 @@ package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditSourceRequest;
+import org.apache.inlong.manager.pojo.audit.AuditSourceResponse;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.service.core.AuditService;
@@ -70,7 +71,7 @@ public class AuditController {
 
     @ApiOperation(value = "Get the audit source of the current connection")
     @GetMapping("/audit/getSource")
-    public Response<AuditSourceRequest> queryCurrentSource() {
+    public Response<AuditSourceResponse> queryCurrentSource() {
         return Response.success(auditService.queryCurrentSource());
     }
 

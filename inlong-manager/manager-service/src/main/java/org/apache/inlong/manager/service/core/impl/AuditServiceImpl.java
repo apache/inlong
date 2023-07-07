@@ -36,6 +36,7 @@ import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditSourceRequest;
+import org.apache.inlong.manager.pojo.audit.AuditSourceResponse;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
@@ -168,18 +169,18 @@ public class AuditServiceImpl implements AuditService {
     }
 
     private AuditQuerySourceConfigEntity createAuditQuerySource(String sourceType, String sourceUrl,
-            Integer auth_Enable, String userName,
-            String password, String modifier) {
+            Integer auth_Enable, String username,
+            String password) {
         AuditQuerySourceConfigEntity auditQuerySourceConfig = new AuditQuerySourceConfigEntity();
         auditQuerySourceConfig.setSourceType(sourceType);
         auditQuerySourceConfig.setSourceUrl(sourceUrl);
         auditQuerySourceConfig.setAuthEnable(auth_Enable);
-        auditQuerySourceConfig.setUserName(userName);
+        auditQuerySourceConfig.setUsername(username);
         auditQuerySourceConfig.setPassword(password);
         auditQuerySourceConfig.setStatus(1);
-        auditQuerySourceConfig.setCreator(modifier);
+        auditQuerySourceConfig.setCreator(LoginUserUtils.getLoginUser().getName());
         auditQuerySourceConfig.setCreateTime(new Date());
-        auditQuerySourceConfig.setModifier(modifier);
+        auditQuerySourceConfig.setModifier(LoginUserUtils.getLoginUser().getName());
         auditQuerySourceConfig.setModifyTime(new Date());
         auditQuerySourceConfig.setIsDeleted(0);
         auditQuerySourceConfig.setVersion(1);
@@ -190,21 +191,19 @@ public class AuditServiceImpl implements AuditService {
         String oldUrl = request.getOldUrl();
         String sourceType = request.getSourceType();
         String sourceUrl = request.getSourceUrl();
-        String userName = request.getUserName();
+        String username = request.getUsername();
         String password = request.getPassword();
         Integer authEnable = (request.getAuthEnable() == null) ? 1 : request.getAuthEnable();
-        String modifier = request.getModifier();
         try {
             if (!StringUtils.isBlank(oldUrl)) {
                 querySourceConfigEntityMapper.offlineAuditQuerySourceByUrl(oldUrl);
             }
             AuditQuerySourceConfigEntity entity =
-                    createAuditQuerySource(sourceType, sourceUrl, authEnable, userName, password, modifier);
+                    createAuditQuerySource(sourceType, sourceUrl, authEnable, username, password);
             querySourceConfigEntityMapper.insert(entity);
             config.updateCkSource();
         } catch (Exception e) {
-            LOGGER.error("fail to update audit query source!");
-            LOGGER.error(e.toString());
+            e.printStackTrace();
             return false;
         }
         LOGGER.info("success to update audit source!");
@@ -212,8 +211,8 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public AuditSourceRequest queryCurrentSource() {
-        return CommonBeanUtils.copyProperties(querySourceConfigEntityMapper.findByStatus(), AuditSourceRequest::new);
+    public AuditSourceResponse queryCurrentSource() {
+        return CommonBeanUtils.copyProperties(querySourceConfigEntityMapper.findByStatus(), AuditSourceResponse::new);
     }
 
     @Override

@@ -29,7 +29,7 @@ public class AuditQuerySourceConfigEntity implements Serializable {
     private String sourceType;
     private String sourceUrl;
     private Integer authEnable;
-    private String userName;
+    private String username;
     private String password;
     private Integer status;
     private String creator;

@@ -53,7 +53,7 @@ public class ClickHouseConfig {
             }
             AuditQuerySourceConfigEntity querySourceConfigEntity = querySourceConfigEntityMapper.findByStatus();
             String jdbcUrl = querySourceConfigEntity.getSourceUrl();
-            String username = querySourceConfigEntity.getUserName();
+            String username = querySourceConfigEntity.getUsername();
             String password = StringUtils.isBlank(querySourceConfigEntity.getPassword()) ? ""
                     : querySourceConfigEntity.getPassword();
             if (StringUtils.isBlank(currentJdbcUrl) || StringUtils.isBlank(currentUserName)

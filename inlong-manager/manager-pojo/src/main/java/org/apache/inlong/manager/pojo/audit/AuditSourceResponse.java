@@ -17,47 +17,48 @@
 
 package org.apache.inlong.manager.pojo.audit;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
-import javax.validation.constraints.NotBlank;
+import java.util.Date;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
-@ApiModel("Audit source request")
-public class AuditSourceRequest {
+@ApiModel("Audit source response")
+public class AuditSourceResponse {
 
-    @ApiModelProperty(value = "Old url that will be offline. It can be null.", name = "oldUrl")
-    private String oldUrl;
+    @ApiModelProperty(value = "Id")
+    Integer id;
 
-    @NotBlank
-    @ApiModelProperty(value = "MYSQL, CLICKHOUSE or ELASTICSEARCH", name = "sourceType", required = true)
+    @ApiModelProperty(value = "MYSQL, CLICKHOUSE or ELASTICSEARCH")
     private String sourceType;
 
-    @NotBlank
-    @ApiModelProperty(name = "sourceUrl", required = true)
+    @ApiModelProperty(value = "Source url")
     private String sourceUrl;
 
-    @ApiModelProperty(name = "authEnable")
+    @ApiModelProperty(value = "Auth enable")
     Integer authEnable;
 
-    @NotBlank
-    @ApiModelProperty(name = "username", required = true)
+    @ApiModelProperty(value = "Username")
     private String username;
 
-    @NotBlank
-    @ApiModelProperty(name = "password", required = true)
+    @ApiModelProperty(value = "Password")
     String password;
 
-    public AuditSourceRequest(String oldUrl, String sourceType, String sourceUrl, Integer authEnable, String username,
-            String password) {
-        this.oldUrl = oldUrl;
-        this.sourceType = sourceType;
-        this.sourceUrl = sourceUrl;
-        this.authEnable = authEnable;
-        this.username = username;
-        this.password = password;
-    }
+    @ApiModelProperty(value = "Creator")
+    String creator;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    Date createTime;
+
+    @ApiModelProperty(value = "Modifier")
+    String modifier;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    Date modifyTime;
+
+    @ApiModelProperty(value = "Version")
+    Integer version;
+
 }

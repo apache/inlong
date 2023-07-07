@@ -25,7 +25,7 @@
         <result column="source_type" jdbcType="VARCHAR" property="sourceType"/>
         <result column="source_url" jdbcType="VARCHAR" property="sourceUrl"/>
         <result column="auth_enable" jdbcType="TINYINT" property="authEnable"/>
-        <result column="username" jdbcType="VARCHAR" property="userName"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
         <result column="password" jdbcType="VARCHAR" property="password"/>
         <result column="status" jdbcType="SMALLINT" property="status"/>
         <result column="creator" jdbcType="VARCHAR" property="creator"/>
@@ -61,7 +61,7 @@
     </update>
     <insert id="insert" keyProperty="source_url">
         insert into audit_source (source_type, source_url, auth_enable, username, password, status, creator, create_time, modifier, modify_time, is_deleted, version)
-        values (#{sourceType}, #{sourceUrl}, #{authEnable}, #{userName}, #{password}, #{status}, #{creator}, #{createTime}, #{modifier}, #{modifyTime}, #{isDeleted}, #{version})
+        values (#{sourceType}, #{sourceUrl}, #{authEnable}, #{username}, #{password}, #{status}, #{creator}, #{createTime}, #{modifier}, #{modifyTime}, #{isDeleted}, #{version})
         ON DUPLICATE KEY UPDATE source_type = VALUES(source_type),
                                 auth_enable = VALUES(auth_enable),
                                 username = VALUES(username),
