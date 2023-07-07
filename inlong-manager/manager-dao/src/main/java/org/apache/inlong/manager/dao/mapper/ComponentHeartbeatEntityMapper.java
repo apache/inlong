@@ -32,8 +32,6 @@ public interface ComponentHeartbeatEntityMapper {
 
     int insertOrUpdateByKey(ComponentHeartbeatEntity record);
 
-    ComponentHeartbeatEntity selectByPrimaryKey(Integer id);
-
     ComponentHeartbeatEntity selectByKey(@Param("component") String component, @Param("instance") String instance);
 
     List<ComponentHeartbeatEntity> selectByCondition(@Param("request") HeartbeatPageRequest request);
@@ -47,7 +45,5 @@ public interface ComponentHeartbeatEntityMapper {
      */
     ComponentHeartbeatEntity selectTimeOutHeartBeat(@Param("component") String component,
             @Param("instance") String instance, @Param("beforeSeconds") Long beforeSeconds);
-
-    int deleteByPrimaryKey(Integer id);
 
 }

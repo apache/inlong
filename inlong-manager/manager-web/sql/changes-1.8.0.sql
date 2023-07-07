@@ -24,7 +24,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 USE `apache_inlong_manager`;
 
 ALTER TABLE inlong_group
-    CHANGE lightweight inlong_group_mode tinyint(1) DEFAULT 0 NULL COMMENT 'Inlong group mode, Standard mode: 0, DataSync mode: 1';
+    CHANGE lightweight inlong_group_mode tinyint(1) DEFAULT 0 NULL COMMENT 'InLong group mode, Standard mode(include Data Ingestion and Synchronization): 0, DataSync mode(only Data Synchronization): 1';
 
 -- To support multi-tenant management in InLong, see https://github.com/apache/inlong/issues/7914
 CREATE TABLE IF NOT EXISTS `inlong_tenant`
@@ -110,3 +110,23 @@ ALTER TABLE `inlong_consume`
     ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of consume' after `ext_params`;
 CREATE INDEX consume_tenant_index
     ON inlong_consume (`tenant`, `is_deleted`);
+
+-- To support multi-tenancy of workflow. Please see #8404
+ALTER TABLE `workflow_approver`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of workflow approver' after `task_name`;
+ALTER TABLE `workflow_process`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of workflow process' after `inlong_stream_id`;
+ALTER TABLE `workflow_task`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of workflow task' after `display_name`;
+
+ALTER TABLE component_heartbeat DROP COLUMN id;
+ALTER TABLE `component_heartbeat` ADD PRIMARY KEY (`component`, `instance`);
+DROP INDEX unique_component_heartbeat on component_heartbeat;
+
+ALTER TABLE group_heartbeat DROP COLUMN id;
+ALTER TABLE `group_heartbeat` ADD PRIMARY KEY  (`component`, `instance`, `inlong_group_id`);
+DROP INDEX unique_group_heartbeat on group_heartbeat;
+
+ALTER TABLE stream_heartbeat DROP COLUMN id;
+ALTER TABLE `stream_heartbeat` ADD PRIMARY KEY (`component`, `instance`, `inlong_group_id`, `inlong_stream_id`);
+DROP INDEX unique_stream_heartbeat on stream_heartbeat;

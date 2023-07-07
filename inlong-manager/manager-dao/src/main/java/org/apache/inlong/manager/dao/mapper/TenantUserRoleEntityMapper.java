@@ -24,6 +24,8 @@ import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface TenantUserRoleEntityMapper {
 
@@ -34,6 +36,8 @@ public interface TenantUserRoleEntityMapper {
     TenantUserRoleEntity selectByUsernameAndTenant(@Param("username") String username, @Param("tenant") String tenant);
 
     Page<TenantUserRoleEntity> listByCondition(TenantRolePageRequest request);
+
+    List<String> listByUsername(String username);
 
     int updateById(TenantUserRoleEntity record);
 

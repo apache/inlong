@@ -320,7 +320,7 @@ public class DataProxyConfigRepository implements IRepository {
                 JsonElement child = obj.get(key);
                 if (child.isJsonPrimitive()) {
                     mapObj.put(key, child.getAsString());
-                } else {
+                } else if (!child.isJsonNull()) {
                     mapObj.put(key, child.toString());
                 }
             }

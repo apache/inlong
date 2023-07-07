@@ -17,11 +17,12 @@
 
 package org.apache.inlong.manager.service.user;
 
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
 import org.apache.inlong.manager.pojo.user.TenantRoleRequest;
 
-import com.github.pagehelper.PageInfo;
+import java.util.List;
 
 /**
  * Tenant Role service
@@ -31,7 +32,7 @@ public interface TenantRoleService {
     /**
      * List all tenant role by paginating
      */
-    PageInfo<TenantRoleInfo> listByCondition(TenantRolePageRequest request);
+    PageResult<TenantRoleInfo> listByCondition(TenantRolePageRequest request);
 
     /**
      * Save one tenant role
@@ -39,7 +40,7 @@ public interface TenantRoleService {
     int save(TenantRoleRequest record, String operator);
 
     /**
-     * Update one tanant role
+     * Update one tenant role
      */
     boolean update(TenantRoleRequest record, String operator);
 
@@ -52,4 +53,9 @@ public interface TenantRoleService {
      * Get one tenant role by name and tenant
      */
     TenantRoleInfo getByUsernameAndTenant(String name, String tenant);
+
+    /**
+     * List tenant by given username
+     */
+    List<String> listTenantByUsername(String username);
 }

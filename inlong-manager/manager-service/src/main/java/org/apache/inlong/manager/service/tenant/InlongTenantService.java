@@ -21,6 +21,7 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
+import org.apache.inlong.manager.pojo.user.UserInfo;
 
 /**
  * Inlong tenant service
@@ -47,9 +48,10 @@ public interface InlongTenantService {
      * Paging query stream sink info based on conditions.
      *
      * @param request paging request
+     * @param userInfo query user info
      * @return tenant page list
      */
-    PageResult<InlongTenantInfo> listByCondition(InlongTenantPageRequest request);
+    PageResult<InlongTenantInfo> listByCondition(InlongTenantPageRequest request, UserInfo userInfo);
 
     /**
      * Update one tenant

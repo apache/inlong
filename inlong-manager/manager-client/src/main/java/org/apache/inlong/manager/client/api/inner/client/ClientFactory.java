@@ -53,6 +53,8 @@ public class ClientFactory {
     private final WorkflowEventClient workflowEventClient;
     private final InlongConsumeClient consumeClient;
     private final AuditClient auditClient;
+    private final InlongTenantClient inlongTenantClient;
+    private final InlongTenantRoleClient inlongTenantRoleClient;
 
     public ClientFactory(ClientConfiguration configuration) {
         groupClient = new InlongGroupClient(configuration);
@@ -70,5 +72,7 @@ public class ClientFactory {
         workflowEventClient = new WorkflowEventClient(configuration);
         consumeClient = new InlongConsumeClient(configuration);
         auditClient = new AuditClient(configuration);
+        inlongTenantClient = new InlongTenantClient(configuration);
+        inlongTenantRoleClient = new InlongTenantRoleClient(configuration);
     }
 }
