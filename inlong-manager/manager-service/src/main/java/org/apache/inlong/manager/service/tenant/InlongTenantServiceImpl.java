@@ -27,6 +27,7 @@ import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongTenantEntityMapper;
+import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
@@ -37,10 +38,13 @@ import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -48,10 +52,6 @@ public class InlongTenantServiceImpl implements InlongTenantService {
 
     @Autowired
     private InlongTenantEntityMapper inlongTenantEntityMapper;
-    @Autowired
-    private InlongGroupEntityMapper inlongGroupEntityMapper;
-    @Autowired
-    private InlongClusterNodeEntityMapper inlongClusterNodeEntityMapper;
 
     @Override
     public InlongTenantInfo getByName(String name) {
@@ -118,10 +118,9 @@ public class InlongTenantServiceImpl implements InlongTenantService {
     }
 
     @Override
-    public Boolean delete(String name) {
-        InlongGroupPageRequest inlongGroupPageRequest = new InlongGroupPageRequest();
-
-        return null;
+    public Boolean delete(String name, String operator) {
+        InlongTenantEntity inlongTenantEntity = inlongTenantEntityMapper.selectByName(name);
+        return inlongTenantEntityMapper.deleteById(inlongTenantEntity.getId()) > 0;
     }
 
 }

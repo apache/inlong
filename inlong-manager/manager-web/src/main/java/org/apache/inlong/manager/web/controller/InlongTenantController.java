@@ -24,6 +24,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.tenant.InlongTenantService;
 
@@ -80,6 +81,15 @@ public class InlongTenantController {
     @RequiresRoles(logical = Logical.OR, value = {INLONG_ADMIN})
     public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody InlongTenantRequest request) {
         return Response.success(tenantService.update(request));
+    }
+
+    @RequestMapping(value = "/tenant/delete/{name}", method = RequestMethod.GET)
+    @ApiOperation(value = "Delete inlong tenant by name")
+    @ApiImplicitParam(name = "name", dataTypeClass = String.class, required = true)
+    @RequiresRoles(logical = Logical.OR, value = {INLONG_ADMIN, INLONG_OPERATOR})
+    public Response<Boolean> delete(@PathVariable String name) {
+        String username = LoginUserUtils.getLoginUser().getName();
+        return Response.success(tenantService.delete(name, username));
     }
 
 }

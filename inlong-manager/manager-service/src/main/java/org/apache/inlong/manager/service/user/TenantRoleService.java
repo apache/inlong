@@ -52,4 +52,11 @@ public interface TenantRoleService {
      * Get one tenant role by name and tenant
      */
     TenantRoleInfo getByUsernameAndTenant(String name, String tenant);
+
+    /**
+     * Delete tenant role by id
+     * @param id tenant role
+     * @return true = delete success/ false = delete fail
+     */
+    boolean delete(Integer id);
 }

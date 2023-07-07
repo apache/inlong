@@ -116,4 +116,9 @@ public class TenantRoleServiceImpl implements TenantRoleService {
         return CommonBeanUtils.copyProperties(entity, TenantRoleInfo::new);
     }
 
+    @Override
+    public boolean delete(Integer id) {
+        return tenantUserRoleEntityMapper.deleteById(id) > 0;
+    }
+
 }
