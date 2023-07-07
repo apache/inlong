@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.AuditQuerySource;
 import org.apache.inlong.manager.common.enums.ClusterType;
@@ -177,6 +178,7 @@ public class AuditServiceImpl implements AuditService {
 
         // TODO firstly we should check to see if it exists, updated if it exists, and created if it doesn't exist
         AuditSourceEntity entity = CommonBeanUtils.copyProperties(request, AuditSourceEntity::new);
+        entity.setStatus(InlongConstants.DEFAULT_ENABLE_VALUE);
         entity.setCreator(operator);
         entity.setModifier(operator);
         auditSourceMapper.insert(entity);

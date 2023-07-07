@@ -66,8 +66,12 @@ public class ClickHouseConfig {
 
                 Properties pros = new Properties();
                 pros.put("url", jdbcUrl);
-                pros.put("username", username);
-                pros.put("password", password);
+                if (StringUtils.isNotBlank(username)) {
+                    pros.put("username", username);
+                }
+                if (StringUtils.isNotBlank(password)) {
+                    pros.put("password", password);
+                }
 
                 source = DruidDataSourceFactory.createDataSource(pros);
                 log.info("success to create connection to {}", jdbcUrl);

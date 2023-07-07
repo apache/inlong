@@ -84,17 +84,19 @@ class AuditServiceTest extends ServiceBaseTest {
     @Test
     void testUpdateAuditSource() {
         AuditSourceRequest request1 = AuditSourceRequest.builder()
-                .offlineUrl(null)
+                .name("source_ch_1")
                 .type("CLICKHOUSE")
                 .url("jdbc:clickhouse://127.0.0.1:8123/db1")
+                .offlineUrl(null)
                 .enableAuth(0)
                 .build();
         auditService.updateAuditSource(request1, GLOBAL_OPERATOR);
 
         AuditSourceRequest request2 = AuditSourceRequest.builder()
-                .offlineUrl("jdbc:clickhouse://127.0.0.1:8123/db1")
+                .name("source_ch_2")
                 .type("CLICKHOUSE")
                 .url("jdbc:clickhouse://127.0.0.1:8123/db2")
+                .offlineUrl("jdbc:clickhouse://127.0.0.1:8123/db1")
                 .enableAuth(1)
                 .username("default")
                 .password("123456")

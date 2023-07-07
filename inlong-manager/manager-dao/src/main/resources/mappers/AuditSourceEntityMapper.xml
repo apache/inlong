@@ -29,7 +29,7 @@
         <result column="username" jdbcType="VARCHAR" property="username"/>
         <result column="password" jdbcType="VARCHAR" property="password"/>
         <result column="status" jdbcType="SMALLINT" property="status"/>
-        <result column="is_deleted" jdbcType="TINYINT" property="isDeleted"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
         <result column="creator" jdbcType="VARCHAR" property="creator"/>
         <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
@@ -47,7 +47,7 @@
                                   enable_auth, username, password,
                                   status, creator, modifier)
         values (#{id, jdbcType=INTEGER}, #{name, jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{url, jdbcType=VARCHAR},
-                #{enable_auth, jdbcType=INTEGER}, #{username, jdbcType=VARCHAR}, #{password, jdbcType=VARCHAR},
+                #{enableAuth, jdbcType=TINYINT}, #{username, jdbcType=VARCHAR}, #{password, jdbcType=VARCHAR},
                 #{status, jdbcType=INTEGER}, #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
     </insert>
 
@@ -64,15 +64,8 @@
     <update id="offlineSourceByUrl">
         update audit_source
         set status = 0
-        where url = #{url}
-        and is_deleted = 0;
-    </update>
-
-    <update id="onlineAuditQuerySourceByUrl">
-        update audit_source
-        set status = 1
-        where url = #{url}
-        and is_deleted = 0;
+        where url = #{offlineUrl}
+        and is_deleted = 0
     </update>
 
 </mapper>

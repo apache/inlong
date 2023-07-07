@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.audit;
 
-import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -27,7 +25,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 /**
  * Audit source request
@@ -64,7 +61,6 @@ public class AuditSourceRequest {
     private String password;
 
     @ApiModelProperty(value = "Version number")
-    @NotNull(groups = {UpdateByIdValidation.class}, message = "version cannot be null")
     private Integer version;
 
 }
