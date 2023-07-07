@@ -194,7 +194,6 @@ public class AuditServiceImpl implements AuditService {
         String password = request.getPassword();
         Integer authEnable = (request.getAuthEnable() == null) ? 1 : request.getAuthEnable();
         String modifier = request.getModifier();
-        System.out.println(request);
         try {
             if (!StringUtils.isBlank(oldUrl)) {
                 querySourceConfigEntityMapper.offlineAuditQuerySourceByUrl(oldUrl);
