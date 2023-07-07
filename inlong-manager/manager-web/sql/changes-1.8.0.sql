@@ -119,6 +119,7 @@ ALTER TABLE `workflow_process`
 ALTER TABLE `workflow_task`
     ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of workflow task' after `display_name`;
 
+
 -- Create audit_source table
 CREATE TABLE IF NOT EXISTS `audit_source`
 (
@@ -139,3 +140,15 @@ CREATE TABLE IF NOT EXISTS `audit_source`
     UNIQUE KEY `unique_source_url` (`source_url`, `is_deleted`)
     ) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4 COMMENT ='Audit source table';
+
+ALTER TABLE component_heartbeat DROP COLUMN id;
+ALTER TABLE `component_heartbeat` ADD PRIMARY KEY (`component`, `instance`);
+DROP INDEX unique_component_heartbeat on component_heartbeat;
+
+ALTER TABLE group_heartbeat DROP COLUMN id;
+ALTER TABLE `group_heartbeat` ADD PRIMARY KEY  (`component`, `instance`, `inlong_group_id`);
+DROP INDEX unique_group_heartbeat on group_heartbeat;
+
+ALTER TABLE stream_heartbeat DROP COLUMN id;
+ALTER TABLE `stream_heartbeat` ADD PRIMARY KEY (`component`, `instance`, `inlong_group_id`, `inlong_stream_id`);
+DROP INDEX unique_stream_heartbeat on stream_heartbeat;

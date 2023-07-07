@@ -536,6 +536,7 @@
   "components.Layout.NavWidget.NewPassword": "新密码",
   "components.Layout.NavWidget.ConfirmPassword": "确认密码",
   "components.Layout.NavWidget.Remind": "密码不一致，请重新输入",
+  "components.Layout.Tenant.Success": "切换成功",
   "components.HighSelect.Customize": "自定义",
   "components.HighSelect.SearchPlaceholder": "请输入关键字搜索",
   "components.NodeSelect.Create": "新建节点",
@@ -796,5 +797,14 @@
   "components.FieldList.Sink": "目标字段",
   "components.FieldList.CreateSource": "新建源字段",
   "components.FieldList.CreateSink": "新建目标字段",
-  "components.FieldList.AddField": "添加字段"
+  "components.FieldList.AddField": "添加字段",
+  "pages.Tenant.config.Description": "描述",
+  "pages.Tenant.config.Name": "租户名称",
+  "pages.Tenant.New": "新建角色",
+  "pages.Tenant.config.Username": "用户名称",
+  "pages.Tenant.config.TenantRole": "租户角色",
+  "pages.Tenant.config.Admin": "租户管理员",
+  "pages.Tenant.config.GeneralUser": "普通用户",
+  "pages.Tenant.config.Creator": "创建人",
+  "pages.Tenant.config.CreateTime": "创建时间"
 }

@@ -80,7 +80,13 @@ const conf: MenuItemType[] = [
         name: i18n.t('configs.menus.UserManagement'),
       },
       {
+        path: '/tenant',
+        isAdmin: true,
+        name: i18n.t('configs.menus.TenantManagement'),
+      },
+      {
         path: '/approval',
+        isAdmin: true,
         name: i18n.t('configs.menus.ProcessManagement'),
       },
     ],
