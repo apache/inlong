@@ -129,6 +129,7 @@ public class InlongTenantServiceImpl implements InlongTenantService {
         InlongTenantEntity inlongTenantEntity = inlongTenantEntityMapper.selectByName(name);
         int success = inlongTenantEntityMapper.deleteById(inlongTenantEntity.getId());
         Preconditions.expectTrue(success == 1, "delete failed");
+        log.info("delete inlong tenant name={} by user={} success", name, operator);
         return true;
     }
 
