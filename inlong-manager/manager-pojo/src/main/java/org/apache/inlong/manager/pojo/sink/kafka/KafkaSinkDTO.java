@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.sink.kafka;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -26,6 +27,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -64,16 +66,10 @@ public class KafkaSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static KafkaSinkDTO getFromRequest(KafkaSinkRequest request) {
-        return KafkaSinkDTO.builder()
-                .bootstrapServers(request.getBootstrapServers())
-                .topicName(request.getTopicName())
-                .partitionNum(request.getPartitionNum())
-                .serializationType(request.getSerializationType())
-                .autoOffsetReset(request.getAutoOffsetReset())
-                .primaryKey(request.getPrimaryKey())
-                .properties(request.getProperties())
-                .build();
+    public static KafkaSinkDTO getFromRequest(KafkaSinkRequest request, String extParams) {
+        KafkaSinkDTO kafkaSinkDTO =
+                StringUtils.isNotBlank(extParams) ? KafkaSinkDTO.getFromJson(extParams) : new KafkaSinkDTO();
+        return CommonBeanUtils.copyProperties(request, kafkaSinkDTO, true);
     }
 
     public static KafkaSinkDTO getFromJson(@NotNull String extParams) {

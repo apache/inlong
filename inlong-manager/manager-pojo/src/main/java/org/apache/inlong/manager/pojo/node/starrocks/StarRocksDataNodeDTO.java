@@ -28,6 +28,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -47,8 +48,12 @@ public class StarRocksDataNodeDTO {
     /**
      * Get the dto instance from the request
      */
-    public static StarRocksDataNodeDTO getFromRequest(StarRocksDataNodeRequest request) throws Exception {
-        return CommonBeanUtils.copyProperties(request, StarRocksDataNodeDTO::new, true);
+    public static StarRocksDataNodeDTO getFromRequest(StarRocksDataNodeRequest request, String extParams)
+            throws Exception {
+        StarRocksDataNodeDTO starRocksDataNodeDTO =
+                StringUtils.isNotBlank(extParams) ? StarRocksDataNodeDTO.getFromJson(extParams)
+                        : new StarRocksDataNodeDTO();
+        return CommonBeanUtils.copyProperties(request, starRocksDataNodeDTO, true);
     }
 
     /**

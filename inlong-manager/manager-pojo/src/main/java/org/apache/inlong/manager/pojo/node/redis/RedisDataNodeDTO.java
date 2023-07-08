@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.node.redis;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModel;
@@ -27,6 +28,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,15 +83,10 @@ public class RedisDataNodeDTO {
     /**
      * Get the dto instance from the request
      */
-    public static RedisDataNodeDTO getFromRequest(RedisDataNodeRequest request) throws Exception {
-        return RedisDataNodeDTO.builder()
-                .clusterMode(request.getClusterMode())
-                .host(request.getHost())
-                .port(request.getPort())
-                .masterName(request.getMasterName())
-                .sentinelsInfo(request.getSentinelsInfo())
-                .clusterNodes(request.getClusterNodes())
-                .build();
+    public static RedisDataNodeDTO getFromRequest(RedisDataNodeRequest request, String extParams) throws Exception {
+        RedisDataNodeDTO redisDataNodeDTO =
+                StringUtils.isNotBlank(extParams) ? RedisDataNodeDTO.getFromJson(extParams) : new RedisDataNodeDTO();
+        return CommonBeanUtils.copyProperties(request, redisDataNodeDTO, true);
     }
 
     /**

@@ -86,7 +86,7 @@ public class AgentClusterOperator extends AbstractClusterOperator {
         AgentClusterRequest agentRequest = (AgentClusterRequest) request;
         CommonBeanUtils.copyProperties(agentRequest, targetEntity, true);
         try {
-            AgentClusterDTO dto = AgentClusterDTO.getFromRequest(agentRequest);
+            AgentClusterDTO dto = AgentClusterDTO.getFromRequest(agentRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
             LOGGER.debug("success to set entity for agent cluster");
         } catch (Exception e) {

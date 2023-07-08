@@ -20,6 +20,7 @@ package org.apache.inlong.manager.pojo.sink.postgresql;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -71,23 +72,18 @@ public class PostgreSQLSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static PostgreSQLSinkDTO getFromRequest(PostgreSQLSinkRequest request) throws Exception {
+    public static PostgreSQLSinkDTO getFromRequest(PostgreSQLSinkRequest request, String extParams) throws Exception {
         Integer encryptVersion = AESUtils.getCurrentVersion(null);
         String passwd = null;
         if (StringUtils.isNotEmpty(request.getPassword())) {
             passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
                     encryptVersion);
         }
-        return PostgreSQLSinkDTO.builder()
-                .jdbcUrl(request.getJdbcUrl())
-                .username(request.getUsername())
-                .password(passwd)
-                .dbName(request.getDbName())
-                .primaryKey(request.getPrimaryKey())
-                .tableName(request.getTableName())
-                .encryptVersion(encryptVersion)
-                .properties(request.getProperties())
-                .build();
+        PostgreSQLSinkDTO postgreSQLSinkDTO =
+                StringUtils.isNotBlank(extParams) ? PostgreSQLSinkDTO.getFromJson(extParams) : new PostgreSQLSinkDTO();
+        CommonBeanUtils.copyProperties(request, postgreSQLSinkDTO, true);
+        postgreSQLSinkDTO.setPassword(passwd);
+        return postgreSQLSinkDTO;
     }
 
     /**

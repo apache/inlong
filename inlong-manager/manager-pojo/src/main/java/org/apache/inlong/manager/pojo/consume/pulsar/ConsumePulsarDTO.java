@@ -29,6 +29,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -57,8 +58,10 @@ public class ConsumePulsarDTO extends BaseInlongConsume {
     /**
      * Get the dto instance from the request
      */
-    public static ConsumePulsarDTO getFromRequest(ConsumePulsarRequest request) {
-        return CommonBeanUtils.copyProperties(request, ConsumePulsarDTO::new, true);
+    public static ConsumePulsarDTO getFromRequest(ConsumePulsarRequest request, String extParams) {
+        ConsumePulsarDTO consumePulsarDTO =
+                StringUtils.isNotBlank(extParams) ? ConsumePulsarDTO.getFromJson(extParams) : new ConsumePulsarDTO();
+        return CommonBeanUtils.copyProperties(request, consumePulsarDTO, true);
     }
 
     /**

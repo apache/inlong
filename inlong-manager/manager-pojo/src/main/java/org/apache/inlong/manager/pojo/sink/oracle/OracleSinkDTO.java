@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.sink.oracle;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -26,6 +27,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,15 +69,10 @@ public class OracleSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static OracleSinkDTO getFromRequest(OracleSinkRequest request) {
-        return OracleSinkDTO.builder()
-                .jdbcUrl(request.getJdbcUrl())
-                .tableName(request.getTableName())
-                .username(request.getUsername())
-                .password(request.getPassword())
-                .primaryKey(request.getPrimaryKey())
-                .properties(request.getProperties())
-                .build();
+    public static OracleSinkDTO getFromRequest(OracleSinkRequest request, String extParams) {
+        OracleSinkDTO oracleSinkDTO =
+                StringUtils.isNotBlank(extParams) ? OracleSinkDTO.getFromJson(extParams) : new OracleSinkDTO();
+        return CommonBeanUtils.copyProperties(request, oracleSinkDTO, true);
     }
 
     /**

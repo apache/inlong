@@ -28,6 +28,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -49,8 +50,10 @@ public class InlongKafkaDTO extends BaseInlongGroup {
     /**
      * Get the dto instance from the request
      */
-    public static InlongKafkaDTO getFromRequest(InlongKafkaRequest request) {
-        return CommonBeanUtils.copyProperties(request, InlongKafkaDTO::new, true);
+    public static InlongKafkaDTO getFromRequest(InlongKafkaRequest request, String extParams) {
+        InlongKafkaDTO inlongKafkaDTO =
+                StringUtils.isNotBlank(extParams) ? InlongKafkaDTO.getFromJson(extParams) : new InlongKafkaDTO();
+        return CommonBeanUtils.copyProperties(request, inlongKafkaDTO, true);
     }
 
     /**

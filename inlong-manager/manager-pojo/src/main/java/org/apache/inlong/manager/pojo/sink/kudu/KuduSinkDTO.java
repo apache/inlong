@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.sink.kudu;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -26,6 +27,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -59,13 +61,10 @@ public class KuduSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static KuduSinkDTO getFromRequest(KuduSinkRequest request) {
-        return KuduSinkDTO.builder()
-                .tableName(request.getTableName())
-                .masters(request.getMasters())
-                .properties(request.getProperties())
-                .buckets(request.getBuckets())
-                .build();
+    public static KuduSinkDTO getFromRequest(KuduSinkRequest request, String extParams) {
+        KuduSinkDTO kuduSinkDTO =
+                StringUtils.isNotBlank(extParams) ? KuduSinkDTO.getFromJson(extParams) : new KuduSinkDTO();
+        return CommonBeanUtils.copyProperties(request, kuduSinkDTO, true);
     }
 
     public static KuduSinkDTO getFromJson(@NotNull String extParams) {

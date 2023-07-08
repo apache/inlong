@@ -28,6 +28,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,8 +76,11 @@ public class ElasticsearchDataNodeDTO {
     /**
      * Get the dto instance from the request
      */
-    public static ElasticsearchDataNodeDTO getFromRequest(ElasticsearchDataNodeRequest request) {
-        return CommonBeanUtils.copyProperties(request, ElasticsearchDataNodeDTO::new, true);
+    public static ElasticsearchDataNodeDTO getFromRequest(ElasticsearchDataNodeRequest request, String extParams) {
+        ElasticsearchDataNodeDTO elasticsearchDataNodeDTO =
+                StringUtils.isNotBlank(extParams) ? ElasticsearchDataNodeDTO.getFromJson(extParams)
+                        : new ElasticsearchDataNodeDTO();
+        return CommonBeanUtils.copyProperties(request, elasticsearchDataNodeDTO, true);
     }
 
     /**

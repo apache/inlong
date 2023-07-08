@@ -20,6 +20,7 @@ package org.apache.inlong.manager.pojo.sink.mysql;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import com.google.common.base.Strings;
@@ -103,17 +104,12 @@ public class MySQLSinkDTO {
      * @return {@link MySQLSinkDTO}
      * @apiNote The config here will be saved to the database, so filter sensitive params before saving.
      */
-    public static MySQLSinkDTO getFromRequest(MySQLSinkRequest request) {
-        String url = filterSensitive(request.getJdbcUrl());
-        return MySQLSinkDTO.builder()
-                .jdbcUrl(url)
-                .username(request.getUsername())
-                .password(request.getPassword())
-                .primaryKey(request.getPrimaryKey())
-                .databaseName(request.getDatabaseName())
-                .tableName(request.getTableName())
-                .properties(request.getProperties())
-                .build();
+    public static MySQLSinkDTO getFromRequest(MySQLSinkRequest request, String extParams) {
+        MySQLSinkDTO mySQLSinkDTO =
+                StringUtils.isNotBlank(extParams) ? MySQLSinkDTO.getFromJson(extParams) : new MySQLSinkDTO();
+        CommonBeanUtils.copyProperties(request, mySQLSinkDTO, true);
+        mySQLSinkDTO.setJdbcUrl(filterSensitive(request.getJdbcUrl()));
+        return mySQLSinkDTO;
     }
 
     /**

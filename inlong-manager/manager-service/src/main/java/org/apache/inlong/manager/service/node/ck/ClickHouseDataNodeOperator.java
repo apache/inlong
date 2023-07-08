@@ -79,7 +79,8 @@ public class ClickHouseDataNodeOperator extends AbstractDataNodeOperator {
         ClickHouseDataNodeRequest ckDataNodeRequest = (ClickHouseDataNodeRequest) request;
         CommonBeanUtils.copyProperties(ckDataNodeRequest, targetEntity, true);
         try {
-            ClickHouseDataNodeDTO dto = ClickHouseDataNodeDTO.getFromRequest(ckDataNodeRequest);
+            ClickHouseDataNodeDTO dto =
+                    ClickHouseDataNodeDTO.getFromRequest(ckDataNodeRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.source.redis;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +28,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -98,27 +100,10 @@ public class RedisSourceDTO {
     /**
      * Get the dto instance from the request
      */
-    public static RedisSourceDTO getFromRequest(RedisSourceRequest request) {
-        return RedisSourceDTO.builder()
-                .primaryKey(request.getPrimaryKey())
-                .host(request.getHost())
-                .port(request.getPort())
-                .username(request.getUsername())
-                .password(request.getPassword())
-                .database(request.getDatabase())
-                .redisMode(request.getRedisMode())
-                .command(request.getCommand())
-                .additionalKey(request.getAdditionalKey())
-                .timeout(request.getTimeout())
-                .soTimeout(request.getSoTimeout())
-                .maxTotal(request.getMaxTotal())
-                .maxIdle(request.getMaxIdle())
-                .minIdle(request.getMinIdle())
-                .lookupOptions(request.getLookupOptions())
-                .masterName(request.getMasterName())
-                .sentinelsInfo(request.getSentinelsInfo())
-                .clusterNodes(request.getClusterNodes())
-                .build();
+    public static RedisSourceDTO getFromRequest(RedisSourceRequest request, String extParams) {
+        RedisSourceDTO redisSourceDTO =
+                StringUtils.isNotBlank(extParams) ? RedisSourceDTO.getFromJson(extParams) : new RedisSourceDTO();
+        return CommonBeanUtils.copyProperties(request, redisSourceDTO, true);
     }
 
     /**

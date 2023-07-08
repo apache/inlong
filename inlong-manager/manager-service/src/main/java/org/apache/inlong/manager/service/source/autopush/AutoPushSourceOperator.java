@@ -67,7 +67,7 @@ public class AutoPushSourceOperator extends AbstractSourceOperator {
         AutoPushSourceRequest sourceRequest = (AutoPushSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            AutoPushSourceDTO dto = AutoPushSourceDTO.getFromRequest(sourceRequest);
+            AutoPushSourceDTO dto = AutoPushSourceDTO.getFromRequest(sourceRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

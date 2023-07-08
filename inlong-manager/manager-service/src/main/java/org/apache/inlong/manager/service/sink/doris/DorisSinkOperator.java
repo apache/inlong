@@ -70,7 +70,7 @@ public class DorisSinkOperator extends AbstractSinkOperator {
         }
         DorisSinkRequest sinkRequest = (DorisSinkRequest) request;
         try {
-            DorisSinkDTO dto = DorisSinkDTO.getFromRequest(sinkRequest);
+            DorisSinkDTO dto = DorisSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,

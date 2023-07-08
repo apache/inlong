@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.sink.hdfs;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -26,6 +27,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -65,16 +67,10 @@ public class HDFSSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static HDFSSinkDTO getFromRequest(HDFSSinkRequest request) {
-        return HDFSSinkDTO.builder()
-                .dataPath(request.getDataPath())
-                .dataSeparator(request.getDataSeparator())
-                .fileFormat(request.getFileFormat())
-                .compressFormat(request.getCompressFormat())
-                .serverTimeZone(request.getServerTimeZone())
-                .partitionFieldList(request.getPartitionFieldList())
-                .properties(request.getProperties())
-                .build();
+    public static HDFSSinkDTO getFromRequest(HDFSSinkRequest request, String extParams) {
+        HDFSSinkDTO hdfsSinkDTO =
+                StringUtils.isNotBlank(extParams) ? HDFSSinkDTO.getFromJson(extParams) : new HDFSSinkDTO();
+        return CommonBeanUtils.copyProperties(request, hdfsSinkDTO, true);
     }
 
     /**

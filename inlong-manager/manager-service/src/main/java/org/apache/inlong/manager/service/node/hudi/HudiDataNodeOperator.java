@@ -76,7 +76,7 @@ public class HudiDataNodeOperator extends AbstractDataNodeOperator {
         HudiDataNodeRequest hudiDataNodeRequest = (HudiDataNodeRequest) request;
         CommonBeanUtils.copyProperties(hudiDataNodeRequest, targetEntity, true);
         try {
-            HudiDataNodeDTO dto = HudiDataNodeDTO.getFromRequest(hudiDataNodeRequest);
+            HudiDataNodeDTO dto = HudiDataNodeDTO.getFromRequest(hudiDataNodeRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

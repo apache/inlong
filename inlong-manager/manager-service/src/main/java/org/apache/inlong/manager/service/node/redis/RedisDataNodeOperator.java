@@ -110,7 +110,7 @@ public class RedisDataNodeOperator extends AbstractDataNodeOperator {
 
         CommonBeanUtils.copyProperties(redisDataNodeRequest, targetEntity, true);
         try {
-            RedisDataNodeDTO dto = RedisDataNodeDTO.getFromRequest(redisDataNodeRequest);
+            RedisDataNodeDTO dto = RedisDataNodeDTO.getFromRequest(redisDataNodeRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

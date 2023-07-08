@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.source.autopush;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -26,6 +27,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -50,10 +52,10 @@ public class AutoPushSourceDTO {
     @ApiModelProperty(value = "Data field escape symbol")
     private String dataEscapeChar;
 
-    public static AutoPushSourceDTO getFromRequest(AutoPushSourceRequest request) {
-        return AutoPushSourceDTO.builder()
-                .dataProxyGroup(request.getDataProxyGroup())
-                .build();
+    public static AutoPushSourceDTO getFromRequest(AutoPushSourceRequest request, String extParams) {
+        AutoPushSourceDTO autoPushSourceDTO =
+                StringUtils.isNotBlank(extParams) ? AutoPushSourceDTO.getFromJson(extParams) : new AutoPushSourceDTO();
+        return CommonBeanUtils.copyProperties(request, autoPushSourceDTO, true);
     }
 
     public static AutoPushSourceDTO getFromJson(@NotNull String extParams) {

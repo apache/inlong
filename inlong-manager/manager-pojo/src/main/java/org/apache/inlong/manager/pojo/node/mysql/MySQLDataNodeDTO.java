@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.node.mysql;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkDTO;
 
@@ -53,10 +54,10 @@ public class MySQLDataNodeDTO {
     /**
      * Get the dto instance from the request
      */
-    public static MySQLDataNodeDTO getFromRequest(MySQLDataNodeRequest request) throws Exception {
-        return MySQLDataNodeDTO.builder()
-                .backupUrl(request.getBackupUrl())
-                .build();
+    public static MySQLDataNodeDTO getFromRequest(MySQLDataNodeRequest request, String extParams) throws Exception {
+        MySQLDataNodeDTO mySQLDataNodeDTO =
+                StringUtils.isNotBlank(extParams) ? MySQLDataNodeDTO.getFromJson(extParams) : new MySQLDataNodeDTO();
+        return CommonBeanUtils.copyProperties(request, mySQLDataNodeDTO, true);
     }
 
     /**

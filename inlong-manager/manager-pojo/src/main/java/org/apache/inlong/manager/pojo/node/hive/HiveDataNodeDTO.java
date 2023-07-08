@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.node.hive;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModel;
@@ -27,6 +28,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,14 +64,10 @@ public class HiveDataNodeDTO {
     /**
      * Get the dto instance from the request
      */
-    public static HiveDataNodeDTO getFromRequest(HiveDataNodeRequest request) throws Exception {
-        return HiveDataNodeDTO.builder()
-                .hiveVersion(request.getHiveVersion())
-                .hiveConfDir(request.getHiveConfDir())
-                .dataPath(request.getDataPath())
-                .warehouse(request.getWarehouse())
-                .hdfsUgi(request.getHdfsUgi())
-                .build();
+    public static HiveDataNodeDTO getFromRequest(HiveDataNodeRequest request, String extParams) throws Exception {
+        HiveDataNodeDTO hiveDataNodeDTO =
+                StringUtils.isNotBlank(extParams) ? HiveDataNodeDTO.getFromJson(extParams) : new HiveDataNodeDTO();
+        return CommonBeanUtils.copyProperties(request, hiveDataNodeDTO, true);
     }
 
     /**

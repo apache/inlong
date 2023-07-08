@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.sink.sqlserver;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -26,6 +27,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -67,17 +69,10 @@ public class SQLServerSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static SQLServerSinkDTO getFromRequest(SQLServerSinkRequest request) {
-        return SQLServerSinkDTO.builder()
-                .username(request.getUsername())
-                .password(request.getPassword())
-                .jdbcUrl(request.getJdbcUrl())
-                .schemaName(request.getSchemaName())
-                .tableName(request.getTableName())
-                .serverTimezone(request.getServerTimezone())
-                .allMigration(request.isAllMigration())
-                .primaryKey(request.getPrimaryKey())
-                .build();
+    public static SQLServerSinkDTO getFromRequest(SQLServerSinkRequest request, String extParams) {
+        SQLServerSinkDTO sqlServerSinkDTO =
+                StringUtils.isNotBlank(extParams) ? SQLServerSinkDTO.getFromJson(extParams) : new SQLServerSinkDTO();
+        return CommonBeanUtils.copyProperties(request, sqlServerSinkDTO, true);
     }
 
     /**
@@ -95,8 +90,8 @@ public class SQLServerSinkDTO {
     /**
      * Get SqlServer table info
      *
-     * @param sqlServerSink SqlServer sink dto,{@link OracleSinkDTO}
-     * @param columnList SqlServer column info list,{@link OracleColumnInfo}
+     * @param sqlServerSink SqlServer sink dto,{@link SQLServerSinkDTO}
+     * @param columnList SqlServer column info list,{@link SQLServerColumnInfo}
      * @return {@link SQLServerTableInfo}
      */
     public static SQLServerTableInfo getTableInfo(SQLServerSinkDTO sqlServerSink,

@@ -30,6 +30,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -87,8 +88,10 @@ public class InlongPulsarDTO extends BaseInlongGroup {
     /**
      * Get the dto instance from the request
      */
-    public static InlongPulsarDTO getFromRequest(InlongPulsarRequest request) {
-        return CommonBeanUtils.copyProperties(request, InlongPulsarDTO::new, true);
+    public static InlongPulsarDTO getFromRequest(InlongPulsarRequest request, String extParams) {
+        InlongPulsarDTO inlongPulsarDTO =
+                StringUtils.isNotBlank(extParams) ? InlongPulsarDTO.getFromJson(extParams) : new InlongPulsarDTO();
+        return CommonBeanUtils.copyProperties(request, inlongPulsarDTO, true);
     }
 
     /**

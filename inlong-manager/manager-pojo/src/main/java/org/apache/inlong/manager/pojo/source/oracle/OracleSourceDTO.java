@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.source.oracle;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -26,6 +27,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -73,19 +75,10 @@ public class OracleSourceDTO {
     /**
      * Get the dto instance from the request
      */
-    public static OracleSourceDTO getFromRequest(OracleSourceRequest request) {
-        return OracleSourceDTO.builder()
-                .database(request.getDatabase())
-                .hostname(request.getHostname())
-                .port(request.getPort())
-                .username(request.getUsername())
-                .password(request.getPassword())
-                .schemaName(request.getSchemaName())
-                .tableName(request.getTableName())
-                .primaryKey(request.getPrimaryKey())
-                .scanStartupMode(request.getScanStartupMode())
-                .properties(request.getProperties())
-                .build();
+    public static OracleSourceDTO getFromRequest(OracleSourceRequest request, String extParams) {
+        OracleSourceDTO oracleSourceDTO =
+                StringUtils.isNotBlank(extParams) ? OracleSourceDTO.getFromJson(extParams) : new OracleSourceDTO();
+        return CommonBeanUtils.copyProperties(request, oracleSourceDTO, true);
     }
 
     public static OracleSourceDTO getFromJson(@NotNull String extParams) {

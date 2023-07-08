@@ -78,7 +78,8 @@ public class StarRocksDataNodeOperator extends AbstractDataNodeOperator {
         StarRocksDataNodeRequest starRocksDataNodeRequest = (StarRocksDataNodeRequest) request;
         CommonBeanUtils.copyProperties(starRocksDataNodeRequest, targetEntity, true);
         try {
-            StarRocksDataNodeDTO dto = StarRocksDataNodeDTO.getFromRequest(starRocksDataNodeRequest);
+            StarRocksDataNodeDTO dto =
+                    StarRocksDataNodeDTO.getFromRequest(starRocksDataNodeRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

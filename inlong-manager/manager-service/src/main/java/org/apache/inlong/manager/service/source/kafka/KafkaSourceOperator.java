@@ -78,7 +78,7 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
         KafkaSourceRequest sourceRequest = (KafkaSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            KafkaSourceDTO dto = KafkaSourceDTO.getFromRequest(sourceRequest);
+            KafkaSourceDTO dto = KafkaSourceDTO.getFromRequest(sourceRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

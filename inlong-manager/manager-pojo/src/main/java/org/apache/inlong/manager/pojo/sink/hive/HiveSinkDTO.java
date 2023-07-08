@@ -20,6 +20,7 @@ package org.apache.inlong.manager.pojo.sink.hive;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -96,31 +97,18 @@ public class HiveSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static HiveSinkDTO getFromRequest(HiveSinkRequest request) throws Exception {
+    public static HiveSinkDTO getFromRequest(HiveSinkRequest request, String extParams) throws Exception {
         Integer encryptVersion = AESUtils.getCurrentVersion(null);
         String passwd = null;
         if (StringUtils.isNotEmpty(request.getPassword())) {
             passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
                     encryptVersion);
         }
-        return HiveSinkDTO.builder()
-                .jdbcUrl(request.getJdbcUrl())
-                .username(request.getUsername())
-                .password(passwd)
-                .dbName(request.getDbName())
-                .tableName(request.getTableName())
-                .dataPath(request.getDataPath())
-                .partitionInterval(request.getPartitionInterval())
-                .partitionFieldList(request.getPartitionFieldList())
-                .partitionCreationStrategy(request.getPartitionCreationStrategy())
-                .fileFormat(request.getFileFormat())
-                .dataEncoding(request.getDataEncoding())
-                .dataSeparator(request.getDataSeparator())
-                .hiveVersion(request.getHiveVersion())
-                .hiveConfDir(request.getHiveConfDir())
-                .encryptVersion(encryptVersion)
-                .properties(request.getProperties())
-                .build();
+        HiveSinkDTO hiveSinkDTO =
+                StringUtils.isNotBlank(extParams) ? HiveSinkDTO.getFromJson(extParams) : new HiveSinkDTO();
+        CommonBeanUtils.copyProperties(request, hiveSinkDTO, true);
+        hiveSinkDTO.setPassword(passwd);
+        return hiveSinkDTO;
     }
 
     /**

@@ -76,7 +76,7 @@ public class StarRocksSinkOperator extends AbstractSinkOperator {
         }
         StarRocksSinkRequest sinkRequest = (StarRocksSinkRequest) request;
         try {
-            StarRocksSinkDTO dto = StarRocksSinkDTO.getFromRequest(sinkRequest);
+            StarRocksSinkDTO dto = StarRocksSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,

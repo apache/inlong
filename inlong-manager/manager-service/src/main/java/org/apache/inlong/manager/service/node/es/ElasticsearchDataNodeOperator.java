@@ -63,7 +63,8 @@ public class ElasticsearchDataNodeOperator extends AbstractDataNodeOperator {
         ElasticsearchDataNodeRequest esRequest = (ElasticsearchDataNodeRequest) request;
         CommonBeanUtils.copyProperties(esRequest, targetEntity, true);
         try {
-            ElasticsearchDataNodeDTO dto = ElasticsearchDataNodeDTO.getFromRequest(esRequest);
+            ElasticsearchDataNodeDTO dto =
+                    ElasticsearchDataNodeDTO.getFromRequest(esRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
