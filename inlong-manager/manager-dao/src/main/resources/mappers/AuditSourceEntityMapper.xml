@@ -64,7 +64,7 @@
     <update id="offlineSourceByUrl">
         update audit_source
         set status = 0
-        where url = #{offlineUrl}
+        where url = #{offlineUrl, jdbcType=VARCHAR}
         and is_deleted = 0
     </update>
 
