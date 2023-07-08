@@ -54,11 +54,11 @@ public class AuditSourceRequest {
     @ApiModelProperty(value = "Enable auth or not, 0: disable, 1: enable")
     private Integer enableAuth;
 
-    @ApiModelProperty(value = "Source username, needed if auth_enable is 1")
+    @ApiModelProperty(value = "Audit source username, needed if enableAuth is 1")
     private String username;
 
-    @ApiModelProperty(value = "Source password, needed if auth_enable is 1")
-    private String password;
+    @ApiModelProperty(value = "Audit source token, needed if enableAuth is 1")
+    private String token;
 
     @ApiModelProperty(value = "Version number")
     private Integer version;

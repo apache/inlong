@@ -37,10 +37,10 @@ public class AuditSourceResponse {
     @ApiModelProperty(value = "Audit source name")
     private String name;
 
-    @ApiModelProperty(value = "Source type, including: MYSQL, CLICKHOUSE, ELASTICSEARCH", required = true)
+    @ApiModelProperty(value = "Audit source type, including: MYSQL, CLICKHOUSE, ELASTICSEARCH", required = true)
     private String type;
 
-    @ApiModelProperty(value = "Source URL, for MYSQL or CLICKHOUSE, is jdbcUrl, and for ELASTICSEARCH is the access URL with hostname:port", required = true)
+    @ApiModelProperty(value = "Audit source URL, for MYSQL or CLICKHOUSE, is jdbcUrl, and for ELASTICSEARCH is the access URL with hostname:port", required = true)
     private String url;
 
     @ApiModelProperty(value = "Offline the url if not null")
@@ -49,11 +49,11 @@ public class AuditSourceResponse {
     @ApiModelProperty(value = "Enable auth or not, 0: disable, 1: enable")
     private Integer enableAuth;
 
-    @ApiModelProperty(value = "Source username, needed if auth_enable is 1")
+    @ApiModelProperty(value = "Audit source username, needed if enableAuth is 1")
     private String username;
 
-    @ApiModelProperty(value = "Source password, needed if auth_enable is 1")
-    private String password;
+    @ApiModelProperty(value = "Audit source token, needed if enableAuth is 1")
+    private String token;
 
     @ApiModelProperty(value = "Creator")
     private String creator;
@@ -67,7 +67,7 @@ public class AuditSourceResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
-    @ApiModelProperty(value = "Version")
+    @ApiModelProperty(value = "Version number")
     private Integer version;
 
 }

@@ -54,7 +54,7 @@ public class ClickHouseConfig {
             AuditSourceEntity auditSource = auditSourceMapper.selectOnlineSource();
             String jdbcUrl = auditSource.getUrl();
             String username = auditSource.getUsername();
-            String password = StringUtils.isBlank(auditSource.getPassword()) ? "" : auditSource.getPassword();
+            String password = StringUtils.isBlank(auditSource.getToken()) ? "" : auditSource.getToken();
 
             boolean changed = Objects.equals(currentJdbcUrl, jdbcUrl)
                     || Objects.equals(currentUsername, username)

@@ -22,6 +22,9 @@ import org.apache.inlong.manager.dao.entity.AuditSourceEntity;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+/**
+ * Audit source mapper
+ */
 @Repository
 public interface AuditSourceEntityMapper {
 

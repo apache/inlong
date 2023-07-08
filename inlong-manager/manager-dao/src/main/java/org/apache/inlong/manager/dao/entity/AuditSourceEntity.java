@@ -34,7 +34,7 @@ public class AuditSourceEntity implements Serializable {
     private String url;
     private Integer enableAuth;
     private String username;
-    private String password;
+    private String token;
     private Integer status;
     private Integer isDeleted;
     private String creator;

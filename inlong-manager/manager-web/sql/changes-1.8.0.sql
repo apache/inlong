@@ -137,11 +137,11 @@ CREATE TABLE IF NOT EXISTS `audit_source`
 (
     `id`          int(11)      NOT NULL AUTO_INCREMENT,
     `name`        varchar(128) NOT NULL COMMENT 'Audit source name',
-    `type`        varchar(256) NOT NULL COMMENT 'Audit source type, including: MYSQL, CLICKHOUSE, ELASTICSEARCH',
+    `type`        varchar(20)  NOT NULL COMMENT 'Audit source type, including: MYSQL, CLICKHOUSE, ELASTICSEARCH',
     `url`         varchar(256) NOT NULL COMMENT 'Audit source URL, for MYSQL or CLICKHOUSE, is jdbcUrl, and for ELASTICSEARCH is the access URL with hostname:port',
     `enable_auth` tinyint(1)            DEFAULT '1' COMMENT 'Enable auth or not, 0: disable, 1: enable',
-    `username`    varchar(128)          COMMENT 'Source username, needed if auth_enable is 1' ,
-    `password`    varchar(256)          COMMENT 'Source password, needed if auth_enable is 1',
+    `username`    varchar(128)          COMMENT 'Audit source username, needed if auth_enable is 1' ,
+    `token`       varchar(512)          DEFAULT NULL COMMENT 'Audit source token, needed if auth_enable is 1',
     `status`      smallint(4)  NOT NULL DEFAULT '1' COMMENT 'Whether the audit source is online or offline, 0: offline, 1: online' ,
     `is_deleted`  int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
@@ -150,6 +150,6 @@ CREATE TABLE IF NOT EXISTS `audit_source`
     `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `version`     int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_source_url` (url, `is_deleted`)
+    UNIQUE KEY `unique_audit_source` (url, `is_deleted`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Audit source table';

@@ -27,7 +27,7 @@
         <result column="url" jdbcType="VARCHAR" property="url"/>
         <result column="enable_auth" jdbcType="TINYINT" property="enableAuth"/>
         <result column="username" jdbcType="VARCHAR" property="username"/>
-        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="token" jdbcType="VARCHAR" property="token"/>
         <result column="status" jdbcType="SMALLINT" property="status"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
         <result column="creator" jdbcType="VARCHAR" property="creator"/>
@@ -37,17 +37,17 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, type, url, enable_auth, username, password, status, is_deleted,
+        id, name, type, url, enable_auth, username, token, status, is_deleted,
         creator, modifier, create_time, modify_time, version
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.AuditSourceEntity">
         insert into audit_source (id, name, type, url,
-                                  enable_auth, username, password,
+                                  enable_auth, username, token,
                                   status, creator, modifier)
         values (#{id, jdbcType=INTEGER}, #{name, jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{url, jdbcType=VARCHAR},
-                #{enableAuth, jdbcType=TINYINT}, #{username, jdbcType=VARCHAR}, #{password, jdbcType=VARCHAR},
+                #{enableAuth, jdbcType=TINYINT}, #{username, jdbcType=VARCHAR}, #{token, jdbcType=VARCHAR},
                 #{status, jdbcType=INTEGER}, #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
     </insert>
 

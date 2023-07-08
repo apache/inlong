@@ -95,7 +95,7 @@ class AuditServiceTest extends ServiceBaseTest {
                 .offlineUrl("jdbc:clickhouse://127.0.0.1:8123/db1")
                 .enableAuth(1)
                 .username("default")
-                .password("123456")
+                .token("123456")
                 .build();
         auditService.updateAuditSource(request2, GLOBAL_OPERATOR);
 
