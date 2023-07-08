@@ -20,6 +20,7 @@ package org.apache.inlong.manager.pojo.sink.doris;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -83,26 +84,18 @@ public class DorisSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static DorisSinkDTO getFromRequest(DorisSinkRequest request) throws Exception {
+    public static DorisSinkDTO getFromRequest(DorisSinkRequest request, String extParams) throws Exception {
         Integer encryptVersion = AESUtils.getCurrentVersion(null);
         String passwd = null;
         if (StringUtils.isNotEmpty(request.getPassword())) {
             passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
                     encryptVersion);
         }
-        return DorisSinkDTO.builder()
-                .feNodes(request.getFeNodes())
-                .username(request.getUsername())
-                .password(passwd)
-                .tableIdentifier(request.getTableIdentifier())
-                .sinkMultipleEnable(request.getSinkMultipleEnable())
-                .sinkMultipleFormat(request.getSinkMultipleFormat())
-                .databasePattern(request.getDatabasePattern())
-                .tablePattern(request.getTablePattern())
-                .labelPrefix(request.getLabelPrefix())
-                .encryptVersion(encryptVersion)
-                .properties(request.getProperties())
-                .build();
+
+        DorisSinkDTO dto = StringUtils.isNotBlank(extParams) ? DorisSinkDTO.getFromJson(extParams) : new DorisSinkDTO();
+        CommonBeanUtils.copyProperties(request, dto, true);
+        dto.setPassword(passwd);
+        return dto;
     }
 
     public static DorisSinkDTO getFromJson(@NotNull String extParams) {

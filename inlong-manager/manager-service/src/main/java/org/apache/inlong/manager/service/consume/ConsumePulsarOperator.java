@@ -165,7 +165,8 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         }
 
         try {
-            targetEntity.setExtParams(objectMapper.writeValueAsString(ConsumePulsarDTO.getFromRequest(pulsarRequest)));
+            ConsumePulsarDTO dto = ConsumePulsarDTO.getFromRequest(pulsarRequest, targetEntity.getExtParams());
+            targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CONSUME_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }

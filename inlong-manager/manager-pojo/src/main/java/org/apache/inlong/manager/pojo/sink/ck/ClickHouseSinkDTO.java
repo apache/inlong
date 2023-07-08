@@ -20,6 +20,7 @@ package org.apache.inlong.manager.pojo.sink.ck;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -111,36 +112,20 @@ public class ClickHouseSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static ClickHouseSinkDTO getFromRequest(ClickHouseSinkRequest request) throws Exception {
+    public static ClickHouseSinkDTO getFromRequest(ClickHouseSinkRequest request, String extParams) throws Exception {
         Integer encryptVersion = AESUtils.getCurrentVersion(null);
         String passwd = null;
         if (StringUtils.isNotEmpty(request.getPassword())) {
             passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
                     encryptVersion);
         }
-        return ClickHouseSinkDTO.builder()
-                .jdbcUrl(request.getJdbcUrl())
-                .username(request.getUsername())
-                .password(passwd)
-                .dbName(request.getDbName())
-                .tableName(request.getTableName())
-                .flushInterval(request.getFlushInterval())
-                .flushRecord(request.getFlushRecord())
-                .retryTimes(request.getRetryTimes())
-                .isDistributed(request.getIsDistributed())
-                .partitionStrategy(request.getPartitionStrategy())
-                .partitionFields(request.getPartitionFields())
-                .keyFieldNames(request.getKeyFieldNames())
-                .engine(request.getEngine())
-                .partitionBy(request.getPartitionBy())
-                .ttl(request.getTtl())
-                .ttlUnit(request.getTtlUnit())
-                .cluster(request.getCluster())
-                .primaryKey(request.getPrimaryKey())
-                .orderBy(request.getOrderBy())
-                .encryptVersion(encryptVersion)
-                .properties(request.getProperties())
-                .build();
+
+        ClickHouseSinkDTO dto = StringUtils.isNotBlank(extParams)
+                ? ClickHouseSinkDTO.getFromJson(extParams)
+                : new ClickHouseSinkDTO();
+        CommonBeanUtils.copyProperties(request, dto, true);
+        dto.setPassword(passwd);
+        return dto;
     }
 
     public static ClickHouseSinkDTO getFromJson(@NotNull String extParams) {

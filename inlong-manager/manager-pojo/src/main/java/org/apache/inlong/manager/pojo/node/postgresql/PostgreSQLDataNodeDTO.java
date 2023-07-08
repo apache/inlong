@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.node.postgresql;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModel;
@@ -41,8 +42,11 @@ public class PostgreSQLDataNodeDTO {
     /**
      * Get the dto instance from the request
      */
-    public static PostgreSQLDataNodeDTO getFromRequest(PostgreSQLDataNodeRequest request) throws Exception {
-        return PostgreSQLDataNodeDTO.builder().build();
+    public static PostgreSQLDataNodeDTO getFromRequest(PostgreSQLDataNodeRequest request, String extParams) {
+        PostgreSQLDataNodeDTO dto = StringUtils.isNotBlank(extParams)
+                ? PostgreSQLDataNodeDTO.getFromJson(extParams)
+                : new PostgreSQLDataNodeDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

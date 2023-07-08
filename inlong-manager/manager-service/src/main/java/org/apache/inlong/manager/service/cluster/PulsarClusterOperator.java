@@ -91,7 +91,7 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
         PulsarClusterRequest pulsarRequest = (PulsarClusterRequest) request;
         CommonBeanUtils.copyProperties(pulsarRequest, targetEntity, true);
         try {
-            PulsarClusterDTO dto = PulsarClusterDTO.getFromRequest(pulsarRequest);
+            PulsarClusterDTO dto = PulsarClusterDTO.getFromRequest(pulsarRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
             LOGGER.debug("success to set entity for pulsar cluster");
         } catch (Exception e) {

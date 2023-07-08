@@ -70,7 +70,7 @@ public class KuduSinkOperator extends AbstractSinkOperator {
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
         KuduSinkRequest sinkRequest = (KuduSinkRequest) request;
         try {
-            KuduSinkDTO dto = KuduSinkDTO.getFromRequest(sinkRequest);
+            KuduSinkDTO dto = KuduSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,

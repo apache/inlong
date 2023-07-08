@@ -28,18 +28,21 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
 /**
- * Inlong group dto of Pulsar
+ * Inlong consume dto of Pulsar
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Inlong group dto of Pulsar")
+@ApiModel("Inlong consume dto of Pulsar")
 public class ConsumePulsarDTO extends BaseInlongConsume {
 
     @ApiModelProperty("Whether to configure the dead letter queue, 0: not configure, 1: configure")
@@ -57,8 +60,11 @@ public class ConsumePulsarDTO extends BaseInlongConsume {
     /**
      * Get the dto instance from the request
      */
-    public static ConsumePulsarDTO getFromRequest(ConsumePulsarRequest request) {
-        return CommonBeanUtils.copyProperties(request, ConsumePulsarDTO::new, true);
+    public static ConsumePulsarDTO getFromRequest(ConsumePulsarRequest request, String extParams) {
+        ConsumePulsarDTO dto = StringUtils.isNotBlank(extParams)
+                ? ConsumePulsarDTO.getFromJson(extParams)
+                : new ConsumePulsarDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

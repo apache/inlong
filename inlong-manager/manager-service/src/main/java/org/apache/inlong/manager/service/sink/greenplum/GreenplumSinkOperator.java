@@ -67,7 +67,7 @@ public class GreenplumSinkOperator extends AbstractSinkOperator {
         }
         GreenplumSinkRequest sinkRequest = (GreenplumSinkRequest) request;
         try {
-            GreenplumSinkDTO dto = GreenplumSinkDTO.getFromRequest(sinkRequest);
+            GreenplumSinkDTO dto = GreenplumSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,

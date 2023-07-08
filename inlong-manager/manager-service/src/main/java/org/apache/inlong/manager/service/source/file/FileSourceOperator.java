@@ -66,7 +66,7 @@ public class FileSourceOperator extends AbstractSourceOperator {
         FileSourceRequest sourceRequest = (FileSourceRequest) request;
         try {
             CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
-            FileSourceDTO dto = FileSourceDTO.getFromRequest(sourceRequest);
+            FileSourceDTO dto = FileSourceDTO.getFromRequest(sourceRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

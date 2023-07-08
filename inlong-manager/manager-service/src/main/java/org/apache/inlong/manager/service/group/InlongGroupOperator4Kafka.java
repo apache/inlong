@@ -82,7 +82,7 @@ public class InlongGroupOperator4Kafka extends AbstractGroupOperator {
         InlongKafkaRequest kafkaRequest = (InlongKafkaRequest) request;
         CommonBeanUtils.copyProperties(kafkaRequest, targetEntity, true);
         try {
-            InlongKafkaDTO dto = InlongKafkaDTO.getFromRequest(kafkaRequest);
+            InlongKafkaDTO dto = InlongKafkaDTO.getFromRequest(kafkaRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

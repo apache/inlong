@@ -83,7 +83,7 @@ public class MySQLDataNodeOperator extends AbstractDataNodeOperator {
         MySQLDataNodeRequest dataNodeRequest = (MySQLDataNodeRequest) request;
         CommonBeanUtils.copyProperties(dataNodeRequest, targetEntity, true);
         try {
-            MySQLDataNodeDTO dto = MySQLDataNodeDTO.getFromRequest(dataNodeRequest);
+            MySQLDataNodeDTO dto = MySQLDataNodeDTO.getFromRequest(dataNodeRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

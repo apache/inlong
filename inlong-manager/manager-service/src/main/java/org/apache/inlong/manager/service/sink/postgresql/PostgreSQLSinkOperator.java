@@ -67,7 +67,7 @@ public class PostgreSQLSinkOperator extends AbstractSinkOperator {
         }
         PostgreSQLSinkRequest sinkRequest = (PostgreSQLSinkRequest) request;
         try {
-            PostgreSQLSinkDTO dto = PostgreSQLSinkDTO.getFromRequest(sinkRequest);
+            PostgreSQLSinkDTO dto = PostgreSQLSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
