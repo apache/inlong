@@ -91,11 +91,11 @@ public class DorisSinkDTO {
             passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
                     encryptVersion);
         }
-        DorisSinkDTO dorisSinkDTO =
-                StringUtils.isNotBlank(extParams) ? DorisSinkDTO.getFromJson(extParams) : new DorisSinkDTO();
-        CommonBeanUtils.copyProperties(request, dorisSinkDTO, true);
-        dorisSinkDTO.setPassword(passwd);
-        return dorisSinkDTO;
+
+        DorisSinkDTO dto = StringUtils.isNotBlank(extParams) ? DorisSinkDTO.getFromJson(extParams) : new DorisSinkDTO();
+        CommonBeanUtils.copyProperties(request, dto, true);
+        dto.setPassword(passwd);
+        return dto;
     }
 
     public static DorisSinkDTO getFromJson(@NotNull String extParams) {

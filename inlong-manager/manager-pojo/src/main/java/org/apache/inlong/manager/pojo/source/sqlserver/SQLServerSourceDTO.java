@@ -79,10 +79,10 @@ public class SQLServerSourceDTO {
      * Get the dto instance from the request
      */
     public static SQLServerSourceDTO getFromRequest(SQLServerSourceRequest request, String extParams) {
-        SQLServerSourceDTO sqlServerSourceDTO =
-                StringUtils.isNotBlank(extParams) ? SQLServerSourceDTO.getFromJson(extParams)
-                        : new SQLServerSourceDTO();
-        return CommonBeanUtils.copyProperties(request, sqlServerSourceDTO, true);
+        SQLServerSourceDTO dto = StringUtils.isNotBlank(extParams)
+                ? SQLServerSourceDTO.getFromJson(extParams)
+                : new SQLServerSourceDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

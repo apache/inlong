@@ -78,9 +78,10 @@ public class IcebergSinkDTO {
      * Get the dto instance from the request
      */
     public static IcebergSinkDTO getFromRequest(IcebergSinkRequest request, String extParams) {
-        IcebergSinkDTO icebergSinkDTO =
-                StringUtils.isNotBlank(extParams) ? IcebergSinkDTO.getFromJson(extParams) : new IcebergSinkDTO();
-        return CommonBeanUtils.copyProperties(request, icebergSinkDTO, true);
+        IcebergSinkDTO dto = StringUtils.isNotBlank(extParams)
+                ? IcebergSinkDTO.getFromJson(extParams)
+                : new IcebergSinkDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     public static IcebergSinkDTO getFromJson(@NotNull String extParams) {

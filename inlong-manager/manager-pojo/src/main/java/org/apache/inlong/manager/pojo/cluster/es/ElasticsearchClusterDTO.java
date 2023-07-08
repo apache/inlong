@@ -43,10 +43,10 @@ public class ElasticsearchClusterDTO {
      * Get the dto instance from the request
      */
     public static ElasticsearchClusterDTO getFromRequest(ElasticsearchClusterRequest request, String extParams) {
-        ElasticsearchClusterDTO elasticsearchClusterDTO =
-                StringUtils.isNotBlank(extParams) ? ElasticsearchClusterDTO.getFromJson(extParams)
-                        : new ElasticsearchClusterDTO();
-        return CommonBeanUtils.copyProperties(request, elasticsearchClusterDTO, true);
+        ElasticsearchClusterDTO dto = StringUtils.isNotBlank(extParams)
+                ? ElasticsearchClusterDTO.getFromJson(extParams)
+                : new ElasticsearchClusterDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

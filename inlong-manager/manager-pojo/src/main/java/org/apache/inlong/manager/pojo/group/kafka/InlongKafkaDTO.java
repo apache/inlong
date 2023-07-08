@@ -51,9 +51,10 @@ public class InlongKafkaDTO extends BaseInlongGroup {
      * Get the dto instance from the request
      */
     public static InlongKafkaDTO getFromRequest(InlongKafkaRequest request, String extParams) {
-        InlongKafkaDTO inlongKafkaDTO =
-                StringUtils.isNotBlank(extParams) ? InlongKafkaDTO.getFromJson(extParams) : new InlongKafkaDTO();
-        return CommonBeanUtils.copyProperties(request, inlongKafkaDTO, true);
+        InlongKafkaDTO dto = StringUtils.isNotBlank(extParams)
+                ? InlongKafkaDTO.getFromJson(extParams)
+                : new InlongKafkaDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

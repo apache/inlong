@@ -56,10 +56,11 @@ public class HudiDataNodeDTO {
     /**
      * Get the dto instance from the request
      */
-    public static HudiDataNodeDTO getFromRequest(HudiDataNodeRequest request, String extParams) throws Exception {
-        HudiDataNodeDTO hudiDataNodeDTO =
-                StringUtils.isNotBlank(extParams) ? HudiDataNodeDTO.getFromJson(extParams) : new HudiDataNodeDTO();
-        return CommonBeanUtils.copyProperties(request, hudiDataNodeDTO, true);
+    public static HudiDataNodeDTO getFromRequest(HudiDataNodeRequest request, String extParams) {
+        HudiDataNodeDTO dto = StringUtils.isNotBlank(extParams)
+                ? HudiDataNodeDTO.getFromJson(extParams)
+                : new HudiDataNodeDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

@@ -72,9 +72,10 @@ public class HudiSourceDTO {
      * Get the dto instance from the request
      */
     public static HudiSourceDTO getFromRequest(HudiSourceRequest request, String extParams) {
-        HudiSourceDTO hudiSourceDTO =
-                StringUtils.isNotBlank(extParams) ? HudiSourceDTO.getFromJson(extParams) : new HudiSourceDTO();
-        return CommonBeanUtils.copyProperties(request, hudiSourceDTO, true);
+        HudiSourceDTO dto = StringUtils.isNotBlank(extParams)
+                ? HudiSourceDTO.getFromJson(extParams)
+                : new HudiSourceDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

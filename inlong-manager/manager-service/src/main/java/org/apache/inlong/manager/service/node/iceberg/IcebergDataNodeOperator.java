@@ -73,11 +73,10 @@ public class IcebergDataNodeOperator extends AbstractDataNodeOperator {
 
     @Override
     protected void setTargetEntity(DataNodeRequest request, DataNodeEntity targetEntity) {
-        IcebergDataNodeRequest icebergDataNodeRequest = (IcebergDataNodeRequest) request;
-        CommonBeanUtils.copyProperties(icebergDataNodeRequest, targetEntity, true);
+        IcebergDataNodeRequest nodeRequest = (IcebergDataNodeRequest) request;
+        CommonBeanUtils.copyProperties(nodeRequest, targetEntity, true);
         try {
-            IcebergDataNodeDTO dto =
-                    IcebergDataNodeDTO.getFromRequest(icebergDataNodeRequest, targetEntity.getExtParams());
+            IcebergDataNodeDTO dto = IcebergDataNodeDTO.getFromRequest(nodeRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

@@ -67,9 +67,10 @@ public class MongoDBSourceDTO {
      * Get the dto instance from the request
      */
     public static MongoDBSourceDTO getFromRequest(MongoDBSourceRequest request, String extParams) {
-        MongoDBSourceDTO mongoDBSourceDTO =
-                StringUtils.isNotBlank(extParams) ? MongoDBSourceDTO.getFromJson(extParams) : new MongoDBSourceDTO();
-        return CommonBeanUtils.copyProperties(request, mongoDBSourceDTO, true);
+        MongoDBSourceDTO dto = StringUtils.isNotBlank(extParams)
+                ? MongoDBSourceDTO.getFromJson(extParams)
+                : new MongoDBSourceDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

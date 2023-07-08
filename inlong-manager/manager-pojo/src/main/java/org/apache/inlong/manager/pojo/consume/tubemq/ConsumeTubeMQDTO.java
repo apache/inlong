@@ -27,16 +27,18 @@ import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotNull;
 
 /**
- * Inlong group info of TubeMQ
+ * Inlong consume info of TubeMQ
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @AllArgsConstructor
-@ApiModel("Inlong group info of TubeMQ")
+@ApiModel("Inlong consume info of TubeMQ")
 public class ConsumeTubeMQDTO extends BaseInlongConsume {
 
     // no fields

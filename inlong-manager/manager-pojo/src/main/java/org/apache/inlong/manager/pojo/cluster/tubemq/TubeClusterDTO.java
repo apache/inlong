@@ -58,9 +58,10 @@ public class TubeClusterDTO {
      * Get the dto instance from the request
      */
     public static TubeClusterDTO getFromRequest(TubeClusterRequest request, String extParams) {
-        TubeClusterDTO tubeClusterDTO =
-                StringUtils.isNotBlank(extParams) ? TubeClusterDTO.getFromJson(extParams) : new TubeClusterDTO();
-        return CommonBeanUtils.copyProperties(request, tubeClusterDTO, true);
+        TubeClusterDTO dto = StringUtils.isNotBlank(extParams)
+                ? TubeClusterDTO.getFromJson(extParams)
+                : new TubeClusterDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

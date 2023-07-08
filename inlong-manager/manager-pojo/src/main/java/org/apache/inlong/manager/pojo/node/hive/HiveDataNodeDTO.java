@@ -64,10 +64,11 @@ public class HiveDataNodeDTO {
     /**
      * Get the dto instance from the request
      */
-    public static HiveDataNodeDTO getFromRequest(HiveDataNodeRequest request, String extParams) throws Exception {
-        HiveDataNodeDTO hiveDataNodeDTO =
-                StringUtils.isNotBlank(extParams) ? HiveDataNodeDTO.getFromJson(extParams) : new HiveDataNodeDTO();
-        return CommonBeanUtils.copyProperties(request, hiveDataNodeDTO, true);
+    public static HiveDataNodeDTO getFromRequest(HiveDataNodeRequest request, String extParams) {
+        HiveDataNodeDTO dto = StringUtils.isNotBlank(extParams)
+                ? HiveDataNodeDTO.getFromJson(extParams)
+                : new HiveDataNodeDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

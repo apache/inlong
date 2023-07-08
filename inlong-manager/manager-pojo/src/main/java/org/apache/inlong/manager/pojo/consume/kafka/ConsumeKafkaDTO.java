@@ -27,16 +27,18 @@ import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotNull;
 
 /**
- * Inlong group info of Kafka
+ * Inlong consume info of Kafka
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @AllArgsConstructor
-@ApiModel("Inlong group info of Kafka")
+@ApiModel("Inlong consume info of Kafka")
 public class ConsumeKafkaDTO extends BaseInlongConsume {
 
     /**

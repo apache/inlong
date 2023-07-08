@@ -83,10 +83,11 @@ public class RedisDataNodeDTO {
     /**
      * Get the dto instance from the request
      */
-    public static RedisDataNodeDTO getFromRequest(RedisDataNodeRequest request, String extParams) throws Exception {
-        RedisDataNodeDTO redisDataNodeDTO =
-                StringUtils.isNotBlank(extParams) ? RedisDataNodeDTO.getFromJson(extParams) : new RedisDataNodeDTO();
-        return CommonBeanUtils.copyProperties(request, redisDataNodeDTO, true);
+    public static RedisDataNodeDTO getFromRequest(RedisDataNodeRequest request, String extParams) {
+        RedisDataNodeDTO dto = StringUtils.isNotBlank(extParams)
+                ? RedisDataNodeDTO.getFromJson(extParams)
+                : new RedisDataNodeDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

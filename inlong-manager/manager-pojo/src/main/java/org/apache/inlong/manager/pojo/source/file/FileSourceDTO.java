@@ -84,9 +84,10 @@ public class FileSourceDTO {
     private Map<String, String> filterMetaByLabels;
 
     public static FileSourceDTO getFromRequest(@NotNull FileSourceRequest fileSourceRequest, String extParams) {
-        FileSourceDTO fileSourceDTO =
-                StringUtils.isNotBlank(extParams) ? FileSourceDTO.getFromJson(extParams) : new FileSourceDTO();
-        return CommonBeanUtils.copyProperties(fileSourceRequest, fileSourceDTO, true);
+        FileSourceDTO dto = StringUtils.isNotBlank(extParams)
+                ? FileSourceDTO.getFromJson(extParams)
+                : new FileSourceDTO();
+        return CommonBeanUtils.copyProperties(fileSourceRequest, dto, true);
     }
 
     public static FileSourceDTO getFromJson(@NotNull String extParams) {

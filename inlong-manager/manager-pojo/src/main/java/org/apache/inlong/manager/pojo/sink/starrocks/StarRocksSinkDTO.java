@@ -104,11 +104,13 @@ public class StarRocksSinkDTO {
             passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
                     encryptVersion);
         }
-        StarRocksSinkDTO starRocksSinkDTO =
-                StringUtils.isNotBlank(extParams) ? StarRocksSinkDTO.getFromJson(extParams) : new StarRocksSinkDTO();
-        CommonBeanUtils.copyProperties(request, starRocksSinkDTO, true);
-        starRocksSinkDTO.setPassword(passwd);
-        return starRocksSinkDTO;
+
+        StarRocksSinkDTO dto = StringUtils.isNotBlank(extParams)
+                ? StarRocksSinkDTO.getFromJson(extParams)
+                : new StarRocksSinkDTO();
+        CommonBeanUtils.copyProperties(request, dto, true);
+        dto.setPassword(passwd);
+        return dto;
     }
 
     public static StarRocksSinkDTO getFromJson(@NotNull String extParams) {

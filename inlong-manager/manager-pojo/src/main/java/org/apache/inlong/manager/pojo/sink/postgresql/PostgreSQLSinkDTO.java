@@ -79,11 +79,13 @@ public class PostgreSQLSinkDTO {
             passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
                     encryptVersion);
         }
-        PostgreSQLSinkDTO postgreSQLSinkDTO =
-                StringUtils.isNotBlank(extParams) ? PostgreSQLSinkDTO.getFromJson(extParams) : new PostgreSQLSinkDTO();
-        CommonBeanUtils.copyProperties(request, postgreSQLSinkDTO, true);
-        postgreSQLSinkDTO.setPassword(passwd);
-        return postgreSQLSinkDTO;
+
+        PostgreSQLSinkDTO dto = StringUtils.isNotBlank(extParams)
+                ? PostgreSQLSinkDTO.getFromJson(extParams)
+                : new PostgreSQLSinkDTO();
+        CommonBeanUtils.copyProperties(request, dto, true);
+        dto.setPassword(passwd);
+        return dto;
     }
 
     /**

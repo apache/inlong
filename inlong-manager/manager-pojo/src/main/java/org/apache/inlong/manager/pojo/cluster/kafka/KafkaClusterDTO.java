@@ -60,10 +60,11 @@ public class KafkaClusterDTO {
      * Get the dto instance from the request
      */
     public static KafkaClusterDTO getFromRequest(KafkaClusterRequest request, String extParams) {
-        KafkaClusterDTO kafkaClusterDTO =
-                StringUtils.isNotBlank(extParams) ? KafkaClusterDTO.getFromJson(extParams) : new KafkaClusterDTO();
-        kafkaClusterDTO.setBootstrapServers(request.getUrl());
-        return CommonBeanUtils.copyProperties(request, kafkaClusterDTO, true);
+        KafkaClusterDTO dto = StringUtils.isNotBlank(extParams)
+                ? KafkaClusterDTO.getFromJson(extParams)
+                : new KafkaClusterDTO();
+        dto.setBootstrapServers(request.getUrl());
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

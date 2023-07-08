@@ -67,9 +67,8 @@ public class KafkaSinkDTO {
      * Get the dto instance from the request
      */
     public static KafkaSinkDTO getFromRequest(KafkaSinkRequest request, String extParams) {
-        KafkaSinkDTO kafkaSinkDTO =
-                StringUtils.isNotBlank(extParams) ? KafkaSinkDTO.getFromJson(extParams) : new KafkaSinkDTO();
-        return CommonBeanUtils.copyProperties(request, kafkaSinkDTO, true);
+        KafkaSinkDTO dto = StringUtils.isNotBlank(extParams) ? KafkaSinkDTO.getFromJson(extParams) : new KafkaSinkDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     public static KafkaSinkDTO getFromJson(@NotNull String extParams) {

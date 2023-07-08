@@ -105,11 +105,10 @@ public class MySQLSinkDTO {
      * @apiNote The config here will be saved to the database, so filter sensitive params before saving.
      */
     public static MySQLSinkDTO getFromRequest(MySQLSinkRequest request, String extParams) {
-        MySQLSinkDTO mySQLSinkDTO =
-                StringUtils.isNotBlank(extParams) ? MySQLSinkDTO.getFromJson(extParams) : new MySQLSinkDTO();
-        CommonBeanUtils.copyProperties(request, mySQLSinkDTO, true);
-        mySQLSinkDTO.setJdbcUrl(filterSensitive(request.getJdbcUrl()));
-        return mySQLSinkDTO;
+        MySQLSinkDTO dto = StringUtils.isNotBlank(extParams) ? MySQLSinkDTO.getFromJson(extParams) : new MySQLSinkDTO();
+        CommonBeanUtils.copyProperties(request, dto, true);
+        dto.setJdbcUrl(filterSensitive(request.getJdbcUrl()));
+        return dto;
     }
 
     /**

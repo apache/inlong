@@ -85,9 +85,8 @@ public class HudiSinkDTO {
      * Get the dto instance from the request
      */
     public static HudiSinkDTO getFromRequest(HudiSinkRequest request, String extParams) {
-        HudiSinkDTO hudiSinkDTO =
-                StringUtils.isNotBlank(extParams) ? HudiSinkDTO.getFromJson(extParams) : new HudiSinkDTO();
-        return CommonBeanUtils.copyProperties(request, hudiSinkDTO, true);
+        HudiSinkDTO dto = StringUtils.isNotBlank(extParams) ? HudiSinkDTO.getFromJson(extParams) : new HudiSinkDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     public static HudiSinkDTO getFromJson(@NotNull String extParams) {

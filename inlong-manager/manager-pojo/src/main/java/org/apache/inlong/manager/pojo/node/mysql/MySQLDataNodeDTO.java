@@ -54,10 +54,11 @@ public class MySQLDataNodeDTO {
     /**
      * Get the dto instance from the request
      */
-    public static MySQLDataNodeDTO getFromRequest(MySQLDataNodeRequest request, String extParams) throws Exception {
-        MySQLDataNodeDTO mySQLDataNodeDTO =
-                StringUtils.isNotBlank(extParams) ? MySQLDataNodeDTO.getFromJson(extParams) : new MySQLDataNodeDTO();
-        return CommonBeanUtils.copyProperties(request, mySQLDataNodeDTO, true);
+    public static MySQLDataNodeDTO getFromRequest(MySQLDataNodeRequest request, String extParams) {
+        MySQLDataNodeDTO dto = StringUtils.isNotBlank(extParams)
+                ? MySQLDataNodeDTO.getFromJson(extParams)
+                : new MySQLDataNodeDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

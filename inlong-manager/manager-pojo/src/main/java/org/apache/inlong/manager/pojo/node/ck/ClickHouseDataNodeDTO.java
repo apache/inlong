@@ -42,12 +42,11 @@ public class ClickHouseDataNodeDTO {
     /**
      * Get the dto instance from the request
      */
-    public static ClickHouseDataNodeDTO getFromRequest(ClickHouseDataNodeRequest request, String extParams)
-            throws Exception {
-        ClickHouseDataNodeDTO clickHouseDataNodeDTO =
-                StringUtils.isNotBlank(extParams) ? ClickHouseDataNodeDTO.getFromJson(extParams)
-                        : new ClickHouseDataNodeDTO();
-        return CommonBeanUtils.copyProperties(request, clickHouseDataNodeDTO, true);
+    public static ClickHouseDataNodeDTO getFromRequest(ClickHouseDataNodeRequest request, String extParams) {
+        ClickHouseDataNodeDTO dto = StringUtils.isNotBlank(extParams)
+                ? ClickHouseDataNodeDTO.getFromJson(extParams)
+                : new ClickHouseDataNodeDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

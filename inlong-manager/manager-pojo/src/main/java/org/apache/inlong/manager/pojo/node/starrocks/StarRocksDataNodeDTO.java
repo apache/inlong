@@ -48,12 +48,11 @@ public class StarRocksDataNodeDTO {
     /**
      * Get the dto instance from the request
      */
-    public static StarRocksDataNodeDTO getFromRequest(StarRocksDataNodeRequest request, String extParams)
-            throws Exception {
-        StarRocksDataNodeDTO starRocksDataNodeDTO =
-                StringUtils.isNotBlank(extParams) ? StarRocksDataNodeDTO.getFromJson(extParams)
-                        : new StarRocksDataNodeDTO();
-        return CommonBeanUtils.copyProperties(request, starRocksDataNodeDTO, true);
+    public static StarRocksDataNodeDTO getFromRequest(StarRocksDataNodeRequest request, String extParams) {
+        StarRocksDataNodeDTO dto = StringUtils.isNotBlank(extParams)
+                ? StarRocksDataNodeDTO.getFromJson(extParams)
+                : new StarRocksDataNodeDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

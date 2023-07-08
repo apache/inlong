@@ -74,9 +74,8 @@ public class HBaseSinkDTO {
      * Get the dto instance from the request
      */
     public static HBaseSinkDTO getFromRequest(HBaseSinkRequest request, String extParams) {
-        HBaseSinkDTO hBaseSinkDTO =
-                StringUtils.isNotBlank(extParams) ? HBaseSinkDTO.getFromJson(extParams) : new HBaseSinkDTO();
-        return CommonBeanUtils.copyProperties(request, hBaseSinkDTO, true);
+        HBaseSinkDTO dto = StringUtils.isNotBlank(extParams) ? HBaseSinkDTO.getFromJson(extParams) : new HBaseSinkDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

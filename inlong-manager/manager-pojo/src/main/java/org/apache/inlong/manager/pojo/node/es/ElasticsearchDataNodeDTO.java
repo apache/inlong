@@ -77,10 +77,10 @@ public class ElasticsearchDataNodeDTO {
      * Get the dto instance from the request
      */
     public static ElasticsearchDataNodeDTO getFromRequest(ElasticsearchDataNodeRequest request, String extParams) {
-        ElasticsearchDataNodeDTO elasticsearchDataNodeDTO =
-                StringUtils.isNotBlank(extParams) ? ElasticsearchDataNodeDTO.getFromJson(extParams)
-                        : new ElasticsearchDataNodeDTO();
-        return CommonBeanUtils.copyProperties(request, elasticsearchDataNodeDTO, true);
+        ElasticsearchDataNodeDTO dto = StringUtils.isNotBlank(extParams)
+                ? ElasticsearchDataNodeDTO.getFromJson(extParams)
+                : new ElasticsearchDataNodeDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

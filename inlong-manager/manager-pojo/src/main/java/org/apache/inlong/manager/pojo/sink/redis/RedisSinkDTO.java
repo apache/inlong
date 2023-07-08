@@ -117,9 +117,10 @@ public class RedisSinkDTO {
      * Get the dto instance from the request
      */
     public static RedisSinkDTO getFromRequest(RedisSinkRequest request, String extParams) throws Exception {
-        RedisSinkDTO redisSinkDTO =
-                StringUtils.isNotBlank(extParams) ? RedisSinkDTO.getFromJson(extParams) : new RedisSinkDTO();
-        return CommonBeanUtils.copyProperties(request, redisSinkDTO, true);
+        RedisSinkDTO dto = StringUtils.isNotBlank(extParams)
+                ? RedisSinkDTO.getFromJson(extParams)
+                : new RedisSinkDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     public static RedisSinkDTO getFromJson(@NotNull String extParams) {

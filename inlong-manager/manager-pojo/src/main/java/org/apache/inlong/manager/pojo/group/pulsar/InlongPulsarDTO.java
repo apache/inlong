@@ -89,9 +89,10 @@ public class InlongPulsarDTO extends BaseInlongGroup {
      * Get the dto instance from the request
      */
     public static InlongPulsarDTO getFromRequest(InlongPulsarRequest request, String extParams) {
-        InlongPulsarDTO inlongPulsarDTO =
-                StringUtils.isNotBlank(extParams) ? InlongPulsarDTO.getFromJson(extParams) : new InlongPulsarDTO();
-        return CommonBeanUtils.copyProperties(request, inlongPulsarDTO, true);
+        InlongPulsarDTO dto = StringUtils.isNotBlank(extParams)
+                ? InlongPulsarDTO.getFromJson(extParams)
+                : new InlongPulsarDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

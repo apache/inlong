@@ -104,11 +104,11 @@ public class HiveSinkDTO {
             passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
                     encryptVersion);
         }
-        HiveSinkDTO hiveSinkDTO =
-                StringUtils.isNotBlank(extParams) ? HiveSinkDTO.getFromJson(extParams) : new HiveSinkDTO();
-        CommonBeanUtils.copyProperties(request, hiveSinkDTO, true);
-        hiveSinkDTO.setPassword(passwd);
-        return hiveSinkDTO;
+
+        HiveSinkDTO dto = StringUtils.isNotBlank(extParams) ? HiveSinkDTO.getFromJson(extParams) : new HiveSinkDTO();
+        CommonBeanUtils.copyProperties(request, dto, true);
+        dto.setPassword(passwd);
+        return dto;
     }
 
     /**

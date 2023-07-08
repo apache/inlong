@@ -53,9 +53,10 @@ public class AutoPushSourceDTO {
     private String dataEscapeChar;
 
     public static AutoPushSourceDTO getFromRequest(AutoPushSourceRequest request, String extParams) {
-        AutoPushSourceDTO autoPushSourceDTO =
-                StringUtils.isNotBlank(extParams) ? AutoPushSourceDTO.getFromJson(extParams) : new AutoPushSourceDTO();
-        return CommonBeanUtils.copyProperties(request, autoPushSourceDTO, true);
+        AutoPushSourceDTO dto = StringUtils.isNotBlank(extParams)
+                ? AutoPushSourceDTO.getFromJson(extParams)
+                : new AutoPushSourceDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     public static AutoPushSourceDTO getFromJson(@NotNull String extParams) {

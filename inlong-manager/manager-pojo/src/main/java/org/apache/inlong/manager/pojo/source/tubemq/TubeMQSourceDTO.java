@@ -71,10 +71,11 @@ public class TubeMQSourceDTO {
      * Get the dto instance from the request
      */
     public static TubeMQSourceDTO getFromRequest(TubeMQSourceRequest request, String extParams) {
-        TubeMQSourceDTO tubeMQSourceDTO =
-                StringUtils.isNotBlank(extParams) ? TubeMQSourceDTO.getFromJson(extParams) : new TubeMQSourceDTO();
-        tubeMQSourceDTO.setFormat(request.getSerializationType());
-        return CommonBeanUtils.copyProperties(request, tubeMQSourceDTO, true);
+        TubeMQSourceDTO dto = StringUtils.isNotBlank(extParams)
+                ? TubeMQSourceDTO.getFromJson(extParams)
+                : new TubeMQSourceDTO();
+        dto.setFormat(request.getSerializationType());
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**
@@ -85,7 +86,7 @@ public class TubeMQSourceDTO {
             return JsonUtils.parseObject(extParams, TubeMQSourceDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
-                    String.format("parse extParams of TubeMQSource failure: %s", e.getMessage()));
+                    String.format("Parse extParams of TubeMQSource failure: %s", e.getMessage()));
         }
     }
 }

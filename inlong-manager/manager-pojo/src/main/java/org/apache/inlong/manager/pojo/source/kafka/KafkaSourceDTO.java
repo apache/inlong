@@ -106,9 +106,10 @@ public class KafkaSourceDTO {
      * Get the dto instance from the request
      */
     public static KafkaSourceDTO getFromRequest(KafkaSourceRequest request, String extParams) {
-        KafkaSourceDTO kafkaSourceDTO =
-                StringUtils.isNotBlank(extParams) ? KafkaSourceDTO.getFromJson(extParams) : new KafkaSourceDTO();
-        return CommonBeanUtils.copyProperties(request, kafkaSourceDTO, true);
+        KafkaSourceDTO dto = StringUtils.isNotBlank(extParams)
+                ? KafkaSourceDTO.getFromJson(extParams)
+                : new KafkaSourceDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     public static KafkaSourceDTO getFromJson(@NotNull String extParams) {

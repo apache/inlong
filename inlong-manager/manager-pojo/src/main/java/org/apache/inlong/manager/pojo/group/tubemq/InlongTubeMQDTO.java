@@ -43,9 +43,10 @@ public class InlongTubeMQDTO extends BaseInlongGroup {
      * Get the dto instance from the request
      */
     public static InlongTubeMQDTO getFromRequest(InlongGroupRequest request, String extParams) {
-        InlongTubeMQDTO inlongTubeMQDTO =
-                StringUtils.isNotBlank(extParams) ? InlongTubeMQDTO.getFromJson(extParams) : new InlongTubeMQDTO();
-        return CommonBeanUtils.copyProperties(request, inlongTubeMQDTO, true);
+        InlongTubeMQDTO dto = StringUtils.isNotBlank(extParams)
+                ? InlongTubeMQDTO.getFromJson(extParams)
+                : new InlongTubeMQDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

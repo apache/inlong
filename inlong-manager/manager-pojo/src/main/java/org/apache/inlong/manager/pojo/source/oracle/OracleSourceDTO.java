@@ -76,9 +76,10 @@ public class OracleSourceDTO {
      * Get the dto instance from the request
      */
     public static OracleSourceDTO getFromRequest(OracleSourceRequest request, String extParams) {
-        OracleSourceDTO oracleSourceDTO =
-                StringUtils.isNotBlank(extParams) ? OracleSourceDTO.getFromJson(extParams) : new OracleSourceDTO();
-        return CommonBeanUtils.copyProperties(request, oracleSourceDTO, true);
+        OracleSourceDTO dto = StringUtils.isNotBlank(extParams)
+                ? OracleSourceDTO.getFromJson(extParams)
+                : new OracleSourceDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     public static OracleSourceDTO getFromJson(@NotNull String extParams) {

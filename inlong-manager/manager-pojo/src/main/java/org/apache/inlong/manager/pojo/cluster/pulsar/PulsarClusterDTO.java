@@ -64,10 +64,11 @@ public class PulsarClusterDTO {
      * Get the dto instance from the request
      */
     public static PulsarClusterDTO getFromRequest(PulsarClusterRequest request, String extParams) {
-        PulsarClusterDTO pulsarClusterDTO =
-                StringUtils.isNotBlank(extParams) ? PulsarClusterDTO.getFromJson(extParams) : new PulsarClusterDTO();
-        pulsarClusterDTO.setServiceUrl(request.getUrl());
-        return CommonBeanUtils.copyProperties(request, pulsarClusterDTO, true);
+        PulsarClusterDTO dto = StringUtils.isNotBlank(extParams)
+                ? PulsarClusterDTO.getFromJson(extParams)
+                : new PulsarClusterDTO();
+        dto.setServiceUrl(request.getUrl());
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

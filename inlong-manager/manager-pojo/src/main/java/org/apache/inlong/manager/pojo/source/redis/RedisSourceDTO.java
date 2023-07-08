@@ -101,9 +101,10 @@ public class RedisSourceDTO {
      * Get the dto instance from the request
      */
     public static RedisSourceDTO getFromRequest(RedisSourceRequest request, String extParams) {
-        RedisSourceDTO redisSourceDTO =
-                StringUtils.isNotBlank(extParams) ? RedisSourceDTO.getFromJson(extParams) : new RedisSourceDTO();
-        return CommonBeanUtils.copyProperties(request, redisSourceDTO, true);
+        RedisSourceDTO dto = StringUtils.isNotBlank(extParams)
+                ? RedisSourceDTO.getFromJson(extParams)
+                : new RedisSourceDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

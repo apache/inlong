@@ -65,9 +65,10 @@ public class GreenplumSinkDTO {
      * Get the dto instance from the request
      */
     public static GreenplumSinkDTO getFromRequest(GreenplumSinkRequest request, String extParams) {
-        GreenplumSinkDTO greenplumSinkDTO =
-                StringUtils.isNotBlank(extParams) ? GreenplumSinkDTO.getFromJson(extParams) : new GreenplumSinkDTO();
-        return CommonBeanUtils.copyProperties(request, greenplumSinkDTO, true);
+        GreenplumSinkDTO dto = StringUtils.isNotBlank(extParams)
+                ? GreenplumSinkDTO.getFromJson(extParams)
+                : new GreenplumSinkDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

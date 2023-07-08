@@ -49,9 +49,10 @@ public class AgentClusterDTO {
      * Get the dto instance from the request
      */
     public static AgentClusterDTO getFromRequest(AgentClusterRequest request, String extParams) {
-        AgentClusterDTO agentClusterDTO =
-                StringUtils.isNotBlank(extParams) ? AgentClusterDTO.getFromJson(extParams) : new AgentClusterDTO();
-        return CommonBeanUtils.copyProperties(request, agentClusterDTO, true);
+        AgentClusterDTO dto = StringUtils.isNotBlank(extParams)
+                ? AgentClusterDTO.getFromJson(extParams)
+                : new AgentClusterDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

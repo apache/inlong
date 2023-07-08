@@ -42,12 +42,11 @@ public class PostgreSQLDataNodeDTO {
     /**
      * Get the dto instance from the request
      */
-    public static PostgreSQLDataNodeDTO getFromRequest(PostgreSQLDataNodeRequest request, String extParams)
-            throws Exception {
-        PostgreSQLDataNodeDTO postgreSQLDataNodeDTO =
-                StringUtils.isNotBlank(extParams) ? PostgreSQLDataNodeDTO.getFromJson(extParams)
-                        : new PostgreSQLDataNodeDTO();
-        return CommonBeanUtils.copyProperties(request, postgreSQLDataNodeDTO, true);
+    public static PostgreSQLDataNodeDTO getFromRequest(PostgreSQLDataNodeRequest request, String extParams) {
+        PostgreSQLDataNodeDTO dto = StringUtils.isNotBlank(extParams)
+                ? PostgreSQLDataNodeDTO.getFromJson(extParams)
+                : new PostgreSQLDataNodeDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

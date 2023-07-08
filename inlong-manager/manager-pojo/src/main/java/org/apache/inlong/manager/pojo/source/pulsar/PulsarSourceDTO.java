@@ -84,9 +84,10 @@ public class PulsarSourceDTO {
      * Get the dto instance from the request
      */
     public static PulsarSourceDTO getFromRequest(PulsarSourceRequest request, String extParams) {
-        PulsarSourceDTO pulsarSourceDTO =
-                StringUtils.isNotBlank(extParams) ? PulsarSourceDTO.getFromJson(extParams) : new PulsarSourceDTO();
-        return CommonBeanUtils.copyProperties(request, pulsarSourceDTO, true);
+        PulsarSourceDTO dto = StringUtils.isNotBlank(extParams)
+                ? PulsarSourceDTO.getFromJson(extParams)
+                : new PulsarSourceDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     public static PulsarSourceDTO getFromJson(@NotNull String extParams) {

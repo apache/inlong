@@ -119,11 +119,13 @@ public class ClickHouseSinkDTO {
             passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
                     encryptVersion);
         }
-        ClickHouseSinkDTO clickHouseSinkDTO =
-                StringUtils.isNotBlank(extParams) ? ClickHouseSinkDTO.getFromJson(extParams) : new ClickHouseSinkDTO();
-        CommonBeanUtils.copyProperties(request, clickHouseSinkDTO, true);
-        clickHouseSinkDTO.setPassword(passwd);
-        return clickHouseSinkDTO;
+
+        ClickHouseSinkDTO dto = StringUtils.isNotBlank(extParams)
+                ? ClickHouseSinkDTO.getFromJson(extParams)
+                : new ClickHouseSinkDTO();
+        CommonBeanUtils.copyProperties(request, dto, true);
+        dto.setPassword(passwd);
+        return dto;
     }
 
     public static ClickHouseSinkDTO getFromJson(@NotNull String extParams) {

@@ -62,9 +62,8 @@ public class KuduSinkDTO {
      * Get the dto instance from the request
      */
     public static KuduSinkDTO getFromRequest(KuduSinkRequest request, String extParams) {
-        KuduSinkDTO kuduSinkDTO =
-                StringUtils.isNotBlank(extParams) ? KuduSinkDTO.getFromJson(extParams) : new KuduSinkDTO();
-        return CommonBeanUtils.copyProperties(request, kuduSinkDTO, true);
+        KuduSinkDTO dto = StringUtils.isNotBlank(extParams) ? KuduSinkDTO.getFromJson(extParams) : new KuduSinkDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     public static KuduSinkDTO getFromJson(@NotNull String extParams) {

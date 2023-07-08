@@ -86,12 +86,11 @@ public class ElasticsearchSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static ElasticsearchSinkDTO getFromRequest(ElasticsearchSinkRequest request, String extParams)
-            throws Exception {
-        ElasticsearchSinkDTO elasticsearchSinkDTO =
-                StringUtils.isNotBlank(extParams) ? ElasticsearchSinkDTO.getFromJson(extParams)
-                        : new ElasticsearchSinkDTO();
-        return CommonBeanUtils.copyProperties(request, elasticsearchSinkDTO, true);
+    public static ElasticsearchSinkDTO getFromRequest(ElasticsearchSinkRequest request, String extParams) {
+        ElasticsearchSinkDTO dto = StringUtils.isNotBlank(extParams)
+                ? ElasticsearchSinkDTO.getFromJson(extParams)
+                : new ElasticsearchSinkDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

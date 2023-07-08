@@ -83,10 +83,10 @@ public class PostgreSQLSourceDTO {
      * Get the dto instance from the request
      */
     public static PostgreSQLSourceDTO getFromRequest(PostgreSQLSourceRequest request, String extParams) {
-        if (StringUtils.isNotBlank(extParams)) {
-            return CommonBeanUtils.copyProperties(request, PostgreSQLSourceDTO.getFromJson(extParams), true);
-        }
-        return CommonBeanUtils.copyProperties(request, PostgreSQLSourceDTO::new, true);
+        PostgreSQLSourceDTO dto = StringUtils.isNotBlank(extParams)
+                ? PostgreSQLSourceDTO.getFromJson(extParams)
+                : new PostgreSQLSourceDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     public static PostgreSQLSourceDTO getFromJson(@NotNull String extParams) {

@@ -65,9 +65,10 @@ public class KuduDataNodeDTO {
      * Get the dto instance from the request
      */
     public static KuduDataNodeDTO getFromRequest(KuduDataNodeRequest request, String extParams) {
-        KuduDataNodeDTO kuduDataNodeDTO =
-                StringUtils.isNotBlank(extParams) ? KuduDataNodeDTO.getFromJson(extParams) : new KuduDataNodeDTO();
-        return CommonBeanUtils.copyProperties(request, kuduDataNodeDTO, true);
+        KuduDataNodeDTO dto = StringUtils.isNotBlank(extParams)
+                ? KuduDataNodeDTO.getFromJson(extParams)
+                : new KuduDataNodeDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

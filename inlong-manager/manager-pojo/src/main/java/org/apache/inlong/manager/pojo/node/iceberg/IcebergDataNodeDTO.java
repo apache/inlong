@@ -57,10 +57,10 @@ public class IcebergDataNodeDTO {
      * Get the dto instance from the request
      */
     public static IcebergDataNodeDTO getFromRequest(IcebergDataNodeRequest request, String extParams) throws Exception {
-        IcebergDataNodeDTO icebergDataNodeDTO =
-                StringUtils.isNotBlank(extParams) ? IcebergDataNodeDTO.getFromJson(extParams)
-                        : new IcebergDataNodeDTO();
-        return CommonBeanUtils.copyProperties(request, icebergDataNodeDTO, true);
+        IcebergDataNodeDTO dto = StringUtils.isNotBlank(extParams)
+                ? IcebergDataNodeDTO.getFromJson(extParams)
+                : new IcebergDataNodeDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

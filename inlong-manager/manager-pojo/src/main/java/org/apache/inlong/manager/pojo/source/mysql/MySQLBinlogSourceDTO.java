@@ -125,10 +125,10 @@ public class MySQLBinlogSourceDTO {
      * Get the dto instance from the request
      */
     public static MySQLBinlogSourceDTO getFromRequest(MySQLBinlogSourceRequest request, String extParams) {
-        MySQLBinlogSourceDTO mySQLBinlogSourceDTO =
-                StringUtils.isNotBlank(extParams) ? MySQLBinlogSourceDTO.getFromJson(extParams)
-                        : new MySQLBinlogSourceDTO();
-        return CommonBeanUtils.copyProperties(request, mySQLBinlogSourceDTO, true);
+        MySQLBinlogSourceDTO dto = StringUtils.isNotBlank(extParams)
+                ? MySQLBinlogSourceDTO.getFromJson(extParams)
+                : new MySQLBinlogSourceDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     public static MySQLBinlogSourceDTO getFromJson(@NotNull String extParams) {

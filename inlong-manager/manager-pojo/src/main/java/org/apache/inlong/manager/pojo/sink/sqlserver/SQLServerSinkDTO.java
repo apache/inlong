@@ -70,9 +70,10 @@ public class SQLServerSinkDTO {
      * Get the dto instance from the request
      */
     public static SQLServerSinkDTO getFromRequest(SQLServerSinkRequest request, String extParams) {
-        SQLServerSinkDTO sqlServerSinkDTO =
-                StringUtils.isNotBlank(extParams) ? SQLServerSinkDTO.getFromJson(extParams) : new SQLServerSinkDTO();
-        return CommonBeanUtils.copyProperties(request, sqlServerSinkDTO, true);
+        SQLServerSinkDTO dto = StringUtils.isNotBlank(extParams)
+                ? SQLServerSinkDTO.getFromJson(extParams)
+                : new SQLServerSinkDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**
@@ -88,19 +89,18 @@ public class SQLServerSinkDTO {
     }
 
     /**
-     * Get SqlServer table info
+     * Get SQLServer table info
      *
-     * @param sqlServerSink SqlServer sink dto,{@link SQLServerSinkDTO}
-     * @param columnList SqlServer column info list,{@link SQLServerColumnInfo}
-     * @return {@link SQLServerTableInfo}
+     * @param sinkDTO SQLServer sink dto
+     * @param columnList SQLServer column info list
+     * @return SQLServer table info
      */
-    public static SQLServerTableInfo getTableInfo(SQLServerSinkDTO sqlServerSink,
-            List<SQLServerColumnInfo> columnList) {
+    public static SQLServerTableInfo getTableInfo(SQLServerSinkDTO sinkDTO, List<SQLServerColumnInfo> columnList) {
         SQLServerTableInfo tableInfo = new SQLServerTableInfo();
-        tableInfo.setTableName(sqlServerSink.getTableName());
-        tableInfo.setPrimaryKey(sqlServerSink.getPrimaryKey());
-        tableInfo.setUserName(sqlServerSink.getUsername());
-        tableInfo.setSchemaName(sqlServerSink.getSchemaName());
+        tableInfo.setTableName(sinkDTO.getTableName());
+        tableInfo.setPrimaryKey(sinkDTO.getPrimaryKey());
+        tableInfo.setUserName(sinkDTO.getUsername());
+        tableInfo.setSchemaName(sinkDTO.getSchemaName());
         tableInfo.setColumns(columnList);
         return tableInfo;
     }

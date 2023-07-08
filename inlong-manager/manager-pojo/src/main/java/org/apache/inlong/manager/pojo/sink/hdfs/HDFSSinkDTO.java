@@ -68,9 +68,8 @@ public class HDFSSinkDTO {
      * Get the dto instance from the request
      */
     public static HDFSSinkDTO getFromRequest(HDFSSinkRequest request, String extParams) {
-        HDFSSinkDTO hdfsSinkDTO =
-                StringUtils.isNotBlank(extParams) ? HDFSSinkDTO.getFromJson(extParams) : new HDFSSinkDTO();
-        return CommonBeanUtils.copyProperties(request, hdfsSinkDTO, true);
+        HDFSSinkDTO dto = StringUtils.isNotBlank(extParams) ? HDFSSinkDTO.getFromJson(extParams) : new HDFSSinkDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

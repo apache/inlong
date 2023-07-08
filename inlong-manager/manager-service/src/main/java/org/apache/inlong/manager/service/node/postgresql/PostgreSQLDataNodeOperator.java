@@ -78,11 +78,10 @@ public class PostgreSQLDataNodeOperator extends AbstractDataNodeOperator {
 
     @Override
     protected void setTargetEntity(DataNodeRequest request, DataNodeEntity targetEntity) {
-        PostgreSQLDataNodeRequest dataNodeRequest = (PostgreSQLDataNodeRequest) request;
-        CommonBeanUtils.copyProperties(dataNodeRequest, targetEntity, true);
+        PostgreSQLDataNodeRequest nodeRequest = (PostgreSQLDataNodeRequest) request;
+        CommonBeanUtils.copyProperties(nodeRequest, targetEntity, true);
         try {
-            PostgreSQLDataNodeDTO dto =
-                    PostgreSQLDataNodeDTO.getFromRequest(dataNodeRequest, targetEntity.getExtParams());
+            PostgreSQLDataNodeDTO dto = PostgreSQLDataNodeDTO.getFromRequest(nodeRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

@@ -59,9 +59,10 @@ public class MqttSourceDTO {
     private String mqttVersion;
 
     public static MqttSourceDTO getFromRequest(MqttSourceRequest request, String extParams) {
-        MqttSourceDTO mqttSourceDTO =
-                StringUtils.isNotBlank(extParams) ? MqttSourceDTO.getFromJson(extParams) : new MqttSourceDTO();
-        return CommonBeanUtils.copyProperties(request, mqttSourceDTO, true);
+        MqttSourceDTO dto = StringUtils.isNotBlank(extParams)
+                ? MqttSourceDTO.getFromJson(extParams)
+                : new MqttSourceDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     public static MqttSourceDTO getFromJson(@NotNull String extParams) {

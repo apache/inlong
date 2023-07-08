@@ -67,10 +67,10 @@ public class TDSQLPostgreSQLSinkDTO {
      * Get the dto instance from the request
      */
     public static TDSQLPostgreSQLSinkDTO getFromRequest(TDSQLPostgreSQLSinkRequest request, String extParams) {
-        TDSQLPostgreSQLSinkDTO tdsqlPostgreSQLSinkDTO =
-                StringUtils.isNotBlank(extParams) ? TDSQLPostgreSQLSinkDTO.getFromJson(extParams)
-                        : new TDSQLPostgreSQLSinkDTO();
-        return CommonBeanUtils.copyProperties(request, tdsqlPostgreSQLSinkDTO, true);
+        TDSQLPostgreSQLSinkDTO dto = StringUtils.isNotBlank(extParams)
+                ? TDSQLPostgreSQLSinkDTO.getFromJson(extParams)
+                : new TDSQLPostgreSQLSinkDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

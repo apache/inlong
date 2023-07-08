@@ -70,9 +70,10 @@ public class OracleSinkDTO {
      * Get the dto instance from the request
      */
     public static OracleSinkDTO getFromRequest(OracleSinkRequest request, String extParams) {
-        OracleSinkDTO oracleSinkDTO =
-                StringUtils.isNotBlank(extParams) ? OracleSinkDTO.getFromJson(extParams) : new OracleSinkDTO();
-        return CommonBeanUtils.copyProperties(request, oracleSinkDTO, true);
+        OracleSinkDTO dto = StringUtils.isNotBlank(extParams)
+                ? OracleSinkDTO.getFromJson(extParams)
+                : new OracleSinkDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**
