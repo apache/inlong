@@ -22,7 +22,7 @@
 # of release header or remove the below marker. This file is generated.
 # DO NOT REMOVE THIS MARKER; FOR INTERPOLATING CHANGES!-->
 
-# Release InLong 1.7.0 - Released (as of 2023-07-11)
+# Release InLong 1.7.0 - Released (as of 2023-07-09)
 ### Agent
 |                            ISSUE                            | Summary                                                                    |
 |:-----------------------------------------------------------:|:---------------------------------------------------------------------------|
