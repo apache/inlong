@@ -62,6 +62,9 @@
         <fileSet>
             <directory>${build.directory}/lib</directory>
             <outputDirectory>lib</outputDirectory>
+            <includes>
+                <include>flink-shaded-jackson-*.jar</include>
+            </includes>
             <excludes>
                 <exclude>*scala*.jar</exclude>
                 <exclude>flink-*.jar</exclude>
