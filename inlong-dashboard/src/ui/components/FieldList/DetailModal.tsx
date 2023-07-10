@@ -59,7 +59,7 @@ const Comp: React.FC<Props> = ({
 
   const { data, run: getData } = useRequest(
     streamId => ({
-      url: `/stream/get`,
+      url: `/stream/getBrief`,
       params: {
         groupId: inlongGroupId,
         streamId,
@@ -94,6 +94,65 @@ const Comp: React.FC<Props> = ({
       value: item,
     }),
   );
+
+  const sinkFieldList: ColumnsItemProps[] = [
+    {
+      title: i18n.t('meta.Sinks.SourceFieldName'),
+      dataIndex: 'sourceFieldName',
+      type: 'input',
+      rules: [
+        { required: true },
+        {
+          pattern: /^[a-zA-Z_][a-zA-Z0-9_]*$/,
+          message: i18n.t('meta.Stream.FieldNameRule'),
+        },
+      ],
+      props: (text, record) => ({
+        disabled: true,
+      }),
+    },
+    {
+      title: i18n.t('meta.Sinks.SourceFieldType'),
+      dataIndex: 'sourceFieldType',
+      type: 'select',
+      initialValue: fieldTypes[0].label,
+      rules: [{ required: true }],
+      props: (text, record) => ({
+        disabled: true,
+        options: fieldTypes,
+      }),
+    },
+    {
+      title: i18n.t('meta.Stream.FieldName'),
+      dataIndex: 'fieldName',
+      type: 'input',
+      rules: [
+        { required: true },
+        {
+          pattern: /^[a-zA-Z_][a-zA-Z0-9_]*$/,
+          message: i18n.t('meta.Stream.FieldNameRule'),
+        },
+      ],
+      props: (text, record) => ({
+        disabled: record.id,
+      }),
+    },
+    {
+      title: i18n.t('meta.Stream.FieldType'),
+      dataIndex: 'fieldType',
+      type: 'select',
+      initialValue: '',
+      props: (text, record) => ({
+        disabled: record.id,
+        options: isSource === true ? fieldTypes : fieldAllTypes[sinkType],
+      }),
+      rules: [{ required: true }],
+    },
+    {
+      title: i18n.t('meta.Stream.FieldComment'),
+      dataIndex: 'fieldComment',
+    },
+  ];
 
   const fieldList: ColumnsItemProps[] = [
     {
@@ -175,6 +234,19 @@ const Comp: React.FC<Props> = ({
     }
   }, [getData, getSinkData, inlongStreamId]);
 
+  useEffect(() => {
+    if (!id && isSource === false) {
+      form.setFieldsValue({
+        sinkFieldList: data?.fieldList.map(item => ({
+          sourceFieldName: item.fieldName,
+          sourceFieldType: item.fieldType,
+          fieldName: item.fieldName,
+          fieldType: '',
+        })),
+      });
+    }
+  }, [data?.fieldList, form, getData, getSinkData, id, inlongStreamId, isSource]);
+
   return (
     <>
       <Modal
@@ -191,7 +263,7 @@ const Comp: React.FC<Props> = ({
           <Form form={form} initialValues={isSource === true ? data : sinkData?.list[0]}>
             <Form.Item name={isSource === true ? 'fieldList' : 'sinkFieldList'}>
               <EditableTable
-                columns={fieldList}
+                columns={isSource === true ? fieldList : sinkFieldList}
                 dataSource={isSource === true ? data?.fieldList : sinkData?.sinkFieldList}
               ></EditableTable>
             </Form.Item>
