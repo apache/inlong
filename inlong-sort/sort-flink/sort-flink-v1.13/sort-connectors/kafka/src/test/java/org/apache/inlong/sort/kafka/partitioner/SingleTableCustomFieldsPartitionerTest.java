@@ -37,7 +37,7 @@ public class SingleTableCustomFieldsPartitionerTest {
 
     @Test
     public void testPrimaryKeyPartitioner() {
-        SingleTableCustomFieldsPartitioner singleTablePrimaryKeyPartitioner =
+        SingleTableCustomFieldsPartitioner singleTableCustomFieldsPartitioner =
                 new SingleTableCustomFieldsPartitioner();
 
         TableSchema schema = TableSchema.builder()
@@ -45,14 +45,14 @@ public class SingleTableCustomFieldsPartitionerTest {
                 .field("age", DataTypes.INT())
                 .build();
 
-        singleTablePrimaryKeyPartitioner.setSchema(schema);
-        singleTablePrimaryKeyPartitioner.setPartitionKey("age");
+        singleTableCustomFieldsPartitioner.setSchema(schema);
+        singleTableCustomFieldsPartitioner.setPartitionKey("age");
 
         FieldGetter getter0 = RowData.createFieldGetter(new IntType(), 0);
         FieldGetter getter1 = RowData.createFieldGetter(new IntType(), 1);
         FieldGetter[] valuefieldgetters = {getter0, getter1};
 
-        singleTablePrimaryKeyPartitioner.setValueFieldGetters(valuefieldgetters);
+        singleTableCustomFieldsPartitioner.setValueFieldGetters(valuefieldgetters);
 
         BinaryRowData rowData1 = new BinaryRowData(2);
         BinaryRowWriter writer1 = new BinaryRowWriter(rowData1);
@@ -66,10 +66,10 @@ public class SingleTableCustomFieldsPartitionerTest {
         writer2.writeInt(1, 786819156);
 
         // key is null since the actual key is being calculated from deserialized json
-        int partition1 = singleTablePrimaryKeyPartitioner.partition(rowData1, null,
+        int partition1 = singleTableCustomFieldsPartitioner.partition(rowData1, null,
                 null, null, new int[]{0, 1, 2, 3, 4});
 
-        int partition2 = singleTablePrimaryKeyPartitioner.partition(rowData2, null,
+        int partition2 = singleTableCustomFieldsPartitioner.partition(rowData2, null,
                 null, null, new int[]{0, 1, 2, 3, 4});
 
         writer1.complete();
