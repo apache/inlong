@@ -39,4 +39,7 @@ public class FlinkConfig {
 
     private String auditProxyHosts;
 
+    // flink version
+    private String version;
+
 }
