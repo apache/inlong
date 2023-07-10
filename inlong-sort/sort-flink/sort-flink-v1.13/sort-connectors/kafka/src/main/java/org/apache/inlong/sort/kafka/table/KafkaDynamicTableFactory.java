@@ -136,7 +136,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                     .stringType()
                     .noDefaultValue()
                     .withDescription(
-                            "option 'sink.multiple.partition-pattern' used either when the partitioner is raw-hash, or when passing in desinated partition field names for custom field partitioners");
+                            "option 'sink.multiple.partition-pattern' used either when the partitioner is raw-hash, or when passing in designated partition field names for custom field partitions");
 
     public static final ConfigOption<String> SINK_FIXED_IDENTIFIER =
             ConfigOptions.key("sink.fixed.identifier")
