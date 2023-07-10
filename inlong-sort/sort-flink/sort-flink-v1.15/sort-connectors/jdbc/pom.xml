@@ -32,19 +32,6 @@
         <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
     </properties>
     <dependencies>
-
-        <!-- Debezium dependencies -->
-        <dependency>
-            <groupId>com.ververica</groupId>
-            <artifactId>flink-connector-debezium</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.kafka</groupId>
-                    <artifactId>kafka-log4j-appender</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-connector-base</artifactId>
@@ -55,24 +42,6 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-jdbc</artifactId>
             <version>1.15.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-clients</artifactId>
-            <version>${kafka-clients.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.debezium</groupId>
-            <artifactId>debezium-connector-postgres</artifactId>
-            <version>${debezium.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.postgresql</groupId>
-                    <artifactId>postgresql</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 
@@ -92,20 +61,14 @@
                             <artifactSet>
                                 <includes>
                                     <include>org.apache.inlong:*</include>
-                                    <include>io.debezium:debezium-api</include>
-                                    <include>io.debezium:debezium-embedded</include>
-                                    <include>io.debezium:debezium-core</include>
-                                    <include>io.debezium:debezium-connector-postgres</include>
-                                    <include>com.ververica:flink-connector-debezium</include>
-                                    <include>com.ververica:flink-connector-postgres-cdc</include>
                                     <include>com.google.protobuf:protobuf-java</include>
-                                    <include>com.google.guava:*</include>
+                                    <include>com.jdbc.connector:*</include>
                                     <include>org.apache.kafka:*</include>
-                                    <include>org.postgresql:postgresql</include>
                                     <include>com.fasterxml.*:*</include>
                                     <!--  Include fixed version 18.0-13.0 of flink shaded guava  -->
                                     <include>org.apache.flink:flink-shaded-guava</include>
                                     <include>com.google.protobuf:*</include>
+                                    <include>com.starrocks:flink-connector-jdbc</include>
                                 </includes>
                             </artifactSet>
                             <filters>
@@ -116,24 +79,8 @@
                                         <include>META-INF/services/org.apache.flink.table.factories.Factory</include>
                                     </includes>
                                 </filter>
-                                <filter>
-                                    <artifact>org.apache.kafka:*</artifact>
-                                    <excludes>
-                                        <exclude>kafka/kafka-version.properties</exclude>
-                                        <exclude>LICENSE</exclude>
-                                        <!-- Does not contain anything relevant.
-                                            Cites a binary dependency on jersey, but this is neither reflected in the
-                                            dependency graph, nor are any jersey files bundled. -->
-                                        <exclude>NOTICE</exclude>
-                                        <exclude>common/**</exclude>
-                                    </excludes>
-                                </filter>
                             </filters>
                             <relocations>
-                                <relocation>
-                                    <pattern>org.apache.kafka</pattern>
-                                    <shadedPattern>com.ververica.cdc.connectors.shaded.org.apache.kafka</shadedPattern>
-                                </relocation>
                                 <relocation>
                                     <pattern>com.google</pattern>
                                     <shadedPattern>com.ververica.cdc.connectors.shaded.com.google</shadedPattern>
