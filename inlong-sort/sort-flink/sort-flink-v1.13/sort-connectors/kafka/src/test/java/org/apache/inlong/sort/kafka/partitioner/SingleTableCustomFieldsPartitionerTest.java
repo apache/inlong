@@ -36,7 +36,7 @@ import org.junit.Test;
 public class SingleTableCustomFieldsPartitionerTest {
 
     @Test
-    public void testPrimaryKeyPartitioner() {
+    public void testCustomFieldsPartitioner() {
         SingleTableCustomFieldsPartitioner singleTableCustomFieldsPartitioner =
                 new SingleTableCustomFieldsPartitioner();
 
