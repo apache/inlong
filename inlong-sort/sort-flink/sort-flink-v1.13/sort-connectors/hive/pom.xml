@@ -278,7 +278,7 @@
                 <dependency>
                     <groupId>org.apache.hive</groupId>
                     <artifactId>hive-exec</artifactId>
-                    <version>${hive.version}</version>
+                    <version>${hive3x.version}</version>
                 </dependency>
             </dependencies>
         </profile>

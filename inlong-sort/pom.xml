@@ -45,7 +45,6 @@
         <debezium.version>1.5.4.Final</debezium.version>
         <kafka.clients.version>2.7.0</kafka.clients.version>
         <rat.basedir>${basedir}</rat.basedir>
-        <hive2x.version>2.3.7</hive2x.version>
     </properties>
 
     <dependencyManagement>
