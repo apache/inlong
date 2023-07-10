@@ -58,6 +58,9 @@ public class TaskRequest extends PageRequest {
     @ApiModelProperty("Task display name")
     private String displayName;
 
+    @ApiModelProperty("Inlong tenant of workflow")
+    private String tenant;
+
     @ApiModelProperty("Applicant name")
     private String applicant;
 

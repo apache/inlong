@@ -58,7 +58,7 @@ public class TransformRequest {
     @ApiModelProperty("Transform name, unique in one stream")
     @NotBlank(groups = SaveValidation.class, message = "transformName cannot be blank")
     @Length(min = 1, max = 100, message = "transformName length must be between 1 and 100")
-    @Pattern(regexp = "^[a-zA-Z0-9_-]{1,100}$", message = "transformName only supports letters, numbers, '-', or '_'")
+    @Pattern(regexp = "^[a-zA-Z0-9_.-]{1,100}$", message = "transformName only supports letters, numbers, '.', '-', or '_'")
     private String transformName;
 
     @ApiModelProperty("Transform type, including: splitter, filter, joiner, etc.")

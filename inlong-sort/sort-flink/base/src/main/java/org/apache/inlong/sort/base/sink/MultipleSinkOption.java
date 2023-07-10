@@ -19,11 +19,11 @@ package org.apache.inlong.sort.base.sink;
 
 import org.apache.inlong.sort.schema.TableChange;
 
-import org.apache.flink.shaded.guava18.com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK;
@@ -73,8 +73,12 @@ public class MultipleSinkOption implements Serializable {
     }
 
     public Map<String, String> getFormatOption() {
-        return ImmutableMap.of(
-                SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK.key(), String.valueOf(isSparkEngineEnable()));
+        return new HashMap<String, String>() {
+
+            {
+                put(SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK.key(), String.valueOf(isSparkEngineEnable()));
+            }
+        };
     }
 
     public SchemaUpdateExceptionPolicy getSchemaUpdatePolicy() {

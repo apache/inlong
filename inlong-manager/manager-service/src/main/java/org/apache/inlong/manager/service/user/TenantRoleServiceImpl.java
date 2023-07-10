@@ -26,16 +26,19 @@ import org.apache.inlong.manager.dao.entity.InlongTenantEntity;
 import org.apache.inlong.manager.dao.entity.TenantUserRoleEntity;
 import org.apache.inlong.manager.dao.mapper.InlongTenantEntityMapper;
 import org.apache.inlong.manager.dao.mapper.TenantUserRoleEntityMapper;
+import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
 import org.apache.inlong.manager.pojo.user.TenantRoleRequest;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 import static org.apache.inlong.manager.common.enums.ErrorCodeEnum.TENANT_NOT_EXIST;
 
@@ -53,10 +56,13 @@ public class TenantRoleServiceImpl implements TenantRoleService {
     private InlongTenantEntityMapper tenantMapper;
 
     @Override
-    public PageInfo<TenantRoleInfo> listByCondition(TenantRolePageRequest request) {
+    public PageResult<TenantRoleInfo> listByCondition(TenantRolePageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<TenantUserRoleEntity> entityPage = tenantUserRoleEntityMapper.listByCondition(request);
-        return entityPage.toPageInfo(entity -> CommonBeanUtils.copyProperties(entity, TenantRoleInfo::new));
+        List<TenantRoleInfo> tenantRoleInfos = CommonBeanUtils.copyListProperties(entityPage, TenantRoleInfo::new);
+        return new PageResult<>(tenantRoleInfos,
+                entityPage.getTotal(),
+                entityPage.getPageNum(), entityPage.getPageSize());
     }
 
     @Override
@@ -100,7 +106,7 @@ public class TenantRoleServiceImpl implements TenantRoleService {
     public TenantRoleInfo get(int id) {
         TenantUserRoleEntity entity = tenantUserRoleEntityMapper.selectById(id);
         if (entity == null) {
-            log.warn("not found valid tenant role by id={}", id);
+            log.debug("not found valid tenant role by id={}", id);
             return null;
         }
         return CommonBeanUtils.copyProperties(entity, TenantRoleInfo::new);
@@ -110,10 +116,25 @@ public class TenantRoleServiceImpl implements TenantRoleService {
     public TenantRoleInfo getByUsernameAndTenant(String name, String tenant) {
         TenantUserRoleEntity entity = tenantUserRoleEntityMapper.selectByUsernameAndTenant(name, tenant);
         if (entity == null) {
-            log.warn("not found valid tenant role for name={}, tenant={}", name, tenant);
+            log.debug("not found valid tenant role for name={}, tenant={}", name, tenant);
             return null;
         }
         return CommonBeanUtils.copyProperties(entity, TenantRoleInfo::new);
+    }
+
+    @Override
+    public List<String> listTenantByUsername(String username) {
+        return tenantUserRoleEntityMapper.listByUsername(username);
+    }
+
+    @Override
+    public Boolean delete(Integer id) {
+        String operator = LoginUserUtils.getLoginUser().getName();
+        log.info("begin to delete inlong tenant role id={} by user={}", id, operator);
+        int success = tenantUserRoleEntityMapper.deleteById(id);
+        Preconditions.expectTrue(success == 1, "delete tenant role failed");
+        log.info("success delete inlong tenant role id={} by user={}", id, operator);
+        return true;
     }
 
 }

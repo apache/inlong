@@ -48,8 +48,10 @@ import java.util.Base64;
 public class OpenAPIFilter implements Filter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAPIFilter.class);
+    private final boolean openAPIAuthEnabled;
 
-    public OpenAPIFilter() {
+    public OpenAPIFilter(boolean openAPIAuthEnabled) {
+        this.openAPIAuthEnabled = openAPIAuthEnabled;
     }
 
     @Override
@@ -66,7 +68,7 @@ public class OpenAPIFilter implements Filter {
             SecretToken token = parseBasicAuth(httpServletRequest);
             subject.login(token);
         } catch (Exception ex) {
-            LOGGER.error("login error: {}", ex.getMessage());
+            LOGGER.error("login error", ex);
             ((HttpServletResponse) servletResponse).sendError(HttpServletResponse.SC_FORBIDDEN, ex.getMessage());
             return;
         }
@@ -86,6 +88,11 @@ public class OpenAPIFilter implements Filter {
     }
 
     private SecretToken parseBasicAuth(HttpServletRequest servletRequest) {
+        // return empty token if openapi auth is disabled. The realm will pass the request and use default user.
+        if (!openAPIAuthEnabled) {
+            return new SecretToken();
+        }
+
         String basicAuth = servletRequest.getHeader(BasicAuth.BASIC_AUTH_HEADER);
         if (StringUtils.isBlank(basicAuth)) {
             log.error("basic auth header is empty");

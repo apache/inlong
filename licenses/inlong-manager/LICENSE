@@ -481,7 +481,7 @@ The text of each license is the standard Apache 2.0 license.
   javax.jdo:jdo-api:3.0.1 - JDO API (http://db.apache.org/jdo), (Apache 2.0)
   net.java.dev.jets3t:jets3t:0.9.0 - An open source Java toolkit for Amazon S3 (http://www.jets3t.org), (Apache License, Version 2.0)
   joda-time:joda-time:2.10.10 - Joda-Time (http://www.joda.org/joda-time/), (Apache License, Version 2.0)
-  com.github.jsqlparser:jsqlparser:4.2 - JSQLParser library (https://github.com/JSQLParser/JSqlParser), (The Apache Software License, Version 2.0;  GNU Library or Lesser General Public License (LGPL) V2.1)
+  com.github.jsqlparser:jsqlparser:4.6 - JSQLParser library (https://github.com/JSQLParser/JSqlParser), (The Apache Software License, Version 2.0;  GNU Library or Lesser General Public License (LGPL) V2.1)
   com.github.xiaoymin:knife4j-annotations:3.0.3 - Knife4j Annotations (https://gitee.com/xiaoym/knife4j/tree/v2.0.9/knife4j/knife4j-annotations), (The Apache Software License, Version 2.0)
   com.github.xiaoymin:knife4j-core:3.0.3 - knife4j-core (https://gitee.com/xiaoym/knife4j/tree/v2.0.9/knife4j/knife4j-core), (The Apache Software License, Version 2.0)
   com.github.xiaoymin:knife4j-spring:3.0.3 - Knife4j Spring (https://gitee.com/xiaoym/knife4j/tree/v2.0.9/knife4j/knife4j-spring), (The Apache Software License, Version 2.0)

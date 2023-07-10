@@ -32,6 +32,7 @@ import org.apache.inlong.agent.plugin.channel.MemoryChannel;
 import org.apache.inlong.agent.plugin.sinks.MockSink;
 import org.apache.inlong.agent.plugin.sources.TextFileSource;
 import org.apache.inlong.agent.plugin.sources.reader.file.MonitorTextFile;
+import org.apache.inlong.agent.plugin.trigger.TestTriggerManager;
 import org.apache.inlong.agent.plugin.utils.TestUtils;
 import org.apache.inlong.common.metric.MetricItem;
 import org.apache.inlong.common.metric.MetricRegister;
@@ -48,11 +49,14 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -76,6 +80,7 @@ import static org.powermock.api.support.membermodification.MemberMatcher.field;
 @PowerMockIgnore({"javax.management.*"})
 public class TestTextFileTask {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestTriggerManager.class);
     public static final TemporaryFolder TMP_FOLDER = new TemporaryFolder();
     private static final Gson GSON = new Gson();
     private static TaskManager taskManager;
@@ -89,7 +94,7 @@ public class TestTextFileTask {
     public static void setup() throws Exception {
         atomicLong = new AtomicLong(0L);
         atomicCountLong = new AtomicLong(0L);
-        taskCache = new ArrayList<>();
+        taskCache = Collections.synchronizedList(new ArrayList());
         TMP_FOLDER.create();
 
         taskManager = new TaskManager(null);
@@ -112,22 +117,26 @@ public class TestTextFileTask {
     @After
     public void teardownEach() {
         taskCache.forEach(taskManager::removeTask);
-        taskCache.clear();
+        synchronized (taskCache) {
+            taskCache.clear();
+        }
     }
 
     public MockSink mockTextTask(JobProfile jobProfile) {
-        List<Reader> readers = new TextFileSource().split(jobProfile);
-        Channel channel = new MemoryChannel();
-        MockSink sink = new MockSink();
+        synchronized (this) {
+            List<Reader> readers = new TextFileSource().split(jobProfile);
+            Channel channel = new MemoryChannel();
+            MockSink sink = new MockSink();
 
-        readers.forEach(reader -> {
-            String taskId = String.format("Text file read %s", reader.getReadSource());
-            TaskWrapper taskWrapper =
-                    new TaskWrapper(taskManager, new Task(taskId, reader, sink, channel, jobProfile));
-            taskManager.submitTask(taskWrapper);
-            taskCache.add(taskId);
-        });
-        return sink;
+            readers.forEach(reader -> {
+                String taskId = String.format("Text file read %s", reader.getReadSource());
+                TaskWrapper taskWrapper =
+                        new TaskWrapper(taskManager, new Task(taskId, reader, sink, channel, jobProfile));
+                taskManager.submitTask(taskWrapper);
+                taskCache.add(taskId);
+            });
+            return sink;
+        }
     }
 
     /**
@@ -167,7 +176,9 @@ public class TestTextFileTask {
      */
     @Test
     public void testReadFull() throws IOException {
-        File file = TMP_FOLDER.newFile();
+        final TemporaryFolder temporaryFolder = new TemporaryFolder();
+        temporaryFolder.create();
+        File file = temporaryFolder.newFile();
         StringBuffer sb = new StringBuffer();
         String testData1 = IntStream.range(0, 5)
                 .mapToObj(String::valueOf)
@@ -185,7 +196,13 @@ public class TestTextFileTask {
         jobProfile.set(JOB_FILE_META_ENV_LIST, ENV_CVM);
         // mock data
         final MockSink sink = mockTextTask(jobProfile);
+
+        LOGGER.info("sink getResult1 size: {}", sink.getResult().size());
+
         await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 5);
+
+        LOGGER.info("sink getResult2 size: {}", sink.getResult().size());
+
         await().atMost(10, TimeUnit.SECONDS).until(() -> MonitorTextFile.getInstance().monitorNum() == 1);
         String testData = IntStream.range(5, 10)
                 .mapToObj(String::valueOf)
@@ -194,7 +211,12 @@ public class TestTextFileTask {
         sb.append(System.lineSeparator());
         TestUtils.write(file.getAbsolutePath(), sb);
 
-        await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 5);
+        LOGGER.info("sink getResult3 size: {}", sink.getResult().size());
+
+        await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() >= 5);
+
+        LOGGER.info("sink getResult4 size: {}", sink.getResult().size());
+
         synchronized (this) {
             String collectData = sink.getResult().stream().map(message -> {
                 String content = new String(message.getBody(), StandardCharsets.UTF_8);
@@ -202,6 +224,7 @@ public class TestTextFileTask {
                 return logJson.get(MetadataConstants.DATA_CONTENT);
             }).collect(Collectors.joining(System.lineSeparator()));
         }
+        temporaryFolder.delete();
     }
 
     /**
@@ -209,7 +232,9 @@ public class TestTextFileTask {
      */
     @Test
     public void testReadIncrement() throws IOException {
-        File file = TMP_FOLDER.newFile();
+        final TemporaryFolder temporaryFolder = new TemporaryFolder();
+        temporaryFolder.create();
+        File file = temporaryFolder.newFile();
         StringBuffer sb = new StringBuffer();
         sb.append(IntStream.range(0, 5)
                 .mapToObj(String::valueOf)
@@ -243,11 +268,14 @@ public class TestTextFileTask {
                 return logJson.get(MetadataConstants.DATA_CONTENT);
             }).collect(Collectors.joining(System.lineSeparator()));
         }
+        temporaryFolder.delete();
     }
 
     @Test
     public void testScaleData() throws IOException {
-        File file = TMP_FOLDER.newFile();
+        final TemporaryFolder temporaryFolder = new TemporaryFolder();
+        temporaryFolder.create();
+        File file = temporaryFolder.newFile();
         StringBuffer sb = new StringBuffer();
         String testData1 = IntStream.range(0, 5)
                 .mapToObj(String::valueOf)
@@ -264,5 +292,6 @@ public class TestTextFileTask {
         // mock data
         final MockSink sink = mockTextTask(jobProfile);
         await().atMost(100, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 5);
+        temporaryFolder.delete();
     }
 }

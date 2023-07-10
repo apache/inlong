@@ -108,7 +108,6 @@ public class AllMigrateWithSpecifyingFieldTest extends AbstractTestBase {
     public void testAllMigrateMySQLToMySQL() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

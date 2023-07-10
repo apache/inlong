@@ -184,7 +184,6 @@ public class FlinkSqlParserTest extends AbstractTestBase {
     public void testMysqlToHive() {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -222,7 +221,6 @@ public class FlinkSqlParserTest extends AbstractTestBase {
     public void testToFileSystem() {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -249,7 +247,6 @@ public class FlinkSqlParserTest extends AbstractTestBase {
     public void testFlinkSqlParse() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

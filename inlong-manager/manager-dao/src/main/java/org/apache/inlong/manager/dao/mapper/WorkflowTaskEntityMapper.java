@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.inlong.manager.common.enums.TaskStatus;
+import org.apache.inlong.manager.common.tenant.MultiTenantQuery;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.pojo.common.CountInfo;
 import org.apache.inlong.manager.pojo.workflow.TaskCountRequest;
@@ -32,6 +33,7 @@ import java.util.List;
  * Workflow task mapper
  */
 @Repository
+@MultiTenantQuery
 public interface WorkflowTaskEntityMapper {
 
     int insert(WorkflowTaskEntity workflowTaskEntity);

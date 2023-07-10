@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.common.consts;
 
+import org.apache.inlong.common.enums.DataProxyMsgEncType;
+
 import com.google.common.collect.Sets;
 
 import java.util.Set;
@@ -47,6 +49,8 @@ public class InlongConstants {
     public static final String SLASH = "/";
 
     public static final String COLON = ":";
+
+    public static final String EQUAL = "=";
 
     public static final String SEMICOLON = ";";
 
@@ -186,5 +190,12 @@ public class InlongConstants {
      * The comment prop when batch parsing fields in JSON mode
      */
     public static final String BATCH_PARSING_FILED_JSON_COMMENT_PROP = "desc";
+
+    /**
+     * Message compression type, 0: Raw message without any InLong format, 1: InlongMsgPb, 2: InlongMsg
+     * <p/>
+     * See more: {@link DataProxyMsgEncType}
+     */
+    public static final String MSG_ENCODE_VER = "msgEnType";
 
 }

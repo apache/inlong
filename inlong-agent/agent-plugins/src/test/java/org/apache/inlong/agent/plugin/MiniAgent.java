@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -41,17 +42,19 @@ public class MiniAgent {
     private static final Logger LOGGER = LoggerFactory.getLogger(MiniAgent.class);
     private AgentManager manager;
     private final LinkedBlockingQueue<JobProfile> queueJobs = new LinkedBlockingQueue<>(100);
-    private List<TriggerProfile> triggerProfileCache = new ArrayList<>();
-    private List<JobProfile> jobProfileCache = new ArrayList<>();
+    private final List<TriggerProfile> triggerProfileCache = Collections.synchronizedList(new ArrayList());
+    private final List<JobProfile> jobProfileCache = Collections.synchronizedList(new ArrayList());
 
     /**
      * Constructor of MiniAgent.
      */
     public MiniAgent() throws Exception {
-        AgentConfiguration conf = AgentConfiguration.getAgentConf();
-        conf.setInt(AGENT_FETCH_CENTER_INTERVAL_SECONDS, 1);
-        manager = new AgentManager();
-        init();
+        synchronized (this) {
+            AgentConfiguration conf = AgentConfiguration.getAgentConf();
+            conf.setInt(AGENT_FETCH_CENTER_INTERVAL_SECONDS, 1);
+            manager = new AgentManager();
+            init();
+        }
     }
 
     private void init() throws Exception {
@@ -70,7 +73,9 @@ public class MiniAgent {
     }
 
     public void start() throws Exception {
-        manager.start();
+        synchronized (this) {
+            manager.start();
+        }
     }
 
     public AgentManager getManager() {
@@ -78,35 +83,47 @@ public class MiniAgent {
     }
 
     public void stop() throws Exception {
-        manager.stop();
+        synchronized (this) {
+            manager.stop();
+        }
     }
 
     public void restart() throws Exception {
-        manager.stop();
-        manager = new AgentManager();
-        init();
-        manager.start();
+        synchronized (this) {
+            manager.stop();
+            manager = new AgentManager();
+            init();
+            manager.start();
+        }
     }
 
     public void submitJob(JobProfile profile) {
         manager.getJobManager().submitFileJobProfile(profile);
-        jobProfileCache.add(profile);
+        synchronized (jobProfileCache) {
+            jobProfileCache.add(profile);
+        }
     }
 
     public void submitTrigger(TriggerProfile triggerProfile) {
         manager.getTriggerManager().submitTrigger(triggerProfile, true);
-        triggerProfileCache.add(triggerProfile);
+        synchronized (triggerProfileCache) {
+            triggerProfileCache.add(triggerProfile);
+        }
     }
 
     public void cleanupJobs() {
         jobProfileCache.forEach(jobProfile -> manager.getJobManager().deleteJob(jobProfile.getInstanceId(), false));
-        jobProfileCache.clear();
+        synchronized (jobProfileCache) {
+            jobProfileCache.clear();
+        }
     }
 
     public void cleanupTriggers() {
-        triggerProfileCache
-                .forEach(triggerProfile -> manager.getTriggerManager()
-                        .deleteTrigger(triggerProfile.getTriggerId(), false));
-        triggerProfileCache.clear();
+        synchronized (triggerProfileCache) {
+            triggerProfileCache
+                    .forEach(triggerProfile -> manager.getTriggerManager()
+                            .deleteTrigger(triggerProfile.getTriggerId(), false));
+            triggerProfileCache.clear();
+        }
     }
 }

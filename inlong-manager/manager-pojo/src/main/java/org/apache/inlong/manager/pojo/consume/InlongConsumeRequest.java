@@ -65,6 +65,9 @@ public abstract class InlongConsumeRequest extends BaseInlongConsume {
     @ApiModelProperty(value = "The target inlong stream id of this consume, needed if the filterEnabled=1")
     private String inlongStreamId;
 
+    @ApiModelProperty(value = "Inlong tenant of consume", hidden = true)
+    private String tenant;
+
     @NotBlank(message = "inCharges cannot be null")
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
     private String inCharges;

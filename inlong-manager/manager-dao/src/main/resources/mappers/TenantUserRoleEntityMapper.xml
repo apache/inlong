@@ -64,14 +64,27 @@
         <if test="roleCode != null and roleCode != ''">
             and role_code = #{roleCode,jdbcType=VARCHAR}
         </if>
-        <if test="tenant != null and tenant != ''">
-            and tenant = #{tenant, jdbcType=VARCHAR}
+        <if test="keyword != null and keyword != ''">
+            and (
+            tenant like CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        <if test="tenantList != null and tenantList.size() > 0">
+            and tenant in
+            <foreach collection="tenantList" item="targetTenant" index="index" open="(" close=")" separator=",">
+                #{targetTenant}
+            </foreach>
         </if>
         <if test="disabled != null">
             and disabled = #{disabled, jdbcType=SMALLINT}
         </if>
     </select>
-
+    <select id="listByUsername" resultType="java.lang.String">
+        select distinct tenant
+        from tenant_user_role
+        where is_deleted = 0
+        and username  = #{username,jdbcType=VARCHAR}
+    </select>
 
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.TenantUserRoleEntity">
         update tenant_user_role

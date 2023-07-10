@@ -41,7 +41,7 @@
     </resultMap>
 
     <select id="sumByLogTs" resultMap="SumByLogTsResultMap">
-        select date_format(log_ts, #{format, jdbcType=VARCHAR}) as log_ts, sum(`count`) as total
+        select date_format(log_ts, #{format, jdbcType=VARCHAR}) as log_ts, sum(`count`) as total, sum(`delay`) as total_delay
         from apache_inlong_audit.audit_data
         where inlong_group_id = #{groupId,jdbcType=VARCHAR}
           and inlong_stream_id = #{streamId,jdbcType=VARCHAR}

@@ -19,7 +19,6 @@ package org.apache.inlong.sort.parser;
 
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
-import org.apache.inlong.sort.jdbc.dialect.ClickHouseDialect;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -46,7 +45,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Test for  {@link ClickHouseLoadNode} and {@link ClickHouseDialect}
+ * Test for  {@link ClickHouseLoadNode}
  */
 public class ClickHouseSqlParserTest extends AbstractTestBase {
 
@@ -108,7 +107,6 @@ public class ClickHouseSqlParserTest extends AbstractTestBase {
     public void testClickHouse() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

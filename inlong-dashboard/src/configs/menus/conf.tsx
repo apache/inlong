@@ -56,12 +56,12 @@ const conf: MenuItemType[] = [
     icon: <DeploymentUnitOutlined />,
     children: [
       {
-        path: '/clusters',
-        name: i18n.t('configs.menus.Clusters'),
-      },
-      {
         path: '/clusterTags',
         name: i18n.t('configs.menus.ClusterTags'),
+      },
+      {
+        path: '/clusters',
+        name: i18n.t('configs.menus.Clusters'),
       },
     ],
   },
@@ -80,7 +80,13 @@ const conf: MenuItemType[] = [
         name: i18n.t('configs.menus.UserManagement'),
       },
       {
+        path: '/tenant',
+        isAdmin: true,
+        name: i18n.t('configs.menus.TenantManagement'),
+      },
+      {
         path: '/approval',
+        isAdmin: true,
         name: i18n.t('configs.menus.ProcessManagement'),
       },
     ],

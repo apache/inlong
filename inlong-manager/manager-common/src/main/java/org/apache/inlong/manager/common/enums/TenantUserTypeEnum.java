@@ -30,11 +30,11 @@ import java.util.stream.Collectors;
 public enum TenantUserTypeEnum implements IntListValuable {
 
     /**
-     * Has all privilege
+     * Has all privilege of specific tenant
      */
     TENANT_ADMIN(0),
     /**
-     * No privilege to manage the system
+     * No privilege to do update/save/delete
      */
     TENANT_OPERATOR(1),
     ;

@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.base.metric;
 
 import org.apache.flink.metrics.Counter;
+import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MeterView;
 import org.apache.flink.metrics.MetricGroup;
@@ -113,6 +114,20 @@ public interface MetricData {
             inlongMetricGroup = inlongMetricGroup.addGroup(label.getKey(), label.getValue());
         }
         return inlongMetricGroup.meter(metricName, new MeterView(counter, TIME_SPAN_IN_SECONDS));
+    }
+
+    /**
+     * Register a gauge metric
+     *
+     * @param metricName The gauge name
+     * @return Gauge of registered
+     */
+    default Gauge registerGauge(String metricName, Gauge gauge) {
+        MetricGroup inlongMetricGroup = getMetricGroup();
+        for (Map.Entry<String, String> label : getLabels().entrySet()) {
+            inlongMetricGroup = inlongMetricGroup.addGroup(label.getKey(), label.getValue());
+        }
+        return inlongMetricGroup.gauge(metricName, gauge);
     }
 
 }

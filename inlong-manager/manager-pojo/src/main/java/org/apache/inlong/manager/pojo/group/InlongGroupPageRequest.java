@@ -58,11 +58,14 @@ public class InlongGroupPageRequest extends PageRequest {
     @ApiModelProperty(value = "The inlong cluster tag list")
     private List<String> clusterTagList;
 
-    @ApiModelProperty(value = "Standard mode: 0, DataSync mode: 1")
+    @ApiModelProperty(value = "Standard mode(include Data Ingestion and Synchronization): 0, DataSync mode(only Data Synchronization): 1")
     private Integer inlongGroupMode;
 
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
+
+    @ApiModelProperty(value = "Inlong tenant name", hidden = true)
+    private String tenant;
 
     @ApiModelProperty(value = "Whether the current user is in the administrator role", hidden = true)
     private Boolean isAdminRole;
@@ -70,4 +73,5 @@ public class InlongGroupPageRequest extends PageRequest {
     @ApiModelProperty(value = "If list streamSource for group", hidden = true)
     @Builder.Default
     private boolean listSources = false;
+
 }

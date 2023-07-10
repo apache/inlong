@@ -61,6 +61,9 @@ public class InlongConsumePageRequest extends PageRequest {
     @ApiModelProperty(value = "Consume status list")
     private List<Integer> statusList;
 
+    @ApiModelProperty(value = "Inlong tenant", hidden = true)
+    private String tenant;
+
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
 

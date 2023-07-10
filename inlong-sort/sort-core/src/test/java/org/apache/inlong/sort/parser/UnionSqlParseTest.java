@@ -148,7 +148,6 @@ public class UnionSqlParseTest extends AbstractTestBase {
     public void testUnionSqlParse() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -182,7 +181,6 @@ public class UnionSqlParseTest extends AbstractTestBase {
     public void testUnionSqlParseWithoutTransform() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

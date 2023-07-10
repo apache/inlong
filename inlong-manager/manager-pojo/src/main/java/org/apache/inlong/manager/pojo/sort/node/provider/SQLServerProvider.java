@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.StreamType;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.SQLServerFieldTypeStrategy;
 import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerSink;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
@@ -39,6 +41,8 @@ import java.util.Map;
  */
 public class SQLServerProvider implements ExtractNodeProvider, LoadNodeProvider {
 
+    private static final FieldTypeMappingStrategy FIELD_TYPE_MAPPING_STRATEGY = new SQLServerFieldTypeStrategy();
+
     @Override
     public Boolean accept(String streamType) {
         return StreamType.SQLSERVER.equals(streamType);
@@ -47,7 +51,8 @@ public class SQLServerProvider implements ExtractNodeProvider, LoadNodeProvider 
     @Override
     public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
         SQLServerSource source = (SQLServerSource) streamNodeInfo;
-        List<FieldInfo> fieldInfos = parseStreamFieldInfos(source.getFieldList(), source.getSourceName());
+        List<FieldInfo> fieldInfos = parseStreamFieldInfos(source.getFieldList(), source.getSourceName(),
+                FIELD_TYPE_MAPPING_STRATEGY);
         Map<String, String> properties = parseProperties(source.getProperties());
 
         return new SqlServerExtractNode(
@@ -71,7 +76,8 @@ public class SQLServerProvider implements ExtractNodeProvider, LoadNodeProvider 
     public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         SQLServerSink sqlServerSink = (SQLServerSink) nodeInfo;
         Map<String, String> properties = parseProperties(sqlServerSink.getProperties());
-        List<FieldInfo> fieldInfos = parseSinkFieldInfos(sqlServerSink.getSinkFieldList(), sqlServerSink.getSinkName());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(sqlServerSink.getSinkFieldList(), sqlServerSink.getSinkName(),
+                FIELD_TYPE_MAPPING_STRATEGY);
         List<FieldRelation> fieldRelations = parseSinkFields(sqlServerSink.getSinkFieldList(), constantFieldMap);
 
         return new SqlServerLoadNode(

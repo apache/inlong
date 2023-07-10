@@ -77,7 +77,7 @@ public class ClickHouseSinkOperator extends AbstractSinkOperator {
         }
         ClickHouseSinkRequest sinkRequest = (ClickHouseSinkRequest) request;
         try {
-            ClickHouseSinkDTO dto = ClickHouseSinkDTO.getFromRequest(sinkRequest);
+            ClickHouseSinkDTO dto = ClickHouseSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,

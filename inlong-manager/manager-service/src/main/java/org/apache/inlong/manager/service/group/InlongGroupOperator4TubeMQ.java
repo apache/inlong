@@ -77,7 +77,7 @@ public class InlongGroupOperator4TubeMQ extends AbstractGroupOperator {
     protected void setTargetEntity(InlongGroupRequest request, InlongGroupEntity targetEntity) {
         InlongTubeMQRequest tubeMQRequest = (InlongTubeMQRequest) request;
         try {
-            InlongTubeMQDTO dto = InlongTubeMQDTO.getFromRequest(tubeMQRequest);
+            InlongTubeMQDTO dto = InlongTubeMQDTO.getFromRequest(tubeMQRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

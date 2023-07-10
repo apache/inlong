@@ -67,7 +67,7 @@ public class OracleSinkOperator extends AbstractSinkOperator {
         }
         OracleSinkRequest sinkRequest = (OracleSinkRequest) request;
         try {
-            OracleSinkDTO dto = OracleSinkDTO.getFromRequest(sinkRequest);
+            OracleSinkDTO dto = OracleSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,

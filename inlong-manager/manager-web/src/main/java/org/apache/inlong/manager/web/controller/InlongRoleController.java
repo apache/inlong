@@ -31,6 +31,7 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -50,7 +51,7 @@ public class InlongRoleController {
 
     @RequestMapping(value = "/role/inlong/get/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Get inlong role by ID")
-    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN, UserRoleCode.INLONG_OPERATOR})
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<InlongRoleInfo> get(@PathVariable int id) {
         return Response.success(inlongRoleService.get(id));
@@ -76,6 +77,7 @@ public class InlongRoleController {
 
     @RequestMapping(value = "/role/inlong/list", method = RequestMethod.POST)
     @ApiOperation(value = "List inlong roles by paginating")
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN, UserRoleCode.INLONG_OPERATOR})
     public Response<PageInfo<InlongRoleInfo>> listByCondition(@RequestBody InlongRolePageRequest request) {
         return Response.success(inlongRoleService.listByCondition(request));
     }

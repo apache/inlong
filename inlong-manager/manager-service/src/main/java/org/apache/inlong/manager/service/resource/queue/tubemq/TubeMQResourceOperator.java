@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
@@ -34,6 +35,8 @@ import com.google.common.base.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Operator for create TubeMQ Topic and ConsumerGroup
@@ -106,6 +109,17 @@ public class TubeMQResourceOperator implements QueueResourceOperator {
     @Override
     public void deleteQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
         // currently, not support delete tubemq resource for stream
+    }
+
+    public List<BriefMQMessage> queryLatestMessages(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
+            Integer messageCount) {
+        Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
+
+        String clusterTag = groupInfo.getInlongClusterTag();
+        TubeClusterInfo tubeCluster = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBEMQ);
+        String topicName = groupInfo.getMqResource();
+
+        return tubeMQOperator.queryLastMessage(tubeCluster, topicName, messageCount, streamInfo);
     }
 
 }

@@ -27,6 +27,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -41,8 +42,11 @@ public class InlongTubeMQDTO extends BaseInlongGroup {
     /**
      * Get the dto instance from the request
      */
-    public static InlongTubeMQDTO getFromRequest(InlongGroupRequest request) {
-        return CommonBeanUtils.copyProperties(request, InlongTubeMQDTO::new, true);
+    public static InlongTubeMQDTO getFromRequest(InlongGroupRequest request, String extParams) {
+        InlongTubeMQDTO dto = StringUtils.isNotBlank(extParams)
+                ? InlongTubeMQDTO.getFromJson(extParams)
+                : new InlongTubeMQDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

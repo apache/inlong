@@ -17,13 +17,18 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
+import org.apache.inlong.manager.common.fieldtype.strategy.ClickHouseFieldTypeStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.MongoDBFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.MySQLFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.OracleFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.PostgreSQLFieldTypeStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.SQLServerFieldTypeStrategy;
 import org.apache.inlong.manager.pojo.stream.StreamField;
+import org.apache.inlong.sort.formats.common.ByteTypeInfo;
 import org.apache.inlong.sort.formats.common.IntTypeInfo;
 import org.apache.inlong.sort.formats.common.LocalZonedTimestampTypeInfo;
 import org.apache.inlong.sort.formats.common.ShortTypeInfo;
+import org.apache.inlong.sort.formats.common.StringTypeInfo;
 import org.apache.inlong.sort.formats.common.TypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 
@@ -69,5 +74,41 @@ public class FieldInfoUtilsTest {
                 "nodeId", new OracleFieldTypeStrategy());
         TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();
         Assertions.assertTrue(typeInfo instanceof LocalZonedTimestampTypeInfo);
+    }
+
+    @Test
+    public void testSQLServerFieldTypeInfo() {
+        StreamField streamField = new StreamField();
+        streamField.setIsMetaField(0);
+        streamField.setFieldName("contentXML");
+        streamField.setFieldType("XML");
+        FieldInfo fieldInfo = FieldInfoUtils.parseStreamFieldInfo(streamField,
+                "nodeId", new SQLServerFieldTypeStrategy());
+        TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();
+        Assertions.assertTrue(typeInfo instanceof StringTypeInfo);
+    }
+
+    @Test
+    public void testMongoDBFieldTypeInfo() {
+        StreamField streamField = new StreamField();
+        streamField.setIsMetaField(0);
+        streamField.setFieldName("UUID");
+        streamField.setFieldType("uuid");
+        FieldInfo fieldInfo = FieldInfoUtils.parseStreamFieldInfo(streamField,
+                "nodeId", new MongoDBFieldTypeStrategy());
+        TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();
+        Assertions.assertTrue(typeInfo instanceof StringTypeInfo);
+    }
+
+    @Test
+    public void testClickHouseFieldTypeInfo() {
+        StreamField streamField = new StreamField();
+        streamField.setIsMetaField(0);
+        streamField.setFieldName("age");
+        streamField.setFieldType("uint8");
+        FieldInfo fieldInfo = FieldInfoUtils.parseStreamFieldInfo(streamField,
+                "nodeId", new ClickHouseFieldTypeStrategy());
+        TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();
+        Assertions.assertTrue(typeInfo instanceof ByteTypeInfo);
     }
 }

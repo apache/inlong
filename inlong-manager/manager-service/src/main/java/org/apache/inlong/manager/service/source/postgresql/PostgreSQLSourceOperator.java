@@ -60,7 +60,7 @@ public class PostgreSQLSourceOperator extends AbstractSourceOperator {
         PostgreSQLSourceRequest sourceRequest = (PostgreSQLSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            PostgreSQLSourceDTO dto = PostgreSQLSourceDTO.getFromRequest(sourceRequest);
+            PostgreSQLSourceDTO dto = PostgreSQLSourceDTO.getFromRequest(sourceRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
