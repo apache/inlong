@@ -27,9 +27,11 @@ import org.apache.flink.connector.jdbc.dialect.JdbcDialectLoader;
 import org.apache.flink.connector.jdbc.internal.options.JdbcConnectorOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcLookupOptions;
+import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcReadOptions;
 import org.apache.flink.connector.jdbc.table.JdbcDynamicTableSink;
 import org.apache.flink.connector.jdbc.table.JdbcDynamicTableSource;
+import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSinkFactory;
@@ -37,7 +39,12 @@ import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
+import org.apache.flink.table.utils.TableSchemaUtils;
 import org.apache.flink.util.Preconditions;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
+import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -66,6 +73,14 @@ import static org.apache.flink.connector.jdbc.table.JdbcConnectorOptions.SINK_PA
 import static org.apache.flink.connector.jdbc.table.JdbcConnectorOptions.TABLE_NAME;
 import static org.apache.flink.connector.jdbc.table.JdbcConnectorOptions.URL;
 import static org.apache.flink.connector.jdbc.table.JdbcConnectorOptions.USERNAME;
+import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTERN;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
 
 /**
  * Factory for creating configured instances of {@link JdbcDynamicTableSource} and {@link
@@ -74,7 +89,7 @@ import static org.apache.flink.connector.jdbc.table.JdbcConnectorOptions.USERNAM
 @Internal
 public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
-    public static final String IDENTIFIER = "jdbc";
+    public static final String IDENTIFIER = "jdbc-inlong";
 
     @Override
     public DynamicTableSink createDynamicTableSink(Context context) {
@@ -82,19 +97,41 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
                 FactoryUtil.createTableFactoryHelper(this, context);
         final ReadableConfig config = helper.getOptions();
 
-        helper.validate();
+        helper.validateExcept(DIRTY_PREFIX);
         validateConfigOptions(config);
-        validateDataTypeWithJdbcDialect(context.getPhysicalRowDataType(), config.get(URL));
-        JdbcConnectorOptions jdbcOptions = getJdbcOptions(config);
-
+        boolean multipleSink = config.getOptional(SINK_MULTIPLE_ENABLE).orElse(false);
+        String sinkMultipleFormat = helper.getOptions().getOptional(SINK_MULTIPLE_FORMAT).orElse(null);
+        String databasePattern = helper.getOptions().getOptional(SINK_MULTIPLE_DATABASE_PATTERN).orElse(null);
+        String tablePattern = helper.getOptions().getOptional(SINK_MULTIPLE_TABLE_PATTERN).orElse(null);
+        String schemaPattern = helper.getOptions().getOptional(SINK_MULTIPLE_SCHEMA_PATTERN).orElse(databasePattern);
+        validateSinkMultiple(multipleSink, sinkMultipleFormat, databasePattern, schemaPattern, tablePattern);
+        JdbcOptions jdbcOptions = getJdbcOptions(config);
+        TableSchema physicalSchema =
+                TableSchemaUtils.getPhysicalSchema(context.getCatalogTable().getSchema());
+        boolean appendMode = config.get(SINK_APPEND_MODE);
+        String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
+        String auditHostAndPorts = config.getOptional(INLONG_AUDIT).orElse(null);
+        SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy =
+                helper.getOptions().getOptional(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY).orElse(null);
+        // Build the dirty data side-output
+        final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(helper.getOptions());
+        final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
         return new JdbcDynamicTableSink(
                 jdbcOptions,
                 getJdbcExecutionOptions(config),
-                getJdbcDmlOptions(
-                        jdbcOptions,
-                        context.getPhysicalRowDataType(),
-                        context.getPrimaryKeyIndexes()),
-                context.getPhysicalRowDataType());
+                getJdbcDmlOptions(jdbcOptions, physicalSchema),
+                physicalSchema,
+                appendMode,
+                multipleSink,
+                sinkMultipleFormat,
+                databasePattern,
+                tablePattern,
+                schemaPattern,
+                inlongMetric,
+                auditHostAndPorts,
+                schemaUpdateExceptionPolicy,
+                dirtyOptions,
+                dirtySink);
     }
 
     @Override
