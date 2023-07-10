@@ -64,6 +64,8 @@
             <outputDirectory>lib</outputDirectory>
             <excludes>
                 <exclude>*scala*.jar</exclude>
+                <exclude>flink-*.jar</exclude>
+                <exclude>sort-flink-*.jar</exclude>
             </excludes>
         </fileSet>
 
