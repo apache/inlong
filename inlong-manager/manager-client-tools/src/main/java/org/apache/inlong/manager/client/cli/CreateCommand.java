@@ -22,6 +22,8 @@ import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
+import org.apache.inlong.manager.client.api.inner.client.InlongTenantClient;
+import org.apache.inlong.manager.client.api.inner.client.InlongTenantRoleClient;
 import org.apache.inlong.manager.client.api.inner.client.UserClient;
 import org.apache.inlong.manager.client.cli.pojo.CreateGroupConf;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
@@ -34,6 +36,8 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
+import org.apache.inlong.manager.pojo.user.TenantRoleRequest;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 
 import com.beust.jcommander.Parameter;
@@ -66,6 +70,8 @@ public class CreateCommand extends AbstractCommand {
         jcommander.addCommand("cluster-tag", new CreateClusterTag());
         jcommander.addCommand("cluster-node", new CreateClusterNode());
         jcommander.addCommand("user", new CreateUser());
+        jcommander.addCommand("tenant", new CreateTenant());
+        jcommander.addCommand("tenant-role", new CreateTenantRole());
     }
 
     @Parameters(commandDescription = "Create group by json file")
@@ -261,6 +267,78 @@ public class CreateCommand extends AbstractCommand {
                 Integer userId = userClient.register(request);
                 if (userId != null) {
                     System.out.println("Create user success! ID: " + userId);
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Create tenant")
+    private static class CreateTenant extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-n", "--name"}, description = "tenant name")
+        private String name;
+
+        @Parameter(names = {"-d", "--description"}, description = "tenant description")
+        private String description;
+
+        @Parameter(names = {"-v", "--version"}, description = "tenant version number")
+        private Integer version;
+
+        @Override
+        void run() {
+            try {
+                InlongTenantRequest request = new InlongTenantRequest();
+                request.setName(name);
+                request.setDescription(description);
+                request.setVersion(version);
+                ClientUtils.initClientFactory();
+                InlongTenantClient tenantClient = ClientUtils.clientFactory.getInlongTenantClient();
+                Integer userId = tenantClient.save(request);
+                if (userId != null) {
+                    System.out.println("Create tenant success! ID: " + userId);
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Create user")
+    private static class CreateTenantRole extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-u", "--username"}, description = "username")
+        private String username;
+
+        @Parameter(names = {"-p", "--role-code"}, description = "role code")
+        private String roleCode;
+
+        @Parameter(names = {"-t", "--tenant"}, description = "tenant")
+        private String tenant;
+
+        @Parameter(names = {"-v", "--version"}, description = "version number")
+        private Integer version;
+
+        @Override
+        void run() {
+            try {
+                TenantRoleRequest request = new TenantRoleRequest();
+                request.setUsername(username);
+                request.setRoleCode(roleCode);
+                request.setTenant(tenant);
+                request.setVersion(version);
+                ClientUtils.initClientFactory();
+                InlongTenantRoleClient roleClient = ClientUtils.clientFactory.getInlongTenantRoleClient();
+                Integer roleId = roleClient.save(request);
+                if (roleId != null) {
+                    System.out.println("Create role success! ID: " + roleId);
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
