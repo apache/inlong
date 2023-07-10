@@ -107,7 +107,7 @@ public class UpsertKafkaDynamicTableFactory
                     .stringType()
                     .noDefaultValue()
                     .withDescription(
-                            "option 'sink.multiple.partition-pattern' used when the partitioner is raw-hash， and used to pass in the primary key partition in primary key partitioners");;
+                            "option 'sink.multiple.partition-pattern' used either when the partitioner is raw-hash, or when passing in desinated partition field names for custom field partitioners");
 
     public static final ConfigOption<String> SINK_FIXED_IDENTIFIER =
             ConfigOptions.key("sink.fixed.identifier")
