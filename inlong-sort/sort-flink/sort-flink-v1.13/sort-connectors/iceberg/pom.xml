@@ -45,7 +45,7 @@
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-exec</artifactId>
-            <version>${iceberg.hive.version}</version>
+            <version>${hive2x.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>log4j</groupId>
