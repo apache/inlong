@@ -31,6 +31,7 @@ import java.util.Properties;
 import static org.apache.inlong.common.constant.Constants.METRICS_AUDIT_PROXY_HOSTS_KEY;
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.ADDRESS;
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.DRAIN;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.FLINK_VERSION;
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.JOB_MANAGER_PORT;
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.PARALLELISM;
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.PORT;
@@ -104,6 +105,7 @@ public class FlinkConfiguration {
         flinkConfig.setJobManagerPort(Integer.valueOf(properties.getProperty(JOB_MANAGER_PORT)));
         flinkConfig.setDrain(Boolean.parseBoolean(properties.getProperty(DRAIN)));
         flinkConfig.setAuditProxyHosts(properties.getProperty(METRICS_AUDIT_PROXY_HOSTS_KEY));
+        flinkConfig.setVersion(properties.getProperty(FLINK_VERSION));
         return flinkConfig;
     }
 
