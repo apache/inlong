@@ -17,15 +17,12 @@
 
 package org.apache.inlong.manager.plugin.util;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.configuration.Configuration;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
 import org.apache.inlong.manager.plugin.flink.enums.Constants;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.configuration.Configuration;
-
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
@@ -53,8 +50,8 @@ public class FlinkServiceUtils {
                     .newInstance(configuration);
             log.info("Successfully loaded Flink service");
             return flinkService;
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException
-                | InstantiationException | IllegalAccessException e) {
+        } catch (Exception e) {
+            log.error("Failed to loaded Flink service, please check flink client jar path: {}", flinkClientPath);
             throw new RuntimeException(e);
         }
     }

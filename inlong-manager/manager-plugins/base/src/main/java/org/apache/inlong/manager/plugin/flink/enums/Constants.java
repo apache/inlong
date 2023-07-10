@@ -41,7 +41,7 @@ public class Constants {
 
     public static final String DRAIN = "flink.drain";
 
-    public static final String VERSION = "flink.version";
+    public static final String FLINK_VERSION = "flink.version";
 
     // dataflow
     public static final String SOURCE_INFO = "source_info";

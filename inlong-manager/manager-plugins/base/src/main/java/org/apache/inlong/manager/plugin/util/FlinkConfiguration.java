@@ -35,7 +35,7 @@ import static org.apache.inlong.manager.plugin.flink.enums.Constants.JOB_MANAGER
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.PARALLELISM;
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.PORT;
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.SAVEPOINT_DIRECTORY;
-import static org.apache.inlong.manager.plugin.flink.enums.Constants.VERSION;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.FLINK_VERSION;
 
 /**
  * Configuration file for Flink, only one instance in the process.
@@ -105,7 +105,7 @@ public class FlinkConfiguration {
         flinkConfig.setJobManagerPort(Integer.valueOf(properties.getProperty(JOB_MANAGER_PORT)));
         flinkConfig.setDrain(Boolean.parseBoolean(properties.getProperty(DRAIN)));
         flinkConfig.setAuditProxyHosts(properties.getProperty(METRICS_AUDIT_PROXY_HOSTS_KEY));
-        flinkConfig.setVersion(properties.getProperty(VERSION));
+        flinkConfig.setVersion(properties.getProperty(FLINK_VERSION));
         return flinkConfig;
     }
 
