@@ -94,7 +94,7 @@
         <pagehelper.version>5.3.1</pagehelper.version>
         <jsqlparser.version>4.6</jsqlparser.version>
 
-        <h2.version>2.1.214</h2.version>
+        <h2.version>2.2.220</h2.version>
         <h2.mysql.version>2.0.0</h2.mysql.version>
         <rocksdb.version>6.29.4.1</rocksdb.version>
         <redis-replicator.version>3.6.4</redis-replicator.version>
