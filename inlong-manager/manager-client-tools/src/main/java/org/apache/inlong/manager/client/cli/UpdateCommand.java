@@ -275,11 +275,18 @@ public class UpdateCommand extends AbstractCommand {
                 if (roleInfo == null) {
                     throw new BusinessException(id + " not exist, please check.");
                 }
-                if(StringUtils.isNotEmpty(roleCode)) {
+                request.setUsername(roleInfo.getUsername());
+                request.setDisabled(roleInfo.getDisabled());
+                request.setVersion(roleInfo.getVersion());
+                if (StringUtils.isNotEmpty(roleCode)) {
                     request.setRoleCode(roleCode);
+                } else {
+                    request.setRoleCode(roleInfo.getRoleCode());
                 }
-                if(StringUtils.isNotEmpty(tenant)) {
+                if (StringUtils.isNotEmpty(tenant)) {
                     request.setTenant(tenant);
+                } else {
+                    request.setTenant(roleInfo.getTenant());
                 }
                 if (roleClient.update(request)) {
                     System.out.println("Update user success!");
