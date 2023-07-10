@@ -21,7 +21,7 @@ import org.apache.flink.formats.common.TimestampFormat;
 import org.apache.flink.formats.json.JsonFormatOptions.MapNullKeyMode;
 import org.apache.flink.formats.json.RowDataToJsonConverters;
 import org.apache.flink.formats.json.RowDataToJsonConverters.RowDataToJsonConverter;
-import org.apache.flink.shaded.guava18.com.google.common.collect.ImmutableMap;
+import org.apache.flink.shaded.guava30.com.google.common.collect.ImmutableMap;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.BigIntType;
 import org.apache.flink.table.types.logical.BinaryType;
