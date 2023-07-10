@@ -274,7 +274,8 @@ public class UpsertKafkaDynamicTableFactory
             ReadableConfig tableOptions, ClassLoader classLoader, TableSchema schema) {
         if (tableOptions.getOptional(SINK_PARTITIONER).isPresent()
                 && SINK_PARTITIONER_VALUE_PRIMARY_KEY.equals(tableOptions.getOptional(SINK_PARTITIONER).get())) {
-            SingleTableCustomFieldsPartitioner<RowData> customFieldsPartitioner = new SingleTableCustomFieldsPartitioner<>();
+            SingleTableCustomFieldsPartitioner<RowData> customFieldsPartitioner =
+                    new SingleTableCustomFieldsPartitioner<>();
             customFieldsPartitioner.setPartitionNumber(tableOptions.getOptional(SINK_FIXED_IDENTIFIER).orElse(null));
             customFieldsPartitioner.setPartitionKey(tableOptions.getOptional(SINK_MULTIPLE_PARTITION_PATTERN)
                     .orElse(null));
