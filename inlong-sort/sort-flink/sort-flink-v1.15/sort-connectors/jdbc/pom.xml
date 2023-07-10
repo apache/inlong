@@ -16,7 +16,7 @@
   ~ limitations under the License.
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.inlong</groupId>
@@ -29,21 +29,50 @@
     <name>Apache InLong - Sort-connector-jdbc</name>
 
     <properties>
-        <jdbc-connector.version>1.2.7</jdbc-connector.version>
-        <flink.jdbc.version>1.15</flink.jdbc.version>
         <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
     </properties>
-
     <dependencies>
+
+        <!-- Debezium dependencies -->
+        <dependency>
+            <groupId>com.ververica</groupId>
+            <artifactId>flink-connector-debezium</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.kafka</groupId>
+                    <artifactId>kafka-log4j-appender</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-connector-base</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
-            <groupId>com.jdbc</groupId>
+            <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-jdbc</artifactId>
-            <version>${jdbc-connector.version}_flink-${flink.jdbc.version}</version>
+            <version>1.15.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka-clients.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-connector-postgres</artifactId>
+            <version>${debezium.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.postgresql</groupId>
+                    <artifactId>postgresql</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -52,8 +81,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>${plugin.shade.version}</version>
-
                 <executions>
                     <execution>
                         <id>shade-flink</id>
@@ -61,23 +88,26 @@
                             <goal>shade</goal>
                         </goals>
                         <phase>package</phase>
-
                         <configuration>
-
                             <artifactSet>
                                 <includes>
                                     <include>org.apache.inlong:*</include>
+                                    <include>io.debezium:debezium-api</include>
+                                    <include>io.debezium:debezium-embedded</include>
+                                    <include>io.debezium:debezium-core</include>
+                                    <include>io.debezium:debezium-connector-postgres</include>
+                                    <include>com.ververica:flink-connector-debezium</include>
+                                    <include>com.ververica:flink-connector-postgres-cdc</include>
                                     <include>com.google.protobuf:protobuf-java</include>
-                                    <include>com.jdbc.connector:*</include>
+                                    <include>com.google.guava:*</include>
                                     <include>org.apache.kafka:*</include>
+                                    <include>org.postgresql:postgresql</include>
                                     <include>com.fasterxml.*:*</include>
                                     <!--  Include fixed version 18.0-13.0 of flink shaded guava  -->
                                     <include>org.apache.flink:flink-shaded-guava</include>
                                     <include>com.google.protobuf:*</include>
-                                    <include>com.jdbc:flink-connector-jdbc</include>
                                 </includes>
                             </artifactSet>
-
                             <filters>
                                 <filter>
                                     <artifact>org.apache.inlong:sort-connector-*</artifact>
@@ -86,11 +116,31 @@
                                         <include>META-INF/services/org.apache.flink.table.factories.Factory</include>
                                     </includes>
                                 </filter>
+                                <filter>
+                                    <artifact>org.apache.kafka:*</artifact>
+                                    <excludes>
+                                        <exclude>kafka/kafka-version.properties</exclude>
+                                        <exclude>LICENSE</exclude>
+                                        <!-- Does not contain anything relevant.
+                                            Cites a binary dependency on jersey, but this is neither reflected in the
+                                            dependency graph, nor are any jersey files bundled. -->
+                                        <exclude>NOTICE</exclude>
+                                        <exclude>common/**</exclude>
+                                    </excludes>
+                                </filter>
                             </filters>
                             <relocations>
                                 <relocation>
-                                    <pattern>org.apache.inlong.sort.base</pattern>
-                                    <shadedPattern>org.apache.inlong.sort.jdbc.shaded.org.apache.inlong.sort.base</shadedPattern>
+                                    <pattern>org.apache.kafka</pattern>
+                                    <shadedPattern>com.ververica.cdc.connectors.shaded.org.apache.kafka</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google</pattern>
+                                    <shadedPattern>com.ververica.cdc.connectors.shaded.com.google</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.fasterxml</pattern>
+                                    <shadedPattern>com.ververica.cdc.connectors.shaded.com.fasterxml</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
