@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.plugin.util;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.configuration.Configuration;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
 import org.apache.inlong.manager.plugin.flink.enums.Constants;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.configuration.Configuration;
 
 import java.io.File;
 import java.net.URL;
