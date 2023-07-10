@@ -17,9 +17,13 @@
 
 package org.apache.inlong.manager.client.cli;
 
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
+import org.apache.inlong.manager.client.api.inner.client.InlongTenantClient;
+import org.apache.inlong.manager.client.api.inner.client.InlongTenantRoleClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamTransformClient;
@@ -48,12 +52,13 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
+import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
+import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
+import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRequest;
-
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 
 import java.util.List;
 
@@ -78,6 +83,8 @@ public class ListCommand extends AbstractCommand {
         jcommander.addCommand("cluster-tag", new ListClusterTag());
         jcommander.addCommand("cluster-node", new ListClusterNode());
         jcommander.addCommand("user", new ListUser());
+        jcommander.addCommand("tenant", new ListTenant());
+        jcommander.addCommand("tenant-role", new ListTenantRole());
     }
 
     @Parameters(commandDescription = "Get stream summary information")
@@ -325,6 +332,54 @@ public class ListCommand extends AbstractCommand {
                 UserClient userClient = ClientUtils.clientFactory.getUserClient();
                 PageResult<UserInfo> userInfo = userClient.list(request);
                 PrintUtils.print(userInfo.getList(), org.apache.inlong.manager.client.cli.pojo.UserInfo.class);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Get tenant summary information")
+    private static class ListTenant extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-keyword", "--keyword"}, description = "keyword")
+        private String keyword;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                InlongTenantPageRequest request = new InlongTenantPageRequest();
+                request.setKeyword(keyword);
+                InlongTenantClient tenantClient = ClientUtils.clientFactory.getInlongTenantClient();
+                PageResult<InlongTenantInfo> tenantInfo = tenantClient.listByCondition(request);
+                PrintUtils.print(tenantInfo.getList(), org.apache.inlong.manager.client.cli.pojo.TenantInfo.class);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Get tenant role summary information")
+    private static class ListTenantRole extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-keyword", "--keyword"}, description = "keyword")
+        private String keyword;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                TenantRolePageRequest request = new TenantRolePageRequest();
+                request.setKeyword(keyword);
+                InlongTenantRoleClient tenantRoleClient = ClientUtils.clientFactory.getInlongTenantRoleClient();
+                PageResult<TenantRoleInfo> tenantInfo = tenantRoleClient.listByCondition(request);
+                PrintUtils.print(tenantInfo.getList(), org.apache.inlong.manager.client.cli.pojo.TenantRoleInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
