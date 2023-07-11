@@ -28,6 +28,7 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
+import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 
 import io.swagger.annotations.Api;
@@ -36,6 +37,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -54,6 +56,8 @@ public class OpenInLongStreamController {
 
     @Autowired
     private InlongStreamService streamService;
+    @Autowired
+    private InlongStreamProcessService streamProcessOperation;
 
     @RequestMapping(value = "/stream/get", method = RequestMethod.GET)
     @ApiOperation(value = "Get inlong stream")
@@ -120,5 +124,17 @@ public class OpenInLongStreamController {
         Preconditions.expectNotBlank(streamId, ErrorCodeEnum.INVALID_PARAMETER, "streamId cannot be blank");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(streamService.delete(groupId, streamId, LoginUserUtils.getLoginUser()));
+    }
+
+    @RequestMapping(value = "/stream/startProcess/{groupId}/{streamId}", method = RequestMethod.POST)
+    @ApiOperation(value = "Start inlong stream process")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
+    })
+    public Response<Boolean> startProcess(@PathVariable String groupId, @PathVariable String streamId,
+            @RequestParam boolean sync) {
+        String operator = LoginUserUtils.getLoginUser().getName();
+        return Response.success(streamProcessOperation.startProcess(groupId, streamId, operator, sync));
     }
 }
