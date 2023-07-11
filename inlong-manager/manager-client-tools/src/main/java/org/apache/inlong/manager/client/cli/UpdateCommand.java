@@ -258,7 +258,7 @@ public class UpdateCommand extends AbstractCommand {
         @Parameter(names = {"-id", "--id"}, description = "id to be modify")
         private Integer id;
 
-        @Parameter(names = {"-role-code", "--role-code"}, description = "new role code")
+        @Parameter(names = {"-rc", "--role-code"}, description = "new role code")
         private String roleCode;
 
         @Parameter(names = {"-t", "--tenant"}, description = "new tenant")

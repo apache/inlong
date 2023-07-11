@@ -308,7 +308,7 @@ public class CreateCommand extends AbstractCommand {
         }
     }
 
-    @Parameters(commandDescription = "Create user")
+    @Parameters(commandDescription = "Create tenant role")
     private static class CreateTenantRole extends AbstractCommandRunner {
 
         @Parameter()
