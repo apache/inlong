@@ -64,7 +64,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
 
   const { data: previewData, run: getPreviewData } = useRequest(
     {
-      url: '/stream/queryMessage',
+      url: '/stream/listMessage',
       params: {
         groupId: inlongGroupId,
         streamId: inlongStreamId,
