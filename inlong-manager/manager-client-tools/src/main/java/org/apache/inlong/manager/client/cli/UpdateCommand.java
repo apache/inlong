@@ -261,9 +261,6 @@ public class UpdateCommand extends AbstractCommand {
         @Parameter(names = {"-rc", "--role-code"}, description = "new role code")
         private String roleCode;
 
-        @Parameter(names = {"-t", "--tenant"}, description = "new tenant")
-        private String tenant;
-
         @Override
         void run() {
             try {
@@ -283,11 +280,7 @@ public class UpdateCommand extends AbstractCommand {
                 } else {
                     request.setRoleCode(roleInfo.getRoleCode());
                 }
-                if (StringUtils.isNotEmpty(tenant)) {
-                    request.setTenant(tenant);
-                } else {
-                    request.setTenant(roleInfo.getTenant());
-                }
+                request.setTenant(roleInfo.getTenant());
                 if (roleClient.update(request)) {
                     System.out.println("Update user success!");
                 }
