@@ -107,9 +107,9 @@ const Comp: React.FC<Props> = ({
           message: i18n.t('meta.Stream.FieldNameRule'),
         },
       ],
-      props: (text, record) => ({
+      props: {
         disabled: true,
-      }),
+      },
     },
     {
       title: i18n.t('meta.Sinks.SourceFieldType'),
@@ -117,10 +117,10 @@ const Comp: React.FC<Props> = ({
       type: 'select',
       initialValue: fieldTypes[0].label,
       rules: [{ required: true }],
-      props: (text, record) => ({
+      props: {
         disabled: true,
         options: fieldTypes,
-      }),
+      },
     },
     {
       title: i18n.t('meta.Stream.FieldName'),
