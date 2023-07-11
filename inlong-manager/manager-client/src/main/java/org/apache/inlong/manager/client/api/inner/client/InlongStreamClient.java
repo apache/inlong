@@ -134,6 +134,19 @@ public class InlongStreamClient {
     }
 
     /**
+     * Paging query inlong stream with sources and sinks info list
+     *
+     * @param request query request
+     * @return inlong stream with sources and sinks list
+     */
+    public PageResult<InlongStreamInfo> listAllByCondition(InlongStreamPageRequest request) {
+        Response<PageResult<InlongStreamInfo>> pageResultResponse = ClientUtils.executeHttpCall(
+                inlongStreamApi.listStream(request));
+        ClientUtils.assertRespSuccess(pageResultResponse);
+        return pageResultResponse.getData();
+    }
+
+    /**
      * Get inlong stream info.
      */
     public List<InlongStreamInfo> listStreamInfo(String inlongGroupId) {
@@ -236,7 +249,8 @@ public class InlongStreamClient {
 
     /**
      * Converts a json string to a streamFields
-     *     @param method the method for the field information: json or sql
+     *
+     * @param method the method for the field information: json or sql
      * @param statement the statement for the field information
      * @return list of stream field
      */
