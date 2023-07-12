@@ -233,6 +233,7 @@
         <include refid="Base_Column_List"/>
         from inlong_group
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        and tenant = #{tenant, jdbcType=VARCHAR}
         and is_deleted = 0
     </select>
     <select id="selectByGroupIdForUpdate" resultMap="BaseResultMap">
@@ -240,6 +241,7 @@
         <include refid="Base_Column_List"/>
         from inlong_group
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        and tenant = #{tenant,jdbcType=VARCHAR}
         and is_deleted = 0 for update
     </select>
     <select id="selectByCondition" resultMap="BaseResultMap"
