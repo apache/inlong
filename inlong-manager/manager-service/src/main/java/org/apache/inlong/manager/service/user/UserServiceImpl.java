@@ -104,6 +104,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserEntityMapper userMapper;
     @Autowired
+    private TenantRoleService tenantRoleService;
+    @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
     private InlongClusterEntityMapper clusterMapper;
@@ -147,6 +149,9 @@ public class UserServiceImpl implements UserService {
         }
 
         Preconditions.expectTrue(userMapper.insert(entity) > 0, "Create user failed");
+        Preconditions.expectTrue(tenantRoleService.saveDefault(username, currentUser) > 0,
+                "Add default tenant role failed");
+
         LOGGER.debug("success to create user info={}", request);
         return entity.getId();
     }

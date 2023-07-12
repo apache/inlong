@@ -31,6 +31,7 @@ import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
 import org.apache.inlong.manager.pojo.user.TenantRoleRequest;
+import org.apache.inlong.manager.pojo.user.UserRoleCode;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -40,6 +41,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static org.apache.inlong.common.util.BasicAuth.DEFAULT_TENANT;
 import static org.apache.inlong.manager.common.enums.ErrorCodeEnum.TENANT_NOT_EXIST;
 
 /**
@@ -135,6 +137,16 @@ public class TenantRoleServiceImpl implements TenantRoleService {
         Preconditions.expectTrue(success == 1, "delete tenant role failed");
         log.info("success delete inlong tenant role id={} by user={}", id, operator);
         return true;
+    }
+
+    @Override
+    public int saveDefault(String username, String operator) {
+        // make default public tenant permission
+        TenantRoleRequest tenantRoleRequest = new TenantRoleRequest();
+        tenantRoleRequest.setTenant(DEFAULT_TENANT);
+        tenantRoleRequest.setRoleCode(UserRoleCode.TENANT_OPERATOR);
+        tenantRoleRequest.setUsername(username);
+        return this.save(tenantRoleRequest, operator);
     }
 
 }
