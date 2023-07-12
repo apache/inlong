@@ -265,7 +265,7 @@ public class AuditServiceImpl implements AuditService {
                     AuditInfo vo = new AuditInfo();
                     vo.setLogTs((String) s.get("logTs"));
                     vo.setCount(((BigDecimal) s.get("total")).longValue());
-                    vo.setDelay(((BigDecimal) s.get("total_delay")).longValue());
+                    vo.setCount(((BigDecimal) s.get("totalDelay")).longValue());
                     return vo;
                 }).collect(Collectors.toList());
                 result.add(new AuditVO(auditId, auditSet,
@@ -380,14 +380,21 @@ public class AuditServiceImpl implements AuditService {
         String start = DAY_DATE_FORMATTER.parseDateTime(startDate).toString(SECOND_FORMAT);
         String end = DAY_DATE_FORMATTER.parseDateTime(endDate).plusDays(1).toString(SECOND_FORMAT);
 
-        String sql = new SQL()
-                .SELECT("log_ts", "sum(count) as total", "sum(delay) as total_delay")
+        // Query results are duplicated according to all fields.
+        String subQuery = new SQL()
+                .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", "log_ts", "inlong_group_id",
+                        "inlong_stream_id", "audit_id", "count", "size", "delay")
                 .FROM("audit_data")
                 .WHERE("inlong_group_id = ?")
                 .WHERE("inlong_stream_id = ?")
                 .WHERE("audit_id = ?")
                 .WHERE("log_ts >= ?")
                 .WHERE("log_ts < ?")
+                .toString();
+
+        String sql = new SQL()
+                .SELECT("log_ts", "sum(count) as total", "sum(delay) as total_delay")
+                .FROM("(" + subQuery + ") as sub")
                 .GROUP_BY("log_ts")
                 .ORDER_BY("log_ts")
                 .toString();
