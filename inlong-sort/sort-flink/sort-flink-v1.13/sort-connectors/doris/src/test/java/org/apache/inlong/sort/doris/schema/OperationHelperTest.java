@@ -131,7 +131,7 @@ public class OperationHelperTest {
                     .put(Types.CHAR,
                             "ADD COLUMN `c` CHAR(32) DEFAULT 'InLong' COMMENT 'a column' FIRST")
                     .put(Types.VARCHAR,
-                            "ADD COLUMN `c` VARCHAR(32) NOT NULL DEFAULT 'InLong' COMMENT 'a column' FIRST")
+                            "ADD COLUMN `c` VARCHAR(96) NOT NULL DEFAULT 'InLong' COMMENT 'a column' FIRST")
                     .put(Types.SMALLINT,
                             "ADD COLUMN `c` SMALLINT(8) DEFAULT '2023' COMMENT 'a column' AFTER `b`")
                     .put(Types.INTEGER,
@@ -240,10 +240,10 @@ public class OperationHelperTest {
         String database = "inlong_database";
         String table = "inlong_table";
         Assert.assertEquals("CREATE TABLE IF NOT EXISTS `inlong_database`.`inlong_table`(\n"
-                + "\t`a` VARCHAR(32) NOT NULL DEFAULT 'InLong' COMMENT 'a column',\n"
-                + "\t`b` VARCHAR(32) NOT NULL DEFAULT 'InLong' COMMENT 'a column',\n"
-                + "\t`c` VARCHAR(32) DEFAULT 'InLong' COMMENT 'a column',\n"
-                + "\t`d` VARCHAR(32) DEFAULT 'InLong' COMMENT 'a column'\n"
+                + "\t`a` VARCHAR(96) NOT NULL DEFAULT 'InLong' COMMENT 'a column',\n"
+                + "\t`b` VARCHAR(96) NOT NULL DEFAULT 'InLong' COMMENT 'a column',\n"
+                + "\t`c` VARCHAR(96) DEFAULT 'InLong' COMMENT 'a column',\n"
+                + "\t`d` VARCHAR(96) DEFAULT 'InLong' COMMENT 'a column'\n"
                 + ")\n"
                 + "UNIQUE KEY(`a`,`b`)\n"
                 + "COMMENT 'create table auto'\n"
