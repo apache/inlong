@@ -36,6 +36,8 @@ public class ClickHouseFieldTypeStrategy implements FieldTypeMappingStrategy {
 
     private final static String NULLABLE_PATTERN = "^NULLABLE\\((.*)\\)$";
 
+    private static final Pattern PATTERN = Pattern.compile(NULLABLE_PATTERN);
+
     public ClickHouseFieldTypeStrategy() {
         this.reader = new FieldTypeMappingReader(DataNodeType.CLICKHOUSE);
     }
@@ -44,8 +46,7 @@ public class ClickHouseFieldTypeStrategy implements FieldTypeMappingStrategy {
     public String getFieldTypeMapping(String sourceType) {
         // support clickHouse field type special modifier Nullable
         if (StringUtils.isNotBlank(sourceType)) {
-            Pattern pattern = Pattern.compile(NULLABLE_PATTERN);
-            Matcher matcher = pattern.matcher(sourceType.toUpperCase());
+            Matcher matcher = PATTERN.matcher(sourceType.toUpperCase());
             if (matcher.matches()) {
                 sourceType = matcher.group(1);
             }
