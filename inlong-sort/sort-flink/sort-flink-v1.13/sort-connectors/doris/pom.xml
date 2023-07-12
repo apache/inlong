@@ -15,9 +15,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="http://maven.apache.org/POM/4.0.0"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.inlong</groupId>
@@ -40,8 +39,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.doris</groupId>
-            <artifactId>flink-doris-connector-${flink.minor.version}_${flink.scala.binary.version}
-            </artifactId>
+            <artifactId>flink-doris-connector-${flink.minor.version}_${flink.scala.binary.version}</artifactId>
             <version>${flink.connector.doris.version}</version>
         </dependency>
         <dependency>
@@ -76,9 +74,7 @@
                                     <artifact>org.apache.inlong:sort-connector-*</artifact>
                                     <includes>
                                         <include>org/apache/inlong/**</include>
-                                        <include>
-                                            META-INF/services/org.apache.flink.table.factories.Factory
-                                        </include>
+                                        <include>META-INF/services/org.apache.flink.table.factories.Factory</include>
                                     </includes>
                                 </filter>
                             </filters>
