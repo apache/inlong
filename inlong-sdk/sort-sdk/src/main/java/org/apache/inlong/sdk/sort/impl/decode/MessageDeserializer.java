@@ -55,7 +55,7 @@ public class MessageDeserializer implements Deserializer {
     private static final String INLONGMSG_ATTR_GROUP_ID = "groupId";
     private static final String INLONGMSG_ATTR_TIME_T = "t";
     private static final String INLONGMSG_ATTR_TIME_DT = "dt";
-    private static final String INLONGMSG_ATTR_NODE_IP = "NodeIP";
+    private static final String INLONGMSG_ATTR_CLIENT_IP = "clientIp";
     private static final char INLONGMSG_ATTR_ENTRY_DELIMITER = '&';
     private static final char INLONGMSG_ATTR_KV_DELIMITER = '=';
     private static final String DEFAULT_IP = "127.0.0.1";
@@ -194,7 +194,7 @@ public class MessageDeserializer implements Deserializer {
                         INLONGMSG_ATTR_TIME_T + " or " + INLONGMSG_ATTR_TIME_DT));
             }
 
-            String srcIp = Optional.ofNullable(attributes.get(INLONGMSG_ATTR_NODE_IP))
+            String srcIp = Optional.ofNullable(attributes.get(INLONGMSG_ATTR_CLIENT_IP))
                     .orElse(DEFAULT_IP);
 
             Iterator<byte[]> iterator = inLongMsg.getIterator(attr);
