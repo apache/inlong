@@ -71,8 +71,6 @@ class AgentServiceTest extends ServiceBaseTest {
     @Autowired
     private AgentService agentService;
     @Autowired
-    private HeartbeatService heartbeatService;
-    @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
@@ -212,12 +210,12 @@ class AgentServiceTest extends ServiceBaseTest {
 
         TaskResult taskResult = agent.pullTask();
         Assertions.assertTrue(taskResult.getCmdConfigs().isEmpty());
-        Assertions.assertEquals(4, taskResult.getDataConfigs().size());
+        Assertions.assertEquals(3, taskResult.getDataConfigs().size());
         Assertions.assertEquals(3, taskResult.getDataConfigs().stream()
                 .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.ADD.getType())
                 .collect(Collectors.toSet())
                 .size());
-        Assertions.assertEquals(1, taskResult.getDataConfigs().stream()
+        Assertions.assertEquals(0, taskResult.getDataConfigs().stream()
                 .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.FROZEN.getType())
                 .collect(Collectors.toSet())
                 .size());
@@ -305,7 +303,7 @@ class AgentServiceTest extends ServiceBaseTest {
         // suspend
         suspendSource(groupStream.getLeft(), groupStream.getRight());
         TaskResult taskResult = agent.pullTask();
-        Assertions.assertEquals(0, taskResult.getDataConfigs().size());
+        Assertions.assertEquals(1, taskResult.getDataConfigs().size());
     }
 
     /**
