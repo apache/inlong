@@ -68,7 +68,7 @@ const Comp: React.FC<Props> = ({ name, ...modalProps }) => {
   }, [modalProps.open]);
 
   return (
-    <Modal {...modalProps} title={i18n.t('pages.TenantRole.New')} width={600} onOk={onOk}>
+    <Modal {...modalProps} title={i18n.t('pages.Tenant.New')} width={600} onOk={onOk}>
       <FormGenerator
         labelCol={{ span: 5 }}
         wrapperCol={{ span: 20 }}
