@@ -286,16 +286,13 @@ public class CreateCommand extends AbstractCommand {
         @Parameter(names = {"-d", "--description"}, description = "tenant description")
         private String description;
 
-        @Parameter(names = {"-v", "--version"}, description = "tenant version number")
-        private Integer version;
-
         @Override
         void run() {
             try {
                 InlongTenantRequest request = new InlongTenantRequest();
                 request.setName(name);
                 request.setDescription(description);
-                request.setVersion(version);
+                request.setVersion(0);
                 ClientUtils.initClientFactory();
                 InlongTenantClient tenantClient = ClientUtils.clientFactory.getInlongTenantClient();
                 Integer userId = tenantClient.save(request);
@@ -323,9 +320,6 @@ public class CreateCommand extends AbstractCommand {
         @Parameter(names = {"-t", "--tenant"}, description = "tenant")
         private String tenant;
 
-        @Parameter(names = {"-v", "--version"}, description = "version number")
-        private Integer version;
-
         @Override
         void run() {
             try {
@@ -333,7 +327,7 @@ public class CreateCommand extends AbstractCommand {
                 request.setUsername(username);
                 request.setRoleCode(roleCode);
                 request.setTenant(tenant);
-                request.setVersion(version);
+                request.setVersion(0);
                 ClientUtils.initClientFactory();
                 InlongTenantRoleClient roleClient = ClientUtils.clientFactory.getInlongTenantRoleClient();
                 Integer roleId = roleClient.save(request);
