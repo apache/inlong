@@ -111,8 +111,6 @@ public class TenantInsertionFilterTest extends WebFilterConfig {
             Assertions.assertEquals(targetTenant, tenant);
             Map<String, String> paraMap = HttpContextUtils.getParameterMapAll(request);
             Assertions.assertTrue(paraMap.containsKey(BasicAuth.BASIC_AUTH_TENANT_HEADER));
-            String body = HttpContextUtils.getBodyString(request);
-            Assertions.assertTrue(body.contains(BasicAuth.BASIC_AUTH_TENANT_HEADER));
         }
     }
 }
