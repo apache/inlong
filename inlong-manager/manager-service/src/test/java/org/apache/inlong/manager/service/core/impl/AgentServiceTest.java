@@ -303,7 +303,7 @@ class AgentServiceTest extends ServiceBaseTest {
         // suspend
         suspendSource(groupStream.getLeft(), groupStream.getRight());
         TaskResult taskResult = agent.pullTask();
-        Assertions.assertEquals(1, taskResult.getDataConfigs().size());
+        Assertions.assertEquals(0, taskResult.getDataConfigs().size());
     }
 
     /**
