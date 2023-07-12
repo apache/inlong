@@ -632,7 +632,6 @@
   "pages.GroupDetail.Audit.Day": "Day",
   "pages.GroupDetail.Audit.Sink": "Sink",
   "pages.GroupDetail.Stream.Preview": "Data Preview",
-  "pages.GroupDetail.Stream.NodeIp": "DataNode IP",
   "pages.GroupDetail.Stream.Dt": "Data Time(dt)",
   "pages.GroupDetail.Stream.Content": "Data Content",
   "pages.GroupDetail.Stream.Number": "Records Number",

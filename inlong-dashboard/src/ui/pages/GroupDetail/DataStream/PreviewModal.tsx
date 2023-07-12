@@ -35,7 +35,6 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
   const [position, setPosition] = useState(1);
   interface DataType {
     id: React.Key;
-    nodeIp: string;
     dt: string;
     body: string;
   }
@@ -44,10 +43,6 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
     {
       title: 'ID',
       dataIndex: 'id',
-    },
-    {
-      title: i18n.t('pages.GroupDetail.Stream.NodeIp'),
-      dataIndex: 'nodeIp',
     },
     {
       title: i18n.t('pages.GroupDetail.Stream.Dt'),
@@ -93,7 +88,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
     <Modal
       {...modalProps}
       title={i18n.t('pages.GroupDetail.Stream.Preview')}
-      width={1000}
+      width={950}
       footer={null}
     >
       <div style={{ marginBottom: 20, marginTop: 20 }}>

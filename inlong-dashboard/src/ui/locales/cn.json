@@ -632,7 +632,6 @@
   "pages.GroupDetail.Audit.Day": "天",
   "pages.GroupDetail.Audit.Sink": "数据目标",
   "pages.GroupDetail.Stream.Preview": "数据预览",
-  "pages.GroupDetail.Stream.NodeIp": "数据节点 IP",
   "pages.GroupDetail.Stream.Dt": "数据时间 (dt)",
   "pages.GroupDetail.Stream.Content": "数据内容",
   "pages.GroupDetail.Stream.Number": "数据条数",
