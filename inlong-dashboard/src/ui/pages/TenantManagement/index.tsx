@@ -95,7 +95,7 @@ const Comp: React.FC = () => {
           <HighTable
             suffix={
               <Button type="primary" onClick={() => setCreateModal({ open: true })}>
-                {t('pages.Tenant.New')}
+                {t('pages.TenantRole.New')}
               </Button>
             }
             filterForm={{
