@@ -64,11 +64,11 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
 
   const { data: previewData, run: getPreviewData } = useRequest(
     {
-      url: '/stream/listMessage',
+      url: '/stream/listMessages',
       params: {
         groupId: inlongGroupId,
         streamId: inlongStreamId,
-        position: position,
+        messageCount: position,
       },
     },
     {
