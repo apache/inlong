@@ -801,6 +801,7 @@
   "pages.Tenant.config.Description": "Description",
   "pages.Tenant.config.Name": "Tenant Name",
   "pages.Tenant.New": "Create",
+  "pages.TenantRole.New": "Create",
   "pages.Tenant.config.Username": "User Name",
   "pages.Tenant.config.TenantRole": "Tenant Role",
   "pages.Tenant.config.Admin": "Tenant Admin",

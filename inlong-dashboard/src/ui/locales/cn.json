@@ -801,6 +801,7 @@
   "pages.Tenant.config.Description": "描述",
   "pages.Tenant.config.Name": "租户名称",
   "pages.Tenant.New": "新建租户",
+  "pages.TenantRole.New": "新建角色",
   "pages.Tenant.config.Username": "用户名称",
   "pages.Tenant.config.TenantRole": "租户角色",
   "pages.Tenant.config.Admin": "租户管理员",
