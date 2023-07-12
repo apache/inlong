@@ -17,18 +17,17 @@
 
 package org.apache.inlong.sort.doris.schema;
 
-import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
-import org.apache.inlong.sort.protocol.ddl.enums.PositionType;
-import org.apache.inlong.sort.protocol.ddl.expressions.AlterColumn;
-import org.apache.inlong.sort.protocol.ddl.expressions.Column;
-import org.apache.inlong.sort.protocol.ddl.operations.CreateTableOperation;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.table.types.logical.CharType;
 import org.apache.flink.table.types.logical.DecimalType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.flink.util.Preconditions;
+import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
+import org.apache.inlong.sort.protocol.ddl.enums.PositionType;
+import org.apache.inlong.sort.protocol.ddl.expressions.AlterColumn;
+import org.apache.inlong.sort.protocol.ddl.expressions.Column;
+import org.apache.inlong.sort.protocol.ddl.operations.CreateTableOperation;
 
 import java.sql.Types;
 import java.util.Iterator;
@@ -144,7 +143,6 @@ public class OperationHelper {
                     if (precisions.size() == 2) {
                         scale = Integer.parseInt(precisions.get(1));
                     }
-
                 }
                 decimalType = new DecimalType(isNullable, precision, scale);
                 type = decimalType.asSerializableString();
@@ -153,6 +151,7 @@ public class OperationHelper {
                 type = String.format("BOOLEAN %s", isNullable ? "" : " NOT NULL");
                 break;
             default:
+                type = String.format("STRING%s", isNullable ? "" : " NOT NULL");
         }
         return type;
     }
@@ -188,7 +187,7 @@ public class OperationHelper {
                     sb.append(" FIRST");
                 } else if (column.getPosition().getPositionType() == PositionType.AFTER) {
                     Preconditions.checkState(column.getPosition().getColumnName() != null
-                            && !column.getPosition().getColumnName().trim().isEmpty(),
+                                    && !column.getPosition().getColumnName().trim().isEmpty(),
                             "The column name of Position is empty");
                     sb.append(" AFTER `").append(column.getPosition().getColumnName()).append("`");
                 }
