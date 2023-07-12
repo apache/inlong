@@ -407,30 +407,36 @@ public class AgentServiceImpl implements AgentService {
         // find those node whose tag match stream_source tag and agent ip match stream_source agent ip
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectTemplateSourceByCluster(needCopiedStatusList,
                 Lists.newArrayList(SourceType.FILE), agentClusterName);
-        Set<GroupStatus> noNeedAddTask = Sets.newHashSet(GroupStatus.SUSPENDED, GroupStatus.SUSPENDING);
-        sourceEntities.forEach(sourceEntity -> {
-            InlongGroupEntity groupEntity = groupMapper.selectByGroupId(sourceEntity.getInlongGroupId());
-            if (groupEntity != null && noNeedAddTask.contains(GroupStatus.forCode(groupEntity.getStatus()))) {
-                return;
-            }
-            StreamSourceEntity subSource = sourceMapper.selectOneByTemplatedIdAndAgentIp(sourceEntity.getId(),
-                    agentIp);
-            if (subSource == null) {
-                // if not, clone a subtask for this Agent.
-                // note: a new source name with random suffix is generated to adhere to the unique constraint
-                StreamSourceEntity fileEntity =
-                        CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
-                fileEntity.setSourceName(fileEntity.getSourceName() + "-"
-                        + RandomStringUtils.randomAlphanumeric(10).toLowerCase(Locale.ROOT));
-                fileEntity.setTemplateId(sourceEntity.getId());
-                fileEntity.setAgentIp(agentIp);
-                fileEntity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
-                // create new sub source task
-                sourceMapper.insert(fileEntity);
-                LOGGER.info("Transform new template task({}) for agent({}) in cluster({}).",
-                        fileEntity.getId(), taskRequest.getAgentIp(), taskRequest.getClusterName());
-            }
-        });
+        Set<GroupStatus> noNeedAddTask = Sets.newHashSet(
+                GroupStatus.SUSPENDED, GroupStatus.SUSPENDING, GroupStatus.DELETING, GroupStatus.DELETED);
+        sourceEntities.stream()
+                .filter(sourceEntity -> sourceEntity.getTemplateId() == null) // only apply template task
+                .forEach(sourceEntity -> {
+                    InlongGroupEntity groupEntity = groupMapper.selectByGroupId(sourceEntity.getInlongGroupId());
+                    if (groupEntity != null && noNeedAddTask.contains(GroupStatus.forCode(groupEntity.getStatus()))) {
+                        return;
+                    }
+                    StreamSourceEntity subSource = sourceMapper.selectOneByTemplatedIdAndAgentIp(sourceEntity.getId(),
+                            agentIp);
+                    if (subSource == null) {
+                        InlongClusterNodeEntity clusterNodeEntity = selectByIpAndCluster(agentClusterName, agentIp);
+                        // if stream_source match node_group with node, clone a subtask for this Agent.
+                        // note: a new source name with random suffix is generated to adhere to the unique constraint
+                        if (matchGroup(sourceEntity, clusterNodeEntity)) {
+                            StreamSourceEntity fileEntity =
+                                    CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
+                            fileEntity.setSourceName(fileEntity.getSourceName() + "-"
+                                    + RandomStringUtils.randomAlphanumeric(10).toLowerCase(Locale.ROOT));
+                            fileEntity.setTemplateId(sourceEntity.getId());
+                            fileEntity.setAgentIp(agentIp);
+                            fileEntity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
+                            // create new sub source task
+                            sourceMapper.insert(fileEntity);
+                            LOGGER.info("Transform new template task({}) for agent({}) in cluster({}).",
+                                    fileEntity.getId(), taskRequest.getAgentIp(), taskRequest.getClusterName());
+                        }
+                    }
+                });
     }
 
     /**
