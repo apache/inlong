@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
@@ -27,7 +28,6 @@ import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.user.TenantRoleService;
 
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -77,8 +77,15 @@ public class InlongTenantRoleController {
 
     @RequestMapping(value = "/role/tenant/list", method = RequestMethod.POST)
     @ApiOperation(value = "List tenant roles by paginating")
-    public Response<PageInfo<TenantRoleInfo>> listByCondition(@RequestBody TenantRolePageRequest request) {
+    public Response<PageResult<TenantRoleInfo>> listByCondition(@RequestBody TenantRolePageRequest request) {
         return Response.success(tenantRoleService.listByCondition(request));
     }
 
+    @RequestMapping(value = "/role/tenant/delete/{id}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Delete tenant role by ID")
+    @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
+    public Response<Boolean> delete(@PathVariable int id) {
+        return Response.success(tenantRoleService.delete(id));
+    }
 }

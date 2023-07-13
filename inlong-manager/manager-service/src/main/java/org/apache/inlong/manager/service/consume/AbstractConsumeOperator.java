@@ -76,7 +76,7 @@ public abstract class AbstractConsumeOperator implements InlongConsumeOperator {
             this.checkTopicInfo(request);
         }
         // get the entity from request
-        InlongConsumeEntity entity = CommonBeanUtils.copyProperties(request, InlongConsumeEntity::new);
+        InlongConsumeEntity entity = consumeMapper.selectById(request.getId());
         // set the ext params
         this.setTargetEntity(request, entity);
         entity.setModifier(operator);

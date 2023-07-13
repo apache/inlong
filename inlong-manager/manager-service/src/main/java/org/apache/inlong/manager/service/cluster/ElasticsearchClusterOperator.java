@@ -60,7 +60,8 @@ public class ElasticsearchClusterOperator extends AbstractClusterOperator {
         ElasticsearchClusterRequest esRequest = (ElasticsearchClusterRequest) request;
         CommonBeanUtils.copyProperties(esRequest, targetEntity, true);
         try {
-            ElasticsearchClusterDTO dto = ElasticsearchClusterDTO.getFromRequest(esRequest);
+            ElasticsearchClusterDTO dto =
+                    ElasticsearchClusterDTO.getFromRequest(esRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(mapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,

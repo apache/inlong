@@ -106,7 +106,7 @@ public class HudiSinkOperator extends AbstractSinkOperator {
         }
 
         try {
-            HudiSinkDTO dto = HudiSinkDTO.getFromRequest(sinkRequest);
+            HudiSinkDTO dto = HudiSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,

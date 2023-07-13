@@ -70,7 +70,8 @@ public class TDSQLPostgreSQLSinkOperator extends AbstractSinkOperator {
         }
         TDSQLPostgreSQLSinkRequest sinkRequest = (TDSQLPostgreSQLSinkRequest) request;
         try {
-            TDSQLPostgreSQLSinkDTO dto = TDSQLPostgreSQLSinkDTO.getFromRequest(sinkRequest);
+            TDSQLPostgreSQLSinkDTO dto =
+                    TDSQLPostgreSQLSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,

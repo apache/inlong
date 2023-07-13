@@ -69,7 +69,7 @@ public class KuduDataNodeOperator extends AbstractDataNodeOperator {
         }
         CommonBeanUtils.copyProperties(kuduRequest, targetEntity, true);
         try {
-            KuduDataNodeDTO dto = KuduDataNodeDTO.getFromRequest(kuduRequest);
+            KuduDataNodeDTO dto = KuduDataNodeDTO.getFromRequest(kuduRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

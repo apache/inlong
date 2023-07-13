@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.sink.hbase;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -26,6 +27,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -71,18 +73,9 @@ public class HBaseSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static HBaseSinkDTO getFromRequest(HBaseSinkRequest request) {
-        return HBaseSinkDTO.builder()
-                .tableName(request.getTableName())
-                .namespace(request.getNamespace())
-                .rowKey(request.getRowKey())
-                .zkQuorum(request.getZkQuorum())
-                .bufferFlushMaxSize(request.getBufferFlushMaxSize())
-                .zkNodeParent(request.getZkNodeParent())
-                .bufferFlushMaxRows(request.getBufferFlushMaxRows())
-                .bufferFlushInterval(request.getBufferFlushInterval())
-                .properties(request.getProperties())
-                .build();
+    public static HBaseSinkDTO getFromRequest(HBaseSinkRequest request, String extParams) {
+        HBaseSinkDTO dto = StringUtils.isNotBlank(extParams) ? HBaseSinkDTO.getFromJson(extParams) : new HBaseSinkDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

@@ -70,7 +70,7 @@ public class MySQLSinkOperator extends AbstractSinkOperator {
         }
         MySQLSinkRequest sinkRequest = (MySQLSinkRequest) request;
         try {
-            MySQLSinkDTO dto = MySQLSinkDTO.getFromRequest(sinkRequest);
+            MySQLSinkDTO dto = MySQLSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,

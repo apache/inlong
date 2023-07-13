@@ -60,7 +60,7 @@ public class BinlogSourceOperator extends AbstractSourceOperator {
         MySQLBinlogSourceRequest sourceRequest = (MySQLBinlogSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            MySQLBinlogSourceDTO dto = MySQLBinlogSourceDTO.getFromRequest(sourceRequest);
+            MySQLBinlogSourceDTO dto = MySQLBinlogSourceDTO.getFromRequest(sourceRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

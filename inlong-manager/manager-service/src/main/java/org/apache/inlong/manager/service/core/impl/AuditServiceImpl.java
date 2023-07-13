@@ -17,21 +17,28 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.AuditQuerySource;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.AuditBaseEntity;
+import org.apache.inlong.manager.dao.entity.AuditSourceEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.AuditBaseEntityMapper;
 import org.apache.inlong.manager.dao.mapper.AuditEntityMapper;
+import org.apache.inlong.manager.dao.mapper.AuditSourceEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
+import org.apache.inlong.manager.pojo.audit.AuditSourceRequest;
+import org.apache.inlong.manager.pojo.audit.AuditSourceResponse;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
@@ -61,7 +68,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 
@@ -113,7 +119,7 @@ public class AuditServiceImpl implements AuditService {
     private List<String> auditIdListForUser;
 
     @Value("${audit.query.source}")
-    private String auditQuerySource = AuditQuerySource.MYSQL.name();
+    private String auditQuerySource;
 
     @Autowired
     private AuditBaseEntityMapper auditBaseMapper;
@@ -125,6 +131,10 @@ public class AuditServiceImpl implements AuditService {
     private StreamSinkEntityMapper sinkEntityMapper;
     @Autowired
     private StreamSourceEntityMapper sourceEntityMapper;
+    @Autowired
+    private ClickHouseConfig config;
+    @Autowired
+    private AuditSourceEntityMapper auditSourceMapper;
 
     @PostConstruct
     public void initialize() {
@@ -137,7 +147,6 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public Boolean refreshBaseItemCache() {
         LOGGER.debug("start to reload audit base item info");
         try {
@@ -157,6 +166,41 @@ public class AuditServiceImpl implements AuditService {
 
         LOGGER.debug("success to reload audit base item info");
         return true;
+    }
+
+    @Override
+    public Integer updateAuditSource(AuditSourceRequest request, String operator) {
+        String offlineUrl = request.getOfflineUrl();
+        if (StringUtils.isNotBlank(offlineUrl)) {
+            auditSourceMapper.offlineSourceByUrl(offlineUrl);
+            LOGGER.info("success offline the audit source with url: {}", offlineUrl);
+        }
+
+        // TODO firstly we should check to see if it exists, updated if it exists, and created if it doesn't exist
+        AuditSourceEntity entity = CommonBeanUtils.copyProperties(request, AuditSourceEntity::new);
+        entity.setStatus(InlongConstants.DEFAULT_ENABLE_VALUE);
+        entity.setCreator(operator);
+        entity.setModifier(operator);
+        auditSourceMapper.insert(entity);
+        Integer id = entity.getId();
+        LOGGER.info("success to insert audit source with id={}", id);
+
+        // TODO we should select the config that needs to be updated according to the source type
+        config.updateRuntimeConfig();
+        LOGGER.info("success to update audit source with id={}", id);
+
+        return id;
+    }
+
+    @Override
+    public AuditSourceResponse getAuditSource() {
+        AuditSourceEntity entity = auditSourceMapper.selectOnlineSource();
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND);
+        }
+
+        LOGGER.debug("success to get audit source, id={}", entity.getId());
+        return CommonBeanUtils.copyProperties(entity, AuditSourceResponse::new);
     }
 
     @Override
@@ -221,7 +265,7 @@ public class AuditServiceImpl implements AuditService {
                     AuditInfo vo = new AuditInfo();
                     vo.setLogTs((String) s.get("logTs"));
                     vo.setCount(((BigDecimal) s.get("total")).longValue());
-                    vo.setCount(((BigDecimal) s.get("total_delay")).longValue());
+                    vo.setCount(((BigDecimal) s.get("totalDelay")).longValue());
                     return vo;
                 }).collect(Collectors.toList());
                 result.add(new AuditVO(auditId, auditSet,
@@ -249,9 +293,10 @@ public class AuditServiceImpl implements AuditService {
                     }
                 }
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
-                try (Connection connection = ClickHouseConfig.getCkConnection();
+                try (Connection connection = config.getCkConnection();
                         PreparedStatement statement = getAuditCkStatement(connection, groupId, streamId, auditId,
                                 request.getStartDate(), request.getEndDate());
+
                         ResultSet resultSet = statement.executeQuery()) {
                     List<AuditInfo> auditSet = new ArrayList<>();
                     while (resultSet.next()) {
@@ -335,14 +380,21 @@ public class AuditServiceImpl implements AuditService {
         String start = DAY_DATE_FORMATTER.parseDateTime(startDate).toString(SECOND_FORMAT);
         String end = DAY_DATE_FORMATTER.parseDateTime(endDate).plusDays(1).toString(SECOND_FORMAT);
 
-        String sql = new SQL()
-                .SELECT("log_ts", "sum(count) as total", "sum(delay) as total_delay")
+        // Query results are duplicated according to all fields.
+        String subQuery = new SQL()
+                .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", "log_ts", "inlong_group_id",
+                        "inlong_stream_id", "audit_id", "count", "size", "delay")
                 .FROM("audit_data")
                 .WHERE("inlong_group_id = ?")
                 .WHERE("inlong_stream_id = ?")
                 .WHERE("audit_id = ?")
                 .WHERE("log_ts >= ?")
                 .WHERE("log_ts < ?")
+                .toString();
+
+        String sql = new SQL()
+                .SELECT("log_ts", "sum(count) as total", "sum(delay) as total_delay")
+                .FROM("(" + subQuery + ") as sub")
                 .GROUP_BY("log_ts")
                 .ORDER_BY("log_ts")
                 .toString();
@@ -430,4 +482,5 @@ public class AuditServiceImpl implements AuditService {
         }
         return formatDateString;
     }
+
 }

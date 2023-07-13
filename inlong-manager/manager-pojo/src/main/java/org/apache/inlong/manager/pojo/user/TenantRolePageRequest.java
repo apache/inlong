@@ -24,6 +24,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("Tenant user paging query request")
@@ -34,6 +36,9 @@ public class TenantRolePageRequest extends PageRequest {
 
     @ApiModelProperty(value = "User name")
     private String username;
+
+    @ApiModelProperty(value = "Tenant list")
+    private List<String> tenantList;
 
     @ApiModelProperty(value = "Role code")
     private String roleCode;
