@@ -80,7 +80,7 @@ public class PbMsgDeserializeOperator implements DeserializeOperator {
             }
             BriefMQMessage briefMQMessage = new BriefMQMessage(index, headers.get(AttributeConstants.GROUP_ID),
                     headers.get(AttributeConstants.STREAM_ID), messageObj.getMsgTime(),
-                    headers.get(NODE_IP),
+                    headers.get(CLIENT_IP),
                     new String(messageObj.getBody().toByteArray(), Charset.forName(streamInfo.getDataEncoding())));
             briefMQMessages.add(briefMQMessage);
         }
