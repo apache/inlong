@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.manager.common.tenant.MultiTenantQuery;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo;
@@ -30,7 +29,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@MultiTenantQuery
 @Repository
 public interface InlongClusterEntityMapper {
 
@@ -55,7 +53,6 @@ public interface InlongClusterEntityMapper {
      *
      * @return All cluster info.
      */
-    @MultiTenantQuery(with = false)
     @Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = Integer.MIN_VALUE)
     Cursor<SortSourceClusterInfo> selectAllClusters();
 
