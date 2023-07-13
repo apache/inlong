@@ -76,11 +76,11 @@
             <if test="name != null and name != ''">
                 name,
             </if>
-            <if test="tenant != null and tenant != ''">
-                tenant,
-            </if>
             <if test="description != null and description != ''">
                 description,
+            </if>
+            <if test="tenant != null and tenant != ''">
+                tenant,
             </if>
             <if test="mqType != null and mqType != ''">
                 mq_type,
