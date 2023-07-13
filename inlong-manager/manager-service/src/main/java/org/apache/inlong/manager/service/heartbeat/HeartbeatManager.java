@@ -17,20 +17,24 @@
 
 package org.apache.inlong.manager.service.heartbeat;
 
+import com.google.common.collect.Lists;
 import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.ComponentHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterStatus;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.NodeStatus;
+import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.ComponentHeartbeatEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
+import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.ComponentHeartbeatEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
@@ -256,6 +260,21 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             }
             clusterNode.setStatus(NodeStatus.HEARTBEAT_TIMEOUT.getStatus());
             clusterNodeMapper.updateById(clusterNode);
+            if (Objects.equals(clusterNode.getType(), ClusterType.AGENT)) {
+                List<Integer> statusList =
+                        Arrays.asList(SourceStatus.values()).stream()
+                                .filter(sourceStatus -> sourceStatus != SourceStatus.HEARTBEAT_TIMEOUT)
+                                .map(sourceStatus -> sourceStatus.getCode()).collect(
+                                        Collectors.toList());
+                List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpAndCluster(statusList,
+                        null, clusterNode.getIp(), heartbeatMsg.getClusterName());
+                for (StreamSourceEntity sourceEntity : sourceEntities) {
+                    // set source status to heartbeat timeout for all source by ip and type
+                    sourceEntity.setPreviousStatus(sourceEntity.getStatus());
+                    sourceEntity.setStatus(SourceStatus.HEARTBEAT_TIMEOUT.getCode());
+                    sourceMapper.updateByPrimaryKeySelective(sourceEntity);
+                }
+            }
         }
     }
 
