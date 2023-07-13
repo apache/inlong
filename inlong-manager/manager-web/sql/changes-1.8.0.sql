@@ -78,6 +78,10 @@ ALTER TABLE tenant_user_role
 CREATE INDEX index_tenant
     ON tenant_user_role (tenant, is_deleted);
 
+INSERT INTO tenant_user_role(username, role_code, tenant, creator)
+    SELECT name, 'TENANT_ADMIN', 'public', 'inlong_init'
+    FROM user;
+
 -- To avoid the ambiguity, rename "tenant" in PulsarGroup & PulsarCluster to "pulsarTenant"
 UPDATE inlong_group SET ext_params = replace(ext_params, '"tenant"', '"pulsarTenant"');
 UPDATE inlong_cluster SET ext_params = replace(ext_params, '"tenant"', '"pulsarTenant"');

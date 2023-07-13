@@ -66,4 +66,9 @@ public interface TenantRoleService {
      * @return true = delete success/ false = delete fail
      */
     Boolean delete(Integer id);
+
+    /**
+     * Add user to default tenant
+     */
+    Integer saveDefault(String username, String operator);
 }
