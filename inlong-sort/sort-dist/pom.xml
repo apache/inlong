@@ -135,12 +135,12 @@
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-sql-parquet_${scala.binary.version}</artifactId>
-                    <version>${flink.version}</version>
+                    <version>1.13.5</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-sql-orc_${scala.binary.version}</artifactId>
-                    <version>${flink.version}</version>
+                    <version>1.13.5</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
@@ -167,27 +167,27 @@
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-sql-parquet</artifactId>
-                    <version>${flink.version}</version>
+                    <version>1.15.4</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-sql-orc</artifactId>
-                    <version>${flink.version}</version>
+                    <version>1.15.4</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-csv</artifactId>
-                    <version>${flink.version}</version>
+                    <version>1.15.4</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-json</artifactId>
-                    <version>${flink.version}</version>
+                    <version>1.15.4</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-sql-avro</artifactId>
-                    <version>${flink.version}</version>
+                    <version>1.15.4</version>
                 </dependency>
             </dependencies>
         </profile>
