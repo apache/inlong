@@ -46,7 +46,7 @@ public class RawMsgDeserializeOperator implements DeserializeOperator {
         String streamId = headers.get(AttributeConstants.STREAM_ID);
         long msgTime = Long.parseLong(headers.getOrDefault(MSG_TIME_KEY, "0"));
         return Collections
-                .singletonList(new BriefMQMessage(null, groupId, streamId, msgTime, headers.get(NODE_IP),
+                .singletonList(new BriefMQMessage(null, groupId, streamId, msgTime, headers.get(CLIENT_IP),
                         new String(msgBytes, Charset.forName(streamInfo.getDataEncoding()))));
     }
 
