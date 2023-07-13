@@ -140,7 +140,7 @@ public class TenantRoleServiceImpl implements TenantRoleService {
     }
 
     @Override
-    public int saveDefault(String username, String operator) {
+    public Integer saveDefault(String username, String operator) {
         // make default public tenant permission
         TenantRoleRequest tenantRoleRequest = new TenantRoleRequest();
         tenantRoleRequest.setTenant(DEFAULT_TENANT);

@@ -70,5 +70,5 @@ public interface TenantRoleService {
     /**
      * Add user to default tenant
      */
-    int saveDefault(String username, String operator);
+    Integer saveDefault(String username, String operator);
 }
