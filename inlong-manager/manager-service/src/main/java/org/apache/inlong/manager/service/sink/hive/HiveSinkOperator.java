@@ -69,7 +69,7 @@ public class HiveSinkOperator extends AbstractSinkOperator {
         }
         HiveSinkRequest sinkRequest = (HiveSinkRequest) request;
         try {
-            HiveSinkDTO dto = HiveSinkDTO.getFromRequest(sinkRequest);
+            HiveSinkDTO dto = HiveSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,

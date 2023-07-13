@@ -35,6 +35,9 @@ import static com.ververica.cdc.debezium.table.DebeziumOptions.DEBEZIUM_OPTIONS_
 import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
 import static com.ververica.cdc.debezium.utils.ResolvedSchemaUtils.getPhysicalSchema;
 import static org.apache.flink.util.Preconditions.checkArgument;
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
 /** Factory for creating configured instance of {@link PostgreSQLTableSource}. */
 public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
@@ -176,6 +179,9 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
         options.add(PORT);
         options.add(DECODING_PLUGIN_NAME);
         options.add(CHANGELOG_MODE);
+        options.add(INLONG_METRIC);
+        options.add(AUDIT_KEYS);
+        options.add(INLONG_AUDIT);
         return options;
     }
 }

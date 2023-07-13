@@ -78,6 +78,10 @@ ALTER TABLE tenant_user_role
 CREATE INDEX index_tenant
     ON tenant_user_role (tenant, is_deleted);
 
+INSERT INTO tenant_user_role(username, role_code, tenant, creator)
+    SELECT name, 'TENANT_ADMIN', 'public', 'inlong_init'
+    FROM user;
+
 -- To avoid the ambiguity, rename "tenant" in PulsarGroup & PulsarCluster to "pulsarTenant"
 UPDATE inlong_group SET ext_params = replace(ext_params, '"tenant"', '"pulsarTenant"');
 UPDATE inlong_cluster SET ext_params = replace(ext_params, '"tenant"', '"pulsarTenant"');
@@ -118,3 +122,38 @@ ALTER TABLE `workflow_process`
     ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of workflow process' after `inlong_stream_id`;
 ALTER TABLE `workflow_task`
     ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of workflow task' after `display_name`;
+
+-- Alter heartbeat related tables
+ALTER TABLE component_heartbeat DROP COLUMN id;
+ALTER TABLE `component_heartbeat` ADD PRIMARY KEY (`component`, `instance`);
+DROP INDEX unique_component_heartbeat on component_heartbeat;
+
+ALTER TABLE group_heartbeat DROP COLUMN id;
+ALTER TABLE `group_heartbeat` ADD PRIMARY KEY  (`component`, `instance`, `inlong_group_id`);
+DROP INDEX unique_group_heartbeat on group_heartbeat;
+
+ALTER TABLE stream_heartbeat DROP COLUMN id;
+ALTER TABLE `stream_heartbeat` ADD PRIMARY KEY (`component`, `instance`, `inlong_group_id`, `inlong_stream_id`);
+DROP INDEX unique_stream_heartbeat on stream_heartbeat;
+
+-- Create audit_source table
+CREATE TABLE IF NOT EXISTS `audit_source`
+(
+    `id`          int(11)      NOT NULL AUTO_INCREMENT,
+    `name`        varchar(128) NOT NULL COMMENT 'Audit source name',
+    `type`        varchar(20)  NOT NULL COMMENT 'Audit source type, including: MYSQL, CLICKHOUSE, ELASTICSEARCH',
+    `url`         varchar(256) NOT NULL COMMENT 'Audit source URL, for MYSQL or CLICKHOUSE, is jdbcUrl, and for ELASTICSEARCH is the access URL with hostname:port',
+    `enable_auth` tinyint(1)            DEFAULT '1' COMMENT 'Enable auth or not, 0: disable, 1: enable',
+    `username`    varchar(128)          COMMENT 'Audit source username, needed if auth_enable is 1' ,
+    `token`       varchar(512)          DEFAULT NULL COMMENT 'Audit source token, needed if auth_enable is 1',
+    `status`      smallint(4)  NOT NULL DEFAULT '1' COMMENT 'Whether the audit source is online or offline, 0: offline, 1: online' ,
+    `is_deleted`  int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
+    `modifier`    varchar(64)  NOT NULL COMMENT 'Modifier name',
+    `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`     int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_audit_source` (url, `is_deleted`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Audit source table';

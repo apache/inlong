@@ -86,7 +86,7 @@ public class KafkaClusterOperator extends AbstractClusterOperator {
         KafkaClusterRequest kafkaRequest = (KafkaClusterRequest) request;
         CommonBeanUtils.copyProperties(kafkaRequest, targetEntity, true);
         try {
-            KafkaClusterDTO dto = KafkaClusterDTO.getFromRequest(kafkaRequest);
+            KafkaClusterDTO dto = KafkaClusterDTO.getFromRequest(kafkaRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
             LOGGER.debug("success to set entity for kafka cluster");
         } catch (Exception e) {

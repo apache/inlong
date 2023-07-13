@@ -67,7 +67,7 @@ public class HBaseSinkOperator extends AbstractSinkOperator {
         }
         HBaseSinkRequest sinkRequest = (HBaseSinkRequest) request;
         try {
-            HBaseSinkDTO dto = HBaseSinkDTO.getFromRequest(sinkRequest);
+            HBaseSinkDTO dto = HBaseSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,

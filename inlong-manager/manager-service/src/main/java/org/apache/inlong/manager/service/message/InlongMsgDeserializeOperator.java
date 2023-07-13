@@ -72,7 +72,7 @@ public class InlongMsgDeserializeOperator implements DeserializeOperator {
                     continue;
                 }
                 BriefMQMessage inLongMessage =
-                        new BriefMQMessage(index, groupId, streamId, msgTime, attributes.get(NODE_IP),
+                        new BriefMQMessage(index, groupId, streamId, msgTime, attributes.get(CLIENT_IP),
                                 new String(bodyBytes, Charset.forName(streamInfo.getDataEncoding())));
                 messageList.add(inLongMessage);
             }

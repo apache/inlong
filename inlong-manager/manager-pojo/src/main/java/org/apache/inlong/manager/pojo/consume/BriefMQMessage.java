@@ -46,8 +46,8 @@ public class BriefMQMessage {
     @ApiModelProperty(value = "Date")
     private Long dt;
 
-    @ApiModelProperty(value = "Node ip")
-    private String nodeIp;
+    @ApiModelProperty(value = "Client ip")
+    private String clientIp;
 
     @ApiModelProperty(value = "Message body")
     private String body;

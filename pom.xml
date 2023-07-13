@@ -28,7 +28,7 @@
 
     <groupId>org.apache.inlong</groupId>
     <artifactId>inlong</artifactId>
-    <version>1.8.0-SNAPSHOT</version>
+    <version>1.9.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Apache InLong</name>
 
@@ -93,7 +93,7 @@
         <pagehelper.version>5.3.1</pagehelper.version>
         <jsqlparser.version>4.6</jsqlparser.version>
 
-        <h2.version>2.1.214</h2.version>
+        <h2.version>2.2.220</h2.version>
         <h2.mysql.version>2.0.0</h2.mysql.version>
         <rocksdb.version>6.29.4.1</rocksdb.version>
         <redis-replicator.version>3.6.4</redis-replicator.version>
@@ -137,7 +137,8 @@
         <fastjson.version>1.2.83</fastjson.version>
 
         <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
-        <hive.version>3.1.3</hive.version>
+        <hive2x.version>2.3.7</hive2x.version>
+        <hive3x.version>3.1.3</hive3x.version>
         <flume.version>1.10.0</flume.version>
         <hbase.version>2.4.12</hbase.version>
 
@@ -250,7 +251,7 @@
             <dependency>
                 <groupId>org.apache.hive</groupId>
                 <artifactId>hive-jdbc</artifactId>
-                <version>${hive.version}</version>
+                <version>${hive3x.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>xml-apis</groupId>
@@ -277,7 +278,7 @@
             <dependency>
                 <groupId>org.apache.hive</groupId>
                 <artifactId>hive-metastore</artifactId>
-                <version>${hive.version}</version>
+                <version>${hive3x.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.logging.log4j</groupId>
@@ -296,7 +297,7 @@
             <dependency>
                 <groupId>org.apache.hive</groupId>
                 <artifactId>hive-exec</artifactId>
-                <version>${hive.version}</version>
+                <version>${hive3x.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.pentaho</groupId>

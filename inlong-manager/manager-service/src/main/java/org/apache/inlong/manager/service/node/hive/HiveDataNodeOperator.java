@@ -78,7 +78,7 @@ public class HiveDataNodeOperator extends AbstractDataNodeOperator {
         HiveDataNodeRequest hiveDataNodeRequest = (HiveDataNodeRequest) request;
         CommonBeanUtils.copyProperties(hiveDataNodeRequest, targetEntity, true);
         try {
-            HiveDataNodeDTO dto = HiveDataNodeDTO.getFromRequest(hiveDataNodeRequest);
+            HiveDataNodeDTO dto = HiveDataNodeDTO.getFromRequest(hiveDataNodeRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

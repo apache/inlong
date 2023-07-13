@@ -132,7 +132,7 @@ public class InlongRequestWrapper extends HttpServletRequestWrapper {
 
     @Override
     public String getHeader(String name) {
-        return this.headers.get(name);
+        return this.headers.get(name.toLowerCase());
     }
 
     @Override
@@ -141,7 +141,7 @@ public class InlongRequestWrapper extends HttpServletRequestWrapper {
     }
 
     public void addHeader(String name, String value) {
-        headers.put(name, value);
+        headers.put(name.toLowerCase(), value);
     }
 
     public void addBodyParam(String key, String value) throws JsonProcessingException {

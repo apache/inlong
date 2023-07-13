@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.fieldtype.strategy.ClickHouseFieldTypeStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
 import org.apache.inlong.manager.pojo.stream.StreamField;
@@ -35,6 +37,8 @@ import java.util.Map;
  */
 public class ClickHouseProvider implements LoadNodeProvider {
 
+    private static final FieldTypeMappingStrategy FIELD_TYPE_MAPPING_STRATEGY = new ClickHouseFieldTypeStrategy();
+
     @Override
     public Boolean accept(String sinkType) {
         return SinkType.CLICKHOUSE.equals(sinkType);
@@ -44,7 +48,8 @@ public class ClickHouseProvider implements LoadNodeProvider {
     public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         ClickHouseSink streamSink = (ClickHouseSink) nodeInfo;
         Map<String, String> properties = parseProperties(streamSink.getProperties());
-        List<FieldInfo> fieldInfos = parseSinkFieldInfos(streamSink.getSinkFieldList(), streamSink.getSinkName());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(streamSink.getSinkFieldList(), streamSink.getSinkName(),
+                FIELD_TYPE_MAPPING_STRATEGY);
         List<FieldRelation> fieldRelations = parseSinkFields(streamSink.getSinkFieldList(), constantFieldMap);
         return new ClickHouseLoadNode(
                 streamSink.getSinkName(),

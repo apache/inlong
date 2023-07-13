@@ -112,6 +112,10 @@ const conf: RouteProps[] = [
     ],
   },
   {
+    path: '/tenant',
+    component: () => import('@/ui/pages/TenantManagement'),
+  },
+  {
     component: () => import('@/ui/pages/Error/404'),
   },
 ];

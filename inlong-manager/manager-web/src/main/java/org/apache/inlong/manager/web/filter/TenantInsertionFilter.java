@@ -68,7 +68,6 @@ public class TenantInsertionFilter implements Filter {
         }
 
         inlongWrapper.addParameter(BASIC_AUTH_TENANT_HEADER, tenant);
-        inlongWrapper.addBodyParam(BASIC_AUTH_TENANT_HEADER, tenant);
         filterChain.doFilter(inlongWrapper, servletResponse);
 
     }

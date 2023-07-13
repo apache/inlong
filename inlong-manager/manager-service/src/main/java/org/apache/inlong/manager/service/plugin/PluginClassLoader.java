@@ -144,7 +144,8 @@ public class PluginClassLoader extends URLClassLoader {
 
         List<PluginDefinition> definitions = new ArrayList<>();
         for (File jarFile : files) {
-            if (!jarFile.getName().endsWith(".jar")) {
+            String jarName = jarFile.getName();
+            if (!jarName.endsWith(".jar") || !jarName.contains("plugins-base")) {
                 log.warn("invalid plugin jar {}, skip to load", jarFile);
                 continue;
             }

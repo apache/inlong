@@ -730,7 +730,6 @@ CREATE TABLE IF NOT EXISTS `sort_source_config`
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `component_heartbeat`
 (
-    `id`               int(11)     NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `component`        varchar(64) NOT NULL DEFAULT '' COMMENT 'Component name, such as: Agent, Sort...',
     `instance`         varchar(64) NOT NULL DEFAULT '' COMMENT 'Component instance, can be ip, name...',
     `status_heartbeat` mediumtext           DEFAULT NULL COMMENT 'Status heartbeat info',
@@ -738,8 +737,7 @@ CREATE TABLE IF NOT EXISTS `component_heartbeat`
     `report_time`      bigint(20)  NOT NULL COMMENT 'Report time',
     `create_time`      timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_component_heartbeat` (`component`, `instance`)
+    PRIMARY KEY (`component`, `instance`)
 );
 
 -- ----------------------------
@@ -747,7 +745,6 @@ CREATE TABLE IF NOT EXISTS `component_heartbeat`
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `group_heartbeat`
 (
-    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `component`        varchar(64)  NOT NULL DEFAULT '' COMMENT 'Component name, such as: Agent, Sort...',
     `instance`         varchar(64)  NOT NULL DEFAULT '' COMMENT 'Component instance, can be ip, name...',
     `inlong_group_id`  varchar(256) NOT NULL DEFAULT '' COMMENT 'Owning inlong group id',
@@ -756,8 +753,7 @@ CREATE TABLE IF NOT EXISTS `group_heartbeat`
     `report_time`      bigint(20)   NOT NULL COMMENT 'Report time',
     `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_group_heartbeat` (`component`, `instance`, `inlong_group_id`)
+    PRIMARY KEY (`component`, `instance`, `inlong_group_id`)
 );
 
 -- ----------------------------
@@ -765,7 +761,6 @@ CREATE TABLE IF NOT EXISTS `group_heartbeat`
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `stream_heartbeat`
 (
-    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `component`        varchar(64)  NOT NULL DEFAULT '' COMMENT 'Component name, such as: Agent, Sort...',
     `instance`         varchar(64)  NOT NULL DEFAULT '' COMMENT 'Component instance, can be ip, name...',
     `inlong_group_id`  varchar(256) NOT NULL DEFAULT '' COMMENT 'Owning inlong group id',
@@ -775,8 +770,7 @@ CREATE TABLE IF NOT EXISTS `stream_heartbeat`
     `report_time`      bigint(20)   NOT NULL COMMENT 'Report time',
     `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_stream_heartbeat` (`component`, `instance`, `inlong_group_id`, `inlong_stream_id`)
+    PRIMARY KEY (`component`, `instance`, `inlong_group_id`, `inlong_stream_id`)
 );
 
 -- ----------------------------
@@ -851,6 +845,29 @@ VALUES ('audit_sdk_collect', 'SDK', 0, '1'),
        ('audit_sort_kudu_output', 'KUDU', 1, '26'),
        ('audit_sort_postgres_input', 'POSTGRESQL', 0, '27'),
        ('audit_sort_postgres_output', 'POSTGRESQL', 1, '28');
+
+-- ----------------------------
+-- Table structure for audit_source
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `audit_source`
+(
+    `id`          int(11)      NOT NULL AUTO_INCREMENT,
+    `name`        varchar(128) NOT NULL COMMENT 'Audit source name',
+    `type`        varchar(20)  NOT NULL COMMENT 'Audit source type, including: MYSQL, CLICKHOUSE, ELASTICSEARCH',
+    `url`         varchar(256) NOT NULL COMMENT 'Audit source URL, for MYSQL or CLICKHOUSE, is jdbcUrl, and for ELASTICSEARCH is the access URL with hostname:port',
+    `enable_auth` tinyint(1)            DEFAULT '1' COMMENT 'Enable auth or not, 0: disable, 1: enable',
+    `username`    varchar(128)          COMMENT 'Audit source username, needed if auth_enable is 1' ,
+    `token`       varchar(512)          DEFAULT NULL COMMENT 'Audit source token, needed if auth_enable is 1',
+    `status`      smallint(4)  NOT NULL DEFAULT '1' COMMENT 'Whether the audit source is online or offline, 0: offline, 1: online' ,
+    `is_deleted`  int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
+    `modifier`    varchar(64)  NOT NULL COMMENT 'Modifier name',
+    `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`     int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_audit_source` (url, `is_deleted`)
+);
 
 -- ----------------------------
 
