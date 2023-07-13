@@ -66,6 +66,8 @@ class AgentServiceTest extends ServiceBaseTest {
 
     private static MockAgent agent;
     @Autowired
+    private HeartbeatService heartbeatService;
+    @Autowired
     private StreamSourceService sourceService;
     @Autowired
     private AgentService agentService;
