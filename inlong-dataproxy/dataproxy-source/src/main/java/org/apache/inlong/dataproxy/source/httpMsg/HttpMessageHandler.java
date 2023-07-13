@@ -326,7 +326,7 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
         strBuff.append("groupId=").append(groupId)
                 .append("&streamId=").append(streamId)
                 .append("&dt=").append(dataTime)
-                .append("&NodeIP=").append(clientIp)
+                .append("&clientIp=").append(clientIp)
                 .append("&cnt=").append(strMsgCount)
                 .append("&rt=").append(msgRcvTime)
                 .append(AttributeConstants.SEPARATOR).append(AttributeConstants.MSG_RPT_TIME)
