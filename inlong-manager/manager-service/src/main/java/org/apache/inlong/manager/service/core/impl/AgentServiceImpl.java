@@ -410,7 +410,6 @@ public class AgentServiceImpl implements AgentService {
         Set<GroupStatus> noNeedAddTask = Sets.newHashSet(
                 GroupStatus.SUSPENDED, GroupStatus.SUSPENDING, GroupStatus.DELETING, GroupStatus.DELETED);
         sourceEntities.stream()
-                .filter(sourceEntity -> sourceEntity.getTemplateId() == null) // only apply template task
                 .forEach(sourceEntity -> {
                     InlongGroupEntity groupEntity = groupMapper.selectByGroupId(sourceEntity.getInlongGroupId());
                     if (groupEntity != null && noNeedAddTask.contains(GroupStatus.forCode(groupEntity.getStatus()))) {
