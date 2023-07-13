@@ -74,7 +74,7 @@ public class InlongClusterController {
     @PostMapping(value = "/cluster/tag/save")
     @ApiOperation(value = "Save cluster tag")
     @OperationLog(operation = OperationType.CREATE)
-    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     public Response<Integer> saveTag(@Validated(SaveValidation.class) @RequestBody ClusterTagRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.saveTag(request, currentUser));
@@ -83,6 +83,7 @@ public class InlongClusterController {
     @GetMapping(value = "/cluster/tag/get/{id}")
     @ApiOperation(value = "Get cluster tag by id")
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN, UserRoleCode.INLONG_OPERATOR})
     public Response<ClusterTagResponse> getTag(@PathVariable Integer id) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.getTag(id, currentUser));
@@ -90,6 +91,7 @@ public class InlongClusterController {
 
     @PostMapping(value = "/cluster/tag/list")
     @ApiOperation(value = "List cluster tags")
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN, UserRoleCode.INLONG_OPERATOR})
     public Response<PageResult<ClusterTagResponse>> listTag(@RequestBody ClusterTagPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(
@@ -100,7 +102,7 @@ public class InlongClusterController {
     @PostMapping(value = "/cluster/tag/update")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster tag")
-    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     public Response<Boolean> updateTag(@Validated(UpdateValidation.class) @RequestBody ClusterTagRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.updateTag(request, username));
@@ -110,7 +112,7 @@ public class InlongClusterController {
     @ApiOperation(value = "Delete cluster tag by id")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "Cluster tag ID", dataTypeClass = Integer.class, required = true)
-    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     public Response<Boolean> deleteTag(@PathVariable Integer id) {
         return Response.success(clusterService.deleteTag(id, LoginUserUtils.getLoginUser().getName()));
     }
@@ -118,7 +120,7 @@ public class InlongClusterController {
     @PostMapping(value = "/cluster/save")
     @ApiOperation(value = "Save cluster")
     @OperationLog(operation = OperationType.CREATE)
-    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody ClusterRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.save(request, currentUser));
@@ -127,6 +129,7 @@ public class InlongClusterController {
     @GetMapping(value = "/cluster/get/{id}")
     @ApiOperation(value = "Get cluster by id")
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN, UserRoleCode.INLONG_OPERATOR})
     public Response<ClusterInfo> get(@PathVariable Integer id) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.get(id, currentUser));
@@ -144,7 +147,7 @@ public class InlongClusterController {
     @PostMapping(value = "/cluster/update")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster")
-    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody ClusterRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.update(request, username));
@@ -153,7 +156,7 @@ public class InlongClusterController {
     @PostMapping(value = "/cluster/updateByKey")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster by key")
-    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     public Response<UpdateResult> updateByKey(
             @Validated(UpdateByKeyValidation.class) @RequestBody ClusterRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
@@ -163,7 +166,7 @@ public class InlongClusterController {
     @PostMapping(value = "/cluster/bindTag")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Bind or unbind cluster tag")
-    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     public Response<Boolean> bindTag(@Validated @RequestBody BindTagRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.bindTag(request, username));
@@ -173,7 +176,7 @@ public class InlongClusterController {
     @ApiOperation(value = "Delete cluster by id")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
-    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     public Response<Boolean> delete(@PathVariable Integer id) {
         return Response.success(clusterService.delete(id, LoginUserUtils.getLoginUser().getName()));
     }
@@ -185,7 +188,7 @@ public class InlongClusterController {
             @ApiImplicitParam(name = "name", value = "Cluster name", dataTypeClass = String.class, required = true),
             @ApiImplicitParam(name = "type", value = "Cluster type", dataTypeClass = String.class, required = true),
     })
-    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     public Response<Boolean> deleteByKey(@RequestParam String name, @RequestParam String type) {
         return Response.success(clusterService.deleteByKey(name, type,
                 LoginUserUtils.getLoginUser().getName()));
