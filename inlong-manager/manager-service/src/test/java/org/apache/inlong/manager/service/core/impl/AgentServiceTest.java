@@ -36,6 +36,8 @@ import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.file.FileSourceRequest;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSourceRequest;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
+import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.core.HeartbeatService;
@@ -163,18 +165,13 @@ class AgentServiceTest extends ServiceBaseTest {
         sourceService.logicDeleteAll(groupId, streamId, GLOBAL_OPERATOR);
     }
 
-    @BeforeAll
-    public static void setUp(
-            @Autowired AgentService agentService,
-            @Autowired HeartbeatService heartbeatService) {
-        agent = new MockAgent(agentService, heartbeatService, 2);
-        agent.sendHeartbeat();
-    }
-
     @BeforeEach
     public void setupEach() {
+        agent = new MockAgent(agentService, heartbeatService, 2);
+        agent.sendHeartbeat();
         groupStreamCache = new ArrayList<>();
         groupCache = new ArrayList<>();
+        super.login();
     }
 
     @AfterEach
@@ -253,13 +250,27 @@ class AgentServiceTest extends ServiceBaseTest {
         // bind group and rematch
         bindGroup(true, "group1");
         TaskResult t2 = agent.pullTask();
-        Assertions.assertEquals(1, t2.getDataConfigs().size());
-        Assertions.assertEquals(1, t2.getDataConfigs().stream()
+        Assertions.assertEquals(0, t2.getDataConfigs().size());
+        Assertions.assertEquals(0, t2.getDataConfigs().stream()
                 .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.ACTIVE.getType())
                 .collect(Collectors.toSet())
                 .size());
-        DataConfig d2 = t2.getDataConfigs().get(0);
-        Assertions.assertEquals(sourceId, d2.getTaskId());
+
+        // update group to config success
+        final String groupId = sourceService.listSource(groupStream.getLeft(), groupStream.getRight()).stream()
+                .filter(source -> source.getTemplateId() != null)
+                .findAny()
+                .get()
+                .getInlongGroupId();
+        groupMapper.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), GLOBAL_OPERATOR);
+        TaskResult t3 = agent.pullTask();
+        Assertions.assertEquals(1, t3.getDataConfigs().size());
+        Assertions.assertEquals(1, t3.getDataConfigs().stream()
+                .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.ACTIVE.getType())
+                .collect(Collectors.toSet())
+                .size());
+        DataConfig d3 = t3.getDataConfigs().get(0);
+        Assertions.assertEquals(sourceId, d3.getTaskId());
     }
 
     /**
