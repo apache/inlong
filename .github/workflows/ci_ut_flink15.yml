@@ -55,7 +55,7 @@ jobs:
           restore-keys: ${{ runner.os }}-inlong-flink15
 
       - name: Build for Flink 1.15 with Maven
-        run: mvn --update-snapshots -e -V install -U -pl :sort-core,:sort-end-to-end-tests-v1.15 -am -Pv1.15 -DskipTests -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 -Daether.connector.http.reuseConnections=false -Daether.connector.requestTimeout=60000
+        run: mvn --update-snapshots -e -V clean install -U -pl :sort-core,:sort-end-to-end-tests-v1.15 -am -Pv1.15 -DskipTests -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 -Daether.connector.http.reuseConnections=false -Daether.connector.requestTimeout=60000
         env:
           CI: false
 
