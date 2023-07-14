@@ -159,7 +159,7 @@
                         </dependency>
                         <artifactItem>
                             <groupId>org.apache.inlong</groupId>
-                            <artifactId>sort-connector-postgres-cdc</artifactId>
+                            <artifactId>sort-connector-postgres-cdc-v1.15</artifactId>
                             <version>${project.version}</version>
                             <destFileName>sort-connector-postgres-cdc.jar</destFileName>
                             <type>jar</type>
