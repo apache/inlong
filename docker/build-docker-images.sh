@@ -124,6 +124,7 @@ cp inlong-sort/sort-connectors/pulsar/target/sort-connector-pulsar-${version}.ja
 cp inlong-sort/sort-connectors/kafka/target/sort-connector-kafka-${version}.jar ${manager_dockerfile_path}/target/
 cp inlong-sort/sort-connectors/jdbc/target/sort-connector-jdbc-${version}.jar ${manager_dockerfile_path}/target/
 cp inlong-sort/sort-connectors/hive/target/sort-connector-hive-${version}.jar ${manager_dockerfile_path}/target/
+cp inlong-sort/sort-connectors/mysql/target/sort-connector-mysql-cdc-${version}.jar ${manager_dockerfile_path}/target/
 cp ${agent_tarball} ${agent_dockerfile_path}/target/${agent_tarball_name}
 cp ${audit_tarball} ${audit_dockerfile_path}/target/${audit_tarball_name}
 cp ${dataproxy_tarball} ${dataproxy_dockerfile_path}/target/${dataproxy_tarball_name}
