@@ -126,6 +126,10 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <properties>
+                <flink.version>1.13.5</flink.version>
+                <scala.binary.version>2.11</scala.binary.version>
+            </properties>
             <dependencies>
                 <dependency>
                     <groupId>org.apache.inlong</groupId>
@@ -135,29 +139,35 @@
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-sql-parquet_${scala.binary.version}</artifactId>
-                    <version>1.13.5</version>
+                    <version>${flink.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-sql-orc_${scala.binary.version}</artifactId>
-                    <version>1.13.5</version>
+                    <version>${flink.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-csv</artifactId>
+                    <version>${flink.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-json</artifactId>
+                    <version>${flink.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-sql-avro</artifactId>
+                    <version>${flink.version}</version>
                 </dependency>
             </dependencies>
         </profile>
         <profile>
             <id>v1.15</id>
+            <properties>
+                <flink.version>1.15.4</flink.version>
+            </properties>
             <dependencies>
                 <dependency>
                     <groupId>org.apache.inlong</groupId>
@@ -167,27 +177,27 @@
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-sql-parquet</artifactId>
-                    <version>1.15.4</version>
+                    <version>${flink.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-sql-orc</artifactId>
-                    <version>1.15.4</version>
+                    <version>${flink.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-csv</artifactId>
-                    <version>1.15.4</version>
+                    <version>${flink.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-json</artifactId>
-                    <version>1.15.4</version>
+                    <version>${flink.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-sql-avro</artifactId>
-                    <version>1.15.4</version>
+                    <version>${flink.version}</version>
                 </dependency>
             </dependencies>
         </profile>
