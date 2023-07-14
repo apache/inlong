@@ -178,7 +178,7 @@
                 #{enableCreateResource,jdbcType=INTEGER},
             </if>
             <if test="inlongGroupMode != null">
-                inlong_group_mode = #{inlongGroupMode,jdbcType=INTEGER},
+                #{inlongGroupMode,jdbcType=INTEGER},
             </if>
             <if test="dataReportType != null">
                 #{dataReportType,jdbcType=INTEGER},
