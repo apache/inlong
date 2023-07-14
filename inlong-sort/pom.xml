@@ -37,8 +37,7 @@
         <module>sort-core</module>
         <module>sort-dist</module>
         <module>sort-flink</module>
-        <module>sort-end-to-end-tests-v1.13</module>
-        <module>sort-end-to-end-tests-v1.15</module>
+        <module>sort-end-to-end-tests</module>
     </modules>
 
     <properties>

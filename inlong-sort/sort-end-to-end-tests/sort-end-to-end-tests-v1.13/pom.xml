@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.inlong</groupId>
-        <artifactId>inlong-sort</artifactId>
+        <artifactId>sort-end-to-end-tests</artifactId>
         <version>1.9.0-SNAPSHOT</version>
     </parent>
 
@@ -29,7 +29,8 @@
     <name>Apache InLong - Sort End to End Tests v1.13</name>
 
     <properties>
-        <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
+        <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
+        <flink.version>1.13.5</flink.version>
     </properties>
 
     <dependencies>
@@ -74,7 +75,7 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-test-utils_2.11</artifactId>
-            <version>1.13.5</version>
+            <version>${flink.version}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -96,19 +97,19 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-core</artifactId>
-            <version>1.13.5</version>
+            <version>${flink.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-runtime_2.11</artifactId>
-            <version>1.13.5</version>
+            <version>${flink.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-common</artifactId>
-            <version>1.13.5</version>
+            <version>${flink.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
