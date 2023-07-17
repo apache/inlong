@@ -22,6 +22,9 @@ import org.apache.inlong.manager.common.fieldtype.FieldTypeMappingReader;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
 
 /**
@@ -31,12 +34,24 @@ public class ClickHouseFieldTypeStrategy implements FieldTypeMappingStrategy {
 
     private final FieldTypeMappingReader reader;
 
+    private final static String NULLABLE_PATTERN = "^NULLABLE\\((.*)\\)$";
+
+    private static final Pattern PATTERN = Pattern.compile(NULLABLE_PATTERN);
+
     public ClickHouseFieldTypeStrategy() {
         this.reader = new FieldTypeMappingReader(DataNodeType.CLICKHOUSE);
     }
 
     @Override
     public String getFieldTypeMapping(String sourceType) {
+        // support clickHouse field type special modifier Nullable
+        if (StringUtils.isNotBlank(sourceType)) {
+            Matcher matcher = PATTERN.matcher(sourceType.toUpperCase());
+            if (matcher.matches()) {
+                // obtain the field type modified by Nullable, for example, uint8(12) in Nullable(uint8(12))
+                sourceType = matcher.group(1);
+            }
+        }
         String dataType = StringUtils.substringBefore(sourceType, LEFT_BRACKET).toUpperCase();
         return reader.getFIELD_TYPE_MAPPING_MAP().getOrDefault(dataType, sourceType.toUpperCase());
     }
