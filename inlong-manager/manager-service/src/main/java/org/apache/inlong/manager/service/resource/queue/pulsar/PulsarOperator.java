@@ -390,26 +390,17 @@ public class PulsarOperator {
             Integer messageCount, InlongStreamInfo streamInfo) {
         LOGGER.info("begin to query message for topic {}, subName={}", topicFullName, subName);
 
-        List<Message<byte[]>> messages;
-        try {
-            messages = pulsarAdmin.topics().peekMessages(topicFullName, subName, messageCount);
-        } catch (PulsarAdminException e) {
-            String errMsg = "failed to query peek messages: ";
-            LOGGER.error(errMsg, e);
-            throw new BusinessException(errMsg + e.getMessage());
-        }
-
-        int index = 0;
         List<BriefMQMessage> messageList = new ArrayList<>();
-        for (Message<byte[]> pulsarMessage : messages) {
+        for (int i = 0; i < messageCount; i++) {
             try {
+                Message<byte[]> pulsarMessage = pulsarAdmin.topics().examineMessage(topicFullName, "latest", i);
                 Map<String, String> headers = pulsarMessage.getProperties();
                 int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
                         Integer.toString(DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId())));
                 DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
                         DataProxyMsgEncType.valueOf(wrapTypeId));
                 messageList.addAll(
-                        deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(), headers, ++index));
+                        deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(), headers, i));
             } catch (Exception e) {
                 String errMsg = "decode msg error: ";
                 LOGGER.error(errMsg, e);
