@@ -30,6 +30,8 @@ import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
+import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.user.TenantRoleService;
 
 import com.github.pagehelper.Page;
@@ -40,6 +42,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_ADMIN;
 import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_OPERATOR;
@@ -52,6 +56,9 @@ public class InlongTenantServiceImpl implements InlongTenantService {
     private InlongTenantEntityMapper inlongTenantEntityMapper;
     @Autowired
     private TenantRoleService tenantRoleService;
+    @Autowired
+    private WorkflowApproverService workflowApproverService;
+    private ExecutorService executorService = new ScheduledThreadPoolExecutor(1);
 
     @Override
     public InlongTenantInfo getByName(String name) {
@@ -77,7 +84,27 @@ public class InlongTenantServiceImpl implements InlongTenantService {
         entity.setCreator(operator);
         entity.setModifier(operator);
         inlongTenantEntityMapper.insert(entity);
+
+        UserInfo loginUserInfo = LoginUserUtils.getLoginUser();
+        executorService.submit(() -> {
+            loginUserInfo.setTenant(request.getName());
+            LoginUserUtils.setUserLoginInfo(loginUserInfo);
+            saveDefaultWorkflowApprovers(InlongConstants.DEFAULT_GROUP_PROCESS_NAME,
+                    InlongConstants.DEFAULT_TASK_NAME, operator);
+            saveDefaultWorkflowApprovers(InlongConstants.DEFAULT_CONSUME_PROCESS_NAME,
+                    InlongConstants.DEFAULT_TASK_NAME, operator);
+            LoginUserUtils.removeUserLoginInfo();
+        });
+
         return entity.getId();
+    }
+
+    private Integer saveDefaultWorkflowApprovers(String processName, String taskName, String approver) {
+        ApproverRequest request = new ApproverRequest();
+        request.setProcessName(processName);
+        request.setApprovers(approver);
+        request.setTaskName(taskName);
+        return workflowApproverService.save(request, approver);
     }
 
     @Override
