@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.tenant;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -47,6 +48,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_ADMIN;
 import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_OPERATOR;
+import static org.apache.inlong.manager.service.workflow.WorkflowDefinition.UT_ADMIN_NAME;
 
 @Service
 @Slf4j
@@ -89,10 +91,10 @@ public class InlongTenantServiceImpl implements InlongTenantService {
         executorService.submit(() -> {
             loginUserInfo.setTenant(request.getName());
             LoginUserUtils.setUserLoginInfo(loginUserInfo);
-            saveDefaultWorkflowApprovers(InlongConstants.DEFAULT_GROUP_PROCESS_NAME,
-                    InlongConstants.DEFAULT_TASK_NAME, operator);
-            saveDefaultWorkflowApprovers(InlongConstants.DEFAULT_CONSUME_PROCESS_NAME,
-                    InlongConstants.DEFAULT_TASK_NAME, operator);
+            saveDefaultWorkflowApprovers(ProcessName.APPLY_GROUP_PROCESS.name(),
+                    UT_ADMIN_NAME, operator);
+            saveDefaultWorkflowApprovers(ProcessName.APPLY_CONSUME_PROCESS.name(),
+                    UT_ADMIN_NAME, operator);
             LoginUserUtils.removeUserLoginInfo();
         });
 

@@ -198,19 +198,4 @@ public class InlongConstants {
      */
     public static final String MSG_ENCODE_VER = "msgEnType";
 
-    /**
-     * Default group process
-     */
-    public static final String DEFAULT_GROUP_PROCESS_NAME = "APPLY_GROUP_PROCESS";
-
-    /**
-     * Default consume process
-     */
-    public static final String DEFAULT_CONSUME_PROCESS_NAME = "APPLY_CONSUME_PROCESS";
-
-    /**
-     * Default task name
-     */
-    public static final String DEFAULT_TASK_NAME = "ut_admin";
-
 }
