@@ -48,6 +48,7 @@ public class ClickHouseFieldTypeStrategy implements FieldTypeMappingStrategy {
         if (StringUtils.isNotBlank(sourceType)) {
             Matcher matcher = PATTERN.matcher(sourceType.toUpperCase());
             if (matcher.matches()) {
+                // obtain the field type modified by Nullable, for example, uint8(12) in Nullable(uint8(12))
                 sourceType = matcher.group(1);
             }
         }
