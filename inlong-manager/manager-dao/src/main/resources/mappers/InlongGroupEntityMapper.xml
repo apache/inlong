@@ -80,9 +80,6 @@
             <if test="description != null and description != ''">
                 description,
             </if>
-            <if test="tenant != null and tenant != ''">
-                tenant,
-            </if>
             <if test="mqType != null and mqType != ''">
                 mq_type,
             </if>
@@ -151,9 +148,6 @@
             </if>
             <if test="description != null and description != ''">
                 #{description,jdbcType=VARCHAR},
-            </if>
-            <if test="tenant != null and tenant != ''">
-                #{tenant,jdbcType=VARCHAR},
             </if>
             <if test="mqType != null and mqType != ''">
                 #{mqType,jdbcType=VARCHAR},
