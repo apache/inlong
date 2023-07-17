@@ -30,7 +30,9 @@ import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.apache.inlong.sort.base.util.CalculateObjectSizeUtils;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.doris.model.RespContent;
+import org.apache.inlong.sort.doris.schema.SchemaChangeHelper;
 import org.apache.inlong.sort.doris.util.DorisParseUtils;
+import org.apache.inlong.sort.util.SchemaChangeUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.doris.flink.cfg.DorisExecutionOptions;
@@ -149,6 +151,11 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private final String dynamicSchemaFormat;
     private final boolean ignoreSingleTableErrors;
     private final SchemaUpdateExceptionPolicy schemaUpdatePolicy;
+    private final String[] fieldNames;
+    private final LogicalType[] logicalTypes;
+    private final boolean enableSchemaChange;
+    @Nullable
+    private final String schemaChangePolicies;
     private long batchBytes = 0L;
     private int size;
     private DorisStreamLoad dorisStreamLoad;
@@ -160,15 +167,14 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private transient SinkTableMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
-    private final String[] fieldNames;
     private volatile boolean jsonFormat;
     private volatile RowData.FieldGetter[] fieldGetters;
     private String fieldDelimiter;
     private String lineDelimiter;
     private String columns;
-    private final LogicalType[] logicalTypes;
     private DirtySinkHelper<Object> dirtySinkHelper;
     private transient Schema schema;
+    private SchemaChangeHelper helper;
 
     public DorisDynamicSchemaOutputFormat(DorisOptions option,
             DorisReadOptions readOptions,
@@ -185,7 +191,9 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             String auditHostAndPorts,
             boolean multipleSink,
             DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink) {
+            @Nullable DirtySink<Object> dirtySink,
+            boolean enableSchemaChange,
+            @Nullable String schemaChangePolicies) {
         this.options = option;
         this.readOptions = readOptions;
         this.executionOptions = executionOptions;
@@ -201,7 +209,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         this.ignoreSingleTableErrors = ignoreSingleTableErrors;
         this.schemaUpdatePolicy = schemaUpdatePolicy;
         this.dirtySinkHelper = new DirtySinkHelper<>(dirtyOptions, dirtySink);
-
+        this.enableSchemaChange = enableSchemaChange;
+        this.schemaChangePolicies = schemaChangePolicies;
         handleStreamLoadProp();
     }
 
@@ -211,7 +220,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
      * @return builder
      */
     public static DorisDynamicSchemaOutputFormat.Builder builder() {
-        return new DorisDynamicSchemaOutputFormat.Builder();
+        return new Builder();
     }
 
     private void handleStreamLoadProp() {
@@ -274,9 +283,12 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             }
         }
 
-        if (multipleSink && StringUtils.isNotBlank(dynamicSchemaFormat)) {
+        if (multipleSink) {
             jsonDynamicSchemaFormat =
                     (JsonDynamicSchemaFormat) DynamicSchemaFormatFactory.getFormat(dynamicSchemaFormat);
+            helper = SchemaChangeHelper.of(jsonDynamicSchemaFormat, options, enableSchemaChange,
+                    enableSchemaChange ? SchemaChangeUtils.deserialize(schemaChangePolicies) : null, databasePattern,
+                    tablePattern, executionOptions.getMaxRetries(), schemaUpdatePolicy, metricData, dirtySinkHelper);
         }
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(inlongMetric)
@@ -401,7 +413,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             boolean isDDL = jsonDynamicSchemaFormat.extractDDLFlag(rootNode);
             if (isDDL) {
                 ddlNum.incrementAndGet();
-                // Ignore ddl change for now
+                helper.process(rowData.getBinary(0), rootNode);
                 return;
             }
             String tableIdentifier;
@@ -925,6 +937,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         private String[] fieldNames;
         private DirtyOptions dirtyOptions;
         private DirtySink<Object> dirtySink;
+        private boolean enableSchemaChange;
+        private String schemaChangePolicies;
 
         public Builder() {
             this.optionsBuilder = DorisOptions.builder().setTableIdentifier("");
@@ -1021,6 +1035,16 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             return this;
         }
 
+        public Builder setEnableSchemaChange(boolean enableSchemaChange) {
+            this.enableSchemaChange = enableSchemaChange;
+            return this;
+        }
+
+        public Builder setSchemaChangePolicies(String schemaChangePolicies) {
+            this.schemaChangePolicies = schemaChangePolicies;
+            return this;
+        }
+
         @SuppressWarnings({"rawtypes"})
         public DorisDynamicSchemaOutputFormat build() {
             LogicalType[] logicalTypes = null;
@@ -1044,7 +1068,9 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                     auditHostAndPorts,
                     multipleSink,
                     dirtyOptions,
-                    dirtySink);
+                    dirtySink,
+                    enableSchemaChange,
+                    schemaChangePolicies);
         }
     }
 }
