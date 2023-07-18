@@ -651,6 +651,7 @@
                 </dependencies>
             </plugin>
             <plugin>
+                <!-- Packaging to the target directory during testing for loading plugins files for testing -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
