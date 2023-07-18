@@ -53,6 +53,7 @@ import static com.ververica.cdc.connectors.base.options.SourceOptions.SPLIT_KEY_
 import static com.ververica.cdc.connectors.base.utils.ObjectUtils.doubleCompare;
 import static com.ververica.cdc.connectors.oracle.source.config.OracleSourceOptions.PORT;
 import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
+import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
 import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
@@ -77,6 +78,8 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
         String username = config.get(USERNAME);
         String password = config.get(PASSWORD);
         String databaseName = config.get(DATABASE_NAME);
+        checkNotNull(databaseName);
+        databaseName = databaseName.toUpperCase();
         String tableName = config.get(TABLE_NAME);
         String schemaName = config.get(SCHEMA_NAME);
         int port = config.get(PORT);
