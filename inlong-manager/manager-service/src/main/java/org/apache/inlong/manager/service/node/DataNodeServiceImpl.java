@@ -21,6 +21,7 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
@@ -185,7 +186,8 @@ public class DataNodeServiceImpl implements DataNodeService {
     public Boolean update(DataNodeRequest request, String operator) {
         LOGGER.info("begin to update data node by id: {}", request);
         // check whether record existed
-        DataNodeEntity curEntity = dataNodeMapper.selectById(request.getId());
+        DataNodeEntity curEntity =
+                CommonBeanUtils.copyProperties(dataNodeMapper.selectById(request.getId()), DataNodeEntity::new);
         if (curEntity == null) {
             throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND,
                     String.format("data node record not found by id=%d", request.getId()));
@@ -219,7 +221,8 @@ public class DataNodeServiceImpl implements DataNodeService {
     @Transactional(rollbackFor = Throwable.class)
     public Boolean update(DataNodeRequest request, UserInfo opInfo) {
         // check the record existed
-        DataNodeEntity curEntity = dataNodeMapper.selectById(request.getId());
+        DataNodeEntity curEntity =
+                CommonBeanUtils.copyProperties(dataNodeMapper.selectById(request.getId()), DataNodeEntity::new);
         if (curEntity == null) {
             throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND,
                     String.format("data node record not found by id=%d", request.getId()));
