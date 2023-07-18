@@ -616,7 +616,7 @@
   "pages.GroupDetail.Sources": "Sources",
   "pages.GroupDetail.Sinks": "Sinks",
   "pages.GroupDetail.Audit": "Audit",
-  "pages.GroupDetail.Delay": "Delay",
+  "pages.GroupDetail.Delay": "Transmission Delay",
   "pages.GroupDetail.Resource": "Resource Detail",
   "pages.GroupDetail.Resource.Info": " Info",
   "pages.GroupDetail.Audit.DataStream": "DataStream",
