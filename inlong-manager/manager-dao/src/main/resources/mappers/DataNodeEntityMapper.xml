@@ -60,30 +60,43 @@
     </insert>
 
     <select id="selectById" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from data_node
-        where tenant = #{tenant, jdbcType=VARCHAR}
-        and is_deleted = 0
-        and id = #{id, jdbcType=INTEGER}
-    </select>
-    <select id="selectByUniqueKey" resultType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
-        select
-        <include refid="Base_Column_List"/>
-        from data_node
-        where tenant = #{tenant, jdbcType=VARCHAR}
-        and is_deleted = 0
-        and name = #{name, jdbcType=VARCHAR}
-        and type = #{type, jdbcType=VARCHAR}
-    </select>
-    <select id="selectByCondition"
-            parameterType="org.apache.inlong.manager.pojo.node.DataNodePageRequest"
-            resultType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
+        <bind name="_isInlongService" value="LoginUser.InlongService"/>
         select
         <include refid="Base_Column_List"/>
         from data_node
         <where>
-            tenant = #{tenant, jdbcType=VARCHAR}
+            <if test="_isInlongService == false">
+                tenant = #{tenant,jdbcType=VARCHAR}
+            </if>
+            and is_deleted = 0
+            and id = #{id, jdbcType=INTEGER}
+        </where>
+    </select>
+    <select id="selectByUniqueKey" resultType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
+        <bind name="_isInlongService" value="LoginUser.InlongService"/>
+        select
+        <include refid="Base_Column_List"/>
+        from data_node
+        <where>
+            <if test="_isInlongService == false">
+                tenant = #{tenant,jdbcType=VARCHAR}
+            </if>
+            and is_deleted = 0
+            and name = #{name, jdbcType=VARCHAR}
+            and type = #{type, jdbcType=VARCHAR}
+        </where>
+    </select>
+    <select id="selectByCondition"
+            parameterType="org.apache.inlong.manager.pojo.node.DataNodePageRequest"
+            resultType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
+        <bind name="_isInlongService" value="LoginUser.InlongService"/>
+        select
+        <include refid="Base_Column_List"/>
+        from data_node
+        <where>
+            <if test="_isInlongService == false">
+                tenant = #{tenant,jdbcType=VARCHAR}
+            </if>
             and is_deleted = 0
             <if test="name != null and name != ''">
                 and name = #{name, jdbcType=VARCHAR}
@@ -106,12 +119,19 @@
         order by modify_time desc
     </select>
     <select id="selectAllDataNodes" resultType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
+        <bind name="_isInlongService" value="LoginUser.InlongService"/>
         select
         <include refid="Base_Column_List"/>
         from data_node
-        where is_deleted = 0
+        <where>
+            <if test="_isInlongService == false">
+                tenant = #{tenant,jdbcType=VARCHAR}
+            </if>
+            and is_deleted = 0
+        </where>
     </select>
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
+        <bind name="_isInlongService" value="LoginUser.InlongService"/>
         update data_node
         set name         = #{name, jdbcType=VARCHAR},
             display_name = #{displayName, jdbcType=VARCHAR},
@@ -126,11 +146,16 @@
             is_deleted   = #{isDeleted, jdbcType=INTEGER},
             modifier     = #{modifier, jdbcType=VARCHAR},
             version      = #{version, jdbcType=INTEGER} + 1
-        where tenant = #{tenant, jdbcType=VARCHAR}
-          and id = #{id, jdbcType=INTEGER}
-          and version = #{version, jdbcType=INTEGER}
+        <where>
+            id = #{id, jdbcType=INTEGER}
+            <if test="_isInlongService == false">
+                and tenant = #{tenant,jdbcType=VARCHAR}
+            </if>
+            and version = #{version, jdbcType=INTEGER}
+        </where>
     </update>
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
+        <bind name="_isInlongService" value="LoginUser.InlongService"/>
         update data_node
         <set>
             <if test="name != null">
@@ -171,16 +196,25 @@
             </if>
             version = #{version, jdbcType=INTEGER} + 1
         </set>
-        where tenant = #{tenant, jdbcType=VARCHAR}
-        and id = #{id, jdbcType=INTEGER}
-        and version = #{version, jdbcType=INTEGER}
+        <where>
+            id = #{id, jdbcType=INTEGER}
+            <if test="_isInlongService == false">
+                and tenant = #{tenant, jdbcType=VARCHAR}
+            </if>
+            and version = #{version, jdbcType=INTEGER}
+        </where>
     </update>
 
     <delete id="deleteById">
+        <bind name="_isInlongService" value="LoginUser.InlongService"/>
         delete
         from data_node
-        where tenant = #{tenant, jdbcType=VARCHAR}
-        and id = #{id, jdbcType=INTEGER}
+        <where>
+            id = #{id, jdbcType=INTEGER}
+            <if test="_isInlongService == false">
+                and tenant = #{tenant, jdbcType=VARCHAR}
+            </if>
+        </where>
     </delete>
 
 </mapper>
