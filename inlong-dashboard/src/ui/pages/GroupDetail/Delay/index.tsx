@@ -31,6 +31,8 @@ import {
   getTableColumns,
   timeStaticsDimList,
 } from './config';
+import { Divider, Table } from 'antd';
+import i18n from '@/i18n';
 
 type Props = CommonInterface;
 
@@ -52,6 +54,24 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         ...query,
         startDate: timestampFormat(query.startDate, 'yyyy-MM-dd'),
         endDate: timestampFormat(query.endDate, 'yyyy-MM-dd'),
+        inlongGroupId,
+      },
+    },
+    {
+      ready: Boolean(query.inlongStreamId),
+      formatResult: result => result.sort((a, b) => (a.auditId - b.auditId > 0 ? 1 : -1)),
+    },
+  );
+
+  const { data: dayData = [], run: getDayData } = useRequest(
+    {
+      url: '/audit/list',
+      method: 'POST',
+      data: {
+        ...query,
+        timeStaticsDim: 'DAY',
+        startDate: timestampFormat(query.startDate, 'yyyy-MM-dd'),
+        endDate: timestampFormat(query.startDate, 'yyyy-MM-dd'),
         inlongGroupId,
       },
     },
@@ -84,16 +104,47 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       }
       acc[cur.logTs] = {
         ...acc[cur.logTs],
-        [cur.auditId]: cur.count,
+        [cur.auditId]: cur.count === 0 ? cur.delay : Math.floor(cur.delay / cur.count),
       };
       return acc;
     }, {});
     return output;
   }, [sourceData, query.timeStaticsDim]);
 
+  const dayDataMap = useMemo(() => {
+    const flatArr = dayData
+      .reduce(
+        (acc, cur) =>
+          acc.concat(
+            cur.auditSet.map(item => ({
+              ...item,
+              auditId: cur.auditId,
+            })),
+          ),
+        [],
+      )
+      .sort((a, b) => {
+        const aT = +new Date(query.timeStaticsDim === 'HOUR' ? `${a.logTs}:00` : a.logTs);
+        const bT = +new Date(query.timeStaticsDim === 'HOUR' ? `${b.logTs}:00` : b.logTs);
+        return aT - bT;
+      });
+    const output = flatArr.reduce((acc, cur) => {
+      if (!acc[cur.logTs]) {
+        acc[cur.logTs] = {};
+      }
+      acc[cur.logTs] = {
+        ...acc[cur.logTs],
+        [cur.auditId]: cur.count === 0 ? cur.delay : Math.floor(cur.delay / cur.count),
+      };
+      return acc;
+    }, {});
+    return output;
+  }, [dayData, query.timeStaticsDim]);
+
   const onSearch = async () => {
     await form.validateFields();
     run();
+    getDayData();
   };
 
   const onDataStreamSuccess = data => {
@@ -102,6 +153,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       form.setFieldsValue({ inlongStreamId: defaultDataStream });
       setQuery(prev => ({ ...prev, inlongStreamId: defaultDataStream }));
       run();
+      getDayData();
     }
   };
 
@@ -124,6 +176,14 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         <Charts height={400} option={toChartData(sourceData, sourceDataMap)} />
       </div>
 
+      <Divider>{i18n.t('pages.GroupDetail.Delay.AverageTitle')}</Divider>
+      <Table
+        columns={getTableColumns(dayData)}
+        dataSource={toTableData(dayData, dayDataMap)}
+        pagination={false}
+      />
+
+      <Divider style={{ marginTop: 50 }}>{i18n.t('pages.GroupDetail.Delay.RealTimeTitle')}</Divider>
       <HighTable
         table={{
           columns: getTableColumns(sourceData),
