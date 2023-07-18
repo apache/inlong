@@ -66,6 +66,7 @@
                 <exclude>*scala*.jar</exclude>
                 <exclude>flink-*.jar</exclude>
                 <exclude>sort-flink-*.jar</exclude>
+                <exclude>manager-plugins-flink-*.jar</exclude>
             </excludes>
         </fileSet>
 
