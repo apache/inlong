@@ -42,6 +42,17 @@ public class InlongClusterEntityMapperTest extends DaoBaseTest {
     }
 
     @Test
+    public void deleteByPrimaryKeyWithOtherTenant() {
+        InlongClusterEntity entity = genEntity();
+        entityMapper.insert(entity);
+        setOtherTenant(ANOTHER_TENANT);
+        Assertions.assertEquals(0, entityMapper.deleteByPrimaryKey(entity.getId()));
+        Assertions.assertNull(entityMapper.selectByNameAndType(entity.getName(), entity.getType()));
+        setOtherTenant(PUBLIC_TENANT);
+        Assertions.assertNotNull(entityMapper.selectByNameAndType(entity.getName(), entity.getType()));
+    }
+
+    @Test
     public void selectByCondition() {
         InlongClusterEntity entity = genEntity();
         entityMapper.insert(entity);
@@ -50,6 +61,8 @@ public class InlongClusterEntityMapperTest extends DaoBaseTest {
         request.setClusterTag("testTag");
 
         Assertions.assertEquals(1, entityMapper.selectByCondition(request).size());
+        setOtherTenant(ANOTHER_TENANT);
+        Assertions.assertEquals(0, entityMapper.selectByCondition(request).size());
     }
 
     @Test
@@ -61,7 +74,17 @@ public class InlongClusterEntityMapperTest extends DaoBaseTest {
         String newType = "newType";
         entity.setType(newType);
 
+        // the tenant will be modified in mybatis interceptor, set tenant here does not work
+        entity.setTenant(ANOTHER_TENANT);
         Assertions.assertEquals(1, entityMapper.updateById(entity));
+        entity = entityMapper.selectById(entity.getId());
+        Assertions.assertEquals(newType, entity.getType());
+
+        // should be public
+        Assertions.assertEquals(PUBLIC_TENANT, entity.getTenant());
+
+        setOtherTenant(ANOTHER_TENANT);
+        Assertions.assertEquals(0, entityMapper.updateById(entity));
     }
 
     private InlongClusterEntity genEntity() {

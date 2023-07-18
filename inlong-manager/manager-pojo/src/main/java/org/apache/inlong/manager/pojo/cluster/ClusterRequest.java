@@ -90,6 +90,10 @@ public abstract class ClusterRequest {
     @Length(max = 256, message = "length must be less than or equal to 256")
     private String description;
 
+    @ApiModelProperty(value = "Inlong tenant of cluster", hidden = true)
+    @Length(max = 256, message = "length must be less than or equal to 256")
+    private String tenant;
+
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
     @Length(max = 512, message = "length must be less than or equal to 512")
     private String inCharges;

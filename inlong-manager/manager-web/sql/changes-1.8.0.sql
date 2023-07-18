@@ -83,8 +83,8 @@ INSERT INTO tenant_user_role(username, role_code, tenant, creator)
     FROM user;
 
 -- To avoid the ambiguity, rename "tenant" in PulsarGroup & PulsarCluster to "pulsarTenant"
-UPDATE inlong_group SET ext_params = replace(ext_params, '"tenant":', '"pulsarTenant":');
-UPDATE inlong_cluster SET ext_params = replace(ext_params, '"tenant":', '"pulsarTenant":');
+UPDATE inlong_group SET ext_params = replace(ext_params, '"tenant"', '"pulsarTenant"');
+UPDATE inlong_cluster SET ext_params = replace(ext_params, '"tenant"', '"pulsarTenant"');
 
 ALTER TABLE `inlong_stream` MODIFY COLUMN `name` varchar(256) DEFAULT NULL COMMENT 'The name of the inlong stream page display, can be Chinese';
 
@@ -98,6 +98,16 @@ ALTER TABLE `data_node`
     ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of datanode' after `description`;
 CREATE INDEX datanode_tenant_index
     ON data_node (`tenant`, `is_deleted`);
+
+-- To support multi-tenancy of cluster. Please see #8365
+ALTER TABLE `inlong_cluster`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of cluster' after `heartbeat`;
+CREATE INDEX cluster_tenant_index
+    ON inlong_cluster (`tenant`, `is_deleted`);
+
+-- To support multi-tenancy of cluster tag. Please see #8378
+ALTER TABLE `inlong_cluster_tag`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of inlong cluster tag' after `description`;
 
 -- To support multi-tenancy of inlong consume. Please see #8378
 ALTER TABLE `inlong_consume`

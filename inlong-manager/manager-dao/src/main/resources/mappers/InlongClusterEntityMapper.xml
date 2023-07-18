@@ -32,6 +32,7 @@
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>
         <result column="heartbeat" jdbcType="LONGVARCHAR" property="heartbeat"/>
+        <result column="tenant" jdbcType="VARCHAR" property="tenant"/>
         <result column="in_charges" jdbcType="VARCHAR" property="inCharges"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
@@ -42,7 +43,7 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, display_name, type, url, cluster_tags, ext_tag, token, ext_params, description, heartbeat,
+        id, name, display_name, type, url, cluster_tags, ext_tag, token, ext_params, description, heartbeat, tenant,
         in_charges, status, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
 
@@ -51,13 +52,14 @@
         insert into inlong_cluster (id, name, display_name, type,
                                     url, cluster_tags, ext_tag,
                                     token, ext_params, description,
-                                    heartbeat, in_charges,
+                                    heartbeat, tenant, in_charges,
                                     status, creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{displayName,jdbcType=VARCHAR},
                 #{type,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, #{clusterTags,jdbcType=VARCHAR},
                 #{extTag,jdbcType=VARCHAR}, #{token,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
-                #{description, jdbcType=VARCHAR}, #{heartbeat,jdbcType=LONGVARCHAR}, #{inCharges,jdbcType=VARCHAR},
-                #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
+                #{description, jdbcType=VARCHAR}, #{heartbeat,jdbcType=LONGVARCHAR}, #{tenant,jdbcType=VARCHAR},
+                #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
+                #{modifier,jdbcType=VARCHAR})
     </insert>
 
     <insert id="insertOnDuplicateKeyUpdate" useGeneratedKeys="true" keyProperty="id"
@@ -65,28 +67,30 @@
         insert into inlong_cluster (id, name, display_name, type,
                                     url, cluster_tags, ext_tag,
                                     token, ext_params, heartbeat,
-                                    in_charges, status,
+                                    tenant, in_charges, status,
                                     creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{displayName,jdbcType=VARCHAR},
                 #{type,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, #{clusterTags,jdbcType=VARCHAR},
                 #{extTag,jdbcType=VARCHAR},#{token,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
-                #{heartbeat,jdbcType=LONGVARCHAR}, #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
-                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
+                #{heartbeat,jdbcType=LONGVARCHAR}, #{tenant,jdbcType=VARCHAR}, #{inCharges,jdbcType=VARCHAR},
+                #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
         ON DUPLICATE KEY UPDATE cluster_tags = VALUES(cluster_tags),
                                 ext_tag      = VALUES(ext_tag),
                                 token        = VALUES(token),
                                 ext_params   = VALUES(ext_params),
                                 heartbeat    = VALUES(heartbeat),
+                                tenant       = VALUES(tenant),
                                 in_charges   = VALUES(in_charges),
                                 status       = VALUES(status),
                                 modifier     = VALUES(modifier)
     </insert>
 
-    <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <select id="selectById" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from inlong_cluster
-        where is_deleted = 0
+        where tenant = #{tenant,jdbcType=VARCHAR}
+        and is_deleted = 0
         and id = #{id,jdbcType=INTEGER}
     </select>
     <select id="selectByKey" resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
@@ -94,7 +98,8 @@
         <include refid="Base_Column_List"/>
         from inlong_cluster
         <where>
-            is_deleted = 0
+            tenant = #{tenant,jdbcType=VARCHAR}
+            and is_deleted = 0
             <if test="type != null and type != ''">
                 and type = #{type, jdbcType=VARCHAR}
             </if>
@@ -112,7 +117,8 @@
         <include refid="Base_Column_List"/>
         from inlong_cluster
         <where>
-            is_deleted = 0
+            tenant = #{tenant,jdbcType=VARCHAR}
+            and is_deleted = 0
             <if test="type != null and type != ''">
                 and type = #{type, jdbcType=VARCHAR}
             </if>
@@ -129,7 +135,8 @@
         <include refid="Base_Column_List"/>
         from inlong_cluster
         <where>
-            is_deleted = 0
+            tenant = #{tenant,jdbcType=VARCHAR}
+            and is_deleted = 0
             <if test="name != null and name != ''">
                 and name = #{name, jdbcType=VARCHAR}
             </if>
@@ -161,11 +168,6 @@
                 or ext_tag like CONCAT('%', #{keyword}, '%')
                 )
             </if>
-            <if test="isAdminRole == false">
-                and (
-                creator = #{currentUser, jdbcType=VARCHAR} or find_in_set(#{currentUser, jdbcType=VARCHAR}, in_charges)
-                )
-            </if>
             <if test="status != null and status != ''">
                 and status = #{status, jdbcType=INTEGER}
             </if>
@@ -177,7 +179,8 @@
         <include refid="Base_Column_List"/>
         from inlong_cluster
         <where>
-            is_deleted = 0
+            tenant = #{tenant,jdbcType=VARCHAR}
+            and is_deleted = 0
             <if test="clusterTag != null and clusterTag != ''">
                 and find_in_set(#{clusterTag, jdbcType=VARCHAR}, cluster_tags)
             </if>
@@ -212,7 +215,8 @@
             is_deleted           = #{isDeleted,jdbcType=INTEGER},
             modifier             = #{modifier,jdbcType=VARCHAR},
             version              = #{version,jdbcType=INTEGER} + 1
-        where id = #{id,jdbcType=INTEGER}
+        where tenant = #{tenant,jdbcType=VARCHAR}
+          and id = #{id,jdbcType=INTEGER}
           and version = #{version,jdbcType=INTEGER}
     </update>
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
@@ -262,13 +266,15 @@
             </if>
             version = #{version,jdbcType=INTEGER} + 1
         </set>
-        where id = #{id,jdbcType=INTEGER}
+        where tenant = #{tenant,jdbcType=VARCHAR}
+        and id = #{id,jdbcType=INTEGER}
         and version = #{version,jdbcType=INTEGER}
     </update>
 
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <delete id="deleteByPrimaryKey">
         delete
         from inlong_cluster
-        where id = #{id,jdbcType=INTEGER}
+        where tenant = #{tenant,jdbcType=VARCHAR}
+        and id = #{id,jdbcType=INTEGER}
     </delete>
 </mapper>
