@@ -634,7 +634,7 @@
   "pages.GroupDetail.Audit.Sink": "Sink",
   "pages.GroupDetail.Delay.QueryDate": "Query Date",
   "pages.GroupDetail.Delay.AverageTitle": "Average Transit Delay Overview (ms)",
-  "pages.GroupDetail.Delay.RealTimeTitle": "Real-time Average Latency Overview (ms)",
+  "pages.GroupDetail.Delay.RealTimeTitle": "Real-time average transmission delay (ms)",
   "pages.GroupDetail.Stream.Preview": "Data Preview",
   "pages.GroupDetail.Stream.Dt": "Data Time(dt)",
   "pages.GroupDetail.Stream.Content": "Data Content",
