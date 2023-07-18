@@ -60,6 +60,7 @@
                 <include>flink-*.jar</include>
                 <include>sort-flink-*.jar</include>
                 <include>scala-*.jar</include>
+                <include>manager-plugins-flink-v1.13.jar</include>
             </includes>
         </fileSet>
 
@@ -71,6 +72,7 @@
                 <include>flink-*.jar</include>
                 <include>sort-flink-*.jar</include>
                 <include>scala-*.jar</include>
+                <include>manager-plugins-flink-v1.15.jar</include>
             </includes>
         </fileSet>
     </fileSets>
