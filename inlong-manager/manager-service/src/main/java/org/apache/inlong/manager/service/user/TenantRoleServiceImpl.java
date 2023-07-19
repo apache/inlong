@@ -98,7 +98,7 @@ public class TenantRoleServiceImpl implements TenantRoleService {
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
                     String.format(
-                            "failure to update tenant user role with id=%d, request version=%d, updated row=%d",
+                            "fail to update tenant user role with id=%d, request version=%d, updated row=%d",
                             request.getId(), request.getVersion(), rowCount));
         }
         return true;
