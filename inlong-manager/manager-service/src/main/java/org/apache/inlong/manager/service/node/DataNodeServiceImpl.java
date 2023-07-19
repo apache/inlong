@@ -21,6 +21,7 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
@@ -184,7 +185,7 @@ public class DataNodeServiceImpl implements DataNodeService {
     @Transactional(rollbackFor = Throwable.class)
     public Boolean update(DataNodeRequest request, String operator) {
         LOGGER.info("begin to update data node by id: {}", request);
-        // check whether record existed
+        // check whether the record existed
         DataNodeEntity curEntity = dataNodeMapper.selectById(request.getId());
         if (curEntity == null) {
             throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND,
@@ -192,25 +193,18 @@ public class DataNodeServiceImpl implements DataNodeService {
         }
         userService.checkUser(curEntity.getInCharges(), operator,
                 "Current user does not have permission to update data node info");
+
         // check whether modify unmodifiable parameters
         chkUnmodifiableParams(curEntity, request);
-        // Check whether the data node name exists with the same name and type
-        if (request.getName() != null) {
-            if (StringUtils.isBlank(request.getName())) {
-                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                        "the name changed of data node is blank!");
-            }
-            DataNodeEntity existEntity =
-                    dataNodeMapper.selectByUniqueKey(request.getName(), request.getType());
-            if (existEntity != null && !existEntity.getId().equals(request.getId())) {
-                throw new BusinessException(ErrorCodeEnum.RECORD_DUPLICATE,
-                        String.format("data node already exist for name=%s, type=%s, required id=%s, exist id=%s",
-                                request.getName(), request.getType(), request.getId(), existEntity.getId()));
-            }
-        }
+
+        // after the update operation, `curEntity` will be updated to the latest info by the MyBatis cache mechanism,
+        // so we need to get an `oldEntity` by copying `curEntity` before the update operation.
+        DataNodeEntity oldEntity = CommonBeanUtils.copyProperties(curEntity, DataNodeEntity::new);
         DataNodeOperator dataNodeOperator = operatorFactory.getInstance(request.getType());
         dataNodeOperator.updateOpt(request, operator);
-        dataNodeOperator.updateRelatedStreamSource(request, curEntity, operator);
+
+        // update the related stream sources if the request and old entity ha
+        dataNodeOperator.updateRelatedStreamSource(request, oldEntity, operator);
         LOGGER.info("success to update data node={}", request);
         return true;
     }
@@ -218,34 +212,8 @@ public class DataNodeServiceImpl implements DataNodeService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean update(DataNodeRequest request, UserInfo opInfo) {
-        // check the record existed
-        DataNodeEntity curEntity = dataNodeMapper.selectById(request.getId());
-        if (curEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND,
-                    String.format("data node record not found by id=%d", request.getId()));
-        }
-        userService.checkUser(curEntity.getInCharges(), opInfo.getName(),
-                "Current user does not have permission to update data node info");
-        // check whether modify unmodifiable parameters
-        chkUnmodifiableParams(curEntity, request);
-        // Check whether the data node name exists with the same name and type
-        if (request.getName() != null) {
-            if (StringUtils.isBlank(request.getName())) {
-                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                        "the name changed of data node is blank!");
-            }
-            DataNodeEntity existEntity =
-                    dataNodeMapper.selectByUniqueKey(request.getName(), request.getType());
-            if (existEntity != null && !existEntity.getId().equals(request.getId())) {
-                throw new BusinessException(ErrorCodeEnum.RECORD_DUPLICATE,
-                        String.format("data node already exist for name=%s, type=%s, required id=%s, exist id=%s",
-                                request.getName(), request.getType(), request.getId(), existEntity.getId()));
-            }
-        }
-        DataNodeOperator dataNodeOperator = operatorFactory.getInstance(request.getType());
-        dataNodeOperator.updateOpt(request, opInfo.getName());
-        dataNodeOperator.updateRelatedStreamSource(request, curEntity, opInfo.getName());
-        return true;
+        String operator = opInfo.getName();
+        return this.update(request, operator);
     }
 
     @Override
