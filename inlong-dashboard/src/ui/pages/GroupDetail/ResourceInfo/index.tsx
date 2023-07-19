@@ -54,11 +54,24 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
       for (const key in data[item]) {
         content.push({
           label: key,
-          name: key,
+          name: item + '_' + key,
           type: 'text',
           initialValue: data[item][key],
         });
       }
+      return content;
+    }
+    if (data[item].constructor === Array) {
+      const infoData = [];
+      for (const key in data[item]) {
+        infoData.push(data['item'][key].url);
+      }
+      content.push({
+        label: 'url',
+        name: 'kafkaUrl',
+        type: 'text',
+        initialValue: infoData.join(','),
+      });
       return content;
     }
   };
@@ -66,7 +79,7 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
   const dividerInfo = data => {
     let info = [];
     for (const item in data) {
-      if (data[item] !== null && item !== 'SortInfo' && item !== 'PULSAR') {
+      if (data[item] !== null && item !== 'SortInfo' && item !== 'PULSAR' && item !== 'TUBEMQ') {
         info.push(item);
       }
     }
@@ -106,6 +119,24 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
             ]}
             style={{ marginTop: 20 }}
             dataSource={data?.PULSAR}
+            pagination={false}
+            rowKey="name"
+          ></Table>
+        </>
+      )}
+      {data?.hasOwnProperty('TUBEMQ') && (
+        <>
+          <Divider orientation="left" style={{ marginTop: 40 }}>
+            TubeMQ {t('pages.GroupDetail.Resource.Info')}
+          </Divider>
+          <Table
+            size="small"
+            columns={[
+              { title: 'RPC Url', dataIndex: 'RPC Url' },
+              { title: 'Web Url', dataIndex: 'Web url' },
+            ]}
+            style={{ marginTop: 20, width: 1100 }}
+            dataSource={data?.TUBEMQ}
             pagination={false}
             rowKey="name"
           ></Table>
