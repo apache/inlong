@@ -491,6 +491,8 @@
   "meta.Nodes.StarRocks.Username": "Username",
   "meta.Nodes.StarRocks.Password": "Password",
   "meta.Nodes.StarRocks.Url": "URL",
+  "meta.Nodes.Hive.Username": "Username",
+  "meta.Nodes.Hive.Password": "Password",
   "meta.Nodes.Redis.Database": "Database",
   "meta.Nodes.Redis.clusterMode": "ClusterMode",
   "meta.Nodes.Redis.Host": "Host",
