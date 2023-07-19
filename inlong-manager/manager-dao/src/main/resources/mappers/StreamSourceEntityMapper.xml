@@ -548,7 +548,7 @@
         <where>
             is_deleted = 0
             and modify_time &lt;= DATE_ADD(NOW(), INTERVAL -#{beforeSeconds, jdbcType=INTEGER} SECOND)
-            and status not in (105,110)
+            and status not in (101, 102, 104, 105, 110)
         </where>
     </update>
 
