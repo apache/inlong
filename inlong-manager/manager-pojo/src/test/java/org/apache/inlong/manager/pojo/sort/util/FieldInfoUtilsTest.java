@@ -105,7 +105,7 @@ public class FieldInfoUtilsTest {
         StreamField streamField = new StreamField();
         streamField.setIsMetaField(0);
         streamField.setFieldName("age");
-        streamField.setFieldType("uint8");
+        streamField.setFieldType("Nullable(uint8(12))");
         FieldInfo fieldInfo = FieldInfoUtils.parseStreamFieldInfo(streamField,
                 "nodeId", new ClickHouseFieldTypeStrategy());
         TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();

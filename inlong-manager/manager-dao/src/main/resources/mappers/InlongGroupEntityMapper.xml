@@ -67,6 +67,7 @@
             parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
         insert into inlong_group
         <trim prefix="(" suffix=")" suffixOverrides="," >
+            tenant,
             <if test="id != null">
                 id,
             </if>
@@ -78,9 +79,6 @@
             </if>
             <if test="description != null and description != ''">
                 description,
-            </if>
-            <if test="tenant != null and tenant != ''">
-                tenant,
             </if>
             <if test="mqType != null and mqType != ''">
                 mq_type,
@@ -138,6 +136,7 @@
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides="," >
+            #{tenant,jdbcType=VARCHAR},
             <if test="id != null">
                 #{id,jdbcType=INTEGER},
             </if>
@@ -149,9 +148,6 @@
             </if>
             <if test="description != null and description != ''">
                 #{description,jdbcType=VARCHAR},
-            </if>
-            <if test="tenant != null and tenant != ''">
-                #{tenant,jdbcType=VARCHAR},
             </if>
             <if test="mqType != null and mqType != ''">
                 #{mqType,jdbcType=VARCHAR},
@@ -178,7 +174,7 @@
                 #{enableCreateResource,jdbcType=INTEGER},
             </if>
             <if test="inlongGroupMode != null">
-                inlong_group_mode = #{inlongGroupMode,jdbcType=INTEGER},
+                #{inlongGroupMode,jdbcType=INTEGER},
             </if>
             <if test="dataReportType != null">
                 #{dataReportType,jdbcType=INTEGER},

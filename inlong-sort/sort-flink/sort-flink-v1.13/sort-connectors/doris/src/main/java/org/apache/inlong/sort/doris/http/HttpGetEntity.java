@@ -15,33 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.sort.doris.http;
 
-import lombok.Data;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 
-import java.io.Serializable;
-import java.util.Date;
+import java.net.URI;
 
 /**
- * Inlong cluster tag entity.
+ * Http entity with get
  */
-@Data
-public class InlongClusterTagEntity implements Serializable {
+public class HttpGetEntity extends HttpEntityEnclosingRequestBase {
 
-    private static final long serialVersionUID = 1L;
-    private Integer id;
-    private String clusterTag;
-    private String extParams;
-    private String description;
-    private String tenant;
-    private String inCharges;
+    private final static String METHOD = "GET";
 
-    private Integer status;
-    private Integer isDeleted;
-    private String creator;
-    private String modifier;
-    private Date createTime;
-    private Date modifyTime;
-    private Integer version;
+    public HttpGetEntity(String uri) {
+        super();
+        setURI(URI.create(uri));
+    }
 
+    @Override
+    public String getMethod() {
+        return METHOD;
+    }
 }

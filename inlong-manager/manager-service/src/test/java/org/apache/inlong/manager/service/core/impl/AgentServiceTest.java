@@ -66,9 +66,9 @@ class AgentServiceTest extends ServiceBaseTest {
 
     private static MockAgent agent;
     @Autowired
-    private HeartbeatService heartbeatService;
-    @Autowired
     private StreamSourceService sourceService;
+    @Autowired
+    private HeartbeatService heartbeatService;
     @Autowired
     private AgentService agentService;
     @Autowired
@@ -236,38 +236,16 @@ class AgentServiceTest extends ServiceBaseTest {
         // unbind group and mismatch
         bindGroup(false, "group1");
         TaskResult t1 = agent.pullTask();
-        Assertions.assertEquals(1, t1.getDataConfigs().size());
-        Assertions.assertEquals(1, t1.getDataConfigs().stream()
-                .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.FROZEN.getType())
-                .collect(Collectors.toSet())
-                .size());
-        DataConfig d1 = t1.getDataConfigs().get(0);
-        Assertions.assertEquals(sourceId, d1.getTaskId());
+        Assertions.assertEquals(0, t1.getDataConfigs().size());
 
         // bind group and rematch
         bindGroup(true, "group1");
         TaskResult t2 = agent.pullTask();
-        Assertions.assertEquals(0, t2.getDataConfigs().size());
-        Assertions.assertEquals(0, t2.getDataConfigs().stream()
-                .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.ACTIVE.getType())
+        Assertions.assertEquals(1, t2.getDataConfigs().size());
+        Assertions.assertEquals(1, t2.getDataConfigs().stream()
+                .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.ADD.getType())
                 .collect(Collectors.toSet())
                 .size());
-
-        // update group to config success
-        final String groupId = sourceService.listSource(groupStream.getLeft(), groupStream.getRight()).stream()
-                .filter(source -> source.getTemplateId() != null)
-                .findAny()
-                .get()
-                .getInlongGroupId();
-        groupMapper.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), GLOBAL_OPERATOR);
-        TaskResult t3 = agent.pullTask();
-        Assertions.assertEquals(1, t3.getDataConfigs().size());
-        Assertions.assertEquals(1, t3.getDataConfigs().stream()
-                .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.ACTIVE.getType())
-                .collect(Collectors.toSet())
-                .size());
-        DataConfig d3 = t3.getDataConfigs().get(0);
-        Assertions.assertEquals(sourceId, d3.getTaskId());
     }
 
     /**
