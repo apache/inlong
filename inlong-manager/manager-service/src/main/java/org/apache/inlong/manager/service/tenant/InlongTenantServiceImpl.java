@@ -111,11 +111,11 @@ public class InlongTenantServiceImpl implements InlongTenantService {
 
     @Override
     public PageResult<InlongTenantInfo> listByCondition(InlongTenantPageRequest request, UserInfo userInfo) {
-        PageHelper.startPage(request.getPageNum(), request.getPageSize());
-
         if (request.getListByLoginUser()) {
             setTargetTenantList(request, userInfo);
         }
+
+        PageHelper.startPage(request.getPageNum(), request.getPageSize());
 
         Page<InlongTenantEntity> entityPage = inlongTenantEntityMapper.selectByCondition(request);
 
@@ -163,16 +163,18 @@ public class InlongTenantServiceImpl implements InlongTenantService {
     }
 
     private void setTargetTenantList(InlongTenantPageRequest request, UserInfo userInfo) {
-        request.setKeyword(null);
         if (isInlongRoles(userInfo)) {
+            // for inlong roles, they can get all tenant info.
             request.setTenantList(null);
             return;
         }
 
         List<String> tenants = tenantRoleService.listTenantByUsername(userInfo.getName());
         if (CollectionUtils.isEmpty(tenants)) {
-            request.setTenantList(null);
-            return;
+            String errMsg = String.format("user=[%s] doesn't belong to any tenant, please contact administrator " +
+                    "and get one tenant at least", userInfo.getName());
+            log.error(errMsg);
+            throw new BusinessException(errMsg);
         }
         request.setTenantList(tenants);
     }
