@@ -195,6 +195,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
                 tx.commit();
                 return Status.BACKOFF;
             }
+            context.fileMetricIncSumStats(StatConstants.EVENT_SINK_EVENT_TAKE_SUCCESS);
             // ProxyEvent
             if (event instanceof ProxyEvent) {
                 ProxyEvent proxyEvent = (ProxyEvent) event;
@@ -245,6 +246,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
             tx.commit();
             return Status.READY;
         } catch (Throwable t) {
+            context.fileMetricIncSumStats(StatConstants.EVENT_SINK_EVENT_TAKE_FAILURE);
             if (logCounter.shouldPrint()) {
                 logger.error("{} process event failed!", this.getName(), t);
             }
