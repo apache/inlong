@@ -672,7 +672,7 @@
                         <goals>
                             <goal>copy</goal>
                         </goals>
-                        <phase>pre-integration-test</phase>
+                        <phase>process-test-resources</phase>
                     </execution>
                 </executions>
             </plugin>
