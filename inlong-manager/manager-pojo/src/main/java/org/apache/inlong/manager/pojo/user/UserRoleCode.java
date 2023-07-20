@@ -70,4 +70,9 @@ public class UserRoleCode {
      */
     public static final String INLONG_OPERATOR = "INLONG_OPERATOR";
 
+    /**
+     * The requests from Inlong Service do not need to filter by tenant
+     */
+    public static final String INLONG_SERVICE = "INLONG_SERVICE";
+
 }
