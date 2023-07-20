@@ -50,6 +50,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -74,7 +75,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
 
     private static final Logger JM_LOG = LoggerFactory.getLogger(JobMaster.class);
     private static final Logger TM_LOG = LoggerFactory.getLogger(TaskExecutor.class);
-    private static final Logger MYSQL_LOG = LoggerFactory.getLogger(MySqlContainer.class);
+    private static final Logger STAR_ROCKS_LOG = LoggerFactory.getLogger(StarRocksContainer.class);
     private static final Logger LOG = LoggerFactory.getLogger(FlinkContainerTestEnv.class);
 
     private static final Path SORT_DIST_JAR = TestUtils.getResource("sort-dist.jar");
@@ -110,22 +111,16 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
     // ----------------------------------------------------------------------------------------
     // MYSQL Variables
     // ----------------------------------------------------------------------------------------
-    protected static final String MYSQL_DRIVER_CLASS = "com.mysql.cj.jdbc.Driver";
-    private static final String INTER_CONTAINER_MYSQL_ALIAS = "mysql";
+    protected static final String STAR_ROCKS_DRIVER_CLASS = "com.mysql.cj.jdbc.Driver";
+    private static final String INTER_CONTAINER_STAR_ROCKS_ALIAS = "starrocks";
     @ClassRule
-    public static final MySqlContainer MYSQL =
-            (MySqlContainer) new MySqlContainer()
-                    .withConfigurationOverride("docker/mysql/my.cnf")
-                    .withSetupSQL("docker/mysql/setup.sql")
-                    .withDatabaseName("test")
-                    .withUsername("flinkuser")
-                    .withPassword("flinkpw")
-                    .withUrlParam("allowMultiQueries", "true")
-                    .withNetwork(NETWORK)
-                    .withExposedPorts(3306)
+    public static final StarRocksContainer STAR_ROCKS =
+            (StarRocksContainer) new StarRocksContainer()
+                    // .withNetwork(NETWORK)
+                    .withExposedPorts(9030, 8030, 8040)
                     .withAccessToHost(true)
-                    .withNetworkAliases(INTER_CONTAINER_MYSQL_ALIAS)
-                    .withLogConsumer(new Slf4jLogConsumer(MYSQL_LOG));
+                    .withNetworkAliases(INTER_CONTAINER_STAR_ROCKS_ALIAS)
+                    .withLogConsumer(new Slf4jLogConsumer(STAR_ROCKS_LOG));
 
     @BeforeClass
     public static void before() {
@@ -164,8 +159,8 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
         if (taskManager != null) {
             taskManager.stop();
         }
-        if (MYSQL != null) {
-            MYSQL.stop();
+        if (STAR_ROCKS != null) {
+            STAR_ROCKS.stop();
         }
     }
 
@@ -309,8 +304,10 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
     private String copyToContainerTmpPath(GenericContainer<?> container, String filePath) throws IOException {
         Path path = Paths.get(filePath);
         byte[] fileData = Files.readAllBytes(path);
+        String s = new String(fileData, StandardCharsets.UTF_8);
+        s.replaceAll("%STARROCKS_HOSTNAME%", STAR_ROCKS.getHost());
         String containerPath = "/tmp/" + path.getFileName();
-        container.copyFileToContainer(Transferable.of(fileData), containerPath);
+        container.copyFileToContainer(Transferable.of(s.getBytes(StandardCharsets.UTF_8)), containerPath);
         return containerPath;
     }
 }

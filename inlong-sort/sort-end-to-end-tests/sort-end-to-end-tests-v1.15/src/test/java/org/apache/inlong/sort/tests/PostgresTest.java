@@ -50,7 +50,7 @@ public class PostgresTest extends FlinkContainerTestEnv {
     private static final Logger LOG = LoggerFactory.getLogger(PostgresTest.class);
 
     private static final Path postgresJar = TestUtils.getResource("sort-connector-postgres-cdc.jar");
-    private static final Path jdbcJar = TestUtils.getResource("sort-connector-jdbc.jar");
+    private static final Path jdbcJar = TestUtils.getResource("sort-connector-starrocks.jar");
     private static final Path mysqlJdbcJar = TestUtils.getResource("mysql-driver.jar");
 
     private static final String sqlFile;
@@ -76,8 +76,9 @@ public class PostgresTest extends FlinkContainerTestEnv {
 
     @Before
     public void setup() {
+        waitUntilJobRunning(Duration.ofSeconds(30));
         initializePostgresTable();
-        initializeMysqlTable();
+        initializeStarRocksTable();
     }
 
     private void initializePostgresTable() {
@@ -100,16 +101,17 @@ public class PostgresTest extends FlinkContainerTestEnv {
         }
     }
 
-    private void initializeMysqlTable() {
+    private void initializeStarRocksTable() {
         try (Connection conn =
-                DriverManager.getConnection(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
+                DriverManager.getConnection(STAR_ROCKS.getJdbcUrl(), STAR_ROCKS.getUsername(),
+                        STAR_ROCKS.getPassword());
                 Statement stat = conn.createStatement()) {
             stat.execute("CREATE TABLE IF NOT EXISTS test_output1 (\n"
-                    + "       id INT PRIMARY KEY,\n"
+                    + "       id INT ,\n"
                     + "       name VARCHAR(255) NOT NULL DEFAULT 'flink',\n"
                     + "       description VARCHAR(512)\n"
                     + ")\n"
-                    + "ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+                    + "distributed by hash(id) properties (\"replication_num\" = \"1\");");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -152,9 +154,9 @@ public class PostgresTest extends FlinkContainerTestEnv {
         }
 
         JdbcProxy proxy =
-                new JdbcProxy(MYSQL.getJdbcUrl(), MYSQL.getUsername(),
-                        MYSQL.getPassword(),
-                        MYSQL.getDriverClassName());
+                new JdbcProxy(STAR_ROCKS.getJdbcUrl(), STAR_ROCKS.getUsername(),
+                        STAR_ROCKS.getPassword(),
+                        STAR_ROCKS.getDriverClassName());
         List<String> expectResult =
                 Arrays.asList("2,tom,Big 2-wheel scooter ");
         proxy.checkResultWithTimeout(

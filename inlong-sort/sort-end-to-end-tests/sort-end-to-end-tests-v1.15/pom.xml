@@ -44,10 +44,6 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>mysql</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
             <version>${testcontainers.version}</version>
         </dependency>
@@ -167,9 +163,9 @@
                         </artifactItem>
                         <artifactItem>
                             <groupId>org.apache.inlong</groupId>
-                            <artifactId>sort-connector-jdbc</artifactId>
+                            <artifactId>sort-connector-starrocks-v1.15</artifactId>
                             <version>${project.version}</version>
-                            <destFileName>sort-connector-jdbc.jar</destFileName>
+                            <destFileName>sort-connector-starrocks.jar</destFileName>
                             <type>jar</type>
                             <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
                         </artifactItem>
