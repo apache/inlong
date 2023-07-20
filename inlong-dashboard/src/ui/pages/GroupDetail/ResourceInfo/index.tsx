@@ -64,7 +64,7 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
     if (data[item].constructor === Array) {
       const infoData = [];
       for (const key in data[item]) {
-        infoData.push(data['item'][key].url);
+        infoData.push(data[item][key].url);
       }
       content.push({
         label: 'url',
