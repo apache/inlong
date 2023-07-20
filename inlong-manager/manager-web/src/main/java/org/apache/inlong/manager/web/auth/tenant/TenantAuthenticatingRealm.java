@@ -29,6 +29,7 @@ import org.apache.inlong.manager.service.user.TenantRoleService;
 import org.apache.inlong.manager.service.user.UserService;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -122,10 +123,9 @@ public class TenantAuthenticatingRealm extends AuthenticatingRealm {
             }
         };
 
-        if (userInfo.getRoles() == null) {
-            userInfo.setRoles(roleSet);
-        } else {
-            userInfo.getRoles().addAll(roleSet);
+        if (CollectionUtils.isEmpty(userInfo.getRoles())) {
+            roleSet.addAll(userInfo.getRoles());
         }
+        userInfo.setRoles(roleSet);
     }
 }

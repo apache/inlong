@@ -491,6 +491,8 @@
   "meta.Nodes.StarRocks.Username": "用户名",
   "meta.Nodes.StarRocks.Password": "密码",
   "meta.Nodes.StarRocks.Url": "地址",
+  "meta.Nodes.Hive.Username": "用户名",
+  "meta.Nodes.Hive.Password": "密码",
   "meta.Nodes.Hudi.Username": "用户名",
   "meta.Nodes.Hudi.Password": "密码",
   "meta.Nodes.Hudi.Url": "地址",

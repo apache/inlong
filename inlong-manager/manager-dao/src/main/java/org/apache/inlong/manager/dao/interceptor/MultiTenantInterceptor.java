@@ -24,6 +24,7 @@ import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.cache.CacheKey;
@@ -32,6 +33,7 @@ import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMapping;
+import org.apache.ibatis.ognl.ASTConst;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Intercepts;
 import org.apache.ibatis.plugin.Invocation;
@@ -44,8 +46,10 @@ import org.apache.ibatis.reflection.factory.DefaultObjectFactory;
 import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.reflection.wrapper.DefaultObjectWrapperFactory;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
+import org.apache.ibatis.scripting.xmltags.OgnlCache;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
+import org.apache.ibatis.type.StringTypeHandler;
 
 import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
@@ -53,6 +57,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_SERVICE;
 
 /**
  * This interceptor intercept those queries annotated by {@link MultiTenantQuery}.
@@ -74,6 +80,7 @@ import java.util.Properties;
 public class MultiTenantInterceptor implements Interceptor {
 
     private static final String KEY_TENANT = "tenant";
+    private static final String KEY_INLONG_SERVICE = "LoginUser.InlongService";
     private static final ObjectFactory DEFAULT_OBJECT_FACTORY = new DefaultObjectFactory();
     private static final ObjectWrapperFactory DEFAULT_OBJECT_WRAPPER_FACTORY = new DefaultObjectWrapperFactory();
     private static final ReflectorFactory REFLECTOR_FACTORY = new DefaultReflectorFactory();
@@ -94,6 +101,7 @@ public class MultiTenantInterceptor implements Interceptor {
         if (!MultiTenantQueryFilter.isMultiTenantQuery(fullMethodName.split(InlongConstants.UNDERSCORE)[0])) {
             return invocation.proceed();
         }
+        this.setExpressionCache();
         try {
             Object[] args = invocation.getArgs();
             MappedStatement ms = (MappedStatement) args[0];
@@ -106,8 +114,9 @@ public class MultiTenantInterceptor implements Interceptor {
                 // 6 params
                 boundSql = (BoundSql) args[5];
             }
-
             List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+
+            this.setTenantMapping(parameterMappings);
             // new param mapping
             Object newParameter = makeNewParameters(parameter, parameterMappings);
             // update params
@@ -128,11 +137,11 @@ public class MultiTenantInterceptor implements Interceptor {
         if (!MultiTenantQueryFilter.isMultiTenantQuery(fullMethodName.split(InlongConstants.UNDERSCORE)[0])) {
             return invocation.proceed();
         }
-
+        this.setExpressionCache();
         Object parameterObject = metaResultSetHandler.getValue("parameterObject");
         BoundSql boundSql = (BoundSql) metaResultSetHandler.getValue("boundSql");
         Object newParams = makeNewParameters(parameterObject, boundSql.getParameterMappings());
-
+        this.setTenantMapping(boundSql.getParameterMappings());
         metaResultSetHandler.setValue("parameterObject", newParams);
         return invocation.proceed();
     }
@@ -206,6 +215,41 @@ public class MultiTenantInterceptor implements Interceptor {
                     userInfo.getId(), userInfo.getName()));
         }
         return tenant;
+    }
+
+    private boolean isInlongService() {
+        UserInfo userInfo = LoginUserUtils.getLoginUser();
+        if (userInfo == null) {
+            throw new BusinessException("Current user is null, please login first");
+        }
+        if (CollectionUtils.isEmpty(userInfo.getRoles())) {
+            return false;
+        }
+        return userInfo.getRoles().contains(INLONG_SERVICE);
+    }
+
+    private void setExpressionCache() throws NoSuchFieldException, IllegalAccessException {
+        Field cacheFiled = OgnlCache.class.getDeclaredField("expressionCache");
+        cacheFiled.setAccessible(true);
+        Map<String, Object> expressionCache = (Map<String, Object>) cacheFiled.get(null);
+        ASTConst node = new ASTConst(31);
+        node.setValue(this.isInlongService());
+        expressionCache.put(KEY_INLONG_SERVICE, node);
+    }
+
+    private void setTenantMapping(List<ParameterMapping> parameterMappings)
+            throws NoSuchFieldException, IllegalAccessException {
+        for (ParameterMapping mapping : parameterMappings) {
+            if (mapping.getProperty().equals(KEY_TENANT)) {
+                Field javaType = mapping.getClass().getDeclaredField("javaType");
+                javaType.setAccessible(true);
+                javaType.set(mapping, String.class);
+
+                Field typeHandler = mapping.getClass().getDeclaredField("typeHandler");
+                typeHandler.setAccessible(true);
+                typeHandler.set(mapping, new StringTypeHandler());
+            }
+        }
     }
 
     @Override
