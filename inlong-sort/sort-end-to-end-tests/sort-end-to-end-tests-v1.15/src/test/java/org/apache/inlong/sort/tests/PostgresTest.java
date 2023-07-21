@@ -68,7 +68,6 @@ public class PostgresTest extends FlinkContainerTestEnv {
             DockerImageName.parse("debezium/postgres:13").asCompatibleSubstituteFor("postgres"))
                     .withUsername("flinkuser")
                     .withPassword("flinkpw")
-                    .withInitScript("docker/postgresql/setup.sql")
                     .withDatabaseName("test")
                     .withNetwork(NETWORK)
                     .withNetworkAliases("postgres")
@@ -107,11 +106,12 @@ public class PostgresTest extends FlinkContainerTestEnv {
                         STAR_ROCKS.getPassword());
                 Statement stat = conn.createStatement()) {
             stat.execute("CREATE TABLE IF NOT EXISTS test_output1 (\n"
-                    + "       id INT ,\n"
+                    + "       id INT NOT NULL,\n"
                     + "       name VARCHAR(255) NOT NULL DEFAULT 'flink',\n"
                     + "       description VARCHAR(512)\n"
                     + ")\n"
-                    + "distributed by hash(id) properties (\"replication_num\" = \"1\");");
+                    + "PRIMARY KEY(id)\n"
+                    + "DISTRIBUTED by HASH(id) PROPERTIES (\"replication_num\" = \"1\");");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -132,7 +132,7 @@ public class PostgresTest extends FlinkContainerTestEnv {
     @Test
     public void testPostgresUpdateAndDelete() throws Exception {
         submitSQLJob(sqlFile, jdbcJar, postgresJar, mysqlJdbcJar);
-        waitUntilJobRunning(Duration.ofSeconds(30));
+        waitUntilJobRunning(Duration.ofSeconds(10));
 
         // generate input
         try (Connection conn =

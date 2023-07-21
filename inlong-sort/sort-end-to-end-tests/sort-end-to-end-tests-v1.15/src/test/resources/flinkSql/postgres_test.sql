@@ -6,8 +6,8 @@ CREATE TABLE test_input1 (
     'connector' = 'postgres-cdc-inlong',
     'hostname' = 'postgres',
     'port' = '5432',
-    'username' = 'inlong',
-    'password' = 'inlong',
+    'username' = 'flinkuser',
+    'password' = 'flinkpw',
     'database-name' = 'test',
     'table-name' = 'test_input1',
     'schema-name' = 'public',
@@ -22,8 +22,8 @@ CREATE TABLE test_output1 (
     description STRING
 ) WITH (
     'connector' = 'starrocks-inlong',
-    'jdbc-url' = 'jdbc:mysql://%STRAROCKS_HOSTNAME%:9030',
-    'load-url'='%STRAROCKS_HOSTNAME%:8030',
+    'jdbc-url' = 'jdbc:mysql://starrocks:9030',
+    'load-url'='starrocks:8030',
     'database-name'='test',
     'table-name' = 'test_output1',
     'username' = 'inlong',

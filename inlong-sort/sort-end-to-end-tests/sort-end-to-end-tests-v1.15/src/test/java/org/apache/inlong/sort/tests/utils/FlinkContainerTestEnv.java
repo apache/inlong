@@ -109,14 +109,14 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
     private static GenericContainer<?> jobManager;
     private static GenericContainer<?> taskManager;
     // ----------------------------------------------------------------------------------------
-    // MYSQL Variables
+    // StarRocks Variables
     // ----------------------------------------------------------------------------------------
-    protected static final String STAR_ROCKS_DRIVER_CLASS = "com.mysql.cj.jdbc.Driver";
     private static final String INTER_CONTAINER_STAR_ROCKS_ALIAS = "starrocks";
+
     @ClassRule
     public static final StarRocksContainer STAR_ROCKS =
             (StarRocksContainer) new StarRocksContainer()
-                    // .withNetwork(NETWORK)
+                    .withNetwork(NETWORK)
                     .withExposedPorts(9030, 8030, 8040)
                     .withAccessToHost(true)
                     .withNetworkAliases(INTER_CONTAINER_STAR_ROCKS_ALIAS)
@@ -178,25 +178,6 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
         commands.add(copyToContainerTmpPath(jobManager, constructDistJar(jars)));
         commands.add("--sql.script.file");
         commands.add(containerSqlFile);
-
-        ExecResult execResult =
-                jobManager.execInContainer("bash", "-c", String.join(" ", commands));
-        LOG.info(execResult.getStdout());
-        LOG.error(execResult.getStderr());
-        if (execResult.getExitCode() != 0) {
-            throw new AssertionError("Failed when submitting the SQL job.");
-        }
-    }
-
-    public void submitGroupFileJob(String groupFile, Path... jars)
-            throws IOException, InterruptedException {
-        final List<String> commands = new ArrayList<>();
-        String containerGroupFile = copyToContainerTmpPath(jobManager, groupFile);
-        commands.add(FLINK_BIN + "/flink run -d");
-        commands.add("-c org.apache.inlong.sort.Entrance");
-        commands.add(copyToContainerTmpPath(jobManager, constructDistJar(jars)));
-        commands.add("--group.info.file");
-        commands.add(containerGroupFile);
 
         ExecResult execResult =
                 jobManager.execInContainer("bash", "-c", String.join(" ", commands));
@@ -304,10 +285,8 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
     private String copyToContainerTmpPath(GenericContainer<?> container, String filePath) throws IOException {
         Path path = Paths.get(filePath);
         byte[] fileData = Files.readAllBytes(path);
-        String s = new String(fileData, StandardCharsets.UTF_8);
-        s.replaceAll("%STARROCKS_HOSTNAME%", STAR_ROCKS.getHost());
         String containerPath = "/tmp/" + path.getFileName();
-        container.copyFileToContainer(Transferable.of(s.getBytes(StandardCharsets.UTF_8)), containerPath);
+        container.copyFileToContainer(Transferable.of(fileData), containerPath);
         return containerPath;
     }
 }

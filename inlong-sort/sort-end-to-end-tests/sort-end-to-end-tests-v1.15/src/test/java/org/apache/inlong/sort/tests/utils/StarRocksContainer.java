@@ -43,7 +43,7 @@ public class StarRocksContainer extends JdbcDatabaseContainer {
     private String password = "inlong";
 
     public StarRocksContainer() {
-        this(StarRocksVersion.V3_0);
+        this(StarRocksVersion.V3_1);
     }
 
     public StarRocksContainer(StarRocksVersion version) {
@@ -62,7 +62,7 @@ public class StarRocksContainer extends JdbcDatabaseContainer {
     protected void configure() {
         optionallyMapResourceParameterAsVolume(
                 MY_CNF_CONFIG_OVERRIDE_PARAM_NAME, "/data/deploy/", "/docker/starrocks/start_fe_be.sh");
-        setStartupAttempts(3);
+        setStartupAttempts(1);
     }
 
     @Override
