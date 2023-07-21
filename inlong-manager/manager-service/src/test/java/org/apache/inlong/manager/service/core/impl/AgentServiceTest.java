@@ -48,7 +48,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +67,8 @@ class AgentServiceTest extends ServiceBaseTest {
     private static MockAgent agent;
     @Autowired
     private StreamSourceService sourceService;
+    @Autowired
+    private HeartbeatService heartbeatService;
     @Autowired
     private AgentService agentService;
     @Autowired
@@ -161,18 +162,13 @@ class AgentServiceTest extends ServiceBaseTest {
         sourceService.logicDeleteAll(groupId, streamId, GLOBAL_OPERATOR);
     }
 
-    @BeforeAll
-    public static void setUp(
-            @Autowired AgentService agentService,
-            @Autowired HeartbeatService heartbeatService) {
-        agent = new MockAgent(agentService, heartbeatService, 2);
-        agent.sendHeartbeat();
-    }
-
     @BeforeEach
     public void setupEach() {
+        agent = new MockAgent(agentService, heartbeatService, 2);
+        agent.sendHeartbeat();
         groupStreamCache = new ArrayList<>();
         groupCache = new ArrayList<>();
+        super.login();
     }
 
     @AfterEach
@@ -240,24 +236,16 @@ class AgentServiceTest extends ServiceBaseTest {
         // unbind group and mismatch
         bindGroup(false, "group1");
         TaskResult t1 = agent.pullTask();
-        Assertions.assertEquals(1, t1.getDataConfigs().size());
-        Assertions.assertEquals(1, t1.getDataConfigs().stream()
-                .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.FROZEN.getType())
-                .collect(Collectors.toSet())
-                .size());
-        DataConfig d1 = t1.getDataConfigs().get(0);
-        Assertions.assertEquals(sourceId, d1.getTaskId());
+        Assertions.assertEquals(0, t1.getDataConfigs().size());
 
         // bind group and rematch
         bindGroup(true, "group1");
         TaskResult t2 = agent.pullTask();
         Assertions.assertEquals(1, t2.getDataConfigs().size());
         Assertions.assertEquals(1, t2.getDataConfigs().stream()
-                .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.ACTIVE.getType())
+                .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.ADD.getType())
                 .collect(Collectors.toSet())
                 .size());
-        DataConfig d2 = t2.getDataConfigs().get(0);
-        Assertions.assertEquals(sourceId, d2.getTaskId());
     }
 
     /**

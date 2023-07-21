@@ -56,9 +56,9 @@ public class ClickHouseConfig {
             String username = auditSource.getUsername();
             String password = StringUtils.isBlank(auditSource.getToken()) ? "" : auditSource.getToken();
 
-            boolean changed = Objects.equals(currentJdbcUrl, jdbcUrl)
-                    || Objects.equals(currentUsername, username)
-                    || Objects.equals(currentPassword, password);
+            boolean changed = !Objects.equals(currentJdbcUrl, jdbcUrl)
+                    || !Objects.equals(currentUsername, username)
+                    || !Objects.equals(currentPassword, password);
             if (changed) {
                 currentJdbcUrl = jdbcUrl;
                 currentUsername = username;
