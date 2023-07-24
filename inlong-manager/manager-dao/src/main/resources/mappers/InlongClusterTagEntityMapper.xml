@@ -51,28 +51,41 @@
     </insert>
 
     <select id="selectById" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from inlong_cluster_tag
-        where tenant = #{tenant,jdbcType=VARCHAR}
-        and id = #{id,jdbcType=INTEGER}
-    </select>
-    <select id="selectByTag" resultType="org.apache.inlong.manager.dao.entity.InlongClusterTagEntity">
-        select
-        <include refid="Base_Column_List"/>
-        from inlong_cluster_tag
-        where tenant = #{tenant,jdbcType=VARCHAR}
-        and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
-        and is_deleted = 0
-    </select>
-    <select id="selectByCondition"
-            parameterType="org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest"
-            resultType="org.apache.inlong.manager.dao.entity.InlongClusterTagEntity">
+        <bind name="_isInlongService" value="LoginUser.InlongService"/>
         select
         <include refid="Base_Column_List"/>
         from inlong_cluster_tag
         <where>
-            tenant = #{tenant,jdbcType=VARCHAR}
+            id = #{id,jdbcType=INTEGER}
+            <if test="_isInlongService == false">
+                and tenant = #{tenant,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectByTag" resultType="org.apache.inlong.manager.dao.entity.InlongClusterTagEntity">
+        <bind name="_isInlongService" value="LoginUser.InlongService"/>
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_cluster_tag
+        <where>
+            cluster_tag = #{clusterTag, jdbcType=VARCHAR}
+            <if test="_isInlongService == false">
+                and tenant = #{tenant,jdbcType=VARCHAR}
+            </if>
+            and is_deleted = 0
+        </where>
+    </select>
+    <select id="selectByCondition"
+            parameterType="org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest"
+            resultType="org.apache.inlong.manager.dao.entity.InlongClusterTagEntity">
+        <bind name="_isInlongService" value="LoginUser.InlongService"/>
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_cluster_tag
+        <where>
+            <if test="_isInlongService == false">
+                tenant = #{tenant,jdbcType=VARCHAR}
+            </if>
             and is_deleted = 0
             <if test="keyword != null and keyword != ''">
                 and cluster_tag like CONCAT('%', #{keyword}, '%')
@@ -82,6 +95,7 @@
     </select>
 
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterTagEntity">
+        <bind name="_isInlongService" value="LoginUser.InlongService"/>
         update inlong_cluster_tag
         <set>
             <if test="clusterTag != null">
@@ -107,15 +121,24 @@
             </if>
             version     = #{version,jdbcType=INTEGER} + 1
         </set>
-        where tenant = #{tenant,jdbcType=VARCHAR}
-          and id = #{id,jdbcType=INTEGER}
-          and version = #{version,jdbcType=INTEGER}
+        <where>
+            <if test="_isInlongService == false">
+                tenant = #{tenant,jdbcType=VARCHAR}
+            </if>
+            and id = #{id,jdbcType=INTEGER}
+            and version = #{version,jdbcType=INTEGER}
+        </where>
     </update>
 
     <delete id="deleteByPrimaryKey">
+        <bind name="_isInlongService" value="LoginUser.InlongService"/>
         delete
         from inlong_cluster_tag
-        where tenant = #{tenant,jdbcType=VARCHAR}
-        and id = #{id,jdbcType=INTEGER}
+        <where>
+            id = #{id,jdbcType=INTEGER}
+            <if test="_isInlongService == false">
+                and tenant = #{tenant,jdbcType=VARCHAR}
+            </if>
+        </where>
     </delete>
 </mapper>

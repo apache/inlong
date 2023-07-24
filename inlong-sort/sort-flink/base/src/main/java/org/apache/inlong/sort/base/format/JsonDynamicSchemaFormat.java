@@ -61,6 +61,8 @@ import static org.apache.inlong.sort.formats.json.utils.FormatJsonUtil.SQL_TYPE_
 @SuppressWarnings("LanguageDetectionInspection")
 public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaFormat<JsonNode> {
 
+    public static final int DEFAULT_DECIMAL_PRECISION = 15;
+    public static final int DEFAULT_DECIMAL_SCALE = 5;
     private static final Logger LOG = LoggerFactory.getLogger(JsonDynamicSchemaFormat.class);
     /**
      * The first item of array

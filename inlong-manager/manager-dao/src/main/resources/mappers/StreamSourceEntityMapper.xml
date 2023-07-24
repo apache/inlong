@@ -548,7 +548,7 @@
         <where>
             is_deleted = 0
             and modify_time &lt;= DATE_ADD(NOW(), INTERVAL -#{beforeSeconds, jdbcType=INTEGER} SECOND)
-            and status in (200, 201, 202, 203, 204, 205, 206, 207, 208)
+            and status not in (101, 102, 104, 105, 110)
         </where>
     </update>
 
@@ -562,6 +562,20 @@
             is_deleted != 0
             and status not in (99, 201, 301)
         </where>
+    </update>
+    <update id="logicalDeleteByAgentIp">
+        update stream_source
+        <set>
+            is_deleted = id,
+            previous_status = status,
+            status = #{status, jdbcType=INTEGER},
+            version = version + 1
+        </set>
+        where is_deleted = 0
+        and agent_ip = #{agentIp, jdbcType=VARCHAR}
+        <if test="targetStatus != null">
+            and status = #{targetStatus, jdbcType=INTEGER}
+        </if>
     </update>
     <delete id="deleteByRelatedId">
         delete

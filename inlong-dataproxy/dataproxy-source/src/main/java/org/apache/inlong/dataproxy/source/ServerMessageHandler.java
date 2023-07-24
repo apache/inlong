@@ -115,8 +115,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 // reset index when buffer is not satisfied.
                 cb.resetReaderIndex();
                 source.fileMetricIncSumStats(StatConstants.EVENT_PKG_READABLE_UNFILLED);
-                throw new Exception("Error msg, buffer is unfilled, readableLength="
-                        + readableLength + ", totalPackLength=" + totalDataLen + " + 4");
+                return;
             }
             // read type
             int msgTypeValue = cb.readByte();
