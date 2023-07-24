@@ -27,11 +27,9 @@ import org.apache.flink.connector.jdbc.dialect.JdbcDialectLoader;
 import org.apache.flink.connector.jdbc.internal.options.JdbcConnectorOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcLookupOptions;
-import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcReadOptions;
 import org.apache.flink.connector.jdbc.table.JdbcDynamicTableSink;
 import org.apache.flink.connector.jdbc.table.JdbcDynamicTableSource;
-import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSinkFactory;
@@ -39,13 +37,7 @@ import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.flink.table.utils.TableSchemaUtils;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.dirty.DirtyOptions;
-import org.apache.inlong.sort.base.dirty.sink.DirtySink;
-import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
-import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
-import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -74,14 +66,6 @@ import static org.apache.flink.connector.jdbc.table.JdbcConnectorOptions.SINK_PA
 import static org.apache.flink.connector.jdbc.table.JdbcConnectorOptions.TABLE_NAME;
 import static org.apache.flink.connector.jdbc.table.JdbcConnectorOptions.URL;
 import static org.apache.flink.connector.jdbc.table.JdbcConnectorOptions.USERNAME;
-import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTERN;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
 
 /**
  * Factory for creating configured instances of {@link JdbcDynamicTableSource} and {@link
