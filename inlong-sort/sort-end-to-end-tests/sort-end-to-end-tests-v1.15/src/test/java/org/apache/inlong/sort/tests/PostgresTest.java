@@ -134,9 +134,10 @@ public class PostgresTest extends FlinkContainerTestEnv {
             Statement stat = conn.createStatement();
             stat.execute(
                     "CREATE TABLE test_input1 (\n"
-                            + "  id INTEGER PRIMARY KEY NOT NULL,\n"
+                            + "  id SERIAL,\n"
                             + "  name VARCHAR(255) NOT NULL DEFAULT 'flink',\n"
-                            + "  description VARCHAR(512)\n"
+                            + "  description VARCHAR(512),\n"
+                            + "  PRIMARY  KEY(id)\n"
                             + ");");
             stat.close();
             conn.close();
@@ -200,9 +201,6 @@ public class PostgresTest extends FlinkContainerTestEnv {
             LOG.error("Update table for CDC failed.", e);
             throw e;
         }
-
-        //There is a delay in performing a delete operation in StarRocks.
-        Thread.sleep(5000);
 
         JdbcProxy proxy =
                 new JdbcProxy(STAR_ROCKS.getJdbcUrl(), STAR_ROCKS.getUsername(),
