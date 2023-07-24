@@ -173,7 +173,7 @@ public class PostgresTest extends FlinkContainerTestEnv {
     }
 
     /**
-     * Test flink sql mysql cdc to postgresql
+     * Test flink sql postgresql cdc to StarRocks
      *
      * @throws Exception The exception may throws when execute the case
      */
@@ -200,6 +200,9 @@ public class PostgresTest extends FlinkContainerTestEnv {
             LOG.error("Update table for CDC failed.", e);
             throw e;
         }
+
+        //There is a delay in performing a delete operation in StarRocks.
+        Thread.sleep(5000);
 
         JdbcProxy proxy =
                 new JdbcProxy(STAR_ROCKS.getJdbcUrl(), STAR_ROCKS.getUsername(),
