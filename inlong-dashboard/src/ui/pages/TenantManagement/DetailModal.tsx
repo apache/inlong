@@ -63,7 +63,7 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
               data: {
                 keyword,
                 pageNum: 1,
-                pageSize: 10,
+                pageSize: 9999,
                 listByLoginUser: true,
               },
             }),

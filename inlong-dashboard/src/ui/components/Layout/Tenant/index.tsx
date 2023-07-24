@@ -19,7 +19,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Divider, Dropdown, Input, MenuProps, message, Space, theme } from 'antd';
-import { useDispatch, useRequest, useSelector } from '@/ui/hooks';
+import { useRequest, useSelector } from '@/ui/hooks';
 import { State } from '@/core/stores';
 import { useTranslation } from 'react-i18next';
 import { useLocalStorage } from '@/core/utils/localStorage';
@@ -30,7 +30,6 @@ const Comp: React.FC = () => {
   const { t } = useTranslation();
   const tenant = useSelector<State, State['tenant']>(state => state.tenant);
   const userName = useSelector<State, State['userName']>(state => state.userName);
-  const roles = useSelector<State, State['roles']>(state => state.roles);
   const [getLocalStorage, setLocalStorage, removeLocalStorage] = useLocalStorage('tenant');
 
   const { token } = useToken();
@@ -39,20 +38,17 @@ const Comp: React.FC = () => {
     borderRadius: token.borderRadiusLG,
     boxShadow: token.boxShadowSecondary,
   };
-  const [filter, setFilter] = useState(true);
-  const [filterData, setFilterData] = useState([]);
   const [data, setData] = useState([]);
 
   const defaultOptions = {
     keyword: '',
-    pageSize: 10,
+    pageSize: 9999,
     pageNum: 1,
   };
-  const dispatch = useDispatch();
 
   const [options, setOptions] = useState(defaultOptions);
 
-  const { run: getStreamData } = useRequest(
+  const { run: getTenantData } = useRequest(
     {
       url: '/tenant/list',
       method: 'POST',
@@ -66,19 +62,11 @@ const Comp: React.FC = () => {
       manual: userName !== undefined ? false : true,
       onSuccess: result => {
         const tenant = [];
-        const tenantList = [];
         result.list.map(item => {
-          tenantList.push(item.name);
           tenant.push({
             label: item.name,
             key: item.name,
           });
-        });
-        dispatch({
-          type: 'setTenantInfo',
-          payload: {
-            tenantList: tenantList,
-          },
         });
         setData(tenant);
       },
@@ -106,24 +94,29 @@ const Comp: React.FC = () => {
   };
 
   const onFilter = allValues => {
-    setFilterData(data.filter(item => item.key === allValues));
-    setFilter(false);
+    setOptions(prev => ({
+      ...prev,
+      keyword: allValues,
+    }));
+    getTenantData();
   };
 
   useEffect(() => {
     if (userName !== undefined) {
-      getStreamData();
+      getTenantData();
     }
   }, [userName]);
 
   return (
     <>
       <Dropdown
-        menu={{ items: filter ? data : filterData, onClick }}
+        menu={{ items: data, onClick }}
         placement="bottomLeft"
         dropdownRender={menu => (
           <div style={contentStyle}>
-            {React.cloneElement(menu as React.ReactElement, { style: { boxShadow: 'none' } })}
+            {React.cloneElement(menu as React.ReactElement, {
+              style: { boxShadow: 'none', maxHeight: 200, overflow: 'auto' },
+            })}
             <Divider style={{ margin: 0 }} />
             <Space style={{ padding: 8 }}>
               <Input.Search allowClear onSearch={onFilter} style={{ width: 130 }} />
