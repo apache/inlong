@@ -17,33 +17,38 @@
 
 package org.apache.inlong.sort.tests.utils;
 
+import org.apache.commons.lang3.StringUtils;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.utility.DockerImageName;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+
+import static java.util.stream.Collectors.joining;
 
 /**
  * Docker container for StarRocks.
  */
 @SuppressWarnings("rawtypes")
-public class StarRocksContainer extends JdbcDatabaseContainer {
+public class StarRocksContainer extends GenericContainer {
 
     public static final String IMAGE = "starrocks/allin1-ubi";
     public static final Integer STAR_ROCKS_QUERY_PORT = 9030;
     public static final Integer STAR_ROCKS_FD_HTTP_PORT = 8030;
     public static final Integer STAR_ROCKS_ED_HTTP_PORT = 8040;
 
-    private static final String MY_CNF_CONFIG_OVERRIDE_PARAM_NAME = "MY_CNF";
-    private static final String SETUP_SQL_PARAM_NAME = "SETUP_SQL";
-    private static final String STAR_ROCKS_ROOT_USER = "root";
+    private Map<String, String> urlParameters = new HashMap<>();
 
     private String databaseName = "test";
     private String username = "inlong";
     private String password = "inlong";
 
     public StarRocksContainer() {
-        this(StarRocksVersion.V3_1);
+        this(StarRocksVersion.V3_0);
     }
 
     public StarRocksContainer(StarRocksVersion version) {
@@ -53,19 +58,13 @@ public class StarRocksContainer extends JdbcDatabaseContainer {
         addExposedPort(STAR_ROCKS_ED_HTTP_PORT);
     }
 
-    @Override
-    protected Set<Integer> getLivenessCheckPorts() {
-        return new HashSet<>(getMappedPort(STAR_ROCKS_QUERY_PORT));
+    public StarRocksContainer(String imageName) {
+        super(DockerImageName.parse(imageName).asCompatibleSubstituteFor("starrocks"));
+        addExposedPort(STAR_ROCKS_QUERY_PORT);
+        addExposedPort(STAR_ROCKS_FD_HTTP_PORT);
+        addExposedPort(STAR_ROCKS_ED_HTTP_PORT);
     }
 
-    @Override
-    protected void configure() {
-        optionallyMapResourceParameterAsVolume(
-                MY_CNF_CONFIG_OVERRIDE_PARAM_NAME, "/data/deploy/", "/docker/starrocks/start_fe_be.sh");
-        setStartupAttempts(1);
-    }
-
-    @Override
     public String getDriverClassName() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -75,8 +74,18 @@ public class StarRocksContainer extends JdbcDatabaseContainer {
         }
     }
 
+    private String constructUrlParameters(String startCharacter, String delimiter, String endCharacter) {
+        String urlParameters = "";
+        if (!this.urlParameters.isEmpty()) {
+            String additionalParameters = this.urlParameters.entrySet().stream()
+                    .map(Object::toString)
+                    .collect(joining(delimiter));
+            urlParameters = startCharacter + additionalParameters + endCharacter;
+        }
+        return urlParameters;
+    }
     public String getJdbcUrl(String databaseName) {
-        String additionalUrlParams = constructUrlParameters("?", "&");
+        String additionalUrlParams = constructUrlParameters("?", "&", StringUtils.EMPTY);
         return "jdbc:mysql://"
                 + getHost()
                 + ":"
@@ -86,7 +95,6 @@ public class StarRocksContainer extends JdbcDatabaseContainer {
                 + additionalUrlParams;
     }
 
-    @Override
     public String getJdbcUrl() {
         return getJdbcUrl(databaseName);
     }
@@ -95,70 +103,21 @@ public class StarRocksContainer extends JdbcDatabaseContainer {
         return getMappedPort(STAR_ROCKS_QUERY_PORT);
     }
 
-    @Override
-    protected String constructUrlForConnection(String queryString) {
-        String url = super.constructUrlForConnection(queryString);
 
-        if (!url.contains("useSSL=")) {
-            String separator = url.contains("?") ? "&" : "?";
-            url = url + separator + "useSSL=false";
-        }
-
-        if (!url.contains("allowPublicKeyRetrieval=")) {
-            url = url + "&allowPublicKeyRetrieval=true";
-        }
-
-        return url;
-    }
-
-    @Override
     public String getDatabaseName() {
         return databaseName;
     }
 
-    @Override
     public String getUsername() {
         return username;
     }
 
-    @Override
     public String getPassword() {
         return password;
     }
 
-    @Override
     protected String getTestQueryString() {
         return "SELECT 1";
-    }
-
-    @SuppressWarnings("unchecked")
-    public StarRocksContainer withConfigurationOverride(String s) {
-        parameters.put(MY_CNF_CONFIG_OVERRIDE_PARAM_NAME, s);
-        return this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public StarRocksContainer withSetupSQL(String sqlPath) {
-        parameters.put(SETUP_SQL_PARAM_NAME, sqlPath);
-        return this;
-    }
-
-    @Override
-    public StarRocksContainer withDatabaseName(final String databaseName) {
-        this.databaseName = databaseName;
-        return this;
-    }
-
-    @Override
-    public StarRocksContainer withUsername(final String username) {
-        this.username = username;
-        return this;
-    }
-
-    @Override
-    public StarRocksContainer withPassword(final String password) {
-        this.password = password;
-        return this;
     }
 
     /** MySql version enum. */

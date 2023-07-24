@@ -19,6 +19,7 @@ package org.apache.inlong.sort.tests;
 
 import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
 import org.apache.inlong.sort.tests.utils.JdbcProxy;
+import org.apache.inlong.sort.tests.utils.StarRocksContainer;
 import org.apache.inlong.sort.tests.utils.TestUtils;
 
 import org.junit.AfterClass;
@@ -27,9 +28,12 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -41,6 +45,7 @@ import java.sql.Statement;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * End-to-end tests for sort-connector-postgres-cdc-v1.15 uber jar.
@@ -53,25 +58,58 @@ public class PostgresTest extends FlinkContainerTestEnv {
     private static final Path jdbcJar = TestUtils.getResource("sort-connector-starrocks.jar");
     private static final Path mysqlJdbcJar = TestUtils.getResource("mysql-driver.jar");
 
+    private static final Logger STAR_ROCKS_LOG = LoggerFactory.getLogger(StarRocksContainer.class);
+
     private static final String sqlFile;
+
+    // ----------------------------------------------------------------------------------------
+    // StarRocks Variables
+    // ----------------------------------------------------------------------------------------
+    private static final String INTER_CONTAINER_STAR_ROCKS_ALIAS = "starrocks";
 
     static {
         try {
             sqlFile = Paths.get(PostgresTest.class.getResource("/flinkSql/postgres_test.sql").toURI()).toString();
+            buildStarRocksImage();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
 
+    public static void buildStarRocksImage() {
+        GenericContainer oldStarRocks = new GenericContainer("starrocks/allin1-ubi:3.0.4");
+        Startables.deepStart(Stream.of(oldStarRocks)).join();
+        oldStarRocks.copyFileToContainer(MountableFile.forClasspathResource("/docker/starrocks/start_fe_be.sh"),
+                "/data/deploy/");
+        try {
+            oldStarRocks.execInContainer("chmod", "+x", "/data/deploy/start_fe_be.sh");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        oldStarRocks.getDockerClient()
+                .commitCmd(oldStarRocks.getContainerId())
+                .withRepository("inlong-starrocks")
+                .withTag("latest").exec();
+        oldStarRocks.stop();
+    }
+
+    @ClassRule
+    public static StarRocksContainer STAR_ROCKS = (StarRocksContainer) new StarRocksContainer("inlong-starrocks:latest")
+            .withExposedPorts(9030, 8030, 8040)
+            .withNetwork(NETWORK)
+            .withAccessToHost(true)
+            .withNetworkAliases(INTER_CONTAINER_STAR_ROCKS_ALIAS)
+            .withLogConsumer(new Slf4jLogConsumer(STAR_ROCKS_LOG));
+
     @ClassRule
     public static final PostgreSQLContainer POSTGRES_CONTAINER = (PostgreSQLContainer) new PostgreSQLContainer(
             DockerImageName.parse("debezium/postgres:13").asCompatibleSubstituteFor("postgres"))
-                    .withUsername("flinkuser")
-                    .withPassword("flinkpw")
-                    .withDatabaseName("test")
-                    .withNetwork(NETWORK)
-                    .withNetworkAliases("postgres")
-                    .withLogConsumer(new Slf4jLogConsumer(LOG));
+            .withUsername("flinkuser")
+            .withPassword("flinkpw")
+            .withDatabaseName("test")
+            .withNetwork(NETWORK)
+            .withNetworkAliases("postgres")
+            .withLogConsumer(new Slf4jLogConsumer(LOG));
 
     @Before
     public void setup() {
@@ -121,6 +159,9 @@ public class PostgresTest extends FlinkContainerTestEnv {
     public static void teardown() {
         if (POSTGRES_CONTAINER != null) {
             POSTGRES_CONTAINER.stop();
+        }
+        if (STAR_ROCKS != null) {
+            STAR_ROCKS.stop();
         }
     }
 

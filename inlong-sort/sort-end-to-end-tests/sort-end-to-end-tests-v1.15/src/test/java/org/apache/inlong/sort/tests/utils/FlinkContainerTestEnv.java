@@ -42,6 +42,7 @@ import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.lifecycle.Startables;
+import org.testcontainers.utility.MountableFile;
 
 import javax.annotation.Nullable;
 
@@ -75,7 +76,6 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
 
     private static final Logger JM_LOG = LoggerFactory.getLogger(JobMaster.class);
     private static final Logger TM_LOG = LoggerFactory.getLogger(TaskExecutor.class);
-    private static final Logger STAR_ROCKS_LOG = LoggerFactory.getLogger(StarRocksContainer.class);
     private static final Logger LOG = LoggerFactory.getLogger(FlinkContainerTestEnv.class);
 
     private static final Path SORT_DIST_JAR = TestUtils.getResource("sort-dist.jar");
@@ -108,19 +108,6 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
 
     private static GenericContainer<?> jobManager;
     private static GenericContainer<?> taskManager;
-    // ----------------------------------------------------------------------------------------
-    // StarRocks Variables
-    // ----------------------------------------------------------------------------------------
-    private static final String INTER_CONTAINER_STAR_ROCKS_ALIAS = "starrocks";
-
-    @ClassRule
-    public static final StarRocksContainer STAR_ROCKS =
-            (StarRocksContainer) new StarRocksContainer()
-                    .withNetwork(NETWORK)
-                    .withExposedPorts(9030, 8030, 8040)
-                    .withAccessToHost(true)
-                    .withNetworkAliases(INTER_CONTAINER_STAR_ROCKS_ALIAS)
-                    .withLogConsumer(new Slf4jLogConsumer(STAR_ROCKS_LOG));
 
     @BeforeClass
     public static void before() {
@@ -158,9 +145,6 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
         }
         if (taskManager != null) {
             taskManager.stop();
-        }
-        if (STAR_ROCKS != null) {
-            STAR_ROCKS.stop();
         }
     }
 
