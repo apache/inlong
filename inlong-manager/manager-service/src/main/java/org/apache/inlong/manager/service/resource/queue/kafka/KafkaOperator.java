@@ -17,21 +17,47 @@
 
 package org.apache.inlong.manager.service.resource.queue.kafka;
 
+import org.apache.inlong.common.enums.DataProxyMsgEncType;
+import org.apache.inlong.common.util.Utils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
+import org.apache.inlong.manager.service.message.DeserializeOperator;
+import org.apache.inlong.manager.service.message.DeserializeOperatorFactory;
 
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
 import org.apache.kafka.clients.admin.DeleteTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.PartitionInfo;
+import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import javafx.util.Pair;
 
 /**
  * kafka operator, supports creating topics and creating subscription.
@@ -40,6 +66,9 @@ import java.util.concurrent.ExecutionException;
 public class KafkaOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceImpl.class);
+
+    @Autowired
+    public DeserializeOperatorFactory deserializeOperatorFactory;
 
     /**
      * Create Kafka topic inlongKafkaInfo
@@ -77,6 +106,63 @@ public class KafkaOperator {
         AdminClient adminClient = KafkaUtils.getAdminClient(kafkaClusterInfo);
         Set<String> topicList = adminClient.listTopics().names().get();
         return topicList.contains(topic);
+    }
+
+    public List<BriefMQMessage> queryLatestMessage(KafkaClusterInfo kafkaClusterInfo, String topicName,
+            Integer messageCount, InlongStreamInfo streamInfo) {
+        LOGGER.info("begin to query message for topic {} in cluster: {}", topicName, kafkaClusterInfo);
+        Properties properties = new Properties();
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaClusterInfo.getUrl());
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "QueryLatestMessage-" + Utils.getUUID());
+
+        List<BriefMQMessage> messageList = new ArrayList<>();
+        try (KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<>(properties)) {
+            List<PartitionInfo> partitionInfoList = consumer.partitionsFor(topicName);
+
+            List<TopicPartition> topicPartitionList = partitionInfoList.stream()
+                    .map(item -> new TopicPartition(item.topic(), item.partition()))
+                    .collect(Collectors.toList());
+
+            Map<TopicPartition, Long> beginningTopicPartitionList = consumer.beginningOffsets(topicPartitionList);
+            Map<TopicPartition, Long> endTopicPartitionList = consumer.endOffsets(topicPartitionList);
+
+            int count = (int) Math.ceil((double) messageCount / topicPartitionList.size());
+            Map<TopicPartition, Long> expectedMap = beginningTopicPartitionList.entrySet().stream().map(item -> {
+                long beginningOffset = item.getValue();
+                long endOffset = endTopicPartitionList.getOrDefault(item.getKey(), item.getValue());
+                Long offset = (endOffset - beginningOffset) >= count ? (endOffset - count) : beginningOffset;
+                return new Pair<TopicPartition, Long>(item.getKey(), offset);
+            }).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+
+            consumer.assign(topicPartitionList);
+            expectedMap.forEach(consumer::seek);
+
+            int index = 0;
+            ConsumerRecords<byte[], byte[]> records = consumer.poll(Duration.ofMillis(100));
+            for (ConsumerRecord<byte[], byte[]> record : records) {
+                Map<String, String> headers = new HashMap<>();
+                for (Header header : record.headers()) {
+                    headers.put(header.key(), new String(header.value(), StandardCharsets.UTF_8));
+                }
+
+                int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
+                        Integer.toString(DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId())));
+                DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
+                        DataProxyMsgEncType.valueOf(wrapTypeId));
+                messageList.addAll(
+                        deserializeOperator.decodeMsg(streamInfo, record.value(), headers, index));
+            }
+        } catch (Exception e) {
+            String errMsg = "decode msg error: ";
+            LOGGER.error(errMsg, e);
+            throw new BusinessException(errMsg + e.getMessage());
+        }
+
+        LOGGER.info("success query messages for topic={}, size={}", topicName, messageList.size());
+        return messageList.subList(messageList.size() > messageCount ? (messageList.size() - messageCount) : 0,
+                messageList.size());
     }
 
 }

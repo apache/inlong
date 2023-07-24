@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
@@ -183,5 +184,20 @@ public class KafkaResourceOperators implements QueueResourceOperator {
     private void deleteKafkaTopic(InlongGroupInfo groupInfo, String topicName) {
         ClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null, ClusterType.KAFKA);
         kafkaOperator.forceDeleteTopic((KafkaClusterInfo) clusterInfo, topicName);
+    }
+
+    @Override
+    public List<BriefMQMessage> queryLatestMessages(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
+            Integer messageCount) {
+        ClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null, ClusterType.KAFKA);
+
+        String topicName = streamInfo.getMqResource();
+        if (topicName.equals(streamInfo.getInlongStreamId())) {
+            // the default mq resource (stream id) is not sufficient to discriminate different kafka topics
+            topicName = String.format(Constants.DEFAULT_KAFKA_TOPIC_FORMAT,
+                    groupInfo.getMqResource(), streamInfo.getMqResource());
+        }
+
+        return kafkaOperator.queryLatestMessage((KafkaClusterInfo) clusterInfo, topicName, messageCount, streamInfo);
     }
 }

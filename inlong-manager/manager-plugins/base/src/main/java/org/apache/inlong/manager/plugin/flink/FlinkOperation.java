@@ -318,8 +318,8 @@ public class FlinkOperation {
 
         JobStatus jobStatus = jobDetailsInfo.getJobStatus();
         if (jobStatus != null && jobStatus.isTerminalState()) {
-            String message = String.format("not support delete %s as the task was terminated", jobId);
-            message = jobStatus.isGloballyTerminalState() ? message + " globally" : " locally";
+            String stateName = jobStatus.isGloballyTerminalState() ? "globally" : "locally";
+            String message = String.format("not support delete %s as the task was terminated %s", jobId, stateName);
             throw new Exception(message);
         }
 
