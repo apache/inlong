@@ -390,19 +390,34 @@
             and is_deleted = 0
         </where>
     </select>
-    <select id="selectDeletedGroupIds" resultType="java.lang.String">
+    <select id="selectDeletedGroupIdsWithTimeBefore" resultType="java.lang.String">
         <bind name="_isInlongService" value="LoginUser.InlongService"/>
         select inlong_group_id
         from inlong_group
         <where>
+            modify_time &lt;= #{timeBefore, jdbcType=TIMESTAMP}
             <if test="_isInlongService == false">
-                tenant = #{tenant,jdbcType=VARCHAR}
+                and tenant = #{tenant,jdbcType=VARCHAR}
             </if>
-            and modify_time &lt;= #{timeBefore, jdbcType=TIMESTAMP}
         </where>
         group by inlong_group_id
         having min(is_deleted) > 0
         limit #{limit, jdbcType=INTEGER}
+    </select>
+    <select id="selectDeletedGroupIdsWithTimeAfter" resultType="java.lang.String">
+        <bind name="_isInlongService" value="LoginUser.InlongService"/>
+        select inlong_group_id
+        from inlong_group
+        <where>
+            modify_time >= #{timeAfter, jdbcType=TIMESTAMP}
+            <if test="_isInlongService == false">
+                and tenant = #{tenant,jdbcType=VARCHAR}
+            </if>
+        </where>
+        where
+        group by inlong_group_id
+        having min(is_deleted) > 0
+            limit #{limit, jdbcType=INTEGER}
     </select>
 
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">

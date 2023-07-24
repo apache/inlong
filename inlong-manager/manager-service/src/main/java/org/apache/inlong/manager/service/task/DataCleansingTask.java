@@ -119,7 +119,7 @@ public class DataCleansingTask extends TimerTask implements InitializingBean {
             calendar.add(Calendar.DAY_OF_MONTH, -before);
 
             Date daysBefore = calendar.getTime();
-            List<String> groupIds = groupMapper.selectDeletedGroupIds(daysBefore, batchSize);
+            List<String> groupIds = groupMapper.selectDeletedGroupIdsWithTimeBefore(daysBefore, batchSize);
             if (CollectionUtils.isEmpty(groupIds)) {
                 return;
             }
