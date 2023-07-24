@@ -139,6 +139,8 @@ public class PostgresTest extends FlinkContainerTestEnv {
                             + "  description VARCHAR(512),\n"
                             + "  PRIMARY  KEY(id)\n"
                             + ");");
+            stat.execute(
+                    "ALTER TABLE test_input1 REPLICA IDENTITY FULL; ");
             stat.close();
             conn.close();
         } catch (Exception e) {
