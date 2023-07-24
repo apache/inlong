@@ -67,7 +67,8 @@ public class PostgresTest extends FlinkContainerTestEnv {
     // ----------------------------------------------------------------------------------------
     private static final String INTER_CONTAINER_STAR_ROCKS_ALIAS = "starrocks";
     private static final String NEW_STARROCKS_REPOSITORY = "inlong-starrocks";
-    private static final String NEW_STARROCKS_TAG = "inlong-starrocks";
+    private static final String NEW_STARROCKS_TAG = "latest";
+    private static final String STAR_ROCKS_IMAGE_NAME = "starrocks/allin1-ubi:3.0.4";
 
     static {
         try {
@@ -78,12 +79,12 @@ public class PostgresTest extends FlinkContainerTestEnv {
         }
     }
 
-    private static String getStarRocksImageName() {
+    private static String getNewStarRocksImageName() {
         return NEW_STARROCKS_REPOSITORY + ":" + NEW_STARROCKS_TAG;
     }
 
     public static void buildStarRocksImage() {
-        GenericContainer oldStarRocks = new GenericContainer(getStarRocksImageName());
+        GenericContainer oldStarRocks = new GenericContainer(STAR_ROCKS_IMAGE_NAME);
         Startables.deepStart(Stream.of(oldStarRocks)).join();
         oldStarRocks.copyFileToContainer(MountableFile.forClasspathResource("/docker/starrocks/start_fe_be.sh"),
                 "/data/deploy/");
@@ -100,7 +101,7 @@ public class PostgresTest extends FlinkContainerTestEnv {
     }
 
     @ClassRule
-    public static StarRocksContainer STAR_ROCKS = (StarRocksContainer) new StarRocksContainer()
+    public static StarRocksContainer STAR_ROCKS = (StarRocksContainer) new StarRocksContainer(getNewStarRocksImageName())
             .withExposedPorts(9030, 8030, 8040)
             .withNetwork(NETWORK)
             .withAccessToHost(true)
