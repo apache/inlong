@@ -66,6 +66,8 @@ public class PostgresTest extends FlinkContainerTestEnv {
     // StarRocks Variables
     // ----------------------------------------------------------------------------------------
     private static final String INTER_CONTAINER_STAR_ROCKS_ALIAS = "starrocks";
+    private static final String NEW_STARROCKS_REPOSITORY = "inlong-starrocks";
+    private static final String NEW_STARROCKS_TAG = "inlong-starrocks";
 
     static {
         try {
@@ -76,8 +78,12 @@ public class PostgresTest extends FlinkContainerTestEnv {
         }
     }
 
+    private static String getStarRocksImageName() {
+        return NEW_STARROCKS_REPOSITORY + ":" + NEW_STARROCKS_TAG;
+    }
+
     public static void buildStarRocksImage() {
-        GenericContainer oldStarRocks = new GenericContainer("starrocks/allin1-ubi:3.0.4");
+        GenericContainer oldStarRocks = new GenericContainer(getStarRocksImageName());
         Startables.deepStart(Stream.of(oldStarRocks)).join();
         oldStarRocks.copyFileToContainer(MountableFile.forClasspathResource("/docker/starrocks/start_fe_be.sh"),
                 "/data/deploy/");
@@ -88,13 +94,13 @@ public class PostgresTest extends FlinkContainerTestEnv {
         }
         oldStarRocks.getDockerClient()
                 .commitCmd(oldStarRocks.getContainerId())
-                .withRepository("inlong-starrocks")
-                .withTag("latest").exec();
+                .withRepository(NEW_STARROCKS_REPOSITORY)
+                .withTag(NEW_STARROCKS_TAG).exec();
         oldStarRocks.stop();
     }
 
     @ClassRule
-    public static StarRocksContainer STAR_ROCKS = (StarRocksContainer) new StarRocksContainer("inlong-starrocks:latest")
+    public static StarRocksContainer STAR_ROCKS = (StarRocksContainer) new StarRocksContainer()
             .withExposedPorts(9030, 8030, 8040)
             .withNetwork(NETWORK)
             .withAccessToHost(true)
