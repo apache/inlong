@@ -22,6 +22,6 @@ package org.apache.inlong.manager.service.group.compromize;
  */
 public interface Compromizer {
 
-    public abstract void compromize(String inlongGroupId);
+    public void compromize(String inlongGroupId);
 
 }

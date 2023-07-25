@@ -414,7 +414,6 @@
                 and tenant = #{tenant,jdbcType=VARCHAR}
             </if>
         </where>
-        where
         group by inlong_group_id
         having min(is_deleted) > 0
             limit #{limit, jdbcType=INTEGER}
