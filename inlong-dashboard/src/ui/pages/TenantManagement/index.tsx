@@ -55,8 +55,7 @@ const Comp: React.FC = () => {
     {
       manual: true,
       onSuccess: result => {
-        const list = [];
-        result.list.map(item => {
+        const list = result.list.map(item => {
           list.push(item.name);
         });
         setOptions(prev => ({
@@ -100,10 +99,10 @@ const Comp: React.FC = () => {
     }));
   };
 
-  const onFilter = allValues => {
+  const onFilter = keyword => {
     setOptions(prev => ({
       ...prev,
-      ...allValues,
+      keyword,
       pageNum: 1,
     }));
   };
