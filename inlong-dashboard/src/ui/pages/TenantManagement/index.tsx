@@ -55,9 +55,7 @@ const Comp: React.FC = () => {
     {
       manual: true,
       onSuccess: result => {
-        const list = result.list.map(item => {
-          list.push(item.name);
-        });
+        const list = result.list.map(item => item.name);
         setOptions(prev => ({
           ...prev,
           tenantList: list,
