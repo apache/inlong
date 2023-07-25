@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.group.compromize;
+package org.apache.inlong.manager.service.group.compromise;
 
 /**
  * Operator which ensure the consistency of the state of all components within the group
  */
-public interface Compromizer {
+public interface Compromiser {
 
-    public void compromize(String inlongGroupId);
+    public void compromise(String inlongGroupId);
 
 }

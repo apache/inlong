@@ -21,7 +21,7 @@ import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
-import org.apache.inlong.manager.service.group.compromize.Compromizer;
+import org.apache.inlong.manager.service.group.compromise.Compromiser;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -47,12 +47,12 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Service
-public class DelGroupCompromizerTask extends TimerTask implements Compromizer, InitializingBean {
+public class DelGroupCompromiserTask extends TimerTask implements Compromiser, InitializingBean {
 
     private static final int INITIAL_DELAY = 300;
     private static final int INTERVAL = 1800;
 
-    @Value("${group.compromize.batchSize:100}")
+    @Value("${group.compromise.batchSize:100}")
     private Integer batchSize;
     @Autowired
     private InlongGroupEntityMapper groupMapper;
@@ -61,9 +61,9 @@ public class DelGroupCompromizerTask extends TimerTask implements Compromizer, I
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        log.info("start delete group compromize task");
+        log.info("start delete group compromise task");
         ScheduledExecutorService executor =
-                Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("group-compromize"
+                Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("group-compromise"
                         + "-%s").build());
         executor.scheduleWithFixedDelay(this, INITIAL_DELAY, INTERVAL, TimeUnit.SECONDS);
     }
@@ -78,12 +78,12 @@ public class DelGroupCompromizerTask extends TimerTask implements Compromizer, I
             return;
         }
         for (String groupId : groupIds) {
-            compromize(groupId);
+            compromise(groupId);
         }
     }
 
     @Override
-    public void compromize(String inlongGroupId) {
+    public void compromise(String inlongGroupId) {
         List<StreamSourceEntity> sourceList = sourceMapper.selectByRelatedId(inlongGroupId, null, null);
         if (CollectionUtils.isEmpty(sourceList)) {
             return;
