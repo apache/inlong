@@ -22,6 +22,10 @@ package org.apache.inlong.manager.service.group.compromise;
  */
 public interface Compromiser {
 
+    /**
+     * Make inner state of one group to eventual consistency
+     * @param inlongGroupId
+     */
     public void compromise(String inlongGroupId);
 
 }
