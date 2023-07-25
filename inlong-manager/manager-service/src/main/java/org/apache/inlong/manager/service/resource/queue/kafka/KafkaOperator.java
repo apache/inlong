@@ -29,6 +29,7 @@ import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
 import org.apache.inlong.manager.service.message.DeserializeOperator;
 import org.apache.inlong.manager.service.message.DeserializeOperatorFactory;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
 import org.apache.kafka.clients.admin.DeleteTopicsResult;
@@ -57,7 +58,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
 
 /**
  * kafka operator, supports creating topics and creating subscription.
@@ -133,7 +133,7 @@ public class KafkaOperator {
                 long beginningOffset = item.getValue();
                 long endOffset = endTopicPartitionList.getOrDefault(item.getKey(), item.getValue());
                 Long offset = (endOffset - beginningOffset) >= count ? (endOffset - count) : beginningOffset;
-                return new Pair<TopicPartition, Long>(item.getKey(), offset);
+                return Pair.of(item.getKey(), offset);
             }).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
 
             consumer.assign(topicPartitionList);
