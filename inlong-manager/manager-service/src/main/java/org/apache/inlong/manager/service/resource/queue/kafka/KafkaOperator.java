@@ -58,6 +58,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * kafka operator, supports creating topics and creating subscription.
@@ -111,6 +112,7 @@ public class KafkaOperator {
     public List<BriefMQMessage> queryLatestMessage(KafkaClusterInfo kafkaClusterInfo, String topicName,
             Integer messageCount, InlongStreamInfo streamInfo) {
         LOGGER.info("begin to query message for topic {} in cluster: {}", topicName, kafkaClusterInfo);
+
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaClusterInfo.getUrl());
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
@@ -153,6 +155,9 @@ public class KafkaOperator {
                         DataProxyMsgEncType.valueOf(wrapTypeId));
                 messageList.addAll(
                         deserializeOperator.decodeMsg(streamInfo, record.value(), headers, index));
+                if (messageList.size() >= messageCount) {
+                    break;
+                }
             }
         } catch (Exception e) {
             String errMsg = "decode msg error: ";
@@ -161,8 +166,13 @@ public class KafkaOperator {
         }
 
         LOGGER.info("success query messages for topic={}, size={}", topicName, messageList.size());
-        return messageList.subList(messageList.size() > messageCount ? (messageList.size() - messageCount) : 0,
-                messageList.size());
+        int fromIndex = (messageList.size() > messageCount) ? (messageList.size() - messageCount) : 0;
+        List<BriefMQMessage> resultList = messageList.subList(fromIndex, messageList.size());
+        return IntStream.range(0, resultList.size()).mapToObj(i -> {
+            BriefMQMessage message = resultList.get(i);
+            message.setId(i + 1);
+            return message;
+        }).collect(Collectors.toList());
     }
 
 }
