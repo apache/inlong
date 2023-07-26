@@ -17,22 +17,20 @@
  * under the License.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Card } from 'antd';
 import { PageContainer, Container } from '@/ui/components/PageContainer';
 import HighTable from '@/ui/components/HighTable';
-import { useRequest, useSelector } from '@/ui/hooks';
+import { useRequest } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import { defaultSize } from '@/configs/pagination';
 import DetailModal from './DetailModal';
 import { getFilterFormContent, getColumns } from './config';
-import { State } from '@/core/stores';
 
 const Comp: React.FC = () => {
   const { t } = useTranslation();
 
-  const tenantList = useSelector<State, State['tenantList']>(state => state.tenantList);
-
+  const [tenantList, setTenantList] = useState([]);
   const [options, setOptions] = useState({
     keyword: '',
     pageSize: defaultSize,
@@ -43,6 +41,30 @@ const Comp: React.FC = () => {
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
     open: false,
   });
+
+  const { run: getTenantData } = useRequest(
+    {
+      url: '/tenant/list',
+      method: 'POST',
+      data: {
+        pageNum: 1,
+        pageSize: 9999,
+        listByLoginUser: true,
+      },
+    },
+    {
+      manual: true,
+      onSuccess: result => {
+        const list = result.list.map(item => item.name);
+        setOptions(prev => ({
+          ...prev,
+          tenantList: list,
+        }));
+        setTenantList(list);
+        getList();
+      },
+    },
+  );
 
   const {
     data,
@@ -56,6 +78,7 @@ const Comp: React.FC = () => {
     },
     {
       refreshDeps: [options],
+      manual: tenantList.length > 0 ? false : true,
     },
   );
 
@@ -74,13 +97,17 @@ const Comp: React.FC = () => {
     }));
   };
 
-  const onFilter = allValues => {
+  const onFilter = keyword => {
     setOptions(prev => ({
       ...prev,
-      ...allValues,
+      keyword,
       pageNum: 1,
     }));
   };
+
+  useEffect(() => {
+    getTenantData();
+  }, []);
 
   const pagination = {
     pageSize: options.pageSize,

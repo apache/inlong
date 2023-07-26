@@ -1410,7 +1410,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 .typeList(Arrays.asList(ClusterType.TUBEMQ, ClusterType.PULSAR, ClusterType.KAFKA))
                 .build();
         List<InlongClusterEntity> clusterEntityList = clusterMapper.selectByCondition(request);
-        LOGGER.info("clusterEntityList {}", clusterEntityList);
         List<MQInfo> mqInfoList = new ArrayList<>();
         for (InlongClusterEntity entity : clusterEntityList) {
             MQInfo info = new MQInfo();

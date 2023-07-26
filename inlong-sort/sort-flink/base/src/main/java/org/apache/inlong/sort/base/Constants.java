@@ -165,6 +165,8 @@ public final class Constants {
 
     public static final String GHOST_TAG = "/* gh-ost */";
 
+    public static final String META_INCREMENTAL = "meta.incremental";
+
     public static final ConfigOption<String> INLONG_METRIC =
             ConfigOptions.key("inlong.metric.labels")
                     .stringType()
@@ -240,6 +242,13 @@ public final class Constants {
                     .defaultValue(false)
                     .withDescription("The option 'sink.multiple.enable' "
                             + "is used to determine whether to support multiple sink writing, default is 'false'.");
+
+    public static final ConfigOption<Boolean> SWITCH_APPEND_UPSERT_ENABLE =
+            ConfigOptions.key("switch.append.upsert.enable")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("The option 'switch.append.upsert.enable' "
+                            + "is used to switch between append and upsert, default is 'false'.");
 
     public static final ConfigOption<SchemaUpdateExceptionPolicy> SINK_MULTIPLE_SCHEMA_UPDATE_POLICY =
             ConfigOptions.key("sink.multiple.schema-update.policy")

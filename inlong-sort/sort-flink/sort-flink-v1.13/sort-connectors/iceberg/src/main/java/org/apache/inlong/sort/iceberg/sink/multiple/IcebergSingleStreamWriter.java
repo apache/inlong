@@ -25,6 +25,7 @@ import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.iceberg.sink.RowDataTaskWriterFactory;
 
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
@@ -34,6 +35,8 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
+import org.apache.flink.table.data.GenericRowData;
+import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.iceberg.flink.sink.TaskWriterFactory;
 import org.apache.iceberg.io.TaskWriter;
@@ -45,6 +48,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
@@ -64,9 +69,10 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     private final String fullTableName;
     private final String inlongMetric;
     private final String auditHostAndPorts;
-    private TaskWriterFactory<T> taskWriterFactory;
+    private RowDataTaskWriterFactory taskWriterFactory;
 
-    private transient TaskWriter<T> writer;
+    private transient TaskWriter<RowData> writer;
+
     private transient int subTaskId;
     private transient int attemptId;
     private @Nullable transient SinkMetricData metricData;
@@ -76,16 +82,23 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     private final DirtyOptions dirtyOptions;
     private @Nullable final DirtySink<Object> dirtySink;
     private boolean multipleSink;
+    private final RowType tableSchemaRowType;
+    private final int metaFieldIndex;
+    private final List<WriteResult> cachedWriteResults;
+    private final boolean switchAppendUpsertEnable;
 
     public IcebergSingleStreamWriter(
             String fullTableName,
-            TaskWriterFactory<T> taskWriterFactory,
+            RowDataTaskWriterFactory taskWriterFactory,
             String inlongMetric,
             String auditHostAndPorts,
             @Nullable RowType flinkRowType,
             DirtyOptions dirtyOptions,
             @Nullable DirtySink<Object> dirtySink,
-            boolean multipleSink) {
+            boolean multipleSink,
+            RowType tableSchemaRowType,
+            int metaFieldIndex,
+            boolean switchAppendUpsertEnable) {
         this.fullTableName = fullTableName;
         this.taskWriterFactory = taskWriterFactory;
         this.inlongMetric = inlongMetric;
@@ -94,6 +107,10 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
         this.multipleSink = multipleSink;
+        this.tableSchemaRowType = tableSchemaRowType;
+        this.metaFieldIndex = metaFieldIndex;
+        this.cachedWriteResults = new ArrayList<>();
+        this.switchAppendUpsertEnable = switchAppendUpsertEnable;
     }
 
     public RowType getFlinkRowType() {
@@ -137,15 +154,61 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
 
     @Override
     public void prepareSnapshotPreBarrier(long checkpointId) throws Exception {
+        // submit the cached write results
+        cachedWriteResults.forEach(writeResult -> emit(writeResult));
+
         // close all open files and emit files to downstream committer operator
         emit(writer.complete());
         this.writer = taskWriterFactory.create();
     }
 
+    private RowData removeField(RowData rowData, int fieldIndex, RowType rowType) {
+        GenericRowData newRowData = new GenericRowData(rowType.getFieldCount() - 1);
+
+        for (int i = 0, j = 0; i < rowType.getFieldCount(); i++) {
+            if (i != fieldIndex) {
+                newRowData.setField(j++, rowData.getRawValue(i));
+            }
+        }
+
+        return newRowData;
+    }
+
+    private void cacheWriteResultAndRecreateWriter() throws IOException {
+        // close all open file and cache writeResult
+        cachedWriteResults.add(writer.complete());
+        this.writer = taskWriterFactory.create();
+    }
+
+    public void switchToUpsert() throws Exception {
+        if (taskWriterFactory.isAppendMode()) {
+            taskWriterFactory.switchToUpsert();
+            cacheWriteResultAndRecreateWriter();
+        }
+    }
+
+    public void switchToAppend() throws Exception {
+        if (taskWriterFactory.isAppendMode())
+            return;
+        taskWriterFactory.switchToAppend();
+        cacheWriteResultAndRecreateWriter();
+    }
+
     @Override
     public void processElement(T value) throws Exception {
         try {
-            writer.write(value);
+            if (!switchAppendUpsertEnable || multipleSink || metaFieldIndex == -1) {
+                writer.write((RowData) value);
+                return;
+            }
+
+            RowData rowData = (RowData) value;
+            if (rowData.getBoolean(metaFieldIndex)) {
+                switchToUpsert();
+            } else {
+                switchToAppend();
+            }
+            writer.write(removeField(rowData, metaFieldIndex, tableSchemaRowType));
         } catch (Exception e) {
             if (multipleSink) {
                 throw e;
@@ -232,7 +295,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     public void schemaEvolution(TaskWriterFactory<T> schema) throws IOException {
         emit(writer.complete());
 
-        taskWriterFactory = schema;
+        taskWriterFactory = (RowDataTaskWriterFactory) schema;
         taskWriterFactory.initialize(subTaskId, attemptId);
         writer = taskWriterFactory.create();
     }
