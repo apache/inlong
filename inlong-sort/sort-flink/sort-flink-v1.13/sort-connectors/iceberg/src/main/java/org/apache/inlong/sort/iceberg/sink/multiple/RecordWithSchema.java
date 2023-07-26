@@ -61,6 +61,7 @@ public class RecordWithSchema {
     private boolean isDirty;
     private long rowCount;
     private long rowSize;
+    private boolean incremental;
 
     private transient JsonNode originalData;
 

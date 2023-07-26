@@ -77,6 +77,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -125,6 +126,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
     private SchemaChangeHelper schemaChangeHelper;
     private String schemaChangePolicies;
     private boolean enableSchemaChange;
+    private final String INCREMENTAL = "incremental";
 
     public DynamicSchemaHandleOperator(CatalogLoader catalogLoader,
             MultipleSinkOption multipleSinkOption,
@@ -423,6 +425,11 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                 recordWithSchema.setDirty(isDirty.get());
                 recordWithSchema.setRowCount(rowCount.get());
                 recordWithSchema.setRowSize(rowSize.get());
+                JsonNode originalData = recordWithSchema.getOriginalData();
+                boolean incremental = Optional.ofNullable(originalData.get(INCREMENTAL))
+                        .map(node -> node.asBoolean())
+                        .orElse(false);
+                recordWithSchema.setIncremental(incremental);
                 output.collect(new StreamRecord<>(recordWithSchema));
             } else {
                 if (SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE == multipleSinkOption
