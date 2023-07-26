@@ -21,7 +21,7 @@ import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
-import org.apache.inlong.manager.service.group.compromise.Compromiser;
+import org.apache.inlong.manager.service.group.coordinator.Coordinator;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Service
-public class DelGroupCompromiserTask extends TimerTask implements Compromiser, InitializingBean {
+public class DelGroupCoordinatorTask extends TimerTask implements Coordinator, InitializingBean {
 
     private static final int INITIAL_DELAY = 300;
     private static final int INTERVAL = 1800;
@@ -78,12 +78,12 @@ public class DelGroupCompromiserTask extends TimerTask implements Compromiser, I
             return;
         }
         for (String groupId : groupIds) {
-            compromise(groupId);
+            coordinate(groupId);
         }
     }
 
     @Override
-    public void compromise(String inlongGroupId) {
+    public void coordinate(String inlongGroupId) {
         List<StreamSourceEntity> sourceList = sourceMapper.selectByRelatedId(inlongGroupId, null, null);
         if (CollectionUtils.isEmpty(sourceList)) {
             return;

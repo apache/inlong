@@ -15,17 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.group.compromise;
+package org.apache.inlong.manager.service.group.coordinator;
 
 /**
  * Operator which ensure the consistency of the state of all components within the group
  */
-public interface Compromiser {
+public interface Coordinator {
 
     /**
      * Make inner state of one group to eventual consistency
      * @param inlongGroupId
      */
-    public void compromise(String inlongGroupId);
+    public void coordinate(String inlongGroupId);
 
 }
