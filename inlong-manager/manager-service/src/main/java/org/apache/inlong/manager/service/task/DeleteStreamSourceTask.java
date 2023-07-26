@@ -21,7 +21,6 @@ import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
-import org.apache.inlong.manager.service.group.coordinator.Coordinator;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -35,67 +34,76 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimerTask;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Stop all stream source which is running when group is deleted
+ * Delete all stream source which is running but its inlong group was deleted.
  */
 @Slf4j
 @Service
-public class DelGroupCoordinatorTask extends TimerTask implements Coordinator, InitializingBean {
+public class DeleteStreamSourceTask extends TimerTask implements InitializingBean {
 
-    private static final int INITIAL_DELAY = 300;
-    private static final int INTERVAL = 1800;
+    private static final int INITIAL_DELAY_MINUTES = 5;
+    private static final int INTERVAL_MINUTES = 60;
 
-    @Value("${group.compromise.batchSize:100}")
+    @Value("${group.deleted.batchSize:100}")
     private Integer batchSize;
+    @Value("${group.deleted.latest.hours:10}")
+    private Integer latestHours;
+
     @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-        log.info("start delete group compromise task");
-        ScheduledExecutorService executor =
-                Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("group-compromise"
-                        + "-%s").build());
-        executor.scheduleWithFixedDelay(this, INITIAL_DELAY, INTERVAL, TimeUnit.SECONDS);
+    public void afterPropertiesSet() {
+        ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("inlong-group-delete-%s").build();
+        ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1, threadFactory, new AbortPolicy());
+        executor.scheduleWithFixedDelay(this, INITIAL_DELAY_MINUTES, INTERVAL_MINUTES, TimeUnit.MINUTES);
+
+        log.info("success to start the delete stream source task");
     }
 
     @Override
     public void run() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime twoHoursAgo = now.minusHours(2).truncatedTo(ChronoUnit.HOURS);
-        Date modifyTime = Date.from(twoHoursAgo.atZone(ZoneId.systemDefault()).toInstant());
+        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDateTime latestTime = currentTime.minusHours(latestHours).truncatedTo(ChronoUnit.HOURS);
+        Date modifyTime = Date.from(latestTime.atZone(ZoneId.systemDefault()).toInstant());
+
         List<String> groupIds = groupMapper.selectDeletedGroupIdsWithTimeAfter(modifyTime, batchSize);
         if (CollectionUtils.isEmpty(groupIds)) {
             return;
         }
-        for (String groupId : groupIds) {
-            coordinate(groupId);
-        }
+
+        deleteSources(groupIds);
     }
 
-    @Override
-    public void coordinate(String inlongGroupId) {
-        List<StreamSourceEntity> sourceList = sourceMapper.selectByRelatedId(inlongGroupId, null, null);
+    private void deleteSources(List<String> inlongGroupIds) {
+        List<StreamSourceEntity> sourceList = sourceMapper.selectByGroupIds(inlongGroupIds);
         if (CollectionUtils.isEmpty(sourceList)) {
             return;
         }
+
+        List<Integer> idList = new ArrayList<>();
         for (StreamSourceEntity source : sourceList) {
-            if (SourceStatus.SOURCE_NORMAL.getCode().equals(source.getStatus()) && StringUtils.isNotBlank(
-                    source.getInlongClusterNodeGroup())) {
-                source.setPreviousStatus(source.getStatus());
-                source.setStatus(SourceStatus.TO_BE_ISSUED_DELETE.getCode());
-                source.setIsDeleted(source.getId());
-                sourceMapper.updateByPrimaryKey(source);
+            if (SourceStatus.SOURCE_NORMAL.getCode().equals(source.getStatus())
+                    && StringUtils.isNotBlank(source.getInlongClusterNodeGroup())) {
+                idList.add(source.getId());
             }
+        }
+
+        if (CollectionUtils.isNotEmpty(idList)) {
+            sourceMapper.logicalDeleteByIds(idList, SourceStatus.TO_BE_ISSUED_DELETE.getCode());
+            log.info("success to delete stream source with id in {}", idList);
         }
     }
 }

@@ -360,18 +360,6 @@
             and inlong_cluster_name = #{clusterName, jdbcType=VARCHAR}
         </where>
     </select>
-    <update id="updateByRelatedId">
-        update stream_source
-        <set>
-            is_deleted = id,
-            previous_status = status,
-            status = #{status, jdbcType=INTEGER},
-            version = version + 1
-        </set>
-        where is_deleted = 0
-        and inlong_group_id = #{groupId, jdbcType=VARCHAR}
-        and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
-    </update>
 
     <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         update stream_source
@@ -551,7 +539,6 @@
             and status not in (101, 102, 104, 105, 110)
         </where>
     </update>
-
     <update id="updateStatusByDeleted">
         update stream_source
         <set>
@@ -562,6 +549,33 @@
             is_deleted != 0
             and status not in (99, 201, 301)
         </where>
+    </update>
+
+    <update id="logicalDeleteByRelatedId">
+        update stream_source
+        <set>
+            is_deleted = id,
+            previous_status = status,
+            status = #{status, jdbcType=INTEGER},
+            version = version + 1
+        </set>
+        where is_deleted = 0
+        and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+    </update>
+
+    <update id="logicalDeleteByIds">
+        update stream_source
+        <set>
+            is_deleted = id,
+            previous_status = status,
+            status = #{status, jdbcType=INTEGER},
+            version = version + 1
+        </set>
+        where id in
+        <foreach item="item" index="index" collection="idList" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
     </update>
     <update id="logicalDeleteByAgentIp">
         update stream_source
@@ -577,6 +591,7 @@
             and status = #{targetStatus, jdbcType=INTEGER}
         </if>
     </update>
+
     <delete id="deleteByRelatedId">
         delete
         from stream_source
