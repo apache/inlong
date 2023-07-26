@@ -138,7 +138,7 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
         // process hb service
         if (HttpAttrConst.KEY_SRV_URL_HEARTBEAT.equals(uriDecoder.path())) {
             source.fileMetricIncSumStats(StatConstants.EVENT_MSG_HB_SUCCESS);
-            sendResponse(ctx, closeConnection);
+            sendSuccessResponse(ctx, closeConnection, null);
             return;
         }
         // get request attributes
@@ -244,19 +244,19 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
      * @param clientIp  the report ip
      * @param isCloseCon  whether close connection
      *
-     * @return whether process success
      */
-    private boolean processMessage(ChannelHandlerContext ctx, Map<String, String> reqAttrs,
+    private void processMessage(ChannelHandlerContext ctx, Map<String, String> reqAttrs,
             long msgRcvTime, String clientIp, boolean isCloseCon) throws Exception {
         StringBuilder strBuff = new StringBuilder(512);
+        String callback = reqAttrs.get(HttpAttrConst.KEY_CALLBACK);
         String groupId = reqAttrs.get(HttpAttrConst.KEY_GROUP_ID);
         if (StringUtils.isBlank(groupId)) {
             source.fileMetricIncSumStats(StatConstants.EVENT_MSG_GROUPID_MISSING);
             sendResponse(ctx, DataProxyErrCode.MISS_REQUIRED_GROUPID_ARGUMENT.getErrCode(),
                     strBuff.append("Field ").append(HttpAttrConst.KEY_GROUP_ID)
                             .append(" must exist and not blank!").toString(),
-                    isCloseCon);
-            return false;
+                    isCloseCon, callback);
+            return;
         }
         // get and check streamId
         String streamId = reqAttrs.get(HttpAttrConst.KEY_STREAM_ID);
@@ -265,8 +265,8 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
             sendResponse(ctx, DataProxyErrCode.MISS_REQUIRED_STREAMID_ARGUMENT.getErrCode(),
                     strBuff.append("Field ").append(HttpAttrConst.KEY_STREAM_ID)
                             .append(" must exist and not blank!").toString(),
-                    isCloseCon);
-            return false;
+                    isCloseCon, callback);
+            return;
         }
         // get and check topicName
         String topicName = ConfigManager.getInstance().getTopicName(groupId, streamId);
@@ -277,8 +277,8 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
                             .append("(").append(groupId).append("),")
                             .append(HttpAttrConst.KEY_STREAM_ID)
                             .append("(,").append(streamId).append(")").toString(),
-                    isCloseCon);
-            return false;
+                    isCloseCon, callback);
+            return;
         }
         // get and check dt
         long dataTime = msgRcvTime;
@@ -298,15 +298,15 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
                 sendResponse(ctx, DataProxyErrCode.MISS_REQUIRED_BODY_ARGUMENT.getErrCode(),
                         strBuff.append("Field ").append(HttpAttrConst.KEY_BODY)
                                 .append(" is not exist!").toString(),
-                        isCloseCon);
+                        isCloseCon, callback);
             } else {
                 source.fileMetricIncSumStats(StatConstants.EVENT_MSG_BODY_BLANK);
                 sendResponse(ctx, DataProxyErrCode.EMPTY_MSG.getErrCode(),
                         strBuff.append("Field ").append(HttpAttrConst.KEY_BODY)
                                 .append(" is Blank!").toString(),
-                        isCloseCon);
+                        isCloseCon, callback);
             }
-            return false;
+            return;
         }
         if (body.length() > source.getMaxMsgLength()) {
             source.fileMetricIncSumStats(StatConstants.EVENT_MSG_BODY_OVERMAX);
@@ -315,8 +315,8 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
                             .append(" length(").append(body.length())
                             .append(") is bigger than allowed length(")
                             .append(source.getMaxMsgLength()).append(")").toString(),
-                    isCloseCon);
-            return false;
+                    isCloseCon, callback);
+            return;
         }
         // get message count
         int intMsgCnt = NumberUtils.toInt(reqAttrs.get(HttpAttrConst.KEY_MESSAGE_COUNT), 1);
@@ -368,18 +368,16 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
             source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V0_POST_SUCCESS);
             source.fileMetricAddSuccCnt(statsKey, intMsgCnt, 1, event.getBody().length);
             source.addMetric(true, event.getBody().length, event);
-            sendResponse(ctx, isCloseCon);
-            return true;
+            sendSuccessResponse(ctx, isCloseCon, callback);
         } catch (Throwable ex) {
             source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V0_POST_FAILURE);
             source.fileMetricAddFailCnt(statsKey, 1);
             source.addMetric(false, event.getBody().length, event);
             sendErrorMsg(ctx, DataProxyErrCode.PUT_EVENT_TO_CHANNEL_FAILURE,
-                    strBuff.append("Put event to channel failure: ").append(ex.getMessage()).toString());
+                    strBuff.append("Put event to channel failure: ").append(ex.getMessage()).toString(), callback);
             if (logCounter.shouldPrint()) {
                 logger.error("Error writing HTTP event to channel failure.", ex);
             }
-            return false;
         }
     }
 
@@ -411,18 +409,25 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
     }
 
     private void sendErrorMsg(ChannelHandlerContext ctx, DataProxyErrCode errCodeObj) {
-        sendResponse(ctx, errCodeObj.getErrCode(), errCodeObj.getErrMsg(), true);
+        sendResponse(ctx, errCodeObj.getErrCode(), errCodeObj.getErrMsg(), true, null);
     }
 
     private void sendErrorMsg(ChannelHandlerContext ctx, DataProxyErrCode errCodeObj, String errMsg) {
-        sendResponse(ctx, errCodeObj.getErrCode(), errMsg, true);
+        sendResponse(ctx, errCodeObj.getErrCode(), errMsg, true, null);
     }
 
-    private void sendResponse(ChannelHandlerContext ctx, boolean isClose) {
-        sendResponse(ctx, DataProxyErrCode.SUCCESS.getErrCode(), DataProxyErrCode.SUCCESS.getErrMsg(), isClose);
+    private void sendErrorMsg(ChannelHandlerContext ctx,
+            DataProxyErrCode errCodeObj, String errMsg, String callback) {
+        sendResponse(ctx, errCodeObj.getErrCode(), errMsg, true, callback);
     }
 
-    private void sendResponse(ChannelHandlerContext ctx, int errCode, String errMsg, boolean isClose) {
+    private void sendSuccessResponse(ChannelHandlerContext ctx, boolean isClose, String callback) {
+        sendResponse(ctx, DataProxyErrCode.SUCCESS.getErrCode(),
+                DataProxyErrCode.SUCCESS.getErrMsg(), isClose, callback);
+    }
+
+    private void sendResponse(ChannelHandlerContext ctx,
+            int errCode, String errMsg, boolean isClose, String callback) {
         if (ctx == null || ctx.channel() == null) {
             return;
         }
@@ -435,9 +440,15 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
         }
         FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpAttrConst.RET_CNT_TYPE);
-        StringBuilder builder =
-                new StringBuilder().append("{\"code\":\"").append(errCode)
-                        .append("\",\"msg\":\"").append(errMsg).append("\"}");
+        StringBuilder builder = new StringBuilder(512);
+        if (StringUtils.isNotBlank(callback)) {
+            builder.append(callback).append("(");
+        }
+        builder.append("{\"code\":\"").append(errCode)
+                .append("\",\"msg\":\"").append(errMsg).append("\"}");
+        if (StringUtils.isNotBlank(callback)) {
+            builder.append(")");
+        }
         ByteBuf buffer = Unpooled.copiedBuffer(builder.toString(), CharsetUtil.UTF_8);
         response.headers().set(HttpHeaderNames.CONTENT_LENGTH, buffer.readableBytes());
         response.content().writeBytes(buffer);
@@ -445,7 +456,7 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
         ctx.writeAndFlush(response).addListener(new SendResultListener(isClose));
     }
 
-    private class SendResultListener implements ChannelFutureListener {
+    private static class SendResultListener implements ChannelFutureListener {
 
         private final boolean isClose;
 
