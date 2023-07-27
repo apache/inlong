@@ -17,8 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.common;
 
-import org.apache.inlong.common.enums.DataProxyMsgEncType;
-import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.utils.Constants;
@@ -62,14 +60,9 @@ public class TubeUtils {
         Map<String, String> headers = event.getHeaders();
         Message message = new Message(topicName, event.getBody());
         String pkgVersion = headers.get(ConfigConstants.MSG_ENCODE_VER);
-        if (DataProxyMsgEncType.MSG_ENCODE_TYPE_PB.getStrId().equalsIgnoreCase(pkgVersion)) {
-            long dataTimeL = Long.parseLong(headers.get(ConfigConstants.PKG_TIME_KEY));
-            message.putSystemHeader(headers.get(Constants.INLONG_STREAM_ID),
-                    DateTimeUtils.ms2yyyyMMddHHmm(dataTimeL));
-        } else {
-            message.putSystemHeader(headers.get(AttributeConstants.STREAM_ID),
-                    headers.get(ConfigConstants.PKG_TIME_KEY));
-        }
+        long dataTimeL = Long.parseLong(headers.get(ConfigConstants.PKG_TIME_KEY));
+        message.putSystemHeader(headers.get(Constants.INLONG_STREAM_ID),
+                DateTimeUtils.ms2yyyyMMddHHmm(dataTimeL));
         Map<String, String> extraAttrMap = MessageUtils.getXfsAttrs(headers, pkgVersion);
         for (Map.Entry<String, String> entry : extraAttrMap.entrySet()) {
             message.setAttrKeyVal(entry.getKey(), entry.getValue());

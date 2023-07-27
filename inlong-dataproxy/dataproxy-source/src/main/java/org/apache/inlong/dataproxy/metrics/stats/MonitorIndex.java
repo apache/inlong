@@ -34,7 +34,8 @@ import java.util.concurrent.atomic.LongAdder;
 public class MonitorIndex extends AbsStatsDaemon {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MonitorIndex.class);
-
+    // Indicator record format version
+    private static final String INDEX_RECORD_VER = "v1";
     private static final AtomicLong RECODE_ID = new AtomicLong(0);
     private final StatsUnit[] statsUnits = new StatsUnit[2];
 
@@ -134,7 +135,7 @@ public class MonitorIndex extends AbsStatsDaemon {
                 if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                     continue;
                 }
-                LOGGER.info("{}#{}_{}#{}#{}", this.statsName, printTime,
+                LOGGER.info("{}#{}#{}_{}#{}={}", this.statsName, INDEX_RECORD_VER, printTime,
                         RECODE_ID.incrementAndGet(), entry.getKey(), entry.getValue().toString());
                 printCnt++;
             }

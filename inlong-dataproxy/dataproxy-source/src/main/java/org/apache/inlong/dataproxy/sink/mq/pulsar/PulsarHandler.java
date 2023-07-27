@@ -344,29 +344,24 @@ public class PulsarHandler implements MessageQueueHandler {
     private void sendSimplePackProfile(SimplePackProfile simpleProfile, IdTopicConfig idConfig,
             Producer<byte[]> producer,
             String producerTopic) throws Exception {
-        // headers
-        Map<String, String> headers = simpleProfile.getPropsToMQ();
-        // body
-        byte[] bodyBytes = simpleProfile.getEvent().getBody();
         // metric
-        sinkContext.addSendMetric(simpleProfile, clusterName, producerTopic, bodyBytes.length);
+        sinkContext.addSendMetric(simpleProfile, clusterName,
+                producerTopic, simpleProfile.getEvent().getBody().length);
         // sendAsync
         long sendTime = System.currentTimeMillis();
-        CompletableFuture<MessageId> future = producer.newMessage().properties(headers)
-                .value(bodyBytes).sendAsync();
+        CompletableFuture<MessageId> future = producer.newMessage().properties(
+                simpleProfile.getPropsToMQ(sendTime)).value(simpleProfile.getEvent().getBody()).sendAsync();
         // callback
         future.whenCompleteAsync((msgId, ex) -> {
             if (ex != null) {
-                sinkContext.fileMetricIncWithDetailStats(StatConstants.EVENT_SINK_FAILURE, producerTopic);
-                sinkContext.fileMetricAddFailCnt(simpleProfile, producerTopic, msgId.toString());
+                sinkContext.fileMetricAddFailStats(simpleProfile, producerTopic, "", producerTopic);
                 sinkContext.processSendFail(simpleProfile, clusterName, producerTopic, sendTime,
                         DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 if (logCounter.shouldPrint()) {
                     logger.error("Send SimpleProfileV0 to Pulsar failure", ex);
                 }
             } else {
-                sinkContext.fileMetricAddSuccCnt(simpleProfile, producerTopic, msgId.toString());
-                sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_SUCCESS);
+                sinkContext.fileMetricAddSuccStats(simpleProfile, producerTopic, "");
                 sinkContext.addSendResultMetric(simpleProfile, clusterName, producerTopic, true, sendTime);
                 sinkContext.getMqZoneSink().releaseAcquiredSizePermit(simpleProfile);
                 simpleProfile.ack();

@@ -236,7 +236,8 @@ public class CodecBinMsg extends AbsV0MsgCodec {
         InLongMsg inLongMsg = InLongMsg.newInLongMsg(source.isCompressed(), 4);
         inLongMsg.addMsg(dataBuf.array());
         byte[] inlongMsgData = inLongMsg.buildArray();
-        Event event = EventBuilder.withBody(inlongMsgData, buildEventHeaders(inLongMsg.getCreatetime()));
+        msgPkgTime = inLongMsg.getCreatetime();
+        Event event = EventBuilder.withBody(inlongMsgData, buildEventHeaders(source));
         if (isOrderOrProxy) {
             event = new SinkRspEvent(event, MsgType.MSG_BIN_MULTI_BODY, channel);
         }

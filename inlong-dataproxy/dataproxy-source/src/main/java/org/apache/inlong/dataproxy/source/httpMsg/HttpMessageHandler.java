@@ -23,13 +23,11 @@ import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.consts.HttpAttrConst;
 import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.source.BaseSource;
 import org.apache.inlong.dataproxy.utils.AddressUtils;
-import org.apache.inlong.dataproxy.utils.DateTimeUtils;
 import org.apache.inlong.sdk.commons.protocol.EventConstants;
 
 import io.netty.buffer.ByteBuf;
@@ -343,35 +341,24 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
         eventHeaders.put(ConfigConstants.TOPIC_KEY, topicName);
         eventHeaders.put(AttributeConstants.DATA_TIME, String.valueOf(dataTime));
         eventHeaders.put(ConfigConstants.REMOTE_IP_KEY, clientIp);
+        eventHeaders.put(ConfigConstants.DATAPROXY_IP_KEY, source.getSrcHost());
         eventHeaders.put(ConfigConstants.MSG_COUNTER_KEY, strMsgCount);
         eventHeaders.put(ConfigConstants.MSG_ENCODE_VER,
                 DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
         eventHeaders.put(EventConstants.HEADER_KEY_VERSION,
                 DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
         eventHeaders.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
-        eventHeaders.put(ConfigConstants.PKG_TIME_KEY, DateTimeUtils.ms2yyyyMMddHHmm(pkgTime));
+        eventHeaders.put(ConfigConstants.PKG_TIME_KEY, String.valueOf(pkgTime));
         Event event = EventBuilder.withBody(inlongMsgData, eventHeaders);
-        // build metric data item
-        dataTime = dataTime / 1000 / 60 / 10;
-        dataTime = dataTime * 1000 * 60 * 10;
-        String statsKey = strBuff.append(source.getProtocolName()).append(AttrConstants.SEP_HASHTAG)
-                .append(groupId).append(AttrConstants.SEP_HASHTAG)
-                .append(streamId).append(AttrConstants.SEP_HASHTAG)
-                .append(clientIp).append(AttrConstants.SEP_HASHTAG)
-                .append(source.getSrcHost()).append(AttrConstants.SEP_HASHTAG)
-                .append("b2b").append(AttrConstants.SEP_HASHTAG)
-                .append(DateTimeUtils.ms2yyyyMMddHHmm(dataTime)).append(AttrConstants.SEP_HASHTAG)
-                .append(DateTimeUtils.ms2yyyyMMddHHmm(msgRcvTime)).toString();
-        strBuff.delete(0, strBuff.length());
         try {
             source.getChannelProcessor().processEvent(event);
-            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V0_POST_SUCCESS);
-            source.fileMetricAddSuccCnt(statsKey, intMsgCnt, 1, event.getBody().length);
+            source.fileMetricAddSuccStats(strBuff, groupId, streamId, topicName, clientIp,
+                    "b2b", dataTime, pkgTime, intMsgCnt, 1, event.getBody().length);
             source.addMetric(true, event.getBody().length, event);
             sendSuccessResponse(ctx, isCloseCon, callback);
         } catch (Throwable ex) {
-            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V0_POST_FAILURE);
-            source.fileMetricAddFailCnt(statsKey, 1);
+            source.fileMetricAddFailStats(strBuff, groupId, streamId, topicName, clientIp,
+                    "b2b", dataTime, pkgTime, 1);
             source.addMetric(false, event.getBody().length, event);
             sendErrorMsg(ctx, DataProxyErrCode.PUT_EVENT_TO_CHANNEL_FAILURE,
                     strBuff.append("Put event to channel failure: ").append(ex.getMessage()).toString(), callback);

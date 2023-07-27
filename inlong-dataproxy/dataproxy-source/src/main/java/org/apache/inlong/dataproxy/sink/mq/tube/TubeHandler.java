@@ -300,31 +300,30 @@ public class TubeHandler implements MessageQueueHandler {
      */
     private void sendSimplePackProfile(SimplePackProfile simpleProfile, IdTopicConfig idConfig,
             String topic) throws Exception {
+        // metric
+        sinkContext.addSendMetric(simpleProfile, clusterName,
+                topic, simpleProfile.getEvent().getBody().length);
         // build message
         Message message = new Message(topic, simpleProfile.getEvent().getBody());
-        message.putSystemHeader(simpleProfile.getInlongStreamId(),
-                simpleProfile.getProperties().get(ConfigConstants.PKG_TIME_KEY));
+        long dataTimeL = Long.parseLong(simpleProfile.getProperties().get(ConfigConstants.PKG_TIME_KEY));
+        message.putSystemHeader(simpleProfile.getInlongStreamId(), DateTimeUtils.ms2yyyyMMddHHmm(dataTimeL));
         // add headers
-        Map<String, String> headers = simpleProfile.getPropsToMQ();
-        headers.forEach(message::setAttrKeyVal);
-        // metric
-        sinkContext.addSendMetric(simpleProfile, clusterName, topic, simpleProfile.getEvent().getBody().length);
-        // callback
         long sendTime = System.currentTimeMillis();
+        Map<String, String> headers = simpleProfile.getPropsToMQ(sendTime);
+        headers.forEach(message::setAttrKeyVal);
+        // callback
         MessageSentCallback callback = new MessageSentCallback() {
 
             @Override
             public void onMessageSent(MessageSentResult result) {
                 if (result.isSuccess()) {
-                    sinkContext.fileMetricAddSuccCnt(simpleProfile, topic, result.getPartition().getHost());
-                    sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_SUCCESS);
+                    sinkContext.fileMetricAddSuccStats(simpleProfile, topic, result.getPartition().getHost());
                     sinkContext.addSendResultMetric(simpleProfile, clusterName, topic, true, sendTime);
                     sinkContext.getMqZoneSink().releaseAcquiredSizePermit(simpleProfile);
                     simpleProfile.ack();
                 } else {
-                    sinkContext.fileMetricIncWithDetailStats(StatConstants.EVENT_SINK_FAILURE,
-                            topic + "." + result.getErrCode());
-                    sinkContext.fileMetricAddFailCnt(simpleProfile, topic, result.getPartition().getHost());
+                    sinkContext.fileMetricAddFailStats(simpleProfile, topic,
+                            result.getPartition().getHost(), topic + "." + result.getErrCode());
                     sinkContext.processSendFail(simpleProfile, clusterName, topic, sendTime,
                             DataProxyErrCode.MQ_RETURN_ERROR, result.getErrMsg());
                     if (logCounter.shouldPrint()) {
@@ -335,12 +334,11 @@ public class TubeHandler implements MessageQueueHandler {
 
             @Override
             public void onException(Throwable ex) {
-                sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
-                sinkContext.fileMetricAddFailCnt(simpleProfile, topic, "");
+                sinkContext.fileMetricAddExceptStats(simpleProfile, topic, "", topic);
                 sinkContext.processSendFail(simpleProfile, clusterName, topic, sendTime,
                         DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 if (logCounter.shouldPrint()) {
-                    logger.error("Send SimpleProfileV0 to tube exception", ex);
+                    logger.error("Send Message to {} tube exception", topic, ex);
                 }
             }
         };

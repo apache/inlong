@@ -223,18 +223,16 @@ public class KafkaHandler implements MessageQueueHandler {
      */
     private void sendSimplePackProfile(SimplePackProfile simpleProfile, IdTopicConfig idConfig,
             String topic) throws Exception {
-        // headers
-        Map<String, String> headers = simpleProfile.getPropsToMQ();
-        // body
-        byte[] bodyBytes = simpleProfile.getEvent().getBody();
         // metric
-        sinkContext.addSendMetric(simpleProfile, clusterName, topic, bodyBytes.length);
+        sinkContext.addSendMetric(simpleProfile, clusterName,
+                topic, simpleProfile.getEvent().getBody().length);
+        // prepare ProducerRecord
+        ProducerRecord<String, byte[]> producerRecord =
+                new ProducerRecord<>(topic, simpleProfile.getEvent().getBody());
         // sendAsync
         long sendTime = System.currentTimeMillis();
-
-        // prepare ProducerRecord
-        ProducerRecord<String, byte[]> producerRecord = new ProducerRecord<>(topic, bodyBytes);
         // add headers
+        Map<String, String> headers = simpleProfile.getPropsToMQ(sendTime);
         headers.forEach((key, value) -> {
             producerRecord.headers().add(key, value.getBytes());
         });
@@ -245,18 +243,16 @@ public class KafkaHandler implements MessageQueueHandler {
             @Override
             public void onCompletion(RecordMetadata arg0, Exception ex) {
                 if (ex != null) {
-                    sinkContext.fileMetricIncWithDetailStats(StatConstants.EVENT_SINK_FAILURE, topic);
-                    sinkContext.fileMetricAddFailCnt(simpleProfile, topic,
-                            arg0 == null ? "" : String.valueOf(arg0.partition()));
+                    sinkContext.fileMetricAddFailStats(simpleProfile, topic,
+                            arg0 == null ? "" : String.valueOf(arg0.partition()), topic);
                     sinkContext.processSendFail(simpleProfile, clusterName, topic, sendTime,
                             DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                     if (logCounter.shouldPrint()) {
                         logger.error("Send SimplePackProfile to Kafka failure", ex);
                     }
                 } else {
-                    sinkContext.fileMetricAddSuccCnt(simpleProfile, topic,
+                    sinkContext.fileMetricAddSuccStats(simpleProfile, topic,
                             arg0 == null ? "" : String.valueOf(arg0.partition()));
-                    sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_SUCCESS);
                     sinkContext.addSendResultMetric(simpleProfile, clusterName, topic, true, sendTime);
                     sinkContext.getMqZoneSink().releaseAcquiredSizePermit(simpleProfile);
                     simpleProfile.ack();

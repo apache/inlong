@@ -18,10 +18,7 @@
 package org.apache.inlong.dataproxy.sink.mq;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
-import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
-import org.apache.inlong.dataproxy.consts.AttrConstants;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
@@ -30,7 +27,6 @@ import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.conf.Configurable;
@@ -274,42 +270,4 @@ public class MessageQueueZoneSinkContext extends SinkContext {
         return null;
     }
 
-    public void fileMetricAddSuccCnt(PackProfile packProfile, String topic, String remoteId) {
-        if (!CommonConfigHolder.getInstance().isEnableFileMetric()) {
-            return;
-        }
-        if (packProfile instanceof SimplePackProfile) {
-            SimplePackProfile simpleProfile = (SimplePackProfile) packProfile;
-            StringBuilder statsKey = new StringBuilder(512)
-                    .append(sinkName).append(AttrConstants.SEP_HASHTAG)
-                    .append(simpleProfile.getInlongGroupId()).append(AttrConstants.SEP_HASHTAG)
-                    .append(simpleProfile.getInlongStreamId()).append(AttrConstants.SEP_HASHTAG)
-                    .append(topic).append(AttrConstants.SEP_HASHTAG)
-                    .append(NetworkUtils.getLocalIp()).append(AttrConstants.SEP_HASHTAG)
-                    .append(remoteId).append(AttrConstants.SEP_HASHTAG)
-                    .append(simpleProfile.getProperties().get(ConfigConstants.PKG_TIME_KEY));
-            monitorIndex.addSuccStats(statsKey.toString(), NumberUtils.toInt(
-                    simpleProfile.getProperties().get(ConfigConstants.MSG_COUNTER_KEY), 1),
-                    1, simpleProfile.getSize());
-        }
-    }
-
-    public void fileMetricAddFailCnt(PackProfile packProfile, String topic, String remoteId) {
-        if (!CommonConfigHolder.getInstance().isEnableFileMetric()) {
-            return;
-        }
-
-        if (packProfile instanceof SimplePackProfile) {
-            SimplePackProfile simpleProfile = (SimplePackProfile) packProfile;
-            StringBuilder statsKey = new StringBuilder(512)
-                    .append(sinkName).append(AttrConstants.SEP_HASHTAG)
-                    .append(simpleProfile.getInlongGroupId()).append(AttrConstants.SEP_HASHTAG)
-                    .append(simpleProfile.getInlongStreamId()).append(AttrConstants.SEP_HASHTAG)
-                    .append(topic).append(AttrConstants.SEP_HASHTAG)
-                    .append(NetworkUtils.getLocalIp()).append(AttrConstants.SEP_HASHTAG)
-                    .append(remoteId).append(AttrConstants.SEP_HASHTAG)
-                    .append(simpleProfile.getProperties().get(ConfigConstants.PKG_TIME_KEY));
-            monitorIndex.addFailStats(statsKey.toString(), 1);
-        }
-    }
 }
