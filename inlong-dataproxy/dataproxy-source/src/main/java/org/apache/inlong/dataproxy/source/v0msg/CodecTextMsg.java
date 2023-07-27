@@ -267,7 +267,8 @@ public class CodecTextMsg extends AbsV0MsgCodec {
             inLongMsg.addMsg(mapJoiner.join(attrMap), bodyData);
         }
         byte[] inlongMsgData = inLongMsg.buildArray();
-        Event event = EventBuilder.withBody(inlongMsgData, buildEventHeaders(inLongMsg.getCreatetime()));
+        msgPkgTime = inLongMsg.getCreatetime();
+        Event event = EventBuilder.withBody(inlongMsgData, buildEventHeaders(source));
         inLongMsg.reset();
         return event;
     }

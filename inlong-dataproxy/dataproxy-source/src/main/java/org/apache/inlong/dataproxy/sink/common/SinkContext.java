@@ -18,16 +18,23 @@
 package org.apache.inlong.dataproxy.sink.common;
 
 import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.stats.MonitorIndex;
 import org.apache.inlong.dataproxy.metrics.stats.MonitorStats;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
+import org.apache.inlong.dataproxy.sink.mq.PackProfile;
+import org.apache.inlong.dataproxy.sink.mq.SimplePackProfile;
 import org.apache.inlong.dataproxy.sink.mq.pulsar.PulsarHandler;
+import org.apache.inlong.dataproxy.utils.DateTimeUtils;
 
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.slf4j.Logger;
@@ -123,15 +130,55 @@ public class SinkContext {
         }
     }
 
-    public void fileMetricAddSuccCnt(String key, int cnt, int packCnt, long packSize) {
-        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
-            monitorIndex.addSuccStats(key, cnt, packCnt, packSize);
+    public void fileMetricAddSuccStats(PackProfile profile, String topic, String brokerIP) {
+        if (!CommonConfigHolder.getInstance().isEnableFileMetric()
+                || !(profile instanceof SimplePackProfile)) {
+            return;
         }
+        fileMetricIncStats((SimplePackProfile) profile, true,
+                topic, brokerIP, StatConstants.EVENT_SINK_SUCCESS, "");
     }
 
-    public void fileMetricAddFailCnt(String key, int failCnt) {
-        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
-            monitorIndex.addFailStats(key, failCnt);
+    public void fileMetricAddFailStats(PackProfile profile, String topic, String brokerIP, String detailKey) {
+        if (!CommonConfigHolder.getInstance().isEnableFileMetric()
+                || !(profile instanceof SimplePackProfile)) {
+            return;
+        }
+        fileMetricIncStats((SimplePackProfile) profile, false,
+                topic, brokerIP, StatConstants.EVENT_SINK_FAILURE, detailKey);
+    }
+
+    public void fileMetricAddExceptStats(PackProfile profile, String topic, String brokerIP, String detailKey) {
+        if (!CommonConfigHolder.getInstance().isEnableFileMetric()
+                || !(profile instanceof SimplePackProfile)) {
+            return;
+        }
+        fileMetricIncStats((SimplePackProfile) profile, false,
+                topic, brokerIP, StatConstants.EVENT_SINK_RECEIVEEXCEPT, detailKey);
+    }
+
+    private void fileMetricIncStats(SimplePackProfile profile, boolean isSucc,
+            String topic, String brokerIP, String eventKey, String detailInfoKey) {
+        long dtL = Long.parseLong(profile.getProperties().get(AttributeConstants.DATA_TIME));
+        long pkgTimeL = Long.parseLong(profile.getProperties().get(ConfigConstants.PKG_TIME_KEY));
+        StringBuilder statsKey = new StringBuilder(512)
+                .append(sinkName).append(AttrConstants.SEP_HASHTAG)
+                .append(profile.getInlongGroupId()).append(AttrConstants.SEP_HASHTAG)
+                .append(profile.getInlongStreamId()).append(AttrConstants.SEP_HASHTAG)
+                .append(topic).append(AttrConstants.SEP_HASHTAG)
+                .append(profile.getProperties().get(ConfigConstants.DATAPROXY_IP_KEY)).append(AttrConstants.SEP_HASHTAG)
+                .append(brokerIP).append(AttrConstants.SEP_HASHTAG)
+                .append(DateTimeUtils.ms2yyyyMMddHHmmTenMins(dtL)).append(AttrConstants.SEP_HASHTAG)
+                .append(DateTimeUtils.ms2yyyyMMddHHmm(pkgTimeL));
+        if (isSucc) {
+            monitorIndex.addSuccStats(statsKey.toString(), NumberUtils.toInt(
+                    profile.getProperties().get(ConfigConstants.MSG_COUNTER_KEY), 1),
+                    1, profile.getSize());
+            monitorStats.incSumStats(eventKey);
+        } else {
+            monitorIndex.addFailStats(statsKey.toString(), 1);
+            monitorStats.incSumStats(eventKey);
+            monitorStats.incDetailStats(eventKey + "#" + detailInfoKey);
         }
     }
 

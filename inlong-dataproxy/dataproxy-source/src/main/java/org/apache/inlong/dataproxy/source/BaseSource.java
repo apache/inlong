@@ -24,6 +24,7 @@ import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
+import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
@@ -32,6 +33,7 @@ import org.apache.inlong.dataproxy.metrics.stats.MonitorStats;
 import org.apache.inlong.dataproxy.source.httpMsg.HttpMessageHandler;
 import org.apache.inlong.dataproxy.utils.AddressUtils;
 import org.apache.inlong.dataproxy.utils.ConfStringUtils;
+import org.apache.inlong.dataproxy.utils.DateTimeUtils;
 import org.apache.inlong.dataproxy.utils.FailoverChannelProcessorHolder;
 import org.apache.inlong.sdk.commons.admin.AdminServiceRegister;
 
@@ -256,7 +258,7 @@ public abstract class BaseSource
             this.monitorIndex.start();
             this.monitorStats = new MonitorStats(
                     CommonConfigHolder.getInstance().getFileMetricEventOutName()
-                            + AttrConstants.SEP_HASHTAG + this.getProtocolName(),
+                            + AttrConstants.SEP_HASHTAG + this.getName(),
                     CommonConfigHolder.getInstance().getFileMetricStatInvlSec() * 1000L,
                     CommonConfigHolder.getInstance().getFileMetricStatCacheCnt());
             this.monitorStats.start();
@@ -413,17 +415,45 @@ public abstract class BaseSource
         }
     }
 
-    public void fileMetricAddSuccCnt(String key, int cnt, int packCnt, long packSize) {
-        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
-            monitorIndex.addSuccStats(key, cnt, packCnt, packSize);
-        }
+    public void fileMetricAddSuccStats(StringBuilder strBuff, String groupId, String streamId,
+            String topicName, String clientIP, String msgProcType,
+            long dt, long pkgTime, int cnt, int packCnt, long packSize) {
+        fileMetricIncStats(strBuff, true, groupId, streamId, topicName,
+                clientIP, msgProcType, dt, pkgTime, cnt, packCnt, packSize, 0);
     }
 
-    public void fileMetricAddFailCnt(String key, int failCnt) {
-        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
-            monitorIndex.addFailStats(key, failCnt);
-        }
+    public void fileMetricAddFailStats(StringBuilder strBuff, String groupId, String streamId,
+            String topicName, String clientIP, String msgProcType, long dt, long pkgTime, int failCnt) {
+        fileMetricIncStats(strBuff, false, groupId, streamId, topicName,
+                clientIP, msgProcType, dt, pkgTime, 0, 0, 0, failCnt);
     }
+
+    private void fileMetricIncStats(StringBuilder strBuff, boolean isSucc, String groupId,
+            String streamId, String topicName, String clientIP, String msgProcType,
+            long dt, long pkgTime, int cnt, int packCnt, long packSize, int failCnt) {
+        if (!CommonConfigHolder.getInstance().isEnableFileMetric()) {
+            return;
+        }
+        String tenMinsDt = DateTimeUtils.ms2yyyyMMddHHmmTenMins(dt);
+        strBuff.append(getName()).append(AttrConstants.SEP_HASHTAG)
+                .append(groupId).append(AttrConstants.SEP_HASHTAG)
+                .append(streamId).append(AttrConstants.SEP_HASHTAG)
+                .append(topicName).append(AttrConstants.SEP_HASHTAG)
+                .append(msgProcType).append(AttrConstants.SEP_HASHTAG)
+                .append(srcHost).append(AttrConstants.SEP_HASHTAG)
+                .append(clientIP).append(AttrConstants.SEP_HASHTAG)
+                .append(tenMinsDt).append(AttrConstants.SEP_HASHTAG)
+                .append(DateTimeUtils.ms2yyyyMMddHHmm(pkgTime));
+        if (isSucc) {
+            monitorStats.incSumStats(StatConstants.EVENT_MSG_V0_POST_SUCCESS);
+            monitorIndex.addSuccStats(strBuff.toString(), cnt, packCnt, packSize);
+        } else {
+            monitorIndex.addFailStats(strBuff.toString(), failCnt);
+            monitorStats.incSumStats(StatConstants.EVENT_MSG_V0_POST_FAILURE);
+        }
+        strBuff.delete(0, strBuff.length());
+    }
+
     /**
      * addMetric
      *
