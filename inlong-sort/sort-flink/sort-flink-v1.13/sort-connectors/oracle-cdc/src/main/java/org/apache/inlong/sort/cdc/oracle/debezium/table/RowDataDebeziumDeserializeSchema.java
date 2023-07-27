@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.cdc.oracle.debezium.table;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.debezium.table.AppendMetadataCollector;
 import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverter;
@@ -292,7 +293,7 @@ public final class RowDataDebeziumDeserializeSchema
 
             @Override
             public Object convert(Object dbzObj, Schema schema) {
-                if (dbzObj instanceof Long) {
+                if (dbzObj instanceof Long && StringUtils.isNotBlank(schema.name())) {
                     // Because Oracle CDC has been shaded, the schema will have the prefix
                     // 'org.apache.inlong.sort.cdc.oracle.shaded' added,
                     // so we need to use `schemaName.endsWith()` to determine the Schema type.
@@ -327,7 +328,7 @@ public final class RowDataDebeziumDeserializeSchema
 
             @Override
             public Object convert(Object dbzObj, Schema schema) {
-                if (dbzObj instanceof Long) {
+                if (dbzObj instanceof Long && StringUtils.isNotBlank(schema.name())) {
                     // Because Oracle CDC has been shaded, the schema will have the prefix
                     // 'org.apache.inlong.sort.cdc.oracle.shaded' added,
                     // so we need to use `schemaName.endsWith()` to determine the Schema type.
@@ -462,7 +463,8 @@ public final class RowDataDebeziumDeserializeSchema
                     // Because Oracle CDC has been shaded, the schema will have the prefix
                     // 'org.apache.inlong.sort.cdc.oracle.shaded' added,
                     // so we need to use `schemaName.endsWith()` to determine the Schema type.
-                    if (schema.name().endsWith(VariableScaleDecimal.LOGICAL_NAME)) {
+                    if (StringUtils.isNotBlank(schema.name())
+                            && schema.name().endsWith(VariableScaleDecimal.LOGICAL_NAME)) {
                         SpecialValueDecimal decimal =
                                 VariableScaleDecimal.toLogical((Struct) dbzObj);
                         bigDecimal = decimal.getDecimalValue().orElse(BigDecimal.ZERO);
@@ -768,8 +770,8 @@ public final class RowDataDebeziumDeserializeSchema
      * @return the extracted data with schema
      */
     private Object getValueWithSchema(Object fieldValue, String schemaName) {
-        if (fieldValue == null) {
-            return null;
+        if (fieldValue == null || StringUtils.isBlank(schemaName)) {
+            return fieldValue;
         }
         // Because Oracle CDC has been shaded, the schema will have the prefix
         // 'org.apache.inlong.sort.cdc.oracle.shaded' added,
