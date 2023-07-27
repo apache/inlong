@@ -121,11 +121,12 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
         List<String> equalityColumns = tableSchema.getPrimaryKey()
                 .map(UniqueConstraint::getColumns)
                 .orElseGet(ImmutableList::of);
-
+        LOG.info("iceberg sink running with equality columns {}", equalityColumns);
         final ReadableConfig tableOptions = Configuration.fromMap(catalogTable.getOptions());
         boolean multipleSink = tableOptions.get(SINK_MULTIPLE_ENABLE);
         boolean schemaChange = tableOptions.get(SINK_SCHEMA_CHANGE_ENABLE);
         String schemaChangePolicies = tableOptions.getOptional(SINK_SCHEMA_CHANGE_POLICIES).orElse(null);
+        LOG.info("iceberg sink running with policy {}", tableOptions.get(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY));
         if (multipleSink) {
             return (DataStreamSinkProvider) dataStream -> FlinkSink.forRowData(dataStream)
                     .overwrite(overwrite)

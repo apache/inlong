@@ -233,13 +233,12 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                     false);
 
             if (multipleWriters.get(tableId) == null) {
-                StringBuilder subWriterInlongMetric = new StringBuilder(inlongMetric);
-                subWriterInlongMetric.append(DELIMITER)
-                        .append(Constants.DATABASE_NAME).append("=").append(tableId.namespace().toString())
-                        .append(DELIMITER)
-                        .append(Constants.TABLE_NAME).append("=").append(tableId.name());
+                String subWriterInlongMetric = inlongMetric + DELIMITER
+                        + Constants.DATABASE_NAME + "=" + tableId.namespace().toString()
+                        + DELIMITER
+                        + Constants.TABLE_NAME + "=" + tableId.name();
                 IcebergSingleStreamWriter<RowData> writer = new IcebergSingleStreamWriter<>(
-                        tableId.toString(), taskWriterFactory, subWriterInlongMetric.toString(),
+                        tableId.toString(), taskWriterFactory, subWriterInlongMetric,
                         auditHostAndPorts, flinkRowType, dirtyOptions, dirtySink, true,
                         tableSchemaRowType, metaFieldIndex, switchAppendUpsertEnable);
                 writer.setup(getRuntimeContext(),
@@ -272,12 +271,8 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                     long size = CalculateObjectSizeUtils.getDataSize(data);
 
                     try {
-                        if (switchAppendUpsertEnable) {
-                            if (recordWithSchema.isIncremental()) {
-                                multipleWriters.get(tableId).switchToUpsert();
-                            } else {
-                                multipleWriters.get(tableId).switchToAppend();
-                            }
+                        if (switchAppendUpsertEnable && recordWithSchema.isIncremental()) {
+                            multipleWriters.get(tableId).switchToUpsert();
                         }
                         multipleWriters.get(tableId).processElement(data);
                     } catch (Exception e) {

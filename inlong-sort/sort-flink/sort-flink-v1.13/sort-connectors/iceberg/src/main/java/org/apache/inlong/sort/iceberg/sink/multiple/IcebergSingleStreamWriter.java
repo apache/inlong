@@ -25,6 +25,7 @@ import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.iceberg.schema.IcebergModeSwitchHelper;
 import org.apache.inlong.sort.iceberg.sink.RowDataTaskWriterFactory;
 
 import org.apache.flink.api.common.state.ListState;
@@ -35,7 +36,6 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
-import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.iceberg.flink.sink.TaskWriterFactory;
@@ -56,6 +56,7 @@ import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+import static org.apache.inlong.sort.iceberg.schema.IcebergModeSwitchHelper.DEFAULT_META_INDEX;
 
 public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, WriteResult>
         implements
@@ -83,9 +84,10 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     private @Nullable final DirtySink<Object> dirtySink;
     private boolean multipleSink;
     private final RowType tableSchemaRowType;
-    private final int metaFieldIndex;
+    private final int incrementalFieldIndex;
     private final List<WriteResult> cachedWriteResults;
     private final boolean switchAppendUpsertEnable;
+    private IcebergModeSwitchHelper switchHelper;
 
     public IcebergSingleStreamWriter(
             String fullTableName,
@@ -97,7 +99,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
             @Nullable DirtySink<Object> dirtySink,
             boolean multipleSink,
             RowType tableSchemaRowType,
-            int metaFieldIndex,
+            int incrementalFieldIndex,
             boolean switchAppendUpsertEnable) {
         this.fullTableName = fullTableName;
         this.taskWriterFactory = taskWriterFactory;
@@ -108,7 +110,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
         this.dirtySink = dirtySink;
         this.multipleSink = multipleSink;
         this.tableSchemaRowType = tableSchemaRowType;
-        this.metaFieldIndex = metaFieldIndex;
+        this.incrementalFieldIndex = incrementalFieldIndex;
         this.cachedWriteResults = new ArrayList<>();
         this.switchAppendUpsertEnable = switchAppendUpsertEnable;
     }
@@ -118,14 +120,16 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     }
 
     @Override
-    public void open(Configuration parameters) throws Exception {
+    public void open(Configuration parameters) {
         this.subTaskId = getRuntimeContext().getIndexOfThisSubtask();
         this.attemptId = getRuntimeContext().getAttemptNumber();
 
         // Initialize the task writer factory.
         this.taskWriterFactory.initialize(subTaskId, attemptId);
         // Initialize the task writer.
-        this.writer = taskWriterFactory.create();
+        createTaskWriter();
+
+        switchHelper = new IcebergModeSwitchHelper(tableSchemaRowType, incrementalFieldIndex);
 
         // Initialize metric
         if (!multipleSink) {
@@ -152,63 +156,56 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
         }
     }
 
+    /**
+     * this method should only be called in open() method
+     */
+    private void createTaskWriter() {
+        if (switchAppendUpsertEnable) {
+            // when the job starts and the switch is enabled, the writer
+            // should be in append mode by default
+            taskWriterFactory.switchToAppend();
+        }
+        this.writer = taskWriterFactory.create();
+    }
+
     @Override
     public void prepareSnapshotPreBarrier(long checkpointId) throws Exception {
         // submit the cached write results
-        cachedWriteResults.forEach(writeResult -> emit(writeResult));
-
+        LOGGER.info("Submit {} cached write results before checkpoint {}.",
+                cachedWriteResults.size(), checkpointId);
+        cachedWriteResults.forEach(this::emit);
+        cachedWriteResults.clear();
         // close all open files and emit files to downstream committer operator
         emit(writer.complete());
         this.writer = taskWriterFactory.create();
     }
 
-    private RowData removeField(RowData rowData, int fieldIndex, RowType rowType) {
-        GenericRowData newRowData = new GenericRowData(rowType.getFieldCount() - 1);
-
-        for (int i = 0, j = 0; i < rowType.getFieldCount(); i++) {
-            if (i != fieldIndex) {
-                newRowData.setField(j++, rowData.getRawValue(i));
-            }
-        }
-
-        return newRowData;
-    }
-
     private void cacheWriteResultAndRecreateWriter() throws IOException {
-        // close all open file and cache writeResult
+        LOGGER.info("close all open file and cache writeResult");
         cachedWriteResults.add(writer.complete());
         this.writer = taskWriterFactory.create();
     }
 
     public void switchToUpsert() throws Exception {
-        if (taskWriterFactory.isAppendMode()) {
+        if (!taskWriterFactory.isUpsert()) {
+            LOGGER.info("iceberg writer switch to upsert write mode");
             taskWriterFactory.switchToUpsert();
             cacheWriteResultAndRecreateWriter();
         }
     }
 
-    public void switchToAppend() throws Exception {
-        if (taskWriterFactory.isAppendMode())
-            return;
-        taskWriterFactory.switchToAppend();
-        cacheWriteResultAndRecreateWriter();
-    }
-
     @Override
     public void processElement(T value) throws Exception {
-        try {
-            if (!switchAppendUpsertEnable || multipleSink || metaFieldIndex == -1) {
-                writer.write((RowData) value);
-                return;
-            }
 
-            RowData rowData = (RowData) value;
-            if (rowData.getBoolean(metaFieldIndex)) {
-                switchToUpsert();
+        try {
+            if (disableSwitch()) {
+                writer.write((RowData) value);
             } else {
-                switchToAppend();
+                if (isIncrementalPhase((RowData) value)) {
+                    switchToUpsert();
+                }
+                writer.write(switchHelper.removeIncrementalField((RowData) value));
             }
-            writer.write(removeField(rowData, metaFieldIndex, tableSchemaRowType));
         } catch (Exception e) {
             if (multipleSink) {
                 throw e;
@@ -220,6 +217,9 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
             }
             if (dirtySink != null) {
                 DirtyData.Builder<Object> builder = DirtyData.builder();
+                if (!disableSwitch()) {
+                    value = (T) switchHelper.removeIncrementalField((RowData) value);
+                }
                 try {
                     builder.setData(value)
                             .setLabels(dirtyOptions.getLabels())
@@ -241,8 +241,25 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
             return;
         }
         if (metricData != null) {
-            metricData.invokeWithEstimate(value == null ? "" : value);
+            metricData.invokeWithEstimate(value);
         }
+    }
+
+    /**
+     * disable switch when the switch property is disabled
+     * or the sink is multiple sink (the data is in json format)
+     * or the incremental field is not set
+     */
+    private boolean disableSwitch() {
+        return !switchAppendUpsertEnable || multipleSink || incrementalFieldIndex == DEFAULT_META_INDEX;
+    }
+
+    /**
+     * check if the data is incremental phase
+     * by checking the incremental field
+     */
+    private boolean isIncrementalPhase(RowData rowData) {
+        return rowData.getBoolean(incrementalFieldIndex);
     }
 
     @Override
@@ -310,6 +327,9 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     }
 
     private void emit(WriteResult result) {
+        LOGGER.debug("Emit iceberg write result dataFiles: {}, result.deleteFiles {}",
+                result.dataFiles(), result.deleteFiles());
         collector.collect(result);
     }
+
 }

@@ -40,7 +40,6 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.functions.sink.DiscardingSink;
-import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.RowData.FieldGetter;
@@ -79,6 +78,7 @@ import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -86,14 +86,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.apache.flink.table.api.DataTypes.FIELD;
-import static org.apache.flink.table.api.DataTypes.ROW;
 import static org.apache.iceberg.TableProperties.WRITE_DISTRIBUTION_MODE;
 import static org.apache.inlong.sort.base.Constants.META_INCREMENTAL;
 import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_MINI_BATCH_BUFFER_TYPE;
 import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_MINI_BATCH_ENABLE;
 import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_MINI_BATCH_PRE_AGG_ENABLE;
 import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_RATE_LIMIT;
+import static org.apache.inlong.sort.iceberg.schema.IcebergModeSwitchHelper.filterOutMetaField;
+import static org.apache.inlong.sort.iceberg.schema.IcebergModeSwitchHelper.getMetaFieldIndex;
 
 /**
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
@@ -536,6 +536,7 @@ public class FlinkSink {
                 }
                 equalityFieldIds = Lists.newArrayList(equalityFieldSet);
             }
+            LOG.info("equalityFieldIds in iceberg: {}", equalityFieldIds);
             return equalityFieldIds;
         }
 
@@ -652,7 +653,9 @@ public class FlinkSink {
             // Only if not appendMode, upsert can be valid.
             boolean upsertMode = flinkWriteConf.upsertMode() && !appendMode;
 
+            LOG.info("The iceberg sink is using {} mode.", upsertMode ? "upsert" : "append");
             // Validate the equality fields and partition fields if we enable the upsert mode.
+
             if (upsertMode) {
                 Preconditions.checkState(!flinkWriteConf.overwriteMode(),
                         "OVERWRITE mode shouldn't be enable when configuring to use UPSERT data stream.");
@@ -670,12 +673,12 @@ public class FlinkSink {
             // Add rate limit if necessary
             DataStream<RowData> inputWithRateLimit = appendWithRateLimit(input);
             DataStream<RowData> inputWithMiniBatch = appendWithMiniBatchGroup(
-                    inputWithRateLimit, flinkRowType, equalityFieldIds.stream().collect(Collectors.toSet()));
+                    inputWithRateLimit, flinkRowType, new HashSet<>(equalityFieldIds));
 
             IcebergProcessOperator<RowData, WriteResult> streamWriter = createStreamWriter(
                     table, flinkRowType, equalityFieldIds, flinkWriteConf, appendMode, inlongMetric,
-                    auditHostAndPorts, dirtyOptions, dirtySink, tableOptions.get(WRITE_MINI_BATCH_ENABLE), tableSchema,
-                    switchAppendUpsertEnable);
+                    auditHostAndPorts, dirtyOptions, dirtySink, tableSchema,
+                    switchAppendUpsertEnable, tableOptions.get(WRITE_MINI_BATCH_ENABLE));
 
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
             SingleOutputStreamOperator<WriteResult> writerStream = inputWithMiniBatch
@@ -703,11 +706,11 @@ public class FlinkSink {
                             routeOperator)
                     .setParallelism(parallelism);
             RowType tableSchemaRowType = (RowType) tableSchema.toRowDataType().getLogicalType();
-            int metaFieldIndex = getMetaFieldIndex(tableSchema);
             IcebergProcessOperator streamWriter =
                     new IcebergProcessOperator(new IcebergMultipleStreamWriter(
                             appendMode, catalogLoader, inlongMetric, auditHostAndPorts,
-                            multipleSinkOption, dirtyOptions, dirtySink, tableSchemaRowType, metaFieldIndex,
+                            multipleSinkOption, dirtyOptions, dirtySink, tableSchemaRowType,
+                            getMetaFieldIndex(tableSchema),
                             switchAppendUpsertEnable));
             SingleOutputStreamOperator<MultipleWriteResult> writerStream = routeStream
                     .transform(operatorName(ICEBERG_MULTIPLE_STREAM_WRITER_NAME),
@@ -791,14 +794,6 @@ public class FlinkSink {
 
     }
 
-    static DataType filterOutMetaField(TableSchema requestedSchema) {
-        DataTypes.Field[] fields = requestedSchema.getTableColumns().stream()
-                .filter(column -> !META_INCREMENTAL.equals(column.getName()))
-                .map(column -> FIELD(column.getName(), column.getType()))
-                .toArray(DataTypes.Field[]::new);
-        return ROW(fields).notNull();
-    }
-
     static RowType toFlinkRowType(Schema schema, TableSchema requestedSchema) {
         if (requestedSchema != null) {
             // Convert the flink schema to iceberg schema firstly, then reassign ids to match the existing iceberg
@@ -821,20 +816,6 @@ public class FlinkSink {
         }
     }
 
-    static int getMetaFieldIndex(TableSchema tableSchema) {
-        RowType rowType = (RowType) tableSchema.toRowDataType().getLogicalType();
-        List<RowType.RowField> fields = rowType.getFields();
-        int metaFieldIndex = -1;
-        for (int i = 0; i < fields.size(); i++) {
-            RowType.RowField rowField = fields.get(i);
-            if (META_INCREMENTAL.equals(rowField.getName())) {
-                metaFieldIndex = i;
-                break;
-            }
-        }
-        return metaFieldIndex;
-    }
-
     static IcebergProcessOperator<RowData, WriteResult> createStreamWriter(Table table,
             RowType flinkRowType,
             List<Integer> equalityFieldIds,
@@ -844,9 +825,9 @@ public class FlinkSink {
             String auditHostAndPorts,
             DirtyOptions dirtyOptions,
             @Nullable DirtySink<Object> dirtySink,
-            boolean miniBatchMode,
             TableSchema tableSchema,
-            boolean switchAppendUpsertEnable) {
+            boolean switchAppendUpsertEnable,
+            boolean miniBatchMode) {
         // flink A, iceberg a
         Preconditions.checkArgument(table != null, "Iceberg table should't be null");
 
@@ -864,11 +845,10 @@ public class FlinkSink {
                         miniBatchMode);
 
         RowType tableSchemaRowType = (RowType) tableSchema.toRowDataType().getLogicalType();
-        int metaFieldIndex = getMetaFieldIndex(tableSchema);
         return new IcebergProcessOperator<>(new IcebergSingleStreamWriter<>(
                 table.name(), taskWriterFactory, inlongMetric, auditHostAndPorts,
                 flinkRowType, dirtyOptions, dirtySink, false,
-                tableSchemaRowType, metaFieldIndex, switchAppendUpsertEnable));
+                tableSchemaRowType, getMetaFieldIndex(tableSchema), switchAppendUpsertEnable));
     }
 
 }
