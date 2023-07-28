@@ -426,10 +426,8 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                 recordWithSchema.setRowCount(rowCount.get());
                 recordWithSchema.setRowSize(rowSize.get());
                 JsonNode originalData = recordWithSchema.getOriginalData();
-                boolean incremental = Optional.ofNullable(originalData.get(INCREMENTAL))
-                        .map(node -> node.asBoolean())
-                        .orElse(false);
-                recordWithSchema.setIncremental(incremental);
+                recordWithSchema.setIncremental(Optional.ofNullable(originalData.get(INCREMENTAL))
+                        .map(JsonNode::asBoolean).orElse(false));
                 output.collect(new StreamRecord<>(recordWithSchema));
             } else {
                 if (SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE == multipleSinkOption
