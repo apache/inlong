@@ -42,7 +42,6 @@ const Comp: React.FC<Props> = ({ clusterTag, ...modalProps }) => {
       url: '/cluster/tenant/tag/save',
       method: 'POST',
       data: submitData,
-      //   data: values,
     });
     console.log(submitData);
     await modalProps?.onOk(values);
