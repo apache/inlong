@@ -75,16 +75,10 @@ public class InlongClusterEntityMapperTest extends DaoBaseTest {
         entity.setType(newType);
 
         // the tenant will be modified in mybatis interceptor, set tenant here does not work
-        entity.setTenant(ANOTHER_TENANT);
         Assertions.assertEquals(1, entityMapper.updateById(entity));
         entity = entityMapper.selectById(entity.getId());
         Assertions.assertEquals(newType, entity.getType());
 
-        // should be public
-        Assertions.assertEquals(PUBLIC_TENANT, entity.getTenant());
-
-        setOtherTenant(ANOTHER_TENANT);
-        Assertions.assertEquals(0, entityMapper.updateById(entity));
     }
 
     private InlongClusterEntity genEntity() {

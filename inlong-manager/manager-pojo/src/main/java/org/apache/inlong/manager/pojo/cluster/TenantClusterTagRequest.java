@@ -30,11 +30,11 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 /**
- * Inlong cluster tag request
+ * Tenant cluster tag request
  */
 @Data
-@ApiModel("Cluster tag request")
-public class ClusterTagRequest {
+@ApiModel("Tenant Cluster tag request")
+public class TenantClusterTagRequest {
 
     @ApiModelProperty(value = "Primary key")
     @NotNull(groups = UpdateValidation.class, message = "id cannot be null")
@@ -46,20 +46,12 @@ public class ClusterTagRequest {
     @Pattern(regexp = "^[a-z0-9_.-]{1,128}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String clusterTag;
 
-    @ApiModelProperty(value = "Extended params")
-    @Length(min = 1, max = 163840, message = "length must be between 1 and 163840")
-    private String extParams;
-
-    @ApiModelProperty(value = "Description of the cluster tag")
-    @Length(max = 256, message = "length must be less than or equal to 256")
-    private String description;
-
-    @ApiModelProperty(value = "Name of in charges, separated by commas")
-    @Length(max = 512, message = "length must be less than or equal to 512")
-    private String inCharges;
+    @ApiModelProperty(value = "Inlong tenant which clusters")
+    @NotBlank(groups = SaveValidation.class, message = "tenant cannot be blank")
+    @Length(min = 1, max = 256, message = "length must be between 1 and 256")
+    private String tenant;
 
     @ApiModelProperty(value = "Version number")
     @NotNull(groups = UpdateValidation.class, message = "version cannot be null")
     private Integer version;
-
 }

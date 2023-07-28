@@ -17,42 +17,47 @@
 
 package org.apache.inlong.manager.pojo.cluster;
 
-import org.apache.inlong.manager.pojo.common.PageRequest;
-
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Date;
 
 /**
- * Cluster tag paging query conditions
+ * Inlong cluster tag response
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Cluster tag paging query request")
-public class ClusterTagPageRequest extends PageRequest {
+@ApiModel("Tenant cluster tag response")
+public class TenantClusterTagInfo {
 
-    @ApiModelProperty(value = "Keywords, used for fuzzy query")
-    private String keyword;
+    @ApiModelProperty(value = "Primary key")
+    private Integer id;
 
-    @ApiModelProperty(value = "Keywords, used for fuzzy query")
-    private List<String> clusterTags;
+    @ApiModelProperty(value = "Cluster tag")
+    private String clusterTag;
 
-    @ApiModelProperty(value = "Status")
-    private Integer status;
+    @ApiModelProperty(value = "Tenant")
+    private String tenant;
 
-    @ApiModelProperty(value = "Current user", hidden = true)
-    private String currentUser;
+    @ApiModelProperty(value = "Name of in creator")
+    private String creator;
 
-    @ApiModelProperty(value = "Whether the current user is in the administrator role", hidden = true)
-    private Boolean isAdminRole;
+    @ApiModelProperty(value = "Name of in modifier")
+    private String modifier;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
+
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
 }

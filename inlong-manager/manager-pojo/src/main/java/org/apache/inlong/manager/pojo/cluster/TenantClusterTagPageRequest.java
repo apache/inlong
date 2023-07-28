@@ -15,29 +15,34 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.pojo.cluster;
 
-import org.apache.inlong.manager.dao.entity.InlongClusterTagEntity;
-import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
+import org.apache.inlong.manager.pojo.common.PageRequest;
 
-import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Repository
-public interface InlongClusterTagEntityMapper {
+@Data
+@EqualsAndHashCode(callSuper = false)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Cluster tag paging query request")
+public class TenantClusterTagPageRequest extends PageRequest {
 
-    int insert(InlongClusterTagEntity record);
+    @ApiModelProperty(value = "Inlong tenant list")
+    private List<String> tenantList;
 
-    InlongClusterTagEntity selectById(Integer id);
+    @ApiModelProperty(value = "Inlong tenant")
+    private String tenant;
 
-    InlongClusterTagEntity selectByTag(@Param("clusterTag") String clusterTag);
-
-    List<InlongClusterTagEntity> selectByCondition(ClusterTagPageRequest request);
-
-    int updateByIdSelective(InlongClusterTagEntity record);
-
-    int deleteByPrimaryKey(Integer id);
-
+    @ApiModelProperty(value = "Keywords, used for fuzzy query")
+    private String keyword;
 }

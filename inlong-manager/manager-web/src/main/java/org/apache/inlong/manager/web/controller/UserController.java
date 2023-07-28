@@ -59,7 +59,7 @@ public class UserController {
 
     @PostMapping("/user/register")
     @ApiOperation(value = "Register user")
-    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     public Response<Integer> register(@Validated @RequestBody UserRequest userInfo) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(userService.save(userInfo, currentUser));

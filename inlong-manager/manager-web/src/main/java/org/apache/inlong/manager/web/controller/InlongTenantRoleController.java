@@ -52,7 +52,8 @@ public class InlongTenantRoleController {
     @RequestMapping(value = "/role/tenant/get/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Get tenant role by ID")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
-    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.TENANT_OPERATOR})
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.TENANT_OPERATOR,
+            UserRoleCode.INLONG_ADMIN})
     public Response<TenantRoleInfo> get(@PathVariable int id) {
         return Response.success(tenantRoleService.get(id));
     }

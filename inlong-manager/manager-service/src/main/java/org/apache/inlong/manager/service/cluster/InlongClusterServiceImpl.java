@@ -41,11 +41,13 @@ import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterTagEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.TenantClusterTagEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterTagEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
+import org.apache.inlong.manager.dao.mapper.TenantClusterTagEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
@@ -55,6 +57,9 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
+import org.apache.inlong.manager.pojo.cluster.TenantClusterTagInfo;
+import org.apache.inlong.manager.pojo.cluster.TenantClusterTagPageRequest;
+import org.apache.inlong.manager.pojo.cluster.TenantClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
@@ -62,11 +67,17 @@ import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
+import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
+import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.cluster.node.InlongClusterNodeOperator;
 import org.apache.inlong.manager.service.cluster.node.InlongClusterNodeOperatorFactory;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepositoryV2;
+import org.apache.inlong.manager.service.tenant.InlongTenantService;
+import org.apache.inlong.manager.service.user.InlongRoleService;
+import org.apache.inlong.manager.service.user.TenantRoleService;
 import org.apache.inlong.manager.service.user.UserService;
 
 import com.github.pagehelper.Page;
@@ -121,6 +132,14 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     private InlongClusterEntityMapper clusterMapper;
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
+    @Autowired
+    private TenantClusterTagEntityMapper tenantClusterTagMapper;
+    @Autowired
+    private InlongTenantService tenantService;
+    @Autowired
+    private InlongRoleService inlongRoleService;
+    @Autowired
+    private TenantRoleService tenantRoleService;
 
     @Lazy
     @Autowired
@@ -1432,6 +1451,94 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         Boolean result = clusterOperator.testConnection(request);
         LOGGER.info("connection [{}] for: {}", result ? "success" : "failed", request);
         return result;
+    }
+
+    @Override
+    public Integer saveTenantTag(TenantClusterTagRequest request, String operator) {
+        LOGGER.debug("begin to save tenant cluster tag {}", request);
+        Preconditions.expectNotNull(request, "tenant cluster request cannot be empty");
+        Preconditions.expectNotBlank(request.getClusterTag(), ErrorCodeEnum.INVALID_PARAMETER,
+                "cluster tag cannot be empty");
+        Preconditions.expectNotBlank(request.getTenant(), ErrorCodeEnum.INVALID_PARAMETER,
+                "tenant cannot be empty");
+        InlongTenantInfo tenantInfo = tenantService.getByName(request.getTenant());
+        Preconditions.expectNotNull(tenantInfo,  ErrorCodeEnum.INVALID_PARAMETER,
+                "target tenant cannot be found");
+
+        TenantClusterTagEntity entity = CommonBeanUtils.copyProperties(request, TenantClusterTagEntity::new);
+        entity.setCreator(operator);
+        entity.setModifier(operator);
+        tenantClusterTagMapper.insert(entity);
+        LOGGER.info("success to save tenant tag, tenant={}, tag={}", request.getTenant(), request.getClusterTag());
+        return entity.getId();
+    }
+
+    @Override
+    public PageResult<ClusterTagResponse> listTagByTenantReqeust(TenantClusterTagPageRequest request) {
+
+        ClusterTagPageRequest tagRequest = CommonBeanUtils.copyProperties(request, ClusterTagPageRequest::new);
+
+        String loginUser = LoginUserUtils.getLoginUser().getName();
+        InlongRoleInfo roleInfo = inlongRoleService.getByUsername(loginUser);
+
+        // for non-inlong role, or not blank tenant condition, need to get target tag list first
+        if (roleInfo == null || StringUtils.isNotBlank(request.getTenant())) {
+            request.setPageNum(1);
+            request.setPageSize(Integer.MAX_VALUE);
+            List<String> tags = listTenantTag(request).getList()
+                    .stream()
+                    .map(TenantClusterTagInfo::getClusterTag)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            // if no tags under this tenant, return empty directly
+            if (CollectionUtils.isEmpty(tags) && StringUtils.isNotBlank(request.getTenant())) {
+                return new PageResult<>(new ArrayList<>(), 0L, request.getPageNum(), request.getPageSize());
+            }
+
+            tagRequest.setClusterTags(tags);
+        }
+
+        return listTag(tagRequest);
+    }
+
+    @Override
+    public PageResult<TenantClusterTagInfo> listTenantTag(TenantClusterTagPageRequest request) {
+        LOGGER.debug("begin to list tag by tenant {}", request);
+
+        String loginUser = LoginUserUtils.getLoginUser().getName();
+        InlongRoleInfo roleInfo = inlongRoleService.getByUsername(loginUser);
+        if (roleInfo == null) {
+            List<String> tenants = tenantRoleService.listTenantByUsername(loginUser);
+            request.setTenantList(tenants);
+        }
+
+        PageHelper.startPage(request.getPageNum(), request.getPageSize());
+        Page<TenantClusterTagEntity> entityPage =
+                (Page<TenantClusterTagEntity>) tenantClusterTagMapper.selectByCondition(request);
+        List<TenantClusterTagInfo> infoList = CommonBeanUtils.copyListProperties(entityPage, TenantClusterTagInfo::new);
+        LOGGER.debug("success to list tenant tag with request={}", request);
+        return new PageResult<>(infoList, entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
+    }
+
+    @Override
+    public Boolean deleteTenantTag(Integer id, String operator) {
+        LOGGER.debug("start to delete tenant tag with id={}", id);
+        TenantClusterTagEntity entity = tenantClusterTagMapper.selectByPrimaryKey(id);
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.RECORD_NOT_FOUND.getMessage());
+
+        entity.setModifier(operator);
+        entity.setIsDeleted(id);
+
+        int rowCount = tenantClusterTagMapper.updateByIdSelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("tenant cluster tag has already updated for tenant={} tag={}",
+                    entity.getTenant(), entity.getClusterTag());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
+        LOGGER.info("success to delete tenant tag of tenant={} tag={}, user={}", entity.getTenant(),
+                entity.getClusterTag(), operator);
+        return true;
     }
 
     /**
