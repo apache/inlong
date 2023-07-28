@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.cdc.oracle.debezium.table;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.debezium.table.AppendMetadataCollector;
 import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverter;
@@ -38,6 +37,7 @@ import io.debezium.time.NanoTime;
 import io.debezium.time.NanoTimestamp;
 import io.debezium.time.Timestamp;
 import io.debezium.time.ZonedTimestamp;
+import org.apache.commons.lang.StringUtils;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.DecimalData;
 import org.apache.flink.table.data.GenericRowData;
