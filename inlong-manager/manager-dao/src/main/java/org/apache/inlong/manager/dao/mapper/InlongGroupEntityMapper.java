@@ -76,6 +76,7 @@ public interface InlongGroupEntityMapper {
      * @param limit max item count
      * @return all matched group ids
      */
+    @MultiTenantQuery(with = false)
     List<String> selectDeletedGroupIdsWithTimeBefore(@Param("timeBefore") Date timeBefore,
             @Param("limit") Integer limit);
 
@@ -84,10 +85,10 @@ public interface InlongGroupEntityMapper {
      *
      * @param timeAfter the latest modify time after which to select
      * @param limit max item count
-     * @return
+     * @return all matched group ids
      */
-    List<String> selectDeletedGroupIdsWithTimeAfter(@Param("timeAfter") Date timeAfter,
-            @Param("limit") Integer limit);
+    @MultiTenantQuery(with = false)
+    List<String> selectDeletedGroupIdsWithTimeAfter(@Param("timeAfter") Date timeAfter, @Param("limit") Integer limit);
 
     int updateByPrimaryKey(InlongGroupEntity record);
 

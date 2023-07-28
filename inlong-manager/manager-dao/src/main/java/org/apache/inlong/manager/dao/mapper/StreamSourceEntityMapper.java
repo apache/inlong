@@ -135,9 +135,6 @@ public interface StreamSourceEntityMapper {
 
     int updateByPrimaryKeySelective(StreamSourceEntity record);
 
-    int updateByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId,
-            @Param("status") Integer status);
-
     int updateByPrimaryKey(StreamSourceEntity record);
 
     /**
@@ -192,6 +189,11 @@ public interface StreamSourceEntityMapper {
      *
      */
     void updateStatusByDeleted();
+
+    int logicalDeleteByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId,
+            @Param("status") Integer status);
+
+    int logicalDeleteByIds(@Param("idList") List<Integer> idList, @Param("status") Integer status);
 
     /**
      * Logical delete stream source by agentIp, change status at same time.
