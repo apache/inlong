@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.resource.queue.kafka;
 
 import org.apache.inlong.common.enums.DataProxyMsgEncType;
-import org.apache.inlong.common.util.Utils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
@@ -118,7 +117,7 @@ public class KafkaOperator {
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaClusterInfo.getUrl());
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "QueryLatestMessage-" + Utils.getUUID());
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "INLONG-Kafka-QueryLatestMessage");
 
         KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<>(properties);
         return getKafkaLatestMessage(consumer, topicName, messageCount, streamInfo);
