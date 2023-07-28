@@ -57,6 +57,8 @@ public class KafkaResourceOperators implements QueueResourceOperator {
      */
     public static final String KAFKA_CONSUMER_GROUP = "%s_%s_consumer_group";
 
+    public static final String KAFKA_CONSUMER_GROUP_REALTIME_REVIEW = "%s_%s_consumer_group_realtime_review";
+
     @Autowired
     private KafkaOperator kafkaOperator;
     @Autowired
@@ -198,6 +200,9 @@ public class KafkaResourceOperators implements QueueResourceOperator {
                     groupInfo.getMqResource(), streamInfo.getMqResource());
         }
 
-        return kafkaOperator.queryLatestMessage((KafkaClusterInfo) clusterInfo, topicName, messageCount, streamInfo);
+        String consumeGroup =
+                String.format(KAFKA_CONSUMER_GROUP_REALTIME_REVIEW, groupInfo.getInlongClusterTag(), topicName);
+        return kafkaOperator.queryLatestMessage((KafkaClusterInfo) clusterInfo, topicName, consumeGroup, messageCount,
+                streamInfo);
     }
 }

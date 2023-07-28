@@ -110,6 +110,7 @@ public class KafkaOperator {
     }
 
     public List<BriefMQMessage> queryLatestMessage(KafkaClusterInfo kafkaClusterInfo, String topicName,
+            String consumeGroup,
             Integer messageCount, InlongStreamInfo streamInfo) {
         LOGGER.info("begin to query message for topic {} in cluster: {}", topicName, kafkaClusterInfo);
 
@@ -117,7 +118,7 @@ public class KafkaOperator {
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaClusterInfo.getUrl());
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "INLONG-Kafka-QueryLatestMessage");
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, consumeGroup);
 
         KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<>(properties);
         return getKafkaLatestMessage(consumer, topicName, messageCount, streamInfo);
