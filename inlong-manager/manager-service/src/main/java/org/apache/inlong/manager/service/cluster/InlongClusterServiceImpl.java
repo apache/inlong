@@ -1462,7 +1462,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         Preconditions.expectNotBlank(request.getTenant(), ErrorCodeEnum.INVALID_PARAMETER,
                 "tenant cannot be empty");
         InlongTenantInfo tenantInfo = tenantService.getByName(request.getTenant());
-        Preconditions.expectNotNull(tenantInfo,  ErrorCodeEnum.INVALID_PARAMETER,
+        Preconditions.expectNotNull(tenantInfo, ErrorCodeEnum.INVALID_PARAMETER,
                 "target tenant cannot be found");
 
         TenantClusterTagEntity entity = CommonBeanUtils.copyProperties(request, TenantClusterTagEntity::new);
