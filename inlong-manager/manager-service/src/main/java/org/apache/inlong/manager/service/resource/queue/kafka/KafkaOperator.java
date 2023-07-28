@@ -34,6 +34,7 @@ import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
 import org.apache.kafka.clients.admin.DeleteTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -119,8 +120,15 @@ public class KafkaOperator {
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, "QueryLatestMessage-" + Utils.getUUID());
 
+        KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<>(properties);
+        return getKafkaLatestMessage(consumer, topicName, messageCount, streamInfo);
+    }
+
+    public List<BriefMQMessage> getKafkaLatestMessage(Consumer<byte[], byte[]> consumer, String topicName,
+            Integer messageCount, InlongStreamInfo streamInfo) {
         List<BriefMQMessage> messageList = new ArrayList<>();
-        try (KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<>(properties)) {
+
+        try {
             List<PartitionInfo> partitionInfoList = consumer.partitionsFor(topicName);
 
             List<TopicPartition> topicPartitionList = partitionInfoList.stream()
@@ -163,9 +171,12 @@ public class KafkaOperator {
             String errMsg = "decode msg error: ";
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg + e.getMessage());
+        } finally {
+            consumer.close();
         }
 
         LOGGER.info("success query messages for topic={}, size={}", topicName, messageList.size());
+
         int fromIndex = (messageList.size() > messageCount) ? (messageList.size() - messageCount) : 0;
         List<BriefMQMessage> resultList = messageList.subList(fromIndex, messageList.size());
         return IntStream.range(0, resultList.size()).mapToObj(i -> {
