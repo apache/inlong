@@ -95,6 +95,37 @@ const TagDetailModal: React.FC<TagDetailModalProps> = ({ id, ...modalProps }) =>
         rules: [{ required: true }],
       },
       {
+        type: 'select',
+        label: i18n.t('pages.ClusterTags.Tenant'),
+        name: 'tenant',
+        props: {
+          filterOption: false,
+          showSearch: true,
+          allowClear: true,
+          mode: 'multiple',
+          options: {
+            requestTrigger: ['onOpen', 'onSearch'],
+            requestService: keyword => ({
+              url: '/tenant/list',
+              method: 'POST',
+              data: {
+                keyword,
+                pageNum: 1,
+                pageSize: 9999,
+                listByLoginUser: true,
+              },
+            }),
+            requestParams: {
+              formatResult: result =>
+                result?.list?.map(item => ({
+                  label: item.name,
+                  value: item.name,
+                })),
+            },
+          },
+        },
+      },
+      {
         type: 'textarea',
         label: i18n.t('pages.ClusterTags.Description'),
         name: 'description',

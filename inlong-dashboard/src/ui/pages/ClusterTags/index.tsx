@@ -33,12 +33,13 @@ import {
 } from 'antd';
 import { RightOutlined } from '@ant-design/icons';
 import { PageContainer } from '@/ui/components/PageContainer';
-import { useRequest } from '@/ui/hooks';
+import { useRequest, useSelector } from '@/ui/hooks';
 import i18n from '@/i18n';
 import request from '@/core/utils/request';
 import ClusterList from './ClusterList';
 import TagDetailModal from './TagDetailModal';
 import styles from './index.module.less';
+import { State } from '@/core/stores';
 
 const Comp: React.FC = () => {
   const [options, setOptions] = useState({
@@ -54,13 +55,15 @@ const Comp: React.FC = () => {
     open: false,
   });
 
+  const roles = useSelector<State, State['roles']>(state => state.roles);
+
   const {
     data,
     loading,
     run: getList,
   } = useRequest(
     {
-      url: '/cluster/tag/listTagByTenantCondition',
+      url: '/cluster/tag/listTagByTenantRole',
       method: 'POST',
       data: {
         ...options,
@@ -157,7 +160,12 @@ const Comp: React.FC = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <Space size={[4, 16]} wrap>
                     <Input.Search
-                      style={{ width: 150 }}
+                      style={{
+                        width:
+                          roles?.includes('INLONG_ADMIN') || roles?.includes('INLONG_OPERATOR')
+                            ? 150
+                            : 180,
+                      }}
                       placeholder={i18n.t('pages.ClusterTags.TagPlaceholder')}
                       onSearch={keyword =>
                         setOptions(prev => ({
@@ -169,7 +177,12 @@ const Comp: React.FC = () => {
                     <Select
                       showSearch
                       allowClear
-                      style={{ width: 120 }}
+                      style={{
+                        width:
+                          roles?.includes('INLONG_ADMIN') || roles?.includes('INLONG_OPERATOR')
+                            ? 120
+                            : 150,
+                      }}
                       placeholder={i18n.t('pages.ClusterTags.TenantPlaceholder')}
                       onChange={keyword =>
                         setOptions(prev => ({
@@ -179,7 +192,16 @@ const Comp: React.FC = () => {
                       }
                       options={tenantData}
                     />
-                    <Button type="primary" onClick={() => setTagDetailModal({ open: true })}>
+                    <Button
+                      type="primary"
+                      style={{
+                        display:
+                          roles?.includes('INLONG_ADMIN') || roles?.includes('INLONG_OPERATOR')
+                            ? 'block'
+                            : 'none',
+                      }}
+                      onClick={() => setTagDetailModal({ open: true })}
+                    >
                       {i18n.t('basic.Create')}
                     </Button>
                   </Space>
