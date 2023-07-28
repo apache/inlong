@@ -30,6 +30,7 @@ import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.apache.kafka.common.record.TimestampType;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,12 +45,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+/**
+ * Kafka Operator test
+ */
+public class KafkaOperatorTest extends ServiceBaseTest {
 
-class KafkaOperatorTest extends ServiceBaseTest {
-
-    private static final String TopicName = "test";
-    private static final int PartitionNum = 5;
+    private static final String TOPIC_NAME = "test";
+    private static final int PARTITION_NUM = 5;
 
     private final MockConsumer<byte[], byte[]> consumer = new MockConsumer<>(OffsetResetStrategy.EARLIEST);
 
@@ -66,18 +68,18 @@ class KafkaOperatorTest extends ServiceBaseTest {
 
     public void addOnceRecord(int partition, long offset, String message) {
         ConsumerRecord<byte[], byte[]> record =
-                new ConsumerRecord<>(TopicName, partition, offset, 0L, TimestampType.CREATE_TIME,
+                new ConsumerRecord<>(TOPIC_NAME, partition, offset, 0L, TimestampType.CREATE_TIME,
                         0L, 0, 0, null, buildInlongMessage(message), new RecordHeaders(), Optional.empty());
         consumer.addRecord(record);
 
         HashMap<TopicPartition, Long> endingOffsets = new HashMap<>();
-        endingOffsets.put(new TopicPartition(TopicName, partition), offset);
+        endingOffsets.put(new TopicPartition(TOPIC_NAME, partition), offset);
         consumer.updateEndOffsets(endingOffsets);
     }
 
     public void addRecord(List<String> messages) {
         List<List<String>> partitions =
-                Lists.partition(messages, (int) Math.ceil((double) messages.size() / PartitionNum));
+                Lists.partition(messages, (int) Math.ceil((double) messages.size() / PARTITION_NUM));
 
         IntStream.range(0, partitions.size()).forEach(index -> {
             List<String> partitionItems = partitions.get(index);
@@ -91,13 +93,13 @@ class KafkaOperatorTest extends ServiceBaseTest {
     public void setUp() {
         streamInfo.setDataEncoding("UTF-8");
 
-        List<TopicPartition> topicPartitions = IntStream.range(0, PartitionNum)
-                .mapToObj(i -> new TopicPartition(TopicName, i)).collect(Collectors.toList());
+        List<TopicPartition> topicPartitions = IntStream.range(0, PARTITION_NUM)
+                .mapToObj(i -> new TopicPartition(TOPIC_NAME, i)).collect(Collectors.toList());
         consumer.assign(topicPartitions);
 
-        List<PartitionInfo> partitions = IntStream.range(0, PartitionNum)
-                .mapToObj(i -> new PartitionInfo(TopicName, i, null, null, null)).collect(Collectors.toList());
-        consumer.updatePartitions(TopicName, partitions);
+        List<PartitionInfo> partitions = IntStream.range(0, PARTITION_NUM)
+                .mapToObj(i -> new PartitionInfo(TOPIC_NAME, i, null, null, null)).collect(Collectors.toList());
+        consumer.updatePartitions(TOPIC_NAME, partitions);
 
         Map<TopicPartition, Long> offsets =
                 topicPartitions.stream().collect(Collectors.toMap(Function.identity(), t -> 0L));
@@ -109,17 +111,17 @@ class KafkaOperatorTest extends ServiceBaseTest {
 
     @Test
     void testGetKafkaLatestMessage() {
-        List<BriefMQMessage> messages = kafkaOperator.getKafkaLatestMessage(consumer, TopicName, 10, streamInfo);
-        assertEquals(0, messages.size());
+        List<BriefMQMessage> messages = kafkaOperator.getKafkaLatestMessage(consumer, TOPIC_NAME, 10, streamInfo);
+        Assertions.assertEquals(0, messages.size());
     }
 
     @Test
     void testGetKafkaLatestMessage_1() {
         addRecord(Collections.singletonList("inlong"));
 
-        List<BriefMQMessage> messages = kafkaOperator.getKafkaLatestMessage(consumer, TopicName, 10, streamInfo);
-        assertEquals(1, messages.size());
-        assertEquals("inlong", messages.get(0).getBody());
+        List<BriefMQMessage> messages = kafkaOperator.getKafkaLatestMessage(consumer, TOPIC_NAME, 10, streamInfo);
+        Assertions.assertEquals(1, messages.size());
+        Assertions.assertEquals("inlong", messages.get(0).getBody());
     }
 
     @Test
@@ -127,8 +129,8 @@ class KafkaOperatorTest extends ServiceBaseTest {
         List<String> records = IntStream.range(0, 9).mapToObj(index -> "name_" + index).collect(Collectors.toList());
         addRecord(records);
 
-        List<BriefMQMessage> messages = kafkaOperator.getKafkaLatestMessage(consumer, TopicName, 10, streamInfo);
-        assertEquals(9, messages.size());
+        List<BriefMQMessage> messages = kafkaOperator.getKafkaLatestMessage(consumer, TOPIC_NAME, 10, streamInfo);
+        Assertions.assertEquals(9, messages.size());
     }
 
     @Test
@@ -136,8 +138,8 @@ class KafkaOperatorTest extends ServiceBaseTest {
         List<String> records = IntStream.range(0, 21).mapToObj(index -> "name_" + index).collect(Collectors.toList());
         addRecord(records);
 
-        List<BriefMQMessage> messages = kafkaOperator.getKafkaLatestMessage(consumer, TopicName, 10, streamInfo);
-        assertEquals(10, messages.size());
+        List<BriefMQMessage> messages = kafkaOperator.getKafkaLatestMessage(consumer, TOPIC_NAME, 10, streamInfo);
+        Assertions.assertEquals(10, messages.size());
     }
 
 }
