@@ -141,6 +141,13 @@ public class InlongClusterController {
         return Response.success(clusterService.listTagByTenantReqeust(request));
     }
 
+    @PostMapping(value = "/cluster/listByTenantCondition")
+    @ApiOperation(value = "List cluster by tenant condition")
+    public Response<PageResult<ClusterInfo>> listByTenantCondition(
+            @RequestBody ClusterPageRequest request) {
+        return Response.success(clusterService.listByTenantReqeust(request));
+    }
+
     @DeleteMapping(value = "/cluster/tenant/tag/delete/{id}")
     @ApiOperation(value = "Delete tenant cluster tag by id")
     @OperationLog(operation = OperationType.DELETE)

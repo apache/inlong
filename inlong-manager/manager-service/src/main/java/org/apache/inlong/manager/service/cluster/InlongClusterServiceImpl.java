@@ -1503,6 +1503,24 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
+    public PageResult<ClusterInfo> listByTenantReqeust(ClusterPageRequest request) {
+        String loginUser = LoginUserUtils.getLoginUser().getName();
+        InlongRoleInfo roleInfo = inlongRoleService.getByUsername(loginUser);
+        if (roleInfo == null) {
+            TenantClusterTagPageRequest tagRequest = new TenantClusterTagPageRequest();
+            tagRequest.setPageNum(1);
+            tagRequest.setPageSize(Integer.MAX_VALUE);
+            List<String> tags = listTenantTag(tagRequest).getList()
+                    .stream()
+                    .map(TenantClusterTagInfo::getClusterTag)
+                    .distinct()
+                    .collect(Collectors.toList());
+            request.setClusterTagList(tags);
+        }
+        return this.list(request);
+    }
+
+    @Override
     public PageResult<TenantClusterTagInfo> listTenantTag(TenantClusterTagPageRequest request) {
         LOGGER.debug("begin to list tag by tenant {}", request);
 

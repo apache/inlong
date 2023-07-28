@@ -478,6 +478,14 @@ public interface InlongClusterService {
     PageResult<ClusterTagResponse> listTagByTenantReqeust(TenantClusterTagPageRequest request);
 
     /**
+     * Paging query cluster tags by tenant request.
+     *
+     * @param request page request conditions
+     * @return cluster tag list
+     */
+    PageResult<ClusterInfo> listByTenantReqeust(ClusterPageRequest request);
+
+    /**
      * Delete tenant cluster tag.
      *
      * @param id cluster tag id to be deleted
