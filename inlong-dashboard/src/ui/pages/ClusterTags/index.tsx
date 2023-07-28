@@ -17,8 +17,20 @@
  * under the License.
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
-import { Button, Card, List, Col, Row, Descriptions, Input, Modal, message } from 'antd';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import {
+  Button,
+  Card,
+  List,
+  Col,
+  Row,
+  Descriptions,
+  Input,
+  Modal,
+  message,
+  Space,
+  Select,
+} from 'antd';
 import { RightOutlined } from '@ant-design/icons';
 import { PageContainer } from '@/ui/components/PageContainer';
 import { useRequest } from '@/ui/hooks';
@@ -36,6 +48,7 @@ const Comp: React.FC = () => {
   });
 
   const [tagId, setTagId] = useState<number>();
+  const [tenantData, setTenantData] = useState([]);
 
   const [tagDetailModal, setTagDetailModal] = useState<Record<string, unknown>>({
     open: false,
@@ -47,7 +60,7 @@ const Comp: React.FC = () => {
     run: getList,
   } = useRequest(
     {
-      url: '/cluster/tag/list',
+      url: '/cluster/tag/listTagByTenantCondition',
       method: 'POST',
       data: {
         ...options,
@@ -63,6 +76,32 @@ const Comp: React.FC = () => {
       },
     },
   );
+
+  const { run: getTenantData } = useRequest(
+    {
+      url: '/tenant/list',
+      method: 'POST',
+      data: {
+        pageNum: 1,
+        pageSize: 9999,
+        listByLoginUser: true,
+      },
+    },
+    {
+      manual: true,
+      onSuccess: result => {
+        const list = result?.list?.map(item => ({
+          label: item.name,
+          value: item.name,
+        }));
+        setTenantData(list);
+      },
+    },
+  );
+
+  useEffect(() => {
+    getTenantData();
+  }, []);
 
   const currentTag = useMemo(() => {
     return data?.list.find(item => item.id === tagId) || {};
@@ -101,7 +140,7 @@ const Comp: React.FC = () => {
   return (
     <PageContainer useDefaultBreadcrumb={false} useDefaultContainer={false}>
       <Row gutter={20}>
-        <Col style={{ flex: '0 0 350px' }}>
+        <Col style={{ flex: '0 0 430px' }}>
           <Card style={{ height: '100%' }}>
             <List
               size="small"
@@ -116,18 +155,34 @@ const Comp: React.FC = () => {
               dataSource={data?.list}
               header={
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Input.Search
-                    style={{ flex: '0 1 150px' }}
-                    onSearch={keyword =>
-                      setOptions(prev => ({
-                        ...prev,
-                        keyword,
-                      }))
-                    }
-                  />
-                  <Button type="primary" onClick={() => setTagDetailModal({ open: true })}>
-                    {i18n.t('basic.Create')}
-                  </Button>
+                  <Space size={[4, 16]} wrap>
+                    <Input.Search
+                      style={{ width: 150 }}
+                      placeholder={i18n.t('pages.ClusterTags.TagPlaceholder')}
+                      onSearch={keyword =>
+                        setOptions(prev => ({
+                          ...prev,
+                          keyword,
+                        }))
+                      }
+                    />
+                    <Select
+                      showSearch
+                      allowClear
+                      style={{ width: 120 }}
+                      placeholder={i18n.t('pages.ClusterTags.TenantPlaceholder')}
+                      onChange={keyword =>
+                        setOptions(prev => ({
+                          ...prev,
+                          tenant: keyword,
+                        }))
+                      }
+                      options={tenantData}
+                    />
+                    <Button type="primary" onClick={() => setTagDetailModal({ open: true })}>
+                      {i18n.t('basic.Create')}
+                    </Button>
+                  </Space>
                 </div>
               }
               renderItem={(item: Record<string, any>) => (

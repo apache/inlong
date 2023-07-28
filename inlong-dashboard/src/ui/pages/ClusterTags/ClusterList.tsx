@@ -26,6 +26,7 @@ import { useRequest } from '@/ui/hooks';
 import { clusters } from '@/plugins/clusters';
 import ClusterBindModal from './ClusterBindModal';
 import request from '@/core/utils/request';
+import TenantBindModal from './TenantBindModal';
 
 export interface ClusterListProps {
   clusterTag: string;
@@ -58,6 +59,10 @@ const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
   });
 
   const [clusterBindModal, setClusterBindModal] = useState<Record<string, unknown>>({
+    open: false,
+  });
+
+  const [tenantBindModal, setTenantBindModal] = useState<Record<string, unknown>>({
     open: false,
   });
 
@@ -172,9 +177,14 @@ const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
           onFilter,
         }}
         suffix={
-          <Button type="primary" onClick={() => setClusterBindModal({ open: true })}>
-            {i18n.t('pages.ClusterTags.BindCluster')}
-          </Button>
+          <>
+            <Button type="primary" onClick={() => setClusterBindModal({ open: true })}>
+              {i18n.t('pages.ClusterTags.BindCluster')}
+            </Button>
+            <Button type="primary" onClick={() => setTenantBindModal({ open: true })}>
+              {i18n.t('pages.ClusterTags.BindTenant')}
+            </Button>
+          </>
         }
         table={{
           columns,
@@ -195,6 +205,16 @@ const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
           setClusterBindModal({ open: false });
         }}
         onCancel={() => setClusterBindModal({ open: false })}
+      />
+      <TenantBindModal
+        {...tenantBindModal}
+        clusterTag={clusterTag}
+        open={tenantBindModal.open as boolean}
+        onOk={async () => {
+          await getList();
+          setTenantBindModal({ open: false });
+        }}
+        onCancel={() => setTenantBindModal({ open: false })}
       />
     </>
   );
