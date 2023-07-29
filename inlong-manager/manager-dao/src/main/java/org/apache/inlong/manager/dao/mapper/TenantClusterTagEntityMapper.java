@@ -33,6 +33,8 @@ public interface TenantClusterTagEntityMapper {
 
     TenantClusterTagEntity selectByPrimaryKey(Integer id);
 
+    List<TenantClusterTagEntity> selectByTag(String clusterTag);
+
     List<TenantClusterTagEntity> selectByCondition(TenantClusterTagPageRequest request);
 
 }

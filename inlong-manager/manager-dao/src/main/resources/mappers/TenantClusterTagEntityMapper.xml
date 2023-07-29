@@ -41,6 +41,13 @@
         from tenant_cluster_tag
         where id = #{id,jdbcType=INTEGER}
     </select>
+    <select id="selectByTag" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from tenant_cluster_tag
+        where is_deleted = 0
+        and cluster_tag = #{clusterTag,jdbcType=VARCHAR}
+    </select>
     <select id="selectByCondition" parameterType="org.apache.inlong.manager.pojo.cluster.TenantClusterTagPageRequest"
             resultMap="BaseResultMap">
         select

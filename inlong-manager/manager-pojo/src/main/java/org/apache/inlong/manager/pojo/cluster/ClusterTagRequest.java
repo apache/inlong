@@ -28,6 +28,7 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.util.List;
 
 /**
  * Inlong cluster tag request
@@ -45,6 +46,9 @@ public class ClusterTagRequest {
     @Length(min = 1, max = 128, message = "length must be between 1 and 128")
     @Pattern(regexp = "^[a-z0-9_.-]{1,128}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String clusterTag;
+
+    @ApiModelProperty(value = "Bind tenants")
+    private List<String> tenants;
 
     @ApiModelProperty(value = "Extended params")
     @Length(min = 1, max = 163840, message = "length must be between 1 and 163840")

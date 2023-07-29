@@ -475,7 +475,7 @@ public interface InlongClusterService {
      * @param request page request conditions
      * @return cluster tag list
      */
-    PageResult<ClusterTagResponse> listTagByTenantReqeust(TenantClusterTagPageRequest request);
+    PageResult<ClusterTagResponse> listTagByTenantRole(TenantClusterTagPageRequest request);
 
     /**
      * Paging query cluster tags by tenant request.
@@ -483,7 +483,7 @@ public interface InlongClusterService {
      * @param request page request conditions
      * @return cluster tag list
      */
-    PageResult<ClusterInfo> listByTenantReqeust(ClusterPageRequest request);
+    PageResult<ClusterInfo> listByTenantRole(ClusterPageRequest request);
 
     /**
      * Delete tenant cluster tag.

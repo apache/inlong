@@ -26,6 +26,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Inlong cluster tag response
@@ -42,6 +43,9 @@ public class ClusterTagResponse {
 
     @ApiModelProperty(value = "Cluster tag")
     private String clusterTag;
+
+    @ApiModelProperty(value = "tenant list")
+    private List<String> tenantList;
 
     @ApiModelProperty(value = "Extended params")
     private String extParams;

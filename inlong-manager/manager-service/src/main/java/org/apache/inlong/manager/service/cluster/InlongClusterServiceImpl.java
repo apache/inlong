@@ -170,6 +170,16 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         entity.setCreator(operator);
         entity.setModifier(operator);
         clusterTagMapper.insert(entity);
+
+        if (CollectionUtils.isNotEmpty(request.getTenants())) {
+            TenantClusterTagRequest tagRequest = new TenantClusterTagRequest();
+            tagRequest.setClusterTag(clusterTag);
+            request.getTenants().forEach(tenant -> {
+                tagRequest.setTenant(tenant);
+                this.saveTenantTag(tagRequest, operator);
+            });
+        }
+
         LOGGER.info("success to save cluster tag={} by user={}", request, operator);
         return entity.getId();
     }
@@ -201,6 +211,13 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 "Current user does not have permission to get cluster tag");
 
         ClusterTagResponse response = CommonBeanUtils.copyProperties(entity, ClusterTagResponse::new);
+
+        List<String> tenantList = tenantClusterTagMapper
+                .selectByTag(entity.getClusterTag()).stream()
+                .map(TenantClusterTagEntity::getTenant)
+                .collect(Collectors.toList());
+        response.setTenantList(tenantList);
+
         LOGGER.debug("success to get cluster tag info by id={}", id);
         return response;
     }
@@ -314,6 +331,39 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
+
+        // for tenant tag
+        if (CollectionUtils.isNotEmpty(request.getTenants())) {
+            Set<String> updatedTenants = new HashSet<>(request.getTenants());
+            List<TenantClusterTagEntity> tenantList = tenantClusterTagMapper.selectByTag(oldClusterTag);
+            // remove
+            tenantList.stream()
+                    .filter(entity -> !updatedTenants.contains(entity.getTenant()))
+                    .forEach(entity -> {
+                        try {
+                            this.deleteTenantTag(entity.getId(), operator);
+                        } catch (Exception e) {
+                            LOGGER.error(e.getMessage());
+                        }
+                    });
+            // add
+            Set<String> currentTenants = tenantList.stream()
+                    .map(TenantClusterTagEntity::getTenant)
+                    .collect(Collectors.toSet());
+            updatedTenants.stream()
+                    .filter(tenant -> !currentTenants.contains(tenant))
+                    .forEach(tenant -> {
+                        try {
+                            TenantClusterTagRequest tagRequest = new TenantClusterTagRequest();
+                            tagRequest.setTenant(tenant);
+                            tagRequest.setClusterTag(oldClusterTag);
+                            this.saveTenantTag(tagRequest, operator);
+                        } catch (Exception e) {
+                            LOGGER.error(e.getMessage());
+                        }
+                    });
+        }
+
         LOGGER.info("success to update cluster tag={}", request);
         return true;
     }
@@ -407,6 +457,16 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     exist.getClusterTag(), exist.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
+
+        List<TenantClusterTagEntity> tenantList = tenantClusterTagMapper.selectByTag(clusterTag);
+        tenantList.forEach(entity -> {
+            try {
+                this.deleteTenantTag(entity.getId(), operator);
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage());
+            }
+        });
+
         LOGGER.info("success to delete cluster tag by id={}", id);
         return true;
     }
@@ -1474,7 +1534,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public PageResult<ClusterTagResponse> listTagByTenantReqeust(TenantClusterTagPageRequest request) {
+    public PageResult<ClusterTagResponse> listTagByTenantRole(TenantClusterTagPageRequest request) {
 
         ClusterTagPageRequest tagRequest = CommonBeanUtils.copyProperties(request, ClusterTagPageRequest::new);
 
@@ -1485,7 +1545,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         if (roleInfo == null || StringUtils.isNotBlank(request.getTenant())) {
             request.setPageNum(1);
             request.setPageSize(Integer.MAX_VALUE);
-            List<String> tags = listTenantTag(request).getList()
+            List<String> tags = this.listTenantTag(request).getList()
                     .stream()
                     .map(TenantClusterTagInfo::getClusterTag)
                     .distinct()
@@ -1503,14 +1563,14 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public PageResult<ClusterInfo> listByTenantReqeust(ClusterPageRequest request) {
+    public PageResult<ClusterInfo> listByTenantRole(ClusterPageRequest request) {
         String loginUser = LoginUserUtils.getLoginUser().getName();
         InlongRoleInfo roleInfo = inlongRoleService.getByUsername(loginUser);
         if (roleInfo == null) {
             TenantClusterTagPageRequest tagRequest = new TenantClusterTagPageRequest();
             tagRequest.setPageNum(1);
             tagRequest.setPageSize(Integer.MAX_VALUE);
-            List<String> tags = listTenantTag(tagRequest).getList()
+            List<String> tags = this.listTenantTag(tagRequest).getList()
                     .stream()
                     .map(TenantClusterTagInfo::getClusterTag)
                     .distinct()

@@ -134,18 +134,18 @@ public class InlongClusterController {
         return Response.success(clusterService.listTenantTag(request));
     }
 
-    @PostMapping(value = "/cluster/tag/listTagByTenantCondition")
+    @PostMapping(value = "/cluster/tag/listTagByTenantRole")
     @ApiOperation(value = "List cluster tags by tenant condition")
-    public Response<PageResult<ClusterTagResponse>> listTagByTenantCondition(
+    public Response<PageResult<ClusterTagResponse>> listTagByTenantRole(
             @RequestBody TenantClusterTagPageRequest request) {
-        return Response.success(clusterService.listTagByTenantReqeust(request));
+        return Response.success(clusterService.listTagByTenantRole(request));
     }
 
-    @PostMapping(value = "/cluster/listByTenantCondition")
+    @PostMapping(value = "/cluster/listByTenantRole")
     @ApiOperation(value = "List cluster by tenant condition")
-    public Response<PageResult<ClusterInfo>> listByTenantCondition(
+    public Response<PageResult<ClusterInfo>> listByTenantRole(
             @RequestBody ClusterPageRequest request) {
-        return Response.success(clusterService.listByTenantReqeust(request));
+        return Response.success(clusterService.listByTenantRole(request));
     }
 
     @DeleteMapping(value = "/cluster/tenant/tag/delete/{id}")
