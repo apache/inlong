@@ -92,13 +92,6 @@ JAVA_OPT="${JAVA_OPT} -XX:+IgnoreUnrecognizedVMOptions -XX:+UseConcMarkSweepGC -
 # Remote debugger
 #JAVA_OPT="${JAVA_OPT} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8081"
 
-# Opentelemetry java agent path
-JAVA_AGENT="${BASE_PATH}/bin/opentelemetry-javaagent.jar"
-DOWNLOAD_URL="https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/${OTEL_VERSION}/opentelemetry-javaagent.jar"
-if [ ! -f "$JAVA_AGENT" ]; then
-    wget -O "$JAVA_AGENT" "$DOWNLOAD_URL"
-fi
-
 # Opentelemetry startup parameter configuration
 export OTEL_SERVICE_NAME=inlong_manager
 export OTEL_TRACES_EXPORTER=otlp
@@ -108,6 +101,13 @@ export OTEL_INSTRUMENTATION_PULSAR_ENABLED=false
 export OTEL_VERSION=v1.28.0
 export OTEL_EXPORTER_OTLP_ENDPOINT=
 export OTEL_RESOURCE_ATTRIBUTES=
+
+# Opentelemetry java agent path
+JAVA_AGENT="${BASE_PATH}/bin/opentelemetry-javaagent.jar"
+DOWNLOAD_URL="https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/${OTEL_VERSION}/opentelemetry-javaagent.jar"
+if [ ! -f "$JAVA_AGENT" ]; then
+    wget -O "$JAVA_AGENT" "$DOWNLOAD_URL"
+fi
 
 # Start service: start the project in the background, and output the log to the logs folder under the project root directory
 nohup java ${JAVA_OPT} -javaagent:${JAVA_AGENT} -cp ${CLASSPATH} ${MAIN_CLASS} 1>/dev/null 2>${LOG_DIR}/error.log &
