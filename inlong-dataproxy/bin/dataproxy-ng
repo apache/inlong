@@ -31,7 +31,7 @@ CLEAN_FLAG=1
 ################################
 # functions
 ################################
-
+BASE_DIR=$(cd "$(dirname "$0")"/../;pwd)
 info() {
   if [ ${CLEAN_FLAG} -ne 0 ]; then
     local msg=$1
@@ -203,6 +203,25 @@ in the classpath.
 EOF
 }
 
+
+# Opentelemetry java agent path
+JAVA_AGENT="${BASE_DIR}/bin/opentelemetry-javaagent.jar"
+DOWNLOAD_URL="https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/${OTEL_VERSION}/opentelemetry-javaagent.jar"
+if [ ! -f "$JAVA_AGENT" ]; then
+    wget -O "$JAVA_AGENT" "$DOWNLOAD_URL"
+fi
+
+# Opentelemetry startup parameter configuration
+export OTEL_SERVICE_NAME=inlong_dataproxy
+export OTEL_TRACES_EXPORTER=otlp
+export OTEL_METRICS_EXPORTER=otlp
+export OTEL_LOGS_EXPORTER=otlp
+export OTEL_INSTRUMENTATION_PULSAR_ENABLED=false
+export OTEL_VERSION=v1.28.0
+export OTEL_EXPORTER_OTLP_ENDPOINT=
+export OTEL_RESOURCE_ATTRIBUTES=
+
+
 run_flume() {
   local FLUME_APPLICATION_CLASS
 
@@ -216,7 +235,7 @@ run_flume() {
   if [ ${CLEAN_FLAG} -ne 0 ]; then
     set -x
   fi
-  $EXEC $JAVA_HOME/bin/java $JAVA_OPTS -cp "$DATAPROXY_CLASSPATH" \
+  $EXEC $JAVA_HOME/bin/java $JAVA_OPTS -javaagent:${JAVA_AGENT} -cp "$DATAPROXY_CLASSPATH" \
       -Djava.library.path=$FLUME_JAVA_LIBRARY_PATH "$FLUME_APPLICATION_CLASS" $*
 }
 

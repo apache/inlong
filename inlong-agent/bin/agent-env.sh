@@ -17,6 +17,15 @@
 #
 
 
+# Opentelemetry startup parameter configuration
+export OTEL_SERVICE_NAME=inlong_agent
+export OTEL_TRACES_EXPORTER=otlp
+export OTEL_METRICS_EXPORTER=otlp
+export OTEL_LOGS_EXPORTER=otlp
+export OTEL_INSTRUMENTATION_PULSAR_ENABLED=false
+export OTEL_VERSION=v1.28.0
+export OTEL_EXPORTER_OTLP_ENDPOINT=
+export OTEL_RESOURCE_ATTRIBUTES=
 
 #project directory
 BASE_DIR=$(cd "$(dirname "$0")"/../;pwd)
@@ -60,4 +69,11 @@ if [[ $JMX_ENABLED == 1 ]]; then
   export AGENT_ARGS="$AGENT_JVM_ARGS $AGENT_RMI_ARGS -cp $CLASSPATH -Dagent.home=$BASE_DIR"
 else
   export AGENT_ARGS="$AGENT_JVM_ARGS -cp $CLASSPATH -Dagent.home=$BASE_DIR"
+fi
+
+# Opentelemetry java agent path
+JAVA_AGENT="${BASE_DIR}/bin/opentelemetry-javaagent.jar"
+DOWNLOAD_URL="https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/${OTEL_VERSION}/opentelemetry-javaagent.jar"
+if [ ! -f "$JAVA_AGENT" ]; then
+    wget -O "$JAVA_AGENT" "$DOWNLOAD_URL"
 fi
