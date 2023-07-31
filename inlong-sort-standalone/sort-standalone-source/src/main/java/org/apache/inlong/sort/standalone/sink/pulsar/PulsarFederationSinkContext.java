@@ -90,7 +90,7 @@ public class PulsarFederationSinkContext extends SinkContext {
                     PulsarIdConfig idConfig = new PulsarIdConfig(idParam);
                     newIdConfigMap.put(idConfig.getUid(), idConfig);
                 } catch (Exception e) {
-                    LOG.error("fail to parse kafka id config", e);
+                    LOG.error("fail to parse pulsar id config", e);
                 }
             }
             // build cache cluster config

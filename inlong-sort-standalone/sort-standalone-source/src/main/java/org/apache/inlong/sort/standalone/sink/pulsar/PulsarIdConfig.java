@@ -33,6 +33,8 @@ public class PulsarIdConfig {
     public static final String KEY_SEPARATOR = "separator";
     public static final String DEFAULT_SEPARATOR = "|";
 
+    private static final String DEFAULT_INLONG_STREAM = "1";
+
     private String inlongGroupId;
     private String inlongStreamId;
     private String uid;
@@ -54,7 +56,7 @@ public class PulsarIdConfig {
      */
     public PulsarIdConfig(Map<String, String> idParam) {
         this.inlongGroupId = idParam.get(Constants.INLONG_GROUP_ID);
-        this.inlongStreamId = idParam.getOrDefault(Constants.INLONG_STREAM_ID, "1");
+        this.inlongStreamId = idParam.getOrDefault(Constants.INLONG_STREAM_ID, DEFAULT_INLONG_STREAM);
         this.uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
         this.separator = idParam.getOrDefault(PulsarIdConfig.KEY_SEPARATOR, PulsarIdConfig.DEFAULT_SEPARATOR);
         this.topic = idParam.getOrDefault(Constants.TOPIC, uid);

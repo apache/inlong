@@ -55,6 +55,7 @@ public class PulsarProducerCluster implements LifecycleAware {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(PulsarProducerCluster.class);
 
+    private static final String DEFAULT_COMPRESS_TYPE = "SNAPPY";
     public static final String KEY_SERVICE_URL = "serviceUrl";
     public static final String KEY_AUTHENTICATION = "authentication";
     public static final String KEY_STATS_INTERVAL_SECONDS = "statsIntervalSeconds";
@@ -158,7 +159,7 @@ public class PulsarProducerCluster implements LifecycleAware {
      * @return CompressionType
      */
     private CompressionType getPulsarCompressionType() {
-        String type = this.context.getString(KEY_COMPRESSIONTYPE, "SNAPPY");
+        String type = this.context.getString(KEY_COMPRESSIONTYPE, DEFAULT_COMPRESS_TYPE);
         switch (type) {
             case "LZ4":
                 return CompressionType.LZ4;
