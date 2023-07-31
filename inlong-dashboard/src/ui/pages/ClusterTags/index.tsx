@@ -238,7 +238,7 @@ const Comp: React.FC = () => {
                   {tagId === item.id && (
                     <RightOutlined style={{ position: 'absolute', left: 0, top: '35%' }} />
                   )}
-                  {item.clusterTag}
+                  <span className={styles.item}>{item.clusterTag}</span>
                 </List.Item>
               )}
             />
