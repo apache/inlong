@@ -188,13 +188,10 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
+                <artifactId>maven-failsafe-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>end-to-end-tests-v1.15</id>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
                         <phase>integration-test</phase>
                         <configuration>
                             <includes>
