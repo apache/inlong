@@ -113,7 +113,7 @@ public class KafkaOperator {
      * Query topic message for the given Kafka cluster.
      */
     public List<BriefMQMessage> queryLatestMessage(KafkaClusterInfo clusterInfo, String topicName,
-            Integer messageCount, String consumeGroup, InlongStreamInfo streamInfo) {
+            String consumeGroup, Integer messageCount, InlongStreamInfo streamInfo) {
         LOGGER.debug("begin to query message for topic {} in cluster: {}", topicName, clusterInfo);
 
         Properties properties = getProperties(clusterInfo.getUrl(), consumeGroup);
