@@ -98,6 +98,7 @@ const TagDetailModal: React.FC<TagDetailModalProps> = ({ id, ...modalProps }) =>
         type: 'select',
         label: i18n.t('pages.ClusterTags.Tenant'),
         name: 'tenantList',
+        rules: [{ required: true }],
         props: {
           filterOption: false,
           showSearch: true,
