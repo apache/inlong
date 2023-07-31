@@ -24,8 +24,8 @@ SET FOREIGN_KEY_CHECKS = 0;
 USE `apache_inlong_manager`;
 
 -- To improve the ability of resources sharing. More details please see #8590
-ALTER TABLE `inlong_cluster` DROP COLUMN `tenant`;
 DROP INDEX cluster_tenant_index ON inlong_cluster;
+ALTER TABLE `inlong_cluster` DROP COLUMN `tenant`;
 
 ALTER TABLE `inlong_cluster_tag` DROP COLUMN `tenant`;
 
