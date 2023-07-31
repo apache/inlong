@@ -53,7 +53,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.inlong.manager.service.resource.queue.pulsar.PulsarResourceOperator.PULSAR_SUBSCRIPTION;
+import static org.apache.inlong.manager.service.resource.queue.pulsar.PulsarQueueResourceOperator.PULSAR_SUBSCRIPTION;
 
 /**
  * Pulsar stream source operator

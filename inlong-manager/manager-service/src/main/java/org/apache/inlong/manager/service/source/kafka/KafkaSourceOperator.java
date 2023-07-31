@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.apache.inlong.manager.service.resource.queue.kafka.KafkaResourceOperators.KAFKA_CONSUMER_GROUP;
+import static org.apache.inlong.manager.service.resource.queue.kafka.KafkaQueueResourceOperator.KAFKA_CONSUMER_GROUP;
 
 /**
  * kafka stream source operator

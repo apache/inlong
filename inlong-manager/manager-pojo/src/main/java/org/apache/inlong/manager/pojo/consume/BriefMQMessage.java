@@ -25,16 +25,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Inlong display message info
+ * Brief Message info for MQ
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Inlong brief mq message info")
+@ApiModel("Brief Message info for MQ")
 public class BriefMQMessage {
 
-    @ApiModelProperty(value = "index id")
+    @ApiModelProperty(value = "Message index id")
     private Integer id;
 
     @ApiModelProperty(value = "Inlong group id")
@@ -43,7 +43,7 @@ public class BriefMQMessage {
     @ApiModelProperty(value = "Inlong stream id")
     private String inlongStreamId;
 
-    @ApiModelProperty(value = "Date")
+    @ApiModelProperty(value = "Message date")
     private Long dt;
 
     @ApiModelProperty(value = "Client ip")
