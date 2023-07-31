@@ -29,6 +29,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import java.util.List;
+
 /**
  * Inlong cluster tag request
  */
@@ -46,6 +48,9 @@ public class ClusterTagRequest {
     @Pattern(regexp = "^[a-z0-9_.-]{1,128}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String clusterTag;
 
+    @ApiModelProperty(value = "Bind tenants")
+    private List<String> tenantList;
+
     @ApiModelProperty(value = "Extended params")
     @Length(min = 1, max = 163840, message = "length must be between 1 and 163840")
     private String extParams;
@@ -53,10 +58,6 @@ public class ClusterTagRequest {
     @ApiModelProperty(value = "Description of the cluster tag")
     @Length(max = 256, message = "length must be less than or equal to 256")
     private String description;
-
-    @ApiModelProperty(value = "Inlong tenant of cluster tag", hidden = true)
-    @Length(max = 256, message = "length must be less than or equal to 256")
-    private String tenant;
 
     @ApiModelProperty(value = "Name of in charges, separated by commas")
     @Length(max = 512, message = "length must be less than or equal to 512")

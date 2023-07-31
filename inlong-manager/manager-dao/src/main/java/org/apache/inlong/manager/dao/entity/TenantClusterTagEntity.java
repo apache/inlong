@@ -15,29 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.dao.entity;
 
-import org.apache.inlong.manager.dao.entity.InlongClusterTagEntity;
-import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
+import lombok.Data;
 
-import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
+import java.io.Serializable;
+import java.util.Date;
 
-import java.util.List;
+@Data
+public class TenantClusterTagEntity implements Serializable {
 
-@Repository
-public interface InlongClusterTagEntityMapper {
+    private static final long serialVersionUID = 1L;
 
-    int insert(InlongClusterTagEntity record);
+    private Integer id;
 
-    InlongClusterTagEntity selectById(Integer id);
+    private String tenant;
 
-    InlongClusterTagEntity selectByTag(@Param("clusterTag") String clusterTag);
+    private String clusterTag;
 
-    List<InlongClusterTagEntity> selectByCondition(ClusterTagPageRequest request);
+    private Integer isDeleted;
 
-    int updateByIdSelective(InlongClusterTagEntity record);
+    private String creator;
 
-    int deleteByPrimaryKey(Integer id);
+    private String modifier;
 
+    private Date createTime;
+
+    private Date modifyTime;
+
+    private Integer version;
 }

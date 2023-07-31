@@ -17,27 +17,24 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.manager.dao.entity.InlongClusterTagEntity;
-import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
+import org.apache.inlong.manager.dao.entity.TenantClusterTagEntity;
+import org.apache.inlong.manager.pojo.cluster.TenantClusterTagPageRequest;
 
-import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface InlongClusterTagEntityMapper {
+public interface TenantClusterTagEntityMapper {
 
-    int insert(InlongClusterTagEntity record);
+    int updateByIdSelective(TenantClusterTagEntity record);
 
-    InlongClusterTagEntity selectById(Integer id);
+    int insert(TenantClusterTagEntity record);
 
-    InlongClusterTagEntity selectByTag(@Param("clusterTag") String clusterTag);
+    TenantClusterTagEntity selectByPrimaryKey(Integer id);
 
-    List<InlongClusterTagEntity> selectByCondition(ClusterTagPageRequest request);
+    List<TenantClusterTagEntity> selectByTag(String clusterTag);
 
-    int updateByIdSelective(InlongClusterTagEntity record);
-
-    int deleteByPrimaryKey(Integer id);
+    List<TenantClusterTagEntity> selectByCondition(TenantClusterTagPageRequest request);
 
 }

@@ -29,6 +29,9 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
+import org.apache.inlong.manager.pojo.cluster.TenantClusterTagInfo;
+import org.apache.inlong.manager.pojo.cluster.TenantClusterTagPageRequest;
+import org.apache.inlong.manager.pojo.cluster.TenantClusterTagRequest;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.user.UserInfo;
@@ -448,5 +451,47 @@ public interface InlongClusterService {
      * @return true or false
      */
     Boolean testConnection(ClusterRequest request);
+
+    /**
+     * Save tenant cluster tag.
+     *
+     * @param request cluster tag
+     * @param operator name of operator
+     * @return cluster tag id after saving
+     */
+    Integer saveTenantTag(TenantClusterTagRequest request, String operator);
+
+    /**
+     * Paging query tenant cluster tags according to conditions.
+     *
+     * @param request page request conditions
+     * @return tenant cluster tag list
+     */
+    PageResult<TenantClusterTagInfo> listTenantTag(TenantClusterTagPageRequest request);
+
+    /**
+     * Paging query cluster tags by tenant request.
+     *
+     * @param request page request conditions
+     * @return cluster tag list
+     */
+    PageResult<ClusterTagResponse> listTagByTenantRole(TenantClusterTagPageRequest request);
+
+    /**
+     * Paging query cluster tags by tenant request.
+     *
+     * @param request page request conditions
+     * @return cluster tag list
+     */
+    PageResult<ClusterInfo> listByTenantRole(ClusterPageRequest request);
+
+    /**
+     * Delete tenant cluster tag.
+     *
+     * @param id cluster tag id to be deleted
+     * @param operator current operator
+     * @return whether succeed
+     */
+    Boolean deleteTenantTag(Integer id, String operator);
 
 }
