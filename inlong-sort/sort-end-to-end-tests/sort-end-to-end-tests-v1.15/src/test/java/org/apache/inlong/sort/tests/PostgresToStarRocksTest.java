@@ -49,10 +49,11 @@ import java.util.stream.Stream;
 
 /**
  * End-to-end tests for sort-connector-postgres-cdc-v1.15 uber jar.
+ * Test flink sql Postgres cdc to StarRocks
  */
-public class PostgresTest extends FlinkContainerTestEnv {
+public class PostgresToStarRocksTest extends FlinkContainerTestEnv {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PostgresTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PostgresToStarRocksTest.class);
 
     private static final Path postgresJar = TestUtils.getResource("sort-connector-postgres-cdc.jar");
     private static final Path jdbcJar = TestUtils.getResource("sort-connector-starrocks.jar");
@@ -72,7 +73,7 @@ public class PostgresTest extends FlinkContainerTestEnv {
 
     static {
         try {
-            sqlFile = Paths.get(PostgresTest.class.getResource("/flinkSql/postgres_test.sql").toURI()).toString();
+            sqlFile = Paths.get(PostgresToStarRocksTest.class.getResource("/flinkSql/postgres_test.sql").toURI()).toString();
             buildStarRocksImage();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
