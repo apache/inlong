@@ -43,7 +43,7 @@ import java.util.List;
  */
 @Slf4j
 @Service
-public class TubeMQResourceOperator implements QueueResourceOperator {
+public class TubeMQQueueResourceOperator implements QueueResourceOperator {
 
     @Autowired
     private InlongClusterService clusterService;

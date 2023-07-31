@@ -50,7 +50,7 @@ import java.util.List;
  */
 @Slf4j
 @Service
-public class KafkaResourceOperator implements QueueResourceOperator {
+public class KafkaQueueResourceOperator implements QueueResourceOperator {
 
     /**
      * The name rule for Kafka consumer group: clusterTag_topicName_consumer_group
