@@ -50,7 +50,7 @@ const Comp: React.FC = () => {
     run: getList,
   } = useRequest(
     {
-      url: '/cluster/list',
+      url: '/cluster/listByTenantRole',
       method: 'POST',
       data: {
         ...options,

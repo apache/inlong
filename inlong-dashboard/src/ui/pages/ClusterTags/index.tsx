@@ -17,16 +17,29 @@
  * under the License.
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
-import { Button, Card, List, Col, Row, Descriptions, Input, Modal, message } from 'antd';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import {
+  Button,
+  Card,
+  List,
+  Col,
+  Row,
+  Descriptions,
+  Input,
+  Modal,
+  message,
+  Space,
+  Select,
+} from 'antd';
 import { RightOutlined } from '@ant-design/icons';
 import { PageContainer } from '@/ui/components/PageContainer';
-import { useRequest } from '@/ui/hooks';
+import { useRequest, useSelector } from '@/ui/hooks';
 import i18n from '@/i18n';
 import request from '@/core/utils/request';
 import ClusterList from './ClusterList';
 import TagDetailModal from './TagDetailModal';
 import styles from './index.module.less';
+import { State } from '@/core/stores';
 
 const Comp: React.FC = () => {
   const [options, setOptions] = useState({
@@ -36,10 +49,13 @@ const Comp: React.FC = () => {
   });
 
   const [tagId, setTagId] = useState<number>();
+  const [tenantData, setTenantData] = useState([]);
 
   const [tagDetailModal, setTagDetailModal] = useState<Record<string, unknown>>({
     open: false,
   });
+
+  const roles = useSelector<State, State['roles']>(state => state.roles);
 
   const {
     data,
@@ -47,7 +63,7 @@ const Comp: React.FC = () => {
     run: getList,
   } = useRequest(
     {
-      url: '/cluster/tag/list',
+      url: '/cluster/tag/listTagByTenantRole',
       method: 'POST',
       data: {
         ...options,
@@ -63,6 +79,32 @@ const Comp: React.FC = () => {
       },
     },
   );
+
+  const { run: getTenantData } = useRequest(
+    {
+      url: '/tenant/list',
+      method: 'POST',
+      data: {
+        pageNum: 1,
+        pageSize: 9999,
+        listByLoginUser: true,
+      },
+    },
+    {
+      manual: true,
+      onSuccess: result => {
+        const list = result?.list?.map(item => ({
+          label: item.name,
+          value: item.name,
+        }));
+        setTenantData(list);
+      },
+    },
+  );
+
+  useEffect(() => {
+    getTenantData();
+  }, []);
 
   const currentTag = useMemo(() => {
     return data?.list.find(item => item.id === tagId) || {};
@@ -101,7 +143,7 @@ const Comp: React.FC = () => {
   return (
     <PageContainer useDefaultBreadcrumb={false} useDefaultContainer={false}>
       <Row gutter={20}>
-        <Col style={{ flex: '0 0 350px' }}>
+        <Col style={{ flex: '0 0 430px' }}>
           <Card style={{ height: '100%' }}>
             <List
               size="small"
@@ -116,18 +158,53 @@ const Comp: React.FC = () => {
               dataSource={data?.list}
               header={
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Input.Search
-                    style={{ flex: '0 1 150px' }}
-                    onSearch={keyword =>
-                      setOptions(prev => ({
-                        ...prev,
-                        keyword,
-                      }))
-                    }
-                  />
-                  <Button type="primary" onClick={() => setTagDetailModal({ open: true })}>
-                    {i18n.t('basic.Create')}
-                  </Button>
+                  <Space size={[4, 16]} wrap>
+                    <Input.Search
+                      style={{
+                        width:
+                          roles?.includes('INLONG_ADMIN') || roles?.includes('INLONG_OPERATOR')
+                            ? 150
+                            : 180,
+                      }}
+                      placeholder={i18n.t('pages.ClusterTags.TagPlaceholder')}
+                      onSearch={keyword =>
+                        setOptions(prev => ({
+                          ...prev,
+                          keyword,
+                        }))
+                      }
+                    />
+                    <Select
+                      showSearch
+                      allowClear
+                      style={{
+                        width:
+                          roles?.includes('INLONG_ADMIN') || roles?.includes('INLONG_OPERATOR')
+                            ? 120
+                            : 150,
+                      }}
+                      placeholder={i18n.t('pages.ClusterTags.TenantPlaceholder')}
+                      onChange={keyword =>
+                        setOptions(prev => ({
+                          ...prev,
+                          tenant: keyword,
+                        }))
+                      }
+                      options={tenantData}
+                    />
+                    <Button
+                      type="primary"
+                      style={{
+                        display:
+                          roles?.includes('INLONG_ADMIN') || roles?.includes('INLONG_OPERATOR')
+                            ? 'block'
+                            : 'none',
+                      }}
+                      onClick={() => setTagDetailModal({ open: true })}
+                    >
+                      {i18n.t('basic.Create')}
+                    </Button>
+                  </Space>
                 </div>
               }
               renderItem={(item: Record<string, any>) => (
@@ -161,7 +238,7 @@ const Comp: React.FC = () => {
                   {tagId === item.id && (
                     <RightOutlined style={{ position: 'absolute', left: 0, top: '35%' }} />
                   )}
-                  {item.clusterTag}
+                  <span className={styles.item}>{item.clusterTag}</span>
                 </List.Item>
               )}
             />
