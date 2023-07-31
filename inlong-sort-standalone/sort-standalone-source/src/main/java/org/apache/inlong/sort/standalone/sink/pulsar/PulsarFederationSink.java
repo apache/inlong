@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
-import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import org.apache.flume.Context;
@@ -27,12 +26,10 @@ import org.apache.flume.sink.AbstractSink;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * 
+ *
  * PulsarFederationSink
  */
 public class PulsarFederationSink extends AbstractSink implements Configurable {
@@ -40,8 +37,8 @@ public class PulsarFederationSink extends AbstractSink implements Configurable {
     public static final Logger LOG = InlongLoggerFactory.getLogger(PulsarFederationSink.class);
 
     private PulsarFederationSinkContext context;
+    private Context parentContext;
     private List<PulsarFederationWorker> workers = new ArrayList<>();
-    private Map<String, String> dimensions;
 
     /**
      * start
@@ -49,6 +46,8 @@ public class PulsarFederationSink extends AbstractSink implements Configurable {
     @Override
     public void start() {
         String sinkName = this.getName();
+        this.context = new PulsarFederationSinkContext(sinkName, parentContext, getChannel());
+        this.context.start();
         // create worker
         for (int i = 0; i < context.getMaxThreads(); i++) {
             PulsarFederationWorker worker = new PulsarFederationWorker(sinkName, i, context);
@@ -76,23 +75,21 @@ public class PulsarFederationSink extends AbstractSink implements Configurable {
 
     /**
      * configure
-     * 
+     *
      * @param context
      */
     @Override
     public void configure(Context context) {
-        LOG.info("start to configure:{}, context:{}.", this.getClass().getSimpleName(), context.toString());
-        this.context = new PulsarFederationSinkContext(getName(), context, getChannel());
-        this.context.start();
-        this.dimensions = new HashMap<>();
-        this.dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.context.getClusterId());
-        this.dimensions.put(SortMetricItem.KEY_TASK_NAME, this.context.getTaskName());
-        this.dimensions.put(SortMetricItem.KEY_SINK_ID, this.context.getSinkName());
+        LOG.info(
+                "start to configure:{}, context:{}.",
+                this.getClass().getSimpleName(),
+                context.toString());
+        this.parentContext = context;
     }
 
     /**
      * process
-     * 
+     *
      * @return                        Status
      * @throws EventDeliveryException
      */

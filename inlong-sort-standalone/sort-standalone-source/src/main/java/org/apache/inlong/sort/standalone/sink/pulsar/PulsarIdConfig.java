@@ -24,7 +24,7 @@ import org.apache.inlong.sort.standalone.utils.Constants;
 import java.util.Map;
 
 /**
- * 
+ *
  * KafkaIdConfig
  */
 public class PulsarIdConfig {
@@ -49,12 +49,12 @@ public class PulsarIdConfig {
 
     /**
      * Constructor
-     * 
+     *
      * @param idParam
      */
     public PulsarIdConfig(Map<String, String> idParam) {
         this.inlongGroupId = idParam.get(Constants.INLONG_GROUP_ID);
-        this.inlongStreamId = idParam.get(Constants.INLONG_STREAM_ID);
+        this.inlongStreamId = idParam.getOrDefault(Constants.INLONG_STREAM_ID, "1");
         this.uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
         this.separator = idParam.getOrDefault(PulsarIdConfig.KEY_SEPARATOR, PulsarIdConfig.DEFAULT_SEPARATOR);
         this.topic = idParam.getOrDefault(Constants.TOPIC, uid);
@@ -64,7 +64,7 @@ public class PulsarIdConfig {
 
     /**
      * get inlongGroupId
-     * 
+     *
      * @return the inlongGroupId
      */
     public String getInlongGroupId() {
@@ -73,7 +73,7 @@ public class PulsarIdConfig {
 
     /**
      * set inlongGroupId
-     * 
+     *
      * @param inlongGroupId the inlongGroupId to set
      */
     public void setInlongGroupId(String inlongGroupId) {
@@ -82,7 +82,7 @@ public class PulsarIdConfig {
 
     /**
      * get inlongStreamId
-     * 
+     *
      * @return the inlongStreamId
      */
     public String getInlongStreamId() {
@@ -91,7 +91,7 @@ public class PulsarIdConfig {
 
     /**
      * set inlongStreamId
-     * 
+     *
      * @param inlongStreamId the inlongStreamId to set
      */
     public void setInlongStreamId(String inlongStreamId) {
@@ -100,7 +100,7 @@ public class PulsarIdConfig {
 
     /**
      * get uid
-     * 
+     *
      * @return the uid
      */
     public String getUid() {
@@ -109,7 +109,7 @@ public class PulsarIdConfig {
 
     /**
      * set uid
-     * 
+     *
      * @param uid the uid to set
      */
     public void setUid(String uid) {
@@ -118,7 +118,7 @@ public class PulsarIdConfig {
 
     /**
      * get separator
-     * 
+     *
      * @return the separator
      */
     public String getSeparator() {
@@ -127,7 +127,7 @@ public class PulsarIdConfig {
 
     /**
      * set separator
-     * 
+     *
      * @param separator the separator to set
      */
     public void setSeparator(String separator) {
@@ -136,7 +136,7 @@ public class PulsarIdConfig {
 
     /**
      * get topic
-     * 
+     *
      * @return the topic
      */
     public String getTopic() {
@@ -145,7 +145,7 @@ public class PulsarIdConfig {
 
     /**
      * set topic
-     * 
+     *
      * @param topic the topic to set
      */
     public void setTopic(String topic) {
@@ -154,7 +154,7 @@ public class PulsarIdConfig {
 
     /**
      * get dataType
-     * 
+     *
      * @return the dataType
      */
     public DataType getDataType() {
@@ -163,7 +163,7 @@ public class PulsarIdConfig {
 
     /**
      * set dataType
-     * 
+     *
      * @param dataType the dataType to set
      */
     public void setDataType(DataType dataType) {
