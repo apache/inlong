@@ -171,10 +171,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         entity.setModifier(operator);
         clusterTagMapper.insert(entity);
 
-        if (CollectionUtils.isNotEmpty(request.getTenants())) {
+        if (CollectionUtils.isNotEmpty(request.getTenantList())) {
             TenantClusterTagRequest tagRequest = new TenantClusterTagRequest();
             tagRequest.setClusterTag(clusterTag);
-            request.getTenants().forEach(tenant -> {
+            request.getTenantList().forEach(tenant -> {
                 tagRequest.setTenant(tenant);
                 this.saveTenantTag(tagRequest, operator);
             });
@@ -333,8 +333,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
 
         // for tenant tag
-        if (CollectionUtils.isNotEmpty(request.getTenants())) {
-            Set<String> updatedTenants = new HashSet<>(request.getTenants());
+        if (CollectionUtils.isNotEmpty(request.getTenantList())) {
+            Set<String> updatedTenants = new HashSet<>(request.getTenantList());
             List<TenantClusterTagEntity> tenantList = tenantClusterTagMapper.selectByTag(oldClusterTag);
             // remove
             tenantList.stream()

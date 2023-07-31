@@ -28,6 +28,7 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+
 import java.util.List;
 
 /**
@@ -48,7 +49,7 @@ public class ClusterTagRequest {
     private String clusterTag;
 
     @ApiModelProperty(value = "Bind tenants")
-    private List<String> tenants;
+    private List<String> tenantList;
 
     @ApiModelProperty(value = "Extended params")
     @Length(min = 1, max = 163840, message = "length must be between 1 and 163840")
