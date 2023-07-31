@@ -222,15 +222,15 @@ public class PulsarProducerCluster implements LifecycleAware {
         Producer<byte[]> producer = this.producerMap.get(topic);
         if (producer == null) {
             try {
-                LOG.info("try to new a object for topic " + topic);
+                LOG.debug("try to new a producer for topic " + topic);
                 producer = baseBuilder.clone().topic(topic)
                         .producerName(workerName + "-" + cacheClusterName + "-" + topic)
                         .create();
-                LOG.info("create new producer success:{}", producer.getProducerName());
+                LOG.debug("create a new producer success:{}", producer.getProducerName());
                 Producer<byte[]> oldProducer = this.producerMap.putIfAbsent(topic, producer);
                 if (oldProducer != null) {
                     producer.close();
-                    LOG.info("close producer success:{}", producer.getProducerName());
+                    LOG.debug("close producer success:{}", producer.getProducerName());
                     producer = oldProducer;
                 }
             } catch (Throwable ex) {
