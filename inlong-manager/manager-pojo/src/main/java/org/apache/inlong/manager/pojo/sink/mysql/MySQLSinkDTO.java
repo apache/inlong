@@ -245,15 +245,13 @@ public class MySQLSinkDTO {
                     String key = StringUtils.substringBefore(param, "=");
                     String value = StringUtils.substringAfter(param, "=");
 
-                    if (SENSITIVE_REMOVE_PARAM_MAP.contains(key)) {
+                    if (SENSITIVE_REMOVE_PARAM_MAP.contains(key) || SENSITIVE_REPLACE_PARAM_MAP.containsKey(key)) {
                         continue;
                     }
 
-                    if (SENSITIVE_REPLACE_PARAM_MAP.containsKey(key)) {
-                        value = SENSITIVE_REPLACE_PARAM_MAP.get(key);
-                    }
                     paramList.add(key + "=" + value);
                 }
+                SENSITIVE_REPLACE_PARAM_MAP.forEach((key, value) -> paramList.add(key + "=" + value));
 
                 String params = StringUtils.join(paramList, "&");
                 builder.append(params);
