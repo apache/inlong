@@ -313,13 +313,13 @@ public class FlinkOperation {
         String jobId = flinkInfo.getJobId();
         JobDetailsInfo jobDetailsInfo = flinkService.getJobDetail(jobId);
         if (jobDetailsInfo == null) {
-            throw new Exception(String.format("delete job failed as the job not found for %s", jobId));
+            throw new Exception(String.format("delete job failed as the job [%s] not found", jobId));
         }
 
         JobStatus jobStatus = jobDetailsInfo.getJobStatus();
         if (jobStatus != null && jobStatus.isTerminalState()) {
             String stateName = jobStatus.isGloballyTerminalState() ? "globally" : "locally";
-            String message = String.format("not support delete %s as the task was terminated %s", jobId, stateName);
+            String message = String.format("unsupported delete job [%s] as it was [%s] terminated", jobId, stateName);
             throw new Exception(message);
         }
 

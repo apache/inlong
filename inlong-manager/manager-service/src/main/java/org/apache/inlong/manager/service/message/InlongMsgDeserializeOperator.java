@@ -44,22 +44,22 @@ public class InlongMsgDeserializeOperator implements DeserializeOperator {
     }
 
     @Override
-    public List<BriefMQMessage> decodeMsg(InlongStreamInfo streamInfo,
-            byte[] msgBytes, Map<String, String> headers, int index) throws Exception {
+    public List<BriefMQMessage> decodeMsg(InlongStreamInfo streamInfo, byte[] msgBytes, Map<String, String> headers,
+            int index) {
         String groupId = headers.get(AttributeConstants.GROUP_ID);
         String streamId = headers.get(AttributeConstants.STREAM_ID);
         List<BriefMQMessage> messageList = new ArrayList<>();
         InLongMsg inLongMsg = InLongMsg.parseFrom(msgBytes);
         for (String attr : inLongMsg.getAttrs()) {
-            Map<String, String> attributes = StringUtil.splitKv(attr, INLONGMSG_ATTR_ENTRY_DELIMITER,
+            Map<String, String> attrMap = StringUtil.splitKv(attr, INLONGMSG_ATTR_ENTRY_DELIMITER,
                     INLONGMSG_ATTR_KV_DELIMITER, null, null);
             // Extracts time from the attributes
             long msgTime;
-            if (attributes.containsKey(INLONGMSG_ATTR_TIME_T)) {
-                String date = attributes.get(INLONGMSG_ATTR_TIME_T).trim();
+            if (attrMap.containsKey(INLONGMSG_ATTR_TIME_T)) {
+                String date = attrMap.get(INLONGMSG_ATTR_TIME_T).trim();
                 msgTime = StringUtil.parseDateTime(date);
-            } else if (attributes.containsKey(INLONGMSG_ATTR_TIME_DT)) {
-                String epoch = attributes.get(INLONGMSG_ATTR_TIME_DT).trim();
+            } else if (attrMap.containsKey(INLONGMSG_ATTR_TIME_DT)) {
+                String epoch = attrMap.get(INLONGMSG_ATTR_TIME_DT).trim();
                 msgTime = Long.parseLong(epoch);
             } else {
                 throw new IllegalArgumentException(String.format("PARSE_ATTR_ERROR_STRING%s",
@@ -71,10 +71,9 @@ public class InlongMsgDeserializeOperator implements DeserializeOperator {
                 if (Objects.isNull(bodyBytes)) {
                     continue;
                 }
-                BriefMQMessage inLongMessage =
-                        new BriefMQMessage(index, groupId, streamId, msgTime, attributes.get(CLIENT_IP),
-                                new String(bodyBytes, Charset.forName(streamInfo.getDataEncoding())));
-                messageList.add(inLongMessage);
+                BriefMQMessage message = new BriefMQMessage(index, groupId, streamId, msgTime, attrMap.get(CLIENT_IP),
+                        new String(bodyBytes, Charset.forName(streamInfo.getDataEncoding())));
+                messageList.add(message);
             }
         }
         return messageList;

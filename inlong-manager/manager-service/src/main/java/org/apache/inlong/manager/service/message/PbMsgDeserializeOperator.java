@@ -48,7 +48,6 @@ public class PbMsgDeserializeOperator implements DeserializeOperator {
     @Override
     public List<BriefMQMessage> decodeMsg(InlongStreamInfo streamInfo,
             byte[] msgBytes, Map<String, String> headers, int index) throws Exception {
-        List<BriefMQMessage> messageList = new ArrayList<>();
         int compressType = Integer.parseInt(headers.getOrDefault(COMPRESS_TYPE_KEY, "0"));
         byte[] values = msgBytes;
         switch (compressType) {
@@ -63,27 +62,33 @@ public class PbMsgDeserializeOperator implements DeserializeOperator {
             default:
                 throw new IllegalArgumentException("Unknown compress type:" + compressType);
         }
-        messageList = transformMessageObjs(MessageObjs.parseFrom(values), streamInfo, index);
-        return messageList;
+        return transformMessageObjs(MessageObjs.parseFrom(values), streamInfo, index);
     }
 
     private List<BriefMQMessage> transformMessageObjs(MessageObjs messageObjs, InlongStreamInfo streamInfo, int index) {
         if (null == messageObjs) {
             return null;
         }
-        List<BriefMQMessage> briefMQMessages = new ArrayList<>();
+
+        List<BriefMQMessage> messageList = new ArrayList<>();
         for (MessageObj messageObj : messageObjs.getMsgsList()) {
             List<MapFieldEntry> mapFieldEntries = messageObj.getParamsList();
             Map<String, String> headers = new HashMap<>();
             for (MapFieldEntry mapFieldEntry : mapFieldEntries) {
                 headers.put(mapFieldEntry.getKey(), mapFieldEntry.getValue());
             }
-            BriefMQMessage briefMQMessage = new BriefMQMessage(index, headers.get(AttributeConstants.GROUP_ID),
-                    headers.get(AttributeConstants.STREAM_ID), messageObj.getMsgTime(),
-                    headers.get(CLIENT_IP),
-                    new String(messageObj.getBody().toByteArray(), Charset.forName(streamInfo.getDataEncoding())));
-            briefMQMessages.add(briefMQMessage);
+
+            BriefMQMessage message = BriefMQMessage.builder()
+                    .id(index)
+                    .inlongGroupId(headers.get(AttributeConstants.GROUP_ID))
+                    .inlongStreamId(headers.get(AttributeConstants.STREAM_ID))
+                    .dt(messageObj.getMsgTime())
+                    .clientIp(headers.get(CLIENT_IP))
+                    .body(new String(messageObj.getBody().toByteArray(), Charset.forName(streamInfo.getDataEncoding())))
+                    .build();
+            messageList.add(message);
         }
-        return briefMQMessages;
+
+        return messageList;
     }
 }

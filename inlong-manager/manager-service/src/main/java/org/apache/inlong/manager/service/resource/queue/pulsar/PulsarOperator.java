@@ -405,7 +405,6 @@ public class PulsarOperator {
                 String errMsg = "decode msg error: ";
                 LOGGER.error(errMsg, e);
                 throw new BusinessException(errMsg + e.getMessage());
-
             }
         }
 

@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * Kafka Operator test
+ * Test for {@link KafkaOperator}
  */
 public class KafkaOperatorTest extends ServiceBaseTest {
 
@@ -56,6 +56,7 @@ public class KafkaOperatorTest extends ServiceBaseTest {
     private final MockConsumer<byte[], byte[]> consumer = new MockConsumer<>(OffsetResetStrategy.EARLIEST);
 
     private final InlongStreamInfo streamInfo = new InlongStreamInfo();
+
     @Autowired
     private KafkaOperator kafkaOperator;
 
@@ -101,8 +102,8 @@ public class KafkaOperatorTest extends ServiceBaseTest {
                 .mapToObj(i -> new PartitionInfo(TOPIC_NAME, i, null, null, null)).collect(Collectors.toList());
         consumer.updatePartitions(TOPIC_NAME, partitions);
 
-        Map<TopicPartition, Long> offsets =
-                topicPartitions.stream().collect(Collectors.toMap(Function.identity(), t -> 0L));
+        Map<TopicPartition, Long> offsets = topicPartitions.stream()
+                .collect(Collectors.toMap(Function.identity(), t -> 0L));
         consumer.updateBeginningOffsets(offsets);
         consumer.updateEndOffsets(offsets);
 
@@ -111,7 +112,7 @@ public class KafkaOperatorTest extends ServiceBaseTest {
 
     @Test
     void testGetKafkaLatestMessage() {
-        List<BriefMQMessage> messages = kafkaOperator.getKafkaLatestMessage(consumer, TOPIC_NAME, 10, streamInfo);
+        List<BriefMQMessage> messages = kafkaOperator.getLatestMessage(consumer, TOPIC_NAME, 10, streamInfo);
         Assertions.assertEquals(0, messages.size());
     }
 
@@ -119,7 +120,7 @@ public class KafkaOperatorTest extends ServiceBaseTest {
     void testGetKafkaLatestMessage_1() {
         addRecord(Collections.singletonList("inlong"));
 
-        List<BriefMQMessage> messages = kafkaOperator.getKafkaLatestMessage(consumer, TOPIC_NAME, 10, streamInfo);
+        List<BriefMQMessage> messages = kafkaOperator.getLatestMessage(consumer, TOPIC_NAME, 10, streamInfo);
         Assertions.assertEquals(1, messages.size());
         Assertions.assertEquals("inlong", messages.get(0).getBody());
     }
@@ -129,7 +130,7 @@ public class KafkaOperatorTest extends ServiceBaseTest {
         List<String> records = IntStream.range(0, 9).mapToObj(index -> "name_" + index).collect(Collectors.toList());
         addRecord(records);
 
-        List<BriefMQMessage> messages = kafkaOperator.getKafkaLatestMessage(consumer, TOPIC_NAME, 10, streamInfo);
+        List<BriefMQMessage> messages = kafkaOperator.getLatestMessage(consumer, TOPIC_NAME, 10, streamInfo);
         Assertions.assertEquals(9, messages.size());
     }
 
@@ -138,7 +139,7 @@ public class KafkaOperatorTest extends ServiceBaseTest {
         List<String> records = IntStream.range(0, 21).mapToObj(index -> "name_" + index).collect(Collectors.toList());
         addRecord(records);
 
-        List<BriefMQMessage> messages = kafkaOperator.getKafkaLatestMessage(consumer, TOPIC_NAME, 10, streamInfo);
+        List<BriefMQMessage> messages = kafkaOperator.getLatestMessage(consumer, TOPIC_NAME, 10, streamInfo);
         Assertions.assertEquals(10, messages.size());
     }
 

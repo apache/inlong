@@ -28,6 +28,7 @@ import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
 import org.apache.inlong.manager.service.message.DeserializeOperator;
 import org.apache.inlong.manager.service.message.DeserializeOperatorFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
@@ -58,7 +59,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * kafka operator, supports creating topics and creating subscription.
@@ -99,7 +99,7 @@ public class KafkaOperator {
     public void forceDeleteTopic(KafkaClusterInfo kafkaClusterInfo, String topicName) {
         AdminClient adminClient = KafkaUtils.getAdminClient(kafkaClusterInfo);
         DeleteTopicsResult result = adminClient.deleteTopics(Collections.singletonList(topicName));
-        LOGGER.info("success to delete topic={}", topicName);
+        LOGGER.info("success to delete topic={}, result: {}", topicName, result.all());
     }
 
     public boolean topicIsExists(KafkaClusterInfo kafkaClusterInfo, String topic)
@@ -109,45 +109,44 @@ public class KafkaOperator {
         return topicList.contains(topic);
     }
 
-    public List<BriefMQMessage> queryLatestMessage(KafkaClusterInfo kafkaClusterInfo, String topicName,
-            String consumeGroup,
-            Integer messageCount, InlongStreamInfo streamInfo) {
-        LOGGER.info("begin to query message for topic {} in cluster: {}", topicName, kafkaClusterInfo);
+    /**
+     * Query topic message for the given Kafka cluster.
+     */
+    public List<BriefMQMessage> queryLatestMessage(KafkaClusterInfo clusterInfo, String topicName,
+            Integer messageCount, String consumeGroup, InlongStreamInfo streamInfo) {
+        LOGGER.debug("begin to query message for topic {} in cluster: {}", topicName, clusterInfo);
 
-        Properties properties = new Properties();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaClusterInfo.getUrl());
-        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
-        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, consumeGroup);
-
+        Properties properties = getProperties(clusterInfo.getUrl(), consumeGroup);
         KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<>(properties);
-        return getKafkaLatestMessage(consumer, topicName, messageCount, streamInfo);
+        return getLatestMessage(consumer, topicName, messageCount, streamInfo);
     }
 
-    public List<BriefMQMessage> getKafkaLatestMessage(Consumer<byte[], byte[]> consumer, String topicName,
+    @VisibleForTesting
+    public List<BriefMQMessage> getLatestMessage(Consumer<byte[], byte[]> consumer, String topicName,
             Integer messageCount, InlongStreamInfo streamInfo) {
         List<BriefMQMessage> messageList = new ArrayList<>();
 
         try {
             List<PartitionInfo> partitionInfoList = consumer.partitionsFor(topicName);
-
             List<TopicPartition> topicPartitionList = partitionInfoList.stream()
-                    .map(item -> new TopicPartition(item.topic(), item.partition()))
+                    .map(topicPartition -> new TopicPartition(topicPartition.topic(), topicPartition.partition()))
                     .collect(Collectors.toList());
 
             Map<TopicPartition, Long> beginningTopicPartitionList = consumer.beginningOffsets(topicPartitionList);
             Map<TopicPartition, Long> endTopicPartitionList = consumer.endOffsets(topicPartitionList);
 
             int count = (int) Math.ceil((double) messageCount / topicPartitionList.size());
-            Map<TopicPartition, Long> expectedMap = beginningTopicPartitionList.entrySet().stream().map(item -> {
-                long beginningOffset = item.getValue();
-                long endOffset = endTopicPartitionList.getOrDefault(item.getKey(), item.getValue());
-                Long offset = (endOffset - beginningOffset) >= count ? (endOffset - count) : beginningOffset;
-                return Pair.of(item.getKey(), offset);
-            }).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+            Map<TopicPartition, Long> expectedOffsetMap = beginningTopicPartitionList.entrySet()
+                    .stream()
+                    .map(entry -> {
+                        long beginningOffset = entry.getValue();
+                        long endOffset = endTopicPartitionList.getOrDefault(entry.getKey(), beginningOffset);
+                        Long offset = (endOffset - beginningOffset) >= count ? (endOffset - count) : beginningOffset;
+                        return Pair.of(entry.getKey(), offset);
+                    }).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
 
             consumer.assign(topicPartitionList);
-            expectedMap.forEach(consumer::seek);
+            expectedOffsetMap.forEach(consumer::seek);
 
             int index = 0;
             ConsumerRecords<byte[], byte[]> records = consumer.poll(Duration.ofMillis(100));
@@ -161,8 +160,7 @@ public class KafkaOperator {
                         Integer.toString(DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId())));
                 DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
                         DataProxyMsgEncType.valueOf(wrapTypeId));
-                messageList.addAll(
-                        deserializeOperator.decodeMsg(streamInfo, record.value(), headers, index));
+                messageList.addAll(deserializeOperator.decodeMsg(streamInfo, record.value(), headers, index));
                 if (messageList.size() >= messageCount) {
                     break;
                 }
@@ -175,15 +173,29 @@ public class KafkaOperator {
             consumer.close();
         }
 
-        LOGGER.info("success query messages for topic={}, size={}", topicName, messageList.size());
-
+        LOGGER.debug("success query messages for topic={}, size={}, returned size={}",
+                topicName, messageList.size(), messageCount);
+        // only return a list of messages of the specified count
         int fromIndex = (messageList.size() > messageCount) ? (messageList.size() - messageCount) : 0;
         List<BriefMQMessage> resultList = messageList.subList(fromIndex, messageList.size());
-        return IntStream.range(0, resultList.size()).mapToObj(i -> {
+        for (int i = 0; i < resultList.size(); i++) {
             BriefMQMessage message = resultList.get(i);
             message.setId(i + 1);
-            return message;
-        }).collect(Collectors.toList());
+        }
+
+        return resultList;
     }
 
+    /**
+     * Get a properties instance of consumer group.
+     */
+    private static Properties getProperties(String clusterUrl, String consumeGroup) {
+        Properties properties = new Properties();
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, clusterUrl);
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, consumeGroup);
+
+        return properties;
+    }
 }
