@@ -752,7 +752,6 @@
   "pages.ClusterTags.DelConfirm": "Deleting a cluster tag will unbind it from all clusters bound to this tag, and make sure this tag is not used by InlongGroup",
   "pages.ClusterTags.NameEditHelp": "Modifying a cluster tag will also modify the tag name in all clusters bound to this tag, and make sure that this label is not used by InlongGroup",
   "pages.ClusterTags.Tenant": "Tenant",
-  "pages.ClusterTags.BindTenant": "Bind Tenant",
   "pages.ClusterTags.TagPlaceholder": "Please enter a tag",
   "pages.ClusterTags.TenantPlaceholder": "Please select a tenant",
   "pages.Login.PleaseEnterUserName": "Please enter user name",
