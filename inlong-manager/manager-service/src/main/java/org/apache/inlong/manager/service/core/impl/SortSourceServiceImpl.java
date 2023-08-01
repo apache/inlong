@@ -54,6 +54,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -81,7 +82,8 @@ public class SortSourceServiceImpl implements SortSourceService {
         }
     };
     private static final String KEY_AUTH = "authentication";
-    private static final String KEY_TENANT = "pulsarTenant";
+    private static final String KEY_OLD_TENANT = "tenant";
+    private static final String KEY_NEW_TENANT = "pulsarTenant";
 
     private static final int RESPONSE_CODE_SUCCESS = 0;
     private static final int RESPONSE_CODE_NO_UPDATE = 1;
@@ -386,7 +388,7 @@ public class SortSourceServiceImpl implements SortSourceService {
             SortSourceClusterInfo cluster,
             boolean isBackupTag) {
         Map<String, String> param = cluster.getExtParamsMap();
-        String tenant = param.get(KEY_TENANT);
+        String tenant = Optional.ofNullable(param.get(KEY_NEW_TENANT)).orElse(param.get(KEY_OLD_TENANT));
         String auth = param.get(KEY_AUTH);
         List<Topic> sdkTopics = sinks.stream()
                 .map(sink -> {
