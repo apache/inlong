@@ -41,7 +41,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 
+ *
  * PulsarFederationSinkContext
  */
 public class PulsarFederationSinkContext extends SinkContext {
@@ -68,20 +68,30 @@ public class PulsarFederationSinkContext extends SinkContext {
      * reload
      */
     public void reload() {
-        super.reload();
         try {
             SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
+            if (newSortTaskConfig == null) {
+                LOG.error("newSortTaskConfig is null.");
+                return;
+            }
             if (this.sortTaskConfig != null && this.sortTaskConfig.equals(newSortTaskConfig)) {
+                LOG.info("Same sortTaskConfig, do nothing.");
                 return;
             }
             this.sortTaskConfig = newSortTaskConfig;
             this.producerContext = new Context(this.sortTaskConfig.getSinkParams());
+
             // parse the config of id and topic
+            LOG.info("reload idTopicMap");
             Map<String, PulsarIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
             List<Map<String, String>> idList = this.sortTaskConfig.getIdParams();
             for (Map<String, String> idParam : idList) {
-                PulsarIdConfig idConfig = new PulsarIdConfig(idParam);
-                newIdConfigMap.put(idConfig.getUid(), idConfig);
+                try {
+                    PulsarIdConfig idConfig = new PulsarIdConfig(idParam);
+                    newIdConfigMap.put(idConfig.getUid(), idConfig);
+                } catch (Exception e) {
+                    LOG.error("fail to parse pulsar id config", e);
+                }
             }
             // build cache cluster config
             CacheClusterConfig clusterConfig = new CacheClusterConfig();
@@ -90,6 +100,7 @@ public class PulsarFederationSinkContext extends SinkContext {
             List<CacheClusterConfig> newClusterConfigList = new ArrayList<>();
             newClusterConfigList.add(clusterConfig);
             // change current config
+            LOG.info("old id config map={}\n new id config map={}", idConfigMap, newIdConfigMap);
             this.idConfigMap = newIdConfigMap;
             this.clusterConfigList = newClusterConfigList;
         } catch (Throwable e) {
@@ -99,7 +110,7 @@ public class PulsarFederationSinkContext extends SinkContext {
 
     /**
      * get producerContext
-     * 
+     *
      * @return the producerContext
      */
     public Context getProducerContext() {
@@ -115,7 +126,7 @@ public class PulsarFederationSinkContext extends SinkContext {
     public String getTopic(String uid) {
         PulsarIdConfig idConfig = this.idConfigMap.get(uid);
         if (idConfig == null) {
-            throw new NullPointerException("uid " + uid + "got null topic");
+            throw new NullPointerException("uid " + uid + " got null id config");
         }
         return idConfig.getTopic();
     }
@@ -136,7 +147,7 @@ public class PulsarFederationSinkContext extends SinkContext {
 
     /**
      * getCacheClusters
-     * 
+     *
      * @return
      */
     public List<CacheClusterConfig> getCacheClusters() {
@@ -145,7 +156,7 @@ public class PulsarFederationSinkContext extends SinkContext {
 
     /**
      * addSendMetric
-     * 
+     *
      * @param currentRecord
      * @param topic
      */
@@ -183,7 +194,7 @@ public class PulsarFederationSinkContext extends SinkContext {
 
     /**
      * addSendResultMetric
-     * 
+     *
      * @param currentRecord
      * @param topic
      * @param result
@@ -224,7 +235,7 @@ public class PulsarFederationSinkContext extends SinkContext {
 
     /**
      * create IEvent2PulsarRecordHandler
-     * 
+     *
      * @return IEvent2PulsarRecordHandler
      */
     public IEvent2PulsarRecordHandler createEventHandler() {

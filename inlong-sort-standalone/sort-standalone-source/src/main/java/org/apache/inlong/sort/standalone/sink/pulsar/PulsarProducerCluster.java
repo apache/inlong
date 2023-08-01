@@ -23,12 +23,14 @@ import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleAware;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.BatcherBuilder;
+import org.apache.pulsar.client.api.ClientBuilder;
 import org.apache.pulsar.client.api.CompressionType;
 import org.apache.pulsar.client.api.HashingScheme;
 import org.apache.pulsar.client.api.MessageId;
@@ -46,13 +48,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 
+ *
  * PulsarProducerCluster
  */
 public class PulsarProducerCluster implements LifecycleAware {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(PulsarProducerCluster.class);
 
+    private static final String DEFAULT_COMPRESS_TYPE = "SNAPPY";
     public static final String KEY_SERVICE_URL = "serviceUrl";
     public static final String KEY_AUTHENTICATION = "authentication";
     public static final String KEY_STATS_INTERVAL_SECONDS = "statsIntervalSeconds";
@@ -87,7 +90,7 @@ public class PulsarProducerCluster implements LifecycleAware {
 
     /**
      * Constructor
-     * 
+     *
      * @param workerName
      * @param config
      * @param context
@@ -108,16 +111,26 @@ public class PulsarProducerCluster implements LifecycleAware {
     @Override
     public void start() {
         this.state = LifecycleState.START;
-        // create pulsar client
         try {
+            // create pulsar client
+            ClientBuilder clientBuilder = PulsarClient.builder();
             String serviceUrl = config.getParams().get(KEY_SERVICE_URL);
+            if (StringUtils.isBlank(serviceUrl)) {
+                throw new IllegalArgumentException("service url should not be null");
+            }
+
+            clientBuilder.serviceUrl(serviceUrl);
             String authentication = config.getParams().get(KEY_AUTHENTICATION);
-            this.client = PulsarClient.builder()
-                    .serviceUrl(serviceUrl)
-                    .authentication(AuthenticationFactory.token(authentication))
+            if (StringUtils.isNoneBlank(authentication)) {
+                clientBuilder.authentication(AuthenticationFactory.token(authentication));
+            }
+
+            this.client = clientBuilder
                     .statsInterval(NumberUtils.toLong(config.getParams().get(KEY_STATS_INTERVAL_SECONDS), -1),
                             TimeUnit.SECONDS)
                     .build();
+
+            // create producer template
             this.baseBuilder = client.newProducer();
             this.baseBuilder
                     .hashingScheme(HashingScheme.Murmur3_32Hash)
@@ -142,11 +155,11 @@ public class PulsarProducerCluster implements LifecycleAware {
 
     /**
      * getPulsarCompressionType
-     * 
+     *
      * @return CompressionType
      */
     private CompressionType getPulsarCompressionType() {
-        String type = this.context.getString(KEY_COMPRESSIONTYPE);
+        String type = this.context.getString(KEY_COMPRESSIONTYPE, DEFAULT_COMPRESS_TYPE);
         switch (type) {
             case "LZ4":
                 return CompressionType.LZ4;
@@ -186,7 +199,7 @@ public class PulsarProducerCluster implements LifecycleAware {
 
     /**
      * getLifecycleState
-     * 
+     *
      * @return
      */
     @Override
@@ -196,7 +209,7 @@ public class PulsarProducerCluster implements LifecycleAware {
 
     /**
      * send
-     * 
+     *
      * @param  profileEvent
      * @param  tx
      * @return              boolean
@@ -210,15 +223,15 @@ public class PulsarProducerCluster implements LifecycleAware {
         Producer<byte[]> producer = this.producerMap.get(topic);
         if (producer == null) {
             try {
-                LOG.info("try to new a object for topic " + topic);
+                LOG.debug("try to new a producer for topic " + topic);
                 producer = baseBuilder.clone().topic(topic)
                         .producerName(workerName + "-" + cacheClusterName + "-" + topic)
                         .create();
-                LOG.info("create new producer success:{}", producer.getProducerName());
+                LOG.debug("create a new producer success:{}", producer.getProducerName());
                 Producer<byte[]> oldProducer = this.producerMap.putIfAbsent(topic, producer);
                 if (oldProducer != null) {
                     producer.close();
-                    LOG.info("close producer success:{}", producer.getProducerName());
+                    LOG.debug("close producer success:{}", producer.getProducerName());
                     producer = oldProducer;
                 }
             } catch (Throwable ex) {
@@ -230,12 +243,10 @@ public class PulsarProducerCluster implements LifecycleAware {
             tx.rollback();
             tx.close();
             sinkContext.addSendResultMetric(profileEvent, topic, false, System.currentTimeMillis());
-            return false;
+            LOG.error("failed to create producer, send failed");
+            throw new IllegalStateException();
         }
-        String messageKey = headers.get(Constants.HEADER_KEY_MESSAGE_KEY);
-        if (messageKey == null) {
-            messageKey = headers.get(Constants.HEADER_KEY_SOURCE_IP);
-        }
+
         // sendAsync
         byte[] sendBytes = this.handler.parse(sinkContext, profileEvent);
         // check
@@ -246,8 +257,10 @@ public class PulsarProducerCluster implements LifecycleAware {
             return true;
         }
         long sendTime = System.currentTimeMillis();
-        CompletableFuture<MessageId> future = producer.newMessage().key(messageKey).properties(headers)
-                .value(sendBytes).sendAsync();
+        CompletableFuture<MessageId> future = producer.newMessage()
+                .properties(headers)
+                .value(sendBytes)
+                .sendAsync();
         // callback
         future.whenCompleteAsync((msgId, ex) -> {
             if (ex != null) {
@@ -268,7 +281,7 @@ public class PulsarProducerCluster implements LifecycleAware {
 
     /**
      * get cacheClusterName
-     * 
+     *
      * @return the cacheClusterName
      */
     public String getCacheClusterName() {
