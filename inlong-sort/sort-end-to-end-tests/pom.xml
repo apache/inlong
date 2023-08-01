@@ -26,90 +26,12 @@
     </parent>
 
     <artifactId>sort-end-to-end-tests</artifactId>
+    <packaging>pom</packaging>
     <name>Apache InLong - Sort End to End Tests</name>
 
     <properties>
         <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
     </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>mysql</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>kafka</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>clickhouse</artifactId>
-            <version>${testcontainers.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-dist</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>${flink.test.utils.artifactId}</artifactId>
-            <version>${flink.version}</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-slf4j-impl</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-core</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-flink-dependencies-${sort.flink.version}</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>${flink.runtime.artifactId}</artifactId>
-            <version>${flink.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-common</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ru.yandex.clickhouse</groupId>
-            <artifactId>clickhouse-jdbc</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 
     <profiles>
         <profile>
@@ -117,96 +39,15 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.apache.inlong</groupId>
-                                    <artifactId>sort-dist</artifactId>
-                                    <version>${project.version}</version>
-                                    <destFileName>sort-dist.jar</destFileName>
-                                    <type>jar</type>
-                                    <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
-                                </artifactItem>
-                                <dependency>
-                                    <groupId>mysql</groupId>
-                                    <artifactId>mysql-connector-java</artifactId>
-                                    <version>${mysql.jdbc.version}</version>
-                                    <destFileName>mysql-driver.jar</destFileName>
-                                    <type>jar</type>
-                                    <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
-                                </dependency>
-                                <artifactItem>
-                                    <groupId>org.apache.inlong</groupId>
-                                    <artifactId>sort-connector-kafka</artifactId>
-                                    <version>${project.version}</version>
-                                    <destFileName>sort-connector-kafka.jar</destFileName>
-                                    <type>jar</type>
-                                    <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.inlong</groupId>
-                                    <artifactId>sort-connector-mysql-cdc</artifactId>
-                                    <version>${project.version}</version>
-                                    <destFileName>sort-connector-mysql-cdc.jar</destFileName>
-                                    <type>jar</type>
-                                    <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.inlong</groupId>
-                                    <artifactId>sort-connector-jdbc</artifactId>
-                                    <version>${project.version}</version>
-                                    <destFileName>sort-connector-jdbc.jar</destFileName>
-                                    <type>jar</type>
-                                    <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>copy-jars</id>
-                                <goals>
-                                    <goal>copy</goal>
-                                </goals>
-                                <phase>pre-integration-test</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>${plugin.failsafe.version}</version>
-                        <executions>
-                            <execution>
-                                <id>end-to-end-tests</id>
-                                <phase>integration-test</phase>
-                                <configuration>
-                                    <includes>
-                                        <include>**/*.*</include>
-                                    </includes>
-                                    <forkCount>1</forkCount>
-                                    <systemPropertyVariables>
-                                        <moduleDir>${project.basedir}</moduleDir>
-                                    </systemPropertyVariables>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-deploy-plugin</artifactId>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
+            <modules>
+                <module>sort-end-to-end-tests-v1.13</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>v1.15</id>
+            <modules>
+                <module>sort-end-to-end-tests-v1.15</module>
+            </modules>
         </profile>
     </profiles>
 
