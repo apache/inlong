@@ -807,7 +807,8 @@ public final class RowDataDebeziumDeserializeSchema
         extractRowAndEmitRecord(record, out, tableSchema);
     }
 
-    private void extractRowAndEmitRecord(SourceRecord record, Collector<RowData> out, TableChange tableSchema) throws Exception {
+    private void extractRowAndEmitRecord(SourceRecord record, Collector<RowData> out, TableChange tableSchema)
+            throws Exception {
         Envelope.Operation op = Envelope.operationFor(record);
         Struct value = (Struct) record.value();
         Schema valueSchema = record.valueSchema();
