@@ -100,7 +100,7 @@ const Comp: React.FC = () => {
   const onFilter = keyword => {
     setOptions(prev => ({
       ...prev,
-      keyword,
+      ...keyword,
       pageNum: 1,
     }));
   };
