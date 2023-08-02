@@ -376,7 +376,6 @@
         limit 10
     </select>
     <select id="selectAllGroups" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSourceGroupInfo">
-        <bind name="_isInlongService" value="LoginUser.InlongService"/>
         select inlong_group_id    as groupId,
                inlong_cluster_tag as clusterTag,
                mq_resource        as mqResource,
@@ -384,9 +383,6 @@
                mq_type            as mqType
         from inlong_group
         <where>
-            <if test="_isInlongService == false">
-               tenant = #{tenant,jdbcType=VARCHAR}
-            </if>
             and is_deleted = 0
         </where>
     </select>
