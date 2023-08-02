@@ -99,7 +99,9 @@ export const getColumns = activedName => [
     title: i18n.t('basic.Operating'),
     dataIndex: 'action',
     render: (text, record) => (
-      <Link to={`/process/${activedName}/${record.processId}?taskId=${record.id}`}>
+      <Link
+        to={`/process/${activedName}/${record.processId}?taskId=${record.id}&inlongGroupMode=${record.showInList?.inlongGroupMode}`}
+      >
         {i18n.t('basic.Detail')}
       </Link>
     ),

@@ -21,11 +21,21 @@ import React, { useMemo, forwardRef, useImperativeHandle, useEffect } from 'reac
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import { CommonInterface } from './common';
 import { useGroupFormContent, getFormContent } from './GroupConfig';
+import { useLocation } from '@/ui/hooks';
+import { parse } from 'qs';
+import { getSyncFormContent, useSyncFormContent } from './SyncConfig';
 
 export type Props = CommonInterface;
 
 const Comp = ({ defaultData, isViwer, suffixContent, noExtraForm, isFinished }: Props, ref) => {
   const [form] = useForm();
+
+  const location = useLocation();
+
+  const inlongGroupMode = useMemo(
+    () => parse(location.search.slice(1))?.inlongGroupMode,
+    [location.search],
+  );
 
   const onOk = async (useValidate = true) => {
     if (!useValidate) {
@@ -44,11 +54,16 @@ const Comp = ({ defaultData, isViwer, suffixContent, noExtraForm, isFinished }: 
   useEffect(() => {
     const groupInfo = defaultData?.processInfo?.formData?.groupInfo;
     const groupApproveInfo = defaultData?.currentTask?.formData?.groupApproveInfo;
+    const streamInfo = defaultData?.processInfo?.formData?.streamInfoList[0];
     if (groupInfo || groupApproveInfo) {
       const obj = {
         ...groupInfo,
         ...groupApproveInfo,
       };
+      if (inlongGroupMode === '1') {
+        obj.inlongStreamId = streamInfo.inlongStreamId;
+        obj.streamName = streamInfo.name;
+      }
       form.setFieldsValue(obj);
     }
   }, [defaultData, form]);
@@ -63,26 +78,35 @@ const Comp = ({ defaultData, isViwer, suffixContent, noExtraForm, isFinished }: 
     isFinished,
   });
 
-  // Easy to set some default values of the form
-  const dataLoaded = useMemo(() => {
-    return !!(defaultData && Object.keys(defaultData).length);
-  }, [defaultData]);
+  const syncFormContent = useSyncFormContent({
+    mqType: defaultData?.processInfo?.formData?.groupInfo?.mqType,
+  });
 
-  return (
-    dataLoaded && (
-      <FormGenerator
-        form={form}
-        content={getFormContent({
+  const processContent =
+    inlongGroupMode === '1'
+      ? getSyncFormContent({
+          isViwer,
+          suffixContent,
+          noExtraForm,
+          isFinished,
+          syncFormContent,
+          inlongGroupMode,
+        })
+      : getFormContent({
           isViwer,
           formData: defaultData?.processInfo?.formData,
           suffixContent,
           noExtraForm,
           isFinished,
           groupFormContent,
-        })}
-      />
-    )
-  );
+        });
+
+  // Easy to set some default values of the form
+  const dataLoaded = useMemo(() => {
+    return !!(defaultData && Object.keys(defaultData).length);
+  }, [defaultData]);
+
+  return dataLoaded && <FormGenerator form={form} content={processContent} />;
 };
 
 export default forwardRef(Comp);
