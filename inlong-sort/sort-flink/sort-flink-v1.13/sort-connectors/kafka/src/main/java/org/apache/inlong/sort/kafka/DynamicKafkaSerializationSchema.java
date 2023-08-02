@@ -93,10 +93,10 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
      */
     private final int[] metadataPositions;
     private final String sinkMultipleFormat;
-    private boolean multipleSink;
-    private JsonDynamicSchemaFormat jsonDynamicSchemaFormat;
     private final DirtyOptions dirtyOptions;
     private final @Nullable DirtySink<Object> dirtySink;
+    private boolean multipleSink;
+    private JsonDynamicSchemaFormat jsonDynamicSchemaFormat;
     private int[] partitions;
 
     private int parallelInstanceId;
@@ -141,10 +141,6 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
         this.policyMap = policyMap;
     }
 
-    public void setMetricData(SinkTopicMetricData metricData) {
-        this.metricData = metricData;
-    }
-
     static RowData createProjectedRow(
             RowData consumedRow, RowKind kind, RowData.FieldGetter[] fieldGetters) {
         final int arity = fieldGetters.length;
@@ -153,6 +149,10 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             genericRowData.setField(fieldPos, fieldGetters[fieldPos].getFieldOrNull(consumedRow));
         }
         return genericRowData;
+    }
+
+    public void setMetricData(SinkTopicMetricData metricData) {
+        this.metricData = metricData;
     }
 
     @Override
@@ -173,6 +173,10 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             multipleSink = true;
             jsonDynamicSchemaFormat =
                     (JsonDynamicSchemaFormat) DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat);
+        }
+
+        if (partitioner instanceof SingleTableCustomFieldsPartitioner) {
+            ((SingleTableCustomFieldsPartitioner<?>) partitioner).setValueFieldGetters(valueFieldGetters);
         }
     }
 
