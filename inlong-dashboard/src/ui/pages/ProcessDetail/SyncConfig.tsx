@@ -44,82 +44,13 @@ export const useSyncFormContent = ({ mqType = '' }) => {
   });
 };
 
-export const getSyncFormContent = ({
-  isViwer,
-  suffixContent,
-  noExtraForm,
-  isFinished,
-  syncFormContent = [],
-  inlongGroupMode,
-}) => {
+export const getSyncFormContent = ({ isViwer, suffixContent, syncFormContent = [] }) => {
   const array = [
     {
       type: <Divider orientation="left">{i18n.t('pages.Approvals.Type.Group')}</Divider>,
     },
     ...syncFormContent,
   ];
-
-  const extraForm = noExtraForm
-    ? []
-    : [
-        {
-          type: 'select',
-          label: i18n.t('pages.ApprovalDetail.GroupConfig.BindClusterTag'),
-          name: ['inlongClusterTag'],
-          rules: [{ required: true }],
-          hidden: inlongGroupMode === '1' ? true : false,
-          props: {
-            showSearch: true,
-            disabled: isFinished,
-            options: {
-              requestTrigger: ['onOpen', 'onSearch'],
-              requestService: keyword => ({
-                url: '/cluster/tag/list',
-                method: 'POST',
-                data: {
-                  keyword,
-                  pageNum: 1,
-                  pageSize: 20,
-                },
-              }),
-              requestParams: {
-                formatResult: result =>
-                  result?.list?.map(item => ({
-                    ...item,
-                    label: item.clusterTag,
-                    value: item.clusterTag,
-                  })),
-              },
-            },
-          },
-        },
-        {
-          type: 'select',
-          label: i18n.t('pages.ApprovalDetail.GroupConfig.DataReportType'),
-          initialValue: 0,
-          name: ['dataReportType'],
-          rules: [{ required: true }],
-          props: {
-            disabled: isFinished,
-            options: [
-              {
-                label: i18n.t(
-                  'pages.ApprovalDetail.GroupConfig.DataReportType.DataProxyWithSource',
-                ),
-                value: 0,
-              },
-              {
-                label: i18n.t('pages.ApprovalDetail.GroupConfig.DataReportType.DataProxyWithSink'),
-                value: 1,
-              },
-              {
-                label: i18n.t('pages.ApprovalDetail.GroupConfig.DataReportType.MQ'),
-                value: 2,
-              },
-            ],
-          },
-        },
-      ];
 
   return isViwer
     ? array
@@ -131,7 +62,6 @@ export const getSyncFormContent = ({
             </Divider>
           ),
         },
-        ...extraForm.map(item => ({ ...item, col: 12 })),
         ...suffixContent.map(item => ({ ...item, col: 12 })),
       ]);
 };

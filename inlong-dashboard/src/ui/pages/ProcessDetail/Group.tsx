@@ -87,10 +87,7 @@ const Comp = ({ defaultData, isViwer, suffixContent, noExtraForm, isFinished }: 
       ? getSyncFormContent({
           isViwer,
           suffixContent,
-          noExtraForm,
-          isFinished,
           syncFormContent,
-          inlongGroupMode,
         })
       : getFormContent({
           isViwer,
