@@ -27,6 +27,7 @@ import org.apache.inlong.manager.service.user.UserService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -74,12 +75,14 @@ public class UserController {
 
     @GetMapping("/user/getByName/{name}")
     @ApiOperation(value = "Get user by name")
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN, UserRoleCode.INLONG_OPERATOR})
     public Response<UserInfo> getByName(@PathVariable String name) {
         return Response.success(userService.getByName(name));
     }
 
     @PostMapping("/user/listAll")
     @ApiOperation(value = "List all users")
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN, UserRoleCode.TENANT_ADMIN})
     public Response<PageResult<UserInfo>> list(@RequestBody UserRequest request) {
         return Response.success(userService.list(request));
     }
@@ -93,7 +96,7 @@ public class UserController {
 
     @DeleteMapping("/user/delete")
     @ApiOperation(value = "Delete user by id")
-    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     public Response<Boolean> delete(@RequestParam("id") Integer id) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(userService.delete(id, currentUser));
