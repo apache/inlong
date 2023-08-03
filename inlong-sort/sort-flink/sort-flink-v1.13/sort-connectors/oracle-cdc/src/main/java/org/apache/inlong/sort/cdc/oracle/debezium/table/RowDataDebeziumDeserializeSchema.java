@@ -797,12 +797,17 @@ public final class RowDataDebeziumDeserializeSchema
 
     @Override
     public void deserialize(SourceRecord record, Collector<RowData> out) throws Exception {
-        deserialize(record, out);
+        extractRowAndEmitRecord(record, out, null);
     }
 
     @Override
     public void deserialize(SourceRecord record, Collector<RowData> out,
             TableChange tableSchema)
+            throws Exception {
+        extractRowAndEmitRecord(record, out, tableSchema);
+    }
+
+    private void extractRowAndEmitRecord(SourceRecord record, Collector<RowData> out, TableChange tableSchema)
             throws Exception {
         Envelope.Operation op = Envelope.operationFor(record);
         Struct value = (Struct) record.value();
