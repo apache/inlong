@@ -334,6 +334,11 @@ type closeReq struct {
 	doneCh chan struct{}
 }
 
+type sendFailedBatchReq struct {
+	batch *batchReq
+	retry bool
+}
+
 func getWorkerIndex(workerID string) int {
 	if workerID == "" {
 		return -1
