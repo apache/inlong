@@ -168,6 +168,21 @@ public class SenderManager {
         shutdown = true;
         resendExecutorService.shutdown();
         sender.close();
+        cleanResendQueue();
+    }
+
+    private void cleanResendQueue() {
+        while (!resendQueue.isEmpty()) {
+            try {
+                AgentSenderCallback callback = resendQueue.poll(1, TimeUnit.SECONDS);
+                if (callback != null) {
+                    MemoryManager.getInstance()
+                            .release(AGENT_GLOBAL_WRITER_PERMIT, (int) callback.batchMessage.getTotalSize());
+                }
+            } catch (InterruptedException e) {
+                LOGGER.error("clean resend queue error{}", e.getMessage());
+            }
+        }
     }
 
     private AgentMetricItem getMetricItem(Map<String, String> otherDimensions) {
@@ -222,6 +237,10 @@ public class SenderManager {
         boolean suc = false;
         while (!suc) {
             try {
+                if (!resendQueue.isEmpty()) {
+                    AgentUtils.silenceSleepInMs(retrySleepTime);
+                    continue;
+                }
                 sender.asyncSendMessage(new AgentSenderCallback(batchMessage, retry),
                         batchMessage.getDataList(), batchMessage.getGroupId(), batchMessage.getStreamId(),
                         batchMessage.getDataTime(), SEQUENTIAL_ID.getNextUuid(), maxSenderTimeout, TimeUnit.SECONDS,
