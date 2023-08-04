@@ -568,7 +568,7 @@ func (w *worker) handleRsp(rsp batchRsp) {
 	batchID := rsp.batchID
 	batch, ok := w.unackedBatches[batchID]
 	if !ok {
-		w.log.Warn("worker[", w.index, "] batch not found in unackedBatches map:", batchID, ", send time:", rsp.dt, ", now:", time.Now().UnixMilli())
+		w.log.Debug("worker[", w.index, "] batch not found in unackedBatches map:", batchID, ", send time:", rsp.dt, ", now:", time.Now().UnixMilli())
 		w.metrics.incError(errNoMatchReq4Rsp.strCode)
 		return
 	}
