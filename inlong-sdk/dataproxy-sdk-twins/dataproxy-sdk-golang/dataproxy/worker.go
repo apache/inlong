@@ -244,7 +244,9 @@ func (w *worker) start() {
 }
 
 func (w *worker) doSendAsync(ctx context.Context, msg Message, callback Callback, flushImmediately bool) {
-	req := &sendDataReq{
+	req := reqPool.Get().(*sendDataReq)
+	*req = sendDataReq{
+		pool:             reqPool,
 		ctx:              ctx,
 		msg:              msg,
 		callback:         callback,
@@ -315,7 +317,9 @@ func (w *worker) handleSendData(req *sendDataReq) {
 	batch, ok := w.pendingBatches[req.msg.StreamID]
 	if !ok {
 		streamID := req.msg.StreamID
-		batch = &batchReq{
+		batch = batchPool.Get().(*batchReq)
+		*batch = batchReq{
+			pool:       batchPool,
 			workerID:   w.indexStr,
 			batchID:    util.SnowFlakeID(),
 			groupID:    w.options.GroupID,
