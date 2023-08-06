@@ -22,6 +22,7 @@ import (
 	"encoding/binary"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unsafe"
 
@@ -35,12 +36,27 @@ var (
 	byteOrder       = binary.BigEndian
 	heartbeatRsp    = []byte{0x00, 0x00, 0x00, 0x01, 0x01}
 	heartbeatRspLen = len(heartbeatRsp)
+	reqPool         *sync.Pool
+	batchPool       *sync.Pool
 )
 
 const (
 	msgTypeBatch     uint8 = 5
 	msgTypeHeartbeat uint8 = 1
 )
+
+func init() {
+	reqPool = &sync.Pool{
+		New: func() interface{} {
+			return &sendDataReq{}
+		},
+	}
+	batchPool = &sync.Pool{
+		New: func() interface{} {
+			return &batchReq{}
+		},
+	}
+}
 
 type heartbeatReq struct {
 }
@@ -68,6 +84,7 @@ func (h heartbeatReq) encode(buffer *bytes.Buffer) []byte {
 
 type batchCallback func()
 type batchReq struct {
+	pool         *sync.Pool
 	workerID     string
 	batchID      string
 	groupID      string
@@ -111,6 +128,10 @@ func (b *batchReq) done(err error) {
 		}
 		b.metrics.observeTime(errorCode, time.Since(b.batchTime).Milliseconds())
 		b.metrics.observeSize(errorCode, b.dataSize)
+	}
+
+	if b.pool != nil {
+		b.pool.Put(b)
 	}
 }
 
@@ -299,6 +320,7 @@ func (b *batchRsp) decode(input []byte) {
 }
 
 type sendDataReq struct {
+	pool             *sync.Pool
 	ctx              context.Context
 	msg              Message
 	callback         Callback
@@ -327,6 +349,10 @@ func (s *sendDataReq) done(err error, errCode string) {
 		}
 
 		s.metrics.incMessage(errCode)
+	}
+
+	if s.pool != nil {
+		s.pool.Put(s)
 	}
 }
 
