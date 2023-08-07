@@ -38,7 +38,7 @@ public class PostgresDialect extends AbstractJdbcDialect {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String QUERY_PRIMARY_KEY_SQL =  "SELECT\n"
+    private static final String QUERY_PRIMARY_KEY_SQL = "SELECT\n"
             + " string_agg(pg_attribute.attname, ',') AS pkColumn,\n"
             + " pg_class.relname AS tableName\n"
             + " FROM\n"
@@ -51,8 +51,6 @@ public class PostgresDialect extends AbstractJdbcDialect {
             + " indisprimary \n "
             + " GROUP BY \n"
             + " pg_class.relname, pg_index.indkey;";
-
-
 
     // Define MAX/MIN precision of TIMESTAMP type according to PostgreSQL docs:
     // https://www.postgresql.org/docs/12/datatype-datetime.html
