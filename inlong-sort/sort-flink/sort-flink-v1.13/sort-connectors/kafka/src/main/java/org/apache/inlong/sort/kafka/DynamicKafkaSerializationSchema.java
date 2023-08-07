@@ -25,6 +25,7 @@ import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.metric.sub.SinkTopicMetricData;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink.WritableMetadata;
+import org.apache.inlong.sort.kafka.partitioner.SingleTableCustomFieldsPartitioner;
 import org.apache.inlong.sort.protocol.ddl.operations.Operation;
 import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
 import org.apache.inlong.sort.protocol.enums.SchemaChangeType;

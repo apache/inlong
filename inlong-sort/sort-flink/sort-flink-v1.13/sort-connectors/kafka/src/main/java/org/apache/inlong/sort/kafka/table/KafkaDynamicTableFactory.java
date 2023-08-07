@@ -22,7 +22,7 @@ import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink;
-import org.apache.inlong.sort.kafka.SingleTableCustomFieldsPartitioner;
+import org.apache.inlong.sort.kafka.partitioner.SingleTableCustomFieldsPartitioner;
 import org.apache.inlong.sort.kafka.partitioner.InLongFixedPartitionPartitioner;
 import org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner;
 import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
