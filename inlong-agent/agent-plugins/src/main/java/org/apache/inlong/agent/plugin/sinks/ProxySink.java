@@ -183,10 +183,10 @@ public class ProxySink extends AbstractSink {
         messageFilter = initMessageFilter(jobConf);
         fieldSplitter = jobConf.get(CommonConstants.FIELD_SPLITTER, DEFAULT_FIELD_SPLITTER).getBytes(
                 StandardCharsets.UTF_8);
-        executorService.execute(flushCache());
         senderManager = new SenderManager(jobConf, inlongGroupId, sourceName);
         try {
             senderManager.Start();
+            executorService.execute(flushCache());
         } catch (Throwable ex) {
             LOGGER.error("error while init sender for group id {}", inlongGroupId);
             ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
