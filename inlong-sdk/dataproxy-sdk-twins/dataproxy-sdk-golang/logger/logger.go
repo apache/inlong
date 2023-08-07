@@ -42,7 +42,7 @@ type stdLogger struct {
 }
 
 func (s stdLogger) Debug(args ...interface{}) {
-	fmt.Println(args...)
+	// fmt.Println(args...)
 }
 
 func (s stdLogger) Info(args ...interface{}) {
