@@ -17,6 +17,27 @@
 
 package org.apache.inlong.agent.core.job;
 
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_DB_CACHE_TIME;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_NUMBER_LIMIT;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_DB_CACHE_CHECK_INTERVAL;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_DB_CACHE_TIME;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_NUMBER_LIMIT;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_VERSION;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID_PREFIX;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
+import static org.apache.inlong.agent.constant.JobConstants.SQL_JOB_ID;
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_COMPONENT_NAME;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
@@ -31,31 +52,8 @@ import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.GsonUtil;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.metric.MetricRegister;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_DB_CACHE_TIME;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_NUMBER_LIMIT;
-import static org.apache.inlong.agent.constant.AgentConstants.JOB_DB_CACHE_CHECK_INTERVAL;
-import static org.apache.inlong.agent.constant.AgentConstants.JOB_DB_CACHE_TIME;
-import static org.apache.inlong.agent.constant.AgentConstants.JOB_NUMBER_LIMIT;
-import static org.apache.inlong.agent.constant.AgentConstants.JOB_VERSION;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_ID_PREFIX;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
-import static org.apache.inlong.agent.constant.JobConstants.SQL_JOB_ID;
-import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_COMPONENT_NAME;
 
 /**
  * JobManager maintains lots of jobs, and communicate between server and task manager.
@@ -108,36 +106,7 @@ public class JobManager extends AbstractDaemon {
         this.dimensions = new HashMap<>();
         this.dimensions.put(KEY_COMPONENT_NAME, this.getClass().getSimpleName());
         this.jobMetrics = new AgentMetricItemSet(this.getClass().getSimpleName());
-        MetricRegister.unregister(jobMetrics);
         MetricRegister.register(jobMetrics);
-    }
-
-    /**
-     * submit job to work thread.
-     *
-     * @param job job
-     */
-    private void addJob(Job job) {
-        if (pendingJobs.containsKey(job.getJobInstanceId())) {
-            return;
-        }
-        try {
-            JobWrapper jobWrapper = new JobWrapper(agentManager, job);
-            JobWrapper jobWrapperRet = jobs.putIfAbsent(jobWrapper.getJob().getJobInstanceId(), jobWrapper);
-            if (jobWrapperRet != null) {
-                LOGGER.warn("{} has been added to running pool, "
-                        + "cannot be added repeatedly", job.getJobInstanceId());
-                return;
-            } else {
-                getJobMetric().jobRunningCount.incrementAndGet();
-            }
-            this.runningPool.execute(jobWrapper);
-        } catch (Exception rje) {
-            LOGGER.debug("reject job {}", job.getJobInstanceId(), rje);
-            pendingJobs.putIfAbsent(job.getJobInstanceId(), job);
-        } catch (Throwable t) {
-            ThreadUtils.threadThrowableHandler(Thread.currentThread(), t);
-        }
     }
 
     /**
@@ -147,6 +116,34 @@ public class JobManager extends AbstractDaemon {
      */
     public boolean submitFileJobProfile(JobProfile profile) {
         return submitJobProfile(profile, false, true);
+    }
+
+    /**
+     * make up file job
+     *
+     * @param profile job profile.
+     */
+    public void makeUpJob(JobProfile profile, boolean singleJob) {
+        LOGGER.error("need to make up job {}", profile);
+        if (!isJobValid(profile)) {
+            LOGGER.error("make up job failed, invalid profile {}", profile);
+            return;
+        }
+        String jobId = profile.get(JOB_ID);
+        if (singleJob) {
+            profile.set(JOB_INSTANCE_ID, AgentUtils.getSingleJobId(JOB_ID_PREFIX, jobId));
+        } else {
+            profile.set(JOB_INSTANCE_ID, AgentUtils.getUniqId(JOB_ID_PREFIX, jobId, index.incrementAndGet()));
+        }
+        JobProfile jobFromDb = jobProfileDb.getJobById(profile.getInstanceId());
+        if (jobFromDb == null) {
+            jobProfileDb.storeJobFirstTime(profile);
+        } else {
+            jobFromDb.set(JOB_VERSION, profile.get(JOB_VERSION));
+            profile = jobFromDb;
+        }
+        LOGGER.info("submit job final profile {}", profile.toJsonStr());
+        addJobToMemory(new Job(profile));
     }
 
     /**
@@ -177,8 +174,36 @@ public class JobManager extends AbstractDaemon {
             }
         }
         LOGGER.info("submit job final profile {}", profile.toJsonStr());
-        addJob(new Job(profile));
+        addJobToMemory(new Job(profile));
         return true;
+    }
+
+    /**
+     * submit job to work thread.
+     *
+     * @param job job
+     */
+    private void addJobToMemory(Job job) {
+        if (pendingJobs.containsKey(job.getJobInstanceId())) {
+            return;
+        }
+        try {
+            JobWrapper jobWrapper = new JobWrapper(agentManager, job);
+            JobWrapper jobWrapperRet = jobs.putIfAbsent(jobWrapper.getJob().getJobInstanceId(), jobWrapper);
+            if (jobWrapperRet != null) {
+                LOGGER.warn("{} has been added to running pool, "
+                        + "cannot be added repeatedly", job.getJobInstanceId());
+                return;
+            } else {
+                getJobMetric().jobRunningCount.incrementAndGet();
+            }
+            this.runningPool.execute(jobWrapper);
+        } catch (Exception rje) {
+            LOGGER.debug("reject job {}", job.getJobInstanceId(), rje);
+            pendingJobs.putIfAbsent(job.getJobInstanceId(), job);
+        } catch (Throwable t) {
+            ThreadUtils.threadThrowableHandler(Thread.currentThread(), t);
+        }
     }
 
     private boolean isJobValid(JobProfile profile) {
@@ -227,7 +252,7 @@ public class JobManager extends AbstractDaemon {
         List<JobProfile> profileList = jobProfileDb.getRestartJobs();
         for (JobProfile profile : profileList) {
             LOGGER.info("init starting job from db {}", profile.toJsonStr());
-            addJob(new Job(profile));
+            addJobToMemory(new Job(profile));
         }
     }
 
@@ -242,7 +267,7 @@ public class JobManager extends AbstractDaemon {
                     for (String jobId : pendingJobs.keySet()) {
                         Job job = pendingJobs.remove(jobId);
                         if (job != null) {
-                            addJob(job);
+                            addJobToMemory(job);
                         }
                     }
                     TimeUnit.SECONDS.sleep(monitorInterval);

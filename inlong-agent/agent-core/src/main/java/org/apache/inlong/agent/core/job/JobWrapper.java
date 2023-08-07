@@ -17,6 +17,21 @@
 
 package org.apache.inlong.agent.core.job;
 
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_VERSION;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_VERSION;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -35,25 +50,8 @@ import org.apache.inlong.agent.state.State;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_VERSION;
-import static org.apache.inlong.agent.constant.AgentConstants.JOB_VERSION;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
 
 /**
  * JobWrapper is used in JobManager, it defines the life cycle of
@@ -204,6 +202,7 @@ public class JobWrapper extends AbstractStateWrapper {
     public void cleanup() {
         isEnd = true;
         allTasks.forEach(task -> taskManager.removeTask(task.getTaskId()));
+        allTasks.clear();
     }
 
     @Override

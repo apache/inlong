@@ -295,7 +295,7 @@ public class DirectoryTrigger implements Trigger {
                         Map<String, String> taskProfile = new HashMap<>();
                         String md5 = AgentUtils.getFileMd5(path.toFile());
                         taskProfile.put(path.toFile().getAbsolutePath() + ".md5", md5);
-                        taskProfile.put(JobConstants.JOB_FILE_JOB_TRIGGER, null); // del trigger id
+                        taskProfile.put(JobConstants.JOB_FILE_TRIGGER, null); // del trigger id
                         taskProfile.put(JobConstants.JOB_DIR_FILTER_PATTERNS, path.toFile().getAbsolutePath());
                         LOGGER.info("trigger_{} generate job profile to read file {}",
                                 trigger.getTriggerProfile().getTriggerId(), path);

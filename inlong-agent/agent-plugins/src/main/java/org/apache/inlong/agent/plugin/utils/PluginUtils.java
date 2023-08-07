@@ -129,7 +129,7 @@ public class PluginUtils {
         JobProfile copiedProfile = TriggerProfile.parseJsonStr(triggerProfile.toJsonStr());
         String md5 = AgentUtils.getFileMd5(pendingFile);
         copiedProfile.set(pendingFile.getAbsolutePath() + ".md5", md5);
-        copiedProfile.set(JobConstants.JOB_FILE_JOB_TRIGGER, null); // del trigger id
+        copiedProfile.set(JobConstants.JOB_FILE_TRIGGER, null); // del trigger id
         copiedProfile.set(JobConstants.JOB_DIR_FILTER_PATTERNS, pendingFile.getAbsolutePath());
         return copiedProfile;
     }
