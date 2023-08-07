@@ -17,8 +17,6 @@
 
 package org.apache.inlong.sort.kafka.partitioner;
 
-import org.apache.inlong.sort.kafka.SingleTableCustomFieldsPartitioner;
-
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.data.RowData;
