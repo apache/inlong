@@ -72,7 +72,7 @@ public class TubeMQSourceOperator extends AbstractSourceOperator {
         TubeMQSourceRequest sourceRequest = (TubeMQSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            TubeMQSourceDTO dto = TubeMQSourceDTO.getFromRequest(sourceRequest);
+            TubeMQSourceDTO dto = TubeMQSourceDTO.getFromRequest(sourceRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
@@ -106,7 +106,7 @@ public class TubeMQSourceOperator extends AbstractSourceOperator {
             TubeMQSource tubeMQSource = new TubeMQSource();
             String streamId = streamInfo.getInlongStreamId();
             tubeMQSource.setSourceName(streamId);
-            tubeMQSource.setTopic(streamInfo.getMqResource());
+            tubeMQSource.setTopic(groupInfo.getMqResource());
             tubeMQSource.setGroupId(streamId);
             tubeMQSource.setMasterRpc(masterRpc);
             tubeMQSource.setIgnoreParseError(streamInfo.getIgnoreParseError());

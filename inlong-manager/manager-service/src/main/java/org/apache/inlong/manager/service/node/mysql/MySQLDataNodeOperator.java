@@ -83,7 +83,7 @@ public class MySQLDataNodeOperator extends AbstractDataNodeOperator {
         MySQLDataNodeRequest dataNodeRequest = (MySQLDataNodeRequest) request;
         CommonBeanUtils.copyProperties(dataNodeRequest, targetEntity, true);
         try {
-            MySQLDataNodeDTO dto = MySQLDataNodeDTO.getFromRequest(dataNodeRequest);
+            MySQLDataNodeDTO dto = MySQLDataNodeDTO.getFromRequest(dataNodeRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
@@ -110,13 +110,13 @@ public class MySQLDataNodeOperator extends AbstractDataNodeOperator {
     }
 
     @Override
-    public void updateRelatedStreamSource(DataNodeRequest request, DataNodeEntity entity, String operator) {
-        MySQLDataNodeRequest mySQLDataNodeRequest = (MySQLDataNodeRequest) request;
-        MySQLDataNodeInfo mySQLDataNodeInfo = (MySQLDataNodeInfo) this.getFromEntity(entity);
-        boolean changed = !Objects.equals(mySQLDataNodeRequest.getUrl(), mySQLDataNodeInfo.getUrl())
-                || !Objects.equals(mySQLDataNodeRequest.getBackupUrl(), mySQLDataNodeInfo.getBackupUrl())
-                || !Objects.equals(mySQLDataNodeRequest.getUsername(), mySQLDataNodeInfo.getUsername())
-                || !Objects.equals(mySQLDataNodeRequest.getToken(), mySQLDataNodeInfo.getToken());
+    public void updateRelatedStreamSource(DataNodeRequest request, DataNodeEntity oldEntity, String operator) {
+        MySQLDataNodeRequest nodeRequest = (MySQLDataNodeRequest) request;
+        MySQLDataNodeInfo nodeInfo = (MySQLDataNodeInfo) this.getFromEntity(oldEntity);
+        boolean changed = !Objects.equals(nodeRequest.getUrl(), nodeInfo.getUrl())
+                || !Objects.equals(nodeRequest.getBackupUrl(), nodeInfo.getBackupUrl())
+                || !Objects.equals(nodeRequest.getUsername(), nodeInfo.getUsername())
+                || !Objects.equals(nodeRequest.getToken(), nodeInfo.getToken());
         if (changed) {
             retryStreamSourceByDataNodeNameAndType(request.getName(), SourceType.MYSQL_SQL, operator);
         }

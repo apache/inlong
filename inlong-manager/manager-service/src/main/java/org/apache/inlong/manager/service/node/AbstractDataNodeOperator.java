@@ -82,7 +82,7 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
     @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public void updateOpt(DataNodeRequest request, String operator) {
-        DataNodeEntity entity = CommonBeanUtils.copyProperties(request, DataNodeEntity::new);
+        DataNodeEntity entity = dataNodeEntityMapper.selectById(request.getId());
         // set the ext params
         this.setTargetEntity(request, entity);
         entity.setModifier(operator);
@@ -107,7 +107,7 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
     }
 
     @Override
-    public void updateRelatedStreamSource(DataNodeRequest request, DataNodeEntity entity, String operator) {
+    public void updateRelatedStreamSource(DataNodeRequest request, DataNodeEntity oldEntity, String operator) {
         LOGGER.info("do nothing for the data node type ={}", request.getType());
     }
 

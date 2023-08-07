@@ -60,7 +60,7 @@ public class OracleSourceOperator extends AbstractSourceOperator {
         OracleSourceRequest sourceRequest = (OracleSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            OracleSourceDTO dto = OracleSourceDTO.getFromRequest(sourceRequest);
+            OracleSourceDTO dto = OracleSourceDTO.getFromRequest(sourceRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

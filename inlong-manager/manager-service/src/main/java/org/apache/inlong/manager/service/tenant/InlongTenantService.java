@@ -61,4 +61,11 @@ public interface InlongTenantService {
      */
     Boolean update(InlongTenantRequest request);
 
+    /**
+     * Delete tenant by name
+     *
+     * @param name tenant name
+     * @return true= delete success/ false = delete fail
+     */
+    Boolean delete(String name);
 }

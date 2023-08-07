@@ -67,7 +67,7 @@ public class HDFSSinkOperator extends AbstractSinkOperator {
         }
         HDFSSinkRequest sinkRequest = (HDFSSinkRequest) request;
         try {
-            HDFSSinkDTO dto = HDFSSinkDTO.getFromRequest(sinkRequest);
+            HDFSSinkDTO dto = HDFSSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,

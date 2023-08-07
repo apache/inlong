@@ -27,6 +27,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -70,10 +71,11 @@ public class HudiSourceDTO {
     /**
      * Get the dto instance from the request
      */
-    public static HudiSourceDTO getFromRequest(HudiSourceRequest request) {
-        HudiSourceDTO hudiSourceDTO = new HudiSourceDTO();
-        CommonBeanUtils.copyProperties(request, hudiSourceDTO);
-        return hudiSourceDTO;
+    public static HudiSourceDTO getFromRequest(HudiSourceRequest request, String extParams) {
+        HudiSourceDTO dto = StringUtils.isNotBlank(extParams)
+                ? HudiSourceDTO.getFromJson(extParams)
+                : new HudiSourceDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**

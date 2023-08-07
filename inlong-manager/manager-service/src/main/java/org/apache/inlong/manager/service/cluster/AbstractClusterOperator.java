@@ -69,7 +69,8 @@ public abstract class AbstractClusterOperator implements InlongClusterOperator {
     @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public void updateOpt(ClusterRequest request, String operator) {
-        InlongClusterEntity entity = CommonBeanUtils.copyProperties(request, InlongClusterEntity::new);
+        InlongClusterEntity entity = clusterMapper.selectById(request.getId());
+
         // set the ext params
         this.setTargetEntity(request, entity);
         entity.setModifier(operator);

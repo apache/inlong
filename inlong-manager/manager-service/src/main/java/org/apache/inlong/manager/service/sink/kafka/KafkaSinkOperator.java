@@ -67,7 +67,7 @@ public class KafkaSinkOperator extends AbstractSinkOperator {
         }
         KafkaSinkRequest sinkRequest = (KafkaSinkRequest) request;
         try {
-            KafkaSinkDTO dto = KafkaSinkDTO.getFromRequest(sinkRequest);
+            KafkaSinkDTO dto = KafkaSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,

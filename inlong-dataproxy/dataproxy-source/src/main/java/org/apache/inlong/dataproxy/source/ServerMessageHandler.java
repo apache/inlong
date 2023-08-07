@@ -23,7 +23,6 @@ import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.MsgType;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.source.v0msg.AbsV0MsgCodec;
@@ -31,7 +30,6 @@ import org.apache.inlong.dataproxy.source.v0msg.CodecBinMsg;
 import org.apache.inlong.dataproxy.source.v0msg.CodecTextMsg;
 import org.apache.inlong.dataproxy.source.v1msg.InlongTcpSourceCallback;
 import org.apache.inlong.dataproxy.utils.AddressUtils;
-import org.apache.inlong.dataproxy.utils.DateTimeUtils;
 import org.apache.inlong.sdk.commons.protocol.EventUtils;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
@@ -115,8 +113,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 // reset index when buffer is not satisfied.
                 cb.resetReaderIndex();
                 source.fileMetricIncSumStats(StatConstants.EVENT_PKG_READABLE_UNFILLED);
-                throw new Exception("Error msg, buffer is unfilled, readableLength="
-                        + readableLength + ", totalPackLength=" + totalDataLen + " + 4");
+                return;
             }
             // read type
             int msgTypeValue = cb.readByte();
@@ -272,30 +269,21 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         }
         // build InLong event.
         Event event = msgCodec.encEventPackage(source, channel);
-        // build metric data item
-        long longDataTime = msgCodec.getDataTimeMs() / 1000 / 60 / 10;
-        longDataTime = longDataTime * 1000 * 60 * 10;
-        String statsKey = strBuff.append(source.getProtocolName()).append(AttrConstants.SEP_HASHTAG)
-                .append(msgCodec.getGroupId()).append(AttrConstants.SEP_HASHTAG)
-                .append(msgCodec.getStreamId()).append(AttrConstants.SEP_HASHTAG)
-                .append(msgCodec.getStrRemoteIP()).append(AttrConstants.SEP_HASHTAG)
-                .append(source.getSrcHost()).append(AttrConstants.SEP_HASHTAG)
-                .append(msgCodec.getMsgProcType()).append(AttrConstants.SEP_HASHTAG)
-                .append(DateTimeUtils.ms2yyyyMMddHHmm(longDataTime)).append(AttrConstants.SEP_HASHTAG)
-                .append(DateTimeUtils.ms2yyyyMMddHHmm(msgCodec.getMsgRcvTime())).toString();
-        strBuff.delete(0, strBuff.length());
         try {
             source.getChannelProcessor().processEvent(event);
-            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V0_POST_SUCCESS);
-            source.fileMetricAddSuccCnt(statsKey, msgCodec.getMsgCount(), 1, event.getBody().length);
+            source.fileMetricAddSuccStats(strBuff, msgCodec.getGroupId(), msgCodec.getStreamId(),
+                    msgCodec.getTopicName(), msgCodec.getStrRemoteIP(), msgCodec.getMsgProcType(),
+                    msgCodec.getDataTimeMs(), msgCodec.getMsgPkgTime(), msgCodec.getMsgCount(), 1,
+                    event.getBody().length);
             source.addMetric(true, event.getBody().length, event);
             if (msgCodec.isNeedResp() && !msgCodec.isOrderOrProxy()) {
                 msgCodec.setSuccessInfo();
                 responseV0Msg(channel, msgCodec, strBuff);
             }
         } catch (Throwable ex) {
-            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V0_POST_FAILURE);
-            source.fileMetricAddFailCnt(statsKey, 1);
+            source.fileMetricAddFailStats(strBuff, msgCodec.getGroupId(), msgCodec.getStreamId(),
+                    msgCodec.getTopicName(), msgCodec.getStrRemoteIP(), msgCodec.getMsgProcType(),
+                    msgCodec.getDataTimeMs(), msgCodec.getMsgPkgTime(), 1);
             source.addMetric(false, event.getBody().length, event);
             if (msgCodec.isNeedResp() && !msgCodec.isOrderOrProxy()) {
                 msgCodec.setFailureInfo(DataProxyErrCode.PUT_EVENT_TO_CHANNEL_FAILURE,

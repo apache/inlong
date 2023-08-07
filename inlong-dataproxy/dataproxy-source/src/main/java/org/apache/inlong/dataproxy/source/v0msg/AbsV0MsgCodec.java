@@ -23,7 +23,6 @@ import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.source.BaseSource;
-import org.apache.inlong.dataproxy.utils.DateTimeUtils;
 import org.apache.inlong.sdk.commons.protocol.EventConstants;
 
 import com.google.common.base.Joiner;
@@ -66,6 +65,7 @@ public abstract class AbsV0MsgCodec {
     protected boolean isOrderOrProxy = false;
     protected String msgProcType = "b2b";
     protected boolean needResp = true;
+    protected long msgPkgTime;
 
     public AbsV0MsgCodec(int totalDataLen, int msgTypeValue,
             long msgRcvTime, String strRemoteIP) {
@@ -115,6 +115,10 @@ public abstract class AbsV0MsgCodec {
 
     public long getDataTimeMs() {
         return this.dataTimeMs;
+    }
+
+    public long getMsgPkgTime() {
+        return msgPkgTime;
     }
 
     public String getGroupId() {
@@ -219,7 +223,7 @@ public abstract class AbsV0MsgCodec {
         return true;
     }
 
-    protected Map<String, String> buildEventHeaders(long pkgTime) {
+    protected Map<String, String> buildEventHeaders(BaseSource source) {
         // build headers
         Map<String, String> headers = new HashMap<>();
         headers.put(AttributeConstants.GROUP_ID, groupId);
@@ -227,6 +231,7 @@ public abstract class AbsV0MsgCodec {
         headers.put(ConfigConstants.TOPIC_KEY, topicName);
         headers.put(AttributeConstants.DATA_TIME, String.valueOf(dataTimeMs));
         headers.put(ConfigConstants.REMOTE_IP_KEY, strRemoteIP);
+        headers.put(ConfigConstants.DATAPROXY_IP_KEY, source.getSrcHost());
         headers.put(ConfigConstants.MSG_COUNTER_KEY, String.valueOf(msgCount));
         headers.put(ConfigConstants.MSG_ENCODE_VER,
                 DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
@@ -234,7 +239,7 @@ public abstract class AbsV0MsgCodec {
                 DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
         headers.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
         headers.put(AttributeConstants.UNIQ_ID, String.valueOf(uniq));
-        headers.put(ConfigConstants.PKG_TIME_KEY, DateTimeUtils.ms2yyyyMMddHHmm(pkgTime));
+        headers.put(ConfigConstants.PKG_TIME_KEY, String.valueOf(msgPkgTime));
         // add extra key-value information
         if (!needResp) {
             headers.put(AttributeConstants.MESSAGE_IS_ACK, "false");

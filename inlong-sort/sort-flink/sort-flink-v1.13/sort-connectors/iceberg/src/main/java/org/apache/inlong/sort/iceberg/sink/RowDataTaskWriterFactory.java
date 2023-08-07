@@ -37,6 +37,8 @@ import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 import org.apache.iceberg.relocated.com.google.common.collect.Sets;
 import org.apache.iceberg.types.TypeUtil;
 import org.apache.iceberg.util.ArrayUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -46,6 +48,8 @@ import java.util.List;
  */
 public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RowDataTaskWriterFactory.class);
+
     private final Table table;
     private final Schema schema;
     private final RowType flinkSchema;
@@ -54,11 +58,10 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
     private final long targetFileSizeBytes;
     private final FileFormat format;
     private final List<Integer> equalityFieldIds;
-    private final boolean upsert;
-    private final boolean appendMode;
+    private boolean upsert;
+    private boolean appendMode;
+    private FileAppenderFactory<RowData> appenderFactory;
     private final boolean miniBatchMode;
-    private final FileAppenderFactory<RowData> appenderFactory;
-
     private transient OutputFileFactory outputFileFactory;
 
     public RowDataTaskWriterFactory(Table table,
@@ -80,21 +83,40 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
         this.equalityFieldIds = equalityFieldIds;
         this.upsert = upsert;
         this.appendMode = appendMode;
+        this.appenderFactory = createRowDataFileAppenderFactory(table, flinkSchema,
+                equalityFieldIds, upsert, appendMode);
         this.miniBatchMode = miniBatchMode;
+    }
 
+    private FileAppenderFactory<RowData> createRowDataFileAppenderFactory(Table table,
+            RowType flinkSchema, List<Integer> equalityFieldIds, boolean upsert, boolean appendMode) {
         if (equalityFieldIds == null || equalityFieldIds.isEmpty() || appendMode) {
-            this.appenderFactory = new FlinkAppenderFactory(schema, flinkSchema, table.properties(), spec);
+            return new FlinkAppenderFactory(schema, flinkSchema, table.properties(), spec);
         } else if (upsert) {
             // In upsert mode, only the new row is emitted using INSERT row kind. Therefore, any column of the inserted
             // row may differ from the deleted row other than the primary key fields, and the delete file must contain
             // values that are correct for the deleted row. Therefore, only write the equality delete fields.
-            this.appenderFactory = new FlinkAppenderFactory(schema, flinkSchema, table.properties(), spec,
+            return new FlinkAppenderFactory(schema, flinkSchema, table.properties(), spec,
                     ArrayUtil.toIntArray(equalityFieldIds),
                     TypeUtil.select(schema, Sets.newHashSet(equalityFieldIds)), null);
         } else {
-            this.appenderFactory = new FlinkAppenderFactory(schema, flinkSchema, table.properties(), spec,
+            return new FlinkAppenderFactory(schema, flinkSchema, table.properties(), spec,
                     ArrayUtil.toIntArray(equalityFieldIds), schema, null);
         }
+    }
+
+    public void switchToUpsert() {
+        this.appendMode = false;
+        this.upsert = true;
+    }
+
+    public void switchToAppend() {
+        this.appendMode = true;
+        this.upsert = false;
+    }
+
+    public boolean isUpsert() {
+        return upsert;
     }
 
     @Override
@@ -110,9 +132,11 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
         if (equalityFieldIds == null || equalityFieldIds.isEmpty() || appendMode) {
             // Initialize a task writer to write INSERT only.
             if (spec.isUnpartitioned()) {
+                LOGGER.info("Create an unPartitioned append writer for table {}.", table.name());
                 return new UnpartitionedWriter<>(
                         spec, format, appenderFactory, outputFileFactory, io, targetFileSizeBytes);
             } else {
+                LOGGER.info("Create a partitioned append writer for table {}.", table.name());
                 if (miniBatchMode) {
                     return new RowDataGroupedPartitionedFanoutWriter(spec, format, appenderFactory, outputFileFactory,
                             io, targetFileSizeBytes, schema, flinkSchema);
@@ -124,9 +148,11 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
         } else {
             // Initialize a task writer to write both INSERT and equality DELETE.
             if (spec.isUnpartitioned()) {
+                LOGGER.info("Create an unPartitioned upsert delta writer for table {}.", table.name());
                 return new UnpartitionedDeltaWriter(spec, format, appenderFactory, outputFileFactory, io,
                         targetFileSizeBytes, schema, flinkSchema, equalityFieldIds, upsert);
             } else {
+                LOGGER.info("Create a partitioned upsert delta writer for table {}.", table.name());
                 if (miniBatchMode) {
                     return new GroupedPartitionedDeltaWriter(spec, format, appenderFactory, outputFileFactory, io,
                             targetFileSizeBytes, schema, flinkSchema, equalityFieldIds, upsert);

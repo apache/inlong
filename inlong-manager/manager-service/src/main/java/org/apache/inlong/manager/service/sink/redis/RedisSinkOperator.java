@@ -118,7 +118,7 @@ public class RedisSinkOperator extends AbstractSinkOperator {
                 "Redis schemaMapMode '" + mapMode + "' is not supported in '" + dataType + "'");
 
         try {
-            RedisSinkDTO dto = RedisSinkDTO.getFromRequest(sinkRequest);
+            RedisSinkDTO dto = RedisSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(SINK_SAVE_FAILED,

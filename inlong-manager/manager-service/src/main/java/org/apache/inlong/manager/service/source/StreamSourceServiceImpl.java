@@ -494,7 +494,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
 
-        int sourceCount = sourceMapper.updateByRelatedId(groupId, streamId, SourceStatus.TO_BE_ISSUED_DELETE.getCode());
+        int sourceCount = sourceMapper.logicalDeleteByRelatedId(groupId, streamId,
+                SourceStatus.TO_BE_ISSUED_DELETE.getCode());
         int fieldCount = sourceFieldMapper.updateByRelatedId(groupId, streamId);
         LOGGER.info("success to force delete source for groupId={} and streamId={} by user={},"
                 + " update {} sources and {} fields", groupId, streamId, operator, sourceCount, fieldCount);

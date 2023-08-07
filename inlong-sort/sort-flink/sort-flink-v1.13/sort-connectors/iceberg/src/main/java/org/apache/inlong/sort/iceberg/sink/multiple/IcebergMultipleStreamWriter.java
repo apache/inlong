@@ -50,7 +50,6 @@ import org.apache.iceberg.catalog.Catalog;
 import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
-import org.apache.iceberg.flink.sink.TaskWriterFactory;
 import org.apache.iceberg.types.Types.NestedField;
 import org.apache.iceberg.util.PropertyUtil;
 import org.slf4j.Logger;
@@ -110,6 +109,9 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
     private transient MetricState metricState;
     private transient ListState<MetricState> metricStateListState;
     private transient RuntimeContext runtimeContext;
+    private final RowType tableSchemaRowType;
+    private final int metaFieldIndex;
+    private final boolean switchAppendUpsertEnable;
 
     public IcebergMultipleStreamWriter(
             boolean appendMode,
@@ -118,7 +120,10 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
             String auditHostAndPorts,
             MultipleSinkOption multipleSinkOption,
             DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink) {
+            @Nullable DirtySink<Object> dirtySink,
+            RowType tableSchemaRowType,
+            int metaFieldIndex,
+            boolean switchAppendUpsertEnable) {
         this.appendMode = appendMode;
         this.catalogLoader = catalogLoader;
         this.inlongMetric = inlongMetric;
@@ -126,6 +131,9 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
         this.multipleSinkOption = multipleSinkOption;
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
+        this.tableSchemaRowType = tableSchemaRowType;
+        this.metaFieldIndex = metaFieldIndex;
+        this.switchAppendUpsertEnable = switchAppendUpsertEnable;
     }
 
     @Override
@@ -213,7 +221,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                         .collect(Collectors.toList());
             }
             RowType flinkRowType = FlinkSchemaUtil.convert(recordWithSchema.getSchema());
-            TaskWriterFactory<RowData> taskWriterFactory = new RowDataTaskWriterFactory(
+            RowDataTaskWriterFactory taskWriterFactory = new RowDataTaskWriterFactory(
                     table,
                     recordWithSchema.getSchema(),
                     flinkRowType,
@@ -225,14 +233,14 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                     false);
 
             if (multipleWriters.get(tableId) == null) {
-                StringBuilder subWriterInlongMetric = new StringBuilder(inlongMetric);
-                subWriterInlongMetric.append(DELIMITER)
-                        .append(Constants.DATABASE_NAME).append("=").append(tableId.namespace().toString())
-                        .append(DELIMITER)
-                        .append(Constants.TABLE_NAME).append("=").append(tableId.name());
+                String subWriterInlongMetric = inlongMetric + DELIMITER
+                        + Constants.DATABASE_NAME + "=" + tableId.namespace().toString()
+                        + DELIMITER
+                        + Constants.TABLE_NAME + "=" + tableId.name();
                 IcebergSingleStreamWriter<RowData> writer = new IcebergSingleStreamWriter<>(
-                        tableId.toString(), taskWriterFactory, subWriterInlongMetric.toString(),
-                        auditHostAndPorts, flinkRowType, dirtyOptions, dirtySink, true);
+                        tableId.toString(), taskWriterFactory, subWriterInlongMetric,
+                        auditHostAndPorts, flinkRowType, dirtyOptions, dirtySink, true,
+                        tableSchemaRowType, metaFieldIndex, switchAppendUpsertEnable);
                 writer.setup(getRuntimeContext(),
                         new CallbackCollector<>(
                                 writeResult -> collector.collect(new MultipleWriteResult(tableId, writeResult))),
@@ -263,6 +271,9 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                     long size = CalculateObjectSizeUtils.getDataSize(data);
 
                     try {
+                        if (switchAppendUpsertEnable && recordWithSchema.isIncremental()) {
+                            multipleWriters.get(tableId).switchToUpsert();
+                        }
                         multipleWriters.get(tableId).processElement(data);
                     } catch (Exception e) {
                         LOG.error(String.format("write error, raw data: %s", data), e);

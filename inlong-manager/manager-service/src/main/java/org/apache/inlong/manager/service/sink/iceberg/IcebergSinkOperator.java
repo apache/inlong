@@ -73,7 +73,7 @@ public class IcebergSinkOperator extends AbstractSinkOperator {
         }
         IcebergSinkRequest sinkRequest = (IcebergSinkRequest) request;
         try {
-            IcebergSinkDTO dto = IcebergSinkDTO.getFromRequest(sinkRequest);
+            IcebergSinkDTO dto = IcebergSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,

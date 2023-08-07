@@ -30,7 +30,7 @@ import java.util.Map;
 public interface DeserializeOperator {
 
     String COMPRESS_TYPE_KEY = "compressType";
-    String NODE_IP = "NodeIP";
+    String CLIENT_IP = "clientIp";
     String MSG_TIME_KEY = "msgTime";
     char INLONGMSG_ATTR_ENTRY_DELIMITER = '&';
     char INLONGMSG_ATTR_KV_DELIMITER = '=';

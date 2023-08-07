@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>sort-formats</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>1.9.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-format-json-v1.15</artifactId>
@@ -32,7 +32,7 @@
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
         <flink.version>1.15.4</flink.version>
-        <flink.shaded.guava.version>18.0-13.0</flink.shaded.guava.version>
+        <flink.shaded.guava.version>30.1.1-jre-15.0</flink.shaded.guava.version>
     </properties>
 
     <dependencies>

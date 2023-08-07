@@ -59,7 +59,18 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
       form.setFieldsValue(data);
     },
   });
-
+  const { data: streamDetail, run: getStreamDetail } = useRequest(
+    streamId => ({
+      url: `/stream/getBrief`,
+      params: {
+        groupId: inlongGroupId,
+        streamId,
+      },
+    }),
+    {
+      manual: true,
+    },
+  );
   const { data: streamData, run: getDataStream } = useRequest(
     {
       url: '/stream/list',
@@ -72,6 +83,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
       ready: isUpdateStream,
       refreshDeps: [inlongGroupId],
       onSuccess: result => {
+        getStreamDetail(result.list[0].inlongStreamId);
         form.setFieldValue('inlongStreamId', result.list[0].inlongStreamId);
         form.setFieldValue('streamName', result.list[0].name);
       },
@@ -92,8 +104,8 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
       inlongGroupId: values.inlongGroupId,
       inlongStreamId: values.inlongStreamId,
       name: values.streamName,
+      fieldList: streamDetail?.fieldList,
     };
-
     if (streamData !== undefined) {
       submitDataStream['version'] = streamData?.list[0].version;
     }

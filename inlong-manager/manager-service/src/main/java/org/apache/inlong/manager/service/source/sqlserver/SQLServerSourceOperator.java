@@ -60,7 +60,7 @@ public class SQLServerSourceOperator extends AbstractSourceOperator {
         SQLServerSourceRequest sourceRequest = (SQLServerSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            SQLServerSourceDTO dto = SQLServerSourceDTO.getFromRequest(sourceRequest);
+            SQLServerSourceDTO dto = SQLServerSourceDTO.getFromRequest(sourceRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

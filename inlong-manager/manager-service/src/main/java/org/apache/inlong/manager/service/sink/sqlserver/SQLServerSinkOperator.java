@@ -67,7 +67,7 @@ public class SQLServerSinkOperator extends AbstractSinkOperator {
         }
         SQLServerSinkRequest sinkRequest = (SQLServerSinkRequest) request;
         try {
-            SQLServerSinkDTO dto = SQLServerSinkDTO.getFromRequest(sinkRequest);
+            SQLServerSinkDTO dto = SQLServerSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,

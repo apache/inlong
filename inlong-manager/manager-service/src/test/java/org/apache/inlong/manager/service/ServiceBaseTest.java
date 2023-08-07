@@ -32,7 +32,8 @@ import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.test.BaseTest;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,12 +63,17 @@ public class ServiceBaseTest extends BaseTest {
     @Autowired
     protected InlongStreamService streamService;
 
-    @BeforeEach
-    public void login() {
+    @BeforeAll
+    public static void login() {
         UserInfo userInfo = new UserInfo();
         userInfo.setTenant(PUBLIC_TENANT);
         userInfo.setName(GLOBAL_OPERATOR);
         LoginUserUtils.setUserLoginInfo(userInfo);
+    }
+
+    @AfterAll
+    public static void logout() {
+        LoginUserUtils.removeUserLoginInfo();
     }
 
     @Test

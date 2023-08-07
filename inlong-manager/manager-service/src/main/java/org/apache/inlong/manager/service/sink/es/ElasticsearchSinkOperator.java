@@ -79,7 +79,7 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
         }
         ElasticsearchSinkRequest sinkRequest = (ElasticsearchSinkRequest) request;
         try {
-            ElasticsearchSinkDTO dto = ElasticsearchSinkDTO.getFromRequest(sinkRequest);
+            ElasticsearchSinkDTO dto = ElasticsearchSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
 
             DataNodeInfo dataNodeInfo =
                     dataNodeHelper.getDataNodeInfo(request.getDataNodeName(), DataNodeType.ELASTICSEARCH);

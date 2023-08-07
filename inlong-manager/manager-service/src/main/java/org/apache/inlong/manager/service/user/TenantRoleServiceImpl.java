@@ -27,9 +27,11 @@ import org.apache.inlong.manager.dao.entity.TenantUserRoleEntity;
 import org.apache.inlong.manager.dao.mapper.InlongTenantEntityMapper;
 import org.apache.inlong.manager.dao.mapper.TenantUserRoleEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
 import org.apache.inlong.manager.pojo.user.TenantRoleRequest;
+import org.apache.inlong.manager.pojo.user.UserRoleCode;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -39,6 +41,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static org.apache.inlong.common.util.BasicAuth.DEFAULT_TENANT;
 import static org.apache.inlong.manager.common.enums.ErrorCodeEnum.TENANT_NOT_EXIST;
 
 /**
@@ -95,7 +98,7 @@ public class TenantRoleServiceImpl implements TenantRoleService {
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
                     String.format(
-                            "failure to update tenant user role with id=%d, request version=%d, updated row=%d",
+                            "fail to update tenant user role with id=%d, request version=%d, updated row=%d",
                             request.getId(), request.getVersion(), rowCount));
         }
         return true;
@@ -124,6 +127,26 @@ public class TenantRoleServiceImpl implements TenantRoleService {
     @Override
     public List<String> listTenantByUsername(String username) {
         return tenantUserRoleEntityMapper.listByUsername(username);
+    }
+
+    @Override
+    public Boolean delete(Integer id) {
+        String operator = LoginUserUtils.getLoginUser().getName();
+        log.info("begin to delete inlong tenant role id={} by user={}", id, operator);
+        int success = tenantUserRoleEntityMapper.deleteById(id);
+        Preconditions.expectTrue(success == 1, "delete tenant role failed");
+        log.info("success delete inlong tenant role id={} by user={}", id, operator);
+        return true;
+    }
+
+    @Override
+    public Integer saveDefault(String username, String operator) {
+        // make default public tenant permission
+        TenantRoleRequest tenantRoleRequest = new TenantRoleRequest();
+        tenantRoleRequest.setTenant(DEFAULT_TENANT);
+        tenantRoleRequest.setRoleCode(UserRoleCode.TENANT_OPERATOR);
+        tenantRoleRequest.setUsername(username);
+        return this.save(tenantRoleRequest, operator);
     }
 
 }

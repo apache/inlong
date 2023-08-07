@@ -27,6 +27,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -115,8 +116,11 @@ public class RedisSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static RedisSinkDTO getFromRequest(RedisSinkRequest request) throws Exception {
-        return CommonBeanUtils.copyProperties(request, RedisSinkDTO::new);
+    public static RedisSinkDTO getFromRequest(RedisSinkRequest request, String extParams) throws Exception {
+        RedisSinkDTO dto = StringUtils.isNotBlank(extParams)
+                ? RedisSinkDTO.getFromJson(extParams)
+                : new RedisSinkDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     public static RedisSinkDTO getFromJson(@NotNull String extParams) {

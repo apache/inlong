@@ -110,7 +110,7 @@ public class InlongGroupOperator4Pulsar extends AbstractGroupOperator {
         pulsarRequest.setEnsemble(writeQuorum);
         CommonBeanUtils.copyProperties(pulsarRequest, targetEntity, true);
         try {
-            InlongPulsarDTO dto = InlongPulsarDTO.getFromRequest(pulsarRequest);
+            InlongPulsarDTO dto = InlongPulsarDTO.getFromRequest(pulsarRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

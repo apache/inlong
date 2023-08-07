@@ -19,8 +19,10 @@ package org.apache.inlong.manager.service.tenant;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongTenantEntity;
 import org.apache.inlong.manager.dao.mapper.InlongTenantEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -29,6 +31,8 @@ import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
+import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.user.TenantRoleService;
 
 import com.github.pagehelper.Page;
@@ -39,9 +43,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_ADMIN;
 import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_OPERATOR;
+import static org.apache.inlong.manager.service.workflow.WorkflowDefinition.UT_ADMIN_NAME;
 
 @Service
 @Slf4j
@@ -51,6 +58,9 @@ public class InlongTenantServiceImpl implements InlongTenantService {
     private InlongTenantEntityMapper inlongTenantEntityMapper;
     @Autowired
     private TenantRoleService tenantRoleService;
+    @Autowired
+    private WorkflowApproverService workflowApproverService;
+    private ExecutorService executorService = new ScheduledThreadPoolExecutor(1);
 
     @Override
     public InlongTenantInfo getByName(String name) {
@@ -76,16 +86,36 @@ public class InlongTenantServiceImpl implements InlongTenantService {
         entity.setCreator(operator);
         entity.setModifier(operator);
         inlongTenantEntityMapper.insert(entity);
+
+        UserInfo loginUserInfo = LoginUserUtils.getLoginUser();
+        executorService.submit(() -> {
+            loginUserInfo.setTenant(request.getName());
+            LoginUserUtils.setUserLoginInfo(loginUserInfo);
+            saveDefaultWorkflowApprovers(ProcessName.APPLY_GROUP_PROCESS.name(),
+                    UT_ADMIN_NAME, operator);
+            saveDefaultWorkflowApprovers(ProcessName.APPLY_CONSUME_PROCESS.name(),
+                    UT_ADMIN_NAME, operator);
+            LoginUserUtils.removeUserLoginInfo();
+        });
+
         return entity.getId();
+    }
+
+    private Integer saveDefaultWorkflowApprovers(String processName, String taskName, String approver) {
+        ApproverRequest request = new ApproverRequest();
+        request.setProcessName(processName);
+        request.setApprovers(approver);
+        request.setTaskName(taskName);
+        return workflowApproverService.save(request, approver);
     }
 
     @Override
     public PageResult<InlongTenantInfo> listByCondition(InlongTenantPageRequest request, UserInfo userInfo) {
-        PageHelper.startPage(request.getPageNum(), request.getPageSize());
-
         if (request.getListByLoginUser()) {
             setTargetTenantList(request, userInfo);
         }
+
+        PageHelper.startPage(request.getPageNum(), request.getPageSize());
 
         Page<InlongTenantEntity> entityPage = inlongTenantEntityMapper.selectByCondition(request);
 
@@ -121,17 +151,30 @@ public class InlongTenantServiceImpl implements InlongTenantService {
         return true;
     }
 
+    @Override
+    public Boolean delete(String name) {
+        String operator = LoginUserUtils.getLoginUser().getName();
+        log.info("begin to delete inlong tenant name={} by user={}", name, operator);
+        InlongTenantEntity inlongTenantEntity = inlongTenantEntityMapper.selectByName(name);
+        int success = inlongTenantEntityMapper.deleteById(inlongTenantEntity.getId());
+        Preconditions.expectTrue(success == 1, "delete failed");
+        log.info("success delete inlong tenant name={} by user={}", name, operator);
+        return true;
+    }
+
     private void setTargetTenantList(InlongTenantPageRequest request, UserInfo userInfo) {
-        request.setKeyword(null);
         if (isInlongRoles(userInfo)) {
+            // for inlong roles, they can get all tenant info.
             request.setTenantList(null);
             return;
         }
 
         List<String> tenants = tenantRoleService.listTenantByUsername(userInfo.getName());
         if (CollectionUtils.isEmpty(tenants)) {
-            request.setTenantList(null);
-            return;
+            String errMsg = String.format("user=[%s] doesn't belong to any tenant, please contact administrator " +
+                    "and get one tenant at least", userInfo.getName());
+            log.error(errMsg);
+            throw new BusinessException(errMsg);
         }
         request.setTenantList(tenants);
     }

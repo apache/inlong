@@ -148,11 +148,13 @@ public class SimplePackProfile extends PackProfile {
     /**
      * get required properties sent to MQ
      *
+     * @param sendTime  send time
      * @return the properties
      */
-    public Map<String, String> getPropsToMQ() {
+    public Map<String, String> getPropsToMQ(long sendTime) {
         Map<String, String> result = new HashMap<>();
         result.put(AttributeConstants.RCV_TIME, event.getHeaders().get(AttributeConstants.RCV_TIME));
+        result.put(ConfigConstants.MSG_SEND_TIME, String.valueOf(sendTime));
         result.put(ConfigConstants.MSG_ENCODE_VER, event.getHeaders().get(ConfigConstants.MSG_ENCODE_VER));
         result.put(EventConstants.HEADER_KEY_VERSION, event.getHeaders().get(EventConstants.HEADER_KEY_VERSION));
         result.put(ConfigConstants.REMOTE_IP_KEY, event.getHeaders().get(ConfigConstants.REMOTE_IP_KEY));

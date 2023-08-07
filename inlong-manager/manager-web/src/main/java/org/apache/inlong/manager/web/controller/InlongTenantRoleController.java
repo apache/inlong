@@ -81,4 +81,11 @@ public class InlongTenantRoleController {
         return Response.success(tenantRoleService.listByCondition(request));
     }
 
+    @RequestMapping(value = "/role/tenant/delete/{id}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Delete tenant role by ID")
+    @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
+    public Response<Boolean> delete(@PathVariable int id) {
+        return Response.success(tenantRoleService.delete(id));
+    }
 }

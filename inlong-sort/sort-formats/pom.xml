@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-sort</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>1.9.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-formats</artifactId>
@@ -37,9 +37,7 @@
         <module>format-kv</module>
         <module>format-inlongmsg-base</module>
         <module>format-inlongmsg-csv</module>
-        <module>format-json-v1.13</module>
         <module>format-inlongmsg-pb</module>
-        <module>format-json-v1.15</module>
     </modules>
 
     <properties>
@@ -211,5 +209,23 @@
         <connection>git@git.code.oa.com:flink/flink-formats.git</connection>
         <url>https://git.code.oa.com/flink/flink-formats</url>
     </scm>
+
+    <profiles>
+        <profile>
+            <id>v1.13</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>format-json-v1.13</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>v1.15</id>
+            <modules>
+                <module>format-json-v1.15</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>

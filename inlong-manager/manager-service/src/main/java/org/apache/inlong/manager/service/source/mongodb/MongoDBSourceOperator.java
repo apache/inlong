@@ -60,7 +60,7 @@ public class MongoDBSourceOperator extends AbstractSourceOperator {
         MongoDBSourceRequest sourceRequest = (MongoDBSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            MongoDBSourceDTO dto = MongoDBSourceDTO.getFromRequest(sourceRequest);
+            MongoDBSourceDTO dto = MongoDBSourceDTO.getFromRequest(sourceRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

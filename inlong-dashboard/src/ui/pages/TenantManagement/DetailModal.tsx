@@ -63,7 +63,7 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
               data: {
                 keyword,
                 pageNum: 1,
-                pageSize: 10,
+                pageSize: 9999,
                 listByLoginUser: true,
               },
             }),
@@ -188,7 +188,7 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
     <>
       <Modal
         {...modalProps}
-        title={id ? i18n.t('basic.Edit') : i18n.t('pages.Tenant.New')}
+        title={id ? i18n.t('basic.Edit') : i18n.t('pages.TenantRole.New')}
         width={600}
         onOk={onOk}
       >

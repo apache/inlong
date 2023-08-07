@@ -38,4 +38,18 @@ public class DateTimeUtils {
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), defZoneId);
         return DATE_FORMATTER.format(localDateTime);
     }
+
+    /**
+     * convert ms value to ten minute level 'yyyyMMddHHmm' string
+     *
+     * @param timestamp The millisecond value of the specified time
+     * @return the time string in ten-minute format yyyyMMddHHmmss
+     */
+    public static String ms2yyyyMMddHHmmTenMins(long timestamp) {
+        long longDataTime = timestamp / 1000 / 60 / 10;
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(longDataTime * 1000 * 60 * 10), defZoneId);
+        return DATE_FORMATTER.format(localDateTime);
+    }
+
 }

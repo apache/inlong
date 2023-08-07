@@ -60,7 +60,7 @@ public class RedisSourceOperator extends AbstractSourceOperator {
         RedisSourceRequest sourceRequest = (RedisSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            RedisSourceDTO dto = RedisSourceDTO.getFromRequest(sourceRequest);
+            RedisSourceDTO dto = RedisSourceDTO.getFromRequest(sourceRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

@@ -113,6 +113,7 @@ public class FileReaderOperator extends AbstractReader {
     private final long monitorActiveInterval = 60 * 1000;
     private final BlockingQueue<String> queue = new LinkedBlockingQueue<>(CACHE_QUEUE_SIZE);
     private final StringBuffer sb = new StringBuffer();
+    private boolean needMetadata = false;
 
     public FileReaderOperator(File file, int position) {
         this(file, position, "");
@@ -371,6 +372,9 @@ public class FileReaderOperator extends AbstractReader {
     }
 
     public String fillMetaData(String message) {
+        if (!needMetadata) {
+            return message;
+        }
         long timestamp = System.currentTimeMillis();
         boolean isJson = FileDataUtils.isJSON(message);
         Map<String, String> mergeData = new HashMap<>(metadata);
@@ -390,8 +394,10 @@ public class FileReaderOperator extends AbstractReader {
         String[] env = jobConf.get(JOB_FILE_META_ENV_LIST).split(COMMA);
         Arrays.stream(env).forEach(data -> {
             if (data.equalsIgnoreCase(KUBERNETES)) {
+                needMetadata = true;
                 new KubernetesMetadataProvider(this).getData();
             } else if (data.equalsIgnoreCase(ENV_CVM)) {
+                needMetadata = true;
                 metadata.put(METADATA_HOST_NAME, AgentUtils.getLocalHost());
                 metadata.put(METADATA_SOURCE_IP, AgentUtils.fetchLocalIp());
                 metadata.put(METADATA_FILE_NAME, file.getName());

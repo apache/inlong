@@ -26,6 +26,7 @@ public class HttpAttrConst {
     public static final String KEY_SRV_URL_REPORT_MSG = "/dataproxy/message";
     public static final String KEY_URL_FAVICON_ICON = "/favicon.ico";
 
+    public static final String KEY_CALLBACK = "callback";
     public static final String KEY_GROUP_ID = "groupId";
     public static final String KEY_STREAM_ID = "streamId";
     public static final String KEY_BODY = "body";
