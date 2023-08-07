@@ -73,7 +73,7 @@ public class TriggerManager extends AbstractDaemon {
      */
     public boolean restoreTrigger(TriggerProfile triggerProfile) {
         try {
-            Class<?> triggerClass = Class.forName(triggerProfile.get(JobConstants.JOB_TRIGGER));
+            Class<?> triggerClass = Class.forName(triggerProfile.get(JobConstants.JOB_FILE_JOB_TRIGGER));
             Trigger trigger = (Trigger) triggerClass.newInstance();
             String triggerId = triggerProfile.get(JOB_ID);
             if (triggerMap.containsKey(triggerId)) {
@@ -171,7 +171,7 @@ public class TriggerManager extends AbstractDaemon {
                             // necessary to filter the stated monitored file task.
 
                             boolean alreadyExistTask = job.exist(tasks -> tasks.stream()
-                                    .filter(task -> !task.getJobConf().hasKey(JobConstants.JOB_TRIGGER))
+                                    .filter(task -> !task.getJobConf().hasKey(JobConstants.JOB_FILE_JOB_TRIGGER))
                                     .filter(task -> subTaskFile.equals(
                                             task.getJobConf().get(JobConstants.JOB_DIR_FILTER_PATTERNS, "")))
                                     .findAny().isPresent());

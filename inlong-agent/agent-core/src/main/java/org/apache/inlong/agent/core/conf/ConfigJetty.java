@@ -35,8 +35,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_JOB_TRIGGER;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_SOURCE_TYPE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_TRIGGER;
 
 /**
  * start http server and get job/agent config via http
@@ -87,7 +87,7 @@ public class ConfigJetty implements Closeable {
         // store job conf to bdb
         if (jobProfile != null) {
             // trigger job is a special kind of job
-            if (jobProfile.hasKey(JOB_TRIGGER)) {
+            if (jobProfile.hasKey(JOB_FILE_JOB_TRIGGER)) {
                 triggerManager.submitTrigger(
                         TriggerProfile.parseJsonStr(jobProfile.toJsonStr()), true);
             } else {
@@ -123,7 +123,7 @@ public class ConfigJetty implements Closeable {
      */
     public void deleteJobConf(JobProfile jobProfile) {
         if (jobProfile != null) {
-            if (jobProfile.hasKey(JOB_TRIGGER)) {
+            if (jobProfile.hasKey(JOB_FILE_JOB_TRIGGER)) {
                 triggerManager.deleteTrigger(TriggerProfile.parseJobProfile(jobProfile).getTriggerId(), false);
             } else {
                 jobManager.deleteJob(jobProfile.getInstanceId(), false);

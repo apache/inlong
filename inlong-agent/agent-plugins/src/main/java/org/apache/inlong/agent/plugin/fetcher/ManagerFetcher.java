@@ -75,9 +75,9 @@ import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MA
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_TDM_IP_CHECK_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_TDM_VIP_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.VERSION;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_JOB_TRIGGER;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_OP;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_RETRY_TIME;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_TRIGGER;
 import static org.apache.inlong.agent.plugin.fetcher.ManagerResultFormatter.getResultData;
 import static org.apache.inlong.agent.plugin.utils.PluginUtils.copyJobProfile;
 import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalIp;
@@ -267,8 +267,8 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
                 .map(TriggerProfile::getTriggerProfiles)
                 .forEach(profile -> {
                     LOGGER.info("the triggerProfile: {}", profile.toJsonStr());
-                    if (profile.hasKey(JOB_TRIGGER)) {
-                        dealWithTdmTriggerProfile(profile);
+                    if (profile.hasKey(JOB_FILE_JOB_TRIGGER)) {
+                        dealWithFileTriggerProfile(profile);
                     } else {
                         dealWithJobProfile(profile);
                     }
@@ -377,7 +377,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * the trigger profile returned from manager should be parsed
      */
-    public void dealWithTdmTriggerProfile(TriggerProfile triggerProfile) {
+    public void dealWithFileTriggerProfile(TriggerProfile triggerProfile) {
         ManagerOpEnum opType = ManagerOpEnum.getOpType(triggerProfile.getInt(JOB_OP));
         boolean success = true;
         try {
