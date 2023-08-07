@@ -34,16 +34,12 @@ import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.common.heartbeat.StreamHeartbeat;
-import org.apache.inlong.common.pojo.agent.TaskSnapshotMessage;
-import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -55,12 +51,8 @@ import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HTTP_PORT;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_NODE_GROUP;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_HTTP_PORT;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HEARTBEAT_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_HEARTBEAT_HTTP_PATH;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_HEARTBEAT_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
 
@@ -76,7 +68,6 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
     private final AgentConfiguration conf;
     private final HttpManager httpManager;
     private final String baseManagerUrl;
-    private final String reportSnapshotUrl;
     private final String reportHeartbeatUrl;
     private final Pattern numberPattern = Pattern.compile("^[-+]?[\\d]*$");
 
@@ -88,7 +79,6 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         jobmanager = agentManager.getJobManager();
         httpManager = new HttpManager(conf);
         baseManagerUrl = HttpManager.buildBaseUrl();
-        reportSnapshotUrl = buildReportSnapShotUrl(baseManagerUrl);
         reportHeartbeatUrl = buildReportHeartbeatUrl(baseManagerUrl);
     }
 
@@ -96,7 +86,6 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         conf = AgentConfiguration.getAgentConf();
         httpManager = new HttpManager(conf);
         baseManagerUrl = HttpManager.buildBaseUrl();
-        reportSnapshotUrl = buildReportSnapShotUrl(baseManagerUrl);
         reportHeartbeatUrl = buildReportHeartbeatUrl(baseManagerUrl);
 
         jobmanager = null;
@@ -122,7 +111,6 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
 
     @Override
     public void start() throws Exception {
-        submitWorker(snapshotReportThread());
         submitWorker(heartbeatReportThread());
         submitWorker(printMemoryPermitThread());
     }
@@ -132,24 +120,6 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
             while (isRunnable()) {
                 MemoryManager.getInstance().printAll();
                 AgentUtils.silenceSleepInSeconds(PRINT_MEMORY_PERMIT_INTERVAL_SECOND);
-            }
-        };
-    }
-
-    private Runnable snapshotReportThread() {
-        return () -> {
-            while (isRunnable()) {
-                try {
-                    TaskSnapshotRequest taskSnapshotRequest = buildTaskSnapshotRequest();
-                    httpManager.doSentPost(reportSnapshotUrl, taskSnapshotRequest);
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(" {} report snapshot to manager", taskSnapshotRequest);
-                    }
-                    SECONDS.sleep(conf.getInt(AGENT_HEARTBEAT_INTERVAL, DEFAULT_AGENT_HEARTBEAT_INTERVAL));
-                } catch (Throwable e) {
-                    LOGGER.error("interrupted while report snapshot", e);
-                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
-                }
             }
         };
     }
@@ -180,39 +150,6 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
     @Override
     public void reportHeartbeat(HeartbeatMsg heartbeat) {
         httpManager.doSentPost(reportHeartbeatUrl, heartbeat);
-    }
-
-    /**
-     * build task snapshot request of job
-     */
-    private TaskSnapshotRequest buildTaskSnapshotRequest() {
-        Map<String, JobWrapper> jobWrapperMap = jobmanager.getJobs();
-        List<TaskSnapshotMessage> taskSnapshotMessageList = new ArrayList<>();
-        TaskSnapshotRequest taskSnapshotRequest = new TaskSnapshotRequest();
-
-        Date date = new Date(System.currentTimeMillis());
-        for (Map.Entry<String, JobWrapper> entry : jobWrapperMap.entrySet()) {
-            if (StringUtils.isBlank(entry.getKey()) || entry.getValue() == null) {
-                LOGGER.info("key: {} or value: {} is null", entry.getKey(), entry.getValue());
-                continue;
-            }
-            String offset = entry.getValue().getSnapshot();
-            String jobId = entry.getKey();
-            TaskSnapshotMessage snapshotMessage = new TaskSnapshotMessage();
-            snapshotMessage.setSnapshot(offset);
-
-            // TODO Need to make sure the jobId is an Integer
-            if (!numberPattern.matcher(jobId).matches()) {
-                continue;
-            }
-            snapshotMessage.setJobId(Integer.valueOf(jobId));
-            taskSnapshotMessageList.add(snapshotMessage);
-        }
-        taskSnapshotRequest.setSnapshotList(taskSnapshotMessageList);
-        taskSnapshotRequest.setReportTime(date);
-        taskSnapshotRequest.setAgentIp(AgentUtils.fetchLocalIp());
-        taskSnapshotRequest.setUuid(AgentUtils.fetchLocalUuid());
-        return taskSnapshotRequest;
     }
 
     /**
@@ -247,9 +184,11 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         Map<String, JobWrapper> jobWrapperMap = jobmanager.getJobs();
         List<GroupHeartbeat> groupHeartbeats = Lists.newArrayList();
         List<StreamHeartbeat> streamHeartbeats = Lists.newArrayList();
+        List<String> jobIds = Lists.newArrayList();
         jobWrapperMap.values().forEach(jobWrapper -> {
             Job job = jobWrapper.getJob();
             JobProfile jobProfile = job.getJobConf();
+            jobIds.add(jobProfile.getInstanceId());
             final String groupId = jobProfile.get(JOB_GROUP_ID);
             final String streamId = jobProfile.get(JOB_STREAM_ID);
             State currentState = jobWrapper.getCurrentState();
@@ -268,6 +207,8 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
 
         heartbeatMsg.setGroupHeartbeats(groupHeartbeats);
         heartbeatMsg.setStreamHeartbeats(streamHeartbeats);
+
+        LOGGER.info("heartbeat jobIds {} heartbeatMsg {}", jobIds, heartbeatMsg);
         return heartbeatMsg;
     }
 
@@ -284,11 +225,6 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         heartbeatMsg.setClusterName(conf.get(AGENT_CLUSTER_NAME));
         heartbeatMsg.setClusterTag(conf.get(AGENT_CLUSTER_TAG));
         return heartbeatMsg;
-    }
-
-    private String buildReportSnapShotUrl(String baseUrl) {
-        return baseUrl
-                + conf.get(AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH, DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH);
     }
 
     private String buildReportHeartbeatUrl(String baseUrl) {
