@@ -28,7 +28,7 @@
 
     <artifactId>sort-connector-kafka-v1.15</artifactId>
     <packaging>jar</packaging>
-    <name>Apache InLong - Sort-connector-kafka</name>
+    <name>Apache InLong - Sort-connector-kafka-v1.15</name>
 
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>

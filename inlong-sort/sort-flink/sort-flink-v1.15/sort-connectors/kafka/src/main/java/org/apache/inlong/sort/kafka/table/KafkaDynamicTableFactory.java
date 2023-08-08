@@ -80,6 +80,7 @@ import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.autoC
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.createKeyFormatProjection;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.createValueFormatProjection;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getFlinkKafkaPartitioner;
+import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getKafkaProperties;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getSourceTopicPattern;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getSourceTopics;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getStartupOptions;
@@ -337,30 +338,6 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                                     + " on the table, because it can't guarantee the semantic of primary key.",
                             tableName.asSummaryString(), formatName));
         }
-    }
-
-    public static Properties getKafkaProperties(Map<String, String> tableOptions) {
-        final Properties kafkaProperties = new Properties();
-
-        if (hasKafkaClientProperties(tableOptions)) {
-            tableOptions.keySet().stream()
-                    .filter(key -> key.startsWith(PROPERTIES_PREFIX))
-                    .forEach(
-                            key -> {
-                                final String value = tableOptions.get(key);
-                                final String subKey = key.substring((PROPERTIES_PREFIX).length());
-                                kafkaProperties.put(subKey, value);
-                            });
-        }
-        return kafkaProperties;
-    }
-
-    /**
-     * Decides if the table options contains Kafka client properties that start with prefix
-     * 'properties'.
-     */
-    private static boolean hasKafkaClientProperties(Map<String, String> tableOptions) {
-        return tableOptions.keySet().stream().anyMatch(k -> k.startsWith(PROPERTIES_PREFIX));
     }
 
     private static DeliveryGuarantee validateDeprecatedSemantic(ReadableConfig tableOptions) {
