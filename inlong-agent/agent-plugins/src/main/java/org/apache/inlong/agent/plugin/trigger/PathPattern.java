@@ -35,27 +35,25 @@ import java.util.stream.Stream;
 
 /**
  * Path pattern for file filter.
- * It’s identified by watchDir, which matches {@link PathPattern#whiteList} and filters {@link PathPattern#blackList}.
+ * It’s identified by watchDir, which matches {@link org.apache.inlong.agent.plugin.trigger.PathPattern#whiteList} and filters {@link org.apache.inlong.agent.plugin.trigger.PathPattern#blackList}.
  */
 public class PathPattern {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PathPattern.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(org.apache.inlong.agent.plugin.trigger.PathPattern.class);
 
     private final String rootDir;
     private final Set<String> subDirs;
     // regex for those files should be matched
     private final Set<DateFormatRegex> whiteList;
-    // regex for those files should be filtered
-    private final Set<String> blackList;
 
-    public PathPattern(String rootDir, Set<String> whiteList, Set<String> blackList) {
-        this(rootDir, whiteList, blackList, null);
+    public PathPattern(String rootDir, Set<String> whiteList) {
+        this(rootDir, whiteList, null);
     }
 
-    public PathPattern(String rootDir, Set<String> whiteList, Set<String> blackList, String offset) {
+    public PathPattern(String rootDir, Set<String> whiteList, String offset) {
         this.rootDir = rootDir;
         this.subDirs = new HashSet<>();
-        this.blackList = blackList;
         if (offset != null && StringUtils.isNotBlank(offset)) {
             this.whiteList = whiteList.stream()
                     .map(whiteRegex -> DateFormatRegex.ofRegex(whiteRegex).withOffset(offset))
@@ -68,14 +66,15 @@ public class PathPattern {
         }
     }
 
-    public static Set<PathPattern> buildPathPattern(Set<String> whiteList, String offset, Set<String> blackList) {
+    public static Set<org.apache.inlong.agent.plugin.trigger.PathPattern> buildPathPattern(Set<String> whiteList,
+            String offset) {
         Set<String> commonWatchDir = PathUtils.findCommonRootPath(whiteList);
         return commonWatchDir.stream().map(rootDir -> {
             Set<String> commonWatchDirWhiteList =
                     whiteList.stream()
                             .filter(whiteRegex -> whiteRegex.startsWith(rootDir))
                             .collect(Collectors.toSet());
-            return new PathPattern(rootDir, commonWatchDirWhiteList, blackList, offset);
+            return new org.apache.inlong.agent.plugin.trigger.PathPattern(rootDir, commonWatchDirWhiteList, offset);
         }).collect(Collectors.toSet());
     }
 
@@ -88,7 +87,7 @@ public class PathPattern {
     }
 
     /**
-     * Research all children files with {@link PathPattern#rootDir} matched whiteList and filtered by blackList.
+     * Research all children files with {@link org.apache.inlong.agent.plugin.trigger.PathPattern#rootDir} matched whiteList and filtered by blackList.
      *
      * @param maxNum
      * @return
@@ -121,11 +120,6 @@ public class PathPattern {
      * @return true if suit else false.
      */
     public boolean suitable(String path) {
-        // remove blacklist path
-        if (blackList.contains(path)) {
-            LOGGER.info("find blacklist path {}, ignore it.", path);
-            return false;
-        }
         // remove common root path
         String briefSubDir = StringUtils.substringAfter(path, rootDir);
         // if already watched, then stop deep find
@@ -168,8 +162,9 @@ public class PathPattern {
 
     @Override
     public boolean equals(Object object) {
-        if (object instanceof PathPattern) {
-            PathPattern entity = (PathPattern) object;
+        if (object instanceof org.apache.inlong.agent.plugin.trigger.PathPattern) {
+            org.apache.inlong.agent.plugin.trigger.PathPattern entity =
+                    (org.apache.inlong.agent.plugin.trigger.PathPattern) object;
             return entity.rootDir.equals(this.rootDir);
         } else {
             return false;
