@@ -158,6 +158,11 @@ public class IncrementalSourceReader<T, C extends SourceConfig>
     }
 
     @Override
+    public void notifyCheckpointComplete(long checkpointId) throws Exception {
+        dialect.notifyCheckpointComplete(checkpointId);
+    }
+
+    @Override
     protected void onSplitFinished(Map<String, SourceSplitState> finishedSplitIds) {
         for (SourceSplitState splitState : finishedSplitIds.values()) {
             SourceSplitBase sourceSplit = splitState.toSourceSplit();
@@ -237,7 +242,7 @@ public class IncrementalSourceReader<T, C extends SourceConfig>
     public void handleSourceEvents(SourceEvent sourceEvent) {
         if (sourceEvent instanceof FinishedSnapshotSplitsAckEvent) {
             FinishedSnapshotSplitsAckEvent ackEvent = (FinishedSnapshotSplitsAckEvent) sourceEvent;
-            LOG.debug(
+            LOG.info(
                     "The subtask {} receives ack event for {} from enumerator.",
                     subtaskId,
                     ackEvent.getFinishedSplits());
@@ -246,12 +251,12 @@ public class IncrementalSourceReader<T, C extends SourceConfig>
             }
         } else if (sourceEvent instanceof FinishedSnapshotSplitsRequestEvent) {
             // report finished snapshot splits
-            LOG.debug(
+            LOG.info(
                     "The subtask {} receives request to report finished snapshot splits.",
                     subtaskId);
             reportFinishedSnapshotSplitsIfNeed();
         } else if (sourceEvent instanceof StreamSplitMetaEvent) {
-            LOG.debug(
+            LOG.info(
                     "The subtask {} receives stream meta with group id {}.",
                     subtaskId,
                     ((StreamSplitMetaEvent) sourceEvent).getMetaGroupId());

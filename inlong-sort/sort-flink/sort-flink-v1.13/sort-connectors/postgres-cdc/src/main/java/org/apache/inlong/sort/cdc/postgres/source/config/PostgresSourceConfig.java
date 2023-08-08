@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.oracle.source.config;
+package org.apache.inlong.sort.cdc.postgres.source.config;
 
-import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
 
 import com.ververica.cdc.connectors.base.options.StartupOptions;
 import io.debezium.config.Configuration;
-import io.debezium.connector.oracle.OracleConnectorConfig;
+import io.debezium.connector.AbstractSourceInfo;
+import io.debezium.connector.postgresql.PostgresConnectorConfig;
 import io.debezium.relational.RelationalTableFilters;
 
 import javax.annotation.Nullable;
@@ -32,19 +32,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-/**
- * Describes the connection information of the Oracle database and the configuration information for
- * performing snapshotting and streaming reading, such as splitSize.
- * Copy from com.ververica:flink-connector-oracle-cdc:2.3.0
- */
-public class OracleSourceConfig extends JdbcSourceConfig {
+/** The configuration for Postgres CDC source. */
+public class PostgresSourceConfig extends JdbcSourceConfig {
 
     private static final long serialVersionUID = 1L;
 
-    @Nullable
-    private String url;
-
-    public OracleSourceConfig(
+    public PostgresSourceConfig(
             StartupOptions startupOptions,
             List<String> databaseList,
             List<String> schemaList,
@@ -57,7 +50,6 @@ public class OracleSourceConfig extends JdbcSourceConfig {
             Properties dbzProperties,
             Configuration dbzConfiguration,
             String driverClassName,
-            @Nullable String url,
             String hostname,
             int port,
             String username,
@@ -67,7 +59,7 @@ public class OracleSourceConfig extends JdbcSourceConfig {
             Duration connectTimeout,
             int connectMaxRetries,
             int connectionPoolSize,
-            String chunkKeyColumn,
+            @Nullable String chunkKeyColumn,
             String inlongMetric,
             String inlongAudit) {
         super(
@@ -95,29 +87,20 @@ public class OracleSourceConfig extends JdbcSourceConfig {
                 chunkKeyColumn,
                 inlongMetric,
                 inlongAudit);
-        this.url = url;
     }
 
     @Override
-    public OracleConnectorConfig getDbzConnectorConfig() {
-        return new OracleConnectorConfig(getDbzConfiguration());
-    }
-
-    public Configuration getOriginDbzConnectorConfig() {
-        return super.getDbzConfiguration();
+    public PostgresConnectorConfig getDbzConnectorConfig() {
+        return new PostgresConnectorConfig(getDbzConfiguration());
     }
 
     public RelationalTableFilters getTableFilters() {
         return getDbzConnectorConfig().getTableFilters();
     }
 
-    @Nullable
-    public String getUrl() {
-        return url;
-    }
-
     @Override
     public List<String> getMetricLabelList() {
-        return Arrays.asList(Constants.DATABASE_NAME, Constants.SCHEMA_NAME, Constants.TABLE_NAME);
+        return Arrays.asList(AbstractSourceInfo.DATABASE_NAME_KEY,
+                AbstractSourceInfo.SCHEMA_NAME_KEY, AbstractSourceInfo.TABLE_NAME_KEY);
     }
 }

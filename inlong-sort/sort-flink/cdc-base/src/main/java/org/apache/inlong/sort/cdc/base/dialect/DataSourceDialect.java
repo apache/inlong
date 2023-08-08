@@ -26,6 +26,7 @@ import org.apache.inlong.sort.cdc.base.source.reader.external.FetchTask;
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges;
 import org.apache.flink.annotation.Experimental;
+import org.apache.flink.api.common.state.CheckpointListener;
 
 import java.io.Serializable;
 import java.util.List;
@@ -38,7 +39,7 @@ import java.util.Map;
  * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 @Experimental
-public interface DataSourceDialect<C extends SourceConfig> extends Serializable {
+public interface DataSourceDialect<C extends SourceConfig> extends Serializable, CheckpointListener {
 
     /** Get the name of dialect. */
     String getName();
@@ -70,4 +71,14 @@ public interface DataSourceDialect<C extends SourceConfig> extends Serializable 
 
     /** The task context used for fetch task to fetch data from external systems. */
     FetchTask.Context createFetchTaskContext(SourceSplitBase sourceSplitBase, C sourceConfig);
+
+    /**
+     * We have an empty default implementation here because most dialects do not have to implement
+     * the method.
+     *
+     * @see CheckpointListener#notifyCheckpointComplete(long)
+     */
+    @Override
+    default void notifyCheckpointComplete(long checkpointId) throws Exception {
+    }
 }

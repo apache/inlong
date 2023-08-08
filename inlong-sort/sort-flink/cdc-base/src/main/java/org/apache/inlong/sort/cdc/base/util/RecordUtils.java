@@ -60,6 +60,7 @@ public class RecordUtils {
     public static final String ORACLE_SCHEMA_CHANGE_EVENT_KEY_NAME = "io.debezium.connector.oracle.SchemaChangeKey";
     public static final String CONNECTOR = "connector";
     public static final String MYSQL_CONNECTOR = "mysql";
+    public static final String SCHEMA_HEARTBEAT_EVENT_KEY_NAME = "io.debezium.connector.common.Heartbeat";
 
     private RecordUtils() {
 
@@ -161,6 +162,18 @@ public class RecordUtils {
 
     public static boolean isDdlRecord(Struct value) {
         return value.schema().field(HISTORY_RECORD_FIELD) != null;
+    }
+
+    public static boolean isHeartbeatEvent(SourceRecord record) {
+        Schema valueSchema = record.valueSchema();
+        return valueSchema != null
+                && SCHEMA_HEARTBEAT_EVENT_KEY_NAME.equalsIgnoreCase(valueSchema.name());
+    }
+
+    public static boolean shouldUseCatalogBeforeSchema(TableId tableId) {
+        // if catalog is not defined but the schema is defined return this flag as false
+        // otherwise return true
+        return !(tableId.catalog() == null && tableId.schema() != null);
     }
 
 }

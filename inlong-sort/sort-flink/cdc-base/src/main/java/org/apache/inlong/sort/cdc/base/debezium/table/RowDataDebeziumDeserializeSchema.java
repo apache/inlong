@@ -757,11 +757,6 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
 
     }
 
-    @Override
-    public void deserialize(SourceRecord record, Collector<RowData> out, Boolean isStreamingPhase) throws Exception {
-        this.deserialize(record, out);
-    }
-
     private GenericRowData extractAfterRow(Struct value, Schema valueSchema) throws Exception {
         Schema afterSchema = valueSchema.field(Envelope.FieldName.AFTER).schema();
         Struct after = value.getStruct(Envelope.FieldName.AFTER);

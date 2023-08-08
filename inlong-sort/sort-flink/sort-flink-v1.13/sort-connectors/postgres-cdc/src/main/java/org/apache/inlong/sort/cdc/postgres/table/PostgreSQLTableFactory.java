@@ -17,27 +17,48 @@
 
 package org.apache.inlong.sort.cdc.postgres.table;
 
+import com.ververica.cdc.connectors.base.options.StartupOptions;
+import com.ververica.cdc.debezium.table.DebeziumChangelogMode;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;
+import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
 import static com.ververica.cdc.debezium.table.DebeziumOptions.DEBEZIUM_OPTIONS_PREFIX;
 import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
+import static com.ververica.cdc.debezium.utils.ResolvedSchemaUtils.getPhysicalSchema;
+import static org.apache.flink.util.Preconditions.checkArgument;
+import static org.apache.flink.util.Preconditions.checkState;
 import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.base.Constants.SOURCE_MULTIPLE_ENABLE;
+import static org.apache.inlong.sort.cdc.base.util.ObjectUtils.doubleCompare;
+import static org.apache.inlong.sort.cdc.postgres.source.options.PostgresSourceOptions.CHANGELOG_MODE;
+import static org.apache.inlong.sort.cdc.postgres.source.options.PostgresSourceOptions.CHUNK_META_GROUP_SIZE;
+import static org.apache.inlong.sort.cdc.postgres.source.options.PostgresSourceOptions.CONNECTION_POOL_SIZE;
+import static org.apache.inlong.sort.cdc.postgres.source.options.PostgresSourceOptions.CONNECT_MAX_RETRIES;
+import static org.apache.inlong.sort.cdc.postgres.source.options.PostgresSourceOptions.CONNECT_TIMEOUT;
+import static org.apache.inlong.sort.cdc.postgres.source.options.PostgresSourceOptions.HEARTBEAT_INTERVAL;
+import static org.apache.inlong.sort.cdc.postgres.source.options.PostgresSourceOptions.SCAN_INCREMENTAL_SNAPSHOT_CHUNK_KEY_COLUMN;
+import static org.apache.inlong.sort.cdc.postgres.source.options.PostgresSourceOptions.SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE;
+import static org.apache.inlong.sort.cdc.postgres.source.options.PostgresSourceOptions.SCAN_INCREMENTAL_SNAPSHOT_ENABLED;
+import static org.apache.inlong.sort.cdc.postgres.source.options.PostgresSourceOptions.SCAN_SNAPSHOT_FETCH_SIZE;
+import static org.apache.inlong.sort.cdc.postgres.source.options.PostgresSourceOptions.SCAN_STARTUP_MODE;
+import static org.apache.inlong.sort.cdc.postgres.source.options.PostgresSourceOptions.SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_LOWER_BOUND;
+import static org.apache.inlong.sort.cdc.postgres.source.options.PostgresSourceOptions.SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_UPPER_BOUND;
 
 /**
  * Factory for creating configured instance of
- * {@link com.ververica.cdc.connectors.postgres.table.PostgreSQLTableSource}.
+ * {@link org.apache.inlong.sort.cdc.postgres.table.PostgreSQLTableSource}.
  */
 public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
 
@@ -158,13 +179,45 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
         String pluginName = config.get(DECODING_PLUGIN_NAME);
         String slotName = config.get(SLOT_NAME);
         String serverTimeZone = config.get(SERVER_TIME_ZONE);
-        ResolvedSchema physicalSchema = context.getCatalogTable().getResolvedSchema();
+        // ResolvedSchema physicalSchema = context.getCatalogTable().getResolvedSchema();
         final boolean sourceMultipleEnable = config.get(SOURCE_MULTIPLE_ENABLE);
         String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         String inlongAudit = config.get(INLONG_AUDIT);
         final boolean appendSource = config.get(APPEND_MODE);
         final String rowKindFiltered = config.get(ROW_KINDS_FILTERED).isEmpty() ? ROW_KINDS_FILTERED.defaultValue()
                 : config.get(ROW_KINDS_FILTERED);
+
+        DebeziumChangelogMode changelogMode = config.get(CHANGELOG_MODE);
+        ResolvedSchema physicalSchema =
+                getPhysicalSchema(context.getCatalogTable().getResolvedSchema());
+        if (changelogMode == DebeziumChangelogMode.UPSERT) {
+            checkArgument(
+                    physicalSchema.getPrimaryKey().isPresent(),
+                    "Primary key must be present when upsert mode is selected.");
+        }
+        boolean enableParallelRead = config.get(SCAN_INCREMENTAL_SNAPSHOT_ENABLED);
+        StartupOptions startupOptions = getStartupOptions(config);
+        int splitSize = config.get(SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE);
+        int splitMetaGroupSize = config.get(CHUNK_META_GROUP_SIZE);
+        int fetchSize = config.get(SCAN_SNAPSHOT_FETCH_SIZE);
+        Duration connectTimeout = config.get(CONNECT_TIMEOUT);
+        int connectMaxRetries = config.get(CONNECT_MAX_RETRIES);
+        int connectionPoolSize = config.get(CONNECTION_POOL_SIZE);
+        double distributionFactorUpper = config.get(SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_UPPER_BOUND);
+        double distributionFactorLower = config.get(SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_LOWER_BOUND);
+        Duration heartbeatInterval = config.get(HEARTBEAT_INTERVAL);
+        String chunkKeyColumn =
+                config.getOptional(SCAN_INCREMENTAL_SNAPSHOT_CHUNK_KEY_COLUMN).orElse(null);
+
+        if (enableParallelRead) {
+            validateIntegerOption(SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE, splitSize, 1);
+            validateIntegerOption(SCAN_SNAPSHOT_FETCH_SIZE, fetchSize, 1);
+            validateIntegerOption(CHUNK_META_GROUP_SIZE, splitMetaGroupSize, 1);
+            validateIntegerOption(CONNECTION_POOL_SIZE, connectionPoolSize, 1);
+            validateIntegerOption(CONNECT_MAX_RETRIES, connectMaxRetries, 0);
+            validateDistributionFactorUpper(distributionFactorUpper);
+            validateDistributionFactorLower(distributionFactorLower);
+        }
 
         return new PostgreSQLTableSource(
                 physicalSchema,
@@ -183,7 +236,19 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
                 rowKindFiltered,
                 sourceMultipleEnable,
                 inlongMetric,
-                inlongAudit);
+                inlongAudit,
+                enableParallelRead,
+                splitSize,
+                splitMetaGroupSize,
+                fetchSize,
+                connectTimeout,
+                connectMaxRetries,
+                connectionPoolSize,
+                distributionFactorUpper,
+                distributionFactorLower,
+                heartbeatInterval,
+                startupOptions,
+                chunkKeyColumn);
     }
 
     @Override
@@ -216,6 +281,76 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
         options.add(AUDIT_KEYS);
         options.add(APPEND_MODE);
         options.add(ROW_KINDS_FILTERED);
+        options.add(CHANGELOG_MODE);
+        options.add(SCAN_STARTUP_MODE);
+        options.add(SCAN_INCREMENTAL_SNAPSHOT_ENABLED);
+        options.add(SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE);
+        options.add(SCAN_INCREMENTAL_SNAPSHOT_CHUNK_KEY_COLUMN);
+        options.add(SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_UPPER_BOUND);
+        options.add(SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_LOWER_BOUND);
+        options.add(CHUNK_META_GROUP_SIZE);
+        options.add(SCAN_SNAPSHOT_FETCH_SIZE);
+        options.add(CONNECT_TIMEOUT);
+        options.add(CONNECT_MAX_RETRIES);
+        options.add(CONNECTION_POOL_SIZE);
+        options.add(HEARTBEAT_INTERVAL);
         return options;
+    }
+
+    private static final String SCAN_STARTUP_MODE_VALUE_INITIAL = "initial";
+    private static final String SCAN_STARTUP_MODE_VALUE_LATEST = "latest-offset";
+    private static StartupOptions getStartupOptions(ReadableConfig config) {
+        String modeString = config.get(SCAN_STARTUP_MODE);
+
+        switch (modeString.toLowerCase()) {
+            case SCAN_STARTUP_MODE_VALUE_INITIAL:
+                return StartupOptions.initial();
+
+            case SCAN_STARTUP_MODE_VALUE_LATEST:
+                return StartupOptions.latest();
+
+            default:
+                throw new ValidationException(
+                        String.format(
+                                "Invalid value for option '%s'. Supported values are [%s, %s], but was: %s",
+                                SCAN_STARTUP_MODE.key(),
+                                SCAN_STARTUP_MODE_VALUE_INITIAL,
+                                SCAN_STARTUP_MODE_VALUE_LATEST,
+                                modeString));
+        }
+    }
+
+    /** Checks the value of given integer option is valid. */
+    private void validateIntegerOption(
+            ConfigOption<Integer> option, int optionValue, int exclusiveMin) {
+        checkState(
+                optionValue > exclusiveMin,
+                String.format(
+                        "The value of option '%s' must larger than %d, but is %d",
+                        option.key(), exclusiveMin, optionValue));
+    }
+
+    /** Checks the value of given evenly distribution factor upper bound is valid. */
+    private void validateDistributionFactorUpper(double distributionFactorUpper) {
+        checkState(
+                doubleCompare(distributionFactorUpper, 1.0d) >= 0,
+                String.format(
+                        "The value of option '%s' must larger than or equals %s, but is %s",
+                        SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_UPPER_BOUND.key(),
+                        1.0d,
+                        distributionFactorUpper));
+    }
+
+    /** Checks the value of given evenly distribution factor lower bound is valid. */
+    private void validateDistributionFactorLower(double distributionFactorLower) {
+        checkState(
+                doubleCompare(distributionFactorLower, 0.0d) >= 0
+                        && doubleCompare(distributionFactorLower, 1.0d) <= 0,
+                String.format(
+                        "The value of option '%s' must between %s and %s inclusively, but is %s",
+                        SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_LOWER_BOUND.key(),
+                        0.0d,
+                        1.0d,
+                        distributionFactorLower));
     }
 }

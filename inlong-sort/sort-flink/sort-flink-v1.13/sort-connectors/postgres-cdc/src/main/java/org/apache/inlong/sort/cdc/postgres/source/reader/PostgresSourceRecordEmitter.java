@@ -15,37 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.base.source.reader;
+package org.apache.inlong.sort.cdc.postgres.source.reader;
 
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.debezium.history.FlinkJsonTableChangeSerializer;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SourceRecords;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitState;
 import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
+import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceReader;
+import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceRecordEmitter;
+import org.apache.inlong.sort.cdc.base.util.RecordUtils;
 
+import io.debezium.connector.AbstractSourceInfo;
+import io.debezium.data.Envelope;
 import io.debezium.document.Array;
+import io.debezium.relational.TableId;
 import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.TableChanges;
+import io.debezium.relational.history.TableChanges.TableChange;
 import org.apache.flink.api.connector.source.SourceOutput;
 import org.apache.flink.connector.base.source.reader.RecordEmitter;
 import org.apache.flink.util.Collector;
+import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import static com.ververica.cdc.connectors.base.source.meta.wartermark.WatermarkEvent.isHighWatermarkEvent;
 import static com.ververica.cdc.connectors.base.source.meta.wartermark.WatermarkEvent.isWatermarkEvent;
-import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getFetchTimestamp;
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getHistoryRecord;
-import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getMessageTimestamp;
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.isDataChangeRecord;
-import static org.apache.inlong.sort.cdc.base.util.RecordUtils.isSchemaChangeEvent;
+import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.isSchemaChangeEvent;
 import static org.apache.inlong.sort.cdc.base.util.SourceRecordUtils.isHeartbeatEvent;
 
 /**
@@ -55,51 +58,36 @@ import static org.apache.inlong.sort.cdc.base.util.SourceRecordUtils.isHeartbeat
  * emit records rather than emit the records directly.
  * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
-public class IncrementalSourceRecordEmitter<T>
-        implements
-            RecordEmitter<SourceRecords, T, SourceSplitState> {
+public class PostgresSourceRecordEmitter<T>
+        extends
+            IncrementalSourceRecordEmitter<T> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(IncrementalSourceRecordEmitter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PostgresSourceRecordEmitter.class);
     private static final FlinkJsonTableChangeSerializer TABLE_CHANGE_SERIALIZER =
             new FlinkJsonTableChangeSerializer();
 
-    protected final DebeziumDeserializationSchema<T> debeziumDeserializationSchema;
-    protected final SourceReaderMetrics sourceReaderMetrics;
-    protected final boolean includeSchemaChanges;
-    protected final OutputCollector<T> outputCollector;
-    protected final OffsetFactory offsetFactory;
-
-    public IncrementalSourceRecordEmitter(
+    public PostgresSourceRecordEmitter(
             DebeziumDeserializationSchema<T> debeziumDeserializationSchema,
             SourceReaderMetrics sourceReaderMetrics,
             boolean includeSchemaChanges,
             OffsetFactory offsetFactory) {
-        this.debeziumDeserializationSchema = debeziumDeserializationSchema;
-        this.sourceReaderMetrics = sourceReaderMetrics;
-        this.includeSchemaChanges = includeSchemaChanges;
-        this.outputCollector = new OutputCollector<>();
-        this.offsetFactory = offsetFactory;
+        super(debeziumDeserializationSchema, sourceReaderMetrics, includeSchemaChanges, offsetFactory);
     }
 
     @Override
-    public void emitRecord(
-            SourceRecords sourceRecords, SourceOutput<T> output, SourceSplitState splitState)
-            throws Exception {
-        final Iterator<SourceRecord> elementIterator = sourceRecords.iterator();
-        while (elementIterator.hasNext()) {
-            processElement(elementIterator.next(), output, splitState);
-        }
-    }
-
     protected void processElement(
             SourceRecord element, SourceOutput<T> output, SourceSplitState splitState)
             throws Exception {
         if (isWatermarkEvent(element)) {
-            Offset watermark = getWatermark(element);
+            LOG.debug("PostgresSourceRecordEmitter Process WatermarkEvent: {}; splitState = {}", element, splitState);
+            Offset watermark = super.getOffsetPosition(element);
             if (isHighWatermarkEvent(element) && splitState.isSnapshotSplitState()) {
+                LOG.info("PostgresSourceRecordEmitter Set HighWatermark {} for {}", watermark, splitState);
                 splitState.asSnapshotSplitState().setHighWatermark(watermark);
             }
         } else if (isSchemaChangeEvent(element) && splitState.isStreamSplitState()) {
+            LOG.debug("PostgresSourceRecordEmitter Process SchemaChangeEvent: {}; splitState = {}", element,
+                    splitState);
             HistoryRecord historyRecord = getHistoryRecord(element);
             Array tableChanges =
                     historyRecord.document().getArray(HistoryRecord.Fields.TABLE_CHANGES);
@@ -111,12 +99,34 @@ public class IncrementalSourceRecordEmitter<T>
                 emitElement(element, output);
             }
         } else if (isDataChangeRecord(element)) {
-            LOG.trace("Process DataChangeRecord: {}; splitState = {}", element, splitState);
+            LOG.debug("PostgresSourceRecordEmitter Process DataChangeRecord: {}; splitState = {}", element, splitState);
             updateStartingOffsetForSplit(splitState, element);
             reportMetrics(element);
-            emitElement(element, output);
+            final Map<TableId, TableChange> tableSchemas =
+                    splitState.getSourceSplitBase().getTableSchemas();
+            final TableChange tableSchema =
+                    tableSchemas.getOrDefault(RecordUtils.getTableId(element), null);
+            debeziumDeserializationSchema.deserialize(element, new Collector<T>() {
+
+                @Override
+                public void collect(T record) {
+                    Struct value = (Struct) element.value();
+                    Struct source = value.getStruct(Envelope.FieldName.SOURCE);
+                    String dbName = source.getString(AbstractSourceInfo.DATABASE_NAME_KEY);
+                    String schemaName = source.getString(AbstractSourceInfo.SCHEMA_NAME_KEY);
+                    String tableName = source.getString(AbstractSourceInfo.TABLE_NAME_KEY);
+                    sourceReaderMetrics
+                            .outputMetrics(dbName, schemaName, tableName, splitState.isSnapshotSplitState(), value);
+                    output.collect(record);
+                }
+
+                @Override
+                public void close() {
+
+                }
+            }, tableSchema);
         } else if (isHeartbeatEvent(element)) {
-            LOG.trace("Process Heartbeat: {}; splitState = {}", element, splitState);
+            LOG.debug("PostgresSourceRecordEmitterProcess Heartbeat: {}; splitState = {}", element, splitState);
             updateStartingOffsetForSplit(splitState, element);
         } else {
             // unknown element
@@ -125,64 +135,4 @@ public class IncrementalSourceRecordEmitter<T>
         }
     }
 
-    protected void updateStartingOffsetForSplit(SourceSplitState splitState, SourceRecord element) {
-        if (splitState.isStreamSplitState()) {
-            Offset position = getOffsetPosition(element);
-            splitState.asStreamSplitState().setStartingOffset(position);
-        }
-    }
-
-    private Offset getWatermark(SourceRecord watermarkEvent) {
-        return getOffsetPosition(watermarkEvent.sourceOffset());
-    }
-
-    public Offset getOffsetPosition(SourceRecord dataRecord) {
-        return getOffsetPosition(dataRecord.sourceOffset());
-    }
-
-    public Offset getOffsetPosition(Map<String, ?> offset) {
-        Map<String, String> offsetStrMap = new HashMap<>();
-        for (Map.Entry<String, ?> entry : offset.entrySet()) {
-            offsetStrMap.put(
-                    entry.getKey(), entry.getValue() == null ? null : entry.getValue().toString());
-        }
-        return offsetFactory.newOffset(offsetStrMap);
-    }
-
-    protected void emitElement(SourceRecord element, SourceOutput<T> output) throws Exception {
-        outputCollector.output = output;
-        debeziumDeserializationSchema.deserialize(element, outputCollector);
-    }
-
-    protected void reportMetrics(SourceRecord element) {
-        long now = System.currentTimeMillis();
-        // record the latest process time
-        sourceReaderMetrics.recordProcessTime(now);
-        Long messageTimestamp = getMessageTimestamp(element);
-
-        if (messageTimestamp != null && messageTimestamp > 0L) {
-            // report fetch delay
-            Long fetchTimestamp = getFetchTimestamp(element);
-            if (fetchTimestamp != null) {
-                sourceReaderMetrics.recordFetchDelay(fetchTimestamp - messageTimestamp);
-            }
-            // report emit delay
-            sourceReaderMetrics.recordEmitDelay(now - messageTimestamp);
-        }
-    }
-
-    private static class OutputCollector<T> implements Collector<T> {
-
-        private SourceOutput<T> output;
-
-        @Override
-        public void collect(T record) {
-            output.collect(record);
-        }
-
-        @Override
-        public void close() {
-            // do nothing
-        }
-    }
 }

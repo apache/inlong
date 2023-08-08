@@ -29,14 +29,26 @@
     <name>Apache InLong - Sort-connector-postgres-cdc</name>
 
     <properties>
+        <postgress.debezium.version>1.6.4.Final</postgress.debezium.version>
         <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.ververica</groupId>
-            <artifactId>flink-connector-postgres-cdc</artifactId>
+            <artifactId>flink-connector-debezium</artifactId>
+            <version>2.3.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.ververica</groupId>
+            <artifactId>flink-cdc-base</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>com.ververica</groupId>-->
+        <!--            <artifactId>flink-cdc-base</artifactId>-->
+        <!--            <version>2.4-SNAPSHOT</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -57,29 +69,56 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+            <version>3.5.0</version>
+        </dependency>
+        <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-connector-postgres</artifactId>
-            <version>${debezium.version}</version>
+            <version>${postgress.debezium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.4.1</version>
         </dependency>
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-api</artifactId>
-            <version>${debezium.version}</version>
+            <version>${postgress.debezium.version}</version>
         </dependency>
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-embedded</artifactId>
-            <version>${debezium.version}</version>
+            <version>${postgress.debezium.version}</version>
         </dependency>
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-core</artifactId>
-            <version>${debezium.version}</version>
+            <version>${postgress.debezium.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-format-json-v1.13</artifactId>
             <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-shaded-guava</artifactId>
+            <version>30.1.1-jre-16.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>4.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-shaded-guava</artifactId>
+            <version>18.0-13.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
@@ -106,11 +145,15 @@
                                     <include>io.debezium:debezium-connector-postgres</include>
                                     <include>com.ververica:flink-connector-debezium</include>
                                     <include>com.ververica:flink-connector-postgres-cdc</include>
+                                    <include>com.ververica:flink-cdc-base</include>
                                     <include>com.google.protobuf:protobuf-java</include>
                                     <include>com.google.guava:*</include>
                                     <include>org.apache.kafka:*</include>
                                     <include>org.postgresql:postgresql</include>
                                     <include>com.fasterxml.*:*</include>
+                                    <include>com.zaxxer:HikariCP</include>
+                                    <include>com.google.code.gson:*</include>
+                                    <include>org.apache.flink:flink-shaded-guava</include>
                                     <!--  Include fixed version 18.0-13.0 of flink shaded guava  -->
                                     <include>org.apache.flink:flink-shaded-guava</include>
                                     <include>com.google.protobuf:*</include>
@@ -121,6 +164,7 @@
                                     <artifact>org.apache.inlong:sort-connector-*</artifact>
                                     <includes>
                                         <include>org/apache/inlong/**</include>
+                                        <include>io/debezium/connector/postgresql/**</include>
                                         <include>META-INF/services/org.apache.flink.table.factories.Factory</include>
                                     </includes>
                                 </filter>
