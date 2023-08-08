@@ -204,7 +204,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             ctx.channel().disconnect();
             ctx.channel().close();
             logger.warn("{} refuse to connect = {} , connections = {}, maxConnections = {}",
-                    source.getName(), ctx.channel(), source.getAllChannels().size(), source.getMaxConnections());
+                    source.getCachedSrcName(), ctx.channel(), source.getAllChannels().size(),
+                    source.getMaxConnections());
             return;
         }
         // add legal channel
@@ -212,7 +213,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         ctx.fireChannelActive();
         source.fileMetricIncSumStats(StatConstants.EVENT_VISIT_LINKIN);
         logger.info("{} added new channel {}, current connections = {}, maxConnections = {}",
-                source.getName(), ctx.channel(), source.getAllChannels().size(), source.getMaxConnections());
+                source.getCachedSrcName(), ctx.channel(), source.getAllChannels().size(), source.getMaxConnections());
     }
 
     @Override
@@ -227,7 +228,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         source.fileMetricIncSumStats(StatConstants.EVENT_VISIT_EXCEPTION);
         if (logCounter.shouldPrint()) {
             logger.warn("{} received an exception from channel {}",
-                    source.getName(), ctx.channel(), cause);
+                    source.getCachedSrcName(), ctx.channel(), cause);
         }
         if (ctx.channel() != null) {
             source.getAllChannels().remove(ctx.channel());
@@ -270,7 +271,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         // build InLong event.
         Event event = msgCodec.encEventPackage(source, channel);
         try {
-            source.getChannelProcessor().processEvent(event);
+            source.getCachedChProcessor().processEvent(event);
             source.fileMetricAddSuccStats(strBuff, msgCodec.getGroupId(), msgCodec.getStreamId(),
                     msgCodec.getTopicName(), msgCodec.getStrRemoteIP(), msgCodec.getMsgProcType(),
                     msgCodec.getDataTimeMs(), msgCodec.getMsgPkgTime(), msgCodec.getMsgCount(), 1,
@@ -370,7 +371,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         ProxyPackEvent packEvent = new ProxyPackEvent(inlongGroupId, inlongStreamId, events, callback);
         // put to channel
         try {
-            source.getChannelProcessor().processEvent(packEvent);
+            source.getCachedChProcessor().processEvent(packEvent);
             events.forEach(event -> {
                 source.addMetric(true, event.getBody().length, event);
                 source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V1_POST_SUCCESS);
@@ -416,7 +417,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             event.setTopic(topic);
             // put to channel
             try {
-                source.getChannelProcessor().processEvent(event);
+                source.getCachedChProcessor().processEvent(event);
                 source.addMetric(true, event.getBody().length, event);
                 source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V1_POST_SUCCESS);
             } catch (Throwable ex) {

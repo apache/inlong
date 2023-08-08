@@ -55,7 +55,7 @@ public class MessageQueueZoneSinkContext extends SinkContext {
      * Constructor
      */
     public MessageQueueZoneSinkContext(MessageQueueZoneSink mqZoneSink, Context context, Channel channel) {
-        super(mqZoneSink.getName(), context, channel);
+        super(mqZoneSink.getCachedSinkName(), context, channel);
         this.mqZoneSink = mqZoneSink;
         // proxyClusterId
         this.proxyClusterId = CommonConfigHolder.getInstance().getClusterName();

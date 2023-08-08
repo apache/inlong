@@ -44,7 +44,7 @@ public class MessageQueueZoneWorker extends Thread {
             long fetchWaitMs, MessageQueueZoneProducer zoneProducer) {
         super();
         this.mqZoneSink = mqZoneSink;
-        this.workerName = mqZoneSink.getName() + "-worker-" + workerIndex;
+        this.workerName = mqZoneSink.getCachedSinkName() + "-worker-" + workerIndex;
         this.fetchWaitMs = fetchWaitMs;
         this.zoneProducer = zoneProducer;
         this.status = LifecycleState.IDLE;

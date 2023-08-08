@@ -51,6 +51,7 @@ import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.FlumeException;
+import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.source.AbstractSource;
 import org.slf4j.Logger;
@@ -78,6 +79,8 @@ public abstract class BaseSource
     protected Context context;
     // whether source reject service
     protected volatile boolean isRejectService = false;
+    protected String cachedSrcName;
+    protected ChannelProcessor cachedChProcessor;
     // source service host
     protected String srcHost;
     // source serviced port
@@ -133,7 +136,8 @@ public abstract class BaseSource
 
     @Override
     public void configure(Context context) {
-        logger.info("{} start to configure context:{}.", this.getName(), context.toString());
+        this.cachedSrcName = getName();
+        logger.info("{} start to configure context:{}.", this.cachedSrcName, context.toString());
         this.context = context;
         this.srcHost = getHostIp(context);
         this.srcPort = getHostPort(context);
@@ -248,7 +252,7 @@ public abstract class BaseSource
         super.start();
         // initial metric item set
         this.metricItemSet = new DataProxyMetricItemSet(
-                CommonConfigHolder.getInstance().getClusterName(), getName(), String.valueOf(srcPort));
+                CommonConfigHolder.getInstance().getClusterName(), this.cachedSrcName, String.valueOf(srcPort));
         MetricRegister.register(metricItemSet);
         // init monitor logic
         if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
@@ -258,25 +262,26 @@ public abstract class BaseSource
             this.monitorIndex.start();
             this.monitorStats = new MonitorStats(
                     CommonConfigHolder.getInstance().getFileMetricEventOutName()
-                            + AttrConstants.SEP_HASHTAG + this.getName(),
+                            + AttrConstants.SEP_HASHTAG + this.cachedSrcName,
                     CommonConfigHolder.getInstance().getFileMetricStatInvlSec() * 1000L,
                     CommonConfigHolder.getInstance().getFileMetricStatCacheCnt());
             this.monitorStats.start();
         }
         startSource();
+        this.cachedChProcessor = getChannelProcessor();
         // register
-        AdminServiceRegister.register(ProxyServiceMBean.MBEAN_TYPE, this.getName(), this);
+        AdminServiceRegister.register(ProxyServiceMBean.MBEAN_TYPE, this.cachedSrcName, this);
     }
 
     @Override
     public synchronized void stop() {
-        logger.info("[STOP {} SOURCE]{} stopping...", this.getProtocolName(), this.getName());
+        logger.info("[STOP {} SOURCE]{} stopping...", this.getProtocolName(), this.cachedSrcName);
         // close channels
         if (!allChannels.isEmpty()) {
             try {
                 allChannels.close().awaitUninterruptibly();
             } catch (Exception e) {
-                logger.warn("Close {} netty channels throw exception", this.getName(), e);
+                logger.warn("Close {} netty channels throw exception", this.cachedSrcName, e);
             } finally {
                 allChannels.clear();
             }
@@ -286,7 +291,7 @@ public abstract class BaseSource
             try {
                 channelFuture.channel().closeFuture().sync();
             } catch (InterruptedException e) {
-                logger.warn("Close {} channel future throw exception", this.getName(), e);
+                logger.warn("Close {} channel future throw exception", this.cachedSrcName, e);
             }
         }
         // stop super class
@@ -307,7 +312,7 @@ public abstract class BaseSource
                 monitorStats.stop();
             }
         }
-        logger.info("[STOP {} SOURCE]{} stopped", this.getProtocolName(), this.getName());
+        logger.info("[STOP {} SOURCE]{} stopped", this.getProtocolName(), this.cachedSrcName);
     }
 
     @Override
@@ -334,7 +339,7 @@ public abstract class BaseSource
                 }
             }
             logger.info("Source {} channel check, disconnects {} Illegal channels, waist {} ms",
-                    getName(), cnt, (System.currentTimeMillis() - startTime));
+                    this.cachedSrcName, cnt, (System.currentTimeMillis() - startTime));
         }
     }
 
@@ -435,7 +440,7 @@ public abstract class BaseSource
             return;
         }
         String tenMinsDt = DateTimeUtils.ms2yyyyMMddHHmmTenMins(dt);
-        strBuff.append(getName()).append(AttrConstants.SEP_HASHTAG)
+        strBuff.append(this.cachedSrcName).append(AttrConstants.SEP_HASHTAG)
                 .append(groupId).append(AttrConstants.SEP_HASHTAG)
                 .append(streamId).append(AttrConstants.SEP_HASHTAG)
                 .append(topicName).append(AttrConstants.SEP_HASHTAG)
@@ -464,7 +469,7 @@ public abstract class BaseSource
     public void addMetric(boolean result, long size, Event event) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, CommonConfigHolder.getInstance().getClusterName());
-        dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, getName());
+        dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, this.cachedSrcName);
         dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, getStrPort());
         DataProxyMetricItem.fillInlongId(event, dimensions);
         DataProxyMetricItem.fillAuditFormatTime(event, dimensions);
@@ -486,7 +491,7 @@ public abstract class BaseSource
      */
     public ChannelInitializer getChannelInitializerFactory() {
         ChannelInitializer fac = null;
-        logger.info(this.getName() + " load msgFactory=" + msgFactoryName);
+        logger.info(this.cachedSrcName + " load msgFactory=" + msgFactoryName);
         try {
             Class<? extends ChannelInitializer> clazz =
                     (Class<? extends ChannelInitializer>) Class.forName(msgFactoryName);
@@ -495,7 +500,7 @@ public abstract class BaseSource
             fac = (ChannelInitializer) ctor.newInstance(this);
         } catch (Exception e) {
             logger.error("{} start error, fail to construct ChannelPipelineFactory with name {}",
-                    this.getName(), msgFactoryName, e);
+                    this.cachedSrcName, msgFactoryName, e);
             stop();
             throw new FlumeException(e.getMessage());
         }
@@ -529,6 +534,14 @@ public abstract class BaseSource
      */
     public boolean isRejectService() {
         return isRejectService;
+    }
+
+    public String getCachedSrcName() {
+        return cachedSrcName;
+    }
+
+    public ChannelProcessor getCachedChProcessor() {
+        return cachedChProcessor;
     }
 
     /**

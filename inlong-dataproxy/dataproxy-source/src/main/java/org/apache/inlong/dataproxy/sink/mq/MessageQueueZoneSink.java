@@ -59,7 +59,8 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
     private static final LogCounter logCounter = new LogCounter(10, 100000, 30 * 1000);
 
     private final long MQ_CLUSTER_STATUS_CHECK_DUR_MS = 2000L;
-
+    private String cachedSinkName;
+    private Channel cachedMsgChannel;
     private Context parentContext;
     private MessageQueueZoneSinkContext context;
     private final List<MessageQueueZoneWorker> workers = new ArrayList<>();
@@ -90,7 +91,8 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
      */
     @Override
     public void configure(Context context) {
-        logger.info("{} start to configure, context:{}.", this.getName(), context.toString());
+        this.cachedSinkName = getName();
+        logger.info("{} start to configure, context:{}.", this.cachedSinkName, context.toString());
         this.parentContext = context;
     }
 
@@ -100,11 +102,12 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
     @Override
     public void start() {
         if (getChannel() == null) {
-            logger.error("{}'s channel is null", this.getName());
+            logger.error("{}'s channel is null", this.cachedSinkName);
         }
+        cachedMsgChannel = getChannel();
         try {
             ConfigManager.getInstance().regMetaConfigChgCallback(this);
-            this.context = new MessageQueueZoneSinkContext(this, parentContext, getChannel());
+            this.context = new MessageQueueZoneSinkContext(this, parentContext, cachedMsgChannel);
             this.context.start();
             this.dispatchManager = new BatchPackManager(this, parentContext);
             this.scheduledPool = Executors.newScheduledThreadPool(2);
@@ -122,7 +125,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
             this.zoneProducer.start();
             // start configure change listener thread
             this.configListener = new Thread(new ConfigChangeProcessor());
-            this.configListener.setName(getName() + "-configure-listener");
+            this.configListener.setName(this.cachedSinkName + "-configure-listener");
             this.configListener.start();
             // create worker
             MessageQueueZoneWorker zoneWorker;
@@ -133,7 +136,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
                 this.workers.add(zoneWorker);
             }
         } catch (Exception e) {
-            logger.error("{} start failure", this.getName(), e);
+            logger.error("{} start failure", this.cachedSinkName, e);
         }
         super.start();
     }
@@ -159,7 +162,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
             try {
                 worker.close();
             } catch (Throwable e) {
-                logger.error("{} stop Zone worker failure", this.getName(), e);
+                logger.error("{} stop Zone worker failure", this.cachedSinkName, e);
             }
         }
         this.context.close();
@@ -185,11 +188,10 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
             }
         }
         this.dispatchManager.outputOvertimeData();
-        Channel channel = getChannel();
-        Transaction tx = channel.getTransaction();
+        Transaction tx = cachedMsgChannel.getTransaction();
         tx.begin();
         try {
-            Event event = channel.take();
+            Event event = cachedMsgChannel.take();
             // no data
             if (event == null) {
                 tx.commit();
@@ -248,13 +250,13 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
         } catch (Throwable t) {
             context.fileMetricIncSumStats(StatConstants.EVENT_SINK_EVENT_TAKE_FAILURE);
             if (logCounter.shouldPrint()) {
-                logger.error("{} process event failed!", this.getName(), t);
+                logger.error("{} process event failed!", this.cachedSinkName, t);
             }
             try {
                 tx.rollback();
             } catch (Throwable e) {
                 if (logCounter.shouldPrint()) {
-                    logger.error("{} channel take transaction rollback exception", this.getName(), e);
+                    logger.error("{} channel take transaction rollback exception", this.cachedSinkName, e);
                 }
             }
             return Status.BACKOFF;
@@ -262,6 +264,11 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
             tx.close();
         }
     }
+
+    public String getCachedSinkName() {
+        return cachedSinkName;
+    }
+
     public boolean isMqClusterStarted() {
         return mqClusterStarted;
     }
@@ -325,13 +332,13 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
         @Override
         public void run() {
             long lastCheckTime;
-            logger.info("{} config-change processor start!", getName());
+            logger.info("{} config-change processor start!", cachedSinkName);
             while (!isShutdown) {
                 reentrantLock.lock();
                 try {
                     condition.await();
                 } catch (InterruptedException e1) {
-                    logger.info("{} config-change processor meet interrupt, break!", getName());
+                    logger.info("{} config-change processor meet interrupt, break!", cachedSinkName);
                     break;
                 } finally {
                     reentrantLock.unlock();
@@ -344,7 +351,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
                     zoneProducer.reloadMetaConfig();
                 } while (lastCheckTime != lastNotifyTime.get());
             }
-            logger.info("{} config-change processor exit!", getName());
+            logger.info("{} config-change processor exit!", cachedSinkName);
         }
     }
 }
