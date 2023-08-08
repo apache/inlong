@@ -204,6 +204,7 @@ public class JobWrapper extends AbstractStateWrapper {
     public void cleanup() {
         isEnd = true;
         allTasks.forEach(task -> taskManager.removeTask(task.getTaskId()));
+        allTasks.clear();
     }
 
     @Override

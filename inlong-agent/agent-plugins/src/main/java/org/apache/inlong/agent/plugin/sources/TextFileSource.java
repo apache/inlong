@@ -36,7 +36,7 @@ import java.util.List;
 import static org.apache.inlong.agent.constant.CommonConstants.POSITION_SUFFIX;
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FILTER;
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_JOB_TRIGGER;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TRIGGER;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_LINE_FILTER_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
 
@@ -53,7 +53,7 @@ public class TextFileSource extends AbstractSource {
     @Override
     public List<Reader> split(JobProfile jobConf) {
         super.init(jobConf);
-        if (jobConf.hasKey(JOB_FILE_JOB_TRIGGER)) {
+        if (jobConf.hasKey(JOB_FILE_TRIGGER)) {
             // trigger as a special reader.
             return Collections.singletonList(new TriggerFileReader());
         }
