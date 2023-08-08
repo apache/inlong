@@ -196,7 +196,8 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
             ctx.channel().close();
             if (logCounter.shouldPrint()) {
                 logger.warn("{} refuse to connect = {} , connections = {}, maxConnections = {}",
-                        source.getName(), ctx.channel(), source.getAllChannels().size(), source.getMaxConnections());
+                        source.getCachedSrcName(), ctx.channel(), source.getAllChannels().size(),
+                        source.getMaxConnections());
             }
             return;
         }
@@ -216,7 +217,7 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
         source.fileMetricIncSumStats(StatConstants.EVENT_VISIT_EXCEPTION);
         if (logCounter.shouldPrint()) {
             logger.warn("{} received an exception from channel {}",
-                    source.getName(), ctx.channel(), cause);
+                    source.getCachedSrcName(), ctx.channel(), cause);
         }
         if (cause instanceof IOException) {
             ctx.close();
@@ -351,7 +352,7 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
         eventHeaders.put(ConfigConstants.PKG_TIME_KEY, String.valueOf(pkgTime));
         Event event = EventBuilder.withBody(inlongMsgData, eventHeaders);
         try {
-            source.getChannelProcessor().processEvent(event);
+            source.getCachedChProcessor().processEvent(event);
             source.fileMetricAddSuccStats(strBuff, groupId, streamId, topicName, clientIp,
                     "b2b", dataTime, pkgTime, intMsgCnt, 1, event.getBody().length);
             source.addMetric(true, event.getBody().length, event);

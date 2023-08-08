@@ -74,13 +74,13 @@ public class SimpleTcpSource extends BaseSource implements Configurable {
 
     @Override
     public synchronized void startSource() {
-        logger.info("start " + this.getName());
+        logger.info("start " + this.getCachedSrcName());
         // build accept group
         this.acceptorGroup = EventLoopUtil.newEventLoopGroup(maxAcceptThreads, enableBusyWait,
-                new DefaultThreadFactory(this.getName() + "-boss-group"));
+                new DefaultThreadFactory(this.getCachedSrcName() + "-boss-group"));
         // build worker group
         this.workerGroup = EventLoopUtil.newEventLoopGroup(maxWorkerThreads, enableBusyWait,
-                new DefaultThreadFactory(this.getName() + "-worker-group"));
+                new DefaultThreadFactory(this.getCachedSrcName() + "-worker-group"));
         // init boostrap
         bootstrap = new ServerBootstrap();
         if (conLinger >= 0) {
@@ -106,12 +106,12 @@ public class SimpleTcpSource extends BaseSource implements Configurable {
             }
         } catch (Exception e) {
             logger.error("Source {} bind ({}:{}) error, program will exit! e = {}",
-                    this.getName(), srcHost, srcPort, e);
+                    this.getCachedSrcName(), srcHost, srcPort, e);
             System.exit(-1);
         }
         ConfigManager.getInstance().addSourceReportInfo(
                 srcHost, String.valueOf(srcPort), getProtocolName().toUpperCase());
-        logger.info("Source {} started at ({}:{})!", this.getName(), srcHost, srcPort);
+        logger.info("Source {} started at ({}:{})!", this.getCachedSrcName(), srcHost, srcPort);
     }
 
     @Override

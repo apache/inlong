@@ -50,7 +50,7 @@ public class SimpleUdpSource extends BaseSource implements Configurable {
     @Override
     public void startSource() {
         // setup Netty server
-        logger.info("start " + this.getName());
+        logger.info("start " + this.getCachedSrcName());
         bootstrap = new Bootstrap();
         bootstrap.channel(NioDatagramChannel.class);
         if (conLinger >= 0) {
@@ -69,12 +69,12 @@ public class SimpleUdpSource extends BaseSource implements Configurable {
             }
         } catch (Exception e) {
             logger.error("Source {} bind ({}:{}) error, program will exit! e = {}",
-                    this.getName(), srcHost, srcPort, e);
+                    this.getCachedSrcName(), srcHost, srcPort, e);
             System.exit(-1);
         }
         ConfigManager.getInstance().addSourceReportInfo(
                 srcHost, String.valueOf(srcPort), getProtocolName().toUpperCase());
-        logger.info("Source {} started at ({}:{})!", this.getName(), srcHost, srcPort);
+        logger.info("Source {} started at ({}:{})!", this.getCachedSrcName(), srcHost, srcPort);
     }
 
     @Override
