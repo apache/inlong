@@ -17,18 +17,30 @@
 
 package org.apache.inlong.sort.kafka.table;
 
+import org.apache.flink.configuration.ConfigOption;
+import org.apache.flink.configuration.ConfigOptions;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
+import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.streaming.connectors.kafka.config.StartupMode;
 import org.apache.flink.streaming.connectors.kafka.internals.KafkaTopicPartition;
+import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkFixedPartitioner;
+import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions;
 import org.apache.flink.table.api.TableException;
 import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.factories.DynamicTableFactory;
+import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.utils.LogicalTypeChecks;
+import org.apache.flink.util.FlinkException;
+import org.apache.flink.util.InstantiationUtil;
 import org.apache.flink.util.Preconditions;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,27 +48,49 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.DELIVERY_GUARANTEE;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.KEY_FIELDS;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.KEY_FIELDS_PREFIX;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.KEY_FORMAT;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SCAN_STARTUP_MODE;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SCAN_STARTUP_SPECIFIC_OFFSETS;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SCAN_STARTUP_TIMESTAMP_MILLIS;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SINK_PARTITIONER;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.TOPIC;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.TOPIC_PATTERN;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.TRANSACTIONAL_ID_PREFIX;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.VALUE_FIELDS_INCLUDE;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.VALUE_FORMAT;
+import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 
 public class KafkaConnectorOptionsUtil {
 
+    private static final ConfigOption<String> SCHEMA_REGISTRY_SUBJECT =
+            ConfigOptions.key("schema-registry.subject").stringType().noDefaultValue();
+
     public static final String PROPERTIES_PREFIX = "properties.";
+
+    // Sink partitioner.
+    public static final String SINK_PARTITIONER_VALUE_DEFAULT = "default";
+    public static final String SINK_PARTITIONER_VALUE_FIXED = "fixed";
+    public static final String SINK_PARTITIONER_VALUE_ROUND_ROBIN = "round-robin";
 
     // Other keywords.
     private static final String PARTITION = "partition";
     private static final String OFFSET = "offset";
+    protected static final String AVRO_CONFLUENT = "avro-confluent";
+    protected static final String DEBEZIUM_AVRO_CONFLUENT = "debezium-avro-confluent";
+    private static final List<String> SCHEMA_REGISTRY_FORMATS =
+            Arrays.asList(AVRO_CONFLUENT, DEBEZIUM_AVRO_CONFLUENT);
 
     public static void validateTableSourceOptions(ReadableConfig tableOptions) {
         validateSourceTopic(tableOptions);
         validateScanStartupMode(tableOptions);
+    }
+
+    public static void validateTableSinkOptions(ReadableConfig tableOptions) {
+        validateSinkTopic(tableOptions);
+        validateSinkPartitioner(tableOptions);
     }
 
     public static void validateSourceTopic(ReadableConfig tableOptions) {
@@ -222,6 +256,15 @@ public class KafkaConnectorOptionsUtil {
         }
     }
 
+    static void validateDeliveryGuarantee(ReadableConfig tableOptions) {
+        if (tableOptions.get(DELIVERY_GUARANTEE) == DeliveryGuarantee.EXACTLY_ONCE
+                && !tableOptions.getOptional(TRANSACTIONAL_ID_PREFIX).isPresent()) {
+            throw new ValidationException(
+                    TRANSACTIONAL_ID_PREFIX.key()
+                            + " must be specified when using DeliveryGuarantee.EXACTLY_ONCE.");
+        }
+    }
+
     /**
      * Creates an array of indices that determine which physical fields of the table schema to
      * include in the key format and the order that those fields have in the key format.
@@ -337,6 +380,144 @@ public class KafkaConnectorOptionsUtil {
 
     public static Pattern getSourceTopicPattern(ReadableConfig tableOptions) {
         return tableOptions.getOptional(TOPIC_PATTERN).map(Pattern::compile).orElse(null);
+    }
+
+    private static void validateSinkPartitioner(ReadableConfig tableOptions) {
+        tableOptions
+                .getOptional(SINK_PARTITIONER)
+                .ifPresent(
+                        partitioner -> {
+                            if (partitioner.equals(SINK_PARTITIONER_VALUE_ROUND_ROBIN)
+                                    && tableOptions.getOptional(KEY_FIELDS).isPresent()) {
+                                throw new ValidationException(
+                                        "Currently 'round-robin' partitioner only works when option 'key.fields' is not specified.");
+                            } else if (partitioner.isEmpty()) {
+                                throw new ValidationException(
+                                        String.format(
+                                                "Option '%s' should be a non-empty string.",
+                                                SINK_PARTITIONER.key()));
+                            }
+                        });
+    }
+
+    /**
+     * Returns a new table context with a default schema registry subject value in the options if
+     * the format is a schema registry format (e.g. 'avro-confluent') and the subject is not
+     * defined.
+     */
+    public static DynamicTableFactory.Context autoCompleteSchemaRegistrySubject(
+            DynamicTableFactory.Context context) {
+        Map<String, String> tableOptions = context.getCatalogTable().getOptions();
+        Map<String, String> newOptions = autoCompleteSchemaRegistrySubject(tableOptions);
+        if (newOptions.size() > tableOptions.size()) {
+            // build a new context
+            return new FactoryUtil.DefaultDynamicTableContext(
+                    context.getObjectIdentifier(),
+                    context.getCatalogTable().copy(newOptions),
+                    context.getEnrichmentOptions(),
+                    context.getConfiguration(),
+                    context.getClassLoader(),
+                    context.isTemporary());
+        } else {
+            return context;
+        }
+    }
+
+    private static Map<String, String> autoCompleteSchemaRegistrySubject(
+            Map<String, String> options) {
+        Configuration configuration = Configuration.fromMap(options);
+        // the subject autoComplete should only be used in sink, check the topic first
+        validateSinkTopic(configuration);
+        final Optional<String> valueFormat = configuration.getOptional(VALUE_FORMAT);
+        final Optional<String> keyFormat = configuration.getOptional(KEY_FORMAT);
+        final Optional<String> format = configuration.getOptional(FORMAT);
+        final String topic = configuration.get(TOPIC).get(0);
+
+        if (format.isPresent() && SCHEMA_REGISTRY_FORMATS.contains(format.get())) {
+            autoCompleteSubject(configuration, format.get(), topic + "-value");
+        } else if (valueFormat.isPresent() && SCHEMA_REGISTRY_FORMATS.contains(valueFormat.get())) {
+            autoCompleteSubject(configuration, "value." + valueFormat.get(), topic + "-value");
+        }
+
+        if (keyFormat.isPresent() && SCHEMA_REGISTRY_FORMATS.contains(keyFormat.get())) {
+            autoCompleteSubject(configuration, "key." + keyFormat.get(), topic + "-key");
+        }
+        return configuration.toMap();
+    }
+
+    public static void validateSinkTopic(ReadableConfig tableOptions) {
+        String errorMessageTemp =
+                "Flink Kafka sink currently only supports single topic, but got %s: %s.";
+        if (!isSingleTopic(tableOptions)) {
+            if (tableOptions.getOptional(TOPIC_PATTERN).isPresent()) {
+                throw new ValidationException(
+                        String.format(
+                                errorMessageTemp,
+                                "'topic-pattern'",
+                                tableOptions.get(TOPIC_PATTERN)));
+            } else {
+                throw new ValidationException(
+                        String.format(errorMessageTemp, "'topic'", tableOptions.get(TOPIC)));
+            }
+        }
+    }
+
+    private static void autoCompleteSubject(
+            Configuration configuration, String format, String subject) {
+        ConfigOption<String> subjectOption =
+                ConfigOptions.key(format + "." + SCHEMA_REGISTRY_SUBJECT.key())
+                        .stringType()
+                        .noDefaultValue();
+        if (!configuration.getOptional(subjectOption).isPresent()) {
+            configuration.setString(subjectOption, subject);
+        }
+    }
+
+    /**
+     * The partitioner can be either "fixed", "round-robin" or a customized partitioner full class
+     * name.
+     */
+    public static Optional<FlinkKafkaPartitioner<RowData>> getFlinkKafkaPartitioner(
+            ReadableConfig tableOptions, ClassLoader classLoader) {
+        return tableOptions
+                .getOptional(SINK_PARTITIONER)
+                .flatMap(
+                        (String partitioner) -> {
+                            switch (partitioner) {
+                                case SINK_PARTITIONER_VALUE_FIXED:
+                                    return Optional.of(new FlinkFixedPartitioner<>());
+                                case SINK_PARTITIONER_VALUE_DEFAULT:
+                                case SINK_PARTITIONER_VALUE_ROUND_ROBIN:
+                                    return Optional.empty();
+                                // Default fallback to full class name of the partitioner.
+                                default:
+                                    return Optional.of(
+                                            initializePartitioner(partitioner, classLoader));
+                            }
+                        });
+    }
+
+    /** Returns a class value with the given class name. */
+    private static <T> FlinkKafkaPartitioner<T> initializePartitioner(
+            String name, ClassLoader classLoader) {
+        try {
+            Class<?> clazz = Class.forName(name, true, classLoader);
+            if (!FlinkKafkaPartitioner.class.isAssignableFrom(clazz)) {
+                throw new ValidationException(
+                        String.format(
+                                "Sink partitioner class '%s' should extend from the required class %s",
+                                name, FlinkKafkaPartitioner.class.getName()));
+            }
+            @SuppressWarnings("unchecked")
+            final FlinkKafkaPartitioner<T> kafkaPartitioner =
+                    InstantiationUtil.instantiate(name, FlinkKafkaPartitioner.class, classLoader);
+
+            return kafkaPartitioner;
+        } catch (ClassNotFoundException | FlinkException e) {
+            throw new ValidationException(
+                    String.format("Could not find and instantiate partitioner class '%s'", name),
+                    e);
+        }
     }
 
     // --------------------------------------------------------------------------------------------
