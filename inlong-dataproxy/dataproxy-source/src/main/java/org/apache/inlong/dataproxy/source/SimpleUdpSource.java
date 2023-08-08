@@ -42,7 +42,7 @@ public class SimpleUdpSource extends BaseSource implements Configurable {
 
     @Override
     public void configure(Context context) {
-        logger.info("Source {} context is {}", getCachedSrcName(), context);
+        logger.info("Source {} context is {}", getName(), context);
         super.configure(context);
     }
 

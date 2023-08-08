@@ -52,7 +52,7 @@ public class SimpleHttpSource extends BaseSource implements Configurable {
 
     @Override
     public void configure(Context context) {
-        logger.info("Source {} context is {}", getCachedSrcName(), context);
+        logger.info("Source {} context is {}", getName(), context);
         super.configure(context);
         // get tcp no-delay parameter
         this.tcpNoDelay = context.getBoolean(SourceConstants.SRCCXT_TCP_NO_DELAY,

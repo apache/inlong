@@ -250,6 +250,7 @@ public abstract class BaseSource
             FailoverChannelProcessorHolder.setChannelProcessor(newProcessor);
         }
         super.start();
+        this.cachedChProcessor = getChannelProcessor();
         // initial metric item set
         this.metricItemSet = new DataProxyMetricItemSet(
                 CommonConfigHolder.getInstance().getClusterName(), this.cachedSrcName, String.valueOf(srcPort));
@@ -268,7 +269,6 @@ public abstract class BaseSource
             this.monitorStats.start();
         }
         startSource();
-        this.cachedChProcessor = getChannelProcessor();
         // register
         AdminServiceRegister.register(ProxyServiceMBean.MBEAN_TYPE, this.cachedSrcName, this);
     }
