@@ -60,8 +60,6 @@ public class CodecBinMsg extends AbsV0MsgCodec {
     private long dataTimeSec;
     private boolean num2name = false;
     private boolean transNum2Name = false;
-    private boolean indexMsg = false;
-    private boolean fileCheckMsg = false;
     private boolean needTraceMsg = false;
 
     public CodecBinMsg(int totalDataLen, int msgTypeValue,

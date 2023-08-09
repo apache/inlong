@@ -306,7 +306,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     msgCodec.getTopicName(), msgCodec.getStrRemoteIP(), msgCodec.getMsgProcType(),
                     msgCodec.getDataTimeMs(), msgCodec.getMsgPkgTime(), 1);
             source.addMetric(false, event.getBody().length, event);
-            if (msgCodec.isNeedResp() && !msgCodec.isOrderOrProxy()) {
+            if (msgCodec.isNeedResp()) {
                 msgCodec.setFailureInfo(DataProxyErrCode.PUT_EVENT_TO_CHANNEL_FAILURE,
                         strBuff.append("Put event to channel failure: ").append(ex.getMessage()).toString());
                 strBuff.delete(0, strBuff.length());
