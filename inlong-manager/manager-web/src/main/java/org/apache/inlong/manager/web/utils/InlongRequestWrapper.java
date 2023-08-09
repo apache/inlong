@@ -51,9 +51,14 @@ public class InlongRequestWrapper extends HttpServletRequestWrapper {
 
     public InlongRequestWrapper(HttpServletRequest request) {
         super(request);
-        this.bodyParams = HttpContextUtils.getBodyString(request);
         this.params = HttpContextUtils.getParameterMap(request);
+        this.bodyParams = HttpContextUtils.getBodyString(request);
         this.headers = HttpContextUtils.getHeaderMapAll(request);
+    }
+
+    @Override
+    public int getContentLength() {
+        return bodyParams.length();
     }
 
     @Override
