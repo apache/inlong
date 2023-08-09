@@ -35,12 +35,12 @@ import java.util.stream.Stream;
 
 /**
  * Path pattern for file filter.
- * It’s identified by watchDir, which matches {@link org.apache.inlong.agent.plugin.trigger.PathPattern#whiteList} and filters {@link org.apache.inlong.agent.plugin.trigger.PathPattern#blackList}.
+ * It’s identified by watchDir, which matches {@link PathPattern#whiteList}.
  */
 public class PathPattern {
 
     private static final Logger LOGGER =
-            LoggerFactory.getLogger(org.apache.inlong.agent.plugin.trigger.PathPattern.class);
+            LoggerFactory.getLogger(PathPattern.class);
 
     private final String rootDir;
     private final Set<String> subDirs;
@@ -66,7 +66,7 @@ public class PathPattern {
         }
     }
 
-    public static Set<org.apache.inlong.agent.plugin.trigger.PathPattern> buildPathPattern(Set<String> whiteList,
+    public static Set<PathPattern> buildPathPattern(Set<String> whiteList,
             String offset) {
         Set<String> commonWatchDir = PathUtils.findCommonRootPath(whiteList);
         return commonWatchDir.stream().map(rootDir -> {
@@ -74,7 +74,7 @@ public class PathPattern {
                     whiteList.stream()
                             .filter(whiteRegex -> whiteRegex.startsWith(rootDir))
                             .collect(Collectors.toSet());
-            return new org.apache.inlong.agent.plugin.trigger.PathPattern(rootDir, commonWatchDirWhiteList, offset);
+            return new PathPattern(rootDir, commonWatchDirWhiteList, offset);
         }).collect(Collectors.toSet());
     }
 
@@ -87,7 +87,7 @@ public class PathPattern {
     }
 
     /**
-     * Research all children files with {@link org.apache.inlong.agent.plugin.trigger.PathPattern#rootDir} matched whiteList and filtered by blackList.
+     * Research all children files with {@link PathPattern#rootDir} matched whiteList and filtered by blackList.
      *
      * @param maxNum
      * @return
@@ -162,9 +162,8 @@ public class PathPattern {
 
     @Override
     public boolean equals(Object object) {
-        if (object instanceof org.apache.inlong.agent.plugin.trigger.PathPattern) {
-            org.apache.inlong.agent.plugin.trigger.PathPattern entity =
-                    (org.apache.inlong.agent.plugin.trigger.PathPattern) object;
+        if (object instanceof PathPattern) {
+            PathPattern entity = (PathPattern) object;
             return entity.rootDir.equals(this.rootDir);
         } else {
             return false;
