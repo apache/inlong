@@ -24,7 +24,6 @@ import org.apache.inlong.agent.plugin.sources.TextFileSource;
 import org.apache.inlong.agent.plugin.trigger.PathPattern;
 import org.apache.inlong.agent.utils.AgentUtils;
 
-import com.google.common.collect.Sets;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -80,7 +79,7 @@ public class TestDateFormatRegex {
         File file = Paths.get(helper.getTestRootDir().toString(), pathTime.concat(".log")).toFile();
         file.createNewFile();
         PathPattern entity = new PathPattern(helper.getTestRootDir().toString(),
-                Collections.singleton(helper.getTestRootDir().toString() + "/yyyyMMdd.log"), Sets.newHashSet(), "-1d");
+                Collections.singleton(helper.getTestRootDir().toString() + "/yyyyMMdd.log"), "-1d");
         boolean flag = entity.suitable(file.getPath());
         Assert.assertTrue(flag);
     }

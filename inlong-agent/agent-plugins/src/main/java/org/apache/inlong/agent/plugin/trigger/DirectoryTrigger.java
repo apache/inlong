@@ -27,7 +27,6 @@ import org.apache.inlong.agent.utils.ThreadUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +51,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_BLACKLIST;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
 
 /**
@@ -104,8 +102,8 @@ public class DirectoryTrigger implements Trigger {
     /**
      * register pathPattern into watchers, with offset
      */
-    public Set<String> register(Set<String> whiteList, String offset, Set<String> blackList) throws IOException {
-        this.pathPatterns = PathPattern.buildPathPattern(whiteList, offset, blackList);
+    public Set<String> register(Set<String> whiteList, String offset) throws IOException {
+        this.pathPatterns = PathPattern.buildPathPattern(whiteList, offset);
         LOGGER.info("Watch root path is {}", pathPatterns);
 
         resourceProviderThread.initTrigger(this);
@@ -121,12 +119,8 @@ public class DirectoryTrigger implements Trigger {
         if (this.profile.hasKey(JOB_DIR_FILTER_PATTERNS)) {
             Set<String> pathPatterns = Stream.of(
                     this.profile.get(JOB_DIR_FILTER_PATTERNS).split(",")).collect(Collectors.toSet());
-            Set<String> blackList = Stream.of(
-                    this.profile.get(JOB_DIR_FILTER_BLACKLIST, "").split(","))
-                    .filter(black -> !StringUtils.isBlank(black))
-                    .collect(Collectors.toSet());
             String timeOffset = this.profile.get(JobConstants.JOB_FILE_TIME_OFFSET, "");
-            register(pathPatterns, timeOffset, blackList);
+            register(pathPatterns, timeOffset);
         }
     }
 
