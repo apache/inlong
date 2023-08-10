@@ -21,7 +21,6 @@ import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.ConfigOption;
-import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.connector.base.DeliveryGuarantee;
@@ -52,6 +51,8 @@ import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.utils.LogicalTypeChecks;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
+import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.kafka.KafkaOptions;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -70,13 +71,10 @@ import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOp
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SINK_BUFFER_FLUSH_INTERVAL;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SINK_BUFFER_FLUSH_MAX_ROWS;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SINK_PARALLELISM;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SINK_PARTITIONER;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.TOPIC;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.TRANSACTIONAL_ID_PREFIX;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.VALUE_FIELDS_INCLUDE;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.VALUE_FORMAT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.kafka.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.PROPERTIES_PREFIX;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.autoCompleteSchemaRegistrySubject;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getKafkaProperties;
@@ -86,18 +84,6 @@ import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getSo
 public class UpsertKafkaDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
     public static final String IDENTIFIER = "upsert-kafka-inlong";
-
-    private static final ConfigOption<String> SINK_MULTIPLE_PARTITION_PATTERN =
-            ConfigOptions.key("sink.multiple.partition-pattern")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription(
-                            "option 'sink.multiple.partition-pattern' used either when the partitioner is raw-hash, or when passing in designated partition field names for custom field partitions");
-
-    private static final ConfigOption<String> SINK_FIXED_IDENTIFIER =
-            ConfigOptions.key("sink.fixed.identifier")
-                    .stringType()
-                    .defaultValue("-1");
 
     @Override
     public String factoryIdentifier() {
@@ -122,11 +108,11 @@ public class UpsertKafkaDynamicTableFactory implements DynamicTableSourceFactory
         options.add(SINK_PARALLELISM);
         options.add(SINK_BUFFER_FLUSH_INTERVAL);
         options.add(SINK_BUFFER_FLUSH_MAX_ROWS);
-        options.add(KAFKA_IGNORE_ALL_CHANGELOG);
-        options.add(INLONG_METRIC);
-        options.add(SINK_PARTITIONER);
-        options.add(SINK_MULTIPLE_PARTITION_PATTERN);
-        options.add(SINK_FIXED_IDENTIFIER);
+        options.add(KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG);
+        options.add(Constants.INLONG_METRIC);
+        options.add(KafkaOptions.SINK_MULTIPLE_PARTITION_PATTERN);
+        options.add(KafkaOptions.SINK_FIXED_IDENTIFIER);
+        options.add(KafkaConnectorOptions.SINK_PARTITIONER);
         return options;
     }
 

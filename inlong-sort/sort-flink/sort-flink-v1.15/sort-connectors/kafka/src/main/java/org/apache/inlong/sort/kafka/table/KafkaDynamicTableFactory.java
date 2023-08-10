@@ -17,9 +17,6 @@
 
 package org.apache.inlong.sort.kafka.table;
 
-import org.apache.inlong.sort.base.Constants;
-import org.apache.inlong.sort.kafka.KafkaOptions;
-
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
@@ -32,7 +29,6 @@ import org.apache.flink.connector.kafka.source.KafkaSourceOptions;
 import org.apache.flink.streaming.connectors.kafka.config.StartupMode;
 import org.apache.flink.streaming.connectors.kafka.internals.KafkaTopicPartition;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
-import org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions;
 import org.apache.flink.streaming.connectors.kafka.table.KafkaDynamicSink;
 import org.apache.flink.streaming.connectors.kafka.table.KafkaDynamicSource;
 import org.apache.flink.streaming.connectors.kafka.table.SinkBufferFlushMode;
@@ -52,11 +48,12 @@ import org.apache.flink.table.factories.FactoryUtil.TableFactoryHelper;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.kafka.KafkaOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
@@ -65,15 +62,27 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.DELIVERY_GUARANTEE;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.KEY_FIELDS;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.KEY_FIELDS_PREFIX;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.KEY_FORMAT;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.PROPS_BOOTSTRAP_SERVERS;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.PROPS_GROUP_ID;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SCAN_STARTUP_MODE;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SCAN_STARTUP_SPECIFIC_OFFSETS;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SCAN_STARTUP_TIMESTAMP_MILLIS;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SCAN_TOPIC_PARTITION_DISCOVERY;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SINK_PARALLELISM;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SINK_PARTITIONER;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.TOPIC;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.TOPIC_PATTERN;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.TRANSACTIONAL_ID_PREFIX;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.VALUE_FIELDS_INCLUDE;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.VALUE_FORMAT;
+import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.PROPERTIES_PREFIX;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.StartupOptions;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.autoCompleteSchemaRegistrySubject;
@@ -91,25 +100,14 @@ import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.valid
 public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaDynamicTableFactory.class);
-    public static final String IDENTIFIER = "kafka-inlong";
-
-    private static final ConfigOption<String> SINK_MULTIPLE_PARTITION_PATTERN =
-            ConfigOptions.key("sink.multiple.partition-pattern")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription(
-                            "option 'sink.multiple.partition-pattern' used either when the partitioner is raw-hash, or when passing in designated partition field names for custom field partitions");
-
-    private static final ConfigOption<String> SINK_FIXED_IDENTIFIER =
-            ConfigOptions.key("sink.fixed.identifier")
-                    .stringType()
-                    .defaultValue("-1");
 
     private static final ConfigOption<String> SINK_SEMANTIC =
             ConfigOptions.key("sink.semantic")
                     .stringType()
                     .noDefaultValue()
                     .withDescription("Optional semantic when committing.");
+
+    public static final String IDENTIFIER = "kafka-inlong";
 
     @Override
     public String factoryIdentifier() {
@@ -119,28 +117,31 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
     @Override
     public Set<ConfigOption<?>> requiredOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
-        options.add(KafkaConnectorOptions.PROPS_BOOTSTRAP_SERVERS);
+        options.add(PROPS_BOOTSTRAP_SERVERS);
         return options;
     }
 
     @Override
     public Set<ConfigOption<?>> optionalOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
-        options.add(FactoryUtil.FORMAT);
+        options.add(FORMAT);
         options.add(KEY_FORMAT);
-        options.add(KafkaConnectorOptions.KEY_FIELDS);
+        options.add(KEY_FIELDS);
         options.add(KEY_FIELDS_PREFIX);
         options.add(VALUE_FORMAT);
-        options.add(KafkaConnectorOptions.VALUE_FIELDS_INCLUDE);
-        options.add(KafkaConnectorOptions.TOPIC);
-        options.add(KafkaConnectorOptions.TOPIC_PATTERN);
-        options.add(KafkaConnectorOptions.PROPS_GROUP_ID);
-        options.add(KafkaConnectorOptions.SCAN_STARTUP_MODE);
-        options.add(KafkaConnectorOptions.SCAN_STARTUP_SPECIFIC_OFFSETS);
+        options.add(VALUE_FIELDS_INCLUDE);
+        options.add(TOPIC);
+        options.add(TOPIC_PATTERN);
+        options.add(PROPS_GROUP_ID);
+        options.add(SCAN_STARTUP_MODE);
+        options.add(SCAN_STARTUP_SPECIFIC_OFFSETS);
         options.add(SCAN_TOPIC_PARTITION_DISCOVERY);
-        options.add(KafkaConnectorOptions.SCAN_STARTUP_TIMESTAMP_MILLIS);
-        options.add(KafkaConnectorOptions.SINK_PARTITIONER);
-        options.add(FactoryUtil.SINK_PARALLELISM);
+        options.add(SCAN_STARTUP_TIMESTAMP_MILLIS);
+        options.add(SINK_PARTITIONER);
+        options.add(SINK_PARALLELISM);
+        options.add(DELIVERY_GUARANTEE);
+        options.add(TRANSACTIONAL_ID_PREFIX);
+        options.add(SINK_SEMANTIC);
         options.add(Constants.INLONG_METRIC);
         options.add(Constants.INLONG_AUDIT);
         options.add(Constants.AUDIT_KEYS);
@@ -150,10 +151,26 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         options.add(Constants.SINK_SCHEMA_CHANGE_ENABLE);
         options.add(Constants.SINK_SCHEMA_CHANGE_POLICIES);
         options.add(KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG);
-        options.add(SINK_MULTIPLE_PARTITION_PATTERN);
-        options.add(SINK_FIXED_IDENTIFIER);
-        options.add(SINK_SEMANTIC);
+        options.add(KafkaOptions.SINK_MULTIPLE_PARTITION_PATTERN);
+        options.add(KafkaOptions.SINK_FIXED_IDENTIFIER);
         return options;
+    }
+
+    @Override
+    public Set<ConfigOption<?>> forwardOptions() {
+        return Stream.of(
+                        PROPS_BOOTSTRAP_SERVERS,
+                        PROPS_GROUP_ID,
+                        TOPIC,
+                        TOPIC_PATTERN,
+                        SCAN_STARTUP_MODE,
+                        SCAN_STARTUP_SPECIFIC_OFFSETS,
+                        SCAN_TOPIC_PARTITION_DISCOVERY,
+                        SCAN_STARTUP_TIMESTAMP_MILLIS,
+                        SINK_PARTITIONER,
+                        SINK_PARALLELISM,
+                        TRANSACTIONAL_ID_PREFIX)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -305,7 +322,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
     private static DecodingFormat<DeserializationSchema<RowData>> getValueDecodingFormat(
             TableFactoryHelper helper) {
         return helper.discoverOptionalDecodingFormat(
-                DeserializationFormatFactory.class, FactoryUtil.FORMAT)
+                DeserializationFormatFactory.class, FORMAT)
                 .orElseGet(
                         () -> helper.discoverDecodingFormat(
                                 DeserializationFormatFactory.class, VALUE_FORMAT));
@@ -314,7 +331,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
     private static EncodingFormat<SerializationSchema<RowData>> getValueEncodingFormat(
             TableFactoryHelper helper) {
         return helper.discoverOptionalEncodingFormat(
-                SerializationFormatFactory.class, FactoryUtil.FORMAT)
+                SerializationFormatFactory.class, FORMAT)
                 .orElseGet(
                         () -> helper.discoverEncodingFormat(
                                 SerializationFormatFactory.class, VALUE_FORMAT));
@@ -330,7 +347,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
             Configuration configuration = Configuration.fromMap(options);
             String formatName =
                     configuration
-                            .getOptional(FactoryUtil.FORMAT)
+                            .getOptional(FORMAT)
                             .orElse(configuration.get(VALUE_FORMAT));
             throw new ValidationException(
                     String.format(
