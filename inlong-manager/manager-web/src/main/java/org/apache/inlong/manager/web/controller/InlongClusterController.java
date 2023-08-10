@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.validation.SaveValidation;
 import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
 import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
@@ -95,8 +94,7 @@ public class InlongClusterController {
     @ApiOperation(value = "List cluster tags")
     public Response<PageResult<ClusterTagResponse>> listTag(@RequestBody ClusterTagPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
-        request.setIsAdminRole(
-                LoginUserUtils.getLoginUser().getRoles().contains(TenantUserTypeEnum.TENANT_ADMIN.name()));
+        request.setIsAdminRole(LoginUserUtils.isInlongAdminOrTenantAdmin());
         return Response.success(clusterService.listTag(request));
     }
 
@@ -179,7 +177,7 @@ public class InlongClusterController {
     public Response<PageResult<ClusterInfo>> list(@RequestBody ClusterPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(
-                LoginUserUtils.getLoginUser().getRoles().contains(TenantUserTypeEnum.TENANT_ADMIN.name()));
+                LoginUserUtils.isInlongAdminOrTenantAdmin());
         return Response.success(clusterService.list(request));
     }
 

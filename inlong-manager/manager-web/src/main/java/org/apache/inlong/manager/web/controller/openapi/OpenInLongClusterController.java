@@ -19,6 +19,7 @@ package org.apache.inlong.manager.web.controller.openapi;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.common.validation.SaveValidation;
 import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
@@ -32,8 +33,13 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
+import org.apache.inlong.manager.pojo.cluster.TenantClusterTagInfo;
+import org.apache.inlong.manager.pojo.cluster.TenantClusterTagPageRequest;
+import org.apache.inlong.manager.pojo.cluster.TenantClusterTagRequest;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
+import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 
@@ -41,6 +47,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -80,6 +87,8 @@ public class OpenInLongClusterController {
     public Response<List<ClusterTagResponse>> listTag(@RequestBody ClusterTagPageRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        request.setIsAdminRole(
+                LoginUserUtils.getLoginUser().getRoles().contains(TenantUserTypeEnum.TENANT_ADMIN.name()));
         return Response.success(clusterService.listTag(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -125,6 +134,8 @@ public class OpenInLongClusterController {
     public Response<List<ClusterInfo>> list(@RequestBody ClusterPageRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        request.setIsAdminRole(
+                LoginUserUtils.getLoginUser().getRoles().contains(TenantUserTypeEnum.TENANT_ADMIN.name()));
         return Response.success(clusterService.list(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -227,4 +238,42 @@ public class OpenInLongClusterController {
         return Response.success(clusterService.deleteNode(id, LoginUserUtils.getLoginUser()));
     }
 
+    @PostMapping(value = "/cluster/tenant/tag/save")
+    @ApiOperation(value = "Save tenant cluster tag")
+    @OperationLog(operation = OperationType.CREATE)
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
+    public Response<Integer> saveTenantTag(
+            @Validated(SaveValidation.class) @RequestBody TenantClusterTagRequest request) {
+        String currentUser = LoginUserUtils.getLoginUser().getName();
+        return Response.success(clusterService.saveTenantTag(request, currentUser));
+    }
+
+    @PostMapping(value = "/cluster/tenant/tag/list")
+    @ApiOperation(value = "List tenant cluster tags")
+    public Response<PageResult<TenantClusterTagInfo>> listTenantTag(@RequestBody TenantClusterTagPageRequest request) {
+        return Response.success(clusterService.listTenantTag(request));
+    }
+
+    @PostMapping(value = "/cluster/tag/listTagByTenantRole")
+    @ApiOperation(value = "List cluster tags by tenant condition")
+    public Response<PageResult<ClusterTagResponse>> listTagByTenantRole(
+            @RequestBody TenantClusterTagPageRequest request) {
+        return Response.success(clusterService.listTagByTenantRole(request));
+    }
+
+    @PostMapping(value = "/cluster/listByTenantRole")
+    @ApiOperation(value = "List cluster by tenant condition")
+    public Response<PageResult<ClusterInfo>> listByTenantRole(
+            @RequestBody ClusterPageRequest request) {
+        return Response.success(clusterService.listByTenantRole(request));
+    }
+
+    @DeleteMapping(value = "/cluster/tenant/tag/delete/{id}")
+    @ApiOperation(value = "Delete tenant cluster tag by id")
+    @OperationLog(operation = OperationType.DELETE)
+    @ApiImplicitParam(name = "id", value = "Cluster tag ID", dataTypeClass = Integer.class, required = true)
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
+    public Response<Boolean> deleteTenantTag(@PathVariable Integer id) {
+        return Response.success(clusterService.deleteTenantTag(id, LoginUserUtils.getLoginUser().getName()));
+    }
 }
