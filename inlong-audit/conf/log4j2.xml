@@ -23,7 +23,7 @@
         <property name="log_pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p ${PID:-} [%15.15t] %-30.30C{1.}:%L %m%n</property>
         <property name="every_file_date">1</property>
         <property name="every_file_size">1G</property>
-        <property name="output_log_level">DEBUG</property>
+        <property name="output_log_level">INFO</property>
         <property name="rolling_max">50</property>
         <property name="info_fileName">${basePath}/info.log</property>
         <property name="info_filePattern">${basePath}/info-%d{yyyy-MM-dd}-%i.log.gz</property>
@@ -37,14 +37,14 @@
         <property name="error_fileName">${basePath}/error.log</property>
         <property name="error_filePattern">${basePath}/error-%d{yyyy-MM-dd}-%i.log.gz</property>
         <property name="error_max">10</property>
-        <property name="console_print_level">DEBUG</property>
+        <property name="console_print_level">INFO</property>
         <property name="index_max">10</property>
         <property name="index_fileName">${basePath}/index.log</property>
         <property name="index_filePattern">${basePath}/index-%d{yyyy-MM-dd}-%i.log.gz</property>
         <property name="monitors_max">10</property>
         <property name="monitors_fileName">${basePath}/monitors.log</property>
         <property name="monitors_filePattern">${basePath}/monitors-%d{yyyy-MM-dd}-%i.log.gz</property>
-        <property name="last_modify_time">15d</property>
+        <property name="last_modify_time">7d</property>
     </Properties>
 
     <appenders>
