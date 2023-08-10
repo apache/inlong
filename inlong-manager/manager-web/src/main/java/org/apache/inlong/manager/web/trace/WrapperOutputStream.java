@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.trace;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.CoyoteOutputStream;
 
 import javax.servlet.ServletOutputStream;
@@ -25,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.io.OutputStream;
-
+@Slf4j
 public class WrapperOutputStream extends ServletOutputStream {
 
     private OutputStream innerOut;
@@ -45,7 +46,7 @@ public class WrapperOutputStream extends ServletOutputStream {
         try {
             return response.getOutputStream().isReady();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("got exception when check if  the output stream is ready", e);
         }
         return false;
     }
@@ -56,7 +57,7 @@ public class WrapperOutputStream extends ServletOutputStream {
             try {
                 ((CoyoteOutputStream) response.getOutputStream()).setWriteListener(listener);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("got exception when set write listener", e);
             }
         }
     }

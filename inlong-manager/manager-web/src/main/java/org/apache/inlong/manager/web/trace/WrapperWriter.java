@@ -35,10 +35,10 @@ public class WrapperWriter extends PrintWriter {
     }
 
     @Override
-    public void write(int b) {
-        super.write(b);
+    public void write(int c) {
+        super.write(c);
         try {
-            response.getWriter().write(b);
+            response.getWriter().write(c);
         } catch (IOException e) {
             e.printStackTrace();
             this.setError();
