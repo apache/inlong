@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.kafka.table;
 
+import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.kafka.KafkaOptions;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
@@ -48,12 +51,11 @@ import org.apache.flink.table.factories.FactoryUtil.TableFactoryHelper;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.base.Constants;
-import org.apache.inlong.sort.kafka.KafkaOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
@@ -159,17 +161,17 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
     @Override
     public Set<ConfigOption<?>> forwardOptions() {
         return Stream.of(
-                        PROPS_BOOTSTRAP_SERVERS,
-                        PROPS_GROUP_ID,
-                        TOPIC,
-                        TOPIC_PATTERN,
-                        SCAN_STARTUP_MODE,
-                        SCAN_STARTUP_SPECIFIC_OFFSETS,
-                        SCAN_TOPIC_PARTITION_DISCOVERY,
-                        SCAN_STARTUP_TIMESTAMP_MILLIS,
-                        SINK_PARTITIONER,
-                        SINK_PARALLELISM,
-                        TRANSACTIONAL_ID_PREFIX)
+                PROPS_BOOTSTRAP_SERVERS,
+                PROPS_GROUP_ID,
+                TOPIC,
+                TOPIC_PATTERN,
+                SCAN_STARTUP_MODE,
+                SCAN_STARTUP_SPECIFIC_OFFSETS,
+                SCAN_TOPIC_PARTITION_DISCOVERY,
+                SCAN_STARTUP_TIMESTAMP_MILLIS,
+                SINK_PARTITIONER,
+                SINK_PARALLELISM,
+                TRANSACTIONAL_ID_PREFIX)
                 .collect(Collectors.toSet());
     }
 
