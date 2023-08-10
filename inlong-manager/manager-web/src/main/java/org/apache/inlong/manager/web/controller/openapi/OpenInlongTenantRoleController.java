@@ -70,6 +70,7 @@ public class OpenInlongTenantRoleController {
     @RequestMapping(value = "/role/tenant/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Update tenant role")
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<Boolean> update(@Validated @RequestBody TenantRoleRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(tenantRoleService.update(request, operator));
