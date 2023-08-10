@@ -39,9 +39,9 @@ public class LoginUserUtils {
         return LOGIN_USER_DETAIL_TL.get();
     }
 
-    public static boolean isAdminAndTenantAdmin() {
+    public static boolean isInlongAdminOrTenantAdmin() {
         Set<String> roles = LOGIN_USER_DETAIL_TL.get().getRoles();
-        return roles.contains(TenantUserTypeEnum.TENANT_ADMIN.name()) && roles.contains(
+        return roles.contains(TenantUserTypeEnum.TENANT_ADMIN.name()) || roles.contains(
                 InlongUserTypeEnum.INLONG_ADMIN.name());
     }
 

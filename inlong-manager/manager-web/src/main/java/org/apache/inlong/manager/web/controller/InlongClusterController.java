@@ -94,7 +94,7 @@ public class InlongClusterController {
     @ApiOperation(value = "List cluster tags")
     public Response<PageResult<ClusterTagResponse>> listTag(@RequestBody ClusterTagPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
-        request.setIsAdminRole(LoginUserUtils.isAdminAndTenantAdmin());
+        request.setIsAdminRole(LoginUserUtils.isInlongAdminOrTenantAdmin());
         return Response.success(clusterService.listTag(request));
     }
 
@@ -177,7 +177,7 @@ public class InlongClusterController {
     public Response<PageResult<ClusterInfo>> list(@RequestBody ClusterPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(
-                LoginUserUtils.isAdminAndTenantAdmin());
+                LoginUserUtils.isInlongAdminOrTenantAdmin());
         return Response.success(clusterService.list(request));
     }
 
