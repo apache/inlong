@@ -88,7 +88,8 @@ public class WebParameterUtils {
         sBuffer.append("],\"count\":").append(totalCnt).append("}");
     }
 
-    public static StringBuilder buildSuccessOrFailRet(StringBuilder sBuffer, int totalCnt, StringBuilder actionMiddleProxy, boolean isSucceed, int errCode, String errInfo) {
+    public static StringBuilder buildSuccessOrFailRet(StringBuilder sBuffer, int totalCnt,
+            StringBuilder actionMiddleProxy, boolean isSucceed, int errCode, String errInfo) {
         if (isSucceed) {
             WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
             sBuffer.append(actionMiddleProxy);

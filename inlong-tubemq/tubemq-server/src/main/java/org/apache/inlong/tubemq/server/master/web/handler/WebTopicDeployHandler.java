@@ -1179,7 +1179,8 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 errCode = entry.getErrCode();
             }
         }
-        return WebParameterUtils.buildSuccessOrFailRet(sBuffer, totalCnt, actionMiddleProxy, isSucceed, errCode, errInfo);
+        return WebParameterUtils.buildSuccessOrFailRet(sBuffer, totalCnt, actionMiddleProxy, isSucceed, errCode,
+                errInfo);
     }
 
     /**

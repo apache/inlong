@@ -1064,7 +1064,8 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 errCode = entry.getErrCode();
             }
         }
-        return WebParameterUtils.buildSuccessOrFailRet(sBuffer, totalCnt, actionMiddleProxy, isSucceed, errCode, errInfo);
+        return WebParameterUtils.buildSuccessOrFailRet(sBuffer, totalCnt, actionMiddleProxy, isSucceed, errCode,
+                errInfo);
     }
 
     private <T> boolean getBrokerIpAndIdParamValue(T paramCntr,
