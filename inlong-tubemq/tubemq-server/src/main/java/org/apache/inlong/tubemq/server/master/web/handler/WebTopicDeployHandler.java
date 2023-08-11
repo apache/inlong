@@ -1160,19 +1160,26 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     private StringBuilder buildRetInfo(List<TopicProcessResult> retInfo,
             StringBuilder sBuffer) {
         int totalCnt = 0;
-        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        StringBuilder actionMiddleProxy = new StringBuilder();
+        boolean isSucceed = true;
+        int errCode = 0;
+        String errInfo = "";
         for (TopicProcessResult entry : retInfo) {
             if (totalCnt++ > 0) {
-                sBuffer.append(",");
+                actionMiddleProxy.append(",");
             }
-            sBuffer.append("{\"brokerId\":").append(entry.getBrokerId())
+            actionMiddleProxy.append("{\"brokerId\":").append(entry.getBrokerId())
                     .append(",\"topicName\":\"").append(entry.getTopicName()).append("\"")
                     .append(",\"success\":").append(entry.isSuccess())
                     .append(",\"errCode\":").append(entry.getErrCode())
                     .append(",\"errInfo\":\"").append(entry.getErrMsg()).append("\"}");
+            if (isSucceed && !entry.isSuccess()) {
+                isSucceed = false;
+                errInfo = entry.getErrMsg();
+                errCode = entry.getErrCode();
+            }
         }
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
-        return sBuffer;
+        return WebParameterUtils.buildSuccessOrFailRet(sBuffer, totalCnt, actionMiddleProxy, isSucceed, errCode, errInfo);
     }
 
     /**

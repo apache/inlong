@@ -1046,7 +1046,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             StringBuilder sBuffer) {
         int totalCnt = 0;
         StringBuilder actionMiddleProxy = new StringBuilder();
-        boolean isSussess = true;
+        boolean isSucceed = true;
         int errCode = 0;
         String errInfo = "";
         for (BrokerProcessResult entry : retInfo) {
@@ -1058,22 +1058,13 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                     .append("\",\"success\":").append(entry.isSuccess())
                     .append(",\"errCode\":").append(entry.getErrCode())
                     .append(",\"errInfo\":\"").append(entry.getErrMsg()).append("\"}");
-            if (isSussess && !entry.isSuccess()){
-                isSussess = false;
+            if (isSucceed && !entry.isSuccess()) {
+                isSucceed = false;
                 errInfo = entry.getErrMsg();
                 errCode = entry.getErrCode();
             }
         }
-        if (isSussess) {
-            WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
-            sBuffer.append(actionMiddleProxy);
-            WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
-        }else{
-            WebParameterUtils.buildFailWithDataRetBegin(sBuffer, errCode, errInfo);
-            sBuffer.append(actionMiddleProxy);
-            WebParameterUtils.buildFailWithDataRetEnd(sBuffer,totalCnt);
-        }
-        return sBuffer;
+        return WebParameterUtils.buildSuccessOrFailRet(sBuffer, totalCnt, actionMiddleProxy, isSucceed, errCode, errInfo);
     }
 
     private <T> boolean getBrokerIpAndIdParamValue(T paramCntr,

@@ -440,19 +440,26 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
     private StringBuilder buildRetInfo(List<GroupProcessResult> retInfo,
             StringBuilder sBuffer) {
         int totalCnt = 0;
-        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
-        for (GroupProcessResult result : retInfo) {
+        StringBuilder actionMiddleProxy = new StringBuilder();
+        boolean isSucceed = true;
+        int errCode = 0;
+        String errInfo = "";
+        for (GroupProcessResult entry : retInfo) {
             if (totalCnt++ > 0) {
-                sBuffer.append(",");
+                actionMiddleProxy.append(",");
             }
-            sBuffer.append("{\"groupName\":\"").append(result.getGroupName()).append("\"")
-                    .append(",\"topicName\":\"").append(result.getTopicName()).append("\"")
-                    .append(",\"success\":").append(result.isSuccess())
-                    .append(",\"errCode\":").append(result.getErrCode())
-                    .append(",\"errInfo\":\"").append(result.getErrMsg()).append("\"}");
+            actionMiddleProxy.append("{\"groupName\":\"").append(entry.getGroupName()).append("\"")
+                    .append(",\"topicName\":\"").append(entry.getTopicName()).append("\"")
+                    .append(",\"success\":").append(entry.isSuccess())
+                    .append(",\"errCode\":").append(entry.getErrCode())
+                    .append(",\"errInfo\":\"").append(entry.getErrMsg()).append("\"}");
+            if (isSucceed && !entry.isSuccess()) {
+                isSucceed = false;
+                errInfo = entry.getErrMsg();
+                errCode = entry.getErrCode();
+            }
         }
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
-        return sBuffer;
+        return WebParameterUtils.buildSuccessOrFailRet(sBuffer, totalCnt, actionMiddleProxy, isSucceed, errCode, errInfo);
     }
 
     private boolean getGroupConsumeJsonSetInfo(HttpServletRequest req, boolean isAddOp,

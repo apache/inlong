@@ -88,7 +88,20 @@ public class WebParameterUtils {
         sBuffer.append("],\"count\":").append(totalCnt).append("}");
     }
 
-    public static void buildFailWithDataRetBegin(StringBuilder sBuffer,int errCode, String errMsg){
+    public static StringBuilder buildSuccessOrFailRet(StringBuilder sBuffer, int totalCnt, StringBuilder actionMiddleProxy, boolean isSucceed, int errCode, String errInfo) {
+        if (isSucceed) {
+            WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+            sBuffer.append(actionMiddleProxy);
+            WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        } else {
+            WebParameterUtils.buildFailWithDataRetBegin(sBuffer, errCode, errInfo);
+            sBuffer.append(actionMiddleProxy);
+            WebParameterUtils.buildFailWithDataRetEnd(sBuffer, totalCnt);
+        }
+        return sBuffer;
+    }
+
+    public static void buildFailWithDataRetBegin(StringBuilder sBuffer, int errCode, String errMsg) {
         sBuffer.append("{\"result\":true,\"errCode\":")
                 .append(errCode)
                 .append(",\"errMsg\":\"Happens one err at least:")
@@ -96,7 +109,7 @@ public class WebParameterUtils {
                 .append("\",\"data\":[");
     }
 
-    public static void buildFailWithDataRetEnd(StringBuilder sBuffer, int totalCnt){
+    public static void buildFailWithDataRetEnd(StringBuilder sBuffer, int totalCnt) {
         sBuffer.append("],\"count\":")
                 .append(totalCnt)
                 .append("}");
