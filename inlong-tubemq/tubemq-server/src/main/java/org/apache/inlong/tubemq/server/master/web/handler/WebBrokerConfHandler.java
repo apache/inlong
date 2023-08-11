@@ -1045,18 +1045,34 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     private StringBuilder buildRetInfo(List<BrokerProcessResult> retInfo,
             StringBuilder sBuffer) {
         int totalCnt = 0;
-        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        StringBuilder actionMiddleProxy = new StringBuilder();
+        boolean isSussess = true;
+        int errCode = 0;
+        String errInfo = "";
         for (BrokerProcessResult entry : retInfo) {
             if (totalCnt++ > 0) {
-                sBuffer.append(",");
+                actionMiddleProxy.append(",");
             }
-            sBuffer.append("{\"brokerId\":").append(entry.getBrokerId())
+            actionMiddleProxy.append("{\"brokerId\":").append(entry.getBrokerId())
                     .append(",\"brokerIp\":\"").append(entry.getBrokerIp())
                     .append("\",\"success\":").append(entry.isSuccess())
                     .append(",\"errCode\":").append(entry.getErrCode())
                     .append(",\"errInfo\":\"").append(entry.getErrMsg()).append("\"}");
+            if (isSussess && !entry.isSuccess()){
+                isSussess = false;
+                errInfo = entry.getErrMsg();
+                errCode = entry.getErrCode();
+            }
         }
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        if (isSussess) {
+            WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+            sBuffer.append(actionMiddleProxy);
+            WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        }else{
+            WebParameterUtils.buildFailWithDataRetBegin(sBuffer, errCode, errInfo);
+            sBuffer.append(actionMiddleProxy);
+            WebParameterUtils.buildFailWithDataRetEnd(sBuffer,totalCnt);
+        }
         return sBuffer;
     }
 

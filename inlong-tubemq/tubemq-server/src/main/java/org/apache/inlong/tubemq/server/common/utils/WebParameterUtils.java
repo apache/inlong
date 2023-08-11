@@ -88,6 +88,20 @@ public class WebParameterUtils {
         return sBuffer.append("],\"count\":").append(totalCnt).append("}");
     }
 
+    public static void buildFailWithDataRetBegin(StringBuilder sBuffer,int errCode, String errMsg){
+        sBuffer.append("{\"result\":true,\"errCode\":")
+                .append(errCode)
+                .append(",\"errMsg\":\"Happens one err at least:")
+                .append(errMsg)
+                .append("\",\"data\":[");
+    }
+
+    public static void buildFailWithDataRetEnd(StringBuilder sBuffer, int totalCnt){
+        sBuffer.append("],\"count\":")
+                .append(totalCnt)
+                .append("}");
+    }
+
     /**
      * Parse the parameter value required for add update and delete
      *
