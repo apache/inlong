@@ -9,7 +9,7 @@ InLong Sort relies on Apache Flink 1.13.5. Chose `flink-1.13.5-bin-scala_2.11.tg
 
 caution:
 Please put required Connectors jars into under `FLINK_HOME/lib/` after download.  
-Put [mysql-connector-java:8.0.21.jar](https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.21/mysql-connector-java-8.0.21.jar) to `FLINK_HOME/lib/` when you use `mysql-cdc-inlong` connector.
+Put [mysql-connector-java:8.0.28.jar](https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.28/mysql-connector-java-8.0.28.jar) to `FLINK_HOME/lib/` when you use `mysql-cdc-inlong` connector.
 
 ## Start an InLong Sort Job
 ```shell

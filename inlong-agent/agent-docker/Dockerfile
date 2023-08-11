@@ -26,7 +26,7 @@ ARG AGENT_TARBALL
 ADD ${AGENT_TARBALL} /opt/inlong-agent
 RUN cp /usr/share/java/snappy-java.jar lib/snappy-java-*.jar
 # add mysql connector
-RUN wget -P lib/ https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.27/mysql-connector-java-8.0.27.jar
+RUN wget -P lib/ https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.28/mysql-connector-java-8.0.28.jar
 EXPOSE 8008
 ENV MANAGER_OPENAPI_IP=127.0.0.1
 ENV MANAGER_OPENAPI_PORT=8082
