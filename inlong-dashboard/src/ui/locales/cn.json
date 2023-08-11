@@ -781,7 +781,7 @@
   "pages.Nodes.TestConnection": "测试连接",
   "pages.SynchronizeDetail.Info": "基本信息",
   "pages.SynchronizeDetail.SourceAndSink": "配置数据流",
-  "pages.SynchronizeDetail.Audit": "审计对账",
+  "pages.SynchronizeDetail.Audit": "审计",
   "pages.SynchronizeDashboard.Create": "新建数据同步",
   "pages.SynchronizeDashboard.config.ExecuteLog": "日志",
   "pages.SynchronizeDashboard.config.Restart": "重启",
