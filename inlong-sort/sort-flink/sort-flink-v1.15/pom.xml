@@ -143,11 +143,6 @@
                 <artifactId>mssql-jdbc</artifactId>
                 <version>${sqlserver.jdbc.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.iceberg</groupId>
-                <artifactId>iceberg-flink-runtime-1.14</artifactId>
-                <version>${iceberg.version}</version>
-            </dependency>
 
             <!-- flink -->
             <dependency>

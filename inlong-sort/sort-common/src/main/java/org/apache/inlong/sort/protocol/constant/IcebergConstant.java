@@ -22,6 +22,17 @@ package org.apache.inlong.sort.protocol.constant;
  */
 public class IcebergConstant {
 
+    public static final String CONNECTOR_KEY = "connector";
+    public static final String CONNECTOR = "iceberg-inlong";
+    public static final String DATABASE_KEY = "catalog-database";
+    public static final String DEFAULT_DATABASE_KEY = "default-database";
+    public static final String TABLE_KEY = "catalog-table";
+    public static final String CATALOG_TYPE_KEY = "catalog-type";
+    public static final String CATALOG_NAME_KEY = "catalog-name";
+    public static final String URI_KEY = "uri";
+    public static final String WAREHOUSE_KEY = "warehouse";
+    public static final String START_SNAPSHOT_ID = "start-snapshot-id";
+
     /**
      * Iceberg supported catalog type
      */
