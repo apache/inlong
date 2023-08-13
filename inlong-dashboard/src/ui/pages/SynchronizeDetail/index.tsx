@@ -26,6 +26,7 @@ import { useTranslation } from 'react-i18next';
 import request from '@/core/utils/request';
 import Info from './Info';
 import DataStream from './SyncT';
+import SyncAudit from './SyncAudit';
 import i18n from '@/i18n';
 
 const Comp: React.FC = () => {
@@ -60,19 +61,26 @@ const Comp: React.FC = () => {
   const isReadonly = useMemo(() => [0, 101, 102].includes(data?.status), [data]);
 
   const list = useMemo(
-    () => [
-      {
-        label: t('pages.SynchronizeDetail.Info'),
-        value: 'syncInfo',
-        content: Info,
-      },
-      {
-        label: t('pages.SynchronizeDetail.SourceAndSink'),
-        value: 'syncSource',
-        content: DataStream,
-      },
-    ],
-    [],
+    () =>
+      [
+        {
+          label: t('pages.SynchronizeDetail.Info'),
+          value: 'syncInfo',
+          content: Info,
+        },
+        {
+          label: t('pages.SynchronizeDetail.SourceAndSink'),
+          value: 'syncSource',
+          content: DataStream,
+        },
+        {
+          label: t('pages.SynchronizeDetail.Audit'),
+          value: 'syncAudit',
+          content: SyncAudit,
+          hidden: isReadonly || isCreate,
+        },
+      ].filter(item => !item.hidden),
+    [t, isReadonly, isCreate],
   );
 
   const onOk = async current => {
