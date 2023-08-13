@@ -45,8 +45,8 @@ import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getFetch
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getHistoryRecord;
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getMessageTimestamp;
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.isDataChangeRecord;
-import static org.apache.inlong.sort.cdc.base.util.RecordUtils.isSchemaChangeEvent;
 import static org.apache.inlong.sort.cdc.base.util.RecordUtils.isHeartbeatEvent;
+import static org.apache.inlong.sort.cdc.base.util.RecordUtils.isSchemaChangeEvent;
 
 /**
  * The {@link RecordEmitter} implementation for {@link IncrementalSourceReader}.

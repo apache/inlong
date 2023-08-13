@@ -21,10 +21,10 @@ import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
 import org.apache.inlong.sort.cdc.base.source.assigner.splitter.ChunkRange;
 import org.apache.inlong.sort.cdc.base.source.assigner.splitter.JdbcSourceChunkSplitter;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
-import org.apache.inlong.sort.cdc.base.util.ObjectUtils;
 import org.apache.inlong.sort.cdc.postgres.source.utils.PgQueryUtils;
 import org.apache.inlong.sort.cdc.postgres.source.utils.PgTypeUtils;
 
+import com.ververica.cdc.connectors.base.utils.ObjectUtils;
 import io.debezium.jdbc.JdbcConnection;
 import io.debezium.relational.Column;
 import io.debezium.relational.Table;
@@ -51,8 +51,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.ververica.cdc.connectors.base.utils.ObjectUtils.doubleCompare;
 import static java.math.BigDecimal.ROUND_CEILING;
-import static org.apache.inlong.sort.cdc.base.util.ObjectUtils.doubleCompare;
 
 /**
  * The splitter to split the table into chunks using primary-key (by default) or a given split key.

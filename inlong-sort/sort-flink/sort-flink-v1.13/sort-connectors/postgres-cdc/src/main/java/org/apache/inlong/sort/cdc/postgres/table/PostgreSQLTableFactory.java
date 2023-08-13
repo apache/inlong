@@ -32,6 +32,7 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.ververica.cdc.connectors.base.utils.ObjectUtils.doubleCompare;
 import static com.ververica.cdc.debezium.table.DebeziumOptions.DEBEZIUM_OPTIONS_PREFIX;
 import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
 import static com.ververica.cdc.debezium.utils.ResolvedSchemaUtils.getPhysicalSchema;
@@ -41,7 +42,6 @@ import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.base.Constants.SOURCE_MULTIPLE_ENABLE;
-import static org.apache.inlong.sort.cdc.base.util.ObjectUtils.doubleCompare;
 import static org.apache.inlong.sort.cdc.postgres.source.options.PostgresSourceOptions.CHANGELOG_MODE;
 import static org.apache.inlong.sort.cdc.postgres.source.options.PostgresSourceOptions.CHUNK_META_GROUP_SIZE;
 import static org.apache.inlong.sort.cdc.postgres.source.options.PostgresSourceOptions.CONNECTION_POOL_SIZE;

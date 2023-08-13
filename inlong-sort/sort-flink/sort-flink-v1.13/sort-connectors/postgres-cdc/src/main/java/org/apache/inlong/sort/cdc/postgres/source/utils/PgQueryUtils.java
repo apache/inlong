@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.sort.cdc.base.util.SourceRecordUtils.rowToArray;
+import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.rowToArray;
 
 /** Query-related Utilities for Postgres CDC source. */
 public class PgQueryUtils {

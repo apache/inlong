@@ -49,7 +49,7 @@ import static com.ververica.cdc.connectors.base.source.meta.wartermark.Watermark
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getHistoryRecord;
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.isDataChangeRecord;
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.isSchemaChangeEvent;
-import static org.apache.inlong.sort.cdc.base.util.SourceRecordUtils.isHeartbeatEvent;
+import static org.apache.inlong.sort.cdc.base.util.RecordUtils.isHeartbeatEvent;
 
 /**
  * The {@link RecordEmitter} implementation for {@link IncrementalSourceReader}.
