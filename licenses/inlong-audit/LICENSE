@@ -410,7 +410,7 @@ The text of each license is the standard Apache 2.0 license.
   io.netty:netty-buffer:4.1.72.Final - Netty/Buffer (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
   io.netty:netty-codec:4.1.72.Final - Netty/Codec (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
   io.netty:netty-common:4.1.72.Final - Netty/Common (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
-  io.netty:netty-handler:4.1.72.Final - Netty/Handler (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-handler:4.1.94.Final - Netty/Handler (https://github.com/netty/netty/tree/netty-4.1.94.Final), (Apache License, Version 2.0)
   io.netty:netty-resolver:4.1.72.Final - Netty/Resolver (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
   io.netty:netty-transport:4.1.72.Final - Netty/Transport (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
   io.netty:netty-transport-classes-epoll:4.1.72.Final - Netty/Transport/Classes/Epoll (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
