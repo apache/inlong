@@ -108,7 +108,7 @@ Dialog.prototype.showTips = function (msg) {
         '        <h3 class="tit">系统提示</h3>' +
         '    </div>' +
         '    <div class="dlg-cnt">' +
-        '        <div class="inner">' + msg + '</div>' +
+        '        <div class="inner" style="max-height: 150px; overflow-y: auto;">' + msg + '</div>' +
         '    </div>' +
         '    <div class="dlg-btns">' +
         '        <a class="btn btn-primary s js_close" href="javascript:;">确认</a>' +
@@ -227,13 +227,24 @@ Dialog.prototype.confirmBrokerInfo = function (type, brokerIds, callback) {
             $.getJSON(G_CONFIG.HOST + '?type=op_modify&method=' + types[type].api
                 + '&modifyUser=webapi&confModAuthToken=' + passwd + '&callback=?&brokerId='
                 + brokerIds.join(',')).done(function (data) {
-                if (data.errCode === 0) {
+                let ok = true;
+                let msg = ""
+                let cnt = 1
+                for (let i = 0; i < response.data.length; i++) {
+                    if (data.data[i].errCode !== 0) {
+                        ok = false
+                        msg = cnt.toString() + ". BrokerId:" + data.data[i].brokerId + "出现错误：" + data.data[i].errInfo + "<br>"
+                        cnt++
+                    }
+                }
+                if (ok) {
                     self.showTips('操作成功');
                     callback.ok && callback.ok();
                     self.successHook && self.successHook();
                     self.successHook && self.successHook();
                 } else {
-                    self.showTips(data.errMsg);
+                    msg = "操作出现了以下错误：<br>" + msg
+                    self.showTips(msg);
                 }
             });
         });
@@ -403,12 +414,24 @@ Dialog.prototype.addBrokerInfo = function (type, brokerId, callback) {
             var passwd = $('#passwd').val();
             $.getJSON(G_CONFIG.HOST + '?type=op_modify&method=' + types[type].api + '&' + formData
                 + '&confModAuthToken=' + passwd + '&callback=?').done(function (data) {
-                if (data.errCode === 0) {
+                let ok = true;
+                let msg = ""
+                let cnt = 1
+                for (let i = 0; i < response.data.length; i++) {
+                    if (data.data[i].errCode !== 0) {
+                        ok = false
+                        msg = cnt.toString() + ". BrokerId:" + data.data[i].brokerId + "出现错误：" + data.data[i].errInfo + "<br>"
+                        cnt++
+                    }
+                }
+                if (ok) {
                     self.showTips('操作成功');
                     callback.ok && callback.ok();
                     self.successHook && self.successHook();
+                    self.successHook && self.successHook();
                 } else {
-                    self.showTips(data.errMsg);
+                    msg = "操作出现了以下错误：<br>" + msg
+                    self.showTips(msg);
                 }
             });
         });
@@ -562,12 +585,24 @@ Dialog.prototype.confirmTopicInfo = function (type, topicName, selectedBrokerid,
                 + '&modifyUser=webapi&confModAuthToken=' + passwd + '&callback=?&topicName='
                 + topicName + '&brokerId=' + selectedBrokerid.join(','))
                 .done(function (data) {
-                    if (data.errCode === 0) {
+                    let ok = true;
+                    let msg = ""
+                    let cnt = 1
+                    for (let i = 0; i < response.data.length; i++) {
+                        if (data.data[i].errCode !== 0) {
+                            ok = false
+                            msg = cnt.toString() + ". BrokerId:" + data.data[i].brokerId + "出现错误：" + data.data[i].errInfo + "<br>"
+                            cnt++
+                        }
+                    }
+                    if (ok) {
                         self.showTips('操作成功');
                         callback.ok && callback.ok();
                         self.successHook && self.successHook();
+                        self.successHook && self.successHook();
                     } else {
-                        self.showTips(data.errMsg);
+                        msg = "操作出现了以下错误：<br>" + msg
+                        self.showTips(msg);
                     }
                 });
         });
@@ -871,11 +906,24 @@ Dialog.prototype.confirmBroker2Topic = function (type, topicName, formData) {
             $.getJSON(G_CONFIG.HOST + '?type=op_modify&method=' + types[type].api + '&' + formData
                 + '&brokerId=' + selectedBrokerid.join(',') + '&confModAuthToken=' + passwd
                 + '&callback=?').done(function (data) {
-                if (data.errCode === 0) {
+                let ok = true;
+                let msg = ""
+                let cnt = 1
+                for (let i = 0; i < response.data.length; i++) {
+                    if (data.data[i].errCode !== 0) {
+                        ok = false
+                        msg = cnt.toString() + ". BrokerId:" + data.data[i].brokerId + "出现错误：" + data.data[i].errInfo + "<br>"
+                        cnt++
+                    }
+                }
+                if (ok) {
                     self.showTips('操作成功');
+                    callback.ok && callback.ok();
+                    self.successHook && self.successHook();
                     self.successHook && self.successHook();
                 } else {
-                    self.showTips(data.errMsg);
+                    msg = "操作出现了以下错误：<br>" + msg
+                    self.showTips(msg);
                 }
             });
         });
@@ -1010,11 +1058,24 @@ Dialog.prototype.addConsumerGroup = function (type, topicName) {
             $.getJSON(G_CONFIG.HOST + '?type=op_modify&method=' + types[type].api + '&' + formData
                 + '&topicName=' + topicName + '&confModAuthToken=' + passwd + '&callback=?')
                 .done(function (data) {
-                    if (data.errCode === 0) {
+                    let ok = true;
+                    let msg = ""
+                    let cnt = 1
+                    for (let i = 0; i < response.data.length; i++) {
+                        if (data.data[i].errCode !== 0) {
+                            ok = false
+                            msg = cnt.toString() + ". BrokerId:" + data.data[i].brokerId + "出现错误：" + data.data[i].errInfo + "<br>"
+                            cnt++
+                        }
+                    }
+                    if (ok) {
                         self.showTips('操作成功');
+                        callback.ok && callback.ok();
+                        self.successHook && self.successHook();
                         self.successHook && self.successHook();
                     } else {
-                        self.showTips(data.errMsg);
+                        msg = "操作出现了以下错误：<br>" + msg
+                        self.showTips(msg);
                     }
                 });
         });
@@ -1264,10 +1325,24 @@ CheckBox.prototype.processTopic = function (type, $target, dialogInstance, ext, 
                 + '&modifyUser=webapi&confModAuthToken=' + passwd + '&callback=?&topicName='
                 + topicName + '&brokerId=' + selectedBrokerid.join(','))
                 .done(function (data) {
-                    if (data.errCode === 0) {
+                    let ok = true;
+                    let msg = ""
+                    let cnt = 1
+                    for (let i = 0; i < response.data.length; i++) {
+                        if (data.data[i].errCode !== 0) {
+                            ok = false
+                            msg = cnt.toString() + ". BrokerId:" + data.data[i].brokerId + "出现错误：" + data.data[i].errInfo + "<br>"
+                            cnt++
+                        }
+                    }
+                    if (ok) {
                         self.showTips('操作成功');
+                        callback.ok && callback.ok();
+                        self.successHook && self.successHook();
+                        self.successHook && self.successHook();
                     } else {
-                        self.showTips(data.errMsg);
+                        msg = "操作出现了以下错误：<br>" + msg
+                        self.showTips(msg);
                     }
                 });
         });
