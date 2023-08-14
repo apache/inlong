@@ -83,20 +83,22 @@ public class WebParameterUtils {
         sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
     }
 
+    public static void insertSuccessWithDataRetBegin(StringBuilder sBuffer) {
+        sBuffer.insert(0, "{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
+    }
+
     public static void buildSuccessWithDataRetEnd(
             StringBuilder sBuffer, int totalCnt) {
         sBuffer.append("],\"count\":").append(totalCnt).append("}");
     }
 
-    public static StringBuilder buildSuccessOrFailRet(StringBuilder sBuffer, int totalCnt,
-            StringBuilder actionMiddleProxy, boolean isSucceed, int errCode, String errInfo) {
+    public static StringBuilder buildSuccessOrFailRet(StringBuilder sBuffer, int totalCnt, boolean isSucceed,
+            int errCode, String errInfo) {
         if (isSucceed) {
-            WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
-            sBuffer.append(actionMiddleProxy);
+            WebParameterUtils.insertSuccessWithDataRetBegin(sBuffer);
             WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
         } else {
-            WebParameterUtils.buildFailWithDataRetBegin(sBuffer, errCode, errInfo);
-            sBuffer.append(actionMiddleProxy);
+            WebParameterUtils.insertFailWithDataRetBegin(sBuffer, errCode, errInfo);
             WebParameterUtils.buildFailWithDataRetEnd(sBuffer, totalCnt);
         }
         return sBuffer;
@@ -105,9 +107,15 @@ public class WebParameterUtils {
     public static void buildFailWithDataRetBegin(StringBuilder sBuffer, int errCode, String errMsg) {
         sBuffer.append("{\"result\":true,\"errCode\":")
                 .append(errCode)
-                .append(",\"errMsg\":\"Happens one err at least:")
+                .append(",\"errMsg\":\"Happens one err at least: ")
                 .append(errMsg)
                 .append("\",\"data\":[");
+    }
+
+    public static void insertFailWithDataRetBegin(StringBuilder sBuffer, int errCode, String errMsg) {
+        sBuffer.insert(0,
+                "{\"result\":true,\"errCode\":" + errCode + ",\"errMsg\":\"Happens one err at least: " + errMsg
+                        + "\",\"data\":[");
     }
 
     public static void buildFailWithDataRetEnd(StringBuilder sBuffer, int totalCnt) {

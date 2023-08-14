@@ -352,7 +352,6 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     private StringBuilder buildRetInfo(List<TopicProcessResult> retInfo,
             StringBuilder sBuffer) {
         int totalCnt = 0;
-        StringBuilder actionMiddleProxy = new StringBuilder();
         boolean isSucceed = true;
         int errCode = 0;
         String errInfo = "";
@@ -361,9 +360,9 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
                 continue;
             }
             if (totalCnt++ > 0) {
-                actionMiddleProxy.append(",");
+                sBuffer.append(",");
             }
-            actionMiddleProxy.append("{\"topicName\":\"").append(entry.getTopicName()).append("\"")
+            sBuffer.append("{\"topicName\":\"").append(entry.getTopicName()).append("\"")
                     .append(",\"success\":").append(entry.isSuccess())
                     .append(",\"errCode\":").append(entry.getErrCode())
                     .append(",\"errInfo\":\"").append(entry.getErrMsg()).append("\"}");
@@ -373,7 +372,7 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
                 errCode = entry.getErrCode();
             }
         }
-        return WebParameterUtils.buildSuccessOrFailRet(sBuffer, totalCnt, actionMiddleProxy, isSucceed, errCode,
+        return WebParameterUtils.buildSuccessOrFailRet(sBuffer, totalCnt, isSucceed, errCode,
                 errInfo);
     }
 }
