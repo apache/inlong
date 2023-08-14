@@ -266,7 +266,6 @@ public class PulsarSink extends AbstractSink
 
     @Override
     public Status process() throws EventDeliveryException {
-        logger.info("pulsar sink processing");
         if (!this.canTake) {
             return Status.BACKOFF;
         }

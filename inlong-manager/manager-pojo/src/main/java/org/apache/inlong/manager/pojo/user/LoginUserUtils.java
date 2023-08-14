@@ -17,7 +17,12 @@
 
 package org.apache.inlong.manager.pojo.user;
 
+import org.apache.inlong.manager.common.enums.InlongUserTypeEnum;
+import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
+
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Set;
 
 /**
  * User info for login
@@ -32,6 +37,12 @@ public class LoginUserUtils {
 
     public static UserInfo getLoginUser() {
         return LOGIN_USER_DETAIL_TL.get();
+    }
+
+    public static boolean isInlongAdminOrTenantAdmin() {
+        Set<String> roles = LOGIN_USER_DETAIL_TL.get().getRoles();
+        return roles.contains(TenantUserTypeEnum.TENANT_ADMIN.name()) || roles.contains(
+                InlongUserTypeEnum.INLONG_ADMIN.name());
     }
 
     public static void setUserLoginInfo(UserInfo userInfo) {

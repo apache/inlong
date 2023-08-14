@@ -153,7 +153,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         for (AuditMessageBody auditMessageBody : bodyList) {
             long msgDays = messageDays(auditMessageBody.getLogTs());
             if (msgDays >= this.msgValidThresholdDays) {
-                LOGGER.warn("Discard the data as it is from {} days ago, only the data with a log timestamp"
+                LOGGER.debug("Discard the data as it is from {} days ago, only the data with a log timestamp"
                         + " less than {} days is valid", msgDays, this.msgValidThresholdDays);
                 continue;
             }
