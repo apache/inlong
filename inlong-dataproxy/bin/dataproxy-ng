@@ -31,7 +31,6 @@ CLEAN_FLAG=1
 ################################
 # functions
 ################################
-BASE_DIR=$(cd "$(dirname "$0")"/../;pwd)
 info() {
   if [ ${CLEAN_FLAG} -ne 0 ]; then
     local msg=$1
@@ -202,15 +201,6 @@ in the classpath.
 
 EOF
 }
-
-# Opentelemetry startup parameter configuration
-export OTEL_SERVICE_NAME=inlong_dataproxy
-export OTEL_VERSION=1.28.0
-export OTEL_EXPORTER_OTLP_ENDPOINT=
-export OTEL_RESOURCE_ATTRIBUTES=
-
-# Opentelemetry java agent path
-JAVA_AGENT="${BASE_DIR}/lib/opentelemetry-javaagent-${OTEL_VERSION}.jar"
 
 run_flume() {
   local FLUME_APPLICATION_CLASS
@@ -412,3 +402,12 @@ else
   error "This message should never appear" 1
 fi
 exit 0
+
+# Opentelemetry startup parameter configuration
+export OTEL_SERVICE_NAME=inlong_dataproxy
+export OTEL_VERSION=1.28.0
+export OTEL_EXPORTER_OTLP_ENDPOINT=
+export OTEL_RESOURCE_ATTRIBUTES=
+
+# Opentelemetry java agent path
+JAVA_AGENT="${DATAPROXY_HOME}/lib/opentelemetry-javaagent-${OTEL_VERSION}.jar"
