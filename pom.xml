@@ -201,6 +201,7 @@
         <tomcat.version>8.5.53</tomcat.version>
         <jedis.version>2.9.0</jedis.version>
         <poi.version>5.2.3</poi.version>
+        <woodstox-core.version>5.4.0</woodstox-core.version>
     </properties>
 
     <dependencyManagement>
