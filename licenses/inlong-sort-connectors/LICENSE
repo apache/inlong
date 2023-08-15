@@ -746,7 +746,7 @@ sources/binaries. The use of these sources/binaries is subject to the
 terms and conditions of their respective licenses.
 
 Note: Since the inlong-sort module is a task on Flink, we must package it together with
-its dependencies and provide it in the form of a .jar package when publishing. 
+its dependencies and provide it in the form of a .jar package when publishing.
 We pass the "mvn dependency:copy-dependencies -DincludeScope=runtime" method to
 obtain all runtime third-party dependencies of the module
 
@@ -934,8 +934,8 @@ The text of each license is the standard Apache 2.0 license.
   com.zendesk:mysql-binlog-connector-java:0.25.1 - mysql-binlog-connector-java (https://github.com/osheroff/mysql-binlog-connector-java/tree/0.25.1), (Apache License, Version 2.0)
   io.netty:netty-all:4.1.46.Final - Netty/All-in-One (https://github.com/netty/netty/tree/netty-4.1.46.Final), (Apache License, Version 2.0)
   io.netty:netty-all:4.1.50.Final - Netty/All-in-One (https://github.com/netty/netty/tree/netty-4.1.50.Final), (Apache License, Version 2.0)
-  io.netty:netty-buffer:4.1.72.Final - Netty/Buffer (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
-  io.netty:netty-common:4.1.72.Final - Netty/Common (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-buffer:4.1.94.Final - Netty/Buffer (https://github.com/netty/netty/tree/netty-4.1.94.Final), (Apache License, Version 2.0)
+  io.netty:netty-common:4.1.94.Final - Netty/Common (https://github.com/netty/netty/tree/netty-4.1.94.Final), (Apache License, Version 2.0)
   com.nimbusds:nimbus-jose-jwt:4.41.1 - Nimbus JOSE+JWT (https://bitbucket.org/connect2id/nimbus-jose-jwt), (The Apache Software License, Version 2.0)
   com.squareup.okhttp:okhttp:2.7.5 - OkHttp (https://github.com/square/okhttp/tree/parent-2.7.5/okhttp), (Apache 2.0)
   net.sf.opencsv:opencsv:2.3 - opencsv (http://opencsv.sf.net), (Apache 2)
@@ -971,7 +971,7 @@ Apache 2.0 licenses
 
 The following components are provided under the Apache License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
-  
+
   org.apache.commons:commons-math3:3.5 - Apache Commons Math (https://commons.apache.org/proper/commons-math/), (The Apache Software License, Version 2.0)
   com.github.spullara.mustache.java:compiler:0.9.3 - compiler (https://github.com/spullara/mustache.java/tree/mustache.java-0.9.3), (Apache License, Version 2.0)
   com.github.spullara.mustache.java:compiler:0.9.6 - compiler (https://github.com/spullara/mustache.java/tree/mustache.java-0.9.6), (Apache License, Version 2.0)
