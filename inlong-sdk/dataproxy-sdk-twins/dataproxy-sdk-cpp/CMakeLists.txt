@@ -24,14 +24,14 @@ project(DataProxySDK)
 # compile level -O2
 set(CMAKE_CXX_FLAGS "-std=c++11 -O2 -g -Wall  -Wsign-compare -Wfloat-equal -fno-strict-aliasing -fPIC -DASIO_STANDALONE")
 
-include_directories(${CMAKE_BINARY_DIR}/third_party/include)
-include_directories(${CMAKE_BINARY_DIR}/third_party/rapidjson/src/rapidjson/include)
+include_directories(${PROJECT_SOURCE_DIR}/third_party/include)
+include_directories(${PROJECT_SOURCE_DIR}/third_party/rapidjson/src/rapidjson/include)
 include_directories(release/inc)
 include_directories(src/base)
 include_directories(src/net)
 
-link_directories(${CMAKE_BINARY_DIR}/third_party/lib)
-link_directories(${CMAKE_BINARY_DIR}/third_party/lib64)
+link_directories(${PROJECT_SOURCE_DIR}/third_party/lib)
+link_directories(${PROJECT_SOURCE_DIR}/third_party/lib64)
 
 add_subdirectory(third_party)
 add_subdirectory(src/base)
