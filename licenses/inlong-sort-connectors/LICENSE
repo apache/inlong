@@ -959,7 +959,7 @@ The text of each license is the standard Apache 2.0 license.
   org.xerial.snappy:snappy-java:1.1.10.1 - snappy-java (https://github.com/xerial/snappy-java), (Apache-2.0)
   com.tdunning:t-digest:3.2 - T-Digest (https://github.com/tdunning/t-digest/tree/t-digest-3.2), (The Apache Software License, Version 2.0)
   javax.validation:validation-api:1.1.0.Final - Bean Validation API (http://beanvalidation.org), (The Apache Software License, Version 2.0)
-  com.fasterxml.woodstox:woodstox-core:5.0.3 - Woodstox (https://github.com/FasterXML/woodstox/tree/woodstox-core-5.0.3), (The Apache License, Version 2.0)
+  com.fasterxml.woodstox:woodstox-core:5.4.0 - Woodstox (https://github.com/FasterXML/woodstox/tree/woodstox-core-5.4.0), (The Apache License, Version 2.0)
   org.apache.zookeeper:zookeeper:3.4.14 - Apache ZooKeeper - Server (https://github.com/apache/zookeeper/tree/release-3.4.14/zookeeper-server), (Apache License, Version 2.0)
   org.ini4j:ini4j:0.5.1 - ini4j (https://sourceforge.net/projects/ini4j), (The Apache Software License, Version 2.0)
   org.apache.doris:flink-doris-connector-1.13_2.11:1.0.3 - Flink Connector for Apache Doris (https://github.com/apache/doris-flink-connector/tree/1.13_2.11-1.0.3), (The Apache Software License, Version 2.0)
