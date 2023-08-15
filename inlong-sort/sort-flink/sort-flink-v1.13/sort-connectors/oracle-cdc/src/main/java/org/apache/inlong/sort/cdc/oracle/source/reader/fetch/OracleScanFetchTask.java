@@ -114,17 +114,17 @@ public class OracleScanFetchTask implements FetchTask<SourceSplitBase> {
                 snapshotSplitReadTask.execute(
                         changeEventSourceContext, sourceFetchContext.getOffsetContext());
 
-        final StreamSplit backfillBinlogSplit =
+        final StreamSplit backfillStreamSplit =
                 createBackfillRedoLogSplit(changeEventSourceContext);
         // optimization that skip the binlog read when the low watermark equals high
         // watermark
         final boolean binlogBackfillRequired =
-                backfillBinlogSplit
+                backfillStreamSplit
                         .getEndingOffset()
-                        .isAfter(backfillBinlogSplit.getStartingOffset());
+                        .isAfter(backfillStreamSplit.getStartingOffset());
         if (!binlogBackfillRequired) {
             dispatchBinlogEndEvent(
-                    backfillBinlogSplit,
+                    backfillStreamSplit,
                     ((OracleSourceFetchTaskContext) context).getOffsetContext().getPartition(),
                     ((OracleSourceFetchTaskContext) context).getDispatcher());
             taskRunning = false;
@@ -133,12 +133,12 @@ public class OracleScanFetchTask implements FetchTask<SourceSplitBase> {
         // execute redoLog read task
         if (snapshotResult.isCompletedOrSkipped()) {
             final RedoLogSplitReadTask backfillBinlogReadTask =
-                    createBackfillRedoLogReadTask(backfillBinlogSplit, sourceFetchContext);
+                    createBackfillRedoLogReadTask(backfillStreamSplit, sourceFetchContext);
             final LogMinerOracleOffsetContextLoader loader =
                     new LogMinerOracleOffsetContextLoader(
                             ((OracleSourceFetchTaskContext) context).getDbzConnectorConfig());
             final OracleOffsetContext oracleOffsetContext =
-                    loader.load(backfillBinlogSplit.getStartingOffset().getOffset());
+                    loader.load(backfillStreamSplit.getStartingOffset().getOffset());
             backfillBinlogReadTask.execute(
                     new SnapshotBinlogSplitChangeEventSourceContext(), oracleOffsetContext);
             taskRunning = false;
