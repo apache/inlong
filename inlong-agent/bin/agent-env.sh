@@ -23,7 +23,7 @@ export OTEL_TRACES_EXPORTER=otlp
 export OTEL_METRICS_EXPORTER=otlp
 export OTEL_LOGS_EXPORTER=otlp
 export OTEL_INSTRUMENTATION_PULSAR_ENABLED=false
-export OTEL_VERSION=v1.28.0
+export OTEL_VERSION=1.28.0
 export OTEL_EXPORTER_OTLP_ENDPOINT=
 export OTEL_RESOURCE_ATTRIBUTES=
 
@@ -72,8 +72,4 @@ else
 fi
 
 # Opentelemetry java agent path
-JAVA_AGENT="${BASE_DIR}/bin/opentelemetry-javaagent.jar"
-DOWNLOAD_URL="https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/${OTEL_VERSION}/opentelemetry-javaagent.jar"
-if [ ! -f "$JAVA_AGENT" ]; then
-    wget -O "$JAVA_AGENT" "$DOWNLOAD_URL"
-fi
+JAVA_AGENT="${BASE_DIR}/lib/opentelemetry-javaagent-${OTEL_VERSION}.jar"
