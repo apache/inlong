@@ -487,7 +487,7 @@ The text of each license is the standard Apache 2.0 license.
   com.tencentcloudapi.cls:tencentcloud-cls-sdk-java:1.0.9 - tencentcloud-cls-sdk-java (https://github.com/TencentCloud/tencentcloud-cls-sdk-java/tree/v1.0.9), (Apache License, Version 2.0)
   javax.validation:validation-api:1.1.0.Final - Bean Validation API (http://beanvalidation.org), (The Apache Software License, Version 2.0)
   org.apache.velocity:velocity-engine-core:2.3 - Apache Velocity - Engine (https://github.com/apache/velocity-engine/tree/2.3/velocity-engine-core), (Apache License, Version 2.0)
-  com.fasterxml.woodstox:woodstox-core:5.0.3 - Woodstox (https://github.com/FasterXML/woodstox/tree/woodstox-core-5.0.3), (The Apache License, Version 2.0)
+  com.fasterxml.woodstox:woodstox-core:5.4.0 - Woodstox (https://github.com/FasterXML/woodstox/tree/woodstox-core-5.4.0), (The Apache License, Version 2.0)
   xerces:xercesImpl:2.12.0 - Xerces2 Java Parser (http://xerces.apache.org/xerces2-j), (The Apache License, Version 2.0)
   xml-apis:xml-apis:1.4.01 - XML Commons External Components XML APIs (http://xml.apache.org/commons/components/external/), (The Apache Software License, Version 2.0), (Apache 2.0, The SAX License, The W3C License)
   org.apache.zookeeper:zookeeper:3.6.3 - Apache ZooKeeper - Server (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-server), (Apache License, Version 2.0)
