@@ -23,6 +23,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+/**
+ * Wrapper Writer
+ * When writing character data, write the data into the output stream of ByteArrayOutputStream and HttpServletResponse object at the same time.
+ */
 public class WrapperWriter extends PrintWriter {
 
     private HttpServletResponse response;

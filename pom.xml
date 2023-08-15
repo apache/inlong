@@ -1276,7 +1276,6 @@
             <version>${otel.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <pluginManagement>
             <plugins>

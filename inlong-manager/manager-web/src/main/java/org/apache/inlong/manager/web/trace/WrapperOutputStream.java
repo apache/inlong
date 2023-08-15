@@ -27,6 +27,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 
+/**
+ * Wrapper output stream
+ * When writing character data, write the data into the output stream of OutputStream and HttpServletResponse object at the same time.
+ */
 @Slf4j
 public class WrapperOutputStream extends ServletOutputStream {
 

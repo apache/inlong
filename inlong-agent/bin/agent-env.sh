@@ -19,10 +19,6 @@
 
 # Opentelemetry startup parameter configuration
 export OTEL_SERVICE_NAME=inlong_agent
-export OTEL_TRACES_EXPORTER=otlp
-export OTEL_METRICS_EXPORTER=otlp
-export OTEL_LOGS_EXPORTER=otlp
-export OTEL_INSTRUMENTATION_PULSAR_ENABLED=false
 export OTEL_VERSION=1.28.0
 export OTEL_EXPORTER_OTLP_ENDPOINT=
 export OTEL_RESOURCE_ATTRIBUTES=

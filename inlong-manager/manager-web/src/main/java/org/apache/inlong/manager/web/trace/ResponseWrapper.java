@@ -25,6 +25,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+/**
+ * Response wrapper
+ * Used to wrap HttpServletResponse, and do some extra processing or recording when getting the response data.
+ */
 public class ResponseWrapper extends HttpServletResponseWrapper {
 
     private final ByteArrayOutputStream buffer;
@@ -48,11 +52,11 @@ public class ResponseWrapper extends HttpServletResponseWrapper {
         return writer;
     }
 
-    public byte[] getResponseData() throws IOException {
-        flushBuffer();
-        return buffer.toByteArray();
-    }
-
+    /**
+     * Gets the string form of response data.
+     * @return Return the string form of response data.
+     * @throws IOException
+     */
     public String getContent() throws IOException {
         flushBuffer();
         return buffer.toString();
