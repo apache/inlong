@@ -231,7 +231,7 @@ Dialog.prototype.confirmBrokerInfo = function (type, brokerIds, callback) {
                 let msg = ""
                 let cnt = 1
                 for (let i = 0; i < data.data.length; i++) {
-                    if (data.data[i].errCode !== 0) {
+                    if (data.data[i].errCode !== 0 && data.data[i].errCode !== 200) {
                         ok = false
                         msg = cnt.toString() + ". BrokerId:" + data.data[i].brokerId + "出现错误：" + data.data[i].errInfo + "<br>"
                         cnt++
@@ -418,7 +418,7 @@ Dialog.prototype.addBrokerInfo = function (type, brokerId, callback) {
                 let msg = ""
                 let cnt = 1
                 for (let i = 0; i < data.data.length; i++) {
-                    if (data.data[i].errCode !== 0) {
+                    if (data.data[i].errCode !== 0 && data.data[i].errCode !== 200) {
                         ok = false
                         msg = cnt.toString() + ". BrokerId:" + data.data[i].brokerId + "出现错误：" + data.data[i].errInfo + "<br>"
                         cnt++
@@ -589,7 +589,7 @@ Dialog.prototype.confirmTopicInfo = function (type, topicName, selectedBrokerid,
                     let msg = ""
                     let cnt = 1
                     for (let i = 0; i < data.data.length; i++) {
-                        if (data.data[i].errCode !== 0) {
+                        if (data.data[i].errCode !== 0 && data.data[i].errCode !== 200) {
                             ok = false
                             msg = cnt.toString() + ". BrokerId:" + data.data[i].brokerId + "出现错误：" + data.data[i].errInfo + "<br>"
                             cnt++
@@ -910,7 +910,7 @@ Dialog.prototype.confirmBroker2Topic = function (type, topicName, formData) {
                 let msg = ""
                 let cnt = 1
                 for (let i = 0; i < data.data.length; i++) {
-                    if (data.data[i].errCode !== 0) {
+                    if (data.data[i].errCode !== 0 && data.data[i].errCode !== 200) {
                         ok = false
                         msg = cnt.toString() + ". BrokerId:" + data.data[i].brokerId + "出现错误：" + data.data[i].errInfo + "<br>"
                         cnt++
@@ -1062,7 +1062,7 @@ Dialog.prototype.addConsumerGroup = function (type, topicName) {
                     let msg = ""
                     let cnt = 1
                     for (let i = 0; i < data.data.length; i++) {
-                        if (data.data[i].errCode !== 0) {
+                        if (data.data[i].errCode !== 0 && data.data[i].errCode !== 200) {
                             ok = false
                             msg = cnt.toString() + ". BrokerId:" + data.data[i].brokerId + "出现错误：" + data.data[i].errInfo + "<br>"
                             cnt++
@@ -1329,7 +1329,7 @@ CheckBox.prototype.processTopic = function (type, $target, dialogInstance, ext, 
                     let msg = ""
                     let cnt = 1
                     for (let i = 0; i < data.data.length; i++) {
-                        if (data.data[i].errCode !== 0) {
+                        if (data.data[i].errCode !== 0 && data.data[i].errCode !== 200) {
                             ok = false
                             msg = cnt.toString() + ". BrokerId:" + data.data[i].brokerId + "出现错误：" + data.data[i].errInfo + "<br>"
                             cnt++
