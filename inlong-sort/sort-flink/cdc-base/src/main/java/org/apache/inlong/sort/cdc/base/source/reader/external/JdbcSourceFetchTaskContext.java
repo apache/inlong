@@ -62,15 +62,11 @@ public abstract class JdbcSourceFetchTaskContext implements FetchTask.Context {
     @Override
     public TableId getTableId(SourceRecord record) {
         return null;
-        // TODO test
-        // return SourceRecordUtils.getTableId(record);
     }
 
     @Override
     public boolean isDataChangeRecord(SourceRecord record) {
         return false;
-        // TODO test
-        // return SourceRecordUtils.isDataChangeRecord(record);
     }
 
     @Override
@@ -165,8 +161,6 @@ public abstract class JdbcSourceFetchTaskContext implements FetchTask.Context {
 
     public SchemaNameAdjuster getSchemaNameAdjuster() {
         return null;
-        // TODO test
-        // return SchemaNameAdjuster.create();
     }
 
     public abstract RelationalDatabaseSchema getDatabaseSchema();

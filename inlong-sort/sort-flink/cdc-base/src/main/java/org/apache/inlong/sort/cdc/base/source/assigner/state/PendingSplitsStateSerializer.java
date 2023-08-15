@@ -372,11 +372,8 @@ public class PendingSplitsStateSerializer implements SimpleVersionedSerializer<P
         List<TableId> tableIds = new ArrayList<>();
         final int size = in.readInt();
         for (int i = 0; i < size; i++) {
-            // boolean useCatalogBeforeSchema = in.readBoolean();
             String tableIdStr = in.readUTF();
             tableIds.add(TableId.parse(tableIdStr));
-            // TODO test
-            // tableIds.add(TableId.parse(tableIdStr, useCatalogBeforeSchema));
         }
         return tableIds;
     }

@@ -723,6 +723,29 @@
        inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/mongodb-cdc/src/main/java/org/apache/inlong/sort/cdc/mongodb/source/reader/fetch/MongoDBStreamFetchTask.java
        inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/mongodb-cdc/src/main/java/org/apache/inlong/sort/cdc/mongodb/source/reader/MongoDBRecordEmitter.java
        inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/mongodb-cdc/src/main/java/org/apache/inlong/sort/cdc/mongodb/source/utils/MongoUtils.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/io/debezium/connector/postgresql/connection/Lsn.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/io/debezium/connector/postgresql/connection/PostgresConnection.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/io/debezium/connector/postgresql/PostgresObjectFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/io/debezium/connector/postgresql/Utils.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/base/source/reader/external/IncrementalSourceStreamFetcher.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/reader/PostgresSourceRecordEmitter.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/options/PostgresSourceOptions.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/options/SourceOptions.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/config/PostgresSourceConfigFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/config/PostgresSourceConfig.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/PostgresDialect.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/PostgresConnectionPoolFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/PostgresChunkSplitter.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/utils/PgSchema.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/utils/PgTypeUtils.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/utils/TableDiscoveryUtils.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/utils/PgQueryUtils.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/offset/PostgresOffset.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/offset/PostgresOffsetFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/fetch/PostgresScanFetchTask.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/fetch/PostgresSourceFetchTaskContext.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/fetch/PostgresStreamFetchTask.java
+       inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/source/PostgresSourceBuilder.java
 
  Source  : flink-cdc-connectors 2.3.0 (Please note that the software have been modified.)
  License : https://github.com/ververica/flink-cdc-connectors/blob/master/LICENSE
