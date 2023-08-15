@@ -195,7 +195,13 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
     @Override
     public void processElement(RecordWithSchema recordWithSchema) throws Exception {
         TableIdentifier tableId = recordWithSchema.getTableId();
-
+        if (recordWithSchema.isDDL()) {
+            // just record node metrics for ddl
+            if (sinkMetricData != null) {
+                sinkMetricData.outputMetricsWithEstimate(1);
+            }
+            return;
+        }
         if (isSchemaUpdate(recordWithSchema)) {
             if (multipleTables.get(tableId) == null) {
                 Table table = catalog.loadTable(recordWithSchema.getTableId());
