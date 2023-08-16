@@ -72,9 +72,17 @@ export const getColumns = activedName => [
     width: 200,
     render: (text, record) => {
       return record.showInList?.inlongGroupMode === 1 ? (
-        <StatusTag type={'success'} title={i18n.t('pages.Approvals.GroupMode.DataSync')} />
+        <StatusTag
+          type={'success'}
+          icon={i18n.t('pages.Approvals.GroupMode.DataSync')}
+          title={''}
+        />
       ) : (
-        <StatusTag type={'primary'} title={i18n.t('pages.Approvals.GroupMode.Ingestion')} />
+        <StatusTag
+          type={'primary'}
+          icon={i18n.t('pages.Approvals.GroupMode.Ingestion')}
+          title={''}
+        />
       );
     },
   },
