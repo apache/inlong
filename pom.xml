@@ -126,7 +126,7 @@
         <commons.collections.version>3.2.2</commons.collections.version>
         <commons.collections4.version>4.3</commons.collections4.version>
 
-        <guava.version>32.0.0-jre</guava.version>
+        <guava.version>32.1.2-jre</guava.version>
         <lombok.version>1.18.22</lombok.version>
         <jetty.version>9.4.51.v20230217</jetty.version>
         <opencsv.version>5.4</opencsv.version>

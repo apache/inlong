@@ -377,7 +377,7 @@ The text of each license is the standard Apache 2.0 license.
   com.google.errorprone:error_prone_annotations:2.7.1 - error-prone annotations (https://github.com/google/error-prone), (Apache 2.0)
   com.google.guava:failureaccess:1.0.1 - Guava InternalFutureFailureAccess and InternalFutures (https://github.com/google/guava/tree/failureaccess-v1.0.1), (The Apache Software License, Version 2.0)
   com.google.code.gson:gson:2.8.6 - Gson (https://github.com/google/gson/gson), (Apache 2.0)
-  com.google.guava:guava:32.0.0-jre - Guava: Google Core Libraries for Java (https://github.com/google/guava), (Apache License, Version 2.0)
+  com.google.guava:guava:32.1.2-jre - Guava: Google Core Libraries for Java (https://github.com/google/guava), (Apache License, Version 2.0)
   org.apache.httpcomponents:httpclient:4.5.13 - Apache HttpClient (https://hc.apache.org/httpcomponents-client-4.5.x), (Apache License, Version 2.0)
   org.apache.httpcomponents:httpcore:4.4.14 - Apache HttpCore (https://hc.apache.org/httpcomponents-core-4.4.x), (Apache License, Version 2.0)
   org.ini4j:ini4j:0.5.1 - ini4j (http://ini4j.sourceforge.net), (Apache 2)
