@@ -64,14 +64,14 @@ public class CanalJson {
     private String schema;
     @JsonProperty("oracleType")
     private Map<String, String> oracleType;
-    @JsonProperty("postGreType")
-    private Map<String, String> postGreType;
     @JsonProperty("operation")
     private Operation operation;
     @JsonProperty("incremental")
     private Boolean incremental;
     @JsonProperty("dataSourceName")
     private String dataSourceName;
+    @JsonProperty("postGreType")
+    private Map<String, String> postGreType;
 
     @JsonCreator
     public CanalJson(@Nullable @JsonProperty("data") List<Map<String, Object>> data,
