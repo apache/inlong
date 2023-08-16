@@ -22,6 +22,7 @@ import { Link } from 'react-router-dom';
 import i18n from '@/i18n';
 import { statusList, genStatusTag } from './status';
 import { timestampFormat } from '@/core/utils';
+import StatusTag from '@/ui/components/StatusTag';
 
 export const getFilterFormContent = defaultValues => [
   {
@@ -66,6 +67,26 @@ export const getColumns = activedName => [
     render: (text, record) => record.showInList?.inlongGroupId,
   },
   {
+    title: i18n.t('pages.Approvals.GroupMode'),
+    dataIndex: 'inlongGroupMode',
+    width: 200,
+    render: (text, record) => {
+      return record.showInList?.inlongGroupMode === 1 ? (
+        <StatusTag
+          type={'success'}
+          icon={<span />}
+          title={i18n.t('pages.Approvals.GroupMode.DataSync')}
+        />
+      ) : (
+        <StatusTag
+          type={'primary'}
+          icon={<span />}
+          title={i18n.t('pages.Approvals.GroupMode.Ingestion')}
+        />
+      );
+    },
+  },
+  {
     title: i18n.t('pages.Approvals.ApplicationTime'),
     dataIndex: 'startTime',
     width: 200,
@@ -88,7 +109,11 @@ export const getColumns = activedName => [
     dataIndex: 'action',
     width: 100,
     render: (text, record) => (
-      <Link to={`/process/${activedName}/${record.id}`}>{i18n.t('basic.Detail')}</Link>
+      <Link
+        to={`/process/${activedName}/${record.id}?inlongGroupMode=${record.showInList?.inlongGroupMode}`}
+      >
+        {i18n.t('basic.Detail')}
+      </Link>
     ),
   },
 ];
