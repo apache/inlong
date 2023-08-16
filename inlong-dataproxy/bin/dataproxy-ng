@@ -27,6 +27,15 @@ DATA_PROXY_AGENT_CLASS="org.apache.inlong.dataproxy.node.Application"
 FLUME_AVRO_CLIENT_CLASS="org.apache.flume.client.avro.AvroCLIClient"
 FLUME_VERSION_CLASS="org.apache.flume.tools.VersionInfo"
 
+# Opentelemetry startup parameter configuration
+export OTEL_SERVICE_NAME=inlong_dataproxy
+export OTEL_VERSION=1.28.0
+export OTEL_EXPORTER_OTLP_ENDPOINT=
+export OTEL_RESOURCE_ATTRIBUTES=
+
+# Opentelemetry java agent path
+OTEL_JAVA_AGENT="${DATAPROXY_HOME}/lib/opentelemetry-javaagent-${OTEL_VERSION}.jar"
+
 CLEAN_FLAG=1
 ################################
 # functions
@@ -215,7 +224,7 @@ run_flume() {
   if [ ${CLEAN_FLAG} -ne 0 ]; then
     set -x
   fi
-  $EXEC $JAVA_HOME/bin/java $JAVA_OPTS -javaagent:${JAVA_AGENT} -cp "$DATAPROXY_CLASSPATH" \
+  $EXEC $JAVA_HOME/bin/java $JAVA_OPTS -javaagent:${OTEL_JAVA_AGENT} -cp "$DATAPROXY_CLASSPATH" \
       -Djava.library.path=$FLUME_JAVA_LIBRARY_PATH "$FLUME_APPLICATION_CLASS" $*
 }
 
@@ -402,12 +411,3 @@ else
   error "This message should never appear" 1
 fi
 exit 0
-
-# Opentelemetry startup parameter configuration
-export OTEL_SERVICE_NAME=inlong_dataproxy
-export OTEL_VERSION=1.28.0
-export OTEL_EXPORTER_OTLP_ENDPOINT=
-export OTEL_RESOURCE_ATTRIBUTES=
-
-# Opentelemetry java agent path
-JAVA_AGENT="${DATAPROXY_HOME}/lib/opentelemetry-javaagent-${OTEL_VERSION}.jar"
