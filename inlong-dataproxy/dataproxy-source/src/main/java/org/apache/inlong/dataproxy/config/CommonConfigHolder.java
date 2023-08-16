@@ -463,7 +463,7 @@ public class CommonConfigHolder {
         tmpValue = this.props.get(KEY_FILE_METRIC_STAT_INTERVAL_SEC);
         if (StringUtils.isNotEmpty(tmpValue)) {
             int statInvl = NumberUtils.toInt(tmpValue.trim(), VAL_DEF_FILE_METRIC_STAT_INVL_SEC);
-            if (statInvl >= VAL_MIN_FILE_METRIC_MAX_CACHE_CNT) {
+            if (statInvl >= VAL_MIN_FILE_METRIC_STAT_INVL_SEC) {
                 this.fileMetricStatInvlSec = statInvl;
             }
         }
@@ -471,7 +471,7 @@ public class CommonConfigHolder {
         tmpValue = this.props.get(KEY_FILE_METRIC_MAX_CACHE_CNT);
         if (StringUtils.isNotEmpty(tmpValue)) {
             int maxCacheCnt = NumberUtils.toInt(tmpValue.trim(), VAL_DEF_FILE_METRIC_MAX_CACHE_CNT);
-            if (maxCacheCnt >= VAL_MIN_FILE_METRIC_STAT_INVL_SEC) {
+            if (maxCacheCnt >= VAL_MIN_FILE_METRIC_MAX_CACHE_CNT) {
                 this.fileMetricStatCacheCnt = maxCacheCnt;
             }
         }
