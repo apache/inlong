@@ -108,7 +108,7 @@ public class TestOperation {
     @Test
     public void testCreateTableWithCharacterConstraint() {
         String sql = "create table a (b int) engine=innodb character "
-            + "set=utf8 collate=utf8_bin row_format=dynamic";
+                + "set=utf8 collate=utf8_bin row_format=dynamic";
         HashMap<String, Integer> sqlType = new HashMap<>();
         sqlType.put("b", 1);
         Operation operation = OperationUtils.generateOperation(sql, sqlType);
@@ -119,7 +119,7 @@ public class TestOperation {
     @Test
     public void alterTableChangeType() {
         String sql = "ALTER TABLE test CHANGE COLUMN name name1 "
-            + "mediumtext character set utf8mb4 COLLATE=utf8 NULL";
+                + "mediumtext character set utf8mb4 COLLATE=utf8 NULL";
         HashMap<String, Integer> sqlType = new HashMap<>();
         sqlType.put("name1", 1);
         Operation operation = OperationUtils.generateOperation(sql, sqlType);
@@ -140,7 +140,8 @@ public class TestOperation {
         assert operation != null;
         Assert.assertTrue(operation instanceof AlterOperation);
         Assert.assertEquals(operation.getOperationType(), OperationType.ALTER);
-        Assert.assertEquals(((AlterOperation) operation).getAlterColumns().get(0).getAlterType(), AlterType.DROP_CONSTRAINT);
+        Assert.assertEquals(((AlterOperation) operation).getAlterColumns().get(0).getAlterType(),
+                AlterType.DROP_CONSTRAINT);
     }
 
     @Test
@@ -153,7 +154,7 @@ public class TestOperation {
         Assert.assertTrue(operation instanceof AlterOperation);
         Assert.assertEquals(operation.getOperationType(), OperationType.ALTER);
         Assert.assertEquals(((AlterOperation) operation).getAlterColumns().get(0).getAlterType(),
-            AlterType.ADD_CONSTRAINT);
+                AlterType.ADD_CONSTRAINT);
     }
 
 }
