@@ -390,7 +390,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                             try {
                                 return dynamicSchemaFormat.extractRowData(jsonNode, FlinkSchemaUtil.convert(schema1));
                             } catch (Exception e) {
-                                LOG.error(String.format("Table %s extractRowData failed!", tableId), e);
+                                LOG.error(String.format("Table %s extract RowData failed!", tableId), e);
                                 if (SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE == multipleSinkOption
                                         .getSchemaUpdatePolicy()) {
                                     isDirty.set(true);
@@ -399,7 +399,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                                         rowDataForDataSchemaList = dynamicSchemaFormat
                                                 .extractRowData(jsonNode, FlinkSchemaUtil.convert(dataSchema));
                                     } catch (Throwable ee) {
-                                        LOG.error("extractRowData {} failed!", jsonNode, ee);
+                                        LOG.error("extract RowData {} failed!", jsonNode, ee);
                                     }
 
                                     for (RowData rowData : rowDataForDataSchemaList) {
