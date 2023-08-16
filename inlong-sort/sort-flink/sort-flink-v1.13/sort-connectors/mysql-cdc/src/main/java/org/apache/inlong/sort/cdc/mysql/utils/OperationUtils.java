@@ -112,12 +112,23 @@ public class OperationUtils {
         statement.getAlterExpressions().forEach(alterExpression -> {
             switch (alterExpression.getOperation()) {
                 case DROP:
+                    if (alterExpression.getConstraintName() != null) {
+                        alterColumns.add(new AlterColumn(AlterType.DROP_CONSTRAINT,
+                                new Column(reformatName(alterExpression.getConstraintName()))));
+                        break;
+                    }
                     alterColumns.add(new AlterColumn(AlterType.DROP_COLUMN,
                             null,
                             Column.builder().name(reformatName(alterExpression.getColumnName()))
                                     .build()));
                     break;
                 case ADD:
+                    if (alterExpression.getIndex() != null) {
+                        // only support constraint type now
+                        // the sink connector doesn't support add constraint
+                        alterColumns.add(new AlterColumn(AlterType.ADD_CONSTRAINT));
+                        break;
+                    }
                     alterColumns.add(new AlterColumn(AlterType.ADD_COLUMN,
                             parseColumnWithPosition(isFirst, sqlType,
                                     alterExpression.getColDataTypeList().get(0)),
