@@ -371,7 +371,7 @@ The text of each license is the standard Apache 2.0 license.
   commons-logging:commons-logging:1.2 - Apache Commons Logging (https://commons.apache.org/proper/commons-logging), (The Apache Software License, Version 2.0)
   org.atteo:evo-inflector:1.3 - Evo Inflector (https://github.com/atteo/evo-inflector), (Apache License, Version 2.0)
   com.google.code.gson:gson:2.8.6 - Gson (https://github.com/google/gson/gson), (Apache 2.0)
-  com.google.guava:guava:31.0.1-jre - Guava: Google Core Libraries for Java (http://code.google.com/p/guava-libraries/guava), (The Apache Software License, Version 2.0)
+  com.google.guava:guava:32.1.2-jre - Guava: Google Core Libraries for Java (http://code.google.com/p/guava-libraries/guava), (The Apache Software License, Version 2.0)
   com.zaxxer:HikariCP:4.0.3 - HikariCP (https://github.com/brettwooldridge/HikariCP/tree/HikariCP-4.0.3), (The Apache Software License, Version 2.0)
   org.apache.httpcomponents:httpclient:4.5.13 - Apache HttpClient (https://hc.apache.org/httpcomponents-client-4.5.x), (Apache License, Version 2.0)
   org.apache.httpcomponents:httpcore:4.4.14 - Apache HttpCore (https://hc.apache.org/httpcomponents-core-4.4.x), (Apache License, Version 2.0)
