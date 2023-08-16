@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Iceberg schema change helper
@@ -60,6 +61,7 @@ public class IcebergSchemaChangeHelper extends SchemaChangeHelper {
     private transient Catalog catalog;
 
     private transient SupportsNamespaces asNamespaceCatalog;
+    private AtomicBoolean isSuccessDDL = new AtomicBoolean(false);
 
     public IcebergSchemaChangeHelper(JsonDynamicSchemaFormat dynamicSchemaFormat, boolean schemaChange,
             Map<SchemaChangeType, SchemaChangePolicy> policyMap, String databasePattern, String tablePattern,
@@ -76,24 +78,31 @@ public class IcebergSchemaChangeHelper extends SchemaChangeHelper {
     public void doAlterOperation(String database, String table, byte[] originData, String originSchema, JsonNode data,
             Map<SchemaChangeType, List<AlterColumn>> typeMap) {
         for (Map.Entry<SchemaChangeType, List<AlterColumn>> kv : typeMap.entrySet()) {
+            SchemaChangePolicy policy = policyMap.get(kv.getKey());
             try {
-                switch (kv.getKey()) {
-                    case ADD_COLUMN:
-                        doAddColumn(kv.getValue(), TableIdentifier.of(database, table));
-                        break;
-                    case DROP_COLUMN:
-                        doDropColumn(kv.getKey(), originSchema);
-                        break;
-                    case RENAME_COLUMN:
-                        doRenameColumn(kv.getKey(), originSchema);
-                        break;
-                    case CHANGE_COLUMN_TYPE:
-                        doChangeColumnType(kv.getKey(), originSchema);
-                        break;
-                    default:
+                if (policy != SchemaChangePolicy.ENABLE) {
+                    doSchemaChangeBase(kv.getKey(), policy, originSchema);
+                } else {
+                    switch (kv.getKey()) {
+                        case ADD_COLUMN:
+                            doAddColumn(kv.getValue(), TableIdentifier.of(database, table));
+                            break;
+                        case DROP_COLUMN:
+                            doDropColumn(kv.getKey(), originSchema);
+                            break;
+                        case RENAME_COLUMN:
+                            doRenameColumn(kv.getKey(), originSchema);
+                            break;
+                        case CHANGE_COLUMN_TYPE:
+                            doChangeColumnType(kv.getKey(), originSchema);
+                            break;
+                        default:
+                    }
+                    isSuccessDDL.set(true);
                 }
             } catch (Exception e) {
-                if (exceptionPolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
+                if (policy == SchemaChangePolicy.ERROR ||
+                        exceptionPolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
                     throw new SchemaChangeHandleException(
                             String.format("Apply alter column failed, origin schema: %s", originSchema), e);
                 }
@@ -112,14 +121,13 @@ public class IcebergSchemaChangeHelper extends SchemaChangeHelper {
             RowType rowType = dynamicSchemaFormat.extractSchema(data, pkListStr);
             Schema schema = FlinkSchemaUtil.convert(FlinkSchemaUtil.toSchema(rowType));
             IcebergSchemaChangeUtils.createTable(catalog, tableId, asNamespaceCatalog, schema);
-            return;
+            isSuccessDDL.set(true);
         } catch (Exception e) {
             if (exceptionPolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
                 throw new SchemaChangeHandleException(
-                        String.format("Drop column failed, origin schema: %s", originSchema), e);
+                        String.format("create table failed, origin schema: %s", originSchema), e);
             }
             handleDirtyData(data, originData, database, table, DirtyType.CREATE_TABLE_ERROR, e);
-            return;
         }
     }
 
@@ -148,5 +156,9 @@ public class IcebergSchemaChangeHelper extends SchemaChangeHelper {
         });
         IcebergSchemaChangeUtils.applySchemaChanges(transaction.updateSchema(), tableChanges);
         transaction.commitTransaction();
+    }
+
+    public AtomicBoolean ddlExecSuccess() {
+        return isSuccessDDL;
     }
 }
