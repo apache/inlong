@@ -81,14 +81,14 @@ export const getColumns = activedName => [
       return record.showInList?.inlongGroupMode === 1 ? (
         <StatusTag
           type={'success'}
-          icon={i18n.t('pages.Approvals.GroupMode.DataSync')}
-          title={''}
+          icon={<span />}
+          title={i18n.t('pages.Approvals.GroupMode.DataSync')}
         />
       ) : (
         <StatusTag
           type={'primary'}
-          icon={i18n.t('pages.Approvals.GroupMode.Ingestion')}
-          title={''}
+          icon={<span />}
+          title={i18n.t('pages.Approvals.GroupMode.Ingestion')}
         />
       );
     },
