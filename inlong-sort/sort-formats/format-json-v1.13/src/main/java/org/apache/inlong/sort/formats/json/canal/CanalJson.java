@@ -64,6 +64,8 @@ public class CanalJson {
     private String schema;
     @JsonProperty("oracleType")
     private Map<String, String> oracleType;
+    @JsonProperty("postGreType")
+    private Map<String, String> postGreType;
     @JsonProperty("operation")
     private Operation operation;
     @JsonProperty("incremental")
@@ -87,7 +89,8 @@ public class CanalJson {
             @Nullable @JsonProperty("oracleType") Map<String, String> oracleType,
             @JsonProperty("operation") Operation operation,
             @JsonProperty("incremental") Boolean incremental,
-            @JsonProperty("dataSourceName") String dataSourceName) {
+            @JsonProperty("dataSourceName") String dataSourceName,
+            @Nullable @JsonProperty("postGreType") Map<String, String> postGreType) {
         this.data = data;
         this.es = es;
         this.table = table;
@@ -104,6 +107,7 @@ public class CanalJson {
         this.operation = operation;
         this.incremental = incremental;
         this.dataSourceName = dataSourceName;
+        this.postGreType = postGreType;
     }
 
 }

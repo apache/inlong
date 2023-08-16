@@ -23,6 +23,7 @@ import org.apache.inlong.sort.formats.json.debezium.DebeziumJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson.Source;
 
 import io.debezium.connector.AbstractSourceInfo;
+import io.debezium.connector.SnapshotRecord;
 import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
 import io.debezium.relational.Table;
@@ -410,7 +411,9 @@ public enum PostgreSQLReadableMetaData {
                 .pkNames(getPkNames(tableSchema))
                 .table(tableName)
                 .ts(ts)
+                .postGreType(getPostGreType(tableSchema))
                 .type(getCanalOpType(rowData))
+                .incremental(isIncrementalRecord(sourceStruct))
                 .sqlType(getSqlType(tableSchema))
                 .build();
         try {
@@ -420,6 +423,10 @@ public enum PostgreSQLReadableMetaData {
             throw new IllegalStateException("exception occurs when get meta data", e);
         }
     }
+
+    private static final String FORMAT_PRECISION = "%s(%d)";
+
+    private static final String FORMAT_PRECISION_SCALE = "%s(%d, %d)";
 
     private final String key;
 
@@ -454,6 +461,10 @@ public enum PostgreSQLReadableMetaData {
         return opType;
     }
 
+    private static boolean isIncrementalRecord(Struct sourceStruct) {
+        return !(SnapshotRecord.TRUE == SnapshotRecord.fromSource(sourceStruct));
+    }
+
     /**
      * get primary key names
      *
@@ -465,6 +476,35 @@ public enum PostgreSQLReadableMetaData {
             return null;
         }
         return tableSchema.getTable().primaryKeyColumnNames();
+    }
+
+    /**
+     * get a map about column name and type
+     * @param tableSchema
+     * @return map of field name and field type
+     */
+    private static Map<String, String> getPostGreType(@Nullable TableChanges.TableChange tableSchema) {
+        if (tableSchema == null) {
+            return null;
+        }
+
+        Map<String, String> postGreType = new LinkedHashMap<>();
+        final Table table = tableSchema.getTable();
+        table.columns()
+                .forEach(
+                        column -> {
+                            if (column.scale().isPresent()) {
+                                postGreType.put(
+                                        column.name(),
+                                        String.format(FORMAT_PRECISION_SCALE,
+                                                column.typeName(), column.length(), column.scale().get()));
+                            } else {
+                                postGreType.put(
+                                        column.name(),
+                                        String.format(FORMAT_PRECISION, column.typeName(), column.length()));
+                            }
+                        });
+        return postGreType;
     }
 
     /**
