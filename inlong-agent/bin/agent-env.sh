@@ -68,4 +68,4 @@ else
 fi
 
 # Opentelemetry java agent path
-OTEL_JAVA_AGENT="${BASE_DIR}/lib/opentelemetry-javaagent-${OTEL_VERSION}.jar"
+OTEL_AGENT="${BASE_DIR}/lib/opentelemetry-javaagent-${OTEL_VERSION}.jar"

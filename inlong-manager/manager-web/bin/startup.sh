@@ -99,10 +99,10 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=
 export OTEL_RESOURCE_ATTRIBUTES=
 
 # Opentelemetry java agent path
-OTEL_JAVA_AGENT="${BASE_PATH}/lib/opentelemetry-javaagent-${OTEL_VERSION}.jar"
+OTEL_AGENT="${BASE_PATH}/lib/opentelemetry-javaagent-${OTEL_VERSION}.jar"
 
 # Start service: start the project in the background, and output the log to the logs folder under the project root directory
-nohup java ${JAVA_OPT} -javaagent:${OTEL_JAVA_AGENT} -cp ${CLASSPATH} ${MAIN_CLASS} 1>/dev/null 2>${LOG_DIR}/error.log &
+nohup java ${JAVA_OPT} -javaagent:${OTEL_AGENT} -cp ${CLASSPATH} ${MAIN_CLASS} 1>/dev/null 2>${LOG_DIR}/error.log &
 
 # Print the startup log
 STARTUP_LOG="startup command: nohup java ${JAVA_OPT} -cp ${CLASSPATH} ${MAIN_CLASS} 1>/dev/null 2>${LOG_DIR}/error.log &\n"

@@ -34,7 +34,7 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=
 export OTEL_RESOURCE_ATTRIBUTES=
 
 # Opentelemetry java agent path
-OTEL_JAVA_AGENT="${DATAPROXY_HOME}/lib/opentelemetry-javaagent-${OTEL_VERSION}.jar"
+OTEL_AGENT="${DATAPROXY_HOME}/lib/opentelemetry-javaagent-${OTEL_VERSION}.jar"
 
 CLEAN_FLAG=1
 ################################
@@ -224,7 +224,7 @@ run_flume() {
   if [ ${CLEAN_FLAG} -ne 0 ]; then
     set -x
   fi
-  $EXEC $JAVA_HOME/bin/java $JAVA_OPTS -javaagent:${OTEL_JAVA_AGENT} -cp "$DATAPROXY_CLASSPATH" \
+  $EXEC $JAVA_HOME/bin/java $JAVA_OPTS -javaagent:${OTEL_AGENT} -cp "$DATAPROXY_CLASSPATH" \
       -Djava.library.path=$FLUME_JAVA_LIBRARY_PATH "$FLUME_APPLICATION_CLASS" $*
 }
 
