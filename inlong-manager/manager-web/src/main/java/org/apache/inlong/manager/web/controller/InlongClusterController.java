@@ -285,7 +285,7 @@ public class InlongClusterController {
 
     @PostMapping("/cluster/testConnection")
     @ApiOperation(value = "Test connection for inlong cluster")
-    public Response<Boolean> testConnection(@RequestBody ClusterRequest request) {
+    public Response<Boolean> testConnection(@Validated @RequestBody ClusterRequest request) {
         return Response.success(clusterService.testConnection(request));
     }
 }
