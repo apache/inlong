@@ -455,15 +455,15 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.mina:mina-core:2.0.4 - Apache MINA Core (https://mina.apache.org/), (Apache 2.0 License)
   io.netty:netty:3.10.6.Final - Netty (http://netty.io/), (Apache License, Version 2.0)
   io.netty:netty-all:4.1.50.Final - Netty/All-in-One (https://github.com/netty/netty/tree/netty-4.1.50.Final), (Apache License, Version 2.0)
-  io.netty:netty-buffer:4.1.72.Final - Netty/Buffer (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
-  io.netty:netty-codec:4.1.72.Final - Netty/Codec (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
-  io.netty:netty-common:4.1.72.Final - Netty/Common (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
-  io.netty:netty-handler:4.1.72.Final - Netty/Handler (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
-  io.netty:netty-resolver:4.1.72.Final - Netty/Resolver (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
-  io.netty:netty-transport:4.1.72.Final - Netty/Transport (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
-  io.netty:netty-transport-classes-epoll:4.1.72.Final - Netty/Transport/Classes/Epoll (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
-  io.netty:netty-transport-native-epoll:4.1.72.Final - Netty/Transport/Native/Epoll (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
-  io.netty:netty-transport-native-unix-common:4.1.72.Final - Netty/Transport/Native/Unix/Common (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-buffer:4.1.94.Final - Netty/Buffer (https://github.com/netty/netty/tree/netty-4.1.94.Final), (Apache License, Version 2.0)
+  io.netty:netty-codec:4.1.94.Final - Netty/Codec (https://github.com/netty/netty/tree/netty-4.1.94.Final), (Apache License, Version 2.0)
+  io.netty:netty-common:4.1.94.Final - Netty/Common (https://github.com/netty/netty/tree/netty-4.1.94.Final), (Apache License, Version 2.0)
+  io.netty:netty-handler:4.1.94.Final - Netty/Handler (https://github.com/netty/netty/tree/netty-4.1.94.Final), (Apache License, Version 2.0)
+  io.netty:netty-resolver:4.1.94.Final - Netty/Resolver (https://github.com/netty/netty/tree/netty-4.1.94.Final), (Apache License, Version 2.0)
+  io.netty:netty-transport:4.1.94.Final - Netty/Transport (https://github.com/netty/netty/tree/netty-4.1.94.Final), (Apache License, Version 2.0)
+  io.netty:netty-transport-classes-epoll:4.1.94.Final - Netty/Transport/Classes/Epoll (https://github.com/netty/netty/tree/netty-4.1.94.Final), (Apache License, Version 2.0)
+  io.netty:netty-transport-native-epoll:4.1.94.Final - Netty/Transport/Native/Epoll (https://github.com/netty/netty/tree/netty-4.1.94.Final), (Apache License, Version 2.0)
+  io.netty:netty-transport-native-unix-common:4.1.94.Final - Netty/Transport/Native/Unix/Common (https://github.com/netty/netty/tree/netty-4.1.94.Final), (Apache License, Version 2.0)
   io.netty:netty-tcnative-classes:2.0.46.Final - Netty/TomcatNative [OpenSSL - Classes] (https://github.com/netty/netty-tcnative/tree/netty-tcnative-parent-2.0.46.Final), (Apache 2.0)
   com.nimbusds:nimbus-jose-jwt:7.9 - Nimbus JOSE+JWT (https://bitbucket.org/connect2id/nimbus-jose-jwt), (The Apache Software License, Version 2.0)
   com.squareup.okhttp:okhttp:2.7.5 - OkHttp (https://github.com/square/okhttp/tree/parent-2.7.5/okhttp), (Apache 2.0)
@@ -494,7 +494,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.zookeeper:zookeeper-jute:3.6.3 - Apache ZooKeeper - Jute (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-jute), (Apache License, Version 2.0)
   ru.yandex.clickhouse:clickhouse-jdbc:0.3.1 - clickhouse-jdbc (https://github.com/ClickHouse/clickhouse-jdbc/tree/master/clickhouse-jdbc), (The Apache Software License, Version 2.0)
 
-  
+
 ========================================================================
 Apache 2.0 licenses
 ========================================================================
@@ -604,7 +604,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.projectlombok:lombok:1.18.22 - Project Lombok (https://projectlombok.org), (The MIT License)
   com.microsoft.sqlserver:mssql-jdbc:6.2.1.jre7 - Microsoft JDBC Driver for SQL Server (https://github.com/Microsoft/mssql-jdbc/tree/v6.2.1), (MIT License)
   org.slf4j:slf4j-api:1.7.36 - SLF4J API Module (http://www.slf4j.org), (MIT License)
-  
+
 
 ========================================================================
 CDDL licenses
@@ -629,7 +629,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   javax.servlet.jsp:jsp-api:2.1 - jsp-api (https://github.com/javaee/javaee-jsp-api/tree/jsp-api-2.2), (CDDL 1.1, GPL2.0)
   javax.servlet:servlet-api:2.5 - servlet-api (https://mvnrepository.com/artifact/javax.servlet/servlet-api/2.5), (CDDL v1.0)
 
-  
+
 ========================================================================
 Public Domain License
 ========================================================================
@@ -652,7 +652,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
 
   org.jamon:jamon-runtime:2.3.1 - jamon-runtime (https://www.jamon.org/), (Mozilla Public License Version 1.1)
 
- 
+
 ========================================================================
 EPL licenses
 ========================================================================
