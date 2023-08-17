@@ -46,7 +46,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -213,7 +212,7 @@ public class InlongClusterController {
     @ApiOperation(value = "Delete cluster by id")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
-    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN})
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<Boolean> delete(@PathVariable Integer id) {
         return Response.success(clusterService.delete(id, LoginUserUtils.getLoginUser().getName()));
     }

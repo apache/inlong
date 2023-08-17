@@ -48,7 +48,6 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.group.GroupCheckService;
 import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
-import org.apache.inlong.manager.service.user.UserService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -116,8 +115,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private StreamSinkFieldEntityMapper sinkFieldMapper;
     @Autowired
     private AutowireCapableBeanFactory autowireCapableBeanFactory;
-    @Autowired
-    private UserService userService;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -188,9 +185,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
                     String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
         }
-        // only the person in charges can query
-        userService.checkUser(entity.getInCharges(), opInfo.getName(),
-                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // check group status
         GroupStatus curState = GroupStatus.forCode(entity.getStatus());
         if (GroupStatus.notAllowedUpdate(curState)) {
@@ -262,9 +256,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         if (groupEntity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-        // only the person in charges can query
-        userService.checkUser(groupEntity.getInCharges(), opInfo.getName(),
-                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(entity.getSinkType());
         return sinkOperator.getFromEntity(entity);
     }
@@ -318,8 +309,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Override
     public PageResult<? extends StreamSink> listByCondition(SinkPageRequest request, String operator) {
         Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY);
-        UserInfo userInfo = userService.getByName(operator);
-        boolean isAdmin = TenantUserTypeEnum.TENANT_ADMIN.getCode().equals(userInfo.getAccountType());
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
@@ -330,13 +319,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
                     groupMapper.selectByGroupId(streamSink.getInlongGroupId());
             if (groupEntity == null) {
                 continue;
-            }
-            // only the person in charges can query
-            if (!isAdmin) {
-                List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
-                if (!inCharges.contains(operator)) {
-                    continue;
-                }
             }
             sinkMap.computeIfAbsent(streamSink.getSinkType(), k -> new Page<>()).add(streamSink);
         }
@@ -460,9 +442,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             throw new BusinessException(ErrorCodeEnum.ILLEGAL_RECORD_FIELD_VALUE,
                     String.format("InlongGroup does not exist with InlongGroupId=%s", curEntity.getInlongGroupId()));
         }
-        // only the person in charges can query
-        userService.checkUser(curGroupEntity.getInCharges(), opInfo.getName(),
-                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // Check if group status can be modified
         GroupStatus curState = GroupStatus.forCode(curEntity.getStatus());
         if (GroupStatus.notAllowedUpdate(curState)) {
@@ -571,9 +550,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
                     String.format("InlongGroup does not exist with InlongGroupId=%s", sinkEntity.getInlongGroupId()));
         }
-        // only the person in charges can query
-        userService.checkUser(groupEntity.getInCharges(), opInfo.getName(),
-                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // Check if group status can be modified
         GroupStatus curState = GroupStatus.forCode(groupEntity.getStatus());
         if (GroupStatus.notAllowedUpdate(curState)) {

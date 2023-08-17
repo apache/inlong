@@ -32,6 +32,7 @@ import org.apache.inlong.manager.service.operationlog.OperationLog;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -56,7 +57,7 @@ public class WorkflowApproverController {
     @PostMapping("/workflow/approver/save")
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save approver info")
-    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<Integer> save(@RequestBody ApproverRequest config) {
         return Response.success(workflowApproverService.save(config, LoginUserUtils.getLoginUser().getName()));
     }
@@ -80,7 +81,7 @@ public class WorkflowApproverController {
     @PostMapping("/workflow/approver/update")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update approver info")
-    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<Integer> update(@RequestBody ApproverRequest request) {
         return Response.success(workflowApproverService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
@@ -89,7 +90,7 @@ public class WorkflowApproverController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete approver by ID")
     @ApiImplicitParam(name = "id", value = "Workflow approver ID", dataTypeClass = Integer.class, required = true)
-    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<Boolean> delete(@PathVariable Integer id) {
         workflowApproverService.delete(id, LoginUserUtils.getLoginUser().getName());
         return Response.success(true);
