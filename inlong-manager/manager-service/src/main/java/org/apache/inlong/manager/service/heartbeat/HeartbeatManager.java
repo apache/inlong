@@ -95,6 +95,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     @Value("${cluster.heartbeat.interval:30}")
     private Long heartbeatIntervalFactor;
 
+    @Value("${reset.nodeStatus.enabled:false}")
+    private Boolean resetNodeStatusEnabled;
+
     /**
      * Check whether the configuration information carried in the heartbeat has been updated
      *
@@ -115,7 +118,10 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     public void init() {
         // When the manager restarts, set the heartbeat timeout state of all nodes
         // and wait for the heartbeat report of the corresponding node
-        clusterNodeMapper.updateStatus(null, NodeStatus.HEARTBEAT_TIMEOUT.getStatus(), NodeStatus.NORMAL.getStatus());
+        if (resetNodeStatusEnabled) {
+            clusterNodeMapper.updateStatus(null, NodeStatus.HEARTBEAT_TIMEOUT.getStatus(),
+                    NodeStatus.NORMAL.getStatus());
+        }
         long expireTime = heartbeatInterval() * heartbeatIntervalFactor;
         Scheduler evictScheduler = Scheduler.forScheduledExecutorService(Executors.newSingleThreadScheduledExecutor());
         heartbeatCache = Caffeine.newBuilder()
