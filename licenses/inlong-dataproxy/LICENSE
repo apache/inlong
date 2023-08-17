@@ -373,6 +373,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.flume:flume-ng-node:1.10.0 - Flume NG Node (https://github.com/apache/flume/tree/flume-1.10.0/flume-ng-node), (The Apache Software License, Version 2.0)
   org.apache.flume:flume-ng-sdk:1.10.0 - Flume NG SDK (https://github.com/apache/flume/tree/flume-1.10.0/flume-ng-sdk), (The Apache Software License, Version 2.0)
   org.apache.flume.flume-ng-channels:flume-spillable-memory-channel:1.10.0 - Flume NG Spillable Memory channel (https://github.com/apache/flume/tree/flume-1.10.0/flume-ng-channels/flume-spillable-memory-channel), (The Apache Software License, Version 2.0)
+  org.apache.commons:commons-text:1.10.0 - Apache Commons Text (https://commons.apache.org/proper/commons-text), (Apache License, Version 2.0)
   com.google.code.gson:gson:2.8.6 - Gson (https://github.com/google/gson/gson), (Apache 2.0)
   com.google.guava:guava:-jre - Guava: Google Core Libraries for Java (https://github.com/google/guava), (Apache License, Version 2.0)
   org.apache.httpcomponents:httpclient:4.5.13 - Apache HttpClient (https://hc.apache.org/httpcomponents-client-4.5.x), (Apache License, Version 2.0)
