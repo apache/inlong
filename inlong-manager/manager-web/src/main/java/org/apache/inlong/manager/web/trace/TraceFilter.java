@@ -48,6 +48,11 @@ public class TraceFilter implements Filter {
     private static final String CLUSTER_NAME = "clusterName";
     private static final String CLUSTER_TAG = "clusterTag";
     private static final String INLONG_STREAM = "inlongStreamId";
+    private static final String TRACE_ID = "trace-id";
+    private static final String REQUEST = "request";
+    private static final String BODY = "body";
+    private static final String URI = "URI";
+    private static final String RESPONSE = "response";
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
@@ -69,11 +74,11 @@ public class TraceFilter implements Filter {
         ResponseWrapper responseWrapper = new ResponseWrapper(response);
         Span span = Span.current();
         addAttributes(inlongRequestWrapper.getContent(), request);
-        span.addEvent("request", Attributes.builder().put("body", inlongRequestWrapper.getContent())
-                .put("URI", request.getRequestURI()).build());
-        response.addHeader("trace-id", span.getSpanContext().getTraceId());
+        span.addEvent(REQUEST, Attributes.builder().put(BODY, inlongRequestWrapper.getContent())
+                .put(URI, request.getRequestURI()).build());
+        response.addHeader(TRACE_ID, span.getSpanContext().getTraceId());
         filterChain.doFilter(inlongRequestWrapper, responseWrapper);
-        span.addEvent("response", Attributes.builder().put("body", responseWrapper.getContent()).build());
+        span.addEvent(RESPONSE, Attributes.builder().put(BODY, responseWrapper.getContent()).build());
     }
 
     private void addAttributes(String body, HttpServletRequest request) {
