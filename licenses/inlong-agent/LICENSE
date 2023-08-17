@@ -344,7 +344,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.yetus:audience-annotations:0.5.0 - Apache Yetus - Audience Annotations (https://yetus.apache.org/), (Apache License, Version 2.0)
   org.apache.avro:avro:1.10.1 - Apache Avro (https://avro.apache.org), (The Apache Software License, Version 2.0)
   org.apache.avro:avro-ipc:1.10.1 - Apache Avro IPC (https://avro.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.pulsar:bouncy-castle-bc:2.8.1 - Apache Pulsar :: Bouncy Castle :: BC (https://github.com/apache/pulsar/tree/master/bouncy-castle/bc), (Apache License, Version 2.0)
+  org.apache.pulsar:bouncy-castle-bc:2.8.4 - Apache Pulsar :: Bouncy Castle :: BC (https://github.com/apache/pulsar/tree/master/bouncy-castle/bc), (Apache License, Version 2.0)
   commons-cli:commons-cli:1.4 - Apache Commons CLI (http://commons.apache.org/proper/commons-cli), (The Apache Software License, Version 2.0)
   commons-codec:commons-codec:1.15 - Apache Commons Codec (https://commons.apache.org/proper/commons-codec), (Apache License, Version 2.0)
   commons-collections:commons-collections:3.2.2 - Apache Commons Collections (https://commons.apache.org/proper/commons-collections), (Apache License, Version 2.0)
@@ -423,8 +423,8 @@ The text of each license is the standard Apache 2.0 license.
   io.netty:netty-transport-native-unix-common:4.1.94.Final - Netty/Transport/Native/Unix/Common (https://github.com/netty/netty/tree/netty-4.1.94.Final), (Apache License, Version 2.0)
   io.netty:netty-tcnative-classes:2.0.46.Final - Netty/TomcatNative [OpenSSL - Classes] (https://github.com/netty/netty-tcnative/tree/netty-tcnative-parent-2.0.46.Final), (Apache 2.0)
   org.codehaus.plexus:plexus-utils:3.2.1 - Plexus Common Utilities (http://codehaus-plexus.github.io/plexus-utils/), (Apache License, Version 2.0)
-  org.apache.pulsar:pulsar-client-admin-api:2.8.1 - Pulsar Client Admin :: API (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
-  org.apache.pulsar:pulsar-client-api:2.8.1 - Pulsar Client :: API (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
+  org.apache.pulsar:pulsar-client-admin-api:2.8.4 - Pulsar Client Admin :: API (https://github.com/apache/pulsar/tree/v2.8.4), (Apache License, Version 2.0)
+  org.apache.pulsar:pulsar-client-api:2.8.4 - Pulsar Client :: API (https://github.com/apache/pulsar/tree/v2.8.4), (Apache License, Version 2.0)
   com.moilioncircle:redis-replicator:3.6.4 - redis-replicator (https://github.com/leonchen83/redis-replicator), (Apache License, Version 2.0)
   org.reflections:reflections:0.10.2 - Reflections (https://github.com/ronmamo/reflections/tree/0.10.2), (The Apache Software License, Version 2.0;  WTFPL)
   org.rocksdb:rocksdbjni:6.14.6 - RocksDB JNI (https://github.com/facebook/rocksdb/tree/v6.14.6), (Apache License 2.0;  GNU General Public License, version 2)
@@ -478,7 +478,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   log4j:log4j:1.2.17 - Apache Log4j (http://logging.apache.org/log4j/1.2/), (The Apache Software License, Version 2.0)
   org.apache.logging.log4j:log4j-core:2.17.2 - Apache Log4j Core (https://logging.apache.org/log4j/2.x/log4j-core/), (Apache License, Version 2.0)
   org.apache.maven:maven-artifact:3.8.1 - Maven Artifact (https://maven.apache.org/ref/3.8.1/maven-artifact/), (Apache License, Version 2.0)
-  org.apache.pulsar:pulsar-client:2.8.1 - Pulsar Client Java (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
+  org.apache.pulsar:pulsar-client:2.8.4 - Pulsar Client Java (https://github.com/apache/pulsar/tree/v2.8.4), (Apache License, Version 2.0)
   com.typesafe:ssl-config-core_2.11:0.3.7 - ssl-config-core (https://github.com/lightbend/ssl-config), (Apache-2.0)
 
 
