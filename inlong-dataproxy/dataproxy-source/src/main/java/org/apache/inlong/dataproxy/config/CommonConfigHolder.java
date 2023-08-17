@@ -76,6 +76,9 @@ public class CommonConfigHolder {
     private static final String KEY_CONFIG_CHECK_INTERVAL_MS = "configCheckInterval";
     public static final long VAL_DEF_CONFIG_SYNC_INTERVAL_MS = 60000L;
     public static final long VAL_MIN_CONFIG_SYNC_INTERVAL_MS = 10000L;
+    // max allowed wait duration
+    private static final String KEY_META_CONFIG_SYNC_WAST_ALARM_MS = "meta.config.sync.wast.alarm.ms";
+    public static final long VAL_DEF_META_CONFIG_SYNC_WAST_ALARM_MS = 30000L;
     // whether to startup using the local metadata.json file without connecting to the Manager
     private static final String KEY_ENABLE_STARTUP_USING_LOCAL_META_FILE =
             "startup.using.local.meta.file.enable";
@@ -165,6 +168,7 @@ public class CommonConfigHolder {
     private String managerAuthSecretKey = "";
     private boolean enableStartupUsingLocalMetaFile = VAL_DEF_ENABLE_STARTUP_USING_LOCAL_META_FILE;
     private long metaConfigSyncInvlMs = VAL_DEF_CONFIG_SYNC_INTERVAL_MS;
+    private long metaConfigWastAlarmMs = VAL_DEF_META_CONFIG_SYNC_WAST_ALARM_MS;
     private boolean enableAudit = VAL_DEF_ENABLE_AUDIT;
     private final HashSet<String> auditProxys = new HashSet<>();
     private String auditFilePath = VAL_DEF_AUDIT_FILE_PATH;
@@ -251,6 +255,10 @@ public class CommonConfigHolder {
 
     public long getMetaConfigSyncInvlMs() {
         return metaConfigSyncInvlMs;
+    }
+
+    public long getMetaConfigWastAlarmMs() {
+        return metaConfigWastAlarmMs;
     }
 
     public boolean isEnableUnConfigTopicAccept() {
@@ -408,6 +416,11 @@ public class CommonConfigHolder {
             if (tmpSyncInvMs >= VAL_MIN_CONFIG_SYNC_INTERVAL_MS) {
                 this.metaConfigSyncInvlMs = tmpSyncInvMs;
             }
+        }
+        // read configure sync wast alarm ms
+        tmpValue = this.props.get(KEY_META_CONFIG_SYNC_WAST_ALARM_MS);
+        if (StringUtils.isNotBlank(tmpValue)) {
+            this.metaConfigWastAlarmMs = NumberUtils.toLong(tmpValue.trim(), VAL_DEF_META_CONFIG_SYNC_WAST_ALARM_MS);
         }
         // read enable startup using local meta file
         tmpValue = this.props.get(KEY_ENABLE_STARTUP_USING_LOCAL_META_FILE);

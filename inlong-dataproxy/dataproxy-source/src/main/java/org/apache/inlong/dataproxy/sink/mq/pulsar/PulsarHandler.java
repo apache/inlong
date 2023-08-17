@@ -206,7 +206,7 @@ public class PulsarHandler implements MessageQueueHandler {
         String producerTopic = null;
         try {
             // get idConfig
-            IdTopicConfig idConfig = ConfigManager.getInstance().getIdTopicConfig(
+            IdTopicConfig idConfig = ConfigManager.getInstance().getSinkIdTopicConfig(
                     profile.getInlongGroupId(), profile.getInlongStreamId());
             if (idConfig == null) {
                 if (!CommonConfigHolder.getInstance().isEnableUnConfigTopicAccept()) {
@@ -354,7 +354,7 @@ public class PulsarHandler implements MessageQueueHandler {
         // callback
         future.whenCompleteAsync((msgId, ex) -> {
             if (ex != null) {
-                sinkContext.fileMetricAddFailStats(simpleProfile, producerTopic, "", producerTopic);
+                sinkContext.fileMetricAddFailStats(simpleProfile, producerTopic, msgId.toString(), producerTopic);
                 sinkContext.processSendFail(simpleProfile, clusterName, producerTopic, sendTime,
                         DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 if (logCounter.shouldPrint()) {
