@@ -23,7 +23,6 @@ import org.apache.inlong.sort.formats.json.canal.CanalJson;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
-import io.debezium.relational.Column;
 import io.debezium.relational.Table;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
@@ -46,6 +45,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.inlong.sort.cdc.base.util.MetaDataUtil.getType;
 
 /** Defines the supported metadata columns for {@link OracleTableSource}. */
 public enum OracleReadableMetaData {
@@ -269,7 +270,7 @@ public enum OracleReadableMetaData {
                 @Override
                 public Object read(
                         SourceRecord record, @Nullable TableChanges.TableChange tableSchema) {
-                    Map<String, String> oracleType = getOracleType(tableSchema);
+                    Map<String, String> oracleType = getType(tableSchema);
                     if (oracleType == null) {
                         return null;
                     }
@@ -385,7 +386,7 @@ public enum OracleReadableMetaData {
         CanalJson canalJson = CanalJson.builder()
                 .data(dataList).database(databaseName).schema(schemaName)
                 .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
-                .oracleType(getOracleType(tableSchema))
+                .oracleType(getType(tableSchema))
                 .table(tableName).ts(ts)
                 .type(getCanalOpType(data)).sqlType(getSqlType(tableSchema)).build();
         try {
@@ -405,9 +406,6 @@ public enum OracleReadableMetaData {
     private static final String OP_INSERT = "INSERT";
     private static final String OP_DELETE = "DELETE";
     private static final String OP_UPDATE = "UPDATE";
-    private static final String REGEX_FORMATTED = "\\w.+\\([\\d ,]+\\)";
-    private static final String FORMAT_PRECISION = "%s(%d)";
-    private static final String FORMAT_PRECISION_SCALE = "%s(%d, %d)";
 
     OracleReadableMetaData(String key, DataType dataType, MetadataConverter converter) {
         this.key = key;
@@ -451,32 +449,6 @@ public enum OracleReadableMetaData {
             return null;
         }
         return tableSchema.getTable().primaryKeyColumnNames();
-    }
-
-    public static Map<String, String> getOracleType(@Nullable TableChanges.TableChange tableSchema) {
-        if (tableSchema == null) {
-            return null;
-        }
-        Map<String, String> oracleType = new LinkedHashMap<>();
-        final Table table = tableSchema.getTable();
-        for (Column column : table.columns()) {
-            // The typeName contains precision and does not need to be formatted.
-            if (column.typeName().matches(REGEX_FORMATTED)) {
-                oracleType.put(column.name(), column.typeName());
-                continue;
-            }
-            if (column.scale().isPresent()) {
-                oracleType.put(
-                        column.name(),
-                        String.format(FORMAT_PRECISION_SCALE,
-                                column.typeName(), column.length(), column.scale().get()));
-            } else {
-                oracleType.put(
-                        column.name(),
-                        String.format(FORMAT_PRECISION, column.typeName(), column.length()));
-            }
-        }
-        return oracleType;
     }
 
     public static Map<String, Integer> getSqlType(@Nullable TableChanges.TableChange tableSchema) {
