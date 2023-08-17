@@ -17,11 +17,11 @@
  * under the License.
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { Modal, Spin, message, Form, Input, Select, Button } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Modal, Spin, message, Form, Button } from 'antd';
 import { ModalProps } from 'antd/es/modal';
-import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
-import { useRequest, useUpdateEffect } from '@/ui/hooks';
+import { useForm } from '@/ui/components/FormGenerator';
+import { useRequest } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import { useDefaultMeta, useLoadMeta, TransformMetaType } from '@/plugins';
 import request from '@/core/utils/request';
@@ -238,10 +238,8 @@ const Comp: React.FC<Props> = ({
   }, [getData, getSinkData, inlongStreamId]);
 
   useEffect(() => {
-    if (!id && isSource === false && modalProps.open) {
-      if (blur) {
-        getData(inlongStreamId);
-      }
+    if (!id && isSource === false && modalProps.open && blur) {
+      getData(inlongStreamId);
       form.setFieldsValue({
         sinkFieldList: data?.fieldList.map(item => ({
           sourceFieldName: item.fieldName,
