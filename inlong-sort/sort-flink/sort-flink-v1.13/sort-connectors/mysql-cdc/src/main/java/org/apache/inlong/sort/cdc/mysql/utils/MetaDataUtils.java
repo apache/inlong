@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.apache.inlong.sort.base.Constants.DDL_FIELD_NAME;
+import static org.apache.inlong.sort.cdc.base.util.MetaDataUtil.getType;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isSnapshotRecord;
 import static org.apache.inlong.sort.cdc.mysql.utils.OperationUtils.generateOperation;
 
@@ -56,9 +57,6 @@ public class MetaDataUtils {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private static final Logger LOG = LoggerFactory.getLogger(MetaDataUtils.class);
-
-    private static final String FORMAT_PRECISION = "%s(%d)";
-    private static final String FORMAT_PRECISION_SCALE = "%s(%d, %d)";
 
     /**
      * get sql type from table schema, represents the jdbc data type
@@ -138,29 +136,6 @@ public class MetaDataUtils {
         return tableSchema.getTable().primaryKeyColumnNames();
     }
 
-    public static Map<String, String> getMysqlType(@Nullable TableChanges.TableChange tableSchema) {
-        if (tableSchema == null) {
-            return null;
-        }
-        Map<String, String> mysqlType = new LinkedHashMap<>();
-        final Table table = tableSchema.getTable();
-        table.columns()
-                .forEach(
-                        column -> {
-                            if (column.scale().isPresent()) {
-                                mysqlType.put(
-                                        column.name(),
-                                        String.format(FORMAT_PRECISION_SCALE,
-                                                column.typeName(), column.length(), column.scale().get()));
-                            } else {
-                                mysqlType.put(
-                                        column.name(),
-                                        String.format(FORMAT_PRECISION, column.typeName(), column.length()));
-                            }
-                        });
-        return mysqlType;
-    }
-
     public static StringData getCanalData(SourceRecord record, GenericRowData rowData,
             TableChange tableSchema) {
         Struct messageStruct = (Struct) record.value();
@@ -178,7 +153,7 @@ public class MetaDataUtils {
         CanalJson canalJson = CanalJson.builder()
                 .database(databaseName)
                 .es(opTs).pkNames(getPkNames(tableSchema))
-                .mysqlType(getMysqlType(tableSchema)).table(tableName)
+                .mysqlType(getType(tableSchema)).table(tableName)
                 .incremental(!isSnapshotRecord(sourceStruct))
                 .dataSourceName(sourceStruct.getString(AbstractSourceInfo.SERVER_NAME_KEY))
                 .type(getCanalOpType(rowData))
@@ -218,7 +193,7 @@ public class MetaDataUtils {
                 .name(sourceStruct.getString(AbstractSourceInfo.SERVER_NAME_KEY))
                 .sqlType(getSqlType(tableSchema))
                 .pkNames(getPkNames(tableSchema))
-                .mysqlType(getMysqlType(tableSchema))
+                .mysqlType(getType(tableSchema))
                 .build();
         DebeziumJson debeziumJson = DebeziumJson.builder().source(source)
                 .tsMs(sourceStruct.getInt64(AbstractSourceInfo.TIMESTAMP_KEY)).op(getDebeziumOpType(data))
