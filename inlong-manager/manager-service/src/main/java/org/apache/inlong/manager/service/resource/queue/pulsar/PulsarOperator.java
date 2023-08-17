@@ -38,6 +38,7 @@ import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
+import org.apache.pulsar.common.partition.PartitionedTopicMetadata;
 import org.apache.pulsar.common.policies.data.PersistencePolicies;
 import org.apache.pulsar.common.policies.data.RetentionPolicies;
 import org.apache.pulsar.common.policies.data.TenantInfoImpl;
@@ -389,27 +390,36 @@ public class PulsarOperator {
     public List<BriefMQMessage> queryLatestMessage(PulsarAdmin pulsarAdmin, String topicFullName, String subName,
             Integer messageCount, InlongStreamInfo streamInfo) {
         LOGGER.info("begin to query message for topic {}, subName={}", topicFullName, subName);
-
         List<BriefMQMessage> messageList = new ArrayList<>();
-        for (int i = 0; i < messageCount; i++) {
-            try {
-                Message<byte[]> pulsarMessage = pulsarAdmin.topics().examineMessage(topicFullName, "latest", i);
+        try {
+            PartitionedTopicMetadata partitionedTopicMetadata = pulsarAdmin.topics()
+                    .getPartitionedTopicMetadata(topicFullName);
+            int partitionCount = partitionedTopicMetadata.partitions;
+            int count = messageCount / partitionCount;
+            for (int partitionNum = 0; partitionNum < partitionCount; partitionNum++) {
+                Message<byte[]> pulsarMessage = pulsarAdmin.topics()
+                        .examineMessage(buildTopicNameOfPartition(topicFullName, partitionNum), "latest", count);
                 Map<String, String> headers = pulsarMessage.getProperties();
                 int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
                         Integer.toString(DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId())));
                 DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
                         DataProxyMsgEncType.valueOf(wrapTypeId));
                 messageList.addAll(
-                        deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(), headers, i));
-            } catch (Exception e) {
-                String errMsg = "decode msg error: ";
-                LOGGER.error(errMsg, e);
-                throw new BusinessException(errMsg + e.getMessage());
+                        deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(), headers, partitionNum));
             }
+        } catch (Exception e) {
+            String errMsg = "decode msg error: ";
+            LOGGER.error(errMsg, e);
+            throw new BusinessException(errMsg + e.getMessage());
         }
-
         LOGGER.info("success query message by subs={} for topic={}", subName, topicFullName);
         return messageList;
     }
 
+    /**
+     * build topicName Of Partition
+     */
+    private String buildTopicNameOfPartition(String topicName, int partition) {
+        return topicName + "-partition-" + partition;
+    }
 }
