@@ -30,7 +30,6 @@ export interface Props {
   inlongStreamId?: string;
   isSource: boolean;
   columns: ColumnsType;
-  //   readonly?: string;
 }
 
 const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, columns }) => {
@@ -38,9 +37,11 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, column
     open: false,
   });
 
+  const [blur, setBlur] = useState(false);
+
   const { data, run: getList } = useRequest(
     streamId => ({
-      url: `/stream/get`,
+      url: `/stream/getBrief`,
       params: {
         groupId: inlongGroupId,
         streamId,
@@ -89,7 +90,14 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, column
           columns={columns}
           dataSource={isSource === true ? data?.fieldList : sinkData?.list[0]?.sinkFieldList}
           footer={() => (
-            <Button style={{ margin: 'auto' }} onClick={() => setCreateModal({ open: true })}>
+            <Button
+              style={{ margin: 'auto' }}
+              onBlur={() => setBlur(false)}
+              onClick={() => {
+                setBlur(true);
+                setCreateModal({ open: true });
+              }}
+            >
               {i18n.t('components.FieldList.AddField')}
             </Button>
           )}
@@ -101,6 +109,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, column
         inlongStreamId={inlongStreamId}
         isSource={isSource}
         open={createModal.open as boolean}
+        blur={blur}
         onOk={async () => {
           await getList(inlongStreamId);
           await getSinkData();
