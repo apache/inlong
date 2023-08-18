@@ -30,7 +30,6 @@ export interface Props {
   inlongStreamId?: string;
   isSource: boolean;
   columns: ColumnsType;
-  //   readonly?: string;
 }
 
 const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, columns }) => {
@@ -40,7 +39,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, column
 
   const { data, run: getList } = useRequest(
     streamId => ({
-      url: `/stream/get`,
+      url: `/stream/getBrief`,
       params: {
         groupId: inlongGroupId,
         streamId,
