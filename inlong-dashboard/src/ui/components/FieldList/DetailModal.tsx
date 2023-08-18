@@ -205,17 +205,15 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, ...mod
   };
 
   useEffect(() => {
-    if (inlongStreamId) {
+    if (inlongStreamId && modalProps.open) {
       getData(inlongStreamId);
       getSinkData();
-      setSinkType(sinkData?.list[0]?.sinkType);
     }
-  }, [getData, getSinkData, inlongStreamId]);
+  }, [getData, getSinkData, inlongStreamId, modalProps.open]);
 
   useEffect(() => {
     if (inlongStreamId && isSource === false && modalProps.open) {
       if (sinkData?.list[0]?.sinkFieldList?.length === 0) {
-        getData(inlongStreamId);
         form.setFieldsValue({
           sinkFieldList: data?.fieldList?.map(item => ({
             sourceFieldName: item.fieldName,
@@ -226,7 +224,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, ...mod
         });
       }
     }
-  }, [data, form, getData, getSinkData, inlongStreamId, isSource, modalProps.open, sinkData?.list]);
+  }, [data, form, inlongStreamId, isSource, modalProps.open, sinkData?.list]);
 
   return (
     <>
