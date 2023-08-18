@@ -30,24 +30,12 @@ import i18n from '@/i18n';
 import { fieldAllTypes } from './FieldTypeConf';
 
 export interface Props extends ModalProps {
-  // When editing, use the ID to call the interface for obtaining details
-  id?: string;
   inlongGroupId: string;
   inlongStreamId: string;
-  defaultType?: string;
   isSource: boolean;
-  blur: boolean;
 }
 
-const Comp: React.FC<Props> = ({
-  id,
-  inlongGroupId,
-  inlongStreamId,
-  isSource,
-  defaultType,
-  blur,
-  ...modalProps
-}) => {
+const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, ...modalProps }) => {
   const [form] = useForm();
   const { t } = useTranslation();
 
@@ -108,9 +96,6 @@ const Comp: React.FC<Props> = ({
           message: i18n.t('meta.Stream.FieldNameRule'),
         },
       ],
-      props: {
-        disabled: true,
-      },
     },
     {
       title: i18n.t('meta.Sinks.SourceFieldType'),
@@ -119,7 +104,6 @@ const Comp: React.FC<Props> = ({
       initialValue: fieldTypes[0].label,
       rules: [{ required: true }],
       props: {
-        disabled: true,
         options: fieldTypes,
       },
     },
@@ -134,9 +118,6 @@ const Comp: React.FC<Props> = ({
           message: i18n.t('meta.Stream.FieldNameRule'),
         },
       ],
-      props: (text, record) => ({
-        disabled: record.id,
-      }),
     },
     {
       title: i18n.t('meta.Stream.FieldType'),
@@ -144,7 +125,6 @@ const Comp: React.FC<Props> = ({
       type: 'select',
       initialValue: '',
       props: (text, record) => ({
-        disabled: record.id,
         options: isSource === true ? fieldTypes : fieldAllTypes[sinkType],
       }),
       rules: [{ required: true }],
@@ -193,7 +173,6 @@ const Comp: React.FC<Props> = ({
       inlongStreamId,
     };
     if (isUpdate) {
-      submitData.id = id;
       submitData.version = data?.version;
     }
     if (isSource === true) {
@@ -205,11 +184,13 @@ const Comp: React.FC<Props> = ({
         },
       });
     } else {
-      sinkData.list[0].sinkFieldList = values.sinkFieldList;
       const sinkSubmitData = {
-        ...sinkData.list[0],
         inlongGroupId,
         inlongStreamId,
+        id: sinkData.list[0].id,
+        sinkType: sinkData.list[0].sinkType,
+        version: sinkData.list[0].version,
+        sinkFieldList: values.sinkFieldList,
       };
       await request({
         url: `/sink/update`,
@@ -224,12 +205,6 @@ const Comp: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    if (inlongStreamId && isSource === true && modalProps.open) {
-      getData(inlongStreamId);
-    }
-  }, [getData, inlongStreamId, isSource, modalProps.open]);
-
-  useEffect(() => {
     if (inlongStreamId) {
       getData(inlongStreamId);
       getSinkData();
@@ -238,18 +213,20 @@ const Comp: React.FC<Props> = ({
   }, [getData, getSinkData, inlongStreamId]);
 
   useEffect(() => {
-    if (!id && isSource === false && modalProps.open && blur) {
-      getData(inlongStreamId);
-      form.setFieldsValue({
-        sinkFieldList: data?.fieldList.map(item => ({
-          sourceFieldName: item.fieldName,
-          sourceFieldType: item.fieldType,
-          fieldName: item.fieldName,
-          fieldType: '',
-        })),
-      });
+    if (inlongStreamId && isSource === false && modalProps.open) {
+      if (sinkData?.list[0]?.sinkFieldList?.length === 0) {
+        getData(inlongStreamId);
+        form.setFieldsValue({
+          sinkFieldList: data?.fieldList?.map(item => ({
+            sourceFieldName: item.fieldName,
+            sourceFieldType: item.fieldType,
+            fieldName: item.fieldName,
+            fieldType: '',
+          })),
+        });
+      }
     }
-  }, [blur, data?.fieldList, form, getData, id, inlongStreamId, isSource, modalProps.open]);
+  }, [data, form, getData, getSinkData, inlongStreamId, isSource, modalProps.open, sinkData?.list]);
 
   return (
     <>
@@ -276,7 +253,7 @@ const Comp: React.FC<Props> = ({
             <Form.Item name={isSource === true ? 'fieldList' : 'sinkFieldList'}>
               <EditableTable
                 columns={isSource === true ? fieldList : sinkFieldList}
-                dataSource={isSource === true ? data?.fieldList : sinkData?.sinkFieldList}
+                dataSource={isSource === true ? data?.fieldList : sinkData?.list[0]?.sinkFieldList}
               ></EditableTable>
             </Form.Item>
           </Form>
