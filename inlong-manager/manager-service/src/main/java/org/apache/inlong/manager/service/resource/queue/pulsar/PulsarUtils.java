@@ -63,9 +63,9 @@ public class PulsarUtils {
                 "Pulsar adminUrl cannot be empty");
         PulsarClient pulsarClient;
         if (StringUtils.isEmpty(pulsarCluster.getToken())) {
-            pulsarClient = getPulsarClient(pulsarCluster.getAdminUrl());
+            pulsarClient = getPulsarClient(pulsarCluster.getServiceUrl());
         } else {
-            pulsarClient = getPulsarClient(pulsarCluster.getAdminUrl(), pulsarCluster.getToken());
+            pulsarClient = getPulsarClient(pulsarCluster.getServiceUrl(), pulsarCluster.getToken());
         }
         return pulsarClient;
     }
