@@ -45,6 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pulsar.client.admin.PulsarAdmin;
+import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -315,7 +316,7 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
                 null, ClusterType.PULSAR);
         List<BriefMQMessage> briefMQMessages = new ArrayList<>();
 
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
+        try (PulsarClient pulsarClient = PulsarUtils.getPulsarClient(pulsarCluster)) {
             String tenant = inlongPulsarInfo.getPulsarTenant();
             if (StringUtils.isBlank(tenant)) {
                 tenant = pulsarCluster.getPulsarTenant();
@@ -327,7 +328,7 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
             String clusterTag = inlongPulsarInfo.getInlongClusterTag();
             String subs = String.format(PULSAR_SUBSCRIPTION_REALTIME_REVIEW, clusterTag, topicName);
             briefMQMessages =
-                    pulsarOperator.queryLatestMessage(pulsarAdmin, fullTopicName, subs, messageCount, streamInfo);
+                    pulsarOperator.queryLatestMessage(pulsarClient, fullTopicName, subs, messageCount, streamInfo);
 
             // insert the consumer group info into the inlong_consume table
             Integer id = consumeService.saveBySystem(groupInfo, topicName, subs);

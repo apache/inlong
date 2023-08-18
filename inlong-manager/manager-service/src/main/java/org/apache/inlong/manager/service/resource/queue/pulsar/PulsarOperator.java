@@ -38,6 +38,9 @@ import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
+import org.apache.pulsar.client.api.PulsarClient;
+import org.apache.pulsar.client.api.PulsarClientException;
+import org.apache.pulsar.client.api.Reader;
 import org.apache.pulsar.common.partition.PartitionedTopicMetadata;
 import org.apache.pulsar.common.policies.data.PersistencePolicies;
 import org.apache.pulsar.common.policies.data.RetentionPolicies;
@@ -387,25 +390,25 @@ public class PulsarOperator {
     /**
      * Query topic message for the given pulsar cluster.
      */
-    public List<BriefMQMessage> queryLatestMessage(PulsarAdmin pulsarAdmin, String topicFullName, String subName,
+    public List<BriefMQMessage> queryLatestMessage(PulsarClient pulsarClient, String topicFullName, String subName,
             Integer messageCount, InlongStreamInfo streamInfo) {
         LOGGER.info("begin to query message for topic {}, subName={}", topicFullName, subName);
         List<BriefMQMessage> messageList = new ArrayList<>();
         try {
-            PartitionedTopicMetadata partitionedTopicMetadata = pulsarAdmin.topics()
-                    .getPartitionedTopicMetadata(topicFullName);
-            int partitionCount = partitionedTopicMetadata.partitions;
+            List<String> partitions = pulsarClient.getPartitionsForTopic(topicFullName).get();
+            int partitionCount = partitions.size();
+            boolean serial = false;
+            int serialPartitionCount = 0;
+            if (partitionCount == serialPartitionCount) {
+                partitionCount = 1;
+                serial = true;
+            }
             int count = messageCount / partitionCount;
+            int index = 0;
             for (int partitionNum = 0; partitionNum < partitionCount; partitionNum++) {
-                Message<byte[]> pulsarMessage = pulsarAdmin.topics()
-                        .examineMessage(buildTopicNameOfPartition(topicFullName, partitionNum), "latest", count);
-                Map<String, String> headers = pulsarMessage.getProperties();
-                int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
-                        Integer.toString(DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId())));
-                DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
-                        DataProxyMsgEncType.valueOf(wrapTypeId));
-                messageList.addAll(
-                        deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(), headers, partitionNum));
+                String topicNameOfPartition = buildTopicNameOfPartition(topicFullName, partitionNum, serial);
+                messageList.addAll(queryMessageFromPulsar(topicNameOfPartition, subName, count, pulsarClient, index++,
+                        streamInfo));
             }
         } catch (Exception e) {
             String errMsg = "decode msg error: ";
@@ -417,9 +420,36 @@ public class PulsarOperator {
     }
 
     /**
-     * build topicName Of Partition
+     * Use pulsar reader to query message
      */
-    private String buildTopicNameOfPartition(String topicName, int partition) {
+    private List<BriefMQMessage> queryMessageFromPulsar(String topic, String subscriptionName,
+            int count, PulsarClient pulsarClient, int index, InlongStreamInfo streamInfo) throws Exception {
+        Reader<byte[]> reader = pulsarClient.newReader().topic(topic).startMessageId(MessageId.latest)
+                .subscriptionName(subscriptionName).create();
+        List<BriefMQMessage> briefMQMessages = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            Message<byte[]> pulsarMessage = reader.readNext();
+            if (pulsarMessage == null) {
+                break;
+            }
+            Map<String, String> headers = pulsarMessage.getProperties();
+            int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
+                    Integer.toString(DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId())));
+            DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
+                    DataProxyMsgEncType.valueOf(wrapTypeId));
+            briefMQMessages.addAll(deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(),
+                    headers, index++));
+        }
+        return briefMQMessages;
+    }
+
+    /**
+     * Build topicName Of Partition
+     */
+    private String buildTopicNameOfPartition(String topicName, int partition, boolean serial) {
+        if (serial) {
+            return topicName;
+        }
         return topicName + "-partition-" + partition;
     }
 }
