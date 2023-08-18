@@ -121,7 +121,7 @@ public class KafkaHandler implements MessageQueueHandler {
         String topic = null;
         try {
             // get idConfig
-            IdTopicConfig idConfig = ConfigManager.getInstance().getIdTopicConfig(
+            IdTopicConfig idConfig = ConfigManager.getInstance().getSinkIdTopicConfig(
                     profile.getInlongGroupId(), profile.getInlongStreamId());
             if (idConfig == null) {
                 if (!CommonConfigHolder.getInstance().isEnableUnConfigTopicAccept()) {
