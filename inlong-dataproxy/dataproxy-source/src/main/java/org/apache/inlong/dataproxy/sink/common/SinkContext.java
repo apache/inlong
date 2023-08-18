@@ -66,6 +66,7 @@ public class SinkContext {
     // file metric statistic
     protected MonitorIndex monitorIndex = null;
     private MonitorStats monitorStats = null;
+    private final boolean enableFileMetric;
 
     /**
      * Constructor
@@ -78,6 +79,7 @@ public class SinkContext {
         this.maxThreads = sinkContext.getInteger(KEY_MAX_THREADS, 10);
         this.processInterval = sinkContext.getInteger(KEY_PROCESSINTERVAL, 100);
         this.reloadInterval = sinkContext.getLong(KEY_RELOADINTERVAL, 60000L);
+        this.enableFileMetric = CommonConfigHolder.getInstance().isEnableFileMetric();
         //
         this.metricItemSet = new DataProxyMetricItemSet(sinkName);
         MetricRegister.register(this.metricItemSet);
@@ -88,7 +90,7 @@ public class SinkContext {
      */
     public void start() {
         // init monitor logic
-        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+        if (enableFileMetric) {
             this.monitorIndex = new MonitorIndex(CommonConfigHolder.getInstance().getFileMetricSinkOutName(),
                     CommonConfigHolder.getInstance().getFileMetricStatInvlSec() * 1000L,
                     CommonConfigHolder.getInstance().getFileMetricStatCacheCnt());
@@ -107,7 +109,7 @@ public class SinkContext {
      */
     public void close() {
         // stop file statistic index
-        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+        if (enableFileMetric) {
             if (monitorIndex != null) {
                 monitorIndex.stop();
             }
@@ -118,21 +120,20 @@ public class SinkContext {
     }
 
     public void fileMetricIncSumStats(String eventKey) {
-        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+        if (enableFileMetric) {
             monitorStats.incSumStats(eventKey);
         }
     }
 
     public void fileMetricIncWithDetailStats(String eventKey, String detailInfoKey) {
-        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+        if (enableFileMetric) {
             monitorStats.incSumStats(eventKey);
             monitorStats.incDetailStats(eventKey + "#" + detailInfoKey);
         }
     }
 
     public void fileMetricAddSuccStats(PackProfile profile, String topic, String brokerIP) {
-        if (!CommonConfigHolder.getInstance().isEnableFileMetric()
-                || !(profile instanceof SimplePackProfile)) {
+        if (!enableFileMetric || !(profile instanceof SimplePackProfile)) {
             return;
         }
         fileMetricIncStats((SimplePackProfile) profile, true,
@@ -140,8 +141,7 @@ public class SinkContext {
     }
 
     public void fileMetricAddFailStats(PackProfile profile, String topic, String brokerIP, String detailKey) {
-        if (!CommonConfigHolder.getInstance().isEnableFileMetric()
-                || !(profile instanceof SimplePackProfile)) {
+        if (!enableFileMetric || !(profile instanceof SimplePackProfile)) {
             return;
         }
         fileMetricIncStats((SimplePackProfile) profile, false,
@@ -149,8 +149,7 @@ public class SinkContext {
     }
 
     public void fileMetricAddExceptStats(PackProfile profile, String topic, String brokerIP, String detailKey) {
-        if (!CommonConfigHolder.getInstance().isEnableFileMetric()
-                || !(profile instanceof SimplePackProfile)) {
+        if (!enableFileMetric || !(profile instanceof SimplePackProfile)) {
             return;
         }
         fileMetricIncStats((SimplePackProfile) profile, false,

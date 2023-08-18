@@ -561,7 +561,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 List<Message> messageList = DataConverterUtil.convertMessage(topicName, tmpMsgList);
                 int i = 0;
                 int startPos = Math.max(messageList.size() - msgCount, 0);
-                sb.append("{\"result\":true,\"errCode\":200,\"errMsg\":\"Success!\",\"dataSet\":[");
+                sb.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
                 for (; startPos < messageList.size(); startPos++) {
                     if (i > 0) {
                         sb.append(",");

@@ -50,6 +50,12 @@ public class AlterColumn {
         this.oldColumn = oldColumn;
     }
 
+    public AlterColumn(@JsonProperty("alterType") AlterType alterType,
+            @JsonProperty("newColumn") Column newColumn) {
+        this.alterType = alterType;
+        this.newColumn = newColumn;
+    }
+
     public AlterColumn(@JsonProperty("alterType") AlterType alterType) {
         this.alterType = alterType;
     }

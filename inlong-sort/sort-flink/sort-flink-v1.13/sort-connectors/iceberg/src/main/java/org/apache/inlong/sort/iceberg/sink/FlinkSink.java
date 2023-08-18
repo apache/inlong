@@ -189,6 +189,7 @@ public class FlinkSink {
         private boolean enableSchemaChange;
         private String schemaChangePolicies;
         private boolean switchAppendUpsertEnable = false;
+        private boolean autoCreateTableWhenSnapshot;
 
         private Builder() {
         }
@@ -280,6 +281,11 @@ public class FlinkSink {
 
         public Builder enableSchemaChange(boolean schemaChange) {
             this.enableSchemaChange = schemaChange;
+            return this;
+        }
+
+        public Builder autoCreateTableWhenSnapshot(boolean autoCreateTableWhenSnapshot) {
+            this.autoCreateTableWhenSnapshot = autoCreateTableWhenSnapshot;
             return this;
         }
 
@@ -699,7 +705,7 @@ public class FlinkSink {
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
             DynamicSchemaHandleOperator routeOperator = new DynamicSchemaHandleOperator(
                     catalogLoader, multipleSinkOption, dirtyOptions, dirtySink, inlongMetric, auditHostAndPorts,
-                    enableSchemaChange, schemaChangePolicies);
+                    enableSchemaChange, schemaChangePolicies, autoCreateTableWhenSnapshot);
             SingleOutputStreamOperator<RecordWithSchema> routeStream = input
                     .transform(operatorName(ICEBERG_WHOLE_DATABASE_MIGRATION_NAME),
                             TypeInformation.of(RecordWithSchema.class),

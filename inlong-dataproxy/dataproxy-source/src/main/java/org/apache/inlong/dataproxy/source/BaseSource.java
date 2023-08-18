@@ -128,10 +128,13 @@ public abstract class BaseSource
     private MonitorStats monitorStats = null;
     // metric set
     private DataProxyMetricItemSet metricItemSet;
+    // whether enable file metric
+    protected boolean enableFileMetric;
 
     public BaseSource() {
         super();
         allChannels = new DefaultChannelGroup("DefaultChannelGroup", GlobalEventExecutor.INSTANCE);
+        this.enableFileMetric = CommonConfigHolder.getInstance().isEnableFileMetric();
     }
 
     @Override
@@ -256,7 +259,7 @@ public abstract class BaseSource
                 CommonConfigHolder.getInstance().getClusterName(), this.cachedSrcName, String.valueOf(srcPort));
         MetricRegister.register(metricItemSet);
         // init monitor logic
-        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+        if (enableFileMetric) {
             this.monitorIndex = new MonitorIndex(CommonConfigHolder.getInstance().getFileMetricSourceOutName(),
                     CommonConfigHolder.getInstance().getFileMetricStatInvlSec() * 1000L,
                     CommonConfigHolder.getInstance().getFileMetricStatCacheCnt());
@@ -304,7 +307,7 @@ public abstract class BaseSource
             this.workerGroup.shutdownGracefully();
         }
         // stop file statistic index
-        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+        if (enableFileMetric) {
             if (monitorIndex != null) {
                 monitorIndex.stop();
             }
@@ -409,13 +412,13 @@ public abstract class BaseSource
     }
 
     public void fileMetricIncSumStats(String eventKey) {
-        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+        if (enableFileMetric) {
             monitorStats.incSumStats(eventKey);
         }
     }
 
     public void fileMetricIncDetailStats(String eventKey) {
-        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+        if (enableFileMetric) {
             monitorStats.incDetailStats(eventKey);
         }
     }
@@ -436,7 +439,7 @@ public abstract class BaseSource
     private void fileMetricIncStats(StringBuilder strBuff, boolean isSucc, String groupId,
             String streamId, String topicName, String clientIP, String msgProcType,
             long dt, long pkgTime, int cnt, int packCnt, long packSize, int failCnt) {
-        if (!CommonConfigHolder.getInstance().isEnableFileMetric()) {
+        if (!enableFileMetric) {
             return;
         }
         String tenMinsDt = DateTimeUtils.ms2yyyyMMddHHmmTenMins(dt);

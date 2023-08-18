@@ -90,11 +90,26 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId }) => {
           <Col span={11}>
             <SyncSources inlongGroupId={inlongGroupId} inlongStreamId={inlongStreamId} />
           </Col>
-          <Col span={2} onDoubleClick={openClick}>
-            <a type="link" style={{ position: 'absolute', top: '50%' }}>
-              <Button type="link" style={{ position: 'absolute', top: '50%' }}>
-                {i18n.t('pages.SynchronizeDetail.Sync.Transform')}
-              </Button>
+          <Col
+            span={2}
+            onDoubleClick={openClick}
+            style={{
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <a
+              type="link"
+              style={{
+                position: 'absolute',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Button type="link">{i18n.t('pages.SynchronizeDetail.Sync.Transform')}</Button>
             </a>
           </Col>
           <Col span={11}>

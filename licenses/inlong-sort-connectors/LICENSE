@@ -746,7 +746,7 @@ sources/binaries. The use of these sources/binaries is subject to the
 terms and conditions of their respective licenses.
 
 Note: Since the inlong-sort module is a task on Flink, we must package it together with
-its dependencies and provide it in the form of a .jar package when publishing. 
+its dependencies and provide it in the form of a .jar package when publishing.
 We pass the "mvn dependency:copy-dependencies -DincludeScope=runtime" method to
 obtain all runtime third-party dependencies of the module
 
@@ -770,7 +770,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.yetus:audience-annotations:0.5.0 - Apache Yetus - Audience Annotations (https://yetus.apache.org/), (Apache License, Version 2.0)
   org.apache.yetus:audience-annotations:0.12.0 - Apache Yetus - Audience Annotations (https://yetus.apache.org/), (Apache License, Version 2.0)
   org.apache.avro:avro:1.10.1 - Apache Avro (https://avro.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.pulsar:bouncy-castle-bc:2.8.1 - Apache Pulsar :: Bouncy Castle :: BC (https://github.com/apache/pulsar/tree/master/bouncy-castle/bc), (Apache License, Version 2.0)
+  org.apache.pulsar:bouncy-castle-bc:2.8.4 - Apache Pulsar :: Bouncy Castle :: BC (https://github.com/apache/pulsar/tree/master/bouncy-castle/bc), (Apache License, Version 2.0)
   org.mongodb:bson:4.3.1 - BSON (https://bsonspec.org), (The Apache License, Version 2.0)
   com.github.ben-manes.caffeine:caffeine:2.8.4 - Caffeine cache (https://github.com/ben-manes/caffeine), (Apache License, Version 2.0)
   ru.yandex.clickhouse:clickhouse-jdbc:0.3.1 - clickhouse-jdbc (https://github.com/ClickHouse/clickhouse-jdbc/tree/master/clickhouse-jdbc), (The Apache Software License, Version 2.0)
@@ -846,7 +846,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.flink:flink-shaded-guava:18.0-13.0 - flink-shaded-guava-18 (https://github.com/apache/flink-shaded/tree/release-13.0/flink-shaded-guava-18), (The Apache Software License, Version 2.0)
   org.apache.flink:force-shading:1.13.5 - Flink : Tools : Force Shading (https://github.com/apache/flink/tree/release-1.13/tools/force-shading), (Apache License, Version 2.0)
   com.google.code.gson:gson:2.8.6 - Gson (https://github.com/google/gson/gson), (Apache 2.0)
-  com.google.guava:guava:31.0.1-jre - Guava: Google Core Libraries for Java (https://github.com/google/guava), (Apache License, Version 2.0)
+  com.google.guava:guava:32.1.2-jre - Guava: Google Core Libraries for Java (https://github.com/google/guava), (Apache License, Version 2.0)
   com.google.inject:guice:4.0 - Google Guice - Core Library (https://github.com/google/guice), (The Apache Software License, Version 2.0)
   com.google.inject.extensions:guice-servlet:4.0 - Google Guice - Extensions - Servlet (https://github.com/google/guice), (The Apache Software License, Version 2.0)
   org.apache.hbase:hbase-client:2.2.3 - Apache HBase - Client (https://hbase.apache.org/), (Apache License, Version 2.0)
@@ -934,8 +934,8 @@ The text of each license is the standard Apache 2.0 license.
   com.zendesk:mysql-binlog-connector-java:0.25.1 - mysql-binlog-connector-java (https://github.com/osheroff/mysql-binlog-connector-java/tree/0.25.1), (Apache License, Version 2.0)
   io.netty:netty-all:4.1.46.Final - Netty/All-in-One (https://github.com/netty/netty/tree/netty-4.1.46.Final), (Apache License, Version 2.0)
   io.netty:netty-all:4.1.50.Final - Netty/All-in-One (https://github.com/netty/netty/tree/netty-4.1.50.Final), (Apache License, Version 2.0)
-  io.netty:netty-buffer:4.1.72.Final - Netty/Buffer (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
-  io.netty:netty-common:4.1.72.Final - Netty/Common (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
+  io.netty:netty-buffer:4.1.94.Final - Netty/Buffer (https://github.com/netty/netty/tree/netty-4.1.94.Final), (Apache License, Version 2.0)
+  io.netty:netty-common:4.1.94.Final - Netty/Common (https://github.com/netty/netty/tree/netty-4.1.94.Final), (Apache License, Version 2.0)
   com.nimbusds:nimbus-jose-jwt:4.41.1 - Nimbus JOSE+JWT (https://bitbucket.org/connect2id/nimbus-jose-jwt), (The Apache Software License, Version 2.0)
   com.squareup.okhttp:okhttp:2.7.5 - OkHttp (https://github.com/square/okhttp/tree/parent-2.7.5/okhttp), (Apache 2.0)
   net.sf.opencsv:opencsv:2.3 - opencsv (http://opencsv.sf.net), (Apache 2)
@@ -946,11 +946,11 @@ The text of each license is the standard Apache 2.0 license.
   org.elasticsearch.plugin:parent-join-client:6.8.17 - parent-join (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   org.elasticsearch.plugin:parent-join-client:7.9.2 - parent-join (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   org.codehaus.plexus:plexus-utils:3.2.1 - Plexus Common Utilities (http://codehaus-plexus.github.io/plexus-utils/), (Apache License, Version 2.0)
-  org.apache.pulsar:pulsar-client-admin-api:2.8.1 - Pulsar Client Admin :: API (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
-  org.apache.pulsar:pulsar-client-all:2.8.1 - Pulsar Client All (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
-  org.apache.pulsar:pulsar-client-api:2.8.1 - Pulsar Client :: API (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
+  org.apache.pulsar:pulsar-client-admin-api:2.8.4 - Pulsar Client Admin :: API (https://github.com/apache/pulsar/tree/v2.8.4), (Apache License, Version 2.0)
+  org.apache.pulsar:pulsar-client-all:2.8.4 - Pulsar Client All (https://github.com/apache/pulsar/tree/v2.8.4), (Apache License, Version 2.0)
+  org.apache.pulsar:pulsar-client-api:2.8.4 - Pulsar Client :: API (https://github.com/apache/pulsar/tree/v2.8.4), (Apache License, Version 2.0)
   io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9 - StreamNative :: Pulsar Flink Connector :: Scala 2.11 (https://github.com/streamnative/pulsar-flink), (Apache License, Version 2.0)
-  org.apache.pulsar:pulsar-package-core:2.8.1 - Apache Pulsar :: Package Management :: Core (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
+  org.apache.pulsar:pulsar-package-core:2.8.4 - Apache Pulsar :: Package Management :: Core (https://github.com/apache/pulsar/tree/v2.8.4), (Apache License, Version 2.0)
   org.elasticsearch.plugin:rank-eval-client:jar:6.8.17 - rank-eval (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   org.elasticsearch.plugin:rank-eval-client:jar:7.9.2 - rank-eval (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   org.reflections:reflections:0.10.2 - Reflections (https://github.com/ronmamo/reflections/tree/0.10.2), (The Apache Software License, Version 2.0;  WTFPL)
@@ -959,7 +959,7 @@ The text of each license is the standard Apache 2.0 license.
   org.xerial.snappy:snappy-java:1.1.10.1 - snappy-java (https://github.com/xerial/snappy-java), (Apache-2.0)
   com.tdunning:t-digest:3.2 - T-Digest (https://github.com/tdunning/t-digest/tree/t-digest-3.2), (The Apache Software License, Version 2.0)
   javax.validation:validation-api:1.1.0.Final - Bean Validation API (http://beanvalidation.org), (The Apache Software License, Version 2.0)
-  com.fasterxml.woodstox:woodstox-core:5.0.3 - Woodstox (https://github.com/FasterXML/woodstox/tree/woodstox-core-5.0.3), (The Apache License, Version 2.0)
+  com.fasterxml.woodstox:woodstox-core:5.4.0 - Woodstox (https://github.com/FasterXML/woodstox/tree/woodstox-core-5.4.0), (The Apache License, Version 2.0)
   org.apache.zookeeper:zookeeper:3.4.14 - Apache ZooKeeper - Server (https://github.com/apache/zookeeper/tree/release-3.4.14/zookeeper-server), (Apache License, Version 2.0)
   org.ini4j:ini4j:0.5.1 - ini4j (https://sourceforge.net/projects/ini4j), (The Apache Software License, Version 2.0)
   org.apache.doris:flink-doris-connector-1.13_2.11:1.0.3 - Flink Connector for Apache Doris (https://github.com/apache/doris-flink-connector/tree/1.13_2.11-1.0.3), (The Apache Software License, Version 2.0)
@@ -971,7 +971,7 @@ Apache 2.0 licenses
 
 The following components are provided under the Apache License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
-  
+
   org.apache.commons:commons-math3:3.5 - Apache Commons Math (https://commons.apache.org/proper/commons-math/), (The Apache Software License, Version 2.0)
   com.github.spullara.mustache.java:compiler:0.9.3 - compiler (https://github.com/spullara/mustache.java/tree/mustache.java-0.9.3), (Apache License, Version 2.0)
   com.github.spullara.mustache.java:compiler:0.9.6 - compiler (https://github.com/spullara/mustache.java/tree/mustache.java-0.9.6), (Apache License, Version 2.0)

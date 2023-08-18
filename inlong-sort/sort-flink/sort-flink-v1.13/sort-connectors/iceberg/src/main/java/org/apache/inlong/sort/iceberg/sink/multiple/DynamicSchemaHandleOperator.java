@@ -27,7 +27,6 @@ import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
-import org.apache.inlong.sort.base.schema.SchemaChangeHelper;
 import org.apache.inlong.sort.base.sink.MultipleSinkOption;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
@@ -65,7 +64,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import javax.ws.rs.NotSupportedException;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -123,10 +121,11 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
     private @Nullable transient SinkTableMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
-    private SchemaChangeHelper schemaChangeHelper;
+    private IcebergSchemaChangeHelper schemaChangeHelper;
     private String schemaChangePolicies;
     private boolean enableSchemaChange;
     private final String INCREMENTAL = "incremental";
+    private boolean autoCreateTableWhenSnapshot;
 
     public DynamicSchemaHandleOperator(CatalogLoader catalogLoader,
             MultipleSinkOption multipleSinkOption,
@@ -135,7 +134,8 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
             String inlongMetric,
             String auditHostAndPorts,
             boolean enableSchemaChange,
-            String schemaChangePolicies) {
+            String schemaChangePolicies,
+            boolean autoCreateTableWhenSnapshot) {
         this.catalogLoader = catalogLoader;
         this.multipleSinkOption = multipleSinkOption;
         this.inlongMetric = inlongMetric;
@@ -143,6 +143,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         this.dirtySinkHelper = new DirtySinkHelper<>(dirtyOptions, dirtySink);
         this.schemaChangePolicies = schemaChangePolicies;
         this.enableSchemaChange = enableSchemaChange;
+        this.autoCreateTableWhenSnapshot = autoCreateTableWhenSnapshot;
     }
 
     @SuppressWarnings("unchecked")
@@ -244,8 +245,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         }
 
         for (RowData rowData : rowDataForDataSchemaList) {
-            DirtyOptions dirtyOptions = dirtySinkHelper.getDirtyOptions();
-            if (!dirtyOptions.ignoreDirty()) {
+            if (dirtySinkHelper.getDirtySink() == null) {
                 if (metricData != null) {
                     metricData.outputDirtyMetricsWithEstimate(tableId.namespace().toString(),
                             tableId.name(), rowData);
@@ -314,7 +314,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         if (this.inlongMetric != null) {
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
-                            String.format(INLONG_METRIC_STATE_NAME), TypeInformation.of(new TypeHint<MetricState>() {
+                            INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
                             })));
         }
         if (context.isRestored()) {
@@ -325,6 +325,12 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
 
     private void execDDL(byte[] originData, JsonNode jsonNode) {
         schemaChangeHelper.process(originData, jsonNode);
+        if (schemaChangeHelper.ddlExecSuccess().get()) {
+            RecordWithSchema record = new RecordWithSchema();
+            record.setDDL(true);
+            output.collect(new StreamRecord<>(record));
+            schemaChangeHelper.ddlExecSuccess().set(false);
+        }
     }
 
     private void execDML(JsonNode jsonNode, TableIdentifier tableId) {
@@ -343,7 +349,9 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         });
         if (schema == null) {
             try {
-                handleTableCreateEventFromOperator(record.getTableId(), dataSchema);
+                boolean incremental = Optional.ofNullable(jsonNode.get(INCREMENTAL))
+                        .map(JsonNode::asBoolean).orElse(false);
+                handleTableCreateEventFromOperator(record.getTableId(), dataSchema, incremental);
             } catch (Exception e) {
                 LOGGER.error("Table create error, tableId: {}, schema: {}", record.getTableId(), dataSchema);
                 if (SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE == multipleSinkOption
@@ -382,6 +390,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                             try {
                                 return dynamicSchemaFormat.extractRowData(jsonNode, FlinkSchemaUtil.convert(schema1));
                             } catch (Exception e) {
+                                LOG.error(String.format("Table %s extract RowData failed!", tableId), e);
                                 if (SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE == multipleSinkOption
                                         .getSchemaUpdatePolicy()) {
                                     isDirty.set(true);
@@ -390,7 +399,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                                         rowDataForDataSchemaList = dynamicSchemaFormat
                                                 .extractRowData(jsonNode, FlinkSchemaUtil.convert(dataSchema));
                                     } catch (Throwable ee) {
-                                        LOG.error("extractRowData {} failed!", jsonNode, ee);
+                                        LOG.error("extract RowData {} failed!", jsonNode, ee);
                                     }
 
                                     for (RowData rowData : rowDataForDataSchemaList) {
@@ -430,11 +439,12 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                         .map(JsonNode::asBoolean).orElse(false));
                 output.collect(new StreamRecord<>(recordWithSchema));
             } else {
+                LOG.warn("Table {} schema is different!", tableId);
                 if (SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE == multipleSinkOption
                         .getSchemaUpdatePolicy()) {
                     RecordWithSchema recordWithSchema = queue.poll();
                     handleDirtyDataOfLogWithIgnore(recordWithSchema.getOriginalData(), dataSchema, tableId,
-                            new NotSupportedException(
+                            new RuntimeException(
                                     String.format("SchemaUpdatePolicy %s does not support schema dynamic update!",
                                             multipleSinkOption.getSchemaUpdatePolicy())));
                 } else if (SchemaUpdateExceptionPolicy.STOP_PARTIAL == multipleSinkOption
@@ -446,7 +456,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                     handldAlterSchemaEventFromOperator(tableId, latestSchema, dataSchema);
                     break;
                 } else {
-                    throw new NotSupportedException(
+                    throw new RuntimeException(
                             String.format("SchemaUpdatePolicy %s does not support schema dynamic update!",
                                     multipleSinkOption.getSchemaUpdatePolicy()));
                 }
@@ -455,8 +465,10 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
     }
 
     // ================================ All coordinator handle method ==============================================
-    private void handleTableCreateEventFromOperator(TableIdentifier tableId, Schema schema) {
-        IcebergSchemaChangeUtils.createTable(catalog, tableId, asNamespaceCatalog, schema);
+    private void handleTableCreateEventFromOperator(TableIdentifier tableId, Schema schema, boolean incremental) {
+        if (this.autoCreateTableWhenSnapshot && !incremental) {
+            IcebergSchemaChangeUtils.createTable(catalog, tableId, asNamespaceCatalog, schema);
+        }
         handleSchemaInfoEvent(tableId, catalog.loadTable(tableId).schema());
     }
 
