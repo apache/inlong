@@ -186,7 +186,7 @@ public class TubeHandler implements MessageQueueHandler {
         String topic = null;
         try {
             // idConfig
-            IdTopicConfig idConfig = ConfigManager.getInstance().getIdTopicConfig(
+            IdTopicConfig idConfig = ConfigManager.getInstance().getSinkIdTopicConfig(
                     profile.getInlongGroupId(), profile.getInlongStreamId());
             if (idConfig == null) {
                 if (!CommonConfigHolder.getInstance().isEnableUnConfigTopicAccept()) {
