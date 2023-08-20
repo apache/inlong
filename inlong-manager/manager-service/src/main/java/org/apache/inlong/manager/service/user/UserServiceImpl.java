@@ -354,10 +354,6 @@ public class UserServiceImpl implements UserService {
         loginLockStatusMap.put(username, userLoginLockStatus);
     }
 
-    public void checkUser(String inCharges, String user, String errMsg) {
-
-    }
-
     public void removeInChargeForGroup(String user, String operator) {
         InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
         pageRequest.setCurrentUser(user);
