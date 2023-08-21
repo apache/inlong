@@ -88,7 +88,11 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, column
           columns={columns}
           dataSource={isSource === true ? data?.fieldList : sinkData?.list[0]?.sinkFieldList}
           footer={() => (
-            <Button style={{ margin: 'auto' }} onClick={() => setCreateModal({ open: true })}>
+            <Button
+              type="link"
+              style={{ margin: 0 }}
+              onClick={() => setCreateModal({ open: true })}
+            >
               {i18n.t('components.FieldList.AddField')}
             </Button>
           )}
