@@ -45,7 +45,7 @@ export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
     LoadEntity: () => import('./MySQLBinlog'),
   },
   {
-    label: 'Mongodb',
+    label: 'MongoDB',
     value: 'MONGODB',
     LoadEntity: () => import('./Mongodb'),
   },
