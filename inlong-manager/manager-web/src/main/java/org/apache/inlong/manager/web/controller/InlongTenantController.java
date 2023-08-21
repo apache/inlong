@@ -63,7 +63,7 @@ public class InlongTenantController {
     @RequestMapping(value = "/tenant/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save inlong tenant")
-    @RequiresRoles(logical = Logical.OR, value = {INLONG_ADMIN})
+    @RequiresRoles(INLONG_ADMIN)
     public Response<Integer> save(@Validated @RequestBody InlongTenantRequest request) {
         return Response.success(tenantService.save(request));
     }
@@ -77,7 +77,7 @@ public class InlongTenantController {
     @RequestMapping(value = "/tenant/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update inlong tenant")
-    @RequiresRoles(logical = Logical.OR, value = {INLONG_ADMIN})
+    @RequiresRoles(INLONG_ADMIN)
     public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody InlongTenantRequest request) {
         return Response.success(tenantService.update(request));
     }
@@ -85,7 +85,7 @@ public class InlongTenantController {
     @RequestMapping(value = "/tenant/delete/{name}", method = RequestMethod.GET)
     @ApiOperation(value = "Delete inlong tenant by name")
     @ApiImplicitParam(name = "name", dataTypeClass = String.class, required = true)
-    @RequiresRoles(logical = Logical.OR, value = {INLONG_ADMIN})
+    @RequiresRoles(INLONG_ADMIN)
     public Response<Boolean> delete(@PathVariable String name) {
         return Response.success(tenantService.delete(name));
     }

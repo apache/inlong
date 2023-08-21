@@ -354,13 +354,6 @@ public class UserServiceImpl implements UserService {
         loginLockStatusMap.put(username, userLoginLockStatus);
     }
 
-    public void checkUser(String inCharges, String user, String errMsg) {
-        UserEntity userEntity = userMapper.selectByName(user);
-        boolean isInCharge = Preconditions.inSeparatedString(user, inCharges, InlongConstants.COMMA);
-        Preconditions.expectTrue(isInCharge
-                || TenantUserTypeEnum.TENANT_ADMIN.getCode().equals(userEntity.getAccountType()), errMsg);
-    }
-
     public void removeInChargeForGroup(String user, String operator) {
         InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
         pageRequest.setCurrentUser(user);

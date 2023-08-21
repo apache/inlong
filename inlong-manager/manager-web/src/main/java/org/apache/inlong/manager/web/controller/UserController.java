@@ -82,7 +82,7 @@ public class UserController {
 
     @PostMapping("/user/listAll")
     @ApiOperation(value = "List all users")
-    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN, UserRoleCode.TENANT_ADMIN})
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN})
     public Response<PageResult<UserInfo>> list(@RequestBody UserRequest request) {
         return Response.success(userService.list(request));
     }

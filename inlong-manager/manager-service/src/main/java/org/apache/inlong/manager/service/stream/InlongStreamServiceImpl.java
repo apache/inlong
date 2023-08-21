@@ -58,7 +58,6 @@ import org.apache.inlong.manager.service.resource.queue.QueueResourceOperator;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperatorFactory;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
-import org.apache.inlong.manager.service.user.UserService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -130,8 +129,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private UserService userService;
-    @Autowired
     @Lazy
     private QueueResourceOperatorFactory queueOperatorFactory;
     @Autowired
@@ -186,9 +183,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-        // only the person in charges can query
-        userService.checkUser(entity.getInCharges(), opInfo.getName(),
-                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // Add/modify/delete is not allowed under temporary inlong group status
         GroupStatus curState = GroupStatus.forCode(entity.getStatus());
         if (GroupStatus.isTempStatus(curState)) {
@@ -266,9 +260,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-        // only the person in charges can query
-        userService.checkUser(entity.getInCharges(), opInfo.getName(),
-                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // get stream information
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
         if (streamEntity == null) {
@@ -297,9 +288,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
 
-        // only the person in charges can query
-        userService.checkUser(entity.getInCharges(), operator,
-                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // get stream information
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
         if (streamEntity == null) {
@@ -478,9 +466,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
 
-        // only the person in charges can query
-        userService.checkUser(entity.getInCharges(), opInfo.getName(),
-                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // Add/modify/delete is not allowed under temporary inlong group status
         GroupStatus curState = GroupStatus.forCode(entity.getStatus());
         if (GroupStatus.isTempStatus(curState)) {
@@ -611,9 +596,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         if (groupEntity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-        // only the person in charges can query
-        userService.checkUser(groupEntity.getInCharges(), opInfo.getName(),
-                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // Add/modify/delete is not allowed under temporary inlong group status
         GroupStatus curState = GroupStatus.forCode(groupEntity.getStatus());
         if (GroupStatus.isTempStatus(curState)) {
@@ -1004,8 +986,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     public List<BriefMQMessage> listMessages(String groupId, String streamId, Integer messageCount, String operator) {
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
-        // check user
-        userService.checkUser(groupEntity.getInCharges(), operator, ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         InlongGroupOperator instance = groupOperatorFactory.getInstance(groupEntity.getMqType());
         InlongGroupInfo groupInfo = instance.getFromEntity(groupEntity);
         InlongStreamInfo inlongStreamInfo = get(groupId, streamId);

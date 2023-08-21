@@ -32,7 +32,6 @@ import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.service.user.UserService;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -73,8 +72,6 @@ public class InlongStreamProcessService {
     private InlongStreamService streamService;
     @Autowired
     private WorkflowService workflowService;
-    @Autowired
-    private UserService userService;
 
     /**
      * Create stream in synchronous/asynchronous way.
@@ -89,9 +86,6 @@ public class InlongStreamProcessService {
             throw new BusinessException(String.format("group status=%s not support start stream"
                     + " for groupId=%s", groupStatus, groupId));
         }
-
-        // only the person in charges can start process
-        userService.checkUser(groupInfo.getInCharges(), operator, ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
 
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
         Preconditions.expectNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
@@ -137,9 +131,6 @@ public class InlongStreamProcessService {
                     + " for groupId=%s", groupStatus, groupId));
         }
 
-        // only the person in charges can suspend process
-        userService.checkUser(groupInfo.getInCharges(), operator, ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
-
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
         Preconditions.expectNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
         StreamStatus status = StreamStatus.forCode(streamInfo.getStatus());
@@ -181,8 +172,6 @@ public class InlongStreamProcessService {
             throw new BusinessException(
                     String.format("group status=%s not support restart stream for groupId=%s", groupStatus, groupId));
         }
-        // only the person in charges can restart process
-        userService.checkUser(groupInfo.getInCharges(), operator, ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
 
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
         Preconditions.expectNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
@@ -223,9 +212,6 @@ public class InlongStreamProcessService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
                     ErrorCodeEnum.GROUP_NOT_FOUND.getMessage() + " : " + groupId);
         }
-
-        // only the person in charges can delete process
-        userService.checkUser(groupInfo.getInCharges(), operator, ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
 
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
         if (GroupStatus.notAllowedTransition(groupStatus, GroupStatus.DELETING)) {
