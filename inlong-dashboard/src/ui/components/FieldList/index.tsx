@@ -90,7 +90,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, column
           footer={() => (
             <Button
               type="link"
-              style={{ margin: 'auto', marginLeft: -15 }}
+              style={{ margin: 0 }}
               onClick={() => setCreateModal({ open: true })}
             >
               {i18n.t('components.FieldList.AddField')}
