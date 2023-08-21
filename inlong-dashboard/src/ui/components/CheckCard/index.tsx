@@ -18,7 +18,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Card, Col, Row, theme } from 'antd';
+import { Card, Col, Row, theme, Tooltip } from 'antd';
 import { DoubleRightOutlined, DatabaseOutlined } from '@ant-design/icons';
 import styles from './index.module.less';
 
@@ -55,7 +55,11 @@ const CheckCard: React.FC<CheckCardProps> = ({ options, value, onChange, disable
   }, [value]);
 
   useEffect(() => {
-    // vite 不支持 require.context, 故使用import()动态获取每个类型的logo，模块是否存在由promise判断，模块缓存由esm处理
+    /*
+      The dynamic loading of logo images is based on the "label" property of the option.
+      Since Vite does not support require.context, import() is used instead.
+      It also can be used to determine whether the image exists and handle the module cache.
+    */
     (async () => {
       setLogoMap(
         (
@@ -84,16 +88,18 @@ const CheckCard: React.FC<CheckCardProps> = ({ options, value, onChange, disable
   };
 
   const renderContent = label => (
-    <div className={styles.cardInfo}>
-      {logoMap[label] ? (
-        <img height="100%" alt={label} src={logoMap[label]}></img>
-      ) : (
-        <>
-          <DatabaseOutlined style={{ fontSize: 20 }} />
-          <span>{label}</span>
-        </>
-      )}
-    </div>
+    <Tooltip placement="top" title={label}>
+      <div className={styles.cardInfo}>
+        {logoMap[label] ? (
+          <img height="100%" alt={label} src={logoMap[label]}></img>
+        ) : (
+          <>
+            <DatabaseOutlined style={{ fontSize: 20 }} />
+            <span>{label}</span>
+          </>
+        )}
+      </div>
+    </Tooltip>
   );
 
   return (
