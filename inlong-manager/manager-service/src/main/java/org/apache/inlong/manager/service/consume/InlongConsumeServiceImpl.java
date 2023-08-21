@@ -34,7 +34,6 @@ import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumePageRequest;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.service.user.UserService;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -66,8 +65,6 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
     private InlongConsumeEntityMapper consumeMapper;
     @Autowired
     private InlongConsumeOperatorFactory consumeOperatorFactory;
-    @Autowired
-    private UserService userService;
 
     @Override
     public Integer save(InlongConsumeRequest request, String operator) {
@@ -142,8 +139,6 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
             LOGGER.error("inlong consume not found with id={}", id);
             throw new BusinessException(ErrorCodeEnum.CONSUME_NOT_FOUND);
         }
-        userService.checkUser(entity.getInCharges(), currentUser,
-                "Current user does not have permission to get inlong consume");
 
         InlongConsumeOperator consumeOperator = consumeOperatorFactory.getInstance(entity.getMqType());
         InlongConsumeInfo consumeInfo = consumeOperator.getFromEntity(entity);
@@ -200,8 +195,6 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
         Integer consumeId = request.getId();
         InlongConsumeEntity existEntity = consumeMapper.selectById(consumeId);
         Preconditions.expectNotNull(existEntity, "inlong consume not exist with id " + consumeId);
-        userService.checkUser(existEntity.getInCharges(), operator,
-                "Current user does not have permission to update inlong consume");
 
         if (!Objects.equals(existEntity.getVersion(), request.getVersion())) {
             LOGGER.error(String.format("inlong consume has already updated, id=%s, curVersion=%s",
@@ -250,8 +243,6 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
         Preconditions.expectNotNull(id, "inlong consume id cannot be null");
         InlongConsumeEntity entity = consumeMapper.selectById(id);
         Preconditions.expectNotNull(entity, "inlong consume not exist with id " + id);
-        userService.checkUser(entity.getInCharges(), operator,
-                "Current user does not have permission to delete inlong consume");
 
         entity.setIsDeleted(id);
         entity.setStatus(ConsumeStatus.DELETED.getCode());

@@ -63,8 +63,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class MetaConfigHolder extends ConfigHolder {
 
     private static final String metaConfigFileName = "metadata.json";
-    private static final long MAX_SYNC_WAIT_TIME_MS =
-            CommonConfigHolder.getInstance().getMetaConfigSyncInvlMs() * 2 + 5000L;
     private static final int MAX_ALLOWED_JSON_FILE_SIZE = 300 * 1024 * 1024;
     private static final Logger LOG = LoggerFactory.getLogger(MetaConfigHolder.class);
     private static final Gson GSON = new Gson();
@@ -72,13 +70,15 @@ public class MetaConfigHolder extends ConfigHolder {
     // meta data
     private String dataMd5 = "";
     private String dataStr = "";
+    private final AtomicLong lastUpdVersion = new AtomicLong(0);
     private String tmpDataMd5 = "";
-    private final AtomicLong lastSyncTime = new AtomicLong(0);
+    private final AtomicLong lastSyncVersion = new AtomicLong(0);
     // cached data
     private final List<String> defTopics = new ArrayList<>();
     private final AtomicInteger clusterType = new AtomicInteger(CacheType.N.getId());
     private final ConcurrentHashMap<String, CacheClusterConfig> mqClusterMap = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, IdTopicConfig> id2TopicMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, IdTopicConfig> id2TopicSrcMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, IdTopicConfig> id2TopicSinkMap = new ConcurrentHashMap<>();
 
     public MetaConfigHolder() {
         super(metaConfigFileName);
@@ -92,22 +92,22 @@ public class MetaConfigHolder extends ConfigHolder {
     }
 
     /**
-     * get topic by groupId and streamId
+     * get source topic by groupId and streamId
      */
-    public String getBaseTopicName(String groupId, String streamId) {
-        IdTopicConfig idTopicConfig = getIdTopicConfig(groupId, streamId);
+    public String getSrcBaseTopicName(String groupId, String streamId) {
+        IdTopicConfig idTopicConfig = getSrcIdTopicConfig(groupId, streamId);
         if (idTopicConfig == null) {
             return null;
         }
         return idTopicConfig.getTopicName();
     }
 
-    public IdTopicConfig getIdTopicConfig(String groupId, String streamId) {
+    public IdTopicConfig getSrcIdTopicConfig(String groupId, String streamId) {
         IdTopicConfig idTopicConfig = null;
-        if (StringUtils.isNotEmpty(groupId) && !id2TopicMap.isEmpty()) {
-            idTopicConfig = id2TopicMap.get(InlongId.generateUid(groupId, streamId));
+        if (StringUtils.isNotEmpty(groupId) && !id2TopicSrcMap.isEmpty()) {
+            idTopicConfig = id2TopicSrcMap.get(InlongId.generateUid(groupId, streamId));
             if (idTopicConfig == null) {
-                idTopicConfig = id2TopicMap.get(groupId);
+                idTopicConfig = id2TopicSrcMap.get(groupId);
             }
         }
         if (LOG.isDebugEnabled()) {
@@ -120,12 +120,12 @@ public class MetaConfigHolder extends ConfigHolder {
     /**
      * get topic by groupId and streamId
      */
-    public String getTopicName(String groupId, String streamId) {
+    public String getSourceTopicName(String groupId, String streamId) {
         String topic = null;
-        if (StringUtils.isNotEmpty(groupId) && !id2TopicMap.isEmpty()) {
-            IdTopicConfig idTopicConfig = id2TopicMap.get(InlongId.generateUid(groupId, streamId));
+        if (StringUtils.isNotEmpty(groupId) && !id2TopicSrcMap.isEmpty()) {
+            IdTopicConfig idTopicConfig = id2TopicSrcMap.get(InlongId.generateUid(groupId, streamId));
             if (idTopicConfig == null) {
-                idTopicConfig = id2TopicMap.get(groupId);
+                idTopicConfig = id2TopicSrcMap.get(groupId);
             }
             if (idTopicConfig != null) {
                 topic = idTopicConfig.getTopicName();
@@ -138,24 +138,53 @@ public class MetaConfigHolder extends ConfigHolder {
         return topic;
     }
 
+    public IdTopicConfig getSinkIdTopicConfig(String groupId, String streamId) {
+        IdTopicConfig idTopicConfig = null;
+        if (StringUtils.isNotEmpty(groupId) && !id2TopicSinkMap.isEmpty()) {
+            idTopicConfig = id2TopicSinkMap.get(InlongId.generateUid(groupId, streamId));
+            if (idTopicConfig == null) {
+                idTopicConfig = id2TopicSinkMap.get(groupId);
+            }
+        }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Get Sink Topic Config by groupId = {}, streamId = {}, IdTopicConfig = {}",
+                    groupId, streamId, idTopicConfig);
+        }
+        return idTopicConfig;
+    }
+
     public String getConfigMd5() {
-        return (System.currentTimeMillis() - lastSyncTime.get() >= MAX_SYNC_WAIT_TIME_MS)
-                ? dataMd5
-                : tmpDataMd5;
+        synchronized (this.lastUpdVersion) {
+            if (this.lastSyncVersion.get() > this.lastUpdVersion.get()) {
+                return tmpDataMd5;
+            } else {
+                return dataMd5;
+            }
+        }
     }
 
     public boolean updateConfigMap(String inDataMd5, String inDataJsonStr) {
         if (StringUtils.isBlank(inDataMd5)
-                || StringUtils.isBlank(inDataJsonStr)
-                || inDataMd5.equalsIgnoreCase(dataMd5)) {
+                || StringUtils.isBlank(inDataJsonStr)) {
             return false;
         }
-        if (storeConfigToFile(inDataJsonStr)) {
-            tmpDataMd5 = inDataMd5;
-            lastSyncTime.set(System.currentTimeMillis());
-            return true;
+        synchronized (this.lastSyncVersion) {
+            synchronized (this.lastUpdVersion) {
+                if (this.lastSyncVersion.get() > this.lastUpdVersion.get()) {
+                    if (inDataJsonStr.equals(tmpDataMd5)) {
+                        return false;
+                    }
+                    LOG.info("Load changed metadata {} , but reloading content, over {} ms",
+                            getFileName(), System.currentTimeMillis() - this.lastSyncVersion.get());
+                    return false;
+                } else {
+                    if (inDataMd5.equalsIgnoreCase(dataMd5)) {
+                        return false;
+                    }
+                }
+            }
+            return storeConfigToFile(inDataMd5, inDataJsonStr);
         }
-        return false;
     }
 
     public List<CacheClusterConfig> forkCachedCLusterConfig() {
@@ -183,7 +212,7 @@ public class MetaConfigHolder extends ConfigHolder {
             result.addAll(CommonConfigHolder.getInstance().getDefTopics());
         }
         // add configured topics
-        for (IdTopicConfig topicConfig : id2TopicMap.values()) {
+        for (IdTopicConfig topicConfig : id2TopicSrcMap.values()) {
             if (topicConfig == null) {
                 continue;
             }
@@ -223,18 +252,25 @@ public class MetaConfigHolder extends ConfigHolder {
             // update cache data
             if (updateCacheData(clusterObj)) {
                 // update cache string
-                this.dataMd5 = metaConfig.getMd5();
-                this.tmpDataMd5 = metaConfig.getMd5();
-                this.lastSyncTime.set(System.currentTimeMillis());
-                this.dataStr = jsonString;
-                LOG.info("Load changed json {}, loaded dataMd5 {}, loaded data {}, updated cache ({}, {})",
-                        getFileName(), dataMd5, dataStr, id2TopicMap, mqClusterMap);
+                synchronized (this.lastUpdVersion) {
+                    if (this.lastSyncVersion.get() == 0) {
+                        this.lastUpdVersion.set(System.currentTimeMillis());
+                        this.lastSyncVersion.compareAndSet(0, this.lastUpdVersion.get());
+                    } else {
+                        this.lastUpdVersion.set(this.lastSyncVersion.get());
+                    }
+                    this.dataMd5 = metaConfig.getMd5();
+                    this.dataStr = jsonString;
+                }
+                LOG.info(
+                        "Load changed {}, loaded dataMd5={}, data={}, id2TopicSrcMap={}, mqClusterMap={}, id2TopicSinkMap={}",
+                        getFileName(), dataMd5, dataStr, id2TopicSrcMap, mqClusterMap, id2TopicSinkMap);
                 return true;
             }
             return false;
         } catch (Throwable e) {
             //
-            LOG.info("Process json {} changed data {} failure", getFileName(), jsonString, e);
+            LOG.warn("Process json {} changed data {} failure", getFileName(), jsonString, e);
             return false;
         } finally {
             readWriteLock.readLock().unlock();
@@ -300,7 +336,7 @@ public class MetaConfigHolder extends ConfigHolder {
         this.clusterType.getAndSet(cacheType.getId());
         // remove deleted id2topic config
         Set<String> tmpKeys = new HashSet<>();
-        for (Map.Entry<String, IdTopicConfig> entry : id2TopicMap.entrySet()) {
+        for (Map.Entry<String, IdTopicConfig> entry : id2TopicSrcMap.entrySet()) {
             if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
@@ -309,10 +345,12 @@ public class MetaConfigHolder extends ConfigHolder {
             }
         }
         for (String key : tmpKeys) {
-            id2TopicMap.remove(key);
+            id2TopicSrcMap.remove(key);
         }
-        // add new id2topic config
-        id2TopicMap.putAll(topicConfigMap);
+        // add new id2topic source config
+        id2TopicSrcMap.putAll(topicConfigMap);
+        // add new id2topic sink config
+        id2TopicSinkMap.putAll(topicConfigMap);
         // remove deleted cluster config
         tmpKeys.clear();
         for (Map.Entry<String, CacheClusterConfig> entry : mqClusterMap.entrySet()) {
@@ -412,7 +450,7 @@ public class MetaConfigHolder extends ConfigHolder {
     /**
      * store meta config to file
      */
-    private boolean storeConfigToFile(String metaJsonStr) {
+    private boolean storeConfigToFile(String inDataMd5, String metaJsonStr) {
         boolean isSuccess = false;
         String filePath = getFilePath();
         if (StringUtils.isBlank(filePath)) {
@@ -431,6 +469,8 @@ public class MetaConfigHolder extends ConfigHolder {
             FileUtils.writeStringToFile(tmpNewFile, metaJsonStr, StandardCharsets.UTF_8);
             FileUtils.copyFile(tmpNewFile, sourceFile);
             tmpNewFile.delete();
+            tmpDataMd5 = inDataMd5;
+            lastSyncVersion.set(System.currentTimeMillis());
             isSuccess = true;
             setFileChanged();
         } catch (Throwable ex) {

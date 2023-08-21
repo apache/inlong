@@ -31,7 +31,6 @@ import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.user.UserInfo;
-import org.apache.inlong.manager.service.user.UserService;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -58,8 +57,6 @@ public class DataNodeServiceImpl implements DataNodeService {
     private DataNodeEntityMapper dataNodeMapper;
     @Autowired
     private DataNodeOperatorFactory operatorFactory;
-    @Autowired
-    private UserService userService;
 
     @Override
     public Integer save(DataNodeRequest request, String operator) {
@@ -114,8 +111,6 @@ public class DataNodeServiceImpl implements DataNodeService {
             LOGGER.error("data node not found by id={}", id);
             throw new BusinessException("data node not found");
         }
-        userService.checkUser(entity.getInCharges(), currentUser,
-                "Current user does not have permission to get data node info");
         String dataNodeType = entity.getType();
         DataNodeOperator dataNodeOperator = operatorFactory.getInstance(dataNodeType);
         DataNodeInfo dataNodeInfo = dataNodeOperator.getFromEntity(entity);
@@ -129,9 +124,6 @@ public class DataNodeServiceImpl implements DataNodeService {
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.DATA_NODE_NOT_FOUND);
         }
-        // only the person in charges can query
-        userService.checkUser(entity.getInCharges(), opInfo.getName(),
-                "Current user does not have permission to get data node info");
         DataNodeOperator dataNodeOperator = operatorFactory.getInstance(entity.getType());
         return dataNodeOperator.getFromEntity(entity);
     }
@@ -191,9 +183,6 @@ public class DataNodeServiceImpl implements DataNodeService {
             throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND,
                     String.format("data node record not found by id=%d", request.getId()));
         }
-        userService.checkUser(curEntity.getInCharges(), operator,
-                "Current user does not have permission to update data node info");
-
         // check whether modify unmodifiable parameters
         chkUnmodifiableParams(curEntity, request);
 
@@ -230,8 +219,6 @@ public class DataNodeServiceImpl implements DataNodeService {
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
-        userService.checkUser(entity.getInCharges(), operator,
-                "Current user does not have permission to update data node info");
         request.setId(entity.getId());
         Boolean result = this.update(request, operator);
         LOGGER.info("success to update data node by key: {}", request);
@@ -243,8 +230,6 @@ public class DataNodeServiceImpl implements DataNodeService {
         DataNodeEntity entity = dataNodeMapper.selectById(id);
         Preconditions.expectNotNull(entity, ErrorCodeEnum.DATA_NODE_NOT_FOUND,
                 ErrorCodeEnum.DATA_NODE_NOT_FOUND.getMessage());
-        userService.checkUser(entity.getInCharges(), operator,
-                "Current user does not have permission to delete data node info");
         return delete(entity, operator);
     }
 
@@ -253,8 +238,6 @@ public class DataNodeServiceImpl implements DataNodeService {
         DataNodeEntity entity = dataNodeMapper.selectById(id);
         Preconditions.expectNotNull(entity, ErrorCodeEnum.DATA_NODE_NOT_FOUND,
                 ErrorCodeEnum.DATA_NODE_NOT_FOUND.getMessage());
-        userService.checkUser(entity.getInCharges(), opInfo.getName(),
-                "Current user does not have permission to delete data node info");
         // delete record
         entity.setIsDeleted(entity.getId());
         entity.setModifier(opInfo.getName());
@@ -303,8 +286,6 @@ public class DataNodeServiceImpl implements DataNodeService {
         DataNodeEntity entity = dataNodeMapper.selectByUniqueKey(name, type);
         Preconditions.expectNotNull(entity, ErrorCodeEnum.DATA_NODE_NOT_FOUND,
                 ErrorCodeEnum.DATA_NODE_NOT_FOUND.getMessage());
-        userService.checkUser(entity.getInCharges(), operator,
-                "Current user does not have permission to delete data node info");
         return delete(entity, operator);
     }
 

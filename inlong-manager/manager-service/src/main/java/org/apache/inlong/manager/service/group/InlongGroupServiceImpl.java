@@ -56,7 +56,6 @@ import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.source.SourceOperatorFactory;
 import org.apache.inlong.manager.service.source.StreamSourceOperator;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
-import org.apache.inlong.manager.service.user.UserService;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.Page;
@@ -114,8 +113,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     private InlongGroupOperatorFactory groupOperatorFactory;
     @Autowired
     private SourceOperatorFactory sourceOperatorFactory;
-    @Autowired
-    private UserService userService;
 
     /**
      * Check whether modification is supported under the current group status, and which fields can be modified.
@@ -127,13 +124,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     private static void doUpdateCheck(InlongGroupEntity entity, InlongGroupRequest request, String operator) {
         if (entity == null || request == null) {
             return;
-        }
-
-        // only the person in charges can update
-        List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
-        if (!inCharges.contains(operator)) {
-            LOGGER.error("user [{}] has no privilege for the inlong group", operator);
-            throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
         }
 
         // check whether the current status supports modification
@@ -229,9 +219,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-        // only the person in charges can query
-        userService.checkUser(entity.getInCharges(), opInfo.getName(),
-                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
+
         // query mq information
         InlongGroupOperator instance = groupOperatorFactory.getInstance(entity.getMqType());
         InlongGroupInfo groupInfo = instance.getFromEntity(entity);
@@ -423,9 +411,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
         chkUnmodifiableParams(entity, request);
-        // only the person in charges can query
-        userService.checkUser(entity.getInCharges(), opInfo.getName(),
-                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // check whether the current status supports modification
         GroupStatus curStatus = GroupStatus.forCode(entity.getStatus());
         if (GroupStatus.notAllowedUpdate(curStatus)) {

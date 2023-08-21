@@ -158,5 +158,8 @@ public class InlongRequestWrapper extends HttpServletRequestWrapper {
     public void addParameter(String name, String value) {
         params.put(name, new String[]{value});
     }
+    public String getContent() {
+        return bodyParams;
+    }
 
 }

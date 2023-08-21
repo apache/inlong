@@ -124,14 +124,17 @@ public class ConfigManager {
     }
 
     /**
-     * get topic by groupId and streamId
+     * get source topic by groupId and streamId
      */
     public String getTopicName(String groupId, String streamId) {
-        return metaConfigHolder.getBaseTopicName(groupId, streamId);
+        return metaConfigHolder.getSrcBaseTopicName(groupId, streamId);
     }
 
-    public IdTopicConfig getIdTopicConfig(String groupId, String streamId) {
-        return metaConfigHolder.getIdTopicConfig(groupId, streamId);
+    /**
+     * get sink topic configure by groupId and streamId
+     */
+    public IdTopicConfig getSinkIdTopicConfig(String groupId, String streamId) {
+        return metaConfigHolder.getSinkIdTopicConfig(groupId, streamId);
     }
 
     public String getMetaConfigMD5() {
@@ -346,17 +349,29 @@ public class ConfigManager {
                     request.setMd5(configManager.getMetaConfigMD5());
                 }
                 httpPost.setEntity(HttpUtils.getEntity(request));
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Start to request {} to get config info, with params: {}, headers: {}",
+                            url, request, httpPost.getAllHeaders());
+                }
                 // request with post
-                LOG.info("Start to request {} to get config info, with params: {}, headers: {}",
-                        url, request, httpPost.getAllHeaders());
+                long startTime = System.currentTimeMillis();
                 CloseableHttpResponse response = httpClient.execute(httpPost);
                 String returnStr = EntityUtils.toString(response.getEntity());
+                long dltTime = System.currentTimeMillis() - startTime;
+                if (dltTime >= CommonConfigHolder.getInstance().getMetaConfigWastAlarmMs()) {
+                    LOG.warn("End to request {} to get config info:{}, WAIST {} ms",
+                            url, returnStr, dltTime);
+                } else {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("End to request {} to get config info:{}, WAIST {} ms",
+                                url, returnStr, dltTime);
+                    }
+                }
                 if (response.getStatusLine().getStatusCode() != 200) {
                     LOG.warn("Failed to request {}, with params: {}, headers: {}, the response is {}",
                             url, request, httpPost.getAllHeaders(), returnStr);
                     return false;
                 }
-                LOG.info("End to request {} to get config info:{}", url, returnStr);
                 // get groupId <-> topic and m value.
                 DataProxyConfigResponse proxyResponse =
                         gson.fromJson(returnStr, DataProxyConfigResponse.class);
@@ -382,8 +397,10 @@ public class ConfigManager {
                 }
                 // update meta configure
                 if (configManager.updateMetaConfigInfo(proxyResponse.getMd5(), returnStr)) {
-                    ConfigManager.handshakeManagerOk.set(true);
-                    LOG.info("Get config success from manager and updated, set handshake status is ok!");
+                    if (!ConfigManager.handshakeManagerOk.get()) {
+                        ConfigManager.handshakeManagerOk.set(true);
+                        LOG.info("Get config success from manager and updated, set handshake status is ok!");
+                    }
                 }
                 return true;
             } catch (Throwable ex) {

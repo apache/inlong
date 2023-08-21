@@ -17,11 +17,11 @@
  * under the License.
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { Modal, Spin, message, Form, Input, Select } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Modal, Spin, message, Form, Button } from 'antd';
 import { ModalProps } from 'antd/es/modal';
-import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
-import { useRequest, useUpdateEffect } from '@/ui/hooks';
+import { useForm } from '@/ui/components/FormGenerator';
+import { useRequest } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import { useDefaultMeta, useLoadMeta, TransformMetaType } from '@/plugins';
 import request from '@/core/utils/request';
@@ -30,22 +30,12 @@ import i18n from '@/i18n';
 import { fieldAllTypes } from './FieldTypeConf';
 
 export interface Props extends ModalProps {
-  // When editing, use the ID to call the interface for obtaining details
-  id?: string;
   inlongGroupId: string;
   inlongStreamId: string;
-  defaultType?: string;
   isSource: boolean;
 }
 
-const Comp: React.FC<Props> = ({
-  id,
-  inlongGroupId,
-  inlongStreamId,
-  isSource,
-  defaultType,
-  ...modalProps
-}) => {
+const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, ...modalProps }) => {
   const [form] = useForm();
   const { t } = useTranslation();
 
@@ -67,7 +57,6 @@ const Comp: React.FC<Props> = ({
     }),
     {
       manual: true,
-      formatResult: result => new Entity()?.parse(result) || result,
     },
   );
 
@@ -107,9 +96,6 @@ const Comp: React.FC<Props> = ({
           message: i18n.t('meta.Stream.FieldNameRule'),
         },
       ],
-      props: {
-        disabled: true,
-      },
     },
     {
       title: i18n.t('meta.Sinks.SourceFieldType'),
@@ -118,7 +104,6 @@ const Comp: React.FC<Props> = ({
       initialValue: fieldTypes[0].label,
       rules: [{ required: true }],
       props: {
-        disabled: true,
         options: fieldTypes,
       },
     },
@@ -133,9 +118,6 @@ const Comp: React.FC<Props> = ({
           message: i18n.t('meta.Stream.FieldNameRule'),
         },
       ],
-      props: (text, record) => ({
-        disabled: record.id,
-      }),
     },
     {
       title: i18n.t('meta.Stream.FieldType'),
@@ -143,7 +125,6 @@ const Comp: React.FC<Props> = ({
       type: 'select',
       initialValue: '',
       props: (text, record) => ({
-        disabled: record.id,
         options: isSource === true ? fieldTypes : fieldAllTypes[sinkType],
       }),
       rules: [{ required: true }],
@@ -166,18 +147,14 @@ const Comp: React.FC<Props> = ({
           message: i18n.t('meta.Stream.FieldNameRule'),
         },
       ],
-      props: (text, record) => ({
-        disabled: record.id,
-      }),
     },
     {
       title: i18n.t('meta.Stream.FieldType'),
       dataIndex: 'fieldType',
       type: 'select',
       initialValue: '',
-      props: (text, record) => ({
-        disabled: record.id,
-        options: isSource === true ? fieldTypes : fieldAllTypes[sinkType],
+      props: () => ({
+        options: fieldTypes,
       }),
       rules: [{ required: true }],
     },
@@ -196,7 +173,6 @@ const Comp: React.FC<Props> = ({
       inlongStreamId,
     };
     if (isUpdate) {
-      submitData.id = id;
       submitData.version = data?.version;
     }
     if (isSource === true) {
@@ -208,11 +184,13 @@ const Comp: React.FC<Props> = ({
         },
       });
     } else {
-      sinkData.list[0].sinkFieldList = values.sinkFieldList;
       const sinkSubmitData = {
-        ...sinkData.list[0],
         inlongGroupId,
         inlongStreamId,
+        id: sinkData.list[0].id,
+        sinkType: sinkData.list[0].sinkType,
+        version: sinkData.list[0].version,
+        sinkFieldList: values.sinkFieldList,
       };
       await request({
         url: `/sink/update`,
@@ -227,25 +205,26 @@ const Comp: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    if (inlongStreamId) {
+    if (inlongStreamId && modalProps.open) {
       getData(inlongStreamId);
       getSinkData();
-      setSinkType(sinkData?.list[0]?.sinkType);
     }
-  }, [getData, getSinkData, inlongStreamId]);
+  }, [getData, getSinkData, inlongStreamId, modalProps.open]);
 
   useEffect(() => {
-    if (!id && isSource === false) {
-      form.setFieldsValue({
-        sinkFieldList: data?.fieldList.map(item => ({
-          sourceFieldName: item.fieldName,
-          sourceFieldType: item.fieldType,
-          fieldName: item.fieldName,
-          fieldType: '',
-        })),
-      });
+    if (inlongStreamId && isSource === false && modalProps.open) {
+      if (sinkData?.list[0]?.sinkFieldList?.length === 0) {
+        form.setFieldsValue({
+          sinkFieldList: data?.fieldList?.map(item => ({
+            sourceFieldName: item.fieldName,
+            sourceFieldType: item.fieldType,
+            fieldName: item.fieldName,
+            fieldType: '',
+          })),
+        });
+      }
     }
-  }, [data?.fieldList, form, getData, getSinkData, id, inlongStreamId, isSource]);
+  }, [data, form, inlongStreamId, isSource, modalProps.open, sinkData?.list]);
 
   return (
     <>
@@ -258,13 +237,21 @@ const Comp: React.FC<Props> = ({
         }
         width={888}
         onOk={onOk}
+        footer={[
+          <Button key="cancel" onClick={e => modalProps.onCancel(e)}>
+            {t('pages.GroupDetail.Sink.Cancel')}
+          </Button>,
+          <Button key="save" type="primary" onClick={() => onOk()}>
+            {t('pages.GroupDetail.Sink.Save')}
+          </Button>,
+        ]}
       >
         <Spin spinning={loading}>
           <Form form={form} initialValues={isSource === true ? data : sinkData?.list[0]}>
             <Form.Item name={isSource === true ? 'fieldList' : 'sinkFieldList'}>
               <EditableTable
                 columns={isSource === true ? fieldList : sinkFieldList}
-                dataSource={isSource === true ? data?.fieldList : sinkData?.sinkFieldList}
+                dataSource={isSource === true ? data?.fieldList : sinkData?.list[0]?.sinkFieldList}
               ></EditableTable>
             </Form.Item>
           </Form>
