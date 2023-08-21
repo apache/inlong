@@ -17,6 +17,11 @@
 #
 
 
+# Opentelemetry startup parameter configuration
+export OTEL_SERVICE_NAME=inlong_agent
+export OTEL_VERSION=1.28.0
+export OTEL_EXPORTER_OTLP_ENDPOINT=
+export OTEL_RESOURCE_ATTRIBUTES=
 
 #project directory
 BASE_DIR=$(cd "$(dirname "$0")"/../;pwd)
@@ -61,3 +66,6 @@ if [[ $JMX_ENABLED == 1 ]]; then
 else
   export AGENT_ARGS="$AGENT_JVM_ARGS -cp $CLASSPATH -Dagent.home=$BASE_DIR"
 fi
+
+# Opentelemetry java agent path
+OTEL_AGENT="${BASE_DIR}/lib/opentelemetry-javaagent-${OTEL_VERSION}.jar"

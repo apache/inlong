@@ -202,11 +202,20 @@
         <tomcat.version>8.5.53</tomcat.version>
         <jedis.version>2.9.0</jedis.version>
         <poi.version>5.2.3</poi.version>
+        <otel.version>1.28.0</otel.version>
         <woodstox-core.version>5.4.0</woodstox-core.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!--opentelemetry-->
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>${otel.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <!-- flume dependency -->
             <dependency>
                 <groupId>org.apache.flume</groupId>
@@ -1255,6 +1264,19 @@
         </dependencies>
     </dependencyManagement>
 
+    <dependencies>
+        <!--opentelemetry-->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+            <version>${otel.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry.javaagent</groupId>
+            <artifactId>opentelemetry-javaagent</artifactId>
+            <version>${otel.version}</version>
+        </dependency>
+    </dependencies>
     <build>
         <pluginManagement>
             <plugins>
