@@ -26,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.api.AuthenticationFactory;
-import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 
 import java.util.List;
@@ -56,21 +55,6 @@ public class PulsarUtils {
     }
 
     /**
-     * Get pulsar client info
-     */
-    public static PulsarClient getPulsarClient(PulsarClusterInfo pulsarCluster) throws PulsarClientException {
-        Preconditions.expectNotBlank(pulsarCluster.getServiceUrl(), ErrorCodeEnum.INVALID_PARAMETER,
-                "Pulsar serviceUrl cannot be empty");
-        PulsarClient pulsarClient;
-        if (StringUtils.isEmpty(pulsarCluster.getToken())) {
-            pulsarClient = getPulsarClient(pulsarCluster.getServiceUrl());
-        } else {
-            pulsarClient = getPulsarClient(pulsarCluster.getServiceUrl(), pulsarCluster.getToken());
-        }
-        return pulsarClient;
-    }
-
-    /**
      * Get the pulsar admin from the given service URL.
      *
      * @apiNote It must be closed after use.
@@ -88,27 +72,6 @@ public class PulsarUtils {
      */
     private static PulsarAdmin getPulsarAdmin(String serviceHttpUrl, String token) throws PulsarClientException {
         return PulsarAdmin.builder().serviceHttpUrl(serviceHttpUrl)
-                .authentication(AuthenticationFactory.token(token)).build();
-    }
-
-    /**
-     * Get the pulsar client from the given service URL.
-     *
-     * @apiNote It must be closed after use.
-     */
-    public static PulsarClient getPulsarClient(String serviceHttpUrl) throws PulsarClientException {
-        return PulsarClient.builder().serviceUrl(serviceHttpUrl).build();
-    }
-
-    /**
-     * Get the pulsar client from the given service URL and token.
-     * <p/>
-     * Currently only token is supported as an authentication type.
-     *
-     * @apiNote It must be closed after use.
-     */
-    private static PulsarClient getPulsarClient(String serviceHttpUrl, String token) throws PulsarClientException {
-        return PulsarClient.builder().serviceUrl(serviceHttpUrl)
                 .authentication(AuthenticationFactory.token(token)).build();
     }
 

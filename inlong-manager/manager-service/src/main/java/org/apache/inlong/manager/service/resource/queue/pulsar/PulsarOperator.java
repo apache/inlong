@@ -42,7 +42,9 @@ import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.Reader;
 import org.apache.pulsar.common.policies.data.PersistencePolicies;
 import org.apache.pulsar.common.policies.data.RetentionPolicies;
+import org.apache.pulsar.common.policies.data.SubscriptionStats;
 import org.apache.pulsar.common.policies.data.TenantInfoImpl;
+import org.apache.pulsar.common.policies.data.TopicStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -388,12 +390,12 @@ public class PulsarOperator {
     /**
      * Query topic message for the given pulsar cluster.
      */
-    public List<BriefMQMessage> queryLatestMessage(PulsarClient pulsarClient, String topicFullName, String subName,
+    public List<BriefMQMessage> queryLatestMessage(PulsarAdmin pulsarAdmin, String topicFullName, String subName,
             Integer messageCount, InlongStreamInfo streamInfo) {
         LOGGER.info("begin to query message for topic {}, subName={}", topicFullName, subName);
         List<BriefMQMessage> messageList = new ArrayList<>();
         try {
-            List<String> partitions = pulsarClient.getPartitionsForTopic(topicFullName).get();
+            List<String> partitions = pulsarAdmin.topics().getPartitionedTopicList(topicFullName);
             int partitionCount = partitions.size();
             boolean serial = false;
             int serialPartitionCount = 0;
@@ -405,7 +407,7 @@ public class PulsarOperator {
             int index = 0;
             for (int partitionNum = 0; partitionNum < partitionCount; partitionNum++) {
                 String topicNameOfPartition = buildTopicNameOfPartition(topicFullName, partitionNum, serial);
-                messageList.addAll(queryMessageFromPulsar(topicNameOfPartition, subName, count, pulsarClient, index++,
+                messageList.addAll(queryMessageFromPulsar(topicNameOfPartition, count, pulsarAdmin, index++,
                         streamInfo));
             }
         } catch (Exception e) {
@@ -420,13 +422,15 @@ public class PulsarOperator {
     /**
      * Use pulsar reader to query message
      */
-    private List<BriefMQMessage> queryMessageFromPulsar(String topic, String subscriptionName,
-            int count, PulsarClient pulsarClient, int index, InlongStreamInfo streamInfo) throws Exception {
-        Reader<byte[]> reader = pulsarClient.newReader().topic(topic).startMessageId(MessageId.latest)
-                .subscriptionName(subscriptionName).create();
+    private List<BriefMQMessage> queryMessageFromPulsar(String topic, int count, PulsarAdmin pulsarAdmin, int index,
+            InlongStreamInfo streamInfo) throws Exception {
+        TopicStats stats = pulsarAdmin.topics().getStats(topic);
+        for (SubscriptionStats subscriptionStats : stats.getSubscriptions().values()) {
+            subscriptionStats.getMsgBacklog();
+        }
         List<BriefMQMessage> briefMQMessages = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            Message<byte[]> pulsarMessage = reader.readNext();
+            Message<byte[]> pulsarMessage = pulsarAdmin.topics().examineMessage(topic, "latest", i);
             if (pulsarMessage == null) {
                 break;
             }

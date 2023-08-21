@@ -316,7 +316,7 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
                 null, ClusterType.PULSAR);
         List<BriefMQMessage> briefMQMessages = new ArrayList<>();
 
-        try (PulsarClient pulsarClient = PulsarUtils.getPulsarClient(pulsarCluster)) {
+        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
             String tenant = inlongPulsarInfo.getPulsarTenant();
             if (StringUtils.isBlank(tenant)) {
                 tenant = pulsarCluster.getPulsarTenant();
@@ -328,7 +328,7 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
             String clusterTag = inlongPulsarInfo.getInlongClusterTag();
             String subs = String.format(PULSAR_SUBSCRIPTION_REALTIME_REVIEW, clusterTag, topicName);
             briefMQMessages =
-                    pulsarOperator.queryLatestMessage(pulsarClient, fullTopicName, subs, messageCount, streamInfo);
+                    pulsarOperator.queryLatestMessage(pulsarAdmin, fullTopicName, subs, messageCount, streamInfo);
 
             // insert the consumer group info into the inlong_consume table
             Integer id = consumeService.saveBySystem(groupInfo, topicName, subs);
