@@ -56,11 +56,11 @@ public class PulsarUtils {
     }
 
     /**
-     * Get pulsar admin info
+     * Get pulsar client info
      */
     public static PulsarClient getPulsarClient(PulsarClusterInfo pulsarCluster) throws PulsarClientException {
         Preconditions.expectNotBlank(pulsarCluster.getServiceUrl(), ErrorCodeEnum.INVALID_PARAMETER,
-                "Pulsar adminUrl cannot be empty");
+                "Pulsar serviceUrl cannot be empty");
         PulsarClient pulsarClient;
         if (StringUtils.isEmpty(pulsarCluster.getToken())) {
             pulsarClient = getPulsarClient(pulsarCluster.getServiceUrl());
