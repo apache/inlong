@@ -17,6 +17,10 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import com.google.common.collect.Sets;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.jdbc.SQL;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.AuditQuerySource;
@@ -28,11 +32,13 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.AuditBaseEntity;
 import org.apache.inlong.manager.dao.entity.AuditSourceEntity;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.AuditBaseEntityMapper;
 import org.apache.inlong.manager.dao.mapper.AuditEntityMapper;
 import org.apache.inlong.manager.dao.mapper.AuditSourceEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
@@ -45,10 +51,6 @@ import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.core.AuditService;
 import org.apache.inlong.manager.service.resource.sink.ck.ClickHouseConfig;
 import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.jdbc.SQL;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -70,7 +72,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -135,6 +136,8 @@ public class AuditServiceImpl implements AuditService {
     private ClickHouseConfig config;
     @Autowired
     private AuditSourceEntityMapper auditSourceMapper;
+    @Autowired
+    private InlongGroupEntityMapper inlongGroupMapper;
 
     @PostConstruct
     public void initialize() {
@@ -248,6 +251,8 @@ public class AuditServiceImpl implements AuditService {
             sinkNodeType = sinkEntity.getSinkType();
         }
 
+        Set<String> sinkAuditIds = Sets.newHashSet(getAuditId(sinkNodeType, true), getAuditId(sinkNodeType, false));
+
         // properly overwrite audit ids by role and stream config
         request.setAuditIds(getAuditIds(groupId, streamId, sinkNodeType));
 
@@ -265,11 +270,10 @@ public class AuditServiceImpl implements AuditService {
                     AuditInfo vo = new AuditInfo();
                     vo.setLogTs((String) s.get("logTs"));
                     vo.setCount(((BigDecimal) s.get("total")).longValue());
-                    vo.setCount(((BigDecimal) s.get("totalDelay")).longValue());
+                    vo.setDelay(((BigDecimal) s.get("totalDelay")).longValue());
                     return vo;
                 }).collect(Collectors.toList());
-                result.add(new AuditVO(auditId, auditSet,
-                        auditId.equals(getAuditId(sinkNodeType, true)) ? sinkNodeType : null));
+                result.add(new AuditVO(auditId, auditSet, sinkAuditIds.contains(auditId) ? sinkNodeType : null));
             } else if (AuditQuerySource.ELASTICSEARCH == querySource) {
                 String index = String.format("%s_%s", request.getStartDate().replaceAll("-", ""), auditId);
                 if (!elasticsearchApi.indexExists(index)) {
@@ -325,6 +329,10 @@ public class AuditServiceImpl implements AuditService {
             auditSet.add(getAuditId(ClusterType.DATAPROXY, true));
         } else {
             auditSet.add(getAuditId(sinkNodeType, false));
+            InlongGroupEntity inlongGroup = inlongGroupMapper.selectByGroupId(groupId);
+            if (InlongConstants.DATASYNC_MODE.equals(inlongGroup.getInlongGroupMode())) {
+                auditSet.add(getAuditId(sinkNodeType, true));
+            }
         }
 
         // auto push source has no agent, return data-proxy audit data instead of agent
