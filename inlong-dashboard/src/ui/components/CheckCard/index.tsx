@@ -18,7 +18,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Card, Col, Row, theme } from 'antd';
+import { Card, Col, Row, theme, Tooltip } from 'antd';
 import { DoubleRightOutlined, DatabaseOutlined } from '@ant-design/icons';
 import styles from './index.module.less';
 
@@ -40,6 +40,8 @@ const { useToken } = theme;
 const CheckCard: React.FC<CheckCardProps> = ({ options, value, onChange, disabled, span = 6 }) => {
   const [currentValue, setCurrentValue] = useState(value);
 
+  const [logoMap, setLogoMap] = useState({});
+
   const [isExpand, setExpandStatus] = useState(!Boolean(currentValue));
 
   const { token } = useToken();
@@ -52,6 +54,29 @@ const CheckCard: React.FC<CheckCardProps> = ({ options, value, onChange, disable
     // eslint-disable-next-line
   }, [value]);
 
+  useEffect(() => {
+    /*
+      The dynamic loading of logo images is based on the "label" property of the option.
+      Since Vite does not support require.context, import() is used instead.
+      It also can be used to determine whether the image exists and handle the module cache.
+    */
+    (async () => {
+      setLogoMap(
+        (
+          await Promise.allSettled(options.map(option => import(`./logo/${option.label}.png`)))
+        ).reduce((res, item) => {
+          if (item.status === 'fulfilled') {
+            const {
+              value: { default: url },
+            } = item;
+            res[url.split('/').pop().split('.').shift()] = url;
+          }
+          return res;
+        }, {}),
+      );
+    })();
+  }, [options]);
+
   const handleCardClick = newValue => {
     setExpandStatus(false);
     if (newValue !== currentValue) {
@@ -62,8 +87,23 @@ const CheckCard: React.FC<CheckCardProps> = ({ options, value, onChange, disable
     }
   };
 
+  const renderContent = label => (
+    <Tooltip placement="top" title={label}>
+      <div className={styles.cardInfo}>
+        {logoMap[label] ? (
+          <img height="100%" alt={label} src={logoMap[label]}></img>
+        ) : (
+          <>
+            <DatabaseOutlined style={{ fontSize: 20 }} />
+            <span>{label}</span>
+          </>
+        )}
+      </div>
+    </Tooltip>
+  );
+
   return (
-    <Row gutter={10} className={styles.cardRow}>
+    <Row gutter={15} className={styles.cardRow}>
       {!isExpand ? (
         <>
           <Col span={span} className={styles.cardCol}>
@@ -72,8 +112,7 @@ const CheckCard: React.FC<CheckCardProps> = ({ options, value, onChange, disable
               bodyStyle={{ textAlign: 'center' }}
               className={disabled ? styles.cardDisabled : ''}
             >
-              <DatabaseOutlined style={{ fontSize: 20 }} />
-              <div>{options.find(item => item.value === currentValue)?.label}</div>
+              {renderContent(options.find(item => item.value === currentValue)?.label)}
             </Card>
           </Col>
           {!disabled && (
@@ -94,7 +133,7 @@ const CheckCard: React.FC<CheckCardProps> = ({ options, value, onChange, disable
               onClick={() => handleCardClick(item.value)}
               style={item.value === currentValue ? { borderColor: token.colorPrimary } : {}}
             >
-              {item.label}
+              {renderContent(item.label)}
             </Card>
           </Col>
         ))
