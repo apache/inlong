@@ -413,7 +413,7 @@ public class PulsarOperator {
     }
 
     /**
-     * Use pulsar reader to query message
+     * Use pulsar admin to query message
      */
     private List<BriefMQMessage> queryMessageFromPulsar(String topic, PulsarAdmin pulsarAdmin, int index,
             InlongStreamInfo streamInfo, int messagePosition) throws Exception {
