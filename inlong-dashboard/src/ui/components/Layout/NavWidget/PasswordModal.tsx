@@ -135,7 +135,12 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   }, [userId]);
 
   return (
-    <Modal {...modalProps} title={t('components.Layout.NavWidget.EditPassword')} onOk={onOk}>
+    <Modal
+      {...modalProps}
+      width={590}
+      title={t('components.Layout.NavWidget.EditPassword')}
+      onOk={onOk}
+    >
       <FormGenerator content={content} form={form} useMaxWidth />
     </Modal>
   );
