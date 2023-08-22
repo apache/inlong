@@ -38,6 +38,7 @@ import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
+import org.apache.pulsar.common.partition.PartitionedTopicMetadata;
 import org.apache.pulsar.common.policies.data.PersistencePolicies;
 import org.apache.pulsar.common.policies.data.RetentionPolicies;
 import org.apache.pulsar.common.policies.data.TenantInfoImpl;
@@ -391,8 +392,9 @@ public class PulsarOperator {
         LOGGER.info("begin to query message for topic {}, subName={}", topicFullName, subName);
         List<BriefMQMessage> messageList = new ArrayList<>();
         try {
-            List<String> partitions = pulsarAdmin.topics().getPartitionedTopicList(topicFullName);
-            int partitionCount = partitions.size();
+            PartitionedTopicMetadata partitionedTopicMetadata = pulsarAdmin.topics()
+                    .getPartitionedTopicMetadata(topicFullName);
+            int partitionCount = partitionedTopicMetadata.partitions;
             boolean serial = partitionCount == 0;
             for (int messageIndex = 0; messageIndex < messageCount; messageIndex++) {
                 int currentPartitionNum = messageIndex % partitionCount;
