@@ -41,6 +41,8 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+            <!-- we add mysql jdbc driver here to compile an uber jar -->
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
