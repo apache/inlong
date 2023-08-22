@@ -38,13 +38,9 @@ import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
-import org.apache.pulsar.client.api.PulsarClient;
-import org.apache.pulsar.client.api.Reader;
 import org.apache.pulsar.common.policies.data.PersistencePolicies;
 import org.apache.pulsar.common.policies.data.RetentionPolicies;
-import org.apache.pulsar.common.policies.data.SubscriptionStats;
 import org.apache.pulsar.common.policies.data.TenantInfoImpl;
-import org.apache.pulsar.common.policies.data.TopicStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -397,18 +393,13 @@ public class PulsarOperator {
         try {
             List<String> partitions = pulsarAdmin.topics().getPartitionedTopicList(topicFullName);
             int partitionCount = partitions.size();
-            boolean serial = false;
-            int serialPartitionCount = 0;
-            if (partitionCount == serialPartitionCount) {
-                partitionCount = 1;
-                serial = true;
-            }
-            int count = messageCount / partitionCount;
-            int index = 0;
-            for (int partitionNum = 0; partitionNum < partitionCount; partitionNum++) {
-                String topicNameOfPartition = buildTopicNameOfPartition(topicFullName, partitionNum, serial);
-                messageList.addAll(queryMessageFromPulsar(topicNameOfPartition, count, pulsarAdmin, index++,
-                        streamInfo));
+            boolean serial = partitionCount == 0;
+            for (int messageIndex = 0; messageIndex < messageCount; messageIndex++) {
+                int currentPartitionNum = messageIndex % partitionCount;
+                int messagePosition = messageIndex / partitionCount;
+                String topicNameOfPartition = buildTopicNameOfPartition(topicFullName, currentPartitionNum, serial);
+                messageList.addAll(queryMessageFromPulsar(topicNameOfPartition, pulsarAdmin, messageIndex,
+                        streamInfo, messagePosition));
             }
         } catch (Exception e) {
             String errMsg = "decode msg error: ";
@@ -422,27 +413,16 @@ public class PulsarOperator {
     /**
      * Use pulsar reader to query message
      */
-    private List<BriefMQMessage> queryMessageFromPulsar(String topic, int count, PulsarAdmin pulsarAdmin, int index,
-            InlongStreamInfo streamInfo) throws Exception {
-        TopicStats stats = pulsarAdmin.topics().getStats(topic);
-        for (SubscriptionStats subscriptionStats : stats.getSubscriptions().values()) {
-            subscriptionStats.getMsgBacklog();
-        }
-        List<BriefMQMessage> briefMQMessages = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            Message<byte[]> pulsarMessage = pulsarAdmin.topics().examineMessage(topic, "latest", i);
-            if (pulsarMessage == null) {
-                break;
-            }
-            Map<String, String> headers = pulsarMessage.getProperties();
-            int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
-                    Integer.toString(DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId())));
-            DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
-                    DataProxyMsgEncType.valueOf(wrapTypeId));
-            briefMQMessages.addAll(deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(),
-                    headers, index++));
-        }
-        return briefMQMessages;
+    private List<BriefMQMessage> queryMessageFromPulsar(String topic, PulsarAdmin pulsarAdmin, int index,
+            InlongStreamInfo streamInfo, int messagePosition) throws Exception {
+        Message<byte[]> pulsarMessage = pulsarAdmin.topics().examineMessage(topic, "latest", messagePosition);
+        Map<String, String> headers = pulsarMessage.getProperties();
+        int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
+                Integer.toString(DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId())));
+        DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
+                DataProxyMsgEncType.valueOf(wrapTypeId));
+        return deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(),
+                headers, index);
     }
 
     /**
