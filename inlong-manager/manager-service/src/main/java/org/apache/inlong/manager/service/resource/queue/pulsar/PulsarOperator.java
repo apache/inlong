@@ -404,7 +404,6 @@ public class PulsarOperator {
     }
 
     /**
-     *
      * Use pulsar admin to get topic partition count
      */
     private int getPartitionCount(PulsarAdmin pulsarAdmin, String topicFullName) {
@@ -417,7 +416,11 @@ public class PulsarOperator {
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg + e.getMessage());
         }
-        return partitionedTopicMetadata.partitions;
+        if (partitionedTopicMetadata.partitions > 0) {
+            return partitionedTopicMetadata.partitions;
+        } else {
+            return 1;
+        }
     }
 
     /**
