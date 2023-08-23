@@ -422,13 +422,13 @@ public class SchemaChangeHelper {
                 .map(fenode -> String.format(SCHEMA_CHANGE_API, fenode, database))
                 .collect(Collectors.toList());
 
-        for(String requestUrl:uris){
+        for (String requestUrl : uris) {
             HttpPost httpPost = new HttpPost(requestUrl);
             httpPost.setHeader(HttpHeaders.AUTHORIZATION, authHeader());
             httpPost.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE_JSON);
             httpPost.setEntity(new StringEntity(dynamicSchemaFormat.objectMapper.writeValueAsString(param)));
-            //if any fenode succeeds, return true, else keep trying
-            if(sendRequest(httpPost)){
+            // if any fenode succeeds, return true, else keep trying
+            if (sendRequest(httpPost)) {
                 return true;
             }
         }
