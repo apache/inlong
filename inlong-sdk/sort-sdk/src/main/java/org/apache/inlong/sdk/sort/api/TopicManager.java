@@ -21,6 +21,9 @@ import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 
 /**
  * A manager to maintain different type of fetchers
@@ -29,10 +32,12 @@ public abstract class TopicManager implements Cleanable {
 
     protected ClientContext context;
     protected QueryConsumeConfig queryConsumeConfig;
+    protected final ForkJoinPool pool;
 
     public TopicManager(ClientContext context, QueryConsumeConfig queryConsumeConfig) {
         this.context = context;
         this.queryConsumeConfig = queryConsumeConfig;
+        pool = new ForkJoinPool(context.config.getThreadPoolSize());
     }
 
     /**
@@ -49,6 +54,15 @@ public abstract class TopicManager implements Cleanable {
      * @return The fetcher that has maintained this topic.
      */
     public abstract TopicFetcher removeTopic(InLongTopic topic, boolean closeFetcher);
+
+    /**
+     * Remove topic and return the fetcher that has maintained this topic.
+     * @param topicKey Topic key to be removed.
+     * @return The fetcher that has maintained this topic.
+     */
+    public TopicFetcher removeTopic(String topicKey) {
+        return null;
+    }
 
     /**
      * Get the specified fetcher by the given fetch key.
@@ -78,4 +92,16 @@ public abstract class TopicManager implements Cleanable {
      * Close manager.
      */
     public abstract void close();
+
+    /**
+     * Restart
+     */
+    public void restartAssigned() {
+
+    }
+
+    public void stopAssigned() {
+
+    }
+
 }

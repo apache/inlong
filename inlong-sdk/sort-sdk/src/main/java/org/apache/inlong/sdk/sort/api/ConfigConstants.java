@@ -54,4 +54,8 @@ public class ConfigConstants {
     public static final String IS_TOPIC_STATICS_ENABLED = "isTopicStaticsEnabled";
     public static final String IS_PARTITION_STATICS_ENABLED = "isPartitionStaticsEnabled";
 
+    public static final String MAX_OFFLINE_TOPIC = "maxOfflineTopic";
+
+    public static final String THREAD_POOL_SIZE = "threadPoolSize";
+
 }

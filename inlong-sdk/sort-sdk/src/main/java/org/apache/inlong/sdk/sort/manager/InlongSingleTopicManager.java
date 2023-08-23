@@ -57,7 +57,9 @@ import java.util.stream.Collectors;
  * Inlong manager that maintain the single topic fetchers.
  * It is suitable to the cases that each topic has its own configurations.
  * And each consumer only consume the very one topic.
+ * InlongMultiTopicManager was deprecated since 1.9.0
  */
+@Deprecated
 public class InlongSingleTopicManager extends TopicManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongSingleTopicManager.class);

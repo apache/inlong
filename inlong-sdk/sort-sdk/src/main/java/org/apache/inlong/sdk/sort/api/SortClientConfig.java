@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sdk.sort.api;
 
+import lombok.Data;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
 import org.apache.commons.lang3.StringUtils;
@@ -71,6 +72,10 @@ public class SortClientConfig implements Serializable {
 
     private boolean topicStaticsEnabled = true;
     private boolean partitionStaticsEnabled = true;
+
+    private double maxOfflineTopic = 0.05;
+
+    private int threadPoolSize = 50;
 
     public SortClientConfig(
             String sortTaskId,
@@ -379,6 +384,22 @@ public class SortClientConfig implements Serializable {
         return partitionStaticsEnabled;
     }
 
+    public double getMaxOfflineTopic() {
+        return maxOfflineTopic;
+    }
+
+    public void setMaxOfflineTopic(double maxOfflineTopic) {
+        this.maxOfflineTopic = maxOfflineTopic;
+    }
+
+    public int getThreadPoolSize() {
+        return threadPoolSize;
+    }
+
+    public void setThreadPoolSize(int threadPoolSize) {
+        this.threadPoolSize = threadPoolSize;
+    }
+
     /**
      * ConsumeStrategy
      */
@@ -469,6 +490,9 @@ public class SortClientConfig implements Serializable {
                 Boolean.TRUE.toString());
         this.partitionStaticsEnabled = StringUtils.equalsIgnoreCase(strPartitionStaticsEnabled,
                 Boolean.TRUE.toString());
+
+        this.maxOfflineTopic = NumberUtils.toDouble(sortSdkParams.get(ConfigConstants.MAX_OFFLINE_TOPIC), maxOfflineTopic);
+        this.threadPoolSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.THREAD_POOL_SIZE), threadPoolSize);
     }
 
     public List<InLongTopic> getConsumerSubset(List<InLongTopic> totalTopics) {
