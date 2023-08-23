@@ -400,7 +400,6 @@ public class SortClientConfig implements Serializable {
         this.startOfflineTopicCheckThreshold = startOfflineTopicCheckThreshold;
     }
 
-
     public int getThreadPoolSize() {
         return threadPoolSize;
     }
