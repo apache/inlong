@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sdk.sort.api;
 
-import lombok.Data;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
 import org.apache.commons.lang3.StringUtils;
@@ -73,7 +72,8 @@ public class SortClientConfig implements Serializable {
     private boolean topicStaticsEnabled = true;
     private boolean partitionStaticsEnabled = true;
 
-    private double maxOfflineTopic = 0.05;
+    private int startOfflineTopicCheckThreshold = 50;
+    private int maxOfflineTopicPercent = 5;
 
     private int threadPoolSize = 50;
 
@@ -384,13 +384,22 @@ public class SortClientConfig implements Serializable {
         return partitionStaticsEnabled;
     }
 
-    public double getMaxOfflineTopic() {
-        return maxOfflineTopic;
+    public int getMaxOfflineTopicPercent() {
+        return maxOfflineTopicPercent;
     }
 
-    public void setMaxOfflineTopic(double maxOfflineTopic) {
-        this.maxOfflineTopic = maxOfflineTopic;
+    public void setMaxOfflineTopicPercent(int maxOfflineTopicPercent) {
+        this.maxOfflineTopicPercent = maxOfflineTopicPercent;
     }
+
+    public int getStartOfflineTopicCheckThreshold() {
+        return startOfflineTopicCheckThreshold;
+    }
+
+    public void setStartOfflineTopicCheckThreshold(int startOfflineTopicCheckThreshold) {
+        this.startOfflineTopicCheckThreshold = startOfflineTopicCheckThreshold;
+    }
+
 
     public int getThreadPoolSize() {
         return threadPoolSize;
@@ -491,7 +500,11 @@ public class SortClientConfig implements Serializable {
         this.partitionStaticsEnabled = StringUtils.equalsIgnoreCase(strPartitionStaticsEnabled,
                 Boolean.TRUE.toString());
 
-        this.maxOfflineTopic = NumberUtils.toDouble(sortSdkParams.get(ConfigConstants.MAX_OFFLINE_TOPIC), maxOfflineTopic);
+        this.maxOfflineTopicPercent =
+                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.MAX_OFFLINE_TOPIC), maxOfflineTopicPercent);
+        this.startOfflineTopicCheckThreshold =
+                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.START_OFFLINE_CHECK_THRESHOLD),
+                        startOfflineTopicCheckThreshold);
         this.threadPoolSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.THREAD_POOL_SIZE), threadPoolSize);
     }
 

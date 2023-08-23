@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sdk.sort.manager;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InlongTopicTypeEnum;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
@@ -31,6 +30,8 @@ import org.apache.inlong.sdk.sort.fetcher.tube.TubeConsumerCreator;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.factory.MessageSessionFactory;
 import org.apache.inlong.tubemq.client.factory.TubeSingleSessionFactory;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.slf4j.Logger;
@@ -122,16 +123,14 @@ public class InlongTopicManager extends TopicManager {
         pool.submit(() -> pulsarClients.keySet()
                 .stream()
                 .parallel()
-                .forEach(this::closePulsarClient)
-        );
+                .forEach(this::closePulsarClient));
     }
 
     private void closeAllTubeFactories() {
         pool.submit(() -> tubeFactories.keySet()
                 .stream()
                 .parallel()
-                .forEach(this::closeTubeFactory)
-        );
+                .forEach(this::closeTubeFactory));
     }
 
     private TubeConsumerCreator closeTubeFactory(String clusterId) {
@@ -385,12 +384,12 @@ public class InlongTopicManager extends TopicManager {
 
     private void checkAndOnlineCluster(InLongTopic topic) {
         switch (topic.getTopicType().toLowerCase()) {
-            case "pulsar" :
+            case "pulsar":
                 if (!pulsarClients.containsKey(topic.getInLongCluster().getClusterId())) {
                     createPulsarClient(topic.getInLongCluster());
-                 }
+                }
                 return;
-            case "tube" :
+            case "tube":
                 if (!tubeFactories.containsKey(topic.getInLongCluster().getClusterId())) {
                     createTubeConsumerCreator(topic.getInLongCluster());
                 }
@@ -461,8 +460,7 @@ public class InlongTopicManager extends TopicManager {
     private void offlineRemovedTopics() {
         pool.submit(() -> getOfflineTopics().stream().parallel()
                 .map(InLongTopic::getTopicKey)
-                .forEach(this::removeTopic)
-        );
+                .forEach(this::removeTopic));
     }
 
     private List<InLongTopic> getOfflineTopics() {

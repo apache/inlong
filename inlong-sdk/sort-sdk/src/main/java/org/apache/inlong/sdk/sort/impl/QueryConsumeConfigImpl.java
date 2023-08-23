@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sdk.sort.impl;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.common.pojo.sdk.CacheZone;
 import org.apache.inlong.common.pojo.sdk.CacheZoneConfig;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
@@ -29,6 +28,7 @@ import org.apache.inlong.sdk.sort.entity.ConsumeConfig;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -204,9 +203,11 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     }
 
     private boolean checkTopics(List<InLongTopic> newGroupTopics) {
-        double diff =  (double) ((newGroupTopics.size() - subscribedTopic.size()))
-                / subscribedTopic.size();
-        return diff < clientContext.getConfig().getMaxOfflineTopic();
+        if (subscribedTopic.size() < clientContext.getConfig().getStartOfflineTopicCheckThreshold()) {
+            return true;
+        }
+        int diff = (newGroupTopics.size() - subscribedTopic.size()) * 100 / subscribedTopic.size();
+        return diff < clientContext.getConfig().getMaxOfflineTopicPercent();
     }
 
     /**

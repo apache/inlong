@@ -56,6 +56,8 @@ public class ConfigConstants {
 
     public static final String MAX_OFFLINE_TOPIC = "maxOfflineTopic";
 
+    public static final String START_OFFLINE_CHECK_THRESHOLD = "startOfflineCheckThreshold";
+
     public static final String THREAD_POOL_SIZE = "threadPoolSize";
 
 }

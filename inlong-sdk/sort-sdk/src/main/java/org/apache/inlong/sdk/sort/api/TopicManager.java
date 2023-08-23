@@ -21,8 +21,6 @@ import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
 import java.util.Collection;
 import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 
 /**
