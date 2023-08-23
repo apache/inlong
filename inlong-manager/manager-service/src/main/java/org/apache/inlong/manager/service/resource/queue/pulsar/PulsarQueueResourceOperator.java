@@ -326,7 +326,7 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
             String fullTopicName = tenant + "/" + namespace + "/" + topicName;
             String clusterTag = inlongPulsarInfo.getInlongClusterTag();
             String subs = String.format(PULSAR_SUBSCRIPTION_REALTIME_REVIEW, clusterTag, topicName);
-            boolean serial = "SERIAL".equals(inlongPulsarInfo.getQueueModule());
+            boolean serial = InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(inlongPulsarInfo.getQueueModule());
             briefMQMessages =
                     pulsarOperator.queryLatestMessage(pulsarAdmin, fullTopicName, subs, messageCount, streamInfo,
                             serial);
