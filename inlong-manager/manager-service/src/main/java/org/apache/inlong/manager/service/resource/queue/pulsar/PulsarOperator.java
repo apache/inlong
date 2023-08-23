@@ -416,11 +416,7 @@ public class PulsarOperator {
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg + e.getMessage());
         }
-        if (partitionedTopicMetadata.partitions > 0) {
-            return partitionedTopicMetadata.partitions;
-        } else {
-            return 1;
-        }
+        return partitionedTopicMetadata.partitions > 0 ? partitionedTopicMetadata.partitions : 1;
     }
 
     /**
