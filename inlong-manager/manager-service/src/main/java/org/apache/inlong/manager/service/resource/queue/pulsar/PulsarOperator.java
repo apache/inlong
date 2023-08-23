@@ -436,7 +436,8 @@ public class PulsarOperator {
             briefMQMessages.addAll(deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(),
                     headers, index));
         } catch (Exception e) {
-            LOGGER.warn("query message from pulsar error", e);
+            LOGGER.warn("group {} stream {} topic{},query message from pulsar error", streamInfo.getInlongGroupId(),
+                    streamInfo.getInlongStreamId(), topicPartition, e);
         }
         return briefMQMessages;
     }
