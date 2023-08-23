@@ -98,6 +98,10 @@ import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getSt
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.validateTableSinkOptions;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.validateTableSourceOptions;
 
+/**
+ * Factory for creating configured instances of {@link KafkaDynamicSource} and {@link
+ * KafkaDynamicSink}.
+ */
 @Internal
 public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 

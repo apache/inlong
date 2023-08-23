@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.kafka.table;
 
+import org.apache.flink.annotation.Internal;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.Configuration;
@@ -64,11 +65,18 @@ import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOp
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.VALUE_FORMAT;
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 
-public class KafkaConnectorOptionsUtil {
+/** Utilities for {@link KafkaConnectorOptions}. */
+@Internal
+class KafkaConnectorOptionsUtil {
 
     private static final ConfigOption<String> SCHEMA_REGISTRY_SUBJECT =
             ConfigOptions.key("schema-registry.subject").stringType().noDefaultValue();
 
+    // --------------------------------------------------------------------------------------------
+    // Option enumerations
+    // --------------------------------------------------------------------------------------------
+
+    // Prefix for Kafka specific properties.
     public static final String PROPERTIES_PREFIX = "properties.";
 
     // Sink partitioner.
@@ -83,6 +91,10 @@ public class KafkaConnectorOptionsUtil {
     protected static final String DEBEZIUM_AVRO_CONFLUENT = "debezium-avro-confluent";
     private static final List<String> SCHEMA_REGISTRY_FORMATS =
             Arrays.asList(AVRO_CONFLUENT, DEBEZIUM_AVRO_CONFLUENT);
+
+    // --------------------------------------------------------------------------------------------
+    // Validation
+    // --------------------------------------------------------------------------------------------
 
     public static void validateTableSourceOptions(ReadableConfig tableOptions) {
         validateSourceTopic(tableOptions);
@@ -105,6 +117,23 @@ public class KafkaConnectorOptionsUtil {
 
         if (!topic.isPresent() && !pattern.isPresent()) {
             throw new ValidationException("Either 'topic' or 'topic-pattern' must be set.");
+        }
+    }
+
+    public static void validateSinkTopic(ReadableConfig tableOptions) {
+        String errorMessageTemp =
+                "Flink Kafka sink currently only supports single topic, but got %s: %s.";
+        if (!isSingleTopic(tableOptions)) {
+            if (tableOptions.getOptional(TOPIC_PATTERN).isPresent()) {
+                throw new ValidationException(
+                        String.format(
+                                errorMessageTemp,
+                                "'topic-pattern'",
+                                tableOptions.get(TOPIC_PATTERN)));
+            } else {
+                throw new ValidationException(
+                        String.format(errorMessageTemp, "'topic'", tableOptions.get(TOPIC)));
+            }
         }
     }
 
@@ -152,11 +181,52 @@ public class KafkaConnectorOptionsUtil {
                         });
     }
 
+    private static void validateSinkPartitioner(ReadableConfig tableOptions) {
+        tableOptions
+                .getOptional(SINK_PARTITIONER)
+                .ifPresent(
+                        partitioner -> {
+                            if (partitioner.equals(SINK_PARTITIONER_VALUE_ROUND_ROBIN)
+                                    && tableOptions.getOptional(KEY_FIELDS).isPresent()) {
+                                throw new ValidationException(
+                                        "Currently 'round-robin' partitioner only works when option 'key.fields' is not specified.");
+                            } else if (partitioner.isEmpty()) {
+                                throw new ValidationException(
+                                        String.format(
+                                                "Option '%s' should be a non-empty string.",
+                                                SINK_PARTITIONER.key()));
+                            }
+                        });
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Utilities
+    // --------------------------------------------------------------------------------------------
+
+    public static List<String> getSourceTopics(ReadableConfig tableOptions) {
+        return tableOptions.getOptional(TOPIC).orElse(null);
+    }
+
+    public static Pattern getSourceTopicPattern(ReadableConfig tableOptions) {
+        return tableOptions.getOptional(TOPIC_PATTERN).map(Pattern::compile).orElse(null);
+    }
+
     private static boolean isSingleTopic(ReadableConfig tableOptions) {
         // Option 'topic-pattern' is regarded as multi-topics.
         return tableOptions.getOptional(TOPIC).map(t -> t.size() == 1).orElse(false);
     }
 
+    /**
+     * Parses SpecificOffsets String to Map.
+     *
+     * <p>SpecificOffsets String format was given as following:
+     *
+     * <pre>
+     *     scan.startup.specific-offsets = partition:0,offset:42;partition:1,offset:300
+     * </pre>
+     *
+     * @return SpecificOffsets with Map format, key is partition, and value is offset
+     */
     public static Map<Integer, Long> parseSpecificOffsets(
             String specificOffsetsStr, String optionKey) {
         final Map<Integer, Long> offsetMap = new HashMap<>();
@@ -371,36 +441,6 @@ public class KafkaConnectorOptionsUtil {
         throw new TableException("Unknown value fields strategy:" + strategy);
     }
 
-    // --------------------------------------------------------------------------------------------
-    // Utilities
-    // --------------------------------------------------------------------------------------------
-
-    public static List<String> getSourceTopics(ReadableConfig tableOptions) {
-        return tableOptions.getOptional(TOPIC).orElse(null);
-    }
-
-    public static Pattern getSourceTopicPattern(ReadableConfig tableOptions) {
-        return tableOptions.getOptional(TOPIC_PATTERN).map(Pattern::compile).orElse(null);
-    }
-
-    private static void validateSinkPartitioner(ReadableConfig tableOptions) {
-        tableOptions
-                .getOptional(SINK_PARTITIONER)
-                .ifPresent(
-                        partitioner -> {
-                            if (partitioner.equals(SINK_PARTITIONER_VALUE_ROUND_ROBIN)
-                                    && tableOptions.getOptional(KEY_FIELDS).isPresent()) {
-                                throw new ValidationException(
-                                        "Currently 'round-robin' partitioner only works when option 'key.fields' is not specified.");
-                            } else if (partitioner.isEmpty()) {
-                                throw new ValidationException(
-                                        String.format(
-                                                "Option '%s' should be a non-empty string.",
-                                                SINK_PARTITIONER.key()));
-                            }
-                        });
-    }
-
     /**
      * Returns a new table context with a default schema registry subject value in the options if
      * the format is a schema registry format (e.g. 'avro-confluent') and the subject is not
@@ -444,23 +484,6 @@ public class KafkaConnectorOptionsUtil {
             autoCompleteSubject(configuration, "key." + keyFormat.get(), topic + "-key");
         }
         return configuration.toMap();
-    }
-
-    public static void validateSinkTopic(ReadableConfig tableOptions) {
-        String errorMessageTemp =
-                "Flink Kafka sink currently only supports single topic, but got %s: %s.";
-        if (!isSingleTopic(tableOptions)) {
-            if (tableOptions.getOptional(TOPIC_PATTERN).isPresent()) {
-                throw new ValidationException(
-                        String.format(
-                                errorMessageTemp,
-                                "'topic-pattern'",
-                                tableOptions.get(TOPIC_PATTERN)));
-            } else {
-                throw new ValidationException(
-                        String.format(errorMessageTemp, "'topic'", tableOptions.get(TOPIC)));
-            }
-        }
     }
 
     private static void autoCompleteSubject(
@@ -549,7 +572,7 @@ public class KafkaConnectorOptionsUtil {
     // Inner classes
     // --------------------------------------------------------------------------------------------
 
-    /** Kafka startup options. * */
+    /** Kafka startup options. */
     public static class StartupOptions {
 
         public StartupMode startupMode;
@@ -557,6 +580,5 @@ public class KafkaConnectorOptionsUtil {
         public long startupTimestampMillis;
     }
 
-    private KafkaConnectorOptionsUtil() {
-    }
+    private KafkaConnectorOptionsUtil() {}
 }

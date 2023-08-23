@@ -78,10 +78,13 @@ import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOp
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.VALUE_FORMAT;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.PROPERTIES_PREFIX;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.autoCompleteSchemaRegistrySubject;
+import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.createKeyFormatProjection;
+import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.createValueFormatProjection;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getKafkaProperties;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getSourceTopicPattern;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getSourceTopics;
 
+/** Upsert-Kafka factory. */
 public class UpsertKafkaDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
     public static final String IDENTIFIER = "upsert-kafka-inlong";
@@ -109,8 +112,8 @@ public class UpsertKafkaDynamicTableFactory implements DynamicTableSourceFactory
         options.add(SINK_PARALLELISM);
         options.add(SINK_BUFFER_FLUSH_INTERVAL);
         options.add(SINK_BUFFER_FLUSH_MAX_ROWS);
-        options.add(KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG);
         options.add(Constants.INLONG_METRIC);
+        options.add(KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG);
         options.add(KafkaOptions.SINK_MULTIPLE_PARTITION_PATTERN);
         options.add(KafkaOptions.SINK_FIXED_IDENTIFIER);
         options.add(KafkaConnectorOptions.SINK_PARTITIONER);
@@ -212,6 +215,26 @@ public class UpsertKafkaDynamicTableFactory implements DynamicTableSourceFactory
                 tableOptions.get(TRANSACTIONAL_ID_PREFIX));
     }
 
+    private Tuple2<int[], int[]> createKeyValueProjections(ResolvedCatalogTable catalogTable) {
+        ResolvedSchema schema = catalogTable.getResolvedSchema();
+        // primary key should validated earlier
+        List<String> keyFields = schema.getPrimaryKey().get().getColumns();
+        DataType physicalDataType = schema.toPhysicalRowDataType();
+
+        Configuration tableOptions = Configuration.fromMap(catalogTable.getOptions());
+        // upsert-kafka will set key.fields to primary key fields by default
+        tableOptions.set(KEY_FIELDS, keyFields);
+
+        int[] keyProjection = createKeyFormatProjection(tableOptions, physicalDataType);
+        int[] valueProjection = createValueFormatProjection(tableOptions, physicalDataType);
+
+        return Tuple2.of(keyProjection, valueProjection);
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Validation
+    // --------------------------------------------------------------------------------------------
+
     private static void validateSource(
             ReadableConfig tableOptions,
             Format keyFormat,
@@ -289,126 +312,9 @@ public class UpsertKafkaDynamicTableFactory implements DynamicTableSourceFactory
                         SINK_BUFFER_FLUSH_MAX_ROWS.key(), SINK_BUFFER_FLUSH_INTERVAL.key()));
     }
 
-    private Tuple2<int[], int[]> createKeyValueProjections(ResolvedCatalogTable catalogTable) {
-        ResolvedSchema schema = catalogTable.getResolvedSchema();
-        // primary key should validated earlier
-        List<String> keyFields = schema.getPrimaryKey().get().getColumns();
-        DataType physicalDataType = schema.toPhysicalRowDataType();
-
-        Configuration tableOptions = Configuration.fromMap(catalogTable.getOptions());
-        // upsert-kafka will set key.fields to primary key fields by default
-        tableOptions.set(KEY_FIELDS, keyFields);
-
-        int[] keyProjection = createKeyFormatProjection(tableOptions, physicalDataType);
-        int[] valueProjection = createValueFormatProjection(tableOptions, physicalDataType);
-
-        return Tuple2.of(keyProjection, valueProjection);
-    }
-
-    /**
-     * Creates an array of indices that determine which physical fields of the table schema to
-     * include in the key format and the order that those fields have in the key format.
-     *
-     * <p>See {@link KafkaConnectorOptions#KEY_FORMAT}, {@link KafkaConnectorOptions#KEY_FIELDS},
-     * and {@link KafkaConnectorOptions#KEY_FIELDS_PREFIX} for more information.
-     */
-    public static int[] createKeyFormatProjection(
-            ReadableConfig options, DataType physicalDataType) {
-        final LogicalType physicalType = physicalDataType.getLogicalType();
-        Preconditions.checkArgument(
-                physicalType.is(LogicalTypeRoot.ROW), "Row data type expected.");
-        final Optional<String> optionalKeyFormat = options.getOptional(KEY_FORMAT);
-        final Optional<List<String>> optionalKeyFields = options.getOptional(KEY_FIELDS);
-
-        if (!optionalKeyFormat.isPresent() && optionalKeyFields.isPresent()) {
-            throw new ValidationException(
-                    String.format(
-                            "The option '%s' can only be declared if a key format is defined using '%s'.",
-                            KEY_FIELDS.key(), KEY_FORMAT.key()));
-        } else if (optionalKeyFormat.isPresent()
-                && (!optionalKeyFields.isPresent() || optionalKeyFields.get().size() == 0)) {
-            throw new ValidationException(
-                    String.format(
-                            "A key format '%s' requires the declaration of one or more of key fields using '%s'.",
-                            KEY_FORMAT.key(), KEY_FIELDS.key()));
-        }
-
-        if (!optionalKeyFormat.isPresent()) {
-            return new int[0];
-        }
-
-        final String keyPrefix = options.getOptional(KEY_FIELDS_PREFIX).orElse("");
-
-        final List<String> keyFields = optionalKeyFields.get();
-        final List<String> physicalFields = LogicalTypeChecks.getFieldNames(physicalType);
-        return keyFields.stream()
-                .mapToInt(
-                        keyField -> {
-                            final int pos = physicalFields.indexOf(keyField);
-                            // check that field name exists
-                            if (pos < 0) {
-                                throw new ValidationException(
-                                        String.format(
-                                                "Could not find the field '%s' in the table schema for usage in the key format. "
-                                                        + "A key field must be a regular, physical column. "
-                                                        + "The following columns can be selected in the '%s' option:\n"
-                                                        + "%s",
-                                                keyField, KEY_FIELDS.key(), physicalFields));
-                            }
-                            // check that field name is prefixed correctly
-                            if (!keyField.startsWith(keyPrefix)) {
-                                throw new ValidationException(
-                                        String.format(
-                                                "All fields in '%s' must be prefixed with '%s' when option '%s' "
-                                                        + "is set but field '%s' is not prefixed.",
-                                                KEY_FIELDS.key(),
-                                                keyPrefix,
-                                                KEY_FIELDS_PREFIX.key(),
-                                                keyField));
-                            }
-                            return pos;
-                        })
-                .toArray();
-    }
-
-    /**
-     * Creates an array of indices that determine which physical fields of the table schema to
-     * include in the value format.
-     *
-     * <p>See {@link KafkaConnectorOptions#VALUE_FORMAT}, {@link
-     * KafkaConnectorOptions#VALUE_FIELDS_INCLUDE}, and {@link
-     * KafkaConnectorOptions#KEY_FIELDS_PREFIX} for more information.
-     */
-    public static int[] createValueFormatProjection(
-            ReadableConfig options, DataType physicalDataType) {
-        final LogicalType physicalType = physicalDataType.getLogicalType();
-        Preconditions.checkArgument(
-                physicalType.is(LogicalTypeRoot.ROW), "Row data type expected.");
-        final int physicalFieldCount = LogicalTypeChecks.getFieldCount(physicalType);
-        final IntStream physicalFields = IntStream.range(0, physicalFieldCount);
-
-        final String keyPrefix = options.getOptional(KEY_FIELDS_PREFIX).orElse("");
-
-        final KafkaConnectorOptions.ValueFieldsStrategy strategy = options.get(VALUE_FIELDS_INCLUDE);
-        if (strategy == KafkaConnectorOptions.ValueFieldsStrategy.ALL) {
-            if (keyPrefix.length() > 0) {
-                throw new ValidationException(
-                        String.format(
-                                "A key prefix is not allowed when option '%s' is set to '%s'. "
-                                        + "Set it to '%s' instead to avoid field overlaps.",
-                                VALUE_FIELDS_INCLUDE.key(),
-                                KafkaConnectorOptions.ValueFieldsStrategy.ALL,
-                                KafkaConnectorOptions.ValueFieldsStrategy.EXCEPT_KEY));
-            }
-            return physicalFields.toArray();
-        } else if (strategy == KafkaConnectorOptions.ValueFieldsStrategy.EXCEPT_KEY) {
-            final int[] keyProjection = createKeyFormatProjection(options, physicalDataType);
-            return physicalFields
-                    .filter(pos -> IntStream.of(keyProjection).noneMatch(k -> k == pos))
-                    .toArray();
-        }
-        throw new TableException("Unknown value fields strategy:" + strategy);
-    }
+    // --------------------------------------------------------------------------------------------
+    // Format wrapper
+    // --------------------------------------------------------------------------------------------
 
     /**
      * It is used to wrap the decoding format and expose the desired changelog mode. It's only works
