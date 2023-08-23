@@ -388,11 +388,10 @@ public class PulsarOperator {
      * Query topic message for the given pulsar cluster.
      */
     public List<BriefMQMessage> queryLatestMessage(PulsarAdmin pulsarAdmin, String topicFullName, String subName,
-            Integer messageCount, InlongStreamInfo streamInfo) {
+            Integer messageCount, InlongStreamInfo streamInfo, boolean serial) {
         LOGGER.info("begin to query message for topic {}, subName={}", topicFullName, subName);
         List<BriefMQMessage> messageList = new ArrayList<>();
         int partitionCount = getPartitionCount(pulsarAdmin, topicFullName);
-        boolean serial = partitionCount == 0;
         for (int messageIndex = 0; messageIndex < messageCount; messageIndex++) {
             int currentPartitionNum = messageIndex % partitionCount;
             int messagePosition = messageIndex / partitionCount;
@@ -424,11 +423,12 @@ public class PulsarOperator {
     /**
      * Use pulsar admin to query message
      */
-    private List<BriefMQMessage> queryMessageFromPulsar(String topic, PulsarAdmin pulsarAdmin, int index,
+    private List<BriefMQMessage> queryMessageFromPulsar(String topicPartition, PulsarAdmin pulsarAdmin, int index,
             InlongStreamInfo streamInfo, int messagePosition) {
         List<BriefMQMessage> briefMQMessages = new ArrayList<>();
         try {
-            Message<byte[]> pulsarMessage = pulsarAdmin.topics().examineMessage(topic, "latest", messagePosition);
+            Message<byte[]> pulsarMessage =
+                    pulsarAdmin.topics().examineMessage(topicPartition, "latest", messagePosition);
             Map<String, String> headers = pulsarMessage.getProperties();
             int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
                     Integer.toString(DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId())));
@@ -437,7 +437,7 @@ public class PulsarOperator {
             briefMQMessages.addAll(deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(),
                     headers, index));
         } catch (Exception e) {
-            LOGGER.error("query message from pulsar error", e);
+            LOGGER.warn("query message from pulsar error", e);
         }
         return briefMQMessages;
     }
