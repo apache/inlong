@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -59,6 +60,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * Schema change helper
@@ -415,12 +417,22 @@ public class SchemaChangeHelper {
     private boolean executeStatement(String database, String stmt) throws IOException {
         Map<String, String> param = new HashMap<>();
         param.put("stmt", stmt);
-        String requestUrl = String.format(SCHEMA_CHANGE_API, options.getFenodes(), database);
-        HttpPost httpPost = new HttpPost(requestUrl);
-        httpPost.setHeader(HttpHeaders.AUTHORIZATION, authHeader());
-        httpPost.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE_JSON);
-        httpPost.setEntity(new StringEntity(dynamicSchemaFormat.objectMapper.writeValueAsString(param)));
-        return sendRequest(httpPost);
+        List<String> fenodes = Arrays.asList(options.getFenodes().split(","));
+        List<String> uris = fenodes.stream()
+                .map(fenode -> String.format(SCHEMA_CHANGE_API, fenode, database))
+                .collect(Collectors.toList());
+
+        for(String requestUrl:uris){
+            HttpPost httpPost = new HttpPost(requestUrl);
+            httpPost.setHeader(HttpHeaders.AUTHORIZATION, authHeader());
+            httpPost.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE_JSON);
+            httpPost.setEntity(new StringEntity(dynamicSchemaFormat.objectMapper.writeValueAsString(param)));
+            //if any fenode succeeds, return true, else keep trying
+            if(sendRequest(httpPost)){
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean checkLightSchemaChange(String database, String table, String column, boolean dropColumn)
