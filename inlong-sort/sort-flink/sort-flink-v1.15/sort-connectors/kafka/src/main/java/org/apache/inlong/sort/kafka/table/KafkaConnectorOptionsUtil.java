@@ -580,5 +580,6 @@ class KafkaConnectorOptionsUtil {
         public long startupTimestampMillis;
     }
 
-    private KafkaConnectorOptionsUtil() {}
+    private KafkaConnectorOptionsUtil() {
+    }
 }
