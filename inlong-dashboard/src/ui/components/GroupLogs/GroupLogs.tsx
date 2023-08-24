@@ -83,6 +83,7 @@ const Comp: React.FC<Props> = ({
             data: {
               remark: '',
             },
+            timeout: 30000,
           });
           await getData(inlongGroupId);
           message.success(t('pages.GroupDashboard.ExecutionLogModal.Re-executingSuccess'));
