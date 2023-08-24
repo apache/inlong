@@ -96,10 +96,10 @@ JAVA_OPT="${JAVA_OPT} -XX:+IgnoreUnrecognizedVMOptions -XX:+UseConcMarkSweepGC -
 export OTEL_SERVICE_NAME=inlong_manager
 export OTEL_VERSION=1.28.0
 export OTEL_LOGS_EXPORTER=otlp
-export OTEL_EXPORTER_OTLP_ENDPOINT="http://127.0.0.1:4317"
-export OTEL_RESOURCE_ATTRIBUTES=
 # Whether to enable observability. true:enable; others:disable.
 export ENABLE_OBSERVABILITY=false
+# OTEL_EXPORTER_OTLP_ENDPOINT must be configured as a URL when ENABLE_OBSERVABILITY=true.
+export OTEL_EXPORTER_OTLP_ENDPOINT=
 
 # Opentelemetry java agent path
 OTEL_AGENT="${BASE_PATH}/lib/opentelemetry-javaagent-${OTEL_VERSION}.jar"
