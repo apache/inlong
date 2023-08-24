@@ -45,7 +45,7 @@ func SetLogLevel(level string) {
 	defaultConfig.Level = level
 }
 
-// SetLogLevel set log path
+// SetLogPath set log path
 func SetLogPath(path string) {
 	defaultConfig.LogPath = path
 }

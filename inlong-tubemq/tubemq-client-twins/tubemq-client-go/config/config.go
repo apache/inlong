@@ -636,7 +636,7 @@ func WithLogLevel(level string) Option {
 	}
 }
 
-// WithLogLevel set log path
+// WithLogPath set log path
 func WithLogPath(path string) Option {
 	return func(c *Config) {
 		c.Log.LogPath = path
