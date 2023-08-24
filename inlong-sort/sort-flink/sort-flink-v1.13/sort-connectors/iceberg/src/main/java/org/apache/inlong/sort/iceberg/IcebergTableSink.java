@@ -47,6 +47,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.IGNORE_ALL_CHANGELOG;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
@@ -133,7 +134,8 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
             return (DataStreamSinkProvider) dataStream -> FlinkSink.forRowData(dataStream)
                     .overwrite(overwrite)
                     .appendMode(tableOptions.get(IGNORE_ALL_CHANGELOG))
-                    .metric(tableOptions.get(INLONG_METRIC), tableOptions.get(INLONG_AUDIT))
+                    .metric(tableOptions.get(INLONG_METRIC), tableOptions.get(INLONG_AUDIT),
+                            tableOptions.get(AUDIT_KEYS))
                     .catalogLoader(catalogLoader)
                     .tableSchema(tableSchema)
                     .multipleSink(tableOptions.get(SINK_MULTIPLE_ENABLE))
@@ -164,7 +166,8 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
                     .equalityFieldColumns(equalityColumns)
                     .overwrite(overwrite)
                     .appendMode(tableOptions.get(IGNORE_ALL_CHANGELOG))
-                    .metric(tableOptions.get(INLONG_METRIC), tableOptions.get(INLONG_AUDIT))
+                    .metric(tableOptions.get(INLONG_METRIC), tableOptions.get(INLONG_AUDIT),
+                            tableOptions.get(AUDIT_KEYS))
                     .dirtyOptions(dirtyOptions)
                     .dirtySink(dirtySink)
                     .action(actionsProvider)
