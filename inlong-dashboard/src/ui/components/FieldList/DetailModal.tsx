@@ -212,6 +212,12 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, ...mod
   }, [getData, getSinkData, inlongStreamId, modalProps.open]);
 
   useEffect(() => {
+    if (inlongStreamId && modalProps.open && isSource) {
+      form.setFieldValue('fieldList', data?.fieldList);
+    }
+  }, [data?.fieldList, form, inlongStreamId, isSource, modalProps.open]);
+
+  useEffect(() => {
     if (inlongStreamId && isSource === false && modalProps.open) {
       if (sinkData?.list[0]?.sinkFieldList?.length === 0) {
         form.setFieldsValue({
@@ -222,6 +228,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, ...mod
             fieldType: '',
           })),
         });
+      } else {
+        form.setFieldValue('sinkFieldList', sinkData?.list[0]?.sinkFieldList);
       }
     }
   }, [data, form, inlongStreamId, isSource, modalProps.open, sinkData?.list]);
