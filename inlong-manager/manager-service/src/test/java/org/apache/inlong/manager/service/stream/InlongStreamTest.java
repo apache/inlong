@@ -17,10 +17,19 @@
 
 package org.apache.inlong.manager.service.stream;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
+import org.apache.inlong.manager.pojo.sink.AddFieldRequest;
 import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.sink.SinkField;
+import org.apache.inlong.manager.pojo.sink.hive.HiveSinkRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.ServiceBaseTest;
+import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 
 import org.junit.jupiter.api.Assertions;
@@ -35,8 +44,22 @@ import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_
 
 public class InlongStreamTest extends ServiceBaseTest {
 
+    private final String globalGroupId = "default_group";
+    private final String globalStreamId = "default_stream";
+    private final String globalOperator = "admin";
+    private final String sinkName = "default_sink";
+    private final String jdbcUrl = "127.0.0.1:8080";
+
+    @Autowired
+    private InlongStreamService streamService;
     @Autowired
     protected StreamSinkService streamSinkService;
+    @Autowired
+    private InlongStreamServiceTest streamServiceTest;
+    @Autowired
+    private InlongStreamFieldEntityMapper streamFieldEntityMapper;
+    @Autowired
+    private StreamSinkFieldEntityMapper streamSinkFieldEntityMapper;
 
     @Test
     public void testParseStreamFieldsByJson() {
@@ -123,6 +146,55 @@ public class InlongStreamTest extends ServiceBaseTest {
         List<SinkField> sinkFields = streamSinkService.parseFields(parseFieldRequest);
         SinkField[] result = sinkFields.toArray(new SinkField[0]);
         Assertions.assertArrayEquals(expectResult, result);
+    }
+
+    @Test
+    public void testAddFieldsForStream() {
+        streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
+        HiveSinkRequest sinkInfo = new HiveSinkRequest();
+        sinkInfo.setInlongGroupId(globalGroupId);
+        sinkInfo.setInlongStreamId(globalStreamId);
+        sinkInfo.setSinkType(SinkType.HIVE);
+        sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
+        sinkInfo.setSinkName(sinkName);
+        sinkInfo.setJdbcUrl(jdbcUrl);
+        Integer id = streamSinkService.save(sinkInfo, globalOperator);
+        AddFieldRequest addFieldRequest = new AddFieldRequest();
+        addFieldRequest.setInlongGroupId(globalGroupId);
+        addFieldRequest.setInlongStreamId(globalStreamId);
+        List<SinkField> sinkFields = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            SinkField field = new SinkField();
+            field.setInlongGroupId(globalGroupId);
+            field.setInlongStreamId(globalStreamId);
+            field.setSourceFieldName("sinkFieldName" + i);
+            field.setSourceFieldType("string");
+            field.setFieldName("sinkFieldName" + i);
+            field.setFieldType("string");
+            if (i == 0) {
+                field.setFieldComment("desc0 content");
+            }
+            sinkFields.add(field);
+        }
+        addFieldRequest.setSinkFieldList(sinkFields);
+        streamService.addFields(addFieldRequest);
+        for (int i = 1; i < 5; i++) {
+            SinkField field = new SinkField();
+            field.setInlongGroupId(globalGroupId);
+            field.setInlongStreamId(globalStreamId);
+            field.setSourceFieldName("sinkFieldName" + i);
+            field.setSourceFieldType("string");
+            field.setFieldName("sinkFieldName" + i);
+            field.setFieldType("string");
+            sinkFields.add(field);
+        }
+        streamService.addFields(addFieldRequest);
+        List<InlongStreamFieldEntity> streamFieldEntityList =
+                streamFieldEntityMapper.selectByIdentifier(globalGroupId, globalStreamId);
+        List<StreamSinkFieldEntity> sinkFieldEntityList = streamSinkFieldEntityMapper.selectBySinkId(id);
+        Assertions.assertEquals(5, streamFieldEntityList.size());
+        Assertions.assertEquals(5, sinkFieldEntityList.size());
+
     }
 
 }

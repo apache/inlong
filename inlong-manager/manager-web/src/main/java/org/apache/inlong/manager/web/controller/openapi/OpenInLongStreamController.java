@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.sink.AddFieldRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
@@ -136,5 +137,11 @@ public class OpenInLongStreamController {
             @RequestParam boolean sync) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamProcessOperation.startProcess(groupId, streamId, operator, sync));
+    }
+
+    @RequestMapping(value = "/stream/addFields", method = RequestMethod.POST)
+    @ApiOperation(value = "Add inlong stream fields")
+    public Response<Boolean> addFields(@RequestBody AddFieldRequest addFieldsRequest) {
+        return Response.success(streamService.addFields(addFieldsRequest));
     }
 }

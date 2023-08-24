@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -247,6 +248,15 @@ public interface StreamSinkService {
      * @return whether succeed
      */
     Boolean updateAfterApprove(List<SinkApproveDTO> sinkApproveList, String operator);
+
+    /**
+     * Add field info
+     *
+     * @param sinkEntity stream sink information
+     * @param sinkFieldList sink field info
+     * @return whether succeed
+     */
+    boolean addFields(StreamSinkEntity sinkEntity, List<SinkField> sinkFieldList);
 
     /**
      * Converts a statement to a sinkFields

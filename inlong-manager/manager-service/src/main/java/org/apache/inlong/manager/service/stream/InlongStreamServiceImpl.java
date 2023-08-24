@@ -29,17 +29,21 @@ import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.sink.AddFieldRequest;
 import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
+import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
 import org.apache.inlong.manager.pojo.source.StreamSource;
@@ -90,6 +94,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.common.consts.InlongConstants.BATCH_PARSING_FILED_JSON_COMMENT_PROP;
@@ -126,6 +131,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     private StreamSourceService sourceService;
     @Autowired
     private StreamSinkService sinkService;
+    @Autowired
+    private StreamSinkEntityMapper sinkMapper;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -754,6 +761,47 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     public void logicDeleteDlqOrRlq(String groupId, String topicName, String operator) {
         streamMapper.logicDeleteDlqOrRlq(groupId, topicName, operator);
         LOGGER.info("success to logic delete dlq or rlq by groupId={}, topicName={}", groupId, topicName);
+    }
+
+    @Override
+    public boolean addFields(AddFieldRequest addFieldsRequest) {
+        String groupId = addFieldsRequest.getInlongGroupId();
+        String streamId = addFieldsRequest.getInlongStreamId();
+        try {
+            LOGGER.info("begin to add inlong stream fields ={}", addFieldsRequest.getSinkFieldList());
+            Set<String> existFieldList = streamFieldMapper.selectByIdentifier(groupId, streamId).stream()
+                    .map(InlongStreamFieldEntity::getFieldName).collect(Collectors.toSet());
+            List<InlongStreamFieldEntity> needAddFieldList = new ArrayList<>();
+            for (SinkField sinkField : addFieldsRequest.getSinkFieldList()) {
+                if (existFieldList.contains(sinkField.getSourceFieldName())) {
+                    LOGGER.info("current stream field={} is exist for groupId={}, streamId={}",
+                            sinkField.getSourceFieldName(), groupId, streamId);
+                    continue;
+                }
+                InlongStreamFieldEntity entity = new InlongStreamFieldEntity();
+                entity.setFieldName(sinkField.getSourceFieldName());
+                entity.setFieldType(sinkField.getSourceFieldType());
+                entity.setFieldComment(sinkField.getFieldComment());
+                entity.setInlongGroupId(groupId);
+                entity.setInlongStreamId(streamId);
+                entity.setIsDeleted(InlongConstants.UN_DELETED);
+                needAddFieldList.add(entity);
+            }
+            if (CollectionUtils.isNotEmpty(needAddFieldList)) {
+                streamFieldMapper.insertAll(needAddFieldList);
+            }
+            List<StreamSinkEntity> sinkEntityList = sinkMapper.selectByRelatedId(groupId, streamId);
+            for (StreamSinkEntity sink : sinkEntityList) {
+                sinkService.addFields(sink, addFieldsRequest.getSinkFieldList());
+            }
+            LOGGER.debug("success add inlong stream fields={}", needAddFieldList);
+
+        } catch (Exception e) {
+            LOGGER.error("add inlong stream fields error for groupId={}, streamId={}", groupId, streamId, e);
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    String.format("add stream fields error : %s", e.getMessage()));
+        }
+        return true;
     }
 
     @Override
