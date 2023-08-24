@@ -105,7 +105,7 @@ export ENABLE_OBSERVABILITY=false
 OTEL_AGENT="${BASE_PATH}/lib/opentelemetry-javaagent-${OTEL_VERSION}.jar"
 
 # Start service: start the project in the background, and output the log to the logs folder under the project root directory
-if [ "$OPEN_OBSERVABILITY" = "true" ]; then
+if [ "$ENABLE_OBSERVABILITY" = "true" ]; then
   nohup java ${JAVA_OPT} -javaagent:${OTEL_AGENT} -cp ${CLASSPATH} ${MAIN_CLASS} 1>/dev/null 2>${LOG_DIR}/error.log &
   STARTUP_LOG="startup command: nohup java ${JAVA_OPT} -javaagent:${OTEL_AGENT} -cp ${CLASSPATH} ${MAIN_CLASS} 1>/dev/null 2>${LOG_DIR}/error.log &\n"
 else
