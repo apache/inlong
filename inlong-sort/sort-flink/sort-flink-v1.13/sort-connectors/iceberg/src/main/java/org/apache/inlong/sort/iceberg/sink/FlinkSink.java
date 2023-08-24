@@ -180,6 +180,7 @@ public class FlinkSink {
         private FlinkWriteConf flinkWriteConf = null;
         private String inlongMetric = null;
         private String auditHostAndPorts = null;
+        private String auditKeys;
         private CatalogLoader catalogLoader = null;
         private boolean multipleSink = false;
         private MultipleSinkOption multipleSinkOption = null;
@@ -327,9 +328,10 @@ public class FlinkSink {
          * @param auditHostAndPorts
          * @return
          */
-        public Builder metric(String inlongMetric, String auditHostAndPorts) {
+        public Builder metric(String inlongMetric, String auditHostAndPorts, String auditKeys) {
             this.inlongMetric = inlongMetric;
             this.auditHostAndPorts = auditHostAndPorts;
+            this.auditKeys = auditKeys;
             return this;
         }
 
@@ -684,7 +686,7 @@ public class FlinkSink {
             IcebergProcessOperator<RowData, WriteResult> streamWriter = createStreamWriter(
                     table, flinkRowType, equalityFieldIds, flinkWriteConf, appendMode, inlongMetric,
                     auditHostAndPorts, dirtyOptions, dirtySink, tableSchema,
-                    switchAppendUpsertEnable, tableOptions.get(WRITE_MINI_BATCH_ENABLE));
+                    switchAppendUpsertEnable, tableOptions.get(WRITE_MINI_BATCH_ENABLE), auditKeys);
 
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
             SingleOutputStreamOperator<WriteResult> writerStream = inputWithMiniBatch
@@ -705,7 +707,7 @@ public class FlinkSink {
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
             DynamicSchemaHandleOperator routeOperator = new DynamicSchemaHandleOperator(
                     catalogLoader, multipleSinkOption, dirtyOptions, dirtySink, inlongMetric, auditHostAndPorts,
-                    enableSchemaChange, schemaChangePolicies, autoCreateTableWhenSnapshot);
+                    enableSchemaChange, schemaChangePolicies, autoCreateTableWhenSnapshot, auditKeys);
             SingleOutputStreamOperator<RecordWithSchema> routeStream = input
                     .transform(operatorName(ICEBERG_WHOLE_DATABASE_MIGRATION_NAME),
                             TypeInformation.of(RecordWithSchema.class),
@@ -717,7 +719,7 @@ public class FlinkSink {
                             appendMode, catalogLoader, inlongMetric, auditHostAndPorts,
                             multipleSinkOption, dirtyOptions, dirtySink, tableSchemaRowType,
                             getMetaFieldIndex(tableSchema),
-                            switchAppendUpsertEnable));
+                            switchAppendUpsertEnable, auditKeys));
             SingleOutputStreamOperator<MultipleWriteResult> writerStream = routeStream
                     .transform(operatorName(ICEBERG_MULTIPLE_STREAM_WRITER_NAME),
                             TypeInformation.of(IcebergProcessOperator.class),
@@ -833,7 +835,8 @@ public class FlinkSink {
             @Nullable DirtySink<Object> dirtySink,
             TableSchema tableSchema,
             boolean switchAppendUpsertEnable,
-            boolean miniBatchMode) {
+            boolean miniBatchMode,
+            String auditKeys) {
         // flink A, iceberg a
         Preconditions.checkArgument(table != null, "Iceberg table should't be null");
 
@@ -854,7 +857,7 @@ public class FlinkSink {
         return new IcebergProcessOperator<>(new IcebergSingleStreamWriter<>(
                 table.name(), taskWriterFactory, inlongMetric, auditHostAndPorts,
                 flinkRowType, dirtyOptions, dirtySink, false,
-                tableSchemaRowType, getMetaFieldIndex(tableSchema), switchAppendUpsertEnable));
+                tableSchemaRowType, getMetaFieldIndex(tableSchema), switchAppendUpsertEnable, auditKeys));
     }
 
 }

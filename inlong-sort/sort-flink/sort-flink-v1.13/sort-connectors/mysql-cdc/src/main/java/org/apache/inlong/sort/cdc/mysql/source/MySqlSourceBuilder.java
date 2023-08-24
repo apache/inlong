@@ -263,6 +263,11 @@ public class MySqlSourceBuilder<T> {
         return this;
     }
 
+    public MySqlSourceBuilder<T> auditKeys(String auditKeys) {
+        this.configFactory.auditKeys(auditKeys);
+        return this;
+    }
+
     public MySqlSourceBuilder<T> migrateAll(boolean migrateAll) {
         this.configFactory.migrateAll(migrateAll);
         return this;

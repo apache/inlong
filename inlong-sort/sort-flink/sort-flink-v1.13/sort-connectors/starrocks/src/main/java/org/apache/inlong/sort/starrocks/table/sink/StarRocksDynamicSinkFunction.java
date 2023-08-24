@@ -107,6 +107,7 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
     private final String auditHostAndPorts;
+    private final String auditKeys;
 
     private transient JsonDynamicSchemaFormat jsonDynamicSchemaFormat;
 
@@ -122,7 +123,8 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
             String inlongMetric,
             String auditHostAndPorts,
             SchemaUpdateExceptionPolicy schemaUpdatePolicy,
-            DirtySinkHelper<Object> dirtySinkHelper) {
+            DirtySinkHelper<Object> dirtySinkHelper,
+            String auditKeys) {
         StarRocksJdbcConnectionOptions jdbcOptions = new StarRocksJdbcConnectionOptions(sinkOptions.getJdbcUrl(),
                 sinkOptions.getUsername(), sinkOptions.getPassword());
         StarRocksJdbcConnectionProvider jdbcConnProvider = new StarRocksJdbcConnectionProvider(jdbcOptions);
@@ -143,6 +145,7 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
         this.tablePattern = tablePattern;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+        this.auditKeys = auditKeys;
 
         this.dirtySinkHelper = dirtySinkHelper;
     }

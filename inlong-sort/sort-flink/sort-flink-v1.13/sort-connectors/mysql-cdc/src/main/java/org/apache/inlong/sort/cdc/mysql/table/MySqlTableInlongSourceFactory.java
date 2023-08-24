@@ -131,6 +131,7 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
         final ReadableConfig config = helper.getOptions();
         final String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         final String inlongAudit = config.get(INLONG_AUDIT);
+        final String auditKeys = config.get(AUDIT_KEYS);
         final String hostname = config.get(HOSTNAME);
         final String username = config.get(USERNAME);
         final String password = config.get(PASSWORD);
@@ -206,7 +207,8 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
                 includeSchemaChange,
                 includeIncremental,
                 ghostDdlChange,
-                ghostTableRegex);
+                ghostTableRegex,
+                auditKeys);
     }
 
     @Override
