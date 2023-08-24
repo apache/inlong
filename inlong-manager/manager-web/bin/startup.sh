@@ -98,7 +98,7 @@ export OTEL_VERSION=1.28.0
 export OTEL_LOGS_EXPORTER=otlp
 export OTEL_EXPORTER_OTLP_ENDPOINT="http://127.0.0.1:4317"
 export OTEL_RESOURCE_ATTRIBUTES=
-# Whether to enable observability.
+# Whether to enable observability. true:enable; others:disable.
 export ENABLE_OBSERVABILITY=false
 
 # Opentelemetry java agent path
