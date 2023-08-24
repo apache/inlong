@@ -181,6 +181,7 @@ func NewDefaultConfig() *Config {
 	c.Heartbeat.AfterFail = 60000 * time.Millisecond
 
 	c.Log.LogLevel = "warn"
+	c.Log.LogPath = "../log/tubemq.log"
 
 	return c
 }
@@ -628,8 +629,16 @@ func WithConsumePosition(consumePosition int) Option {
 	}
 }
 
+// WithLogLevel set log level
 func WithLogLevel(level string) Option {
 	return func(c *Config) {
 		c.Log.LogLevel = level
+	}
+}
+
+// WithLogLevel set log path
+func WithLogPath(path string) Option {
+	return func(c *Config) {
+		c.Log.LogPath = path
 	}
 }

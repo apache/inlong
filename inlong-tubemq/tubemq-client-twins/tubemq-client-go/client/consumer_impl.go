@@ -78,6 +78,7 @@ func NewConsumer(config *config.Config) (Consumer, error) {
 		return nil, err
 	}
 	log.SetLogLevel(config.Log.LogLevel)
+	log.SetLogPath(config.Log.LogPath)
 	logConfig := log.GetLogConfig()
 	log.NewLogger(logConfig)
 	log.Infof("The config of the consumer is %s", config)
