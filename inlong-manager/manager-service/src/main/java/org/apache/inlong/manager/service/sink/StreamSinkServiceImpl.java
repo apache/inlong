@@ -734,7 +734,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         if (CollectionUtils.isNotEmpty(needAddFieldList)) {
             sinkFieldMapper.insertAll(needAddFieldList);
         }
-        LOGGER.debug("success to save sink fields");
+        LOGGER.debug("success to save sink fields={}", needAddFieldList);
         return true;
     }
 

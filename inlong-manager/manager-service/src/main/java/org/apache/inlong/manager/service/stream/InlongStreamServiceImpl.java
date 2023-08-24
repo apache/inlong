@@ -794,6 +794,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             for (StreamSinkEntity sink : sinkEntityList) {
                 sinkService.addFields(sink, addFieldsRequest.getSinkFieldList());
             }
+            LOGGER.debug("success add inlong stream fields={}", needAddFieldList);
 
         } catch (Exception e) {
             LOGGER.error("add inlong stream fields error for groupId={}, streamId={}", groupId, streamId, e);
