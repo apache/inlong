@@ -17,15 +17,16 @@
  * under the License.
  */
 
-import React, { useMemo, useImperativeHandle, forwardRef, useState } from 'react';
+import React, { useMemo, useImperativeHandle, forwardRef, useState, useEffect } from 'react';
 import { Button, Space, message } from 'antd';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
-import { useRequest, useBoolean } from '@/ui/hooks';
+import { useRequest, useBoolean, useSelector } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import { useDefaultMeta } from '@/plugins';
 import request from '@/core/utils/request';
 import { useFormContent } from './config';
 import { CommonInterface } from '../common';
+import { State } from '@/core/stores';
 
 type Props = CommonInterface;
 
@@ -34,6 +35,8 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
   const [editing, { setTrue, setFalse }] = useBoolean(isCreate);
 
   const { defaultValue } = useDefaultMeta('sync');
+
+  const { userName } = useSelector<State, State>(state => state);
 
   const [mqType, setMqType] = useState(defaultValue);
 
@@ -137,6 +140,14 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
   useImperativeHandle(ref, () => ({
     onOk,
   }));
+
+  useEffect(() => {
+    const values = {} as Record<string, unknown>;
+    if (!isUpdate) {
+      if (userName) values.inCharges = [userName];
+      form.setFieldsValue(values);
+    }
+  }, [isUpdate, form, userName]);
 
   const onSave = async () => {
     await onOk();
