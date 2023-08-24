@@ -30,12 +30,10 @@ public abstract class TopicManager implements Cleanable {
 
     protected ClientContext context;
     protected QueryConsumeConfig queryConsumeConfig;
-    protected final ForkJoinPool pool;
 
     public TopicManager(ClientContext context, QueryConsumeConfig queryConsumeConfig) {
         this.context = context;
         this.queryConsumeConfig = queryConsumeConfig;
-        pool = new ForkJoinPool(context.config.getThreadPoolSize());
     }
 
     /**

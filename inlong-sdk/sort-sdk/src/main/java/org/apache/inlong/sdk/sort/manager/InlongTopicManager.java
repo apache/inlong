@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -65,6 +66,8 @@ public class InlongTopicManager extends TopicManager {
     private final Map<String, PulsarClient> pulsarClients = new ConcurrentHashMap<>();
     private final Map<String, TubeConsumerCreator> tubeFactories = new ConcurrentHashMap<>();
 
+    protected final ForkJoinPool pool;
+
     private volatile boolean stopAssign = false;
 
     private Collection<InLongTopic> assignedTopics;
@@ -73,6 +76,7 @@ public class InlongTopicManager extends TopicManager {
         super(context, queryConsumeConfig);
         executor.scheduleWithFixedDelay(this::updateMetaData, 0L,
                 context.getConfig().getUpdateMetaDataIntervalSec(), TimeUnit.SECONDS);
+        pool = new ForkJoinPool(context.getConfig().getThreadPoolSize());
     }
 
     @Override
