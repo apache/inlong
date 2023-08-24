@@ -24,10 +24,12 @@ import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
@@ -78,6 +80,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -697,6 +700,41 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
 
         LOGGER.info("success to update sink after approve: {}", approveList);
+        return true;
+    }
+
+    @Override
+    public boolean addFields(StreamSinkEntity sinkEntity, List<SinkField> sinkFieldList) {
+        Set<String> existFields = sinkFieldMapper.selectBySinkId(sinkEntity.getId()).stream()
+                .map(StreamSinkFieldEntity::getFieldName).collect(Collectors.toSet());
+
+        LOGGER.debug("begin to save sink fields={}", sinkFieldList);
+        if (CollectionUtils.isEmpty(sinkFieldList)) {
+            return true;
+        }
+        List<StreamSinkFieldEntity> needAddFieldList = new ArrayList<>();
+        for (SinkField fieldInfo : sinkFieldList) {
+            if (existFields.contains(fieldInfo.getFieldName())) {
+                LOGGER.debug("current sink field={} is exist for groupId={}, streamId={}", fieldInfo.getFieldName(),
+                        sinkEntity.getInlongGroupId(), sinkEntity.getInlongStreamId());
+                continue;
+            }
+            StreamSinkFieldEntity fieldEntity = CommonBeanUtils.copyProperties(fieldInfo,
+                    StreamSinkFieldEntity::new);
+            if (StringUtils.isEmpty(fieldEntity.getFieldComment())) {
+                fieldEntity.setFieldComment(fieldEntity.getFieldName());
+            }
+            fieldEntity.setInlongGroupId(sinkEntity.getInlongGroupId());
+            fieldEntity.setInlongStreamId(sinkEntity.getInlongStreamId());
+            fieldEntity.setSinkType(sinkEntity.getSinkType());
+            fieldEntity.setSinkId(sinkEntity.getId());
+            fieldEntity.setIsDeleted(InlongConstants.UN_DELETED);
+            needAddFieldList.add(fieldEntity);
+        }
+        if (CollectionUtils.isNotEmpty(needAddFieldList)) {
+            sinkFieldMapper.insertAll(needAddFieldList);
+        }
+        LOGGER.debug("success to save sink fields={}", needAddFieldList);
         return true;
     }
 
