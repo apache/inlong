@@ -110,12 +110,12 @@ const UserSelect: React.FC<UserSelectProps> = ({
       {...rest}
       options={{
         ...rest.options,
-        requestTrigger: ['onSearch'],
+        requestTrigger: ['onSearch', 'onOpen'],
         requestService: name => ({
           url: '/user/listAll',
           method: 'POST',
           data: {
-            name,
+            keyword: name,
           },
         }),
         requestParams: {
