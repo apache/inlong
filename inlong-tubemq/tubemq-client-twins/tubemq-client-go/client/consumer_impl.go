@@ -77,6 +77,7 @@ func NewConsumer(config *config.Config) (Consumer, error) {
 	if err := config.ValidateConsumer(); err != nil {
 		return nil, err
 	}
+	log.SetLogLevel(config.Log.LogLevel)
 	log.Infof("The config of the consumer is %s", config)
 	selector, err := selector.Get("ip")
 	if err != nil {

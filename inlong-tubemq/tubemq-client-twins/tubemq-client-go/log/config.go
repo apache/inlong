@@ -39,3 +39,8 @@ var defaultConfig = &OutputConfig{
 	MaxAge:     3,
 	Level:      "warn",
 }
+
+// SetLogLevel set log level
+func SetLogLevel(level string) {
+	defaultConfig.Level = level
+}

@@ -143,6 +143,11 @@ type Config struct {
 		// AfterFail is the heartbeat timeout after a heartbeat failure.
 		AfterFail time.Duration
 	}
+
+	Log struct {
+		LogPath  string
+		LogLevel string
+	}
 }
 
 // NewDefaultConfig returns a default config of the client.
@@ -174,6 +179,8 @@ func NewDefaultConfig() *Config {
 	c.Heartbeat.Interval = 10000 * time.Millisecond
 	c.Heartbeat.MaxRetryTimes = 5
 	c.Heartbeat.AfterFail = 60000 * time.Millisecond
+
+	c.Log.LogLevel = "warn"
 
 	return c
 }
@@ -618,5 +625,11 @@ func WithBoundConsume(sessionKey string, sourceCount int, selectBig bool, partOf
 func WithConsumePosition(consumePosition int) Option {
 	return func(c *Config) {
 		c.Consumer.ConsumePosition = consumePosition
+	}
+}
+
+func WithLogLevel(level string) Option {
+	return func(c *Config) {
+		c.Log.LogLevel = level
 	}
 }
