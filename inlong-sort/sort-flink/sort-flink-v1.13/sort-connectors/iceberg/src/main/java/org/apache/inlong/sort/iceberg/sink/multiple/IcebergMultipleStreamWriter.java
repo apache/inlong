@@ -102,6 +102,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
     // metric
     private final String inlongMetric;
     private final String auditHostAndPorts;
+    private final String auditKeys;
     private final DirtyOptions dirtyOptions;
     private @Nullable final DirtySink<Object> dirtySink;
 
@@ -123,7 +124,8 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
             @Nullable DirtySink<Object> dirtySink,
             RowType tableSchemaRowType,
             int metaFieldIndex,
-            boolean switchAppendUpsertEnable) {
+            boolean switchAppendUpsertEnable,
+            String auditKeys) {
         this.appendMode = appendMode;
         this.catalogLoader = catalogLoader;
         this.inlongMetric = inlongMetric;
@@ -134,6 +136,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
         this.tableSchemaRowType = tableSchemaRowType;
         this.metaFieldIndex = metaFieldIndex;
         this.switchAppendUpsertEnable = switchAppendUpsertEnable;
+        this.auditKeys = auditKeys;
     }
 
     @Override
@@ -152,6 +155,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                 .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
                 .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
                 .withRegisterMetric(MetricOption.RegisteredMetric.ALL)
+                .withAuditKeys(auditKeys)
                 .build();
         if (metricOption != null) {
             sinkMetricData = new SinkTableMetricData(metricOption, runtimeContext.getMetricGroup());
@@ -246,7 +250,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                 IcebergSingleStreamWriter<RowData> writer = new IcebergSingleStreamWriter<>(
                         tableId.toString(), taskWriterFactory, subWriterInlongMetric,
                         auditHostAndPorts, flinkRowType, dirtyOptions, dirtySink, true,
-                        tableSchemaRowType, metaFieldIndex, switchAppendUpsertEnable);
+                        tableSchemaRowType, metaFieldIndex, switchAppendUpsertEnable, auditKeys);
                 writer.setup(getRuntimeContext(),
                         new CallbackCollector<>(
                                 writeResult -> collector.collect(new MultipleWriteResult(tableId, writeResult))),

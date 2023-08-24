@@ -118,6 +118,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
     // metric
     private final String inlongMetric;
     private final String auditHostAndPorts;
+    private final String auditKeys;
     private @Nullable transient SinkTableMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
@@ -135,7 +136,8 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
             String auditHostAndPorts,
             boolean enableSchemaChange,
             String schemaChangePolicies,
-            boolean autoCreateTableWhenSnapshot) {
+            boolean autoCreateTableWhenSnapshot,
+            String auditKeys) {
         this.catalogLoader = catalogLoader;
         this.multipleSinkOption = multipleSinkOption;
         this.inlongMetric = inlongMetric;
@@ -144,6 +146,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         this.schemaChangePolicies = schemaChangePolicies;
         this.enableSchemaChange = enableSchemaChange;
         this.autoCreateTableWhenSnapshot = autoCreateTableWhenSnapshot;
+        this.auditKeys = auditKeys;
     }
 
     @SuppressWarnings("unchecked")
@@ -174,6 +177,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                 .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
                 .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
                 .withRegisterMetric(RegisteredMetric.ALL)
+                .withAuditKeys(auditKeys)
                 .build();
         if (metricOption != null) {
             metricData = new SinkTableMetricData(metricOption, getRuntimeContext().getMetricGroup());

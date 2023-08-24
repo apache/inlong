@@ -66,7 +66,8 @@ class TableJdbcUpsertOutputFormat
             String inlongMetric,
             String auditHostAndPorts,
             DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink) {
+            @Nullable DirtySink<Object> dirtySink,
+            String auditKeys) {
         this(
                 connectionProvider,
                 batchOptions,
@@ -75,7 +76,8 @@ class TableJdbcUpsertOutputFormat
                 inlongMetric,
                 auditHostAndPorts,
                 dirtyOptions,
-                dirtySink);
+                dirtySink,
+                auditKeys);
     }
 
     @VisibleForTesting
@@ -87,9 +89,10 @@ class TableJdbcUpsertOutputFormat
             String inlongMetric,
             String auditHostAndPorts,
             DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink) {
+            @Nullable DirtySink<Object> dirtySink,
+            String auditKeys) {
         super(connectionProvider, batchOptions, statementExecutorFactory, tuple2 -> tuple2.f1,
-                inlongMetric, auditHostAndPorts, dirtyOptions, dirtySink);
+                inlongMetric, auditHostAndPorts, dirtyOptions, dirtySink, auditKeys);
         this.deleteStatementExecutorFactory = deleteStatementExecutorFactory;
     }
 

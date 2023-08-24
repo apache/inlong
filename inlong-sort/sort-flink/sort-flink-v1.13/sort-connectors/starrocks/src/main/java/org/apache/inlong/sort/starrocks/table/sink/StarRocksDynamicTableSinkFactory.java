@@ -40,6 +40,7 @@ import org.apache.flink.table.utils.TableSchemaUtils;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
@@ -67,6 +68,7 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
         SchemaUpdateExceptionPolicy schemaUpdatePolicy = helper.getOptions().get(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY);
         String inlongMetric = helper.getOptions().getOptional(INLONG_METRIC).orElse(INLONG_METRIC.defaultValue());
         String auditHostAndPorts = helper.getOptions().getOptional(INLONG_AUDIT).orElse(INLONG_AUDIT.defaultValue());
+        String auditKeys = helper.getOptions().getOptional(AUDIT_KEYS).orElse(AUDIT_KEYS.defaultValue());
 
         // Build the dirty data side-output
         final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(helper.getOptions());
@@ -88,7 +90,8 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
                 inlongMetric,
                 auditHostAndPorts,
                 schemaUpdatePolicy,
-                dirtySinkHelper);
+                dirtySinkHelper,
+                auditKeys);
     }
 
     @Override
@@ -127,6 +130,7 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
         optionalOptions.add(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY);
         optionalOptions.add(INLONG_METRIC);
         optionalOptions.add(INLONG_AUDIT);
+        optionalOptions.add(AUDIT_KEYS);
 
         return optionalOptions;
     }
