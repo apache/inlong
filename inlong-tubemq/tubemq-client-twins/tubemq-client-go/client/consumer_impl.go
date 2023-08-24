@@ -78,6 +78,8 @@ func NewConsumer(config *config.Config) (Consumer, error) {
 		return nil, err
 	}
 	log.SetLogLevel(config.Log.LogLevel)
+	logConfig := log.GetLogConfig()
+	log.NewLogger(logConfig)
 	log.Infof("The config of the consumer is %s", config)
 	selector, err := selector.Get("ip")
 	if err != nil {

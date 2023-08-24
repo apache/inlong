@@ -44,3 +44,8 @@ var defaultConfig = &OutputConfig{
 func SetLogLevel(level string) {
 	defaultConfig.Level = level
 }
+
+// GetLogConfig get log config
+func GetLogConfig() *OutputConfig {
+	return defaultConfig
+}
