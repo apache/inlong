@@ -715,6 +715,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         List<StreamSinkFieldEntity> needAddFieldList = new ArrayList<>();
         for (SinkField fieldInfo : sinkFieldList) {
             if (existFields.contains(fieldInfo.getFieldName())) {
+                LOGGER.debug("current sink field={} is exist for groupId={}, streamId={}", fieldInfo.getFieldName(),
+                        sinkEntity.getInlongGroupId(), sinkEntity.getInlongStreamId());
                 continue;
             }
             StreamSinkFieldEntity fieldEntity = CommonBeanUtils.copyProperties(fieldInfo,

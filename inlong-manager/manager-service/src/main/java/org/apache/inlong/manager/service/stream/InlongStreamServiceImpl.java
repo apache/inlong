@@ -765,16 +765,17 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
     @Override
     public boolean addFields(AddFieldRequest addFieldsRequest) {
+        String groupId = addFieldsRequest.getInlongGroupId();
+        String streamId = addFieldsRequest.getInlongStreamId();
         try {
-            Set<String> existFieldList = streamFieldMapper.selectByIdentifier(addFieldsRequest.getInlongGroupId(),
-                    addFieldsRequest.getInlongStreamId()).stream().map(InlongStreamFieldEntity::getFieldName)
-                    .collect(Collectors.toSet());
-            String groupId = addFieldsRequest.getInlongGroupId();
-            String streamId = addFieldsRequest.getInlongStreamId();
-
+            LOGGER.info("begin to add inlong stream fields ={}", addFieldsRequest.getSinkFieldList());
+            Set<String> existFieldList = streamFieldMapper.selectByIdentifier(groupId, streamId).stream()
+                    .map(InlongStreamFieldEntity::getFieldName).collect(Collectors.toSet());
             List<InlongStreamFieldEntity> needAddFieldList = new ArrayList<>();
             for (SinkField sinkField : addFieldsRequest.getSinkFieldList()) {
                 if (existFieldList.contains(sinkField.getSourceFieldName())) {
+                    LOGGER.info("current stream field={} is exist for groupId={}, streamId={}",
+                            sinkField.getSourceFieldName(), groupId, streamId);
                     continue;
                 }
                 InlongStreamFieldEntity entity = new InlongStreamFieldEntity();
@@ -795,7 +796,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             }
 
         } catch (Exception e) {
-            LOGGER.error("add inlong stream fields error", e);
+            LOGGER.error("add inlong stream fields error for groupId={}, streamId={}", groupId, streamId, e);
             throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
                     String.format("add stream fields error : %s", e.getMessage()));
         }
