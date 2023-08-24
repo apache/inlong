@@ -44,10 +44,10 @@ import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_
 
 public class InlongStreamTest extends ServiceBaseTest {
 
-    private final String globalGroupId = "b_group1";
-    private final String globalStreamId = "stream1";
+    private final String globalGroupId = "default_group";
+    private final String globalStreamId = "default_stream";
     private final String globalOperator = "admin";
-    private final String sinkName = "default";
+    private final String sinkName = "default_sink";
     private final String jdbcUrl = "127.0.0.1:8080";
 
     @Autowired
