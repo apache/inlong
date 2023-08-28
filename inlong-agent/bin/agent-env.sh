@@ -20,8 +20,11 @@
 # Opentelemetry startup parameter configuration
 export OTEL_SERVICE_NAME=inlong_agent
 export OTEL_VERSION=1.28.0
+export OTEL_LOGS_EXPORTER=otlp
+# Whether to enable observability. true:enable; others:disable.
+export ENABLE_OBSERVABILITY=false
+# OTEL_EXPORTER_OTLP_ENDPOINT must be configured as a URL when ENABLE_OBSERVABILITY=true.
 export OTEL_EXPORTER_OTLP_ENDPOINT=
-export OTEL_RESOURCE_ATTRIBUTES=
 
 #project directory
 BASE_DIR=$(cd "$(dirname "$0")"/../;pwd)
