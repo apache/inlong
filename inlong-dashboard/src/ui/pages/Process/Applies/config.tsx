@@ -53,7 +53,13 @@ export const getColumns = activedName => [
     title: i18n.t('pages.Approvals.ProcessID'),
     dataIndex: 'id',
     width: 90,
-    render: text => <Link to={`/process/${activedName}/${text}`}>{text}</Link>,
+    render: (text, record) => (
+      <Link
+        to={`/process/${activedName}/${text}?inlongGroupMode=${record.showInList?.inlongGroupMode}`}
+      >
+        {text}
+      </Link>
+    ),
   },
   {
     title: i18n.t('pages.Approvals.ApplicationType'),
