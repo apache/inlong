@@ -21,7 +21,6 @@ import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
 import java.util.Collection;
 import java.util.Set;
-import java.util.concurrent.ForkJoinPool;
 
 /**
  * A manager to maintain different type of fetchers
