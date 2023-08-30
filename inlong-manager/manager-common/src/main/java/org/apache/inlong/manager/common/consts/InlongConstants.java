@@ -198,7 +198,6 @@ public class InlongConstants {
      */
     public static final String MSG_ENCODE_VER = "msgEnType";
 
-
     public static final String REGEX_WHITESPACE = "\\s";
 
 }
