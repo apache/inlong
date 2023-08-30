@@ -232,7 +232,7 @@ public class MySQLSinkDTO {
             while (resultUrl.contains(InlongConstants.PERCENT)) {
                 resultUrl = URLDecoder.decode(resultUrl, "UTF-8");
             }
-            resultUrl = resultUrl.replaceAll("\\s", "");
+            resultUrl = resultUrl.replaceAll(InlongConstants.REGEX_WHITESPACE, "");
 
             if (resultUrl.contains(InlongConstants.QUESTION_MARK)) {
                 StringBuilder builder = new StringBuilder();
