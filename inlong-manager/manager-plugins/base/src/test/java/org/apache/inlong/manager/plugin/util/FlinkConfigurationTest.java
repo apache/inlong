@@ -65,7 +65,7 @@ public class FlinkConfigurationTest {
     }
 
     @Test
-    public void setFlinkConfig() {
+    public void setFlinkConfigTest() {
         try {
             Map<String, String> flinkConfigMap = new HashMap<>();
             flinkConfigMap.put("address", "0.0.0.0");
