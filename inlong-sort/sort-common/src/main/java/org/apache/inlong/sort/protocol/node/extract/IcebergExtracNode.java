@@ -82,7 +82,7 @@ public class IcebergExtracNode extends ExtractNode implements Serializable {
             @Nonnull @JsonProperty("dbName") String dbName,
             @Nonnull @JsonProperty("tableName") String tableName,
             @JsonProperty("catalogType") IcebergConstant.CatalogType catalogType,
-            @JsonProperty("catalogName") String catalogName,
+            @Nullable @JsonProperty("catalogName") String catalogName,
             @JsonProperty("primaryKey") String primaryKey,
             @Nullable @JsonProperty("startSnapShotId") Long startSnapShotId,
             @Nullable @JsonProperty("properties") Map<String, String> properties) {
@@ -91,7 +91,7 @@ public class IcebergExtracNode extends ExtractNode implements Serializable {
         this.warehouse = warehouse;
         this.dbName = dbName;
         this.tableName = tableName;
-        this.catalogName = catalogName;
+        this.catalogName = catalogName == null ? IcebergConstant.DEFAULT_CATALOG_NAME : catalogName;
         this.primaryKey = primaryKey;
         this.startSnapShotId = startSnapShotId;
         this.catalogType = catalogType == null ? IcebergConstant.CatalogType.HIVE : catalogType;

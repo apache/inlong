@@ -22,6 +22,7 @@ package org.apache.inlong.sort.protocol.constant;
  */
 public class IcebergConstant {
 
+    public static final String DEFAULT_CATALOG_NAME = "ICEBERG_HIVE";
     public static final String CONNECTOR_KEY = "connector";
     public static final String CONNECTOR = "iceberg-inlong";
     public static final String DATABASE_KEY = "catalog-database";
