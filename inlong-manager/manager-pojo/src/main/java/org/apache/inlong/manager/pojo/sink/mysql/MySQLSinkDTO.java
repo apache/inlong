@@ -232,7 +232,7 @@ public class MySQLSinkDTO {
             while (resultUrl.contains(InlongConstants.PERCENT)) {
                 resultUrl = URLDecoder.decode(resultUrl, "UTF-8");
             }
-            resultUrl = resultUrl.replaceAll(InlongConstants.REGEX_WHITESPACE, "");
+            resultUrl = resultUrl.replaceAll(InlongConstants.REGEX_WHITESPACE, InlongConstants.EMPTY);
 
             if (resultUrl.contains(InlongConstants.QUESTION_MARK)) {
                 StringBuilder builder = new StringBuilder();
@@ -241,19 +241,19 @@ public class MySQLSinkDTO {
 
                 List<String> paramList = new ArrayList<>();
                 String queryString = StringUtils.substringAfter(resultUrl, InlongConstants.QUESTION_MARK);
-                for (String param : queryString.split("&")) {
-                    String key = StringUtils.substringBefore(param, "=");
-                    String value = StringUtils.substringAfter(param, "=");
+                for (String param : queryString.split(InlongConstants.AMPERSAND)) {
+                    String key = StringUtils.substringBefore(param, InlongConstants.EQUAL);
+                    String value = StringUtils.substringAfter(param, InlongConstants.EQUAL);
 
                     if (SENSITIVE_REMOVE_PARAM_MAP.contains(key) || SENSITIVE_REPLACE_PARAM_MAP.containsKey(key)) {
                         continue;
                     }
 
-                    paramList.add(key + "=" + value);
+                    paramList.add(key + InlongConstants.EQUAL + value);
                 }
-                SENSITIVE_REPLACE_PARAM_MAP.forEach((key, value) -> paramList.add(key + "=" + value));
+                SENSITIVE_REPLACE_PARAM_MAP.forEach((key, value) -> paramList.add(key + InlongConstants.EQUAL + value));
 
-                String params = StringUtils.join(paramList, "&");
+                String params = StringUtils.join(paramList, InlongConstants.AMPERSAND);
                 builder.append(params);
                 resultUrl = builder.toString();
             }
