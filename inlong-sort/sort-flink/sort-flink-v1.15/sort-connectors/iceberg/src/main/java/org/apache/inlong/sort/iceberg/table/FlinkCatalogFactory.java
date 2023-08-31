@@ -40,6 +40,25 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
+ * A Flink Catalog factory implementation that creates {@link org.apache.iceberg.flink.FlinkCatalog}.
+ *
+ * <p>This supports the following catalog configuration options:
+ *
+ * <ul>
+ *   <li><code>type</code> - Flink catalog factory key, should be "iceberg"
+ *   <li><code>catalog-type</code> - iceberg catalog type, "hive", "hadoop" or "rest"
+ *   <li><code>uri</code> - the Hive Metastore URI (Hive catalog only)
+ *   <li><code>clients</code> - the Hive Client Pool Size (Hive catalog only)
+ *   <li><code>warehouse</code> - the warehouse path (Hadoop catalog only)
+ *   <li><code>default-database</code> - a database name to use as the default
+ *   <li><code>base-namespace</code> - a base namespace as the prefix for all databases (Hadoop
+ *       catalog only)
+ *   <li><code>cache-enabled</code> - whether to enable catalog cache
+ * </ul>
+ *
+ * <p>To use a custom catalog that is not a Hive or Hadoop catalog, extend this class and override
+ * {@link #createCatalogLoader(String, Map, Configuration)}.
+ *
  * Copy from iceberg-flink:iceberg-flink-1.15:1.3.1
  */
 public class FlinkCatalogFactory implements CatalogFactory {

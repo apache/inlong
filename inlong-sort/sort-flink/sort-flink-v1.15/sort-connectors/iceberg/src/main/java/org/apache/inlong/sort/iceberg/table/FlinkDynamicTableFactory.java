@@ -17,8 +17,6 @@
 
 package org.apache.inlong.sort.iceberg.table;
 
-import org.apache.inlong.sort.iceberg.table.source.IcebergTableSource;
-
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.Configuration;
@@ -40,15 +38,12 @@ import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.exceptions.AlreadyExistsException;
 import org.apache.iceberg.flink.IcebergTableSink;
 import org.apache.iceberg.flink.TableLoader;
+import org.apache.iceberg.flink.source.IcebergTableSource;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.relocated.com.google.common.collect.Sets;
 
 import java.util.Map;
 import java.util.Set;
-
-import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
 /**
  * Copy from iceberg-flink:iceberg-flink-1.15:1.3.1
@@ -200,9 +195,6 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         Set<ConfigOption<?>> options = Sets.newHashSet();
         options.add(CATALOG_DATABASE);
         options.add(CATALOG_TABLE);
-        options.add(INLONG_AUDIT);
-        options.add(AUDIT_KEYS);
-        options.add(INLONG_METRIC);
         return options;
     }
 

@@ -59,6 +59,7 @@ import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.exceptions.AlreadyExistsException;
 import org.apache.iceberg.exceptions.NamespaceNotEmptyException;
 import org.apache.iceberg.exceptions.NoSuchNamespaceException;
+import org.apache.iceberg.exceptions.NoSuchTableException;
 import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.flink.util.FlinkCompatibilityUtil;
@@ -377,7 +378,7 @@ public class FlinkCatalog extends AbstractCatalog {
             icebergCatalog.renameTable(
                     toIdentifier(tablePath),
                     toIdentifier(new ObjectPath(tablePath.getDatabaseName(), newTableName)));
-        } catch (org.apache.iceberg.exceptions.NoSuchTableException e) {
+        } catch (NoSuchTableException e) {
             if (!ignoreIfNotExists) {
                 throw new TableNotExistException(getName(), tablePath, e);
             }

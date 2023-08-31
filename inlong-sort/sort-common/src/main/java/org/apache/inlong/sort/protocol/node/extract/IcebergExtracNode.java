@@ -110,6 +110,7 @@ public class IcebergExtracNode extends ExtractNode implements Serializable {
         options.put(IcebergConstant.TABLE_KEY, tableName);
         options.put(IcebergConstant.CATALOG_TYPE_KEY, catalogType.name());
         options.put(IcebergConstant.CATALOG_NAME_KEY, catalogName);
+        options.put(IcebergConstant.STREAMING, "true");
         if (null != uri) {
             options.put(IcebergConstant.URI_KEY, uri);
         }

@@ -39,12 +39,36 @@
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-connector-base</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-cbor</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.thrift</groupId>
+                    <artifactId>libthrift</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-common</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.iceberg</groupId>
@@ -92,6 +116,11 @@
             <version>${parquet.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.iceberg</groupId>
+            <artifactId>iceberg-hive-metastore</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -118,10 +147,11 @@
                                     <include>org.apache.kafka:*</include>
                                     <include>com.fasterxml.*:*</include>
                                     <include>org.apache.iceberg:*</include>
-                                    <include>org.apache.hive:hive-exec</include>
+                                    <include>org.apache.hive:*</include>
+                                    <!--  Include fixed version 18.0-13.0 of flink shaded guava  -->
                                     <include>org.apache.flink:flink-shaded-guava</include>
                                     <include>com.google.protobuf:*</include>
-                                    <include>org.apache.thrift:libfb303</include>
+                                    <include>org.apache.thrift:*</include>
                                     <include>com.facebook.*:*</include>
                                 </includes>
                             </artifactSet>

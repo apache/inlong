@@ -33,6 +33,7 @@ public class IcebergConstant {
     public static final String URI_KEY = "uri";
     public static final String WAREHOUSE_KEY = "warehouse";
     public static final String START_SNAPSHOT_ID = "start-snapshot-id";
+    public static final String STREAMING = "streaming";
 
     /**
      * Iceberg supported catalog type
