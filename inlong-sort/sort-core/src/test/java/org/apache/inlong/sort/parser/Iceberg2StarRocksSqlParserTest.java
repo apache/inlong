@@ -52,20 +52,20 @@ public class Iceberg2StarRocksSqlParserTest extends AbstractTestBase {
     private String streamId = "b_test_wkstream_0801";
 
     // iceberg
-    private String uri = "thrift://ss-qe-nginx-tauth.tencent-distribute.com:9991";
-    private String icDatabase = "test_inlong_iceberg";
-    private String icTable = "t_ic_gwe0000000260d";
+    private String uri = "";
+    private String icDatabase = "";
+    private String icTable = "";
     private String catalogName = "HIVE";
-    private String warehouse = "hdfs://qy-teg-2-v3/user/tdw/warehouse/test_inlong_iceberg.db/t_ic_gwe0000000260d";
+    private String warehouse = "";
 
     // starrocks
-    private String user = "wedata";
-    private String password = "wedata_admin";
-    private String jdbc = "starrocks-teg-test-gz.polaris:9030";
-    private String srDatabase = "wedata_dev";
-    private String srTable = "table_400";
+    private String user = "";
+    private String password = "";
+    private String jdbc = "";
+    private String srDatabase = "";
+    private String srTable = "";
     private String primaryKey = "id";
-    private String loadUrl = "11.160.103.19:8030";
+    private String loadUrl = "";
 
     private List<FieldInfo> fields() {
         return Arrays.asList(
