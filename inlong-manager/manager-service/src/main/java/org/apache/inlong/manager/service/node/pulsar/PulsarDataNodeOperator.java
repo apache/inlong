@@ -80,7 +80,7 @@ public class PulsarDataNodeOperator extends AbstractDataNodeOperator {
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
-                    String.format("Failed to build extParams for StarRocks node: %s", e.getMessage()));
+                    String.format("Failed to build extParams for pulsar node: %s", e.getMessage()));
         }
     }
 
@@ -89,13 +89,13 @@ public class PulsarDataNodeOperator extends AbstractDataNodeOperator {
         PulsarDataNodeRequest pulsarDataNodeRequest = (PulsarDataNodeRequest) request;
         String adminUrl = pulsarDataNodeRequest.getAdminUrl();
         String token = pulsarDataNodeRequest.getToken();
-        Preconditions.expectNotBlank(adminUrl, ErrorCodeEnum.INVALID_PARAMETER, "connection jdbcUrl cannot be empty");
+        Preconditions.expectNotBlank(adminUrl, ErrorCodeEnum.INVALID_PARAMETER, "connection admin urlcannot be empty");
         if (PulsarUtils.testConnection(adminUrl, token)) {
-            LOGGER.info("pulsar connection not null - connection success for jdbcUrl={}, token={}",
+            LOGGER.info("pulsar connection not null - connection success for adminUrl={}, token={}",
                     adminUrl, token);
             return true;
         } else {
-            String errMsg = String.format("StarRocks connection failed for jdbcUrl=%s,  token=%s",
+            String errMsg = String.format("pulsar connection failed for adminUrl=%s,  token=%s",
                     adminUrl, token);
             throw new BusinessException(errMsg);
         }
