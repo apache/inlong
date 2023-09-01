@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.iceberg;
 
+import org.apache.inlong.sort.iceberg.source.IcebergTableSource;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.Configuration;
@@ -38,7 +40,6 @@ import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.exceptions.AlreadyExistsException;
 import org.apache.iceberg.flink.IcebergTableSink;
 import org.apache.iceberg.flink.TableLoader;
-import org.apache.iceberg.flink.source.IcebergTableSource;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.relocated.com.google.common.collect.Sets;
 

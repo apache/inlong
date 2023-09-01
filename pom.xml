@@ -204,6 +204,7 @@
         <poi.version>5.2.3</poi.version>
         <otel.version>1.28.0</otel.version>
         <woodstox-core.version>5.4.0</woodstox-core.version>
+        <libfb303.version>0.9.3</libfb303.version>
     </properties>
 
     <dependencyManagement>
