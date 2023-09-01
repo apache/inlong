@@ -18,13 +18,16 @@
 package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.SortStandAloneConfig.PulsarParamsConfig;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -61,6 +64,8 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     protected StreamSinkFieldEntityMapper sinkFieldMapper;
     @Autowired
     protected DataNodeOperateHelper dataNodeHelper;
+    @Autowired
+    protected InlongStreamEntityMapper inlongStreamEntityMapper;
 
     /**
      * Setting the parameters of the latest entity.
@@ -222,18 +227,22 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     @Override
     public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields) {
         Map<String, String> param;
+        InlongStreamEntity inlongStreamEntity = inlongStreamEntityMapper.selectByIdentifier(
+                streamSink.getInlongGroupId(), streamSink.getInlongStreamId());
         try {
             param = JsonUtils.parseObject(streamSink.getExtParams(), HashMap.class);
             // put group and stream info
             assert param != null;
+            param.put(PulsarParamsConfig.KEY_SEPARATOR, inlongStreamEntity.getDataSeparator());
+            param.put(PulsarParamsConfig.KEY_DATA_TYPE, inlongStreamEntity.getDataType());
             param.put(KEY_GROUP_ID, streamSink.getInlongGroupId());
             param.put(KEY_STREAM_ID, streamSink.getInlongStreamId());
             return param;
         } catch (Exception e) {
             LOGGER.error(String.format(
-                    "cannot parse properties for groupId=%s, streamId=%s, sinkName=%s, the row properties: %s",
-                    streamSink.getInlongGroupId(), streamSink.getInlongStreamId(),
-                    streamSink.getSinkName(), streamSink.getExtParams()),
+                            "cannot parse properties for groupId=%s, streamId=%s, sinkName=%s, the row properties: %s",
+                            streamSink.getInlongGroupId(), streamSink.getInlongStreamId(),
+                            streamSink.getSinkName(), streamSink.getExtParams()),
                     e);
 
             return null;

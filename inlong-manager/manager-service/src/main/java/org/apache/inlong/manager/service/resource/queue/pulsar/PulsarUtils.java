@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
@@ -70,7 +71,7 @@ public class PulsarUtils {
      *
      * @apiNote It must be closed after use.
      */
-    private static PulsarAdmin getPulsarAdmin(String serviceHttpUrl, String token) throws PulsarClientException {
+    public static PulsarAdmin getPulsarAdmin(String serviceHttpUrl, String token) throws PulsarClientException {
         return PulsarAdmin.builder().serviceHttpUrl(serviceHttpUrl)
                 .authentication(AuthenticationFactory.token(token)).build();
     }
@@ -87,6 +88,23 @@ public class PulsarUtils {
      */
     public static String getServiceUrl(PulsarAdmin pulsarAdmin, String pulsarCluster) throws PulsarAdminException {
         return pulsarAdmin.clusters().getCluster(pulsarCluster).getServiceUrl();
+    }
+
+    /**
+     * test pulsar admin connection
+     */
+    public static boolean testConnection(String adminUrl, String token) {
+        try {
+            if (token != null) {
+                getPulsarAdmin(adminUrl, token);
+            } else {
+                getPulsarAdmin(adminUrl);
+            }
+        } catch (Exception e) {
+            log.error("connection pulsar admin url error", e);
+            return false;
+        }
+        return true;
     }
 
 }

@@ -53,17 +53,15 @@ public class PulsarSinkOperator extends AbstractSinkOperator {
 
     @Autowired
     private ObjectMapper objectMapper;
-    @Autowired
-    InlongStreamEntityMapper inlongStreamEntityMapper;
 
     @Override
     public Boolean accept(String sinkType) {
-        return SinkType.KAFKA.equals(sinkType);
+        return SinkType.PULSAR.equals(sinkType);
     }
 
     @Override
     protected String getSinkType() {
-        return SinkType.KAFKA;
+        return SinkType.PULSAR;
     }
 
     @Override
@@ -100,8 +98,7 @@ public class PulsarSinkOperator extends AbstractSinkOperator {
     @Override
     public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields) {
 
-        InlongStreamEntity inlongStreamEntity = inlongStreamEntityMapper.selectByIdentifier(
-                streamSink.getInlongGroupId(), streamSink.getInlongStreamId());
+
         Map<String, String> params = super.parse2IdParams(streamSink, fields);
         PulsarSinkDTO pulsarSinkDTO;
         try {
@@ -111,8 +108,6 @@ public class PulsarSinkOperator extends AbstractSinkOperator {
             return params;
         }
         params.put(PulsarParamsConfig.TOPIC, pulsarSinkDTO.getTopic());
-        params.put(PulsarParamsConfig.KEY_SEPARATOR, inlongStreamEntity.getDataSeparator());
-        params.put(PulsarParamsConfig.KEY_DATA_TYPE, inlongStreamEntity.getDataType());
         return params;
     }
 }
