@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;

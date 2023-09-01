@@ -22,9 +22,7 @@ import org.apache.inlong.manager.common.consts.SortStandAloneConfig.PulsarParams
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
-import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -97,7 +95,6 @@ public class PulsarSinkOperator extends AbstractSinkOperator {
 
     @Override
     public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields) {
-
 
         Map<String, String> params = super.parse2IdParams(streamSink, fields);
         PulsarSinkDTO pulsarSinkDTO;

@@ -55,7 +55,6 @@ public class PulsarSinkDTO {
     @ApiModelProperty("pulsar partition number")
     private Integer partitionNum;
 
-
     /**
      * Get the dto instance from the request
      */
