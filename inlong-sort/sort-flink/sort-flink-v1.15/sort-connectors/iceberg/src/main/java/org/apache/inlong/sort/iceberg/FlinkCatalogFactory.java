@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.iceberg.table;
+package org.apache.inlong.sort.iceberg;
 
 import org.apache.flink.configuration.GlobalConfiguration;
 import org.apache.flink.runtime.util.HadoopUtils;

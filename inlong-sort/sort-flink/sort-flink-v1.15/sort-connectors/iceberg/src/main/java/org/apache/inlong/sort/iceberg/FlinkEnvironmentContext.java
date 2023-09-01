@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.iceberg.table;
+package org.apache.inlong.sort.iceberg;
 
 import org.apache.iceberg.EnvironmentContext;
 import org.apache.iceberg.flink.util.FlinkPackage;
