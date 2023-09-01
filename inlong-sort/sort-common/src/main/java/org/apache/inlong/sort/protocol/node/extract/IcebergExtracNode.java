@@ -15,22 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.protocol.node.load;
+package org.apache.inlong.sort.protocol.node.extract;
 
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant;
-import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
-import org.apache.inlong.sort.protocol.enums.FilterStrategy;
-import org.apache.inlong.sort.protocol.node.LoadNode;
-import org.apache.inlong.sort.protocol.transformation.FieldRelation;
-import org.apache.inlong.sort.protocol.transformation.FilterFunction;
+import org.apache.inlong.sort.protocol.node.ExtractNode;
+import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
-import com.google.common.base.Preconditions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -41,13 +35,14 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-@JsonTypeName("icebergLoad")
-@Data
-@NoArgsConstructor
+/**
+ * Iceberg extract node for extract data from iceberg
+ */
 @EqualsAndHashCode(callSuper = true)
-public class IcebergLoadNode extends LoadNode implements InlongMetric, Serializable {
-
-    private static final long serialVersionUID = -1L;
+@JsonTypeName("icebergExtract")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Data
+public class IcebergExtracNode extends ExtractNode implements Serializable {
 
     @JsonProperty("tableName")
     @Nonnull
@@ -57,65 +52,75 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Serializa
     @Nonnull
     private String dbName;
 
-    @JsonProperty("primaryKey")
-    private String primaryKey;
-
     @JsonProperty("catalogType")
     private IcebergConstant.CatalogType catalogType;
 
+    @Nullable
     @JsonProperty("uri")
     private String uri;
 
     @JsonProperty("warehouse")
     private String warehouse;
 
-    @JsonCreator
-    public IcebergLoadNode(@JsonProperty("id") String id,
-            @JsonProperty("name") String name,
-            @JsonProperty("fields") List<FieldInfo> fields,
-            @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
-            @JsonProperty("filters") List<FilterFunction> filters,
-            @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
-            @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
-            @JsonProperty("properties") Map<String, String> properties,
+    @JsonProperty("catalogName")
+    private String catalogName;
+
+    @JsonProperty("primaryKey")
+    private String primaryKey;
+
+    @JsonProperty("startSnapShotId")
+    @Nullable
+    private Long startSnapShotId;
+
+    public IcebergExtracNode(
+            @Nonnull @JsonProperty("id") String id,
+            @Nonnull @JsonProperty("name") String name,
+            @Nonnull @JsonProperty("fields") List<FieldInfo> fields,
+            @Nullable @JsonProperty("watermarkField") WatermarkField watermarkField,
+            @Nullable @JsonProperty("uri") String uri,
+            @Nullable @JsonProperty("warehouse") String warehouse,
             @Nonnull @JsonProperty("dbName") String dbName,
             @Nonnull @JsonProperty("tableName") String tableName,
-            @JsonProperty("primaryKey") String primaryKey,
             @JsonProperty("catalogType") IcebergConstant.CatalogType catalogType,
-            @JsonProperty("uri") String uri,
-            @JsonProperty("warehouse") String warehouse) {
-        super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
-        this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
-        this.dbName = Preconditions.checkNotNull(dbName, "db name is null");
-        this.primaryKey = primaryKey;
-        this.catalogType = catalogType == null ? CatalogType.HIVE : catalogType;
+            @Nullable @JsonProperty("catalogName") String catalogName,
+            @JsonProperty("primaryKey") String primaryKey,
+            @Nullable @JsonProperty("startSnapShotId") Long startSnapShotId,
+            @Nullable @JsonProperty("properties") Map<String, String> properties) {
+        super(id, name, fields, watermarkField, properties);
         this.uri = uri;
         this.warehouse = warehouse;
+        this.dbName = dbName;
+        this.tableName = tableName;
+        this.catalogName = catalogName == null ? IcebergConstant.DEFAULT_CATALOG_NAME : catalogName;
+        this.primaryKey = primaryKey;
+        this.startSnapShotId = startSnapShotId;
+        this.catalogType = catalogType == null ? IcebergConstant.CatalogType.HIVE : catalogType;
+    }
+
+    @Override
+    public String genTableName() {
+        return String.format("iceberg_table_%s", getId());
     }
 
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
         options.put(IcebergConstant.CONNECTOR_KEY, IcebergConstant.CONNECTOR);
-        // for test sink.ignore.changelog
-        // options.put("sink.ignore.changelog", "true");
         options.put(IcebergConstant.DATABASE_KEY, dbName);
         options.put(IcebergConstant.TABLE_KEY, tableName);
-        options.put(IcebergConstant.DEFAULT_DATABASE_KEY, dbName);
         options.put(IcebergConstant.CATALOG_TYPE_KEY, catalogType.name());
-        options.put(IcebergConstant.CATALOG_NAME_KEY, catalogType.name());
+        options.put(IcebergConstant.CATALOG_NAME_KEY, catalogName);
+        options.put(IcebergConstant.STREAMING, "true");
         if (null != uri) {
-            options.put("uri", uri);
+            options.put(IcebergConstant.URI_KEY, uri);
         }
         if (null != warehouse) {
-            options.put("warehouse", warehouse);
+            options.put(IcebergConstant.WAREHOUSE_KEY, warehouse);
+        }
+        if (null != startSnapShotId) {
+            options.put(IcebergConstant.START_SNAPSHOT_ID, startSnapShotId.toString());
         }
         return options;
-    }
-
-    @Override
-    public String genTableName() {
-        return tableName;
     }
 
     @Override

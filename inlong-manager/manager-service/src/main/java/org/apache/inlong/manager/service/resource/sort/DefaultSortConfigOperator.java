@@ -253,5 +253,4 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         groupInfo.getExtList().removeIf(ext -> extInfo.getKeyName().equals(ext.getKeyName()));
         groupInfo.getExtList().add(extInfo);
     }
-
 }
