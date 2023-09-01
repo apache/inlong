@@ -24,13 +24,16 @@ import org.apache.flink.formats.common.TimestampFormat;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.flink.table.types.logical.BinaryType;
+import org.apache.flink.table.types.logical.CharType;
 import org.apache.flink.table.types.logical.DecimalType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.logical.RowType.RowField;
+import org.apache.flink.table.types.logical.TinyIntType;
+import org.apache.flink.table.types.logical.VarBinaryType;
+import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.flink.types.RowKind;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,20 +64,18 @@ import static org.apache.inlong.sort.formats.json.utils.FormatJsonUtil.SQL_TYPE_
 @SuppressWarnings("LanguageDetectionInspection")
 public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaFormat<JsonNode> {
 
-    public static final int DEFAULT_DECIMAL_PRECISION = 15;
+    public static final int DEFAULT_DECIMAL_PRECISION = 38;
     public static final int DEFAULT_DECIMAL_SCALE = 5;
-    private static final Logger LOG = LoggerFactory.getLogger(JsonDynamicSchemaFormat.class);
+    public static final int DEFAULT_CHAR_LENGTH = 255;
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     /**
      * The first item of array
      */
     private static final Integer FIRST = 0;
-
     /**
      * dialect sql type pattern such as DECIMAL(38, 10) from mysql or oracle etc
      */
-    private static final Pattern DIALECT_SQL_TYPE_PATTERN = Pattern.compile("\\w+\\(([\\d,\\s]*)\\)");
-
-    public final ObjectMapper objectMapper = new ObjectMapper();
+    private static final Pattern DIALECT_SQL_TYPE_PATTERN = Pattern.compile("([\\w, \\s]+)\\(([\\d,\\s'\\-]*)\\)");
     protected final JsonToRowDataConverters rowDataConverters;
     protected final boolean adaptSparkEngine;
 
@@ -155,7 +156,7 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
      */
     @Override
     public JsonNode deserialize(byte[] message) throws IOException {
-        return objectMapper.readTree(message);
+        return OBJECT_MAPPER.readTree(message);
     }
 
     /**
@@ -266,8 +267,18 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
             Entry<String, JsonNode> entry = schemaFields.next();
             String name = entry.getKey();
             LogicalType type = sqlType2FlinkType(entry.getValue().asInt());
-            String dialectType = dialectSchema.get(name) != null ? dialectSchema.get(name).asText() : null;
-            type = handleDialectSqlType(type, dialectType);
+            String dialectType = null;
+            if (dialectSchema != null && dialectSchema.get(name) != null) {
+                dialectType = dialectSchema.get(name).asText();
+            }
+            try {
+                type = handleDialectSqlType(type, dialectType);
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        String.format("Handle dialect sql type failed, the field: %s, the dialect type: %s",
+                                name, dialectType),
+                        e);
+            }
             if (pkNames.contains(name)) {
                 type = type.copy(false);
             }
@@ -287,33 +298,58 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
         if (StringUtils.isBlank(dialectType)) {
             return type;
         }
-        if (type instanceof DecimalType) {
-            Matcher matcher = DIALECT_SQL_TYPE_PATTERN.matcher(dialectType);
-            int precision;
-            int scale;
-            DecimalType decimalType = new DecimalType(DecimalType.MAX_PRECISION);
-            if (matcher.matches()) {
-                String[] items = matcher.group(1).split(",");
-                precision = Integer.parseInt(items[0].trim());
-                if (precision < DecimalType.MIN_PRECISION || precision > DecimalType.MAX_PRECISION) {
-                    LOG.info("invalid decimal precision: {}, change to: {}", precision, decimalType.getPrecision());
-                    return decimalType;
-                }
-                if (items.length == 2) {
-                    scale = Integer.parseInt(items[1].trim());
-                    if (scale < DecimalType.MIN_SCALE || scale > precision) {
-                        decimalType = new DecimalType(precision);
-                        LOG.info("invalid decimal scale: {}, change to: {}", scale, decimalType.getScale());
-                        return decimalType;
-                    }
-                    return new DecimalType(precision, scale);
-                }
-                LOG.info("Decimal has only precision {} without scale", precision);
-                return new DecimalType(precision);
-            }
-            return decimalType;
+        Matcher matcher = DIALECT_SQL_TYPE_PATTERN.matcher(dialectType);
+        if (!matcher.matches()) {
+            return type;
         }
-        return type;
+        String[] items = matcher.group(2).split(",");
+        if (type instanceof DecimalType) {
+            int precision;
+            int scale = DEFAULT_DECIMAL_SCALE;
+            precision = Integer.parseInt(items[0].trim());
+            if (precision < DecimalType.MIN_PRECISION || precision > DecimalType.MAX_PRECISION) {
+                precision = DEFAULT_DECIMAL_PRECISION;
+            }
+            if (items.length == 2) {
+                scale = Integer.parseInt(items[1].trim());
+                if (scale < DecimalType.MIN_SCALE || scale > precision) {
+                    scale = DEFAULT_DECIMAL_SCALE;
+                }
+            }
+            return new DecimalType(precision, scale);
+        } else if (type instanceof CharType) {
+            int length = Integer.parseInt(items[0].trim());
+            if (length <= 0) {
+                length = DEFAULT_CHAR_LENGTH;
+            }
+            return new CharType(length);
+        } else if (type instanceof VarCharType) {
+            int length = Integer.parseInt(items[0].trim());
+            if (length <= 0) {
+                length = Integer.MAX_VALUE;
+            }
+            return new VarCharType(length);
+        } else if (type instanceof VarBinaryType) {
+            int length = Integer.parseInt(items[0].trim());
+            if (length <= 0) {
+                length = Integer.MAX_VALUE;
+            }
+            return new VarBinaryType(length);
+        } else if (type instanceof BinaryType) {
+            int length = Integer.parseInt(items[0].trim());
+            if (length <= 0) {
+                length = 1;
+            }
+            return new BinaryType(length);
+        } else if ("TINYINT(1)".equalsIgnoreCase(matcher.group(0))) {
+            return new TinyIntType();
+        } else if ("BIGINT UNSIGNED".equalsIgnoreCase(matcher.group(1))) {
+            return new DecimalType(20, 0);
+        } else if ("BIGINT UNSIGNED ZEROFILL".equalsIgnoreCase(matcher.group(1))) {
+            return new DecimalType(20, 0);
+        } else {
+            return type;
+        }
     }
 
     public LogicalType sqlType2FlinkType(int jdbcType) {
@@ -341,11 +377,11 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
         List<Map<String, String>> values = new ArrayList<>();
         if (data.isArray()) {
             for (int i = 0; i < data.size(); i++) {
-                values.add(objectMapper.convertValue(data.get(i), new TypeReference<Map<String, String>>() {
+                values.add(OBJECT_MAPPER.convertValue(data.get(i), new TypeReference<Map<String, String>>() {
                 }));
             }
         } else {
-            values.add(objectMapper.convertValue(data, new TypeReference<Map<String, String>>() {
+            values.add(OBJECT_MAPPER.convertValue(data, new TypeReference<Map<String, String>>() {
             }));
         }
         return values;

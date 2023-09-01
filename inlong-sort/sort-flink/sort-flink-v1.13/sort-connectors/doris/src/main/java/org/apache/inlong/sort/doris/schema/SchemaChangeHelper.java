@@ -145,7 +145,7 @@ public class SchemaChangeHelper {
             JsonNode operationNode = Preconditions.checkNotNull(data.get("operation"),
                     "Operation node is null");
             operation = Preconditions.checkNotNull(
-                    dynamicSchemaFormat.objectMapper.convertValue(operationNode, new TypeReference<Operation>() {
+                    JsonDynamicSchemaFormat.OBJECT_MAPPER.convertValue(operationNode, new TypeReference<Operation>() {
                     }), "Operation is null");
         } catch (Exception e) {
             if (exceptionPolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
@@ -426,7 +426,7 @@ public class SchemaChangeHelper {
             HttpPost httpPost = new HttpPost(requestUrl);
             httpPost.setHeader(HttpHeaders.AUTHORIZATION, authHeader());
             httpPost.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE_JSON);
-            httpPost.setEntity(new StringEntity(dynamicSchemaFormat.objectMapper.writeValueAsString(param)));
+            httpPost.setEntity(new StringEntity(JsonDynamicSchemaFormat.OBJECT_MAPPER.writeValueAsString(param)));
             // if any fenode succeeds, return true, else keep trying
             if (sendRequest(httpPost)) {
                 return true;
@@ -441,7 +441,7 @@ public class SchemaChangeHelper {
         Map<String, Object> param = buildRequestParam(column, dropColumn);
         HttpGetEntity httpGet = new HttpGetEntity(url);
         httpGet.setHeader(HttpHeaders.AUTHORIZATION, authHeader());
-        httpGet.setEntity(new StringEntity(dynamicSchemaFormat.objectMapper.writeValueAsString(param)));
+        httpGet.setEntity(new StringEntity(JsonDynamicSchemaFormat.OBJECT_MAPPER.writeValueAsString(param)));
         boolean success = sendRequest(httpGet);
         if (!success) {
             LOGGER.warn("schema change can not do table {}.{}", database, table);
@@ -458,7 +458,7 @@ public class SchemaChangeHelper {
                     final int statusCode = response.getStatusLine().getStatusCode();
                     if (statusCode == HttpStatus.SC_OK && response.getEntity() != null) {
                         String loadResult = EntityUtils.toString(response.getEntity());
-                        Map<String, Object> responseMap = dynamicSchemaFormat.objectMapper
+                        Map<String, Object> responseMap = JsonDynamicSchemaFormat.OBJECT_MAPPER
                                 .readValue(loadResult, Map.class);
                         String code = responseMap.getOrDefault("code", "-1").toString();
                         if (DORIS_HTTP_CALL_SUCCESS.equals(code)) {
