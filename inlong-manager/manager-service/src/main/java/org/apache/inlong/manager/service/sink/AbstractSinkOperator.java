@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.consts.SortStandAloneConfig.PulsarParamsConfig;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -57,6 +56,8 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
 
     protected static final String KEY_GROUP_ID = "inlongGroupId";
     protected static final String KEY_STREAM_ID = "inlongStreamId";
+    protected static final String KEY_DATA_TYPE = "dataType";
+    protected static final String KEY_SEPARATOR = "separator";
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSinkOperator.class);
     @Autowired
     protected StreamSinkEntityMapper sinkMapper;
@@ -233,8 +234,8 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
             param = JsonUtils.parseObject(streamSink.getExtParams(), HashMap.class);
             // put group and stream info
             assert param != null;
-            param.put(PulsarParamsConfig.KEY_SEPARATOR, inlongStreamEntity.getDataSeparator());
-            param.put(PulsarParamsConfig.KEY_DATA_TYPE, inlongStreamEntity.getDataType());
+            param.put(KEY_SEPARATOR, inlongStreamEntity.getDataSeparator());
+            param.put(KEY_DATA_TYPE, inlongStreamEntity.getDataType());
             param.put(KEY_GROUP_ID, streamSink.getInlongGroupId());
             param.put(KEY_STREAM_ID, streamSink.getInlongStreamId());
             return param;

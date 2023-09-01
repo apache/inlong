@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.sink.pulsar;
 
 import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.common.consts.SortStandAloneConfig.PulsarParamsConfig;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -49,6 +48,7 @@ public class PulsarSinkOperator extends AbstractSinkOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PulsarSinkOperator.class);
 
+    private static final String TOPIC = "topic";
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -104,7 +104,7 @@ public class PulsarSinkOperator extends AbstractSinkOperator {
             LOGGER.error("parse id error", e);
             return params;
         }
-        params.put(PulsarParamsConfig.TOPIC, pulsarSinkDTO.getTopic());
+        params.put(TOPIC, pulsarSinkDTO.getTopic());
         return params;
     }
 }
