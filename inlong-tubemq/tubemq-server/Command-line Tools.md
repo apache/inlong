@@ -5,7 +5,11 @@ usage:
 ```
 $ bin/tubectl [options] [command] [command options]
 ```
+<<<<<<< HEAD
 command:
+=======
+命令：
+>>>>>>> Add unit tests and update documents.
 
 - topic
    - list
@@ -16,16 +20,23 @@ command:
    - produce
    - consume
 - cgroup
+<<<<<<< HEAD
   - list
   - create
   - delete
+=======
+>>>>>>> Add unit tests and update documents.
 > You can also use --help or -h to get help for the above commands, for example:
 
 ```shell
 $ bin/tubectl topic -h
 ```
 # Topic
+<<<<<<< HEAD
 **topic** is used to manage topics in TubeMQ, including adding, deleting, modifying, checking, etc.    
+=======
+**topic** is used to manage topics in TubeMQ, including adding, deleting, modifying, checking, etc.
+>>>>>>> Add unit tests and update documents.
 command:
 
 - list
@@ -123,7 +134,11 @@ options:
 | -md, --modifyDate | String. Record modification date |  |  |
 
 # Message
+<<<<<<< HEAD
 **message** is used for message management, including production and consumption.   
+=======
+**message** is used for message management, including production and consumption.
+>>>>>>> Add unit tests and update documents.
 command:
 
 - produce
@@ -157,7 +172,11 @@ options:
 | -po, --consumePartitionsAndOffsets | String. Assign consume partitions and their offsets, format is id1:offset1\[,id2:offset2\]\[...\], for example: 0:0,1:0,2:0 |  |  |
 
 # Cgroup
+<<<<<<< HEAD
 **cgroup** is used for consumer group management. Currently, it supports query, addition, and deletion.    
+=======
+**cgroup** is used for consumer group management. Currently, it supports query, addition, and deletion.
+>>>>>>> Add unit tests and update documents.
 command：
 
 - list

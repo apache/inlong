@@ -28,12 +28,15 @@ import java.util.List;
 import java.util.Map;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /**
  * @author zfancy
  * @version 1.0
  */
 >>>>>>> Add command line tool: tubectl, and its documents.
+=======
+>>>>>>> Add unit tests and update documents.
 @Parameters(commandDescription = "Consumer group commands")
 public class CgroupCommand extends AbstractCommand {
 
@@ -144,11 +147,17 @@ public class CgroupCommand extends AbstractCommand {
         private String confModAuthToken;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         @Parameter(names = {"-m", "--modifyUser"}, required = true, order = 13, description = "String. Record modifier")
         private String modifyUser;
 
 =======
 >>>>>>> Add command line tool: tubectl, and its documents.
+=======
+        @Parameter(names = {"-m", "--modifyUser"}, required = true, order = 13, description = "String. Record modifier")
+        private String modifyUser;
+
+>>>>>>> Add unit tests and update documents.
         @Parameter(names = {"-g", "--groupName"}, order = 2, description = "String. Consumer group name")
         private String groupName;
 
@@ -162,10 +171,15 @@ public class CgroupCommand extends AbstractCommand {
                 if (confModAuthToken != null)
                     requestParams.put(WebFieldDef.ADMINAUTHTOKEN.name, confModAuthToken);
 <<<<<<< HEAD
+<<<<<<< HEAD
                 if (modifyUser != null)
                     requestParams.put(WebFieldDef.MODIFYUSER.name, modifyUser);
 =======
 >>>>>>> Add command line tool: tubectl, and its documents.
+=======
+                if (modifyUser != null)
+                    requestParams.put(WebFieldDef.MODIFYUSER.name, modifyUser);
+>>>>>>> Add unit tests and update documents.
                 if (groupName != null)
                     requestParams.put(WebFieldDef.GROUPNAME.name, groupName);
                 cliWebapiAdmin.processParams(requestMethod);

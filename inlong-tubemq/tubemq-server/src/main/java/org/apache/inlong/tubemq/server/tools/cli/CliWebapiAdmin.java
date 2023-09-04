@@ -32,12 +32,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /**
  * @author zfancy
  * @version 1.0
  */
 >>>>>>> Add command line tool: tubectl, and its documents.
+=======
+>>>>>>> Add unit tests and update documents.
 public class CliWebapiAdmin extends CliAbstractBase {
 
     private static final Logger logger =
