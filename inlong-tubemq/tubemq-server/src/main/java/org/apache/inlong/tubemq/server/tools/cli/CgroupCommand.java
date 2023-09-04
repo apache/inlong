@@ -27,6 +27,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+<<<<<<< HEAD
+=======
+/**
+ * @author zfancy
+ * @version 1.0
+ */
+>>>>>>> Add command line tool: tubectl, and its documents.
 @Parameters(commandDescription = "Consumer group commands")
 public class CgroupCommand extends AbstractCommand {
 
@@ -136,9 +143,12 @@ public class CgroupCommand extends AbstractCommand {
                 "--confModAuthToken"}, order = 1, required = true, description = "String. Admin api operation authorization code")
         private String confModAuthToken;
 
+<<<<<<< HEAD
         @Parameter(names = {"-m", "--modifyUser"}, required = true, order = 13, description = "String. Record modifier")
         private String modifyUser;
 
+=======
+>>>>>>> Add command line tool: tubectl, and its documents.
         @Parameter(names = {"-g", "--groupName"}, order = 2, description = "String. Consumer group name")
         private String groupName;
 
@@ -151,8 +161,11 @@ public class CgroupCommand extends AbstractCommand {
                     requestParams.put(WebFieldDef.TOPICNAME.name, topicName);
                 if (confModAuthToken != null)
                     requestParams.put(WebFieldDef.ADMINAUTHTOKEN.name, confModAuthToken);
+<<<<<<< HEAD
                 if (modifyUser != null)
                     requestParams.put(WebFieldDef.MODIFYUSER.name, modifyUser);
+=======
+>>>>>>> Add command line tool: tubectl, and its documents.
                 if (groupName != null)
                     requestParams.put(WebFieldDef.GROUPNAME.name, groupName);
                 cliWebapiAdmin.processParams(requestMethod);

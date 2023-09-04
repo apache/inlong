@@ -17,6 +17,13 @@
 
 package org.apache.inlong.tubemq.server.tools.cli;
 
+<<<<<<< HEAD
+=======
+/**
+ * @author zfancy
+ * @version 1.0
+ */
+>>>>>>> Add command line tool: tubectl, and its documents.
 public abstract class AbstractCommandRunner {
 
     abstract void run() throws Exception;

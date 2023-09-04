@@ -21,6 +21,13 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
+<<<<<<< HEAD
+=======
+/**
+ * @author zfancy
+ * @version 1.0
+ */
+>>>>>>> Add command line tool: tubectl, and its documents.
 public abstract class AbstractCommand {
 
     protected final JCommander jcommander;

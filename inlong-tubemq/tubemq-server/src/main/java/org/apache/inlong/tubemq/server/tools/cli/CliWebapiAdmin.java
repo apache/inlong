@@ -31,6 +31,13 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
+<<<<<<< HEAD
+=======
+/**
+ * @author zfancy
+ * @version 1.0
+ */
+>>>>>>> Add command line tool: tubectl, and its documents.
 public class CliWebapiAdmin extends CliAbstractBase {
 
     private static final Logger logger =

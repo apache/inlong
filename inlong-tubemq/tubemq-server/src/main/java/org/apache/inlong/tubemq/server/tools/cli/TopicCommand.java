@@ -28,6 +28,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+<<<<<<< HEAD
+=======
+/**
+ * @author zfancy
+ * @version 1.0
+ */
+>>>>>>> Add command line tool: tubectl, and its documents.
 @Parameters(commandDescription = "Topic commands")
 public class TopicCommand extends AbstractCommand {
 
