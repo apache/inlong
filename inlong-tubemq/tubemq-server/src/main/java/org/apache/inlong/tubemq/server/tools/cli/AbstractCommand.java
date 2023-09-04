@@ -21,10 +21,6 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
-/**
- * @author zfancy
- * @version 1.0
- */
 public abstract class AbstractCommand {
 
     protected final JCommander jcommander;
