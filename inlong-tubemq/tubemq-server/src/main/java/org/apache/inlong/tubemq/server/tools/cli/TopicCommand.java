@@ -28,10 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author zfancy
- * @version 1.0
- */
 @Parameters(commandDescription = "Topic commands")
 public class TopicCommand extends AbstractCommand {
 

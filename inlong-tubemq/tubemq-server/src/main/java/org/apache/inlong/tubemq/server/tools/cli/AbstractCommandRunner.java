@@ -17,10 +17,6 @@
 
 package org.apache.inlong.tubemq.server.tools.cli;
 
-/**
- * @author zfancy
- * @version 1.0
- */
 public abstract class AbstractCommandRunner {
 
     abstract void run() throws Exception;

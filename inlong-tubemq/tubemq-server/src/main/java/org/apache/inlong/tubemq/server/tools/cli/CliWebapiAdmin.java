@@ -31,10 +31,6 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author zfancy
- * @version 1.0
- */
 public class CliWebapiAdmin extends CliAbstractBase {
 
     private static final Logger logger =

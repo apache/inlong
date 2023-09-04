@@ -22,10 +22,6 @@ import com.beust.jcommander.Parameter;
 
 import java.util.Arrays;
 
-/**
- * @author zfancy
- * @version 1.0
- */
 public class CommandToolMain {
 
     private final JCommander jcommander;
@@ -50,7 +46,7 @@ public class CommandToolMain {
         }
     }
 
-    private boolean run(String[] args) {
+    boolean run(String[] args) {
         try {
             jcommander.parse(args);
         } catch (Exception e) {
