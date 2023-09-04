@@ -48,10 +48,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * @author zfancy
- * @version 1.0
- */
+@Parameters(commandDescription = "Message commands")
 public class MessageCommand extends AbstractCommand {
 
     @Parameter()
@@ -79,6 +76,10 @@ public class MessageCommand extends AbstractCommand {
         @Parameter(names = {"-n",
                 "--topicName"}, required = true, order = 0, description = "String. Topic to produce messages")
         private String topicName;
+
+        @Parameter(names = {"-t",
+                "--msgTotal"}, order = 3, description = "Long. The total number of messages to be produced. -1 means unlimited.")
+        private long msgTotal = -1;
 
         @Parameter(names = {"-m", "--mode"}, order = 2, description = "String. Produce mode, must in { sync | async }")
         private String mode = "async";
@@ -117,16 +118,21 @@ public class MessageCommand extends AbstractCommand {
             });
         }
 
+        private void stopProducer(long v) {
+            try {
+                messageProducer.shutdown();
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+            System.out.println("\n" + v + " message(s) has been produced. Exited.");
+        }
+
         @Override
         void run() {
             try {
                 Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                    try {
-                        messageProducer.shutdown();
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                    }
-                    System.out.println("\n" + msgCount.get() + " message(s) has been produced. Exited.");
+                    if (msgTotal == -1)
+                        stopProducer(msgCount.get());
                 }));
 
                 final TubeClientConfig clientConfig = new TubeClientConfig(masterServers);
@@ -137,7 +143,8 @@ public class MessageCommand extends AbstractCommand {
                 final Message message = new Message(topicName, null);
 
                 BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-                while (true) {
+                int c = 0;
+                while (msgTotal == -1 || c < msgTotal) {
                     System.out.print(">");
                     body = input.readLine();
                     if (body == null || "".equals(body) || "".equals(body.trim()))
@@ -155,7 +162,9 @@ public class MessageCommand extends AbstractCommand {
                         default:
                             throw new ParameterException("Produce mode, must in { sync | async }");
                     }
+                    c++;
                 }
+                stopProducer(msgTotal);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             } catch (Throwable e) {
@@ -186,7 +195,7 @@ public class MessageCommand extends AbstractCommand {
 
         @Parameter(names = {"-p",
                 "--consumePosition"}, order = 4, description = "String. Consume position, must in { first | latest | max }")
-        private String consumePosition = "latest";
+        private String consumePosition = "first";
 
         @Parameter(names = {"-po",
                 "--consumePartitionsAndOffsets"}, order = 5, description = "String. Consume partitions and their offsets, format is id1:offset1[,id2:offset2][...], for example: 0:0,1:0,2:0")
@@ -207,6 +216,7 @@ public class MessageCommand extends AbstractCommand {
                 ThreadUtils.sleep(1000);
             }
             // System.out.println(messagePullConsumer.getCurConsumedPartitions());
+            System.out.println("Ready to consume messages......");
             while (true) {
                 ConsumerResult result = messagePullConsumer.getMessage();
                 if (result.isSuccess()) {
@@ -291,6 +301,7 @@ public class MessageCommand extends AbstractCommand {
                 }
                 // System.out.println(clientBalanceConsumer.getCurPartitionOffsetInfos());
                 // consume messages
+                System.out.println("Ready to consume messages......");
                 while (true) {
                     // get messages
                     if (clientBalanceConsumer.getMessage(csmResult)) {
@@ -360,8 +371,6 @@ public class MessageCommand extends AbstractCommand {
                             throw new ParameterException("Consume mode, must in { pull | push | balance }");
                     }
                 }
-
-                // TODO: 2023/8/27 创建消费者组命令
 
             } catch (Exception e) {
                 System.out.println(e.getMessage());
