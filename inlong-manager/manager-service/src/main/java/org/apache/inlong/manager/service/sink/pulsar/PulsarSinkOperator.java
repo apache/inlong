@@ -17,11 +17,16 @@
 
 package org.apache.inlong.manager.service.sink.pulsar;
 
+import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
+import org.apache.inlong.manager.pojo.node.pulsar.PulsarDataNodeDTO;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -51,6 +56,8 @@ public class PulsarSinkOperator extends AbstractSinkOperator {
     private static final String TOPIC = "topic";
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private DataNodeEntityMapper dataNodeEntityMapper;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -69,8 +76,15 @@ public class PulsarSinkOperator extends AbstractSinkOperator {
                     ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
         }
         PulsarSinkRequest sinkRequest = (PulsarSinkRequest) request;
+        DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectByUniqueKey(sinkRequest.getDataNodeName(),
+                DataNodeType.PULSAR);
+        PulsarDataNodeDTO pulsarDataNodeDTO = JsonUtils.parseObject(dataNodeEntity.getExtParams(),
+                PulsarDataNodeDTO.class);
         try {
             PulsarSinkDTO dto = PulsarSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
+            dto.setAdminUrl(pulsarDataNodeDTO.getAdminUrl());
+            dto.setServiceUrl(pulsarDataNodeDTO.getServiceUrl());
+            dto.setToken(dataNodeEntity.getToken());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
