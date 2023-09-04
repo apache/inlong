@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.pojo.group;
 
-import org.apache.inlong.manager.common.validation.SaveValidation;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,13 +24,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.validation.SaveValidation;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-
 import java.util.List;
 
 /**
@@ -78,7 +76,7 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @ApiModelProperty(value = "TubeMQ master URL")
     private String tubeMaster;
 
-    @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
+    @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable", notes = "In the case of standard mode, it is allowed to use zookeeper to store metadata")
     @Range(min = 0, max = 1, message = "default is 0, only supports [0: disable, 1: enable]")
     private Integer enableZookeeper;
 
