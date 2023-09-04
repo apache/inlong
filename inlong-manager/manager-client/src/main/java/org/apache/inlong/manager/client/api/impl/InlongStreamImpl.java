@@ -339,7 +339,8 @@ public class InlongStreamImpl implements InlongStream {
     }
 
     private void initOrUpdateTransform(InlongStreamInfo streamInfo) {
-        List<TransformResponse> transformResponses = transformClient.listTransform(inlongGroupId, inlongStreamId);
+        List<TransformResponse> transformResponses =
+                transformClient.listTransform(inlongGroupId, inlongStreamId).getList();
         List<String> updateTransformNames = Lists.newArrayList();
         for (TransformResponse transformResponse : transformResponses) {
             StreamTransform transform = StreamTransformTransfer.parseStreamTransform(transformResponse);

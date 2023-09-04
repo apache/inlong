@@ -222,7 +222,7 @@ public class ListCommand extends AbstractCommand {
             try {
                 ClientUtils.initClientFactory();
                 StreamTransformClient transformClient = ClientUtils.clientFactory.getTransformClient();
-                List<TransformResponse> transformResponses = transformClient.listTransform(groupId, streamId);
+                List<TransformResponse> transformResponses = transformClient.listTransform(groupId, streamId).getList();
                 PrintUtils.print(transformResponses, TransformInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
