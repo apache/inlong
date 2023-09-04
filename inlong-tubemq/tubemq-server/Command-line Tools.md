@@ -6,10 +6,14 @@ usage:
 $ bin/tubectl [options] [command] [command options]
 ```
 <<<<<<< HEAD
+<<<<<<< HEAD
 command:
 =======
 命令：
 >>>>>>> Add unit tests and update documents.
+=======
+command:
+>>>>>>> Update documents.
 
 - topic
    - list
@@ -21,11 +25,17 @@ command:
    - consume
 - cgroup
 <<<<<<< HEAD
+<<<<<<< HEAD
   - list
   - create
   - delete
 =======
 >>>>>>> Add unit tests and update documents.
+=======
+  - list
+  - create
+  - delete
+>>>>>>> Update documents.
 > You can also use --help or -h to get help for the above commands, for example:
 
 ```shell
@@ -33,10 +43,14 @@ $ bin/tubectl topic -h
 ```
 # Topic
 <<<<<<< HEAD
+<<<<<<< HEAD
 **topic** is used to manage topics in TubeMQ, including adding, deleting, modifying, checking, etc.    
 =======
 **topic** is used to manage topics in TubeMQ, including adding, deleting, modifying, checking, etc.
 >>>>>>> Add unit tests and update documents.
+=======
+**topic** is used to manage topics in TubeMQ, including adding, deleting, modifying, checking, etc.    
+>>>>>>> Update documents.
 command:
 
 - list
@@ -135,10 +149,14 @@ options:
 
 # Message
 <<<<<<< HEAD
+<<<<<<< HEAD
 **message** is used for message management, including production and consumption.   
 =======
 **message** is used for message management, including production and consumption.
 >>>>>>> Add unit tests and update documents.
+=======
+**message** is used for message management, including production and consumption.   
+>>>>>>> Update documents.
 command:
 
 - produce
@@ -173,10 +191,14 @@ options:
 
 # Cgroup
 <<<<<<< HEAD
+<<<<<<< HEAD
 **cgroup** is used for consumer group management. Currently, it supports query, addition, and deletion.    
 =======
 **cgroup** is used for consumer group management. Currently, it supports query, addition, and deletion.
 >>>>>>> Add unit tests and update documents.
+=======
+**cgroup** is used for consumer group management. Currently, it supports query, addition, and deletion.    
+>>>>>>> Update documents.
 command：
 
 - list
