@@ -553,4 +553,14 @@
             </if>
         </where>
     </delete>
+    <select id="selectAllGroupsByTenant" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_group
+        <where>
+            tenant = #{tenant,jdbcType=VARCHAR}
+            and is_deleted = 0
+        </where>
+    </select>
+
 </mapper>
