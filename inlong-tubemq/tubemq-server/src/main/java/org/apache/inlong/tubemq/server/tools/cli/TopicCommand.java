@@ -28,16 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-/**
- * @author zfancy
- * @version 1.0
- */
->>>>>>> Add command line tool: tubectl, and its documents.
-=======
->>>>>>> Add unit tests and update documents.
 @Parameters(commandDescription = "Topic commands")
 public class TopicCommand extends AbstractCommand {
 
@@ -406,13 +396,6 @@ public class TopicCommand extends AbstractCommand {
         private void redoDelete() throws Exception {
             requestMethod[1] = "admin_redo_deleted_topic_info";
             cliWebapiAdmin.processParams(requestMethod);
-
-            // requestMethod[1] = "admin_modify_topic_info";
-            // requestParams.put(WebFieldDef.ACCEPTPUBLISH.name, true);
-            // requestParams.put(WebFieldDef.ACCEPTSUBSCRIBE.name, true);
-            // cliTopicAdmin.processParams(requestMethod);
-            // requestParams.remove(WebFieldDef.ACCEPTPUBLISH.name);
-            // requestParams.remove(WebFieldDef.ACCEPTSUBSCRIBE.name);
         }
 
         private void hardDelete() throws Exception {

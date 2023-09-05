@@ -23,7 +23,12 @@ import org.apache.inlong.tubemq.client.common.PeerInfo;
 import org.apache.inlong.tubemq.client.common.QueryMetaResult;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
-import org.apache.inlong.tubemq.client.consumer.*;
+import org.apache.inlong.tubemq.client.consumer.ClientBalanceConsumer;
+import org.apache.inlong.tubemq.client.consumer.ConsumePosition;
+import org.apache.inlong.tubemq.client.consumer.ConsumerResult;
+import org.apache.inlong.tubemq.client.consumer.MessageListener;
+import org.apache.inlong.tubemq.client.consumer.PullMessageConsumer;
+import org.apache.inlong.tubemq.client.consumer.PushMessageConsumer;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.client.factory.MessageSessionFactory;
 import org.apache.inlong.tubemq.client.factory.TubeSingleSessionFactory;
@@ -42,24 +47,18 @@ import org.apache.commons.codec.binary.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 @Parameters(commandDescription = "Message commands")
-=======
-/**
- * @author zfancy
- * @version 1.0
- */
->>>>>>> Add command line tool: tubectl, and its documents.
-=======
-@Parameters(commandDescription = "Message commands")
->>>>>>> Add unit tests and update documents.
 public class MessageCommand extends AbstractCommand {
 
     @Parameter()
@@ -88,19 +87,10 @@ public class MessageCommand extends AbstractCommand {
                 "--topicName"}, required = true, order = 0, description = "String. Topic to produce messages")
         private String topicName;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Add unit tests and update documents.
         @Parameter(names = {"-t",
                 "--msgTotal"}, order = 3, description = "Long. The total number of messages to be produced. -1 means unlimited.")
         private long msgTotal = -1;
 
-<<<<<<< HEAD
-=======
->>>>>>> Add command line tool: tubectl, and its documents.
-=======
->>>>>>> Add unit tests and update documents.
         @Parameter(names = {"-m", "--mode"}, order = 2, description = "String. Produce mode, must in { sync | async }")
         private String mode = "async";
 
@@ -138,10 +128,6 @@ public class MessageCommand extends AbstractCommand {
             });
         }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Add unit tests and update documents.
         private void stopProducer(long v) {
             try {
                 messageProducer.shutdown();
@@ -151,31 +137,12 @@ public class MessageCommand extends AbstractCommand {
             System.out.println("\n" + v + " message(s) has been produced. Exited.");
         }
 
-<<<<<<< HEAD
-=======
->>>>>>> Add command line tool: tubectl, and its documents.
-=======
->>>>>>> Add unit tests and update documents.
         @Override
         void run() {
             try {
                 Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-<<<<<<< HEAD
-<<<<<<< HEAD
                     if (msgTotal == -1)
                         stopProducer(msgCount.get());
-=======
-                    try {
-                        messageProducer.shutdown();
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                    }
-                    System.out.println("\n" + msgCount.get() + " message(s) has been produced. Exited.");
->>>>>>> Add command line tool: tubectl, and its documents.
-=======
-                    if (msgTotal == -1)
-                        stopProducer(msgCount.get());
->>>>>>> Add unit tests and update documents.
                 }));
 
                 final TubeClientConfig clientConfig = new TubeClientConfig(masterServers);
@@ -186,17 +153,8 @@ public class MessageCommand extends AbstractCommand {
                 final Message message = new Message(topicName, null);
 
                 BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-<<<<<<< HEAD
-<<<<<<< HEAD
                 int c = 0;
                 while (msgTotal == -1 || c < msgTotal) {
-=======
-                while (true) {
->>>>>>> Add command line tool: tubectl, and its documents.
-=======
-                int c = 0;
-                while (msgTotal == -1 || c < msgTotal) {
->>>>>>> Add unit tests and update documents.
                     System.out.print(">");
                     body = input.readLine();
                     if (body == null || "".equals(body) || "".equals(body.trim()))
@@ -214,19 +172,9 @@ public class MessageCommand extends AbstractCommand {
                         default:
                             throw new ParameterException("Produce mode, must in { sync | async }");
                     }
-<<<<<<< HEAD
-<<<<<<< HEAD
                     c++;
                 }
                 stopProducer(msgTotal);
-=======
-                }
->>>>>>> Add command line tool: tubectl, and its documents.
-=======
-                    c++;
-                }
-                stopProducer(msgTotal);
->>>>>>> Add unit tests and update documents.
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             } catch (Throwable e) {
@@ -257,15 +205,7 @@ public class MessageCommand extends AbstractCommand {
 
         @Parameter(names = {"-p",
                 "--consumePosition"}, order = 4, description = "String. Consume position, must in { first | latest | max }")
-<<<<<<< HEAD
-<<<<<<< HEAD
         private String consumePosition = "first";
-=======
-        private String consumePosition = "latest";
->>>>>>> Add command line tool: tubectl, and its documents.
-=======
-        private String consumePosition = "first";
->>>>>>> Add unit tests and update documents.
 
         @Parameter(names = {"-po",
                 "--consumePartitionsAndOffsets"}, order = 5, description = "String. Consume partitions and their offsets, format is id1:offset1[,id2:offset2][...], for example: 0:0,1:0,2:0")
@@ -285,15 +225,7 @@ public class MessageCommand extends AbstractCommand {
             while (!messagePullConsumer.isPartitionsReady(1000)) {
                 ThreadUtils.sleep(1000);
             }
-            // System.out.println(messagePullConsumer.getCurConsumedPartitions());
-<<<<<<< HEAD
-<<<<<<< HEAD
             System.out.println("Ready to consume messages......");
-=======
->>>>>>> Add command line tool: tubectl, and its documents.
-=======
-            System.out.println("Ready to consume messages......");
->>>>>>> Add unit tests and update documents.
             while (true) {
                 ConsumerResult result = messagePullConsumer.getMessage();
                 if (result.isSuccess()) {
@@ -350,6 +282,7 @@ public class MessageCommand extends AbstractCommand {
             Map<String, Boolean> partMetaInfoMap = qryResult.getPartStatusMap();
             if (partMetaInfoMap != null && !partMetaInfoMap.isEmpty()) {
                 Set<String> configuredTopicPartitions = partMetaInfoMap.keySet();
+                // Parse the --consumePartitionsAndOffsets parameters and connect to the partitions
                 Map<Long, Long> assignedPartitionsAndOffsets = new HashMap<>();
                 for (String str : consumePartitionsAndOffsets.split(",")) {
                     String[] splits = str.split(":");
@@ -362,7 +295,6 @@ public class MessageCommand extends AbstractCommand {
                     if (partMetaInfoMap.get(partKey) && assignedPartitionIds.contains(parId)) {
                         assignedPartitions.add(partKey);
                         Long boostrapOffset = assignedPartitionsAndOffsets.get(parId);
-                        // System.out.println(boostrapOffset);
                         if (!clientBalanceConsumer.connect2Partition(partKey,
                                 boostrapOffset == null ? -1L : boostrapOffset, procResult))
                             System.out.println("connect2Partition failed.");
@@ -371,21 +303,10 @@ public class MessageCommand extends AbstractCommand {
 
                 ConsumeResult csmResult = new ConsumeResult();
                 ConfirmResult cfmResult = new ConfirmResult();
-                // System.out.println("Before partition ready...");
-                // wait partition status ready
                 while (!clientBalanceConsumer.isPartitionsReady(1000)) {
                     ThreadUtils.sleep(1000);
                 }
-                // System.out.println(clientBalanceConsumer.getCurPartitionOffsetInfos());
-                // consume messages
-<<<<<<< HEAD
-<<<<<<< HEAD
                 System.out.println("Ready to consume messages......");
-=======
->>>>>>> Add command line tool: tubectl, and its documents.
-=======
-                System.out.println("Ready to consume messages......");
->>>>>>> Add unit tests and update documents.
                 while (true) {
                     // get messages
                     if (clientBalanceConsumer.getMessage(csmResult)) {
@@ -396,7 +317,6 @@ public class MessageCommand extends AbstractCommand {
                         }
                         // confirm messages to server
                         clientBalanceConsumer.confirmConsume(csmResult.getConfirmContext(), true, cfmResult);
-                        // System.out.println(clientBalanceConsumer.getCurPartitionOffsetInfos());
                     }
                 }
 
@@ -456,14 +376,6 @@ public class MessageCommand extends AbstractCommand {
                     }
                 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-                // TODO: 2023/8/27 创建消费者组命令
-
->>>>>>> Add command line tool: tubectl, and its documents.
-=======
->>>>>>> Add unit tests and update documents.
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             } catch (Throwable e) {

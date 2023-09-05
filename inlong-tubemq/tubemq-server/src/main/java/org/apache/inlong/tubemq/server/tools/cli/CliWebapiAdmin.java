@@ -31,16 +31,6 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-/**
- * @author zfancy
- * @version 1.0
- */
->>>>>>> Add command line tool: tubectl, and its documents.
-=======
->>>>>>> Add unit tests and update documents.
 public class CliWebapiAdmin extends CliAbstractBase {
 
     private static final Logger logger =
@@ -109,15 +99,16 @@ public class CliWebapiAdmin extends CliAbstractBase {
     }
 
     private Map<String, String> convertrequestParams(Map<String, Object> m) {
+        // turn Object values to String ones
         Map<String, String> converttedMap = new HashMap<>();
         for (String k : m.keySet()) {
             converttedMap.put(k, String.valueOf(m.get(k)));
-            // System.out.println(k + " " + converttedMap.get(k));
         }
         return converttedMap;
     }
 
     private String formatResult(JsonObject result) {
+        // Format output results
         return new GsonBuilder().setPrettyPrinting().create().toJson(result);
     }
 

@@ -22,16 +22,6 @@ import com.beust.jcommander.Parameter;
 
 import java.util.Arrays;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-/**
- * @author zfancy
- * @version 1.0
- */
->>>>>>> Add command line tool: tubectl, and its documents.
-=======
->>>>>>> Add unit tests and update documents.
 public class CommandToolMain {
 
     private final JCommander jcommander;
@@ -56,15 +46,7 @@ public class CommandToolMain {
         }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     boolean run(String[] args) {
-=======
-    private boolean run(String[] args) {
->>>>>>> Add command line tool: tubectl, and its documents.
-=======
-    boolean run(String[] args) {
->>>>>>> Add unit tests and update documents.
         try {
             jcommander.parse(args);
         } catch (Exception e) {
