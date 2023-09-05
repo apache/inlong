@@ -88,7 +88,7 @@ public class PulsarSinkOperator extends AbstractSinkOperator {
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
-                    String.format("serialize extParams of Kafka SinkDTO failure: %s", e.getMessage()));
+                    String.format("serialize extParams of Pulsar SinkDTO failure: %s", e.getMessage()));
         }
     }
 
