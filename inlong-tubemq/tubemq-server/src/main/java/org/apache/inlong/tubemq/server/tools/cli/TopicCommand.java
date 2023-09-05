@@ -58,52 +58,52 @@ public class TopicCommand extends AbstractCommand {
         @Parameter()
         private List<String> params;
 
-        @Parameter(names = {"-t", "--topic"}, order = 0, description = "String. Topic name")
+        @Parameter(names = {"-t", "--topic"}, order = 0, description = "Topic name")
         private String topicName;
 
-        @Parameter(names = {"-sid", "--topicStatusId"}, order = 1, description = "Int. Topic status ID")
+        @Parameter(names = {"-sid", "--topic-status-id"}, order = 1, description = "Topic status ID")
         private int topicStatusId = 0;
 
-        @Parameter(names = {"-bid", "--brokerId"}, order = 2, description = "String. Brokers' ID, separated by commas")
+        @Parameter(names = {"-bid", "--broker-id"}, order = 2, description = "Brokers' ID, separated by commas")
         private String brokerId;
 
-        @Parameter(names = {"-dp", "--deletePolicy"}, order = 3, description = "String. File aging strategy")
+        @Parameter(names = {"-dp", "--delete-policy"}, order = 3, description = "File aging strategy")
         private String deletePolicy;
 
-        @Parameter(names = {"-np", "--numPartitions"}, order = 4, description = "Int. Number of partitions")
+        @Parameter(names = {"-np", "--num-partitions"}, order = 4, description = "Number of partitions")
         private int numPartitions = 3;
 
-        @Parameter(names = {"-nts", "--numTopicStores"}, order = 5, description = "Int. Number of topic stores")
+        @Parameter(names = {"-nts", "--num-topic-stores"}, order = 5, description = "Number of topic stores")
         private int numTopicStores = 1;
 
         @Parameter(names = {"-uft",
-                "--unflushThreshold"}, order = 6, description = "Int. Maximum allowed disk unflushing message count")
+                "--unflush-threshold"}, order = 6, description = "Maximum allowed disk unflushing message count")
         private int unflushThreshold = 1000;
 
         @Parameter(names = {"-ufi",
-                "--unflushInterval"}, order = 7, description = "Int. Maximum allowed disk unflushing interval")
+                "--unflush-interval"}, order = 7, description = "Maximum allowed disk unflushing interval")
         private int unflushInterval = 10000;
 
         @Parameter(names = {"-ufd",
-                "--unflushDataHold"}, order = 8, description = "Int. Maximum allowed disk unflushing data size")
+                "--unflush-datahold"}, order = 8, description = "Maximum allowed disk unflushing data size")
         private int unflushDataHold = 0;
 
         @Parameter(names = {"-mc",
-                "--memCacheMsgCntInK"}, order = 9, description = "Int. Maximum allowed memory cache unflushing message count")
+                "--memcache-msgcnt-ink"}, order = 9, description = "Maximum allowed memory cache unflushing message count")
         private int memCacheMsgCntInK = 10;
 
         @Parameter(names = {"-ms",
-                "--memCacheMsgSizeInMB"}, order = 10, description = "Int. Maximum allowed memory cache size in MB")
+                "--memcache-msgsize-inmb"}, order = 10, description = "Maximum allowed memory cache size in MB")
         private int memCacheMsgSizeInMB = 2;
 
         @Parameter(names = {"-mfi",
-                "--memCacheFlushIntvl"}, order = 11, description = "Int. Maximum allowed disk unflushing data size")
+                "--memcache-flush-intvl"}, order = 11, description = "Maximum allowed disk unflushing data size")
         private int memCacheFlushIntvl = 20000;
 
-        @Parameter(names = {"-c", "--creator"}, order = 12, description = "String. Record creator")
+        @Parameter(names = {"-c", "--creator"}, order = 12, description = "Record creator")
         private String createUser;
 
-        @Parameter(names = {"-m", "--modifier"}, order = 13, description = "String. Record modifier")
+        @Parameter(names = {"-m", "--modifier"}, order = 13, description = "Record modifier")
         private String modifyUser;
 
         @Override
@@ -143,64 +143,64 @@ public class TopicCommand extends AbstractCommand {
         @Parameter()
         private List<String> params;
 
-        @Parameter(names = {"-t", "--topic"}, order = 0, required = true, description = "String. Topic name")
+        @Parameter(names = {"-t", "--topic"}, order = 0, required = true, description = "Topic name")
         private String topicName;
 
         @Parameter(names = {"-bid",
-                "--brokerId"}, order = 1, required = true, description = "String. Brokers' ID, separated by commas")
+                "--broker-id"}, order = 1, required = true, description = "Brokers' ID, separated by commas")
         private String brokerId;
 
-        @Parameter(names = {"-dp", "--deletePolicy"}, order = 4, description = "String. File aging strategy")
+        @Parameter(names = {"-dp", "--delete-policy"}, order = 4, description = "File aging strategy")
         private String deletePolicy;
 
-        @Parameter(names = {"-np", "--numPartitions"}, order = 5, description = "Int. Number of partitions")
+        @Parameter(names = {"-np", "--num-partitions"}, order = 5, description = "Number of partitions")
         private int numPartitions = 3;
 
         @Parameter(names = {"-uft",
-                "--unflushThreshold"}, order = 6, description = "Int. Maximum allowed disk unflushing message count")
+                "--unflush-threshold"}, order = 6, description = "Maximum allowed disk unflushing message count")
         private int unflushThreshold = 1000;
 
         @Parameter(names = {"-ufi",
-                "--unflushInterval"}, order = 7, description = "Int. Maximum allowed disk unflushing interval")
+                "--unflush-interval"}, order = 7, description = "Maximum allowed disk unflushing interval")
         private int unflushInterval = 10000;
 
         @Parameter(names = {"-ufd",
-                "--unflushDataHold"}, order = 8, description = "Int. Maximum allowed disk unflushing data size")
+                "--unflush-datahold"}, order = 8, description = "Maximum allowed disk unflushing data size")
         private int unflushDataHold = 0;
 
-        @Parameter(names = {"-nts", "--numTopicStores"}, order = 9, description = "Int. Number of topic stores")
+        @Parameter(names = {"-nts", "--num-topic-stores"}, order = 9, description = "Number of topic stores")
         private int numTopicStores = 1;
 
         @Parameter(names = {"-mc",
-                "--memCacheMsgCntInK"}, order = 10, description = "Int. Maximum allowed memory cache unflushing message count")
+                "--memcache-msgcnt-ink"}, order = 10, description = "Maximum allowed memory cache unflushing message count")
         private int memCacheMsgCntInK = 10;
 
         @Parameter(names = {"-ms",
-                "--memCacheMsgSizeInMB"}, order = 11, description = "Int. Maximum allowed memory cache size in MB")
+                "--memcache-msgsize-inmb"}, order = 11, description = "Maximum allowed memory cache size in MB")
         private int memCacheMsgSizeInMB = 2;
 
         @Parameter(names = {"-mfi",
-                "--memCacheFlushIntvl"}, order = 12, description = "Int. Maximum allowed disk unflushing data size")
+                "--memcache-flush-intvl"}, order = 12, description = "Maximum allowed disk unflushing data size")
         private int memCacheFlushIntvl = 20000;
 
-        @Parameter(names = {"-ap", "--acceptPublish"}, order = 13, description = "Boolean. Enable publishing")
+        @Parameter(names = {"-ap", "--accept-publish"}, order = 13, description = "Enable publishing")
         private boolean acceptPublish = true;
 
-        @Parameter(names = {"-as", "--acceptSubscribe"}, order = 14, description = "Boolean. Enable subscription")
+        @Parameter(names = {"-as", "--accept-subscribe"}, order = 14, description = "Enable subscription")
         private boolean acceptSubscribe = true;
 
         @Parameter(names = {"-mms",
-                "--maxMsgSizeInMB"}, order = 15, description = "Int. Maximum allowed message length, unit MB")
+                "--max-msgsize-inmb"}, order = 15, description = "Maximum allowed message length, unit MB")
         private int maxMsgSizeInMB = 1;
 
-        @Parameter(names = {"-m", "--modifier"}, order = 2, required = true, description = "String. Record modifier")
+        @Parameter(names = {"-m", "--modifier"}, order = 2, required = true, description = "Record modifier")
         private String modifyUser;
 
-        @Parameter(names = {"-md", "--modifyDate"}, order = 16, description = "String. Record modification date")
+        @Parameter(names = {"-md", "--modify-date"}, order = 16, description = "Record modification date")
         private String modifyDate;
 
         @Parameter(names = {"-at",
-                "--confModAuthToken"}, order = 3, required = true, description = "String. Admin api operation authorization code")
+                "--auth-token"}, order = 3, required = true, description = "Admin api operation authorization code")
         private String confModAuthToken;
 
         @Override
@@ -257,64 +257,64 @@ public class TopicCommand extends AbstractCommand {
         @Parameter()
         private List<String> params = new ArrayList<>();
 
-        @Parameter(names = {"-t", "--topic"}, order = 0, required = true, description = "String. Topic name")
+        @Parameter(names = {"-t", "--topic"}, order = 0, required = true, description = "Topic name")
         private String topicName;
 
         @Parameter(names = {"-bid",
-                "--brokerId"}, order = 1, required = true, description = "String. Brokers' ID, separated by commas")
+                "--broker-id"}, order = 1, required = true, description = "Brokers' ID, separated by commas")
         private String brokerId;
 
-        @Parameter(names = {"-dp", "--deletePolicy"}, order = 4, description = "String. File aging strategy")
+        @Parameter(names = {"-dp", "--delete-policy"}, order = 4, description = "File aging strategy")
         private String deletePolicy;
 
-        @Parameter(names = {"-np", "--numPartitions"}, order = 5, description = "Int. Number of partitions")
+        @Parameter(names = {"-np", "--num-partitions"}, order = 5, description = "Number of partitions")
         private int numPartitions = -1;
 
         @Parameter(names = {"-uft",
-                "--unflushThreshold"}, order = 6, description = "Int. Maximum allowed disk unflushing message count")
+                "--unflush-threshold"}, order = 6, description = "Maximum allowed disk unflushing message count")
         private int unflushThreshold = -1;
 
         @Parameter(names = {"-ufi",
-                "--unflushInterval"}, order = 7, description = "Int. Maximum allowed disk unflushing interval")
+                "--unflush-interval"}, order = 7, description = "Maximum allowed disk unflushing interval")
         private int unflushInterval = -1;
 
         @Parameter(names = {"-ufd",
-                "--unflushDataHold"}, order = 8, description = "Int. Maximum allowed disk unflushing data size")
+                "--unflush-datahold"}, order = 8, description = "Maximum allowed disk unflushing data size")
         private int unflushDataHold = 0;
 
-        @Parameter(names = {"-nts", "--numTopicStores"}, order = 9, description = "Int. Number of topic stores")
+        @Parameter(names = {"-nts", "--num-topic-stores"}, order = 9, description = "Number of topic stores")
         private int numTopicStores = 1;
 
         @Parameter(names = {"-mc",
-                "--memCacheMsgCntInK"}, order = 10, description = "Int. Maximum allowed memory cache unflushing message count")
+                "--memcache-msgcnt-ink"}, order = 10, description = "Maximum allowed memory cache unflushing message count")
         private int memCacheMsgCntInK = 10;
 
         @Parameter(names = {"-ms",
-                "--memCacheMsgSizeInMB"}, order = 11, description = "Int. Maximum allowed memory cache size in MB")
+                "--memcache-msgsize-inmb"}, order = 11, description = "Maximum allowed memory cache size in MB")
         private int memCacheMsgSizeInMB = 2;
 
         @Parameter(names = {"-mfi",
-                "--memCacheFlushIntvl"}, order = 12, description = "Int. Maximum allowed disk unflushing data size")
+                "--memcache-flush-intvl"}, order = 12, description = "Maximum allowed disk unflushing data size")
         private int memCacheFlushIntvl = 20000;
 
-        @Parameter(names = {"-ap", "--acceptPublish"}, order = 13, description = "Boolean. Enable publishing")
+        @Parameter(names = {"-ap", "--accept-publish"}, order = 13, description = "Enable publishing")
         private boolean acceptPublish = true;
 
-        @Parameter(names = {"-as", "--acceptSubscribe"}, order = 14, description = "Boolean. Enable subscription")
+        @Parameter(names = {"-as", "--accept-subscribe"}, order = 14, description = "Enable subscription")
         private boolean acceptSubscribe = true;
 
         @Parameter(names = {"-mms",
-                "--maxMsgSizeInMB"}, order = 15, description = "Int. Maximum allowed message length, unit MB")
+                "--max-msgsize-inmb"}, order = 15, description = "Maximum allowed message length, unit MB")
         private int maxMsgSizeInMB = 1;
 
-        @Parameter(names = {"-c", "--creator"}, order = 2, required = true, description = "String. Record creator")
+        @Parameter(names = {"-c", "--creator"}, order = 2, required = true, description = "Record creator")
         private String createUser;
 
-        @Parameter(names = {"-cd", "--createDate"}, order = 16, description = "String. Record creation date")
+        @Parameter(names = {"-cd", "--create-date"}, order = 16, description = "Record creation date")
         private String createDate;
 
         @Parameter(names = {"-at",
-                "--confModAuthToken"}, order = 3, required = true, description = "String.Admin api operation authorization code")
+                "--auth-token"}, order = 3, required = true, description = "Admin api operation authorization code")
         private String confModAuthToken;
 
         @Override
@@ -362,24 +362,24 @@ public class TopicCommand extends AbstractCommand {
         private List<String> params = new ArrayList<>();
 
         @Parameter(names = {"-o",
-                "--deleteOpt"}, order = 0, required = true, description = "Delete options, must in { soft | redo | hard }")
+                "--delete-opt"}, order = 0, description = "Delete options, must in { soft | redo | hard }")
         private String deleteOpt = "soft";
 
-        @Parameter(names = {"-t", "--topic"}, order = 1, required = true, description = "String. Topic name")
+        @Parameter(names = {"-t", "--topic"}, order = 1, required = true, description = "Topic name")
         private String topicName;
 
         @Parameter(names = {"-bid",
-                "--brokerId"}, order = 2, required = true, description = "String. Brokers' ID, separated by commas")
+                "--broker-id"}, order = 2, required = true, description = "Brokers' ID, separated by commas")
         private String brokerId;
 
-        @Parameter(names = {"-m", "--modifier"}, order = 3, required = true, description = "String. Record modifier")
+        @Parameter(names = {"-m", "--modifier"}, order = 3, required = true, description = "Record modifier")
         private String modifyUser;
 
-        @Parameter(names = {"-md", "--modifyDate"}, order = 5, description = "String. Record modification date")
+        @Parameter(names = {"-md", "--modify-date"}, order = 5, description = "Record modification date")
         private String modifyDate;
 
         @Parameter(names = {"-at",
-                "--confModAuthToken"}, order = 4, required = true, description = "String. Admin api operation authorization code")
+                "--auth-token"}, order = 4, required = true, description = "Admin api operation authorization code")
         private String confModAuthToken;
 
         private void softDelete() throws Exception {

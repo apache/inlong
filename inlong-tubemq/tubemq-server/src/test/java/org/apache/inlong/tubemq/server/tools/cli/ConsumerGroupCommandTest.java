@@ -32,20 +32,20 @@ public class ConsumerGroupCommandTest {
 
     @Test
     public void testConsumerGroupCreate() {
-        String[] arg = {"consumergroup", "create", "-t", "b4t1", "-g", "b4t1g1", "-at", "abc", "-c", "admin", "-cd",
+        String[] arg = {"group", "create", "-t", "b4t1", "-g", "b4t1g1", "-at", "abc", "-c", "admin", "-cd",
                 "20151117151129"};
         Assert.assertTrue(tubectlTool.run(arg));
     }
 
     @Test
     public void testConsumerGroupList() {
-        String[] arg = {"consumergroup", "list", "-t", "b4t1", "-g", "b4t1g1", "-c", "admin"};
+        String[] arg = {"group", "list", "-t", "b4t1", "-g", "b4t1g1", "-c", "admin"};
         Assert.assertTrue(tubectlTool.run(arg));
     }
 
     @Test
     public void testConsumerGroupDelete() {
-        String[] arg = {"consumergroup", "delete", "-t", "b4t1", "-at", "abc", "-m", "admin", "-g", "b4t1g1"};
+        String[] arg = {"group", "delete", "-t", "b4t1", "-at", "abc", "-m", "admin", "-g", "b4t1g1"};
         Assert.assertTrue(tubectlTool.run(arg));
     }
 }

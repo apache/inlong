@@ -81,18 +81,18 @@ public class MessageCommand extends AbstractCommand {
         private List<String> params;
 
         @Parameter(names = {"-ms",
-                "--master-servers"}, required = true, order = 1, description = "String. The master address(es) to connect to. Format is master1_ip:port[,master2_ip:port]")
+                "--master-servers"}, required = true, order = 1, description = "The master address(es) to connect to. Format is master1_ip:port[,master2_ip:port]")
         private String masterServers;
 
         @Parameter(names = {"-t",
-                "--topic"}, required = true, order = 0, description = "String. Topic to produce messages")
+                "--topic"}, required = true, order = 0, description = "Topic to produce messages")
         private String topicName;
 
         @Parameter(names = {"-mt",
-                "--msgTotal"}, order = 2, description = "Long. The total number of messages to be produced. -1 means unlimited.")
+                "--msg-total"}, order = 2, description = "The total number of messages to be produced. -1 means unlimited.")
         private long msgTotal = -1;
 
-        @Parameter(names = {"-m", "--mode"}, order = 3, description = "String. Produce mode, must in { sync | async }")
+        @Parameter(names = {"-m", "--mode"}, order = 3, description = "Produce mode, must in { sync | async }")
         private String mode = "async";
 
         private String body = "";
@@ -212,25 +212,25 @@ public class MessageCommand extends AbstractCommand {
         private List<String> params;
 
         @Parameter(names = {"-ms",
-                "--master-servers"}, required = true, order = 2, description = "String. The master address(es) to connect to. Format is master1_ip:port[,master2_ip:port]")
+                "--master-servers"}, required = true, order = 2, description = "The master address(es) to connect to. Format is master1_ip:port[,master2_ip:port]")
         private String masterServers;
 
         @Parameter(names = {"-t",
-                "--topic"}, required = true, order = 0, description = "String. Topic to consume messages")
+                "--topic"}, required = true, order = 0, description = "Topic to consume messages")
         private String topicName;
 
-        @Parameter(names = {"-g", "--group"}, required = true, order = 1, description = "String. Consumer group")
+        @Parameter(names = {"-g", "--group"}, required = true, order = 1, description = "Consumer group")
         private String groupName;
 
-        @Parameter(names = {"-m", "--mode"}, order = 5, description = "String. Consume mode, must in { pull | push }")
+        @Parameter(names = {"-m", "--mode"}, order = 5, description = "Consume mode, must in { pull | push }")
         private String mode = "pull";
 
         @Parameter(names = {"-p",
-                "--consumePosition"}, order = 3, description = "String. Consume position, must in { first | latest | max }")
+                "--position"}, order = 3, description = "Consume position, must in { first | latest | max }")
         private String consumePosition = "first";
 
         @Parameter(names = {"-po",
-                "--consumePartitionsAndOffsets"}, order = 4, description = "String. Consume partition ids and their offsets, format is id1:offset1[,id2:offset2][...], for example: 0:0,1:0,2:0")
+                "--partitions-offsets"}, order = 4, description = "Consume partition ids and their offsets, format is id1:offset1[,id2:offset2][...], for example: 0:0,1:0,2:0")
         private String consumePartitionsAndOffsets;
 
         private ClientBalanceConsumer clientBalanceConsumer;

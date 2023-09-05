@@ -37,7 +37,7 @@ public class CommandToolMain {
         jcommander.addObject(this);
         jcommander.addCommand("topic", new TopicCommand());
         jcommander.addCommand("message", new MessageCommand());
-        jcommander.addCommand("consumergroup", new ConsumerGroupCommand());
+        jcommander.addCommand("group", new ConsumerGroupCommand());
     }
 
     boolean run(String[] args) {
