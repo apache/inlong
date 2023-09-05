@@ -78,7 +78,7 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @ApiModelProperty(value = "TubeMQ master URL")
     private String tubeMaster;
 
-    @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
+    @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable", notes = "In the case of standard mode, it is allowed to use zookeeper to store metadata")
     @Range(min = 0, max = 1, message = "default is 0, only supports [0: disable, 1: enable]")
     private Integer enableZookeeper;
 

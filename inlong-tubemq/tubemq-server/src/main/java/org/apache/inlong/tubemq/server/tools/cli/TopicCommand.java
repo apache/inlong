@@ -396,6 +396,16 @@ public class TopicCommand extends AbstractCommand {
         private void redoDelete() throws Exception {
             requestMethod[1] = "admin_redo_deleted_topic_info";
             cliWebapiAdmin.processParams(requestMethod);
+<<<<<<< HEAD
+=======
+
+            // requestMethod[1] = "admin_modify_topic_info";
+            // requestParams.put(WebFieldDef.ACCEPTPUBLISH.name, true);
+            // requestParams.put(WebFieldDef.ACCEPTSUBSCRIBE.name, true);
+            // cliTopicAdmin.processParams(requestMethod);
+            // requestParams.remove(WebFieldDef.ACCEPTPUBLISH.name);
+            // requestParams.remove(WebFieldDef.ACCEPTSUBSCRIBE.name);
+>>>>>>> edbc5109eb47b42e0901328559ca9c016a55f050
         }
 
         private void hardDelete() throws Exception {
