@@ -21,7 +21,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class testCgroupCommand {
+public class CgroupCommandTest {
+
     CommandToolMain tubectlTool = null;
 
     @Before

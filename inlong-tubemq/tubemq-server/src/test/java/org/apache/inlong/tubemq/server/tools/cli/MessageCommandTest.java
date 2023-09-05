@@ -26,7 +26,8 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class testMessageCommand {
+public class MessageCommandTest {
+
     CommandToolMain tubectlTool = null;
 
     @Before
