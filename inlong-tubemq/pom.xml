@@ -41,7 +41,6 @@
 
     <properties>
         <inlong.root.dir>${project.parent.basedir}</inlong.root.dir>
-        <jcommander.version>1.78</jcommander.version>
     </properties>
 
     <build>
