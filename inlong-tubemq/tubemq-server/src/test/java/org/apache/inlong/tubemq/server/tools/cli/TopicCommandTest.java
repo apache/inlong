@@ -32,7 +32,7 @@ public class TopicCommandTest {
 
     @Test
     public void testTopicCreate() {
-        String[] arg = {"topic", "create", "-n", "b4t1", "-bid", "4", "-c", "admin", "-at", "abc"};
+        String[] arg = {"topic", "create", "-t", "b4t1", "-bid", "4", "-c", "admin", "-at", "abc"};
         Assert.assertTrue(tubectlTool.run(arg));
     }
 
@@ -44,25 +44,25 @@ public class TopicCommandTest {
 
     @Test
     public void testTopicUpdate() {
-        String[] arg = {"topic", "update", "-n", "b4t1", "-bid", "4", "-m", "admin", "-at", "abc"};
+        String[] arg = {"topic", "update", "-t", "b4t1", "-bid", "4", "-m", "admin", "-at", "abc"};
         Assert.assertTrue(tubectlTool.run(arg));
     }
 
     @Test
     public void testTopicDeleteSoft() {
-        String[] arg = {"topic", "delete", "-o", "soft", "-n", "b4t1", "-bid", "4", "-m", "admin", "-at", "abc"};
+        String[] arg = {"topic", "delete", "-o", "soft", "-t", "b4t1", "-bid", "4", "-m", "admin", "-at", "abc"};
         Assert.assertTrue(tubectlTool.run(arg));
     }
 
     @Test
     public void testTopicDeleteRedo() {
-        String[] arg = {"topic", "delete", "-o", "redo", "-n", "b4t1", "-bid", "4", "-m", "admin", "-at", "abc"};
+        String[] arg = {"topic", "delete", "-o", "redo", "-t", "b4t1", "-bid", "4", "-m", "admin", "-at", "abc"};
         Assert.assertTrue(tubectlTool.run(arg));
     }
 
     @Test
     public void testTopicDeleteHard() {
-        String[] arg = {"topic", "delete", "-o", "hard", "-n", "b4t1", "-bid", "4", "-m", "admin", "-at", "abc"};
+        String[] arg = {"topic", "delete", "-o", "hard", "-t", "b4t1", "-bid", "4", "-m", "admin", "-at", "abc"};
         Assert.assertTrue(tubectlTool.run(arg));
     }
 }

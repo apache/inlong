@@ -58,13 +58,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-@Parameters(commandDescription = "Message commands")
+/**
+ * Message production and consumption
+ */
+@Parameters(commandDescription = "Command for message production and consumption")
 public class MessageCommand extends AbstractCommand {
 
     @Parameter()
     private List<String> params;
-
-    private static final String[] args = new String[]{"--master-servers", "", "--topicName", "", "--groupName", ""};
 
     public MessageCommand() {
         super("message");
@@ -83,15 +84,15 @@ public class MessageCommand extends AbstractCommand {
                 "--master-servers"}, required = true, order = 1, description = "String. The master address(es) to connect to. Format is master1_ip:port[,master2_ip:port]")
         private String masterServers;
 
-        @Parameter(names = {"-n",
-                "--topicName"}, required = true, order = 0, description = "String. Topic to produce messages")
+        @Parameter(names = {"-t",
+                "--topic"}, required = true, order = 0, description = "String. Topic to produce messages")
         private String topicName;
 
-        @Parameter(names = {"-t",
-                "--msgTotal"}, order = 3, description = "Long. The total number of messages to be produced. -1 means unlimited.")
+        @Parameter(names = {"-mt",
+                "--msgTotal"}, order = 2, description = "Long. The total number of messages to be produced. -1 means unlimited.")
         private long msgTotal = -1;
 
-        @Parameter(names = {"-m", "--mode"}, order = 2, description = "String. Produce mode, must in { sync | async }")
+        @Parameter(names = {"-m", "--mode"}, order = 3, description = "String. Produce mode, must in { sync | async }")
         private String mode = "async";
 
         private String body = "";
@@ -100,6 +101,13 @@ public class MessageCommand extends AbstractCommand {
 
         private AtomicLong msgCount = new AtomicLong(0L);
 
+        /**
+         * Send messages in synchronous mode
+         *
+         * @param message  Message to send
+         * @throws TubeClientException
+         * @throws InterruptedException
+         */
         private void syncProduce(Message message) throws TubeClientException, InterruptedException {
             MessageSentResult result = messageProducer.sendMessage(message);
             if (!result.isSuccess()) {
@@ -109,6 +117,13 @@ public class MessageCommand extends AbstractCommand {
             }
         }
 
+        /**
+         * Send messages in asynchronous mode
+         *
+         * @param message  Message to send
+         * @throws TubeClientException
+         * @throws InterruptedException
+         */
         private void asyncProduce(Message message) throws TubeClientException, InterruptedException {
             messageProducer.sendMessage(message, new MessageSentCallback() {
 
@@ -128,6 +143,13 @@ public class MessageCommand extends AbstractCommand {
             });
         }
 
+        /**
+         * Stop a producer and print the total number of messages produced
+         *
+         * @param v  total number of messages
+         * @throws TubeClientException
+         * @throws InterruptedException
+         */
         private void stopProducer(long v) {
             try {
                 messageProducer.shutdown();
@@ -193,22 +215,22 @@ public class MessageCommand extends AbstractCommand {
                 "--master-servers"}, required = true, order = 2, description = "String. The master address(es) to connect to. Format is master1_ip:port[,master2_ip:port]")
         private String masterServers;
 
-        @Parameter(names = {"-n",
-                "--topicName"}, required = true, order = 0, description = "String. Topic to consume messages")
+        @Parameter(names = {"-t",
+                "--topic"}, required = true, order = 0, description = "String. Topic to consume messages")
         private String topicName;
 
-        @Parameter(names = {"-g", "--groupName"}, required = true, order = 1, description = "String. Consumer group")
+        @Parameter(names = {"-g", "--group"}, required = true, order = 1, description = "String. Consumer group")
         private String groupName;
 
-        @Parameter(names = {"-m", "--mode"}, order = 3, description = "String. Consume mode, must in { pull | push }")
+        @Parameter(names = {"-m", "--mode"}, order = 5, description = "String. Consume mode, must in { pull | push }")
         private String mode = "pull";
 
         @Parameter(names = {"-p",
-                "--consumePosition"}, order = 4, description = "String. Consume position, must in { first | latest | max }")
+                "--consumePosition"}, order = 3, description = "String. Consume position, must in { first | latest | max }")
         private String consumePosition = "first";
 
         @Parameter(names = {"-po",
-                "--consumePartitionsAndOffsets"}, order = 5, description = "String. Consume partitions and their offsets, format is id1:offset1[,id2:offset2][...], for example: 0:0,1:0,2:0")
+                "--consumePartitionsAndOffsets"}, order = 4, description = "String. Consume partition ids and their offsets, format is id1:offset1[,id2:offset2][...], for example: 0:0,1:0,2:0")
         private String consumePartitionsAndOffsets;
 
         private ClientBalanceConsumer clientBalanceConsumer;
@@ -217,6 +239,13 @@ public class MessageCommand extends AbstractCommand {
 
         private AtomicLong msgCount = new AtomicLong(0L);
 
+        /**
+         * Create a pullConsumer and consume messages
+         *
+         * @param messageSessionFactory
+         * @param consumerConfig
+         * @throws TubeClientException
+         */
         private void pullConsumer(MessageSessionFactory messageSessionFactory, ConsumerConfig consumerConfig)
                 throws TubeClientException {
             messagePullConsumer = messageSessionFactory.createPullConsumer(consumerConfig);
@@ -239,6 +268,14 @@ public class MessageCommand extends AbstractCommand {
             }
         }
 
+        /**
+         * Create a pushConsumer and consume messages
+         *
+         * @param messageSessionFactory
+         * @param consumerConfig
+         * @throws TubeClientException
+         * @throws InterruptedException
+         */
         private void pushConsumer(MessageSessionFactory messageSessionFactory, ConsumerConfig consumerConfig)
                 throws TubeClientException, InterruptedException {
             messagePushConsumer = messageSessionFactory.createPushConsumer(consumerConfig);
@@ -266,6 +303,13 @@ public class MessageCommand extends AbstractCommand {
             latch.await(10, TimeUnit.MINUTES);
         }
 
+        /**
+         * Create a clientBalanceConsumer and consume messages
+         *
+         * @param messageSessionFactory
+         * @param consumerConfig
+         * @throws TubeClientException
+         */
         private void balanceConsumer(MessageSessionFactory messageSessionFactory, ConsumerConfig consumerConfig)
                 throws TubeClientException {
             clientBalanceConsumer = messageSessionFactory.createBalanceConsumer(consumerConfig);
@@ -282,7 +326,7 @@ public class MessageCommand extends AbstractCommand {
             Map<String, Boolean> partMetaInfoMap = qryResult.getPartStatusMap();
             if (partMetaInfoMap != null && !partMetaInfoMap.isEmpty()) {
                 Set<String> configuredTopicPartitions = partMetaInfoMap.keySet();
-                // Parse the --consumePartitionsAndOffsets parameters and connect to the partitions
+                // parse the consumePartitionsAndOffsets parameters
                 Map<Long, Long> assignedPartitionsAndOffsets = new HashMap<>();
                 for (String str : consumePartitionsAndOffsets.split(",")) {
                     String[] splits = str.split(":");
@@ -295,6 +339,7 @@ public class MessageCommand extends AbstractCommand {
                     if (partMetaInfoMap.get(partKey) && assignedPartitionIds.contains(parId)) {
                         assignedPartitions.add(partKey);
                         Long boostrapOffset = assignedPartitionsAndOffsets.get(parId);
+                        // connect to the partitions based on consumePartitionsAndOffsets parameters
                         if (!clientBalanceConsumer.connect2Partition(partKey,
                                 boostrapOffset == null ? -1L : boostrapOffset, procResult))
                             System.out.println("connect2Partition failed.");

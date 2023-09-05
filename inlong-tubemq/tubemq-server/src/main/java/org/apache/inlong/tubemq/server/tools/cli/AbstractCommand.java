@@ -21,6 +21,9 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
+/**
+ * Class for parse command.
+ */
 public abstract class AbstractCommand {
 
     protected final JCommander jcommander;

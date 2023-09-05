@@ -31,6 +31,9 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class is use to process Web Api Request process.
+ */
 public class CliWebapiAdmin extends CliAbstractBase {
 
     private static final Logger logger =
@@ -41,15 +44,23 @@ public class CliWebapiAdmin extends CliAbstractBase {
     private Map<String, Object> requestParams;
 
     public CliWebapiAdmin() {
-        super("tubemq-webapi-admin.sh");
+        super(null);
         initCommandOptions();
     }
 
+    /**
+     * Construct CliWebapiAdmin with request parameters
+     *
+     * @param requestParams Request parameters map
+     */
     public CliWebapiAdmin(Map<String, Object> requestParams) {
         this();
         this.requestParams = requestParams;
     }
 
+    /**
+     * Init command options
+     */
     @Override
     protected void initCommandOptions() {
         // add the cli required parameters
@@ -58,6 +69,12 @@ public class CliWebapiAdmin extends CliAbstractBase {
         addCommandOption(CliArgDef.METHOD);
     }
 
+    /**
+     * Call the Web API
+     *
+     * @param args Request parameters of method name,
+     *             {"--method", "admin_query_topic_info"} as an example
+     */
     @Override
     public boolean processParams(String[] args) throws Exception {
         CommandLine cli = parser.parse(options, args);
@@ -91,24 +108,36 @@ public class CliWebapiAdmin extends CliAbstractBase {
             throw new Exception(CliArgDef.METHOD.longOpt + " is required!");
         }
         requestParams.put(CliArgDef.METHOD.longOpt, methodStr);
-        Map<String, String> convertedRequestParams = convertrequestParams(requestParams);
+        Map<String, String> convertedRequestParams = convertRequestParams(requestParams);
         result = HttpUtils.requestWebService(masterUrl, convertedRequestParams);
-        String convertedResult = formatResult(result);
-        System.out.println(convertedResult);
+        String formattedResult = formatResult(result);
+        System.out.println(formattedResult);
         return true;
     }
 
-    private Map<String, String> convertrequestParams(Map<String, Object> m) {
-        // turn Object values to String ones
-        Map<String, String> converttedMap = new HashMap<>();
-        for (String k : m.keySet()) {
-            converttedMap.put(k, String.valueOf(m.get(k)));
+    /**
+     * Convert request paramters map
+     *
+     * @param requestParamsMap Map
+     * @return a converted map
+     */
+    private Map<String, String> convertRequestParams(Map<String, Object> requestParamsMap) {
+        // convert object values to string ones
+        Map<String, String> converttedrequestParamsMap = new HashMap<>();
+        for (String k : requestParamsMap.keySet()) {
+            converttedrequestParamsMap.put(k, String.valueOf(requestParamsMap.get(k)));
         }
-        return converttedMap;
+        return converttedrequestParamsMap;
     }
 
+    /**
+     * Convert json content to specific output format
+     *
+     * @param result JsonObject
+     * @return formatted results
+     */
     private String formatResult(JsonObject result) {
-        // Format output results
+        // format output results
         return new GsonBuilder().setPrettyPrinting().create().toJson(result);
     }
 

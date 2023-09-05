@@ -27,8 +27,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Parameters(commandDescription = "Consumer group commands")
-public class CgroupCommand extends AbstractCommand {
+/**
+ * Consumer group management
+ */
+@Parameters(commandDescription = "Command for consumer group")
+public class ConsumerGroupCommand extends AbstractCommand {
 
     @Parameter()
     private List<String> params;
@@ -37,27 +40,27 @@ public class CgroupCommand extends AbstractCommand {
     final private static Map<String, Object> requestParams = new HashMap<>();
     final private static CliWebapiAdmin cliWebapiAdmin = new CliWebapiAdmin(requestParams);
 
-    public CgroupCommand() {
-        super("cgroup");
+    public ConsumerGroupCommand() {
+        super("consumergroup");
 
         jcommander.addCommand("list", new CgroupList());
         jcommander.addCommand("create", new CgroupCreate());
         jcommander.addCommand("delete", new CgroupDelete());
     }
 
-    @Parameters(commandDescription = "Consumer group List")
+    @Parameters(commandDescription = "List consumer group")
     private static class CgroupList extends AbstractCommandRunner {
 
         @Parameter()
         private List<String> params = new ArrayList<>();
 
-        @Parameter(names = {"-n", "--topicName"}, order = 0, description = "String. Topic name")
+        @Parameter(names = {"-t", "--topic"}, order = 0, description = "String. Topic name")
         private String topicName;
 
-        @Parameter(names = {"-g", "--groupName"}, order = 1, description = "String. Consumer group name")
+        @Parameter(names = {"-g", "--group"}, order = 1, description = "String. Consumer group name")
         private String groupName;
 
-        @Parameter(names = {"-c", "--createUser"}, order = 3, description = "String. Record creator")
+        @Parameter(names = {"-c", "--creator"}, order = 3, description = "String. Record creator")
         private String createUser;
 
         @Override
@@ -78,24 +81,24 @@ public class CgroupCommand extends AbstractCommand {
         }
     }
 
-    @Parameters(commandDescription = "Consumer group Create")
+    @Parameters(commandDescription = "Create consumer group")
     private static class CgroupCreate extends AbstractCommandRunner {
 
         @Parameter()
         private List<String> params = new ArrayList<>();
 
-        @Parameter(names = {"-n", "--topicName"}, order = 0, required = true, description = "String. Topic name")
+        @Parameter(names = {"-t", "--topic"}, order = 0, required = true, description = "String. Topic name")
         private String topicName;
 
         @Parameter(names = {"-g",
-                "--groupName"}, order = 1, required = true, description = "String. Consumer group name")
+                "--group"}, order = 1, required = true, description = "String. Consumer group name")
         private String groupName;
 
         @Parameter(names = {"-at",
                 "--confModAuthToken"}, order = 2, required = true, description = "String. Admin api operation authorization code")
         private String confModAuthToken;
 
-        @Parameter(names = {"-c", "--createUser"}, order = 3, required = true, description = "String. Record creator")
+        @Parameter(names = {"-c", "--creator"}, order = 3, required = true, description = "String. Record creator")
         private String createUser;
 
         @Parameter(names = {"-cd", "--createDate"}, order = 4, description = "String. Record creation date")
@@ -123,23 +126,23 @@ public class CgroupCommand extends AbstractCommand {
         }
     }
 
-    @Parameters(commandDescription = "Consumer group Delete")
+    @Parameters(commandDescription = "Delete consumer group")
     private static class CgroupDelete extends AbstractCommandRunner {
 
         @Parameter()
         private List<String> params = new ArrayList<>();
 
-        @Parameter(names = {"-n", "--topicName"}, order = 0, required = true, description = "String. Topic name")
+        @Parameter(names = {"-t", "--topic"}, order = 0, required = true, description = "String. Topic name")
         private String topicName;
 
         @Parameter(names = {"-at",
                 "--confModAuthToken"}, order = 1, required = true, description = "String. Admin api operation authorization code")
         private String confModAuthToken;
 
-        @Parameter(names = {"-m", "--modifyUser"}, required = true, order = 13, description = "String. Record modifier")
+        @Parameter(names = {"-m", "--modifier"}, required = true, order = 2, description = "String. Record modifier")
         private String modifyUser;
 
-        @Parameter(names = {"-g", "--groupName"}, order = 2, description = "String. Consumer group name")
+        @Parameter(names = {"-g", "--group"}, order = 3, description = "String. Consumer group name")
         private String groupName;
 
         @Override

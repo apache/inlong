@@ -21,7 +21,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class CgroupCommandTest {
+public class ConsumerGroupCommandTest {
 
     CommandToolMain tubectlTool = null;
 
@@ -31,21 +31,21 @@ public class CgroupCommandTest {
     }
 
     @Test
-    public void testCgroupCreate() {
-        String[] arg = {"cgroup", "create", "-n", "b4t1", "-g", "b4t1g1", "-at", "abc", "-c", "admin", "-cd",
+    public void testConsumerGroupCreate() {
+        String[] arg = {"consumergroup", "create", "-t", "b4t1", "-g", "b4t1g1", "-at", "abc", "-c", "admin", "-cd",
                 "20151117151129"};
         Assert.assertTrue(tubectlTool.run(arg));
     }
 
     @Test
-    public void testCgroupList() {
-        String[] arg = {"cgroup", "list", "-n", "b4t1", "-g", "b4t1g1", "-c", "admin"};
+    public void testConsumerGroupList() {
+        String[] arg = {"consumergroup", "list", "-t", "b4t1", "-g", "b4t1g1", "-c", "admin"};
         Assert.assertTrue(tubectlTool.run(arg));
     }
 
     @Test
-    public void testCgroupDelete() {
-        String[] arg = {"cgroup", "delete", "-n", "b4t1", "-at", "abc", "-m", "admin", "-g", "b4t1g1"};
+    public void testConsumerGroupDelete() {
+        String[] arg = {"consumergroup", "delete", "-t", "b4t1", "-at", "abc", "-m", "admin", "-g", "b4t1g1"};
         Assert.assertTrue(tubectlTool.run(arg));
     }
 }

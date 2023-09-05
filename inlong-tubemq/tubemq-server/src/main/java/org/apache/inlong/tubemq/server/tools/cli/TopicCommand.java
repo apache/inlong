@@ -28,7 +28,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Parameters(commandDescription = "Topic commands")
+/**
+ * Topic management
+ */
+@Parameters(commandDescription = "Command for topic management")
 public class TopicCommand extends AbstractCommand {
 
     @Parameter()
@@ -49,13 +52,13 @@ public class TopicCommand extends AbstractCommand {
         jcommander.addCommand("delete", new TopicDelete());
     }
 
-    @Parameters(commandDescription = "Topic List")
+    @Parameters(commandDescription = "List topic")
     private static class TopicList extends AbstractCommandRunner {
 
         @Parameter()
         private List<String> params;
 
-        @Parameter(names = {"-n", "--topicName"}, order = 0, description = "String. Topic name")
+        @Parameter(names = {"-t", "--topic"}, order = 0, description = "String. Topic name")
         private String topicName;
 
         @Parameter(names = {"-sid", "--topicStatusId"}, order = 1, description = "Int. Topic status ID")
@@ -97,10 +100,10 @@ public class TopicCommand extends AbstractCommand {
                 "--memCacheFlushIntvl"}, order = 11, description = "Int. Maximum allowed disk unflushing data size")
         private int memCacheFlushIntvl = 20000;
 
-        @Parameter(names = {"-c", "--createUser"}, order = 12, description = "String. Record creator")
+        @Parameter(names = {"-c", "--creator"}, order = 12, description = "String. Record creator")
         private String createUser;
 
-        @Parameter(names = {"-m", "--modifyUser"}, order = 13, description = "String. Record modifier")
+        @Parameter(names = {"-m", "--modifier"}, order = 13, description = "String. Record modifier")
         private String modifyUser;
 
         @Override
@@ -134,13 +137,13 @@ public class TopicCommand extends AbstractCommand {
         }
     }
 
-    @Parameters(commandDescription = "Topic Update")
+    @Parameters(commandDescription = "Update topic")
     private static class TopicUpdate extends AbstractCommandRunner {
 
         @Parameter()
         private List<String> params;
 
-        @Parameter(names = {"-n", "--topicName"}, order = 0, required = true, description = "String. Topic name")
+        @Parameter(names = {"-t", "--topic"}, order = 0, required = true, description = "String. Topic name")
         private String topicName;
 
         @Parameter(names = {"-bid",
@@ -190,7 +193,7 @@ public class TopicCommand extends AbstractCommand {
                 "--maxMsgSizeInMB"}, order = 15, description = "Int. Maximum allowed message length, unit MB")
         private int maxMsgSizeInMB = 1;
 
-        @Parameter(names = {"-m", "--modifyUser"}, order = 2, required = true, description = "String. Record modifier")
+        @Parameter(names = {"-m", "--modifier"}, order = 2, required = true, description = "String. Record modifier")
         private String modifyUser;
 
         @Parameter(names = {"-md", "--modifyDate"}, order = 16, description = "String. Record modification date")
@@ -248,13 +251,13 @@ public class TopicCommand extends AbstractCommand {
         }
     }
 
-    @Parameters(commandDescription = "Topic Create")
+    @Parameters(commandDescription = "Create topic")
     private static class TopicCreate extends AbstractCommandRunner {
 
         @Parameter()
         private List<String> params = new ArrayList<>();
 
-        @Parameter(names = {"-n", "--topicName"}, order = 0, required = true, description = "String. Topic name")
+        @Parameter(names = {"-t", "--topic"}, order = 0, required = true, description = "String. Topic name")
         private String topicName;
 
         @Parameter(names = {"-bid",
@@ -304,7 +307,7 @@ public class TopicCommand extends AbstractCommand {
                 "--maxMsgSizeInMB"}, order = 15, description = "Int. Maximum allowed message length, unit MB")
         private int maxMsgSizeInMB = 1;
 
-        @Parameter(names = {"-c", "--createUser"}, order = 2, required = true, description = "String. Record creator")
+        @Parameter(names = {"-c", "--creator"}, order = 2, required = true, description = "String. Record creator")
         private String createUser;
 
         @Parameter(names = {"-cd", "--createDate"}, order = 16, description = "String. Record creation date")
@@ -352,7 +355,7 @@ public class TopicCommand extends AbstractCommand {
         }
     }
 
-    @Parameters(commandDescription = "Topic Delete")
+    @Parameters(commandDescription = "Delete topic")
     private static class TopicDelete extends AbstractCommandRunner {
 
         @Parameter()
@@ -362,14 +365,14 @@ public class TopicCommand extends AbstractCommand {
                 "--deleteOpt"}, order = 0, required = true, description = "Delete options, must in { soft | redo | hard }")
         private String deleteOpt = "soft";
 
-        @Parameter(names = {"-n", "--topicName"}, order = 1, required = true, description = "String. Topic name")
+        @Parameter(names = {"-t", "--topic"}, order = 1, required = true, description = "String. Topic name")
         private String topicName;
 
         @Parameter(names = {"-bid",
                 "--brokerId"}, order = 2, required = true, description = "String. Brokers' ID, separated by commas")
         private String brokerId;
 
-        @Parameter(names = {"-m", "--modifyUser"}, order = 3, required = true, description = "String. Record modifier")
+        @Parameter(names = {"-m", "--modifier"}, order = 3, required = true, description = "String. Record modifier")
         private String modifyUser;
 
         @Parameter(names = {"-md", "--modifyDate"}, order = 5, description = "String. Record modification date")
@@ -388,7 +391,7 @@ public class TopicCommand extends AbstractCommand {
             requestParams.remove(WebFieldDef.ACCEPTPUBLISH.name);
             requestParams.remove(WebFieldDef.ACCEPTSUBSCRIBE.name);
 
-            System.out.println("Beginning to delete...");
+            System.out.println("Beginning to soft delete...");
             requestMethod[1] = "admin_delete_topic_info";
             cliWebapiAdmin.processParams(requestMethod);
         }

@@ -22,6 +22,9 @@ import com.beust.jcommander.Parameter;
 
 import java.util.Arrays;
 
+/**
+ * Command tool main.
+ */
 public class CommandToolMain {
 
     private final JCommander jcommander;
@@ -34,16 +37,7 @@ public class CommandToolMain {
         jcommander.addObject(this);
         jcommander.addCommand("topic", new TopicCommand());
         jcommander.addCommand("message", new MessageCommand());
-        jcommander.addCommand("cgroup", new CgroupCommand());
-    }
-
-    public static void main(String[] args) {
-        CommandToolMain tubemqCtlTool = new CommandToolMain();
-        if (tubemqCtlTool.run(args)) {
-            System.exit(0);
-        } else {
-            System.exit(1);
-        }
+        jcommander.addCommand("consumergroup", new ConsumerGroupCommand());
     }
 
     boolean run(String[] args) {
@@ -64,6 +58,15 @@ public class CommandToolMain {
         JCommander obj = jcommander.getCommands().get(cmd);
         AbstractCommand cmdObj = (AbstractCommand) obj.getObjects().get(0);
         return cmdObj.run(Arrays.copyOfRange(args, 1, args.length));
+    }
+
+    public static void main(String[] args) {
+        CommandToolMain tubectlTool = new CommandToolMain();
+        if (tubectlTool.run(args)) {
+            System.exit(0);
+        } else {
+            System.exit(1);
+        }
     }
 
 }

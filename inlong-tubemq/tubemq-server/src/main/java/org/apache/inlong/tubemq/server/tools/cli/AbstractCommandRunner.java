@@ -17,7 +17,13 @@
 
 package org.apache.inlong.tubemq.server.tools.cli;
 
+/**
+ * The runner of command.
+ */
 public abstract class AbstractCommandRunner {
 
+    /**
+     * Execute the specified command.
+     */
     abstract void run() throws Exception;
 }

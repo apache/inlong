@@ -45,7 +45,7 @@ public class MessageCommandTest {
         InputStream in = new ByteArrayInputStream(messageBody.getBytes());
         System.setIn(in);
 
-        String[] arg = {"message", "produce", "-ms", masterservers, "-n", "b4t4", "-m", "sync", "-t", "1"};
+        String[] arg = {"message", "produce", "-ms", masterservers, "-t", "b4t4", "-m", "sync", "-mt", "1"};
         Assert.assertTrue(tubectlTool.run(arg));
 
     }
@@ -60,7 +60,7 @@ public class MessageCommandTest {
         InputStream in = new ByteArrayInputStream(messageBody.getBytes());
         System.setIn(in);
 
-        String[] arg = {"message", "produce", "-ms", masterservers, "-n", "b4t4", "-m", "async", "-t", "1"};
+        String[] arg = {"message", "produce", "-ms", masterservers, "-t", "b4t4", "-m", "async", "-mt", "1"};
         Assert.assertTrue(tubectlTool.run(arg));
 
     }
