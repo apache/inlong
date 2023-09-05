@@ -134,10 +134,6 @@ public class AuditOperator {
      * Add audit data
      */
     public void add(int auditID, String inlongGroupID, String inlongStreamID, Long logTime, long count, long size) {
-        // long delayTime = System.currentTimeMillis() - logTime;
-        // String key = (logTime / PERIOD) + FIELD_SEPARATORS + inlongGroupID + FIELD_SEPARATORS
-        // + inlongStreamID + FIELD_SEPARATORS + auditID;
-        // addByKey(key, count, size, delayTime);
         add(auditID, DEFAULT_SUB_AUDIT_ID, inlongGroupID, inlongStreamID, logTime, count, size);
     }
 
