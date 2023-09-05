@@ -235,7 +235,7 @@ public class ElasticsearchService implements InsertData, AutoCloseable {
                 builder.endObject();
             }
             {
-                builder.startObject("sub_audit_id");
+                builder.startObject("audit_tag");
                 {
                     builder.field("type", "keyword");
                 }
@@ -337,7 +337,7 @@ public class ElasticsearchService implements InsertData, AutoCloseable {
         esPo.setSdkTs(new Date(msgBody.getSdkTs()).getTime());
         esPo.setLogTs(new Date(msgBody.getLogTs()));
         esPo.setAuditId(msgBody.getAuditId());
-        esPo.setSubAuditId(msgBody.getSubAuditId());
+        esPo.setAuditTag(msgBody.getAuditTag());
         esPo.setCount(msgBody.getCount());
         esPo.setDelay(msgBody.getDelay());
         esPo.setInlongGroupId(msgBody.getInlongGroupId());

@@ -46,7 +46,7 @@ public class AuditOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditOperator.class);
     private static final String FIELD_SEPARATORS = ":";
-    private static final String DEFAULT_SUB_AUDIT_ID = "-1";
+    private static final String DEFAULT_AUDIT_TAG = "-1";
     private static final int BATCH_NUM = 100;
     private static final AuditOperator AUDIT_OPERATOR = new AuditOperator();
     private static final ReentrantLock GLOBAL_LOCK = new ReentrantLock();
@@ -134,14 +134,14 @@ public class AuditOperator {
      * Add audit data
      */
     public void add(int auditID, String inlongGroupID, String inlongStreamID, Long logTime, long count, long size) {
-        add(auditID, DEFAULT_SUB_AUDIT_ID, inlongGroupID, inlongStreamID, logTime, count, size);
+        add(auditID, DEFAULT_AUDIT_TAG, inlongGroupID, inlongStreamID, logTime, count, size);
     }
 
-    public void add(int auditID, String subAuditID, String inlongGroupID, String inlongStreamID, Long logTime,
+    public void add(int auditID, String auditTag, String inlongGroupID, String inlongStreamID, Long logTime,
             long count, long size) {
         long delayTime = System.currentTimeMillis() - logTime;
         String key = (logTime / PERIOD) + FIELD_SEPARATORS + inlongGroupID + FIELD_SEPARATORS
-                + inlongStreamID + FIELD_SEPARATORS + auditID + FIELD_SEPARATORS + subAuditID;
+                + inlongStreamID + FIELD_SEPARATORS + auditID + FIELD_SEPARATORS + auditTag;
         addByKey(key, count, size, delayTime);
     }
 
@@ -202,14 +202,14 @@ public class AuditOperator {
             String inlongGroupID = keyArray[1];
             String inlongStreamID = keyArray[2];
             String auditID = keyArray[3];
-            String subAuditID = keyArray[4];
+            String auditTag = keyArray[4];
             StatInfo value = entry.getValue();
             AuditApi.AuditMessageBody msgBody = AuditApi.AuditMessageBody.newBuilder()
                     .setLogTs(logTime)
                     .setInlongGroupId(inlongGroupID)
                     .setInlongStreamId(inlongStreamID)
                     .setAuditId(auditID)
-                    .setAuditId(subAuditID)
+                    .setAuditTag(auditTag)
                     .setCount(value.count.get())
                     .setSize(value.size.get())
                     .setDelay(value.delay.get())

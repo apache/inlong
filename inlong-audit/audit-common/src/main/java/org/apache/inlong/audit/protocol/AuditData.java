@@ -28,7 +28,7 @@ public class AuditData {
     private String inlongGroupId;
     private String inlongStreamId;
     private String auditId;
-    private String subAuditId;
+    private String auditTag;
     private long count;
     private long size;
     private long delay;
@@ -105,12 +105,12 @@ public class AuditData {
         this.auditId = auditId;
     }
 
-    public String getSubAuditId() {
-        return subAuditId;
+    public String getAuditTag() {
+        return auditTag;
     }
 
-    public void setSubAuditId(String subAuditId) {
-        this.subAuditId = subAuditId;
+    public void setAuditTag(String auditTag) {
+        this.auditTag = auditTag;
     }
     public long getCount() {
         return count;
