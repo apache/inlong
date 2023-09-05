@@ -34,6 +34,7 @@ public class ESDataPo {
     private String inlongGroupId;
     private String inlongStreamId;
     private String auditId;
+    private String subAuditId;
     private long count;
     private long size;
     private long delay;
@@ -41,7 +42,7 @@ public class ESDataPo {
 
     public String getDocId() {
         String docId = ip + dockerId + threadId + sdkTs + packetId + logTs + inlongGroupId + inlongStreamId
-                + auditId + count;
+                + auditId + subAuditId + count;
         return docId;
     }
 }

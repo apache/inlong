@@ -58,9 +58,10 @@ message AuditMessageBody {
   string inlong_group_id = 2;
   string inlong_stream_id = 3;
   string audit_id = 4;
-  uint64 count = 5;
-  uint64 size = 6;
-  int64  delay = 7;
+  string sub_audit_id = 5;
+  uint64 count = 6;
+  uint64 size = 7;
+  int64  delay = 8;
 }
 
 message AuditReply {

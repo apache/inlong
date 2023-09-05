@@ -44,6 +44,7 @@ public class MySqlService implements InsertData {
         po.setSdkTs(new Date(msgBody.getSdkTs()));
         po.setLogTs(new Date(msgBody.getLogTs()));
         po.setAuditId(msgBody.getAuditId());
+        po.setSubAuditId(msgBody.getSubAuditId());
         po.setCount(msgBody.getCount());
         po.setDelay(msgBody.getDelay());
         po.setInlongGroupId(msgBody.getInlongGroupId());
