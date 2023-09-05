@@ -45,10 +45,10 @@ public class ClickHouseService implements InsertData, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ClickHouseService.class);
     public static final String INSERT_SQL = "insert into audit_data (ip, docker_id, thread_id,\r\n"
             + "      sdk_ts, packet_id, log_ts,\r\n"
-            + "      inlong_group_id, inlong_stream_id, audit_id,\r\n"
+            + "      inlong_group_id, inlong_stream_id, audit_id,audit_tag,\r\n"
             + "      count, size, delay, \r\n"
             + "      update_time)\r\n"
-            + "    values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            + "    values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     private ClickHouseConfig chConfig;
 
@@ -110,10 +110,11 @@ public class ClickHouseService implements InsertData, AutoCloseable {
                 pstat.setString(7, data.getInlongGroupId());
                 pstat.setString(8, data.getInlongStreamId());
                 pstat.setString(9, data.getAuditId());
-                pstat.setLong(10, data.getCount());
-                pstat.setLong(11, data.getSize());
-                pstat.setLong(12, data.getDelay());
-                pstat.setTimestamp(13, data.getUpdateTime());
+                pstat.setString(10, data.getAuditTag());
+                pstat.setLong(11, data.getCount());
+                pstat.setLong(12, data.getSize());
+                pstat.setLong(13, data.getDelay());
+                pstat.setTimestamp(14, data.getUpdateTime());
                 pstat.addBatch();
                 this.batchCounter.decrementAndGet();
                 if (++counter >= chConfig.getBatchThreshold()) {
@@ -173,6 +174,7 @@ public class ClickHouseService implements InsertData, AutoCloseable {
         data.setSdkTs(new Timestamp(msgBody.getSdkTs()));
         data.setLogTs(new Timestamp(msgBody.getLogTs()));
         data.setAuditId(msgBody.getAuditId());
+        data.setAuditTag(msgBody.getAuditTag());
         data.setCount(msgBody.getCount());
         data.setDelay(msgBody.getDelay());
         data.setInlongGroupId(msgBody.getInlongGroupId());
