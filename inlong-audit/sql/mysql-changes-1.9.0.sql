@@ -15,31 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.db.entities;
+-- This is the SQL change file from version 1.8.0 to the current version 1.9.0.
+-- When upgrading to version 1.9.0, please execute those SQLs in the DB (such as MySQL) used by the Manager module.
 
-import lombok.Getter;
-import lombok.Setter;
+USE `apache_inlong_audit`;
 
-import java.sql.Timestamp;
-import java.util.Date;
+ALTER TABLE audit_data ADD COLUMN audit_tag varchar(100) DEFAULT '' COMMENT 'Audit tag' after `audit_id`;
 
-@Getter
-@Setter
-public class AuditDataPo {
 
-    private String ip;
-    private String dockerId;
-    private String threadId;
-    private Date sdkTs;
-    private Long packetId;
-    private Date logTs;
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private String auditId;
-    private String auditTag;
-    private Long count;
-    private Long size;
-    private Long delay;
-    private Timestamp updateTime;
-
-}

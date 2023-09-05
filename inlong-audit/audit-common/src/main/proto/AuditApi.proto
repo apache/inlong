@@ -61,6 +61,7 @@ message AuditMessageBody {
   uint64 count = 5;
   uint64 size = 6;
   int64  delay = 7;
+  string audit_tag = 8;
 }
 
 message AuditReply {
