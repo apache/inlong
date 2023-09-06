@@ -89,21 +89,4 @@ public class PulsarUtils {
         return pulsarAdmin.clusters().getCluster(pulsarCluster).getServiceUrl();
     }
 
-    /**
-     * test pulsar admin connection
-     */
-    public static boolean testConnection(String adminUrl, String token) {
-        try {
-            if (token != null) {
-                getPulsarAdmin(adminUrl, token);
-            } else {
-                getPulsarAdmin(adminUrl);
-            }
-        } catch (Exception e) {
-            log.error("connection pulsar admin url error", e);
-            return false;
-        }
-        return true;
-    }
-
 }

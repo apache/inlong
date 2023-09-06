@@ -23,6 +23,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.node.pulsar.PulsarDataNodeDTO;
@@ -90,7 +91,7 @@ public class PulsarDataNodeOperator extends AbstractDataNodeOperator {
         String adminUrl = pulsarDataNodeRequest.getAdminUrl();
         String token = pulsarDataNodeRequest.getToken();
         Preconditions.expectNotBlank(adminUrl, ErrorCodeEnum.INVALID_PARAMETER, "connection admin urlcannot be empty");
-        if (PulsarUtils.testConnection(adminUrl, token)) {
+        if (getPulsarConnection(adminUrl, token)) {
             LOGGER.info("pulsar connection not null - connection success for adminUrl={}, token={}",
                     adminUrl, token);
             return true;
@@ -99,5 +100,17 @@ public class PulsarDataNodeOperator extends AbstractDataNodeOperator {
                     adminUrl, token);
             throw new BusinessException(errMsg);
         }
+    }
+
+    private boolean getPulsarConnection(String adminUrl, String token) {
+        try {
+            PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder().adminUrl(adminUrl)
+                    .token(token).build();
+            PulsarUtils.getPulsarAdmin(pulsarClusterInfo);
+        } catch (Exception e) {
+            LOGGER.error("connection pulsar admin url error", e);
+            return false;
+        }
+        return true;
     }
 }
