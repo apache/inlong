@@ -67,7 +67,7 @@ public class PulsarDataNodeDTO {
             return JsonUtils.parseObject(extParams, PulsarDataNodeDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT,
-                    String.format("Failed to parse extParams for StarRocks node: %s", e.getMessage()));
+                    String.format("Failed to parse extParams for pulsar node: %s", e.getMessage()));
         }
     }
 }
