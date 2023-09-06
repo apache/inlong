@@ -37,6 +37,7 @@ import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -127,7 +128,6 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
             List<String> auditIds = new ArrayList<>();
             for (StreamSink sink : sinks) {
                 auditIds.add(auditService.getAuditId(sink.getSinkType(), false));
-                auditIds.add(auditService.getAuditId(sink.getSinkType(), true));
             }
             for (StreamSource source : sources) {
                 source.setFieldList(inlongStream.getFieldList());
@@ -149,7 +149,17 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                     relations = NodeRelationUtils.createNodeRelations(sources, sinks);
                 }
             } else {
-                relations = NodeRelationUtils.createNodeRelations(sources, sinks);
+                if (CollectionUtils.isNotEmpty(transformResponses)) {
+                    List<String> sourcesNames = sources.stream().map(StreamSource::getSourceName)
+                            .collect(Collectors.toList());
+                    List<String> transFormNames = transformResponses.stream().map(TransformResponse::getTransformName)
+                            .collect(Collectors.toList());
+                    List<String> sinkNames = sinks.stream().map(StreamSink::getSinkName).collect(Collectors.toList());
+                    relations = Lists.newArrayList(NodeRelationUtils.createNodeRelation(sourcesNames, transFormNames),
+                            NodeRelationUtils.createNodeRelation(transFormNames, sinkNames));
+                } else {
+                    relations = NodeRelationUtils.createNodeRelations(sources, sinks);
+                }
             }
 
             // create extract-transform-load nodes
@@ -253,4 +263,5 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         groupInfo.getExtList().removeIf(ext -> extInfo.getKeyName().equals(ext.getKeyName()));
         groupInfo.getExtList().add(extInfo);
     }
+
 }
