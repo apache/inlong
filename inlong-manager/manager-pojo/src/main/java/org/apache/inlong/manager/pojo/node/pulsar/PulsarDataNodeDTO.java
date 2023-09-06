@@ -46,6 +46,8 @@ public class PulsarDataNodeDTO {
     private String serviceUrl;
     @ApiModelProperty("pulsar admin url")
     private String adminUrl;
+    @ApiModelProperty(value = "pulsar token")
+    private String token;
 
     /**
      * Get the dto instance from the request

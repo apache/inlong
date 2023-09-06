@@ -40,18 +40,12 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class PulsarSinkDTO {
 
-    @ApiModelProperty("pulsar service url")
-    private String serviceUrl;
     @ApiModelProperty("pulsar tenant")
     private String tenant;
     @ApiModelProperty("pulsar namespace")
     private String namespace;
     @ApiModelProperty("pulsar topic")
     private String topic;
-    @ApiModelProperty("pulsar token")
-    private String token;
-    @ApiModelProperty("admin url")
-    private String adminUrl;
     @ApiModelProperty("pulsar partition number")
     private Integer partitionNum;
 

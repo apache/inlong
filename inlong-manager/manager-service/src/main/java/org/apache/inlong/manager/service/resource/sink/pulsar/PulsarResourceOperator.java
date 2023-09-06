@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
+import org.apache.inlong.manager.pojo.node.pulsar.PulsarDataNodeDTO;
 import org.apache.inlong.manager.pojo.node.pulsar.PulsarDataNodeInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicInfo;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
@@ -35,7 +36,6 @@ import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarUtils;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.api.PulsarClientException;
@@ -78,10 +78,11 @@ public class PulsarResourceOperator implements SinkResourceOperator {
     }
 
     private void createTopic(SinkInfo sinkInfo) {
-        PulsarSinkDTO pulsarSinkDTO = getPulsarDataNodeInfo(sinkInfo);
+        PulsarSinkDTO pulsarSinkDTO = PulsarSinkDTO.getFromJson(sinkInfo.getExtParams());
+        PulsarDataNodeDTO pulsarDataNodeInfo = getPulsarDataNodeInfo(sinkInfo);
         try {
-            PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder().adminUrl(pulsarSinkDTO.getAdminUrl())
-                    .token(pulsarSinkDTO.getToken()).build();
+            PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder().adminUrl(pulsarDataNodeInfo.getAdminUrl())
+                    .token(pulsarDataNodeInfo.getToken()).build();
             PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo);
             String queueModel = pulsarSinkDTO.getPartitionNum() > 0 ? InlongConstants.PULSAR_QUEUE_TYPE_PARALLEL
                     : InlongConstants.PULSAR_QUEUE_TYPE_SERIAL;
@@ -99,17 +100,16 @@ public class PulsarResourceOperator implements SinkResourceOperator {
 
     }
 
-    private PulsarSinkDTO getPulsarDataNodeInfo(SinkInfo sinkInfo) {
-        PulsarSinkDTO pulsarSinkDTO = PulsarSinkDTO.getFromJson(sinkInfo.getExtParams());
-        // read from data node if not supplied by user
-        if (StringUtils.isBlank(pulsarSinkDTO.getAdminUrl())) {
-            String dataNodeName = sinkInfo.getDataNodeName();
-            Preconditions.expectNotBlank(dataNodeName, ErrorCodeEnum.INVALID_PARAMETER,
-                    "pulsar admin url not specified and data node is empty");
-            PulsarDataNodeInfo dataNodeInfo = (PulsarDataNodeInfo) dataNodeHelper.getDataNodeInfo(
-                    dataNodeName, sinkInfo.getSinkType());
-            CommonBeanUtils.copyProperties(dataNodeInfo, pulsarSinkDTO);
-        }
-        return pulsarSinkDTO;
+    private PulsarDataNodeDTO getPulsarDataNodeInfo(SinkInfo sinkInfo) {
+
+        String dataNodeName = sinkInfo.getDataNodeName();
+        Preconditions.expectNotBlank(dataNodeName, ErrorCodeEnum.INVALID_PARAMETER,
+                "pulsar admin url not specified and data node is empty");
+        PulsarDataNodeInfo dataNodeInfo = (PulsarDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+                dataNodeName, sinkInfo.getSinkType());
+        PulsarDataNodeDTO pulsarDataNodeDTO = new PulsarDataNodeDTO();
+        CommonBeanUtils.copyProperties(dataNodeInfo, pulsarDataNodeDTO, true);
+        return pulsarDataNodeDTO;
     }
+
 }

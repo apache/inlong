@@ -76,15 +76,8 @@ public class PulsarSinkOperator extends AbstractSinkOperator {
                     ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
         }
         PulsarSinkRequest sinkRequest = (PulsarSinkRequest) request;
-        DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectByUniqueKey(sinkRequest.getDataNodeName(),
-                DataNodeType.PULSAR);
-        PulsarDataNodeDTO pulsarDataNodeDTO = JsonUtils.parseObject(dataNodeEntity.getExtParams(),
-                PulsarDataNodeDTO.class);
         try {
             PulsarSinkDTO dto = PulsarSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
-            dto.setAdminUrl(pulsarDataNodeDTO.getAdminUrl());
-            dto.setServiceUrl(pulsarDataNodeDTO.getServiceUrl());
-            dto.setToken(dataNodeEntity.getToken());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
@@ -98,10 +91,14 @@ public class PulsarSinkOperator extends AbstractSinkOperator {
         if (entity == null) {
             return sink;
         }
-
+        DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectByUniqueKey(entity.getDataNodeName(),
+                DataNodeType.PULSAR);
+        PulsarDataNodeDTO pulsarDataNodeDTO = JsonUtils.parseObject(dataNodeEntity.getExtParams(),
+                PulsarDataNodeDTO.class);
         PulsarSinkDTO dto = PulsarSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, sink, true);
         CommonBeanUtils.copyProperties(dto, sink, true);
+        CommonBeanUtils.copyProperties(pulsarDataNodeDTO, sink, true);
         List<SinkField> sinkFields = super.getSinkFields(entity.getId());
         sink.setSinkFieldList(sinkFields);
         return sink;
