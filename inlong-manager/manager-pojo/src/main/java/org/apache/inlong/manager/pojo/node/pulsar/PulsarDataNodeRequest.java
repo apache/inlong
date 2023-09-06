@@ -28,7 +28,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * StarRocks data node request
+ * Pulsar data node request
  */
 @Data
 @ToString(callSuper = true)

@@ -32,7 +32,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 /**
- * Kafka sink info
+ * pulsar sink info
  */
 @Data
 @SuperBuilder

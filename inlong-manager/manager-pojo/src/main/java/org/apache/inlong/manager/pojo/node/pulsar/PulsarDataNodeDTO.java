@@ -33,7 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.validation.constraints.NotNull;
 
 /**
- * StarRocks data node info
+ * Pulsar data node info
  */
 @Data
 @Builder
