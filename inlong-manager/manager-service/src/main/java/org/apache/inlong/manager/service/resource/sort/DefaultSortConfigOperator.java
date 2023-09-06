@@ -45,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -149,7 +150,17 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                     relations = NodeRelationUtils.createNodeRelations(sources, sinks);
                 }
             } else {
-                relations = NodeRelationUtils.createNodeRelations(sources, sinks);
+                if (CollectionUtils.isNotEmpty(transformResponses)) {
+                    List<String> sourcesNames = sources.stream().map(StreamSource::getSourceName)
+                            .collect(Collectors.toList());
+                    List<String> transFormNames = transformResponses.stream().map(TransformResponse::getTransformName)
+                            .collect(Collectors.toList());
+                    List<String> sinkNames = sinks.stream().map(StreamSink::getSinkName).collect(Collectors.toList());
+                    relations = Arrays.asList(NodeRelationUtils.createNodeRelation(sourcesNames, transFormNames),
+                            NodeRelationUtils.createNodeRelation(transFormNames, sinkNames));
+                } else {
+                    relations = NodeRelationUtils.createNodeRelations(sources, sinks);
+                }
             }
 
             // create extract-transform-load nodes
@@ -253,4 +264,5 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         groupInfo.getExtList().removeIf(ext -> extInfo.getKeyName().equals(ext.getKeyName()));
         groupInfo.getExtList().add(extInfo);
     }
+
 }
