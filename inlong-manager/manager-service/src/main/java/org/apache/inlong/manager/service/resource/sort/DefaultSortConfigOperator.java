@@ -37,7 +37,6 @@ import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -46,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -156,7 +156,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                     List<String> transFormNames = transformResponses.stream().map(TransformResponse::getTransformName)
                             .collect(Collectors.toList());
                     List<String> sinkNames = sinks.stream().map(StreamSink::getSinkName).collect(Collectors.toList());
-                    relations = Lists.newArrayList(NodeRelationUtils.createNodeRelation(sourcesNames, transFormNames),
+                    relations = Arrays.asList(NodeRelationUtils.createNodeRelation(sourcesNames, transFormNames),
                             NodeRelationUtils.createNodeRelation(transFormNames, sinkNames));
                 } else {
                     relations = NodeRelationUtils.createNodeRelations(sources, sinks);
