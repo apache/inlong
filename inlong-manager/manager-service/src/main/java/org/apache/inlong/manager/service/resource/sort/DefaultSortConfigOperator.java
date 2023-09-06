@@ -128,6 +128,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
             List<String> auditIds = new ArrayList<>();
             for (StreamSink sink : sinks) {
                 auditIds.add(auditService.getAuditId(sink.getSinkType(), false));
+                auditIds.add(auditService.getAuditId(sink.getSinkType(), true));
             }
             for (StreamSource source : sources) {
                 source.setFieldList(inlongStream.getFieldList());
