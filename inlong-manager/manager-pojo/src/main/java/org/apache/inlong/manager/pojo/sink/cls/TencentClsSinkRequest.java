@@ -16,7 +16,7 @@ import org.apache.inlong.manager.pojo.sink.SinkRequest;
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Tencent cloud log service sink request")
 @JsonTypeDefine(value = SinkType.CLS)
-public class TencentClsRequest extends SinkRequest {
+public class TencentClsSinkRequest extends SinkRequest {
 
     /**
      * Tencent cloud log service topic id

@@ -18,7 +18,7 @@ import org.apache.inlong.manager.common.util.JsonUtils;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TencentClsDTO {
+public class TencentClsSinkDTO {
 
     /**
      * Tencent cloud log service topic id
@@ -33,15 +33,15 @@ public class TencentClsDTO {
     /**
      * Get the dto instance from the request
      */
-    public static TencentClsDTO getFromRequest(TencentClsRequest request, String extParams) {
-        TencentClsDTO dto =
-                StringUtils.isNotBlank(extParams) ? TencentClsDTO.getFromJson(extParams) : new TencentClsDTO();
+    public static TencentClsSinkDTO getFromRequest(TencentClsSinkRequest request, String extParams) {
+        TencentClsSinkDTO dto =
+                StringUtils.isNotBlank(extParams) ? TencentClsSinkDTO.getFromJson(extParams) : new TencentClsSinkDTO();
         return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
-    public static TencentClsDTO getFromJson(@NotNull String extParams) {
+    public static TencentClsSinkDTO getFromJson(@NotNull String extParams) {
         try {
-            return JsonUtils.parseObject(extParams, TencentClsDTO.class);
+            return JsonUtils.parseObject(extParams, TencentClsSinkDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
                     String.format("parse extParams of Kafka SinkDTO failure: %s", e.getMessage()));

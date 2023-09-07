@@ -50,6 +50,6 @@ public class TencentClsSink extends StreamSink {
 
     @Override
     public SinkRequest genSinkRequest() {
-        return CommonBeanUtils.copyProperties(this, TencentClsRequest::new);
+        return CommonBeanUtils.copyProperties(this, TencentClsSinkRequest::new);
     }
 }
