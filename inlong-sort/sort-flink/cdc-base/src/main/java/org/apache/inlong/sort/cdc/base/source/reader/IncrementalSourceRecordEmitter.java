@@ -39,12 +39,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import static com.ververica.cdc.connectors.base.source.meta.wartermark.WatermarkEvent.isHighWatermarkEvent;
-import static com.ververica.cdc.connectors.base.source.meta.wartermark.WatermarkEvent.isWatermarkEvent;
-import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getFetchTimestamp;
-import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getHistoryRecord;
-import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getMessageTimestamp;
-import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.isDataChangeRecord;
+import static org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkEvent.isHighWatermarkEvent;
+import static org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkEvent.isWatermarkEvent;
+import static org.apache.inlong.sort.cdc.base.utils.SourceRecordUtils.getFetchTimestamp;
+import static org.apache.inlong.sort.cdc.base.utils.SourceRecordUtils.getHistoryRecord;
+import static org.apache.inlong.sort.cdc.base.utils.SourceRecordUtils.getMessageTimestamp;
+import static org.apache.inlong.sort.cdc.base.utils.SourceRecordUtils.isDataChangeRecord;
 import static org.apache.inlong.sort.cdc.base.util.RecordUtils.isSchemaChangeEvent;
 
 /**
