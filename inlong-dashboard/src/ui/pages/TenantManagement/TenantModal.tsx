@@ -42,10 +42,15 @@ const Comp: React.FC<Props> = ({ name, ...modalProps }) => {
         rules: [{ required: true }],
       },
       {
-        type: 'input',
+        type: 'textarea',
         label: i18n.t('pages.Tenant.config.Description'),
         name: 'description',
         rules: [{ required: true }],
+        props: {
+          showCount: true,
+          maxLength: 256,
+          autoSize: { minRows: 4, maxRows: 8 },
+        },
       },
     ];
   }, []);
