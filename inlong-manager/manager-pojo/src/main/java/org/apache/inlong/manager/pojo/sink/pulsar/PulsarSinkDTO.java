@@ -40,13 +40,16 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class PulsarSinkDTO {
 
-    @ApiModelProperty("pulsar tenant")
-    private String tenant;
-    @ApiModelProperty("pulsar namespace")
+    @ApiModelProperty("Pulsar tenant")
+    private String pulsarTenant;
+
+    @ApiModelProperty("Pulsar namespace")
     private String namespace;
-    @ApiModelProperty("pulsar topic")
+
+    @ApiModelProperty("Pulsar topic")
     private String topic;
-    @ApiModelProperty("pulsar partition number")
+
+    @ApiModelProperty("Pulsar partition number")
     private Integer partitionNum;
 
     /**

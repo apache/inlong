@@ -28,7 +28,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * pulsar sink request.
+ * Pulsar sink request.
  */
 @Data
 @ToString(callSuper = true)
@@ -37,12 +37,15 @@ import lombok.ToString;
 @JsonTypeDefine(value = SinkType.PULSAR)
 public class PulsarSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("pulsar tenant")
-    private String tenant;
-    @ApiModelProperty("pulsar namespace")
+    @ApiModelProperty("Pulsar tenant")
+    private String pulsarTenant;
+
+    @ApiModelProperty("Pulsar namespace")
     private String namespace;
-    @ApiModelProperty("pulsar topic")
+
+    @ApiModelProperty("Pulsar topic")
     private String topic;
-    @ApiModelProperty("pulsar partition number")
+
+    @ApiModelProperty("Pulsar partition number")
     private Integer partitionNum;
 }

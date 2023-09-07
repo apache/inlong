@@ -32,30 +32,36 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 /**
- * pulsar sink info
+ * Pulsar sink info
  */
 @Data
 @SuperBuilder
 @AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "pulsar sink info")
+@ApiModel(value = "Pulsar sink info")
 @JsonTypeDefine(value = SinkType.PULSAR)
 public class PulsarSink extends StreamSink {
 
-    @ApiModelProperty("pulsar service url")
+    @ApiModelProperty("Pulsar service url")
     private String serviceUrl;
-    @ApiModelProperty("pulsar tenant")
-    private String tenant;
-    @ApiModelProperty("pulsar namespace")
+
+    @ApiModelProperty("Pulsar tenant")
+    private String pulsarTenant;
+
+    @ApiModelProperty("Pulsar namespace")
     private String namespace;
-    @ApiModelProperty("pulsar topic")
+
+    @ApiModelProperty("Pulsar topic")
     private String topic;
-    @ApiModelProperty("pulsar token")
+
+    @ApiModelProperty("Pulsar token")
     private String token;
-    @ApiModelProperty("admin url")
+
+    @ApiModelProperty("Admin url")
     private String adminUrl;
-    @ApiModelProperty("pulsar partition number")
+
+    @ApiModelProperty("Pulsar partition number")
     private Integer partitionNum;
 
     public PulsarSink() {

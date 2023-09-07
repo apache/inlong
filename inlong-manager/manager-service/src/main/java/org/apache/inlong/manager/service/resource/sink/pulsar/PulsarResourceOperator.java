@@ -45,7 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * pulsar resource operate for creating pulsar resource
+ * Pulsar resource operate for creating pulsar resource
  */
 @Service
 public class PulsarResourceOperator implements SinkResourceOperator {
@@ -84,14 +84,14 @@ public class PulsarResourceOperator implements SinkResourceOperator {
                     .token(pulsarDataNodeInfo.getToken()).build();
             PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo);
             // create pulsar tenant
-            pulsarOperator.createTenant(pulsarAdmin, pulsarSinkDTO.getTenant());
+            pulsarOperator.createTenant(pulsarAdmin, pulsarSinkDTO.getPulsarTenant());
             // use default config to create namespace
             InlongPulsarInfo pulsarInfo = new InlongPulsarInfo();
-            pulsarOperator.createNamespace(pulsarAdmin, pulsarInfo, pulsarSinkDTO.getTenant(),
+            pulsarOperator.createNamespace(pulsarAdmin, pulsarInfo, pulsarSinkDTO.getPulsarTenant(),
                     pulsarSinkDTO.getNamespace());
             String queueModel = pulsarSinkDTO.getPartitionNum() > 0 ? InlongConstants.PULSAR_QUEUE_TYPE_PARALLEL
                     : InlongConstants.PULSAR_QUEUE_TYPE_SERIAL;
-            PulsarTopicInfo topicInfo = PulsarTopicInfo.builder().pulsarTenant(pulsarSinkDTO.getTenant())
+            PulsarTopicInfo topicInfo = PulsarTopicInfo.builder().pulsarTenant(pulsarSinkDTO.getPulsarTenant())
                     .namespace(pulsarSinkDTO.getNamespace())
                     .topicName(pulsarSinkDTO.getTopic())
                     .numPartitions(pulsarSinkDTO.getPartitionNum())
@@ -110,7 +110,7 @@ public class PulsarResourceOperator implements SinkResourceOperator {
 
         String dataNodeName = sinkInfo.getDataNodeName();
         Preconditions.expectNotBlank(dataNodeName, ErrorCodeEnum.INVALID_PARAMETER,
-                "pulsar admin url not specified and data node is empty");
+                "Pulsar admin url not specified and data node is empty");
         PulsarDataNodeInfo dataNodeInfo = (PulsarDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                 dataNodeName, sinkInfo.getSinkType());
         PulsarDataNodeDTO pulsarDataNodeDTO = new PulsarDataNodeDTO();

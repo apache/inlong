@@ -39,14 +39,16 @@ import javax.validation.constraints.NotNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("pulsar data node info")
+@ApiModel("Pulsar data node info")
 public class PulsarDataNodeDTO {
 
-    @ApiModelProperty("pulsar service url")
+    @ApiModelProperty("Pulsar service url")
     private String serviceUrl;
-    @ApiModelProperty("pulsar admin url")
+
+    @ApiModelProperty("Pulsar admin url")
     private String adminUrl;
-    @ApiModelProperty(value = "pulsar token")
+
+    @ApiModelProperty(value = "Pulsar token")
     private String token;
 
     /**

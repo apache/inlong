@@ -37,9 +37,10 @@ import lombok.ToString;
 @ApiModel("Pulsar data node request")
 public class PulsarDataNodeRequest extends DataNodeRequest {
 
-    @ApiModelProperty("pulsar service url")
+    @ApiModelProperty("Pulsar service url")
     private String serviceUrl;
-    @ApiModelProperty("pulsar admin url")
+
+    @ApiModelProperty("Pulsar admin url")
     private String adminUrl;
 
     public PulsarDataNodeRequest() {

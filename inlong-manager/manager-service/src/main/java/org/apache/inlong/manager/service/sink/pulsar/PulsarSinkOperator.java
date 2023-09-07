@@ -112,10 +112,16 @@ public class PulsarSinkOperator extends AbstractSinkOperator {
         try {
             pulsarSinkDTO = objectMapper.readValue(streamSink.getExtParams(), PulsarSinkDTO.class);
         } catch (JsonProcessingException e) {
-            LOGGER.error("parse id error", e);
+            LOGGER.error("parse pulsar sink dto error", e);
             return params;
         }
-        params.put(TOPIC, pulsarSinkDTO.getTopic());
+        String fullTopicName = getFullTopicName(pulsarSinkDTO);
+        params.put(TOPIC, fullTopicName);
         return params;
     }
+
+    private String getFullTopicName(PulsarSinkDTO pulsarSinkDTO) {
+        return pulsarSinkDTO.getPulsarTenant() + "/" + pulsarSinkDTO.getNamespace() + "/" + pulsarSinkDTO.getTopic();
+    }
+
 }

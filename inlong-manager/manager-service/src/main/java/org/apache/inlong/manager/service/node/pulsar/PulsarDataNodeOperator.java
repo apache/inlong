@@ -34,6 +34,7 @@ import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,25 +93,25 @@ public class PulsarDataNodeOperator extends AbstractDataNodeOperator {
         String token = pulsarDataNodeRequest.getToken();
         Preconditions.expectNotBlank(adminUrl, ErrorCodeEnum.INVALID_PARAMETER, "connection admin urlcannot be empty");
         if (getPulsarConnection(adminUrl, token)) {
-            LOGGER.info("pulsar connection not null - connection success for adminUrl={}, token={}",
+            LOGGER.info("pulsar  connection success for adminUrl={}, token={}",
                     adminUrl, token);
-            return true;
-        } else {
-            String errMsg = String.format("pulsar connection failed for adminUrl=%s,  token=%s",
-                    adminUrl, token);
-            throw new BusinessException(errMsg);
         }
+        return true;
     }
 
     private boolean getPulsarConnection(String adminUrl, String token) {
-        try {
-            PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder().adminUrl(adminUrl)
-                    .token(token).build();
-            PulsarUtils.getPulsarAdmin(pulsarClusterInfo);
+
+        PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder().adminUrl(adminUrl)
+                .token(token).build();
+        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo)) {
+            // test connect for pulsar adminUrl
+            pulsarAdmin.tenants().getTenants();
+            return true;
         } catch (Exception e) {
-            LOGGER.error("connection pulsar admin url error", e);
-            return false;
+            String errMsg = String.format("Pulsar connection failed for AdminUrl=%s", pulsarClusterInfo.getAdminUrl());
+            LOGGER.error(errMsg, e);
+            throw new BusinessException(errMsg);
         }
-        return true;
+
     }
 }
