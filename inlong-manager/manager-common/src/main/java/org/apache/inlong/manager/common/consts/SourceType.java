@@ -29,7 +29,6 @@ public class SourceType extends StreamType {
 
     public static final String AUTO_PUSH = "AUTO_PUSH";
     public static final String TUBEMQ = "TUBEMQ";
-    public static final String PULSAR = "PULSAR";
 
     public static final String FILE = "FILE";
     public static final String MYSQL_SQL = "MYSQL_SQL";
