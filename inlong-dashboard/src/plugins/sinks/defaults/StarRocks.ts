@@ -99,7 +99,6 @@ export default class StarRocksSink
 
   @FieldDecorator({
     type: 'input',
-    rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
@@ -108,67 +107,6 @@ export default class StarRocksSink
   @SyncField()
   @I18n('meta.Sinks.StarRocks.PrimaryKey')
   primaryKey: string;
-
-  @FieldDecorator({
-    type: 'radio',
-    rules: [{ required: true }],
-    initialValue: false,
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-      options: [
-        {
-          label: i18n.t('basic.Yes'),
-          value: true,
-        },
-        {
-          label: i18n.t('basic.No'),
-          value: false,
-        },
-      ],
-    }),
-  })
-  @SyncField()
-  @I18n('meta.Sinks.StarRocks.SinkMultipleEnable')
-  sinkMultipleEnable: boolean;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    visible: record => record.sinkMultipleEnable === true,
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @SyncField()
-  @I18n('meta.Sinks.StarRocks.SinkMultipleFormat')
-  sinkMultipleFormat: string;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    visible: record => record.sinkMultipleEnable === true,
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @SyncField()
-  @I18n('meta.Sinks.StarRocks.DatabasePattern')
-  databasePattern: string;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    visible: record => record.sinkMultipleEnable === true,
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @SyncField()
-  @I18n('meta.Sinks.StarRocks.TablePattern')
-  tablePattern: string;
 
   @FieldDecorator({
     type: EditableTable,
