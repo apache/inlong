@@ -204,7 +204,7 @@ public class InlongTenantServiceImpl implements InlongTenantService {
         return true;
     }
 
-    private void setTargetTenantList(InlongTenantPageRequest request, UserInfo userInfo) {
+    public void setTargetTenantList(InlongTenantPageRequest request, UserInfo userInfo) {
         if (isInlongRoles(userInfo)) {
             // for inlong roles, they can get all tenant info.
             request.setTenantList(null);
