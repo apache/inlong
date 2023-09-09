@@ -24,7 +24,7 @@
 #include "../utils/logger.h"
 #include "../utils/utils.h"
 
-namespace sdk {
+namespace inlong {
 SdkConfig *SdkConfig::instance_ = new SdkConfig();
 SdkConfig *SdkConfig::getInstance() { return SdkConfig::instance_; }
 
