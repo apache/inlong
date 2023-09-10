@@ -249,6 +249,7 @@ public class SimpleMessageProducer implements MessageProducer {
         MessageSentResult result = checkMessageAndStatus(message);
         if (!result.isSuccess()) {
             cb.onMessageSent(result);
+            return;
         }
         final Partition partition =
                 this.selectPartition(message, BrokerWriteService.AsyncService.class);
