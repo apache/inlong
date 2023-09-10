@@ -210,7 +210,10 @@ public class SimpleMessageProducer implements MessageProducer {
     @Override
     public MessageSentResult sendMessage(final Message message)
             throws TubeClientException, InterruptedException {
-        checkMessageAndStatus(message);
+        MessageSentResult result = checkMessageAndStatus(message);
+        if (!result.isSuccess()) {
+            return result;
+        }
         Partition partition = this.selectPartition(message, BrokerWriteService.class);
         int brokerId = partition.getBrokerId();
         long startTime = System.currentTimeMillis();
@@ -243,7 +246,10 @@ public class SimpleMessageProducer implements MessageProducer {
     @Override
     public void sendMessage(final Message message, final MessageSentCallback cb) throws TubeClientException,
             InterruptedException {
-        checkMessageAndStatus(message);
+        MessageSentResult result = checkMessageAndStatus(message);
+        if (!result.isSuccess()) {
+            cb.onMessageSent(result);
+        }
         final Partition partition =
                 this.selectPartition(message, BrokerWriteService.AsyncService.class);
         final int brokerId = partition.getBrokerId();
@@ -297,40 +303,50 @@ public class SimpleMessageProducer implements MessageProducer {
         }
     }
 
-    private void checkMessageAndStatus(final Message message) throws TubeClientException {
+    private MessageSentResult checkMessageAndStatus(final Message message) {
         if (message == null) {
-            throw new TubeClientException("Illegal parameter: null message package!");
+            return new MessageSentResult(message, false,
+                    TErrCodeConstants.PARAMETER_MSG_NULL, "Illegal parameter: null message package!");
         }
         if (TStringUtils.isBlank(message.getTopic())) {
-            throw new TubeClientException("Illegal parameter: blank topic in message package!");
+            return new MessageSentResult(message, false,
+                    TErrCodeConstants.PARAMETER_MSG_TOPIC_BLANK, "Illegal parameter: blank topic in message package!");
         }
         if ((message.getData() == null)
                 || (message.getData().length == 0)) {
-            throw new TubeClientException("Illegal parameter: null data in message package!");
+            return new MessageSentResult(message, false,
+                    TErrCodeConstants.PARAMETER_MSG_BODY_EMPTY, "Illegal parameter: null data in message package!");
         }
         if (this.publishTopicMap.get(message.getTopic()) == null) {
-            throw new TubeClientException(new StringBuilder(512)
-                    .append("Topic ").append(message.getTopic())
-                    .append(" not publish, please publish first!").toString());
+            return new MessageSentResult(message, false,
+                    TErrCodeConstants.PARAMETER_MSG_TOPIC_UNPUBLISHED,
+                    new StringBuilder(512).append("Topic ").append(message.getTopic())
+                            .append(" not publish, please publish first!").toString());
         }
         if (this.producerManager.getTopicPartition(message.getTopic()) == null) {
-            throw new TubeClientException(new StringBuilder(512)
-                    .append("Topic ").append(message.getTopic())
-                    .append(" not publish, make sure the topic exist or acceptPublish and try later!").toString());
+            return new MessageSentResult(message, false,
+                    TErrCodeConstants.PARAMETER_MSG_TOPIC_NO_PARTITION,
+                    new StringBuilder(512).append("Topic ").append(message.getTopic())
+                            .append(" not publish, make sure the topic exist or acceptPublish and try later!")
+                            .toString());
         }
         int msgSize = TStringUtils.isBlank(message.getAttribute())
                 ? message.getData().length
                 : (message.getData().length + message.getAttribute().length());
         if (msgSize > producerManager.getMaxMsgSize(message.getTopic())) {
-            throw new TubeClientException(new StringBuilder(512)
-                    .append("Illegal parameter: over max message length for the total size of")
-                    .append(" message data and attribute, allowed size is ")
-                    .append(producerManager.getMaxMsgSize(message.getTopic()))
-                    .append(", message's real size is ").append(msgSize).toString());
+            return new MessageSentResult(message, false,
+                    TErrCodeConstants.PARAMETER_MSG_OVER_MAX_LENGTH,
+                    new StringBuilder(512)
+                            .append("Illegal parameter: over max message length for the total size of")
+                            .append(" message data and attribute, allowed size is ")
+                            .append(producerManager.getMaxMsgSize(message.getTopic()))
+                            .append(", message's real size is ").append(msgSize).toString());
         }
         if (isShutDown.get()) {
-            throw new TubeClientException("Status error: producer has been shutdown!");
+            return new MessageSentResult(message, false,
+                    TErrCodeConstants.CLIENT_SHUTDOWN, "Status error: producer has been shutdown!");
         }
+        return new MessageSentResult(message, true, TErrCodeConstants.SUCCESS, "Ok");
     }
 
     private ClientBroker.SendMessageRequestP2B createSendMessageRequest(Partition partition,
