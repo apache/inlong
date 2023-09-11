@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-namespace sdk {
+namespace inlong {
 class SdkConfig {
 private:
   static SdkConfig *instance_;
@@ -114,6 +114,6 @@ public:
     return ((6 == msg_type_) || ((msg_type_ >= 7) && (extend_field_ & 0x1)));
   }
 };
-} // namespace busapi
+} // namespace inlong
 
 #endif // CAPI_BASE_CLIENT_CONFIG_H_

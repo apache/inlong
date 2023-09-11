@@ -25,7 +25,7 @@
 #include <string>
 #include <vector>
 
-namespace dataproxy_sdk
+namespace inlong
 {
 const char delim[] = "\n";
 struct Iterm
