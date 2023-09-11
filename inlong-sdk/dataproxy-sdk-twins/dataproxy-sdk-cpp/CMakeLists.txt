@@ -29,6 +29,7 @@ include_directories(${PROJECT_SOURCE_DIR}/third_party/rapidjson/src/rapidjson/in
 include_directories(release/inc)
 include_directories(src/base)
 include_directories(src/net)
+include_directories(src/utils)
 
 link_directories(${PROJECT_SOURCE_DIR}/third_party/lib)
 link_directories(${PROJECT_SOURCE_DIR}/third_party/lib64)
@@ -36,6 +37,8 @@ link_directories(${PROJECT_SOURCE_DIR}/third_party/lib64)
 add_subdirectory(third_party)
 add_subdirectory(src/base)
 add_subdirectory(src/net)
+add_subdirectory(src/utils)
+add_subdirectory(src/config)
 # add_subdirectory(test)
 add_subdirectory(release)
 
