@@ -42,7 +42,7 @@ import java.util.Map;
 @JsonTypeName("icebergExtract")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class IcebergExtracNode extends ExtractNode implements Serializable {
+public class IcebergExtractNode extends ExtractNode implements Serializable {
 
     @JsonProperty("tableName")
     @Nonnull
@@ -72,7 +72,7 @@ public class IcebergExtracNode extends ExtractNode implements Serializable {
     @Nullable
     private Long startSnapShotId;
 
-    public IcebergExtracNode(
+    public IcebergExtractNode(
             @Nonnull @JsonProperty("id") String id,
             @Nonnull @JsonProperty("name") String name,
             @Nonnull @JsonProperty("fields") List<FieldInfo> fields,
