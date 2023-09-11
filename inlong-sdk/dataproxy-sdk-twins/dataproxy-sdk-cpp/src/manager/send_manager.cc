@@ -19,7 +19,7 @@
 
 #include "send_manager.h"
 #include "../utils/utils.h"
-#include "bus_conf_manager.h"
+#include "proxy_manager.h"
 namespace inlong {
 SendManager::SendManager() : send_group_idx_(0) {
   for (int32_t i = 0; i < SdkConfig::getInstance()->group_ids_.size(); i++) {
