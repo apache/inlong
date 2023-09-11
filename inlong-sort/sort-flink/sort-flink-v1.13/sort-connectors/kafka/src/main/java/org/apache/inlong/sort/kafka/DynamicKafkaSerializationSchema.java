@@ -96,15 +96,13 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
     private final String sinkMultipleFormat;
     private final DirtyOptions dirtyOptions;
     private final @Nullable DirtySink<Object> dirtySink;
+    final private Map<SchemaChangeType, SchemaChangePolicy> policyMap;
     private boolean multipleSink;
     private JsonDynamicSchemaFormat jsonDynamicSchemaFormat;
     private int[] partitions;
-
     private int parallelInstanceId;
-
     private int numParallelInstances;
     private SinkTopicMetricData metricData;
-    final private Map<SchemaChangeType, SchemaChangePolicy> policyMap;
 
     DynamicKafkaSerializationSchema(
             String topic,
@@ -272,7 +270,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             JsonNode dataNode, List<ProducerRecord<byte[], byte[]>> values) {
         String topic = null;
         try {
-            byte[] data = jsonDynamicSchemaFormat.objectMapper.writeValueAsBytes(baseMap);
+            byte[] data = JsonDynamicSchemaFormat.OBJECT_MAPPER.writeValueAsBytes(baseMap);
             topic = jsonDynamicSchemaFormat.parse(rootNode, topicPattern);
             values.add(new ProducerRecord<>(topic,
                     extractPartition(null, null, data), null, data));
@@ -308,7 +306,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             JsonNode operationNode = Preconditions.checkNotNull(rootNode.get("operation"),
                     "Operation node is null");
             operation = Preconditions.checkNotNull(
-                    jsonDynamicSchemaFormat.objectMapper.convertValue(operationNode, new TypeReference<Operation>() {
+                    JsonDynamicSchemaFormat.OBJECT_MAPPER.convertValue(operationNode, new TypeReference<Operation>() {
                     }), "Operation is null");
         } catch (Exception e) {
             LOG.error("Extract Operation from origin data failed", e);
