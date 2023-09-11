@@ -1492,9 +1492,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<TenantClusterTagEntity> entityPage =
                 (Page<TenantClusterTagEntity>) tenantClusterTagMapper.selectByCondition(request);
-        List<TenantClusterTagInfo> infoList = CommonBeanUtils.copyListProperties(entityPage, TenantClusterTagInfo::new);
+        PageResult<TenantClusterTagInfo> pageResult = PageResult.fromPage(entityPage)
+                .map(entity -> CommonBeanUtils.copyProperties(entity, TenantClusterTagInfo::new));
         LOGGER.debug("success to list tenant tag with request={}", request);
-        return new PageResult<>(infoList, entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
+        return pageResult;
     }
 
     @Override

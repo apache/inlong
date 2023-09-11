@@ -278,10 +278,8 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<ComponentHeartbeatEntity> entityPage =
                 (Page<ComponentHeartbeatEntity>) componentHeartbeatMapper.selectByCondition(request);
-        List<ComponentHeartbeatResponse> responseList = CommonBeanUtils.copyListProperties(entityPage,
-                ComponentHeartbeatResponse::new);
-
-        return new PageResult<>(responseList, entityPage.getTotal());
+        return PageResult.fromPage(entityPage)
+                .map(entity -> CommonBeanUtils.copyProperties(entity, ComponentHeartbeatResponse::new));
     }
 
     private PageResult<GroupHeartbeatResponse> listGroupHeartbeatOpt(HeartbeatPageRequest request) {
