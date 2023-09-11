@@ -64,7 +64,7 @@ bool SdkConfig::ParseConfig(const std::string &config_path) {
   InitTcpParam(doc);
   OthersParam(doc);
 
-  sdk::initLog4cplus();
+  inlong::initLog4cplus();
 
   ShowClientConfig();
 
@@ -72,7 +72,7 @@ bool SdkConfig::ParseConfig(const std::string &config_path) {
 }
 
 void SdkConfig::defaultInit() {
-  per_groupid_thread_nums_ = constants::kPerBidThreadNums;
+  per_groupid_thread_nums_ = constants::kPerGroupidThreadNums;
   dispatch_interval_send_ = constants::kDispatchIntervalSend;
   dispatch_interval_zip_ = constants::kDispatchIntervalZip;
   tcp_detection_interval_ = constants::kTcpDetectionInterval;
@@ -121,7 +121,7 @@ void SdkConfig::InitThreadParam(const rapidjson::Value &doc) {
     const rapidjson::Value &obj = doc["per_groupid_thread_nums"];
     per_groupid_thread_nums_ = obj.GetInt();
   } else {
-    per_groupid_thread_nums_ = constants::kPerBidThreadNums;
+    per_groupid_thread_nums_ = constants::kPerGroupidThreadNums;
   }
   if (doc.HasMember("dispatch_interval_zip") &&
       doc["dispatch_interval_zip"].IsInt() &&
