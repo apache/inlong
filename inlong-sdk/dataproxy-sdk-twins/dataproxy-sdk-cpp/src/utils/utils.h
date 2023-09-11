@@ -30,7 +30,7 @@
 #include <vector>
 
 #include "snappy.h"
-namespace dataproxy_sdk {
+namespace inlong {
 using PAIR = std::pair<std::string, int32_t>;
 struct HttpRequest {
   std::string url;
