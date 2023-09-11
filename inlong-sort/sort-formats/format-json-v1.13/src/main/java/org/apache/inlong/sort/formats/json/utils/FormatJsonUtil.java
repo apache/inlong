@@ -42,11 +42,14 @@ import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.table.types.logical.VarCharType;
 
 import java.util.Map;
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.DEFAULT_CHAR_LENGTH;
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.DEFAULT_CHAR_TIME_LENGTH;
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.DEFAULT_DECIMAL_PRECISION;
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.DEFAULT_DECIMAL_SCALE;
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.ORACLE_TIMESTAMP_TIME_ZONE;
 
 public class FormatJsonUtil {
 
-    public static final int DEFAULT_CHAR_LENGTH = 255;
-    public static final int DEFAULT_CHAR_TIME_LENGTH = 30;
     public static final Map<String, LogicalType> DEBEZIUM_TYPE_2_FLINK_TYPE_MAPPING =
             ImmutableMap.<String, LogicalType>builder()
                     .put("BOOLEAN", new BooleanType())
@@ -59,9 +62,6 @@ public class FormatJsonUtil {
                     .put("STRING", new VarCharType())
                     .put("BYTES", new VarBinaryType())
                     .build();
-    private static final int DEFAULT_DECIMAL_PRECISION = 38;
-    private static final int DEFAULT_DECIMAL_SCALE = 5;
-    private static final Integer ORACLE_TIMESTAMP_TIME_ZONE = -101;
     public static final Map<Integer, LogicalType> SQL_TYPE_2_FLINK_TYPE_MAPPING =
             ImmutableMap.<Integer, LogicalType>builder()
                     .put(java.sql.Types.CHAR, new CharType(DEFAULT_CHAR_LENGTH))

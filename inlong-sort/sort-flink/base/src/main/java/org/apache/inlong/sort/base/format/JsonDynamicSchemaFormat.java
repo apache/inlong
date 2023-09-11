@@ -43,10 +43,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK;
 import static org.apache.inlong.sort.formats.json.utils.FormatJsonUtil.SQL_TYPE_2_FLINK_TYPE_MAPPING;
 import static org.apache.inlong.sort.formats.json.utils.FormatJsonUtil.SQL_TYPE_2_SPARK_SUPPORTED_FLINK_TYPE_MAPPING;
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.DEFAULT_CHAR_LENGTH;
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.DEFAULT_DECIMAL_PRECISION;
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.DEFAULT_DECIMAL_SCALE;
 
 /**
  * Json dynamic format class
@@ -64,9 +66,6 @@ import static org.apache.inlong.sort.formats.json.utils.FormatJsonUtil.SQL_TYPE_
 @SuppressWarnings("LanguageDetectionInspection")
 public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaFormat<JsonNode> {
 
-    public static final int DEFAULT_DECIMAL_PRECISION = 38;
-    public static final int DEFAULT_DECIMAL_SCALE = 5;
-    public static final int DEFAULT_CHAR_LENGTH = 255;
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     /**
      * The first item of array
