@@ -39,7 +39,7 @@ ProxyManager::~ProxyManager() {
   cond_.notify_one();
 }
 void ProxyManager::Init() {
-  timeout_ = SdkConfig::getInstance()->bus_URL_timeout_;
+  timeout_ = SdkConfig::getInstance()->manager_url_timeout_;
   if (__sync_bool_compare_and_swap(&inited_, false, true)) {
     update_conf_thread_ = std::thread(&ProxyManager::Update, this);
   }
@@ -50,7 +50,7 @@ void ProxyManager::Update() {
     std::unique_lock<std::mutex> con_lck(cond_mutex_);
     if (cond_.wait_for(con_lck,
                        std::chrono::minutes(
-                           SdkConfig::getInstance()->bus_update_interval_),
+                           SdkConfig::getInstance()->manager_update_interval_),
                        [this]() { return update_flag_; })) {
       if (exit_flag_)
         break;
@@ -74,19 +74,19 @@ void ProxyManager::DoUpdate() {
   }
 
   {
-    unique_read_lock<read_write_mutex> rdlck(bid_2_cluster_rwmutex_);
+    unique_read_lock<read_write_mutex> rdlck(groupid_2_cluster_rwmutex_);
     for (auto &groupid2cluster : groupid_2_cluster_map_) {
       std::string url;
-      if (SdkConfig::getInstance().enable_proxy_URL_from_cluster_)
-        url = SdkConfig::getInstance().proxy_cluster_URL_;
+      if (SdkConfig::getInstance()->enable_manager_url_from_cluster_)
+        url = SdkConfig::getInstance()->manager_cluster_url_;
       else {
-        url = SdkConfig::getInstance().proxy_URL_ + "/" + groupid2cluster.first;
+        url = SdkConfig::getInstance()->manager_url_ + "/" + groupid2cluster.first;
       }
-      std::string post_data = "ip=" + SdkConfig::getInstance().ser_ip_ +
-                              "&version=" + constants::kTDBusCAPIVersion +
+      std::string post_data = "ip=" + SdkConfig::getInstance()->local_ip_ +
+                              "&version=" + constants::kVersion +
                               "&protocolType=" + constants::kProtocolType;
-      LOG_WARN("get inlong_group_id:%s proxy cfg url:%s, post_data:%s",
-               groupid2cluster.first.c_str(), url.c_str(), post_data.c_str());
+      LOG_WARN("get inlong_group_id:%s proxy cfg url:%s, post_data:%s"<<
+               groupid2cluster.first.c_str()<<url.c_str()<< post_data.c_str());
 
       std::string meta_data;
       int32_t ret;
@@ -185,8 +185,8 @@ int32_t ProxyManager::ParseAndGet(const std::string &groupid,
   return SdkCode::kSuccess;
 }
 
-int32_t ProxyManager::GetBusByBid(const std::string &groupid,
-                                  BusInfoVec &proxy_info_vec) {
+int32_t ProxyManager::GetProxy(const std::string &groupid,
+                                  ProxyInfoVec &proxy_info_vec) {
   unique_read_lock<read_write_mutex> rdlck(groupid_2_proxy_map_rwmutex_);
   auto it = groupid_2_proxy_map_.find(groupid);
   if (it == groupid_2_proxy_map_.end()) {

@@ -19,7 +19,7 @@
 #include "../core/api_imp.h"
 namespace inlong {
 
-InLongApi::InLongApi() { api_impl_ = std::make_shared<InLongApiImp>(); };
+InLongApi::InLongApi() { api_impl_ = std::make_shared<ApiImp>(); };
 InLongApi::~InLongApi() { api_impl_->CloseApi(10); }
 
 int32_t InLongApi::InitApi(const char *config_path) {

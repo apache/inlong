@@ -73,7 +73,7 @@ public:
   std::string manager_cluster_url_;
   uint32_t manager_update_interval_; // Automatic update interval, minutes
   uint32_t manager_url_timeout_;     // URL parsing timeout, seconds
-  uint32_t max_tcp_num_;
+  uint32_t max_proxy_num_;
   uint32_t msg_type_;
 
   // Network parameters
