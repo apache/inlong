@@ -24,9 +24,7 @@ import io.debezium.config.Configuration;
 import io.debezium.connector.postgresql.PostgresConnector;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -45,8 +43,6 @@ public class PostgresSourceConfigFactory extends JdbcSourceConfigFactory {
     private String slotName = "flink";
 
     private String database;
-
-    private List<String> schemaList;
 
     private String inlongMetric;
     private String inlongAudit;
@@ -90,10 +86,6 @@ public class PostgresSourceConfigFactory extends JdbcSourceConfigFactory {
         props.setProperty("heartbeat.interval.ms", String.valueOf(heartbeatInterval.toMillis()));
         props.setProperty("include.schema.changes", String.valueOf(includeSchemaChanges));
 
-        if (schemaList != null) {
-            props.setProperty("schema.include.list", String.join(",", schemaList));
-        }
-
         if (tableList != null) {
             props.setProperty("table.include.list", String.join(",", tableList));
         }
@@ -107,7 +99,6 @@ public class PostgresSourceConfigFactory extends JdbcSourceConfigFactory {
         return new PostgresSourceConfig(
                 startupOptions,
                 Collections.singletonList(database),
-                schemaList,
                 tableList,
                 splitSize,
                 splitMetaGroupSize,
@@ -129,15 +120,6 @@ public class PostgresSourceConfigFactory extends JdbcSourceConfigFactory {
                 chunkKeyColumn,
                 inlongMetric,
                 inlongAudit);
-    }
-
-    /**
-     * An optional list of regular expressions that match schema names to be monitored; any schema
-     * name not included in the whitelist will be excluded from monitoring. By default all
-     * non-system schemas will be monitored.
-     */
-    public void schemaList(String[] schemaList) {
-        this.schemaList = Arrays.asList(schemaList);
     }
 
     /**

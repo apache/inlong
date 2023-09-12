@@ -108,10 +108,6 @@ public class OracleSourceConfigFactory extends JdbcSourceConfigFactory {
             props.setProperty("database.port", String.valueOf(port));
         }
 
-        if (schemaList != null) {
-            props.setProperty("schema.whitelist", String.join(",", schemaList));
-        }
-
         if (tableList != null) {
             props.setProperty("table.include.list", String.join(",", tableList));
         }
@@ -125,7 +121,6 @@ public class OracleSourceConfigFactory extends JdbcSourceConfigFactory {
         return new OracleSourceConfig(
                 startupOptions,
                 databaseList,
-                schemaList,
                 tableList,
                 splitSize,
                 splitMetaGroupSize,

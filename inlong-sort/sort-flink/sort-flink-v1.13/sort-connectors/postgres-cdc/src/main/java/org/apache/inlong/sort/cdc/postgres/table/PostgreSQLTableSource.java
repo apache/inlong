@@ -208,7 +208,6 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                             .hostname(hostname)
                             .port(port)
                             .database(database)
-                            .schemaList(schemaName.split(","))
                             .tableList(tableName)
                             .username(username)
                             .password(password)

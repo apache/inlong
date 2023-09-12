@@ -41,7 +41,6 @@ public class PostgresSourceConfig extends JdbcSourceConfig {
     public PostgresSourceConfig(
             StartupOptions startupOptions,
             List<String> databaseList,
-            List<String> schemaList,
             List<String> tableList,
             int splitSize,
             int splitMetaGroupSize,
@@ -66,7 +65,6 @@ public class PostgresSourceConfig extends JdbcSourceConfig {
         super(
                 startupOptions,
                 databaseList,
-                schemaList,
                 tableList,
                 splitSize,
                 splitMetaGroupSize,

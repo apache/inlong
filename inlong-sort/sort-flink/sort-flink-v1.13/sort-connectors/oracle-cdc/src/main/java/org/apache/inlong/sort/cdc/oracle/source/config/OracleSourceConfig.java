@@ -47,7 +47,6 @@ public class OracleSourceConfig extends JdbcSourceConfig {
     public OracleSourceConfig(
             StartupOptions startupOptions,
             List<String> databaseList,
-            List<String> schemaList,
             List<String> tableList,
             int splitSize,
             int splitMetaGroupSize,
@@ -73,7 +72,6 @@ public class OracleSourceConfig extends JdbcSourceConfig {
         super(
                 startupOptions,
                 databaseList,
-                schemaList,
                 tableList,
                 splitSize,
                 splitMetaGroupSize,

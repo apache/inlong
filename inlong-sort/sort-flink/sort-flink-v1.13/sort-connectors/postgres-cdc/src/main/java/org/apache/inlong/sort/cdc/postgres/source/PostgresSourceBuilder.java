@@ -82,15 +82,6 @@ public class PostgresSourceBuilder<T> {
     }
 
     /**
-     * An required list of regular expressions that match database names to be monitored; any
-     * database name not included in the whitelist will be excluded from monitoring.
-     */
-    public PostgresSourceBuilder<T> schemaList(String... schemaList) {
-        this.configFactory.schemaList(schemaList);
-        return this;
-    }
-
-    /**
      * An required list of regular expressions that match fully-qualified table identifiers for
      * tables to be monitored; any table not included in the list will be excluded from monitoring.
      * Each identifier is of the form {@code <schemaName>.<tableName>}.
