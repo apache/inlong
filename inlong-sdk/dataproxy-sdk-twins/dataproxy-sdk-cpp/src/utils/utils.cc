@@ -41,13 +41,21 @@
 #include <sys/time.h>
 
 #include "api_code.h"
-#include "tc_api.h"
+#include "capi_constant.h"
+
 namespace inlong {
 uint16_t Utils::sequence = 0;
 uint64_t Utils::last_msstamp = 0;
 char Utils::snowflake_id[35] = {0};
 AtomicUInt g_send_msgid{0};
 AtomicInt user_exit_flag{0};
+
+char Base64Table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
+                      'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+                      'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
+                      'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
+                      's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2',
+                      '3', '4', '5', '6', '7', '8', '9', '+', '/'};
 
 void Utils::taskWaitTime(int32_t sec) {
   struct timeval tv;
@@ -355,7 +363,122 @@ int32_t Utils::requestUrl(const std::string &url, std::string &urlByDNS,
 
   return 0;
 }
+std::string Utils::Base64Encode(const std::string &data) {
+  size_t in_len = data.size();
+  size_t out_len = 4 * ((in_len + 2) / 3);
+  std::string ret(out_len, '\0');
+  size_t i;
+  char *p = const_cast<char *>(ret.c_str());
 
+  for (i = 0; i < in_len - 2; i += 3) {
+    *p++ = Base64Table[(data[i] >> 2) & 0x3F];
+    *p++ =
+        Base64Table[((data[i] & 0x3) << 4) | ((int)(data[i + 1] & 0xF0) >> 4)];
+    *p++ = Base64Table[((data[i + 1] & 0xF) << 2) |
+                       ((int)(data[i + 2] & 0xC0) >> 6)];
+    *p++ = Base64Table[data[i + 2] & 0x3F];
+  }
+  if (i < in_len) {
+    *p++ = Base64Table[(data[i] >> 2) & 0x3F];
+    if (i == (in_len - 1)) {
+      *p++ = Base64Table[((data[i] & 0x3) << 4)];
+      *p++ = '=';
+    } else {
+      *p++ = Base64Table[((data[i] & 0x3) << 4) |
+                         ((int)(data[i + 1] & 0xF0) >> 4)];
+      *p++ = Base64Table[((data[i + 1] & 0xF) << 2)];
+    }
+    *p++ = '=';
+  }
+  return ret;
+}
+
+std::string Utils::GenBasicAuthCredential(const std::string &id,
+                                          const std::string &key) {
+  std::string credential = id + constants::kBasicAuthJoiner + key;
+  std::string result = constants::kBasicAuthPrefix;
+  result.append(constants::kBasicAuthSeparator);
+  result.append(Base64Encode(credential));
+  return result;
+}
+
+int32_t Utils::requestUrl(std::string &res, const HttpRequest *request) {
+  CURL *curl = NULL;
+  struct curl_slist *list = NULL;
+
+  curl_global_init(CURL_GLOBAL_ALL);
+
+  curl = curl_easy_init();
+  if (!curl) {
+    LOG_ERROR("failed to init curl object");
+    return SdkCode::kErrorCURL;
+  }
+
+  // http header
+  list = curl_slist_append(list,
+                           "Content-Type: application/x-www-form-urlencoded");
+
+  if (request->need_auth && !request->auth_id.empty() &&
+      !request->auth_key.empty()) {
+    // Authorization: Basic xxxxxxxx
+    std::string auth = constants::kBasicAuthHeader;
+    auth.append(constants::kBasicAuthSeparator);
+    auth.append(GenBasicAuthCredential(request->auth_id, request->auth_key));
+    LOG_INFO("request manager, auth-header:" << auth.c_str());
+    list = curl_slist_append(list, auth.c_str());
+  }
+
+  curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
+
+  // set url
+  curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
+  curl_easy_setopt(curl, CURLOPT_URL, request->url.c_str());
+  curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request->post_data.c_str());
+  curl_easy_setopt(curl, CURLOPT_TIMEOUT, request->timeout);
+
+  // register callback and get res
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &Utils::getUrlResponse);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &res);
+  curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+
+  // execute curl request
+  CURLcode ret = curl_easy_perform(curl);
+  if (ret != 0) {
+    LOG_ERROR(curl_easy_strerror(ret));
+    LOG_ERROR("failed to request data from %s" << request->url.c_str());
+    if (curl)
+      curl_easy_cleanup(curl);
+    curl_global_cleanup();
+
+    return SdkCode::kErrorCURL;
+  }
+
+  int32_t code;
+  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &code);
+  if (code != 200) {
+    LOG_ERROR("tdm responsed with code %d" << code);
+    if (curl)
+      curl_easy_cleanup(curl);
+    curl_global_cleanup();
+
+    return SdkCode::kErrorCURL;
+  }
+
+  if (res.empty()) {
+    LOG_ERROR("tdm return empty data");
+    if (curl)
+      curl_easy_cleanup(curl);
+    curl_global_cleanup();
+
+    return SdkCode::kErrorCURL;
+  }
+
+  // clean work
+  curl_easy_cleanup(curl);
+  curl_global_cleanup();
+
+  return 0;
+}
 size_t Utils::getUrlResponse(void *buffer, size_t size, size_t count,
                              void *response) {
   std::string *str = (std::string *)response;
