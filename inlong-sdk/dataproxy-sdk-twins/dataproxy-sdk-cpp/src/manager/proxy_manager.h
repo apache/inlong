@@ -30,7 +30,7 @@ namespace inlong {
 class ProxyManager {
 private:
   static ProxyManager *instance_;
-  int32_t timeout_;
+  uint32_t timeout_;
   read_write_mutex groupid_2_cluster_rwmutex_;
   read_write_mutex groupid_2_proxy_map_rwmutex_;
 

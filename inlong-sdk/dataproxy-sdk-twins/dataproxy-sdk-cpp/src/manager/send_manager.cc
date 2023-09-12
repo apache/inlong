@@ -22,11 +22,13 @@
 #include "proxy_manager.h"
 namespace inlong {
 SendManager::SendManager() : send_group_idx_(0) {
-  for (int32_t i = 0; i < SdkConfig::getInstance()->group_ids_.size(); i++) {
+  for (int32_t i = 0; i < SdkConfig::getInstance()->inlong_group_ids_.size();
+       i++) {
     LOG_INFO("SendManager, group_id:"
-             << SdkConfig::getInstance()->group_ids_[i] << " send group num:"
+             << SdkConfig::getInstance()->inlong_group_ids_[i]
+             << " send group num:"
              << SdkConfig::getInstance()->per_groupid_thread_nums_);
-    DoAddSendGroup(SdkConfig::getInstance()->group_ids_[i]);
+    DoAddSendGroup(SdkConfig::getInstance()->inlong_group_ids_[i]);
   }
 }
 

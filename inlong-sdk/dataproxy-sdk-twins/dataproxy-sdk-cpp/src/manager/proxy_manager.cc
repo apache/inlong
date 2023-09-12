@@ -80,22 +80,30 @@ void ProxyManager::DoUpdate() {
       if (SdkConfig::getInstance()->enable_manager_url_from_cluster_)
         url = SdkConfig::getInstance()->manager_cluster_url_;
       else {
-        url = SdkConfig::getInstance()->manager_url_ + "/" + groupid2cluster.first;
+        url = SdkConfig::getInstance()->manager_url_ + "/" +
+              groupid2cluster.first;
       }
       std::string post_data = "ip=" + SdkConfig::getInstance()->local_ip_ +
                               "&version=" + constants::kVersion +
                               "&protocolType=" + constants::kProtocolType;
-      LOG_WARN("get inlong_group_id:%s proxy cfg url:%s, post_data:%s"<<
-               groupid2cluster.first.c_str()<<url.c_str()<< post_data.c_str());
+      LOG_WARN("get inlong_group_id:" << groupid2cluster.first.c_str()
+                                      << "proxy cfg url " << url.c_str()
+                                      << "post_data:" << post_data.c_str());
 
       std::string meta_data;
       int32_t ret;
       std::string urlByDNS;
       for (int i = 0; i < constants::kMaxRequestTDMTimes; i++) {
-        ret = Utils::requestUrl(url, urlByDNS, meta_data, timeout_);
+        HttpRequest request = {url,
+                               timeout_,
+                               SdkConfig::getInstance()->need_auth_,
+                               SdkConfig::getInstance()->auth_id_,
+                               SdkConfig::getInstance()->auth_key_,
+                               post_data};
+        ret = Utils::requestUrl(meta_data, &request);
         if (!ret) {
           break;
-        }
+        } // request success
       }
       ProxyInfoVec proxyInfoVec;
       ret = ParseAndGet(groupid2cluster.first, meta_data, proxyInfoVec);
@@ -116,7 +124,7 @@ void ProxyManager::DoUpdate() {
   LOG_INFO("finish ProxyManager DoUpdate.");
 }
 
-int32_t ProxyManager::ParseAndGet(const std::string &groupid,
+int32_t ProxyManager::ParseAndGet(const std::string &inlong_group_id,
                                   const std::string &meta_data,
                                   ProxyInfoVec &proxy_info_vec) {
   rapidjson::Document doc;
@@ -126,67 +134,84 @@ int32_t ProxyManager::ParseAndGet(const std::string &groupid,
     return SdkCode::kErrorParseJson;
   }
 
-  if (doc.HasMember("size") && doc["size"].IsInt() && !doc["size"].IsNull() &&
-      doc["size"].GetInt() > 0) {
-    const rapidjson::Value &obj = doc["size"];
-  } else {
-    LOG_ERROR("can't find groupid:%s buslist from meta_data"
-              << groupid.c_str());
+  if (!(doc.HasMember("success") && doc["success"].IsBool() &&
+        doc["success"].GetBool())) {
+    LOG_ERROR("failed to get proxy_list of inlong_group_id:%s, success: not "
+              "exist or false"
+              << inlong_group_id.c_str());
+    return SdkCode::kErrorParseJson;
+  }
+  // check data valid
+  if (!doc.HasMember("data") || doc["data"].IsNull()) {
+    LOG_ERROR("failed to get proxy_list of inlong_group_id:%s, data: not exist "
+              "or null"
+              << inlong_group_id.c_str());
     return SdkCode::kErrorParseJson;
   }
 
-  if (doc.HasMember("cluster_id") && doc["cluster_id"].IsInt() &&
-      !doc["cluster_id"].IsNull()) {
-    const rapidjson::Value &obj = doc["cluster_id"];
-  } else {
-    LOG_ERROR("cluster_id of groupid:%s is not found or not a integer"
-              << groupid.c_str());
+  // check nodelist valid
+  const rapidjson::Value &clusterInfo = doc["data"];
+  if (!clusterInfo.HasMember("nodeList") || clusterInfo["nodeList"].IsNull()) {
+    LOG_ERROR("invalid nodeList of inlong_group_id:%s, not exist or null"
+              << inlong_group_id.c_str());
     return SdkCode::kErrorParseJson;
   }
 
-  if (doc.HasMember("address") && !doc["address"].IsNull()) // v2版本
-  {
-    const rapidjson::Value &hostlist = doc["address"];
-    for (auto &info : hostlist.GetArray()) {
-      std::string id, ip;
-      int32_t port;
-      if (info.HasMember("host") && !info["host"].IsNull())
-        ip = info["host"].GetString();
-      else {
-        LOG_ERROR("this host info is null");
-        continue;
-      }
-      if (info.HasMember("port") && !info["port"].IsNull()) {
-        if (info["port"].IsString())
-          port = std::stoi(info["port"].GetString());
-        if (info["port"].IsInt())
-          port = info["port"].GetInt();
-      }
+  // check nodeList isn't empty
+  const rapidjson::Value &nodeList = clusterInfo["nodeList"];
+  if (nodeList.GetArray().Size() == 0) {
+    LOG_ERROR("empty nodeList of inlong_group_id:%s"
+              << inlong_group_id.c_str());
+    return SdkCode::kErrorParseJson;
+  }
+  // check clusterId
+  if (!clusterInfo.HasMember("clusterId") ||
+      !clusterInfo["clusterId"].IsInt() ||
+      clusterInfo["clusterId"].GetInt() < 0) {
+    LOG_ERROR("clusterId of inlong_group_id:%s is not found or not a integer"
+              << inlong_group_id.c_str());
+    return SdkCode::kErrorParseJson;
+  }
 
-      else {
-        LOG_ERROR("this port info is null or negative");
-        continue;
-      }
-      if (info.HasMember("id") && !info["id"].IsNull()) {
-        if (info["id"].IsString())
-          id = info["id"].GetString();
-        if (info["id"].IsInt())
-          id = std::to_string(info["id"].GetInt());
-      } else {
-        LOG_ERROR("there is no id info of groupid");
-        continue;
-      }
-      proxy_info_vec.emplace_back(id, ip, port);
+  // proxy list
+  for (auto &proxy : nodeList.GetArray()) {
+    std::string ip;
+    std::string id;
+    int32_t port;
+    if (proxy.HasMember("ip") && !proxy["ip"].IsNull())
+      ip = proxy["ip"].GetString();
+    else {
+      LOG_ERROR("this ip info is null");
+      continue;
     }
-  } else {
-    LOG_ERROR("there is no any host info of groupid:%s" << groupid.c_str());
-    return SdkCode::kErrorParseJson;
+    if (proxy.HasMember("port") && !proxy["port"].IsNull()) {
+      if (proxy["port"].IsString())
+        port = std::stoi(proxy["port"].GetString());
+      else if (proxy["port"].IsInt())
+        port = proxy["port"].GetInt();
+    }
+
+    else {
+      LOG_ERROR("this ip info is null or negative");
+      continue;
+    }
+    if (proxy.HasMember("id") && !proxy["id"].IsNull()) {
+      if (proxy["id"].IsString())
+        id = proxy["id"].GetString();
+      else if (proxy["id"].IsInt())
+        id = proxy["id"].GetInt();
+    } else {
+      LOG_WARN("there is no id info of inlong_group_id");
+      continue;
+    }
+    proxy_info_vec.emplace_back(id, ip, port);
   }
+
   return SdkCode::kSuccess;
 }
 
 int32_t ProxyManager::GetProxy(const std::string &groupid,
-                                  ProxyInfoVec &proxy_info_vec) {
+                               ProxyInfoVec &proxy_info_vec) {
   unique_read_lock<read_write_mutex> rdlck(groupid_2_proxy_map_rwmutex_);
   auto it = groupid_2_proxy_map_.find(groupid);
   if (it == groupid_2_proxy_map_.end()) {

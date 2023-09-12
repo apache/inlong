@@ -1,21 +1,21 @@
 /**
-* Licensed to the Apache Software Foundation (ASF) under one
-* or more contributor license agreements.  See the NOTICE file
-* distributed with this work for additional information
-* regarding copyright ownership.  The ASF licenses this file
-* to you under the Apache License, Version 2.0 (the
-* "License"); you may not use this file except in compliance
-* with the License.  You may obtain a copy of the License at
-*
-*   http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 #include "sdk_conf.h"
 #include <rapidjson/document.h>
@@ -97,7 +97,7 @@ void SdkConfig::defaultInit() {
   log_path_ = constants::kLogPath;
 
   // manager parameters
-  manager_url_ = constants::kBusURL;
+  manager_url_ = constants::kManagerURL;
   enable_manager_url_from_cluster_ = constants::kEnableBusURLFromCluster;
   manager_cluster_url_ = constants::kBusClusterURL;
   manager_update_interval_ = constants::kBusUpdateInterval;
@@ -243,12 +243,12 @@ void SdkConfig::InitLogParam(const rapidjson::Value &doc) {
   }
 }
 void SdkConfig::InitBusParam(const rapidjson::Value &doc) {
-  // bus_URL
+  // manager url
   if (doc.HasMember("manager_url") && doc["manager_url"].IsString()) {
     const rapidjson::Value &obj = doc["manager_url"];
     manager_url_ = obj.GetString();
   } else {
-    manager_url_ = constants::kBusURL;
+    manager_url_ = constants::kManagerURL;
   }
   // bus_cluster_URL_
   if (doc.HasMember("manager_cluster_url") &&
@@ -301,13 +301,13 @@ void SdkConfig::InitBusParam(const rapidjson::Value &doc) {
     max_proxy_num_ = constants::kMaxBusNum;
   }
 
-  if (doc.HasMember("group_ids") && doc["group_ids"].IsString()) {
-    const rapidjson::Value &obj = doc["group_ids"];
-    std::string bids_str = obj.GetString();
-    int32_t size = Utils::splitOperate(bids_str, group_ids_, ",");
-  } else {
+  if (doc.HasMember("inlong_group_ids") && doc["inlong_group_ids"].IsString()) {
+    const rapidjson::Value &obj = doc["inlong_group_ids"];
+    std::string inlong_group_ids_str = obj.GetString();
+    Utils::splitOperate(inlong_group_ids_str, inlong_group_ids_, ",");
   }
 }
+
 void SdkConfig::InitTcpParam(const rapidjson::Value &doc) {
   if (doc.HasMember("tcp_detection_interval") &&
       doc["tcp_detection_interval"].IsInt() &&
@@ -334,7 +334,29 @@ void SdkConfig::InitTcpParam(const rapidjson::Value &doc) {
     tcp_idle_time_ = constants::kTcpIdleTime;
   }
 }
-
+void SdkConfig::InitAuthParm(const rapidjson::Value &doc) {
+  // auth settings
+  if (doc.HasMember("need_auth") && doc["need_auth"].IsBool() &&
+      doc["need_auth"].GetBool()) {
+    if (!doc.HasMember("auth_id") || !doc.HasMember("auth_key") ||
+        !doc["auth_id"].IsString() || !doc["auth_key"].IsString() ||
+        doc["auth_id"].IsNull() || doc["auth_key"].IsNull()) {
+      LOG_ERROR("need_auth, but auth_id or auth_key is empty or not string "
+                "type, check config!");
+      return;
+    }
+    need_auth_ = true;
+    auth_id_ = doc["auth_id"].GetString();
+    auth_key_ = doc["auth_key"].GetString();
+    LOG_INFO("need_auth, auth_id:%s, auth_key:%s" << auth_id_.c_str()
+                                                  << auth_key_.c_str());
+  } else {
+    need_auth_ = constants::kNeedAuth;
+    LOG_INFO("need_auth is not expect, then use default:%s" << need_auth_
+                 ? "true"
+                 : "false");
+  }
+}
 void SdkConfig::OthersParam(const rapidjson::Value &doc) {
   // ser_ip
   if (doc.HasMember("ser_ip") && doc["ser_ip"].IsString()) {
@@ -381,7 +403,7 @@ void SdkConfig::OthersParam(const rapidjson::Value &doc) {
 
 void SdkConfig::ShowClientConfig() {
   LOG_INFO("per_groupid_thread_nums: " << per_groupid_thread_nums_);
-  LOG_INFO("group_ids: " << Utils::getVectorStr(group_ids_).c_str());
+  LOG_INFO("group_ids: " << Utils::getVectorStr(inlong_group_ids_).c_str());
   LOG_INFO("buffer_num_per_bid: " << send_buf_size_);
   LOG_INFO("local_ip: " << local_ip_.c_str());
   LOG_INFO("local_port: " << local_port_);
@@ -414,5 +436,9 @@ void SdkConfig::ShowClientConfig() {
   LOG_INFO("tcp_idle_time_: " << tcp_idle_time_);
   LOG_INFO("send_buf_size_: " << send_buf_size_);
   LOG_INFO("recv_buf_size_: " << recv_buf_size_);
+  LOG_INFO("need_auth: " << need_auth_ ? "true" : "false");
+  LOG_INFO("auth_id: " << auth_id_.c_str());
+  LOG_INFO("auth_key: " << auth_key_.c_str());
 }
-} // namespace sdk
+
+} // namespace inlong

@@ -38,11 +38,12 @@ private:
   void InitLogParam(const rapidjson::Value &doc);
   void InitBusParam(const rapidjson::Value &doc);
   void InitTcpParam(const rapidjson::Value &doc);
+  void InitAuthParm(const rapidjson::Value &doc);
   void OthersParam(const rapidjson::Value &doc);
 
 public:
   // cache parameter
-  std::vector<std::string> group_ids_; // Initialize the inlong groupid collection
+  std::vector<std::string> inlong_group_ids_; // Initialize the inlong groupid collection
   uint32_t recv_buf_size_;        // Receive buf size, tid granularity
   uint32_t send_buf_size_;        // Send buf size, bid granularity
 
@@ -80,6 +81,11 @@ public:
   bool enable_tcp_nagle_;
   uint64_t tcp_idle_time_;          // The time when tcpclient did not send data
   uint32_t tcp_detection_interval_; // tcp-client detection interval
+
+  // auth settings
+  bool need_auth_;
+  std::string auth_id_;
+  std::string auth_key_;
 
   // Other parameters
   std::string local_ip_;        // local ip

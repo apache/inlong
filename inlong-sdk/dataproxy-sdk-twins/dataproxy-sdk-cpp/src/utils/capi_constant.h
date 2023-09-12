@@ -55,7 +55,8 @@ static const uint32_t kLogSize = 100 * 1024 * 1024;
 static const uint8_t kLogLevel = 2;
 static const char kLogPath[] = "./";
 
-static const char kBusURL[] = "127.0.0.1/api/tdbus_ip_v2";
+static const char kManagerURL[] =
+    "http://127.0.0.1:8099/inlong/manager/openapi/dataproxy/getIpList";
 static const bool kEnableBusURLFromCluster = false;
 static const char kBusClusterURL[] =
     "127.0.0.1/heartbeat/tdbus_ip_v2?cluster_id=0&net_tag=all";
@@ -80,7 +81,8 @@ static const char kBasicAuthHeader[] = "Authorization:";
 static const char kBasicAuthPrefix[] = "Basic";
 static const char kBasicAuthSeparator[] = " ";
 static const char kBasicAuthJoiner[] = ":";
-static const char kProtocolType [] = "TCP";
+static const char kProtocolType[] = "TCP";
+static const bool kNeedAuth = false;
 
 static const uint32_t kMaxAttrLen = 2048;
 
