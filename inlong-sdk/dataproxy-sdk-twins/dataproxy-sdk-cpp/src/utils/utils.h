@@ -33,6 +33,16 @@
 namespace inlong {
 extern AtomicUInt g_send_msgid;
 extern AtomicInt user_exit_flag;
+struct HttpRequest
+{
+  std::string url;
+  uint32_t timeout;
+  bool need_auth;
+  std::string auth_id;
+  std::string auth_key;
+  std::string post_data;
+
+};
 class Utils {
  private:
   static char snowflake_id[35];
@@ -54,6 +64,7 @@ class Utils {
   static bool bindCPU(int32_t cpu_id);
   static int32_t requestUrl(const std::string& url, std::string& urlByDNS, std::string& res,
                             uint32_t timeout);
+  static int32_t requestUrl(std::string& res, const HttpRequest* request);
   static bool readFile(const std::string& file_path,
                        std::string& content);
 
@@ -61,7 +72,10 @@ class Utils {
                               const std::string& delimiter);
   static std::string getVectorStr(std::vector<std::string>& vs);
 
- private:
+  static std::string GenBasicAuthCredential(const std::string& id, const std::string& key);
+  static std::string Base64Encode(const std::string& data);
+
+private:
   static size_t getUrlResponse(void* buffer, size_t size, size_t count, void* response);
   static int64_t waitNextMills(int64_t last_ms);
   static std::string trim(const std::string& source);
