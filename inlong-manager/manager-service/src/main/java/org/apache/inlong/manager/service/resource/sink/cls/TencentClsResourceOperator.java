@@ -89,8 +89,7 @@ public class TencentClsResourceOperator implements SinkResourceOperator {
             clientProfile.setHttpProfile(httpProfile);
             ClsClient client = new ClsClient(cred, tencentClsDataNode.getRegion(), clientProfile);
             CreateTopicRequest req = new CreateTopicRequest();
-            String allTag = tencentClsSinkDTO.getTag();
-            String[] allTags = allTag.split("\\|");
+            String[] allTags = tencentClsSinkDTO.getTag().split("\\|");
             Tag[] tags = convertTags(allTags);
             req.setTags(tags);
             req.setLogsetId(tencentClsDataNode.getLogSetID());
@@ -118,7 +117,7 @@ public class TencentClsResourceOperator implements SinkResourceOperator {
         Tag[] tags = new Tag[allTags.length];
         for (int i = 0; i < allTags.length; i++) {
             String tag = allTags[i];
-            String[] keyAndValueOfTag = tag.split("=");
+            String[] keyAndValueOfTag = tag.split(":");
             Tag tagInfo = new Tag();
             tagInfo.set(keyAndValueOfTag[0], keyAndValueOfTag[1]);
             tags[i] = tagInfo;
