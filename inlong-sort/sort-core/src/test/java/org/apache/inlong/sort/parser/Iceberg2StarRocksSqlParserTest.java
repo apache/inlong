@@ -26,7 +26,7 @@ import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant;
 import org.apache.inlong.sort.protocol.node.Node;
-import org.apache.inlong.sort.protocol.node.extract.IcebergExtracNode;
+import org.apache.inlong.sort.protocol.node.extract.IcebergExtractNode;
 import org.apache.inlong.sort.protocol.node.load.StarRocksLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
@@ -83,9 +83,9 @@ public class Iceberg2StarRocksSqlParserTest extends AbstractTestBase {
                 .collect(Collectors.toList());
     }
 
-    private IcebergExtracNode buildIcebergExtracNode(String id) {
+    private IcebergExtractNode buildIcebergExtracNode(String id) {
 
-        return new IcebergExtracNode(id, "iceberg-source", fields(), null, uri,
+        return new IcebergExtractNode(id, "iceberg-source", fields(), null, uri,
                 warehouse, icDatabase, icTable, IcebergConstant.CatalogType.HIVE, catalogName,
                 null, null, null);
 

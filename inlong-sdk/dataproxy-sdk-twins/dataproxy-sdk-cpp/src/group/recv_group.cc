@@ -19,7 +19,7 @@
 
 #include "../utils/utils.h"
 #include "api_code.h"
-#include "msg_protocol.h"
+#include "../protocol/msg_protocol.h"
 #include <cstdlib>
 #include <functional>
 
@@ -28,7 +28,7 @@ const uint32_t ATTR_LENGTH = 10;
 const uint32_t DEFAULT_PACK_ATTR = 400;
 RecvGroup::RecvGroup(const std::string &inlong_group_id, const std::string &inlong_stream_id,
                      std::shared_ptr<SendManager> send_manager)
-    : cur_len_(0), inlong_group_id_(inlong_group_id), inlong_stream_id_(inlong_stream_id), groupId_num_(0), tid_num_(0),
+    : cur_len_(0), inlong_group_id_(inlong_group_id), inlong_stream_id_(inlong_stream_id), groupId_num_(0), streamId_num_(0),
       msg_type_(SdkConfig::getInstance()->msg_type_),
       data_capacity_(SdkConfig::getInstance()->buf_size_),
       send_manager_(send_manager) {
@@ -69,7 +69,7 @@ int32_t RecvGroup::SendData(const std::string &msg, const std::string &groupId,
 int32_t RecvGroup::DoDispatchMsg() {
   last_pack_time_ = Utils::getCurrentMsTime();
   std::lock_guard<std::mutex> lck(mutex_);
-  if (groupId_.empty()) {
+  if (inlong_group_id_.empty()) {
     LOG_ERROR("groupId  is empty, check!!");
     return SdkCode::kInvalidInput;
   }
@@ -77,7 +77,7 @@ int32_t RecvGroup::DoDispatchMsg() {
     LOG_ERROR("no msg in msg_set, check!");
     return SdkCode::kFailGetRevGroup;
   }
-  auto send_group = send_manager_->GetSendGroup(groupId_);
+  auto send_group = send_manager_->GetSendGroup(inlong_group_id_);
   if (send_group == nullptr) {
     LOG_ERROR("failed to get send_buf, something gets wrong, checkout!");
     return SdkCode::kFailGetSendBuf;
@@ -90,16 +90,16 @@ int32_t RecvGroup::DoDispatchMsg() {
   }
 
   uint32_t total_length = 0;
-  std::vector<UserMsgPtr> msgs_to_dispatch;
+  std::vector<SdkMsgPtr> msgs_to_dispatch;
   while (!msgs_.empty()) {
-    UserMsgPtr msg = msgs_.front();
-    if (msg->msg.size() + total_length + ATTR_LENGTH >
+    SdkMsgPtr msg = msgs_.front();
+    if (msg->msg_.size() + total_length + ATTR_LENGTH >
         SdkConfig::getInstance()->pack_size_) {
       break;
     }
     msgs_to_dispatch.push_back(msg);
     msgs_.pop();
-    total_length = msg->msg.size() + total_length + ATTR_LENGTH;
+    total_length = msg->msg_.size() + total_length + ATTR_LENGTH;
   }
 
   cur_len_ = cur_len_ - total_length;
@@ -137,7 +137,7 @@ void RecvGroup::AddMsg(const std::string &msg, std::string client_ip,
   std::string data_pack_format_attr =
       "__addcol1__reptime=" + Utils::getFormatTime(data_time_) +
       "&__addcol2__ip=" + client_ip;
-  msgs_.push(std::make_shared<UserMsg>(msg, client_ip, data_time_, call_back,
+  msgs_.push(std::make_shared<SdkMsg>(msg, client_ip, data_time_, call_back,
                                        data_pack_format_attr, user_client_ip,
                                        user_report_time));
 
@@ -152,7 +152,7 @@ bool RecvGroup::ShouldPack(int32_t msg_len) {
   return false;
 }
 
-bool RecvGroup::PackMsg(std::vector<UserMsgPtr> &msgs, char *pack_data,
+bool RecvGroup::PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data,
                         uint32_t &out_len, uint32_t uniq_id) {
   if (pack_data == nullptr) {
     LOG_ERROR("nullptr, failed to allocate memory for buf");
@@ -161,20 +161,20 @@ bool RecvGroup::PackMsg(std::vector<UserMsgPtr> &msgs, char *pack_data,
   uint32_t idx = 0;
   for (auto &it : msgs) {
     if (msg_type_ >= 5) {
-      *(uint32_t *)(&pack_buf_[idx]) = htonl(it->msg.size());
+      *(uint32_t *)(&pack_buf_[idx]) = htonl(it->msg_.size());
       idx += sizeof(uint32_t);
     }
-    memcpy(&pack_buf_[idx], it->msg.data(), it->msg.size());
-    idx += static_cast<uint32_t>(it->msg.size());
+    memcpy(&pack_buf_[idx], it->msg_.data(), it->msg_.size());
+    idx += static_cast<uint32_t>(it->msg_.size());
 
     // add attrlen|attr
     if (SdkConfig::getInstance()->isAttrDataPackFormat()) {
-      *(uint32_t *)(&pack_buf_[idx]) = htonl(it->data_pack_format_attr.size());
+      *(uint32_t *)(&pack_buf_[idx]) = htonl(it->data_pack_format_attr_.size());
       idx += sizeof(uint32_t);
 
-      memcpy(&pack_buf_[idx], it->data_pack_format_attr.data(),
-             it->data_pack_format_attr.size());
-      idx += static_cast<uint32_t>(it->data_pack_format_attr.size());
+      memcpy(&pack_buf_[idx], it->data_pack_format_attr_.data(),
+             it->data_pack_format_attr_.size());
+      idx += static_cast<uint32_t>(it->data_pack_format_attr_.size());
     }
 
     if (msg_type_ == 2 || msg_type_ == 3) {
@@ -215,7 +215,7 @@ bool RecvGroup::PackMsg(std::vector<UserMsgPtr> &msgs, char *pack_data,
     uint32_t char_groupId_flag = 0;
     std::string groupId_streamId_char;
     uint16_t groupId_num = 0, streamId_num = 0;
-    if (SdkConfig::getInstance()->enableChargroupId() || groupId_num_ == 0 ||
+    if (SdkConfig::getInstance()->enableChar() || groupId_num_ == 0 ||
         streamId_num_ == 0) {
       groupId_num = 0;
       streamId_num = 0;
@@ -232,10 +232,10 @@ bool RecvGroup::PackMsg(std::vector<UserMsgPtr> &msgs, char *pack_data,
     std::string attr;
     if (SdkConfig::getInstance()->enableTraceIP()) {
       if (groupId_streamId_char.empty())
-        attr = "node1ip=" + SdkConfig::getInstance()->ser_ip_ +
+        attr = "node1ip=" + SdkConfig::getInstance()->local_ip_ +
                "&rtime1=" + std::to_string(Utils::getCurrentMsTime());
       else
-        attr = groupId_streamId_char + "&node1ip=" + SdkConfig::getInstance()->ser_ip_ +
+        attr = groupId_streamId_char + "&node1ip=" + SdkConfig::getInstance()->local_ip_ +
                "&rtime1=" + std::to_string(Utils::getCurrentMsTime());
     } else {
       attr = topic_desc_;
@@ -298,12 +298,6 @@ bool RecvGroup::PackMsg(std::vector<UserMsgPtr> &msgs, char *pack_data,
       attr += "&cp=snappy";
     attr += "&cnt=" + std::to_string(cnt);
     attr += "&sid=" + std::string(Utils::getSnowflakeId());
-    if (SdkConfig::getInstance()
-            ->is_from_DC_) { //&__addcol1_reptime=yyyymmddHHMMSS&__addcol2__ip=BBB&f=dc
-      attr += "&__addcol1_reptime=" +
-              Utils::getFormatTime(Utils::getCurrentMsTime()) +
-              "&__addcol2__ip=" + SdkConfig::getInstance()->ser_ip_ + "&f=dc";
-    }
 
     *(uint32_t *)bodyBegin = htonl(attr.size());
     bodyBegin += sizeof(uint32_t);
@@ -339,7 +333,7 @@ void RecvGroup::DispatchMsg(bool exit) {
   }
 }
 std::shared_ptr<SendBuffer>
-RecvGroup::BuildSendBuf(std::vector<UserMsgPtr> &msgs) {
+RecvGroup::BuildSendBuf(std::vector<SdkMsgPtr> &msgs) {
   if (msgs.empty()) {
     LOG_ERROR("pack msgs is empty.");
     return nullptr;
@@ -361,8 +355,8 @@ RecvGroup::BuildSendBuf(std::vector<UserMsgPtr> &msgs) {
   }
   send_buffer->setLen(len);
   send_buffer->setMsgCnt(msg_cnt);
-  send_buffer->setgroupId(groupId_);
-  send_buffer->setstreamId(streamId_);
+  send_buffer->setInlongGroupId(inlong_group_id_);
+  send_buffer->setStreamId(inlong_stream_id_);
   send_buffer->setUniqId(uniq_id);
   send_buffer->setIsPacked(true);
   for (auto it : msgs) {
@@ -372,11 +366,11 @@ RecvGroup::BuildSendBuf(std::vector<UserMsgPtr> &msgs) {
   return send_buffer;
 }
 
-void RecvGroup::CallbalkToUsr(std::vector<UserMsgPtr> &msgs) {
+void RecvGroup::CallbalkToUsr(std::vector<SdkMsgPtr> &msgs) {
   for (auto &it : msgs) {
-    if (it->cb) {
-      it->cb(groupId_.data(), streamId_.data(), it->msg.data(), it->msg.size(),
-             it->user_report_time, it->user_client_ip.data());
+    if (it->cb_) {
+      it->cb_(inlong_group_id_.data(), inlong_stream_id_.data(), it->msg_.data(), it->msg_.size(),
+             it->user_report_time_, it->user_client_ip_.data());
     }
   }
 }

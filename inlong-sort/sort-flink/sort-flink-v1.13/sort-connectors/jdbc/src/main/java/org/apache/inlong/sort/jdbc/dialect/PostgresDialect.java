@@ -38,25 +38,19 @@ public class PostgresDialect extends AbstractJdbcDialect {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String QUERY_PRIMARY_KEY_SQL = "SELECT\n" +
-            "\tstring_agg (DISTINCT t3.attname, ',') AS " + PRIMARY_KEY_COLUMN + ",\n" +
-            "    \tt4.tablename AS tableName\n" +
-            "FROM\n" +
-            "\tpg_constraint t1\n" +
-            "INNER JOIN pg_class t2 ON t1.conrelid = t2.oid\n" +
-            "INNER JOIN pg_attribute t3 ON t3.attrelid = t2.oid\n" +
-            "AND array_position (t1.conkey, t3.attnum) is not null\n" +
-            "INNER JOIN pg_tables t4 on t4.tablename = t2.relname\n" +
-            "INNER JOIN pg_index t5 ON t5.indrelid = t2.oid\n" +
-            "AND t3.attnum = ANY (t5.indkey)\n" +
-            "LEFT JOIN pg_description t6 on t6.objoid = t3.attrelid\n" +
-            "and t6.objsubid = t3.attnum\n" +
-            "WHERE\n" +
-            "\tt1.contype = 'p'\n" +
-            "AND length (t3.attname) > 0\n" +
-            "AND t2.oid = ?::regclass\n" +
-            "group by\n" +
-            "\tt4.tablename";
+    private static final String QUERY_PRIMARY_KEY_SQL = "SELECT\n"
+            + " string_agg(pg_attribute.attname, ',') AS pkColumn,\n"
+            + " pg_class.relname AS tableName\n"
+            + " FROM\n"
+            + " pg_index, pg_class, pg_attribute\n"
+            + " WHERE\n"
+            + " pg_class.oid = ?::regclass AND\n"
+            + " indrelid = pg_class.oid AND\n"
+            + " pg_attribute.attrelid = pg_class.oid AND\n"
+            + " pg_attribute.attnum = any(pg_index.indkey) AND\n"
+            + " indisprimary \n "
+            + " GROUP BY \n"
+            + " pg_class.relname, pg_index.indkey;";
 
     // Define MAX/MIN precision of TIMESTAMP type according to PostgreSQL docs:
     // https://www.postgresql.org/docs/12/datatype-datetime.html

@@ -44,16 +44,16 @@ import java.util.Set;
 
 /**
  * Schema change helper
- * */
+ */
 public abstract class SchemaChangeHelper implements SchemaChangeHandle {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemaChangeHelper.class);
-    private final boolean schemaChange;
     protected final Map<SchemaChangeType, SchemaChangePolicy> policyMap;
     protected final JsonDynamicSchemaFormat dynamicSchemaFormat;
+    protected final SchemaUpdateExceptionPolicy exceptionPolicy;
+    private final boolean schemaChange;
     private final String databasePattern;
     private final String tablePattern;
-    protected final SchemaUpdateExceptionPolicy exceptionPolicy;
     private final SinkTableMetricData metricData;
     private final DirtySinkHelper<Object> dirtySinkHelper;
 
@@ -105,7 +105,7 @@ public abstract class SchemaChangeHelper implements SchemaChangeHandle {
                 return;
             }
             operation = Preconditions.checkNotNull(
-                    dynamicSchemaFormat.objectMapper.convertValue(operationNode, new TypeReference<Operation>() {
+                    JsonDynamicSchemaFormat.OBJECT_MAPPER.convertValue(operationNode, new TypeReference<Operation>() {
                     }), "Operation is null");
         } catch (Exception e) {
             if (exceptionPolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
@@ -248,6 +248,7 @@ public abstract class SchemaChangeHelper implements SchemaChangeHandle {
             }
         }
     }
+
     private String parseValue(JsonNode data, String pattern) {
         try {
             return dynamicSchemaFormat.parse(data, pattern);

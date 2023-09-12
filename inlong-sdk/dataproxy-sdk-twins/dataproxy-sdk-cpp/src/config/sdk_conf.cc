@@ -64,7 +64,7 @@ bool SdkConfig::ParseConfig(const std::string &config_path) {
   InitTcpParam(doc);
   OthersParam(doc);
 
-  sdk::initLog4cplus();
+  inlong::initLog4cplus();
 
   ShowClientConfig();
 
@@ -72,7 +72,7 @@ bool SdkConfig::ParseConfig(const std::string &config_path) {
 }
 
 void SdkConfig::defaultInit() {
-  per_groupid_thread_nums_ = constants::kPerBidThreadNums;
+  per_groupid_thread_nums_ = constants::kPerGroupidThreadNums;
   dispatch_interval_send_ = constants::kDispatchIntervalSend;
   dispatch_interval_zip_ = constants::kDispatchIntervalZip;
   tcp_detection_interval_ = constants::kTcpDetectionInterval;
@@ -102,7 +102,7 @@ void SdkConfig::defaultInit() {
   manager_cluster_url_ = constants::kBusClusterURL;
   manager_update_interval_ = constants::kBusUpdateInterval;
   manager_url_timeout_ = constants::kBusURLTimeout;
-  max_tcp_num_ = constants::kMaxBusNum;
+  max_proxy_num_ = constants::kMaxBusNum;
 
   local_ip_ = constants::kSerIP;
   local_port_ = constants::kSerPort;
@@ -121,7 +121,7 @@ void SdkConfig::InitThreadParam(const rapidjson::Value &doc) {
     const rapidjson::Value &obj = doc["per_groupid_thread_nums"];
     per_groupid_thread_nums_ = obj.GetInt();
   } else {
-    per_groupid_thread_nums_ = constants::kPerBidThreadNums;
+    per_groupid_thread_nums_ = constants::kPerGroupidThreadNums;
   }
   if (doc.HasMember("dispatch_interval_zip") &&
       doc["dispatch_interval_zip"].IsInt() &&
@@ -296,9 +296,9 @@ void SdkConfig::InitBusParam(const rapidjson::Value &doc) {
   if (doc.HasMember("max_tcp_num") && doc["max_tcp_num"].IsInt() &&
       doc["max_tcp_num"].GetInt() > 0) {
     const rapidjson::Value &obj = doc["max_tcp_num"];
-    max_tcp_num_ = obj.GetInt();
+    max_proxy_num_ = obj.GetInt();
   } else {
-    max_tcp_num_ = constants::kMaxBusNum;
+    max_proxy_num_ = constants::kMaxBusNum;
   }
 
   if (doc.HasMember("group_ids") && doc["group_ids"].IsString()) {
@@ -403,7 +403,7 @@ void SdkConfig::ShowClientConfig() {
           : "false");
   LOG_INFO("manager_update_interval:  minutes" << manager_update_interval_);
   LOG_INFO("manager_url_timeout: " << manager_url_timeout_);
-  LOG_INFO("max_tcp_num: " << max_tcp_num_);
+  LOG_INFO("max_tcp_num: " << max_proxy_num_);
   LOG_INFO("msg_type: " << msg_type_);
   LOG_INFO("enable_tcp_nagle: " << enable_tcp_nagle_ ? "true" : "false");
   LOG_INFO("enable_setaffinity: " << enable_setaffinity_ ? "true" : "false");

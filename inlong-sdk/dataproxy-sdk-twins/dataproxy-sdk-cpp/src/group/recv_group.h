@@ -28,13 +28,13 @@
 #include "../utils/atomic.h"
 #include "../utils/noncopyable.h"
 #include "sdk_conf.h"
-#include "user_msg.h"
+
 
 namespace inlong {
 class RecvGroup {
 private:
   char *pack_buf_;
-  std::queue<UserMsgPtr> msgs_;
+  std::queue<SdkMsgPtr> msgs_;
   uint32_t data_capacity_;
   uint32_t cur_len_;
   AtomicInt pack_err_;
@@ -67,7 +67,7 @@ public:
   int32_t SendData(const std::string &msg, const std::string &groupId,
                    const std::string &streamId, const std::string &client_ip,
                    uint64_t report_time, UserCallBack call_back);
-  bool PackMsg(std::vector<UserMsgPtr> &msgs, char *pack_data,
+  bool PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data,
                uint32_t &out_len, uint32_t uniq_id);
   void DispatchMsg(
       bool
@@ -77,8 +77,8 @@ public:
 
   std::string groupId() const { return inlong_group_id_; }
 
-  std::shared_ptr<SendBuffer> BuildSendBuf(std::vector<UserMsgPtr> &msgs);
-  void CallbalkToUsr(std::vector<UserMsgPtr> &msgs);
+  std::shared_ptr<SendBuffer> BuildSendBuf(std::vector<SdkMsgPtr> &msgs);
+  void CallbalkToUsr(std::vector<SdkMsgPtr> &msgs);
 };
 using RecvGroupPtr = std::shared_ptr<RecvGroup>;
 } // namespace inlong
