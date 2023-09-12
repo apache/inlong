@@ -1,7 +1,22 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.inlong.manager.service.node.cls;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -13,11 +28,24 @@ import org.apache.inlong.manager.pojo.node.cls.TencentClsDataNodeDTO;
 import org.apache.inlong.manager.pojo.node.cls.TencentClsDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.cls.TencentClsDataNodeRequest;
 import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tencentcloudapi.cls.v20201016.ClsClient;
+import com.tencentcloudapi.cls.v20201016.models.DescribeTopicsRequest;
+import com.tencentcloudapi.common.Credential;
+import com.tencentcloudapi.common.exception.TencentCloudSDKException;
+import com.tencentcloudapi.common.profile.ClientProfile;
+import com.tencentcloudapi.common.profile.HttpProfile;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TencentClsDataNodeOperator extends AbstractDataNodeOperator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TencentClsDataNodeOperator.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -62,6 +90,23 @@ public class TencentClsDataNodeOperator extends AbstractDataNodeOperator {
 
     @Override
     public Boolean testConnection(DataNodeRequest request) {
-        return super.testConnection(request);
+        TencentClsDataNodeRequest dataNodeRequest = (TencentClsDataNodeRequest) request;
+        Credential cred = new Credential(dataNodeRequest.getManageSecretId(), dataNodeRequest.getManageSecretId());
+        HttpProfile httpProfile = new HttpProfile();
+        httpProfile.setEndpoint(dataNodeRequest.getEndpoint());
+        ClientProfile clientProfile = new ClientProfile();
+        clientProfile.setHttpProfile(httpProfile);
+        ClsClient client = new ClsClient(cred, dataNodeRequest.getRegion(), clientProfile);
+        DescribeTopicsRequest req = new DescribeTopicsRequest();
+        try {
+            client.DescribeTopics(req);
+        } catch (TencentCloudSDKException e) {
+            String errMsg = String.format("connect tencent cloud error endPoint = %s secretId = %s secretKey = %s",
+                    dataNodeRequest.getEndpoint(), dataNodeRequest.getManageSecretId(),
+                    dataNodeRequest.getManageSecretKey());
+            LOGGER.error(errMsg, e);
+            throw new BusinessException(errMsg);
+        }
+        return true;
     }
 }

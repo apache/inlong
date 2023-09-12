@@ -1,8 +1,22 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.inlong.manager.service.sink.cls;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
-import java.util.Map;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -16,14 +30,19 @@ import org.apache.inlong.manager.pojo.node.cls.TencentClsDataNodeDTO;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.cls.TencentClsSink;
 import org.apache.inlong.manager.pojo.sink.cls.TencentClsSinkDTO;
 import org.apache.inlong.manager.pojo.sink.cls.TencentClsSinkRequest;
-import org.apache.inlong.manager.pojo.sink.cls.TencentClsSink;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Tencent cloud log service sink operator
@@ -98,8 +117,8 @@ public class TencentClsSinkOperator extends AbstractSinkOperator {
                 DataNodeType.CLS);
         TencentClsDataNodeDTO tencentClsDataNodeDTO = JsonUtils.parseObject(dataNodeEntity.getExtParams(),
                 TencentClsDataNodeDTO.class);
-        params.put(SECRET_ID, tencentClsDataNodeDTO.getSecretId());
-        params.put(SECRET_KEY, tencentClsDataNodeDTO.getSecretKey());
+        params.put(SECRET_ID, tencentClsDataNodeDTO.getSendSecretId());
+        params.put(SECRET_KEY, tencentClsDataNodeDTO.getSendSecretKey());
         params.put(END_POINT, tencentClsDataNodeDTO.getEndpoint());
         StringBuilder fieldNames = new StringBuilder();
         for (String field : fields) {
