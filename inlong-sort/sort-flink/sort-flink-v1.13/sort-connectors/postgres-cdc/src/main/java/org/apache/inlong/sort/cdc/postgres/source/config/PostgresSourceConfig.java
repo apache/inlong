@@ -36,6 +36,7 @@ import java.util.Properties;
 public class PostgresSourceConfig extends JdbcSourceConfig {
 
     private static final long serialVersionUID = 1L;
+    public static final String DATABASE_NAME_KEY = "database";
 
     public PostgresSourceConfig(
             StartupOptions startupOptions,
@@ -100,7 +101,7 @@ public class PostgresSourceConfig extends JdbcSourceConfig {
 
     @Override
     public List<String> getMetricLabelList() {
-        return Arrays.asList(AbstractSourceInfo.DATABASE_NAME_KEY,
+        return Arrays.asList(DATABASE_NAME_KEY,
                 AbstractSourceInfo.SCHEMA_NAME_KEY, AbstractSourceInfo.TABLE_NAME_KEY);
     }
 }

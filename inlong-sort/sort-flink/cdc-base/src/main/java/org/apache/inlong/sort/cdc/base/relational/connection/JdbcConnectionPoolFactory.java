@@ -46,9 +46,6 @@ public abstract class JdbcConnectionPoolFactory {
         config.setConnectionTimeout(sourceConfig.getConnectTimeout().toMillis());
         config.addDataSourceProperty(SERVER_TIMEZONE_KEY, sourceConfig.getServerTimeZone());
         config.setDriverClassName(sourceConfig.getDriverClassName());
-
-        // note: the following properties should be optional (only applied to MySQL)
-        config.addDataSourceProperty(SERVER_TIMEZONE_KEY, sourceConfig.getServerTimeZone());
         // optional optimization configurations for pooled DataSource
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
