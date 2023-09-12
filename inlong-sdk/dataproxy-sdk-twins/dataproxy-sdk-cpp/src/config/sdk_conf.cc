@@ -102,7 +102,7 @@ void SdkConfig::defaultInit() {
   manager_cluster_url_ = constants::kBusClusterURL;
   manager_update_interval_ = constants::kBusUpdateInterval;
   manager_url_timeout_ = constants::kBusURLTimeout;
-  max_tcp_num_ = constants::kMaxBusNum;
+  max_proxy_num_ = constants::kMaxBusNum;
 
   local_ip_ = constants::kSerIP;
   local_port_ = constants::kSerPort;
@@ -296,9 +296,9 @@ void SdkConfig::InitBusParam(const rapidjson::Value &doc) {
   if (doc.HasMember("max_tcp_num") && doc["max_tcp_num"].IsInt() &&
       doc["max_tcp_num"].GetInt() > 0) {
     const rapidjson::Value &obj = doc["max_tcp_num"];
-    max_tcp_num_ = obj.GetInt();
+    max_proxy_num_ = obj.GetInt();
   } else {
-    max_tcp_num_ = constants::kMaxBusNum;
+    max_proxy_num_ = constants::kMaxBusNum;
   }
 
   if (doc.HasMember("group_ids") && doc["group_ids"].IsString()) {
@@ -403,7 +403,7 @@ void SdkConfig::ShowClientConfig() {
           : "false");
   LOG_INFO("manager_update_interval:  minutes" << manager_update_interval_);
   LOG_INFO("manager_url_timeout: " << manager_url_timeout_);
-  LOG_INFO("max_tcp_num: " << max_tcp_num_);
+  LOG_INFO("max_tcp_num: " << max_proxy_num_);
   LOG_INFO("msg_type: " << msg_type_);
   LOG_INFO("enable_tcp_nagle: " << enable_tcp_nagle_ ? "true" : "false");
   LOG_INFO("enable_setaffinity: " << enable_setaffinity_ ? "true" : "false");

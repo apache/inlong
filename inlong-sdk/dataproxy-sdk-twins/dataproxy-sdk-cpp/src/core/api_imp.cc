@@ -37,7 +37,7 @@ int32_t ApiImp::InitApi(const char *config_file_path) {
   }
   max_msg_length_ = std::min(SdkConfig::getInstance()->max_msg_size_,
                              SdkConfig::getInstance()->pack_size_);
-  local_ip_ = SdkConfig::getInstance()->ser_ip_;
+  local_ip_ = SdkConfig::getInstance()->local_ip_;
 
   return DoInit();
 }
@@ -95,7 +95,7 @@ int32_t ApiImp::CloseApi(int32_t max_waitms) {
 
 int32_t ApiImp::DoInit() {
   LOG_INFO(
-      "tdbus sdk cpp start Init, version:" << constants::kTDBusCAPIVersion);
+      "tdbus sdk cpp start Init, version:" << constants::kVersion);
 
   signal(SIGPIPE, SIG_IGN);
 
@@ -103,11 +103,11 @@ int32_t ApiImp::DoInit() {
 
   ProxyManager::GetInstance()->Init();
 
-  for (int i = 0; i < SdkConfig::getInstance()->inlong_group_ids_.size(); i++) {
+  for (int i = 0; i < SdkConfig::getInstance()->group_ids_.size(); i++) {
     LOG_INFO("DoInit CheckBidConf inlong_group_id:"
-             << SdkConfig::getInstance()->inlong_group_ids_[i]);
+             << SdkConfig::getInstance()->group_ids_[i]);
     ProxyManager::GetInstance()->CheckBidConf(
-        SdkConfig::getInstance()->inlong_group_ids_[i], false);
+        SdkConfig::getInstance()->group_ids_[i], false);
   }
 
   return InitManager();

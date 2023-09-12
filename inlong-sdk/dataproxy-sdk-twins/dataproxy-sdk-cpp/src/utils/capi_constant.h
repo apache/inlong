@@ -75,6 +75,15 @@ static const bool kEnableSetAffinity = false;
 static const uint32_t kMaskCPUAffinity = 0xff;
 static const uint16_t kExtendField = 0;
 
+// http basic auth
+static const char kBasicAuthHeader[] = "Authorization:";
+static const char kBasicAuthPrefix[] = "Basic";
+static const char kBasicAuthSeparator[] = " ";
+static const char kBasicAuthJoiner[] = ":";
+static const char kProtocolType [] = "TCP";
+
+static const uint32_t kMaxAttrLen = 2048;
+
 } // namespace constants
 } // namespace inlong
 #endif // INLONG_SDK_CONSTANT_H

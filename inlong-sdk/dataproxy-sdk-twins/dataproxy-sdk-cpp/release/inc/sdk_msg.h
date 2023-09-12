@@ -25,7 +25,7 @@
 namespace inlong {
 using UserCallBack = std::function<int32_t(const char*, const char*, const char*, int32_t, const int64_t, const char*)>;
 
-struct UserMsg {
+struct SdkMsg {
   std::string msg_;
   std::string client_ip_;
   int64_t report_time_;
@@ -35,7 +35,7 @@ struct UserMsg {
   std::string user_client_ip_;
 
   std::string data_pack_format_attr_;
-  UserMsg(const std::string& mmsg, const std::string& mclient_ip, int64_t mreport_time, UserCallBack mcb,
+  SdkMsg(const std::string& mmsg, const std::string& mclient_ip, int64_t mreport_time, UserCallBack mcb,
           const std::string& attr, const std::string& u_ip, int64_t u_time)
       : msg_(mmsg),
         client_ip_(mclient_ip),
@@ -45,7 +45,7 @@ struct UserMsg {
         user_client_ip_(u_ip),
         data_pack_format_attr_(attr){}
 };
-using UserMsgPtr = std::shared_ptr<UserMsg>;
+using SdkMsgPtr = std::shared_ptr<SdkMsg>;
 
 }  // namespace inlong
 
