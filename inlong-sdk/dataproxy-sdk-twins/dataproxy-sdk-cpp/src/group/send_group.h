@@ -22,7 +22,7 @@
 
 #include "../config/proxy_info.h"
 #include "../utils/send_buffer.h"
-#include "tcp_client.h"
+#include "../client/tcp_client.h"
 #include <queue>
 namespace inlong {
 const int kTimerMiSeconds = 10;

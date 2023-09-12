@@ -18,6 +18,7 @@
  */
 
 #include <string>
+#include <vector>
 
 #ifndef INLONG_SDK_PROXY_INFO_H
 #define INLONG_SDK_PROXY_INFO_H

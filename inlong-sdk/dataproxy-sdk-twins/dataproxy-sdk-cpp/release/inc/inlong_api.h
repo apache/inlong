@@ -32,7 +32,7 @@ using UserCallBack =
     std::function<int32_t(const char *, const char *, const char *, int32_t,
                           const int64_t, const char *)>;
 
-class InLongApiImp;
+class ApiImp;
 
 class InLongApi {
 public:
@@ -49,7 +49,7 @@ public:
   int32_t CloseApi(int32_t max_waitms);
 
 private:
-  std::shared_ptr<InLongApiImp> api_impl_;
+  std::shared_ptr<ApiImp> api_impl_;
 };
 } // namespace inlong
 #endif // INLONG_SDK_API_H

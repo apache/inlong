@@ -34,7 +34,7 @@ private:
   read_write_mutex groupid_2_cluster_rwmutex_;
   read_write_mutex groupid_2_proxy_map_rwmutex_;
 
-  std::unordered_map<std::string, int32_t> groupid_2_cluster_map_cluster_map_;
+  std::unordered_map<std::string, int32_t> groupid_2_cluster_map_;
   std::unordered_map<std::string, ProxyInfoVec> groupid_2_proxy_map_;
   bool update_flag_;
   std::mutex cond_mutex_;
@@ -56,7 +56,7 @@ public:
   void Update();
   void DoUpdate();
   void Init();
-  int32_t GetBusByBid(const std::string &groupid, ProxyInfoVec &proxy_info_vec);
+  int32_t GetProxy(const std::string &groupid, ProxyInfoVec &proxy_info_vec);
   bool IsBusExist(const std::string &groupid);
 };
 } // namespace inlong

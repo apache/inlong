@@ -24,7 +24,7 @@
 #include "../utils/capi_constant.h"
 #include "../utils/read_write_mutex.h"
 #include "../utils/send_buffer.h"
-#include "../utils/stat.h"
+#include "stat.h"
 #include <queue>
 
 namespace inlong {
