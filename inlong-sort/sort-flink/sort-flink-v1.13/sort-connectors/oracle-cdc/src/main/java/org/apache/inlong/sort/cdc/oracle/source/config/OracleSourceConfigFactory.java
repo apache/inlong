@@ -109,7 +109,7 @@ public class OracleSourceConfigFactory extends JdbcSourceConfigFactory {
         }
 
         if (schemaList != null) {
-            props.setProperty("schema.whitelist", String.join(",", schemaList));
+            props.setProperty("schema.include.list", String.join(",", schemaList));
         }
 
         if (tableList != null) {
