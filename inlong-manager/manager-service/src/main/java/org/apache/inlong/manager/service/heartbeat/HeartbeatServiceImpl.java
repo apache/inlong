@@ -87,7 +87,6 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         ComponentTypeEnum componentType = ComponentTypeEnum.forType(request.getComponentType());
         switch (componentType) {
             case Agent:
-                return updateAgentHeartbeatOpt(request);
             case Sort:
             case DataProxy:
             case Cache:

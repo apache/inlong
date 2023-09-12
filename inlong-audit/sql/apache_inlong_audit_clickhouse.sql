@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS `audit_data`
     `inlong_group_id`  String COMMENT 'The target inlong group id',
     `inlong_stream_id` String COMMENT 'The target inlong stream id',
     `audit_id`         String COMMENT 'Audit id',
+    `audit_tag`        String COMMENT 'Audit tag',
     `count`            Int64 COMMENT 'Message count',
     `size`             Int64 COMMENT 'Message size',
     `delay`            Int64 COMMENT 'Message delay',

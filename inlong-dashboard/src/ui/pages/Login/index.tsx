@@ -49,10 +49,7 @@ const Comp: React.FC = () => {
         size: 'large',
         prefix: <LockOutlined />,
       },
-      rules: [
-        { required: true, message: t('pages.Login.PleaseEnterYourPassword') },
-        { pattern: /^[0-9a-z_-]+$/, message: t('pages.Login.PasswordRules') },
-      ],
+      rules: [{ required: true, message: t('pages.Login.PleaseEnterYourPassword') }],
     },
   ];
 

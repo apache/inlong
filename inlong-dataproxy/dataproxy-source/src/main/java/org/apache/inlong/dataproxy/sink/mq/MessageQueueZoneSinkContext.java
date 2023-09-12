@@ -134,8 +134,10 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     public void addSendResultMetric(PackProfile currentRecord, String mqName, String topic, boolean result,
             long sendTime) {
         if (currentRecord instanceof SimplePackProfile) {
-            AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS,
-                    ((SimplePackProfile) currentRecord).getEvent());
+            if (result) {
+                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS,
+                        ((SimplePackProfile) currentRecord).getEvent());
+            }
             return;
         }
         BatchPackProfile batchProfile = (BatchPackProfile) currentRecord;

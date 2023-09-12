@@ -192,7 +192,7 @@ const Comp: React.FC = () => {
         <Steps
           current={current}
           size="small"
-          style={{ marginBottom: 20, width: 600 }}
+          style={{ width: 900, margin: 'auto', marginBottom: 20 }}
           onChange={c => setCurrent(c)}
         >
           {list.map((item, index) => (

@@ -142,6 +142,16 @@ public abstract class ClientContext implements Cleanable {
         metricItem.requestManagerParamErrorCount.incrementAndGet();
     }
 
+    public void addRequestManagerEmptyError() {
+        SortSdkMetricItem metricItem = this.getMetricItem(null, -1);
+        metricItem.reqeustManagerEmptyCount.incrementAndGet();
+    }
+
+    public void addRequestManagerTopicsChangeOutOfThreshold() {
+        SortSdkMetricItem metricItem = this.getMetricItem(null, -1);
+        metricItem.requestManagerTopicsChangeOutOfThreshold.incrementAndGet();
+    }
+
     private SortSdkMetricItem getMetricItem(InLongTopic topic, int partitionId) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(SortSdkMetricItem.KEY_SORT_TASK_ID, sortTaskId);

@@ -25,6 +25,7 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
 import org.apache.inlong.sort.cdc.base.source.reader.external.JdbcSourceFetchTaskContext;
 import org.apache.inlong.sort.cdc.oracle.source.config.OracleSourceConfig;
 import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset;
+import org.apache.inlong.sort.cdc.oracle.source.reader.handler.OracleSchemaChangeEventHandler;
 import org.apache.inlong.sort.cdc.oracle.source.relational.OracleSourceEventDispatcher;
 import org.apache.inlong.sort.cdc.oracle.source.utils.OracleUtils;
 
@@ -134,7 +135,8 @@ public class OracleSourceFetchTaskContext extends JdbcSourceFetchTaskContext {
                         connectorConfig.getTableFilters().dataCollectionFilter(),
                         DataChangeEvent::new,
                         metadataProvider,
-                        schemaNameAdjuster);
+                        schemaNameAdjuster,
+                        new OracleSchemaChangeEventHandler());
 
         final OracleChangeEventSourceMetricsFactory changeEventSourceMetricsFactory =
                 new OracleChangeEventSourceMetricsFactory(

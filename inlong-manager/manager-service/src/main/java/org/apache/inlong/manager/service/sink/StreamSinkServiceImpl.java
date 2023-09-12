@@ -24,10 +24,12 @@ import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
@@ -48,7 +50,6 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.group.GroupCheckService;
 import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
-import org.apache.inlong.manager.service.user.UserService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -79,6 +80,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -116,8 +118,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private StreamSinkFieldEntityMapper sinkFieldMapper;
     @Autowired
     private AutowireCapableBeanFactory autowireCapableBeanFactory;
-    @Autowired
-    private UserService userService;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -188,9 +188,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
                     String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
         }
-        // only the person in charges can query
-        userService.checkUser(entity.getInCharges(), opInfo.getName(),
-                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // check group status
         GroupStatus curState = GroupStatus.forCode(entity.getStatus());
         if (GroupStatus.notAllowedUpdate(curState)) {
@@ -262,9 +259,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         if (groupEntity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-        // only the person in charges can query
-        userService.checkUser(groupEntity.getInCharges(), opInfo.getName(),
-                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(entity.getSinkType());
         return sinkOperator.getFromEntity(entity);
     }
@@ -318,8 +312,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Override
     public PageResult<? extends StreamSink> listByCondition(SinkPageRequest request, String operator) {
         Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY);
-        UserInfo userInfo = userService.getByName(operator);
-        boolean isAdmin = TenantUserTypeEnum.TENANT_ADMIN.getCode().equals(userInfo.getAccountType());
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
@@ -330,13 +322,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
                     groupMapper.selectByGroupId(streamSink.getInlongGroupId());
             if (groupEntity == null) {
                 continue;
-            }
-            // only the person in charges can query
-            if (!isAdmin) {
-                List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
-                if (!inCharges.contains(operator)) {
-                    continue;
-                }
             }
             sinkMap.computeIfAbsent(streamSink.getSinkType(), k -> new Page<>()).add(streamSink);
         }
@@ -460,9 +445,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             throw new BusinessException(ErrorCodeEnum.ILLEGAL_RECORD_FIELD_VALUE,
                     String.format("InlongGroup does not exist with InlongGroupId=%s", curEntity.getInlongGroupId()));
         }
-        // only the person in charges can query
-        userService.checkUser(curGroupEntity.getInCharges(), opInfo.getName(),
-                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // Check if group status can be modified
         GroupStatus curState = GroupStatus.forCode(curEntity.getStatus());
         if (GroupStatus.notAllowedUpdate(curState)) {
@@ -571,9 +553,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
                     String.format("InlongGroup does not exist with InlongGroupId=%s", sinkEntity.getInlongGroupId()));
         }
-        // only the person in charges can query
-        userService.checkUser(groupEntity.getInCharges(), opInfo.getName(),
-                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // Check if group status can be modified
         GroupStatus curState = GroupStatus.forCode(groupEntity.getStatus());
         if (GroupStatus.notAllowedUpdate(curState)) {
@@ -721,6 +700,41 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
 
         LOGGER.info("success to update sink after approve: {}", approveList);
+        return true;
+    }
+
+    @Override
+    public boolean addFields(StreamSinkEntity sinkEntity, List<SinkField> sinkFieldList) {
+        Set<String> existFields = sinkFieldMapper.selectBySinkId(sinkEntity.getId()).stream()
+                .map(StreamSinkFieldEntity::getFieldName).collect(Collectors.toSet());
+
+        LOGGER.debug("begin to save sink fields={}", sinkFieldList);
+        if (CollectionUtils.isEmpty(sinkFieldList)) {
+            return true;
+        }
+        List<StreamSinkFieldEntity> needAddFieldList = new ArrayList<>();
+        for (SinkField fieldInfo : sinkFieldList) {
+            if (existFields.contains(fieldInfo.getFieldName())) {
+                LOGGER.debug("current sink field={} is exist for groupId={}, streamId={}", fieldInfo.getFieldName(),
+                        sinkEntity.getInlongGroupId(), sinkEntity.getInlongStreamId());
+                continue;
+            }
+            StreamSinkFieldEntity fieldEntity = CommonBeanUtils.copyProperties(fieldInfo,
+                    StreamSinkFieldEntity::new);
+            if (StringUtils.isEmpty(fieldEntity.getFieldComment())) {
+                fieldEntity.setFieldComment(fieldEntity.getFieldName());
+            }
+            fieldEntity.setInlongGroupId(sinkEntity.getInlongGroupId());
+            fieldEntity.setInlongStreamId(sinkEntity.getInlongStreamId());
+            fieldEntity.setSinkType(sinkEntity.getSinkType());
+            fieldEntity.setSinkId(sinkEntity.getId());
+            fieldEntity.setIsDeleted(InlongConstants.UN_DELETED);
+            needAddFieldList.add(fieldEntity);
+        }
+        if (CollectionUtils.isNotEmpty(needAddFieldList)) {
+            sinkFieldMapper.insertAll(needAddFieldList);
+        }
+        LOGGER.debug("success to save sink fields={}", needAddFieldList);
         return true;
     }
 

@@ -56,6 +56,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -375,6 +376,9 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
                     byte[] bytes = new byte[byteBuffer.remaining()];
                     byteBuffer.get(bytes);
                     return bytes;
+                } else if (dbzObj instanceof String) {
+                    String data = (String) dbzObj;
+                    return data.getBytes(StandardCharsets.UTF_8);
                 } else {
                     throw new UnsupportedOperationException(
                             "Unsupported BYTES value type: " + dbzObj.getClass().getSimpleName());

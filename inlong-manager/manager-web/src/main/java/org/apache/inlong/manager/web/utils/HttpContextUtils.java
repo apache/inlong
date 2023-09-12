@@ -74,6 +74,7 @@ public class HttpContextUtils {
                 }
             }
         }
+        paramMap.putAll(request.getParameterMap());
         return paramMap;
     }
 

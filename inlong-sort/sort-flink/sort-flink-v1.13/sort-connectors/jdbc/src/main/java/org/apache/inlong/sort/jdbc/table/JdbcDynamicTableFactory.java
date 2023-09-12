@@ -218,6 +218,7 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
         boolean appendMode = config.get(SINK_APPEND_MODE);
         String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         String auditHostAndPorts = config.getOptional(INLONG_AUDIT).orElse(null);
+        String auditKeys = config.getOptional(AUDIT_KEYS).orElse(null);
         SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy =
                 helper.getOptions().getOptional(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY).orElse(null);
         // Build the dirty data side-output
@@ -238,7 +239,8 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
                 auditHostAndPorts,
                 schemaUpdateExceptionPolicy,
                 dirtyOptions,
-                dirtySink);
+                dirtySink,
+                auditKeys);
     }
 
     @Override

@@ -19,12 +19,18 @@ package org.apache.inlong.manager.service.tenant;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessName;
+import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongTenantEntity;
+import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongTenantEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
@@ -45,6 +51,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_ADMIN;
 import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_OPERATOR;
@@ -56,6 +63,10 @@ public class InlongTenantServiceImpl implements InlongTenantService {
 
     @Autowired
     private InlongTenantEntityMapper inlongTenantEntityMapper;
+    @Autowired
+    private InlongGroupEntityMapper groupMapper;
+    @Autowired
+    private StreamSourceEntityMapper sourceMapper;
     @Autowired
     private TenantRoleService tenantRoleService;
     @Autowired
@@ -156,13 +167,44 @@ public class InlongTenantServiceImpl implements InlongTenantService {
         String operator = LoginUserUtils.getLoginUser().getName();
         log.info("begin to delete inlong tenant name={} by user={}", name, operator);
         InlongTenantEntity inlongTenantEntity = inlongTenantEntityMapper.selectByName(name);
+        // before deleting a tenant, check if all Groups of the tenant are in stop status
+        List<InlongGroupEntity> groups = groupMapper.selectAllGroupsByTenant(name);
+        List<InlongGroupEntity> notStopGroups =
+                groups.stream().filter(
+                        group -> !GroupStatus.DELETED.getCode().equals(group.getStatus()))
+                        .collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(notStopGroups)) {
+            List<String> notStopGroupNames =
+                    notStopGroups.stream().map(InlongGroupEntity::getName).collect(Collectors.toList());
+            String errMsg = String.format(
+                    "delete inlong tenant name=[%s] failed, the tenant's group=%s are not in stop status",
+                    name, notStopGroupNames);
+            log.error(errMsg);
+            throw new BusinessException(errMsg);
+        }
+        // before deleting a tenant, check if all streamSource of the tenant‘s groups are in status 99.
+        List<String> groupIds =
+                groups.stream().map(InlongGroupEntity::getInlongGroupId).collect(Collectors.toList());
+        List<StreamSourceEntity> sourceList = sourceMapper.selectByGroupIds(groupIds);
+        List<StreamSourceEntity> noDisabledSources = sourceList.stream()
+                .filter(source -> !SourceStatus.SOURCE_DISABLE.getCode().equals(source.getStatus()))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(noDisabledSources)) {
+            List<String> noDisabledSourceNames =
+                    noDisabledSources.stream().map(StreamSourceEntity::getSourceName).collect(Collectors.toList());
+            String errMsg = String.format(
+                    "delete inlong tenant name=[%s] failed, the streamSource=%s of the tenant's groups are not in status 99",
+                    name, noDisabledSourceNames);
+            log.error(errMsg);
+            throw new BusinessException(errMsg);
+        }
         int success = inlongTenantEntityMapper.deleteById(inlongTenantEntity.getId());
         Preconditions.expectTrue(success == 1, "delete failed");
         log.info("success delete inlong tenant name={} by user={}", name, operator);
         return true;
     }
 
-    private void setTargetTenantList(InlongTenantPageRequest request, UserInfo userInfo) {
+    public void setTargetTenantList(InlongTenantPageRequest request, UserInfo userInfo) {
         if (isInlongRoles(userInfo)) {
             // for inlong roles, they can get all tenant info.
             request.setTenantList(null);

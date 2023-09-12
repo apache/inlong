@@ -26,9 +26,20 @@ public class StatConstants {
     public static final java.lang.String EVENT_VISIT_OVERMAX = "visit.overmax";
     public static final java.lang.String EVENT_VISIT_LINKIN = "visit.linkin";
     public static final java.lang.String EVENT_VISIT_LINKOUT = "visit.linkout";
-    public static final java.lang.String EVENT_VISIT_EXCEPTION = "visit.exception";
-    // channel
-    public static final java.lang.String EVENT_REMOTE_UNWRITABLE = "socket.unwritable";
+    // link
+    public static final java.lang.String EVENT_LINK_READ_TIMEOUT = "link.read.timeout";
+    public static final java.lang.String EVENT_LINK_FRAME_OVERMAX = "link.frame.overmax";
+    public static final java.lang.String EVENT_LINK_FRAME_CORRPUTED = "link.frame.corrupted";
+    public static final java.lang.String EVENT_LINK_IO_EXCEPTION = "link.io.exception";
+    public static final java.lang.String EVENT_LINK_UNKNOWN_EXCEPTION = "link.unknown.exception";
+    public static final java.lang.String EVENT_LINK_UNWRITABLE = "link.unwritable";
+    // http link
+    public static final java.lang.String EVENT_HTTP_LINK_READ_TIMEOUT = "http.link.read.timeout";
+    public static final java.lang.String EVENT_HTTP_LINK_FRAME_OVERMAX = "http.link.frame.overmax";
+    public static final java.lang.String EVENT_HTTP_LINK_FRAME_CORRPUTED = "http.link.frame.corrupted";
+    public static final java.lang.String EVENT_HTTP_LINK_IO_EXCEPTION = "http.link.io.exception";
+    public static final java.lang.String EVENT_HTTP_LINK_UNKNOWN_EXCEPTION = "http.link.unknown.exception";
+    public static final java.lang.String EVENT_HTTP_LINK_UNWRITABLE = "http.link.unwritable";
     // configure
     public static final java.lang.String EVENT_CONFIG_TOPIC_MISSING = "config.topic.missing";
     public static final java.lang.String EVENT_CONFIG_IDNUM_EMPTY = "config.idnum.empty";
@@ -36,13 +47,12 @@ public class StatConstants {
     public static final java.lang.String EVENT_CONFIG_GROUP_IDNUM_INCONSTANT = "config.group.idnum.incons";
     public static final java.lang.String EVENT_CONFIG_STREAMIDNUM_MISSING = "config.streamidnum.missing";
     public static final java.lang.String EVENT_CONFIG_STREAM_IDNUM_INCONSTANT = "config.stream.idnum.incons";
-    // source
-    public static final java.lang.String EVENT_PKG_READABLE_EMPTY = "pkg.readable.empty";
-    public static final java.lang.String EVENT_PKG_READABLE_OVERMAX = "pkg.readable.overmax";
-    public static final java.lang.String EVENT_PKG_READABLE_UNFILLED = "pkg.readable.unfilled";
-    public static final java.lang.String EVENT_PKG_MSGTYPE_V0_INVALID = "pkg.msgtype.v0.invalid";
-    public static final java.lang.String EVENT_PKG_MSGTYPE_V1_INVALID = "pkg.msgtype.v1.invalid";
     // message
+    public static final java.lang.String EVENT_MSG_READABLE_EMPTY = "msg.readable.empty";
+    public static final java.lang.String EVENT_MSG_READABLE_OVERMAX = "msg.readable.overmax";
+    public static final java.lang.String EVENT_MSG_READABLE_UNFILLED = "msg.readable.unfilled";
+    public static final java.lang.String EVENT_MSG_MSGTYPE_V0_INVALID = "msg.msgtype.v0.invalid";
+    public static final java.lang.String EVENT_MSG_MSGTYPE_V1_INVALID = "msg.msgtype.v1.invalid";
     public static final java.lang.String EVENT_MSG_BIN_TOTALLEN_BELOWMIN = "msg.bin.totallen.belowmin";
     public static final java.lang.String EVENT_MSG_TXT_TOTALLEN_BELOWMIN = "msg.txt.totallen.belowmin";
     public static final java.lang.String EVENT_MSG_DECODE_FAIL = "msg.decode.failure";

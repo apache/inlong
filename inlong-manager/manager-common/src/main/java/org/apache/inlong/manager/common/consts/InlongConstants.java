@@ -46,6 +46,8 @@ public class InlongConstants {
 
     public static final String BLANK = " ";
 
+    public static final String EMPTY = "";
+
     public static final String SLASH = "/";
 
     public static final String COLON = ":";
@@ -64,7 +66,11 @@ public class InlongConstants {
 
     public static final String QUESTION_MARK = "?";
 
+    public static final String AMPERSAND = "&";
+
     public static final String NEW_LINE = "\n";
+
+    public static final String REGEX_WHITESPACE = "\\s";
 
     public static final String ADMIN_USER = "admin";
 

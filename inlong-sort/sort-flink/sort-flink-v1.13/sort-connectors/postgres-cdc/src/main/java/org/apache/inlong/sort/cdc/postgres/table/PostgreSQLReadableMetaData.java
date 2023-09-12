@@ -23,6 +23,7 @@ import org.apache.inlong.sort.formats.json.debezium.DebeziumJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson.Source;
 
 import io.debezium.connector.AbstractSourceInfo;
+import io.debezium.connector.SnapshotRecord;
 import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
 import io.debezium.relational.Table;
@@ -47,6 +48,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.inlong.sort.cdc.base.util.MetaDataUtil.getType;
 
 /**
  * Defines the supported metadata columns for {@link PostgreSQLTableSource}.
@@ -410,7 +413,9 @@ public enum PostgreSQLReadableMetaData {
                 .pkNames(getPkNames(tableSchema))
                 .table(tableName)
                 .ts(ts)
+                .postGreType(getType(tableSchema))
                 .type(getCanalOpType(rowData))
+                .incremental(isIncrementalRecord(sourceStruct))
                 .sqlType(getSqlType(tableSchema))
                 .build();
         try {
@@ -452,6 +457,10 @@ public enum PostgreSQLReadableMetaData {
             opType = "UPDATE";
         }
         return opType;
+    }
+
+    private static boolean isIncrementalRecord(Struct sourceStruct) {
+        return !(SnapshotRecord.TRUE == SnapshotRecord.fromSource(sourceStruct));
     }
 
     /**

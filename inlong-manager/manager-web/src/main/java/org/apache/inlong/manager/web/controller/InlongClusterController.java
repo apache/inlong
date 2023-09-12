@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.validation.SaveValidation;
 import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
 import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
@@ -47,7 +46,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -95,8 +93,7 @@ public class InlongClusterController {
     @ApiOperation(value = "List cluster tags")
     public Response<PageResult<ClusterTagResponse>> listTag(@RequestBody ClusterTagPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
-        request.setIsAdminRole(
-                LoginUserUtils.getLoginUser().getRoles().contains(TenantUserTypeEnum.TENANT_ADMIN.name()));
+        request.setIsAdminRole(LoginUserUtils.isInlongAdminOrTenantAdmin());
         return Response.success(clusterService.listTag(request));
     }
 
@@ -179,7 +176,7 @@ public class InlongClusterController {
     public Response<PageResult<ClusterInfo>> list(@RequestBody ClusterPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(
-                LoginUserUtils.getLoginUser().getRoles().contains(TenantUserTypeEnum.TENANT_ADMIN.name()));
+                LoginUserUtils.isInlongAdminOrTenantAdmin());
         return Response.success(clusterService.list(request));
     }
 
@@ -215,7 +212,7 @@ public class InlongClusterController {
     @ApiOperation(value = "Delete cluster by id")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
-    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN})
+    @RequiresRoles(UserRoleCode.INLONG_ADMIN)
     public Response<Boolean> delete(@PathVariable Integer id) {
         return Response.success(clusterService.delete(id, LoginUserUtils.getLoginUser().getName()));
     }
@@ -287,7 +284,7 @@ public class InlongClusterController {
 
     @PostMapping("/cluster/testConnection")
     @ApiOperation(value = "Test connection for inlong cluster")
-    public Response<Boolean> testConnection(@RequestBody ClusterRequest request) {
+    public Response<Boolean> testConnection(@Validated @RequestBody ClusterRequest request) {
         return Response.success(clusterService.testConnection(request));
     }
 }

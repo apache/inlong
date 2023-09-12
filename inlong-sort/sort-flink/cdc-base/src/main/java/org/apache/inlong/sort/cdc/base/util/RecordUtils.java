@@ -56,8 +56,7 @@ public class RecordUtils {
             .asList("CHAR", "NCHAR", "NVARCHAR2", "NVCHAER", "VARCHAR", "VARCHAR2", "CLOB", "NCLOB", "XMLType");
     private static final List<String> BINARY_TYPE = Arrays.asList("BLOB", "ROWID");
     private static final List<String> BIGINT_TYPE = Arrays.asList("INTERVAL DAY TO SECOND", "INTERVAL YEAR TO MONTH");
-    public static final String MYSQL_SCHEMA_CHANGE_EVENT_KEY_NAME = "io.debezium.connector.mysql.SchemaChangeKey";
-    public static final String ORACLE_SCHEMA_CHANGE_EVENT_KEY_NAME = "io.debezium.connector.oracle.SchemaChangeKey";
+    public static final String SCHEMA_CHANGE_EVENT_KEY_NAME = "io.debezium.connector.*.SchemaChangeKey";
     public static final String CONNECTOR = "connector";
     public static final String MYSQL_CONNECTOR = "mysql";
     public static final String SCHEMA_HEARTBEAT_EVENT_KEY_NAME = "io.debezium.connector.common.Heartbeat";
@@ -146,18 +145,7 @@ public class RecordUtils {
      */
     public static boolean isSchemaChangeEvent(SourceRecord sourceRecord) {
         Schema keySchema = sourceRecord.keySchema();
-        return keySchema != null && (MYSQL_SCHEMA_CHANGE_EVENT_KEY_NAME.equalsIgnoreCase(keySchema.name())
-                || ORACLE_SCHEMA_CHANGE_EVENT_KEY_NAME.equalsIgnoreCase(keySchema.name()));
-    }
-
-    /**
-     * Whether the source belong Mysql Connector
-     * @param source
-     * @return true if the source belong Mysql Connector
-     */
-    public static boolean isMysqlConnector(Struct source) {
-        String connector = source.getString(CONNECTOR);
-        return MYSQL_CONNECTOR.equalsIgnoreCase(connector);
+        return keySchema != null && (keySchema.name().matches(SCHEMA_CHANGE_EVENT_KEY_NAME));
     }
 
     public static boolean isDdlRecord(Struct value) {

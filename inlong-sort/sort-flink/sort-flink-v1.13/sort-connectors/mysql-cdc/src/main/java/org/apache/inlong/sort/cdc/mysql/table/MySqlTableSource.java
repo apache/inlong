@@ -86,6 +86,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
     private final boolean migrateAll;
     private final String inlongMetric;
     private final String inlongAudit;
+    private final String auditKeys;
     private final boolean includeIncremental;
     private final boolean includeSchemaChange;
     private final boolean ghostDdlChange;
@@ -139,7 +140,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             boolean includeSchemaChange,
             boolean includeIncremental,
             boolean ghostDdlChange,
-            String ghostTableRegex) {
+            String ghostTableRegex,
+            String auditKeys) {
         this.physicalSchema = physicalSchema;
         this.port = port;
         this.hostname = checkNotNull(hostname);
@@ -170,6 +172,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
         this.migrateAll = migrateAll;
         this.inlongMetric = inlongMetric;
         this.inlongAudit = inlongAudit;
+        this.auditKeys = auditKeys;
         this.rowKindsFiltered = rowKindsFiltered;
         this.includeIncremental = includeIncremental;
         this.includeSchemaChange = includeSchemaChange;
@@ -238,6 +241,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                             .heartbeatInterval(heartbeatInterval)
                             .inlongMetric(inlongMetric)
                             .inlongAudit(inlongAudit)
+                            .auditKeys(auditKeys)
                             .includeIncremental(includeIncremental)
                             .ghostDdlChange(ghostDdlChange)
                             .ghostTableRegex(ghostTableRegex)
@@ -258,6 +262,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                             .startupOptions(startupOptions)
                             .inlongMetric(inlongMetric)
                             .inlongAudit(inlongAudit)
+                            .auditKeys(auditKeys)
                             .migrateAll(migrateAll)
                             .deserializer(deserializer);
             Optional.ofNullable(serverId)
@@ -335,7 +340,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                         includeSchemaChange,
                         includeIncremental,
                         ghostDdlChange,
-                        ghostTableRegex);
+                        ghostTableRegex,
+                        auditKeys);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;
@@ -380,7 +386,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                 && Objects.equals(includeSchemaChange, that.includeSchemaChange)
                 && Objects.equals(includeIncremental, that.includeIncremental)
                 && Objects.equals(ghostDdlChange, that.ghostDdlChange)
-                && Objects.equals(ghostDdlChange, that.ghostDdlChange);
+                && Objects.equals(auditKeys, that.auditKeys);
     }
 
     @Override
@@ -416,7 +422,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                 includeSchemaChange,
                 includeIncremental,
                 ghostDdlChange,
-                ghostTableRegex);
+                ghostTableRegex,
+                auditKeys);
     }
 
     @Override

@@ -106,4 +106,13 @@ public interface InlongGroupEntityMapper {
      */
     int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 
+    /**
+     * Select all groups of the specified tenant
+     *
+     * @param tenant the tenant name
+     * @return all matched groups
+     */
+    @MultiTenantQuery(with = false)
+    List<InlongGroupEntity> selectAllGroupsByTenant(@Param(value = "tenant") String tenant);
+
 }

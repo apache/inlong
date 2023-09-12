@@ -44,16 +44,16 @@ import java.util.Set;
 
 /**
  * Schema change helper
- * */
+ */
 public abstract class SchemaChangeHelper implements SchemaChangeHandle {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemaChangeHelper.class);
-    private final boolean schemaChange;
     protected final Map<SchemaChangeType, SchemaChangePolicy> policyMap;
     protected final JsonDynamicSchemaFormat dynamicSchemaFormat;
+    protected final SchemaUpdateExceptionPolicy exceptionPolicy;
+    private final boolean schemaChange;
     private final String databasePattern;
     private final String tablePattern;
-    protected final SchemaUpdateExceptionPolicy exceptionPolicy;
     private final SinkTableMetricData metricData;
     private final DirtySinkHelper<Object> dirtySinkHelper;
 
@@ -91,18 +91,21 @@ public abstract class SchemaChangeHelper implements SchemaChangeHandle {
             LOGGER.warn("Parse database, table from origin data failed, origin data: {}", new String(originData), e);
             if (exceptionPolicy == SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE) {
                 dirtySinkHelper.invoke(new String(originData), DirtyType.JSON_PROCESS_ERROR, e);
-            }
-            if (metricData != null) {
-                metricData.invokeDirty(1, originData.length);
+                if (metricData != null) {
+                    metricData.invokeDirty(1, originData.length);
+                }
             }
             return;
         }
         Operation operation;
         try {
-            JsonNode operationNode = Preconditions.checkNotNull(data.get("operation"),
-                    "Operation node is null");
+            JsonNode operationNode = data.get("operation");
+            if (operationNode == null) {
+                LOGGER.warn("operation is null. Unsupported for schema-change: {}", data);
+                return;
+            }
             operation = Preconditions.checkNotNull(
-                    dynamicSchemaFormat.objectMapper.convertValue(operationNode, new TypeReference<Operation>() {
+                    JsonDynamicSchemaFormat.OBJECT_MAPPER.convertValue(operationNode, new TypeReference<Operation>() {
                     }), "Operation is null");
         } catch (Exception e) {
             if (exceptionPolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
@@ -240,11 +243,12 @@ public abstract class SchemaChangeHelper implements SchemaChangeHandle {
             String logTag = parseValue(data, dirtySinkHelper.getDirtyOptions().getLogTag());
             String identifier = parseValue(data, dirtySinkHelper.getDirtyOptions().getIdentifier());
             dirtySinkHelper.invoke(new String(originData), dirtyType, label, logTag, identifier, e);
-        }
-        if (metricData != null) {
-            metricData.outputDirtyMetricsWithEstimate(database, table, 1, originData.length);
+            if (metricData != null) {
+                metricData.outputDirtyMetricsWithEstimate(database, table, 1, originData.length);
+            }
         }
     }
+
     private String parseValue(JsonNode data, String pattern) {
         try {
             return dynamicSchemaFormat.parse(data, pattern);

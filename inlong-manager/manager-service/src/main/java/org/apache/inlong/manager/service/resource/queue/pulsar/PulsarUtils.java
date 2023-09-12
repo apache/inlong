@@ -70,7 +70,7 @@ public class PulsarUtils {
      *
      * @apiNote It must be closed after use.
      */
-    private static PulsarAdmin getPulsarAdmin(String serviceHttpUrl, String token) throws PulsarClientException {
+    public static PulsarAdmin getPulsarAdmin(String serviceHttpUrl, String token) throws PulsarClientException {
         return PulsarAdmin.builder().serviceHttpUrl(serviceHttpUrl)
                 .authentication(AuthenticationFactory.token(token)).build();
     }

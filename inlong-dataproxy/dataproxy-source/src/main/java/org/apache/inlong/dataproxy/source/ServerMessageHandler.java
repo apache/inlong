@@ -25,6 +25,8 @@ import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.consts.StatConstants;
+import org.apache.inlong.dataproxy.exception.ChannelUnWritableException;
+import org.apache.inlong.dataproxy.exception.PkgParseException;
 import org.apache.inlong.dataproxy.source.v0msg.AbsV0MsgCodec;
 import org.apache.inlong.dataproxy.source.v0msg.CodecBinMsg;
 import org.apache.inlong.dataproxy.source.v0msg.CodecTextMsg;
@@ -41,11 +43,15 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.CorruptedFrameException;
+import io.netty.handler.codec.TooLongFrameException;
+import io.netty.handler.timeout.ReadTimeoutException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -71,6 +77,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(ServerMessageHandler.class);
     // log print count
     private static final LogCounter logCounter = new LogCounter(10, 100000, 30 * 1000);
+    // except log print count
+    private static final LogCounter exceptLogCounter = new LogCounter(10, 50000, 20 * 1000);
 
     private static final int INLONG_MSG_V1 = 1;
 
@@ -89,7 +97,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg == null) {
-            source.fileMetricIncSumStats(StatConstants.EVENT_PKG_READABLE_EMPTY);
+            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_READABLE_EMPTY);
             return;
         }
         ByteBuf cb = (ByteBuf) msg;
@@ -97,12 +105,12 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             int readableLength = cb.readableBytes();
             if (readableLength == 0 && source.isFilterEmptyMsg()) {
                 cb.clear();
-                source.fileMetricIncSumStats(StatConstants.EVENT_PKG_READABLE_EMPTY);
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_READABLE_EMPTY);
                 return;
             }
             if (readableLength > source.getMaxMsgLength()) {
-                source.fileMetricIncSumStats(StatConstants.EVENT_PKG_READABLE_OVERMAX);
-                throw new Exception("Error msg, readableLength(" + readableLength +
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_READABLE_OVERMAX);
+                throw new PkgParseException("Error msg, readableLength(" + readableLength +
                         ") > max allowed message length (" + source.getMaxMsgLength() + ")");
             }
             // save index
@@ -112,7 +120,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             if (readableLength < totalDataLen + INLONG_LENGTH_FIELD_LENGTH) {
                 // reset index when buffer is not satisfied.
                 cb.resetReaderIndex();
-                source.fileMetricIncSumStats(StatConstants.EVENT_PKG_READABLE_UNFILLED);
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_READABLE_UNFILLED);
                 return;
             }
             // read type
@@ -126,8 +134,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     processV1Msg(ctx, cb, bodyLength);
                 } else {
                     // unknown message type
-                    source.fileMetricIncSumStats(StatConstants.EVENT_PKG_MSGTYPE_V1_INVALID);
-                    throw new Exception("Unknown V1 message version, version = " + msgTypeValue);
+                    source.fileMetricIncSumStats(StatConstants.EVENT_MSG_MSGTYPE_V1_INVALID);
+                    throw new PkgParseException("Unknown V1 message version, version = " + msgTypeValue);
                 }
             } else {
                 // process v0 messages
@@ -135,11 +143,11 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 MsgType msgType = MsgType.valueOf(msgTypeValue);
                 final long msgRcvTime = System.currentTimeMillis();
                 if (MsgType.MSG_UNKNOWN == msgType) {
-                    source.fileMetricIncSumStats(StatConstants.EVENT_PKG_MSGTYPE_V0_INVALID);
+                    source.fileMetricIncSumStats(StatConstants.EVENT_MSG_MSGTYPE_V0_INVALID);
                     if (logger.isDebugEnabled()) {
                         logger.debug("Received unknown message, channel {}", channel);
                     }
-                    throw new Exception("Unknown V0 message type, type = " + msgTypeValue);
+                    throw new PkgParseException("Unknown V0 message type, type = " + msgTypeValue);
                 } else if (MsgType.MSG_HEARTBEAT == msgType) {
                     // send response message
                     flushV0MsgPackage(source, channel,
@@ -161,7 +169,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                         if (logger.isDebugEnabled()) {
                             logger.debug(errMsg + ", channel {}", channel);
                         }
-                        throw new Exception(errMsg);
+                        throw new PkgParseException(errMsg);
                     }
                     msgCodec = new CodecBinMsg(totalDataLen, msgTypeValue, msgRcvTime, strRemoteIP);
                 } else {
@@ -172,7 +180,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                         if (logger.isDebugEnabled()) {
                             logger.debug(errMsg + ", channel {}", channel);
                         }
-                        throw new Exception(errMsg);
+                        throw new PkgParseException(errMsg);
                     }
                     msgCodec = new CodecTextMsg(totalDataLen, msgTypeValue, msgRcvTime, strRemoteIP);
                 }
@@ -225,10 +233,22 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        source.fileMetricIncSumStats(StatConstants.EVENT_VISIT_EXCEPTION);
-        if (logCounter.shouldPrint()) {
-            logger.warn("{} received an exception from channel {}",
-                    source.getCachedSrcName(), ctx.channel(), cause);
+        if (!(cause instanceof PkgParseException || cause instanceof ChannelUnWritableException)) {
+            if (cause instanceof ReadTimeoutException) {
+                source.fileMetricIncSumStats(StatConstants.EVENT_LINK_READ_TIMEOUT);
+            } else if (cause instanceof TooLongFrameException) {
+                source.fileMetricIncSumStats(StatConstants.EVENT_LINK_FRAME_OVERMAX);
+            } else if (cause instanceof CorruptedFrameException) {
+                source.fileMetricIncSumStats(StatConstants.EVENT_LINK_FRAME_CORRPUTED);
+            } else if (cause instanceof IOException) {
+                source.fileMetricIncSumStats(StatConstants.EVENT_LINK_IO_EXCEPTION);
+            } else {
+                source.fileMetricIncSumStats(StatConstants.EVENT_LINK_UNKNOWN_EXCEPTION);
+            }
+            if (exceptLogCounter.shouldPrint()) {
+                logger.warn("{} received an exception from channel {}",
+                        source.getCachedSrcName(), ctx.channel(), cause);
+            }
         }
         if (ctx.channel() != null) {
             source.getAllChannels().remove(ctx.channel());
@@ -286,7 +306,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     msgCodec.getTopicName(), msgCodec.getStrRemoteIP(), msgCodec.getMsgProcType(),
                     msgCodec.getDataTimeMs(), msgCodec.getMsgPkgTime(), 1);
             source.addMetric(false, event.getBody().length, event);
-            if (msgCodec.isNeedResp() && !msgCodec.isOrderOrProxy()) {
+            if (msgCodec.isNeedResp()) {
                 msgCodec.setFailureInfo(DataProxyErrCode.PUT_EVENT_TO_CHANNEL_FAILURE,
                         strBuff.append("Put event to channel failure: ").append(ex.getMessage()).toString());
                 strBuff.delete(0, strBuff.length());
@@ -350,7 +370,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         } else {
             buffer.release();
             logger.warn("Send buffer2 is not writable, disconnect {}", remoteChannel);
-            throw new Exception("Send buffer2 is not writable, disconnect " + remoteChannel);
+            throw new ChannelUnWritableException("Send buffer2 is not writable, disconnect " + remoteChannel);
         }
     }
 
@@ -437,12 +457,12 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     private void responseV0Msg(Channel channel, AbsV0MsgCodec msgObj, StringBuilder strBuff) throws Exception {
         // check channel status
         if (channel == null || !channel.isWritable()) {
-            source.fileMetricIncSumStats(StatConstants.EVENT_REMOTE_UNWRITABLE);
+            source.fileMetricIncSumStats(StatConstants.EVENT_LINK_UNWRITABLE);
             if (logCounter.shouldPrint()) {
                 logger.warn("Prepare send msg but channel full, msgType={}, attr={}, channel={}",
                         msgObj.getMsgType(), msgObj.getAttr(), channel);
             }
-            throw new Exception("Prepare send msg but channel full");
+            throw new ChannelUnWritableException("Prepare send msg but channel full");
         }
         // check whether return response message
         if (!msgObj.isNeedResp()) {
@@ -487,7 +507,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             if (logger.isDebugEnabled()) {
                 logger.debug(errMsg + ", channel {}", channel);
             }
-            throw new Exception(errMsg);
+            throw new PkgParseException(errMsg);
         }
         // check validation
         int msgHeadPos = cb.readerIndex() - 5;
@@ -502,7 +522,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             if (logger.isDebugEnabled()) {
                 logger.debug(errMsg + ", channel {}", channel);
             }
-            throw new Exception(errMsg);
+            throw new PkgParseException(errMsg);
         }
         if (totalDataLen + BIN_HB_TOTALLEN_SIZE < (bodyLen + attrLen + BIN_HB_FORMAT_SIZE)) {
             source.fileMetricIncSumStats(StatConstants.EVENT_MSG_HB_LEN_MALFORMED);
@@ -512,7 +532,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             if (logger.isDebugEnabled()) {
                 logger.debug(errMsg + ", channel {}", channel);
             }
-            throw new Exception(errMsg);
+            throw new PkgParseException(errMsg);
         }
         // read message content
         byte version = cb.getByte(msgHeadPos + BIN_HB_VERSION_OFFSET);
@@ -678,11 +698,11 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         if (channel == null || !channel.isWritable()) {
             // release allocated ByteBuf
             binBuffer.release();
-            source.fileMetricIncSumStats(StatConstants.EVENT_REMOTE_UNWRITABLE);
+            source.fileMetricIncSumStats(StatConstants.EVENT_LINK_UNWRITABLE);
             if (logCounter.shouldPrint()) {
                 logger.warn("Send msg but channel full, attr={}, channel={}", orgAttr, channel);
             }
-            throw new Exception("Send response but channel full");
+            throw new ChannelUnWritableException("Send response but channel full");
         }
         channel.writeAndFlush(binBuffer);
     }

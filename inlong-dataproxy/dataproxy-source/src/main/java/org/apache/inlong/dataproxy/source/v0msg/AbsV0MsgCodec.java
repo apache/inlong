@@ -62,6 +62,8 @@ public abstract class AbsV0MsgCodec {
     protected String topicName;
     protected String msgSeqId = "";
     protected long uniq = -1L;
+    protected boolean indexMsg = false;
+    protected boolean fileCheckMsg = false;
     protected boolean isOrderOrProxy = false;
     protected String msgProcType = "b2b";
     protected boolean needResp = true;
@@ -87,6 +89,10 @@ public abstract class AbsV0MsgCodec {
 
     public String getErrMsg() {
         return this.errMsg;
+    }
+
+    public boolean isIndexMsg() {
+        return indexMsg;
     }
 
     public boolean isNeedResp() {
