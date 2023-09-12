@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.cdc.postgres.source.config;
 
+import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
 
 import com.ververica.cdc.connectors.base.options.StartupOptions;
@@ -36,7 +37,6 @@ import java.util.Properties;
 public class PostgresSourceConfig extends JdbcSourceConfig {
 
     private static final long serialVersionUID = 1L;
-    public static final String DATABASE_NAME_KEY = "database";
 
     public PostgresSourceConfig(
             StartupOptions startupOptions,
@@ -99,7 +99,7 @@ public class PostgresSourceConfig extends JdbcSourceConfig {
 
     @Override
     public List<String> getMetricLabelList() {
-        return Arrays.asList(DATABASE_NAME_KEY,
+        return Arrays.asList(Constants.DATABASE_NAME,
                 AbstractSourceInfo.SCHEMA_NAME_KEY, AbstractSourceInfo.TABLE_NAME_KEY);
     }
 }
