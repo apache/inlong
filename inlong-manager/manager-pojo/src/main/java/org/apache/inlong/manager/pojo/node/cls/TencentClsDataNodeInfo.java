@@ -43,6 +43,16 @@ import lombok.experimental.SuperBuilder;
 public class TencentClsDataNodeInfo extends DataNodeInfo {
 
     /**
+     *Tencent cloud log service master account
+     */
+    private String mainAccountID;
+
+    /**
+     *Tencent cloud log service subAccount
+     */
+    private String subAccountID;
+
+    /**
      * Tencent cloud log service send api secretKey
      */
     private String sendSecretKey;
@@ -73,7 +83,7 @@ public class TencentClsDataNodeInfo extends DataNodeInfo {
     private String region;
 
     /**
-     * Tencent cloud log service  set id
+     * Tencent cloud log service logSet id
      */
     private String logSetID;
 

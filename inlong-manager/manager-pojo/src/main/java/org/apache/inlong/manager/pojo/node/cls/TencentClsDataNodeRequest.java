@@ -37,6 +37,16 @@ import lombok.ToString;
 public class TencentClsDataNodeRequest extends DataNodeRequest {
 
     /**
+     *Tencent cloud log service master account
+     */
+    private String mainAccountID;
+
+    /**
+     *Tencent cloud log service subAccount
+     */
+    private String subAccountID;
+
+    /**
      * Tencent cloud log service send api secretKey
      */
     private String sendSecretKey;

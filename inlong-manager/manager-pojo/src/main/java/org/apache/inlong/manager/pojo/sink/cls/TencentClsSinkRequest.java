@@ -37,11 +37,6 @@ import lombok.ToString;
 public class TencentClsSinkRequest extends SinkRequest {
 
     /**
-     * Tencent cloud log service topic id
-     */
-    private String topicID;
-
-    /**
      * Tencent cloud log service topic name
      */
     private String topicName;
