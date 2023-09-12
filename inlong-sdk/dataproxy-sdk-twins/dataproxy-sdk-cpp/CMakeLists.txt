@@ -38,7 +38,7 @@ include_directories(src/protocol)
 link_directories(${PROJECT_SOURCE_DIR}/third_party/lib)
 link_directories(${PROJECT_SOURCE_DIR}/third_party/lib64)
 
-#add_subdirectory(third_party)
+# add_subdirectory(third_party)
 add_subdirectory(src/base)
 add_subdirectory(src/net)
 add_subdirectory(src/utils)
@@ -56,9 +56,9 @@ aux_source_directory(src/base BASE_SRCS)
 aux_source_directory(src/net NET_SRCS)
 
 # dynamic library
-# # add_library(dataproxy_sdk SHARED ${BASE_SRCS} ${NET_SRCS})
-# # set_target_properties(dataproxy_sdk PROPERTIES PREFIX "")
-# # target_link_libraries(dataproxy_sdk -llog4cplus -lsnappy -lcurl)
+# add_library(dataproxy_sdk SHARED ${BASE_SRCS} ${NET_SRCS})
+# set_target_properties(dataproxy_sdk PROPERTIES PREFIX "")
+# target_link_libraries(dataproxy_sdk -llog4cplus -lsnappy -lcurl)
 
 # static library
 add_library(dataproxy_sdk STATIC ${BASE_SRCS} ${NET_SRCS})
