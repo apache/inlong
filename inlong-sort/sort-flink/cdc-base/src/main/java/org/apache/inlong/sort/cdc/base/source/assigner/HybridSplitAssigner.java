@@ -123,8 +123,7 @@ public class HybridSplitAssigner<C extends SourceConfig> implements SplitAssigne
                 // assigning the stream split. Otherwise, records emitted from stream split
                 // might be out-of-order in terms of same primary key with snapshot splits.
                 isStreamSplitAssigned = true;
-                StreamSplit streamSplit = createStreamSplit();
-                return Optional.of(streamSplit);
+                return Optional.of(createStreamSplit());
             } else {
                 // stream split is not ready by now
                 return Optional.empty();
