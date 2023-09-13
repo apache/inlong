@@ -43,12 +43,12 @@ export default class PulsarNode extends NodeInfo implements DataWithBackend, Ren
       placeholder: 'http://127.0.0.1:8080,127.0.1.2:8080',
     },
   })
-  @I18n('adminUrl')
+  @I18n('Admin URL')
   adminUrl: string;
 
   @FieldDecorator({
     type: 'password',
   })
-  @I18n('token')
+  @I18n('Token')
   token: string;
 }
