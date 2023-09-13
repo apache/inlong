@@ -19,13 +19,16 @@
 
 #include "utils.h"
 
+#include "logger.h"
 #include <arpa/inet.h>
 #include <ctime>
+#include <curl/curl.h>
 #include <errno.h>
 #include <fstream>
 #include <iostream>
 #include <iterator>
 #include <net/if.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <pthread.h>
 #include <regex>
@@ -37,19 +40,22 @@
 #include <sys/sysinfo.h>
 #include <sys/time.h>
 
-#include "curl/curl.h"
-#include "logger.h"
-#include "tc_api.h"
+#include "api_code.h"
+#include "capi_constant.h"
+
 namespace inlong {
 uint16_t Utils::sequence = 0;
 uint64_t Utils::last_msstamp = 0;
 char Utils::snowflake_id[35] = {0};
-char base64_table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
-                       'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
-                       'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
-                       'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
-                       's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2',
-                       '3', '4', '5', '6', '7', '8', '9', '+', '/'};
+AtomicUInt g_send_msgid{0};
+AtomicInt user_exit_flag{0};
+
+char Base64Table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
+                      'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+                      'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
+                      'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
+                      's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2',
+                      '3', '4', '5', '6', '7', '8', '9', '+', '/'};
 
 void Utils::taskWaitTime(int32_t sec) {
   struct timeval tv;
@@ -91,9 +97,10 @@ std::string Utils::getFormatTime(uint64_t data_time) {
 
 size_t Utils::zipData(const char *input, uint32_t input_len,
                       std::string &zip_res) {
+  // size_t zip_res_len = snappy::MaxCompressedLength(input_len);
   size_t len_after_zip = snappy::Compress((char *)input, input_len, &zip_res);
-  LOG_TRACE("data zip: input len is %u, output len is %u.", input_len,
-            len_after_zip);
+  // LOG_TRACE("data zip: input len is %u, output len is %u.", input_len,
+  // len_after_zip);
   return len_after_zip;
 }
 
@@ -104,7 +111,6 @@ char *Utils::getSnowflakeId() {
   uint32_t pidid = static_cast<uint16_t>((getpid() & 0xFFFF));
   uint32_t selfid = static_cast<uint16_t>((pthread_self() & 0xFFFF00) >> 8);
 
-  // 22bit ms
   uint64_t sequence_mask = -1LL ^ (-1LL << 22);
 
   uint64_t time_id = 0LL;
@@ -112,23 +118,19 @@ char *Utils::getSnowflakeId() {
 
   uint64_t since_date = 1288834974657LL; // Thu, 04 Nov 2010 01:42:54 GMT
 
-  // 41bit ms
   uint64_t msstamp = getCurrentMsTime();
 
   uint64_t rand = 0;
   uint64_t rand_mask = -1LL ^ (-1LL << (32 + 5 + 12));
 
-  // error timestap
   if (msstamp < last_msstamp) {
-    LOG_ERROR("ms(%llx) time less last(%llx).", msstamp, last_msstamp);
+    LOG_ERROR("ms " << msstamp << " time less last:" << last_msstamp);
 
-    // last ms
     last_msstamp = msstamp;
 
     srand(static_cast<uint32_t>(msstamp));
     rand = random();
 
-    // generate id
     time_id = ((msstamp - since_date) << 22 | (rand & rand_mask));
 
     snprintf(&snowflake_id[0], sizeof(snowflake_id), "0x%.16llx%.16llx",
@@ -136,7 +138,6 @@ char *Utils::getSnowflakeId() {
     return &snowflake_id[0];
   }
 
-  // increase id
   if (last_msstamp == msstamp) {
     sequence = (sequence + 1) & sequence_mask;
 
@@ -150,11 +151,6 @@ char *Utils::getSnowflakeId() {
   last_msstamp = msstamp;
 
   time_id = (((msstamp - since_date) << 22) | sequence);
-
-  LOG_TRACE("ms:0x%llx, ip:0x%.16llx, seq:0x:%x, selfid:%u, "
-            "local_id:0x%.16llx, time_id:0x%.16llx.",
-            (msstamp - since_date) << (22), ipaddr, sequence,
-            static_cast<uint32_t>(pthread_self()), local_id, time_id);
 
   snprintf(&snowflake_id[0], sizeof(snowflake_id), "0x%.16llx%.16llx", local_id,
            time_id);
@@ -191,7 +187,6 @@ bool Utils::getFirstIpAddr(std::string &local_host) {
   ifreq = (struct ifreq *)buf;
   ip_num = ifconf.ifc_len / sizeof(struct ifreq);
   for (int32_t i = 0; i < ip_num; i++, ifreq++) {
-    // exclude ipv6 addr
     if (ifreq->ifr_flags != AF_INET) {
       continue;
     }
@@ -232,7 +227,6 @@ bool Utils::bindCPU(int32_t cpu_id) {
   cpu_set_t mask;
 
   if (abs(cpu_id) > cpunum) {
-    LOG_ERROR("mask<%d> more than total cpu num<%d>.", cpu_id, cpunum);
     return false;
   }
 
@@ -244,13 +238,132 @@ bool Utils::bindCPU(int32_t cpu_id) {
   CPU_SET(cpucore, &mask);
 
   if (sched_setaffinity(0, sizeof(mask), &mask) < 0) {
-    LOG_ERROR("set CPU affinity<%d>/<%d> errno<%d>", cpu_id, cpunum, errno);
+    LOG_ERROR("set CPU affinity" << cpu_id << " cpunum:" << cpunum
+                                 << " errno: " << errno);
   }
 
   return true;
 }
 
-std::string Utils::base64_encode(const std::string &data) {
+bool Utils::parseHost(const std::string &host, std::string &ip) {
+  bool success = false;
+  struct addrinfo *res = NULL;
+  struct addrinfo hint;
+  char ipStr[17];
+
+  bzero(ipStr, 17);
+  bzero(&hint, sizeof(hint));
+  hint.ai_family = AF_INET;
+  hint.ai_protocol = SOCK_STREAM;
+
+  int32_t ret = getaddrinfo(host.c_str(), NULL, &hint, &res);
+  if (ret) {
+    freeaddrinfo(res);
+    LOG_ERROR("fail to resolve host:" << host);
+    return false;
+  }
+
+  for (struct addrinfo *ptr = res; ptr != NULL; ptr = ptr->ai_next) {
+    struct sockaddr_in *sa = (struct sockaddr_in *)ptr->ai_addr;
+    if (NULL != sa) {
+      inet_ntop(AF_INET, &sa->sin_addr.s_addr, ipStr, sizeof(ipStr));
+      ip = ipStr;
+      success = true;
+      break;
+    }
+  }
+  freeaddrinfo(res);
+  return success;
+}
+
+bool Utils::getUrlByDNS(const std::string &url, std::string &ipUrl) {
+  std::string host;
+  std::string ip;
+  size_t pos = url.find("://");
+  if (pos == std::string::npos) {
+    return false;
+  }
+
+  size_t sta = pos + 3;
+  size_t end = url.find(":", sta);
+  if (end != std::string::npos) {
+    host = url.substr(sta, end - sta);
+    if (!isalpha(host.at(0))) {
+      ipUrl = url;
+      return true;
+    }
+    if (parseHost(host, ip)) {
+      ipUrl = url;
+      ipUrl.replace(ipUrl.find(host), host.length(), ip);
+      return true;
+    }
+  }
+  return false;
+}
+
+int32_t Utils::requestUrl(const std::string &url, std::string &urlByDNS,
+                          std::string &res, uint32_t timeout) {
+  if (!getUrlByDNS(url, urlByDNS)) {
+    LOG_ERROR("host resolve error, fail to request url " << url);
+    return SdkCode::kErrorCURL;
+  }
+
+  CURL *curl = NULL;
+  curl_global_init(CURL_GLOBAL_ALL);
+
+  curl = curl_easy_init();
+  if (!curl) {
+    LOG_ERROR("failed to Init curl object");
+    return SdkCode::kErrorCURL;
+  }
+  curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "GET");
+  curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+  curl_easy_setopt(curl, CURLOPT_URL, urlByDNS.c_str());
+  curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &Utils::getUrlResponse);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &res);
+
+  curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 1L);
+  curl_easy_setopt(curl, CURLOPT_FORBID_REUSE, 1L);
+
+  CURLcode ret = curl_easy_perform(curl);
+  LOG_INFO("request from tdm:" << res);
+  if (ret != 0) {
+    LOG_ERROR("failed to request data from " << urlByDNS);
+    if (curl)
+      curl_easy_cleanup(curl);
+    curl_global_cleanup();
+
+    return SdkCode::kErrorCURL;
+  }
+
+  int32_t code;
+  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &code);
+  if (code != 200) {
+    LOG_ERROR("tdm responsed with code " << code);
+    if (curl)
+      curl_easy_cleanup(curl);
+    curl_global_cleanup();
+
+    return SdkCode::kErrorCURL;
+  }
+
+  if (res.empty()) {
+    LOG_ERROR("tdm return empty data");
+    if (curl)
+      curl_easy_cleanup(curl);
+    curl_global_cleanup();
+
+    return SdkCode::kErrorCURL;
+  }
+
+  if (curl)
+    curl_easy_cleanup(curl);
+  curl_global_cleanup();
+
+  return 0;
+}
+std::string Utils::Base64Encode(const std::string &data) {
   size_t in_len = data.size();
   size_t out_len = 4 * ((in_len + 2) / 3);
   std::string ret(out_len, '\0');
@@ -258,34 +371,34 @@ std::string Utils::base64_encode(const std::string &data) {
   char *p = const_cast<char *>(ret.c_str());
 
   for (i = 0; i < in_len - 2; i += 3) {
-    *p++ = base64_table[(data[i] >> 2) & 0x3F];
+    *p++ = Base64Table[(data[i] >> 2) & 0x3F];
     *p++ =
-        base64_table[((data[i] & 0x3) << 4) | ((int)(data[i + 1] & 0xF0) >> 4)];
-    *p++ = base64_table[((data[i + 1] & 0xF) << 2) |
-                        ((int)(data[i + 2] & 0xC0) >> 6)];
-    *p++ = base64_table[data[i + 2] & 0x3F];
+        Base64Table[((data[i] & 0x3) << 4) | ((int)(data[i + 1] & 0xF0) >> 4)];
+    *p++ = Base64Table[((data[i + 1] & 0xF) << 2) |
+                       ((int)(data[i + 2] & 0xC0) >> 6)];
+    *p++ = Base64Table[data[i + 2] & 0x3F];
   }
   if (i < in_len) {
-    *p++ = base64_table[(data[i] >> 2) & 0x3F];
+    *p++ = Base64Table[(data[i] >> 2) & 0x3F];
     if (i == (in_len - 1)) {
-      *p++ = base64_table[((data[i] & 0x3) << 4)];
+      *p++ = Base64Table[((data[i] & 0x3) << 4)];
       *p++ = '=';
     } else {
-      *p++ = base64_table[((data[i] & 0x3) << 4) |
-                          ((int)(data[i + 1] & 0xF0) >> 4)];
-      *p++ = base64_table[((data[i + 1] & 0xF) << 2)];
+      *p++ = Base64Table[((data[i] & 0x3) << 4) |
+                         ((int)(data[i + 1] & 0xF0) >> 4)];
+      *p++ = Base64Table[((data[i + 1] & 0xF) << 2)];
     }
     *p++ = '=';
   }
   return ret;
 }
 
-std::string Utils::genBasicAuthCredential(const std::string &id,
+std::string Utils::GenBasicAuthCredential(const std::string &id,
                                           const std::string &key) {
   std::string credential = id + constants::kBasicAuthJoiner + key;
   std::string result = constants::kBasicAuthPrefix;
   result.append(constants::kBasicAuthSeparator);
-  result.append(base64_encode(credential));
+  result.append(Base64Encode(credential));
   return result;
 }
 
@@ -298,21 +411,23 @@ int32_t Utils::requestUrl(std::string &res, const HttpRequest *request) {
   curl = curl_easy_init();
   if (!curl) {
     LOG_ERROR("failed to init curl object");
-    return SDKInvalidResult::kErrorCURL;
+    return SdkCode::kErrorCURL;
   }
 
   // http header
   list = curl_slist_append(list,
                            "Content-Type: application/x-www-form-urlencoded");
+
   if (request->need_auth && !request->auth_id.empty() &&
       !request->auth_key.empty()) {
     // Authorization: Basic xxxxxxxx
     std::string auth = constants::kBasicAuthHeader;
     auth.append(constants::kBasicAuthSeparator);
-    auth.append(genBasicAuthCredential(request->auth_id, request->auth_key));
-    LOG_INFO("request manager, auth-header:%s", auth.c_str());
+    auth.append(GenBasicAuthCredential(request->auth_id, request->auth_key));
+    LOG_INFO("request manager, auth-header:" << auth.c_str());
     list = curl_slist_append(list, auth.c_str());
   }
+
   curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
 
   // set url
@@ -329,24 +444,24 @@ int32_t Utils::requestUrl(std::string &res, const HttpRequest *request) {
   // execute curl request
   CURLcode ret = curl_easy_perform(curl);
   if (ret != 0) {
-    LOG_ERROR("%s", curl_easy_strerror(ret));
-    LOG_ERROR("failed to request data from %s", request->url.c_str());
+    LOG_ERROR(curl_easy_strerror(ret));
+    LOG_ERROR("failed to request data from %s" << request->url.c_str());
     if (curl)
       curl_easy_cleanup(curl);
     curl_global_cleanup();
 
-    return SDKInvalidResult::kErrorCURL;
+    return SdkCode::kErrorCURL;
   }
 
   int32_t code;
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &code);
   if (code != 200) {
-    LOG_ERROR("tdm responsed with code %d", code);
+    LOG_ERROR("tdm responsed with code %d" << code);
     if (curl)
       curl_easy_cleanup(curl);
     curl_global_cleanup();
 
-    return SDKInvalidResult::kErrorCURL;
+    return SdkCode::kErrorCURL;
   }
 
   if (res.empty()) {
@@ -355,7 +470,7 @@ int32_t Utils::requestUrl(std::string &res, const HttpRequest *request) {
       curl_easy_cleanup(curl);
     curl_global_cleanup();
 
-    return SDKInvalidResult::kErrorCURL;
+    return SdkCode::kErrorCURL;
   }
 
   // clean work
@@ -364,7 +479,6 @@ int32_t Utils::requestUrl(std::string &res, const HttpRequest *request) {
 
   return 0;
 }
-
 size_t Utils::getUrlResponse(void *buffer, size_t size, size_t count,
                              void *response) {
   std::string *str = (std::string *)response;
@@ -376,8 +490,7 @@ size_t Utils::getUrlResponse(void *buffer, size_t size, size_t count,
 bool Utils::readFile(const std::string &file_path, std::string &content) {
   std::ifstream f(file_path.c_str());
   if (f.fail()) {
-    LOG_ERROR("fail to read file:%s, please check file path",
-              file_path.c_str());
+    LOG_ERROR("fail to read file:" << file_path << "please check file path");
     return false;
   }
   std::stringstream ss;
@@ -438,5 +551,4 @@ std::string Utils::getVectorStr(std::vector<std::string> &vs) {
   }
   return res;
 }
-
 } // namespace inlong

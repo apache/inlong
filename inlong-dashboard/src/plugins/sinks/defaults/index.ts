@@ -87,6 +87,11 @@ export const allDefaultSinks: MetaExportWithBackendList<SinkMetaType> = [
     LoadEntity: () => import('./PostgreSQL'),
   },
   {
+    label: 'Pulsar',
+    value: 'PULSAR',
+    LoadEntity: () => import('./Pulsar'),
+  },
+  {
     label: 'SQLServer',
     value: 'SQLSERVER',
     LoadEntity: () => import('./SQLServer'),

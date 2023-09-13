@@ -23,7 +23,6 @@ package org.apache.inlong.manager.common.consts;
 public class SinkType extends StreamType {
 
     public static final String HIVE = "HIVE";
-    public static final String ICEBERG = "ICEBERG";
     public static final String CLICKHOUSE = "CLICKHOUSE";
     public static final String HBASE = "HBASE";
     public static final String ELASTICSEARCH = "ELASTICSEARCH";

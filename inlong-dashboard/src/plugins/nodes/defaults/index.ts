@@ -62,6 +62,11 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     LoadEntity: () => import('./PostgreSQL'),
   },
   {
+    label: 'Pulsar',
+    value: 'PULSAR',
+    LoadEntity: () => import('./Pulsar'),
+  },
+  {
     label: 'Redis',
     value: 'REDIS',
     LoadEntity: () => import('./Redis'),
