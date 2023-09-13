@@ -40,12 +40,12 @@ SendGroupPtr SendManager::GetSendGroup(const std::string &group_id) {
   return send_group_ptr;
 }
 
-bool SendManager::AddSendGroup(const std::string &group_id) {
-  if (!ProxyManager::GetInstance()->IsBusExist(group_id)) {
-    LOG_ERROR("bus is not exist." << group_id);
+bool SendManager::AddSendGroup(const std::string &inlong_group_id) {
+  if (!ProxyManager::GetInstance()->IsExist(inlong_group_id)) {
+    LOG_ERROR("inlong_group_id is not exist." << inlong_group_id);
     return false;
   }
-  DoAddSendGroup(group_id);
+  DoAddSendGroup(inlong_group_id);
   return false;
 }
 

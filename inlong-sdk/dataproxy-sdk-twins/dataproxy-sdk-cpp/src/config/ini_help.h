@@ -25,70 +25,60 @@
 #include <string>
 #include <vector>
 
-namespace inlong
-{
+namespace inlong {
 const char delim[] = "\n";
-struct Iterm
-{
-    std::string key;
-    std::string value;
-    std::string comment;
-    std::string rightComment;
+struct Iterm {
+  std::string key;
+  std::string value;
+  std::string comment;
+  std::string rightComment;
 };
 
-struct IniSection
-{
-    using ItermIterator = std::vector<Iterm>::iterator; 
-    ItermIterator begin()
-    {
-        return items.begin();
-    }
+struct IniSection {
+  using ItermIterator = std::vector<Iterm>::iterator;
+  ItermIterator begin() { return items.begin(); }
 
-    ItermIterator end()
-    {
-        return items.end(); 
-    }
+  ItermIterator end() { return items.end(); }
 
-    std::string name;
-    std::string comment;
-    std::string rightComment;
-    std::vector<Iterm> items;
+  std::string name;
+  std::string comment;
+  std::string rightComment;
+  std::vector<Iterm> items;
 };
 
-class IniFile
-{
-  public:
-    IniFile(){}
-    ~IniFile() { close(); }
+class IniFile {
+public:
+  IniFile() {}
+  ~IniFile() { close(); }
 
-    int load(const std::string& fileName);
-    int getString(const std::string& section, const std::string& key, std::string* value);
-    int getInt(const std::string& section, const std::string& key, int* value);
+  int load(const std::string &fileName);
+  int getString(const std::string &section, const std::string &key,
+                std::string *value);
+  int getInt(const std::string &section, const std::string &key, int *value);
 
-  private:
-    IniSection* getSection(const std::string& section = "");
-    static void trim(std::string& str);
-    int updateSection(const std::string& cleanLine,
-                      const std::string& comment,
-                      const std::string& rightComment,
-                      IniSection** section);
-    int addKV(const std::string& cleanLine,
-                        const std::string& comment,
-                        const std::string& rightComment,
-                        IniSection* section);
-    void close();
-    bool split(const std::string& str, const std::string& sep, std::string* left, std::string* right);
-    bool parse(const std::string& content, std::string* key, std::string* value);
-    int getValue(const std::string& section, const std::string& key, std::string* value);
-    int getValue(const std::string& section, const std::string& key, std::string* value, std::string* comment);
+private:
+  IniSection *getSection(const std::string &section = "");
+  static void trim(std::string &str);
+  int updateSection(const std::string &cleanLine, const std::string &comment,
+                    const std::string &rightComment, IniSection **section);
+  int addKV(const std::string &cleanLine, const std::string &comment,
+            const std::string &rightComment, IniSection *section);
+  void close();
+  bool split(const std::string &str, const std::string &sep, std::string *left,
+             std::string *right);
+  bool parse(const std::string &content, std::string *key, std::string *value);
+  int getValue(const std::string &section, const std::string &key,
+               std::string *value);
+  int getValue(const std::string &section, const std::string &key,
+               std::string *value, std::string *comment);
 
-  private:
-    using SectionIterator = std::vector<IniSection*>::iterator;
-    std::vector<IniSection*> sections_;
-    std::string ini_file_name_;
-    std::string err_msg_;  // save err msg
+private:
+  using SectionIterator = std::vector<IniSection *>::iterator;
+  std::vector<IniSection *> sections_;
+  std::string ini_file_name_;
+  std::string err_msg_; // save err msg
 };
 
-}  // namespace inlong
+} // namespace inlong
 
-#endif  // INLONG_SDK_BASE_INI_HELP_H_
+#endif // INLONG_SDK_BASE_INI_HELP_H_

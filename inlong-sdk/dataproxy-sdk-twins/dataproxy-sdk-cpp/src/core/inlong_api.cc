@@ -26,16 +26,17 @@ int32_t InLongApi::InitApi(const char *config_path) {
   return api_impl_->InitApi(config_path);
 }
 
-int32_t InLongApi::Send(const char *business_id, const char *table_id,
-                        const char *msg, int32_t msg_len,
-                        UserCallBack call_back) {
-  return api_impl_->Send(business_id, table_id, msg, msg_len, call_back);
+int32_t InLongApi::Send(const char *inlong_group_id,
+                        const char *inlong_stream_id, const char *msg,
+                        int32_t msg_len, UserCallBack call_back) {
+  return api_impl_->Send(inlong_group_id, inlong_stream_id, msg, msg_len,
+                         call_back);
 }
 
 int32_t InLongApi::CloseApi(int32_t max_waitms) {
   return api_impl_->CloseApi(max_waitms);
 }
 int32_t InLongApi::AddBid(const std::vector<std::string> &groupids) {
-  return api_impl_->AddBid(groupids);
+  return api_impl_->AddInLongGroupId(groupids);
 }
 } // namespace inlong

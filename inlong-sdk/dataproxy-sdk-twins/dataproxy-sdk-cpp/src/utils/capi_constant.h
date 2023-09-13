@@ -57,12 +57,13 @@ static const char kLogPath[] = "./";
 
 static const char kManagerURL[] =
     "http://127.0.0.1:8099/inlong/manager/openapi/dataproxy/getIpList";
-static const bool kEnableBusURLFromCluster = false;
-static const char kBusClusterURL[] =
-    "127.0.0.1/heartbeat/tdbus_ip_v2?cluster_id=0&net_tag=all";
-static const uint32_t kBusUpdateInterval = 2;
-static const uint32_t kBusURLTimeout = 5;
-static const uint32_t kMaxBusNum = 200;
+static const bool kEnableManagerFromCluster = false;
+static const char kManagerClusterURL[] =
+    "http://127.0.0.1:8099/heartbeat/"
+    "dataproxy_ip_v2?cluster_id=0&net_tag=normal";
+static const uint32_t kManagerUpdateInterval = 2;
+static const uint32_t kManagerTimeout = 5;
+static const uint32_t kMaxProxyNum = 200;
 
 static const bool kEnableTCPNagle = true;
 static const uint32_t kTcpIdleTime = 600000;

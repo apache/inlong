@@ -42,13 +42,13 @@ int32_t ApiImp::InitApi(const char *config_file_path) {
   return DoInit();
 }
 
-int32_t ApiImp::Send(const char *business_id, const char *table_id,
+int32_t ApiImp::Send(const char *inlong_group_id, const char *inlong_stream_id,
                      const char *msg, int32_t msg_len, UserCallBack call_back) {
   if (msg_len > max_msg_length_) {
     return SdkCode::kMsgTooLong;
   }
-  if (business_id == nullptr || table_id == nullptr || msg == nullptr ||
-      msg_len <= 0) {
+  if (inlong_group_id == nullptr || inlong_stream_id == nullptr ||
+      msg == nullptr || msg_len <= 0) {
     return SdkCode::kInvalidInput;
   }
 
@@ -57,7 +57,7 @@ int32_t ApiImp::Send(const char *business_id, const char *table_id,
   }
 
   int64_t msg_time = Utils::getCurrentMsTime();
-  return this->SendBase(business_id, table_id, local_ip_, msg_time,
+  return this->SendBase(inlong_group_id, inlong_stream_id, local_ip_, msg_time,
                         {msg, msg_len}, call_back);
 }
 
@@ -94,16 +94,17 @@ int32_t ApiImp::CloseApi(int32_t max_waitms) {
 }
 
 int32_t ApiImp::DoInit() {
-  LOG_INFO("tdbus sdk cpp start Init, version:" << constants::kVersion);
+  LOG_INFO(
+      "inlong dataproxy sdk cpp start Init, version:" << constants::kVersion);
 
   signal(SIGPIPE, SIG_IGN);
 
-  LOG_INFO("tdbus_sdk_cpp Init complete!");
+  LOG_INFO("inlong dataproxy cpp sdk Init complete!");
 
   ProxyManager::GetInstance()->Init();
 
   for (int i = 0; i < SdkConfig::getInstance()->inlong_group_ids_.size(); i++) {
-    LOG_INFO("DoInit CheckBidConf inlong_group_id:"
+    LOG_INFO("DoInit CheckConf inlong_group_id:"
              << SdkConfig::getInstance()->inlong_group_ids_[i]);
     ProxyManager::GetInstance()->CheckBidConf(
         SdkConfig::getInstance()->inlong_group_ids_[i], false);
@@ -151,7 +152,8 @@ int32_t ApiImp::InitManager() {
   init_succeed_ = true;
   return SdkCode::kSuccess;
 }
-int32_t ApiImp::AddBid(const std::vector<std::string> &inlong_group_ids) {
+int32_t
+ApiImp::AddInLongGroupId(const std::vector<std::string> &inlong_group_ids) {
   if (inited_ == false) {
     return SdkCode::kSendBeforeInit;
   }

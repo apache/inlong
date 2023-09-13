@@ -60,7 +60,7 @@ bool SdkConfig::ParseConfig(const std::string &config_path) {
   InitCacheParam(doc);
   InitZipParam(doc);
   InitLogParam(doc);
-  InitBusParam(doc);
+  InitManagerParam(doc);
   InitTcpParam(doc);
   OthersParam(doc);
 
@@ -98,11 +98,11 @@ void SdkConfig::defaultInit() {
 
   // manager parameters
   manager_url_ = constants::kManagerURL;
-  enable_manager_url_from_cluster_ = constants::kEnableBusURLFromCluster;
-  manager_cluster_url_ = constants::kBusClusterURL;
-  manager_update_interval_ = constants::kBusUpdateInterval;
-  manager_url_timeout_ = constants::kBusURLTimeout;
-  max_proxy_num_ = constants::kMaxBusNum;
+  enable_manager_url_from_cluster_ = constants::kEnableManagerFromCluster;
+  manager_cluster_url_ = constants::kManagerClusterURL;
+  manager_update_interval_ = constants::kManagerUpdateInterval;
+  manager_url_timeout_ = constants::kManagerTimeout;
+  max_proxy_num_ = constants::kMaxProxyNum;
 
   local_ip_ = constants::kSerIP;
   local_port_ = constants::kSerPort;
@@ -242,7 +242,7 @@ void SdkConfig::InitLogParam(const rapidjson::Value &doc) {
     log_path_ = constants::kLogPath;
   }
 }
-void SdkConfig::InitBusParam(const rapidjson::Value &doc) {
+void SdkConfig::InitManagerParam(const rapidjson::Value &doc) {
   // manager url
   if (doc.HasMember("manager_url") && doc["manager_url"].IsString()) {
     const rapidjson::Value &obj = doc["manager_url"];
@@ -250,41 +250,41 @@ void SdkConfig::InitBusParam(const rapidjson::Value &doc) {
   } else {
     manager_url_ = constants::kManagerURL;
   }
-  // bus_cluster_URL_
+  // manager cluster url
   if (doc.HasMember("manager_cluster_url") &&
       doc["manager_cluster_url"].IsString()) {
     const rapidjson::Value &obj = doc["manager_cluster_url"];
     manager_cluster_url_ = obj.GetString();
   } else {
-    manager_cluster_url_ = constants::kBusClusterURL;
+    manager_cluster_url_ = constants::kManagerClusterURL;
   }
-  // enable_bus_URL_from_cluster
+  // enable manager from cluster
   if (doc.HasMember("enable_manager_url_from_cluster") &&
       doc["enable_manager_url_from_cluster"].IsBool()) {
     const rapidjson::Value &obj = doc["enable_manager_url_from_cluster"];
     enable_manager_url_from_cluster_ = obj.GetBool();
   } else {
-    enable_manager_url_from_cluster_ = constants::kEnableBusURLFromCluster;
+    enable_manager_url_from_cluster_ = constants::kEnableManagerFromCluster;
   }
-  // bus_update_interval
+  // manager update interval
   if (doc.HasMember("manager_update_interval") &&
       doc["manager_update_interval"].IsInt() &&
       doc["manager_update_interval"].GetInt() > 0) {
     const rapidjson::Value &obj = doc["manager_update_interval"];
     manager_update_interval_ = obj.GetInt();
   } else {
-    manager_update_interval_ = constants::kBusUpdateInterval;
+    manager_update_interval_ = constants::kManagerUpdateInterval;
   }
-  // bus_URL_timeout
+  // manager timeout
   if (doc.HasMember("manager_url_timeout") &&
       doc["manager_url_timeout"].IsInt() &&
       doc["manager_url_timeout"].GetInt() > 0) {
     const rapidjson::Value &obj = doc["manager_url_timeout"];
     manager_url_timeout_ = obj.GetInt();
   } else {
-    manager_url_timeout_ = constants::kBusURLTimeout;
+    manager_url_timeout_ = constants::kManagerTimeout;
   }
-  // msg_type
+  // msg type
   if (doc.HasMember("msg_type") && doc["msg_type"].IsInt() &&
       doc["msg_type"].GetInt() > 0 && doc["msg_type"].GetInt() < 9) {
     const rapidjson::Value &obj = doc["msg_type"];
@@ -292,13 +292,13 @@ void SdkConfig::InitBusParam(const rapidjson::Value &doc) {
   } else {
     msg_type_ = constants::kMsgType;
   }
-  // max_active_bus_num
-  if (doc.HasMember("max_tcp_num") && doc["max_tcp_num"].IsInt() &&
-      doc["max_tcp_num"].GetInt() > 0) {
-    const rapidjson::Value &obj = doc["max_tcp_num"];
+  // max proxy num
+  if (doc.HasMember("max_proxy_num") && doc["max_proxy_num"].IsInt() &&
+      doc["max_proxy_num"].GetInt() > 0) {
+    const rapidjson::Value &obj = doc["max_proxy_num"];
     max_proxy_num_ = obj.GetInt();
   } else {
-    max_proxy_num_ = constants::kMaxBusNum;
+    max_proxy_num_ = constants::kMaxProxyNum;
   }
 
   if (doc.HasMember("inlong_group_ids") && doc["inlong_group_ids"].IsString()) {

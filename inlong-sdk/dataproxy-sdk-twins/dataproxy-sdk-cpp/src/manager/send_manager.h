@@ -40,7 +40,7 @@ public:
   SendManager();
   virtual ~SendManager(){};
   SendGroupPtr GetSendGroup(const std::string &group_id);
-  bool AddSendGroup(const std::string &group_id);
+  bool AddSendGroup(const std::string &inlong_group_id);
 };
 } // namespace inlong
 

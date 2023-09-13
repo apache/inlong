@@ -54,8 +54,8 @@ private:
 public:
   SendBuffer(uint32_t size)
       : uniq_id_(0), is_used_(false), is_packed_(false), size_(size),
-        msg_cnt_(0), len_(0), inlong_group_id_(), inlong_stream_id_(), first_send_time_(0),
-        latest_send_time_(0) {
+        msg_cnt_(0), len_(0), inlong_group_id_(), inlong_stream_id_(),
+        first_send_time_(0), latest_send_time_(0) {
     content_ = new char[size];
     if (content_) {
       memset(content_, 0x0, size);
@@ -74,8 +74,12 @@ public:
   void setLen(const uint32_t len) { len_ = len; }
   std::string bid() { return inlong_group_id_; }
   std::string tid() { return inlong_stream_id_; }
-  void setInlongGroupId(const std::string &inlong_group_id) { inlong_group_id_ = inlong_group_id; }
-  void setStreamId(const std::string &inlong_stream_id) { inlong_stream_id_ = inlong_stream_id; }
+  void setInlongGroupId(const std::string &inlong_group_id) {
+    inlong_group_id_ = inlong_group_id;
+  }
+  void setStreamId(const std::string &inlong_stream_id) {
+    inlong_stream_id_ = inlong_stream_id;
+  }
 
   void setUniqId(const uint32_t &uniq_id) { uniq_id_ = uniq_id; }
 
@@ -83,8 +87,9 @@ public:
   void doUserCallBack() {
     for (auto it : user_msg_vector_) {
       if (it->cb_) {
-        it->cb_(inlong_group_id_.data(), inlong_stream_id_.data(), it->msg_.data(), it->msg_.size(),
-                it->user_report_time_, it->user_client_ip_.data());
+        it->cb_(inlong_group_id_.data(), inlong_stream_id_.data(),
+                it->msg_.data(), it->msg_.size(), it->user_report_time_,
+                it->user_client_ip_.data());
       }
     }
   }

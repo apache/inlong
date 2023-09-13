@@ -26,9 +26,9 @@
 #include <functional>
 
 namespace inlong {
-using UserCallBack =
-    std::function<int32_t(const char *, const char *, const char *, int32_t,
-                          const int64_t, const char *)>;
+
+typedef int (*UserCallBack)(const char *, const char *, const char *, int32_t,
+                            const int64_t, const char *);
 
 class ApiImp {
 public:
@@ -36,12 +36,13 @@ public:
   ~ApiImp();
   int32_t InitApi(const char *config_file_path);
 
-  int32_t Send(const char *business_id, const char *table_id, const char *msg,
-               int32_t msg_len, UserCallBack call_back = nullptr);
+  int32_t Send(const char *inlong_group_id, const char *inlong_stream_id,
+               const char *msg, int32_t msg_len,
+               UserCallBack call_back = nullptr);
 
   int32_t CloseApi(int32_t max_waitms);
 
-  int32_t AddBid(const std::vector<std::string> &bids);
+  int32_t AddInLongGroupId(const std::vector<std::string> &inlong_group_ids);
 
 private:
   int32_t DoInit();
