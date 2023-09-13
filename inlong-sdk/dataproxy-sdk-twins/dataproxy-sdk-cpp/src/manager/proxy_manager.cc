@@ -68,7 +68,7 @@ void ProxyManager::DoUpdate() {
   LOG_INFO("start ProxyManager DoUpdate.");
 
   if (groupid_2_cluster_map_.empty()) {
-    LOG_INFO("empty groupid, no need to DoUpdate buslist");
+    LOG_INFO("empty groupid, no need to DoUpdate proxy list");
     update_mutex_.unlock();
     return;
   }
@@ -216,16 +216,17 @@ int32_t ProxyManager::GetProxy(const std::string &groupid,
   auto it = groupid_2_proxy_map_.find(groupid);
   if (it == groupid_2_proxy_map_.end()) {
     LOG_ERROR("GetProxyByGroupid  failed . Groupid " << groupid);
-    return SdkCode::kFailGetBusConf;
+    return SdkCode::kFailGetProxyConf;
   }
   proxy_info_vec = it->second;
   return SdkCode::kSuccess;
 }
 
-int32_t ProxyManager::CheckBidConf(const std::string &groupid, bool is_inited) {
+int32_t ProxyManager::CheckBidConf(const std::string &inlong_group_id,
+                                   bool is_inited) {
   {
     unique_read_lock<read_write_mutex> rdlck(groupid_2_cluster_rwmutex_);
-    auto it = groupid_2_cluster_map_.find(groupid);
+    auto it = groupid_2_cluster_map_.find(inlong_group_id);
     if (it != groupid_2_cluster_map_.end()) {
       return SdkCode::kSuccess;
     }
@@ -233,10 +234,11 @@ int32_t ProxyManager::CheckBidConf(const std::string &groupid, bool is_inited) {
 
   {
     unique_write_lock<read_write_mutex> wtlck(groupid_2_cluster_rwmutex_);
-    groupid_2_cluster_map_.emplace(groupid, -1);
+    groupid_2_cluster_map_.emplace(inlong_group_id, -1);
   }
 
-  LOG_INFO("CheckProxyConf groupid:" << groupid << ",isInited :" << is_inited);
+  LOG_INFO("CheckProxyConf groupid:" << inlong_group_id
+                                     << ",isInited :" << is_inited);
   if (is_inited) {
     std::unique_lock<std::mutex> con_lck(cond_mutex_);
     update_flag_ = true;
@@ -248,9 +250,9 @@ int32_t ProxyManager::CheckBidConf(const std::string &groupid, bool is_inited) {
   return SdkCode::kSuccess;
 }
 
-bool ProxyManager::IsBusExist(const std::string &groupid) {
+bool ProxyManager::IsExist(const std::string &inlong_group_id) {
   unique_read_lock<read_write_mutex> rdlck(groupid_2_proxy_map_rwmutex_);
-  auto it = groupid_2_proxy_map_.find(groupid);
+  auto it = groupid_2_proxy_map_.find(inlong_group_id);
   if (it == groupid_2_proxy_map_.end()) {
     return false;
   }

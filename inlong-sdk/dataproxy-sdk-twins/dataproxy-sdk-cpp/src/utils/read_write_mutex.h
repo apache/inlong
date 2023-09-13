@@ -128,6 +128,6 @@ private:
   _ReadWriteLock *m_ptr_rw_lock = nullptr;
 };
 
-} // namespace dataproxy_sdk
+} // namespace inlong
 
 #endif // INLONG_SDK_READ_WRITE_MUTEX_H

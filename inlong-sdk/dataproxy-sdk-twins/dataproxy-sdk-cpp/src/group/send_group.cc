@@ -121,7 +121,8 @@ void SendGroup::UpdateConf(std::error_code error) {
   ClearOldTcpClients();
 
   ProxyInfoVec new_proxy_info;
-  if (ProxyManager::GetInstance()->GetProxy(group_id_, new_proxy_info) != kSuccess ||
+  if (ProxyManager::GetInstance()->GetProxy(group_id_, new_proxy_info) !=
+          kSuccess ||
       new_proxy_info.empty()) {
     update_conf_timer_->expires_after(std::chrono::milliseconds(kTimerMinute));
     update_conf_timer_->async_wait(

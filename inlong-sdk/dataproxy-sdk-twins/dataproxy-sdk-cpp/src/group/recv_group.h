@@ -29,7 +29,6 @@
 #include "../utils/noncopyable.h"
 #include "sdk_conf.h"
 
-
 namespace inlong {
 class RecvGroup {
 private:
@@ -67,11 +66,9 @@ public:
   int32_t SendData(const std::string &msg, const std::string &groupId,
                    const std::string &streamId, const std::string &client_ip,
                    uint64_t report_time, UserCallBack call_back);
-  bool PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data,
-               uint32_t &out_len, uint32_t uniq_id);
-  void DispatchMsg(
-      bool
-          exit);
+  bool PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data, uint32_t &out_len,
+               uint32_t uniq_id);
+  void DispatchMsg(bool exit);
 
   char *data() const { return pack_buf_; }
 
