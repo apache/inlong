@@ -270,10 +270,6 @@ public class PostgresSourceFetchTaskContext extends JdbcSourceFetchTaskContext {
         return snapshotChangeEventSourceMetrics;
     }
 
-    public StreamingChangeEventSourceMetrics getStreamingChangeEventSourceMetrics() {
-        return streamingChangeEventSourceMetrics;
-    }
-
     public Snapshotter getSnapShotter() {
         return snapShotter;
     }
