@@ -155,6 +155,8 @@ void SendGroup::UpdateConf(std::error_code error) {
     return;
   }
 
+  std::random_shuffle(new_proxy_info.begin(), new_proxy_info.end());
+
   tcp_clients_tmp->reserve(proxy_num);
   for (int i = 0; i < proxy_num; i++) {
     ProxyInfo proxy_tmp = new_proxy_info[i];
