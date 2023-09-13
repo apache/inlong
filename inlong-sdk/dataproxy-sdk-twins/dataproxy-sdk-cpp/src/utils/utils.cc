@@ -445,7 +445,7 @@ int32_t Utils::requestUrl(std::string &res, const HttpRequest *request) {
   CURLcode ret = curl_easy_perform(curl);
   if (ret != 0) {
     LOG_ERROR(curl_easy_strerror(ret));
-    LOG_ERROR("failed to request data from %s" << request->url.c_str());
+    LOG_ERROR("failed to request data from " << request->url.c_str());
     if (curl)
       curl_easy_cleanup(curl);
     curl_global_cleanup();
@@ -456,7 +456,7 @@ int32_t Utils::requestUrl(std::string &res, const HttpRequest *request) {
   int32_t code;
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &code);
   if (code != 200) {
-    LOG_ERROR("tdm responsed with code %d" << code);
+    LOG_ERROR("tdm responsed with code " << code);
     if (curl)
       curl_easy_cleanup(curl);
     curl_global_cleanup();

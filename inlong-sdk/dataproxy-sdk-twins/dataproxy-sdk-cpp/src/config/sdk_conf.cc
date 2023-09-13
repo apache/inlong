@@ -63,6 +63,7 @@ bool SdkConfig::ParseConfig(const std::string &config_path) {
   InitManagerParam(doc);
   InitTcpParam(doc);
   OthersParam(doc);
+  InitAuthParm(doc);
 
   inlong::initLog4cplus();
 

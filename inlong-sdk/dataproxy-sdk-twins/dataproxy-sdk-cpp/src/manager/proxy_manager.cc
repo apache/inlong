@@ -67,6 +67,8 @@ void ProxyManager::DoUpdate() {
   update_mutex_.try_lock();
   LOG_INFO("start ProxyManager DoUpdate.");
 
+  std::srand(unsigned(std::time(nullptr)));
+
   if (groupid_2_cluster_map_.empty()) {
     LOG_INFO("empty groupid, no need to DoUpdate proxy list");
     update_mutex_.unlock();
