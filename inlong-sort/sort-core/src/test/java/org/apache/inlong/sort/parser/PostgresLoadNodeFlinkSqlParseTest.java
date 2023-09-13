@@ -79,6 +79,7 @@ public class PostgresLoadNodeFlinkSqlParseTest extends AbstractTestBase {
         properties.put("dirty.side-output.format", "csv");
         properties.put("dirty.side-output.labels",
                 "SYSTEM_TIME=${SYSTEM_TIME}&DIRTY_TYPE=${DIRTY_TYPE}&database=test&table=test2");
+        properties.put("scan.incremental.snapshot.enabled", "true");
         return new PostgresLoadNode("2", "postgres_output", Arrays.asList(new FieldInfo("name",
                 new StringFormatInfo()), new FieldInfo("age", new IntFormatInfo())),
                 Arrays.asList(new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
