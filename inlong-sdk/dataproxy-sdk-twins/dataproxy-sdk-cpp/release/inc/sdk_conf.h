@@ -1,21 +1,21 @@
 /**
-* Licensed to the Apache Software Foundation (ASF) under one
-* or more contributor license agreements.  See the NOTICE file
-* distributed with this work for additional information
-* regarding copyright ownership.  The ASF licenses this file
-* to you under the Apache License, Version 2.0 (the
-* "License"); you may not use this file except in compliance
-* with the License.  You may obtain a copy of the License at
-*
-*   http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 #ifndef CAPI_BASE_CLIENT_CONFIG_H_
 #define CAPI_BASE_CLIENT_CONFIG_H_
@@ -36,21 +36,22 @@ private:
   void InitCacheParam(const rapidjson::Value &doc);
   void InitZipParam(const rapidjson::Value &doc);
   void InitLogParam(const rapidjson::Value &doc);
-  void InitBusParam(const rapidjson::Value &doc);
+  void InitManagerParam(const rapidjson::Value &doc);
   void InitTcpParam(const rapidjson::Value &doc);
   void InitAuthParm(const rapidjson::Value &doc);
   void OthersParam(const rapidjson::Value &doc);
 
 public:
   // cache parameter
-  std::vector<std::string> inlong_group_ids_; // Initialize the inlong groupid collection
-  uint32_t recv_buf_size_;        // Receive buf size, tid granularity
-  uint32_t send_buf_size_;        // Send buf size, bid granularity
+  std::vector<std::string>
+      inlong_group_ids_;   // Initialize the inlong groupid collection
+  uint32_t recv_buf_size_; // Receive buf size, tid granularity
+  uint32_t send_buf_size_; // Send buf size, bid granularity
 
   // thread parameters
-  uint32_t per_groupid_thread_nums_;    // Sending thread per groupid
-  uint32_t dispatch_interval_zip_;  // Compression thread distribution interval
-  uint32_t dispatch_interval_send_; // sending thread sending interval
+  uint32_t per_groupid_thread_nums_; // Sending thread per groupid
+  uint32_t dispatch_interval_zip_;   // Compression thread distribution interval
+  uint32_t dispatch_interval_send_;  // sending thread sending interval
 
   // Packaging parameters
   bool enable_pack_;
@@ -107,9 +108,7 @@ public:
   bool ParseConfig(const std::string &config_path);
   void ShowClientConfig();
 
-  inline bool enableChar() const {
-    return (((extend_field_)&0x4) >> 2);
-  }
+  inline bool enableChar() const { return (((extend_field_)&0x4) >> 2); }
   inline bool enableTraceIP() const { return (((extend_field_)&0x2) >> 1); }
   // data type message datlen|data
   inline bool isNormalDataPackFormat() const {

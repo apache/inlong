@@ -46,18 +46,18 @@ private:
   volatile bool inited_ = false;
 
   int32_t ParseAndGet(const std::string &groupid, const std::string &meta_data,
-                      ProxyInfoVec &bus_info_vec);
+                      ProxyInfoVec &proxy_info_vec);
 
 public:
   ProxyManager(){};
   ~ProxyManager();
   static ProxyManager *GetInstance() { return instance_; }
-  int32_t CheckBidConf(const std::string &groupid, bool is_inited);
+  int32_t CheckBidConf(const std::string &inlong_group_id, bool is_inited);
   void Update();
   void DoUpdate();
   void Init();
   int32_t GetProxy(const std::string &groupid, ProxyInfoVec &proxy_info_vec);
-  bool IsBusExist(const std::string &groupid);
+  bool IsExist(const std::string &inlong_group_id);
 };
 } // namespace inlong
 

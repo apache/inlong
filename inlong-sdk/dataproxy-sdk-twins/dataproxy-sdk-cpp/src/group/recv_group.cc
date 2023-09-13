@@ -17,18 +17,20 @@
 
 #include "recv_group.h"
 
+#include "../protocol/msg_protocol.h"
 #include "../utils/utils.h"
 #include "api_code.h"
-#include "../protocol/msg_protocol.h"
 #include <cstdlib>
 #include <functional>
 
 namespace inlong {
 const uint32_t ATTR_LENGTH = 10;
 const uint32_t DEFAULT_PACK_ATTR = 400;
-RecvGroup::RecvGroup(const std::string &inlong_group_id, const std::string &inlong_stream_id,
+RecvGroup::RecvGroup(const std::string &inlong_group_id,
+                     const std::string &inlong_stream_id,
                      std::shared_ptr<SendManager> send_manager)
-    : cur_len_(0), inlong_group_id_(inlong_group_id), inlong_stream_id_(inlong_stream_id), groupId_num_(0), streamId_num_(0),
+    : cur_len_(0), inlong_group_id_(inlong_group_id),
+      inlong_stream_id_(inlong_stream_id), groupId_num_(0), streamId_num_(0),
       msg_type_(SdkConfig::getInstance()->msg_type_),
       data_capacity_(SdkConfig::getInstance()->buf_size_),
       send_manager_(send_manager) {
@@ -38,7 +40,8 @@ RecvGroup::RecvGroup(const std::string &inlong_group_id, const std::string &inlo
 
   pack_buf_ = new char[data_capacity_];
   memset(pack_buf_, 0x0, data_capacity_);
-  topic_desc_ = "groupId=" + inlong_group_id_ + "&streamId=" + inlong_stream_id_;
+  topic_desc_ =
+      "groupId=" + inlong_group_id_ + "&streamId=" + inlong_stream_id_;
   data_time_ = 0;
   last_pack_time_ = Utils::getCurrentMsTime();
   max_recv_size_ = SdkConfig::getInstance()->recv_buf_size_;
@@ -138,8 +141,8 @@ void RecvGroup::AddMsg(const std::string &msg, std::string client_ip,
       "__addcol1__reptime=" + Utils::getFormatTime(data_time_) +
       "&__addcol2__ip=" + client_ip;
   msgs_.push(std::make_shared<SdkMsg>(msg, client_ip, data_time_, call_back,
-                                       data_pack_format_attr, user_client_ip,
-                                       user_report_time));
+                                      data_pack_format_attr, user_client_ip,
+                                      user_report_time));
 
   cur_len_ += msg.size() + ATTR_LENGTH;
 }
@@ -189,8 +192,7 @@ bool RecvGroup::PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data,
   }
 
   if (msg_type_ >= constants::kBinPackMethod) {
-    char *bodyBegin = pack_data + sizeof(BinaryMsgHead) +
-                      sizeof(uint32_t);
+    char *bodyBegin = pack_data + sizeof(BinaryMsgHead) + sizeof(uint32_t);
     uint32_t body_len = 0;
 
     std::string snappy_res;
@@ -207,8 +209,7 @@ bool RecvGroup::PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data,
       memcpy(bodyBegin, pack_buf_, body_len);
       real_msg_type = msg_type_;
     }
-    *(uint32_t *)(&(pack_data[sizeof(BinaryMsgHead)])) =
-        htonl(body_len);
+    *(uint32_t *)(&(pack_data[sizeof(BinaryMsgHead)])) = htonl(body_len);
 
     bodyBegin += body_len;
 
@@ -235,7 +236,8 @@ bool RecvGroup::PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data,
         attr = "node1ip=" + SdkConfig::getInstance()->local_ip_ +
                "&rtime1=" + std::to_string(Utils::getCurrentMsTime());
       else
-        attr = groupId_streamId_char + "&node1ip=" + SdkConfig::getInstance()->local_ip_ +
+        attr = groupId_streamId_char +
+               "&node1ip=" + SdkConfig::getInstance()->local_ip_ +
                "&rtime1=" + std::to_string(Utils::getCurrentMsTime());
     } else {
       attr = topic_desc_;
@@ -281,12 +283,9 @@ bool RecvGroup::PackMsg(std::vector<SdkMsgPtr> &msgs, char *pack_data,
       memcpy(bodyBegin, snappy_res.data(), body_len);
     } else {
       body_len = idx;
-      memcpy(
-          bodyBegin, pack_buf_,
-          body_len);
+      memcpy(bodyBegin, pack_buf_, body_len);
     }
-    *(uint32_t *)(&(pack_data[sizeof(ProtocolMsgHead)])) =
-        htonl(body_len);
+    *(uint32_t *)(&(pack_data[sizeof(ProtocolMsgHead)])) = htonl(body_len);
     bodyBegin += body_len;
 
     // attr
@@ -369,8 +368,9 @@ RecvGroup::BuildSendBuf(std::vector<SdkMsgPtr> &msgs) {
 void RecvGroup::CallbalkToUsr(std::vector<SdkMsgPtr> &msgs) {
   for (auto &it : msgs) {
     if (it->cb_) {
-      it->cb_(inlong_group_id_.data(), inlong_stream_id_.data(), it->msg_.data(), it->msg_.size(),
-             it->user_report_time_, it->user_client_ip_.data());
+      it->cb_(inlong_group_id_.data(), inlong_stream_id_.data(),
+              it->msg_.data(), it->msg_.size(), it->user_report_time_,
+              it->user_client_ip_.data());
     }
   }
 }

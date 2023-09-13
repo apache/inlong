@@ -28,9 +28,8 @@
 
 namespace inlong {
 
-using UserCallBack =
-    std::function<int32_t(const char *, const char *, const char *, int32_t,
-                          const int64_t, const char *)>;
+typedef int (*UserCallBack)(const char *, const char *, const char *, int32_t,
+                            const int64_t, const char *);
 
 class ApiImp;
 
