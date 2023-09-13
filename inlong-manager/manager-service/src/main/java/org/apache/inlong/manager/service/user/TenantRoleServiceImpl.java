@@ -71,10 +71,8 @@ public class TenantRoleServiceImpl implements TenantRoleService {
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<TenantUserRoleEntity> entityPage = tenantUserRoleEntityMapper.listByCondition(request);
-        List<TenantRoleInfo> tenantRoleInfos = CommonBeanUtils.copyListProperties(entityPage, TenantRoleInfo::new);
-        return new PageResult<>(tenantRoleInfos,
-                entityPage.getTotal(),
-                entityPage.getPageNum(), entityPage.getPageSize());
+        return PageResult.fromPage(entityPage)
+                .map(entity -> CommonBeanUtils.copyProperties(entity, TenantRoleInfo::new));
     }
 
     @Override

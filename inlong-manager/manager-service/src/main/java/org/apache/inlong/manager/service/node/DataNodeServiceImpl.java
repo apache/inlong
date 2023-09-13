@@ -147,15 +147,11 @@ public class DataNodeServiceImpl implements DataNodeService {
     public PageResult<DataNodeInfo> list(DataNodePageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<DataNodeEntity> entityPage = (Page<DataNodeEntity>) dataNodeMapper.selectByCondition(request);
-        List<DataNodeInfo> list = entityPage.stream()
+        PageResult<DataNodeInfo> pageResult = PageResult.fromPage(entityPage)
                 .map(entity -> {
                     DataNodeOperator dataNodeOperator = operatorFactory.getInstance(entity.getType());
                     return dataNodeOperator.getFromEntity(entity);
-                }).collect(Collectors.toList());
-
-        PageResult<DataNodeInfo> pageResult = new PageResult<>(list, entityPage.getTotal(),
-                entityPage.getPageNum(), entityPage.getPageSize());
-
+                });
         LOGGER.debug("success to list data node by {}", request);
         return pageResult;
     }

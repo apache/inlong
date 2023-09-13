@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.user;
 
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
 import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
 import org.apache.inlong.manager.pojo.user.InlongRoleRequest;
@@ -25,7 +26,6 @@ import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 
-import com.github.pagehelper.PageInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
@@ -82,11 +82,11 @@ class InlongRoleServiceTest extends ServiceBaseTest {
         }
         InlongRolePageRequest pageRequest = new InlongRolePageRequest();
         pageRequest.setRoleCode(UserRoleCode.INLONG_OPERATOR);
-        PageInfo<InlongRoleInfo> infos = inlongRoleService.listByCondition(pageRequest);
-        Assertions.assertEquals(max, infos.getSize());
+        PageResult<InlongRoleInfo> infos = inlongRoleService.listByCondition(pageRequest);
+        Assertions.assertEquals(max, infos.getList().size());
 
         pageRequest.setRoleCode(UserRoleCode.INLONG_ADMIN);
         infos = inlongRoleService.listByCondition(pageRequest);
-        Assertions.assertEquals(1, infos.getSize());
+        Assertions.assertEquals(1, infos.getList().size());
     }
 }
