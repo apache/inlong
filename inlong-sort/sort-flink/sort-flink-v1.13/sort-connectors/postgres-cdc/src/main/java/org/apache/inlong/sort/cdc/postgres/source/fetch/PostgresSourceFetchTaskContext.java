@@ -23,6 +23,7 @@ import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
 import org.apache.inlong.sort.cdc.base.source.reader.external.JdbcSourceFetchTaskContext;
 import org.apache.inlong.sort.cdc.postgres.source.PostgresDialect;
+import org.apache.inlong.sort.cdc.postgres.source.handler.PostgresSchemaChangeEventHandler;
 import org.apache.inlong.sort.cdc.postgres.source.offset.PostgresOffset;
 import org.apache.inlong.sort.cdc.postgres.source.offset.PostgresOffsetFactory;
 import org.apache.inlong.sort.cdc.postgres.source.utils.PgTypeUtils;
@@ -184,7 +185,8 @@ public class PostgresSourceFetchTaskContext extends JdbcSourceFetchTaskContext {
                         dbzConfig.getTableFilters().dataCollectionFilter(),
                         DataChangeEvent::new,
                         metadataProvider,
-                        schemaNameAdjuster);
+                        schemaNameAdjuster,
+                        new PostgresSchemaChangeEventHandler());
 
         ChangeEventSourceMetricsFactory metricsFactory =
                 new DefaultChangeEventSourceMetricsFactory();
