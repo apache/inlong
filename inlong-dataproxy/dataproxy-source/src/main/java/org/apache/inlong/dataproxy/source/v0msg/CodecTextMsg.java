@@ -152,8 +152,8 @@ public class CodecTextMsg extends AbsV0MsgCodec {
         }
         // get and check topic configure
         String tmpTopicName = ConfigManager.getInstance().getTopicName(tmpGroupId, tmpStreamId);
-        if (StringUtils.isBlank(tmpTopicName)) {
-            source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
+        if (StringUtils.isEmpty(tmpTopicName)) {
+            source.fileMetricIncWithDetailStats(StatConstants.EVENT_SOURCE_TOPIC_MISSING, tmpGroupId);
             this.errCode = DataProxyErrCode.TOPIC_IS_BLANK;
             this.errMsg = String.format(
                     "Topic not configured for groupId=(%s), streamId=(%s)", tmpGroupId, tmpStreamId);
