@@ -209,7 +209,20 @@ public class PulsarHandler implements MessageQueueHandler {
             IdTopicConfig idConfig = ConfigManager.getInstance().getSinkIdTopicConfig(
                     profile.getInlongGroupId(), profile.getInlongStreamId());
             if (idConfig == null) {
-                if (!CommonConfigHolder.getInstance().isEnableUnConfigTopicAccept()) {
+                // add default topics first
+                if (CommonConfigHolder.getInstance().isEnableUnConfigTopicAccept()) {
+                    producerTopic = CommonConfigHolder.getInstance().getRandDefTopics();
+                    if (StringUtils.isEmpty(producerTopic)) {
+                        sinkContext.fileMetricIncWithDetailStats(
+                                StatConstants.EVENT_SINK_DEFAULT_TOPIC_MISSING, profile.getUid());
+                        sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
+                        sinkContext.getMqZoneSink().releaseAcquiredSizePermit(profile);
+                        profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
+                        return false;
+                    }
+                    sinkContext.fileMetricIncWithDetailStats(
+                            StatConstants.EVENT_SINK_DEFAULT_TOPIC_USED, profile.getUid());
+                } else {
                     sinkContext.fileMetricIncWithDetailStats(
                             StatConstants.EVENT_SINK_CONFIG_TOPIC_MISSING, profile.getUid());
                     sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
@@ -217,15 +230,6 @@ public class PulsarHandler implements MessageQueueHandler {
                     profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
                     return false;
                 }
-                producerTopic = CommonConfigHolder.getInstance().getRandDefTopics();
-                if (StringUtils.isEmpty(producerTopic)) {
-                    sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_DEFAULT_TOPIC_MISSING);
-                    sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
-                    sinkContext.getMqZoneSink().releaseAcquiredSizePermit(profile);
-                    profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
-                    return false;
-                }
-                sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_DEFAULT_TOPIC_USED);
             } else {
                 producerTopic = idConfig.getPulsarTopicName(tenant, namespace);
             }
@@ -250,13 +254,16 @@ public class PulsarHandler implements MessageQueueHandler {
                 } catch (Throwable ex) {
                     logger.error("create new producer failed", ex);
                 }
-            }
-            // create producer failed
-            if (producer == null) {
-                sinkContext.fileMetricIncWithDetailStats(StatConstants.EVENT_SINK_PRODUCER_NULL, producerTopic);
-                sinkContext.processSendFail(profile, clusterName, producerTopic, 0,
-                        DataProxyErrCode.PRODUCER_IS_NULL, "");
-                return false;
+                // create producer failed
+                if (producer == null) {
+                    sinkContext.fileMetricIncWithDetailStats(
+                            StatConstants.EVENT_SINK_PRODUCER_CREATE_FAILURE, producerTopic);
+                    sinkContext.processSendFail(profile, clusterName, producerTopic, 0,
+                            DataProxyErrCode.PRODUCER_IS_NULL, "");
+                    return false;
+                }
+                sinkContext.fileMetricIncWithDetailStats(
+                        StatConstants.EVENT_SINK_PRODUCER_CREATE_SUCCESS, producerTopic);
             }
             // send
             if (profile instanceof SimplePackProfile) {
