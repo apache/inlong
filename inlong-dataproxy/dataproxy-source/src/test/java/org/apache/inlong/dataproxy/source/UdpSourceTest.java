@@ -35,7 +35,6 @@ public class UdpSourceTest {
         map.put(ConfigConstants.CONFIG_PORT, "8080");
         map.put(ConfigConstants.CONFIG_HOST, "127.0.0.1");
         map.put(ConfigConstants.TOPIC, "topic");
-        map.put(ConfigConstants.ATTR, "{}");
         Context context = new Context(map);
         SimpleUdpSource udpSource = new SimpleUdpSource();
         udpSource.configure(context);
