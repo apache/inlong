@@ -99,7 +99,6 @@ public class PostgresSourceConfig extends JdbcSourceConfig {
 
     @Override
     public List<String> getMetricLabelList() {
-        return Arrays.asList(Constants.DATABASE_NAME,
-                AbstractSourceInfo.SCHEMA_NAME_KEY, AbstractSourceInfo.TABLE_NAME_KEY);
+        return Arrays.asList(Constants.DATABASE_NAME, Constants.SCHEMA_NAME, Constants.TABLE_NAME);
     }
 }
