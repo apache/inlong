@@ -22,7 +22,6 @@ import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
 
 import com.ververica.cdc.connectors.base.options.StartupOptions;
 import io.debezium.config.Configuration;
-import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.connector.postgresql.PostgresConnectorConfig;
 import io.debezium.relational.RelationalTableFilters;
 
