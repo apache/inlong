@@ -124,7 +124,7 @@ public class UpsertKafkaDynamicTableFactory implements DynamicTableSourceFactory
                 helper.discoverDecodingFormat(DeserializationFormatFactory.class, VALUE_FORMAT);
 
         // Validate the option data type.
-        helper.validateExcept(PROPERTIES_PREFIX);
+        helper.validateExcept(PROPERTIES_PREFIX, Constants.DIRTY_PREFIX);
         validateSource(
                 tableOptions,
                 keyDecodingFormat,
