@@ -562,7 +562,7 @@
             and is_deleted = 0
         </where>
     </select>
-    <select id="migrate">
+    <update id="migrate">
         update inlong_group
         set tenant = #{to, jdbcType=VARCHAR}
         <where>
@@ -570,5 +570,5 @@
             and is_deleted = 0
             and tenant = #{from, jdbcType=VARCHAR}
         </where>
-    </select>
+    </update>
 </mapper>

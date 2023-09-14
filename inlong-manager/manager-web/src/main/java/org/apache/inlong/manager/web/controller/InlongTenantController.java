@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.controller;
 
+import io.swagger.annotations.ApiImplicitParams;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -90,4 +91,13 @@ public class InlongTenantController {
         return Response.success(tenantService.delete(name));
     }
 
+    @RequestMapping(value = "/tenant/migrate/{group}/{tenant}", method = RequestMethod.GET)
+    @ApiOperation(value = "Migrate group to another tenant")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "group", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "tenant", dataTypeClass = String.class, required = true),
+    })
+    public Response<Boolean> migrate(@PathVariable String group, @PathVariable String tenant) {
+        return Response.success(tenantService.migrate(group, tenant));
+    }
 }

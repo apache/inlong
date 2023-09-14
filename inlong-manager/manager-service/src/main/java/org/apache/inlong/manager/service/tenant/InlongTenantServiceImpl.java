@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.tenant;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
@@ -33,7 +32,6 @@ import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.InlongTenantEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
-import org.apache.inlong.manager.dao.entity.TenantClusterTagEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongConsumeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
@@ -46,22 +44,19 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
-import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
-import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
-import org.apache.inlong.manager.service.user.InlongRoleService;
 import org.apache.inlong.manager.service.user.TenantRoleService;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
@@ -240,11 +235,13 @@ public class InlongTenantServiceImpl implements InlongTenantService {
     }
 
     public Boolean doMigrate(String groupId, String from, String to) {
+        InlongGroupEntity group = groupMapper.selectByGroupId(groupId);
+        Preconditions.expectNotNull(group, String.format("Not find group=%s in tenant=%s", groupId, from));
+
         // get related streams, consumes and tag;
         List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
-        List<InlongConsumeEntity> consumeList = consumeEntityMapper.selectByGroupId(groupId);
-        InlongGroupEntity group = groupMapper.selectByGroupId(groupId);
         boolean streamMigrateResult = streamList.stream().allMatch(stream -> migrateStream(stream, from, to));
+        List<InlongConsumeEntity> consumeList = consumeEntityMapper.selectByGroupId(groupId);
         boolean consumeMigrateResult = this.migrateConsume(groupId, from, to, consumeList.size());
         boolean tagCopyResult = this.copyTenantTag(group.getInlongClusterTag(), from, to);
 
@@ -275,11 +272,9 @@ public class InlongTenantServiceImpl implements InlongTenantService {
             return true;
         }
 
-        // use display name as new name
-        String newName = dataNode.getDisplayName();
+        String newName = copyDataNode(dataNodeName, type, from, to);
         sink.setDataNodeName(newName);
-        return copyDataNode(dataNodeName, type, from, to, newName)
-                && sinkMapper.updateByIdSelective(sink) == InlongConstants.AFFECTED_ONE_ROW;
+        return sinkMapper.updateByIdSelective(sink) == InlongConstants.AFFECTED_ONE_ROW;
 
     }
 
@@ -295,26 +290,23 @@ public class InlongTenantServiceImpl implements InlongTenantService {
         }
 
         // use display name as new name
-        String newName = dataNode.getDisplayName();
+        String newName = copyDataNode(dataNodeName, type, from, to);
         source.setDataNodeName(newName);
-        return copyDataNode(dataNodeName, type, from, to, newName)
-                && sourceMapper.updateByPrimaryKeySelective(source) == InlongConstants.AFFECTED_ONE_ROW;
+        return sourceMapper.updateByPrimaryKeySelective(source) == InlongConstants.AFFECTED_ONE_ROW;
     }
 
-    public Boolean copyDataNode(String name, String type, String from, String to, String newName) {
-
-        try {
-            // use displayName as the new name
-            return dataNodeEntityMapper.copy(name, type, from, to, newName) == InlongConstants.AFFECTED_ONE_ROW;
-        } catch (Exception e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof SQLIntegrityConstraintViolationException) {
-                log.debug("data node name={}, type={} in tenant={} already exist", name, type, to);
-                return true;
-            } else {
-                return false;
-            }
+    public String copyDataNode(String name, String type, String from, String to) {
+        DataNodeEntity oldDatanode = dataNodeEntityMapper.selectByUniqueKey(name, type);
+        oldDatanode.setTenant(to);
+        DataNodeEntity newDatanode = dataNodeEntityMapper.selectByIdSelective(oldDatanode);
+        if (newDatanode != null) {
+            return newDatanode.getName();
         }
+        String newName = UUID.randomUUID().toString();
+        if (dataNodeEntityMapper.copy(name, type, from, to, newName) != InlongConstants.AFFECTED_ONE_ROW) {
+            return null;
+        }
+        return newName;
     }
 
     public Boolean migrateConsume(String groupId, String from, String to, int size) {
@@ -326,15 +318,24 @@ public class InlongTenantServiceImpl implements InlongTenantService {
     }
 
     public Boolean copyTenantTag(String clusterTag, String from, String to) {
-        return tenantClusterTagMapper.copy(clusterTag, from, to) == InlongConstants.AFFECTED_ONE_ROW;
+        try {
+            // use displayName as the new name
+            return tenantClusterTagMapper.copy(clusterTag, from, to) == InlongConstants.AFFECTED_ONE_ROW;
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof SQLIntegrityConstraintViolationException) {
+                log.debug("tag name={} in tenant={} already exist", clusterTag, to);
+                return true;
+            } else {
+                throw e;
+            }
+        }
     }
-
 
     private boolean hasPermission(UserInfo userInfo, String tenant) {
         return tenantRoleService.getByUsernameAndTenant(userInfo.getName(), tenant) != null
                 || isInlongRoles(userInfo);
     }
-
 
     public void setTargetTenantList(InlongTenantPageRequest request, UserInfo userInfo) {
         if (isInlongRoles(userInfo)) {

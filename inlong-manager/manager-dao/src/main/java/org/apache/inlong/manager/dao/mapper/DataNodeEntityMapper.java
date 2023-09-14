@@ -52,6 +52,10 @@ public interface DataNodeEntityMapper {
     int deleteById(Integer id);
 
     @MultiTenantQuery(with = false)
-    int copy(String name, String type, String from, String to, String newName);
+    int copy(@Param("name") String name, @Param("type") String type, @Param("from") String from, @Param("to") String to,
+             @Param("newName") String newName);
+
+    @MultiTenantQuery(with = false)
+    DataNodeEntity selectByIdSelective(DataNodeEntity record);
 
 }

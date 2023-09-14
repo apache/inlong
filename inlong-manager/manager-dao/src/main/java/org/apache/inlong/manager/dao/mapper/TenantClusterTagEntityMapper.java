@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.manager.common.tenant.MultiTenantQuery;
+import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.TenantClusterTagEntity;
 import org.apache.inlong.manager.pojo.cluster.TenantClusterTagPageRequest;
 
@@ -38,6 +38,6 @@ public interface TenantClusterTagEntityMapper {
 
     List<TenantClusterTagEntity> selectByCondition(TenantClusterTagPageRequest request);
 
-    int copy(String clusterTag, String from, String to);
+    int copy(@Param("clusterTag") String clusterTag, @Param("from") String from, @Param("to") String to);
 
 }

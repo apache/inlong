@@ -101,7 +101,7 @@
         where id = #{id,jdbcType=INTEGER}
         and version = #{version,jdbcType=INTEGER}
     </update>
-    <select id="copy">
+    <insert id="copy">
         insert into tenant_cluster_tag (tenant, cluster_tag, creator, modifier)
         select #{to, jdbcType=VARCHAR},
         cluster_tag,
@@ -111,7 +111,7 @@
         <where>
             tenant = #{from, jdbcType=VARCHAR}
             and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
-            and is_deleted = 0,
+            and is_deleted = 0
         </where>
-    </select>
+    </insert>
 </mapper>

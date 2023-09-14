@@ -54,7 +54,7 @@ public interface InlongConsumeEntityMapper {
     int deleteById(Integer id);
 
     @MultiTenantQuery(with = false)
-    int migrate(String groupId, String from, String to);
+    int migrate(@Param("groupId") String groupId, @Param("from") String from, @Param("to") String to);
 
     List<InlongConsumeEntity> selectByGroupId(String groupId);
 
