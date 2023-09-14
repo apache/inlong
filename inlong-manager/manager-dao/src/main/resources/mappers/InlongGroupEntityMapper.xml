@@ -562,5 +562,13 @@
             and is_deleted = 0
         </where>
     </select>
-
+    <select id="migrate">
+        update inlong_group
+        set tenant = #{to, jdbcType=VARCHAR}
+        <where>
+            inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            and is_deleted = 0
+            and tenant = #{from, jdbcType=VARCHAR}
+        </where>
+    </select>
 </mapper>

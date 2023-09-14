@@ -212,5 +212,29 @@
             </if>
         </where>
     </delete>
-
+    <select id="copy">
+        insert into data_node (name, display_name, type, url, username,
+                               token, ext_params, description, tenant,
+                               in_charges, status, creator, modifier)
+        select #{newName, jdbcType=VARCHAR},
+               display_name,
+               type,
+               url,
+               username,
+               token,
+               ext_params,
+               description,
+               #{to, jdbcType=VARCHAR}
+               in_charges,
+               status,
+               creator,
+               modifier
+        from data_node
+        <where>
+            name = #{name, jdbcType=VARCHAR},
+            and type = #{type, jdbcType=VARCHAR},
+            and is_deleted = 0,
+            and tenant = #{from, jdbcType=VARCHAR}
+        </where>
+    </select>
 </mapper>

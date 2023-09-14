@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.tenant;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
@@ -25,20 +26,33 @@ import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.DataNodeEntity;
+import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.InlongTenantEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.dao.entity.TenantClusterTagEntity;
+import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongConsumeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongTenantEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
+import org.apache.inlong.manager.dao.mapper.TenantClusterTagEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
+import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
+import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
+import org.apache.inlong.manager.service.user.InlongRoleService;
 import org.apache.inlong.manager.service.user.TenantRoleService;
 
 import com.github.pagehelper.Page;
@@ -47,8 +61,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.stream.Collectors;
@@ -66,7 +83,17 @@ public class InlongTenantServiceImpl implements InlongTenantService {
     @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
+    private InlongStreamEntityMapper streamMapper;
+    @Autowired
+    private StreamSinkEntityMapper sinkMapper;
+    @Autowired
     private StreamSourceEntityMapper sourceMapper;
+    @Autowired
+    private DataNodeEntityMapper dataNodeEntityMapper;
+    @Autowired
+    private InlongConsumeEntityMapper consumeEntityMapper;
+    @Autowired
+    private TenantClusterTagEntityMapper tenantClusterTagMapper;
     @Autowired
     private TenantRoleService tenantRoleService;
     @Autowired
@@ -199,10 +226,115 @@ public class InlongTenantServiceImpl implements InlongTenantService {
             throw new BusinessException(errMsg);
         }
         int success = inlongTenantEntityMapper.deleteById(inlongTenantEntity.getId());
-        Preconditions.expectTrue(success == 1, "delete failed");
+        Preconditions.expectTrue(success == InlongConstants.AFFECTED_ONE_ROW, "delete failed");
         log.info("success delete inlong tenant name={} by user={}", name, operator);
         return true;
     }
+
+    @Override
+    public Boolean migrate(String groupId, String to) {
+        UserInfo userInfo = LoginUserUtils.getLoginUser();
+        Preconditions.expectTrue(hasPermission(userInfo, to),
+                String.format("user=[%s] has no permission to tenant=[%s]", userInfo.getName(), to));
+        return doMigrate(groupId, userInfo.getTenant(), to);
+    }
+
+    public Boolean doMigrate(String groupId, String from, String to) {
+        // get related streams, consumes and tag;
+        List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
+        List<InlongConsumeEntity> consumeList = consumeEntityMapper.selectByGroupId(groupId);
+        InlongGroupEntity group = groupMapper.selectByGroupId(groupId);
+        boolean streamMigrateResult = streamList.stream().allMatch(stream -> migrateStream(stream, from, to));
+        boolean consumeMigrateResult = this.migrateConsume(groupId, from, to, consumeList.size());
+        boolean tagCopyResult = this.copyTenantTag(group.getInlongClusterTag(), from, to);
+
+        return streamMigrateResult
+                && consumeMigrateResult
+                && tagCopyResult
+                && this.migrateGroup(groupId, from, to);
+    }
+
+    public Boolean migrateStream(InlongStreamEntity stream, String from, String to) {
+        List<StreamSinkEntity> sinks =
+                sinkMapper.selectByRelatedId(stream.getInlongGroupId(), stream.getInlongStreamId());
+        List<StreamSourceEntity> sources =
+                sourceMapper.selectByRelatedId(stream.getInlongGroupId(), stream.getInlongStreamId(), null);
+        boolean sinkMigrateResult = sinks.stream().allMatch(sink -> migrateStreamSink(sink, from, to));
+        boolean sourceMigrateResult = sources.stream().allMatch(source -> migrateStreamSource(source, from, to));
+        return sinkMigrateResult && sourceMigrateResult;
+    }
+
+    public Boolean migrateStreamSink(StreamSinkEntity sink, String from, String to) {
+        String dataNodeName = sink.getDataNodeName();
+        String type = sink.getSinkType();
+        if (StringUtils.isAnyBlank(dataNodeName, type)) {
+            return true;
+        }
+        DataNodeEntity dataNode = dataNodeEntityMapper.selectByUniqueKey(dataNodeName, type);
+        if (dataNode == null) {
+            return true;
+        }
+
+        // use display name as new name
+        String newName = dataNode.getDisplayName();
+        sink.setDataNodeName(newName);
+        return copyDataNode(dataNodeName, type, from, to, newName)
+                && sinkMapper.updateByIdSelective(sink) == InlongConstants.AFFECTED_ONE_ROW;
+
+    }
+
+    public Boolean migrateStreamSource(StreamSourceEntity source, String from, String to) {
+        String dataNodeName = source.getDataNodeName();
+        String type = source.getSourceType();
+        if (StringUtils.isAnyBlank(dataNodeName, type)) {
+            return true;
+        }
+        DataNodeEntity dataNode = dataNodeEntityMapper.selectByUniqueKey(dataNodeName, type);
+        if (dataNode == null) {
+            return true;
+        }
+
+        // use display name as new name
+        String newName = dataNode.getDisplayName();
+        source.setDataNodeName(newName);
+        return copyDataNode(dataNodeName, type, from, to, newName)
+                && sourceMapper.updateByPrimaryKeySelective(source) == InlongConstants.AFFECTED_ONE_ROW;
+    }
+
+    public Boolean copyDataNode(String name, String type, String from, String to, String newName) {
+
+        try {
+            // use displayName as the new name
+            return dataNodeEntityMapper.copy(name, type, from, to, newName) == InlongConstants.AFFECTED_ONE_ROW;
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof SQLIntegrityConstraintViolationException) {
+                log.debug("data node name={}, type={} in tenant={} already exist", name, type, to);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public Boolean migrateConsume(String groupId, String from, String to, int size) {
+        return consumeEntityMapper.migrate(groupId, from, to) == size;
+    }
+
+    public Boolean migrateGroup(String groupId, String from, String to) {
+        return groupMapper.migrate(groupId, from, to) == InlongConstants.AFFECTED_ONE_ROW;
+    }
+
+    public Boolean copyTenantTag(String clusterTag, String from, String to) {
+        return tenantClusterTagMapper.copy(clusterTag, from, to) == InlongConstants.AFFECTED_ONE_ROW;
+    }
+
+
+    private boolean hasPermission(UserInfo userInfo, String tenant) {
+        return tenantRoleService.getByUsernameAndTenant(userInfo.getName(), tenant) != null
+                || isInlongRoles(userInfo);
+    }
+
 
     public void setTargetTenantList(InlongTenantPageRequest request, UserInfo userInfo) {
         if (isInlongRoles(userInfo)) {

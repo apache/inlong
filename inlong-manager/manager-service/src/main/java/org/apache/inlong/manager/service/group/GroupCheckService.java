@@ -56,13 +56,6 @@ public class GroupCheckService {
             throw new BusinessException(String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
         }
 
-        UserEntity userEntity = userMapper.selectByName(operator);
-        List<String> managers = Arrays.asList(inlongGroupEntity.getInCharges().split(","));
-        Preconditions.expectTrue(
-                managers.contains(operator)
-                        || TenantUserTypeEnum.TENANT_ADMIN.getCode().equals(userEntity.getAccountType()),
-                String.format(ErrorCodeEnum.USER_IS_NOT_MANAGER.getMessage(), operator, managers));
-
         GroupStatus status = GroupStatus.forCode(inlongGroupEntity.getStatus());
         if (GroupStatus.notAllowedUpdate(status)) {
             throw new BusinessException(String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), status));

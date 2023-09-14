@@ -115,4 +115,7 @@ public interface InlongGroupEntityMapper {
     @MultiTenantQuery(with = false)
     List<InlongGroupEntity> selectAllGroupsByTenant(@Param(value = "tenant") String tenant);
 
+    @MultiTenantQuery(with = false)
+    int migrate(String groupId, String from, String to);
+
 }
