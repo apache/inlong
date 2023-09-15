@@ -42,6 +42,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.inlong.sort.cdc.base.util.RecordUtils.shouldUseCatalogBeforeSchema;
+
 /** A serializer for the {@link SourceSplitBase}.
  * Copy from com.ververica:flink-cdc-base:2.3.0.
  * */
@@ -74,6 +76,8 @@ public abstract class SourceSplitSerializer
 
             final DataOutputSerializer out = SERIALIZER_CACHE.get();
             out.writeInt(SNAPSHOT_SPLIT_FLAG);
+            boolean useCatalogBeforeSchema = shouldUseCatalogBeforeSchema(snapshotSplit.getTableId());
+            out.writeBoolean(useCatalogBeforeSchema);
             out.writeUTF(snapshotSplit.getTableId().toString());
             out.writeUTF(snapshotSplit.splitId());
             out.writeUTF(snapshotSplit.getSplitKeyType().asSerializableString());
@@ -143,7 +147,8 @@ public abstract class SourceSplitSerializer
 
         int splitKind = in.readInt();
         if (splitKind == SNAPSHOT_SPLIT_FLAG) {
-            TableId tableId = TableId.parse(in.readUTF());
+            boolean useCatalogBeforeSchema = in.readBoolean();
+            TableId tableId = TableId.parse(in.readUTF(), useCatalogBeforeSchema);
             String splitId = in.readUTF();
             RowType splitKeyType = (RowType) LogicalTypeParser.parse(in.readUTF());
             Object[] splitBoundaryStart = SerializerUtils.serializedStringToRow(in.readUTF());
@@ -202,6 +207,8 @@ public abstract class SourceSplitSerializer
         final int size = tableSchemas.size();
         out.writeInt(size);
         for (Map.Entry<TableId, TableChange> entry : tableSchemas.entrySet()) {
+            boolean useCatalogBeforeSchema = shouldUseCatalogBeforeSchema(entry.getKey());
+            out.writeBoolean(useCatalogBeforeSchema);
             out.writeUTF(entry.getKey().toString());
             final String tableChangeStr =
                     documentWriter.write(jsonSerializer.toDocument(entry.getValue()));
@@ -217,7 +224,8 @@ public abstract class SourceSplitSerializer
         Map<TableId, TableChange> tableSchemas = new HashMap<>();
         final int size = in.readInt();
         for (int i = 0; i < size; i++) {
-            TableId tableId = TableId.parse(in.readUTF());
+            boolean useCatalogBeforeSchema = in.readBoolean();
+            TableId tableId = TableId.parse(in.readUTF(), useCatalogBeforeSchema);
             final String tableChangeStr;
             switch (version) {
                 case 1:
@@ -255,7 +263,8 @@ public abstract class SourceSplitSerializer
         List<FinishedSnapshotSplitInfo> finishedSplitsInfo = new ArrayList<>();
         final int size = in.readInt();
         for (int i = 0; i < size; i++) {
-            TableId tableId = TableId.parse(in.readUTF());
+            boolean useCatalogBeforeSchema = in.readBoolean();
+            TableId tableId = TableId.parse(in.readUTF(), useCatalogBeforeSchema);
             String splitId = in.readUTF();
             Object[] splitStart = SerializerUtils.serializedStringToRow(in.readUTF());
             Object[] splitEnd = SerializerUtils.serializedStringToRow(in.readUTF());
