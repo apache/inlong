@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.node.cls;
 
+import io.swagger.annotations.ApiModelProperty;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -32,79 +33,61 @@ import org.apache.commons.lang3.StringUtils;
 import javax.validation.constraints.NotNull;
 
 /**
- * Tencent cloud log service data node info
+ * Cloud log service data node info
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Tencent cloud log service data node info")
-public class TencentClsDataNodeDTO {
+@ApiModel("Cloud log service data node info")
+public class ClsDataNodeDTO {
 
-    /**
-     *Tencent cloud log service master account
-     */
-    private String mainAccountID;
+    @ApiModelProperty("Cloud log service master account")
+    private String mainAccountId;
 
-    /**
-     *Tencent cloud log service subAccount
-     */
-    private String subAccountID;
+    @ApiModelProperty("Cloud log service sub account")
+    private String subAccountId;
 
-    /**
-     * Tencent cloud log service send api secretKey
-     */
+    @ApiModelProperty("Cloud log service send api secretKey")
     private String sendSecretKey;
 
-    /**
-     * Tencent cloud log service send api secretId
-     */
+    @ApiModelProperty("Cloud log service send api secretId")
     private String sendSecretId;
 
-    /**
-     * Tencent cloud log service manage api secretKey
-     */
+    @ApiModelProperty("Cloud log service manage api secretKey")
     private String manageSecretKey;
 
-    /**
-     * Tencent cloud log service manage api secretId
-     */
+    @ApiModelProperty("Cloud log service manage api secretId")
     private String manageSecretId;
 
-    /**
-     * Tencent cloud log service endpoint
-     */
+    @ApiModelProperty("Cloud log service endpoint")
     private String endpoint;
 
-    /**
-     * Tencent cloud log service region
-     */
+    @ApiModelProperty("Cloud log service region")
     private String region;
 
-    /**
-     * Tencent cloud log service  set id
-     */
-    private String logSetID;
+    @ApiModelProperty("Cloud log service log set id")
+    private String logSetId;
 
     /**
      * Get the dto instance from the request
      */
-    public static TencentClsDataNodeDTO getFromRequest(TencentClsDataNodeRequest request, String extParams) {
-        TencentClsDataNodeDTO dto = StringUtils.isNotBlank(extParams)
-                ? TencentClsDataNodeDTO.getFromJson(extParams)
-                : new TencentClsDataNodeDTO();
+    public static ClsDataNodeDTO getFromRequest(ClsDataNodeRequest request, String extParams) {
+        ClsDataNodeDTO dto = StringUtils.isNotBlank(extParams)
+                ? ClsDataNodeDTO.getFromJson(extParams)
+                : new ClsDataNodeDTO();
         return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**
      * Get the dto instance from the JSON string.
      */
-    public static TencentClsDataNodeDTO getFromJson(@NotNull String extParams) {
+    public static ClsDataNodeDTO getFromJson(@NotNull String extParams) {
         try {
-            return JsonUtils.parseObject(extParams, TencentClsDataNodeDTO.class);
+            return JsonUtils.parseObject(extParams, ClsDataNodeDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT,
-                    String.format("Failed to parse extParams for Tencent cloud log service node: %s", e.getMessage()));
+                    String.format("Failed to parse extParams for Cloud log service node: %s", e.getMessage()));
         }
     }
 

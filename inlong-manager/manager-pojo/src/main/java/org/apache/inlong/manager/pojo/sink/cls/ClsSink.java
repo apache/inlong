@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.sink.cls;
 
+import io.swagger.annotations.ApiModelProperty;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
@@ -31,73 +32,60 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 /**
- * Tencent cloud log service sink info
+ * Cloud log service sink info
  */
 @Data
 @SuperBuilder
 @AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Tencent cloud log service sink info")
+@ApiModel(value = "Cloud log service sink info")
 @JsonTypeDefine(value = SinkType.CLS)
-public class TencentClsSink extends StreamSink {
+public class ClsSink extends StreamSink {
 
-    /**
-     * Tencent cloud log service topic id
-     */
-    private String topicID;
 
-    /**
-     * Tencent cloud log service api send secretKey
-     */
+    @ApiModelProperty("Cloud log service topic id")
+    private String topicId;
+
+    @ApiModelProperty("Cloud log service topic name")
+    private String topicName;
+
+    @ApiModelProperty("Cloud log service api send secretKey")
     private String sendSecretKey;
 
-    /**
-     * Tencent cloud log service api send secretId
-     */
+    @ApiModelProperty("Cloud log service api send secretId")
     private String sendSecretId;
 
-    /**
-     * Tencent cloud log service api manage secretKey
-     */
+    @ApiModelProperty("Cloud log service api manage secretKey")
     private String manageSecretKey;
 
-    /**
-     * Tencent cloud log service api manage secretId
-     */
+    @ApiModelProperty("Cloud log service api manage secretId")
     private String manageSecretId;
 
-    /**
-     * Tencent cloud log service endpoint
-     */
+    @ApiModelProperty("Cloud log service endpoint")
     private String endpoint;
 
-    /**
-     * Tencent cloud log service log set id
-     */
-    private String logSetID;
+    @ApiModelProperty("Cloud log service log set id")
+    private String logSetId;
 
-    /**
-     * Tencent cloud log service tag name
-     */
+    @ApiModelProperty("Cloud log service tag name")
     private String tag;
 
-    /**
-     *Tencent cloud log service master account
-     */
-    private String mainAccountID;
+    @ApiModelProperty("Cloud log service master account")
+    private String mainAccountId;
 
-    /**
-     *Tencent cloud log service subAccount
-     */
-    private String subAccountID;
+    @ApiModelProperty("Cloud log service subAccount")
+    private String subAccountId;
 
-    public TencentClsSink() {
+    @ApiModelProperty("cloud log service index tokenizer")
+    private String tokenizer;
+
+    public ClsSink() {
         this.setSinkType(SinkType.CLS);
     }
 
     @Override
     public SinkRequest genSinkRequest() {
-        return CommonBeanUtils.copyProperties(this, TencentClsSinkRequest::new);
+        return CommonBeanUtils.copyProperties(this, ClsSinkRequest::new);
     }
 }

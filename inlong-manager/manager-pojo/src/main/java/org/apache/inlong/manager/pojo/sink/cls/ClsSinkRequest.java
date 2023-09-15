@@ -17,37 +17,34 @@
 
 package org.apache.inlong.manager.pojo.sink.cls;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 
-import io.swagger.annotations.ApiModel;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-
 /**
- * Tencent cloud log service sink request.
+ * Cloud log service sink request.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Tencent cloud log service sink request")
+@ApiModel(value = "Cloud log service sink request")
 @JsonTypeDefine(value = SinkType.CLS)
-public class TencentClsSinkRequest extends SinkRequest {
+public class ClsSinkRequest extends SinkRequest {
 
-    /**
-     * Tencent cloud log service topic name
-     */
+    @ApiModelProperty("Cloud log service topic name")
     private String topicName;
 
-    /**
-     * Tencent cloud log service topic save time
-     */
+    @ApiModelProperty("Cloud log service topic save time")
     private Integer saveTime;
 
-    /**
-     * Tencent cloud log service tag name
-     */
+    @ApiModelProperty("Cloud log service tag name")
     private String tag;
+
+    @ApiModelProperty("cloud log service index tokenizer")
+    private String tokenizer;
 }

@@ -28,9 +28,9 @@ import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
-import org.apache.inlong.manager.pojo.node.cls.TencentClsDataNodeDTO;
+import org.apache.inlong.manager.pojo.node.cls.ClsDataNodeDTO;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
-import org.apache.inlong.manager.pojo.sink.cls.TencentClsSinkDTO;
+import org.apache.inlong.manager.pojo.sink.cls.ClsSinkDTO;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 
@@ -48,9 +48,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TencentClsResourceOperator implements SinkResourceOperator {
+public class ClsResourceOperator implements SinkResourceOperator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TencentClsResourceOperator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ClsResourceOperator.class);
 
     @Autowired
     private DataNodeEntityMapper dataNodeEntityMapper;
@@ -78,8 +78,8 @@ public class TencentClsResourceOperator implements SinkResourceOperator {
     }
 
     private void createTopicID(SinkInfo sinkInfo) {
-        TencentClsDataNodeDTO tencentClsDataNode = getTencentClsDataNode(sinkInfo);
-        TencentClsSinkDTO tencentClsSinkDTO = JsonUtils.parseObject(sinkInfo.getExtParams(), TencentClsSinkDTO.class);
+        ClsDataNodeDTO tencentClsDataNode = getTencentClsDataNode(sinkInfo);
+        ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(sinkInfo.getExtParams(), ClsSinkDTO.class);
         try {
             Credential cred = new Credential(tencentClsDataNode.getManageSecretId(),
                     tencentClsDataNode.getManageSecretId());
@@ -89,22 +89,22 @@ public class TencentClsResourceOperator implements SinkResourceOperator {
             clientProfile.setHttpProfile(httpProfile);
             ClsClient client = new ClsClient(cred, tencentClsDataNode.getRegion(), clientProfile);
             CreateTopicRequest req = new CreateTopicRequest();
-            String[] allTags = tencentClsSinkDTO.getTag().split("\\|");
+            String[] allTags = clsSinkDTO.getTag().split(InlongConstants.CENTER_LINE);
             Tag[] tags = convertTags(allTags);
             req.setTags(tags);
-            req.setLogsetId(tencentClsDataNode.getLogSetID());
-            req.setTopicName(tencentClsSinkDTO.getTopicName());
+            req.setLogsetId(tencentClsDataNode.getLogSetId());
+            req.setTopicName(clsSinkDTO.getTopicName());
             CreateTopicResponse resp = client.CreateTopic(req);
-            LOG.info("create cls topic {} success ,topicId {}", tencentClsSinkDTO.getTopicName(), resp.getTopicId());
-            tencentClsSinkDTO.setTopicID(resp.getTopicId());
-            sinkInfo.setExtParams(JsonUtils.toJsonString(tencentClsSinkDTO));
+            LOG.info("create cls topic {} success ,topicId {}", clsSinkDTO.getTopicName(), resp.getTopicId());
+            clsSinkDTO.setTopicId(resp.getTopicId());
+            sinkInfo.setExtParams(JsonUtils.toJsonString(clsSinkDTO));
             StreamSinkEntity streamSinkEntity = new StreamSinkEntity();
             CommonBeanUtils.copyProperties(sinkInfo, streamSinkEntity, true);
             streamSinkEntityMapper.updateByIdSelective(streamSinkEntity);
             String info = "success to create cls resource";
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
-            LOG.info("update cls sink info status {} success ,topicId {}", tencentClsSinkDTO.getTopicName(),
-                    streamSinkEntity.getExtParams());
+            LOG.info("update cls sink = {}info status  success ,topicName {}",streamSinkEntity.getSinkName(),
+                    clsSinkDTO.getTopicName());
         } catch (TencentCloudSDKException e) {
             String errMsg = "Create cls topic  failed: " + e.getMessage();
             LOG.error(errMsg, e);
@@ -117,7 +117,7 @@ public class TencentClsResourceOperator implements SinkResourceOperator {
         Tag[] tags = new Tag[allTags.length];
         for (int i = 0; i < allTags.length; i++) {
             String tag = allTags[i];
-            String[] keyAndValueOfTag = tag.split(":");
+            String[] keyAndValueOfTag = tag.split(InlongConstants.COLON);
             Tag tagInfo = new Tag();
             tagInfo.set(keyAndValueOfTag[0], keyAndValueOfTag[1]);
             tags[i] = tagInfo;
@@ -125,10 +125,10 @@ public class TencentClsResourceOperator implements SinkResourceOperator {
         return tags;
     }
 
-    private TencentClsDataNodeDTO getTencentClsDataNode(SinkInfo sinkInfo) {
+    private ClsDataNodeDTO getTencentClsDataNode(SinkInfo sinkInfo) {
         DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectByUniqueKey(sinkInfo.getDataNodeName(),
                 DataNodeType.CLS);
-        return JsonUtils.parseObject(dataNodeEntity.getExtParams(), TencentClsDataNodeDTO.class);
+        return JsonUtils.parseObject(dataNodeEntity.getExtParams(), ClsDataNodeDTO.class);
     }
 
 }

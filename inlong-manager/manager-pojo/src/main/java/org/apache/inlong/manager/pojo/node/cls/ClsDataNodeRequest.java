@@ -17,71 +17,53 @@
 
 package org.apache.inlong.manager.pojo.node.cls;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
-import io.swagger.annotations.ApiModel;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-
 /**
- * Tencent cloud log service data node request
+ * cloud log service data node request
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = DataNodeType.CLS)
-@ApiModel("Tencent cloud log service data node request")
-public class TencentClsDataNodeRequest extends DataNodeRequest {
+@ApiModel("cloud log service data node request")
+public class ClsDataNodeRequest extends DataNodeRequest {
 
-    /**
-     *Tencent cloud log service master account
-     */
-    private String mainAccountID;
+    @ApiModelProperty("Cloud log service master account")
+    private String mainAccountId;
 
-    /**
-     *Tencent cloud log service subAccount
-     */
-    private String subAccountID;
+    @ApiModelProperty("Cloud log service sub account")
+    private String subAccountId;
 
-    /**
-     * Tencent cloud log service send api secretKey
-     */
+    @ApiModelProperty("Cloud log service send api secretKey")
     private String sendSecretKey;
 
-    /**
-     * Tencent cloud log service send api secretId
-     */
+    @ApiModelProperty("Cloud log service send api secretId")
     private String sendSecretId;
 
-    /**
-     * Tencent cloud log service manage api secretKey
-     */
+    @ApiModelProperty("Cloud log service manage api secretKey")
     private String manageSecretKey;
 
-    /**
-     * Tencent cloud log service manage api secretId
-     */
+    @ApiModelProperty("Cloud log service manage api secretId")
     private String manageSecretId;
 
-    /**
-     * Tencent cloud log service endpoint
-     */
+    @ApiModelProperty("Cloud log service endpoint")
     private String endpoint;
 
-    /**
-     * Tencent cloud log service region
-     */
+    @ApiModelProperty("Cloud log service region")
     private String region;
 
-    /**
-     * Tencent cloud log service  set id
-     */
-    private String logSetID;
+    @ApiModelProperty("Cloud log service log set id")
+    private String logSetId;
 
-    public TencentClsDataNodeRequest() {
+    public ClsDataNodeRequest() {
         this.setType(DataNodeType.CLS);
     }
 

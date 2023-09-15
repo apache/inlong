@@ -26,13 +26,13 @@ import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
-import org.apache.inlong.manager.pojo.node.cls.TencentClsDataNodeDTO;
+import org.apache.inlong.manager.pojo.node.cls.ClsDataNodeDTO;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
-import org.apache.inlong.manager.pojo.sink.cls.TencentClsSink;
-import org.apache.inlong.manager.pojo.sink.cls.TencentClsSinkDTO;
-import org.apache.inlong.manager.pojo.sink.cls.TencentClsSinkRequest;
+import org.apache.inlong.manager.pojo.sink.cls.ClsSink;
+import org.apache.inlong.manager.pojo.sink.cls.ClsSinkDTO;
+import org.apache.inlong.manager.pojo.sink.cls.ClsSinkRequest;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,12 +45,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Tencent cloud log service sink operator
+ * Cloud log service sink operator
  */
 @Service
-public class TencentClsSinkOperator extends AbstractSinkOperator {
+public class ClsSinkOperator extends AbstractSinkOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TencentClsSinkOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClsSinkOperator.class);
     private static final String KEY_FIELDS = "fieldNames";
     private static final String SECRET_KEY = "secretKey";
     private static final String SECRET_ID = "secretId";
@@ -68,9 +68,9 @@ public class TencentClsSinkOperator extends AbstractSinkOperator {
             throw new BusinessException(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT,
                     ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
         }
-        TencentClsSinkRequest sinkRequest = (TencentClsSinkRequest) request;
+        ClsSinkRequest sinkRequest = (ClsSinkRequest) request;
         try {
-            TencentClsSinkDTO dto = TencentClsSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
+            ClsSinkDTO dto = ClsSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
@@ -90,19 +90,19 @@ public class TencentClsSinkOperator extends AbstractSinkOperator {
 
     @Override
     public StreamSink getFromEntity(StreamSinkEntity entity) {
-        TencentClsSink sink = new TencentClsSink();
+        ClsSink sink = new ClsSink();
         if (entity == null) {
             return sink;
         }
 
-        TencentClsSinkDTO dto = TencentClsSinkDTO.getFromJson(entity.getExtParams());
+        ClsSinkDTO dto = ClsSinkDTO.getFromJson(entity.getExtParams());
         DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectByUniqueKey(entity.getDataNodeName(),
                 DataNodeType.CLS);
-        TencentClsDataNodeDTO tencentClsDataNodeDTO = JsonUtils.parseObject(dataNodeEntity.getExtParams(),
-                TencentClsDataNodeDTO.class);
+        ClsDataNodeDTO clsDataNodeDTO = JsonUtils.parseObject(dataNodeEntity.getExtParams(),
+                ClsDataNodeDTO.class);
         CommonBeanUtils.copyProperties(entity, sink, true);
         CommonBeanUtils.copyProperties(dto, sink, true);
-        CommonBeanUtils.copyProperties(tencentClsDataNodeDTO, sink, true);
+        CommonBeanUtils.copyProperties(clsDataNodeDTO, sink, true);
         List<SinkField> sinkFields = getSinkFields(entity.getId());
         sink.setSinkFieldList(sinkFields);
         return sink;
@@ -111,15 +111,15 @@ public class TencentClsSinkOperator extends AbstractSinkOperator {
     @Override
     public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields) {
         Map<String, String> params = super.parse2IdParams(streamSink, fields);
-        TencentClsSinkDTO tencentClsSinkDTO = JsonUtils.parseObject(streamSink.getExtParams(), TencentClsSinkDTO.class);
-        params.put(TOPIC_ID, tencentClsSinkDTO.getTopicID());
+        ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(streamSink.getExtParams(), ClsSinkDTO.class);
+        params.put(TOPIC_ID, clsSinkDTO.getTopicId());
         DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectByUniqueKey(streamSink.getDataNodeName(),
                 DataNodeType.CLS);
-        TencentClsDataNodeDTO tencentClsDataNodeDTO = JsonUtils.parseObject(dataNodeEntity.getExtParams(),
-                TencentClsDataNodeDTO.class);
-        params.put(SECRET_ID, tencentClsDataNodeDTO.getSendSecretId());
-        params.put(SECRET_KEY, tencentClsDataNodeDTO.getSendSecretKey());
-        params.put(END_POINT, tencentClsDataNodeDTO.getEndpoint());
+        ClsDataNodeDTO clsDataNodeDTO = JsonUtils.parseObject(dataNodeEntity.getExtParams(),
+                ClsDataNodeDTO.class);
+        params.put(SECRET_ID, clsDataNodeDTO.getSendSecretId());
+        params.put(SECRET_KEY, clsDataNodeDTO.getSendSecretKey());
+        params.put(END_POINT, clsDataNodeDTO.getEndpoint());
         StringBuilder fieldNames = new StringBuilder();
         for (String field : fields) {
             fieldNames.append(field).append(" ");

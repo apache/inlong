@@ -24,9 +24,9 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
-import org.apache.inlong.manager.pojo.node.cls.TencentClsDataNodeDTO;
-import org.apache.inlong.manager.pojo.node.cls.TencentClsDataNodeInfo;
-import org.apache.inlong.manager.pojo.node.cls.TencentClsDataNodeRequest;
+import org.apache.inlong.manager.pojo.node.cls.ClsDataNodeDTO;
+import org.apache.inlong.manager.pojo.node.cls.ClsDataNodeInfo;
+import org.apache.inlong.manager.pojo.node.cls.ClsDataNodeRequest;
 import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,24 +43,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TencentClsDataNodeOperator extends AbstractDataNodeOperator {
+public class ClsDataNodeOperator extends AbstractDataNodeOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TencentClsDataNodeOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClsDataNodeOperator.class);
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Override
     protected void setTargetEntity(DataNodeRequest request, DataNodeEntity targetEntity) {
-        TencentClsDataNodeRequest esRequest = (TencentClsDataNodeRequest) request;
+        ClsDataNodeRequest esRequest = (ClsDataNodeRequest) request;
         CommonBeanUtils.copyProperties(esRequest, targetEntity, true);
         try {
-            TencentClsDataNodeDTO dto =
-                    TencentClsDataNodeDTO.getFromRequest(esRequest, targetEntity.getExtParams());
+            ClsDataNodeDTO dto =
+                    ClsDataNodeDTO.getFromRequest(esRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
-                    String.format("Failed to build extParams for Tencent cloud log service node: %s", e.getMessage()));
+                    String.format("Failed to build extParams for Cloud log service node: %s", e.getMessage()));
         }
     }
 
@@ -79,10 +79,10 @@ public class TencentClsDataNodeOperator extends AbstractDataNodeOperator {
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.DATA_NODE_NOT_FOUND);
         }
-        TencentClsDataNodeInfo info = new TencentClsDataNodeInfo();
+        ClsDataNodeInfo info = new ClsDataNodeInfo();
         CommonBeanUtils.copyProperties(entity, info);
         if (StringUtils.isNotBlank(entity.getExtParams())) {
-            TencentClsDataNodeDTO dto = TencentClsDataNodeDTO.getFromJson(entity.getExtParams());
+            ClsDataNodeDTO dto = ClsDataNodeDTO.getFromJson(entity.getExtParams());
             CommonBeanUtils.copyProperties(dto, info);
         }
         return info;
@@ -90,7 +90,7 @@ public class TencentClsDataNodeOperator extends AbstractDataNodeOperator {
 
     @Override
     public Boolean testConnection(DataNodeRequest request) {
-        TencentClsDataNodeRequest dataNodeRequest = (TencentClsDataNodeRequest) request;
+        ClsDataNodeRequest dataNodeRequest = (ClsDataNodeRequest) request;
         Credential cred = new Credential(dataNodeRequest.getManageSecretId(), dataNodeRequest.getManageSecretId());
         HttpProfile httpProfile = new HttpProfile();
         httpProfile.setEndpoint(dataNodeRequest.getEndpoint());
