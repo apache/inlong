@@ -127,14 +127,9 @@ public class InlongTenantServiceImpl implements InlongTenantService {
         }
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-
         Page<InlongTenantEntity> entityPage = inlongTenantEntityMapper.selectByCondition(request);
-
-        List<InlongTenantInfo> tenantList = CommonBeanUtils.copyListProperties(entityPage, InlongTenantInfo::new);
-        PageResult<InlongTenantInfo> pageResult = new PageResult<>(tenantList,
-                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
-
-        return pageResult;
+        return PageResult.fromPage(entityPage)
+                .map(entity -> CommonBeanUtils.copyProperties(entity, InlongTenantInfo::new));
     }
 
     @Override

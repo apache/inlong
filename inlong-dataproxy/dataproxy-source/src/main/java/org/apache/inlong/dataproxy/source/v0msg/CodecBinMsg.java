@@ -259,7 +259,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
             String confStreamId;
             String strGroupIdNum = String.valueOf(this.groupIdNum);
             confGroupId = configManager.getGroupIdNameByNum(strGroupIdNum);
-            if (StringUtils.isBlank(confGroupId)) {
+            if (StringUtils.isEmpty(confGroupId)) {
                 if (configManager.isGroupIdNumConfigEmpty()) {
                     source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_IDNUM_EMPTY);
                     this.errCode = DataProxyErrCode.CONF_SERVICE_UNREADY;
@@ -291,7 +291,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
             } else {
                 String strStreamIdNum = String.valueOf(this.streamIdNum);
                 confStreamId = configManager.getStreamIdNameByIdNum(strGroupIdNum, strStreamIdNum);
-                if (StringUtils.isBlank(confStreamId)) {
+                if (StringUtils.isEmpty(confStreamId)) {
                     if (configManager.isStreamIdNumConfigEmpty()) {
                         source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_IDNUM_EMPTY);
                         this.errCode = DataProxyErrCode.CONF_SERVICE_UNREADY;
@@ -327,8 +327,8 @@ public class CodecBinMsg extends AbsV0MsgCodec {
         }
         // get and check topic configure
         this.topicName = configManager.getTopicName(this.groupId, this.streamId);
-        if (StringUtils.isBlank(this.topicName)) {
-            source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
+        if (StringUtils.isEmpty(this.topicName)) {
+            source.fileMetricIncWithDetailStats(StatConstants.EVENT_SOURCE_TOPIC_MISSING, this.groupId);
             this.errCode = DataProxyErrCode.TOPIC_IS_BLANK;
             this.errMsg = String.format("Topic not configured for groupId=(%s), streamId=(%s)",
                     this.groupId, this.streamId);

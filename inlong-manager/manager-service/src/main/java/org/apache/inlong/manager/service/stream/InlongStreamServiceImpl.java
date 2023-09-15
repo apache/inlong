@@ -365,11 +365,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
         Page<InlongStreamEntity> entityPage = (Page<InlongStreamEntity>) streamMapper.selectByCondition(request);
-        List<InlongStreamBriefInfo> streamList = CommonBeanUtils.copyListProperties(entityPage,
-                InlongStreamBriefInfo::new);
-
-        PageResult<InlongStreamBriefInfo> pageResult = new PageResult<>(streamList,
-                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
+        PageResult<InlongStreamBriefInfo> pageResult = PageResult.fromPage(entityPage)
+                .map(entity -> CommonBeanUtils.copyProperties(entity, InlongStreamBriefInfo::new));
 
         LOGGER.debug("success to list inlong stream info for groupId={}", request.getInlongGroupId());
         return pageResult;
@@ -399,31 +396,28 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
         Page<InlongStreamEntity> page = (Page<InlongStreamEntity>) streamMapper.selectByCondition(request);
-        List<InlongStreamInfo> streamInfoList = CommonBeanUtils.copyListProperties(page, InlongStreamInfo::new);
 
-        // Convert and encapsulate the paged results
-        for (InlongStreamInfo streamInfo : streamInfoList) {
-            // Set the field information of the inlong stream
-            String streamId = streamInfo.getInlongStreamId();
-            unpackExtParams(streamInfo);
-            List<StreamField> streamFields = getStreamFields(groupId, streamId);
-            streamInfo.setFieldList(streamFields);
-            List<InlongStreamExtEntity> extEntities = streamExtMapper.selectByRelatedId(groupId, streamId);
-            List<InlongStreamExtInfo> streamExtInfos = CommonBeanUtils.copyListProperties(
-                    extEntities, InlongStreamExtInfo::new);
-            streamInfo.setExtList(streamExtInfos);
+        PageResult<InlongStreamInfo> pageResult = PageResult.fromPage(page)
+                .map(entity -> CommonBeanUtils.copyProperties(entity, InlongStreamInfo::new))
+                .foreach(streamInfo -> {
+                    // Set the field information of the inlong stream
+                    String streamId = streamInfo.getInlongStreamId();
+                    unpackExtParams(streamInfo);
+                    List<StreamField> streamFields = getStreamFields(groupId, streamId);
+                    streamInfo.setFieldList(streamFields);
+                    List<InlongStreamExtEntity> extEntities = streamExtMapper.selectByRelatedId(groupId, streamId);
+                    List<InlongStreamExtInfo> streamExtInfos = CommonBeanUtils.copyListProperties(
+                            extEntities, InlongStreamExtInfo::new);
+                    streamInfo.setExtList(streamExtInfos);
 
-            // query all valid stream sources
-            List<StreamSource> sourceList = sourceService.listSource(groupId, streamId);
-            streamInfo.setSourceList(sourceList);
+                    // query all valid stream sources
+                    List<StreamSource> sourceList = sourceService.listSource(groupId, streamId);
+                    streamInfo.setSourceList(sourceList);
 
-            // query all valid stream sinks and its extended info, field info
-            List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
-            streamInfo.setSinkList(sinkList);
-        }
-
-        PageResult<InlongStreamInfo> pageResult = new PageResult<>(streamInfoList, page.getTotal(),
-                page.getPageNum(), page.getPageSize());
+                    // query all valid stream sinks and its extended info, field info
+                    List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
+                    streamInfo.setSinkList(sinkList);
+                });
 
         LOGGER.debug("success to list full inlong stream info by {}", request);
         return pageResult;

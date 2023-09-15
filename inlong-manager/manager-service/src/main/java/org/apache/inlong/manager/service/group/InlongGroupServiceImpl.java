@@ -316,9 +316,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
         Page<InlongGroupEntity> entityPage = (Page<InlongGroupEntity>) groupMapper.selectByCondition(request);
+        PageResult<InlongGroupBriefInfo> pageResult = PageResult.fromPage(entityPage)
+                .map(entity -> CommonBeanUtils.copyProperties(entity, InlongGroupBriefInfo::new));
 
-        List<InlongGroupBriefInfo> briefInfos = CommonBeanUtils.copyListProperties(entityPage,
-                InlongGroupBriefInfo::new);
+        List<InlongGroupBriefInfo> briefInfos = pageResult.getList();
 
         // list all related sources
         if (request.isListSources() && CollectionUtils.isNotEmpty(briefInfos)) {
@@ -336,9 +337,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
                 group.setStreamSources(sources);
             });
         }
-
-        PageResult<InlongGroupBriefInfo> pageResult = new PageResult<>(briefInfos,
-                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
 
         LOGGER.debug("success to list inlong group for {}", request);
         return pageResult;

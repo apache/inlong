@@ -53,7 +53,6 @@ import org.apache.inlong.manager.workflow.util.WorkflowUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,16 +136,15 @@ public class WorkflowServiceImpl implements WorkflowService {
     public PageResult<ProcessResponse> listProcess(ProcessRequest query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         Page<WorkflowProcessEntity> result = (Page<WorkflowProcessEntity>) queryService.listProcessEntity(query);
-        PageInfo<ProcessResponse> pageInfo = result.toPageInfo(entity -> {
-            ProcessResponse response = WorkflowUtils.getProcessResponse(entity);
-            if (query.getIncludeShowInList()) {
-                response.setShowInList(getShowInList(entity));
-            }
-            return response;
-        });
-
-        PageResult<ProcessResponse> pageResult = new PageResult<>(pageInfo.getList(),
-                pageInfo.getTotal(), pageInfo.getPageNum(), pageInfo.getPageSize());
+        PageResult<ProcessResponse> pageResult =
+                PageResult.fromPage(result)
+                        .map(entity -> {
+                            ProcessResponse response = WorkflowUtils.getProcessResponse(entity);
+                            if (query.getIncludeShowInList()) {
+                                response.setShowInList(getShowInList(entity));
+                            }
+                            return response;
+                        });
 
         if (query.getIncludeCurrentTask()) {
             TaskRequest taskQuery = TaskRequest.builder()
@@ -164,10 +162,11 @@ public class WorkflowServiceImpl implements WorkflowService {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         Page<WorkflowTaskEntity> result = (Page<WorkflowTaskEntity>) queryService.listTaskEntity(query);
 
-        PageInfo<TaskResponse> pageInfo = result.toPageInfo(WorkflowUtils::getTaskResponse);
-        addShowInListForEachTask(pageInfo.getList());
+        PageResult<TaskResponse> pageInfo = PageResult.fromPage(result)
+                .map(WorkflowUtils::getTaskResponse);
 
-        return new PageResult<>(pageInfo.getList(), pageInfo.getTotal(), pageInfo.getPageNum(), pageInfo.getPageSize());
+        addShowInListForEachTask(pageInfo.getList());
+        return pageInfo;
     }
 
     @Override
@@ -200,13 +199,14 @@ public class WorkflowServiceImpl implements WorkflowService {
         Page<WorkflowProcessEntity> entityPage = (Page<WorkflowProcessEntity>) queryService.listProcessEntity(
                 processRequest);
 
-        PageInfo<WorkflowExecuteLog> pageInfo = entityPage.toPageInfo(inst -> WorkflowExecuteLog.builder()
-                .processId(inst.getId())
-                .processDisplayName(inst.getDisplayName())
-                .status(inst.getStatus())
-                .startTime(inst.getStartTime())
-                .endTime(inst.getEndTime())
-                .build());
+        PageResult<WorkflowExecuteLog> pageInfo = PageResult.fromPage(entityPage)
+                .map(inst -> WorkflowExecuteLog.builder()
+                        .processId(inst.getId())
+                        .processDisplayName(inst.getDisplayName())
+                        .status(inst.getStatus())
+                        .startTime(inst.getStartTime())
+                        .endTime(inst.getEndTime())
+                        .build());
 
         // According to the process execution log, query the execution log of each task in the process
         for (WorkflowExecuteLog executeLog : pageInfo.getList()) {
@@ -234,8 +234,7 @@ public class WorkflowServiceImpl implements WorkflowService {
 
         LOGGER.info("success to page list task execute logs for " + query);
 
-        return new PageResult<>(pageInfo.getList(), pageInfo.getTotal(), pageInfo.getPageNum(),
-                pageInfo.getPageSize());
+        return pageInfo;
     }
 
     private Consumer<ProcessResponse> addCurrentTask(TaskRequest query) {

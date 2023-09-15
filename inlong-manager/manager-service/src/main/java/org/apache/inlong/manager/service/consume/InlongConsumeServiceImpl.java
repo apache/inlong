@@ -178,8 +178,7 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
         Page<InlongConsumeBriefInfo> briefInfos = (Page<InlongConsumeBriefInfo>) consumeMapper.selectBriefList(request);
-        PageResult<InlongConsumeBriefInfo> pageResult = new PageResult<>(briefInfos,
-                briefInfos.getTotal(), briefInfos.getPageNum(), briefInfos.getPageSize());
+        PageResult<InlongConsumeBriefInfo> pageResult = PageResult.fromPage(briefInfos);
 
         LOGGER.debug("success to list inlong consume for {}", request);
         return pageResult;

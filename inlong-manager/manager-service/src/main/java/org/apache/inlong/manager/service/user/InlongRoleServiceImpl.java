@@ -24,13 +24,13 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongUserRoleEntity;
 import org.apache.inlong.manager.dao.mapper.InlongUserRoleEntityMapper;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
 import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
 import org.apache.inlong.manager.pojo.user.InlongRoleRequest;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,10 +43,11 @@ public class InlongRoleServiceImpl implements InlongRoleService {
     private InlongUserRoleEntityMapper inlongUserMapper;
 
     @Override
-    public PageInfo<InlongRoleInfo> listByCondition(InlongRolePageRequest request) {
+    public PageResult<InlongRoleInfo> listByCondition(InlongRolePageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongUserRoleEntity> entityPage = inlongUserMapper.selectByCondition(request);
-        return entityPage.toPageInfo(entity -> CommonBeanUtils.copyProperties(entity, InlongRoleInfo::new));
+        return PageResult.fromPage(entityPage)
+                .map(entity -> CommonBeanUtils.copyProperties(entity, InlongRoleInfo::new));
     }
 
     @Override
