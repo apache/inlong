@@ -78,7 +78,7 @@ start_inlong_audit() {
     bash +x ./bin/proxy-start.sh pulsar
   fi
   if [ "${mq_type}" = "tubemq" ]; then
-    bash +x ./bin/proxy-start.sh tube
+    bash +x ./bin/proxy-start.sh tubemq
   fi
   if [ "${mq_type}" = "kafka" ]; then
     bash +x ./bin/proxy-start.sh kafka
