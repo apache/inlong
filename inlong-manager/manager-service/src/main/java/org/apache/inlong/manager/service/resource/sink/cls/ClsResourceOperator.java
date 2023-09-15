@@ -21,7 +21,7 @@ import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.SinkStatus;
-import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
@@ -35,13 +35,17 @@ import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 
 import com.tencentcloudapi.cls.v20201016.ClsClient;
+import com.tencentcloudapi.cls.v20201016.models.CreateIndexRequest;
 import com.tencentcloudapi.cls.v20201016.models.CreateTopicRequest;
 import com.tencentcloudapi.cls.v20201016.models.CreateTopicResponse;
+import com.tencentcloudapi.cls.v20201016.models.FullTextInfo;
+import com.tencentcloudapi.cls.v20201016.models.RuleInfo;
 import com.tencentcloudapi.cls.v20201016.models.Tag;
 import com.tencentcloudapi.common.Credential;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import com.tencentcloudapi.common.profile.ClientProfile;
 import com.tencentcloudapi.common.profile.HttpProfile;
+import org.apache.directory.api.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,21 +82,15 @@ public class ClsResourceOperator implements SinkResourceOperator {
     }
 
     private void createTopicID(SinkInfo sinkInfo) {
-        ClsDataNodeDTO tencentClsDataNode = getTencentClsDataNode(sinkInfo);
+        ClsDataNodeDTO clsDataNode = getClsDataNode(sinkInfo);
         ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(sinkInfo.getExtParams(), ClsSinkDTO.class);
         try {
-            Credential cred = new Credential(tencentClsDataNode.getManageSecretId(),
-                    tencentClsDataNode.getManageSecretId());
-            HttpProfile httpProfile = new HttpProfile();
-            httpProfile.setEndpoint(tencentClsDataNode.getEndpoint());
-            ClientProfile clientProfile = new ClientProfile();
-            clientProfile.setHttpProfile(httpProfile);
-            ClsClient client = new ClsClient(cred, tencentClsDataNode.getRegion(), clientProfile);
+            ClsClient client = getClsClient(clsDataNode);
             CreateTopicRequest req = new CreateTopicRequest();
             String[] allTags = clsSinkDTO.getTag().split(InlongConstants.CENTER_LINE);
             Tag[] tags = convertTags(allTags);
             req.setTags(tags);
-            req.setLogsetId(tencentClsDataNode.getLogSetId());
+            req.setLogsetId(clsDataNode.getLogSetId());
             req.setTopicName(clsSinkDTO.getTopicName());
             CreateTopicResponse resp = client.CreateTopic(req);
             LOG.info("create cls topic {} success ,topicId {}", clsSinkDTO.getTopicName(), resp.getTopicId());
@@ -101,16 +99,52 @@ public class ClsResourceOperator implements SinkResourceOperator {
             StreamSinkEntity streamSinkEntity = new StreamSinkEntity();
             CommonBeanUtils.copyProperties(sinkInfo, streamSinkEntity, true);
             streamSinkEntityMapper.updateByIdSelective(streamSinkEntity);
+            this.createTopicIndex(sinkInfo);
             String info = "success to create cls resource";
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
-            LOG.info("update cls sink = {}info status  success ,topicName {}",streamSinkEntity.getSinkName(),
+            LOG.info("update cls sink = {}info status  success ,topicName {}", streamSinkEntity.getSinkName(),
                     clsSinkDTO.getTopicName());
         } catch (TencentCloudSDKException e) {
             String errMsg = "Create cls topic  failed: " + e.getMessage();
             LOG.error(errMsg, e);
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
-            throw new WorkflowException(errMsg);
+            throw new BusinessException(errMsg);
         }
+    }
+
+    private ClsClient getClsClient(ClsDataNodeDTO clsDataNode) {
+        Credential cred = new Credential(clsDataNode.getManageSecretId(),
+                clsDataNode.getManageSecretId());
+        HttpProfile httpProfile = new HttpProfile();
+        httpProfile.setEndpoint(clsDataNode.getEndpoint());
+        ClientProfile clientProfile = new ClientProfile();
+        clientProfile.setHttpProfile(httpProfile);
+        return new ClsClient(cred, clsDataNode.getRegion(), clientProfile);
+    }
+
+    private void createTopicIndex(SinkInfo sinkInfo) throws BusinessException {
+        ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(sinkInfo.getExtParams(), ClsSinkDTO.class);
+        if (Strings.isEmpty(clsSinkDTO.getTokenizer())) {
+            LOG.warn("topic {} tokenizer is empty", clsSinkDTO.getTopicName());
+            return;
+        }
+        ClsDataNodeDTO clsDataNode = getClsDataNode(sinkInfo);
+        ClsClient clsClient = getClsClient(clsDataNode);
+        CreateIndexRequest req = new CreateIndexRequest();
+        RuleInfo ruleInfo = new RuleInfo();
+        FullTextInfo fullTextInfo = new FullTextInfo();
+        fullTextInfo.setTokenizer(clsSinkDTO.getTokenizer());
+        ruleInfo.setFullText(fullTextInfo);
+        req.setRule(ruleInfo);
+        try {
+            clsClient.CreateIndex(req);
+        } catch (TencentCloudSDKException e) {
+            String errMsg = "Create cls topic index failed: " + e.getMessage();
+            LOG.error(errMsg, e);
+            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
+            throw new BusinessException(errMsg);
+        }
+        LOG.info("topic {} create index success tokenizer is {}", clsSinkDTO.getTopicName(), clsSinkDTO.getTokenizer());
     }
 
     private Tag[] convertTags(String[] allTags) {
@@ -125,7 +159,7 @@ public class ClsResourceOperator implements SinkResourceOperator {
         return tags;
     }
 
-    private ClsDataNodeDTO getTencentClsDataNode(SinkInfo sinkInfo) {
+    private ClsDataNodeDTO getClsDataNode(SinkInfo sinkInfo) {
         DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectByUniqueKey(sinkInfo.getDataNodeName(),
                 DataNodeType.CLS);
         return JsonUtils.parseObject(dataNodeEntity.getExtParams(), ClsDataNodeDTO.class);

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sink.cls;
 
-import io.swagger.annotations.ApiModelProperty;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
@@ -25,6 +24,7 @@ import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -42,7 +42,6 @@ import lombok.experimental.SuperBuilder;
 @ApiModel(value = "Cloud log service sink info")
 @JsonTypeDefine(value = SinkType.CLS)
 public class ClsSink extends StreamSink {
-
 
     @ApiModelProperty("Cloud log service topic id")
     private String topicId;

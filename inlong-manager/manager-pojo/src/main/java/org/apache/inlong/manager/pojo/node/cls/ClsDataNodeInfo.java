@@ -17,6 +17,12 @@
 
 package org.apache.inlong.manager.pojo.node.cls;
 
+import org.apache.inlong.manager.common.consts.DataNodeType;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
+import org.apache.inlong.manager.pojo.node.DataNodeRequest;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -24,11 +30,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.consts.DataNodeType;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.node.DataNodeInfo;
-import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
 /**
  * cloud log service data node info
@@ -41,7 +42,6 @@ import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 @JsonTypeDefine(value = DataNodeType.ELASTICSEARCH)
 @ApiModel("cloud log service data node info")
 public class ClsDataNodeInfo extends DataNodeInfo {
-
 
     @ApiModelProperty("Cloud log service master account")
     private String mainAccountId;
