@@ -126,6 +126,32 @@
             and is_deleted = 0
         </where>
     </select>
+    <select id="selectByIdSelective"
+            parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from data_node
+        <where>
+            <if test="type != null">
+                and type = #{type, jdbcType=VARCHAR}
+            </if>
+            <if test="url != null">
+                and url = #{url, jdbcType=VARCHAR}
+            </if>
+            <if test="username != null">
+                and username = #{username, jdbcType=VARCHAR}
+            </if>
+            <if test="token != null">
+                and token = #{token, jdbcType=VARCHAR}
+            </if>
+            <if test="extParams != null">
+                and ext_params = #{extParams, jdbcType=LONGVARCHAR}
+            </if>
+            and tenant = #{tenant, jdbcType=LONGVARCHAR}
+            and is_deleted = 0
+        </where>
+    </select>
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         <bind name="_isInlongService" value="LoginUser.InlongService"/>
         update data_node
@@ -224,7 +250,7 @@
                token,
                ext_params,
                description,
-               #{to, jdbcType=VARCHAR},
+               #{targetTenant, jdbcType=VARCHAR},
                in_charges,
                status,
                creator,
@@ -234,33 +260,7 @@
             name = #{name, jdbcType=VARCHAR}
             and type = #{type, jdbcType=VARCHAR}
             and is_deleted = 0
-            and tenant = #{from, jdbcType=VARCHAR}
+            and tenant = #{sourceTenant, jdbcType=VARCHAR}
         </where>
     </insert>
-    <select id="selectByIdSelective"
-            parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity"
-            resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from data_node
-        <where>
-            <if test="type != null">
-                and type = #{type, jdbcType=VARCHAR}
-            </if>
-            <if test="url != null">
-                and url = #{url, jdbcType=VARCHAR}
-            </if>
-            <if test="username != null">
-                and username = #{username, jdbcType=VARCHAR}
-            </if>
-            <if test="token != null">
-                and token = #{token, jdbcType=VARCHAR}
-            </if>
-            <if test="extParams != null">
-                and ext_params = #{extParams, jdbcType=LONGVARCHAR}
-            </if>
-            and tenant = #{tenant, jdbcType=LONGVARCHAR}
-            and is_deleted = 0
-        </where>
-    </select>
 </mapper>

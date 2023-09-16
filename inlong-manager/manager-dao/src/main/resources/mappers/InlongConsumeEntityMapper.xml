@@ -307,11 +307,11 @@
     </delete>
     <insert id="migrate">
         update inlong_consume
-        set tenant = #{to, jdbcType=VARCHAR}
+        set tenant = #{targetTenant, jdbcType=VARCHAR}
         <where>
             inlong_group_id = #{groupId, jdbcType=VARCHAR}
             and is_deleted = 0
-            and tenant = #{from, jdbcType=VARCHAR}
+            and tenant = #{sourceTenant, jdbcType=VARCHAR}
         </where>
     </insert>
     <select id="selectByGroupId" resultMap="BaseResultMap">

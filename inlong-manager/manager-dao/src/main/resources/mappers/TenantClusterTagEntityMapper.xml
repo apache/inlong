@@ -81,6 +81,19 @@
         values (#{id,jdbcType=INTEGER}, #{tenant,jdbcType=VARCHAR}, #{clusterTag,jdbcType=VARCHAR},
                 #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
     </insert>
+    <insert id="copy">
+        insert into tenant_cluster_tag (tenant, cluster_tag, creator, modifier)
+        select #{targetTenant, jdbcType=VARCHAR},
+        cluster_tag,
+        creator,
+        modifier
+        from tenant_cluster_tag
+        <where>
+            tenant = #{sourceTenant, jdbcType=VARCHAR}
+            and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
+            and is_deleted = 0
+        </where>
+    </insert>
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.TenantClusterTagEntity">
         update tenant_cluster_tag
         <set>
@@ -101,17 +114,4 @@
         where id = #{id,jdbcType=INTEGER}
         and version = #{version,jdbcType=INTEGER}
     </update>
-    <insert id="copy">
-        insert into tenant_cluster_tag (tenant, cluster_tag, creator, modifier)
-        select #{to, jdbcType=VARCHAR},
-        cluster_tag,
-        creator,
-        modifier
-        from tenant_cluster_tag
-        <where>
-            tenant = #{from, jdbcType=VARCHAR}
-            and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
-            and is_deleted = 0
-        </where>
-    </insert>
 </mapper>
