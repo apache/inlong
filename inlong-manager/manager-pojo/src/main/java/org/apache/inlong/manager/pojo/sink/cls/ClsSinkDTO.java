@@ -59,8 +59,9 @@ public class ClsSinkDTO {
      * Get the dto instance from the request
      */
     public static ClsSinkDTO getFromRequest(ClsSinkRequest request, String extParams) {
-        ClsSinkDTO dto =
-                StringUtils.isNotBlank(extParams) ? ClsSinkDTO.getFromJson(extParams) : new ClsSinkDTO();
+        ClsSinkDTO dto = StringUtils.isNotBlank(extParams)
+                ? ClsSinkDTO.getFromJson(extParams)
+                : new ClsSinkDTO();
         return CommonBeanUtils.copyProperties(request, dto, true);
     }
 

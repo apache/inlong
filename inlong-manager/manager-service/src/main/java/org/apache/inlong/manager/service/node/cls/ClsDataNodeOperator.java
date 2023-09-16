@@ -52,11 +52,10 @@ public class ClsDataNodeOperator extends AbstractDataNodeOperator {
 
     @Override
     protected void setTargetEntity(DataNodeRequest request, DataNodeEntity targetEntity) {
-        ClsDataNodeRequest esRequest = (ClsDataNodeRequest) request;
-        CommonBeanUtils.copyProperties(esRequest, targetEntity, true);
+        ClsDataNodeRequest clsDataNodeRequest = (ClsDataNodeRequest) request;
+        CommonBeanUtils.copyProperties(clsDataNodeRequest, targetEntity, true);
         try {
-            ClsDataNodeDTO dto =
-                    ClsDataNodeDTO.getFromRequest(esRequest, targetEntity.getExtParams());
+            ClsDataNodeDTO dto = ClsDataNodeDTO.getFromRequest(clsDataNodeRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

@@ -17,18 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.sink.cls;
 
-import com.tencentcloudapi.cls.v20201016.ClsClient;
-import com.tencentcloudapi.cls.v20201016.models.CreateIndexRequest;
-import com.tencentcloudapi.cls.v20201016.models.CreateTopicRequest;
-import com.tencentcloudapi.cls.v20201016.models.CreateTopicResponse;
-import com.tencentcloudapi.cls.v20201016.models.FullTextInfo;
-import com.tencentcloudapi.cls.v20201016.models.RuleInfo;
-import com.tencentcloudapi.cls.v20201016.models.Tag;
-import com.tencentcloudapi.common.Credential;
-import com.tencentcloudapi.common.exception.TencentCloudSDKException;
-import com.tencentcloudapi.common.profile.ClientProfile;
-import com.tencentcloudapi.common.profile.HttpProfile;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
@@ -45,6 +33,19 @@ import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.cls.ClsSinkDTO;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
+
+import com.tencentcloudapi.cls.v20201016.ClsClient;
+import com.tencentcloudapi.cls.v20201016.models.CreateIndexRequest;
+import com.tencentcloudapi.cls.v20201016.models.CreateTopicRequest;
+import com.tencentcloudapi.cls.v20201016.models.CreateTopicResponse;
+import com.tencentcloudapi.cls.v20201016.models.FullTextInfo;
+import com.tencentcloudapi.cls.v20201016.models.RuleInfo;
+import com.tencentcloudapi.cls.v20201016.models.Tag;
+import com.tencentcloudapi.common.Credential;
+import com.tencentcloudapi.common.exception.TencentCloudSDKException;
+import com.tencentcloudapi.common.profile.ClientProfile;
+import com.tencentcloudapi.common.profile.HttpProfile;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,11 +135,12 @@ public class ClsResourceOperator implements SinkResourceOperator {
         }
         ClsDataNodeDTO clsDataNode = getClsDataNode(sinkInfo);
         ClsClient clsClient = getClsClient(clsDataNode);
-        CreateIndexRequest req = new CreateIndexRequest();
         RuleInfo ruleInfo = new RuleInfo();
         FullTextInfo fullTextInfo = new FullTextInfo();
         fullTextInfo.setTokenizer(clsSinkDTO.getTokenizer());
         ruleInfo.setFullText(fullTextInfo);
+        CreateIndexRequest req = new CreateIndexRequest();
+        req.setTopicId(clsSinkDTO.getTopicId());
         req.setRule(ruleInfo);
         try {
             clsClient.CreateIndex(req);
