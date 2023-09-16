@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.sink.cls;
 
 import org.apache.inlong.manager.common.consts.DataNodeType;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -122,7 +123,7 @@ public class ClsSinkOperator extends AbstractSinkOperator {
         params.put(END_POINT, clsDataNodeDTO.getEndpoint());
         StringBuilder fieldNames = new StringBuilder();
         for (String field : fields) {
-            fieldNames.append(field).append(" ");
+            fieldNames.append(field).append(InlongConstants.BLANK);
         }
         params.put(KEY_FIELDS, fieldNames.toString());
         return params;
