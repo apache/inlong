@@ -39,6 +39,6 @@ public interface TenantClusterTagEntityMapper {
     List<TenantClusterTagEntity> selectByCondition(TenantClusterTagPageRequest request);
 
     int copy(@Param("clusterTag") String clusterTag, @Param("sourceTenant") String sourceTenant,
-             @Param("targetTenant") String targetTenant);
+            @Param("targetTenant") String targetTenant);
 
 }

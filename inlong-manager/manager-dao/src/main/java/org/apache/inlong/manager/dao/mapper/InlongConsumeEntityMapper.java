@@ -55,7 +55,7 @@ public interface InlongConsumeEntityMapper {
 
     @MultiTenantQuery(with = false)
     int migrate(@Param("groupId") String groupId, @Param("sourceTenant") String sourceTenant,
-                @Param("targetTenant") String targetTenant);
+            @Param("targetTenant") String targetTenant);
 
     List<InlongConsumeEntity> selectByGroupId(String groupId);
 

@@ -53,7 +53,7 @@ public interface DataNodeEntityMapper {
 
     @MultiTenantQuery(with = false)
     int copy(@Param("name") String name, @Param("type") String type, @Param("sourceTenant") String sourceTenant,
-             @Param("targetTenant") String targetTenant, @Param("newName") String newName);
+            @Param("targetTenant") String targetTenant, @Param("newName") String newName);
 
     @MultiTenantQuery(with = false)
     DataNodeEntity selectByIdSelective(DataNodeEntity record);
