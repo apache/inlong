@@ -52,7 +52,7 @@ public class ClsSinkDTO {
     @ApiModelProperty("Cloud log service tag name")
     private String tag;
 
-    @ApiModelProperty("cloud log service index tokenizer")
+    @ApiModelProperty("Cloud log service index tokenizer")
     private String tokenizer;
 
     /**

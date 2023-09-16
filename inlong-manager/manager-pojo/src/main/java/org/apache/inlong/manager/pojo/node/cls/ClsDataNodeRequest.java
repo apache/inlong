@@ -28,13 +28,13 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * cloud log service data node request
+ * Cloud log service data node request
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = DataNodeType.CLS)
-@ApiModel("cloud log service data node request")
+@ApiModel("Cloud log service data node request")
 public class ClsDataNodeRequest extends DataNodeRequest {
 
     @ApiModelProperty("Cloud log service master account")

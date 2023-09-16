@@ -17,6 +17,18 @@
 
 package org.apache.inlong.manager.service.resource.sink.cls;
 
+import com.tencentcloudapi.cls.v20201016.ClsClient;
+import com.tencentcloudapi.cls.v20201016.models.CreateIndexRequest;
+import com.tencentcloudapi.cls.v20201016.models.CreateTopicRequest;
+import com.tencentcloudapi.cls.v20201016.models.CreateTopicResponse;
+import com.tencentcloudapi.cls.v20201016.models.FullTextInfo;
+import com.tencentcloudapi.cls.v20201016.models.RuleInfo;
+import com.tencentcloudapi.cls.v20201016.models.Tag;
+import com.tencentcloudapi.common.Credential;
+import com.tencentcloudapi.common.exception.TencentCloudSDKException;
+import com.tencentcloudapi.common.profile.ClientProfile;
+import com.tencentcloudapi.common.profile.HttpProfile;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
@@ -33,19 +45,6 @@ import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.cls.ClsSinkDTO;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-
-import com.tencentcloudapi.cls.v20201016.ClsClient;
-import com.tencentcloudapi.cls.v20201016.models.CreateIndexRequest;
-import com.tencentcloudapi.cls.v20201016.models.CreateTopicRequest;
-import com.tencentcloudapi.cls.v20201016.models.CreateTopicResponse;
-import com.tencentcloudapi.cls.v20201016.models.FullTextInfo;
-import com.tencentcloudapi.cls.v20201016.models.RuleInfo;
-import com.tencentcloudapi.cls.v20201016.models.Tag;
-import com.tencentcloudapi.common.Credential;
-import com.tencentcloudapi.common.exception.TencentCloudSDKException;
-import com.tencentcloudapi.common.profile.ClientProfile;
-import com.tencentcloudapi.common.profile.HttpProfile;
-import org.apache.directory.api.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,12 +85,7 @@ public class ClsResourceOperator implements SinkResourceOperator {
         ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(sinkInfo.getExtParams(), ClsSinkDTO.class);
         try {
             ClsClient client = getClsClient(clsDataNode);
-            CreateTopicRequest req = new CreateTopicRequest();
-            String[] allTags = clsSinkDTO.getTag().split(InlongConstants.CENTER_LINE);
-            Tag[] tags = convertTags(allTags);
-            req.setTags(tags);
-            req.setLogsetId(clsDataNode.getLogSetId());
-            req.setTopicName(clsSinkDTO.getTopicName());
+            CreateTopicRequest req = getCreateTopicRequest(clsDataNode, clsSinkDTO);
             CreateTopicResponse resp = client.CreateTopic(req);
             LOG.info("create cls topic {} success ,topicId {}", clsSinkDTO.getTopicName(), resp.getTopicId());
             clsSinkDTO.setTopicId(resp.getTopicId());
@@ -112,19 +106,29 @@ public class ClsResourceOperator implements SinkResourceOperator {
         }
     }
 
+    private CreateTopicRequest getCreateTopicRequest(ClsDataNodeDTO clsDataNode, ClsSinkDTO clsSinkDTO) {
+        CreateTopicRequest req = new CreateTopicRequest();
+        String[] allTags = clsSinkDTO.getTag().split(InlongConstants.CENTER_LINE);
+        req.setTags(convertTags(allTags));
+        req.setLogsetId(clsDataNode.getLogSetId());
+        req.setTopicName(clsSinkDTO.getTopicName());
+        return req;
+    }
+
     private ClsClient getClsClient(ClsDataNodeDTO clsDataNode) {
         Credential cred = new Credential(clsDataNode.getManageSecretId(),
                 clsDataNode.getManageSecretId());
         HttpProfile httpProfile = new HttpProfile();
         httpProfile.setEndpoint(clsDataNode.getEndpoint());
         ClientProfile clientProfile = new ClientProfile();
+
         clientProfile.setHttpProfile(httpProfile);
         return new ClsClient(cred, clsDataNode.getRegion(), clientProfile);
     }
 
     private void createTopicIndex(SinkInfo sinkInfo) throws BusinessException {
         ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(sinkInfo.getExtParams(), ClsSinkDTO.class);
-        if (Strings.isEmpty(clsSinkDTO.getTokenizer())) {
+        if (StringUtils.isNotBlank(clsSinkDTO.getTokenizer())) {
             LOG.warn("topic {} tokenizer is empty", clsSinkDTO.getTopicName());
             return;
         }

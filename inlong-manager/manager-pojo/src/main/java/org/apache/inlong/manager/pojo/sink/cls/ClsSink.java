@@ -76,7 +76,7 @@ public class ClsSink extends StreamSink {
     @ApiModelProperty("Cloud log service subAccount")
     private String subAccountId;
 
-    @ApiModelProperty("cloud log service index tokenizer")
+    @ApiModelProperty("Cloud log service index tokenizer")
     private String tokenizer;
 
     public ClsSink() {
