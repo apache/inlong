@@ -91,10 +91,10 @@ public class ClsResourceOperator implements SinkResourceOperator {
             LOG.info("create cls topic {} success ,topicId {}", clsSinkDTO.getTopicName(), resp.getTopicId());
             clsSinkDTO.setTopicId(resp.getTopicId());
             sinkInfo.setExtParams(JsonUtils.toJsonString(clsSinkDTO));
+            this.createTopicIndex(sinkInfo);
             StreamSinkEntity streamSinkEntity = new StreamSinkEntity();
             CommonBeanUtils.copyProperties(sinkInfo, streamSinkEntity, true);
             streamSinkEntityMapper.updateByIdSelective(streamSinkEntity);
-            this.createTopicIndex(sinkInfo);
             String info = "success to create cls resource";
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOG.info("update cls sink = {}info status  success ,topicName {}", streamSinkEntity.getSinkName(),
@@ -139,6 +139,7 @@ public class ClsResourceOperator implements SinkResourceOperator {
         FullTextInfo fullTextInfo = new FullTextInfo();
         fullTextInfo.setTokenizer(clsSinkDTO.getTokenizer());
         ruleInfo.setFullText(fullTextInfo);
+
         CreateIndexRequest req = new CreateIndexRequest();
         req.setTopicId(clsSinkDTO.getTopicId());
         req.setRule(ruleInfo);
