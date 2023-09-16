@@ -81,6 +81,9 @@ public class ClsResourceOperator implements SinkResourceOperator {
         this.createTopicID(sinkInfo);
     }
 
+    /**
+     * Create cloud log service topic
+     */
     private void createTopicID(SinkInfo sinkInfo) {
         ClsDataNodeDTO clsDataNode = getClsDataNode(sinkInfo);
         ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(sinkInfo.getExtParams(), ClsSinkDTO.class);
@@ -89,8 +92,10 @@ public class ClsResourceOperator implements SinkResourceOperator {
             CreateTopicRequest req = getCreateTopicRequest(clsDataNode, clsSinkDTO);
             CreateTopicResponse resp = client.CreateTopic(req);
             LOG.info("create cls topic {} success ,topicId {}", clsSinkDTO.getTopicName(), resp.getTopicId());
+            // update set topic id into sink info
             clsSinkDTO.setTopicId(resp.getTopicId());
             sinkInfo.setExtParams(JsonUtils.toJsonString(clsSinkDTO));
+            // create topic index by tokenizer
             this.createTopicIndex(sinkInfo);
             StreamSinkEntity streamSinkEntity = new StreamSinkEntity();
             CommonBeanUtils.copyProperties(sinkInfo, streamSinkEntity, true);
@@ -127,6 +132,9 @@ public class ClsResourceOperator implements SinkResourceOperator {
         return new ClsClient(cred, clsDataNode.getRegion(), clientProfile);
     }
 
+    /**
+     * Create topic index by tokenizer
+     */
     private void createTopicIndex(SinkInfo sinkInfo) throws BusinessException {
         ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(sinkInfo.getExtParams(), ClsSinkDTO.class);
         if (StringUtils.isNotBlank(clsSinkDTO.getTokenizer())) {
