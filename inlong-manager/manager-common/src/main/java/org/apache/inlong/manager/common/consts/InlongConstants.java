@@ -60,6 +60,8 @@ public class InlongConstants {
 
     public static final String UNDERSCORE = "_";
 
+    public static final String CENTER_LINE = "\\|";
+
     public static final String LEFT_BRACKET = "(";
 
     public static final String PERCENT = "%";

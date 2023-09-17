@@ -129,7 +129,7 @@ public class InlongGroupOperator4Pulsar extends AbstractGroupOperator {
             tenant = pulsarCluster.getPulsarTenant();
         }
         InlongPulsarTopicInfo topicInfo = new InlongPulsarTopicInfo();
-        topicInfo.setTenant(tenant);
+        topicInfo.setPulsarTenant(tenant);
         topicInfo.setNamespace(groupInfo.getMqResource());
         // each inlong stream is associated with a Pulsar topic
         List<String> topics = streamService.getTopicList(groupInfo.getInlongGroupId()).stream()
