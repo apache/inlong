@@ -106,7 +106,6 @@ public class StarRocksDynamicSinkFunctionV2<T> extends StarRocksDynamicSinkFunct
                 .sinkOptions(sinkOptions)
                 .build();
         this.schemaUtils = new SchemaUtils(schema);
-        // sinkTable.validateTableStructure(sinkOptions, schema);
         // StarRocksJsonSerializer depends on SinkOptions#supportUpsertDelete which is decided in
         // StarRocksSinkTable#validateTableStructure, so create serializer after validating table structure
         this.serializer = StarRocksSerializerFactory.createSerializer(sinkOptions,
