@@ -203,6 +203,7 @@
         <jedis.version>2.9.0</jedis.version>
         <poi.version>5.2.3</poi.version>
         <otel.version>1.28.0</otel.version>
+        <tencentcloud-api.version>3.1.830</tencentcloud-api.version>
         <woodstox-core.version>5.4.0</woodstox-core.version>
     </properties>
 
@@ -1260,6 +1261,11 @@
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi-ooxml</artifactId>
                 <version>${poi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tencentcloudapi</groupId>
+                <artifactId>tencentcloud-sdk-java-cls</artifactId>
+                <version>${tencentcloud-api.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

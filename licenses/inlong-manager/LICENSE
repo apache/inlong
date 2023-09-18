@@ -681,6 +681,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.springframework:spring-webmvc:5.3.18 - Spring Web MVC (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
   com.typesafe:ssl-config-core_2.11:0.3.7 - ssl-config-core (https://github.com/lightbend/ssl-config/tree/v0.3.7), (Apache-2.0)
   org.apache.tomcat.embed:tomcat-embed-core:9.0.60 - tomcat-embed-core (https://tomcat.apache.org/), (Apache License, Version 2.0)
+  com.tencentcloudapi:tencentcloud-sdk-java-cls:3.1.830 - tencentcloud-sdk-java-cls (https://github.com/TencentCloud/tencentcloud-sdk-java-cls/tree/v3.1.830), (Apache License, Version 2.0)
 
 ========================================================================
 BSD licenses

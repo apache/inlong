@@ -15,40 +15,37 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.group.pulsar;
+package org.apache.inlong.manager.pojo.sink.cls;
 
-import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-import java.util.List;
-
+/**
+ * Cloud log service sink request.
+ */
 @Data
-@Builder
-@AllArgsConstructor
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = MQType.PULSAR)
-@ApiModel("Inlong pulsar group topic info")
-public class InlongPulsarTopicInfo extends InlongGroupTopicInfo {
+@ApiModel(value = "Cloud log service sink request")
+@JsonTypeDefine(value = SinkType.CLS)
+public class ClsSinkRequest extends SinkRequest {
 
-    @ApiModelProperty(value = "Pulsar tenant")
-    private String pulsarTenant;
+    @ApiModelProperty("Cloud log service topic name")
+    private String topicName;
 
-    @ApiModelProperty(value = "Pulsar namespace")
-    private String namespace;
+    @ApiModelProperty("Cloud log service topic save time")
+    private Integer saveTime;
 
-    @ApiModelProperty(value = "Pulsar topics")
-    private List<String> topics;
+    @ApiModelProperty("Cloud log service tag name")
+    private String tag;
 
-    public InlongPulsarTopicInfo() {
-        this.setMqType(MQType.PULSAR);
-    }
-
+    @ApiModelProperty("Cloud log service index tokenizer")
+    private String tokenizer;
 }
