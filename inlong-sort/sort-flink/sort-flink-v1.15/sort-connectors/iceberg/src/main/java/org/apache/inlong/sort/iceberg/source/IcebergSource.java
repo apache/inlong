@@ -544,7 +544,7 @@ public class IcebergSource<T> implements Source<T, IcebergSourceSplit, IcebergEn
             }
 
             if (StringUtils.isNullOrWhitespaceOnly(inlongAuditAddress)) {
-                inlongAuditAddress = flinkConfig.get(INLONG_AUDIT);
+                inlongAuditAddress = readOptions.get(INLONG_AUDIT.key());
             }
             if (StringUtils.isNullOrWhitespaceOnly(inlongAuditKeys)) {
                 inlongAuditKeys = readOptions.get(AUDIT_KEYS.key());
