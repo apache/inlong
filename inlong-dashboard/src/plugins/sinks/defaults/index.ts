@@ -32,6 +32,11 @@ export const allDefaultSinks: MetaExportWithBackendList<SinkMetaType> = [
     LoadEntity: () => import('./ClickHouse'),
   },
   {
+    label: 'Cls',
+    value: 'CLS',
+    LoadEntity: () => import('./Cls'),
+  },
+  {
     label: 'Doris',
     value: 'DORIS',
     LoadEntity: () => import('./Doris'),
