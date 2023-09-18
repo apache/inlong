@@ -39,6 +39,18 @@
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-connector-base</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.thrift</groupId>
+                    <artifactId>libthrift</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libfb303</artifactId>
+            <version>${libfb303.version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
@@ -62,6 +74,7 @@
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-exec</artifactId>
             <version>${hive3x.version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
@@ -79,6 +92,17 @@
             <artifactId>iceberg-hive-metastore</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-files</artifactId>
+            <version>${flink.version.v1.15}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -87,7 +111,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>${plugin.shade.version}</version>
-
                 <executions>
                     <execution>
                         <id>shade-flink</id>
@@ -108,7 +131,8 @@
                                     <include>org.apache.hive:*</include>
                                     <!--  Include fixed version 18.0-13.0 of flink shaded guava  -->
                                     <include>org.apache.flink:flink-shaded-guava</include>
-                                    <include>com.google.protobuf:*</include>
+                                    <include>org.apache.flink:flink-connector-files</include>
+                                    <include>org.apache.flink:flink-connector-base</include>
                                     <include>org.apache.thrift:*</include>
                                     <include>com.facebook.*:*</include>
                                 </includes>
@@ -122,6 +146,12 @@
                                         <include>META-INF/services/org.apache.flink.table.factories.Factory</include>
                                         <include>META-INF/services/org.apache.flink.table.factories.TableFactory</include>
                                     </includes>
+                                </filter>
+                                <filter>
+                                    <artifact>org.apache.hive:hive-exec</artifact>
+                                    <excludes>
+                                        <exclude>com/google/protobuf/**</exclude>
+                                    </excludes>
                                 </filter>
                             </filters>
                             <relocations>
