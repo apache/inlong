@@ -32,6 +32,11 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     LoadEntity: () => import('./ClickHouse'),
   },
   {
+    label: 'CLS',
+    value: 'CLS',
+    LoadEntity: () => import('./Cls'),
+  },
+  {
     label: 'Elasticsearch',
     value: 'ELASTICSEARCH',
     LoadEntity: () => import('./Elasticsearch'),
