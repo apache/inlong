@@ -27,6 +27,9 @@ import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.table.data.RowData;
 
+/**
+ * This class is used to create a DynamicTableSink for Starrocks.
+ */
 public class StarRocksDynamicTableSink implements DynamicTableSink {
 
     private transient TableSchema flinkSchema;

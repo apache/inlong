@@ -69,6 +69,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+/**
+ * StarRocks dynamic sink function. It supports insert, upsert, delete in Starrocks.
+ * @param <T>
+ */
 public class StarRocksDynamicSinkFunctionV2<T> extends StarRocksDynamicSinkFunctionBase<T> {
 
     private static final long serialVersionUID = 1L;

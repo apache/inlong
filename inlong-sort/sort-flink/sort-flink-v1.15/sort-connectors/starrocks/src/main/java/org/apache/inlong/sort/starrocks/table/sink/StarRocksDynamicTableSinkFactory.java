@@ -41,6 +41,9 @@ import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
 
+/**
+ * Factory to create StarRocksDynamicTableSink.
+ */
 public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory {
 
     @Override
