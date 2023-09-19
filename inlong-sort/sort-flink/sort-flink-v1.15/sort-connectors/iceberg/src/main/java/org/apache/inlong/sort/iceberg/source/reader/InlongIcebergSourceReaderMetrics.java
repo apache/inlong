@@ -47,7 +47,9 @@ public class InlongIcebergSourceReaderMetrics extends IcebergSourceReaderMetrics
     }
 
     public void outputMetricsWithEstimate(ArrayBatchRecords batchRecord) {
-        sourceMetricData.outputMetricsWithEstimate(batchRecord.records());
-    }
+        if (sourceMetricData != null) {
+            sourceMetricData.outputMetricsWithEstimate(batchRecord.records());
+        }
 
+    }
 }
