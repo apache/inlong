@@ -205,6 +205,7 @@
         <otel.version>1.28.0</otel.version>
         <tencentcloud-api.version>3.1.830</tencentcloud-api.version>
         <woodstox-core.version>5.4.0</woodstox-core.version>
+        <libfb303.version>0.9.3</libfb303.version>
     </properties>
 
     <dependencyManagement>
