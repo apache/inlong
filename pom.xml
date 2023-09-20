@@ -1268,6 +1268,20 @@
                 <artifactId>tencentcloud-sdk-java-cls</artifactId>
                 <version>${tencentcloud-api.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.sun</groupId>
+                <artifactId>tools</artifactId>
+                <version>1.8.0</version>
+                <scope>system</scope>
+                <systemPath>${JAVA_HOME}/lib/tools.jar</systemPath>
+            </dependency>
+            <dependency>
+                <groupId>com.sun</groupId>
+                <artifactId>jconsole</artifactId>
+                <version>1.8.0</version>
+                <scope>system</scope>
+                <systemPath>${JAVA_HOME}/lib/tools.jar</systemPath>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
