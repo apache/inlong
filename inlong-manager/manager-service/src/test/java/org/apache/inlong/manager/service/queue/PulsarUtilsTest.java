@@ -164,11 +164,12 @@ public class PulsarUtilsTest {
     @Disabled
     public void testExamineMessage() throws Exception {
         String topicPath = DEFAULT_TENANT + "/" + DEFAULT_NAMESPACE + "/" + "testtopic-partition-1";
-        ResponseEntity<byte[]> response = PulsarUtils.examineMessage(restTemplate, PULSAR_CLUSTER_INFO, topicPath, "latest", 1);
-        if(200 == response.getStatusCodeValue()) {
+        ResponseEntity<byte[]> response = PulsarUtils.examineMessage(restTemplate, PULSAR_CLUSTER_INFO, topicPath,
+                "latest", 1);
+        if (200 == response.getStatusCodeValue()) {
             assertNotNull(response.getBody());
             assertNotNull(response.getHeaders());
-        }else {
+        } else {
             assertNotNull(response.getHeaders());
         }
     }
