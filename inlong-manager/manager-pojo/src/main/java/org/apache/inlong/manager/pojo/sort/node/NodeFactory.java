@@ -18,10 +18,12 @@
 package org.apache.inlong.manager.pojo.sort.node;
 
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.LoadNode;
+import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -60,5 +62,38 @@ public class NodeFactory {
             String sinkType = v.getSinkType();
             return LoadNodeProviderFactory.getLoadNodeProvider(sinkType).createLoadNode(v, constantFieldMap);
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * Create extract node from the given source.
+     */
+    public static ExtractNode createExtractNode(StreamSource sourceInfo) {
+        if (sourceInfo == null) {
+            return null;
+        }
+        String sourceType = sourceInfo.getSourceType();
+        return ExtractNodeProviderFactory.getExtractNodeProvider(sourceType).createExtractNode(sourceInfo);
+    }
+
+    /**
+     * Create load node from the given sink.
+     */
+    public static LoadNode createLoadNode(StreamSink sinkInfo, Map<String, StreamField> constantFieldMap) {
+        if (sinkInfo == null) {
+            return null;
+        }
+        String sinkType = sinkInfo.getSinkType();
+        return LoadNodeProviderFactory.getLoadNodeProvider(sinkType).createLoadNode(sinkInfo, constantFieldMap);
+    }
+
+    /**
+     * Add built-in field for extra node and load node
+     */
+    public static void addBuiltInField(ExtractNode extractNode, LoadNode loadNode, List<TransformNode> transformNodes) {
+        if (FieldInfoUtils.compareFields(extractNode.getMetaFields(), loadNode.getMetaFields())) {
+            extractNode.addMetaFields(extractNode.getFields());
+            transformNodes.forEach(v -> v.getFields().addAll(0, loadNode.getMetaFields()));
+            loadNode.addMetaFields(loadNode.getFields());
+        }
     }
 }

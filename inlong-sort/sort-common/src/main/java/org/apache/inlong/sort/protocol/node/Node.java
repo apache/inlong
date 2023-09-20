@@ -57,6 +57,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInc
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,4 +138,11 @@ public interface Node {
         return null;
     }
 
+    default List<FieldInfo> addMetaFields(List<FieldInfo> fieldInfos) {
+        return fieldInfos;
+    }
+
+    default List<FieldInfo> getMetaFields() {
+        return new ArrayList<>();
+    }
 }

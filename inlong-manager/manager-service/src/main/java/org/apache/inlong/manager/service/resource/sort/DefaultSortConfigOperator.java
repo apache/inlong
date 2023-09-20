@@ -34,7 +34,10 @@ import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.service.transform.StreamTransformService;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
+import org.apache.inlong.sort.protocol.node.ExtractNode;
+import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.Node;
+import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -51,6 +54,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -222,8 +226,20 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     private List<Node> createNodes(List<StreamSource> sources, List<TransformResponse> transformResponses,
             List<StreamSink> sinks, Map<String, StreamField> constantFieldMap) {
         List<Node> nodes = new ArrayList<>();
+        List<TransformNode> transformNodes =
+                TransformNodeUtils.createTransformNodes(transformResponses, constantFieldMap);
+        if (Objects.equals(sources.size(), sinks.size()) && Objects.equals(sources.size(), 1)) {
+            ExtractNode extractNode = NodeFactory.createExtractNode(sources.get(0));
+            LoadNode loadNode = NodeFactory.createLoadNode(sinks.get(0), constantFieldMap);
+            nodes.add(extractNode);
+            nodes.addAll(transformNodes);
+            nodes.add(loadNode);
+            NodeFactory.addBuiltInField(extractNode, loadNode, transformNodes);
+            return nodes;
+        }
+
         nodes.addAll(NodeFactory.createExtractNodes(sources));
-        nodes.addAll(TransformNodeUtils.createTransformNodes(transformResponses, constantFieldMap));
+        nodes.addAll(transformNodes);
         nodes.addAll(NodeFactory.createLoadNodes(sinks, constantFieldMap));
         return nodes;
     }

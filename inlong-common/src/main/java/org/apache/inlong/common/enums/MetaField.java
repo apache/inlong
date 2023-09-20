@@ -163,7 +163,12 @@ public enum MetaField {
     /**
      * Timestamp of the Kafka record, it is only used for Kafka.
      */
-    TIMESTAMP;
+    TIMESTAMP,
+
+    /**
+     * Inlong data time for audit.
+     */
+    INLONG_DATA_TIME;
 
     public static MetaField forName(String name) {
         for (MetaField metaField : values()) {

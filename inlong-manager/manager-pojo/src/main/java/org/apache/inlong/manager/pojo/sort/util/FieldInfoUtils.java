@@ -391,4 +391,16 @@ public class FieldInfoUtils {
         return sortFormat;
     }
 
+    public static boolean compareFields(List<FieldInfo> sourceFields, List<FieldInfo> targetFields) {
+        if (sourceFields.size() != targetFields.size()) {
+            return false;
+        }
+        for (int i = 0; i < sourceFields.size(); i++) {
+            if (!Objects.equals(sourceFields.get(i), targetFields.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
