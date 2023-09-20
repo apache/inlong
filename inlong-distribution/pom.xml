@@ -73,6 +73,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
                 <configuration>
                     <executable>${basedir}/script/backup_common_dependency.sh</executable>
                 </configuration>
