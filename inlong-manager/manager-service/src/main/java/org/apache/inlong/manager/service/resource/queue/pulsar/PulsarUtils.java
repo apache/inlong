@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
-import com.alibaba.fastjson.JSON;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -33,13 +30,15 @@ import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.PulsarClientException;
 
+import com.alibaba.fastjson.JSON;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -173,7 +172,6 @@ public class PulsarUtils {
                 ArrayList.class);
     }
 
-
     /**
      * Create a new pulsar tenant.
      *
@@ -274,9 +272,8 @@ public class PulsarUtils {
     public static void createPartitionedTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath, Integer numPartitions) throws Exception {
         String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/partitions";
-/*        HttpUtils.request(restTemplate, url, HttpMethod.PUT, numPartitions.toString(),
-                getHttpHeaders(clusterInfo.getToken()));*/
-        restTemplate.put(url, numPartitions);
+        HttpUtils.request(restTemplate, url, HttpMethod.PUT, numPartitions.toString(),
+                getHttpHeaders(clusterInfo.getToken()));
     }
 
     /**

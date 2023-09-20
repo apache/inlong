@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataProxyMsgEncType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -41,6 +40,7 @@ import org.apache.inlong.manager.service.message.DeserializeOperatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
