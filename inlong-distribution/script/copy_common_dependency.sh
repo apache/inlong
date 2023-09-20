@@ -18,18 +18,19 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-cd "$(dirname "$0")"/ || exit
+cd "$(dirname "$0")"/../ || exit
 
 copyfile() {
-    for line in $(cat "$1/filelist.txt"); do
+    for line in $(cat "$1/common_dependencys.txt"); do
         cp "./lib/$line" $1/
     done
 }
 
-#cp file by filelist.txt
+#copy file by common_dependencys.txt
 copyfile "./inlong-agent/lib"
 copyfile "./inlong-dataproxy/lib"
 copyfile "./inlong-manager/lib"
 copyfile "./inlong-tubemq-server/lib"
 copyfile "./inlong-tubemq-manager/lib"
 copyfile "./inlong-audit/lib"
+rm -fr ./lib

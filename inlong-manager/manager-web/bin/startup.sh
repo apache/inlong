@@ -43,6 +43,12 @@ BIN_PATH=$(
   pwd
 )
 
+#Prepare common dependency
+ROOT_DIR=$BIN_PATH/../..
+if [ -e $ROOT_DIR/bin/prepare_common_dependency.sh ]; then
+    $ROOT_DIR/bin/prepare_common_dependency.sh ./inlong-manager/lib
+fi
+
 # Enter the root directory path
 # shellcheck disable=SC2164
 cd "$BIN_PATH"

@@ -30,6 +30,12 @@ BASE_DIR=$(
 # shellcheck disable=SC2164
 cd "$BASE_DIR"
 
+#Prepare common dependency
+ROOT_DIR=$BASE_DIR/..
+if [ -e $ROOT_DIR/bin/prepare_common_dependency.sh ]; then
+    $ROOT_DIR/bin/prepare_common_dependency.sh ./inlong-audit/lib
+fi
+
 error() {
   local msg=$1
   local exit_code=$2

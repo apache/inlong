@@ -21,13 +21,13 @@
 cd "$(dirname "$0")"/../ || exit
 
 filelist() {
-    rm -fr $1/filelist.txt
+    rm -fr $1/common_dependencys.txt
     for file in $1/*
     do
         if [[ -f $file ]]; then
             if [[ $file == *".jar" ]]; then
                 filename=$(basename "$file")
-                echo $filename >> $1/filelist.txt
+                echo $filename >> $1/common_dependencys.txt
             fi
         fi
     done
@@ -41,7 +41,7 @@ version_length=$(expr $name_length \- 15 \- 10)
 project_version=`expr substr $gz_file 15 $version_length`
 projectpath="./target/apache-inlong-${project_version}-bin/apache-inlong-${project_version}"
 
-#generate filelist.txt
+#generate common_dependencys.txt
 filelist "./$projectpath/inlong-agent/lib"
 filelist "./$projectpath/inlong-dataproxy/lib"
 filelist "./$projectpath/inlong-manager/lib"
@@ -58,9 +58,13 @@ mv $projectpath/inlong-tubemq-server/lib/*.jar $projectpath/lib/
 mv $projectpath/inlong-tubemq-manager/lib/*.jar $projectpath/lib/
 mv $projectpath/inlong-audit/lib/*.jar $projectpath/lib/
 
-#copy pre_deploy.sh
-cp ./script/pre_deploy.sh $projectpath/
-chmod 755 $projectpath/pre_deploy.sh
+#copy copy_common_dependency.sh
+cp ./script/copy_common_dependency.sh $projectpath/bin/
+chmod 755 $projectpath/bin/copy_common_dependency.sh
+
+#copy prepare_common_dependency.sh
+cp ./script/prepare_common_dependency.sh $projectpath/bin/
+chmod 755 $projectpath/bin/prepare_common_dependency.sh
 
 #tar file
 lastname=$(basename "$projectpath")

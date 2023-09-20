@@ -26,6 +26,12 @@ else
   export JAVA="$JAVA_HOME/bin/java"
 fi
 
+#Prepare common dependency
+ROOT_DIR=$BASE_DIR/..
+if [ -e $ROOT_DIR/bin/prepare_common_dependency.sh ]; then
+    $ROOT_DIR/bin/prepare_common_dependency.sh ./inlong-tubemq-server/lib
+fi
+
 tubemq_home=$BASE_DIR
 export CLASSPATH=$CLASSPATH:$BASE_DIR/conf:$(ls $BASE_DIR/lib/*.jar | tr '\n' :)
 
