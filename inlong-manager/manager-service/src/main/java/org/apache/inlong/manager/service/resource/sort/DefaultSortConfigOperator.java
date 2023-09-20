@@ -124,16 +124,15 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
             // build a stream info from the nodes and relations
             List<StreamSource> sources = sourceMap.get(streamId);
             List<StreamSink> sinks = sinkMap.get(streamId);
-            // get audit list by sink type
-            List<String> auditIds = new ArrayList<>();
+
             for (StreamSink sink : sinks) {
-                auditIds.add(auditService.getAuditId(sink.getSinkType(), false));
-                auditIds.add(auditService.getAuditId(sink.getSinkType(), true));
+                Map<String, Object> properties = sink.getProperties();
+                properties.putIfAbsent("metrics.audit.key", auditService.getAuditId(sink.getSinkType(), true));
             }
             for (StreamSource source : sources) {
                 source.setFieldList(inlongStream.getFieldList());
                 Map<String, Object> properties = source.getProperties();
-                properties.putIfAbsent("metrics.audit.key", String.join("&", auditIds));
+                properties.putIfAbsent("metrics.audit.key", auditService.getAuditId(source.getSourceType(), false));
             }
             List<NodeRelation> relations;
 
