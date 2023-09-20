@@ -142,7 +142,7 @@ public class ApproveConsumeProcessListener implements ProcessEventListener {
             topicMessage.setNamespace(mqResource);
 
             List<String> topics = Arrays.asList(entity.getTopic().split(InlongConstants.COMMA));
-            this.createPulsarSubscription(pulsarAdmin, entity.getConsumerGroup(), topicMessage, topics);
+            this.createPulsarSubscription(pulsarCluster, entity.getConsumerGroup(), topicMessage, topics);
         } catch (Exception e) {
             log.error("create pulsar topic failed", e);
             throw new WorkflowListenerException("failed to create pulsar topic for groupId=" + groupId + ", reason: "
@@ -150,10 +150,10 @@ public class ApproveConsumeProcessListener implements ProcessEventListener {
         }
     }
 
-    private void createPulsarSubscription(PulsarAdmin pulsarAdmin, String subscription, PulsarTopicInfo topicInfo,
+    private void createPulsarSubscription(PulsarClusterInfo clusterInfo, String subscription, PulsarTopicInfo topicInfo,
             List<String> topics) {
         try {
-            pulsarOperator.createSubscriptions(pulsarAdmin, subscription, topicInfo, topics);
+            pulsarOperator.createSubscriptions(clusterInfo, subscription, topicInfo, topics);
         } catch (Exception e) {
             log.error("create pulsar consumer group failed", e);
             throw new WorkflowListenerException("failed to create pulsar consumer group");
