@@ -18,7 +18,6 @@
 package org.apache.inlong.sort.base.metric;
 
 import org.apache.inlong.audit.AuditOperator;
-import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 
 import org.apache.flink.metrics.Counter;
@@ -26,6 +25,7 @@ import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
@@ -55,6 +55,7 @@ public class SinkMetricData implements MetricData {
     private Counter dirtyBytesOut;
     private Meter numRecordsOutPerSecond;
     private Meter numBytesOutPerSecond;
+    private List<Integer> auditKeys;
 
     public SinkMetricData(MetricOption option, MetricGroup metricGroup) {
         this.metricGroup = metricGroup;
@@ -100,6 +101,7 @@ public class SinkMetricData implements MetricData {
         if (option.getIpPorts().isPresent()) {
             AuditOperator.getInstance().setAuditProxy(option.getIpPortList());
             this.auditOperator = AuditOperator.getInstance();
+            this.auditKeys = option.getInlongAuditKeys();
         }
     }
 
@@ -257,11 +259,39 @@ public class SinkMetricData implements MetricData {
         invoke(1, getDataSize(o));
     }
 
+    public void invokeWithEstimate(Object o, long dataTime) {
+        invoke(1, getDataSize(o), dataTime);
+    }
+
     public void invokeDirtyWithEstimate(Object o) {
         invokeDirty(1, getDataSize(o));
     }
 
     public void invoke(long rowCount, long rowSize) {
+        outputDefaultMetrics(rowCount, rowSize);
+        outputAuditMetrics(rowCount, rowSize, System.currentTimeMillis());
+    }
+
+    private void invoke(long rowCount, long rowSize, long dataTime) {
+        outputDefaultMetrics(rowCount, rowSize);
+        outputAuditMetrics(rowCount, rowSize, dataTime);
+    }
+
+    private void outputAuditMetrics(long rowCount, long rowSize, long dataTime) {
+        if (auditOperator != null) {
+            for (Integer key : auditKeys) {
+                auditOperator.add(
+                        key,
+                        getGroupId(),
+                        getStreamId(),
+                        dataTime,
+                        rowCount,
+                        rowSize);
+            }
+        }
+    }
+
+    private void outputDefaultMetrics(long rowCount, long rowSize) {
         if (numRecordsOut != null) {
             numRecordsOut.inc(rowCount);
         }
@@ -276,16 +306,6 @@ public class SinkMetricData implements MetricData {
 
         if (numBytesOutForMeter != null) {
             numBytesOutForMeter.inc(rowSize);
-        }
-
-        if (auditOperator != null) {
-            auditOperator.add(
-                    Constants.AUDIT_SORT_OUTPUT,
-                    getGroupId(),
-                    getStreamId(),
-                    System.currentTimeMillis(),
-                    rowCount,
-                    rowSize);
         }
     }
 

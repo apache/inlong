@@ -58,6 +58,7 @@ public class AllMigratePostgreSQLTest extends AbstractTestBase {
                 new MetaFieldInfo("data", MetaField.DATA_CANAL));
         Map<String, String> option = new HashMap<>();
         option.put("source.multiple.enable", "true");
+        option.put("scan.incremental.snapshot.enabled", "true");
         List<String> tableNames = Arrays.asList("table");
         // List<String> tableNames = Arrays.asList("*");
         PostgresExtractNode node = new PostgresExtractNode("1", "pg_input", fields,

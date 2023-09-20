@@ -49,7 +49,6 @@ import org.apache.inlong.manager.service.node.DataNodeService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 
-import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -140,9 +139,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
     @Order(2)
     @Transactional
     public void testSourceCorrectParamsOfNoTagSortCluster() {
-        SortSourceConfigResponse response = sortService.getSourceConfig(TEST_CLUSTER_1, TEST_TASK_1, "");
-        JSONObject jo = new JSONObject(response);
-        System.out.println(jo);
+        SortSourceConfigResponse response = sortService.getSourceConfig(TEST_CLUSTER_1, TEST_TASK_1, "");;
         Assertions.assertEquals(0, response.getCode());
         Assertions.assertNotNull(response.getData());
         Assertions.assertNotNull(response.getMd5());
@@ -193,8 +190,6 @@ public class SortServiceImplTest extends ServiceBaseTest {
     @Transactional
     public void testClusterCorrectParams() {
         SortClusterResponse response = sortService.getClusterConfig(TEST_CLUSTER_1, "");
-        JSONObject jo = new JSONObject(response);
-        System.out.println(jo);
         Assertions.assertEquals(0, response.getCode());
         Assertions.assertNotNull(response.getData());
         Assertions.assertNotNull(response.getMd5());
@@ -232,8 +227,6 @@ public class SortServiceImplTest extends ServiceBaseTest {
     @Transactional
     public void testSourceCorrectParamsOfTaggedSortCluster() {
         SortSourceConfigResponse response = sortService.getSourceConfig(TEST_CLUSTER_2, TEST_TASK_2, "");
-        JSONObject jo = new JSONObject(response);
-        System.out.println(jo);
         Assertions.assertEquals(0, response.getCode());
         Assertions.assertNotNull(response.getMd5());
         Assertions.assertNotNull(response.getMsg());
@@ -248,8 +241,6 @@ public class SortServiceImplTest extends ServiceBaseTest {
         Assertions.assertEquals(1, zone.getTopics().size());
 
         response = sortService.getSourceConfig(TEST_CLUSTER_3, TEST_TASK_3, "");
-        jo = new JSONObject(response);
-        System.out.println(jo);
         Assertions.assertEquals(0, response.getCode());
         Assertions.assertNotNull(response.getMd5());
         Assertions.assertNotNull(response.getMsg());

@@ -35,6 +35,7 @@ import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarOperator;
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarUtils;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
+import org.apache.inlong.manager.service.sink.StreamSinkService;
 
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
@@ -56,6 +57,8 @@ public class PulsarResourceOperator implements SinkResourceOperator {
     private DataNodeOperateHelper dataNodeHelper;
     @Autowired
     private PulsarOperator pulsarOperator;
+    @Autowired
+    private StreamSinkService sinkService;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -98,6 +101,9 @@ public class PulsarResourceOperator implements SinkResourceOperator {
                     .build();
             // create topic
             pulsarOperator.createTopic(pulsarClusterInfo, topicInfo);
+            final String info = "success to create Pulsar resource";
+            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
+            LOG.info(info + " for sinkInfo={}", sinkInfo);
         } catch (Exception e) {
             LOG.error("init pulsar admin error", e);
             throw new BusinessException();

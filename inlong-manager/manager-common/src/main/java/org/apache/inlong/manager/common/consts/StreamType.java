@@ -28,4 +28,6 @@ public class StreamType {
     public static final String SQLSERVER = "SQLSERVER";
     public static final String ORACLE = "ORACLE";
     public static final String PULSAR = "PULSAR";
+    public static final String ICEBERG = "ICEBERG";
+
 }

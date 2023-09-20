@@ -23,7 +23,7 @@
 #include <condition_variable>
 #include <mutex>
 
-namespace dataproxy_sdk {
+namespace inlong {
 // wirte operation add lock：unique_read_lock<read_write_mutex> lock( rwmutex );
 // read operation add lock：unique_write_lock<read_write_mutex> lock(rwmutex);
 
@@ -128,6 +128,6 @@ private:
   _ReadWriteLock *m_ptr_rw_lock = nullptr;
 };
 
-} // namespace dataproxy_sdk
+} // namespace inlong
 
 #endif // INLONG_SDK_READ_WRITE_MUTEX_H

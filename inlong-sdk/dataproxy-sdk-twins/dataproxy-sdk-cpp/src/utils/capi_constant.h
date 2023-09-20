@@ -55,13 +55,15 @@ static const uint32_t kLogSize = 100 * 1024 * 1024;
 static const uint8_t kLogLevel = 2;
 static const char kLogPath[] = "./";
 
-static const char kBusURL[] = "127.0.0.1/api/tdbus_ip_v2";
-static const bool kEnableBusURLFromCluster = false;
-static const char kBusClusterURL[] =
-    "127.0.0.1/heartbeat/tdbus_ip_v2?cluster_id=0&net_tag=all";
-static const uint32_t kBusUpdateInterval = 2;
-static const uint32_t kBusURLTimeout = 5;
-static const uint32_t kMaxBusNum = 200;
+static const char kManagerURL[] =
+    "http://127.0.0.1:8099/inlong/manager/openapi/dataproxy/getIpList";
+static const bool kEnableManagerFromCluster = false;
+static const char kManagerClusterURL[] =
+    "http://127.0.0.1:8099/heartbeat/"
+    "dataproxy_ip_v2?cluster_id=0&net_tag=normal";
+static const uint32_t kManagerUpdateInterval = 2;
+static const uint32_t kManagerTimeout = 5;
+static const uint32_t kMaxProxyNum = 8;
 
 static const bool kEnableTCPNagle = true;
 static const uint32_t kTcpIdleTime = 600000;
@@ -74,6 +76,16 @@ static const uint32_t kMsgType = 7;
 static const bool kEnableSetAffinity = false;
 static const uint32_t kMaskCPUAffinity = 0xff;
 static const uint16_t kExtendField = 0;
+
+// http basic auth
+static const char kBasicAuthHeader[] = "Authorization:";
+static const char kBasicAuthPrefix[] = "Basic";
+static const char kBasicAuthSeparator[] = " ";
+static const char kBasicAuthJoiner[] = ":";
+static const char kProtocolType[] = "TCP";
+static const bool kNeedAuth = false;
+
+static const uint32_t kMaxAttrLen = 2048;
 
 } // namespace constants
 } // namespace inlong

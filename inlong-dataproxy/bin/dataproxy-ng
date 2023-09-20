@@ -229,7 +229,7 @@ run_flume() {
     $EXEC $JAVA_HOME/bin/java $JAVA_OPTS -javaagent:${OTEL_AGENT} -cp "$DATAPROXY_CLASSPATH" \
           -Djava.library.path=$FLUME_JAVA_LIBRARY_PATH "$FLUME_APPLICATION_CLASS" $*
   else
-    $EXEC $JAVA_HOME/bin/java -cp "$DATAPROXY_CLASSPATH" \
+    $EXEC $JAVA_HOME/bin/java $JAVA_OPTS -cp "$DATAPROXY_CLASSPATH" \
           -Djava.library.path=$FLUME_JAVA_LIBRARY_PATH "$FLUME_APPLICATION_CLASS" $*
   fi
 }

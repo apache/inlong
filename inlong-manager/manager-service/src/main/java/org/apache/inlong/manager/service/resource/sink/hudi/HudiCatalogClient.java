@@ -23,21 +23,29 @@ import org.apache.inlong.manager.pojo.sink.hudi.HudiTableInfo;
 import com.google.common.collect.Maps;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.conf.HiveConf;
+import org.apache.hadoop.hive.metastore.HiveMetaStoreClient;
 import org.apache.hadoop.hive.metastore.IMetaStoreClient;
+import org.apache.hadoop.hive.metastore.TableType;
 import org.apache.hadoop.hive.metastore.api.AlreadyExistsException;
 import org.apache.hadoop.hive.metastore.api.Database;
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
 import org.apache.hadoop.hive.metastore.api.MetaException;
+import org.apache.hadoop.hive.metastore.api.Order;
 import org.apache.hadoop.hive.metastore.api.SerDeInfo;
+import org.apache.hadoop.hive.metastore.api.SkewedInfo;
 import org.apache.hadoop.hive.metastore.api.StorageDescriptor;
 import org.apache.hadoop.hive.metastore.api.Table;
-import org.apache.hadoop.hive.ql.metadata.Hive;
+import org.apache.hadoop.hive.metastore.api.hive_metastoreConstants;
+import org.apache.hadoop.hive.serde.serdeConstants;
+import org.apache.hadoop.hive.serde2.MetadataTypedColumnsetSerDe;
+import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +89,7 @@ public class HudiCatalogClient implements AutoCloseable {
     public void open() {
         if (this.client == null) {
             try {
-                this.client = Hive.get(hiveConf).getMSC();
+                this.client = new HiveMetaStoreClient(hiveConf);
             } catch (Exception e) {
                 throw new RuntimeException("Failed to create hive metastore client", e);
             }
@@ -188,7 +196,7 @@ public class HudiCatalogClient implements AutoCloseable {
             HudiTableInfo tableInfo,
             boolean useRealTimeInputFormat)
             throws TException, IOException {
-        Table hiveTable = org.apache.hadoop.hive.ql.metadata.Table.getEmptyTable(dbName, tableName);
+        Table hiveTable = this.getEmptyTable(dbName, tableName);
         hiveTable.setOwner(UserGroupInformation.getCurrentUser().getUserName());
         hiveTable.setCreateTime((int) (System.currentTimeMillis() / 1000));
 
@@ -248,6 +256,45 @@ public class HudiCatalogClient implements AutoCloseable {
             client = null;
             LOG.info("Disconnect to hive metastore");
         }
+    }
+
+    public Table getEmptyTable(String databaseName, String tableName) {
+        StorageDescriptor sd = new StorageDescriptor();
+        {
+            sd.setSerdeInfo(new SerDeInfo());
+            sd.setNumBuckets(-1);
+            sd.setBucketCols(new ArrayList<String>());
+            sd.setCols(new ArrayList<FieldSchema>());
+            sd.setParameters(new HashMap<String, String>());
+            sd.setSortCols(new ArrayList<Order>());
+            sd.getSerdeInfo().setParameters(new HashMap<String, String>());
+            // We have to use MetadataTypedColumnsetSerDe because LazySimpleSerDe does
+            // not support a table with no columns.
+            sd.getSerdeInfo().setSerializationLib(MetadataTypedColumnsetSerDe.class.getName());
+            sd.getSerdeInfo().getParameters().put(serdeConstants.SERIALIZATION_FORMAT, "1");
+            sd.setInputFormat(SequenceFileInputFormat.class.getName());
+            SkewedInfo skewInfo = new SkewedInfo();
+            skewInfo.setSkewedColNames(new ArrayList<String>());
+            skewInfo.setSkewedColValues(new ArrayList<List<String>>());
+            skewInfo.setSkewedColValueLocationMaps(new HashMap<List<String>, String>());
+            sd.setSkewedInfo(skewInfo);
+        }
+
+        org.apache.hadoop.hive.metastore.api.Table t = new org.apache.hadoop.hive.metastore.api.Table();
+        {
+            t.setSd(sd);
+            t.setPartitionKeys(new ArrayList<FieldSchema>());
+            t.setParameters(new HashMap<String, String>());
+            t.setTableType(TableType.MANAGED_TABLE.toString());
+            t.setDbName(databaseName);
+            t.setTableName(tableName);
+            // set create time
+            t.setCreateTime((int) (System.currentTimeMillis() / 1000));
+        }
+        // Explictly set the bucketing version
+        t.getParameters().put(hive_metastoreConstants.TABLE_BUCKETING_VERSION,
+                "2");
+        return t;
     }
 
 }

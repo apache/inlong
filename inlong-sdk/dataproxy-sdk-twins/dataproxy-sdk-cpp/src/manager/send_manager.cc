@@ -22,11 +22,13 @@
 #include "proxy_manager.h"
 namespace inlong {
 SendManager::SendManager() : send_group_idx_(0) {
-  for (int32_t i = 0; i < SdkConfig::getInstance()->group_ids_.size(); i++) {
+  for (int32_t i = 0; i < SdkConfig::getInstance()->inlong_group_ids_.size();
+       i++) {
     LOG_INFO("SendManager, group_id:"
-             << SdkConfig::getInstance()->group_ids_[i] << " send group num:"
-             << SdkConfig::getInstance()->per_group_id_thread_nums_);
-    DoAddSendGroup(SdkConfig::getInstance()->group_ids_[i]);
+             << SdkConfig::getInstance()->inlong_group_ids_[i]
+             << " send group num:"
+             << SdkConfig::getInstance()->per_groupid_thread_nums_);
+    DoAddSendGroup(SdkConfig::getInstance()->inlong_group_ids_[i]);
   }
 }
 
@@ -38,12 +40,12 @@ SendGroupPtr SendManager::GetSendGroup(const std::string &group_id) {
   return send_group_ptr;
 }
 
-bool SendManager::AddSendGroup(const std::string &group_id) {
-  if (!BusConfManager::GetInstance()->IsBusExist(group_id)) {
-    LOG_ERROR("bus is not exist." << group_id);
+bool SendManager::AddSendGroup(const std::string &inlong_group_id) {
+  if (!ProxyManager::GetInstance()->IsExist(inlong_group_id)) {
+    LOG_ERROR("inlong_group_id is not exist." << inlong_group_id);
     return false;
   }
-  DoAddSendGroup(group_id);
+  DoAddSendGroup(inlong_group_id);
   return false;
 }
 
@@ -55,8 +57,8 @@ void SendManager::DoAddSendGroup(const std::string &group_id) {
     return;
   }
   std::vector<SendGroupPtr> send_group;
-  send_group.reserve(SdkConfig::getInstance()->per_group_id_thread_nums_);
-  for (int32_t j = 0; j < SdkConfig::getInstance()->per_group_id_thread_nums_;
+  send_group.reserve(SdkConfig::getInstance()->per_groupid_thread_nums_);
+  for (int32_t j = 0; j < SdkConfig::getInstance()->per_groupid_thread_nums_;
        j++) {
     send_group.push_back(std::make_shared<SendGroup>(group_id));
   }

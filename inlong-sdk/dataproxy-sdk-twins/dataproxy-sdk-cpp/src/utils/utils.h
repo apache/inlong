@@ -20,6 +20,8 @@
 #ifndef INLONG_SDK_UTILS_H
 #define INLONG_SDK_UTILS_H
 
+#include "atomic.h"
+#include <snappy.h>
 #include <stdint.h>
 #include <string>
 #include <sys/select.h>
@@ -28,10 +30,9 @@
 #include <unistd.h>
 #include <utility>
 #include <vector>
-
-#include "snappy.h"
-namespace dataproxy_sdk {
-using PAIR = std::pair<std::string, int32_t>;
+namespace inlong {
+extern AtomicUInt g_send_msgid;
+extern AtomicInt user_exit_flag;
 struct HttpRequest {
   std::string url;
   uint32_t timeout;
@@ -40,7 +41,6 @@ struct HttpRequest {
   std::string auth_key;
   std::string post_data;
 };
-
 class Utils {
 private:
   static char snowflake_id[35];
@@ -51,42 +51,38 @@ public:
   static void taskWaitTime(int32_t sec);
   static uint64_t getCurrentMsTime();
   static uint64_t getCurrentWsTime();
-  static std::string
-  getFormatTime(uint64_t date_time); // format time: yyyymmddHHMMSS
+  static std::string getFormatTime(uint64_t date_time);
   static size_t zipData(const char *input, uint32_t input_len,
-                        std::string &zip_res); // snappy data
-  static char *getSnowflakeId();               // get 64bit snowflakeId
+                        std::string &zip_res);
+  static char *getSnowflakeId();
   static bool getFirstIpAddr(std::string &local_host);
   inline static bool isLegalTime(uint64_t report_time) {
     return ((report_time > 1435101567000LL) && (report_time < 4103101567000LL));
   }
   static bool bindCPU(int32_t cpu_id);
-  static std::string base64_encode(const std::string &data);
-  static std::string genBasicAuthCredential(const std::string &id,
-                                            const std::string &key);
+  static int32_t requestUrl(const std::string &url, std::string &urlByDNS,
+                            std::string &res, uint32_t timeout);
   static int32_t requestUrl(std::string &res, const HttpRequest *request);
-  static bool readFile(const std::string &file_path,
-                       std::string &content); // read file content, save as res,
-                                              // return true is success
+  static bool readFile(const std::string &file_path, std::string &content);
+
   static int32_t splitOperate(const std::string &source,
                               std::vector<std::string> &result,
                               const std::string &delimiter);
   static std::string getVectorStr(std::vector<std::string> &vs);
 
-  static bool upValueSort(const PAIR &lhs, const PAIR &rhs) {
-    return lhs.second < rhs.second;
-  }
-  static bool downValueSort(const PAIR &lhs, const PAIR &rhs) {
-    return lhs.second > rhs.second;
-  }
+  static std::string GenBasicAuthCredential(const std::string &id,
+                                            const std::string &key);
+  static std::string Base64Encode(const std::string &data);
 
 private:
   static size_t getUrlResponse(void *buffer, size_t size, size_t count,
                                void *response);
   static int64_t waitNextMills(int64_t last_ms);
   static std::string trim(const std::string &source);
+  static bool parseHost(const std::string &host, std::string &ip);
+  static bool getUrlByDNS(const std::string &url, std::string &ipUrl);
 };
 
-} // namespace dataproxy_sdk
+} // namespace inlong
 
 #endif // INLONG_SDK_UTILS_H

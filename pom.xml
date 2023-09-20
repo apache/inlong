@@ -28,7 +28,7 @@
 
     <groupId>org.apache.inlong</groupId>
     <artifactId>inlong</artifactId>
-    <version>1.9.0-SNAPSHOT</version>
+    <version>1.10.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Apache InLong</name>
 
@@ -203,7 +203,9 @@
         <jedis.version>2.9.0</jedis.version>
         <poi.version>5.2.3</poi.version>
         <otel.version>1.28.0</otel.version>
+        <tencentcloud-api.version>3.1.830</tencentcloud-api.version>
         <woodstox-core.version>5.4.0</woodstox-core.version>
+        <libfb303.version>0.9.3</libfb303.version>
     </properties>
 
     <dependencyManagement>
@@ -1260,6 +1262,11 @@
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi-ooxml</artifactId>
                 <version>${poi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tencentcloudapi</groupId>
+                <artifactId>tencentcloud-sdk-java-cls</artifactId>
+                <version>${tencentcloud-api.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -20,9 +20,9 @@
 #ifndef INLONG_SDK_SEND_GROUP_H
 #define INLONG_SDK_SEND_GROUP_H
 
+#include "../client/tcp_client.h"
 #include "../config/proxy_info.h"
 #include "../utils/send_buffer.h"
-#include "tcp_client.h"
 #include <queue>
 namespace inlong {
 const int kTimerMiSeconds = 10;

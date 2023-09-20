@@ -30,11 +30,11 @@ namespace inlong {
 class ProxyManager {
 private:
   static ProxyManager *instance_;
-  int32_t timeout_;
+  uint32_t timeout_;
   read_write_mutex groupid_2_cluster_rwmutex_;
   read_write_mutex groupid_2_proxy_map_rwmutex_;
 
-  std::unordered_map<std::string, int32_t> groupid_2_cluster_map_cluster_map_;
+  std::unordered_map<std::string, int32_t> groupid_2_cluster_map_;
   std::unordered_map<std::string, ProxyInfoVec> groupid_2_proxy_map_;
   bool update_flag_;
   std::mutex cond_mutex_;
@@ -46,18 +46,18 @@ private:
   volatile bool inited_ = false;
 
   int32_t ParseAndGet(const std::string &groupid, const std::string &meta_data,
-                      ProxyInfoVec &bus_info_vec);
+                      ProxyInfoVec &proxy_info_vec);
 
 public:
   ProxyManager(){};
   ~ProxyManager();
   static ProxyManager *GetInstance() { return instance_; }
-  int32_t CheckBidConf(const std::string &groupid, bool is_inited);
+  int32_t CheckBidConf(const std::string &inlong_group_id, bool is_inited);
   void Update();
   void DoUpdate();
   void Init();
-  int32_t GetBusByBid(const std::string &groupid, ProxyInfoVec &proxy_info_vec);
-  bool IsBusExist(const std::string &groupid);
+  int32_t GetProxy(const std::string &groupid, ProxyInfoVec &proxy_info_vec);
+  bool IsExist(const std::string &inlong_group_id);
 };
 } // namespace inlong
 

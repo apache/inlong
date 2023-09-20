@@ -167,6 +167,8 @@ public final class Constants {
 
     public static final String META_INCREMENTAL = "incremental_inlong";
 
+    public static final String META_INLONG_DATA_TIME = "inlong_data_time";
+
     public static final ConfigOption<String> INLONG_METRIC =
             ConfigOptions.key("inlong.metric.labels")
                     .stringType()

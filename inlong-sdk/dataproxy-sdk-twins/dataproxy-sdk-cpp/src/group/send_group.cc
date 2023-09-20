@@ -19,7 +19,7 @@
 
 #include "send_group.h"
 #include "api_code.h"
-#include "proxy_conf_manager.h"
+#include "proxy_manager.h"
 #include <algorithm>
 #include <random>
 
@@ -121,8 +121,8 @@ void SendGroup::UpdateConf(std::error_code error) {
   ClearOldTcpClients();
 
   ProxyInfoVec new_proxy_info;
-  if (proxyConfManager::GetInstance()->GetproxyByBid(
-          group_id_, new_proxy_info) != kSuccess ||
+  if (ProxyManager::GetInstance()->GetProxy(group_id_, new_proxy_info) !=
+          kSuccess ||
       new_proxy_info.empty()) {
     update_conf_timer_->expires_after(std::chrono::milliseconds(kTimerMinute));
     update_conf_timer_->async_wait(
@@ -154,6 +154,8 @@ void SendGroup::UpdateConf(std::error_code error) {
         std::bind(&SendGroup::UpdateConf, this, std::placeholders::_1));
     return;
   }
+
+  std::random_shuffle(new_proxy_info.begin(), new_proxy_info.end());
 
   tcp_clients_tmp->reserve(proxy_num);
   for (int i = 0; i < proxy_num; i++) {

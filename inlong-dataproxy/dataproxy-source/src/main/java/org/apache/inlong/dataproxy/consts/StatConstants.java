@@ -41,7 +41,7 @@ public class StatConstants {
     public static final java.lang.String EVENT_HTTP_LINK_UNKNOWN_EXCEPTION = "http.link.unknown.exception";
     public static final java.lang.String EVENT_HTTP_LINK_UNWRITABLE = "http.link.unwritable";
     // configure
-    public static final java.lang.String EVENT_CONFIG_TOPIC_MISSING = "config.topic.missing";
+    public static final java.lang.String EVENT_SOURCE_TOPIC_MISSING = "source.topic.missing";
     public static final java.lang.String EVENT_CONFIG_IDNUM_EMPTY = "config.idnum.empty";
     public static final java.lang.String EVENT_CONFIG_GROUPIDNUM_MISSING = "config.groupidnum.missing";
     public static final java.lang.String EVENT_CONFIG_GROUP_IDNUM_INCONSTANT = "config.group.idnum.incons";
@@ -91,12 +91,14 @@ public class StatConstants {
     public static final java.lang.String EVENT_SINK_EVENT_V1_MALFORMED = "sink.event.v1.malformed";
     public static final java.lang.String EVENT_SINK_EVENT_TAKE_SUCCESS = "sink.event.take.success";
     public static final java.lang.String EVENT_SINK_EVENT_TAKE_FAILURE = "sink.event.take.failure";
-    public static final java.lang.String EVENT_SINK_EVENT_V1_FILE = "sink.event.v1.file";
-    public static final java.lang.String EVENT_SINK_EVENT_V0_FILE = "sink.event.v1.file";
+    public static final java.lang.String EVENT_SINK_FILE_V1_TAKE_SUCCESS = "sink.file.v1.take.success";
+    public static final java.lang.String EVENT_SINK_FILE_V0_TAKE_SUCCESS = "sink.file.v0.take.success";
     public static final java.lang.String EVENT_SINK_CONFIG_TOPIC_MISSING = "sink.topic.missing";
     public static final java.lang.String EVENT_SINK_DEFAULT_TOPIC_MISSING = "default.topic.empty";
     public static final java.lang.String EVENT_SINK_DEFAULT_TOPIC_USED = "default.topic.used";
     public static final java.lang.String EVENT_SINK_PRODUCER_NULL = "sink.producer.null";
+    public static final java.lang.String EVENT_SINK_PRODUCER_CREATE_SUCCESS = "sink.producer.create.success";
+    public static final java.lang.String EVENT_SINK_PRODUCER_CREATE_FAILURE = "sink.producer.create.failure";
     public static final java.lang.String EVENT_SINK_CLUSTER_EMPTY = "sink.cluster.empty";
     public static final java.lang.String EVENT_SINK_CLUSTER_UNMATCHED = "sink.cluster.unmatched";
     public static final java.lang.String EVENT_SINK_CPRODUCER_NULL = "sink.cluster.producer.null";

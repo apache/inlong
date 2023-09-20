@@ -37,8 +37,6 @@ public class ConfigConstants {
 
     public static final String TOPIC = "topic";
 
-    public static final String ATTR = "attr";
-
     public static final String FILTER_EMPTY_MSG = "filter-empty-msg";
 
     public static final String TCP_NO_DELAY = "tcpNoDelay";

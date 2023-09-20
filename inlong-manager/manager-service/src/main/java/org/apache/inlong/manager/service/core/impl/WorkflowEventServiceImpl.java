@@ -33,8 +33,6 @@ import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 /**
  * Workflow event related services
  */
@@ -56,10 +54,8 @@ public class WorkflowEventServiceImpl implements WorkflowEventService {
     public PageResult<EventLogResponse> list(EventLogRequest query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         Page<WorkflowEventLogEntity> page = (Page<WorkflowEventLogEntity>) queryService.listEventLog(query);
-
-        List<EventLogResponse> viewList = CommonBeanUtils.copyListProperties(page, EventLogResponse::new);
-
-        return new PageResult<>(viewList, page.getTotal(), page.getPageNum(), page.getPageSize());
+        return PageResult.fromPage(page)
+                .map(entity -> CommonBeanUtils.copyProperties(entity, EventLogResponse::new));
     }
 
     @Override
