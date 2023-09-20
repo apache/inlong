@@ -30,6 +30,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class PulsarPartitionedInternalStats {
 
-    private Map<String,String> partitions;
-    private Map<String,String> metadata;
+    private Map<String, String> partitions;
+
+    private Map<String, String> metadata;
 }

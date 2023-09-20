@@ -31,6 +31,8 @@ import java.util.Map;
 public class PulsarTopicMetadata {
 
     private int partitions;
+
     private boolean deleted;
-    private Map<String,String> properties;
+
+    private Map<String, String> properties;
 }
