@@ -23,8 +23,8 @@ cd "$(dirname "$0")"/../ || exit
 jar_file_num=`ls -l $1 |grep jar |wc -l`
 
 if [ $jar_file_num -eq 0 ]; then
-    if [ -e $1/common_dependencys.txt ]; then
-        for line in $(cat "$1/common_dependencys.txt"); do
+    if [ -e $1/dependencys.txt ]; then
+        for line in $(cat "$1/dependencys.txt"); do
             cp "./lib/$line" $1/
         done
     fi

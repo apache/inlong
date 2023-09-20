@@ -21,12 +21,12 @@
 cd "$(dirname "$0")"/../ || exit
 
 copyfile() {
-    for line in $(cat "$1/common_dependencys.txt"); do
+    for line in $(cat "$1/dependencys.txt"); do
         cp "./lib/$line" $1/
     done
 }
 
-# Copy the jar files in common_dependencys.txt to every module directory
+# Copy the jar files in dependencys.txt to every module directory
 copyfile "./inlong-agent/lib"
 copyfile "./inlong-dataproxy/lib"
 copyfile "./inlong-manager/lib"

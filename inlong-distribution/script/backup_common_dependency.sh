@@ -21,13 +21,13 @@
 cd "$(dirname "$0")"/../ || exit
 
 filelist() {
-    rm -fr $1/common_dependencys.txt
+    rm -fr $1/dependencys.txt
     for file in $1/*
     do
         if [[ -f $file ]]; then
             if [[ $file == *".jar" ]]; then
                 filename=$(basename "$file")
-                echo $filename >> $1/common_dependencys.txt
+                echo $filename >> $1/dependencys.txt
             fi
         fi
     done
@@ -41,7 +41,7 @@ version_length=$(expr $name_length \- 15 \- 10)
 project_version=`expr substr $gz_file 15 $version_length`
 projectpath="./target/apache-inlong-${project_version}-bin/apache-inlong-${project_version}"
 
-# Generate the file "common_dependencys.txt"
+# Generate the file "dependencys.txt"
 filelist "./$projectpath/inlong-agent/lib"
 filelist "./$projectpath/inlong-dataproxy/lib"
 filelist "./$projectpath/inlong-manager/lib"
@@ -58,13 +58,13 @@ mv $projectpath/inlong-tubemq-server/lib/*.jar $projectpath/lib/
 mv $projectpath/inlong-tubemq-manager/lib/*.jar $projectpath/lib/
 mv $projectpath/inlong-audit/lib/*.jar $projectpath/lib/
 
-# Copy the file "copy_common_dependency.sh" to bin directory
-cp ./script/copy_common_dependency.sh $projectpath/bin/
-chmod 755 $projectpath/bin/copy_common_dependency.sh
+# Copy the file "copy_module_dependencys.sh" to bin directory
+cp ./script/copy_module_dependencys.sh $projectpath/bin/
+chmod 755 $projectpath/bin/copy_module_dependencys.sh
 
-# Copy the file "prepare_common_dependency.sh" to bin directory
-cp ./script/prepare_common_dependency.sh $projectpath/bin/
-chmod 755 $projectpath/bin/prepare_common_dependency.sh
+# Copy the file "prepare_module_dependencys.sh" to bin directory
+cp ./script/prepare_module_dependencys.sh $projectpath/bin/
+chmod 755 $projectpath/bin/prepare_module_dependencys.sh
 
 # Package InLong version file
 lastname=$(basename "$projectpath")
