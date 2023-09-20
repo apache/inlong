@@ -17,15 +17,14 @@
 
 package org.apache.inlong.manager.service.task;
 
-import org.apache.inlong.manager.common.enums.SourceStatus;
-import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
-import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
-import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
-
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.inlong.manager.common.enums.SourceStatus;
+import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,6 +53,8 @@ public class DeleteStreamSourceTask extends TimerTask implements InitializingBea
     private static final int INITIAL_DELAY_MINUTES = 5;
     private static final int INTERVAL_MINUTES = 60;
 
+    @Value("${group.deleted.enabled:false}")
+    private Boolean enabled;
     @Value("${group.deleted.batchSize:100}")
     private Integer batchSize;
     @Value("${group.deleted.latest.hours:10}")
@@ -66,11 +67,13 @@ public class DeleteStreamSourceTask extends TimerTask implements InitializingBea
 
     @Override
     public void afterPropertiesSet() {
-        ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("inlong-group-delete-%s").build();
-        ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1, threadFactory, new AbortPolicy());
-        executor.scheduleWithFixedDelay(this, INITIAL_DELAY_MINUTES, INTERVAL_MINUTES, TimeUnit.MINUTES);
+        if (enabled) {
+            ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("inlong-group-delete-%s").build();
+            ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1, threadFactory, new AbortPolicy());
+            executor.scheduleWithFixedDelay(this, INITIAL_DELAY_MINUTES, INTERVAL_MINUTES, TimeUnit.MINUTES);
 
-        log.info("success to start the delete stream source task");
+            log.info("success to start the delete stream source task");
+        }
     }
 
     @Override
