@@ -83,15 +83,17 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
   }, []);
 
   const onDelete = useCallback(
-    ({ id }) => {
+    ({ transformName }) => {
       Modal.confirm({
         title: i18n.t('pages.GroupDetail.Sources.DeleteConfirm'),
         onOk: async () => {
           await request({
-            url: `/source/delete/${id}`,
+            url: `/transform/delete`,
             method: 'DELETE',
             params: {
-              sourceType: options.transformType,
+              inlongGroupId,
+              inlongStreamId,
+              transformName,
             },
           });
           await getList();
@@ -210,16 +212,6 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
               <Button type="link" onClick={() => onDelete(record)}>
                 {i18n.t('basic.Delete')}
               </Button>
-              {record?.status === 101 && (
-                <Button type="link" onClick={() => onStop(record)}>
-                  {i18n.t('basic.Stop')}
-                </Button>
-              )}
-              {(record?.status === 101 || record?.status === 104) && (
-                <Button type="link" onClick={() => onRestart(record)}>
-                  {i18n.t('basic.Restart')}
-                </Button>
-              )}
             </>
           ),
       },
@@ -238,7 +230,12 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
         style={{ height: '100%' }}
         extra={[
           !readonly && (
-            <Button key="create" type="link" onClick={() => setCreateModal({ open: true })}>
+            <Button
+              key="create"
+              type="link"
+              style={{ visibility: data?.total === 1 ? 'hidden' : 'visible' }}
+              onClick={() => setCreateModal({ open: true })}
+            >
               {i18n.t('basic.Create')}
             </Button>
           ),
@@ -280,21 +277,10 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
                   <Button key="del" type="link" onClick={() => onDelete(item)}>
                     <DeleteOutlined />
                   </Button>,
-                  // item.status === 101 && (
-                  //   <Button type="link" onClick={() => onStop(item)}>
-                  //     <StopOutlined />
-                  //   </Button>
-                  // ),
-                  // (item.status === 101 || item.status === 104) && (
-                  //   <Button type="link" onClick={() => onRestart(item)}>
-                  //     <PlayCircleOutlined />
-                  //   </Button>
-                  // ),
                 ]}
               >
                 <span>
-                  {/* <span style={{ marginRight: 10 }}>{item.transformName}</span>
-                  <Tag>{sources.find(c => c.value === item.sourceType)?.label}</Tag> */}
+                  <span style={{ marginRight: 10 }}>{item.transformName}</span>
                 </span>
               </List.Item>
             )}
