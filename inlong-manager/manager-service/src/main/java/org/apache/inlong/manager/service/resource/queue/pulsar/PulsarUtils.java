@@ -30,7 +30,6 @@ import org.apache.inlong.manager.pojo.queue.pulsar.PulsarPartitionedInternalStat
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTenantInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicMetadata;
 import org.apache.pulsar.client.admin.PulsarAdmin;
-import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.springframework.http.HttpEntity;
@@ -106,7 +105,7 @@ public class PulsarUtils {
      */
     private static HttpHeaders getHttpHeaders(String token) {
         HttpHeaders headers = new HttpHeaders();
-        if(StringUtils.isNotEmpty(token)) {
+        if (StringUtils.isNotEmpty(token)) {
             headers.add("Authorization", "Bearer " + token);
         }
         return headers;
@@ -504,5 +503,5 @@ public class PulsarUtils {
                 .append(messagePosition);
         return restTemplate.exchange(urlBuilder.toString(), HttpMethod.GET,
                 new HttpEntity<>(getHttpHeaders(clusterInfo.getToken())), byte[].class);
-       }
+    }
 }
