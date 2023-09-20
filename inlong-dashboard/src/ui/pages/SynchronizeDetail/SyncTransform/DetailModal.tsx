@@ -18,13 +18,16 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import { Modal, Spin, message } from 'antd';
+import { Modal, Spin, message, Form, Radio } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import { useDefaultMeta, useLoadMeta, TransformMetaType } from '@/plugins';
 import request from '@/core/utils/request';
+import EditableTable, { ColumnsItemProps } from '@/ui/components/EditableTable';
+import i18n from '@/i18n';
+import { result } from 'lodash';
 
 export interface Props extends ModalProps {
   // When editing, use the ID to call the interface for obtaining details
@@ -50,35 +53,213 @@ const Comp: React.FC<Props> = ({
 
   const { loading, Entity } = useLoadMeta<TransformMetaType>('transform', type);
 
+  const [sourceNames, setSourcesNames] = useState([]);
+  const [sinkNames, setSinkNames] = useState([]);
+  const [transType, setTransType] = useState('');
+
   const { data, run: getData } = useRequest(
+    streamId => ({
+      url: `/stream/getBrief`,
+      params: {
+        groupId: inlongGroupId,
+        streamId,
+      },
+    }),
+    {
+      manual: true,
+    },
+  );
+
+  const { data: sourceData, run: getSourceData } = useRequest(
+    inlongStreamId => ({
+      url: `/source/list`,
+      method: 'POST',
+      data: {
+        inlongGroupId,
+        inlongStreamId,
+      },
+    }),
+    {
+      manual: true,
+      onSuccess: result => {
+        const list = result.list.map(item => item.sourceName);
+        setSourcesNames(list);
+      },
+    },
+  );
+
+  const { data: sinkData, run: getSinkData } = useRequest(
+    inlongStreamId => ({
+      url: `/sink/list`,
+      method: 'POST',
+      data: {
+        inlongGroupId,
+        inlongStreamId,
+      },
+    }),
+    {
+      manual: true,
+      onSuccess: result => {
+        const list = result.list.map(item => item.sinkName);
+        setSinkNames(list);
+      },
+    },
+  );
+
+  const { data: transformData, run: getTransformData } = useRequest(
     id => ({
       url: `/transform/get/${id}`,
     }),
     {
       manual: true,
-      formatResult: result => new Entity()?.parse(result) || result,
       onSuccess: result => {
-        form.setFieldsValue(result);
-        setType(result.transform);
+        form.setFieldValue('transformType', result.transformType);
+        form.setFieldValue('transformDefinition', JSON.parse(result.transformDefinition));
       },
     },
   );
 
+  const columns: ColumnsItemProps[] = [
+    {
+      title: i18n.t('pages.SynchronizeDetail.Transform.LogicOperators'),
+      type: 'select',
+      dataIndex: 'relationWithPost',
+      rules: [{ required: true }],
+      props: {
+        options: [
+          {
+            label: 'AND',
+            value: 'AND',
+          },
+          {
+            label: 'OR',
+            value: 'OR',
+          },
+        ],
+      },
+    },
+    {
+      title: i18n.t('pages.SynchronizeDetail.Transform.FilterFields'),
+      type: 'select',
+      dataIndex: 'sourceField',
+      rules: [{ required: true }],
+      props: {
+        options: data?.fieldList.map(item => ({
+          label: item.fieldName,
+          // value: item.fieldName,
+          value: {
+            fieldName: item.fieldName,
+            fieldType: item.fieldType,
+          },
+        })),
+      },
+    },
+    {
+      title: i18n.t('pages.SynchronizeDetail.Transform.Operators'),
+      type: 'select',
+      dataIndex: 'operationType',
+      rules: [{ required: true }],
+      props: {
+        options: [
+          {
+            label: '<',
+            value: 'lt',
+          },
+          {
+            label: '>',
+            value: 'gt',
+          },
+          {
+            label: '<=',
+            value: 'le',
+          },
+          {
+            label: '>=',
+            value: 'ge',
+          },
+          {
+            label: '=',
+            value: 'eq',
+          },
+          {
+            label: '!=',
+            value: 'ne',
+          },
+          {
+            label: i18n.t('pages.SynchronizeDetail.Transform.Operators.IsNull'),
+            value: 'is_null',
+          },
+          {
+            label: i18n.t('pages.SynchronizeDetail.Transform.Operators.NotNull'),
+            value: 'not_null',
+          },
+        ],
+      },
+    },
+    {
+      title: i18n.t('pages.SynchronizeDetail.Transform.Type'),
+      type: 'select',
+      dataIndex: 'type',
+      rules: [{ required: true }],
+      props: {
+        onChange: (value, option) => setTransType(value),
+        options: [
+          {
+            label: i18n.t('pages.SynchronizeDetail.Transform.Type.Field'), // 字段
+            value: 'field',
+          },
+          {
+            label: i18n.t('pages.SynchronizeDetail.Transform.Type.CustomValue'), // 自定义值
+            value: 'customize',
+          },
+        ],
+      },
+    },
+    {
+      title: i18n.t('pages.SynchronizeDetail.Transform.ComparisonValue'),
+      type: 'autocomplete',
+      dataIndex: 'targetField',
+      initialValue: '',
+      rules: [{ required: true }],
+      props: (text, record, idx, isNew) => ({
+        options:
+          record.type === 'field'
+            ? sinkData?.list[0]?.sinkFieldList.map(item => ({
+                label: item.fieldName,
+                // value: item.fieldName,
+                value: {
+                  fieldName: item.fieldName,
+                  fieldType: item.fieldType,
+                },
+              }))
+            : null,
+      }),
+    },
+  ];
+
   const onOk = async () => {
     const values = await form.validateFields();
-    const submitData = new Entity()?.stringify(values) || values;
+    const submitData = {
+      ...values,
+      inlongGroupId,
+      inlongStreamId,
+      transformDefinition: JSON.stringify(values.transformDefinition),
+    };
     const isUpdate = Boolean(id);
     if (isUpdate) {
       submitData.id = id;
-      submitData.version = data?.version;
+      submitData.version = transformData?.version;
     }
     await request({
       url: `/transform/${isUpdate ? 'update' : 'save'}`,
       method: 'POST',
       data: {
         ...submitData,
-        inlongGroupId,
-        inlongStreamId,
+        postNodeNames: sinkNames.join(','),
+        preNodeNames: sourceNames.join(','),
+        transformName: inlongGroupId + '_transform',
+        transformType: values.transformType,
+        fieldList: data?.fieldList,
       },
     });
     modalProps?.onOk(submitData);
@@ -87,38 +268,50 @@ const Comp: React.FC<Props> = ({
 
   useUpdateEffect(() => {
     if (modalProps.open) {
-      // open
+      getData(inlongStreamId);
+      getSourceData(inlongStreamId);
+      getSinkData(inlongStreamId);
       if (id) {
-        getData(id);
-      } else {
-        setType(defaultType);
-        form.setFieldsValue({ inlongGroupId, transformType: defaultType });
+        getTransformData(id);
       }
     } else {
       form.resetFields();
     }
   }, [modalProps.open]);
 
-  const formContent = useMemo(() => {
-    return Entity ? new Entity().renderRow() : [];
-  }, [Entity]);
-
   return (
     <>
       <Modal
         {...modalProps}
         title={id ? t('pages.GroupDetail.Sources.Edit') : t('pages.GroupDetail.Sources.Create')}
-        width={666}
+        width={1200}
         onOk={onOk}
       >
         <Spin spinning={loading}>
-          <FormGenerator
-            content={formContent}
-            onValuesChange={(c, values) => setType(values.transformType)}
-            initialValues={id ? data : { inlongGroupId }}
-            form={form}
-            useMaxWidth
-          />
+          <Form form={form}>
+            <Form.Item
+              name={'transformType'}
+              wrapperCol={{ span: 8, offset: 1 }}
+              label={i18n.t('pages.SynchronizeDetail.Transform.FilterAction')}
+              tooltip={i18n.t('pages.SynchronizeDetail.Transform.FilterAction.Tooltip')}
+            >
+              <Radio.Group>
+                <Radio value="retain">
+                  {i18n.t('pages.SynchronizeDetail.Transform.FilterAction.ReserveData')}
+                </Radio>
+                <Radio value="filter">
+                  {i18n.t('pages.SynchronizeDetail.Transform.FilterAction.RemoveData')}
+                </Radio>
+              </Radio.Group>
+            </Form.Item>
+            <Form.Item
+              name={'transformDefinition'}
+              label={i18n.t('pages.SynchronizeDetail.Transform.FilterRules')}
+              wrapperCol={{ offset: 1 }}
+            >
+              <EditableTable columns={columns} dataSource={data}></EditableTable>
+            </Form.Item>
+          </Form>
         </Spin>
       </Modal>
     </>
