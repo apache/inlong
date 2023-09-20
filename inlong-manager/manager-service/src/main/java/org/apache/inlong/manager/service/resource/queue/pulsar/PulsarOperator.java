@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataProxyMsgEncType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.conversion.ConversionHandle;
@@ -37,10 +36,11 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
 import org.apache.inlong.manager.service.message.DeserializeOperator;
 import org.apache.inlong.manager.service.message.DeserializeOperatorFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -362,7 +362,6 @@ public class PulsarOperator {
         return topicExists;
     }
 
-
     /**
      * Check whether the Pulsar topic exists.
      */
@@ -404,7 +403,6 @@ public class PulsarOperator {
         return false;
     }
 
-
     /**
      * Query topic message for the given pulsar cluster.
      */
@@ -425,7 +423,6 @@ public class PulsarOperator {
         return messageList;
     }
 
-
     /**
      * Get topic partition count.
      */
@@ -441,7 +438,6 @@ public class PulsarOperator {
         }
         return pulsarTopicMetadata.getPartitions() > 0 ? pulsarTopicMetadata.getPartitions() : 1;
     }
-
 
     /**
      * Query pulsar message.
