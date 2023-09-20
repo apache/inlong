@@ -142,7 +142,7 @@ public interface Node {
         return fieldInfos;
     }
 
-    default List<FieldInfo> getMetaFields() {
+    default List<FieldInfo> metaFields() {
         return new ArrayList<>();
     }
 }

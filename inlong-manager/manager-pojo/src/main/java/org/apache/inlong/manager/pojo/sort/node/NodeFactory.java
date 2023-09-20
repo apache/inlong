@@ -90,9 +90,9 @@ public class NodeFactory {
      * Add built-in field for extra node and load node
      */
     public static void addBuiltInField(ExtractNode extractNode, LoadNode loadNode, List<TransformNode> transformNodes) {
-        if (FieldInfoUtils.compareFields(extractNode.getMetaFields(), loadNode.getMetaFields())) {
+        if (FieldInfoUtils.compareFields(extractNode.metaFields(), loadNode.metaFields())) {
             extractNode.addMetaFields(extractNode.getFields());
-            transformNodes.forEach(v -> v.getFields().addAll(0, loadNode.getMetaFields()));
+            transformNodes.forEach(v -> v.getFields().addAll(0, loadNode.metaFields()));
             loadNode.addMetaFields(loadNode.getFields());
         }
     }

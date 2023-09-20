@@ -186,7 +186,7 @@ public class StarRocksLoadNode extends LoadNode implements InlongMetric, Seriali
     }
 
     @Override
-    public List<FieldInfo> getMetaFields() {
+    public List<FieldInfo> metaFields() {
         List<FieldInfo> fieldInfos = new ArrayList<>();
         fieldInfos.add(0, new FieldInfo("inlong_data_time", new LongFormatInfo()));
         return fieldInfos;

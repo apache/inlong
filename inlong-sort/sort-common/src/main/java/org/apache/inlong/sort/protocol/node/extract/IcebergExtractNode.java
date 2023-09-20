@@ -180,7 +180,7 @@ public class IcebergExtractNode extends ExtractNode implements InlongMetric, Met
     }
 
     @Override
-    public List<FieldInfo> getMetaFields() {
+    public List<FieldInfo> metaFields() {
         List<FieldInfo> fieldInfos = new ArrayList<>();
         fieldInfos.add(0, new MetaFieldInfo("inlong_data_time", MetaField.INLONG_DATA_TIME));
         return fieldInfos;
