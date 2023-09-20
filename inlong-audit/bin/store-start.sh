@@ -31,7 +31,7 @@ BASE_DIR=$(dirname $SCRIPT_DIR)
 cd "$BASE_DIR"
 cd ../
 
-#Prepare common dependency
+# Prepare common dependency
 ROOT_DIR=$BASE_DIR/../..
 if [ -e $ROOT_DIR/bin/prepare_common_dependency.sh ]; then
     $ROOT_DIR/bin/prepare_common_dependency.sh ./inlong-audit/lib

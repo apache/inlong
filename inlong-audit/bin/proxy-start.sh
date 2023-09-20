@@ -30,7 +30,7 @@ BASE_DIR=$(
 # shellcheck disable=SC2164
 cd "$BASE_DIR"
 
-#Prepare common dependency
+# Prepare common dependency
 ROOT_DIR=$BASE_DIR/..
 if [ -e $ROOT_DIR/bin/prepare_common_dependency.sh ]; then
     $ROOT_DIR/bin/prepare_common_dependency.sh ./inlong-audit/lib

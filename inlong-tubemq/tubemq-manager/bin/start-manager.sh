@@ -18,7 +18,7 @@
 
 base_dir=$(dirname $0)
 
-#Prepare common dependency
+# Prepare common dependency
 ROOT_DIR=$base_dir/../..
 if [ -e $ROOT_DIR/bin/prepare_common_dependency.sh ]; then
     $ROOT_DIR/bin/prepare_common_dependency.sh ./inlong-tubemq-manager/lib

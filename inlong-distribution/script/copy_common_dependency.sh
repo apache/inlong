@@ -26,7 +26,7 @@ copyfile() {
     done
 }
 
-#copy file by common_dependencys.txt
+# Copy the jar files in common_dependencys.txt to every module directory
 copyfile "./inlong-agent/lib"
 copyfile "./inlong-dataproxy/lib"
 copyfile "./inlong-manager/lib"

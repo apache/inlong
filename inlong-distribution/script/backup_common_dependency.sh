@@ -33,7 +33,7 @@ filelist() {
     done
 }
 
-#get project version
+# Get the current version for InLong
 find_gz_file=`ls -l ./target/*bin.tar.gz |awk '{print $9}'`
 gz_file=$(basename "$find_gz_file")
 name_length=`expr length $gz_file`
@@ -41,7 +41,7 @@ version_length=$(expr $name_length \- 15 \- 10)
 project_version=`expr substr $gz_file 15 $version_length`
 projectpath="./target/apache-inlong-${project_version}-bin/apache-inlong-${project_version}"
 
-#generate common_dependencys.txt
+# Generate the file "common_dependencys.txt"
 filelist "./$projectpath/inlong-agent/lib"
 filelist "./$projectpath/inlong-dataproxy/lib"
 filelist "./$projectpath/inlong-manager/lib"
@@ -49,7 +49,7 @@ filelist "./$projectpath/inlong-tubemq-server/lib"
 filelist "./$projectpath/inlong-tubemq-manager/lib"
 filelist "./$projectpath/inlong-audit/lib"
 
-#mv jar file
+# Move every module jar file to same lib directory
 mkdir -p $projectpath/lib
 mv $projectpath/inlong-agent/lib/*.jar $projectpath/lib/
 mv $projectpath/inlong-dataproxy/lib/*.jar $projectpath/lib/
@@ -58,15 +58,15 @@ mv $projectpath/inlong-tubemq-server/lib/*.jar $projectpath/lib/
 mv $projectpath/inlong-tubemq-manager/lib/*.jar $projectpath/lib/
 mv $projectpath/inlong-audit/lib/*.jar $projectpath/lib/
 
-#copy copy_common_dependency.sh
+# Copy the file "copy_common_dependency.sh" to bin directory
 cp ./script/copy_common_dependency.sh $projectpath/bin/
 chmod 755 $projectpath/bin/copy_common_dependency.sh
 
-#copy prepare_common_dependency.sh
+# Copy the file "prepare_common_dependency.sh" to bin directory
 cp ./script/prepare_common_dependency.sh $projectpath/bin/
 chmod 755 $projectpath/bin/prepare_common_dependency.sh
 
-#tar file
+# Package InLong version file
 lastname=$(basename "$projectpath")
 cd $projectpath/..
 tar cvf $lastname-bin.tar $lastname

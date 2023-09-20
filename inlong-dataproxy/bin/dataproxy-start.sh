@@ -21,7 +21,7 @@
 cd "$(dirname "$0")"/../conf || exit
 basedir="$(pwd)"
 
-#Prepare common dependency
+# Prepare common dependency
 ROOT_DIR=$basedir/../..
 if [ -e $ROOT_DIR/bin/prepare_common_dependency.sh ]; then
     $ROOT_DIR/bin/prepare_common_dependency.sh ./inlong-dataproxy/lib
