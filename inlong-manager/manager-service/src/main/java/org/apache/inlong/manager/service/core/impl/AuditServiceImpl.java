@@ -255,7 +255,7 @@ public class AuditServiceImpl implements AuditService {
 
         InlongGroupEntity groupEntity = inlongGroupMapper.selectByGroupId(groupId);
         List<StreamSourceEntity> sourceEntityList = sourceEntityMapper.selectByRelatedId(groupId, streamId, null);
-        if(CollectionUtils.isNotEmpty(sourceEntityList)) {
+        if (CollectionUtils.isNotEmpty(sourceEntityList)) {
             sourceNodeType = sourceEntityList.get(0).getSourceType();
         }
 
