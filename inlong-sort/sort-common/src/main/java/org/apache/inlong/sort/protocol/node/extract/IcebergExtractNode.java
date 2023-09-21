@@ -118,7 +118,7 @@ public class IcebergExtractNode extends ExtractNode implements InlongMetric, Met
         // support streaming only
         options.put(IcebergConstant.STREAMING, "true");
         options.put(IcebergConstant.STARTING_STRATEGY_KEY,
-                IcebergConstant.StreamingStartingStrategy.INCREMENTAL_FROM_EARLIEST_SNAPSHOT.name());
+                IcebergConstant.StreamingStartingStrategy.TABLE_SCAN_THEN_INCREMENTAL.name());
         if (null != uri) {
             options.put(IcebergConstant.URI_KEY, uri);
         }
