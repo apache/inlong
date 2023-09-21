@@ -115,6 +115,7 @@ public class IcebergExtractNode extends ExtractNode implements InlongMetric, Met
         options.put(IcebergConstant.TABLE_KEY, tableName);
         options.put(IcebergConstant.CATALOG_TYPE_KEY, catalogType.name());
         options.put(IcebergConstant.CATALOG_NAME_KEY, catalogName);
+        // support streaming only
         options.put(IcebergConstant.STREAMING, "true");
         options.put(IcebergConstant.STARTING_STRATEGY_KEY,
                 IcebergConstant.StreamingStartingStrategy.TABLE_SCAN_THEN_INCREMENTAL.name());
@@ -126,6 +127,8 @@ public class IcebergExtractNode extends ExtractNode implements InlongMetric, Met
         }
         if (null != startSnapShotId) {
             options.put(IcebergConstant.START_SNAPSHOT_ID, startSnapShotId.toString());
+            options.put(IcebergConstant.STARTING_STRATEGY_KEY,
+                    IcebergConstant.StreamingStartingStrategy.INCREMENTAL_FROM_SNAPSHOT_ID.name());
         }
         return options;
     }
