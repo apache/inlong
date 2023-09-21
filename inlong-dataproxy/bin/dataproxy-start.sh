@@ -21,6 +21,12 @@
 cd "$(dirname "$0")"/../conf || exit
 basedir="$(pwd)"
 
+# Prepare common dependency
+ROOT_DIR=$basedir/../..
+if [ -e $ROOT_DIR/bin/prepare_module_dependencys.sh ]; then
+    $ROOT_DIR/bin/prepare_module_dependencys.sh ./inlong-dataproxy/lib
+fi
+
 error() {
   local msg=$1
   local exit_code=$2

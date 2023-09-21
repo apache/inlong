@@ -34,6 +34,7 @@ public class IcebergConstant {
     public static final String WAREHOUSE_KEY = "warehouse";
     public static final String START_SNAPSHOT_ID = "start-snapshot-id";
     public static final String STREAMING = "streaming";
+    public static final String STARTING_STRATEGY_KEY = "starting-strategy";
 
     /**
      * Iceberg supported catalog type
@@ -64,5 +65,14 @@ public class IcebergConstant {
             }
             throw new IllegalArgumentException(String.format("Unsupport catalogType:%s", name));
         }
+    }
+
+    public enum StreamingStartingStrategy {
+        TABLE_SCAN_THEN_INCREMENTAL,
+        INCREMENTAL_FROM_LATEST_SNAPSHOT,
+        INCREMENTAL_FROM_EARLIEST_SNAPSHOT,
+        INCREMENTAL_FROM_SNAPSHOT_ID,
+        INCREMENTAL_FROM_SNAPSHOT_TIMESTAMP;
+
     }
 }

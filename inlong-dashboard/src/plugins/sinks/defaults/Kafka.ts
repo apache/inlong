@@ -32,7 +32,7 @@ export default class KafkaSink extends SinkInfo implements DataWithBackend, Rend
     rules: [{ required: true }],
     initialValue: '127.0.0.1:9092',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -44,7 +44,7 @@ export default class KafkaSink extends SinkInfo implements DataWithBackend, Rend
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -57,7 +57,7 @@ export default class KafkaSink extends SinkInfo implements DataWithBackend, Rend
     initialValue: 'JSON',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: 'JSON',
@@ -83,7 +83,7 @@ export default class KafkaSink extends SinkInfo implements DataWithBackend, Rend
     type: 'inputnumber',
     initialValue: 3,
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       min: 1,
       max: 30,
     }),
@@ -98,7 +98,7 @@ export default class KafkaSink extends SinkInfo implements DataWithBackend, Rend
     initialValue: 'earliest',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: 'earliest',

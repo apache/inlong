@@ -41,20 +41,16 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId }) => {
 
   const sinkColumns: ColumnsType = [
     {
-      title: i18n.t('meta.Sinks.SourceFieldName'),
-      dataIndex: 'sourceFieldName',
-    },
-    {
-      title: i18n.t('meta.Sinks.SourceFieldType'),
-      dataIndex: 'sourceFieldType',
-    },
-    {
-      title: i18n.t('meta.Stream.FieldName'),
+      title: i18n.t('components.FieldList.SinkFieldName'),
       dataIndex: 'fieldName',
     },
     {
-      title: i18n.t('meta.Stream.FieldType'),
+      title: i18n.t('components.FieldList.SinkFieldType'),
       dataIndex: 'fieldType',
+    },
+    {
+      title: i18n.t('components.FieldList.FieldComment'),
+      dataIndex: 'fieldComment',
     },
   ];
 
