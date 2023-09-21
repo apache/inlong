@@ -73,7 +73,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     type: NodeSelect,
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       nodeType: 'Redis',
     }),
   })
@@ -86,7 +86,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     rules: [{ required: true }],
     initialValue: '',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: 'PLAIN',
@@ -112,7 +112,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     type: 'select',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: schemaMappingModeStrategies(values!.dataType),
     }),
   })
@@ -126,7 +126,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     initialValue: 'CSV',
     visible: values => values!.schemaMapMode == 'STATIC_PREFIX_MATCH',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: 'CSV',
@@ -158,7 +158,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     initialValue: true,
     visible: values => values!.schemaMapMode == 'STATIC_PREFIX_MATCH',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: i18n.t('basic.Yes'),
@@ -180,7 +180,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     initialValue: 'UTF-8',
     visible: values => values!.schemaMapMode == 'STATIC_PREFIX_MATCH',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: 'UTF-8',
@@ -203,7 +203,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     initialValue: '124',
     visible: values => values!.schemaMapMode == 'STATIC_PREFIX_MATCH',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       dropdownMatchSelectWidth: false,
       options: [
         {
@@ -255,7 +255,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     type: 'inputnumber',
     rules: [{ required: false }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       min: 0,
       placholder: '0',
     }),
@@ -269,7 +269,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     type: 'inputnumber',
     initialValue: 0,
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       min: 0,
     }),
     rules: [{ required: false }],
@@ -283,7 +283,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     type: EditableTable,
     props: values => ({
       size: 'small',
-      editing: ![110, 130].includes(values?.status),
+      editing: ![110].includes(values?.status),
       columns: getFieldListColumns(values),
       canBatchAdd: true,
       upsertByFieldKey: true,
@@ -302,14 +302,14 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
           title: 'Key',
           dataIndex: 'keyName',
           props: {
-            disabled: [110, 130].includes(values?.status),
+            disabled: [110].includes(values?.status),
           },
         },
         {
           title: 'Value',
           dataIndex: 'keyValue',
           props: {
-            disabled: [110, 130].includes(values?.status),
+            disabled: [110].includes(values?.status),
           },
         },
       ],
@@ -416,7 +416,7 @@ const getFieldListColumns = sinkValues => {
         },
       ],
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {
@@ -426,7 +426,7 @@ const getFieldListColumns = sinkValues => {
       type: 'select',
       props: (text, record, idx, isNew) => ({
         options: redisTargetTypes,
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
       rules: [{ required: true, message: `${i18n.t('meta.Sinks.FieldTypeMessage')}` }],
     },
