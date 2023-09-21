@@ -57,7 +57,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -69,7 +69,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -83,7 +83,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     initialValue: 1,
     tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: i18n.t('basic.Yes'),
@@ -104,7 +104,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @I18n('meta.Sinks.Username')
@@ -115,7 +115,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     type: 'password',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @I18n('meta.Sinks.Password')
@@ -126,7 +126,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     type: NodeSelect,
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       nodeType: 'HIVE',
     }),
   })
@@ -139,7 +139,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     initialValue: 'TextFile',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: 'TextFile',
@@ -176,7 +176,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     type: 'radio',
     initialValue: 'UTF-8',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: 'UTF-8',
@@ -198,7 +198,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     type: 'select',
     initialValue: '124',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       dropdownMatchSelectWidth: false,
       options: [
         {
@@ -229,7 +229,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
       useInput: true,
       useInputProps: {
         placeholder: 'ASCII',
-        disabled: [110, 130].includes(values?.status),
+        disabled: [110].includes(values?.status),
       },
       style: { width: 100 },
     }),
@@ -252,7 +252,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     props: values => ({
       size: 'small',
       columns: getFieldListColumns(values),
-      canDelete: ![110, 130].includes(values?.status),
+      canDelete: ![110].includes(values?.status),
       canBatchAdd: true,
       upsertByFieldKey: true,
     }),
@@ -320,7 +320,7 @@ const getFieldListColumns = sinkValues => {
         },
       ],
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {
@@ -330,7 +330,7 @@ const getFieldListColumns = sinkValues => {
       type: 'select',
       props: (text, record, idx, isNew) => ({
         options: hiveFieldTypes,
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
       rules: [{ required: true, message: `${i18n.t('meta.Sinks.FieldTypeMessage')}` }],
     },

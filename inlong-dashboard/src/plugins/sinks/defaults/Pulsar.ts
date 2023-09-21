@@ -32,7 +32,7 @@ export default class PulsarSink extends SinkInfo implements DataWithBackend, Ren
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -44,7 +44,7 @@ export default class PulsarSink extends SinkInfo implements DataWithBackend, Ren
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -56,7 +56,7 @@ export default class PulsarSink extends SinkInfo implements DataWithBackend, Ren
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -68,7 +68,7 @@ export default class PulsarSink extends SinkInfo implements DataWithBackend, Ren
     type: 'inputnumber',
     initialValue: 1,
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       min: 1,
       max: 100,
       precision: 0,
@@ -83,7 +83,7 @@ export default class PulsarSink extends SinkInfo implements DataWithBackend, Ren
     type: NodeSelect,
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       nodeType: 'PULSAR',
     }),
   })
