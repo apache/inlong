@@ -17,8 +17,6 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
-import org.apache.inlong.common.enums.MetaField;
-import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.constant.Constant;
@@ -43,11 +41,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * starrocks load node using flink-connector-starrocks-1.13.5_2.11
@@ -174,21 +170,5 @@ public class StarRocksLoadNode extends LoadNode implements InlongMetric, Seriali
     @Override
     public String getPrimaryKey() {
         return primaryKey;
-    }
-
-    @Override
-    public List<FieldInfo> addMetaFields(List<FieldInfo> fieldInfos) {
-        List<String> fieldNames = fieldInfos.stream().map(FieldInfo::getName).collect(Collectors.toList());
-        if (!fieldNames.contains(MetaField.INLONG_DATA_TIME.name())) {
-            fieldInfos.add(0, new FieldInfo("inlong_data_time", new LongFormatInfo()));
-        }
-        return fieldInfos;
-    }
-
-    @Override
-    public List<FieldInfo> metaFields() {
-        List<FieldInfo> fieldInfos = new ArrayList<>();
-        fieldInfos.add(0, new FieldInfo("inlong_data_time", new LongFormatInfo()));
-        return fieldInfos;
     }
 }

@@ -18,16 +18,23 @@
 package org.apache.inlong.manager.pojo.sort.node;
 
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
+import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
 import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
+import org.apache.inlong.manager.pojo.sort.util.TransformNodeUtils;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
+import org.apache.inlong.manager.pojo.transform.TransformResponse;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.LoadNode;
+import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,6 +42,7 @@ import java.util.stream.Collectors;
 /**
  * The node factory
  */
+@Slf4j
 public class NodeFactory {
 
     /**
@@ -89,11 +97,28 @@ public class NodeFactory {
     /**
      * Add built-in field for extra node and load node
      */
-    public static void addBuiltInField(ExtractNode extractNode, LoadNode loadNode, List<TransformNode> transformNodes) {
-        if (FieldInfoUtils.compareFields(extractNode.metaFields(), loadNode.metaFields())) {
-            extractNode.addMetaFields(extractNode.getFields());
-            transformNodes.forEach(v -> v.getFields().addAll(0, loadNode.metaFields()));
-            loadNode.addMetaFields(loadNode.getFields());
+    public static List<Node> addBuiltInField(StreamSource sourceInfo, StreamSink sinkInfo,
+            List<TransformResponse> transformResponses, Map<String, StreamField> constantFieldMap) {
+        ExtractNodeProvider extractNodeProvider = ExtractNodeProviderFactory.getExtractNodeProvider(
+                sourceInfo.getSourceType());
+        LoadNodeProvider loadNodeProvider = LoadNodeProviderFactory.getLoadNodeProvider(sinkInfo.getSinkType());
+
+                FieldInfoUtils.compareFields(extractNodeProvider.getMetaFields(), loadNodeProvider.getMetaFields()));
+        if (FieldInfoUtils.compareFields(extractNodeProvider.getMetaFields(), loadNodeProvider.getMetaFields())) {
+            extractNodeProvider.addStreamMetaFields(sourceInfo.getFieldList());
+            transformResponses.forEach(v -> extractNodeProvider.addStreamMetaFields(v.getFieldList()));
+            loadNodeProvider.addSinkMetaFields(sinkInfo.getSinkFieldList());
         }
+
+        ExtractNode extractNode = extractNodeProvider.createExtractNode(sourceInfo);
+        List<TransformNode> transformNodes =
+                TransformNodeUtils.createTransformNodes(transformResponses, constantFieldMap);
+        LoadNode loadNode = loadNodeProvider.createLoadNode(sinkInfo, constantFieldMap);
+
+        List<Node> nodes = new ArrayList<>();
+        nodes.add(extractNode);
+        nodes.addAll(transformNodes);
+        nodes.add(loadNode);
+        return nodes;
     }
 }

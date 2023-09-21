@@ -226,18 +226,11 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     private List<Node> createNodes(List<StreamSource> sources, List<TransformResponse> transformResponses,
             List<StreamSink> sinks, Map<String, StreamField> constantFieldMap) {
         List<Node> nodes = new ArrayList<>();
+        if (Objects.equals(sources.size(), sinks.size()) && Objects.equals(sources.size(), 1)) {
+            return NodeFactory.addBuiltInField(sources.get(0), sinks.get(0), transformResponses, constantFieldMap);
+        }
         List<TransformNode> transformNodes =
                 TransformNodeUtils.createTransformNodes(transformResponses, constantFieldMap);
-        if (Objects.equals(sources.size(), sinks.size()) && Objects.equals(sources.size(), 1)) {
-            ExtractNode extractNode = NodeFactory.createExtractNode(sources.get(0));
-            LoadNode loadNode = NodeFactory.createLoadNode(sinks.get(0), constantFieldMap);
-            nodes.add(extractNode);
-            nodes.addAll(transformNodes);
-            nodes.add(loadNode);
-            NodeFactory.addBuiltInField(extractNode, loadNode, transformNodes);
-            return nodes;
-        }
-
         nodes.addAll(NodeFactory.createExtractNodes(sources));
         nodes.addAll(transformNodes);
         nodes.addAll(NodeFactory.createLoadNodes(sinks, constantFieldMap));

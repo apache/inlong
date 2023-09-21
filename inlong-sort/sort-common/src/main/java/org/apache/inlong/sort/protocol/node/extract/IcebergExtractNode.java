@@ -20,7 +20,6 @@ package org.apache.inlong.sort.protocol.node.extract;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
-import org.apache.inlong.sort.protocol.MetaFieldInfo;
 import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
@@ -36,12 +35,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Iceberg extract node for extract data from iceberg
@@ -150,8 +147,8 @@ public class IcebergExtractNode extends ExtractNode implements InlongMetric, Met
     public String getMetadataKey(MetaField metaField) {
         String metadataKey;
         switch (metaField) {
-            case INLONG_DATA_TIME:
-                metadataKey = "inlong_data_time";
+            case AUDIT_DATA_TIME:
+                metadataKey = "audit_data_time";
                 break;
             default:
                 throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
@@ -167,22 +164,7 @@ public class IcebergExtractNode extends ExtractNode implements InlongMetric, Met
 
     @Override
     public Set<MetaField> supportedMetaFields() {
-        return EnumSet.of(MetaField.INLONG_DATA_TIME);
+        return EnumSet.of(MetaField.AUDIT_DATA_TIME);
     }
 
-    @Override
-    public List<FieldInfo> addMetaFields(List<FieldInfo> fieldInfos) {
-        List<String> fieldNames = fieldInfos.stream().map(FieldInfo::getName).collect(Collectors.toList());
-        if (!fieldNames.contains(MetaField.INLONG_DATA_TIME.name())) {
-            fieldInfos.add(0, new MetaFieldInfo("inlong_data_time", MetaField.INLONG_DATA_TIME));
-        }
-        return fieldInfos;
-    }
-
-    @Override
-    public List<FieldInfo> metaFields() {
-        List<FieldInfo> fieldInfos = new ArrayList<>();
-        fieldInfos.add(0, new MetaFieldInfo("inlong_data_time", MetaField.INLONG_DATA_TIME));
-        return fieldInfos;
-    }
 }

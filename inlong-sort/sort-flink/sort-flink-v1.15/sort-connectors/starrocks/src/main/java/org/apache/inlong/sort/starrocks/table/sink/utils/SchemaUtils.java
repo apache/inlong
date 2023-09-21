@@ -31,7 +31,7 @@ public class SchemaUtils implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final String INLONG_DATA_TIME = "inlong_data_time";
+    private final String AUDIT_DATA_TIME = "audit_data_time";
     private final int DATA_TIME_ABSENT_INDEX = -1;
     private final int dataTimeFieldIndex;
 
@@ -41,16 +41,16 @@ public class SchemaUtils implements Serializable {
 
     public long getDataTime(Object[] data) {
         if (dataTimeFieldIndex == DATA_TIME_ABSENT_INDEX) {
-            // if INLONG_DATA_TIME field is absent, return local time
+            // if AUDIT_DATA_TIME field is absent, return local time
             return System.currentTimeMillis();
         }
         return (Long) data[dataTimeFieldIndex];
     }
 
     /**
-     * filter out INLONG_DATA_TIME field
+     * filter out AUDIT_DATA_TIME field
      * @param data
-     * @return data without INLONG_DATA_TIME
+     * @return data without AUDIT_DATA_TIME
      */
     public Object[] filterOutTimeField(Object[] data) {
         if (dataTimeFieldIndex == DATA_TIME_ABSENT_INDEX) {
@@ -66,24 +66,25 @@ public class SchemaUtils implements Serializable {
     }
 
     /**
-     * INLONG_DATA_TIME should not occur in actual data schema fields
+     * AUDIT_DATA_TIME should not occur in actual data schema fields
+     *
      * @param schema
-     * @return fieldNames without INLONG_DATA_TIME
+     * @return fieldNames without AUDIT_DATA_TIME
      */
     public String[] filterOutTimeField(TableSchema schema) {
         return Arrays.stream(schema.getFieldNames())
-                .filter(field -> !INLONG_DATA_TIME.equals(field))
+                .filter(field -> !AUDIT_DATA_TIME.equals(field))
                 .toArray(String[]::new);
     }
 
     /**
-     * get the index of INLONG_DATA_TIME in fieldNames
+     * get the index of AUDIT_DATA_TIME in fieldNames
      * @param fieldNames
-     * @return index of INLONG_DATA_TIME in fieldNames, or DATA_TIME_ABSENT_INDEX if absent
+     * @return index of AUDIT_DATA_TIME in fieldNames, or DATA_TIME_ABSENT_INDEX if absent
      */
     private int getDataTimeIndex(String[] fieldNames) {
         for (int i = 0; i < fieldNames.length; i++) {
-            if (INLONG_DATA_TIME.equals(fieldNames[i])) {
+            if (AUDIT_DATA_TIME.equals(fieldNames[i])) {
                 return i;
             }
         }

@@ -396,7 +396,7 @@ public class FieldInfoUtils {
             return false;
         }
         for (int i = 0; i < sourceFields.size(); i++) {
-            if (!Objects.equals(sourceFields.get(i), targetFields.get(i))) {
+            if (!Objects.equals(sourceFields.get(i).getName(), targetFields.get(i).getName())) {
                 return false;
             }
         }
