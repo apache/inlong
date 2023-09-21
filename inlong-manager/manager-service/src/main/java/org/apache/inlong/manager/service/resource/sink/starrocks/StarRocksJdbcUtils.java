@@ -33,6 +33,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class StarRocksJdbcUtils {
 
@@ -50,6 +51,12 @@ public class StarRocksJdbcUtils {
         if (StringUtils.isBlank(url) || !url.startsWith(STAR_ROCKS_JDBC_PREFIX)) {
             throw new Exception("starRocks server url should start with " + STAR_ROCKS_JDBC_PREFIX);
         }
+
+        // Verify that the URL format is valid
+        if (!isValidUrlFormat(url)) {
+            throw new Exception("Invalid URL format");
+        }
+
         Connection conn;
         try {
             Class.forName(STAR_ROCKS_DRIVER_CLASS);
@@ -57,10 +64,16 @@ public class StarRocksJdbcUtils {
             LOGGER.info("get star rocks connection success, url={}", url);
             return conn;
         } catch (Exception e) {
-            String errMsg = "get star rocks connection error, please check starRocks jdbc url, username or password";
+            String errMsg = "get star rocks connection error, please check starRocks jdbc url, username, or password";
             LOGGER.error(errMsg, e);
             throw new Exception(errMsg + ", error: " + e.getMessage());
         }
+    }
+
+    private static boolean isValidUrlFormat(String url) {
+        // Modify this regular expression to match your URL format
+        String urlPattern = "^jdbc:mysql://(localhost|\\d{1,3}(\\.\\d{1,3}){3})(:\\d{1,5})/.*$";
+        return Pattern.matches(urlPattern, url);
     }
 
     /**

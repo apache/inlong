@@ -24,20 +24,14 @@ import org.apache.inlong.tubemq.manager.repository.MasterRepository;
 import org.apache.inlong.tubemq.manager.service.interfaces.MasterService;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpResponse;
 import org.apache.inlong.tubemq.manager.utils.ConvertUtils;
+import org.apache.inlong.tubemq.manager.utils.HttpUtils;
 
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +42,6 @@ import static org.apache.inlong.tubemq.manager.service.TubeConst.DELETE_FAIL;
 @Component
 public class MasterServiceImpl implements MasterService {
 
-    private static CloseableHttpClient httpclient = HttpClients.createDefault();
     private static Gson gson = new Gson();
 
     @Autowired
@@ -58,13 +51,11 @@ public class MasterServiceImpl implements MasterService {
     public TubeMQResult requestMaster(String url) {
 
         log.info("start to request {}", url);
-        HttpGet httpGet = new HttpGet(url);
         TubeMQResult defaultResult = new TubeMQResult();
 
-        try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
-            TubeHttpResponse tubeResponse =
-                    gson.fromJson(new InputStreamReader(response.getEntity().getContent(),
-                            StandardCharsets.UTF_8), TubeHttpResponse.class);
+        try {
+            String response = HttpUtils.sendHttpGetRequest(url);
+            TubeHttpResponse tubeResponse = gson.fromJson(response, TubeHttpResponse.class);
             if (tubeResponse.getCode() == TubeConst.SUCCESS_CODE
                     && tubeResponse.getErrCode() == TubeConst.SUCCESS_CODE) {
                 return defaultResult;
@@ -75,6 +66,7 @@ public class MasterServiceImpl implements MasterService {
             log.error("exception caught while requesting broker status", ex);
             defaultResult = TubeMQResult.errorResult(ex.getMessage());
         }
+
         return defaultResult;
     }
 
@@ -87,18 +79,20 @@ public class MasterServiceImpl implements MasterService {
     @Override
     public String queryMaster(String url) {
         log.info("start to request {}", url);
-        HttpGet httpGet = new HttpGet(url);
         TubeMQResult defaultResult = new TubeMQResult();
-        try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
-            // return result json to response
-            return EntityUtils.toString(response.getEntity());
+
+        try {
+            // Directly return the return value of HttpUtils.sendHttpGetRequest(url)
+            return HttpUtils.sendHttpGetRequest(url);
         } catch (Exception ex) {
             log.error("exception caught while requesting broker status", ex);
             defaultResult.setErrCode(-1);
             defaultResult.setResult(false);
             defaultResult.setErrMsg(ex.getMessage());
+
+            // Convert exception messages to JSON format
+            return gson.toJson(defaultResult);
         }
-        return gson.toJson(defaultResult);
     }
 
     @Override

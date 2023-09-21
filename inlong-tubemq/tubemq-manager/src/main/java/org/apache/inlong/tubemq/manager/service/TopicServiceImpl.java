@@ -41,6 +41,7 @@ import org.apache.inlong.tubemq.manager.service.tube.TopicView;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpGroupDetailInfo;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpTopicInfoList;
 import org.apache.inlong.tubemq.manager.utils.ConvertUtils;
+import org.apache.inlong.tubemq.manager.utils.HttpUtils;
 
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -114,18 +115,18 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public TopicView requestTopicViewInfo(Long clusterId, String topicName) {
         MasterEntry masterNode = masterService.getMasterNode(clusterId);
-        String url = TubeConst.SCHEMA + masterNode.getIp() + ":" + masterNode.getWebPort()
-                + TubeConst.TOPIC_VIEW;
-        if (StringUtils.isNotBlank(topicName)) {
-            url = StringUtils.join(url, TubeConst.TOPIC_NAME, topicName);
-        }
-        HttpGet httpget = new HttpGet(url);
-        try (CloseableHttpResponse response = httpclient.execute(httpget)) {
-            return gson.fromJson(new InputStreamReader(response.getEntity().getContent(),
-                    StandardCharsets.UTF_8),
-                    TopicView.class);
+        String host = masterNode.getIp();
+        int port = masterNode.getWebPort();
+
+        try {
+            String requestUrl = TubeConst.SCHEMA + host + ":" + port + TubeConst.TOPIC_VIEW;
+            if (StringUtils.isNotBlank(topicName)) {
+                requestUrl += TubeConst.TOPIC_NAME + topicName;
+            }
+            String response = HttpUtils.sendHttpGetRequest(requestUrl);
+            return gson.fromJson(response, TopicView.class);
         } catch (Exception ex) {
-            log.error("exception caught while requesting group status", ex);
+            log.error("Exception caught while requesting group status", ex);
             throw new RuntimeException(ex.getMessage());
         }
     }

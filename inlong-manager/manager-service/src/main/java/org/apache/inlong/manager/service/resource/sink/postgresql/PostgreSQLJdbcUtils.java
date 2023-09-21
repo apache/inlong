@@ -56,15 +56,39 @@ public class PostgreSQLJdbcUtils {
      */
     public static Connection getConnection(String url, String user, String password)
             throws Exception {
-        if (StringUtils.isBlank(url) || !url.startsWith(POSTGRES_JDBC_PREFIX)) {
-            throw new Exception("PostgreSQL server URL was invalid, it should start with jdbc:postgresql");
+        // Not Null
+        if (StringUtils.isBlank(url) || StringUtils.isBlank(user) || StringUtils.isBlank(password)) {
+            throw new Exception("URL, username, or password cannot be empty");
+        }
+        // Define the allowed IP addresses or hostname patterns
+        String allowedHostsPattern = "^(localhost|192\\.168\\.1\\.\\d{1,3}|10\\.0\\.0\\.\\d{1,3})$";
+        // Verify that the URL format is valid
+        if (!url.startsWith(POSTGRES_JDBC_PREFIX)) {
+            throw new Exception("PostgreSQL server URL was invalid, it should start with " + POSTGRES_JDBC_PREFIX);
+        }
+        // Extract the hostname and port from the URL
+        String[] urlParts = url.split(":");
+        if (urlParts.length < 3) {
+            throw new Exception("Invalid PostgreSQL URL format");
+        }
+        String hostPortPart = urlParts[2];
+        // Extract the hostname from the host:port part of the URL
+        String[] hostParts = hostPortPart.split("/");
+        if (hostParts.length < 1) {
+            throw new Exception("Invalid PostgreSQL URL format");
+        }
+        String host = hostParts[0];
+        // Verify that the hostname is allowed
+        if (!host.matches(allowedHostsPattern)) {
+            throw new Exception("Invalid host in PostgreSQL URL");
         }
         Connection conn;
         try {
             Class.forName(POSTGRES_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            String errorMsg = "get PostgreSQL connection error, please check postgresql jdbc url, username or password";
+            String errorMsg =
+                    "get PostgreSQL connection error, please check PostgreSQL JDBC URL, username, or password";
             LOG.error(errorMsg, e);
             throw new Exception(errorMsg + ": " + e.getMessage());
         }
