@@ -18,16 +18,14 @@
  */
 
 import React, { useState, forwardRef, useMemo, useCallback } from 'react';
-import { Badge, Button, Card, Modal, List, Tag, Segmented, message } from 'antd';
+import { Badge, Button, Card, Modal, List, Segmented, message } from 'antd';
 import { PaginationConfig } from 'antd/lib/pagination';
 import HighTable from '@/ui/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/ui/hooks';
-import { useDefaultMeta, useLoadMeta, TransformMetaType } from '@/plugins';
 import DetailModal from './DetailModal';
 import i18n from '@/i18n';
 import request from '@/core/utils/request';
-import { pickObjectArray } from '@/core/utils';
 import { CommonInterface } from '../common';
 import {
   DeleteOutlined,
@@ -35,7 +33,6 @@ import {
   TableOutlined,
   UnorderedListOutlined,
 } from '@ant-design/icons';
-import { sources } from '@/plugins/sources';
 
 interface Props extends CommonInterface {
   inlongStreamId: string;
@@ -44,13 +41,9 @@ interface Props extends CommonInterface {
 const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
   const [mode, setMode] = useState('list');
 
-  const { defaultValue } = useDefaultMeta('transform');
-
   const defaultOptions = {
-    // keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
-    transformType: defaultValue,
   };
 
   const [options, setOptions] = useState(defaultOptions);
@@ -101,46 +94,6 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
         },
       });
     },
-    [getList, options.transformType],
-  );
-
-  const onRestart = useCallback(
-    ({ id }) => {
-      Modal.confirm({
-        title: i18n.t('basic.ConfirmRestart'),
-        onOk: async () => {
-          await request({
-            url: `/source/restart/${id}`,
-            method: 'POST',
-            data: {
-              id,
-            },
-          });
-          await getList();
-          message.success(i18n.t('basic.SuccessfullyRestart'));
-        },
-      });
-    },
-    [getList],
-  );
-
-  const onStop = useCallback(
-    ({ id }) => {
-      Modal.confirm({
-        title: i18n.t('basic.ConfirmStop'),
-        onOk: async () => {
-          await request({
-            url: `/source/stop/${id}`,
-            method: 'POST',
-            data: {
-              id,
-            },
-          });
-          await getList();
-          message.success(i18n.t('basic.SuccessfullyStop'));
-        },
-      });
-    },
     [getList],
   );
 
@@ -168,36 +121,22 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
     size: 'small',
   };
 
-  const { Entity } = useLoadMeta<TransformMetaType>('transform', options.transformType);
-
-  const entityColumns = useMemo(() => {
-    return Entity ? new Entity().renderList() : [];
-  }, [Entity]);
-
-  const entityFields = useMemo(() => {
-    return Entity ? new Entity().renderRow() : [];
-  }, [Entity]);
-
   const getFilterFormContent = useCallback(
-    defaultValues =>
-      [
-        {
-          type: 'inputsearch',
-          name: 'keyword',
-        },
-      ].concat(
-        pickObjectArray(['transformType'], entityFields).map(item => ({
-          ...item,
-          type: 'select',
-          visible: true,
-          // initialValue: defaultValues[item.name],
-        })),
-      ),
-    [entityFields],
+    defaultValues => [
+      {
+        type: 'inputsearch',
+        name: 'keyword',
+      },
+    ],
+    [],
   );
 
   const columns = useMemo(() => {
-    return entityColumns?.concat([
+    return [
+      {
+        title: i18n.t('meta.Transform.Name'),
+        dataIndex: 'transformName',
+      },
       {
         title: i18n.t('basic.Operating'),
         dataIndex: 'action',
@@ -215,8 +154,8 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
             </>
           ),
       },
-    ]);
-  }, [entityColumns, onDelete, onEdit, readonly]);
+    ];
+  }, [onDelete, onEdit, readonly]);
 
   return (
     <>
@@ -306,7 +245,6 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
 
       <DetailModal
         {...createModal}
-        defaultType={options.transformType}
         inlongGroupId={inlongGroupId}
         inlongStreamId={inlongStreamId}
         open={createModal.open as boolean}

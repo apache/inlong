@@ -17,17 +17,15 @@
  * under the License.
  */
 
-import React, { useMemo, useState } from 'react';
-import { Modal, Spin, message, Form, Radio } from 'antd';
+import React, { useState } from 'react';
+import { Modal, message, Form, Radio } from 'antd';
 import { ModalProps } from 'antd/es/modal';
-import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
+import { useForm } from '@/ui/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
-import { useDefaultMeta, useLoadMeta, TransformMetaType } from '@/plugins';
 import request from '@/core/utils/request';
 import EditableTable, { ColumnsItemProps } from '@/ui/components/EditableTable';
 import i18n from '@/i18n';
-import { result } from 'lodash';
 
 export interface Props extends ModalProps {
   // When editing, use the ID to call the interface for obtaining details
@@ -47,15 +45,8 @@ const Comp: React.FC<Props> = ({
   const [form] = useForm();
   const { t } = useTranslation();
 
-  const { defaultValue } = useDefaultMeta('transform');
-
-  const [type, setType] = useState(defaultValue);
-
-  const { loading, Entity } = useLoadMeta<TransformMetaType>('transform', type);
-
   const [sourceNames, setSourcesNames] = useState([]);
   const [sinkNames, setSinkNames] = useState([]);
-  const [transType, setTransType] = useState('');
 
   const { data, run: getData } = useRequest(
     streamId => ({
@@ -113,8 +104,7 @@ const Comp: React.FC<Props> = ({
     {
       manual: true,
       onSuccess: result => {
-        form.setFieldValue('transformType', result.transformType);
-        form.setFieldValue('transformDefinition', JSON.parse(result.transformDefinition));
+        form.setFieldsValue(JSON.parse(result.transformDefinition));
       },
     },
   );
@@ -141,18 +131,22 @@ const Comp: React.FC<Props> = ({
     {
       title: i18n.t('pages.SynchronizeDetail.Transform.FilterFields'),
       type: 'select',
-      dataIndex: 'sourceField',
+      dataIndex: 'fieldSource',
       rules: [{ required: true }],
-      props: {
+      props: (text, record, idx, isNew) => ({
         options: data?.fieldList.map(item => ({
           label: item.fieldName,
-          // value: item.fieldName,
-          value: {
-            fieldName: item.fieldName,
-            fieldType: item.fieldType,
-          },
+          value: item.fieldName,
         })),
-      },
+        onChange: (value, option) => {
+          record.fieldSource = value;
+          const field = data?.fieldList.find(item => value === item.fieldName);
+          return (record.sourceField = {
+            fieldName: field.fieldName,
+            fieldType: field.fieldType,
+          });
+        },
+      }),
     },
     {
       title: i18n.t('pages.SynchronizeDetail.Transform.Operators'),
@@ -202,14 +196,13 @@ const Comp: React.FC<Props> = ({
       dataIndex: 'type',
       rules: [{ required: true }],
       props: {
-        onChange: (value, option) => setTransType(value),
         options: [
           {
-            label: i18n.t('pages.SynchronizeDetail.Transform.Type.Field'), // 字段
+            label: i18n.t('pages.SynchronizeDetail.Transform.Type.Field'),
             value: 'field',
           },
           {
-            label: i18n.t('pages.SynchronizeDetail.Transform.Type.CustomValue'), // 自定义值
+            label: i18n.t('pages.SynchronizeDetail.Transform.Type.CustomValue'),
             value: 'customize',
           },
         ],
@@ -218,7 +211,7 @@ const Comp: React.FC<Props> = ({
     {
       title: i18n.t('pages.SynchronizeDetail.Transform.ComparisonValue'),
       type: 'autocomplete',
-      dataIndex: 'targetField',
+      dataIndex: 'fieldSink',
       initialValue: '',
       rules: [{ required: true }],
       props: (text, record, idx, isNew) => ({
@@ -226,13 +219,19 @@ const Comp: React.FC<Props> = ({
           record.type === 'field'
             ? sinkData?.list[0]?.sinkFieldList.map(item => ({
                 label: item.fieldName,
-                // value: item.fieldName,
-                value: {
-                  fieldName: item.fieldName,
-                  fieldType: item.fieldType,
-                },
+                value: item.fieldName,
               }))
             : null,
+        onChange: (value, option) => {
+          record.fieldSink = value;
+          const field = sinkData?.list[0]?.sinkFieldList.find(item => value === item.fieldName);
+          return record.type === 'field'
+            ? (record.targetField = {
+                fieldName: field.fieldName,
+                fieldType: field.fieldType,
+              })
+            : (record.targetField = value);
+        },
       }),
     },
   ];
@@ -243,7 +242,10 @@ const Comp: React.FC<Props> = ({
       ...values,
       inlongGroupId,
       inlongStreamId,
-      transformDefinition: JSON.stringify(values.transformDefinition),
+      transformDefinition: JSON.stringify({
+        filterStrategy: values.filterStrategy,
+        filterRules: values.filterRules,
+      }),
     };
     const isUpdate = Boolean(id);
     if (isUpdate) {
@@ -258,7 +260,7 @@ const Comp: React.FC<Props> = ({
         postNodeNames: sinkNames.join(','),
         preNodeNames: sourceNames.join(','),
         transformName: inlongGroupId + '_transform',
-        transformType: values.transformType,
+        transformType: 'filter',
         fieldList: data?.fieldList,
       },
     });
@@ -287,32 +289,31 @@ const Comp: React.FC<Props> = ({
         width={1200}
         onOk={onOk}
       >
-        <Spin spinning={loading}>
-          <Form form={form}>
-            <Form.Item
-              name={'transformType'}
-              wrapperCol={{ span: 8, offset: 1 }}
-              label={i18n.t('pages.SynchronizeDetail.Transform.FilterAction')}
-              tooltip={i18n.t('pages.SynchronizeDetail.Transform.FilterAction.Tooltip')}
-            >
-              <Radio.Group>
-                <Radio value="retain">
-                  {i18n.t('pages.SynchronizeDetail.Transform.FilterAction.ReserveData')}
-                </Radio>
-                <Radio value="filter">
-                  {i18n.t('pages.SynchronizeDetail.Transform.FilterAction.RemoveData')}
-                </Radio>
-              </Radio.Group>
-            </Form.Item>
-            <Form.Item
-              name={'transformDefinition'}
-              label={i18n.t('pages.SynchronizeDetail.Transform.FilterRules')}
-              wrapperCol={{ offset: 1 }}
-            >
-              <EditableTable columns={columns} dataSource={data}></EditableTable>
-            </Form.Item>
-          </Form>
-        </Spin>
+        <Form form={form} labelAlign={'left'}>
+          <Form.Item
+            name={'filterStrategy'}
+            wrapperCol={{ span: 8, offset: 1 }}
+            label={i18n.t('pages.SynchronizeDetail.Transform.FilterAction')}
+            tooltip={i18n.t('pages.SynchronizeDetail.Transform.FilterAction.Tooltip')}
+          >
+            <Radio.Group defaultValue={'RETAIN'}>
+              <Radio value={'RETAIN'}>
+                {i18n.t('pages.SynchronizeDetail.Transform.FilterAction.ReserveData')}
+              </Radio>
+              <Radio value={'REMOVE'}>
+                {i18n.t('pages.SynchronizeDetail.Transform.FilterAction.RemoveData')}
+              </Radio>
+            </Radio.Group>
+          </Form.Item>
+          <Form.Item
+            name={'filterRules'}
+            labelCol={{ span: 2 }}
+            label={i18n.t('pages.SynchronizeDetail.Transform.FilterRules')}
+            wrapperCol={{ offset: 1 }}
+          >
+            <EditableTable columns={columns} dataSource={data}></EditableTable>
+          </Form.Item>
+        </Form>
       </Modal>
     </>
   );

@@ -23,7 +23,7 @@ import { ModalProps } from 'antd/es/modal';
 import { useForm } from '@/ui/components/FormGenerator';
 import { useRequest } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
-import { useDefaultMeta, useLoadMeta, TransformMetaType } from '@/plugins';
+import { useDefaultMeta, useLoadMeta } from '@/plugins';
 import request from '@/core/utils/request';
 import EditableTable, { ColumnsItemProps } from '../EditableTable';
 import i18n from '@/i18n';
@@ -39,13 +39,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, ...mod
   const [form] = useForm();
   const { t } = useTranslation();
 
-  const { defaultValue } = useDefaultMeta('transform');
-
-  const [type, setType] = useState(defaultValue);
-
   const [sinkType, setSinkType] = useState('');
-
-  const { loading, Entity } = useLoadMeta<TransformMetaType>('transform', type);
 
   const { data, run: getData } = useRequest(
     streamId => ({
@@ -254,16 +248,14 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, ...mod
           </Button>,
         ]}
       >
-        <Spin spinning={loading}>
-          <Form form={form} initialValues={isSource === true ? data : sinkData?.list[0]}>
-            <Form.Item name={isSource === true ? 'fieldList' : 'sinkFieldList'}>
-              <EditableTable
-                columns={isSource === true ? fieldList : sinkFieldList}
-                dataSource={isSource === true ? data?.fieldList : sinkData?.list[0]?.sinkFieldList}
-              ></EditableTable>
-            </Form.Item>
-          </Form>
-        </Spin>
+        <Form form={form} initialValues={isSource === true ? data : sinkData?.list[0]}>
+          <Form.Item name={isSource === true ? 'fieldList' : 'sinkFieldList'}>
+            <EditableTable
+              columns={isSource === true ? fieldList : sinkFieldList}
+              dataSource={isSource === true ? data?.fieldList : sinkData?.list[0]?.sinkFieldList}
+            ></EditableTable>
+          </Form.Item>
+        </Form>
       </Modal>
     </>
   );
