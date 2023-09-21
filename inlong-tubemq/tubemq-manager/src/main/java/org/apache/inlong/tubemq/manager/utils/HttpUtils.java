@@ -17,56 +17,97 @@
 
 package org.apache.inlong.tubemq.manager.utils;
 
-import java.io.BufferedReader;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 public class HttpUtils {
 
-    private static final Pattern IP_PATTERN = Pattern.compile("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpUtils.class);
+    private static final int MAX_URL_LENGTH = 2048;
+    private static final Pattern URL_PATTERN = Pattern.compile("^https?://[a-zA-Z0-9.-]+(/.*)?$");
+    private static final Pattern PATH_TRAVERSAL_PATTERN = Pattern.compile("/\\.\\./|\\\\\\.\\./");
 
     public static String sendHttpGetRequest(String url) throws IOException {
-        // Verify that the host name and port number are legitimate
-        URL requestUrl = new URL(url);
-        String host = requestUrl.getHost();
-        int port = requestUrl.getPort();
-        if (!isValidIpAddress(host)) {
-            throw new SecurityException("Invalid IP address");
+        // Log audit: Record the received URL
+        LOGGER.info("Received URL for HTTP GET request: {}", url);
+
+        // Filter out special characters from the input URL
+        url = filterSpecialCharacters(url);
+
+        // Validate the input URL format
+        if (!isValidURL(url)) {
+            throw new SecurityException("Invalid URL format.");
         }
 
-        if (!isValidPort(port)) {
-            throw new SecurityException("Invalid port number");
+        // Check for path traversal attack
+        if (containsPathTraversal(url)) {
+            throw new SecurityException("Path traversal attempt detected.");
         }
-        HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
-        connection.setRequestMethod("GET");
-        int responseCode = connection.getResponseCode();
 
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
-            StringBuilder response = new StringBuilder();
-            String line;
+        // Check the length of the input URL
+        if (url.length() > MAX_URL_LENGTH) {
+            throw new SecurityException("URL length exceeds the maximum allowed.");
+        }
 
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
+        // Create an HttpClient instance
+        HttpClient httpClient = HttpClients.createDefault();
+
+        // Create an HttpGet request
+        HttpGet httpGet = new HttpGet(url);
+
+        // Setting the connection timeout and read timeout
+        int connectionTimeout = 10000;
+        int readTimeout = 20000;
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout(connectionTimeout)
+                .setSocketTimeout(readTimeout)
+                .build();
+        httpGet.setConfig(requestConfig);
+
+        try {
+            // Execute the request
+            HttpResponse response = httpClient.execute(httpGet);
+
+            // Check the response status code
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == HttpStatus.SC_OK) {
+                // Read and return the response content
+                return EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+            } else {
+                String errorMessage = "HTTP request failed with response code: " + statusCode;
+                LOGGER.error(errorMessage);
+                throw new IOException(errorMessage);
             }
-
-            reader.close();
-            return response.toString();
-        } else {
-            throw new IOException("HTTP request failed with response code: " + responseCode);
+        } finally {
+            // Release resources
+            httpGet.releaseConnection();
         }
     }
 
-    private static boolean isValidIpAddress(String ipAddress) {
-        return IP_PATTERN.matcher(ipAddress).matches();
+    private static String filterSpecialCharacters(String url) {
+        // Remove or escape special characters as needed. Remove < and >
+        url = url.replaceAll("[<>]", "");
+        return url;
     }
 
-    private static boolean isValidPort(int port) {
-        return port >= 0 && port <= 65535;
+    private static boolean isValidURL(String url) {
+        // Use the regular expression pattern to validate the URL
+        return URL_PATTERN.matcher(url).matches();
+    }
+
+    private static boolean containsPathTraversal(String url) {
+        // Check for path traversal patterns in the URL
+        return PATH_TRAVERSAL_PATTERN.matcher(url).find();
     }
 }
