@@ -70,7 +70,23 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <executable>${basedir}/script/backup_module_dependencys.sh</executable>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>uncompress</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>install</phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
-
 </project>
