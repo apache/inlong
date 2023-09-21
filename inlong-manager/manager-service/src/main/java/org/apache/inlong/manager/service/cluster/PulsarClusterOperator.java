@@ -131,7 +131,7 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
      */
     private Boolean testConnectAdminUrl(PulsarClusterInfo pulsarInfo) {
 
-        try{
+        try {
             // test connect for pulsar adminUrl
             PulsarUtils.getPulsarTenants(restTemplate, pulsarInfo);
             return true;
