@@ -38,7 +38,6 @@ import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumeProcessForm;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarOperator;
-import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarUtils;
 import org.apache.inlong.manager.service.resource.queue.tubemq.TubeMQOperator;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -46,7 +45,6 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -131,7 +129,7 @@ public class ApproveConsumeProcessListener implements ProcessEventListener {
         String clusterTag = groupEntity.getInlongClusterTag();
         ClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.PULSAR);
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
+        try {
             InlongPulsarDTO pulsarDTO = InlongPulsarDTO.getFromJson(groupEntity.getExtParams());
             String tenant = pulsarDTO.getPulsarTenant();
             if (StringUtils.isBlank(tenant)) {

@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.HttpUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarLookupTopicInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarNamespacePolicies;
@@ -30,9 +28,6 @@ import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicMetadata;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.pulsar.client.admin.PulsarAdmin;
-import org.apache.pulsar.client.api.AuthenticationFactory;
-import org.apache.pulsar.client.api.PulsarClientException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -61,42 +56,6 @@ public class PulsarUtils {
     public static final String QUERY_NAMESPACE_PATH = "/admin/v2/namespaces";
     public static final String QUERY_PERSISTENT_PATH = "/admin/v2/persistent";
     public static final String LOOKUP_TOPIC_PATH = "/lookup/v2/topic";
-
-    /**
-     * Get pulsar admin info
-     */
-    public static PulsarAdmin getPulsarAdmin(PulsarClusterInfo pulsarCluster) throws PulsarClientException {
-        Preconditions.expectNotBlank(pulsarCluster.getAdminUrl(), ErrorCodeEnum.INVALID_PARAMETER,
-                "Pulsar adminUrl cannot be empty");
-        PulsarAdmin pulsarAdmin;
-        if (StringUtils.isEmpty(pulsarCluster.getToken())) {
-            pulsarAdmin = getPulsarAdmin(pulsarCluster.getAdminUrl());
-        } else {
-            pulsarAdmin = getPulsarAdmin(pulsarCluster.getAdminUrl(), pulsarCluster.getToken());
-        }
-        return pulsarAdmin;
-    }
-
-    /**
-     * Get the pulsar admin from the given service URL.
-     *
-     * @apiNote It must be closed after use.
-     */
-    public static PulsarAdmin getPulsarAdmin(String serviceHttpUrl) throws PulsarClientException {
-        return PulsarAdmin.builder().serviceHttpUrl(serviceHttpUrl).build();
-    }
-
-    /**
-     * Get the pulsar admin from the given service URL and token.
-     * <p/>
-     * Currently only token is supported as an authentication type.
-     *
-     * @apiNote It must be closed after use.
-     */
-    public static PulsarAdmin getPulsarAdmin(String serviceHttpUrl, String token) throws PulsarClientException {
-        return PulsarAdmin.builder().serviceHttpUrl(serviceHttpUrl)
-                .authentication(AuthenticationFactory.token(token)).build();
-    }
 
     /**
      * get http headers by token.
