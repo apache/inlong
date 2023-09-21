@@ -48,7 +48,6 @@ import java.util.Map;
 public class PulsarUtils {
 
     private PulsarUtils() {
-
     }
 
     public static final String QUERY_CLUSTERS_PATH = "/admin/v2/clusters";
