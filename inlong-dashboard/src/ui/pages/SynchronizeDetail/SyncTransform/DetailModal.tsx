@@ -244,6 +244,7 @@ const Comp: React.FC<Props> = ({
       inlongStreamId,
       transformDefinition: JSON.stringify({
         filterStrategy: values.filterStrategy,
+        filterMode: 'RULE',
         filterRules: values.filterRules,
       }),
     };
@@ -291,16 +292,17 @@ const Comp: React.FC<Props> = ({
       >
         <Form form={form} labelAlign={'left'}>
           <Form.Item
-            name={'filterStrategy'}
+            name="filterStrategy"
+            initialValue={'RETAIN'}
             wrapperCol={{ span: 8, offset: 1 }}
             label={i18n.t('pages.SynchronizeDetail.Transform.FilterAction')}
             tooltip={i18n.t('pages.SynchronizeDetail.Transform.FilterAction.Tooltip')}
           >
-            <Radio.Group defaultValue={'RETAIN'}>
-              <Radio value={'RETAIN'}>
+            <Radio.Group>
+              <Radio value="RETAIN" checked>
                 {i18n.t('pages.SynchronizeDetail.Transform.FilterAction.ReserveData')}
               </Radio>
-              <Radio value={'REMOVE'}>
+              <Radio value="REMOVE">
                 {i18n.t('pages.SynchronizeDetail.Transform.FilterAction.RemoveData')}
               </Radio>
             </Radio.Group>
