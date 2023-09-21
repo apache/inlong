@@ -222,7 +222,10 @@ const Comp: React.FC = () => {
       <GroupLogs
         {...groupLogs}
         onOk={() => setGroupLogs({ open: false, inlongGroupId: '', inlongGroupMode: true })}
-        onCancel={() => setGroupLogs({ open: false, inlongGroupId: '', inlongGroupMode: true })}
+        onCancel={() => {
+          setGroupLogs({ open: false, inlongGroupId: '', inlongGroupMode: true });
+          getList();
+        }}
       />
     </PageContainer>
   );

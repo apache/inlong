@@ -108,7 +108,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, ...mod
       },
     },
     {
-      title: i18n.t('meta.Stream.FieldName'),
+      title: i18n.t('components.FieldList.SinkFieldName'),
       dataIndex: 'fieldName',
       type: 'input',
       rules: [
@@ -120,7 +120,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, ...mod
       ],
     },
     {
-      title: i18n.t('meta.Stream.FieldType'),
+      title: i18n.t('components.FieldList.SinkFieldType'),
       dataIndex: 'fieldType',
       type: 'select',
       initialValue: '',
@@ -130,7 +130,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, ...mod
       rules: [{ required: true }],
     },
     {
-      title: i18n.t('meta.Stream.FieldComment'),
+      title: i18n.t('components.FieldList.FieldComment'),
       dataIndex: 'fieldComment',
     },
   ];
@@ -243,7 +243,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, ...mod
             ? t('components.FieldList.CreateSource')
             : t('components.FieldList.CreateSink')
         }
-        width={888}
+        width={1000}
         onOk={onOk}
         footer={[
           <Button key="cancel" onClick={e => modalProps.onCancel(e)}>

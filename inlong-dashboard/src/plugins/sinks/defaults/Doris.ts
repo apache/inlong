@@ -57,7 +57,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -69,7 +69,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @I18n('meta.Sinks.Username')
@@ -80,7 +80,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
     type: 'password',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @I18n('meta.Sinks.Password')
@@ -91,7 +91,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -103,7 +103,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -115,7 +115,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -128,7 +128,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
     rules: [{ required: true }],
     initialValue: false,
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: i18n.t('basic.Yes'),
@@ -149,7 +149,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -161,7 +161,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -173,7 +173,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -185,7 +185,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
     type: EditableTable,
     props: values => ({
       size: 'small',
-      editing: ![110, 130].includes(values?.status),
+      editing: ![110].includes(values?.status),
       columns: getFieldListColumns(values),
       canBatchAdd: true,
       upsertByFieldKey: true,
@@ -209,7 +209,7 @@ const getFieldListColumns = sinkValues => {
         },
       ],
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {
@@ -219,7 +219,7 @@ const getFieldListColumns = sinkValues => {
       type: 'select',
       props: (text, record, idx, isNew) => ({
         options: dorisTargetTypes,
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
       rules: [{ required: true, message: `${i18n.t('meta.Sinks.FieldTypeMessage')}` }],
     },
