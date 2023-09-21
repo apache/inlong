@@ -71,6 +71,7 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
     private DataType[] fieldDataTypes;
     private String inlongMetric;
     private String auditHostAndPorts;
+    private String auditKeys;
     private String sinkMultipleFormat;
     private String databasePattern;
     private String tablePattern;
@@ -252,6 +253,11 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
         return this;
     }
 
+    public JdbcDynamicOutputFormatBuilder setAuditKeys(String auditKeys) {
+        this.auditKeys = auditKeys;
+        return this;
+    }
+
     public JdbcDynamicOutputFormatBuilder setSinkMultipleFormat(String sinkMultipleFormat) {
         this.sinkMultipleFormat = sinkMultipleFormat;
         return this;
@@ -308,7 +314,8 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
                     inlongMetric,
                     auditHostAndPorts,
                     dirtyOptions,
-                    dirtySink);
+                    dirtySink,
+                    auditKeys);
         } else {
             // append only query
             final String sql =
@@ -330,7 +337,8 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
                     inlongMetric,
                     auditHostAndPorts,
                     dirtyOptions,
-                    dirtySink);
+                    dirtySink,
+                    auditKeys);
         }
     }
 
@@ -352,6 +360,7 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
                 inlongMetric,
                 auditHostAndPorts,
                 schemaUpdateExceptionPolicy,
-                dirtySinkHelper);
+                dirtySinkHelper,
+                auditKeys);
     }
 }

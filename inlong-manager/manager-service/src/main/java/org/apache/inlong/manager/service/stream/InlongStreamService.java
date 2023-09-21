@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.stream;
 
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
+import org.apache.inlong.manager.pojo.sink.AddFieldRequest;
 import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
@@ -198,6 +199,14 @@ public interface InlongStreamService {
      * @return whether succeed
      */
     Boolean logicDeleteAll(String groupId, String operator);
+
+    /**
+     * Add field for stream or sink
+     *
+     * @param addFieldRequest add field request
+     * @return true or false
+     */
+    boolean addFields(AddFieldRequest addFieldRequest);
 
     /**
      * According to the group id, query the number of valid inlong streams belonging to this service

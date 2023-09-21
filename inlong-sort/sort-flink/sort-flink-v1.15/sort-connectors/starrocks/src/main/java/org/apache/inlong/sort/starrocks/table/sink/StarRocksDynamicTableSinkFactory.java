@@ -17,7 +17,8 @@
 
 package org.apache.inlong.sort.starrocks.table.sink;
 
-import com.starrocks.connector.flink.table.sink.StarRocksDynamicTableSink;
+import org.apache.inlong.sort.starrocks.table.sink.table.StarRocksDynamicTableSink;
+
 import com.starrocks.connector.flink.table.sink.StarRocksSinkOptions;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
@@ -40,6 +41,9 @@ import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
 
+/**
+ * Factory to create StarRocksDynamicTableSink.
+ */
 public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory {
 
     @Override
@@ -47,13 +51,17 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
         final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         helper.validateExcept(StarRocksSinkOptions.SINK_PROPERTIES_PREFIX, DIRTY_PREFIX);
         ReadableConfig options = helper.getOptions();
+        String inlongMetric = options.getOptional(INLONG_METRIC).orElse(INLONG_METRIC.defaultValue());
+        String auditHostAndPorts = options.getOptional(INLONG_AUDIT).orElse(INLONG_AUDIT.defaultValue());
+        String auditKeys = options.getOptional(AUDIT_KEYS).orElse(AUDIT_KEYS.defaultValue());
+
         // validate some special properties
         StarRocksSinkOptions sinkOptions = new StarRocksSinkOptions(options, context.getCatalogTable().getOptions());
         sinkOptions.enableUpsertDelete();
         TableSchema physicalSchema = TableSchemaUtils.getPhysicalSchema(context.getCatalogTable().getSchema());
 
         return new StarRocksDynamicTableSink(sinkOptions,
-                physicalSchema);
+                physicalSchema, inlongMetric, auditHostAndPorts, auditKeys);
     }
 
     @Override
@@ -93,7 +101,6 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
         optionalOptions.add(INLONG_METRIC);
         optionalOptions.add(INLONG_AUDIT);
         optionalOptions.add(AUDIT_KEYS);
-
         return optionalOptions;
     }
 

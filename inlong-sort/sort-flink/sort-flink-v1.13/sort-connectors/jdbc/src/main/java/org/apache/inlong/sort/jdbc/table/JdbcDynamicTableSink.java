@@ -57,6 +57,7 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
     private final boolean multipleSink;
     private final String inlongMetric;
     private final String auditHostAndPorts;
+    private final String auditKeys;
     private final boolean appendMode;
     private final String sinkMultipleFormat;
     private final String databasePattern;
@@ -82,7 +83,8 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
             String auditHostAndPorts,
             SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy,
             DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink) {
+            @Nullable DirtySink<Object> dirtySink,
+            String auditKeys) {
         this.jdbcOptions = jdbcOptions;
         this.executionOptions = executionOptions;
         this.dmlOptions = dmlOptions;
@@ -99,6 +101,7 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
         this.schemaUpdateExceptionPolicy = schemaUpdateExceptionPolicy;
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
+        this.auditKeys = auditKeys;
     }
 
     @Override
@@ -129,6 +132,7 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
         builder.setAuditHostAndPorts(auditHostAndPorts);
         builder.setDirtyOptions(dirtyOptions);
         builder.setDirtySink(dirtySink);
+        builder.setAuditKeys(auditKeys);
         if (multipleSink) {
             builder.setSinkMultipleFormat(sinkMultipleFormat);
             builder.setDatabasePattern(databasePattern);
@@ -151,7 +155,7 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
                 tableSchema, appendMode, multipleSink, sinkMultipleFormat,
                 databasePattern, tablePattern, schemaPattern,
                 inlongMetric, auditHostAndPorts,
-                schemaUpdateExceptionPolicy, dirtyOptions, dirtySink);
+                schemaUpdateExceptionPolicy, dirtyOptions, dirtySink, auditKeys);
     }
 
     @Override
@@ -176,12 +180,13 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
                 && Objects.equals(inlongMetric, that.inlongMetric)
                 && Objects.equals(auditHostAndPorts, that.auditHostAndPorts)
                 && Objects.equals(dirtyOptions, that.dirtyOptions)
-                && Objects.equals(dirtySink, that.dirtySink);
+                && Objects.equals(dirtySink, that.dirtySink)
+                && Objects.equals(auditKeys, that.auditKeys);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(jdbcOptions, executionOptions, dmlOptions, tableSchema, dialectName,
-                inlongMetric, auditHostAndPorts);
+                inlongMetric, auditHostAndPorts, auditKeys);
     }
 }

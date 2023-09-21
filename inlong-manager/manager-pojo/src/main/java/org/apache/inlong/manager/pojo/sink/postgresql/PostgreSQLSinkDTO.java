@@ -85,6 +85,7 @@ public class PostgreSQLSinkDTO {
                 : new PostgreSQLSinkDTO();
         CommonBeanUtils.copyProperties(request, dto, true);
         dto.setPassword(passwd);
+        dto.setEncryptVersion(encryptVersion);
         return dto;
     }
 

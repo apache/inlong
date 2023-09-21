@@ -96,14 +96,14 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Serializa
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        options.put("connector", "iceberg-inlong");
+        options.put(IcebergConstant.CONNECTOR_KEY, IcebergConstant.CONNECTOR);
         // for test sink.ignore.changelog
         // options.put("sink.ignore.changelog", "true");
-        options.put("catalog-database", dbName);
-        options.put("catalog-table", tableName);
-        options.put("default-database", dbName);
-        options.put("catalog-type", catalogType.name());
-        options.put("catalog-name", catalogType.name());
+        options.put(IcebergConstant.DATABASE_KEY, dbName);
+        options.put(IcebergConstant.TABLE_KEY, tableName);
+        options.put(IcebergConstant.DEFAULT_DATABASE_KEY, dbName);
+        options.put(IcebergConstant.CATALOG_TYPE_KEY, catalogType.name());
+        options.put(IcebergConstant.CATALOG_NAME_KEY, catalogType.name());
         if (null != uri) {
             options.put("uri", uri);
         }

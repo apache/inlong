@@ -97,6 +97,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     private final RecordExtractor<In, JdbcIn> jdbcRecordExtractor;
     private final String inlongMetric;
     private final String auditHostAndPorts;
+    private final String auditKeys;
     private transient JdbcExec jdbcStatementExecutor;
     private transient int batchCount = 0;
     private transient volatile boolean closed = false;
@@ -122,7 +123,8 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             String inlongMetric,
             String auditHostAndPorts,
             DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink) {
+            @Nullable DirtySink<Object> dirtySink,
+            String auditKeys) {
         super(connectionProvider);
         this.executionOptions = checkNotNull(executionOptions);
         this.statementExecutorFactory = checkNotNull(statementExecutorFactory);
@@ -131,6 +133,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         this.auditHostAndPorts = auditHostAndPorts;
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
+        this.auditKeys = auditKeys;
     }
 
     public static Builder builder() {
@@ -165,6 +168,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(inlongMetric)
                 .withAuditAddress(auditHostAndPorts)
+                .withAuditKeys(auditKeys)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
                 .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
@@ -509,6 +513,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         private int[] fieldTypes;
         private String inlongMetric;
         private String auditHostAndPorts;
+        private String auditKeys;
         private JdbcExecutionOptions.Builder executionOptionsBuilder =
                 JdbcExecutionOptions.builder();
         private DirtyOptions dirtyOptions;
@@ -563,6 +568,14 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         }
 
         /**
+         * auditKeys
+         */
+        public Builder setAuditKeys(String auditKeys) {
+            this.auditKeys = auditKeys;
+            return this;
+        }
+
+        /**
          * optional, flush max size (includes all append, upsert and delete records), over this
          * number of records, will flush data.
          */
@@ -611,7 +624,8 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                         inlongMetric,
                         auditHostAndPorts,
                         dirtyOptions,
-                        dirtySink);
+                        dirtySink,
+                        auditKeys);
             } else {
                 // warn: don't close over builder fields
                 String sql =
@@ -634,7 +648,8 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                         inlongMetric,
                         auditHostAndPorts,
                         dirtyOptions,
-                        dirtySink);
+                        dirtySink,
+                        auditKeys);
             }
         }
     }

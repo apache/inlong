@@ -68,4 +68,6 @@ public interface InlongTenantService {
      * @return true= delete success/ false = delete fail
      */
     Boolean delete(String name);
+
+    Boolean migrate(String groupId, String to);
 }

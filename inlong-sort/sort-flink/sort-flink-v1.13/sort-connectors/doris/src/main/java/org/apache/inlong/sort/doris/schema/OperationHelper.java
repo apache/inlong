@@ -35,6 +35,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringJoiner;
 
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.DEFAULT_DECIMAL_PRECISION;
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.DEFAULT_DECIMAL_SCALE;
+
 public class OperationHelper {
 
     private static final String APOSTROPHE = "'";
@@ -76,7 +79,7 @@ public class OperationHelper {
                     Preconditions.checkState(precisions.size() < 3,
                             "The length of precisions with DECIMAL must small than 3");
                     int precision = Integer.parseInt(precisions.get(0));
-                    int scale = JsonDynamicSchemaFormat.DEFAULT_DECIMAL_SCALE;
+                    int scale = DEFAULT_DECIMAL_SCALE;
                     if (precisions.size() == 2) {
                         scale = Integer.parseInt(precisions.get(1));
                     }
@@ -135,8 +138,8 @@ public class OperationHelper {
                 break;
             case Types.REAL:
             case Types.NUMERIC:
-                int precision = JsonDynamicSchemaFormat.DEFAULT_DECIMAL_PRECISION;
-                int scale = JsonDynamicSchemaFormat.DEFAULT_DECIMAL_SCALE;
+                int precision = DEFAULT_DECIMAL_PRECISION;
+                int scale = DEFAULT_DECIMAL_SCALE;
                 if (precisions != null && !precisions.isEmpty()) {
                     Preconditions.checkState(precisions.size() < 3,
                             "The length of precisions with NUMERIC must small than 3");

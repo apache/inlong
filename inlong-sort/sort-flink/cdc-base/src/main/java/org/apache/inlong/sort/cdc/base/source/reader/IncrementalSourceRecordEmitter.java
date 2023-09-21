@@ -45,6 +45,7 @@ import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getFetch
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getHistoryRecord;
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getMessageTimestamp;
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.isDataChangeRecord;
+import static org.apache.inlong.sort.cdc.base.util.RecordUtils.isHeartbeatEvent;
 import static org.apache.inlong.sort.cdc.base.util.RecordUtils.isSchemaChangeEvent;
 
 /**
@@ -110,15 +111,24 @@ public class IncrementalSourceRecordEmitter<T>
                 emitElement(element, output);
             }
         } else if (isDataChangeRecord(element)) {
-            if (splitState.isStreamSplitState()) {
-                Offset position = getOffsetPosition(element);
-                splitState.asStreamSplitState().setStartingOffset(position);
-            }
+            LOG.trace("Process DataChangeRecord: {}; splitState = {}", element, splitState);
+            updateStartingOffsetForSplit(splitState, element);
             reportMetrics(element);
             emitElement(element, output);
+        } else if (isHeartbeatEvent(element)) {
+            LOG.trace("Process Heartbeat: {}; splitState = {}", element, splitState);
+            updateStartingOffsetForSplit(splitState, element);
         } else {
             // unknown element
-            LOG.info("Meet unknown element {}, just skip.", element);
+            LOG.info(
+                    "Meet unknown element {} for splitState = {}, just skip.", element, splitState);
+        }
+    }
+
+    protected void updateStartingOffsetForSplit(SourceSplitState splitState, SourceRecord element) {
+        if (splitState.isStreamSplitState()) {
+            Offset position = getOffsetPosition(element);
+            splitState.asStreamSplitState().setStartingOffset(position);
         }
     }
 

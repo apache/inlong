@@ -305,4 +305,26 @@
             </if>
         </where>
     </delete>
+    <insert id="migrate">
+        update inlong_consume
+        set tenant = #{targetTenant, jdbcType=VARCHAR}
+        <where>
+            inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            and is_deleted = 0
+            and tenant = #{sourceTenant, jdbcType=VARCHAR}
+        </where>
+    </insert>
+    <select id="selectByGroupId" resultMap="BaseResultMap">
+        <bind name="_isInlongService" value="LoginUser.InlongService"/>
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_consume
+        <where>
+            <if test="_isInlongService == false">
+                tenant = #{tenant,jdbcType=VARCHAR}
+            </if>
+            and is_deleted = 0
+            and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        </where>
+    </select>
 </mapper>

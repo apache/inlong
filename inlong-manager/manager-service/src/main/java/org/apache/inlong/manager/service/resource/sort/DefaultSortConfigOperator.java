@@ -45,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -123,15 +124,15 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
             // build a stream info from the nodes and relations
             List<StreamSource> sources = sourceMap.get(streamId);
             List<StreamSink> sinks = sinkMap.get(streamId);
-            // get audit list by sink type
-            List<String> auditIds = new ArrayList<>();
+
             for (StreamSink sink : sinks) {
-                auditIds.add(auditService.getAuditId(sink.getSinkType(), false));
+                Map<String, Object> properties = sink.getProperties();
+                properties.putIfAbsent("metrics.audit.key", auditService.getAuditId(sink.getSinkType(), true));
             }
             for (StreamSource source : sources) {
                 source.setFieldList(inlongStream.getFieldList());
                 Map<String, Object> properties = source.getProperties();
-                properties.putIfAbsent("metrics.audit.key", String.join("&", auditIds));
+                properties.putIfAbsent("metrics.audit.key", auditService.getAuditId(source.getSourceType(), false));
             }
             List<NodeRelation> relations;
 
@@ -148,7 +149,17 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                     relations = NodeRelationUtils.createNodeRelations(sources, sinks);
                 }
             } else {
-                relations = NodeRelationUtils.createNodeRelations(sources, sinks);
+                if (CollectionUtils.isNotEmpty(transformResponses)) {
+                    List<String> sourcesNames = sources.stream().map(StreamSource::getSourceName)
+                            .collect(Collectors.toList());
+                    List<String> transFormNames = transformResponses.stream().map(TransformResponse::getTransformName)
+                            .collect(Collectors.toList());
+                    List<String> sinkNames = sinks.stream().map(StreamSink::getSinkName).collect(Collectors.toList());
+                    relations = Arrays.asList(NodeRelationUtils.createNodeRelation(sourcesNames, transFormNames),
+                            NodeRelationUtils.createNodeRelation(transFormNames, sinkNames));
+                } else {
+                    relations = NodeRelationUtils.createNodeRelations(sources, sinks);
+                }
             }
 
             // create extract-transform-load nodes

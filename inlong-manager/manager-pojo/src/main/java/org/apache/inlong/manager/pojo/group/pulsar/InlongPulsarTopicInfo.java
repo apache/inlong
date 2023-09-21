@@ -39,7 +39,7 @@ import java.util.List;
 public class InlongPulsarTopicInfo extends InlongGroupTopicInfo {
 
     @ApiModelProperty(value = "Pulsar tenant")
-    private String tenant;
+    private String pulsarTenant;
 
     @ApiModelProperty(value = "Pulsar namespace")
     private String namespace;

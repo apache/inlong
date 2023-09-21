@@ -74,23 +74,33 @@ public class IcebergSchemaChangeUtils extends SchemaChangeUtils {
     }
 
     public static void applySchemaChanges(UpdateSchema pendingUpdate, List<TableChange> tableChanges) {
-        for (TableChange change : tableChanges) {
-            if (change instanceof TableChange.AddColumn) {
-                applyAddColumn(pendingUpdate, (TableChange.AddColumn) change);
-            } else if (change instanceof TableChange.DeleteColumn) {
-                applyDeleteColumn(pendingUpdate, (TableChange.DeleteColumn) change);
-            } else if (change instanceof TableChange.UpdateColumn) {
-                applyUpdateColumn(pendingUpdate, (TableChange.UpdateColumn) change);
+        try {
+            for (TableChange change : tableChanges) {
+                if (change instanceof TableChange.AddColumn) {
+                    applyAddColumn(pendingUpdate, (TableChange.AddColumn) change);
+                } else if (change instanceof TableChange.DeleteColumn) {
+                    applyDeleteColumn(pendingUpdate, (TableChange.DeleteColumn) change);
+                } else if (change instanceof TableChange.UpdateColumn) {
+                    applyUpdateColumn(pendingUpdate, (TableChange.UpdateColumn) change);
+                } else {
+                    throw new UnsupportedOperationException("Cannot apply unknown table change: " + change);
+                }
+            }
+            pendingUpdate.commit();
+        } catch (Exception e) {
+            String addColumnDuplicationExecException = "Cannot add column, name already exists";
+            String deleteColumnDuplicationExecException = "Cannot delete missing column";
+            if (e.getMessage().contains(addColumnDuplicationExecException) ||
+                    e.getMessage().contains(deleteColumnDuplicationExecException)) {
+                // try catch exception for replay ddl binlog
+                LOGGER.warn("ddl exec exception", e);
             } else {
-                throw new UnsupportedOperationException("Cannot apply unknown table change: " + change);
+                throw e;
             }
         }
-        pendingUpdate.commit();
     }
 
     public static void applyAddColumn(UpdateSchema pendingUpdate, TableChange.AddColumn add) {
-        Preconditions.checkArgument(add.isNullable(),
-                "Incompatible change: cannot add required column: %s", leafName(add.fieldNames()));
         Type type = add.dataType().accept(new FlinkTypeToType(RowType.of(add.dataType())));
         pendingUpdate.addColumn(parentName(add.fieldNames()), leafName(add.fieldNames()), type, add.comment());
 

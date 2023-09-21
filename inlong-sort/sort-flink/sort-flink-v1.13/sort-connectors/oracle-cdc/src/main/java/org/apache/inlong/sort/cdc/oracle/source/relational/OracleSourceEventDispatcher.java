@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.cdc.oracle.source.relational;
 
 import org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher;
+import org.apache.inlong.sort.cdc.base.relational.handler.SchemaChangeEventHandler;
 
 import io.debezium.config.CommonConnectorConfig;
 import io.debezium.connector.base.ChangeEventQueue;
@@ -66,7 +67,8 @@ public class OracleSourceEventDispatcher extends JdbcSourceEventDispatcher {
             DataCollectionFilters.DataCollectionFilter<TableId> filter,
             ChangeEventCreator changeEventCreator,
             EventMetadataProvider metadataProvider,
-            SchemaNameAdjuster schemaNameAdjuster) {
+            SchemaNameAdjuster schemaNameAdjuster,
+            SchemaChangeEventHandler schemaChangeEventHandler) {
         super(
                 connectorConfig,
                 topicSelector,
@@ -75,7 +77,8 @@ public class OracleSourceEventDispatcher extends JdbcSourceEventDispatcher {
                 filter,
                 changeEventCreator,
                 metadataProvider,
-                schemaNameAdjuster);
+                schemaNameAdjuster,
+                schemaChangeEventHandler);
     }
 
     @Override

@@ -52,6 +52,12 @@ public class TErrCodeConstants {
     public static final int CLIENT_INCONSISTENT_SOURCECOUNT = 429;
     public static final int CLIENT_DUPLICATE_INDEXID = 430;
     public static final int TOPIC_NOT_DEPLOYED = 431;
+    public static final int PARAMETER_MSG_NULL = 440;
+    public static final int PARAMETER_MSG_TOPIC_BLANK = 441;
+    public static final int PARAMETER_MSG_BODY_EMPTY = 442;
+    public static final int PARAMETER_MSG_TOPIC_UNPUBLISHED = 443;
+    public static final int PARAMETER_MSG_TOPIC_NO_PARTITION = 444;
+    public static final int PARAMETER_MSG_OVER_MAX_LENGTH = 445;
 
     public static final int CONSUME_GROUP_FORBIDDEN = 450;
     public static final int SERVER_CONSUME_SPEED_LIMIT = 452;

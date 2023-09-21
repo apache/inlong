@@ -42,7 +42,7 @@ public class InlongPulsarRequest extends InlongGroupRequest {
      *  from {@link org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest}
      */
     @ApiModelProperty(value = "Pulsar tenant")
-    private String tenant;
+    private String pulsarTenant;
 
     @ApiModelProperty(value = "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
             + "serial: single partition, low throughput, and orderly messages")

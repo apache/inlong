@@ -17,27 +17,25 @@
 
 package org.apache.inlong.manager.client.api.service;
 
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.transform.TransformPageRequest;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
-import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
-
-import java.util.List;
 
 public interface StreamTransformApi {
 
     @POST("transform/save")
     Call<Response<Integer>> createTransform(@Body TransformRequest request);
 
-    @GET("transform/list")
-    Call<Response<List<TransformResponse>>> listTransform(@Query("inlongGroupId") String groupId,
-            @Query("inlongStreamId") String streamId);
+    @POST("transform/list")
+    Call<Response<PageResult<TransformResponse>>> listTransform(@Body TransformPageRequest request);
 
     @POST("transform/update")
     Call<Response<Boolean>> updateTransform(@Body TransformRequest request);

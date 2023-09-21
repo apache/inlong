@@ -51,6 +51,15 @@ public abstract class TopicManager implements Cleanable {
     public abstract TopicFetcher removeTopic(InLongTopic topic, boolean closeFetcher);
 
     /**
+     * Remove topic and return the fetcher that has maintained this topic.
+     * @param topicKey Topic key to be removed.
+     * @return The fetcher that has maintained this topic.
+     */
+    public TopicFetcher removeTopic(String topicKey) {
+        return null;
+    }
+
+    /**
      * Get the specified fetcher by the given fetch key.
      * @param fetchKey Unique fetch key.
      * @return Related fetcher.
@@ -78,4 +87,16 @@ public abstract class TopicManager implements Cleanable {
      * Close manager.
      */
     public abstract void close();
+
+    /**
+     * Restart
+     */
+    public void restartAssigned() {
+
+    }
+
+    public void stopAssigned() {
+
+    }
+
 }

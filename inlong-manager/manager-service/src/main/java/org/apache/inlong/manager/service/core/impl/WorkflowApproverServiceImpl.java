@@ -29,7 +29,6 @@ import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
-import org.apache.inlong.manager.service.user.UserService;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
 import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
@@ -61,8 +60,6 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
     private WorkflowApproverEntityMapper approverMapper;
     @Autowired
     private ProcessDefinitionService processDefinitionService;
-    @Autowired
-    private UserService userService;
 
     @Override
     public Integer save(ApproverRequest request, String operator) {
@@ -99,9 +96,6 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
             throw new BusinessException(ErrorCodeEnum.WORKFLOW_APPROVER_NOT_FOUND);
         }
 
-        userService.checkUser(approverEntity.getApprovers(), operator,
-                "Current user does not have permission to get this workflow approver info");
-
         return CommonBeanUtils.copyProperties(approverEntity, ApproverResponse::new);
     }
 
@@ -124,10 +118,8 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
 
         Page<WorkflowApproverEntity> page = (Page<WorkflowApproverEntity>) approverMapper.selectByCondition(request);
-        List<ApproverResponse> resultList = CommonBeanUtils.copyListProperties(page,
-                ApproverResponse::new);
-
-        return new PageResult<>(resultList, page.getTotal(), page.getPageNum(), page.getPageSize());
+        return PageResult.fromPage(page)
+                .map(entity -> CommonBeanUtils.copyProperties(entity, ApproverResponse::new));
     }
 
     @Override

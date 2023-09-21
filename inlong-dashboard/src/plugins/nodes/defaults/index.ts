@@ -32,6 +32,11 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     LoadEntity: () => import('./ClickHouse'),
   },
   {
+    label: 'CLS',
+    value: 'CLS',
+    LoadEntity: () => import('./Cls'),
+  },
+  {
     label: 'Elasticsearch',
     value: 'ELASTICSEARCH',
     LoadEntity: () => import('./Elasticsearch'),
@@ -60,6 +65,11 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     label: 'PostgreSQL',
     value: 'POSTGRESQL',
     LoadEntity: () => import('./PostgreSQL'),
+  },
+  {
+    label: 'Pulsar',
+    value: 'PULSAR',
+    LoadEntity: () => import('./Pulsar'),
   },
   {
     label: 'Redis',
