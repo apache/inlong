@@ -103,7 +103,6 @@ public class NodeFactory {
                 sourceInfo.getSourceType());
         LoadNodeProvider loadNodeProvider = LoadNodeProviderFactory.getLoadNodeProvider(sinkInfo.getSinkType());
 
-                FieldInfoUtils.compareFields(extractNodeProvider.getMetaFields(), loadNodeProvider.getMetaFields()));
         if (FieldInfoUtils.compareFields(extractNodeProvider.getMetaFields(), loadNodeProvider.getMetaFields())) {
             extractNodeProvider.addStreamMetaFields(sourceInfo.getFieldList());
             transformResponses.forEach(v -> extractNodeProvider.addStreamMetaFields(v.getFieldList()));
