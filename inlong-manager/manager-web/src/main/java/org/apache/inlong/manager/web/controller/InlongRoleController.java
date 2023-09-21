@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
-@Api(tags = "INLONG-USER-API")
+@Api(tags = "INLONG-User-API")
 public class InlongRoleController {
 
     @Autowired
