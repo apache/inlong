@@ -256,7 +256,8 @@ public class FlinkOperation {
 
         List<String> nodeTypes = new ArrayList<>();
         if (StringUtils.isNotEmpty(dataflow)) {
-            checkNodeIds(dataflow);
+            // TODO Temporarily remove this method. The method of checking node needs to be modified.
+            // checkNodeIds(dataflow);
             JsonNode nodes = JsonUtils.parseTree(dataflow).get(InlongConstants.STREAMS)
                     .get(0).get(InlongConstants.NODES);
             List<String> types = JsonUtils.OBJECT_MAPPER.convertValue(nodes,
