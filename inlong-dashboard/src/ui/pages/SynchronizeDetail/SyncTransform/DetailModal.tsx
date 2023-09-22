@@ -219,6 +219,7 @@ const Comp: React.FC<Props> = ({
         options:
           record.type === 'false'
             ? sinkData?.list[0]?.sinkFieldList.map(item => ({
+                ...item,
                 label: item.fieldName,
                 value: item.fieldName,
               }))
@@ -228,7 +229,10 @@ const Comp: React.FC<Props> = ({
             target: value,
             targetValue: {
               constant: record.type === 'true' ? true : false,
-              targetField: record.sourceField,
+              targetField:
+                record.type === 'true'
+                  ? record.sourceField
+                  : { fieldName: option.fieldName, fieldType: option.fieldType },
               targetConstant: value,
             },
           };
