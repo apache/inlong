@@ -35,6 +35,7 @@ import org.apache.inlong.manager.service.transform.StreamTransformService;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
+import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -42,6 +43,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMap
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -51,6 +53,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -63,6 +66,8 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultSortConfigOperator.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+    @Value("${metrics.audit.proxy.hosts:127.0.0.1}")
+    private String auditHost;
     @Autowired
     private StreamSourceService sourceService;
     @Autowired
@@ -127,12 +132,11 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
 
             for (StreamSink sink : sinks) {
                 Map<String, Object> properties = sink.getProperties();
-                properties.putIfAbsent("metrics.audit.key", auditService.getAuditId(sink.getSinkType(), true));
+                addAuditId(sink.getProperties(), sink.getSinkType(), true);
             }
             for (StreamSource source : sources) {
                 source.setFieldList(inlongStream.getFieldList());
-                Map<String, Object> properties = source.getProperties();
-                properties.putIfAbsent("metrics.audit.key", auditService.getAuditId(source.getSourceType(), false));
+                addAuditId(source.getProperties(), source.getSourceType(), false);
             }
             List<NodeRelation> relations;
 
@@ -222,8 +226,13 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     private List<Node> createNodes(List<StreamSource> sources, List<TransformResponse> transformResponses,
             List<StreamSink> sinks, Map<String, StreamField> constantFieldMap) {
         List<Node> nodes = new ArrayList<>();
+        if (Objects.equals(sources.size(), sinks.size()) && Objects.equals(sources.size(), 1)) {
+            return NodeFactory.addBuiltInField(sources.get(0), sinks.get(0), transformResponses, constantFieldMap);
+        }
+        List<TransformNode> transformNodes =
+                TransformNodeUtils.createTransformNodes(transformResponses, constantFieldMap);
         nodes.addAll(NodeFactory.createExtractNodes(sources));
-        nodes.addAll(TransformNodeUtils.createTransformNodes(transformResponses, constantFieldMap));
+        nodes.addAll(transformNodes);
         nodes.addAll(NodeFactory.createLoadNodes(sinks, constantFieldMap));
         return nodes;
     }
@@ -264,4 +273,14 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         groupInfo.getExtList().add(extInfo);
     }
 
+    private void addAuditId(Map<String, Object> properties, String type, boolean isSent) {
+        try {
+            String auditId = auditService.getAuditId(type, isSent);
+            properties.putIfAbsent("metrics.audit.key", auditId);
+            properties.putIfAbsent("metrics.audit.proxy.hosts", auditHost);
+        } catch (Exception e) {
+            LOGGER.error("Current type ={} is not set auditId", type);
+        }
+
+    }
 }

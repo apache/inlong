@@ -17,6 +17,10 @@
 
 package org.apache.inlong.manager.pojo.sort.node.base;
 
+import org.apache.inlong.sort.protocol.FieldInfo;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -45,4 +49,9 @@ public interface NodeProvider {
                 .filter(v -> Objects.nonNull(v.getValue()))
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
     }
+
+    default List<FieldInfo> getMetaFields() {
+        return new ArrayList<>();
+    }
+
 }
