@@ -44,7 +44,7 @@ class IcebergSourceSplitReader<T> implements SplitReader<RecordAndPosition<T>, I
 
     private static final Logger LOG = LoggerFactory.getLogger(IcebergSourceSplitReader.class);
 
-    private final InlongIcebergSourceReaderMetrics metrics;
+    private final InlongIcebergSourceReaderMetrics<T> metrics;
     private final ReaderFunction<T> openSplitFunction;
     private final int indexOfSubtask;
     private final Queue<IcebergSourceSplit> splits;
@@ -54,7 +54,7 @@ class IcebergSourceSplitReader<T> implements SplitReader<RecordAndPosition<T>, I
     private String currentSplitId;
 
     IcebergSourceSplitReader(
-            InlongIcebergSourceReaderMetrics metrics,
+            InlongIcebergSourceReaderMetrics<T> metrics,
             ReaderFunction<T> openSplitFunction,
             SourceReaderContext context) {
         this.metrics = metrics;
