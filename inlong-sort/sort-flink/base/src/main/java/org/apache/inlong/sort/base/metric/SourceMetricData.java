@@ -38,7 +38,6 @@ import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_PER_SECOND;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_PER_SECOND;
-import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataArraySize;
 import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataSize;
 
 /**
@@ -241,11 +240,6 @@ public class SourceMetricData implements MetricData {
 
     public void outputMetricsWithEstimate(Object data) {
         outputMetrics(1, getDataSize(data));
-    }
-
-    public void outputMetricsWithEstimate(Object[] records) {
-        long size = getDataArraySize(records);
-        outputMetrics(records.length, size);
     }
 
     public void outputMetricsWithEstimate(Object data, long fetchDelay, long emitDelay) {

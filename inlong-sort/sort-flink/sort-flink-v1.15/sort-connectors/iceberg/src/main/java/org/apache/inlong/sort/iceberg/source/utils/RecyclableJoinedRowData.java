@@ -39,6 +39,7 @@ public class RecyclableJoinedRowData implements RowData {
     private RowKind rowKind = RowKind.INSERT;
     private RowData physicalRowData;
     private RowData metaRowData;
+    private long dataTime;
 
     public RecyclableJoinedRowData() {
     }
@@ -48,10 +49,12 @@ public class RecyclableJoinedRowData implements RowData {
         metaRowData = new GenericRowData(metaSize);
     }
 
-    public RecyclableJoinedRowData replace(RowKind rowKind, RowData physicalRowData, RowData metaRowData) {
+    public RecyclableJoinedRowData replace(RowKind rowKind, RowData physicalRowData, RowData metaRowData,
+            long dataTime) {
         this.rowKind = rowKind;
         this.physicalRowData = physicalRowData;
         this.metaRowData = metaRowData;
+        this.dataTime = dataTime;
         return this;
     }
 
@@ -61,6 +64,10 @@ public class RecyclableJoinedRowData implements RowData {
 
     public RowData getMetaRowData() {
         return metaRowData;
+    }
+
+    public long getDataTime() {
+        return dataTime;
     }
 
     // ---------------------------------------------------------------------------------------------

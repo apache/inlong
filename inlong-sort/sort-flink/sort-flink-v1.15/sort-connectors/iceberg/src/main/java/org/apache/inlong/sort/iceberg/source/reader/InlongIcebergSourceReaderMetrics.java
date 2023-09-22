@@ -19,10 +19,14 @@ package org.apache.inlong.sort.iceberg.source.reader;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.iceberg.source.utils.RecyclableJoinedRowData;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.table.data.RowData;
 import org.apache.iceberg.flink.source.reader.IcebergSourceReaderMetrics;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * Inlong iceberg source reader metrics
@@ -48,8 +52,29 @@ public class InlongIcebergSourceReaderMetrics extends IcebergSourceReaderMetrics
 
     public void outputMetricsWithEstimate(ArrayBatchRecords batchRecord) {
         if (sourceMetricData != null) {
-            sourceMetricData.outputMetricsWithEstimate(batchRecord.records());
-        }
+            int dataCount = batchRecord.numberOfRecords();
+            Object[] records = batchRecord.records();
+            for (int i = 0; i < dataCount; i++) {
+                long dataSize = getDataSize(records[i]);
+                long dataTime = getDataTime(records[i]);
+                sourceMetricData.outputMetrics(1, dataSize, dataTime);
+            }
 
+        }
+    }
+
+    private long getDataTime(Object object) {
+        if (object instanceof RecyclableJoinedRowData) {
+            return ((RecyclableJoinedRowData) object).getDataTime();
+        }
+        return System.currentTimeMillis();
+    }
+
+    private long getDataSize(Object object) {
+        if (object instanceof RecyclableJoinedRowData) {
+            RowData physical = ((RecyclableJoinedRowData) object).getPhysicalRowData();
+            return physical.toString().getBytes(StandardCharsets.UTF_8).length;
+        }
+        return object.toString().getBytes(StandardCharsets.UTF_8).length;
     }
 }
