@@ -104,7 +104,7 @@ public class IcebergProvider implements ExtractNodeProvider, LoadNodeProvider {
         List<String> fieldNames = streamFields.stream().map(StreamField::getFieldName).collect(Collectors.toList());
         if (!fieldNames.contains(MetaField.AUDIT_DATA_TIME.name())) {
             streamFields.add(0,
-                    new StreamField(0, "long", MetaField.AUDIT_DATA_TIME.name(), "date_time", null, 1,
+                    new StreamField(0, "long", MetaField.AUDIT_DATA_TIME.name(), "data_time", null, 1,
                             MetaField.AUDIT_DATA_TIME.name()));
         }
         return streamFields;
