@@ -32,7 +32,7 @@ import java.nio.charset.StandardCharsets;
  * Inlong iceberg source reader metrics
  */
 @Slf4j
-public class InlongIcebergSourceReaderMetrics extends IcebergSourceReaderMetrics {
+public class InlongIcebergSourceReaderMetrics<T> extends IcebergSourceReaderMetrics {
 
     private final MetricGroup metrics;
     private SourceMetricData sourceMetricData;
@@ -50,10 +50,10 @@ public class InlongIcebergSourceReaderMetrics extends IcebergSourceReaderMetrics
         }
     }
 
-    public void outputMetricsWithEstimate(ArrayBatchRecords batchRecord) {
+    public void outputMetricsWithEstimate(ArrayBatchRecords<T> batchRecord) {
         if (sourceMetricData != null) {
             int dataCount = batchRecord.numberOfRecords();
-            Object[] records = batchRecord.records();
+            T[] records = batchRecord.records();
             for (int i = 0; i < dataCount; i++) {
                 long dataSize = getDataSize(records[i]);
                 long dataTime = getDataTime(records[i]);
@@ -63,14 +63,14 @@ public class InlongIcebergSourceReaderMetrics extends IcebergSourceReaderMetrics
         }
     }
 
-    private long getDataTime(Object object) {
+    private long getDataTime(T object) {
         if (object instanceof RecyclableJoinedRowData) {
             return ((RecyclableJoinedRowData) object).getDataTime();
         }
         return System.currentTimeMillis();
     }
 
-    private long getDataSize(Object object) {
+    private long getDataSize(T object) {
         if (object instanceof RecyclableJoinedRowData) {
             RowData physical = ((RecyclableJoinedRowData) object).getPhysicalRowData();
             return physical.toString().getBytes(StandardCharsets.UTF_8).length;
