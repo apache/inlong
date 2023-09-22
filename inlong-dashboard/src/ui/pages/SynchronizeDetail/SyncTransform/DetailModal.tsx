@@ -104,7 +104,21 @@ const Comp: React.FC<Props> = ({
     {
       manual: true,
       onSuccess: result => {
-        form.setFieldsValue(JSON.parse(result.transformDefinition));
+        const transformDefinition = JSON.parse(result.transformDefinition);
+        const filedRules = transformDefinition.filterRules.map(item => {
+          return {
+            relationWithPost: item.relationWithPost,
+            sourceField: item.sourceField.fieldName,
+            operationType: item.operationType,
+            constant: item.targetValue.constant === true ? 'true' : 'false',
+            targetConstant: item.targetValue.targetConstant,
+          };
+        });
+        form.setFieldsValue({
+          filterStrategy: transformDefinition.filterStrategy,
+          filterMode: transformDefinition.filterMode,
+          filterRules: filedRules,
+        });
       },
     },
   );
@@ -131,22 +145,15 @@ const Comp: React.FC<Props> = ({
     {
       title: i18n.t('pages.SynchronizeDetail.Transform.FilterFields'),
       type: 'select',
-      dataIndex: 'fieldSource',
+      dataIndex: 'sourceField',
       rules: [{ required: true }],
-      props: (text, record, idx, isNew) => ({
+      props: {
         options: data?.fieldList.map(item => ({
+          ...item,
           label: item.fieldName,
           value: item.fieldName,
         })),
-        onChange: (value, option) => {
-          record.fieldSource = value;
-          const field = data?.fieldList.find(item => value === item.fieldName);
-          return (record.sourceField = {
-            fieldName: field.fieldName,
-            fieldType: field.fieldType,
-          });
-        },
-      }),
+      },
     },
     {
       title: i18n.t('pages.SynchronizeDetail.Transform.Operators'),
@@ -193,17 +200,17 @@ const Comp: React.FC<Props> = ({
     {
       title: i18n.t('pages.SynchronizeDetail.Transform.Type'),
       type: 'select',
-      dataIndex: 'type',
+      dataIndex: 'constant',
       rules: [{ required: true }],
       props: {
         options: [
           {
             label: i18n.t('pages.SynchronizeDetail.Transform.Type.Field'),
-            value: 'field',
+            value: 'true',
           },
           {
             label: i18n.t('pages.SynchronizeDetail.Transform.Type.CustomValue'),
-            value: 'customize',
+            value: 'false',
           },
         ],
       },
@@ -211,33 +218,41 @@ const Comp: React.FC<Props> = ({
     {
       title: i18n.t('pages.SynchronizeDetail.Transform.ComparisonValue'),
       type: 'autocomplete',
-      dataIndex: 'fieldSink',
-      initialValue: '',
+      dataIndex: 'targetConstant',
       rules: [{ required: true }],
       props: (text, record, idx, isNew) => ({
         options:
-          record.type === 'field'
+          record.constant === 'true'
             ? sinkData?.list[0]?.sinkFieldList.map(item => ({
                 label: item.fieldName,
                 value: item.fieldName,
               }))
             : null,
-        onChange: (value, option) => {
-          record.fieldSink = value;
-          const field = sinkData?.list[0]?.sinkFieldList.find(item => value === item.fieldName);
-          return record.type === 'field'
-            ? (record.targetField = {
-                fieldName: field.fieldName,
-                fieldType: field.fieldType,
-              })
-            : (record.targetField = value);
-        },
       }),
     },
   ];
 
   const onOk = async () => {
     const values = await form.validateFields();
+    const rules = values.filterRules.map(item => {
+      const fields = data?.fieldList.find(itmes => item.sourceField === itmes.fieldName);
+      return {
+        relationWithPost: item.relationWithPost,
+        sourceField: {
+          fieldName: fields.fieldName,
+          filedType: fields.fieldType,
+        },
+        operationType: item.operationType,
+        targetValue: {
+          constant: item.constant === 'true' ? true : false,
+          targetField: {
+            fieldName: fields.fieldName,
+            filedType: fields.fieldType,
+          },
+          targetConstant: item.targetConstant,
+        },
+      };
+    });
     const submitData = {
       ...values,
       inlongGroupId,
@@ -245,7 +260,7 @@ const Comp: React.FC<Props> = ({
       transformDefinition: JSON.stringify({
         filterStrategy: values.filterStrategy,
         filterMode: 'RULE',
-        filterRules: values.filterRules,
+        filterRules: rules,
       }),
     };
     const isUpdate = Boolean(id);
