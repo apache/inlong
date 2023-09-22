@@ -126,7 +126,7 @@ The remaining fields(`c2`~`c7`) will be serialized into one value and put into r
 
 ```sql
 CREATE TABLE sink (
-    KEY STRING, 
+    key STRING, 
     field_name STRING, 
     value_1 DOUBLE,
     value_2 BIGINT, 
