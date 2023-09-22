@@ -151,7 +151,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                     relations = NodeRelationUtils.createNodeRelations(sources, sinks);
                 }
 
-                if(sources.size() == sinks.size()) {
+                if (sources.size() == sinks.size()) {
                     for (int i = 0; i < sinks.size(); i++) {
                         addAuditId(sources.get(i).getProperties(), sinks.get(i).getSinkType(), false);
                     }
