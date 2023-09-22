@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Divider, Row, Table } from 'antd';
 import { DoubleRightOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import SyncSources from '../SyncSources';
@@ -27,6 +27,7 @@ import EditableTable, { ColumnsItemProps } from '@/ui/components/EditableTable';
 import i18n from '@/i18n';
 import FieldList from '@/ui/components/FieldList';
 import { ColumnsType } from 'antd/es/table';
+import { useRequest } from 'ahooks';
 
 export interface Props {
   inlongGroupId: string;
@@ -38,6 +39,17 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId }) => {
   const openClick = () => {
     setOpenT({ open: openT.open === false ? true : false });
   };
+
+  const { data, run: getList } = useRequest({
+    url: '/transform/list',
+    method: 'POST',
+    data: {
+      inlongGroupId,
+      inlongStreamId,
+      pageSize: 10,
+      pageNum: 1,
+    },
+  });
 
   const sinkColumns: ColumnsType = [
     {
@@ -69,9 +81,13 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId }) => {
     },
   ];
 
+  useEffect(() => {
+    getList();
+  }, [getList]);
+
   return (
     <>
-      {openT.open ? (
+      {openT.open || data?.total !== 0 ? (
         <Row gutter={[40, 48]}>
           <Col span={8}>
             <SyncSources inlongGroupId={inlongGroupId} inlongStreamId={inlongStreamId} />
