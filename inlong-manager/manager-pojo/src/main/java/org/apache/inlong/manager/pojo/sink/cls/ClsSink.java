@@ -79,6 +79,9 @@ public class ClsSink extends StreamSink {
     @ApiModelProperty("Cloud log service index tokenizer")
     private String tokenizer;
 
+    @ApiModelProperty("Cloud log service topic save time")
+    private Integer saveTime;
+
     public ClsSink() {
         this.setSinkType(SinkType.CLS);
     }
