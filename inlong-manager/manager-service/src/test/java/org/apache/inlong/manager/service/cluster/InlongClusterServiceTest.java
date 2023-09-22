@@ -349,7 +349,6 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assertions.assertTrue(types.contains(type3));
     }
 
-
     @Test
     public void testDataProxyCluster() {
         String clusterTag = "default_cluster";
