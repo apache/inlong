@@ -33,7 +33,10 @@ import org.apache.inlong.tubemq.manager.service.interfaces.NodeService;
 import org.apache.inlong.tubemq.manager.service.interfaces.TopicService;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,6 +45,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -49,10 +54,12 @@ import java.util.Map;
 @Slf4j
 public class TopicWebController {
 
+    private static final Logger LOGGER = LogManager.getLogger(TopicWebController.class);
+
     @Autowired
     private NodeService nodeService;
 
-    private Gson gson = new Gson();
+    private static final Gson gson = new Gson();
 
     @Autowired
     private MasterService masterService;
@@ -67,6 +74,25 @@ public class TopicWebController {
     @RequestMapping(value = "")
     public @ResponseBody TubeMQResult topicMethodProxy(@RequestParam String method, @RequestBody String req)
             throws Exception {
+        // Log audit: Record the received method and req parameters
+        LOGGER.info("Received method for topicMethodProxy: {}", method);
+        LOGGER.info("Received req for topicMethodProxy: {}", req);
+
+        // Validate the 'method' parameter to ensure it's one of the allowed methods
+        if (!isValidMethod(method)) {
+            // Log audit: Record the invalid 'method' value
+            LOGGER.warn("Invalid method value received: {}", method);
+            return TubeMQResult.errorResult("Invalid method value.");
+        }
+
+        // Validate the 'req' parameter to ensure it's a valid JSON format
+        if (!isValidJson(req)) {
+            // Log audit: Record the invalid JSON format
+            LOGGER.warn("Invalid JSON format received: {}", req);
+            return TubeMQResult.errorResult("Invalid JSON format.");
+        }
+
+        // Perform processing based on the 'method' parameter
         switch (method) {
             case TubeConst.ADD:
                 return masterService.baseRequestMaster(gson.fromJson(req, BatchAddTopicReq.class));
@@ -87,6 +113,24 @@ public class TopicWebController {
                 return masterService.baseRequestMaster(gson.fromJson(req, SetSubscribeReq.class));
             default:
                 return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_METHOD);
+        }
+    }
+
+    private static boolean isValidMethod(String method) {
+        // Define a list of allowed methods
+        List<String> allowedMethods = Arrays.asList(
+                TubeConst.ADD, TubeConst.CLONE, TubeConst.AUTH_CONTROL, TubeConst.MODIFY,
+                TubeConst.DELETE, TubeConst.REMOVE, TubeConst.QUERY_CAN_WRITE, TubeConst.PUBLISH, TubeConst.SUBSCRIBE);
+        return allowedMethods.contains(method);
+    }
+
+    private static boolean isValidJson(String json) {
+        // Use a JSON library or parser to validate the JSON format
+        try {
+            gson.fromJson(json, Object.class);
+            return true;
+        } catch (JsonSyntaxException e) {
+            return false;
         }
     }
 

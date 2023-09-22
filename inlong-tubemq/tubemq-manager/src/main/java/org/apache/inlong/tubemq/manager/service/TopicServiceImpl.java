@@ -47,10 +47,14 @@ import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -71,6 +75,7 @@ public class TopicServiceImpl implements TopicService {
     public static final int MINIMUN_TOPIC_RUN_PART = 1;
     private final CloseableHttpClient httpclient = HttpClients.createDefault();
     private final Gson gson = new Gson();
+    private static final Logger LOGGER = LoggerFactory.getLogger(TopicServiceImpl.class);
 
     @Value("${manager.broker.webPort:8081}")
     private int brokerWebPort;
@@ -157,22 +162,67 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public TubeHttpTopicInfoList requestTopicConfigInfo(MasterEntry masterEntry, String topic) {
-        String url = TubeConst.SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
-                + TubeConst.TOPIC_CONFIG_INFO + "&topicName=" + topic;
+        String schema = TubeConst.SCHEMA.toLowerCase();
+        if (!"http://".equals(schema) && !"https://".equals(schema)) {
+            log.error("Invalid protocol in the URL: {}", schema);
+            return null;
+        }
+        // Validate and clean the host IP address and web port
+        String ip = validateAndCleanInput(masterEntry.getIp());
+        int webPort = validateAndCheckPort(masterEntry.getWebPort());
+        // Validate and clean the topic
+        topic = validateAndCleanInput(topic);
+        // Construct the URL
+        String url = schema + ip + ":" + webPort + TubeConst.TOPIC_CONFIG_INFO + "&topicName=" + topic;
+        // Log audit: Record the URL being requested
+        LOGGER.info("Requesting topic config info from URL: {}", url);
+
         HttpGet httpget = new HttpGet(url);
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
+            // Check for redirection, and reject if detected
+            if (isRedirect(response)) {
+                log.error("URL redirection detected. Requested URL: {}", url);
+                return null;
+            }
+
             TubeHttpTopicInfoList topicInfoList =
                     gson.fromJson(new InputStreamReader(response.getEntity()
                             .getContent(), StandardCharsets.UTF_8),
                             TubeHttpTopicInfoList.class);
             if (topicInfoList.getErrCode() == TubeConst.SUCCESS_CODE) {
+                // Log audit: Record a successful request
+                LOGGER.info("Topic config info request successful for URL: {}", url);
                 return topicInfoList;
+            } else {
+                // Log audit: Record a failed request
+                LOGGER.error("Topic config info request failed for URL: {}", url);
             }
-            log.error("exception caught while requesting topic config info {}", topicInfoList.getErrMsg());
         } catch (Exception ex) {
-            log.error("exception caught while requesting broker status", ex);
+            // Log audit: Record an exception
+            LOGGER.error("Exception caught while requesting topic config info for URL: {}", url, ex);
         }
         return null;
+    }
+
+    private String validateAndCleanInput(String input) {
+        input = input.replaceAll("[^a-zA-Z0-9.]", "");
+        return input;
+    }
+
+    private int validateAndCheckPort(int port) {
+        // Add port validation, ensuring it falls within a valid range
+        if (port >= 1 && port <= 65535) {
+            return port;
+        } else {
+            log.error("Invalid port number: {}", port);
+            throw new IllegalArgumentException("Invalid port number.");
+        }
+    }
+
+    private boolean isRedirect(HttpResponse response) {
+        // Check if the response contains redirection status codes
+        int statusCode = response.getStatusLine().getStatusCode();
+        return statusCode == HttpStatus.SC_MOVED_PERMANENTLY || statusCode == HttpStatus.SC_MOVED_TEMPORARILY;
     }
 
     @Override
