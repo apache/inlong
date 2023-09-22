@@ -17,6 +17,22 @@
 
 package org.apache.inlong.manager.service.resource.sink.cls;
 
+import org.apache.inlong.manager.common.consts.DataNodeType;
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.SinkStatus;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.dao.entity.DataNodeEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
+import org.apache.inlong.manager.pojo.node.cls.ClsDataNodeDTO;
+import org.apache.inlong.manager.pojo.sink.SinkInfo;
+import org.apache.inlong.manager.pojo.sink.cls.ClsSinkDTO;
+import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
+import org.apache.inlong.manager.service.sink.StreamSinkService;
+
 import com.tencentcloudapi.cls.v20201016.ClsClient;
 import com.tencentcloudapi.cls.v20201016.models.CreateIndexRequest;
 import com.tencentcloudapi.cls.v20201016.models.CreateTopicRequest;
@@ -35,21 +51,6 @@ import com.tencentcloudapi.common.profile.HttpProfile;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.directory.api.util.Strings;
-import org.apache.inlong.manager.common.consts.DataNodeType;
-import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.common.enums.SinkStatus;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.dao.entity.DataNodeEntity;
-import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
-import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
-import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
-import org.apache.inlong.manager.pojo.node.cls.ClsDataNodeDTO;
-import org.apache.inlong.manager.pojo.sink.SinkInfo;
-import org.apache.inlong.manager.pojo.sink.cls.ClsSinkDTO;
-import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
-import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +63,6 @@ public class ClsResourceOperator implements SinkResourceOperator {
     private static final String TOPIC_NAME = "topicName";
     private static final String LOG_SET_ID = "logsetId";
     private static final long PRECISE_SEARCH = 1L;
-
 
     @Autowired
     private DataNodeEntityMapper dataNodeEntityMapper;
@@ -104,7 +104,7 @@ public class ClsResourceOperator implements SinkResourceOperator {
             sinkInfo.setExtParams(JsonUtils.toJsonString(clsSinkDTO));
             // create topic index by tokenizer
             this.createTopicIndex(sinkInfo);
-            //update set topic id into sink info
+            // update set topic id into sink info
             updateSinkInfo(sinkInfo, clsSinkDTO);
             String info = "success to create cls resource";
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
@@ -158,7 +158,7 @@ public class ClsResourceOperator implements SinkResourceOperator {
      */
     private void createTopicIndex(SinkInfo sinkInfo) throws BusinessException {
         ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(sinkInfo.getExtParams(), ClsSinkDTO.class);
-        if (StringUtils.isNotBlank(clsSinkDTO.getTokenizer())) {
+        if (StringUtils.isEmpty(clsSinkDTO.getTokenizer())) {
             LOG.warn("topic {} tokenizer is empty", clsSinkDTO.getTopicName());
             return;
         }
@@ -192,8 +192,8 @@ public class ClsResourceOperator implements SinkResourceOperator {
         req.setPreciseSearch(PRECISE_SEARCH);
         try {
             DescribeTopicsResponse describeTopicsResponse = clsClient.DescribeTopics(req);
-            LOG.info("sink {} describe cls topic success topic count {}", sinkInfo.getSinkName()
-                    , describeTopicsResponse.getTotalCount());
+            LOG.info("sink {} describe cls topic success topic count {}", sinkInfo.getSinkName(),
+                    describeTopicsResponse.getTotalCount());
             if (ArrayUtils.isNotEmpty(describeTopicsResponse.getTopics())) {
                 TopicInfo[] topics = describeTopicsResponse.getTopics();
                 return topics[0].getTopicId();
