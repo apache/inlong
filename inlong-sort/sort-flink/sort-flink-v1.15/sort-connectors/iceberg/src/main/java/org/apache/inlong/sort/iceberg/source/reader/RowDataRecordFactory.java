@@ -69,6 +69,6 @@ class RowDataRecordFactory implements RecordFactory<RowData> {
         RowData physical =
                 RowDataCloneUtil.clonePhysical(from, recyclable.getPhysicalRowData(), rowType, fieldSerializers);
         RowData meta = RowDataCloneUtil.cloneMeta(from, recyclable.getMetaRowData(), metadataConverters);
-        batch[position] = recyclable.replace(physical.getRowKind(), physical, meta);
+        batch[position] = recyclable.replace(physical.getRowKind(), physical, meta, System.currentTimeMillis());
     }
 }
