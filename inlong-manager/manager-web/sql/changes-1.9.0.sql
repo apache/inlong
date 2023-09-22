@@ -45,5 +45,14 @@ CREATE TABLE IF NOT EXISTS `tenant_cluster_tag`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Tenant cluster tag table';
 
+INSERT INTO `audit_base`(`name`, `type`, `is_sent`, `audit_id`)
+VALUES ('audit_sort_pulsar_input', 'PULSAR', 0, '29'),
+       ('audit_sort_pulsar_output', 'PULSAR', 1, '30');
 
+INSERT INTO `audit_base`(`name`, `type`, `is_sent`, `audit_id`)
+VALUES ('audit_sort_tube_input', 'TUBEMQ', 0, '31'),
+       ('audit_sort_tube_output', 'TUBEMQ', 1, '32');
 
+INSERT INTO `audit_base`(`name`, `type`, `is_sent`, `audit_id`)
+VALUES ('audit_sort_kafka_input', 'KAFKA', 0, '33'),
+       ('audit_sort_kafka_output', 'KAFKA', 1, '34');
