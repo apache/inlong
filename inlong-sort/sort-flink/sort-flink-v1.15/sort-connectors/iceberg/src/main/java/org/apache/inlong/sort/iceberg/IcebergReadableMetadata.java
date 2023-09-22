@@ -30,8 +30,8 @@ import java.io.Serializable;
  */
 public enum IcebergReadableMetadata {
 
-    INLONG_DATA_TIME(
-            Constants.META_INLONG_DATA_TIME,
+    AUDIT_DATA_TIME(
+            Constants.META_AUDIT_DATA_TIME,
             DataTypes.BIGINT().notNull(),
             r -> System.currentTimeMillis());
 
