@@ -47,7 +47,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -59,7 +59,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -71,7 +71,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -83,7 +83,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       placeholder: '127.0.0.1:2181,127.0.0.2:2181',
     }),
   })
@@ -97,7 +97,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
     rules: [{ required: true }],
     initialValue: '/hbase',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -111,7 +111,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
     initialValue: 2,
     suffix: 'mb',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -125,7 +125,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
     initialValue: 1000,
     props: values => ({
       min: 1,
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -140,7 +140,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
     suffix: i18n.t('meta.Sinks.HBase.FlushIntervalUnit'),
     props: values => ({
       min: 1,
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -152,7 +152,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
     type: EditableTable,
     props: values => ({
       size: 'small',
-      editing: ![110, 130].includes(values?.status),
+      editing: ![110].includes(values?.status),
       columns: getFieldListColumns(values),
       canBatchAdd: true,
       upsertKey: 'fieldName',
@@ -176,7 +176,7 @@ const getFieldListColumns = sinkValues => {
         },
       ],
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {
@@ -186,7 +186,7 @@ const getFieldListColumns = sinkValues => {
       type: 'select',
       props: (text, record, idx, isNew) => ({
         options: hbaseFieldTypes,
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
       rules: [{ required: true, message: `${i18n.t('meta.Sinks.FieldTypeMessage')}` }],
     },
@@ -195,7 +195,7 @@ const getFieldListColumns = sinkValues => {
       dataIndex: 'cfName',
       type: 'input',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
       rules: [{ required: true }],
     },
@@ -205,7 +205,7 @@ const getFieldListColumns = sinkValues => {
       type: 'inputnumber',
       props: (text, record, idx, isNew) => ({
         min: 1,
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
       rules: [{ required: true }],
     },

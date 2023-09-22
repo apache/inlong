@@ -194,7 +194,7 @@ public class DescribeCommand extends AbstractCommand {
             try {
                 ClientUtils.initClientFactory();
                 StreamTransformClient transformClient = ClientUtils.clientFactory.getTransformClient();
-                List<TransformResponse> transforms = transformClient.listTransform(groupId, streamId);
+                List<TransformResponse> transforms = transformClient.listTransform(groupId, streamId).getList();
                 transforms.forEach(PrintUtils::printJson);
             } catch (Exception e) {
                 System.out.println(e.getMessage());

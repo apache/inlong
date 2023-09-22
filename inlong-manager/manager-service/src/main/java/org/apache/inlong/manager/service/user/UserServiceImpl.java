@@ -77,7 +77,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -209,13 +208,11 @@ public class UserServiceImpl implements UserService {
     public PageResult<UserInfo> list(UserRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<UserEntity> entityPage = (Page<UserEntity>) userMapper.selectByCondition(request);
-        List<UserInfo> userList = CommonBeanUtils.copyListProperties(entityPage, UserInfo::new);
+        PageResult<UserInfo> pageResult = PageResult.fromPage(entityPage)
+                .map(entity -> CommonBeanUtils.copyProperties(entity, UserInfo::new));
 
         // Check whether the user account has expired
-        userList.forEach(entity -> entity.setStatus(entity.getDueDate().after(new Date()) ? "valid" : "invalid"));
-
-        PageResult<UserInfo> pageResult = new PageResult<>(userList, entityPage.getTotal(),
-                entityPage.getPageNum(), entityPage.getPageSize());
+        pageResult.foreach(entity -> entity.setStatus(entity.getDueDate().after(new Date()) ? "valid" : "invalid"));
 
         LOGGER.debug("success to list users for request={}, result size={}", request, pageResult.getTotal());
         return pageResult;
@@ -352,13 +349,6 @@ public class UserServiceImpl implements UserService {
         // login successfully, clear error count
         userLoginLockStatus.setLoginErrorCount(0);
         loginLockStatusMap.put(username, userLoginLockStatus);
-    }
-
-    public void checkUser(String inCharges, String user, String errMsg) {
-        UserEntity userEntity = userMapper.selectByName(user);
-        boolean isInCharge = Preconditions.inSeparatedString(user, inCharges, InlongConstants.COMMA);
-        Preconditions.expectTrue(isInCharge
-                || TenantUserTypeEnum.TENANT_ADMIN.getCode().equals(userEntity.getAccountType()), errMsg);
     }
 
     public void removeInChargeForGroup(String user, String operator) {

@@ -20,6 +20,7 @@ package org.apache.inlong.sort.base.util;
 import org.apache.flink.table.data.binary.BinaryRowData;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 /**
  * calculate tool for object
@@ -42,6 +43,12 @@ public class CalculateObjectSizeUtils {
             size = object.toString().getBytes(StandardCharsets.UTF_8).length;
         }
         return size;
+    }
+
+    public static long getDataArraySize(Object[] objects) {
+        return Arrays.stream(objects)
+                .mapToLong(CalculateObjectSizeUtils::getDataSize)
+                .sum();
     }
 
 }

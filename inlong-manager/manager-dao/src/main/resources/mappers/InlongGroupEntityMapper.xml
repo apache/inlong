@@ -527,7 +527,15 @@
             and is_deleted = 0
         </where>
     </update>
-
+    <update id="migrate">
+        update inlong_group
+        set tenant = #{targetTenant, jdbcType=VARCHAR}
+        <where>
+            inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            and is_deleted = 0
+            and tenant = #{sourceTenant, jdbcType=VARCHAR}
+        </where>
+    </update>
     <delete id="deleteByPrimaryKey">
         <bind name="_isInlongService" value="LoginUser.InlongService"/>
         delete
@@ -553,4 +561,13 @@
             </if>
         </where>
     </delete>
+    <select id="selectAllGroupsByTenant" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_group
+        <where>
+            tenant = #{tenant,jdbcType=VARCHAR}
+            and is_deleted = 0
+        </where>
+    </select>
 </mapper>

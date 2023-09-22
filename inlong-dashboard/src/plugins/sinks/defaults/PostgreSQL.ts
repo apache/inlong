@@ -67,7 +67,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       placeholder: 'jdbc:postgresql://127.0.0.1:5432/db_name',
     }),
   })
@@ -80,7 +80,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -92,7 +92,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -104,7 +104,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -118,7 +118,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     initialValue: 1,
     tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: i18n.t('basic.Yes'),
@@ -139,7 +139,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -151,7 +151,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     type: 'password',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -163,7 +163,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     type: EditableTable,
     props: values => ({
       size: 'small',
-      editing: ![110, 130].includes(values?.status),
+      editing: ![110].includes(values?.status),
       columns: getFieldListColumns(values),
       canBatchAdd: true,
       upsertByFieldKey: true,
@@ -187,7 +187,7 @@ const getFieldListColumns = sinkValues => {
         },
       ],
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {
@@ -197,7 +197,7 @@ const getFieldListColumns = sinkValues => {
       type: 'autocomplete',
       props: (text, record, idx, isNew) => ({
         options: postgreSqlFieldTypes,
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
       rules: [
         { required: true, message: `${i18n.t('meta.Sinks.FieldTypeMessage')}` },

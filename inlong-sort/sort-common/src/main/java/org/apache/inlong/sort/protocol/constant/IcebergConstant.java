@@ -22,6 +22,20 @@ package org.apache.inlong.sort.protocol.constant;
  */
 public class IcebergConstant {
 
+    public static final String DEFAULT_CATALOG_NAME = "ICEBERG_HIVE";
+    public static final String CONNECTOR_KEY = "connector";
+    public static final String CONNECTOR = "iceberg-inlong";
+    public static final String DATABASE_KEY = "catalog-database";
+    public static final String DEFAULT_DATABASE_KEY = "default-database";
+    public static final String TABLE_KEY = "catalog-table";
+    public static final String CATALOG_TYPE_KEY = "catalog-type";
+    public static final String CATALOG_NAME_KEY = "catalog-name";
+    public static final String URI_KEY = "uri";
+    public static final String WAREHOUSE_KEY = "warehouse";
+    public static final String START_SNAPSHOT_ID = "start-snapshot-id";
+    public static final String STREAMING = "streaming";
+    public static final String STARTING_STRATEGY_KEY = "starting-strategy";
+
     /**
      * Iceberg supported catalog type
      */
@@ -51,5 +65,14 @@ public class IcebergConstant {
             }
             throw new IllegalArgumentException(String.format("Unsupport catalogType:%s", name));
         }
+    }
+
+    public enum StreamingStartingStrategy {
+        TABLE_SCAN_THEN_INCREMENTAL,
+        INCREMENTAL_FROM_LATEST_SNAPSHOT,
+        INCREMENTAL_FROM_EARLIEST_SNAPSHOT,
+        INCREMENTAL_FROM_SNAPSHOT_ID,
+        INCREMENTAL_FROM_SNAPSHOT_TIMESTAMP;
+
     }
 }

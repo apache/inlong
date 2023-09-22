@@ -28,6 +28,7 @@ import org.apache.inlong.sdk.sort.entity.ConsumeConfig;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -41,7 +42,6 @@ import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,10 +53,12 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     private final Logger logger = LoggerFactory.getLogger(QueryConsumeConfigImpl.class);
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
 
+    private final ObjectMapper mapper = new ObjectMapper();
+
     private ClientContext clientContext;
     private String md5 = "";
 
-    private Map<String, List<InLongTopic>> subscribedTopic = new HashMap<>();
+    private List<InLongTopic> subscribedTopic = new ArrayList<>();
 
     public QueryConsumeConfigImpl(ClientContext clientContext) {
         this.clientContext = clientContext;
@@ -88,7 +90,7 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
             String result = EntityUtils.toString(entity);
             logger.debug("response String result:{}", result);
             try {
-                managerResponse = new ObjectMapper().readValue(result, SortSourceConfigResponse.class);
+                managerResponse = mapper.readValue(result, SortSourceConfigResponse.class);
                 return managerResponse;
             } catch (Exception e) {
                 logger.error("parse json to ManagerResponse error:{}", e.getMessage(), e);
@@ -159,7 +161,7 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
                 break;
             default:
                 logger.error("return code error:{},request:{},response:{}",
-                        respCodeValue, getUrl, new ObjectMapper().writeValueAsString(response));
+                        respCodeValue, getUrl, mapper.writeValueAsString(response));
                 clientContext.addRequestManagerCommonError();
                 return true;
         }
@@ -168,12 +170,10 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
 
     private void updateSortTaskConf(SortSourceConfigResponse response) {
         CacheZoneConfig cacheZoneConfig = response.getData();
-        Map<String, List<InLongTopic>> newGroupTopicsMap = new HashMap<>();
+        List<InLongTopic> newGroupTopics = new ArrayList<>();
+
         for (Map.Entry<String, CacheZone> entry : cacheZoneConfig.getCacheZones().entrySet()) {
             CacheZone cacheZone = entry.getValue();
-
-            List<InLongTopic> topics = newGroupTopicsMap.computeIfAbsent(cacheZoneConfig.getSortTaskId(),
-                    k -> new ArrayList<>());
             CacheZoneCluster cacheZoneCluster = new CacheZoneCluster(cacheZone.getZoneName(),
                     cacheZone.getServiceUrl(), cacheZone.getAuthentication());
             for (Topic topicInfo : cacheZone.getTopics()) {
@@ -182,11 +182,32 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
                 topic.setTopic(topicInfo.getTopic());
                 topic.setTopicType(cacheZone.getZoneType());
                 topic.setProperties(topicInfo.getTopicProperties());
-                topics.add(topic);
+                newGroupTopics.add(topic);
             }
         }
 
-        this.subscribedTopic = newGroupTopicsMap;
+        if (CollectionUtils.isNotEmpty(newGroupTopics)) {
+            clientContext.addRequestManagerEmptyError();
+            logger.info("failed to update sort sdk config, the updated conf is empty");
+            return;
+        }
+
+        if (CollectionUtils.isNotEmpty(subscribedTopic) && !checkTopics(newGroupTopics)) {
+            clientContext.addRequestManagerTopicsChangeOutOfThreshold();
+            logger.info("failed to update sort sdk config, the updated size is={}, the old size={}",
+                    newGroupTopics.size(), subscribedTopic.size());
+            return;
+        }
+
+        this.subscribedTopic = newGroupTopics;
+    }
+
+    private boolean checkTopics(List<InLongTopic> newGroupTopics) {
+        if (subscribedTopic.size() < clientContext.getConfig().getStartOfflineTopicCheckThreshold()) {
+            return true;
+        }
+        int diff = (newGroupTopics.size() - subscribedTopic.size()) * 100 / subscribedTopic.size();
+        return diff < clientContext.getConfig().getMaxOfflineTopicPercent();
     }
 
     /**
@@ -198,7 +219,7 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     @Override
     public ConsumeConfig queryCurrentConsumeConfig(String sortTaskId) {
         reload();
-        return new ConsumeConfig(subscribedTopic.get(sortTaskId));
+        return new ConsumeConfig(subscribedTopic);
     }
 
     @Override

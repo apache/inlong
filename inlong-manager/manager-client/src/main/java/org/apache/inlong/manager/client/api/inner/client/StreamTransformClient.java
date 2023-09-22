@@ -22,13 +22,13 @@ import org.apache.inlong.manager.client.api.service.StreamTransformApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.transform.TransformPageRequest;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
 
 import org.apache.commons.lang3.tuple.Pair;
-
-import java.util.List;
 
 /**
  * Client for {@link StreamTransformApi}.
@@ -53,9 +53,12 @@ public class StreamTransformClient {
     /**
      * Get all conversion function info.
      */
-    public List<TransformResponse> listTransform(String groupId, String streamId) {
-        Response<List<TransformResponse>> response = ClientUtils.executeHttpCall(
-                streamTransformApi.listTransform(groupId, streamId));
+    public PageResult<TransformResponse> listTransform(String groupId, String streamId) {
+        TransformPageRequest transformPageRequest = new TransformPageRequest();
+        transformPageRequest.setInlongGroupId(groupId);
+        transformPageRequest.setInlongStreamId(streamId);
+        Response<PageResult<TransformResponse>> response = ClientUtils.executeHttpCall(
+                streamTransformApi.listTransform(transformPageRequest));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

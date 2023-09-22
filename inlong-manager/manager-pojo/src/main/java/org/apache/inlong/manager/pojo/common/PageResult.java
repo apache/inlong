@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.pojo.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.github.pagehelper.Page;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -25,6 +26,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -66,6 +70,20 @@ public final class PageResult<T> implements Serializable {
     public PageResult(List<T> list) {
         this.list = list;
         this.total = (long) list.size();
+    }
+
+    public <R> PageResult<R> map(Function<? super T, ? extends R> mapper) {
+        List<R> newList = list.stream().map(mapper).collect(Collectors.toList());
+        return new PageResult<>(newList, total, pageNum, pageSize);
+    }
+
+    public PageResult<T> foreach(Consumer<? super T> action) {
+        list.forEach(action);
+        return this;
+    }
+
+    public static <T> PageResult<T> fromPage(Page<T> page) {
+        return new PageResult<>(page.getResult(), page.getTotal(), page.getPageNum(), page.getPageSize());
     }
 
     public static <T> PageResult<T> empty() {

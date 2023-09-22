@@ -27,6 +27,7 @@ import org.apache.inlong.manager.dao.entity.TenantUserRoleEntity;
 import org.apache.inlong.manager.dao.mapper.InlongTenantEntityMapper;
 import org.apache.inlong.manager.dao.mapper.TenantUserRoleEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
@@ -56,15 +57,22 @@ public class TenantRoleServiceImpl implements TenantRoleService {
 
     @Autowired
     private InlongTenantEntityMapper tenantMapper;
+    @Autowired
+    private InlongRoleService inlongRoleService;
 
     @Override
     public PageResult<TenantRoleInfo> listByCondition(TenantRolePageRequest request) {
+        String loginUser = LoginUserUtils.getLoginUser().getName();
+        InlongRoleInfo roleInfo = inlongRoleService.getByUsername(loginUser);
+        if (roleInfo == null) {
+            List<String> tenants = this.listTenantByUsername(loginUser);
+            request.setTenantList(tenants);
+        }
+
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<TenantUserRoleEntity> entityPage = tenantUserRoleEntityMapper.listByCondition(request);
-        List<TenantRoleInfo> tenantRoleInfos = CommonBeanUtils.copyListProperties(entityPage, TenantRoleInfo::new);
-        return new PageResult<>(tenantRoleInfos,
-                entityPage.getTotal(),
-                entityPage.getPageNum(), entityPage.getPageSize());
+        return PageResult.fromPage(entityPage)
+                .map(entity -> CommonBeanUtils.copyProperties(entity, TenantRoleInfo::new));
     }
 
     @Override

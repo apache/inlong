@@ -20,6 +20,7 @@ package org.apache.inlong.sdk.sort.api;
 import org.apache.inlong.sdk.sort.api.SortClientConfig.TopicType;
 import org.apache.inlong.sdk.sort.manager.InlongMultiTopicManager;
 import org.apache.inlong.sdk.sort.manager.InlongSingleTopicManager;
+import org.apache.inlong.sdk.sort.manager.InlongTopicManager;
 
 /**
  * Inlong topic manager factory.
@@ -27,6 +28,14 @@ import org.apache.inlong.sdk.sort.manager.InlongSingleTopicManager;
  */
 public class InlongTopicManagerFactory {
 
+    /**
+     * Since 1.9.0
+     */
+    public static TopicManager createInlongTopicManagerV2(
+            ClientContext context,
+            QueryConsumeConfig queryConsumeConfig) {
+        return new InlongTopicManager(context, queryConsumeConfig);
+    }
     public static TopicManager createInLongTopicManager(
             TopicType type,
             ClientContext context,

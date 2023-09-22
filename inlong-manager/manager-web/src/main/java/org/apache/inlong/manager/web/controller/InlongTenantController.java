@@ -30,6 +30,7 @@ import org.apache.inlong.manager.service.tenant.InlongTenantService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -63,7 +64,7 @@ public class InlongTenantController {
     @RequestMapping(value = "/tenant/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save inlong tenant")
-    @RequiresRoles(logical = Logical.OR, value = {INLONG_ADMIN})
+    @RequiresRoles(INLONG_ADMIN)
     public Response<Integer> save(@Validated @RequestBody InlongTenantRequest request) {
         return Response.success(tenantService.save(request));
     }
@@ -77,7 +78,7 @@ public class InlongTenantController {
     @RequestMapping(value = "/tenant/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update inlong tenant")
-    @RequiresRoles(logical = Logical.OR, value = {INLONG_ADMIN})
+    @RequiresRoles(INLONG_ADMIN)
     public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody InlongTenantRequest request) {
         return Response.success(tenantService.update(request));
     }
@@ -85,9 +86,18 @@ public class InlongTenantController {
     @RequestMapping(value = "/tenant/delete/{name}", method = RequestMethod.GET)
     @ApiOperation(value = "Delete inlong tenant by name")
     @ApiImplicitParam(name = "name", dataTypeClass = String.class, required = true)
-    @RequiresRoles(logical = Logical.OR, value = {INLONG_ADMIN})
+    @RequiresRoles(INLONG_ADMIN)
     public Response<Boolean> delete(@PathVariable String name) {
         return Response.success(tenantService.delete(name));
     }
 
+    @RequestMapping(value = "/tenant/migrate/{group}/{tenant}", method = RequestMethod.GET)
+    @ApiOperation(value = "Migrate group to another tenant")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "group", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "tenant", dataTypeClass = String.class, required = true),
+    })
+    public Response<Boolean> migrate(@PathVariable String group, @PathVariable String tenant) {
+        return Response.success(tenantService.migrate(group, tenant));
+    }
 }

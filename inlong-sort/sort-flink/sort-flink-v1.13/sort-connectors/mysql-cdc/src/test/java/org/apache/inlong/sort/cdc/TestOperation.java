@@ -23,6 +23,7 @@ import org.apache.inlong.sort.protocol.ddl.enums.OperationType;
 import org.apache.inlong.sort.protocol.ddl.enums.PositionType;
 import org.apache.inlong.sort.protocol.ddl.expressions.AlterColumn;
 import org.apache.inlong.sort.protocol.ddl.operations.AlterOperation;
+import org.apache.inlong.sort.protocol.ddl.operations.CreateTableOperation;
 import org.apache.inlong.sort.protocol.ddl.operations.Operation;
 import org.apache.inlong.sort.protocol.ddl.operations.UnsupportedOperation;
 
@@ -44,6 +45,15 @@ public class TestOperation {
         Operation operation = OperationUtils.generateOperation(sql, sqlType);
         assert operation != null;
         Assert.assertEquals(operation.getOperationType(), OperationType.RENAME);
+    }
+
+    @Test
+    public void testRenameTableByAlter() {
+        String sql = "alter table a rename to b";
+        HashMap<String, Integer> sqlType = new HashMap<>();
+        Operation operation = OperationUtils.generateOperation(sql, sqlType);
+        assert operation != null;
+        Assert.assertTrue(operation instanceof AlterOperation);
     }
 
     @Test
@@ -93,6 +103,58 @@ public class TestOperation {
         assert operation != null;
         Assert.assertTrue(operation instanceof UnsupportedOperation);
         Assert.assertEquals(operation.getOperationType(), OperationType.OTHER);
+    }
+
+    @Test
+    public void testCreateTableWithCharacterConstraint() {
+        String sql = "create table a (b int) engine=innodb character "
+                + "set=utf8 collate=utf8_bin row_format=dynamic";
+        HashMap<String, Integer> sqlType = new HashMap<>();
+        sqlType.put("b", 1);
+        Operation operation = OperationUtils.generateOperation(sql, sqlType);
+        assert operation != null;
+        Assert.assertTrue(operation instanceof CreateTableOperation);
+    }
+
+    @Test
+    public void alterTableChangeType() {
+        String sql = "ALTER TABLE test CHANGE COLUMN name name1 "
+                + "mediumtext character set utf8mb4 COLLATE=utf8 NULL";
+        HashMap<String, Integer> sqlType = new HashMap<>();
+        sqlType.put("name1", 1);
+        Operation operation = OperationUtils.generateOperation(sql, sqlType);
+        assert operation != null;
+        Assert.assertTrue(operation instanceof AlterOperation);
+        AlterColumn alterColumn = ((AlterOperation) operation).getAlterColumns().get(0);
+        Assert.assertEquals(alterColumn.getAlterType(), AlterType.CHANGE_COLUMN);
+        Assert.assertEquals(alterColumn.getNewColumn().getName(), "name1");
+        Assert.assertEquals(alterColumn.getOldColumn().getName(), "name");
+    }
+
+    @Test
+    public void dropTableConstraint() {
+        String sql = "ALTER TABLE test drop constraint a";
+        HashMap<String, Integer> sqlType = new HashMap<>();
+        sqlType.put("name1", 1);
+        Operation operation = OperationUtils.generateOperation(sql, sqlType);
+        assert operation != null;
+        Assert.assertTrue(operation instanceof AlterOperation);
+        Assert.assertEquals(operation.getOperationType(), OperationType.ALTER);
+        Assert.assertEquals(((AlterOperation) operation).getAlterColumns().get(0).getAlterType(),
+                AlterType.DROP_CONSTRAINT);
+    }
+
+    @Test
+    public void addConstraint() {
+        String sql = "ALTER TABLE test add constraint primary key (a)";
+        HashMap<String, Integer> sqlType = new HashMap<>();
+        sqlType.put("name1", 1);
+        Operation operation = OperationUtils.generateOperation(sql, sqlType);
+        assert operation != null;
+        Assert.assertTrue(operation instanceof AlterOperation);
+        Assert.assertEquals(operation.getOperationType(), OperationType.ALTER);
+        Assert.assertEquals(((AlterOperation) operation).getAlterColumns().get(0).getAlterType(),
+                AlterType.ADD_CONSTRAINT);
     }
 
 }

@@ -39,6 +39,7 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
     private final String tablePattern;
     private final String inlongMetric;
     private final String auditHostAndPorts;
+    private final String auditKeys;
     private final SchemaUpdateExceptionPolicy schemaUpdatePolicy;
     private final DirtySinkHelper<Object> dirtySinkHelper;
 
@@ -51,7 +52,8 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
             String inlongMetric,
             String auditHostAndPorts,
             SchemaUpdateExceptionPolicy schemaUpdatePolicy,
-            DirtySinkHelper<Object> dirtySinkHelper) {
+            DirtySinkHelper<Object> dirtySinkHelper,
+            String auditKeys) {
         this.flinkSchema = schema;
         this.sinkOptions = sinkOptions;
         this.multipleSink = multipleSink;
@@ -62,6 +64,7 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
         this.auditHostAndPorts = auditHostAndPorts;
         this.schemaUpdatePolicy = schemaUpdatePolicy;
         this.dirtySinkHelper = dirtySinkHelper;
+        this.auditKeys = auditKeys;
     }
 
     @Override
@@ -83,7 +86,8 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
                 inlongMetric,
                 auditHostAndPorts,
                 schemaUpdatePolicy,
-                dirtySinkHelper);
+                dirtySinkHelper,
+                auditKeys);
         return SinkFunctionProvider.of(starrocksSinkFunction, sinkOptions.getSinkParallelism());
     }
 
@@ -98,7 +102,8 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
                 inlongMetric,
                 auditHostAndPorts,
                 schemaUpdatePolicy,
-                dirtySinkHelper);
+                dirtySinkHelper,
+                auditKeys);
     }
 
     @Override

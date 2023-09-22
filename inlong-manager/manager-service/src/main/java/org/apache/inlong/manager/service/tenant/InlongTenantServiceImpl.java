@@ -19,12 +19,27 @@ package org.apache.inlong.manager.service.tenant;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessName;
+import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.DataNodeEntity;
+import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.InlongTenantEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongConsumeEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongTenantEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
+import org.apache.inlong.manager.dao.mapper.TenantClusterTagEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
@@ -39,12 +54,16 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_ADMIN;
 import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_OPERATOR;
@@ -56,6 +75,20 @@ public class InlongTenantServiceImpl implements InlongTenantService {
 
     @Autowired
     private InlongTenantEntityMapper inlongTenantEntityMapper;
+    @Autowired
+    private InlongGroupEntityMapper groupMapper;
+    @Autowired
+    private InlongStreamEntityMapper streamMapper;
+    @Autowired
+    private StreamSinkEntityMapper sinkMapper;
+    @Autowired
+    private StreamSourceEntityMapper sourceMapper;
+    @Autowired
+    private DataNodeEntityMapper dataNodeEntityMapper;
+    @Autowired
+    private InlongConsumeEntityMapper consumeEntityMapper;
+    @Autowired
+    private TenantClusterTagEntityMapper tenantClusterTagMapper;
     @Autowired
     private TenantRoleService tenantRoleService;
     @Autowired
@@ -116,14 +149,9 @@ public class InlongTenantServiceImpl implements InlongTenantService {
         }
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-
         Page<InlongTenantEntity> entityPage = inlongTenantEntityMapper.selectByCondition(request);
-
-        List<InlongTenantInfo> tenantList = CommonBeanUtils.copyListProperties(entityPage, InlongTenantInfo::new);
-        PageResult<InlongTenantInfo> pageResult = new PageResult<>(tenantList,
-                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
-
-        return pageResult;
+        return PageResult.fromPage(entityPage)
+                .map(entity -> CommonBeanUtils.copyProperties(entity, InlongTenantInfo::new));
     }
 
     @Override
@@ -156,13 +184,155 @@ public class InlongTenantServiceImpl implements InlongTenantService {
         String operator = LoginUserUtils.getLoginUser().getName();
         log.info("begin to delete inlong tenant name={} by user={}", name, operator);
         InlongTenantEntity inlongTenantEntity = inlongTenantEntityMapper.selectByName(name);
+        // before deleting a tenant, check if all Groups of the tenant are in stop status
+        List<InlongGroupEntity> groups = groupMapper.selectAllGroupsByTenant(name);
+        List<InlongGroupEntity> notStopGroups =
+                groups.stream().filter(
+                        group -> !GroupStatus.DELETED.getCode().equals(group.getStatus()))
+                        .collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(notStopGroups)) {
+            List<String> notStopGroupNames =
+                    notStopGroups.stream().map(InlongGroupEntity::getName).collect(Collectors.toList());
+            String errMsg = String.format(
+                    "delete inlong tenant name=[%s] failed, the tenant's group=%s are not in stop status",
+                    name, notStopGroupNames);
+            log.error(errMsg);
+            throw new BusinessException(errMsg);
+        }
+        // before deleting a tenant, check if all streamSource of the tenant‘s groups are in status 99.
+        List<String> groupIds =
+                groups.stream().map(InlongGroupEntity::getInlongGroupId).collect(Collectors.toList());
+        List<StreamSourceEntity> sourceList = sourceMapper.selectByGroupIds(groupIds);
+        List<StreamSourceEntity> noDisabledSources = sourceList.stream()
+                .filter(source -> !SourceStatus.SOURCE_DISABLE.getCode().equals(source.getStatus()))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(noDisabledSources)) {
+            List<String> noDisabledSourceNames =
+                    noDisabledSources.stream().map(StreamSourceEntity::getSourceName).collect(Collectors.toList());
+            String errMsg = String.format(
+                    "delete inlong tenant name=[%s] failed, the streamSource=%s of the tenant's groups are not in status 99",
+                    name, noDisabledSourceNames);
+            log.error(errMsg);
+            throw new BusinessException(errMsg);
+        }
         int success = inlongTenantEntityMapper.deleteById(inlongTenantEntity.getId());
-        Preconditions.expectTrue(success == 1, "delete failed");
+        Preconditions.expectTrue(success == InlongConstants.AFFECTED_ONE_ROW, "delete failed");
         log.info("success delete inlong tenant name={} by user={}", name, operator);
         return true;
     }
 
-    private void setTargetTenantList(InlongTenantPageRequest request, UserInfo userInfo) {
+    @Override
+    public Boolean migrate(String groupId, String to) {
+        UserInfo userInfo = LoginUserUtils.getLoginUser();
+        Preconditions.expectTrue(hasPermission(userInfo, to),
+                String.format("user=[%s] has no permission to tenant=[%s]", userInfo.getName(), to));
+        return doMigrate(groupId, userInfo.getTenant(), to);
+    }
+
+    public Boolean doMigrate(String groupId, String from, String to) {
+        InlongGroupEntity group = groupMapper.selectByGroupId(groupId);
+        Preconditions.expectNotNull(group, String.format("Not find group=%s in tenant=%s", groupId, from));
+
+        // get related streams, consumes and tag;
+        List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
+        boolean streamMigrateResult = streamList.stream().allMatch(stream -> migrateStream(stream, from, to));
+        List<InlongConsumeEntity> consumeList = consumeEntityMapper.selectByGroupId(groupId);
+        boolean consumeMigrateResult = this.migrateConsume(groupId, from, to, consumeList.size());
+        boolean tagCopyResult = this.copyTenantTag(group.getInlongClusterTag(), from, to);
+
+        return streamMigrateResult
+                && consumeMigrateResult
+                && tagCopyResult
+                && this.migrateGroup(groupId, from, to);
+    }
+
+    public Boolean migrateStream(InlongStreamEntity stream, String from, String to) {
+        List<StreamSinkEntity> sinks =
+                sinkMapper.selectByRelatedId(stream.getInlongGroupId(), stream.getInlongStreamId());
+        List<StreamSourceEntity> sources =
+                sourceMapper.selectByRelatedId(stream.getInlongGroupId(), stream.getInlongStreamId(), null);
+        boolean sinkMigrateResult = sinks.stream().allMatch(sink -> migrateStreamSink(sink, from, to));
+        boolean sourceMigrateResult = sources.stream().allMatch(source -> migrateStreamSource(source, from, to));
+        return sinkMigrateResult && sourceMigrateResult;
+    }
+
+    public Boolean migrateStreamSink(StreamSinkEntity sink, String from, String to) {
+        String dataNodeName = sink.getDataNodeName();
+        String type = sink.getSinkType();
+        if (StringUtils.isAnyBlank(dataNodeName, type)) {
+            return true;
+        }
+        DataNodeEntity dataNode = dataNodeEntityMapper.selectByUniqueKey(dataNodeName, type);
+        if (dataNode == null) {
+            return true;
+        }
+
+        String newName = copyDataNode(dataNodeName, type, from, to);
+        sink.setDataNodeName(newName);
+        return sinkMapper.updateByIdSelective(sink) == InlongConstants.AFFECTED_ONE_ROW;
+
+    }
+
+    public Boolean migrateStreamSource(StreamSourceEntity source, String from, String to) {
+        String dataNodeName = source.getDataNodeName();
+        String type = source.getSourceType();
+        if (StringUtils.isAnyBlank(dataNodeName, type)) {
+            return true;
+        }
+        DataNodeEntity dataNode = dataNodeEntityMapper.selectByUniqueKey(dataNodeName, type);
+        if (dataNode == null) {
+            return true;
+        }
+
+        // use display name as new name
+        String newName = copyDataNode(dataNodeName, type, from, to);
+        source.setDataNodeName(newName);
+        return sourceMapper.updateByPrimaryKeySelective(source) == InlongConstants.AFFECTED_ONE_ROW;
+    }
+
+    public String copyDataNode(String name, String type, String from, String to) {
+        DataNodeEntity oldDatanode = dataNodeEntityMapper.selectByUniqueKey(name, type);
+        oldDatanode.setTenant(to);
+        DataNodeEntity newDatanode = dataNodeEntityMapper.selectByIdSelective(oldDatanode);
+        if (newDatanode != null) {
+            return newDatanode.getName();
+        }
+        String newName = UUID.randomUUID().toString();
+        if (dataNodeEntityMapper.copy(name, type, from, to, newName) != InlongConstants.AFFECTED_ONE_ROW) {
+            return null;
+        }
+        return newName;
+    }
+
+    public Boolean migrateConsume(String groupId, String from, String to, int size) {
+        return consumeEntityMapper.migrate(groupId, from, to) == size;
+    }
+
+    public Boolean migrateGroup(String groupId, String from, String to) {
+        return groupMapper.migrate(groupId, from, to) == InlongConstants.AFFECTED_ONE_ROW;
+    }
+
+    public Boolean copyTenantTag(String clusterTag, String from, String to) {
+        try {
+            // use displayName as the new name
+            return tenantClusterTagMapper.copy(clusterTag, from, to) == InlongConstants.AFFECTED_ONE_ROW;
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof SQLIntegrityConstraintViolationException) {
+                log.debug("tag name={} in tenant={} already exist", clusterTag, to);
+                return true;
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    private boolean hasPermission(UserInfo userInfo, String tenant) {
+        return tenantRoleService.getByUsernameAndTenant(userInfo.getName(), tenant) != null
+                || isInlongRoles(userInfo);
+    }
+
+    public void setTargetTenantList(InlongTenantPageRequest request, UserInfo userInfo) {
         if (isInlongRoles(userInfo)) {
             // for inlong roles, they can get all tenant info.
             request.setTenantList(null);

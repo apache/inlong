@@ -17,15 +17,19 @@
 
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
-import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.consts.StreamType;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
+import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
+import org.apache.inlong.manager.pojo.source.iceberg.IcebergSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
+import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.LoadNode;
+import org.apache.inlong.sort.protocol.node.extract.IcebergExtractNode;
 import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
@@ -35,11 +39,32 @@ import java.util.Map;
 /**
  * The Provider for creating Iceberg load nodes.
  */
-public class IcebergProvider implements LoadNodeProvider {
+public class IcebergProvider implements ExtractNodeProvider, LoadNodeProvider {
 
     @Override
     public Boolean accept(String sinkType) {
-        return SinkType.ICEBERG.equals(sinkType);
+        return StreamType.ICEBERG.equals(sinkType);
+    }
+
+    @Override
+    public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
+        IcebergSource icebergSource = (IcebergSource) streamNodeInfo;
+        List<FieldInfo> fieldInfos = parseStreamFieldInfos(icebergSource.getFieldList(), icebergSource.getSourceName());
+        Map<String, String> properties = parseProperties(icebergSource.getProperties());
+
+        return new IcebergExtractNode(icebergSource.getSourceName(),
+                icebergSource.getSourceName(),
+                fieldInfos,
+                null,
+                icebergSource.getUri(),
+                icebergSource.getWarehouse(),
+                icebergSource.getDatabase(),
+                icebergSource.getTableName(),
+                CatalogType.HIVE,
+                "HIVE",
+                icebergSource.getPrimaryKey(),
+                null,
+                properties);
     }
 
     @Override

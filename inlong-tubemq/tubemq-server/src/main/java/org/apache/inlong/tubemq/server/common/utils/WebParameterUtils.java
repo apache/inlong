@@ -59,33 +59,33 @@ public class WebParameterUtils {
     private static final List<String> allowedDelUnits = Arrays.asList("s", "m", "h");
     private static final List<Integer> allowedPriorityVal = Arrays.asList(1, 2, 3);
 
-    public static StringBuilder buildFailResult(StringBuilder sBuffer, String errMsg) {
-        return sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
+    public static void buildFailResult(StringBuilder sBuffer, String errMsg) {
+        sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
                 .append(errMsg).append("\"}");
     }
 
-    public static StringBuilder buildFailResultWithBlankData(int errcode, String errMsg,
+    public static void buildFailResultWithBlankData(int errcode, String errMsg,
             StringBuilder sBuffer) {
-        return sBuffer.append("{\"result\":false,\"errCode\":").append(errcode)
+        sBuffer.append("{\"result\":false,\"errCode\":").append(errcode)
                 .append(",\"errMsg\":\"").append(errMsg).append("\",\"data\":[]}");
     }
 
-    public static StringBuilder buildSuccessResult(StringBuilder sBuffer) {
-        return sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[]}");
+    public static void buildSuccessResult(StringBuilder sBuffer) {
+        sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[]}");
     }
 
-    public static StringBuilder buildSuccessResult(StringBuilder sBuffer, String appendInfo) {
-        return sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"")
+    public static void buildSuccessResult(StringBuilder sBuffer, String appendInfo) {
+        sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"")
                 .append(appendInfo).append("\",\"data\":[]}");
     }
 
-    public static StringBuilder buildSuccessWithDataRetBegin(StringBuilder sBuffer) {
-        return sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
+    public static void buildSuccessWithDataRetBegin(StringBuilder sBuffer) {
+        sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\",\"data\":[");
     }
 
-    public static StringBuilder buildSuccessWithDataRetEnd(
+    public static void buildSuccessWithDataRetEnd(
             StringBuilder sBuffer, int totalCnt) {
-        return sBuffer.append("],\"count\":").append(totalCnt).append("}");
+        sBuffer.append("],\"count\":").append(totalCnt).append("}");
     }
 
     /**

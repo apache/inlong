@@ -111,7 +111,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -123,7 +123,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -137,7 +137,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
     initialValue: 1,
     tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: i18n.t('basic.Yes'),
@@ -158,7 +158,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
     type: NodeSelect,
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       nodeType: 'HUDI',
     }),
   })
@@ -171,7 +171,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
     rules: [{ required: true }],
     initialValue: 'Parquet',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: 'Parquet',
@@ -205,14 +205,14 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
           title: 'Key',
           dataIndex: 'keyName',
           props: {
-            disabled: [110, 130].includes(values?.status),
+            disabled: [110].includes(values?.status),
           },
         },
         {
           title: 'Value',
           dataIndex: 'keyValue',
           props: {
-            disabled: [110, 130].includes(values?.status),
+            disabled: [110].includes(values?.status),
           },
         },
       ],
@@ -229,7 +229,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
     initialValue: 'EXACTLY_ONCE',
     isPro: true,
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: 'EXACTLY_ONCE',
@@ -253,7 +253,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
       size: 'small',
       canBatchAdd: true,
       upsetByFieldKey: true,
-      editing: ![110, 130].includes(values?.status),
+      editing: ![110].includes(values?.status),
       columns: getFieldListColumns(values),
     }),
   })
@@ -264,7 +264,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
     tooltip: i18n.t('meta.Sinks.Hudi.PrimaryKeyHelper'),
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -277,7 +277,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
     tooltip: i18n.t('meta.Sinks.Hudi.PartitionKeyHelper'),
     rules: [{ required: false }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -301,7 +301,7 @@ const getFieldListColumns = sinkValues => {
         },
       ],
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {
@@ -321,7 +321,7 @@ const getFieldListColumns = sinkValues => {
             };
           }
         },
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {

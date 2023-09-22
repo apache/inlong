@@ -73,6 +73,7 @@ public class MySqlSource {
         private String inlongMetric;
         private String inlongAudit;
         private boolean migrateAll;
+        private String auditKeys;
 
         public Builder<T> hostname(String hostname) {
             this.hostname = hostname;
@@ -180,6 +181,11 @@ public class MySqlSource {
             return this;
         }
 
+        public Builder<T> auditKeys(String auditKeys) {
+            this.auditKeys = auditKeys;
+            return this;
+        }
+
         public Builder<T> migrateAll(boolean migrateAll) {
             this.migrateAll = migrateAll;
             return this;
@@ -213,10 +219,10 @@ public class MySqlSource {
                 props.setProperty("database.server.id", String.valueOf(serverId));
             }
             if (databaseList != null) {
-                props.setProperty("database.whitelist", String.join(",", databaseList));
+                props.setProperty("database.include.list", String.join(",", databaseList));
             }
             if (tableList != null) {
-                props.setProperty("table.whitelist", String.join(",", tableList));
+                props.setProperty("table.include.list", String.join(",", tableList));
             }
             if (serverTimeZone != null) {
                 props.setProperty("database.serverTimezone", serverTimeZone);
@@ -281,7 +287,7 @@ public class MySqlSource {
 
             return new DebeziumSourceFunction<>(
                     deserializer, props, specificOffset, new MySqlValidator(props), inlongMetric, inlongAudit,
-                    migrateAll);
+                    migrateAll, auditKeys);
         }
     }
 }

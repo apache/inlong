@@ -47,9 +47,11 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.IGNORE_ALL_CHANGELOG;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.base.Constants.SINK_AUTO_CREATE_TABLE_WHEN_SNAPSHOT;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTERN;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
@@ -125,13 +127,15 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
         final ReadableConfig tableOptions = Configuration.fromMap(catalogTable.getOptions());
         boolean multipleSink = tableOptions.get(SINK_MULTIPLE_ENABLE);
         boolean schemaChange = tableOptions.get(SINK_SCHEMA_CHANGE_ENABLE);
+        boolean autoCreateTableWhenSnapshot = tableOptions.get(SINK_AUTO_CREATE_TABLE_WHEN_SNAPSHOT);
         String schemaChangePolicies = tableOptions.getOptional(SINK_SCHEMA_CHANGE_POLICIES).orElse(null);
         LOG.info("iceberg sink running with policy {}", tableOptions.get(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY));
         if (multipleSink) {
             return (DataStreamSinkProvider) dataStream -> FlinkSink.forRowData(dataStream)
                     .overwrite(overwrite)
                     .appendMode(tableOptions.get(IGNORE_ALL_CHANGELOG))
-                    .metric(tableOptions.get(INLONG_METRIC), tableOptions.get(INLONG_AUDIT))
+                    .metric(tableOptions.get(INLONG_METRIC), tableOptions.get(INLONG_AUDIT),
+                            tableOptions.get(AUDIT_KEYS))
                     .catalogLoader(catalogLoader)
                     .tableSchema(tableSchema)
                     .multipleSink(tableOptions.get(SINK_MULTIPLE_ENABLE))
@@ -152,6 +156,7 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
                     .distributionMode(DistributionMode.fromName(tableOptions.get(WRITE_DISTRIBUTION_MODE)))
                     .enableSchemaChange(schemaChange)
                     .schemaChangePolicies(schemaChangePolicies)
+                    .autoCreateTableWhenSnapshot(autoCreateTableWhenSnapshot)
                     .append();
         } else {
             return (DataStreamSinkProvider) dataStream -> FlinkSink.forRowData(dataStream)
@@ -161,7 +166,8 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
                     .equalityFieldColumns(equalityColumns)
                     .overwrite(overwrite)
                     .appendMode(tableOptions.get(IGNORE_ALL_CHANGELOG))
-                    .metric(tableOptions.get(INLONG_METRIC), tableOptions.get(INLONG_AUDIT))
+                    .metric(tableOptions.get(INLONG_METRIC), tableOptions.get(INLONG_AUDIT),
+                            tableOptions.get(AUDIT_KEYS))
                     .dirtyOptions(dirtyOptions)
                     .dirtySink(dirtySink)
                     .action(actionsProvider)

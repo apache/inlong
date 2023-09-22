@@ -587,6 +587,7 @@
         </set>
         where is_deleted = 0
         and agent_ip = #{agentIp, jdbcType=VARCHAR}
+        and template_id is not null
         <if test="targetStatus != null">
             and status = #{targetStatus, jdbcType=INTEGER}
         </if>

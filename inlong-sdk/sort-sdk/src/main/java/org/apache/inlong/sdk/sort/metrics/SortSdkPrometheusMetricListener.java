@@ -87,11 +87,12 @@ public class SortSdkPrometheusMetricListener extends Collector implements Metric
         metricValueMap.put(SortSdkMetricItem.M_REQUEST_MANAGER_COUNT, metricItem.requestManagerCount);
         metricValueMap.put(SortSdkMetricItem.M_REQUEST_MANAGER_TIME_COST, metricItem.requestManagerTimeCost);
         metricValueMap.put(SortSdkMetricItem.M_REQUEST_MANAGER_FAIL_COUNT, metricItem.requestManagerFailCount);
-        metricValueMap.put(SortSdkMetricItem.M_REQUEST_MANAGER_CONF_CHANAGED_COUNT,
+        metricValueMap.put(SortSdkMetricItem.M_REQEUST_MANAGER_EMPTY_COUNT, metricItem.reqeustManagerEmptyCount);
+        metricValueMap.put(SortSdkMetricItem.M_REQUEST_MANAGER_CONF_CHANGED_COUNT,
                 metricItem.requestManagerConfChangedCount);
-        metricValueMap.put(SortSdkMetricItem.M_RQUEST_MANAGER_COMMON_ERROR_COUNT,
+        metricValueMap.put(SortSdkMetricItem.M_REQUEST_MANAGER_COMMON_ERROR_COUNT,
                 metricItem.requestManagerCommonErrorCount);
-        metricValueMap.put(SortSdkMetricItem.M_RQUEST_MANAGER_PARAM_ERROR_COUNT,
+        metricValueMap.put(SortSdkMetricItem.M_REQUEST_MANAGER_PARAM_ERROR_COUNT,
                 metricItem.requestManagerParamErrorCount);
 
         this.dimensionKeys.add(DEFAULT_DIMENSION_LABEL);
@@ -123,12 +124,14 @@ public class SortSdkPrometheusMetricListener extends Collector implements Metric
                 metricItem.requestManagerTimeCost.get());
         totalCounter.addMetric(Collections.singletonList(M_REQUEST_MANAGER_FAIL_COUNT),
                 metricItem.requestManagerFailCount.get());
-        totalCounter.addMetric(Collections.singletonList(M_REQUEST_MANAGER_CONF_CHANAGED_COUNT),
+        totalCounter.addMetric(Collections.singletonList(M_REQUEST_MANAGER_CONF_CHANGED_COUNT),
                 metricItem.requestManagerConfChangedCount.get());
-        totalCounter.addMetric(Collections.singletonList(M_RQUEST_MANAGER_PARAM_ERROR_COUNT),
+        totalCounter.addMetric(Collections.singletonList(M_REQUEST_MANAGER_PARAM_ERROR_COUNT),
                 metricItem.requestManagerParamErrorCount.get());
-        totalCounter.addMetric(Collections.singletonList(M_RQUEST_MANAGER_COMMON_ERROR_COUNT),
+        totalCounter.addMetric(Collections.singletonList(M_REQUEST_MANAGER_COMMON_ERROR_COUNT),
                 metricItem.requestManagerCommonErrorCount.get());
+        totalCounter.addMetric(Collections.singletonList(M_REQEUST_MANAGER_EMPTY_COUNT),
+                metricItem.reqeustManagerEmptyCount.get());
         List<MetricFamilySamples> mfs = new ArrayList<>();
         mfs.add(totalCounter);
         return mfs;

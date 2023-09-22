@@ -36,6 +36,7 @@ public class AddTopicReq extends BaseReq {
     private Integer unflushDataHold;
     private Integer memCacheMsgCntInK;
     private Integer memCacheFlushIntvl;
+    private Integer memCacheMsgSizeInMB;
     private Integer maxMsgSizeInMB;
     private String deletePolicy;
     private Boolean acceptPublish;
