@@ -240,14 +240,14 @@ const Comp: React.FC<Props> = ({
         relationWithPost: item.relationWithPost,
         sourceField: {
           fieldName: fields.fieldName,
-          filedType: fields.fieldType,
+          fieldType: fields.fieldType,
         },
         operationType: item.operationType,
         targetValue: {
           constant: item.constant === 'true' ? true : false,
           targetField: {
             fieldName: fields.fieldName,
-            filedType: fields.fieldType,
+            fieldType: fields.fieldType,
           },
           targetConstant: item.targetConstant,
         },
