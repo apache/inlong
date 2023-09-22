@@ -164,8 +164,8 @@ public class IcebergSource<T> implements Source<T, IcebergSourceSplit, IcebergEn
 
     @Override
     public SourceReader<T, IcebergSourceSplit> createReader(SourceReaderContext readerContext) {
-        InlongIcebergSourceReaderMetrics metrics =
-                new InlongIcebergSourceReaderMetrics(readerContext.metricGroup(), lazyTable().name());
+        InlongIcebergSourceReaderMetrics<T> metrics =
+                new InlongIcebergSourceReaderMetrics<>(readerContext.metricGroup(), lazyTable().name());
         metrics.registerMetrics(metricOption);
         return new IcebergSourceReader<>(metrics, readerFunction, readerContext);
     }
