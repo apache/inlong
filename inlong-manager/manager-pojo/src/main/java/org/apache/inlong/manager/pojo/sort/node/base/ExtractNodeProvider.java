@@ -135,4 +135,9 @@ public interface ExtractNodeProvider extends NodeProvider {
         }
         return format;
     }
+
+    default List<StreamField> addStreamMetaFields(List<StreamField> streamFields) {
+        return streamFields;
+    }
+
 }
