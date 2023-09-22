@@ -17,7 +17,10 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.InlongMetric;
+import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
@@ -32,8 +35,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Iceberg extract node for extract data from iceberg
@@ -42,7 +47,7 @@ import java.util.Map;
 @JsonTypeName("icebergExtract")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class IcebergExtractNode extends ExtractNode implements Serializable {
+public class IcebergExtractNode extends ExtractNode implements InlongMetric, Metadata, Serializable {
 
     @JsonProperty("tableName")
     @Nonnull
@@ -113,7 +118,7 @@ public class IcebergExtractNode extends ExtractNode implements Serializable {
         // support streaming only
         options.put(IcebergConstant.STREAMING, "true");
         options.put(IcebergConstant.STARTING_STRATEGY_KEY,
-                IcebergConstant.StreamingStartingStrategy.INCREMENTAL_FROM_EARLIEST_SNAPSHOT.name());
+                IcebergConstant.StreamingStartingStrategy.TABLE_SCAN_THEN_INCREMENTAL.name());
         if (null != uri) {
             options.put(IcebergConstant.URI_KEY, uri);
         }
@@ -136,6 +141,30 @@ public class IcebergExtractNode extends ExtractNode implements Serializable {
     @Override
     public List<FieldInfo> getPartitionFields() {
         return super.getPartitionFields();
+    }
+
+    @Override
+    public String getMetadataKey(MetaField metaField) {
+        String metadataKey;
+        switch (metaField) {
+            case AUDIT_DATA_TIME:
+                metadataKey = "audit_data_time";
+                break;
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
+                        this.getClass().getSimpleName(), metaField));
+        }
+        return metadataKey;
+    }
+
+    @Override
+    public boolean isVirtual(MetaField metaField) {
+        return true;
+    }
+
+    @Override
+    public Set<MetaField> supportedMetaFields() {
+        return EnumSet.of(MetaField.AUDIT_DATA_TIME);
     }
 
 }
