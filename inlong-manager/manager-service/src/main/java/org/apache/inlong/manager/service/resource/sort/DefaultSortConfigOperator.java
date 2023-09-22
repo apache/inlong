@@ -131,12 +131,10 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
             List<StreamSink> sinks = sinkMap.get(streamId);
 
             for (StreamSink sink : sinks) {
-                Map<String, Object> properties = sink.getProperties();
                 addAuditId(sink.getProperties(), sink.getSinkType(), true);
             }
             for (StreamSource source : sources) {
                 source.setFieldList(inlongStream.getFieldList());
-                addAuditId(source.getProperties(), source.getSourceType(), false);
             }
             List<NodeRelation> relations;
 
@@ -152,6 +150,10 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                 } else {
                     relations = NodeRelationUtils.createNodeRelations(sources, sinks);
                 }
+
+                for (StreamSink sink : sinks) {
+                    addAuditId(sink.getProperties(), sink.getSinkType(), false);
+                }
             } else {
                 if (CollectionUtils.isNotEmpty(transformResponses)) {
                     List<String> sourcesNames = sources.stream().map(StreamSource::getSourceName)
@@ -163,6 +165,10 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                             NodeRelationUtils.createNodeRelation(transFormNames, sinkNames));
                 } else {
                     relations = NodeRelationUtils.createNodeRelations(sources, sinks);
+                }
+
+                for (StreamSource source : sources) {
+                    addAuditId(source.getProperties(), source.getSourceType(), false);
                 }
             }
 
