@@ -141,4 +141,8 @@ public interface LoadNodeProvider extends NodeProvider {
         }
         return format;
     }
+
+    default List<SinkField> addSinkMetaFields(List<SinkField> sinkFields) {
+        return sinkFields;
+    }
 }
