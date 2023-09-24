@@ -49,13 +49,19 @@ public class MasterServiceImpl implements MasterService {
 
     @Override
     public TubeMQResult requestMaster(String url) {
-
         log.info("start to request {}", url);
         TubeMQResult defaultResult = new TubeMQResult();
 
         try {
+            // Validate the input URL
+            if (!isValidURL(url)) {
+                log.error("Invalid URL format received: {}", url);
+                return TubeMQResult.errorResult("Invalid URL format.");
+            }
+
             String response = HttpUtils.sendHttpGetRequest(url);
             TubeHttpResponse tubeResponse = gson.fromJson(response, TubeHttpResponse.class);
+
             if (tubeResponse.getCode() == TubeConst.SUCCESS_CODE
                     && tubeResponse.getErrCode() == TubeConst.SUCCESS_CODE) {
                 return defaultResult;
@@ -63,11 +69,16 @@ public class MasterServiceImpl implements MasterService {
                 defaultResult = errorResult(tubeResponse.getErrMsg());
             }
         } catch (Exception ex) {
-            log.error("exception caught while requesting broker status", ex);
+            log.error("Exception caught while requesting broker status", ex);
             defaultResult = TubeMQResult.errorResult(ex.getMessage());
         }
 
         return defaultResult;
+    }
+
+    private static boolean isValidURL(String url) {
+        String urlPattern = "^(https?://)[a-zA-Z0-9.-]+(/[a-zA-Z0-9.-]*)?$";
+        return url.matches(urlPattern);
     }
 
     /**
@@ -82,10 +93,19 @@ public class MasterServiceImpl implements MasterService {
         TubeMQResult defaultResult = new TubeMQResult();
 
         try {
+            // Validate the input URL
+            if (!isValidURL(url)) {
+                log.error("Invalid URL format received: {}", url);
+                defaultResult.setErrCode(-1);
+                defaultResult.setResult(false);
+                defaultResult.setErrMsg("Invalid URL format.");
+                return gson.toJson(defaultResult);
+            }
+
             // Directly return the return value of HttpUtils.sendHttpGetRequest(url)
             return HttpUtils.sendHttpGetRequest(url);
         } catch (Exception ex) {
-            log.error("exception caught while requesting broker status", ex);
+            log.error("Exception caught while requesting broker status", ex);
             defaultResult.setErrCode(-1);
             defaultResult.setResult(false);
             defaultResult.setErrMsg(ex.getMessage());

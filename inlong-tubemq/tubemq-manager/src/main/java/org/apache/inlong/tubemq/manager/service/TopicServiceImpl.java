@@ -122,11 +122,19 @@ public class TopicServiceImpl implements TopicService {
         MasterEntry masterNode = masterService.getMasterNode(clusterId);
         String host = masterNode.getIp();
         int port = masterNode.getWebPort();
-
         try {
+            // Validate and clean the host IP address and web port
+            host = validateAndCleanInput(host);
             String requestUrl = TubeConst.SCHEMA + host + ":" + port + TubeConst.TOPIC_VIEW;
+
             if (StringUtils.isNotBlank(topicName)) {
+                // Validate and clean the topic name
+                topicName = validateAndCleanInput(topicName);
                 requestUrl += TubeConst.TOPIC_NAME + topicName;
+            }
+            // Validate the constructed URL
+            if (!isValidURL(requestUrl)) {
+                throw new SecurityException("Invalid URL format.");
             }
             String response = HttpUtils.sendHttpGetRequest(requestUrl);
             return gson.fromJson(response, TopicView.class);
@@ -217,6 +225,11 @@ public class TopicServiceImpl implements TopicService {
             log.error("Invalid port number: {}", port);
             throw new IllegalArgumentException("Invalid port number.");
         }
+    }
+
+    private static boolean isValidURL(String url) {
+        String urlPattern = "^(https?://)[a-zA-Z0-9.-]+(/[a-zA-Z0-9.-]*)?$";
+        return url.matches(urlPattern);
     }
 
     private boolean isRedirect(HttpResponse response) {
