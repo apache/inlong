@@ -56,7 +56,7 @@ ENV STORE_ES_PASSWD=inlong
 ENV AUDIT_JVM_HEAP_OPTS="-XX:+UseContainerSupport -XX:InitialRAMPercentage=40.0 -XX:MaxRAMPercentage=80.0 -XX:-UseAdaptiveSizePolicy"
 WORKDIR /opt/inlong-audit
 # add mysql connector
-RUN wget -P lib/ https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.27/mysql-connector-java-8.0.27.jar
+RUN wget -P lib/ https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.28/mysql-connector-java-8.0.28.jar
 ADD audit-docker.sh bin/
 RUN chmod +x bin/audit-docker.sh
 CMD ["bin/audit-docker.sh"]

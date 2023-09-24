@@ -240,6 +240,8 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     private String inlongAudit;
 
+    private String auditKeys;
+
     private boolean migrateAll;
 
     private SourceTableMetricData sourceMetricData;
@@ -257,7 +259,8 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             Validator validator,
             String inlongMetric,
             String inlongAudit,
-            boolean migrateAll) {
+            boolean migrateAll,
+            String auditKeys) {
         this.deserializer = deserializer;
         this.properties = properties;
         this.specificOffset = specificOffset;
@@ -265,6 +268,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         this.inlongMetric = inlongMetric;
         this.inlongAudit = inlongAudit;
         this.migrateAll = migrateAll;
+        this.auditKeys = auditKeys;
     }
 
     @Override

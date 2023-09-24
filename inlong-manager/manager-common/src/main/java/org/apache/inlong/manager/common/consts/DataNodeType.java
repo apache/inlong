@@ -36,4 +36,10 @@ public class DataNodeType {
     public static final String ORACLE = "ORACLE";
     public static final String SQLSERVER = "SQLSERVER";
     public static final String MONGODB = "MONGODB";
+    /**
+     * Tencent cloud log service
+     * Details: <a href="https://www.tencentcloud.com/products/cls">CLS</a>
+     */
+    public static final String CLS = "CLS";
+    public static final String PULSAR = "PULSAR";
 }

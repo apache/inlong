@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
 import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
@@ -27,7 +28,6 @@ import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.user.InlongRoleService;
 
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
-@Api(tags = "INLONG-USER-API")
+@Api(tags = "INLONG-User-API")
 public class InlongRoleController {
 
     @Autowired
@@ -78,7 +78,7 @@ public class InlongRoleController {
     @RequestMapping(value = "/role/inlong/list", method = RequestMethod.POST)
     @ApiOperation(value = "List inlong roles by paginating")
     @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN, UserRoleCode.INLONG_OPERATOR})
-    public Response<PageInfo<InlongRoleInfo>> listByCondition(@RequestBody InlongRolePageRequest request) {
+    public Response<PageResult<InlongRoleInfo>> listByCondition(@RequestBody InlongRolePageRequest request) {
         return Response.success(inlongRoleService.listByCondition(request));
     }
 }

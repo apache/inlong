@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.sort.api;
 
 import org.apache.inlong.sdk.sort.impl.SortClientImpl;
+import org.apache.inlong.sdk.sort.impl.SortClientImplV2;
 
 /**
  * Factory of {@link SortClient}
@@ -35,5 +36,13 @@ public class SortClientFactory {
 
     public static SortClient createSortClient(SortClientConfig config, QueryConsumeConfig queryConsumeConfig) {
         return new SortClientImpl(config, queryConsumeConfig);
+    }
+
+    public static SortClient createSortClientV2(SortClientConfig config) {
+        return new SortClientImplV2(config);
+    }
+
+    public static SortClient createSortClientV2(SortClientConfig config, QueryConsumeConfig queryConsumeConfig) {
+        return new SortClientImplV2(config, queryConsumeConfig);
     }
 }

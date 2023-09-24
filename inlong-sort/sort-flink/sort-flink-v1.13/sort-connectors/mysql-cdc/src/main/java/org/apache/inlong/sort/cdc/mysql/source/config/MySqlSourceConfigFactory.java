@@ -76,6 +76,7 @@ public class MySqlSourceConfigFactory implements Serializable {
 
     private String inlongMetric;
     private String inlongAudit;
+    private String auditKeys;
     private boolean includeIncremental;
     private boolean ghostDdlChange;
     private String ghostTableRegex;
@@ -88,6 +89,11 @@ public class MySqlSourceConfigFactory implements Serializable {
 
     public MySqlSourceConfigFactory inlongAudit(String inlongAudit) {
         this.inlongAudit = inlongAudit;
+        return this;
+    }
+
+    public MySqlSourceConfigFactory auditKeys(String auditKeys) {
+        this.auditKeys = auditKeys;
         return this;
     }
 
@@ -390,6 +396,7 @@ public class MySqlSourceConfigFactory implements Serializable {
                 includeIncremental,
                 ghostDdlChange,
                 ghostTableRegex,
-                migrateAll);
+                migrateAll,
+                auditKeys);
     }
 }

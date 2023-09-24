@@ -26,6 +26,8 @@ public enum AlterType {
     ADD_COLUMN,
     DROP_COLUMN,
     MODIFY_COLUMN,
-    CHANGE_COLUMN
+    CHANGE_COLUMN,
+    DROP_CONSTRAINT,
+    ADD_CONSTRAINT
 
 }

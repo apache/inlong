@@ -167,6 +167,8 @@ public final class Constants {
 
     public static final String META_INCREMENTAL = "incremental_inlong";
 
+    public static final String META_AUDIT_DATA_TIME = "audit_data_time";
+
     public static final ConfigOption<String> INLONG_METRIC =
             ConfigOptions.key("inlong.metric.labels")
                     .stringType()
@@ -413,4 +415,10 @@ public final class Constants {
                     .noDefaultValue()
                     .withDescription("The policies of schema-change, format is 'key1=value1&key2=value2', "
                             + "the key is the type of schema-change and the value is the support policy of schema-change");
+
+    public static final ConfigOption<Boolean> SINK_AUTO_CREATE_TABLE_WHEN_SNAPSHOT =
+            ConfigOptions.key("sink.multiple.auto-create-table-when-snapshot")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether supporting auto create table when snapshot, default value is 'false'");
 }

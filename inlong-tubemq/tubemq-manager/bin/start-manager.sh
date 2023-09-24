@@ -18,6 +18,12 @@
 
 base_dir=$(dirname $0)
 
+# Prepare common dependency
+ROOT_DIR=$base_dir/../..
+if [ -e $ROOT_DIR/bin/prepare_module_dependencys.sh ]; then
+    $ROOT_DIR/bin/prepare_module_dependencys.sh ./inlong-tubemq-manager/lib
+fi
+
 DAEMON_NAME=${DAEMON_NAME:-"tubemq-manager"}
 LOG_DIR=${LOG_DIR:-"$base_dir/../logs"}
 CONF_DIR=${CONF_DIR:-"$base_dir/../conf"}

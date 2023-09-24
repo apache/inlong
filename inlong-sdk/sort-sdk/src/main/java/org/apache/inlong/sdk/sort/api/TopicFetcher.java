@@ -20,6 +20,7 @@ package org.apache.inlong.sdk.sort.api;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Interface of all type of topic fetchers.
@@ -31,6 +32,14 @@ public interface TopicFetcher {
      * @return The result of init.
      */
     boolean init();
+
+    /**
+     * Init topic fetcher in async ways
+     * @return CompletableFuture of init results
+     */
+    default CompletableFuture<Boolean> initAsync() {
+        return CompletableFuture.supplyAsync(this::init);
+    }
 
     /**
      * Ack message by the given msgOffset.
@@ -60,6 +69,14 @@ public interface TopicFetcher {
      * @return Result of close
      */
     boolean close();
+
+    /**
+     * Close topic fetcher in async ways
+     * @return
+     */
+    default CompletableFuture<Boolean> closeAsync() {
+        return CompletableFuture.supplyAsync(this::close);
+    }
 
     /**
      * Get if the fetcher is closed or not.

@@ -45,7 +45,7 @@ export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
     LoadEntity: () => import('./MySQLBinlog'),
   },
   {
-    label: 'Mongodb',
+    label: 'MongoDB',
     value: 'MONGODB',
     LoadEntity: () => import('./Mongodb'),
   },
@@ -73,5 +73,10 @@ export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
     label: 'SQLServer',
     value: 'SQLSERVER',
     LoadEntity: () => import('./SQLServer'),
+  },
+  {
+    label: 'Iceberg',
+    value: 'ICEBERG',
+    LoadEntity: () => import('./Iceberg'),
   },
 ];

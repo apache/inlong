@@ -114,17 +114,17 @@ public class OracleScanFetchTask implements FetchTask<SourceSplitBase> {
                 snapshotSplitReadTask.execute(
                         changeEventSourceContext, sourceFetchContext.getOffsetContext());
 
-        final StreamSplit backfillBinlogSplit =
+        final StreamSplit backfillRedoLogSplit =
                 createBackfillRedoLogSplit(changeEventSourceContext);
-        // optimization that skip the binlog read when the low watermark equals high
+        // optimization that skip the redo log read when the low watermark equals high
         // watermark
-        final boolean binlogBackfillRequired =
-                backfillBinlogSplit
+        final boolean redoLogBackfillRequired =
+                backfillRedoLogSplit
                         .getEndingOffset()
-                        .isAfter(backfillBinlogSplit.getStartingOffset());
-        if (!binlogBackfillRequired) {
-            dispatchBinlogEndEvent(
-                    backfillBinlogSplit,
+                        .isAfter(backfillRedoLogSplit.getStartingOffset());
+        if (!redoLogBackfillRequired) {
+            dispatchRedoLogEndEvent(
+                    backfillRedoLogSplit,
                     ((OracleSourceFetchTaskContext) context).getOffsetContext().getPartition(),
                     ((OracleSourceFetchTaskContext) context).getDispatcher());
             taskRunning = false;
@@ -132,11 +132,16 @@ public class OracleScanFetchTask implements FetchTask<SourceSplitBase> {
         }
         // execute redoLog read task
         if (snapshotResult.isCompletedOrSkipped()) {
-            final RedoLogSplitReadTask backfillBinlogReadTask =
-                    createBackfillRedoLogReadTask(backfillBinlogSplit, sourceFetchContext);
-            backfillBinlogReadTask.execute(
-                    new SnapshotBinlogSplitChangeEventSourceContext(),
-                    sourceFetchContext.getOffsetContext());
+            final RedoLogSplitReadTask backfillRedoLogReadReTask =
+                    createBackfillRedoLogReadTask(backfillRedoLogSplit, sourceFetchContext);
+            final LogMinerOracleOffsetContextLoader loader =
+                    new LogMinerOracleOffsetContextLoader(
+                            ((OracleSourceFetchTaskContext) context).getDbzConnectorConfig());
+            final OracleOffsetContext oracleOffsetContext =
+                    loader.load(backfillRedoLogSplit.getStartingOffset().getOffset());
+            backfillRedoLogReadReTask.execute(
+                    new SnapshotStreamSplitChangeEventSourceContext(), oracleOffsetContext);
+            taskRunning = false;
         } else {
             taskRunning = false;
             throw new IllegalStateException(
@@ -156,13 +161,13 @@ public class OracleScanFetchTask implements FetchTask<SourceSplitBase> {
     }
 
     private RedoLogSplitReadTask createBackfillRedoLogReadTask(
-            StreamSplit backfillBinlogSplit, OracleSourceFetchTaskContext context) {
+            StreamSplit backfillRedoLogSplit, OracleSourceFetchTaskContext context) {
         OracleConnectorConfig oracleConnectorConfig =
                 context.getSourceConfig().getDbzConnectorConfig();
         final OffsetContext.Loader<OracleOffsetContext> loader =
                 new LogMinerOracleOffsetContextLoader(oracleConnectorConfig);
         final OracleOffsetContext oracleOffsetContext =
-                loader.load(backfillBinlogSplit.getStartingOffset().getOffset());
+                loader.load(backfillRedoLogSplit.getStartingOffset().getOffset());
         // we should only capture events for the current table,
         // otherwise, we may can't find corresponding schema
         Configuration dezConf =
@@ -173,7 +178,7 @@ public class OracleScanFetchTask implements FetchTask<SourceSplitBase> {
                         // Disable heartbeat event in snapshot split fetcher
                         .with(Heartbeat.HEARTBEAT_INTERVAL, 0)
                         .build();
-        // task to read binlog and backfill for current split
+        // task to read redo log and backfill for current split
         return new RedoLogSplitReadTask(
                 new OracleConnectorConfig(dezConf),
                 createOracleConnection(context.getSourceConfig().getDbzConfiguration()),
@@ -182,18 +187,18 @@ public class OracleScanFetchTask implements FetchTask<SourceSplitBase> {
                 context.getDatabaseSchema(),
                 context.getSourceConfig().getOriginDbzConnectorConfig(),
                 context.getStreamingChangeEventSourceMetrics(),
-                backfillBinlogSplit);
+                backfillRedoLogSplit);
     }
 
-    private void dispatchBinlogEndEvent(
-            StreamSplit backFillBinlogSplit,
+    private void dispatchRedoLogEndEvent(
+            StreamSplit backFillRedoLogSplit,
             Map<String, ?> sourcePartition,
             JdbcSourceEventDispatcher eventDispatcher)
             throws InterruptedException {
         eventDispatcher.dispatchWatermarkEvent(
                 sourcePartition,
-                backFillBinlogSplit,
-                backFillBinlogSplit.getEndingOffset(),
+                backFillRedoLogSplit,
+                backFillRedoLogSplit.getEndingOffset(),
                 WatermarkKind.END);
     }
 
@@ -284,7 +289,7 @@ public class OracleScanFetchTask implements FetchTask<SourceSplitBase> {
                     "Snapshot step 3 - Determining high watermark {} for split {}",
                     highWatermark,
                     snapshotSplit);
-            ((SnapshotSplitChangeEventSourceContext) (context)).setHighWatermark(lowWatermark);
+            ((SnapshotSplitChangeEventSourceContext) (context)).setHighWatermark(highWatermark);
             dispatcher.dispatchWatermarkEvent(
                     offsetContext.getPartition(), snapshotSplit, highWatermark, WatermarkKind.HIGH);
             return SnapshotResult.completed(ctx.offset);
@@ -462,10 +467,10 @@ public class OracleScanFetchTask implements FetchTask<SourceSplitBase> {
     }
 
     /**
-     * The {@link ChangeEventSource.ChangeEventSourceContext} implementation for bounded binlog task
+     * The {@link ChangeEventSource.ChangeEventSourceContext} implementation for bounded stream task
      * of a snapshot split task.
      */
-    public class SnapshotBinlogSplitChangeEventSourceContext
+    public class SnapshotStreamSplitChangeEventSourceContext
             implements
                 ChangeEventSource.ChangeEventSourceContext {
 

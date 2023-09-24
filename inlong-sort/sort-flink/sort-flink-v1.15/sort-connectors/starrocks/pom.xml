@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>sort-connectors-v1.15</artifactId>
-        <version>1.9.0-SNAPSHOT</version>
+        <version>1.10.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-connector-starrocks-v1.15</artifactId>
@@ -44,6 +44,10 @@
             <groupId>com.starrocks</groupId>
             <artifactId>flink-connector-starrocks</artifactId>
             <version>${starrocks-connector.version}_flink-${flink.starrocks.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
         </dependency>
     </dependencies>
 
@@ -75,6 +79,8 @@
                                     <include>org.apache.flink:flink-shaded-guava</include>
                                     <include>com.google.protobuf:*</include>
                                     <include>com.starrocks:flink-connector-starrocks</include>
+                                    <include>com.alibaba:*</include>
+                                    <include>com.github.jsqlparser:jsqlparser</include>
                                 </includes>
                             </artifactSet>
 

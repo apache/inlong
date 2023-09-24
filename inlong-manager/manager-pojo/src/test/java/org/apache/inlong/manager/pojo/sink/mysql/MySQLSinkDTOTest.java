@@ -91,6 +91,12 @@ public class MySQLSinkDTOTest {
         Assertions.assertEquals(
                 "jdbc:mysql://127.0.0.1:3306?autoDeserialize=false&allowUrlInLocalInfile=false&allowLoadLocalInfile=false",
                 originUrl);
+
+        originUrl = MySQLSinkDTO.filterSensitive(
+                "jdbc:mysql://127.0.0.1:3306?autoDeserialize\t\t=%59%65%73&allowLoa\r\rdLocalInfile = yes&allowUrlInLocalInfil%65+\t=%74%72%75%45&allowLoadLocalInfileInPath\n=%2F");
+        Assertions.assertEquals(
+                "jdbc:mysql://127.0.0.1:3306?autoDeserialize=false&allowUrlInLocalInfile=false&allowLoadLocalInfile=false",
+                originUrl);
     }
 
     @Test

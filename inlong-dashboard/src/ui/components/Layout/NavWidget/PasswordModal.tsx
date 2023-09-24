@@ -50,7 +50,10 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
       type: 'password',
       label: t('components.Layout.NavWidget.NewPassword'),
       name: 'newPassword',
-      rules: [{ required: true }],
+      rules: [
+        { required: true },
+        { pattern: /^[@0-9a-z_-]+$/, message: t('pages.Login.PasswordRules') },
+      ],
     },
     {
       type: 'password',
@@ -58,6 +61,7 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
       name: 'confirmPassword',
       rules: [
         { required: true },
+        { pattern: /^[@0-9a-z_-]+$/, message: t('pages.Login.PasswordRules') },
         ({ getFieldValue }) => ({
           validator(_, val) {
             if (val) {
@@ -131,7 +135,12 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   }, [userId]);
 
   return (
-    <Modal {...modalProps} title={t('components.Layout.NavWidget.EditPassword')} onOk={onOk}>
+    <Modal
+      {...modalProps}
+      width={590}
+      title={t('components.Layout.NavWidget.EditPassword')}
+      onOk={onOk}
+    >
       <FormGenerator content={content} form={form} useMaxWidth />
     </Modal>
   );

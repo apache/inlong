@@ -25,6 +25,7 @@ import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 
@@ -39,7 +40,7 @@ public interface InlongTenantApi {
     @POST("tenant/update")
     Call<Response<Boolean>> update(@Body InlongTenantRequest request);
 
-    @POST("tenant/get/{name}")
+    @GET("tenant/get/{name}")
     Call<Response<InlongTenantInfo>> get(@Path("name") String name);
 
 }

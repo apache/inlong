@@ -234,7 +234,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
                     ProxyEvent proxyEvent = new ProxyEvent(groupId, streamId, msgTimeStr,
                             sourceIp, sourceTimeStr, event.getHeaders(), event.getBody());
                     this.dispatchManager.addEvent(proxyEvent);
-                    context.fileMetricIncSumStats(StatConstants.EVENT_SINK_EVENT_V1_FILE);
+                    context.fileMetricIncSumStats(StatConstants.EVENT_SINK_FILE_V1_TAKE_SUCCESS);
                 } else {
                     context.fileMetricIncSumStats(StatConstants.EVENT_SINK_EVENT_V1_MALFORMED);
                 }
@@ -243,7 +243,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
                 simpleEvent.setBody(event.getBody());
                 simpleEvent.setHeaders(event.getHeaders());
                 this.dispatchManager.addSimpleEvent(simpleEvent);
-                context.fileMetricIncSumStats(StatConstants.EVENT_SINK_EVENT_V0_FILE);
+                context.fileMetricIncSumStats(StatConstants.EVENT_SINK_FILE_V0_TAKE_SUCCESS);
             }
             tx.commit();
             return Status.READY;

@@ -113,6 +113,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
     private final JdbcExecutionOptions executionOptions;
     private final String inlongMetric;
     private final String auditHostAndPorts;
+    private final String auditKeys;
     private transient int batchCount = 0;
     private transient volatile boolean closed = false;
     private transient ScheduledExecutorService scheduler;
@@ -163,7 +164,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             String inlongMetric,
             String auditHostAndPorts,
             SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy,
-            DirtySinkHelper<Object> dirtySinkHelper) {
+            DirtySinkHelper<Object> dirtySinkHelper,
+            String auditKeys) {
         super(connectionProvider);
         this.executionOptions = checkNotNull(executionOptions);
         this.dmlOptions = dmlOptions;
@@ -177,6 +179,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         this.auditHostAndPorts = auditHostAndPorts;
         this.schemaUpdateExceptionPolicy = schemaUpdateExceptionPolicy;
         this.dirtySinkHelper = dirtySinkHelper;
+        this.auditKeys = auditKeys;
     }
 
     /**

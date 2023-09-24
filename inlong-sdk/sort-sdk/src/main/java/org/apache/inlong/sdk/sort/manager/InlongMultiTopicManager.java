@@ -56,7 +56,10 @@ import java.util.stream.Collectors;
  * Inlong manager that maintain the {@link org.apache.inlong.sdk.sort.api.MultiTopicsFetcher}.
  * It is suitable to the cases that topics share the same configurations.
  * And each consumer will consume multi topic.
+ *
+ * InlongMultiTopicManager was deprecated since 1.9.0
  */
+@Deprecated
 public class InlongMultiTopicManager extends TopicManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongMultiTopicManager.class);

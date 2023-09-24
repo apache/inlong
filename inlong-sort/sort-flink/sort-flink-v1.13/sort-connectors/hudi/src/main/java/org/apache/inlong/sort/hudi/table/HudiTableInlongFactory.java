@@ -39,6 +39,7 @@ public class HudiTableInlongFactory extends HoodieTableFactory {
         super();
     }
 
+    @Override
     public String factoryIdentifier() {
         return SORT_CONNECTOR_IDENTIFY_HUDI;
     }

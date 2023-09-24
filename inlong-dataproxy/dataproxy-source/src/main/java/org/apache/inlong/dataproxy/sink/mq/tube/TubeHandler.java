@@ -186,10 +186,23 @@ public class TubeHandler implements MessageQueueHandler {
         String topic = null;
         try {
             // idConfig
-            IdTopicConfig idConfig = ConfigManager.getInstance().getIdTopicConfig(
+            IdTopicConfig idConfig = ConfigManager.getInstance().getSinkIdTopicConfig(
                     profile.getInlongGroupId(), profile.getInlongStreamId());
             if (idConfig == null) {
-                if (!CommonConfigHolder.getInstance().isEnableUnConfigTopicAccept()) {
+                // add default topics first
+                if (CommonConfigHolder.getInstance().isEnableUnConfigTopicAccept()) {
+                    topic = CommonConfigHolder.getInstance().getRandDefTopics();
+                    if (StringUtils.isEmpty(topic)) {
+                        sinkContext.fileMetricIncWithDetailStats(
+                                StatConstants.EVENT_SINK_DEFAULT_TOPIC_MISSING, profile.getUid());
+                        sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
+                        sinkContext.getMqZoneSink().releaseAcquiredSizePermit(profile);
+                        profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
+                        return false;
+                    }
+                    sinkContext.fileMetricIncWithDetailStats(
+                            StatConstants.EVENT_SINK_DEFAULT_TOPIC_USED, profile.getUid());
+                } else {
                     sinkContext.fileMetricIncWithDetailStats(
                             StatConstants.EVENT_SINK_CONFIG_TOPIC_MISSING, profile.getUid());
                     sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
@@ -197,15 +210,6 @@ public class TubeHandler implements MessageQueueHandler {
                     profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
                     return false;
                 }
-                topic = CommonConfigHolder.getInstance().getRandDefTopics();
-                if (StringUtils.isEmpty(topic)) {
-                    sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_DEFAULT_TOPIC_MISSING);
-                    sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
-                    sinkContext.getMqZoneSink().releaseAcquiredSizePermit(profile);
-                    profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
-                    return false;
-                }
-                sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_DEFAULT_TOPIC_USED);
             } else {
                 topic = idConfig.getTopicName();
             }
@@ -273,7 +277,8 @@ public class TubeHandler implements MessageQueueHandler {
                     sinkContext.getMqZoneSink().releaseAcquiredSizePermit(batchProfile);
                     batchProfile.ack();
                 } else {
-                    sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_FAILURE);
+                    sinkContext.fileMetricIncWithDetailStats(StatConstants.EVENT_SINK_FAILURE,
+                            topic + "." + result.getErrCode());
                     sinkContext.processSendFail(batchProfile, clusterName, topic, sendTime,
                             DataProxyErrCode.MQ_RETURN_ERROR, result.getErrMsg());
                     if (logCounter.shouldPrint()) {
@@ -284,7 +289,7 @@ public class TubeHandler implements MessageQueueHandler {
 
             @Override
             public void onException(Throwable ex) {
-                sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
+                sinkContext.fileMetricIncWithDetailStats(StatConstants.EVENT_SINK_RECEIVEEXCEPT, topic);
                 sinkContext.processSendFail(batchProfile, clusterName, topic, sendTime,
                         DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 if (logCounter.shouldPrint()) {

@@ -108,7 +108,7 @@ const Comp: React.FC<Props> = ({
       <Modal
         {...modalProps}
         title={id ? t('pages.GroupDetail.Sources.Edit') : t('pages.GroupDetail.Sources.Create')}
-        width={666}
+        width={777}
         onOk={onOk}
       >
         <Spin spinning={loading}>

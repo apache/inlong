@@ -70,6 +70,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     private final String fullTableName;
     private final String inlongMetric;
     private final String auditHostAndPorts;
+    private final String auditKeys;
     private RowDataTaskWriterFactory taskWriterFactory;
 
     private transient TaskWriter<RowData> writer;
@@ -100,7 +101,8 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
             boolean multipleSink,
             RowType tableSchemaRowType,
             int incrementalFieldIndex,
-            boolean switchAppendUpsertEnable) {
+            boolean switchAppendUpsertEnable,
+            String auditKeys) {
         this.fullTableName = fullTableName;
         this.taskWriterFactory = taskWriterFactory;
         this.inlongMetric = inlongMetric;
@@ -113,6 +115,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
         this.incrementalFieldIndex = incrementalFieldIndex;
         this.cachedWriteResults = new ArrayList<>();
         this.switchAppendUpsertEnable = switchAppendUpsertEnable;
+        this.auditKeys = auditKeys;
     }
 
     public RowType getFlinkRowType() {
@@ -141,6 +144,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
                     .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
                     .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
                     .withRegisterMetric(RegisteredMetric.ALL)
+                    .withAuditKeys(auditKeys)
                     .build();
             if (metricOption != null) {
                 metricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());

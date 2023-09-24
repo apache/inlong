@@ -166,23 +166,23 @@ public class SimplePackProfile extends PackProfile {
      *  Return response to client in source
      */
     private void responseV0Msg(DataProxyErrCode errCode, String errMsg) {
+        String uniqId = event.getHeaders().get(AttributeConstants.UNIQ_ID);
+        if ("false".equals(event.getHeaders().get(AttributeConstants.MESSAGE_IS_ACK))) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("not need to rsp message: uniqId = {}, inlongGroupId = {}, inlongStreamId = {}",
+                        uniqId, this.getInlongGroupId(), this.getInlongStreamId());
+            }
+            return;
+        }
+        // check channel status
+        if (channel == null || !channel.isWritable()) {
+            if (logCounter.shouldPrint()) {
+                logger.warn("Prepare send msg but channel full, msgType={}, attr={}, channel={}",
+                        msgType, event.getHeaders(), channel);
+            }
+            return;
+        }
         try {
-            String uid = event.getHeaders().get(AttributeConstants.UNIQ_ID);
-            if ("false".equals(event.getHeaders().get(AttributeConstants.MESSAGE_IS_ACK))) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("not need to rsp message: seqId = {}, inlongGroupId = {}, inlongStreamId = {}",
-                            uid, this.getInlongGroupId(), this.getInlongStreamId());
-                }
-                return;
-            }
-            // check channel status
-            if (channel == null || !channel.isWritable()) {
-                if (logCounter.shouldPrint()) {
-                    logger.warn("Prepare send msg but channel full, msgType={}, attr={}, channel={}",
-                            msgType, event.getHeaders(), channel);
-                }
-                return;
-            }
             // build return attribute string
             StringBuilder strBuff = new StringBuilder(512);
             if (errCode != DataProxyErrCode.SUCCESS) {
@@ -204,7 +204,7 @@ public class SimplePackProfile extends PackProfile {
             // build and send response message
             ByteBuf retData;
             if (MsgType.MSG_BIN_MULTI_BODY.equals(msgType)) {
-                retData = ServerMessageHandler.buildBinMsgRspPackage(strBuff.toString(), Long.parseLong(uid));
+                retData = ServerMessageHandler.buildBinMsgRspPackage(strBuff.toString(), Long.parseLong(uniqId));
             } else {
                 retData = ServerMessageHandler.buildTxtMsgRspPackage(msgType, strBuff.toString());
             }
@@ -217,7 +217,7 @@ public class SimplePackProfile extends PackProfile {
                 }
                 return;
             }
-            channel.writeAndFlush(strBuff);
+            channel.writeAndFlush(retData);
         } catch (Throwable e) {
             //
             if (logCounter.shouldPrint()) {
