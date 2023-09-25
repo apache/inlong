@@ -17,13 +17,20 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import com.github.pagehelper.Page;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
@@ -34,19 +41,9 @@ import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
-
-import com.github.pagehelper.Page;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * Default operation of stream sink.
@@ -221,14 +218,10 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     @Override
     public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields) {
         Map<String, String> param;
-        InlongStreamEntity inlongStreamEntity = inlongStreamEntityMapper.selectByIdentifier(
-                streamSink.getInlongGroupId(), streamSink.getInlongStreamId());
         try {
             param = JsonUtils.parseObject(streamSink.getExtParams(), HashMap.class);
             // put group and stream info
             assert param != null;
-            param.put(KEY_SEPARATOR, inlongStreamEntity.getDataSeparator());
-            param.put(KEY_DATA_TYPE, inlongStreamEntity.getDataType());
             param.put(KEY_GROUP_ID, streamSink.getInlongGroupId());
             param.put(KEY_STREAM_ID, streamSink.getInlongStreamId());
             return param;
