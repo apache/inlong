@@ -20,14 +20,14 @@ package org.apache.inlong.common.enums;
 /**
  * Enumeration class of encoding format of data output from DataProxy to MQ
  */
-public enum DataProxyMsgEncType {
+public enum MessageWrapType {
 
-    MSG_ENCODE_TYPE_RAW(0, "Raw", "Raw message without any InLong format"),
-    MSG_ENCODE_TYPE_PB(1, "PB", "The PB MessagePack encode format"),
-    MSG_ENCODE_TYPE_INLONGMSG(2, "InLongMsg", "The InLongMsg encode format"),
-    MSG_ENCODE_TYPE_UNKNOWN(99, "Unknown", "Unknown encode format");
+    RAW(0, "RAW", "The message body wrapped with nothing"),
+    INLONG_MSG_V1(1, "INLONG_MSG_V1", "The message body wrapped with inlong msg v1, which is the PB protocol"),
+    INLONG_MSG_V0(2, "INLONG_MSG_V0", "The message body wrapped with inlong msg v0, which is a six segment protocol"),
+    UNKNOWN(99, "UNKNOWN", "Unknown message wrap type");
 
-    DataProxyMsgEncType(int id, String name, String desc) {
+    MessageWrapType(int id, String name, String desc) {
         this.id = id;
         this.name = name;
         this.desc = desc;
@@ -49,13 +49,13 @@ public enum DataProxyMsgEncType {
         return desc;
     }
 
-    public static DataProxyMsgEncType valueOf(int value) {
-        for (DataProxyMsgEncType msgEncType : DataProxyMsgEncType.values()) {
+    public static MessageWrapType valueOf(int value) {
+        for (MessageWrapType msgEncType : MessageWrapType.values()) {
             if (msgEncType.getId() == value) {
                 return msgEncType;
             }
         }
-        return MSG_ENCODE_TYPE_UNKNOWN;
+        return UNKNOWN;
     }
 
     private final int id;

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.message;
 
-import org.apache.inlong.common.enums.DataProxyMsgEncType;
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
@@ -42,7 +42,7 @@ public interface DeserializeOperator {
     /**
      * Determines whether the current instance matches the specified type.
      */
-    boolean accept(DataProxyMsgEncType type);
+    boolean accept(MessageWrapType type);
 
     /**
      * List brief mq message info
