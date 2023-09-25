@@ -96,6 +96,7 @@
 | [INLONG-6364](https://github.com/apache/inlong/issues/6364) | [Improve][DataProxy] Add DataProxy node load information stage/stale                                                            |
 | [INLONG-8799](https://github.com/apache/inlong/issues/8799) | [Bug][Manager][Agent][DataProxy] The "opentelemetry" related configs may affect the startup of services                         |
 | [INLONG-8611](https://github.com/apache/inlong/issues/8611) | [Feature][Manager][Agent][DataProxy] Support full link tracking to improve the observability of the project                     |
+| [INLONG-8936](https://github.com/apache/inlong/issues/8936) | [Bug][DataProxy] The log's path for DataProxy is wrong                                                                          |
 
 ### Manager
 |                            ISSUE                            | Summary                                                                                                                         |
@@ -162,6 +163,9 @@
 | [INLONG-8403](https://github.com/apache/inlong/issues/8403) | [Feature][Manager] Support resource migrate to different tenant                                                                 |
 | [INLONG-8374](https://github.com/apache/inlong/issues/8374) | [Feature][Manager] Manager client tools support multiple tenant good first issue                                                |
 | [INLONG-8360](https://github.com/apache/inlong/issues/8360) | [Improve][Manager] Support previewing data of Kafka                                                                             |
+| [INLONG-8939](https://github.com/apache/inlong/issues/8939) | [Improve][Manager] Add a switch to initiate the delete data source task                                                         |
+| [INLONG-8946](https://github.com/apache/inlong/issues/8946) | [Improve][Manager] Optimize the audit ID method issued by the manager                                                           |
+| [INLONG-8951](https://github.com/apache/inlong/issues/8951) | [Improve][Manager] Support for configuring built-in fields for iceberg                                                          |
 
 ### SDK
 |                            ISSUE                            | Summary                                                                                                                         |
@@ -232,6 +236,7 @@
 | [INLONG-7763](https://github.com/apache/inlong/issues/7763) | [Feature][Sort] Support ddl change for doris                                                                                    |
 | [INLONG-8797](https://github.com/apache/inlong/issues/8797) | [Feature][Manager][Sort] Audit has no data for data sync                                                                        |
 | [INLONG-8903](https://github.com/apache/inlong/issues/8903) | [Bug][TubeMQ][Sort] int64 not recognized by the compiler and Missing @Override annotations                                      |
+| [INLONG-8953](https://github.com/apache/inlong/issues/8953) | [Bug][Sort] Iceberg source default the StartSnapshot to the latest                                                              |
 
 ### TubeMQ
 |                            ISSUE                            | Summary                                                                                                                         |
@@ -265,3 +270,6 @@
 | [INLONG-8683](https://github.com/apache/inlong/issues/8683) | [Improve][Security] OutOfMemoryError for large multipart without filename in Eclipse Jetty                                      |
 | [INLONG-8682](https://github.com/apache/inlong/issues/8682) | [Improve][Security] Guava vulnerable to insecure use of temporary directory                                                     |
 | [INLONG-8681](https://github.com/apache/inlong/issues/8681) | [Improve][Security] netty-handler SniHandler 16MB allocation                                                                    |
+| [INLONG-8934](https://github.com/apache/inlong/issues/8934) | [Feature][Distribution] Add Iceberg connectors into the bundle                                                                  |
+| [INLONG-8942](https://github.com/apache/inlong/issues/8942) | [Improve][Distribution]Support to merge all jar file of multiple modules in order to reduce version package size                |
+| [INLONG-8965](https://github.com/apache/inlong/issues/8965) | [Improve][Doc] Update the description for swagger API                                                                           |
