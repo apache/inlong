@@ -36,7 +36,7 @@ public class RawMsgDeserializeOperator implements DeserializeOperator {
 
     @Override
     public boolean accept(MessageWrapType type) {
-        return MessageWrapType.NONE.equals(type);
+        return MessageWrapType.RAW.equals(type);
     }
 
     @Override
