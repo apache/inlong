@@ -21,7 +21,6 @@ import com.ververica.cdc.connectors.mysql.source.config.MySqlSourceOptions;
 import com.ververica.cdc.connectors.mysql.source.config.ServerIdRange;
 import com.ververica.cdc.connectors.mysql.source.offset.BinlogOffset;
 import com.ververica.cdc.connectors.mysql.source.offset.BinlogOffsetBuilder;
-import com.ververica.cdc.connectors.mysql.table.JdbcUrlUtils;
 import com.ververica.cdc.connectors.mysql.table.MySqlTableSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
 import org.apache.flink.annotation.Experimental;
@@ -43,6 +42,7 @@ import java.util.regex.Pattern;
 
 import static com.ververica.cdc.connectors.mysql.source.utils.ObjectUtils.doubleCompare;
 import static com.ververica.cdc.connectors.mysql.table.JdbcUrlUtils.PROPERTIES_PREFIX;
+import static com.ververica.cdc.connectors.mysql.table.JdbcUrlUtils.getJdbcProperties;
 import static com.ververica.cdc.debezium.table.DebeziumOptions.DEBEZIUM_OPTIONS_PREFIX;
 import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
 import static com.ververica.cdc.debezium.utils.ResolvedSchemaUtils.getPhysicalSchema;
@@ -118,7 +118,7 @@ public class MysqlTableFactory implements DynamicTableSourceFactory {
                 distributionFactorLower,
                 startupOptions,
                 scanNewlyAddedTableEnabled,
-                JdbcUrlUtils.getJdbcProperties(context.getCatalogTable().getOptions()),
+                getJdbcProperties(context.getCatalogTable().getOptions()),
                 heartbeatInterval,
                 chunkKeyColumn);
     }

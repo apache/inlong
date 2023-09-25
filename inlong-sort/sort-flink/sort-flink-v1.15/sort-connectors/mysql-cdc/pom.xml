@@ -78,12 +78,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-json-v1.15</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
             <artifactId>sort-common</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
