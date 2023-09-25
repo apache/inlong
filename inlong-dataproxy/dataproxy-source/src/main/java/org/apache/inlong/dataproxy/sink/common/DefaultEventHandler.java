@@ -51,8 +51,8 @@ public class DefaultEventHandler implements EventHandler {
             INLONG_COMPRESSED_TYPE compressType) {
         Map<String, String> headers = new HashMap<>();
         // version int32 protocol version, the value is 1
-        headers.put(ConfigConstants.MSG_ENCODE_VER, MessageWrapType.PB.getStrId());
-        headers.put(EventConstants.HEADER_KEY_VERSION, MessageWrapType.PB.getStrId());
+        headers.put(ConfigConstants.MSG_ENCODE_VER, MessageWrapType.INLONG_MSG_V1.getStrId());
+        headers.put(EventConstants.HEADER_KEY_VERSION, MessageWrapType.INLONG_MSG_V1.getStrId());
         // inlongGroupId string inlongGroupId
         headers.put(EventConstants.INLONG_GROUP_ID, profile.getInlongGroupId());
         // inlongStreamId string inlongStreamId

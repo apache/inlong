@@ -430,7 +430,7 @@ public class PulsarOperator {
                     pulsarAdmin.topics().examineMessage(topicPartition, "latest", messagePosition);
             Map<String, String> headers = pulsarMessage.getProperties();
             int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
-                    Integer.toString(MessageWrapType.INLONG_MSG.getId())));
+                    Integer.toString(MessageWrapType.INLONG_MSG_V0.getId())));
             DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
                     MessageWrapType.valueOf(wrapTypeId));
             briefMQMessages.addAll(deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(),

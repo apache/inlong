@@ -42,7 +42,7 @@ public class PbMsgDeserializeOperator implements DeserializeOperator {
 
     @Override
     public boolean accept(MessageWrapType type) {
-        return MessageWrapType.PB.equals(type);
+        return MessageWrapType.INLONG_MSG_V1.equals(type);
     }
 
     @Override

@@ -240,9 +240,9 @@ public abstract class AbsV0MsgCodec {
         headers.put(ConfigConstants.DATAPROXY_IP_KEY, source.getSrcHost());
         headers.put(ConfigConstants.MSG_COUNTER_KEY, String.valueOf(msgCount));
         headers.put(ConfigConstants.MSG_ENCODE_VER,
-                MessageWrapType.INLONG_MSG.getStrId());
+                MessageWrapType.INLONG_MSG_V0.getStrId());
         headers.put(EventConstants.HEADER_KEY_VERSION,
-                MessageWrapType.INLONG_MSG.getStrId());
+                MessageWrapType.INLONG_MSG_V0.getStrId());
         headers.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
         headers.put(AttributeConstants.UNIQ_ID, String.valueOf(uniq));
         headers.put(ConfigConstants.PKG_TIME_KEY, String.valueOf(msgPkgTime));

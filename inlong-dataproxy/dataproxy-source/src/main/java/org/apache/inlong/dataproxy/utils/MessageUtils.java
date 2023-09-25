@@ -293,7 +293,7 @@ public class MessageUtils {
         // common attributes
         Map<String, String> attrs = new HashMap<>();
         attrs.put(ConfigConstants.MSG_ENCODE_VER, pkgVersion);
-        if (MessageWrapType.PB.getStrId().equalsIgnoreCase(pkgVersion)) {
+        if (MessageWrapType.INLONG_MSG_V1.getStrId().equalsIgnoreCase(pkgVersion)) {
             attrs.put("dataproxyip", NetworkUtils.getLocalIp());
             attrs.put(Constants.INLONG_GROUP_ID, headers.get(Constants.INLONG_GROUP_ID));
             attrs.put(Constants.INLONG_STREAM_ID, headers.get(Constants.INLONG_STREAM_ID));

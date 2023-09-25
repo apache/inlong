@@ -40,7 +40,7 @@ public class InlongMsgDeserializeOperator implements DeserializeOperator {
 
     @Override
     public boolean accept(MessageWrapType type) {
-        return MessageWrapType.INLONG_MSG.equals(type);
+        return MessageWrapType.INLONG_MSG_V0.equals(type);
     }
 
     @Override

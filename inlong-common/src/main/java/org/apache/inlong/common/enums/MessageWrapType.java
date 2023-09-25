@@ -23,8 +23,8 @@ package org.apache.inlong.common.enums;
 public enum MessageWrapType {
 
     NONE(0, "NONE", "The message body wrapped with nothing"),
-    PB(1, "PB", "The message body wrapped with pb"),
-    INLONG_MSG(2, "INLONG_MSG", "The message body wrapped with inlong msg"),
+    INLONG_MSG_V1(1, "INLONG_MSG_V1", "The message body wrapped with inlong msg v1"),
+    INLONG_MSG_V0(2, "INLONG_MSG_V0", "The message body wrapped with inlong msg v0"),
     UNKNOWN(99, "UNKNOWN", "Unknown message wrap type");
 
     MessageWrapType(int id, String name, String desc) {

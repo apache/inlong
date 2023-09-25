@@ -157,7 +157,7 @@ public class KafkaOperator {
                 }
 
                 int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
-                        Integer.toString(MessageWrapType.INLONG_MSG.getId())));
+                        Integer.toString(MessageWrapType.INLONG_MSG_V0.getId())));
                 DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
                         MessageWrapType.valueOf(wrapTypeId));
                 messageList.addAll(deserializeOperator.decodeMsg(streamInfo, record.value(), headers, index));
