@@ -33,7 +33,7 @@ import java.util.Set;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = ClusterType.SORTSTANDALONE)
-@ApiModel("Inlong cluster request for sortstandalone")
+@ApiModel("Inlong cluster request for SortStandalone")
 public class SortstandaloneClusterRequest extends ClusterRequest {
 
     @ApiModelProperty(value = "Supported sink types")

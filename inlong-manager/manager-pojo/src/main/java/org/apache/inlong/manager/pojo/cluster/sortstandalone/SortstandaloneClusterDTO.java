@@ -38,7 +38,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Sortstandalone cluster info")
+@ApiModel("SortStandalone cluster info")
 public class SortstandaloneClusterDTO {
 
     @ApiModelProperty(value = "Supported sink types")
@@ -59,7 +59,7 @@ public class SortstandaloneClusterDTO {
             return JsonUtils.parseObject(extParams, SortstandaloneClusterDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
-                    String.format("parse extParams of Sortstandalone Cluster failure: %s", e.getMessage()));
+                    String.format("parse extParams of SortStandalone Cluster failure: %s", e.getMessage()));
         }
     }
 }

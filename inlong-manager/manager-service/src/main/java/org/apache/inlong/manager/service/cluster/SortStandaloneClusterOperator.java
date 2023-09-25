@@ -49,10 +49,10 @@ public class SortStandaloneClusterOperator extends AbstractClusterOperator {
             SortstandaloneClusterDTO dto = SortstandaloneClusterDTO.getFromRequest(standaloneRequest,
                     targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
-            log.debug("success to set entity for Sortstandalone cluster");
+            log.debug("success to set entity for SortStandalone cluster");
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
-                    String.format("serialize extParams of Sortstandalone Cluster failure: %s", e.getMessage()));
+                    String.format("serialize extParams of SortStandalone Cluster failure: %s", e.getMessage()));
         }
     }
 
