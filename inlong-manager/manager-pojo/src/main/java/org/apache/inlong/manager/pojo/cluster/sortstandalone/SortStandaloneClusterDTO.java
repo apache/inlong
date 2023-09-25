@@ -39,24 +39,24 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("SortStandalone cluster info")
-public class SortstandaloneClusterDTO {
+public class SortStandaloneClusterDTO {
 
     @ApiModelProperty(value = "Supported sink types")
     private Set<String> supportedSinkTypes;
 
-    public static SortstandaloneClusterDTO getFromRequest(SortstandaloneClusterRequest request, String extParams) {
-        SortstandaloneClusterDTO dto = StringUtils.isNotBlank(extParams)
-                ? SortstandaloneClusterDTO.getFromJson(extParams)
-                : new SortstandaloneClusterDTO();
+    public static SortStandaloneClusterDTO getFromRequest(SortStandaloneClusterRequest request, String extParams) {
+        SortStandaloneClusterDTO dto = StringUtils.isNotBlank(extParams)
+                ? SortStandaloneClusterDTO.getFromJson(extParams)
+                : new SortStandaloneClusterDTO();
         return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**
      * Get the dto instance from the JSON string.
      */
-    public static SortstandaloneClusterDTO getFromJson(@NotNull String extParams) {
+    public static SortStandaloneClusterDTO getFromJson(@NotNull String extParams) {
         try {
-            return JsonUtils.parseObject(extParams, SortstandaloneClusterDTO.class);
+            return JsonUtils.parseObject(extParams, SortStandaloneClusterDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
                     String.format("parse extParams of SortStandalone Cluster failure: %s", e.getMessage()));

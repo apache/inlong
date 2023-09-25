@@ -18,7 +18,9 @@
 package org.apache.inlong.manager.pojo.cluster.sortstandalone;
 
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 
 import io.swagger.annotations.ApiModel;
@@ -33,14 +35,18 @@ import java.util.Set;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = ClusterType.SORTSTANDALONE)
-@ApiModel("Inlong cluster request for SortStandalone")
-public class SortstandaloneClusterRequest extends ClusterRequest {
+@ApiModel("Inlong cluster info for SortStandalone")
+public class SortStandaloneClusterInfo extends ClusterInfo {
 
     @ApiModelProperty(value = "Supported sink types")
     private Set<String> supportedSinkTypes;
 
-    public SortstandaloneClusterRequest() {
+    public SortStandaloneClusterInfo() {
         this.setType(ClusterType.SORTSTANDALONE);
     }
 
+    @Override
+    public ClusterRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, SortStandaloneClusterRequest::new);
+    }
 }

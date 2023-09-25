@@ -32,8 +32,8 @@ import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.pojo.cluster.dataproxy.DataProxyClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest;
-import org.apache.inlong.manager.pojo.cluster.sortstandalone.SortstandaloneClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.sortstandalone.SortstandaloneClusterRequest;
+import org.apache.inlong.manager.pojo.cluster.sortstandalone.SortStandaloneClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.sortstandalone.SortStandaloneClusterRequest;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -60,7 +60,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     private HeartbeatManager heartbeatManager;
 
     public Integer saveStandaloneCluster(String clusterTag, String clusterName, Set<String> supportedSinkTypes) {
-        SortstandaloneClusterRequest request = new SortstandaloneClusterRequest();
+        SortStandaloneClusterRequest request = new SortStandaloneClusterRequest();
         request.setClusterTags(clusterTag);
         request.setName(clusterName);
         request.setSupportedSinkTypes(supportedSinkTypes);
@@ -341,9 +341,9 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assertions.assertNotNull(id);
 
         ClusterInfo info = clusterService.get(id, GLOBAL_OPERATOR);
-        Assertions.assertInstanceOf(SortstandaloneClusterInfo.class, info);
+        Assertions.assertInstanceOf(SortStandaloneClusterInfo.class, info);
 
-        Set<String> types = ((SortstandaloneClusterInfo) info).getSupportedSinkTypes();
+        Set<String> types = ((SortStandaloneClusterInfo) info).getSupportedSinkTypes();
         Assertions.assertTrue(types.contains(type1));
         Assertions.assertTrue(types.contains(type2));
         Assertions.assertTrue(types.contains(type3));

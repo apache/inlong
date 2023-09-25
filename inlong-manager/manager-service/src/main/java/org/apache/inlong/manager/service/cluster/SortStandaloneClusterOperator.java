@@ -24,9 +24,9 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
-import org.apache.inlong.manager.pojo.cluster.sortstandalone.SortstandaloneClusterDTO;
-import org.apache.inlong.manager.pojo.cluster.sortstandalone.SortstandaloneClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.sortstandalone.SortstandaloneClusterRequest;
+import org.apache.inlong.manager.pojo.cluster.sortstandalone.SortStandaloneClusterDTO;
+import org.apache.inlong.manager.pojo.cluster.sortstandalone.SortStandaloneClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.sortstandalone.SortStandaloneClusterRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -43,10 +43,10 @@ public class SortStandaloneClusterOperator extends AbstractClusterOperator {
 
     @Override
     protected void setTargetEntity(ClusterRequest request, InlongClusterEntity targetEntity) {
-        SortstandaloneClusterRequest standaloneRequest = (SortstandaloneClusterRequest) request;
+        SortStandaloneClusterRequest standaloneRequest = (SortStandaloneClusterRequest) request;
         CommonBeanUtils.copyProperties(standaloneRequest, targetEntity, true);
         try {
-            SortstandaloneClusterDTO dto = SortstandaloneClusterDTO.getFromRequest(standaloneRequest,
+            SortStandaloneClusterDTO dto = SortStandaloneClusterDTO.getFromRequest(standaloneRequest,
                     targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
             log.debug("success to set entity for SortStandalone cluster");
@@ -72,10 +72,10 @@ public class SortStandaloneClusterOperator extends AbstractClusterOperator {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
 
-        SortstandaloneClusterInfo clusterInfo = new SortstandaloneClusterInfo();
+        SortStandaloneClusterInfo clusterInfo = new SortStandaloneClusterInfo();
         CommonBeanUtils.copyProperties(entity, clusterInfo);
         if (StringUtils.isNotBlank(entity.getExtParams())) {
-            SortstandaloneClusterDTO dto = SortstandaloneClusterDTO.getFromJson(entity.getExtParams());
+            SortStandaloneClusterDTO dto = SortStandaloneClusterDTO.getFromJson(entity.getExtParams());
             CommonBeanUtils.copyProperties(dto, clusterInfo);
         }
         return clusterInfo;
