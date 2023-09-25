@@ -50,7 +50,7 @@ public class RedisOptions {
             .key("command")
             .stringType()
             .noDefaultValue()
-            .withDescription("Optional command for connect to redis");
+            .withDescription("Command for connect to redis when used as source.");
     /**
      * Password used to connect redis
      */
