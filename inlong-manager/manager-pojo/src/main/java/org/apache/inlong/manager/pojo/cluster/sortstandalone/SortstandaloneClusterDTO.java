@@ -59,7 +59,7 @@ public class SortstandaloneClusterDTO {
             return JsonUtils.parseObject(extParams, SortstandaloneClusterDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
-                    String.format("parse extParams of Pulsar Cluster failure: %s", e.getMessage()));
+                    String.format("parse extParams of Sortstandalone Cluster failure: %s", e.getMessage()));
         }
     }
 }
