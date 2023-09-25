@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.message;
 
-import org.apache.inlong.common.enums.DataProxyMsgEncType;
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -35,8 +35,8 @@ import java.util.Map;
 public class RawMsgDeserializeOperator implements DeserializeOperator {
 
     @Override
-    public boolean accept(DataProxyMsgEncType type) {
-        return DataProxyMsgEncType.MSG_ENCODE_TYPE_RAW.equals(type);
+    public boolean accept(MessageWrapType type) {
+        return MessageWrapType.NONE.equals(type);
     }
 
     @Override

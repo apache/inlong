@@ -17,7 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.common;
 
-import org.apache.inlong.common.enums.DataProxyMsgEncType;
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
@@ -51,8 +51,8 @@ public class DefaultEventHandler implements EventHandler {
             INLONG_COMPRESSED_TYPE compressType) {
         Map<String, String> headers = new HashMap<>();
         // version int32 protocol version, the value is 1
-        headers.put(ConfigConstants.MSG_ENCODE_VER, DataProxyMsgEncType.MSG_ENCODE_TYPE_PB.getStrId());
-        headers.put(EventConstants.HEADER_KEY_VERSION, DataProxyMsgEncType.MSG_ENCODE_TYPE_PB.getStrId());
+        headers.put(ConfigConstants.MSG_ENCODE_VER, MessageWrapType.PB.getStrId());
+        headers.put(EventConstants.HEADER_KEY_VERSION, MessageWrapType.PB.getStrId());
         // inlongGroupId string inlongGroupId
         headers.put(EventConstants.INLONG_GROUP_ID, profile.getInlongGroupId());
         // inlongStreamId string inlongStreamId

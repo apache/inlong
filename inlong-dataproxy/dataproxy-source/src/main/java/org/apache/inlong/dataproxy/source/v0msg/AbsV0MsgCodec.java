@@ -18,7 +18,7 @@
 package org.apache.inlong.dataproxy.source.v0msg;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
-import org.apache.inlong.common.enums.DataProxyMsgEncType;
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.consts.StatConstants;
@@ -240,9 +240,9 @@ public abstract class AbsV0MsgCodec {
         headers.put(ConfigConstants.DATAPROXY_IP_KEY, source.getSrcHost());
         headers.put(ConfigConstants.MSG_COUNTER_KEY, String.valueOf(msgCount));
         headers.put(ConfigConstants.MSG_ENCODE_VER,
-                DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
+                MessageWrapType.INLONG_MSG.getStrId());
         headers.put(EventConstants.HEADER_KEY_VERSION,
-                DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
+                MessageWrapType.INLONG_MSG.getStrId());
         headers.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
         headers.put(AttributeConstants.UNIQ_ID, String.valueOf(uniq));
         headers.put(ConfigConstants.PKG_TIME_KEY, String.valueOf(msgPkgTime));

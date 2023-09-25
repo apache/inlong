@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sdk.sort.impl.decode;
 
-import org.apache.inlong.common.enums.DataProxyMsgEncType;
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.util.StringUtil;
 import org.apache.inlong.common.util.Utils;
@@ -74,12 +74,12 @@ public class MessageDeserializer implements Deserializer {
 
         // 1. version
         int version = Integer.parseInt(headers.getOrDefault(EventConstants.HEADER_KEY_VERSION,
-                Integer.toString(DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId())));
-        if (version == DataProxyMsgEncType.MSG_ENCODE_TYPE_RAW.getId()) {
+                Integer.toString(MessageWrapType.INLONG_MSG.getId())));
+        if (version == MessageWrapType.NONE.getId()) {
             return decode(context, inLongTopic, data, headers);
-        } else if (version == DataProxyMsgEncType.MSG_ENCODE_TYPE_PB.getId()) {
+        } else if (version == MessageWrapType.PB.getId()) {
             return decodePB(context, inLongTopic, data, headers);
-        } else if (version == DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId()) {
+        } else if (version == MessageWrapType.INLONG_MSG.getId()) {
             return decodeInlongMsg(context, inLongTopic, data, headers);
         } else {
             throw new IllegalArgumentException("Unknown version type:" + version);

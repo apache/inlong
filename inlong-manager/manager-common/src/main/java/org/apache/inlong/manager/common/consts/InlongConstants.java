@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.common.consts;
 
-import org.apache.inlong.common.enums.DataProxyMsgEncType;
+import org.apache.inlong.common.enums.MessageWrapType;
 
 import com.google.common.collect.Sets;
 
@@ -202,7 +202,7 @@ public class InlongConstants {
     /**
      * Message compression type, 0: Raw message without any InLong format, 1: InlongMsgPb, 2: InlongMsg
      * <p/>
-     * See more: {@link DataProxyMsgEncType}
+     * See more: {@link MessageWrapType}
      */
     public static final String MSG_ENCODE_VER = "msgEnType";
 
