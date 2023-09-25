@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.message;
 
-import org.apache.inlong.common.enums.DataProxyMsgEncType;
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
@@ -38,7 +38,7 @@ public class DeserializeOperatorFactory {
     /**
      * Get a message queue resource operator instance via the given mqType
      */
-    public DeserializeOperator getInstance(DataProxyMsgEncType type) {
+    public DeserializeOperator getInstance(MessageWrapType type) {
         return operatorList.stream()
                 .filter(inst -> inst.accept(type))
                 .findFirst()

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.message;
 
-import org.apache.inlong.common.enums.DataProxyMsgEncType;
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.util.StringUtil;
@@ -39,8 +39,8 @@ import java.util.Objects;
 public class InlongMsgDeserializeOperator implements DeserializeOperator {
 
     @Override
-    public boolean accept(DataProxyMsgEncType type) {
-        return DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.equals(type);
+    public boolean accept(MessageWrapType type) {
+        return MessageWrapType.INLONG_MSG_V0.equals(type);
     }
 
     @Override

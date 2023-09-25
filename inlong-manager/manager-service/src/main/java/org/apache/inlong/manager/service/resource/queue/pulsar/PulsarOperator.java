@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
-import org.apache.inlong.common.enums.DataProxyMsgEncType;
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.conversion.ConversionHandle;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -430,9 +430,9 @@ public class PulsarOperator {
                     pulsarAdmin.topics().examineMessage(topicPartition, "latest", messagePosition);
             Map<String, String> headers = pulsarMessage.getProperties();
             int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
-                    Integer.toString(DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId())));
+                    Integer.toString(MessageWrapType.INLONG_MSG_V0.getId())));
             DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
-                    DataProxyMsgEncType.valueOf(wrapTypeId));
+                    MessageWrapType.valueOf(wrapTypeId));
             briefMQMessages.addAll(deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(),
                     headers, index));
         } catch (Exception e) {
