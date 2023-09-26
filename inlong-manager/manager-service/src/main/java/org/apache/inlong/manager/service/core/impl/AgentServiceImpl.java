@@ -58,10 +58,13 @@ import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperator;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
+import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -119,6 +122,10 @@ public class AgentServiceImpl implements AgentService {
             new ArrayBlockingQueue<>(100),
             new ThreadFactoryBuilder().setNameFormat("async-agent-%s").build(),
             new CallerRunsPolicy());
+
+    @Getter
+    private LoadingCache<TaskRequest, List<StreamSourceEntity>> taskCache;
+
     @Value("${source.update.enabled:false}")
     private Boolean updateTaskTimeoutEnabled;
     @Value("${source.update.before.seconds:60}")
@@ -149,6 +156,14 @@ public class AgentServiceImpl implements AgentService {
      */
     @PostConstruct
     private void startHeartbeatTask() {
+
+        // The expiry time of cluster info cache must be greater than taskCache cache
+        // because the eviction handler needs to query cluster info cache
+        long expireTime = 10 * 5;
+        taskCache = Caffeine.newBuilder()
+                .expireAfterAccess(expireTime * 2L, TimeUnit.SECONDS)
+                .build(this::fetchTask);
+
         if (updateTaskTimeoutEnabled) {
             ThreadFactory factory = new ThreadFactoryBuilder()
                     .setNameFormat("scheduled-source-timeout-%d")
@@ -265,6 +280,32 @@ public class AgentServiceImpl implements AgentService {
         // Query pending special commands
         List<CmdConfig> cmdConfigs = getAgentCmdConfigs(request);
         return TaskResult.builder().dataConfigs(tasks).cmdConfigs(cmdConfigs).build();
+    }
+
+    @Override
+    public TaskResult getExistTaskConfig(TaskRequest request) {
+        LOGGER.debug("begin to get all exist task by request={}", request);
+        // Query pending special commands
+        List<DataConfig> runningTaskConfig = Lists.newArrayList();
+        List<StreamSourceEntity> sourceEntities = taskCache.get(request);
+        try {
+            List<CmdConfig> cmdConfigs = getAgentCmdConfigs(request);
+            if (CollectionUtils.isEmpty(sourceEntities)) {
+                return TaskResult.builder().dataConfigs(runningTaskConfig).cmdConfigs(cmdConfigs).build();
+            }
+            for (StreamSourceEntity sourceEntity : sourceEntities) {
+                int op = getOp(sourceEntity.getStatus());
+                DataConfig dataConfig = getDataConfig(sourceEntity, op);
+                runningTaskConfig.add(dataConfig);
+            }
+            TaskResult taskResult = TaskResult.builder().dataConfigs(runningTaskConfig).cmdConfigs(cmdConfigs).build();
+
+            return taskResult;
+        } catch (Exception e) {
+            LOGGER.error("get all exist task failed:", e);
+            throw new BusinessException("get all exist task failed:" + e.getMessage());
+        }
+
     }
 
     @Override
@@ -552,6 +593,8 @@ public class AgentServiceImpl implements AgentService {
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
         String extParams = entity.getExtParams();
         if (groupEntity != null && streamEntity != null) {
+            dataConfig.setState(
+                    SourceStatus.NORMAL_STATUS_SET.contains(SourceStatus.forCode(entity.getStatus())) ? 1 : 0);
             dataConfig.setSyncSend(streamEntity.getSyncSend());
             if (SourceType.FILE.equalsIgnoreCase(streamEntity.getDataType())) {
                 String dataSeparator = streamEntity.getDataSeparator();
@@ -681,6 +724,22 @@ public class AgentServiceImpl implements AgentService {
         Set<String> sourceGroups = Stream.of(
                 sourceEntity.getInlongClusterNodeGroup().split(InlongConstants.COMMA)).collect(Collectors.toSet());
         return sourceGroups.stream().anyMatch(clusterNodeGroups::contains);
+    }
+
+    private List<StreamSourceEntity> fetchTask(TaskRequest request) {
+        final String clusterName = request.getClusterName();
+        final String ip = request.getAgentIp();
+        final String uuid = request.getUuid();
+        List<StreamSourceEntity> normalSourceEntities = sourceMapper.selectByStatusAndCluster(
+                SourceStatus.NORMAL_STATUS_SET.stream().map(SourceStatus::getCode).collect(Collectors.toList()),
+                clusterName, ip, uuid);
+        List<StreamSourceEntity> taskLists = new ArrayList<>(normalSourceEntities);
+        List<StreamSourceEntity> stopSourceEntities = sourceMapper.selectByStatusAndCluster(
+                SourceStatus.STOP_STATUS_SET.stream().map(SourceStatus::getCode).collect(Collectors.toList()),
+                clusterName, ip, uuid);
+        taskLists.addAll(stopSourceEntities);
+        LOGGER.debug("success to add task : {}", taskLists.size());
+        return taskLists;
     }
 
 }
