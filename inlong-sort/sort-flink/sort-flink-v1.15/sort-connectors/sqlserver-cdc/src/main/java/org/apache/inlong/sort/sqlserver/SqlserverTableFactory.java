@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sort.sqlserver;
 
-import com.ververica.cdc.connectors.base.options.StartupOptions;
 import com.ververica.cdc.connectors.sqlserver.table.SqlServerTableSource;
+import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;
@@ -28,7 +28,6 @@ import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 
-import java.time.Duration;
 import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,7 +35,6 @@ import java.util.Set;
 import static com.ververica.cdc.debezium.table.DebeziumOptions.DEBEZIUM_OPTIONS_PREFIX;
 import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
 import static com.ververica.cdc.debezium.utils.ResolvedSchemaUtils.getPhysicalSchema;
-import static org.apache.inlong.sort.base.Constants.*;
 
 public class SqlserverTableFactory implements DynamicTableSourceFactory {
 
@@ -54,6 +52,7 @@ public class SqlserverTableFactory implements DynamicTableSourceFactory {
         options.add(USERNAME);
         options.add(PASSWORD);
         options.add(DATABASE_NAME);
+        options.add(SCHEMA_NAME);
         options.add(TABLE_NAME);
         return options;
     }
@@ -64,20 +63,7 @@ public class SqlserverTableFactory implements DynamicTableSourceFactory {
         options.add(PORT);
         options.add(SERVER_TIME_ZONE);
         options.add(SCAN_STARTUP_MODE);
-        options.add(INLONG_METRIC);
-        options.add(INLONG_AUDIT);
-        options.add(AUDIT_KEYS);
-        options.add(ENABLE_PARALLEL_READ);
-        options.add(SPLIT_SIZE);
-        options.add(SPLIT_META_GROUP_SIZE);
-        options.add(FETCH_SIZE);
-        options.add(CONNECT_TIMEOUT);
-        options.add(CONNECT_POOL_SIZE);
-        options.add(CONNECT_MAX_RETRIES);
-        options.add(DISTRIBUTION_FACTOR_UPPER);
-        options.add(DISTRIBUTION_FACTOR_LOWER);
-        options.add(CHUNK_KEY_COLUMN);
-        options.add(CLOSE_ID_READERS);
+
         return options;
     }
 
@@ -93,19 +79,7 @@ public class SqlserverTableFactory implements DynamicTableSourceFactory {
         String password = config.get(PASSWORD);
         String databaseName = config.get(DATABASE_NAME);
         String tableName = config.get(TABLE_NAME);
-        String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
-        String auditHostAndPorts = config.get(INLONG_AUDIT);
-        Boolean enableParallelRead = config.get(ENABLE_PARALLEL_READ);
-        Integer splitSize = config.get(SPLIT_SIZE);
-        Integer splitMetaGroupSize = config.get(SPLIT_META_GROUP_SIZE);
-        Integer fetchSize = config.get(FETCH_SIZE);
-        Duration connectTimeout = Duration.parse(config.get(CONNECT_TIMEOUT));
-        Integer connectMaxRetries = config.get(CONNECT_MAX_RETRIES);
-        Integer connectionPoolSize = config.get(CONNECT_POOL_SIZE);
-        Double distributionFactorUpper = config.get(DISTRIBUTION_FACTOR_UPPER);
-        Double distributionFactorLower = config.get(DISTRIBUTION_FACTOR_LOWER);
-        String chunkKeyColumn = config.get(CHUNK_KEY_COLUMN);
-        Boolean closeIdleReaders = config.get(CLOSE_ID_READERS);
+        String schemaName = config.get(SCHEMA_NAME);
         ZoneId serverTimeZone = ZoneId.of(config.get(SERVER_TIME_ZONE));
         int port = config.get(PORT);
         ResolvedSchema physicalSchema =
@@ -116,24 +90,20 @@ public class SqlserverTableFactory implements DynamicTableSourceFactory {
                 port,
                 hostname,
                 databaseName,
+                schemaName,
                 tableName,
                 serverTimeZone,
                 username,
                 password,
                 getDebeziumProperties(context.getCatalogTable().getOptions()),
-                getStartupOptions(config),
-                enableParallelRead,
-                splitSize,
-                splitMetaGroupSize,
-                fetchSize,
-                connectTimeout,
-                connectMaxRetries,
-                connectionPoolSize,
-                distributionFactorUpper,
-                distributionFactorLower,
-                chunkKeyColumn,
-                closeIdleReaders);
+                getStartupOptions(config));
     }
+
+    private static final ConfigOption<String> SCHEMA_NAME =
+            ConfigOptions.key("schema-name")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("Schema name of the SqlServer database to monitor.");
 
     private static final ConfigOption<String> HOSTNAME =
             ConfigOptions.key("hostname")
@@ -146,72 +116,6 @@ public class SqlserverTableFactory implements DynamicTableSourceFactory {
                     .intType()
                     .defaultValue(1433)
                     .withDescription("Integer port number of the SqlServer database server.");
-
-    private static final ConfigOption<Boolean> ENABLE_PARALLEL_READ =
-            ConfigOptions.key("enable-parallel-read")
-                    .booleanType()
-                    .noDefaultValue()
-                    .withDescription("Whether to enable parallel read function.");
-
-    private static final ConfigOption<Integer> SPLIT_SIZE =
-            ConfigOptions.key("split-size")
-                    .intType()
-                    .noDefaultValue()
-                    .withDescription("The split size.");
-
-    private static final ConfigOption<Integer> SPLIT_META_GROUP_SIZE =
-            ConfigOptions.key("split-meta-group-size")
-                    .intType()
-                    .noDefaultValue()
-                    .withDescription("The split meta group size.");
-
-    private static final ConfigOption<Integer> FETCH_SIZE =
-            ConfigOptions.key("fetch-size")
-                    .intType()
-                    .noDefaultValue()
-                    .withDescription("The fetch size.");
-
-    private static final ConfigOption<String> CONNECT_TIMEOUT =
-            ConfigOptions.key("connect-timeout")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("The connect timeout of connection.");
-
-    private static final ConfigOption<Integer> CONNECT_MAX_RETRIES =
-            ConfigOptions.key("connect-max-retries")
-                    .intType()
-                    .noDefaultValue()
-                    .withDescription("The max retries of the connection.");
-
-    private static final ConfigOption<Integer> CONNECT_POOL_SIZE =
-            ConfigOptions.key("connect-pool-size")
-                    .intType()
-                    .noDefaultValue()
-                    .withDescription("The pool size of connection");
-
-    private static final ConfigOption<Double> DISTRIBUTION_FACTOR_UPPER =
-            ConfigOptions.key("distribution-factor-upper")
-                    .doubleType()
-                    .noDefaultValue()
-                    .withDescription("The distribution factor upper.");
-
-    private static final ConfigOption<Double> DISTRIBUTION_FACTOR_LOWER =
-            ConfigOptions.key("distribution-factor-lower")
-                    .doubleType()
-                    .noDefaultValue()
-                    .withDescription("The distribution factor lower.");
-
-    private static final ConfigOption<String> CHUNK_KEY_COLUMN =
-            ConfigOptions.key("chunk-key-column")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("The chunk key column.");
-
-    private static final ConfigOption<Boolean> CLOSE_ID_READERS =
-            ConfigOptions.key("close-id-readers")
-                    .booleanType()
-                    .defaultValue(true)
-                    .withDescription("The close id readers.");
 
     private static final ConfigOption<String> USERNAME =
             ConfigOptions.key("username")
@@ -257,17 +161,16 @@ public class SqlserverTableFactory implements DynamicTableSourceFactory {
     private static final String SCAN_STARTUP_MODE_VALUE_INITIAL_ONLY = "initial-only";
     private static final String SCAN_STARTUP_MODE_VALUE_LATEST = "latest-offset";
 
-    private static final String SCAN_STARTUP_MODE_VALUE_EARLIEST = "earliest-offset";
-
-    private static StartupOptions getStartupOptions(ReadableConfig config) {
+    private static com.ververica.cdc.connectors.sqlserver.table.StartupOptions getStartupOptions(
+            ReadableConfig config) {
         String modeString = config.get(SCAN_STARTUP_MODE);
 
         switch (modeString.toLowerCase()) {
             case SCAN_STARTUP_MODE_VALUE_INITIAL:
-                return StartupOptions.initial();
+                return com.ververica.cdc.connectors.sqlserver.table.StartupOptions.initial();
 
-            case SCAN_STARTUP_MODE_VALUE_EARLIEST:
-                return StartupOptions.earliest();
+            case SCAN_STARTUP_MODE_VALUE_INITIAL_ONLY:
+                return com.ververica.cdc.connectors.sqlserver.table.StartupOptions.initialOnly();
 
             case SCAN_STARTUP_MODE_VALUE_LATEST:
                 return StartupOptions.latest();
