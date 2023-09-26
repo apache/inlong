@@ -84,15 +84,15 @@ public abstract class PropertiesHolder extends ConfigHolder {
         try {
             Map<String, String> loadMap = loadConfigFromFile();
             if (loadMap == null || loadMap.isEmpty()) {
-                LOG.debug("Load changed properties {}, but no records configured", getFileName());
-                return false;
+                LOG.warn("Load changed properties {}, but no records configured", getFileName());
+                return true;
             }
             // filter blank items
             Map<String, String> filteredMap = filterInValidRecords(loadMap);
             if (filteredMap.isEmpty()) {
-                LOG.info("Load changed properties {}, but the records are all illegal {}",
+                LOG.warn("Load changed properties {}, but the records are all illegal {}",
                         getFileName(), loadMap);
-                return false;
+                return true;
             }
             // remove records
             Set<String> rmvKeys = new HashSet<>();
@@ -116,13 +116,14 @@ public abstract class PropertiesHolder extends ConfigHolder {
                 }
             }
             if (rmvKeys.isEmpty() && repKeys.isEmpty()) {
-                return false;
+                LOG.warn("Load changed properties {}, but no add or delete records", getFileName());
+                return true;
             }
             // update cache data
             boolean result = updateCacheData();
             // output update result
-            LOG.info("Load changed properties {}, loaded config {}, updated holder {}, updated cache {}",
-                    getFileName(), loadMap, confHolder, result);
+            LOG.info("Load changed properties {}, deleted_record = {}, updated_record = {}, updated_cache = {}",
+                    getFileName(), rmvKeys.isEmpty(), repKeys.isEmpty(), result);
             return true;
         } finally {
             readWriteLock.readLock().unlock();

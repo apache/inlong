@@ -108,6 +108,7 @@ public class HiveSinkDTO {
         HiveSinkDTO dto = StringUtils.isNotBlank(extParams) ? HiveSinkDTO.getFromJson(extParams) : new HiveSinkDTO();
         CommonBeanUtils.copyProperties(request, dto, true);
         dto.setPassword(passwd);
+        dto.setEncryptVersion(encryptVersion);
         return dto;
     }
 

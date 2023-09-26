@@ -38,8 +38,8 @@ public class TestMetaConfigHolder {
         Assert.assertTrue(result);
         Assert.assertEquals(metaConfigHolder.getConfigMd5(), "5a3f5939bb7368f493bf41c1d785b8f3");
         Assert.assertEquals("test_group",
-                metaConfigHolder.getTopicName("test_group", "stream1"));
-        Assert.assertNull(metaConfigHolder.getTopicName("aaa", "stream1"));
+                metaConfigHolder.getSourceTopicName("test_group", "stream1"));
+        Assert.assertNull(metaConfigHolder.getSourceTopicName("aaa", "stream1"));
         List<CacheClusterConfig> clusterConfigs = metaConfigHolder.forkCachedCLusterConfig();
         Assert.assertEquals(1, clusterConfigs.size());
         Assert.assertEquals("test_tubemq", clusterConfigs.get(0).getClusterName());

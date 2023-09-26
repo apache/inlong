@@ -55,7 +55,9 @@ const Comp: React.FC<Props> = ({
         ...options,
         inlongGroupId,
         inlongStreamId,
-        processNames: inlongStreamId ? 'CREATE_STREAM_RESOURCE' : 'CREATE_GROUP_RESOURCE',
+        processNames: inlongStreamId
+          ? 'CREATE_STREAM_RESOURCE'
+          : 'CREATE_GROUP_RESOURCE,SUSPEND_GROUP_PROCESS,RESTART_GROUP_PROCESS,DELETE_GROUP_PROCESS',
         taskType: 'ServiceTask',
       },
     },
@@ -83,6 +85,7 @@ const Comp: React.FC<Props> = ({
             data: {
               remark: '',
             },
+            timeout: 30000,
           });
           await getData(inlongGroupId);
           message.success(t('pages.GroupDashboard.ExecutionLogModal.Re-executingSuccess'));

@@ -155,6 +155,7 @@ public class MySqlSource<T>
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(sourceConfig.getInlongMetric())
                 .withAuditAddress(sourceConfig.getInlongAudit())
+                .withAuditKeys(sourceConfig.getAuditKyes())
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
         sourceReaderMetrics.registerMetrics(metricOption);

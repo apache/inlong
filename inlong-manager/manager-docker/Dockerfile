@@ -41,7 +41,7 @@ ENV MANAGER_JVM_HEAP_OPTS="-XX:+UseContainerSupport -XX:InitialRAMPercentage=40.
 WORKDIR /opt/inlong-manager
 # add manager tarball
 ARG VERSION
-ARG default_jdbc_connector_url=https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.27/mysql-connector-java-8.0.27.jar
+ARG default_jdbc_connector_url=https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.28/mysql-connector-java-8.0.28.jar
 ADD target/manager-web-${VERSION}-bin.tar.gz /opt/inlong-manager
 # add mysql connector
 RUN wget -P lib/ ${default_jdbc_connector_url}

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.queue.kafka;
 
-import org.apache.inlong.common.enums.DataProxyMsgEncType;
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
@@ -157,9 +157,9 @@ public class KafkaOperator {
                 }
 
                 int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
-                        Integer.toString(DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId())));
+                        Integer.toString(MessageWrapType.INLONG_MSG_V0.getId())));
                 DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
-                        DataProxyMsgEncType.valueOf(wrapTypeId));
+                        MessageWrapType.valueOf(wrapTypeId));
                 messageList.addAll(deserializeOperator.decodeMsg(streamInfo, record.value(), headers, index));
                 if (messageList.size() >= messageCount) {
                     break;

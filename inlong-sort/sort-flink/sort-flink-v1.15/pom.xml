@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>sort-flink</artifactId>
-        <version>1.9.0-SNAPSHOT</version>
+        <version>1.10.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-flink-v1.15</artifactId>
@@ -106,13 +106,6 @@
                 <groupId>com.ververica</groupId>
                 <artifactId>flink-connector-mysql-cdc</artifactId>
                 <version>${flink.connector.mysql.cdc.version}</version>
-                <!-- mysql-connector-java is LGPL license and needs to be excluded -->
-                <exclusions>
-                    <exclusion>
-                        <groupId>mysql</groupId>
-                        <artifactId>mysql-connector-java</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
@@ -149,11 +142,6 @@
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
                 <version>${sqlserver.jdbc.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.iceberg</groupId>
-                <artifactId>iceberg-flink-runtime-1.14</artifactId>
-                <version>${iceberg.version}</version>
             </dependency>
 
             <!-- flink -->

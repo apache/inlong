@@ -32,6 +32,13 @@ public class MessageSentResult {
     private long appendTime = TBaseConstants.META_VALUE_UNDEFINED;
     private long appendOffset = TBaseConstants.META_VALUE_UNDEFINED;
 
+    public MessageSentResult(Message message, boolean success, int errCode, String errMsg) {
+        this.message = message;
+        this.success = success;
+        this.errCode = errCode;
+        this.errMsg = errMsg;
+    }
+
     public MessageSentResult(boolean success, int errCode, String errMsg,
             Message message, long messageId, Partition partition) {
         this.success = success;

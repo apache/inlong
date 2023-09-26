@@ -25,4 +25,3 @@ export { sinkLoader } from './sinks';
 export { sourceLoader } from './sources';
 export { streamLoader } from './streams';
 export { syncLoader } from './sync';
-export { transformLoader } from './transform';

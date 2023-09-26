@@ -87,7 +87,7 @@ public class OracleStreamFetchTask implements FetchTask<SourceSplitBase> {
     }
 
     /**
-     * A wrapped task to read all binlog for table and also supports read bounded (from lowWatermark
+     * A wrapped task to read all redo log for table and also supports read bounded (from lowWatermark
      * to highWatermark) binlog.
      */
     public static class RedoLogSplitReadTask extends LogMinerStreamingChangeEventSource {
@@ -130,11 +130,11 @@ public class OracleStreamFetchTask implements FetchTask<SourceSplitBase> {
         @Override
         public void afterHandleScn(OracleOffsetContext offsetContext) {
             super.afterHandleScn(offsetContext);
-            // check do we need to stop for fetch binlog for snapshot split.
+            // check do we need to stop for fetch redo log for snapshot split.
             if (isBoundedRead()) {
                 final RedoLogOffset currentRedoLogOffset =
                         getCurrentRedoLogOffset(offsetContext.getOffset());
-                // reach the high watermark, the binlog fetcher should be finished
+                // reach the high watermark, the redo log fetcher should be finished
                 if (currentRedoLogOffset.isAtOrAfter(redoLogSplit.getEndingOffset())) {
                     // send binlog end event
                     try {
@@ -148,8 +148,8 @@ public class OracleStreamFetchTask implements FetchTask<SourceSplitBase> {
                         errorHandler.setProducerThrowable(
                                 new DebeziumException("Error processing binlog signal event", e));
                     }
-                    // tell fetcher the binlog task finished
-                    ((OracleScanFetchTask.SnapshotBinlogSplitChangeEventSourceContext) context)
+                    // tell fetcher the redo log task finished
+                    ((OracleScanFetchTask.SnapshotStreamSplitChangeEventSourceContext) context)
                             .finished();
                 }
             }

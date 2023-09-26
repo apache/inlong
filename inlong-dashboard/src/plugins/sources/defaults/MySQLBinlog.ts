@@ -141,6 +141,18 @@ export default class TubeMqSource
 
   @FieldDecorator({
     type: 'input',
+    rules: [{ required: true }],
+    tooltip: i18n.t('meta.Sources.Db.DatabaseWhiteListHelp'),
+    props: values => ({
+      disabled: values?.status === 101,
+    }),
+  })
+  @SyncField()
+  @I18n('meta.Sources.Db.DatabaseWhiteList')
+  databaseWhiteList: string;
+
+  @FieldDecorator({
+    type: 'input',
     tooltip: i18n.t('meta.Sources.Db.TableWhiteListHelp'),
     rules: [{ required: true }],
     props: values => ({
@@ -151,16 +163,4 @@ export default class TubeMqSource
   @SyncField()
   @I18n('meta.Sources.Db.TableWhiteList')
   tableWhiteList: boolean;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: false }],
-    tooltip: i18n.t('meta.Sources.Db.DatabaseWhiteListHelp'),
-    props: values => ({
-      disabled: values?.status === 101,
-    }),
-  })
-  @SyncField()
-  @I18n('meta.Sources.Db.DatabaseWhiteList')
-  databaseWhiteList: string;
 }

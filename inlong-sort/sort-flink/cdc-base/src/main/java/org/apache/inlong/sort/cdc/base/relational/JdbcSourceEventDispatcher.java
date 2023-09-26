@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.cdc.base.relational;
 
+import org.apache.inlong.sort.cdc.base.relational.handler.SchemaChangeEventHandler;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
 import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkEvent;
@@ -47,10 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
-
-import static org.apache.inlong.sort.cdc.base.util.RecordUtils.isMysqlConnector;
 
 /**
  * A subclass implementation of {@link EventDispatcher}.
@@ -81,6 +79,7 @@ public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
     public final Schema schemaChangeKeySchema;
     public final Schema schemaChangeValueSchema;
     public final String topic;
+    private final SchemaChangeEventHandler schemaChangeEventHandler;
 
     public JdbcSourceEventDispatcher(
             CommonConnectorConfig connectorConfig,
@@ -90,7 +89,8 @@ public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
             DataCollectionFilters.DataCollectionFilter<TableId> filter,
             ChangeEventCreator changeEventCreator,
             EventMetadataProvider metadataProvider,
-            SchemaNameAdjuster schemaNameAdjuster) {
+            SchemaNameAdjuster schemaNameAdjuster,
+            SchemaChangeEventHandler schemaChangeEventHandler) {
         super(
                 connectorConfig,
                 topicSelector,
@@ -130,6 +130,7 @@ public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
                                 connectorConfig.getSourceInfoStructMaker().schema())
                         .field(HISTORY_RECORD_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
                         .build();
+        this.schemaChangeEventHandler = schemaChangeEventHandler;
     }
 
     public ChangeEventQueue<DataChangeEvent> getQueue() {
@@ -193,22 +194,13 @@ public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
         }
 
         private Struct schemaChangeRecordValue(SchemaChangeEvent event) throws IOException {
-            Map<String, Object> source = new HashMap<>();
-            if (isMysqlConnector(event.getSource())) {
-                Struct sourceInfo = event.getSource();
-                String fileName = sourceInfo.getString(BINLOG_FILENAME_OFFSET_KEY);
-                Long pos = sourceInfo.getInt64(BINLOG_POSITION_OFFSET_KEY);
-                Long serverId = sourceInfo.getInt64(SERVER_ID_KEY);
-                source.put(SERVER_ID_KEY, serverId);
-                source.put(BINLOG_FILENAME_OFFSET_KEY, fileName);
-                source.put(BINLOG_POSITION_OFFSET_KEY, pos);
-            }
+            Map<String, Object> source = schemaChangeEventHandler.parseSource(event);
             HistoryRecord historyRecord =
                     new HistoryRecord(
                             source,
                             event.getOffset(),
                             event.getDatabase(),
-                            null,
+                            event.getSchema(),
                             event.getDdl(),
                             event.getTableChanges());
             String historyStr = DOCUMENT_WRITER.write(historyRecord.document());

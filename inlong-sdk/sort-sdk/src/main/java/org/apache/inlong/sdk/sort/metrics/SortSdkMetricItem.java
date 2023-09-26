@@ -58,9 +58,12 @@ public class SortSdkMetricItem extends MetricItem {
     public static final String M_REQUEST_MANAGER_COUNT = "requestManagerCount";
     public static final String M_REQUEST_MANAGER_TIME_COST = "requestManagerTimeCost";
     public static final String M_REQUEST_MANAGER_FAIL_COUNT = "requestManagerFailCount";
-    public static final String M_REQUEST_MANAGER_CONF_CHANAGED_COUNT = "requestManagerConfChanagedCount";
-    public static final String M_RQUEST_MANAGER_COMMON_ERROR_COUNT = "requestManagerCommonErrorCount";
-    public static final String M_RQUEST_MANAGER_PARAM_ERROR_COUNT = "requestManagerParamErrorCount";
+    public static final String M_REQEUST_MANAGER_EMPTY_COUNT = "requestManagerEmptyCount";
+    public static final String M_REQUEST_MANAGER_TOPICS_CHANGE_OUT_OF_THRESHOLD =
+            "requestManagerTopicsChangeOutOfThreshold";
+    public static final String M_REQUEST_MANAGER_CONF_CHANGED_COUNT = "requestManagerConfChangedCount";
+    public static final String M_REQUEST_MANAGER_COMMON_ERROR_COUNT = "requestManagerCommonErrorCount";
+    public static final String M_REQUEST_MANAGER_PARAM_ERROR_COUNT = "requestManagerParamErrorCount";
 
     @Dimension
     public String sortTaskId;
@@ -113,6 +116,10 @@ public class SortSdkMetricItem extends MetricItem {
     public AtomicLong requestManagerCommonErrorCount = new AtomicLong(0);
     @CountMetric
     public AtomicLong requestManagerParamErrorCount = new AtomicLong(0);
+    @CountMetric
+    public AtomicLong reqeustManagerEmptyCount = new AtomicLong(0);
+    @CountMetric
+    public AtomicLong requestManagerTopicsChangeOutOfThreshold = new AtomicLong(0);
 
     public SortSdkMetricItem() {
 

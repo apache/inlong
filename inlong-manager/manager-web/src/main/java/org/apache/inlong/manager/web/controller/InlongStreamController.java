@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
+import org.apache.inlong.manager.pojo.sink.AddFieldRequest;
 import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -198,6 +199,12 @@ public class InlongStreamController {
     public Response<Boolean> delete(@RequestParam String groupId, @RequestParam String streamId) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamService.delete(groupId, streamId, username));
+    }
+
+    @RequestMapping(value = "/stream/addFields", method = RequestMethod.POST)
+    @ApiOperation(value = "Add inlong stream fields")
+    public Response<Boolean> addFields(@RequestBody AddFieldRequest addFieldsRequest) {
+        return Response.success(streamService.addFields(addFieldsRequest));
     }
 
     @RequestMapping(value = "/stream/parseFields", method = RequestMethod.POST)

@@ -72,6 +72,11 @@ public class SortClientConfig implements Serializable {
     private boolean topicStaticsEnabled = true;
     private boolean partitionStaticsEnabled = true;
 
+    private int startOfflineTopicCheckThreshold = 50;
+    private int maxOfflineTopicPercent = 5;
+
+    private int threadPoolSize = 50;
+
     public SortClientConfig(
             String sortTaskId,
             String sortClusterName,
@@ -379,6 +384,30 @@ public class SortClientConfig implements Serializable {
         return partitionStaticsEnabled;
     }
 
+    public int getMaxOfflineTopicPercent() {
+        return maxOfflineTopicPercent;
+    }
+
+    public void setMaxOfflineTopicPercent(int maxOfflineTopicPercent) {
+        this.maxOfflineTopicPercent = maxOfflineTopicPercent;
+    }
+
+    public int getStartOfflineTopicCheckThreshold() {
+        return startOfflineTopicCheckThreshold;
+    }
+
+    public void setStartOfflineTopicCheckThreshold(int startOfflineTopicCheckThreshold) {
+        this.startOfflineTopicCheckThreshold = startOfflineTopicCheckThreshold;
+    }
+
+    public int getThreadPoolSize() {
+        return threadPoolSize;
+    }
+
+    public void setThreadPoolSize(int threadPoolSize) {
+        this.threadPoolSize = threadPoolSize;
+    }
+
     /**
      * ConsumeStrategy
      */
@@ -469,6 +498,13 @@ public class SortClientConfig implements Serializable {
                 Boolean.TRUE.toString());
         this.partitionStaticsEnabled = StringUtils.equalsIgnoreCase(strPartitionStaticsEnabled,
                 Boolean.TRUE.toString());
+
+        this.maxOfflineTopicPercent =
+                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.MAX_OFFLINE_TOPIC), maxOfflineTopicPercent);
+        this.startOfflineTopicCheckThreshold =
+                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.START_OFFLINE_CHECK_THRESHOLD),
+                        startOfflineTopicCheckThreshold);
+        this.threadPoolSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.THREAD_POOL_SIZE), threadPoolSize);
     }
 
     public List<InLongTopic> getConsumerSubset(List<InLongTopic> totalTopics) {

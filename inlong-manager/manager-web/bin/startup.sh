@@ -43,6 +43,12 @@ BIN_PATH=$(
   pwd
 )
 
+# Prepare common dependency
+ROOT_DIR=$BIN_PATH/../..
+if [ -e $ROOT_DIR/bin/prepare_module_dependencys.sh ]; then
+    $ROOT_DIR/bin/prepare_module_dependencys.sh ./inlong-manager/lib
+fi
+
 # Enter the root directory path
 # shellcheck disable=SC2164
 cd "$BIN_PATH"
@@ -92,11 +98,26 @@ JAVA_OPT="${JAVA_OPT} -XX:+IgnoreUnrecognizedVMOptions -XX:+UseConcMarkSweepGC -
 # Remote debugger
 #JAVA_OPT="${JAVA_OPT} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8081"
 
-# Start service: start the project in the background, and output the log to the logs folder under the project root directory
-nohup java ${JAVA_OPT} -cp ${CLASSPATH} ${MAIN_CLASS} 1>/dev/null 2>${LOG_DIR}/error.log &
+# Opentelemetry startup parameter configuration
+export OTEL_SERVICE_NAME=inlong_manager
+export OTEL_VERSION=1.28.0
+export OTEL_LOGS_EXPORTER=otlp
+# Whether to enable observability. true:enable; others:disable.
+export ENABLE_OBSERVABILITY=false
+# OTEL_EXPORTER_OTLP_ENDPOINT must be configured as a URL when ENABLE_OBSERVABILITY=true.
+export OTEL_EXPORTER_OTLP_ENDPOINT=
 
-# Print the startup log
-STARTUP_LOG="startup command: nohup java ${JAVA_OPT} -cp ${CLASSPATH} ${MAIN_CLASS} 1>/dev/null 2>${LOG_DIR}/error.log &\n"
+# Opentelemetry java agent path
+OTEL_AGENT="${BASE_PATH}/lib/opentelemetry-javaagent-${OTEL_VERSION}.jar"
+
+# Start service: start the project in the background, and output the log to the logs folder under the project root directory
+if [ "$ENABLE_OBSERVABILITY" = "true" ]; then
+  nohup java ${JAVA_OPT} -javaagent:${OTEL_AGENT} -cp ${CLASSPATH} ${MAIN_CLASS} 1>/dev/null 2>${LOG_DIR}/error.log &
+  STARTUP_LOG="startup command: nohup java ${JAVA_OPT} -javaagent:${OTEL_AGENT} -cp ${CLASSPATH} ${MAIN_CLASS} 1>/dev/null 2>${LOG_DIR}/error.log &\n"
+else
+  nohup java ${JAVA_OPT} -cp ${CLASSPATH} ${MAIN_CLASS} 1>/dev/null 2>${LOG_DIR}/error.log &
+  STARTUP_LOG="startup command: nohup java ${JAVA_OPT} -cp ${CLASSPATH} ${MAIN_CLASS} 1>/dev/null 2>${LOG_DIR}/error.log &\n"
+fi
 
 # Process ID
 PID="$!"

@@ -67,6 +67,7 @@
         <if test="keyword != null and keyword != ''">
             and (
             tenant like CONCAT('%', #{keyword}, '%')
+            or username like CONCAT('%', #{keyword}, '%')
             )
         </if>
         <if test="tenantList != null and tenantList.size() > 0">

@@ -35,6 +35,7 @@ public class ClickHouseDataPo {
     private String inlongGroupId;
     private String inlongStreamId;
     private String auditId;
+    private String auditTag;
     private Long count;
     private Long size;
     private Long delay;

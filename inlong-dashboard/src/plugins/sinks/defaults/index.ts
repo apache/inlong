@@ -32,6 +32,11 @@ export const allDefaultSinks: MetaExportWithBackendList<SinkMetaType> = [
     LoadEntity: () => import('./ClickHouse'),
   },
   {
+    label: 'Cls',
+    value: 'CLS',
+    LoadEntity: () => import('./Cls'),
+  },
+  {
     label: 'Doris',
     value: 'DORIS',
     LoadEntity: () => import('./Doris'),
@@ -85,6 +90,11 @@ export const allDefaultSinks: MetaExportWithBackendList<SinkMetaType> = [
     label: 'PostgreSQL',
     value: 'POSTGRESQL',
     LoadEntity: () => import('./PostgreSQL'),
+  },
+  {
+    label: 'Pulsar',
+    value: 'PULSAR',
+    LoadEntity: () => import('./Pulsar'),
   },
   {
     label: 'SQLServer',

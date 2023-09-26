@@ -90,8 +90,6 @@ public abstract class BaseSource
     protected String msgFactoryName;
     // message handler name
     protected String messageHandlerName;
-    // source default append attribute
-    protected String defAttr = "";
     // allowed max message length
     protected int maxMsgLength;
     // whether compress message
@@ -128,10 +126,13 @@ public abstract class BaseSource
     private MonitorStats monitorStats = null;
     // metric set
     private DataProxyMetricItemSet metricItemSet;
+    // whether enable file metric
+    protected boolean enableFileMetric;
 
     public BaseSource() {
         super();
         allChannels = new DefaultChannelGroup("DefaultChannelGroup", GlobalEventExecutor.INSTANCE);
+        this.enableFileMetric = CommonConfigHolder.getInstance().isEnableFileMetric();
     }
 
     @Override
@@ -158,11 +159,6 @@ public abstract class BaseSource
         Preconditions.checkArgument(StringUtils.isNotBlank(tmpVal),
                 SourceConstants.SRCCXT_MESSAGE_HANDLER_NAME + " config is blank");
         this.messageHandlerName = tmpVal;
-        // get default attributes
-        tmpVal = context.getString(SourceConstants.SRCCXT_DEF_ATTR);
-        if (StringUtils.isNotBlank(tmpVal)) {
-            this.defAttr = tmpVal.trim();
-        }
         // get allowed max message length
         this.maxMsgLength = ConfStringUtils.getIntValue(context,
                 SourceConstants.SRCCXT_MAX_MSG_LENGTH, SourceConstants.VAL_DEF_MAX_MSG_LENGTH);
@@ -256,7 +252,7 @@ public abstract class BaseSource
                 CommonConfigHolder.getInstance().getClusterName(), this.cachedSrcName, String.valueOf(srcPort));
         MetricRegister.register(metricItemSet);
         // init monitor logic
-        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+        if (enableFileMetric) {
             this.monitorIndex = new MonitorIndex(CommonConfigHolder.getInstance().getFileMetricSourceOutName(),
                     CommonConfigHolder.getInstance().getFileMetricStatInvlSec() * 1000L,
                     CommonConfigHolder.getInstance().getFileMetricStatCacheCnt());
@@ -304,7 +300,7 @@ public abstract class BaseSource
             this.workerGroup.shutdownGracefully();
         }
         // stop file statistic index
-        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+        if (enableFileMetric) {
             if (monitorIndex != null) {
                 monitorIndex.stop();
             }
@@ -368,10 +364,6 @@ public abstract class BaseSource
         return strPort;
     }
 
-    public String getDefAttr() {
-        return defAttr;
-    }
-
     public int getMaxMsgLength() {
         return maxMsgLength;
     }
@@ -409,14 +401,15 @@ public abstract class BaseSource
     }
 
     public void fileMetricIncSumStats(String eventKey) {
-        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+        if (enableFileMetric) {
             monitorStats.incSumStats(eventKey);
         }
     }
 
-    public void fileMetricIncDetailStats(String eventKey) {
-        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
-            monitorStats.incDetailStats(eventKey);
+    public void fileMetricIncWithDetailStats(String eventKey, String detailInfoKey) {
+        if (enableFileMetric) {
+            monitorStats.incSumStats(eventKey);
+            monitorStats.incDetailStats(eventKey + "#" + detailInfoKey);
         }
     }
 
@@ -436,7 +429,7 @@ public abstract class BaseSource
     private void fileMetricIncStats(StringBuilder strBuff, boolean isSucc, String groupId,
             String streamId, String topicName, String clientIP, String msgProcType,
             long dt, long pkgTime, int cnt, int packCnt, long packSize, int failCnt) {
-        if (!CommonConfigHolder.getInstance().isEnableFileMetric()) {
+        if (!enableFileMetric) {
             return;
         }
         String tenMinsDt = DateTimeUtils.ms2yyyyMMddHHmmTenMins(dt);

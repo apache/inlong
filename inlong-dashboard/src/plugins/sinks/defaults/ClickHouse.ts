@@ -53,7 +53,7 @@ export default class ClickHouseSink
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -65,7 +65,7 @@ export default class ClickHouseSink
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -79,7 +79,7 @@ export default class ClickHouseSink
     initialValue: 1,
     tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: i18n.t('basic.Yes'),
@@ -99,7 +99,7 @@ export default class ClickHouseSink
     type: NodeSelect,
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       nodeType: 'CLICKHOUSE',
     }),
   })
@@ -112,7 +112,7 @@ export default class ClickHouseSink
     type: 'inputnumber',
     initialValue: 1,
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       min: 1,
     }),
     rules: [{ required: true }],
@@ -126,7 +126,7 @@ export default class ClickHouseSink
     type: 'inputnumber',
     initialValue: 1000,
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       min: 1,
     }),
     rules: [{ required: true }],
@@ -140,7 +140,7 @@ export default class ClickHouseSink
     type: 'inputnumber',
     initialValue: 3,
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       min: 1,
     }),
     rules: [{ required: true }],
@@ -154,7 +154,7 @@ export default class ClickHouseSink
     type: 'radio',
     initialValue: 0,
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: i18n.t('meta.Sinks.ClickHouse.Yes'),
@@ -177,7 +177,7 @@ export default class ClickHouseSink
     initialValue: 'BALANCE',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: 'BALANCE',
@@ -204,7 +204,7 @@ export default class ClickHouseSink
     rules: [{ required: true }],
     visible: values => values.isDistributed && values.partitionStrategy === 'HASH',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @I18n('meta.Sinks.ClickHouse.PartitionFields')
@@ -216,7 +216,7 @@ export default class ClickHouseSink
     initialValue: 'Log',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: 'Log',
@@ -240,7 +240,7 @@ export default class ClickHouseSink
   @FieldDecorator({
     type: 'input',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @I18n('meta.Sinks.ClickHouse.OrderBy')
@@ -249,7 +249,7 @@ export default class ClickHouseSink
   @FieldDecorator({
     type: 'input',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @I18n('meta.Sinks.ClickHouse.PartitionBy')
@@ -259,7 +259,7 @@ export default class ClickHouseSink
   @FieldDecorator({
     type: 'input',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @I18n('meta.Sinks.ClickHouse.PrimaryKey')
@@ -269,7 +269,7 @@ export default class ClickHouseSink
   @FieldDecorator({
     type: 'input',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @I18n('meta.Sinks.ClickHouse.Cluster')
@@ -283,7 +283,7 @@ export default class ClickHouseSink
       type: 'select',
       name: 'ttlUnit',
       props: values => ({
-        disabled: [110, 130].includes(values?.status),
+        disabled: [110].includes(values?.status),
         options: [
           {
             label: 'Second',
@@ -323,7 +323,7 @@ export default class ClickHouseSink
     props: values => ({
       min: 1,
       precision: 0,
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @I18n('Time To Live')
@@ -334,7 +334,7 @@ export default class ClickHouseSink
     type: EditableTable,
     props: values => ({
       size: 'small',
-      editing: ![110, 130].includes(values?.status),
+      editing: ![110].includes(values?.status),
       columns: getFieldListColumns(values),
       canBatchAdd: true,
       upsertByFieldKey: true,
@@ -357,7 +357,7 @@ const getFieldListColumns = sinkValues => {
         },
       ],
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {
@@ -366,7 +366,7 @@ const getFieldListColumns = sinkValues => {
       initialValue: clickHouseTargetTypes[0].value,
       type: 'select',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
         options: clickHouseTargetTypes,
       }),
       rules: [{ required: true, message: `${i18n.t('meta.Sinks.FieldTypeMessage')}` }],
@@ -376,7 +376,7 @@ const getFieldListColumns = sinkValues => {
       dataIndex: 'defaultType',
       type: 'autocomplete',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
         options: ['DEFAULT', 'EPHEMERAL', 'MATERIALIZED', 'ALIAS'].map(item => ({
           label: item,
           value: item,
@@ -388,7 +388,7 @@ const getFieldListColumns = sinkValues => {
       dataIndex: 'defaultExpr',
       type: 'input',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
       visible: (text, record) =>
         ['DEFAULT', 'EPHEMERAL', 'MATERIALIZED', 'ALIAS'].includes(record.defaultType as string),
@@ -397,21 +397,21 @@ const getFieldListColumns = sinkValues => {
       title: i18n.t('meta.Sinks.ClickHouse.CompressionCode'),
       dataIndex: 'compressionCode',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {
       title: i18n.t('meta.Sinks.ClickHouse.TtlExpr'),
       dataIndex: 'ttlExpr',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {
       title: `ClickHouse${i18n.t('meta.Sinks.ClickHouse.FieldDescription')}`,
       dataIndex: 'fieldComment',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
     },
   ];

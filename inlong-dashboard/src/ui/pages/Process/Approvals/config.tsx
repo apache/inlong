@@ -58,7 +58,11 @@ export const getColumns = activedName => [
     title: i18n.t('pages.Approvals.ProcessID'),
     dataIndex: 'processId',
     render: (text, record) => (
-      <Link to={`/process/${activedName}/${text}?taskId=${record.id}`}>{text}</Link>
+      <Link
+        to={`/process/${activedName}/${text}?taskId=${record.id}&inlongGroupMode=${record.showInList?.inlongGroupMode}`}
+      >
+        {text}
+      </Link>
     ),
   },
   {
@@ -79,9 +83,17 @@ export const getColumns = activedName => [
     dataIndex: 'inlongGroupMode',
     render: (text, record) => {
       return record.showInList?.inlongGroupMode === 1 ? (
-        <StatusTag type={'success'} title={i18n.t('pages.Approvals.GroupMode.DataSync')} />
+        <StatusTag
+          type={'success'}
+          icon={<span />}
+          title={i18n.t('pages.Approvals.GroupMode.DataSync')}
+        />
       ) : (
-        <StatusTag type={'primary'} title={i18n.t('pages.Approvals.GroupMode.Ingestion')} />
+        <StatusTag
+          type={'primary'}
+          icon={<span />}
+          title={i18n.t('pages.Approvals.GroupMode.Ingestion')}
+        />
       );
     },
   },

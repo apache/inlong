@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Divider, Row, Table } from 'antd';
 import { DoubleRightOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import SyncSources from '../SyncSources';
@@ -27,6 +27,7 @@ import EditableTable, { ColumnsItemProps } from '@/ui/components/EditableTable';
 import i18n from '@/i18n';
 import FieldList from '@/ui/components/FieldList';
 import { ColumnsType } from 'antd/es/table';
+import { useRequest } from 'ahooks';
 
 export interface Props {
   inlongGroupId: string;
@@ -39,35 +40,54 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId }) => {
     setOpenT({ open: openT.open === false ? true : false });
   };
 
+  const { data, run: getList } = useRequest({
+    url: '/transform/list',
+    method: 'POST',
+    data: {
+      inlongGroupId,
+      inlongStreamId,
+      pageSize: 10,
+      pageNum: 1,
+    },
+  });
+
   const sinkColumns: ColumnsType = [
     {
-      title: 'fieldName',
-      // dataIndex: 'sourceFieldName',
+      title: i18n.t('components.FieldList.SinkFieldName'),
       dataIndex: 'fieldName',
-      // render: (text: string) => <a>{text}</a>,
     },
     {
-      title: 'fieldType',
+      title: i18n.t('components.FieldList.SinkFieldType'),
       dataIndex: 'fieldType',
+    },
+    {
+      title: i18n.t('components.FieldList.FieldComment'),
+      dataIndex: 'fieldComment',
     },
   ];
 
   const sourceColumns: ColumnsType = [
     {
-      title: 'fieldName',
-      // dataIndex: 'sourceFieldName',
+      title: i18n.t('meta.Stream.FieldName'),
       dataIndex: 'fieldName',
-      render: (text: string) => <a>{text}</a>,
     },
     {
-      title: 'fieldType',
+      title: i18n.t('meta.Stream.FieldType'),
       dataIndex: 'fieldType',
+    },
+    {
+      title: i18n.t('meta.Stream.FieldComment'),
+      dataIndex: 'fieldComment',
     },
   ];
 
+  useEffect(() => {
+    getList();
+  }, [getList]);
+
   return (
     <>
-      {openT.open ? (
+      {openT.open || data?.total !== 0 ? (
         <Row gutter={[40, 48]}>
           <Col span={8}>
             <SyncSources inlongGroupId={inlongGroupId} inlongStreamId={inlongStreamId} />
@@ -90,11 +110,26 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId }) => {
           <Col span={11}>
             <SyncSources inlongGroupId={inlongGroupId} inlongStreamId={inlongStreamId} />
           </Col>
-          <Col span={2} onDoubleClick={openClick}>
-            <a type="link" style={{ position: 'absolute', top: '50%' }}>
-              <Button type="link" style={{ position: 'absolute', top: '50%' }}>
-                {i18n.t('pages.SynchronizeDetail.Sync.Transform')}
-              </Button>
+          <Col
+            span={2}
+            onDoubleClick={openClick}
+            style={{
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <a
+              type="link"
+              style={{
+                position: 'absolute',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Button type="link">{i18n.t('pages.SynchronizeDetail.Sync.Transform')}</Button>
             </a>
           </Col>
           <Col span={11}>
@@ -103,7 +138,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId }) => {
         </Row>
       )}
       <Row style={{ marginTop: 50 }} gutter={[40, 48]}>
-        <Col span={8}>
+        <Col span={11}>
           <FieldList
             inlongGroupId={inlongGroupId}
             inlongStreamId={inlongStreamId}
@@ -111,7 +146,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId }) => {
             columns={sourceColumns}
           ></FieldList>
         </Col>
-        <Col span={8} offset={8}>
+        <Col span={11} offset={2}>
           <FieldList
             inlongGroupId={inlongGroupId}
             inlongStreamId={inlongStreamId}
