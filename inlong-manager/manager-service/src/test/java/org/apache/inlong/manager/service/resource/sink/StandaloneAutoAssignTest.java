@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.sink;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
