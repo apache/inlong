@@ -28,7 +28,7 @@ import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSinkDTO;
 import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
-import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
+import org.apache.inlong.manager.service.resource.sink.AbstractStandaloneSinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -45,7 +45,7 @@ import java.util.List;
  * Elasticsearch's resource operator
  */
 @Service
-public class ElasticsearchResourceOperator implements SinkResourceOperator {
+public class ElasticsearchResourceOperator extends AbstractStandaloneSinkResourceOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchResourceOperator.class);
     @Autowired
@@ -76,6 +76,7 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
         }
 
         this.createIndex(sinkInfo);
+        this.assignCluster(sinkInfo);
     }
 
     private void createIndex(SinkInfo sinkInfo) {

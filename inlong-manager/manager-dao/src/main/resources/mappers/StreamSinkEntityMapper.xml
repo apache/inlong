@@ -330,6 +330,7 @@
         sink.inlong_group_id,
         sink.inlong_stream_id,
         sink.sink_type,
+        sink.inlong_cluster_name,
         sink.description,
         sink.enable_create_resource,
         sink.ext_params,
@@ -388,6 +389,17 @@
         <include refid="Base_Column_List"/>
         from stream_sink
         where is_deleted = 0
+    </select>
+    <select id="selectRelatedCluster" resultType="java.lang.String">
+        select inlong_cluster_name
+        from stream_sink
+        <where>
+            data_node_name = #{dataNodeName, jdbcType=VARCHAR}
+            and is_deleted = 0
+        </where>
+        group by inlong_cluster_name
+        order by count(*) asc
+        limit 1
     </select>
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
         update stream_sink
