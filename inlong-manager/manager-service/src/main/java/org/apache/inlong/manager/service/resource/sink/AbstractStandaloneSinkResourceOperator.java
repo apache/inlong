@@ -55,7 +55,10 @@ public abstract class AbstractStandaloneSinkResourceOperator implements SinkReso
         }
 
         String targetCluster = assignOneCluster(sinkInfo);
-        Preconditions.expectNotBlank(targetCluster, "find no proper cluster assign to sink = " + sinkInfo);
+        Preconditions.expectNotBlank(targetCluster,
+                String.format("find no proper cluster assign to group=%s, stream=%s, sink type=%s, data node=%s ",
+                        sinkInfo.getInlongGroupId(), sinkInfo.getInlongStreamId(), sinkInfo.getSinkType(),
+                        sinkInfo.getDataNodeName()));
 
         StreamSinkEntity sink = sinkEntityMapper.selectByPrimaryKey(sinkInfo.getId());
         sink.setInlongClusterName(targetCluster);

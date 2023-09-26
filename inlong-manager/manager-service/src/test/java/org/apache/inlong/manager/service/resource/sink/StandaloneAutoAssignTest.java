@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.sink;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -74,6 +75,7 @@ public class StandaloneAutoAssignTest extends ServiceBaseTest {
         clsSinkEntity.setInlongGroupId(groupId);
         clsSinkEntity.setInlongStreamId(streamId);
         clsSinkEntity.setCreator(GLOBAL_OPERATOR);
+
         return sinkEntityMapper.insert(clsSinkEntity);
     }
 
