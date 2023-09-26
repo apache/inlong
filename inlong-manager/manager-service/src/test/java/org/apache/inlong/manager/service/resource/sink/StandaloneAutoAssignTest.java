@@ -47,8 +47,10 @@ public class StandaloneAutoAssignTest extends ServiceBaseTest {
     @Test
     public void testAutoAssign() {
 
-        InlongGroupInfo groupInfo = this.createInlongGroup(GLOBAL_GROUP_ID, MQType.PULSAR);
-        InlongStreamInfo streamInfo = this.createStreamInfo(groupInfo, GLOBAL_STREAM_ID);
+        String group = "autoGroup";
+        String stream = "autoStream";
+        InlongGroupInfo groupInfo = this.createInlongGroup(group, MQType.PULSAR);
+        InlongStreamInfo streamInfo = this.createStreamInfo(groupInfo, stream);
         Integer id = saveClsSink(groupInfo.getInlongGroupId(), streamInfo.getInlongStreamId());
 
         String clusterName = "clsCluster";
