@@ -23,8 +23,8 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 USE `apache_inlong_manager`;
 
-UPDATE inlong_stream SET ext_params = replace(ext_params, '"wrapWithInlongMsg":true', '"wrapType":"INLONG_MSG_V0"');
-UPDATE inlong_stream SET ext_params = replace(ext_params, '"wrapWithInlongMsg":false', '"wrapType":"RAW"');
+ALTER TABLE `inlong_stream`
+    ADD COLUMN `wrap_type` varchar(256) DEFAULT 'INLONG_MSG_V0' COMMENT 'The message body wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc';
 
 
 

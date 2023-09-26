@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.dao.entity;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -37,6 +38,7 @@ public class InlongStreamEntity implements Serializable {
     private String mqResource;
 
     private String dataType;
+    private String wrapType;
     private String dataEncoding;
     private String dataSeparator;
     private String dataEscapeChar;
