@@ -152,7 +152,7 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
                 }
             }
 
-            kafkaSource.setWrapWithInlongMsg(streamInfo.getWrapWithInlongMsg());
+            kafkaSource.setWrapType(streamInfo.getWrapType());
 
             kafkaSource.setAutoOffsetReset(KafkaOffset.EARLIEST.getName());
             kafkaSource.setFieldList(streamInfo.getFieldList());

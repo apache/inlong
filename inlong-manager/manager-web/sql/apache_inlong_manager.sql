@@ -247,6 +247,7 @@ CREATE TABLE IF NOT EXISTS `inlong_stream`
     `description`      varchar(256)          DEFAULT '' COMMENT 'Description of inlong stream',
     `mq_resource`      varchar(128)          DEFAULT NULL COMMENT 'MQ resource, in one stream, corresponding to the filter ID of TubeMQ, corresponding to the topic of Pulsar',
     `data_type`        varchar(20)           DEFAULT NULL COMMENT 'Data type, including: CSV, KEY-VALUE, JSON, AVRO, etc.',
+    `wrap_type`        varchar(256)          DEFAULT 'INLONG_MSG_V0' COMMENT 'The message body wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc',
     `data_encoding`    varchar(8)            DEFAULT 'UTF-8' COMMENT 'Data encoding format, including: UTF-8, GBK, etc.',
     `data_separator`   varchar(8)            DEFAULT NULL COMMENT 'The source data field separator',
     `data_escape_char` varchar(8)            DEFAULT NULL COMMENT 'Source data field escape character, the default is NULL (NULL), stored as 1 character',

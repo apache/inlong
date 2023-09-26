@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.pojo.sort.node.base;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
 import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
 import org.apache.inlong.manager.pojo.stream.StreamField;
@@ -92,7 +93,7 @@ public interface ExtractNodeProvider extends NodeProvider {
      */
     default Format parsingFormat(
             String serializationType,
-            boolean wrapWithInlongMsg,
+            String wrapType,
             String separatorStr,
             boolean ignoreParseErrors) {
         Format format;
@@ -129,7 +130,7 @@ public interface ExtractNodeProvider extends NodeProvider {
             default:
                 throw new IllegalArgumentException(String.format("Unsupported dataType=%s", dataType));
         }
-        if (wrapWithInlongMsg) {
+        if (Objects.equals(wrapType, MessageWrapType.INLONG_MSG_V0.getName())) {
             Format innerFormat = format;
             format = new InLongMsgFormat(innerFormat, false);
         }
