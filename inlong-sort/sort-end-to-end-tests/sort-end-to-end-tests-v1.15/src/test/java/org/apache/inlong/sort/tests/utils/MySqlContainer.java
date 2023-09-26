@@ -49,7 +49,7 @@ public class MySqlContainer extends JdbcDatabaseContainer {
 
     public MySqlContainer(MySqlVersion version) {
         super(DockerImageName.parse(IMAGE + ":" + version.getVersion()));
-        addFixedExposedPort(33306,3306);
+        addFixedExposedPort(33306, 3306);
     }
 
     @Override
@@ -60,8 +60,6 @@ public class MySqlContainer extends JdbcDatabaseContainer {
     @Override
     protected void configure() {
         // HERE is the difference, copy to /etc/mysql/, if copy to /etc/mysql/conf.d will be wrong
-        //optionallyMapResourceParameterAsVolume(
-        //        MY_CNF_CONFIG_OVERRIDE_PARAM_NAME, "/etc/mysql/", "mysql-default-conf");
 
         if (parameters.containsKey(SETUP_SQL_PARAM_NAME)) {
             optionallyMapResourceParameterAsVolume(

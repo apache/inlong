@@ -17,7 +17,11 @@
 
 package org.apache.inlong.sort.tests;
 
-import org.apache.inlong.sort.tests.utils.*;
+import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
+import org.apache.inlong.sort.tests.utils.JdbcProxy;
+import org.apache.inlong.sort.tests.utils.MySqlContainer;
+import org.apache.inlong.sort.tests.utils.StarRocksContainer;
+import org.apache.inlong.sort.tests.utils.TestUtils;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -26,10 +30,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.lifecycle.Startables;
-import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
 import java.net.URISyntaxException;
@@ -70,7 +72,8 @@ public class MysqlToRocksTest extends FlinkContainerTestEnv {
 
     static {
         try {
-            sqlFile = Paths.get(PostgresToStarRocksTest.class.getResource("/flinkSql/mysql_test.sql").toURI()).toString();
+            sqlFile =
+                    Paths.get(PostgresToStarRocksTest.class.getResource("/flinkSql/mysql_test.sql").toURI()).toString();
             buildStarRocksImage();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -99,19 +102,21 @@ public class MysqlToRocksTest extends FlinkContainerTestEnv {
     }
 
     @ClassRule
-    public static StarRocksContainer STAR_ROCKS = (StarRocksContainer) new StarRocksContainer(getNewStarRocksImageName())
-            .withExposedPorts(9030, 8030, 8040)
-            .withNetwork(NETWORK)
-            .withAccessToHost(true)
-            .withNetworkAliases(INTER_CONTAINER_STAR_ROCKS_ALIAS)
-            .withLogConsumer(new Slf4jLogConsumer(STAR_ROCKS_LOG));
+    public static StarRocksContainer STAR_ROCKS =
+            (StarRocksContainer) new StarRocksContainer(getNewStarRocksImageName())
+                    .withExposedPorts(9030, 8030, 8040)
+                    .withNetwork(NETWORK)
+                    .withAccessToHost(true)
+                    .withNetworkAliases(INTER_CONTAINER_STAR_ROCKS_ALIAS)
+                    .withLogConsumer(new Slf4jLogConsumer(STAR_ROCKS_LOG));
 
     @ClassRule
-    public static final MySqlContainer MYSQL_CONTAINER = (MySqlContainer)new MySqlContainer(MySqlContainer.MySqlVersion.V8_0)
-            .withDatabaseName("test")
-            .withNetwork(NETWORK)
-            .withNetworkAliases("mysql")
-            .withLogConsumer(new Slf4jLogConsumer(LOG));
+    public static final MySqlContainer MYSQL_CONTAINER =
+            (MySqlContainer) new MySqlContainer(MySqlContainer.MySqlVersion.V8_0)
+                    .withDatabaseName("test")
+                    .withNetwork(NETWORK)
+                    .withNetworkAliases("mysql")
+                    .withLogConsumer(new Slf4jLogConsumer(LOG));
 
     @Before
     public void setup() {
@@ -143,9 +148,9 @@ public class MysqlToRocksTest extends FlinkContainerTestEnv {
 
     private void initializeStarRocksTable() {
         try (Connection conn =
-                     DriverManager.getConnection(STAR_ROCKS.getJdbcUrl(), STAR_ROCKS.getUsername(),
-                             STAR_ROCKS.getPassword());
-             Statement stat = conn.createStatement()) {
+                DriverManager.getConnection(STAR_ROCKS.getJdbcUrl(), STAR_ROCKS.getUsername(),
+                        STAR_ROCKS.getPassword());
+                Statement stat = conn.createStatement()) {
             stat.execute("CREATE TABLE IF NOT EXISTS test_output1 (\n"
                     + "       id INT NOT NULL,\n"
                     + "       name VARCHAR(255) NOT NULL DEFAULT 'flink',\n"
@@ -180,9 +185,9 @@ public class MysqlToRocksTest extends FlinkContainerTestEnv {
 
         // generate input
         try (Connection conn =
-                     DriverManager.getConnection(MYSQL_CONTAINER.getJdbcUrl(), MYSQL_CONTAINER.getUsername(),
-                             MYSQL_CONTAINER.getPassword());
-             Statement stat = conn.createStatement()) {
+                DriverManager.getConnection(MYSQL_CONTAINER.getJdbcUrl(), MYSQL_CONTAINER.getUsername(),
+                        MYSQL_CONTAINER.getPassword());
+                Statement stat = conn.createStatement()) {
             stat.execute(
                     "INSERT INTO test_input1 "
                             + "VALUES (1,'jacket','water resistent white wind breaker');");
