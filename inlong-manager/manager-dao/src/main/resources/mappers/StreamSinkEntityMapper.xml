@@ -390,7 +390,7 @@
         from stream_sink
         where is_deleted = 0
     </select>
-    <select id="selectRelatedCluster" resultType="java.lang.String">
+    <select id="selectAssignedCluster" resultType="java.lang.String">
         select inlong_cluster_name
         from stream_sink
         <where>

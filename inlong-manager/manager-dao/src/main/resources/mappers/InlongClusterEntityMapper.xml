@@ -194,7 +194,7 @@
         <include refid="Base_Column_List"/>
         from inlong_cluster
         <where>
-            type = 'SortStandalone'
+            type = 'SORTSTANDALONE'
             and find_in_set(#{sinkType, jdbcType=VARCHAR}, ext_tag)
             and is_deleted = 0
         </where>

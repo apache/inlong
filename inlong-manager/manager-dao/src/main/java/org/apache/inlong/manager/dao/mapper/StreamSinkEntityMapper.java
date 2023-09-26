@@ -161,6 +161,6 @@ public interface StreamSinkEntityMapper {
      */
     int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 
-    String selectRelatedCluster(@Param("dataNodeName") String dataNodeName);
+    String selectAssignedCluster(@Param("dataNodeName") String dataNodeName);
 
 }

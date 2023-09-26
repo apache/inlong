@@ -47,7 +47,7 @@ public class SortStandaloneClusterOperator extends AbstractClusterOperator {
         CommonBeanUtils.copyProperties(standaloneRequest, targetEntity, true);
         Set<String> supportedTypes = standaloneRequest.getSupportedSinkTypes();
         if (CollectionUtils.isNotEmpty(supportedTypes)) {
-            String extTag = Joiner.on(",").join(supportedTypes);
+            String extTag = Joiner.on(InlongConstants.COMMA).join(supportedTypes);
             targetEntity.setExtTag(extTag);
         }
     }
