@@ -64,7 +64,7 @@ public class KafkaProvider implements ExtractNodeProvider, LoadNodeProvider {
 
         Format format = parsingFormat(
                 kafkaSource.getSerializationType(),
-                kafkaSource.isWrapWithInlongMsg(),
+                kafkaSource.getWrapType(),
                 kafkaSource.getDataSeparator(),
                 kafkaSource.isIgnoreParseErrors());
 

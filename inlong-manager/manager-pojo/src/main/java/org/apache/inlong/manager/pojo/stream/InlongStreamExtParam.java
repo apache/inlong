@@ -45,8 +45,8 @@ public class InlongStreamExtParam implements Serializable {
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value")
     private boolean ignoreParseError;
 
-    @ApiModelProperty(value = "Whether the message body wrapped with InlongMsg")
-    private boolean wrapWithInlongMsg;
+    @ApiModelProperty(value = "The message body wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
+    private String wrapType;
 
     /**
      * Pack extended attributes into ExtParams
