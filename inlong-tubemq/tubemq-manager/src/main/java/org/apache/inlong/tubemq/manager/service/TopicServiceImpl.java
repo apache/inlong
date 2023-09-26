@@ -41,28 +41,27 @@ import org.apache.inlong.tubemq.manager.service.tube.TopicView;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpGroupDetailInfo;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpTopicInfoList;
 import org.apache.inlong.tubemq.manager.utils.ConvertUtils;
-import org.apache.inlong.tubemq.manager.utils.HttpUtils;
 
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * node service to query broker/master/standby status of tube cluster.
@@ -75,7 +74,8 @@ public class TopicServiceImpl implements TopicService {
     public static final int MINIMUN_TOPIC_RUN_PART = 1;
     private final CloseableHttpClient httpclient = HttpClients.createDefault();
     private final Gson gson = new Gson();
-    private static final Logger LOGGER = LoggerFactory.getLogger(TopicServiceImpl.class);
+    private static final Pattern SPECIAL_CHAR_PATTERN = Pattern.compile("[%\\x00-\\x1F\\x7F-\\uFFFF]");
+    private static final int MAX_TOPIC_NAME_LENGTH = 255;
 
     @Value("${manager.broker.webPort:8081}")
     private int brokerWebPort;
@@ -120,27 +120,62 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public TopicView requestTopicViewInfo(Long clusterId, String topicName) {
         MasterEntry masterNode = masterService.getMasterNode(clusterId);
-        String host = masterNode.getIp();
-        int port = masterNode.getWebPort();
-        try {
-            // Validate and clean the host IP address and web port
-            host = validateAndCleanInput(host);
-            String requestUrl = TubeConst.SCHEMA + host + ":" + port + TubeConst.TOPIC_VIEW;
-
-            if (StringUtils.isNotBlank(topicName)) {
-                // Validate and clean the topic name
-                topicName = validateAndCleanInput(topicName);
-                requestUrl += TubeConst.TOPIC_NAME + topicName;
-            }
-            // Validate the constructed URL
-            if (!isValidURL(requestUrl)) {
-                throw new SecurityException("Invalid URL format.");
-            }
-            String response = HttpUtils.sendHttpGetRequest(requestUrl);
-            return gson.fromJson(response, TopicView.class);
+        // Validate if MasterEntry is valid
+        if (masterNode == null || StringUtils.isBlank(masterNode.getIp()) || masterNode.getWebPort() <= 0) {
+            log.error("Invalid MasterEntry: ClusterId = {}", clusterId);
+            throw new IllegalArgumentException("Invalid MasterEntry.");
+        }
+        // Validate if the Topic name is empty or contains dangerous characters
+        if (StringUtils.isBlank(topicName) || containsDangerousChars(topicName)) {
+            log.error("Invalid topicName: ClusterId = {}, TopicName = {}", clusterId, topicName);
+            throw new IllegalArgumentException("Invalid topicName.");
+        }
+        if (topicName.length() > MAX_TOPIC_NAME_LENGTH) {
+            log.error("TopicName is too long: ClusterId = {}, TopicName = {}", clusterId, topicName);
+            throw new IllegalArgumentException("TopicName is too long.");
+        }
+        String url = TubeConst.SCHEMA + masterNode.getIp() + ":" + masterNode.getWebPort() + TubeConst.TOPIC_VIEW;
+        if (!isValidURL(url)) {
+            log.error("Invalid URL: ClusterId = {}, URL = {}", clusterId, url);
+            throw new IllegalArgumentException("Invalid URL.");
+        }
+        url += TubeConst.TOPIC_NAME + topicName;
+        HttpGet httpget = new HttpGet(url);
+        try (CloseableHttpResponse response = httpclient.execute(httpget)) {
+            return gson.fromJson(new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8),
+                    TopicView.class);
         } catch (Exception ex) {
-            log.error("Exception caught while requesting group status", ex);
+            log.error("Exception caught while requesting group status: ClusterId = {}, TopicName = {}", clusterId,
+                    topicName, ex);
             throw new RuntimeException(ex.getMessage());
+        }
+    }
+
+    private boolean containsDangerousChars(String input) {
+        input = input.toLowerCase();
+        String[] dangerousKeywords =
+                {"exec", "system", "cmd", "shell", "php", "perl", "python", "ruby", "javascript", "java"};
+        // Prevent SSRF attacks by checking for "://"
+        if (input.contains("://")) {
+            return true;
+        }
+        // Check for other possible dangerous characters or keywords
+        for (String keyword : dangerousKeywords) {
+            if (input.contains(keyword)) {
+                return true;
+            }
+        }
+        // Check for encoding of special characters or escape characters
+        Matcher matcher = SPECIAL_CHAR_PATTERN.matcher(input);
+        return matcher.find();
+    }
+
+    private boolean isValidURL(String url) {
+        try {
+            new URL(url);
+            return true;
+        } catch (MalformedURLException e) {
+            return false;
         }
     }
 
@@ -170,72 +205,22 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public TubeHttpTopicInfoList requestTopicConfigInfo(MasterEntry masterEntry, String topic) {
-        String schema = TubeConst.SCHEMA.toLowerCase();
-        if (!"http://".equals(schema) && !"https://".equals(schema)) {
-            log.error("Invalid protocol in the URL: {}", schema);
-            return null;
-        }
-        // Validate and clean the host IP address and web port
-        String ip = validateAndCleanInput(masterEntry.getIp());
-        int webPort = validateAndCheckPort(masterEntry.getWebPort());
-        // Validate and clean the topic
-        topic = validateAndCleanInput(topic);
-        // Construct the URL
-        String url = schema + ip + ":" + webPort + TubeConst.TOPIC_CONFIG_INFO + "&topicName=" + topic;
-        // Log audit: Record the URL being requested
-        LOGGER.info("Requesting topic config info from URL: {}", url);
-
+        String url = TubeConst.SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
+                + TubeConst.TOPIC_CONFIG_INFO + "&topicName=" + topic;
         HttpGet httpget = new HttpGet(url);
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
-            // Check for redirection, and reject if detected
-            if (isRedirect(response)) {
-                log.error("URL redirection detected. Requested URL: {}", url);
-                return null;
-            }
-
             TubeHttpTopicInfoList topicInfoList =
                     gson.fromJson(new InputStreamReader(response.getEntity()
                             .getContent(), StandardCharsets.UTF_8),
                             TubeHttpTopicInfoList.class);
             if (topicInfoList.getErrCode() == TubeConst.SUCCESS_CODE) {
-                // Log audit: Record a successful request
-                LOGGER.info("Topic config info request successful for URL: {}", url);
                 return topicInfoList;
-            } else {
-                // Log audit: Record a failed request
-                LOGGER.error("Topic config info request failed for URL: {}", url);
             }
+            log.error("exception caught while requesting topic config info {}", topicInfoList.getErrMsg());
         } catch (Exception ex) {
-            // Log audit: Record an exception
-            LOGGER.error("Exception caught while requesting topic config info for URL: {}", url, ex);
+            log.error("exception caught while requesting broker status", ex);
         }
         return null;
-    }
-
-    private String validateAndCleanInput(String input) {
-        input = input.replaceAll("[^a-zA-Z0-9.]", "");
-        return input;
-    }
-
-    private int validateAndCheckPort(int port) {
-        // Add port validation, ensuring it falls within a valid range
-        if (port >= 1 && port <= 65535) {
-            return port;
-        } else {
-            log.error("Invalid port number: {}", port);
-            throw new IllegalArgumentException("Invalid port number.");
-        }
-    }
-
-    private static boolean isValidURL(String url) {
-        String urlPattern = "^(https?://)[a-zA-Z0-9.-]+(/[a-zA-Z0-9.-]*)?$";
-        return url.matches(urlPattern);
-    }
-
-    private boolean isRedirect(HttpResponse response) {
-        // Check if the response contains redirection status codes
-        int statusCode = response.getStatusLine().getStatusCode();
-        return statusCode == HttpStatus.SC_MOVED_PERMANENTLY || statusCode == HttpStatus.SC_MOVED_TEMPORARILY;
     }
 
     @Override
