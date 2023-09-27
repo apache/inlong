@@ -34,7 +34,7 @@ import org.apache.inlong.manager.pojo.sink.pulsar.PulsarSinkDTO;
 import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarOperator;
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarUtils;
-import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
+import org.apache.inlong.manager.service.resource.sink.AbstractStandaloneSinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 
 import org.apache.pulsar.client.admin.PulsarAdmin;
@@ -49,7 +49,7 @@ import org.springframework.stereotype.Service;
  * Pulsar resource operate for creating pulsar resource
  */
 @Service
-public class PulsarResourceOperator implements SinkResourceOperator {
+public class PulsarResourceOperator extends AbstractStandaloneSinkResourceOperator {
 
     private static final Logger LOG = LoggerFactory.getLogger(PulsarResourceOperator.class);
 
@@ -76,6 +76,7 @@ public class PulsarResourceOperator implements SinkResourceOperator {
             return;
         }
         this.createTopic(sinkInfo);
+        this.assignCluster(sinkInfo);
     }
 
     private void createTopic(SinkInfo sinkInfo) {
