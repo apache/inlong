@@ -70,6 +70,12 @@ public class AgentController {
         return Response.success(agentService.getTaskResult(request));
     }
 
+    @PostMapping("/agent/getExistTaskConfig")
+    @ApiOperation(value = "Get all exist task config")
+    public Response<TaskResult> getExistTaskConfig(@RequestBody TaskRequest request) {
+        return Response.success(agentService.getExistTaskConfig(request));
+    }
+
     @PostMapping("/agent/bindGroup")
     @ApiOperation(value = "Divide the agent into different groups, which collect different stream source tasks.")
     public Response<Boolean> bindGroup(@RequestBody AgentClusterNodeBindGroupRequest request) {

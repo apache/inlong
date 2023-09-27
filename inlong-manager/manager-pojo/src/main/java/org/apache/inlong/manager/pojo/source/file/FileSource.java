@@ -77,6 +77,18 @@ public class FileSource extends StreamSource {
             + "         Json format, set this parameter to json ")
     private String dataContentStyle;
 
+    @ApiModelProperty("Cycle unit")
+    private String cycleUnit;
+
+    @ApiModelProperty("Whether retry")
+    private Boolean retry;
+
+    @ApiModelProperty("Start time")
+    private Long startTime;
+
+    @ApiModelProperty("End time")
+    private Long endTime;
+
     @ApiModelProperty("Metadata filters by label, special parameters for K8S")
     private Map<String, String> filterMetaByLabels;
 
