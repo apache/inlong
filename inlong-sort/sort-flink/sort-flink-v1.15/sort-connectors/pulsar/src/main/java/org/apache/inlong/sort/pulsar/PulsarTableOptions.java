@@ -45,8 +45,8 @@ public final class PulsarTableOptions {
     private PulsarTableOptions() {
     }
 
-    public static final ConfigOption<List<String>> TOPICS =
-            ConfigOptions.key("topics")
+    public static final ConfigOption<List<String>> TOPIC =
+            ConfigOptions.key("topic")
                     .stringType()
                     .asList()
                     .noDefaultValue()

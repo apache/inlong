@@ -71,7 +71,7 @@ import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AT_ME
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AT_PUBLISH_TIME;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_SUBSCRIPTION_NAME;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_SUBSCRIPTION_TYPE;
-import static org.apache.inlong.sort.pulsar.PulsarTableOptions.TOPICS;
+import static org.apache.inlong.sort.pulsar.PulsarTableOptions.TOPIC;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.VALUE_FORMAT;
 import static org.apache.inlong.sort.pulsar.PulsarTableValidationUtils.validatePrimaryKeyConstraints;
 import static org.apache.inlong.sort.pulsar.PulsarTableValidationUtils.validateTableSourceOptions;
@@ -169,7 +169,7 @@ public class PulsarTableFactory implements DynamicTableSourceFactory {
 
     @Override
     public Set<ConfigOption<?>> requiredOptions() {
-        return Stream.of(TOPICS, ADMIN_URL, SERVICE_URL).collect(Collectors.toSet());
+        return Stream.of(TOPIC, ADMIN_URL, SERVICE_URL).collect(Collectors.toSet());
     }
 
     @Override
@@ -198,7 +198,7 @@ public class PulsarTableFactory implements DynamicTableSourceFactory {
     @Override
     public Set<ConfigOption<?>> forwardOptions() {
         return Stream.of(
-                TOPICS,
+                TOPIC,
                 ADMIN_URL,
                 SERVICE_URL,
                 SOURCE_SUBSCRIPTION_TYPE,

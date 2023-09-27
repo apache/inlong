@@ -52,7 +52,7 @@ import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AFTER
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AT_MESSAGE_ID;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AT_PUBLISH_TIME;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_SUBSCRIPTION_TYPE;
-import static org.apache.inlong.sort.pulsar.PulsarTableOptions.TOPICS;
+import static org.apache.inlong.sort.pulsar.PulsarTableOptions.TOPIC;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.VALUE_FORMAT;
 
 /**
@@ -151,7 +151,7 @@ public class PulsarTableOptionUtils {
     // --------------------------------------------------------------------------------------------
 
     public static List<String> getTopicListFromOptions(ReadableConfig tableOptions) {
-        return tableOptions.get(TOPICS);
+        return tableOptions.get(TOPIC);
     }
 
     public static Properties getPulsarProperties(ReadableConfig tableOptions) {

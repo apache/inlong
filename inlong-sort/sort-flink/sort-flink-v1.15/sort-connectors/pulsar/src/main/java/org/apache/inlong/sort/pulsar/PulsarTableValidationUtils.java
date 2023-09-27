@@ -42,7 +42,7 @@ import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AFTER
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AT_MESSAGE_ID;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AT_PUBLISH_TIME;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_SUBSCRIPTION_TYPE;
-import static org.apache.inlong.sort.pulsar.PulsarTableOptions.TOPICS;
+import static org.apache.inlong.sort.pulsar.PulsarTableOptions.TOPIC;
 import static org.apache.pulsar.common.naming.TopicName.isValid;
 
 /** Util class for source and sink validation rules.
@@ -78,11 +78,11 @@ public class PulsarTableValidationUtils {
     }
 
     protected static void validateTopicsConfigs(ReadableConfig tableOptions) {
-        if (tableOptions.get(TOPICS).isEmpty()) {
+        if (tableOptions.get(TOPIC).isEmpty()) {
             throw new ValidationException("The topics list should not be empty.");
         }
 
-        for (String topic : tableOptions.get(TOPICS)) {
+        for (String topic : tableOptions.get(TOPIC)) {
             if (!isValid(topic)) {
                 throw new ValidationException(
                         String.format("The topics name %s is not a valid topic name.", topic));
