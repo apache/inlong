@@ -15,35 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sink;
+package org.apache.inlong.manager.service.resource.sink;
 
-import io.swagger.annotations.ApiModel;
-import lombok.Data;
+import org.springframework.stereotype.Service;
 
-/**
- * Sink info - with stream
- */
-@Data
-@ApiModel("Sink info - with stream")
-public class SinkInfo {
+@Service
+public class TestStandaloneSinkResourceOperator extends AbstractStandaloneSinkResourceOperator {
 
-    private Integer id;
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private String sinkType;
-    private String inlongClusterName;
-    private String sinkName;
-    private String dataNodeName;
-    private String description;
-    private Integer enableCreateResource;
-    private String extParams;
-    private Integer status;
-    private String creator;
-
-    // Inlong stream info
-    private String mqResource;
-    private String dataType;
-    private String sourceSeparator; // Source separator configured in the stream info
-    private String dataEscapeChar;
-
+    @Override
+    public Boolean accept(String sinkType) {
+        return null;
+    }
 }
