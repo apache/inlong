@@ -121,6 +121,9 @@ public class InlongStreamRequest extends BaseInlongStream {
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value")
     private boolean ignoreParseError = true;
 
+    @ApiModelProperty(value = "If support extended fields")
+    private Boolean supportExtendedFields = false;
+
     @ApiModelProperty(value = "The message body  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, PB, etc")
     private String wrapType;
 
