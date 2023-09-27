@@ -25,6 +25,7 @@ import styles from './index.module.less';
 export interface CheckCardOption {
   label: string;
   value: string | number;
+  image?: string | Promise<{ default: string }>;
 }
 
 export interface CheckCardProps {
@@ -62,13 +63,9 @@ const CheckCard: React.FC<CheckCardProps> = ({ options, value, onChange, disable
     */
     (async () => {
       setLogoMap(
-        (
-          await Promise.allSettled(options.map(option => import(`./logo/${option.label}.png`)))
-        ).reduce((res, item) => {
-          if (item.status === 'fulfilled') {
-            const {
-              value: { default: url },
-            } = item;
+        (await Promise.allSettled(options.map(option => option.image))).reduce((res, item) => {
+          if (item.status === 'fulfilled' && item.value) {
+            const url = typeof item.value === 'string' ? item.value : item.value.default;
             res[url.split('/').pop().split('.').shift()] = url;
           }
           return res;
