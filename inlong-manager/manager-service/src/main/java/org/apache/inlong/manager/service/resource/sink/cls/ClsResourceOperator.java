@@ -17,6 +17,28 @@
 
 package org.apache.inlong.manager.service.resource.sink.cls;
 
+import com.tencentcloudapi.cls.v20201016.ClsClient;
+import com.tencentcloudapi.cls.v20201016.models.CreateIndexRequest;
+import com.tencentcloudapi.cls.v20201016.models.CreateTopicRequest;
+import com.tencentcloudapi.cls.v20201016.models.CreateTopicResponse;
+import com.tencentcloudapi.cls.v20201016.models.DescribeIndexRequest;
+import com.tencentcloudapi.cls.v20201016.models.DescribeIndexResponse;
+import com.tencentcloudapi.cls.v20201016.models.DescribeTopicsRequest;
+import com.tencentcloudapi.cls.v20201016.models.DescribeTopicsResponse;
+import com.tencentcloudapi.cls.v20201016.models.Filter;
+import com.tencentcloudapi.cls.v20201016.models.FullTextInfo;
+import com.tencentcloudapi.cls.v20201016.models.ModifyIndexRequest;
+import com.tencentcloudapi.cls.v20201016.models.RuleInfo;
+import com.tencentcloudapi.cls.v20201016.models.Tag;
+import com.tencentcloudapi.cls.v20201016.models.TopicInfo;
+import com.tencentcloudapi.common.Credential;
+import com.tencentcloudapi.common.exception.TencentCloudSDKException;
+import com.tencentcloudapi.common.profile.ClientProfile;
+import com.tencentcloudapi.common.profile.HttpProfile;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.directory.api.util.Strings;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
@@ -32,25 +54,6 @@ import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.cls.ClsSinkDTO;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-
-import com.tencentcloudapi.cls.v20201016.ClsClient;
-import com.tencentcloudapi.cls.v20201016.models.CreateIndexRequest;
-import com.tencentcloudapi.cls.v20201016.models.CreateTopicRequest;
-import com.tencentcloudapi.cls.v20201016.models.CreateTopicResponse;
-import com.tencentcloudapi.cls.v20201016.models.DescribeTopicsRequest;
-import com.tencentcloudapi.cls.v20201016.models.DescribeTopicsResponse;
-import com.tencentcloudapi.cls.v20201016.models.Filter;
-import com.tencentcloudapi.cls.v20201016.models.FullTextInfo;
-import com.tencentcloudapi.cls.v20201016.models.RuleInfo;
-import com.tencentcloudapi.cls.v20201016.models.Tag;
-import com.tencentcloudapi.cls.v20201016.models.TopicInfo;
-import com.tencentcloudapi.common.Credential;
-import com.tencentcloudapi.common.exception.TencentCloudSDKException;
-import com.tencentcloudapi.common.profile.ClientProfile;
-import com.tencentcloudapi.common.profile.HttpProfile;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.directory.api.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +106,7 @@ public class ClsResourceOperator implements SinkResourceOperator {
             clsSinkDTO.setTopicId(topicID);
             sinkInfo.setExtParams(JsonUtils.toJsonString(clsSinkDTO));
             // create topic index by tokenizer
-            this.createTopicIndex(sinkInfo);
+            this.createTopicIndex(sinkInfo, clsDataNode);
             // update set topic id into sink info
             updateSinkInfo(sinkInfo, clsSinkDTO);
             String info = "success to create cls resource";
@@ -156,22 +159,21 @@ public class ClsResourceOperator implements SinkResourceOperator {
     /**
      * Create topic index by tokenizer
      */
-    private void createTopicIndex(SinkInfo sinkInfo) throws BusinessException {
+    private void createTopicIndex(SinkInfo sinkInfo, ClsDataNodeDTO clsDataNode) throws BusinessException {
+
         ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(sinkInfo.getExtParams(), ClsSinkDTO.class);
         if (StringUtils.isEmpty(clsSinkDTO.getTokenizer())) {
             LOG.warn("topic {} tokenizer is empty", clsSinkDTO.getTopicName());
             return;
         }
-        ClsDataNodeDTO clsDataNode = getClsDataNode(sinkInfo);
+        FullTextInfo topicIndexFullText = getTopicIndexFullText(sinkInfo, clsDataNode);
+        if (ObjectUtils.anyNotNull(topicIndexFullText)) {
+            // if topic index exist,update
+            updateTopicIndex(sinkInfo, clsDataNode);
+            return;
+        }
         ClsClient clsClient = getClsClient(clsDataNode);
-        RuleInfo ruleInfo = new RuleInfo();
-        FullTextInfo fullTextInfo = new FullTextInfo();
-        fullTextInfo.setTokenizer(clsSinkDTO.getTokenizer());
-        ruleInfo.setFullText(fullTextInfo);
-
-        CreateIndexRequest req = new CreateIndexRequest();
-        req.setTopicId(clsSinkDTO.getTopicId());
-        req.setRule(ruleInfo);
+        CreateIndexRequest req = getCreateIndexRequest(clsSinkDTO);
         try {
             clsClient.CreateIndex(req);
         } catch (TencentCloudSDKException e) {
@@ -183,6 +185,42 @@ public class ClsResourceOperator implements SinkResourceOperator {
         LOG.info("topic {} create index success tokenizer is {}", clsSinkDTO.getTopicName(), clsSinkDTO.getTokenizer());
     }
 
+    private CreateIndexRequest getCreateIndexRequest(ClsSinkDTO clsSinkDTO) {
+        RuleInfo ruleInfo = new RuleInfo();
+        FullTextInfo fullTextInfo = new FullTextInfo();
+        fullTextInfo.setTokenizer(clsSinkDTO.getTokenizer());
+        ruleInfo.setFullText(fullTextInfo);
+
+        CreateIndexRequest req = new CreateIndexRequest();
+        req.setTopicId(clsSinkDTO.getTopicId());
+        req.setRule(ruleInfo);
+        return req;
+    }
+
+    private void updateTopicIndex(SinkInfo sinkInfo, ClsDataNodeDTO clsDataNode) {
+        ClsClient clsClient = getClsClient(clsDataNode);
+        ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(sinkInfo.getExtParams(), ClsSinkDTO.class);
+        RuleInfo ruleInfo = new RuleInfo();
+        FullTextInfo fullTextInfo1 = new FullTextInfo();
+        fullTextInfo1.setTokenizer(clsSinkDTO.getTokenizer());
+        ruleInfo.setFullText(fullTextInfo1);
+
+        ModifyIndexRequest req = new ModifyIndexRequest();
+        req.setTopicId(clsSinkDTO.getTopicId());
+        req.setRule(ruleInfo);
+        try {
+            clsClient.ModifyIndex(req);
+        } catch (TencentCloudSDKException e) {
+            String errMsg = "update cls topic index failed: " + e.getMessage();
+            LOG.error(errMsg, e);
+            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
+            throw new BusinessException(errMsg);
+        }
+    }
+
+    /**
+     * Describe cls topicId by topic name
+     */
     private String describeTopicIDByTopicName(SinkInfo sinkInfo, ClsDataNodeDTO clsDataNode) {
         ClsClient clsClient = getClsClient(clsDataNode);
         ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(sinkInfo.getExtParams(), ClsSinkDTO.class);
@@ -206,6 +244,26 @@ public class ClsResourceOperator implements SinkResourceOperator {
         }
     }
 
+    /**
+     * Get cls topic index full text
+     */
+    private FullTextInfo getTopicIndexFullText(SinkInfo sinkInfo, ClsDataNodeDTO clsDataNode) {
+        ClsClient clsClient = getClsClient(clsDataNode);
+        ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(sinkInfo.getExtParams(), ClsSinkDTO.class);
+
+        DescribeIndexRequest req = new DescribeIndexRequest();
+        req.setTopicId(clsSinkDTO.getTopicId());
+        try {
+            DescribeIndexResponse resp = clsClient.DescribeIndex(req);
+            return resp.getRule() == null ? null : resp.getRule().getFullText();
+        } catch (TencentCloudSDKException e) {
+            String errMsg = "describe cls topic index failed: " + e.getMessage();
+            LOG.error(errMsg, e);
+            throw new BusinessException(errMsg);
+        }
+    }
+
+
     private Filter[] getDescribeFilters(ClsDataNodeDTO clsDataNode, ClsSinkDTO clsSinkDTO) {
         Filter filter = new Filter();
         String[] filterValues = new String[1];
@@ -213,9 +271,9 @@ public class ClsResourceOperator implements SinkResourceOperator {
         filter.setKey(TOPIC_NAME);
         filter.setValues(filterValues);
         Filter filter1 = new Filter();
-        filterValues[0] = clsDataNode.getLogSetId();
+        String[] filterValues1 = new String[]{clsDataNode.getLogSetId()};
         filter1.setKey(LOG_SET_ID);
-        filter1.setValues(filterValues);
+        filter1.setValues(filterValues1);
         return new Filter[]{filter, filter1};
     }
 
