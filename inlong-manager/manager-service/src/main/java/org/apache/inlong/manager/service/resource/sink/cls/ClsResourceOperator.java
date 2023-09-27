@@ -17,6 +17,22 @@
 
 package org.apache.inlong.manager.service.resource.sink.cls;
 
+import org.apache.inlong.manager.common.consts.DataNodeType;
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.SinkStatus;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.dao.entity.DataNodeEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
+import org.apache.inlong.manager.pojo.node.cls.ClsDataNodeDTO;
+import org.apache.inlong.manager.pojo.sink.SinkInfo;
+import org.apache.inlong.manager.pojo.sink.cls.ClsSinkDTO;
+import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
+import org.apache.inlong.manager.service.sink.StreamSinkService;
+
 import com.tencentcloudapi.cls.v20201016.ClsClient;
 import com.tencentcloudapi.cls.v20201016.models.CreateIndexRequest;
 import com.tencentcloudapi.cls.v20201016.models.CreateTopicRequest;
@@ -39,21 +55,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.directory.api.util.Strings;
-import org.apache.inlong.manager.common.consts.DataNodeType;
-import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.common.enums.SinkStatus;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.dao.entity.DataNodeEntity;
-import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
-import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
-import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
-import org.apache.inlong.manager.pojo.node.cls.ClsDataNodeDTO;
-import org.apache.inlong.manager.pojo.sink.SinkInfo;
-import org.apache.inlong.manager.pojo.sink.cls.ClsSinkDTO;
-import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
-import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -263,7 +264,6 @@ public class ClsResourceOperator implements SinkResourceOperator {
             throw new BusinessException(errMsg);
         }
     }
-
 
     private Filter[] getDescribeFilters(ClsDataNodeDTO clsDataNode, ClsSinkDTO clsSinkDTO) {
         Filter filter = new Filter();
