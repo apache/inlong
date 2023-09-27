@@ -101,6 +101,7 @@ public class ClsResourceOperator implements SinkResourceOperator {
         try {
             String topicID = describeTopicIDByTopicName(sinkInfo, clsDataNode);
             if (Strings.isEmpty(topicID)) {
+                // if topic don't exist,create topic in cls
                 topicID = createTopicReturnTopicId(clsDataNode, clsSinkDTO);
             }
             clsSinkDTO.setTopicId(topicID);
