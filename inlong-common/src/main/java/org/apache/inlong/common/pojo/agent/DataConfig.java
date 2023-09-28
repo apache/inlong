@@ -47,6 +47,7 @@ public class DataConfig {
     private String snapshot;
     private Integer syncSend;
     private String syncPartitionKey;
+    private Integer state;
     private String extParams;
     /**
      * The task version.

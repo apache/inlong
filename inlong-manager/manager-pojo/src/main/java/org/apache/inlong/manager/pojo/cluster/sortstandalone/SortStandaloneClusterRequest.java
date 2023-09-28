@@ -15,35 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sink;
+package org.apache.inlong.manager.pojo.cluster.sortstandalone;
+
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-/**
- * Sink info - with stream
- */
+import java.util.Set;
+
 @Data
-@ApiModel("Sink info - with stream")
-public class SinkInfo {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(value = ClusterType.SORTSTANDALONE)
+@ApiModel("Inlong cluster request for SortStandalone")
+public class SortStandaloneClusterRequest extends ClusterRequest {
 
-    private Integer id;
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private String sinkType;
-    private String inlongClusterName;
-    private String sinkName;
-    private String dataNodeName;
-    private String description;
-    private Integer enableCreateResource;
-    private String extParams;
-    private Integer status;
-    private String creator;
+    @ApiModelProperty(value = "Supported sink types")
+    private Set<String> supportedSinkTypes;
 
-    // Inlong stream info
-    private String mqResource;
-    private String dataType;
-    private String sourceSeparator; // Source separator configured in the stream info
-    private String dataEscapeChar;
+    public SortStandaloneClusterRequest() {
+        this.setType(ClusterType.SORTSTANDALONE);
+    }
 
 }

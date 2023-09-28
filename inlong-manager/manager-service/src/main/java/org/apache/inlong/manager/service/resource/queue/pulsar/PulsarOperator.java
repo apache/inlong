@@ -454,7 +454,7 @@ public class PulsarOperator {
             int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
                     Integer.toString(MessageWrapType.INLONG_MSG_V0.getId())));
             DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
-                            MessageWrapType.valueOf(wrapTypeId));
+                    MessageWrapType.valueOf(wrapTypeId));
             briefMQMessages.addAll(deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getBody(),
                     headers, index));
         } catch (Exception e) {

@@ -56,7 +56,7 @@ export default class ElasticsearchSink
     type: NodeSelect,
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       nodeType: 'ELASTICSEARCH',
     }),
   })
@@ -68,7 +68,7 @@ export default class ElasticsearchSink
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -81,7 +81,7 @@ export default class ElasticsearchSink
     rules: [{ required: true }],
     tooltip: i18n.t('meta.Sinks.ES.PrimaryKeyHelp'),
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -93,7 +93,7 @@ export default class ElasticsearchSink
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -107,7 +107,7 @@ export default class ElasticsearchSink
     initialValue: 1,
     tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: i18n.t('basic.Yes'),
@@ -131,7 +131,7 @@ export default class ElasticsearchSink
     suffix: i18n.t('meta.Sinks.ES.FlushRecordUnit'),
     props: values => ({
       min: 1,
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -146,7 +146,7 @@ export default class ElasticsearchSink
     suffix: i18n.t('meta.Sinks.ES.RetryTimesUnit'),
     props: values => ({
       min: 1,
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -160,7 +160,7 @@ export default class ElasticsearchSink
     tooltip: i18n.t('meta.Sinks.ES.EsVersionHelp'),
     props: values => ({
       min: 1,
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -172,7 +172,7 @@ export default class ElasticsearchSink
     type: EditableTable,
     props: values => ({
       size: 'small',
-      editing: ![110, 130].includes(values?.status),
+      editing: ![110].includes(values?.status),
       columns: getFieldListColumns(values),
       canBatchAdd: true,
       upsertByFieldKey: true,
@@ -195,7 +195,7 @@ const getFieldListColumns = sinkValues => {
         },
       ],
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {
@@ -204,7 +204,7 @@ const getFieldListColumns = sinkValues => {
       initialValue: esTypes[0].value,
       type: 'select',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
         options: esTypes,
       }),
       rules: [{ required: true, message: `${i18n.t('meta.Sinks.FieldTypeMessage')}` }],
@@ -214,7 +214,7 @@ const getFieldListColumns = sinkValues => {
       dataIndex: 'analyzer',
       type: 'input',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
       visible: (text, record) => record.fieldType === 'text',
     },
@@ -222,7 +222,7 @@ const getFieldListColumns = sinkValues => {
       title: 'SearchAnalyzer',
       dataIndex: 'searchAnalyzer',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
       visible: (text, record) => record.fieldType === 'text',
     },
@@ -230,7 +230,7 @@ const getFieldListColumns = sinkValues => {
       title: i18n.t('meta.Sinks.ES.DateFormat'),
       dataIndex: 'format',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
       visible: (text, record) => record.fieldType === 'date',
     },
@@ -238,7 +238,7 @@ const getFieldListColumns = sinkValues => {
       title: 'ScalingFactor',
       dataIndex: 'scalingFactor',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
       visible: (text, record) => record.fieldType === 'scaled_float',
     },
@@ -246,7 +246,7 @@ const getFieldListColumns = sinkValues => {
       title: i18n.t('meta.Sinks.ES.FieldDescription'),
       dataIndex: 'fieldComment',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
     },
   ];

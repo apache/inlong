@@ -15,35 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sink;
+-- This is the SQL change file from version 1.9.0 to the current version 1.10.0.
+-- When upgrading to version 1.10.0, please execute those SQLs in the DB (such as MySQL) used by the Manager module.
 
-import io.swagger.annotations.ApiModel;
-import lombok.Data;
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
 
-/**
- * Sink info - with stream
- */
-@Data
-@ApiModel("Sink info - with stream")
-public class SinkInfo {
+USE `apache_inlong_manager`;
 
-    private Integer id;
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private String sinkType;
-    private String inlongClusterName;
-    private String sinkName;
-    private String dataNodeName;
-    private String description;
-    private Integer enableCreateResource;
-    private String extParams;
-    private Integer status;
-    private String creator;
+ALTER TABLE `inlong_stream`
+    ADD COLUMN `wrap_type` varchar(256) DEFAULT 'INLONG_MSG_V0' COMMENT 'The message body wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc';
 
-    // Inlong stream info
-    private String mqResource;
-    private String dataType;
-    private String sourceSeparator; // Source separator configured in the stream info
-    private String dataEscapeChar;
 
-}
+
+

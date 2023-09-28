@@ -98,7 +98,7 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
     type: 'radio',
     initialValue: 'CSV',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: 'CSV',
@@ -128,7 +128,7 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
     rules: [{ required: true }],
     initialValue: true,
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: i18n.t('basic.Yes'),
@@ -148,7 +148,7 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
     type: 'radio',
     initialValue: 'UTF-8',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: 'UTF-8',
@@ -169,7 +169,7 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
     type: 'select',
     initialValue: '124',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       dropdownMatchSelectWidth: false,
       options: [
         {
@@ -220,7 +220,7 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
     type: EditableTable,
     props: values => ({
       size: 'small',
-      canDelete: record => !(record.id && [110, 130].includes(values?.status)),
+      canDelete: record => !(record.id && [110].includes(values?.status)),
       canBatchAdd: true,
       columns: [
         {
@@ -234,7 +234,7 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
             },
           ],
           props: (text, record) => ({
-            disabled: record.id && [110, 130].includes(values?.status),
+            disabled: record.id && [110].includes(values?.status),
           }),
         },
         {
@@ -243,7 +243,7 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
           type: 'select',
           initialValue: sourceFieldsTypes[0].value,
           props: (text, record) => ({
-            disabled: record.id && [110, 130].includes(values?.status),
+            disabled: record.id && [110].includes(values?.status),
             options: sourceFieldsTypes,
           }),
           rules: [{ required: true }],
@@ -265,7 +265,7 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
     initialValue: true,
     tooltip: i18n.t('meta.Stream.WrapWithInlongMsgHelp'),
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: i18n.t('basic.Yes'),

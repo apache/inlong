@@ -114,6 +114,7 @@ public interface Metadata {
             case BATCH_ID:
             case PARTITION:
             case OFFSET:
+            case AUDIT_DATA_TIME:
                 metadataType = "BIGINT";
                 break;
             case UPDATE_BEFORE:
