@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.queue.tubemq;
 
-import org.apache.inlong.common.enums.DataProxyMsgEncType;
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.HttpUtils;
@@ -303,10 +303,10 @@ public class TubeMQOperator {
                 }
 
                 int wrapTypeId = Integer.parseInt(map.getOrDefault(InlongConstants.MSG_ENCODE_VER,
-                        Integer.toString(DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId())));
+                        Integer.toString(MessageWrapType.INLONG_MSG_V0.getId())));
                 byte[] messageData = Base64.getDecoder().decode(tubeDataInfo.getData());
                 DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
-                        DataProxyMsgEncType.valueOf(wrapTypeId));
+                        MessageWrapType.valueOf(wrapTypeId));
                 messageList.addAll(deserializeOperator.decodeMsg(streamInfo, messageData, map, index));
             }
 

@@ -48,7 +48,6 @@ import org.apache.inlong.manager.service.core.AuditService;
 import org.apache.inlong.manager.service.resource.sink.ck.ClickHouseConfig;
 import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi;
 
-import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.jdbc.SQL;
@@ -239,6 +238,7 @@ public class AuditServiceImpl implements AuditService {
         // for now, we use the first sink type only.
         // this is temporary behavior before multiple sinks in one stream is fully supported.
         String sinkNodeType = null;
+        String sourceNodeType = null;
         Integer sinkId = request.getSinkId();
         StreamSinkEntity sinkEntity = null;
         List<StreamSinkEntity> sinkEntityList = sinkEntityMapper.selectByRelatedId(groupId, streamId);
@@ -253,10 +253,23 @@ public class AuditServiceImpl implements AuditService {
             sinkNodeType = sinkEntity.getSinkType();
         }
 
-        Set<String> sinkAuditIds = Sets.newHashSet(getAuditId(sinkNodeType, true), getAuditId(sinkNodeType, false));
+        InlongGroupEntity groupEntity = inlongGroupMapper.selectByGroupId(groupId);
+        List<StreamSourceEntity> sourceEntityList = sourceEntityMapper.selectByRelatedId(groupId, streamId, null);
+        if (CollectionUtils.isNotEmpty(sourceEntityList)) {
+            sourceNodeType = sourceEntityList.get(0).getSourceType();
+        }
+
+        Map<String, String> auditIdMap = new HashMap<>();
+        auditIdMap.put(getAuditId(sinkNodeType, true), sinkNodeType);
 
         // properly overwrite audit ids by role and stream config
-        request.setAuditIds(getAuditIds(groupId, streamId, sinkNodeType));
+        if (InlongConstants.DATASYNC_MODE.equals(groupEntity.getInlongGroupMode())) {
+            auditIdMap.put(getAuditId(sourceNodeType, false), sourceNodeType);
+            request.setAuditIds(getAuditIds(groupId, streamId, sourceNodeType, sinkNodeType));
+        } else {
+            auditIdMap.put(getAuditId(sinkNodeType, false), sinkNodeType);
+            request.setAuditIds(getAuditIds(groupId, streamId, null, sinkNodeType));
+        }
 
         List<AuditVO> result = new ArrayList<>();
         AuditQuerySource querySource = AuditQuerySource.valueOf(auditQuerySource);
@@ -275,7 +288,7 @@ public class AuditServiceImpl implements AuditService {
                     vo.setDelay(((BigDecimal) s.get("totalDelay")).longValue());
                     return vo;
                 }).collect(Collectors.toList());
-                result.add(new AuditVO(auditId, auditSet, sinkAuditIds.contains(auditId) ? sinkNodeType : null));
+                result.add(new AuditVO(auditId, auditSet, auditIdMap.getOrDefault(auditId, null)));
             } else if (AuditQuerySource.ELASTICSEARCH == querySource) {
                 String index = String.format("%s_%s", request.getStartDate().replaceAll("-", ""), auditId);
                 if (!elasticsearchApi.indexExists(index)) {
@@ -294,8 +307,7 @@ public class AuditServiceImpl implements AuditService {
                             vo.setDelay((long) ((ParsedSum) bucket.getAggregations().asList().get(1)).getValue());
                             return vo;
                         }).collect(Collectors.toList());
-                        result.add(new AuditVO(auditId, auditSet,
-                                auditId.equals(getAuditId(sinkNodeType, true)) ? sinkNodeType : null));
+                        result.add(new AuditVO(auditId, auditSet, auditIdMap.getOrDefault(auditId, null)));
                     }
                 }
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
@@ -312,8 +324,7 @@ public class AuditServiceImpl implements AuditService {
                         vo.setDelay(resultSet.getLong("total_delay"));
                         auditSet.add(vo);
                     }
-                    result.add(new AuditVO(auditId, auditSet,
-                            auditId.equals(getAuditId(sinkNodeType, true)) ? sinkNodeType : null));
+                    result.add(new AuditVO(auditId, auditSet, auditIdMap.getOrDefault(auditId, null)));
                 }
             }
         }
@@ -321,7 +332,7 @@ public class AuditServiceImpl implements AuditService {
         return aggregateByTimeDim(result, request.getTimeStaticsDim());
     }
 
-    private List<String> getAuditIds(String groupId, String streamId, String sinkNodeType) {
+    private List<String> getAuditIds(String groupId, String streamId, String sourceNodeType, String sinkNodeType) {
         Set<String> auditSet = LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.TENANT_ADMIN)
                 ? new HashSet<>(auditIdListForAdmin)
                 : new HashSet<>(auditIdListForUser);
@@ -330,10 +341,12 @@ public class AuditServiceImpl implements AuditService {
         if (sinkNodeType == null) {
             auditSet.add(getAuditId(ClusterType.DATAPROXY, true));
         } else {
-            auditSet.add(getAuditId(sinkNodeType, false));
+            auditSet.add(getAuditId(sinkNodeType, true));
             InlongGroupEntity inlongGroup = inlongGroupMapper.selectByGroupId(groupId);
             if (InlongConstants.DATASYNC_MODE.equals(inlongGroup.getInlongGroupMode())) {
-                auditSet.add(getAuditId(sinkNodeType, true));
+                auditSet.add(getAuditId(sourceNodeType, false));
+            } else {
+                auditSet.add(getAuditId(sinkNodeType, false));
             }
         }
 
