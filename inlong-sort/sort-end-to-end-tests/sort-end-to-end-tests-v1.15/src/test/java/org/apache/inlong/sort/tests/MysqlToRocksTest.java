@@ -17,13 +17,13 @@
 
 package org.apache.inlong.sort.tests;
 
-
 import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
+import org.apache.inlong.sort.tests.utils.JdbcProxy;
+import org.apache.inlong.sort.tests.utils.MySqlContainer;
 import org.apache.inlong.sort.tests.utils.StarRocksContainer;
 import org.apache.inlong.sort.tests.utils.StarRocksManager;
 import org.apache.inlong.sort.tests.utils.TestUtils;
-import org.apache.inlong.sort.tests.utils.MySqlContainer;
-import org.apache.inlong.sort.tests.utils.JdbcProxy;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -44,14 +44,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.INTER_CONTAINER_STAR_ROCKS_ALIAS;
-import static org.apache.inlong.sort.tests.utils.StarRocksManager.buildStarRocksImage;
-import static org.apache.inlong.sort.tests.utils.StarRocksManager.getNewStarRocksImageName;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.STAR_ROCKS_LOG;
+import static org.apache.inlong.sort.tests.utils.StarRocksManager.getNewStarRocksImageName;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStarRocksTable;
 
 /**
  * End-to-end tests for sort-connector-postgres-cdc-v1.15 uber jar.
- * Test flink sql Postgres cdc to StarRocks
+ * Test flink sql Mysql cdc to StarRocks
  */
 public class MysqlToRocksTest extends FlinkContainerTestEnv {
 
@@ -62,11 +61,10 @@ public class MysqlToRocksTest extends FlinkContainerTestEnv {
     private static final Path mysqlJdbcJar = TestUtils.getResource("mysql-driver.jar");
     private static final String sqlFile;
 
-
     static {
         try {
             sqlFile =
-                    Paths.get(PostgresToStarRocksTest.class.getResource("/flinkSql/mysql_test.sql").toURI()).toString();
+                    Paths.get(MysqlToRocksTest.class.getResource("/flinkSql/mysql_test.sql").toURI()).toString();
             StarRocksManager.buildStarRocksImage();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -140,9 +138,9 @@ public class MysqlToRocksTest extends FlinkContainerTestEnv {
 
         // generate input
         try (Connection conn =
-                     DriverManager.getConnection(MYSQL_CONTAINER.getJdbcUrl(), MYSQL_CONTAINER.getUsername(),
-                             MYSQL_CONTAINER.getPassword());
-             Statement stat = conn.createStatement()) {
+                DriverManager.getConnection(MYSQL_CONTAINER.getJdbcUrl(), MYSQL_CONTAINER.getUsername(),
+                        MYSQL_CONTAINER.getPassword());
+                Statement stat = conn.createStatement()) {
             stat.execute(
                     "INSERT INTO test_input1 "
                             + "VALUES (1,'jacket','water resistent white wind breaker');");
