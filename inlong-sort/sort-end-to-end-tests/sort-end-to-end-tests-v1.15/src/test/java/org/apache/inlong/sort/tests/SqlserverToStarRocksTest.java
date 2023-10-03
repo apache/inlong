@@ -49,19 +49,16 @@ import java.util.stream.Stream;
 
 public class SqlserverToStarRocksTest extends FlinkContainerTestEnv {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PostgresToStarRocksTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SqlserverToStarRocksTest.class);
 
     private static final Path sqlserverJar = TestUtils.getResource("sort-connector-sqlserver-cdc.jar");
     private static final Path jdbcJar = TestUtils.getResource("sort-connector-starrocks.jar");
-    private static final Path mssqlJar = TestUtils.getResource("mssql-driver.jar");
 
     private static final Path mysqlJar = TestUtils.getResource("mysql-driver.jar");
 
     private static final Logger STAR_ROCKS_LOG = LoggerFactory.getLogger(StarRocksContainer.class);
 
     private static final String sqlFile;
-
-    private static final String sqlserverSetupFile;
 
     // ----------------------------------------------------------------------------------------
     // StarRocks Variables
@@ -75,8 +72,6 @@ public class SqlserverToStarRocksTest extends FlinkContainerTestEnv {
         try {
             sqlFile = Paths.get(SqlserverToStarRocksTest.class.getResource("/flinkSql/sqlserver_test.sql").toURI())
                     .toString();
-            sqlserverSetupFile = Paths
-                    .get(SqlserverToStarRocksTest.class.getResource("/docker/sqlserver/setup.sql").toURI()).toString();
             buildStarRocksImage();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -130,6 +125,10 @@ public class SqlserverToStarRocksTest extends FlinkContainerTestEnv {
 
     private void initializeSqlserverTable() {
         try {
+            // Waiting for MSSQL Agent started.
+            LOG.info("Sleep until the MSSQL Agent is started...");
+            Thread.sleep(20 * 1000);
+            LOG.info("Now continue initialize task...");
             Class.forName(SQLSERVER_CONTAINER.getDriverClassName());
             Connection conn = DriverManager
                     .getConnection(SQLSERVER_CONTAINER.getJdbcUrl(), SQLSERVER_CONTAINER.getUsername(),
@@ -174,8 +173,7 @@ public class SqlserverToStarRocksTest extends FlinkContainerTestEnv {
             stat.execute("CREATE TABLE IF NOT EXISTS test_output1 (\n"
                     + "       id INT NOT NULL,\n"
                     + "       name VARCHAR(255) NOT NULL DEFAULT 'flink',\n"
-                    + "       description VARCHAR(512)\n,"
-                    + "       tag VARCHAR(255)\n"
+                    + "       description VARCHAR(512)\n"
                     + ")\n"
                     + "PRIMARY KEY(id)\n"
                     + "DISTRIBUTED by HASH(id) PROPERTIES (\"replication_num\" = \"1\");");
@@ -201,7 +199,7 @@ public class SqlserverToStarRocksTest extends FlinkContainerTestEnv {
      */
     @Test
     public void testSqlserverUpdateAndDelete() throws Exception {
-        submitSQLJob(sqlFile, jdbcJar, sqlserverJar, mssqlJar, mysqlJar);
+        submitSQLJob(sqlFile, jdbcJar, sqlserverJar, mysqlJar);
         waitUntilJobRunning(Duration.ofSeconds(10));
 
         // generate input
@@ -215,6 +213,15 @@ public class SqlserverToStarRocksTest extends FlinkContainerTestEnv {
                             "INSERT INTO test_input1 (id, name, description) "
                             + "VALUES (1, 'jacket','water resistent white wind breaker');" +
                             "SET IDENTITY_INSERT test_input1 OFF;");
+            stat.execute(
+                    "SET IDENTITY_INSERT test_input1 ON;" +
+                            "INSERT INTO test_input1 (id, name, description) " +
+                            "VALUES (2,'scooter','Big 2-wheel scooter ');" +
+                            "SET IDENTITY_INSERT test_input1 OFF;");
+            stat.execute(
+                    "update test_input1 set name = 'tom' where id = 2;");
+            stat.execute(
+                    "delete from test_input1 where id = 1;");
         } catch (SQLException e) {
             LOG.error("Update table for CDC failed.", e);
             throw e;
@@ -225,7 +232,7 @@ public class SqlserverToStarRocksTest extends FlinkContainerTestEnv {
                         STAR_ROCKS.getPassword(),
                         STAR_ROCKS.getDriverClassName());
         List<String> expectResult =
-                Arrays.asList("1,jacket,water resistent white wind breaker");
+                Arrays.asList("2,tom,Big 2-wheel scooter ");
         proxy.checkResultWithTimeout(
                 expectResult,
                 "test_output1",

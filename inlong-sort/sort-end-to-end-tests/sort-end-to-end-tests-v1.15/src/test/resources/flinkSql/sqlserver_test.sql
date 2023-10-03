@@ -25,9 +25,9 @@ CREATE TABLE test_output1 (
     'table-name' = 'test_output1',
     'username' = 'inlong',
     'password' = 'inlong',
-    'sink.buffer-flush.interval-ms' = '5000',
-    'sink.properties.column_separator' = '\x01',
-    'sink.properties.row_delimiter' = '\x02'
+    'sink.properties.format' = 'json',
+    'sink.properties.strip_outer_array' = 'true',
+    'sink.buffer-flush.interval-ms' = '1000'
 );
 
 INSERT INTO test_output1 select * from test_input1;
