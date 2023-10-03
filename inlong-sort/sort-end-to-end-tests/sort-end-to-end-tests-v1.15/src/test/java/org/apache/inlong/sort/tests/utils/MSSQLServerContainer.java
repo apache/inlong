@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.inlong.sort.tests.utils;
 
 import com.google.common.collect.Sets;
@@ -10,6 +27,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class MSSQLServerContainer extends JdbcDatabaseContainer {
+
     private static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("mcr.microsoft.com/mssql/server");
     /** @deprecated */
     @Deprecated
@@ -69,7 +87,7 @@ public class MSSQLServerContainer extends JdbcDatabaseContainer {
 
     protected String constructUrlForConnection(String queryString) {
 
-        if (urlParameters.keySet().stream().map(sp -> ((String)sp).toLowerCase()).noneMatch("encrypt"::equals)) {
+        if (urlParameters.keySet().stream().map(sp -> ((String) sp).toLowerCase()).noneMatch("encrypt"::equals)) {
             urlParameters.put("encrypt", "false");
         }
         return super.constructUrlForConnection(queryString);
@@ -77,7 +95,8 @@ public class MSSQLServerContainer extends JdbcDatabaseContainer {
 
     public String getJdbcUrl() {
         String additionalUrlParams = this.constructUrlParameters(";", ";");
-        return "jdbc:sqlserver://" + this.getHost() + ":" + this.getMappedPort(MS_SQL_SERVER_PORT) + additionalUrlParams;
+        return "jdbc:sqlserver://" + this.getHost() + ":" + this.getMappedPort(MS_SQL_SERVER_PORT)
+                + additionalUrlParams;
     }
 
     public String getUsername() {
@@ -110,7 +129,8 @@ public class MSSQLServerContainer extends JdbcDatabaseContainer {
                 return p.matcher(password).find();
             }).count();
             if (satisfiedCategories < 3L) {
-                throw new IllegalArgumentException("Password must contain characters from three of the following four categories:\n - Latin uppercase letters (A through Z)\n - Latin lowercase letters (a through z)\n - Base 10 digits (0 through 9)\n - Non-alphanumeric characters such as: exclamation point (!), dollar sign ($), number sign (#), or percent (%).");
+                throw new IllegalArgumentException(
+                        "Password must contain characters from three of the following four categories:\n - Latin uppercase letters (A through Z)\n - Latin lowercase letters (a through z)\n - Base 10 digits (0 through 9)\n - Non-alphanumeric characters such as: exclamation point (!), dollar sign ($), number sign (#), or percent (%).");
             }
         }
     }
@@ -118,7 +138,7 @@ public class MSSQLServerContainer extends JdbcDatabaseContainer {
     static {
         IMAGE = DEFAULT_IMAGE_NAME.getUnversionedPart();
         MS_SQL_SERVER_PORT = 1433;
-        PASSWORD_CATEGORY_VALIDATION_PATTERNS = new Pattern[]{Pattern.compile("[A-Z]+"), Pattern.compile("[a-z]+"), Pattern.compile("[0-9]+"), Pattern.compile("[^a-zA-Z0-9]+", 2)};
+        PASSWORD_CATEGORY_VALIDATION_PATTERNS = new Pattern[]{Pattern.compile("[A-Z]+"), Pattern.compile("[a-z]+"),
+                Pattern.compile("[0-9]+"), Pattern.compile("[^a-zA-Z0-9]+", 2)};
     }
 }
-

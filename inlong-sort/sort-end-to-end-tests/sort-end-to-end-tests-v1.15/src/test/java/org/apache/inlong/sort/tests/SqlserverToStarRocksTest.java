@@ -1,6 +1,28 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.inlong.sort.tests;
 
-import org.apache.inlong.sort.tests.utils.*;
+import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
+import org.apache.inlong.sort.tests.utils.JdbcProxy;
+import org.apache.inlong.sort.tests.utils.MSSQLServerContainer;
+import org.apache.inlong.sort.tests.utils.StarRocksContainer;
+import org.apache.inlong.sort.tests.utils.TestUtils;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -51,8 +73,10 @@ public class SqlserverToStarRocksTest extends FlinkContainerTestEnv {
 
     static {
         try {
-            sqlFile = Paths.get(SqlserverToStarRocksTest.class.getResource("/flinkSql/sqlserver_test.sql").toURI()).toString();
-            sqlserverSetupFile = Paths.get(SqlserverToStarRocksTest.class.getResource("/docker/sqlserver/setup.sql").toURI()).toString();
+            sqlFile = Paths.get(SqlserverToStarRocksTest.class.getResource("/flinkSql/sqlserver_test.sql").toURI())
+                    .toString();
+            sqlserverSetupFile = Paths
+                    .get(SqlserverToStarRocksTest.class.getResource("/docker/sqlserver/setup.sql").toURI()).toString();
             buildStarRocksImage();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -81,21 +105,21 @@ public class SqlserverToStarRocksTest extends FlinkContainerTestEnv {
     }
 
     @ClassRule
-    public static StarRocksContainer STAR_ROCKS = (StarRocksContainer) new StarRocksContainer(getNewStarRocksImageName())
-            .withExposedPorts(9030, 8030, 8040)
-            .withNetwork(NETWORK)
-            .withAccessToHost(true)
-            .withNetworkAliases(INTER_CONTAINER_STAR_ROCKS_ALIAS)
-            .withLogConsumer(new Slf4jLogConsumer(STAR_ROCKS_LOG));
+    public static StarRocksContainer STAR_ROCKS =
+            (StarRocksContainer) new StarRocksContainer(getNewStarRocksImageName())
+                    .withExposedPorts(9030, 8030, 8040)
+                    .withNetwork(NETWORK)
+                    .withAccessToHost(true)
+                    .withNetworkAliases(INTER_CONTAINER_STAR_ROCKS_ALIAS)
+                    .withLogConsumer(new Slf4jLogConsumer(STAR_ROCKS_LOG));
 
     @ClassRule
-    public static final MSSQLServerContainer SQLSERVER_CONTAINER =(MSSQLServerContainer)  new MSSQLServerContainer(
-            DockerImageName.parse("mcr.microsoft.com/mssql/server").withTag("2022-latest")
-    )
-            .acceptLicense()
-            .withNetwork(NETWORK)
-            .withNetworkAliases("sqlserver")
-            .withLogConsumer(new Slf4jLogConsumer(LOG));
+    public static final MSSQLServerContainer SQLSERVER_CONTAINER = (MSSQLServerContainer) new MSSQLServerContainer(
+            DockerImageName.parse("mcr.microsoft.com/mssql/server").withTag("2022-latest"))
+                    .acceptLicense()
+                    .withNetwork(NETWORK)
+                    .withNetworkAliases("sqlserver")
+                    .withLogConsumer(new Slf4jLogConsumer(LOG));
 
     @Before
     public void setup() {
@@ -144,9 +168,9 @@ public class SqlserverToStarRocksTest extends FlinkContainerTestEnv {
 
     private void initializeStarRocksTable() {
         try (Connection conn =
-                     DriverManager.getConnection(STAR_ROCKS.getJdbcUrl(), STAR_ROCKS.getUsername(),
-                             STAR_ROCKS.getPassword());
-             Statement stat = conn.createStatement()) {
+                DriverManager.getConnection(STAR_ROCKS.getJdbcUrl(), STAR_ROCKS.getUsername(),
+                        STAR_ROCKS.getPassword());
+                Statement stat = conn.createStatement()) {
             stat.execute("CREATE TABLE IF NOT EXISTS test_output1 (\n"
                     + "       id INT NOT NULL,\n"
                     + "       name VARCHAR(255) NOT NULL DEFAULT 'flink',\n"
@@ -182,14 +206,14 @@ public class SqlserverToStarRocksTest extends FlinkContainerTestEnv {
 
         // generate input
         try (Connection conn =
-                     DriverManager.getConnection(SQLSERVER_CONTAINER.getJdbcUrl(), SQLSERVER_CONTAINER.getUsername(),
-                             SQLSERVER_CONTAINER.getPassword());
-             Statement stat = conn.createStatement()) {
+                DriverManager.getConnection(SQLSERVER_CONTAINER.getJdbcUrl(), SQLSERVER_CONTAINER.getUsername(),
+                        SQLSERVER_CONTAINER.getPassword());
+                Statement stat = conn.createStatement()) {
             stat.execute("USE test;");
             stat.execute(
                     "SET IDENTITY_INSERT test_input1 ON;" +
                             "INSERT INTO test_input1 (id, name, description) "
-                            +"VALUES (1, 'jacket','water resistent white wind breaker');" +
+                            + "VALUES (1, 'jacket','water resistent white wind breaker');" +
                             "SET IDENTITY_INSERT test_input1 OFF;");
         } catch (SQLException e) {
             LOG.error("Update table for CDC failed.", e);
