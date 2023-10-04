@@ -35,6 +35,7 @@
         <module>postgres-cdc</module>
         <module>starrocks</module>
         <module>iceberg</module>
+        <module>mongodb-cdc</module>
     </modules>
 
     <properties>
