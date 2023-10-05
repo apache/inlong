@@ -56,15 +56,39 @@ public class PostgreSQLJdbcUtils {
      */
     public static Connection getConnection(String url, String user, String password)
             throws Exception {
-        if (StringUtils.isBlank(url) || !url.startsWith(POSTGRES_JDBC_PREFIX)) {
-            throw new Exception("PostgreSQL server URL was invalid, it should start with jdbc:postgresql");
+        // Not Null
+        if (StringUtils.isBlank(url) || StringUtils.isBlank(user) || StringUtils.isBlank(password)) {
+            throw new Exception("URL, username, or password cannot be empty");
+        }
+        // Define the allowed IP addresses or hostname patterns
+        String allowedHostsPattern = "^(localhost|192\\.168\\.1\\.\\d{1,3}|10\\.0\\.0\\.\\d{1,3})$";
+        // Verify that the URL format is valid
+        if (!url.startsWith(POSTGRES_JDBC_PREFIX)) {
+            throw new Exception("PostgreSQL server URL was invalid, it should start with " + POSTGRES_JDBC_PREFIX);
+        }
+        // Extract the hostname and port from the URL
+        String[] urlParts = url.split(":");
+        if (urlParts.length < 3) {
+            throw new Exception("Invalid PostgreSQL URL format");
+        }
+        String hostPortPart = urlParts[2];
+        // Extract the hostname from the host:port part of the URL
+        String[] hostParts = hostPortPart.split("/");
+        if (hostParts.length < 1) {
+            throw new Exception("Invalid PostgreSQL URL format");
+        }
+        String host = hostParts[0];
+        // Verify that the hostname is allowed
+        if (!host.matches(allowedHostsPattern)) {
+            throw new Exception("Invalid host in PostgreSQL URL");
         }
         Connection conn;
         try {
             Class.forName(POSTGRES_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            String errorMsg = "get PostgreSQL connection error, please check postgresql jdbc url, username or password";
+            String errorMsg =
+                    "get PostgreSQL connection error, please check PostgreSQL JDBC URL, username, or password";
             LOG.error(errorMsg, e);
             throw new Exception(errorMsg + ": " + e.getMessage());
         }
@@ -143,7 +167,7 @@ public class PostgreSQLJdbcUtils {
         } else {
             final String checkColumnSql = PostgreSQLSqlBuilder.getCheckSchema(schemaName);
             try (Statement statement = conn.createStatement();
-                    ResultSet resultSet = statement.executeQuery(checkColumnSql)) {
+                 ResultSet resultSet = statement.executeQuery(checkColumnSql)) {
                 if (Objects.nonNull(resultSet) && resultSet.next()) {
                     int count = resultSet.getInt(1);
                     if (count > 0) {
@@ -167,11 +191,11 @@ public class PostgreSQLJdbcUtils {
      * @throws Exception on check column exist error
      */
     public static boolean checkColumnExist(final Connection conn, final String schemaName, final String tableName,
-            final String column) throws Exception {
+                                           final String column) throws Exception {
         boolean result = false;
         final String checkColumnSql = PostgreSQLSqlBuilder.getCheckColumn(schemaName, tableName, column);
         try (Statement statement = conn.createStatement();
-                ResultSet resultSet = statement.executeQuery(checkColumnSql)) {
+             ResultSet resultSet = statement.executeQuery(checkColumnSql)) {
             if (Objects.nonNull(resultSet) && resultSet.next()) {
                 int count = resultSet.getInt(1);
                 if (count > 0) {
@@ -215,7 +239,7 @@ public class PostgreSQLJdbcUtils {
         boolean result = false;
         final String checkTableSql = PostgreSQLSqlBuilder.getCheckTable(schemaName, tableName);
         try (Statement statement = conn.createStatement();
-                ResultSet resultSet = statement.executeQuery(checkTableSql)) {
+             ResultSet resultSet = statement.executeQuery(checkTableSql)) {
             if (null != resultSet && resultSet.next()) {
                 int size = resultSet.getInt(1);
                 if (size > 0) {
@@ -237,12 +261,12 @@ public class PostgreSQLJdbcUtils {
      * @throws Exception on get columns error
      */
     public static List<PostgreSQLColumnInfo> getColumns(final Connection conn, final String schemaName,
-            final String tableName) throws Exception {
+                                                        final String tableName) throws Exception {
         final List<PostgreSQLColumnInfo> columnList = new ArrayList<>();
         final String querySql = PostgreSQLSqlBuilder.buildDescTableSql(schemaName, tableName);
 
         try (Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery(querySql)) {
+             ResultSet rs = stmt.executeQuery(querySql)) {
             while (rs.next()) {
                 columnList.add(new PostgreSQLColumnInfo(rs.getString(1), rs.getString(2),
                         rs.getString(3)));
@@ -261,7 +285,7 @@ public class PostgreSQLJdbcUtils {
      * @throws Exception on add columns error
      */
     public static void addColumns(final Connection conn, final String schemaName, final String tableName,
-            final List<PostgreSQLColumnInfo> columns) throws Exception {
+                                  final List<PostgreSQLColumnInfo> columns) throws Exception {
         final List<PostgreSQLColumnInfo> columnInfos = new ArrayList<>();
 
         for (PostgreSQLColumnInfo columnInfo : columns) {
