@@ -99,6 +99,7 @@ public class NodeFactory {
      */
     public static List<Node> addBuiltInField(StreamSource sourceInfo, StreamSink sinkInfo,
                                              List<TransformResponse> transformResponses, Map<String, StreamField> constantFieldMap) {
+
         ExtractNodeProvider extractNodeProvider = ExtractNodeProviderFactory.getExtractNodeProvider(
                 sourceInfo.getSourceType());
         LoadNodeProvider loadNodeProvider = LoadNodeProviderFactory.getLoadNodeProvider(sinkInfo.getSinkType());
