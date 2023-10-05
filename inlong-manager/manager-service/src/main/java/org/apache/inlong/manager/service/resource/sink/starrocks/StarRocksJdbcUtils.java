@@ -33,6 +33,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class StarRocksJdbcUtils {
 
@@ -50,6 +51,12 @@ public class StarRocksJdbcUtils {
         if (StringUtils.isBlank(url) || !url.startsWith(STAR_ROCKS_JDBC_PREFIX)) {
             throw new Exception("starRocks server url should start with " + STAR_ROCKS_JDBC_PREFIX);
         }
+
+        // Verify that the URL format is valid
+        if (!isValidUrlFormat(url)) {
+            throw new Exception("Invalid URL format");
+        }
+
         Connection conn;
         try {
             Class.forName(STAR_ROCKS_DRIVER_CLASS);
@@ -57,10 +64,16 @@ public class StarRocksJdbcUtils {
             LOGGER.info("get star rocks connection success, url={}", url);
             return conn;
         } catch (Exception e) {
-            String errMsg = "get star rocks connection error, please check starRocks jdbc url, username or password";
+            String errMsg = "get star rocks connection error, please check starRocks jdbc url, username, or password";
             LOGGER.error(errMsg, e);
             throw new Exception(errMsg + ", error: " + e.getMessage());
         }
+    }
+
+    private static boolean isValidUrlFormat(String url) {
+        // Modify this regular expression to match your URL format
+        String urlPattern = "^jdbc:mysql://(localhost|\\d{1,3}(\\.\\d{1,3}){3})(:\\d{1,5})/.*$";
+        return Pattern.matches(urlPattern, url);
     }
 
     /**
@@ -74,7 +87,7 @@ public class StarRocksJdbcUtils {
      */
     public static void executeSql(String sql, String url, String user, String password) throws Exception {
         try (Connection conn = getConnection(url, user, password);
-                Statement stmt = conn.createStatement()) {
+             Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
             LOGGER.info("execute sql [{}] success", sql);
         }
@@ -124,7 +137,7 @@ public class StarRocksJdbcUtils {
      * Add columns for StarRocks table
      */
     public static void addColumns(String url, String user, String password, String dbName, String tableName,
-            List<StarRocksColumnInfo> columnList) throws Exception {
+                                  List<StarRocksColumnInfo> columnList) throws Exception {
         final List<StarRocksColumnInfo> columnInfos = Lists.newArrayList();
 
         for (StarRocksColumnInfo columnInfo : columnList) {
@@ -150,11 +163,11 @@ public class StarRocksJdbcUtils {
      * @throws Exception on check table exist error
      */
     public static boolean checkTablesExist(String url, String user, String password, String dbName,
-            String tableName) throws Exception {
+                                           String tableName) throws Exception {
         boolean result = false;
         final String checkTableSql = StarRocksSqlBuilder.getCheckTable(dbName, tableName);
         try (Connection conn = getConnection(url, user, password);
-                Statement stmt = conn.createStatement()) {
+             Statement stmt = conn.createStatement()) {
             ResultSet resultSet = stmt.executeQuery(checkTableSql);
             if (Objects.nonNull(resultSet)) {
                 if (resultSet.next()) {
@@ -179,12 +192,12 @@ public class StarRocksJdbcUtils {
      * @throws Exception on check column exist error
      */
     public static boolean checkColumnExist(String url, String user, String password, String dbName,
-            final String tableName, final String column) throws Exception {
+                                           final String tableName, final String column) throws Exception {
         boolean result = false;
         final String checkTableSql = StarRocksSqlBuilder.getCheckColumn(dbName, tableName, column);
         try (Connection conn = getConnection(url, user, password);
-                Statement stmt = conn.createStatement();
-                ResultSet resultSet = stmt.executeQuery(checkTableSql)) {
+             Statement stmt = conn.createStatement();
+             ResultSet resultSet = stmt.executeQuery(checkTableSql)) {
             if (Objects.nonNull(resultSet)) {
                 if (resultSet.next()) {
                     result = true;
