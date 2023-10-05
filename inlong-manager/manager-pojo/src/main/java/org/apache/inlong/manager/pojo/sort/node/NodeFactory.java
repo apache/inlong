@@ -62,7 +62,7 @@ public class NodeFactory {
      * Create load nodes from the given sinks.
      */
     public static List<LoadNode> createLoadNodes(List<StreamSink> sinkInfos,
-            Map<String, StreamField> constantFieldMap) {
+                                                 Map<String, StreamField> constantFieldMap) {
         if (CollectionUtils.isEmpty(sinkInfos)) {
             return Lists.newArrayList();
         }
@@ -98,14 +98,16 @@ public class NodeFactory {
      * Add built-in field for extra node and load node
      */
     public static List<Node> addBuiltInField(StreamSource sourceInfo, StreamSink sinkInfo,
-            List<TransformResponse> transformResponses, Map<String, StreamField> constantFieldMap) {
+                                             List<TransformResponse> transformResponses, Map<String, StreamField> constantFieldMap) {
         ExtractNodeProvider extractNodeProvider = ExtractNodeProviderFactory.getExtractNodeProvider(
                 sourceInfo.getSourceType());
         LoadNodeProvider loadNodeProvider = LoadNodeProviderFactory.getLoadNodeProvider(sinkInfo.getSinkType());
 
         if (FieldInfoUtils.compareFields(extractNodeProvider.getMetaFields(), loadNodeProvider.getMetaFields())) {
             extractNodeProvider.addStreamMetaFields(sourceInfo.getFieldList());
-            transformResponses.forEach(v -> extractNodeProvider.addStreamMetaFields(v.getFieldList()));
+            if (CollectionUtils.isNotEmpty(transformResponses)) {
+                transformResponses.forEach(v -> extractNodeProvider.addStreamMetaFields(v.getFieldList()));
+            }
             loadNodeProvider.addSinkMetaFields(sinkInfo.getSinkFieldList());
         }
 
