@@ -43,6 +43,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
@@ -54,6 +56,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -66,6 +69,7 @@ public class ClusterController {
 
     private final Gson gson = new Gson();
     private final TubeMQResult result = new TubeMQResult();
+    private static final Logger LOGGER = LogManager.getLogger(ClusterController.class);
 
     @Autowired
     private ClusterService clusterService;
@@ -75,18 +79,54 @@ public class ClusterController {
 
     @PostMapping("")
     public @ResponseBody TubeMQResult clusterMethodProxy(@RequestParam String method, @RequestBody String req) {
+        // Validate the 'method' parameter to ensure it's one of the allowed methods
+        if (!isValidMethod(method)) {
+            // Log audit: Record the invalid 'method' value
+            LOGGER.warn("Invalid method value received: {}", method);
+            return TubeMQResult.errorResult("Invalid method value.");
+        }
+        // Validate the 'req' parameter to ensure it's a valid URL
+        if (!isValidURL(req)) {
+            // Log audit: Record the invalid URL
+            LOGGER.warn("Invalid URL format received: {}", req);
+            return TubeMQResult.errorResult("Invalid URL format.");
+        }
+        // Perform further processing based on the 'method' parameter
         switch (method) {
             case TubeConst.ADD:
+                // Log audit: Record the 'add' operation
+                LOGGER.info("Received 'add' operation with URL: {}", req);
                 return addNewCluster(gson.fromJson(req, AddClusterReq.class));
             case TubeConst.DELETE:
+                // Log audit: Record the 'delete' operation
+                LOGGER.info("Received 'delete' operation with URL: {}", req);
                 return deleteCluster(gson.fromJson(req, DeleteClusterReq.class));
             case TubeConst.MODIFY:
+                // Log audit: Record the 'modify' operation
+                LOGGER.info("Received 'modify' operation with URL: {}", req);
                 return changeCluster(gson.fromJson(req, ClusterDto.class));
             case TubeConst.SWITCH:
+                // Log audit: Record the 'switch' operation
+                LOGGER.info("Received 'switch' operation with URL: {}", req);
                 return masterService.baseRequestMaster(gson.fromJson(req, SwitchClusterReq.class));
             default:
+                // Log audit: Record an unknown method
+                LOGGER.warn("Received unknown method: {}", method);
                 return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_METHOD);
         }
+    }
+
+    private static boolean isValidURL(String url) {
+        // Use the regular expression pattern to validate the URL
+        String urlPattern = "^(https?|ftp)://[a-zA-Z0-9.-]+(/.*)?$";
+        return url.matches(urlPattern);
+    }
+
+    private static boolean isValidMethod(String method) {
+        // Define a list of allowed methods
+        List<String> allowedMethods =
+                Arrays.asList(TubeConst.ADD, TubeConst.DELETE, TubeConst.MODIFY, TubeConst.SWITCH);
+        return allowedMethods.contains(method);
     }
 
     /**
@@ -132,7 +172,7 @@ public class ClusterController {
      */
     @RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public TubeMQResult queryCluster(@RequestParam(required = false) Integer clusterId,
-            @RequestParam(required = false) String clusterName, @RequestParam(required = false) String masterIp) {
+                                     @RequestParam(required = false) String clusterName, @RequestParam(required = false) String masterIp) {
         TubeMQResult result = new TubeMQResult();
         if (clusterId == null && clusterName == null && masterIp == null) {
             return queryAllClusterVo();
