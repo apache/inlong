@@ -37,6 +37,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -56,26 +60,82 @@ public class MasterServiceImpl implements MasterService {
 
     @Override
     public TubeMQResult requestMaster(String url) {
-
         log.info("start to request {}", url);
+        long startTime = System.currentTimeMillis();
+        // 验证URL是否合法
+        if (!isValidURL(url)) {
+            log.error("Invalid URL: {}", url);
+            logRequestDetails(url, startTime, "Invalid URL");
+            return TubeMQResult.errorResult("Invalid URL.");
+        }
+        String hostname = getHostnameFromURL(url);
+        // 进行DNS解析检查
+        if (!isValidHostname(hostname)) {
+            log.error("Invalid hostname: {}", hostname);
+            logRequestDetails(url, startTime, "Invalid hostname");
+            return TubeMQResult.errorResult("Invalid hostname.");
+        }
+
         HttpGet httpGet = new HttpGet(url);
         TubeMQResult defaultResult = new TubeMQResult();
-
         try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
             TubeHttpResponse tubeResponse =
                     gson.fromJson(new InputStreamReader(response.getEntity().getContent(),
                             StandardCharsets.UTF_8), TubeHttpResponse.class);
             if (tubeResponse.getCode() == TubeConst.SUCCESS_CODE
                     && tubeResponse.getErrCode() == TubeConst.SUCCESS_CODE) {
+                logRequestDetails(url, startTime, "Success");
                 return defaultResult;
             } else {
                 defaultResult = errorResult(tubeResponse.getErrMsg());
+                logRequestDetails(url, startTime, "Failed: " + tubeResponse.getErrMsg());
             }
         } catch (Exception ex) {
             log.error("exception caught while requesting broker status", ex);
             defaultResult = TubeMQResult.errorResult(ex.getMessage());
+            logRequestDetails(url, startTime, "Exception: " + ex.getMessage());
         }
         return defaultResult;
+    }
+
+    private void logRequestDetails(String url, long startTime, String status) {
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        log.info("Request Details - URL: {}, Status: {}, Duration: {} ms", url, status, duration);
+    }
+
+    private String getHostnameFromURL(String url) {
+        try {
+            URL u = new URL(url);
+            return u.getHost();
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
+
+    private boolean isValidHostname(String hostname) {
+        if (hostname == null) {
+            return false;
+        }
+        try {
+            InetAddress.getByName(hostname);
+            return true;
+        } catch (UnknownHostException e) {
+            return false;
+        }
+    }
+
+    private boolean isValidURL(String url) {
+        try {
+            URL u = new URL(url);
+            String protocol = u.getProtocol().toLowerCase();
+            if ("http".equals(protocol) || "https".equals(protocol)) {
+                return true;
+            }
+        } catch (MalformedURLException e) {
+            return false;
+        }
+        return false;
     }
 
     /**
@@ -87,9 +147,22 @@ public class MasterServiceImpl implements MasterService {
     @Override
     public String queryMaster(String url) {
         log.info("start to request {}", url);
+        // 验证URL是否合法
+        if (!isValidURL(url)) {
+            log.error("Invalid URL: {}", url);
+            return gson.toJson(TubeMQResult.errorResult("Invalid URL."));
+        }
+
         HttpGet httpGet = new HttpGet(url);
         TubeMQResult defaultResult = new TubeMQResult();
         try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
+            // 如果重定向后的URL与原始URL不同，进行进一步验证
+            String redirectedUrl = response.getHeaders("Location")[0].getValue();
+            if (!url.equals(redirectedUrl) && !isValidURL(redirectedUrl)) {
+                log.error("Invalid redirected URL: {}", redirectedUrl);
+                return gson.toJson(TubeMQResult.errorResult("Invalid redirected URL."));
+            }
+
             // return result json to response
             return EntityUtils.toString(response.getEntity());
         } catch (Exception ex) {
@@ -97,8 +170,8 @@ public class MasterServiceImpl implements MasterService {
             defaultResult.setErrCode(-1);
             defaultResult.setResult(false);
             defaultResult.setErrMsg(ex.getMessage());
+            return gson.toJson(defaultResult);
         }
-        return gson.toJson(defaultResult);
     }
 
     @Override
