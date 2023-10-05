@@ -55,9 +55,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * node service to query broker/master/standby status of tube cluster.
@@ -70,6 +74,8 @@ public class TopicServiceImpl implements TopicService {
     public static final int MINIMUN_TOPIC_RUN_PART = 1;
     private final CloseableHttpClient httpclient = HttpClients.createDefault();
     private final Gson gson = new Gson();
+    private static final Pattern SPECIAL_CHAR_PATTERN = Pattern.compile("[%\\x00-\\x1F\\x7F-\\uFFFF]");
+    private static final int MAX_TOPIC_NAME_LENGTH = 255;
 
     @Value("${manager.broker.webPort:8081}")
     private int brokerWebPort;
@@ -88,7 +94,7 @@ public class TopicServiceImpl implements TopicService {
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
             TubeHttpGroupDetailInfo groupDetailInfo =
                     gson.fromJson(new InputStreamReader(response.getEntity()
-                            .getContent(), StandardCharsets.UTF_8),
+                                    .getContent(), StandardCharsets.UTF_8),
                             TubeHttpGroupDetailInfo.class);
             if (groupDetailInfo.getErrCode() == 0) {
                 return groupDetailInfo;
@@ -114,19 +120,62 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public TopicView requestTopicViewInfo(Long clusterId, String topicName) {
         MasterEntry masterNode = masterService.getMasterNode(clusterId);
-        String url = TubeConst.SCHEMA + masterNode.getIp() + ":" + masterNode.getWebPort()
-                + TubeConst.TOPIC_VIEW;
-        if (StringUtils.isNotBlank(topicName)) {
-            url = StringUtils.join(url, TubeConst.TOPIC_NAME, topicName);
+        // Validate if MasterEntry is valid
+        if (masterNode == null || StringUtils.isBlank(masterNode.getIp()) || masterNode.getWebPort() <= 0) {
+            log.error("Invalid MasterEntry: ClusterId = {}", clusterId);
+            throw new IllegalArgumentException("Invalid MasterEntry.");
         }
+        // Validate if the Topic name is empty or contains dangerous characters
+        if (StringUtils.isBlank(topicName) || containsDangerousChars(topicName)) {
+            log.error("Invalid topicName: ClusterId = {}, TopicName = {}", clusterId, topicName);
+            throw new IllegalArgumentException("Invalid topicName.");
+        }
+        if (topicName.length() > MAX_TOPIC_NAME_LENGTH) {
+            log.error("TopicName is too long: ClusterId = {}, TopicName = {}", clusterId, topicName);
+            throw new IllegalArgumentException("TopicName is too long.");
+        }
+        String url = TubeConst.SCHEMA + masterNode.getIp() + ":" + masterNode.getWebPort() + TubeConst.TOPIC_VIEW;
+        if (!isValidURL(url)) {
+            log.error("Invalid URL: ClusterId = {}, URL = {}", clusterId, url);
+            throw new IllegalArgumentException("Invalid URL.");
+        }
+        url += TubeConst.TOPIC_NAME + topicName;
         HttpGet httpget = new HttpGet(url);
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
-            return gson.fromJson(new InputStreamReader(response.getEntity().getContent(),
-                    StandardCharsets.UTF_8),
+            return gson.fromJson(new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8),
                     TopicView.class);
         } catch (Exception ex) {
-            log.error("exception caught while requesting group status", ex);
+            log.error("Exception caught while requesting group status: ClusterId = {}, TopicName = {}", clusterId,
+                    topicName, ex);
             throw new RuntimeException(ex.getMessage());
+        }
+    }
+
+    private boolean containsDangerousChars(String input) {
+        input = input.toLowerCase();
+        String[] dangerousKeywords =
+                {"exec", "system", "cmd", "shell", "php", "perl", "python", "ruby", "javascript", "java"};
+        // Prevent SSRF attacks by checking for "://"
+        if (input.contains("://")) {
+            return true;
+        }
+        // Check for other possible dangerous characters or keywords
+        for (String keyword : dangerousKeywords) {
+            if (input.contains(keyword)) {
+                return true;
+            }
+        }
+        // Check for encoding of special characters or escape characters
+        Matcher matcher = SPECIAL_CHAR_PATTERN.matcher(input);
+        return matcher.find();
+    }
+
+    private boolean isValidURL(String url) {
+        try {
+            new URL(url);
+            return true;
+        } catch (MalformedURLException e) {
+            return false;
         }
     }
 
@@ -162,7 +211,7 @@ public class TopicServiceImpl implements TopicService {
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
             TubeHttpTopicInfoList topicInfoList =
                     gson.fromJson(new InputStreamReader(response.getEntity()
-                            .getContent(), StandardCharsets.UTF_8),
+                                    .getContent(), StandardCharsets.UTF_8),
                             TubeHttpTopicInfoList.class);
             if (topicInfoList.getErrCode() == TubeConst.SUCCESS_CODE) {
                 return topicInfoList;
@@ -193,7 +242,7 @@ public class TopicServiceImpl implements TopicService {
                     consumerId);
             String url = TubeConst.SCHEMA + master.getIp() + ":" + master.getWebPort()
                     + "/" + TubeConst.TUBE_REQUEST_PATH + "?" + ConvertUtils
-                            .convertReqToQueryStr(rebalanceConsumerReq);
+                    .convertReqToQueryStr(rebalanceConsumerReq);
             TubeMQResult result = masterService.requestMaster(url);
             if (result.getErrCode() != 0) {
                 rebalanceGroupResult.getFailConsumers().add(consumerId);
@@ -285,8 +334,8 @@ public class TopicServiceImpl implements TopicService {
     }
 
     private void generateOffsetInfo(List<OffsetInfo> offsetPerBroker,
-            TubeHttpTopicInfoList.TopicInfoList.TopicInfo topicInfo,
-            OffsetQueryRes res) {
+                                    TubeHttpTopicInfoList.TopicInfoList.TopicInfo topicInfo,
+                                    OffsetQueryRes res) {
         OffsetInfo offsetInfo = new OffsetInfo();
         offsetInfo.setBrokerId(topicInfo.getBrokerId());
         offsetInfo.setBrokerIp(topicInfo.getBrokerIp());
