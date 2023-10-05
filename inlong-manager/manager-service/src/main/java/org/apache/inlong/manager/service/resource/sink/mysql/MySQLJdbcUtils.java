@@ -166,7 +166,7 @@ public class MySQLJdbcUtils {
     public static boolean checkDbExist(final Connection conn, final String dbName) throws Exception {
         final String checkDbSql = MySQLSqlBuilder.getCheckDatabase(dbName);
         try (Statement stmt = conn.createStatement();
-             ResultSet resultSet = stmt.executeQuery(checkDbSql)) {
+                ResultSet resultSet = stmt.executeQuery(checkDbSql)) {
             if (Objects.nonNull(resultSet)) {
                 if (resultSet.next()) {
                     LOGGER.info("check db exist for db={}, result=true", dbName);
@@ -209,7 +209,7 @@ public class MySQLJdbcUtils {
         boolean result = false;
         final String checkTableSql = MySQLSqlBuilder.getCheckTable(dbName, tableName);
         try (Statement stmt = conn.createStatement();
-             ResultSet resultSet = stmt.executeQuery(checkTableSql)) {
+                ResultSet resultSet = stmt.executeQuery(checkTableSql)) {
             if (Objects.nonNull(resultSet)) {
                 if (resultSet.next()) {
                     result = true;
@@ -231,11 +231,11 @@ public class MySQLJdbcUtils {
      * @throws Exception on check column exist error
      */
     public static boolean checkColumnExist(final Connection conn, final String dbName, final String tableName,
-                                           final String column) throws Exception {
+            final String column) throws Exception {
         boolean result = false;
         final String checkTableSql = MySQLSqlBuilder.getCheckColumn(dbName, tableName, column);
         try (Statement stmt = conn.createStatement();
-             ResultSet resultSet = stmt.executeQuery(checkTableSql)) {
+                ResultSet resultSet = stmt.executeQuery(checkTableSql)) {
             if (Objects.nonNull(resultSet)) {
                 if (resultSet.next()) {
                     result = true;
@@ -261,7 +261,7 @@ public class MySQLJdbcUtils {
         final List<MySQLColumnInfo> columnList = new ArrayList<>();
 
         try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(querySql)) {
+                ResultSet rs = stmt.executeQuery(querySql)) {
             if (Objects.nonNull(rs)) {
                 while (rs.next()) {
                     MySQLColumnInfo columnInfo = new MySQLColumnInfo(rs.getString(1),
@@ -283,7 +283,7 @@ public class MySQLJdbcUtils {
      * @throws Exception on add columns error
      */
     public static void addColumns(final Connection conn, final String dbName, final String tableName,
-                                  final List<MySQLColumnInfo> columns) throws Exception {
+            final List<MySQLColumnInfo> columns) throws Exception {
         final List<MySQLColumnInfo> columnInfos = Lists.newArrayList();
 
         for (MySQLColumnInfo columnInfo : columns) {

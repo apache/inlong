@@ -142,7 +142,7 @@ public class ClickHouseJdbcUtils {
      * Create ClickHouse table
      */
     public static void createTable(String url, String user, String password,
-                                   ClickHouseTableInfo tableInfo) throws Exception {
+            ClickHouseTableInfo tableInfo) throws Exception {
         String createTableSql = ClickHouseSqlBuilder.buildCreateTableSql(tableInfo);
         ClickHouseJdbcUtils.executeSql(createTableSql, url, user, password);
     }
@@ -169,12 +169,12 @@ public class ClickHouseJdbcUtils {
      * Query ClickHouse field
      */
     public static List<ClickHouseFieldInfo> getFields(String url, String user, String password, String dbName,
-                                                      String tableName) throws Exception {
+            String tableName) throws Exception {
 
         String querySql = ClickHouseSqlBuilder.buildDescTableSql(dbName, tableName);
         try (Connection conn = getConnection(url, user, password);
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(querySql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(querySql)) {
             List<ClickHouseFieldInfo> fieldList = new ArrayList<>();
             while (rs.next()) {
                 ClickHouseFieldInfo fieldInfo = new ClickHouseFieldInfo();
@@ -198,7 +198,7 @@ public class ClickHouseJdbcUtils {
      * Add columns for ClickHouse table
      */
     public static void addColumns(String url, String user, String password, String dbName, String tableName,
-                                  List<ClickHouseFieldInfo> columnList) throws Exception {
+            List<ClickHouseFieldInfo> columnList) throws Exception {
         List<String> addColumnSql = ClickHouseSqlBuilder.buildAddColumnsSql(dbName, tableName, columnList);
         ClickHouseJdbcUtils.executeSqlBatch(addColumnSql, url, user, password);
     }

@@ -117,7 +117,7 @@ public class HiveJdbcUtils {
      */
     public static void executeSql(String sql, String url, String user, String password) throws Exception {
         try (Connection conn = getConnection(url, user, password);
-             Statement stmt = conn.createStatement()) {
+                Statement stmt = conn.createStatement()) {
 
             stmt.execute(sql);
             LOGGER.info("execute sql [{}] success for url: {}", sql, url);
@@ -162,12 +162,12 @@ public class HiveJdbcUtils {
      * Query Hive columns
      */
     public static List<HiveColumnInfo> getColumns(String url, String user, String password, String dbName,
-                                                  String tableName) throws Exception {
+            String tableName) throws Exception {
 
         String querySql = SqlBuilder.buildDescTableSql(dbName, tableName);
         try (Connection conn = getConnection(url, user, password);
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(querySql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(querySql)) {
             List<HiveColumnInfo> columnList = new ArrayList<>();
             while (rs.next()) {
                 HiveColumnInfo columnInfo = new HiveColumnInfo();
@@ -184,7 +184,7 @@ public class HiveJdbcUtils {
      * Add columns for Hive table
      */
     public static void addColumns(String url, String user, String password, String dbName, String tableName,
-                                  List<HiveColumnInfo> columnList) throws Exception {
+            List<HiveColumnInfo> columnList) throws Exception {
         String addColumnSql = SqlBuilder.buildAddColumnSql(dbName, tableName, columnList);
         HiveJdbcUtils.executeSql(addColumnSql, url, user, password);
     }

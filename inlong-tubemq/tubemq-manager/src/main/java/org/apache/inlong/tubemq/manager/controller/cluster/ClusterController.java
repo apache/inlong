@@ -172,7 +172,7 @@ public class ClusterController {
      */
     @RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public TubeMQResult queryCluster(@RequestParam(required = false) Integer clusterId,
-                                     @RequestParam(required = false) String clusterName, @RequestParam(required = false) String masterIp) {
+            @RequestParam(required = false) String clusterName, @RequestParam(required = false) String masterIp) {
         TubeMQResult result = new TubeMQResult();
         if (clusterId == null && clusterName == null && masterIp == null) {
             return queryAllClusterVo();

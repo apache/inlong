@@ -167,7 +167,7 @@ public class PostgreSQLJdbcUtils {
         } else {
             final String checkColumnSql = PostgreSQLSqlBuilder.getCheckSchema(schemaName);
             try (Statement statement = conn.createStatement();
-                 ResultSet resultSet = statement.executeQuery(checkColumnSql)) {
+                    ResultSet resultSet = statement.executeQuery(checkColumnSql)) {
                 if (Objects.nonNull(resultSet) && resultSet.next()) {
                     int count = resultSet.getInt(1);
                     if (count > 0) {
@@ -191,11 +191,11 @@ public class PostgreSQLJdbcUtils {
      * @throws Exception on check column exist error
      */
     public static boolean checkColumnExist(final Connection conn, final String schemaName, final String tableName,
-                                           final String column) throws Exception {
+            final String column) throws Exception {
         boolean result = false;
         final String checkColumnSql = PostgreSQLSqlBuilder.getCheckColumn(schemaName, tableName, column);
         try (Statement statement = conn.createStatement();
-             ResultSet resultSet = statement.executeQuery(checkColumnSql)) {
+                ResultSet resultSet = statement.executeQuery(checkColumnSql)) {
             if (Objects.nonNull(resultSet) && resultSet.next()) {
                 int count = resultSet.getInt(1);
                 if (count > 0) {
@@ -239,7 +239,7 @@ public class PostgreSQLJdbcUtils {
         boolean result = false;
         final String checkTableSql = PostgreSQLSqlBuilder.getCheckTable(schemaName, tableName);
         try (Statement statement = conn.createStatement();
-             ResultSet resultSet = statement.executeQuery(checkTableSql)) {
+                ResultSet resultSet = statement.executeQuery(checkTableSql)) {
             if (null != resultSet && resultSet.next()) {
                 int size = resultSet.getInt(1);
                 if (size > 0) {
@@ -261,12 +261,12 @@ public class PostgreSQLJdbcUtils {
      * @throws Exception on get columns error
      */
     public static List<PostgreSQLColumnInfo> getColumns(final Connection conn, final String schemaName,
-                                                        final String tableName) throws Exception {
+            final String tableName) throws Exception {
         final List<PostgreSQLColumnInfo> columnList = new ArrayList<>();
         final String querySql = PostgreSQLSqlBuilder.buildDescTableSql(schemaName, tableName);
 
         try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(querySql)) {
+                ResultSet rs = stmt.executeQuery(querySql)) {
             while (rs.next()) {
                 columnList.add(new PostgreSQLColumnInfo(rs.getString(1), rs.getString(2),
                         rs.getString(3)));
@@ -285,7 +285,7 @@ public class PostgreSQLJdbcUtils {
      * @throws Exception on add columns error
      */
     public static void addColumns(final Connection conn, final String schemaName, final String tableName,
-                                  final List<PostgreSQLColumnInfo> columns) throws Exception {
+            final List<PostgreSQLColumnInfo> columns) throws Exception {
         final List<PostgreSQLColumnInfo> columnInfos = new ArrayList<>();
 
         for (PostgreSQLColumnInfo columnInfo : columns) {

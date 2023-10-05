@@ -87,7 +87,7 @@ public class StarRocksJdbcUtils {
      */
     public static void executeSql(String sql, String url, String user, String password) throws Exception {
         try (Connection conn = getConnection(url, user, password);
-             Statement stmt = conn.createStatement()) {
+                Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
             LOGGER.info("execute sql [{}] success", sql);
         }
@@ -137,7 +137,7 @@ public class StarRocksJdbcUtils {
      * Add columns for StarRocks table
      */
     public static void addColumns(String url, String user, String password, String dbName, String tableName,
-                                  List<StarRocksColumnInfo> columnList) throws Exception {
+            List<StarRocksColumnInfo> columnList) throws Exception {
         final List<StarRocksColumnInfo> columnInfos = Lists.newArrayList();
 
         for (StarRocksColumnInfo columnInfo : columnList) {
@@ -163,11 +163,11 @@ public class StarRocksJdbcUtils {
      * @throws Exception on check table exist error
      */
     public static boolean checkTablesExist(String url, String user, String password, String dbName,
-                                           String tableName) throws Exception {
+            String tableName) throws Exception {
         boolean result = false;
         final String checkTableSql = StarRocksSqlBuilder.getCheckTable(dbName, tableName);
         try (Connection conn = getConnection(url, user, password);
-             Statement stmt = conn.createStatement()) {
+                Statement stmt = conn.createStatement()) {
             ResultSet resultSet = stmt.executeQuery(checkTableSql);
             if (Objects.nonNull(resultSet)) {
                 if (resultSet.next()) {
@@ -192,12 +192,12 @@ public class StarRocksJdbcUtils {
      * @throws Exception on check column exist error
      */
     public static boolean checkColumnExist(String url, String user, String password, String dbName,
-                                           final String tableName, final String column) throws Exception {
+            final String tableName, final String column) throws Exception {
         boolean result = false;
         final String checkTableSql = StarRocksSqlBuilder.getCheckColumn(dbName, tableName, column);
         try (Connection conn = getConnection(url, user, password);
-             Statement stmt = conn.createStatement();
-             ResultSet resultSet = stmt.executeQuery(checkTableSql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet resultSet = stmt.executeQuery(checkTableSql)) {
             if (Objects.nonNull(resultSet)) {
                 if (resultSet.next()) {
                     result = true;
