@@ -52,20 +52,52 @@ public class MySQLJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        if (StringUtils.isBlank(url) || !url.startsWith(MYSQL_JDBC_PREFIX)) {
-            throw new Exception("MySQL JDBC URL was invalid, it should start with jdbc:mysql");
+        // Non-empty validation
+        if (StringUtils.isBlank(url) || StringUtils.isBlank(user) || StringUtils.isBlank(password)) {
+            throw new Exception("URL, username, or password cannot be empty");
         }
-
+        // Validate URL format
+        if (!url.startsWith(MYSQL_JDBC_PREFIX)) {
+            throw new Exception("MySQL JDBC URL is invalid, it should start with " + MYSQL_JDBC_PREFIX);
+        }
+        // Extract hostname and port from the URL
+        String hostPortPart = url.substring(MYSQL_JDBC_PREFIX.length());
+        String[] hostPortParts = hostPortPart.split("/");
+        if (hostPortParts.length < 1) {
+            throw new Exception("Invalid MySQL JDBC URL format");
+        }
+        String hostPort = hostPortParts[0];
+        // Extract hostname and port
+        String[] hostPortSplit = hostPort.split(":");
+        if (hostPortSplit.length != 2) {
+            throw new Exception("Invalid host:port format in MySQL JDBC URL");
+        }
+        String host = hostPortSplit[0];
+        String port = hostPortSplit[1];
+        // Validate hostname
+        String allowedHostsPattern = "^(localhost|192\\.168\\.1\\.\\d{1,3}|10\\.0\\.0\\.\\d{1,3})$";
+        if (!host.matches(allowedHostsPattern)) {
+            throw new Exception("Invalid host in MySQL JDBC URL");
+        }
+        // Validate port number
+        try {
+            int portNumber = Integer.parseInt(port);
+            if (portNumber < 1 || portNumber > 65535) {
+                throw new Exception("Invalid port number in MySQL JDBC URL");
+            }
+        } catch (NumberFormatException e) {
+            throw new Exception("Invalid port number format in MySQL JDBC URL");
+        }
         Connection conn;
         try {
             Class.forName(MYSQL_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            String errorMsg = "get MySQL connection error, please check MySQL JDBC url, username or password!";
+            String errorMsg = "get MySQL connection error, please check MySQL JDBC URL, username, or password!";
             LOGGER.error(errorMsg, e);
             throw new Exception(errorMsg + " other error msg: " + e.getMessage());
         }
-        if (Objects.isNull(conn)) {
+        if (conn == null) {
             throw new Exception("get MySQL connection failed, please contact administrator.");
         }
         LOGGER.info("get MySQL connection success for url={}", url);
@@ -134,7 +166,7 @@ public class MySQLJdbcUtils {
     public static boolean checkDbExist(final Connection conn, final String dbName) throws Exception {
         final String checkDbSql = MySQLSqlBuilder.getCheckDatabase(dbName);
         try (Statement stmt = conn.createStatement();
-                ResultSet resultSet = stmt.executeQuery(checkDbSql)) {
+             ResultSet resultSet = stmt.executeQuery(checkDbSql)) {
             if (Objects.nonNull(resultSet)) {
                 if (resultSet.next()) {
                     LOGGER.info("check db exist for db={}, result=true", dbName);
@@ -177,7 +209,7 @@ public class MySQLJdbcUtils {
         boolean result = false;
         final String checkTableSql = MySQLSqlBuilder.getCheckTable(dbName, tableName);
         try (Statement stmt = conn.createStatement();
-                ResultSet resultSet = stmt.executeQuery(checkTableSql)) {
+             ResultSet resultSet = stmt.executeQuery(checkTableSql)) {
             if (Objects.nonNull(resultSet)) {
                 if (resultSet.next()) {
                     result = true;
@@ -199,11 +231,11 @@ public class MySQLJdbcUtils {
      * @throws Exception on check column exist error
      */
     public static boolean checkColumnExist(final Connection conn, final String dbName, final String tableName,
-            final String column) throws Exception {
+                                           final String column) throws Exception {
         boolean result = false;
         final String checkTableSql = MySQLSqlBuilder.getCheckColumn(dbName, tableName, column);
         try (Statement stmt = conn.createStatement();
-                ResultSet resultSet = stmt.executeQuery(checkTableSql)) {
+             ResultSet resultSet = stmt.executeQuery(checkTableSql)) {
             if (Objects.nonNull(resultSet)) {
                 if (resultSet.next()) {
                     result = true;
@@ -229,7 +261,7 @@ public class MySQLJdbcUtils {
         final List<MySQLColumnInfo> columnList = new ArrayList<>();
 
         try (Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery(querySql)) {
+             ResultSet rs = stmt.executeQuery(querySql)) {
             if (Objects.nonNull(rs)) {
                 while (rs.next()) {
                     MySQLColumnInfo columnInfo = new MySQLColumnInfo(rs.getString(1),
@@ -251,7 +283,7 @@ public class MySQLJdbcUtils {
      * @throws Exception on add columns error
      */
     public static void addColumns(final Connection conn, final String dbName, final String tableName,
-            final List<MySQLColumnInfo> columns) throws Exception {
+                                  final List<MySQLColumnInfo> columns) throws Exception {
         final List<MySQLColumnInfo> columnInfos = Lists.newArrayList();
 
         for (MySQLColumnInfo columnInfo : columns) {
