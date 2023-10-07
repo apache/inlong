@@ -19,14 +19,10 @@ package org.apache.inlong.sort.tests.utils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.utility.DockerImageName;
 
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import static java.util.stream.Collectors.joining;
 
@@ -102,7 +98,6 @@ public class StarRocksContainer extends GenericContainer {
     public int getDatabasePort() {
         return getMappedPort(STAR_ROCKS_QUERY_PORT);
     }
-
 
     public String getDatabaseName() {
         return databaseName;

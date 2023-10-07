@@ -30,7 +30,7 @@ import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.pojo.node.cls.ClsDataNodeDTO;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.cls.ClsSinkDTO;
-import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
+import org.apache.inlong.manager.service.resource.sink.AbstractStandaloneSinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 
 import com.tencentcloudapi.cls.v20201016.ClsClient;
@@ -61,7 +61,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ClsResourceOperator implements SinkResourceOperator {
+public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClsResourceOperator.class);
     private static final String TOPIC_NAME = "topicName";
@@ -91,6 +91,7 @@ public class ClsResourceOperator implements SinkResourceOperator {
             return;
         }
         this.createClsResource(sinkInfo);
+        this.assignCluster(sinkInfo);
     }
 
     /**

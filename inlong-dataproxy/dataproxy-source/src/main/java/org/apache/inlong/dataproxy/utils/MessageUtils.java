@@ -18,7 +18,7 @@
 package org.apache.inlong.dataproxy.utils;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
-import org.apache.inlong.common.enums.DataProxyMsgEncType;
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.MsgType;
@@ -293,7 +293,7 @@ public class MessageUtils {
         // common attributes
         Map<String, String> attrs = new HashMap<>();
         attrs.put(ConfigConstants.MSG_ENCODE_VER, pkgVersion);
-        if (DataProxyMsgEncType.MSG_ENCODE_TYPE_PB.getStrId().equalsIgnoreCase(pkgVersion)) {
+        if (MessageWrapType.INLONG_MSG_V1.getStrId().equalsIgnoreCase(pkgVersion)) {
             attrs.put("dataproxyip", NetworkUtils.getLocalIp());
             attrs.put(Constants.INLONG_GROUP_ID, headers.get(Constants.INLONG_GROUP_ID));
             attrs.put(Constants.INLONG_STREAM_ID, headers.get(Constants.INLONG_STREAM_ID));

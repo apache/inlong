@@ -114,7 +114,7 @@ export default class IcebergSink
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -126,7 +126,7 @@ export default class IcebergSink
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -140,7 +140,7 @@ export default class IcebergSink
     initialValue: 1,
     tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: i18n.t('basic.Yes'),
@@ -161,7 +161,7 @@ export default class IcebergSink
     type: NodeSelect,
     rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       nodeType: 'ICEBERG',
     }),
   })
@@ -174,7 +174,7 @@ export default class IcebergSink
     rules: [{ required: true }],
     initialValue: 'Parquet',
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: 'Parquet',
@@ -206,14 +206,14 @@ export default class IcebergSink
           title: 'Key',
           dataIndex: 'keyName',
           props: {
-            disabled: [110, 130].includes(values?.status),
+            disabled: [110].includes(values?.status),
           },
         },
         {
           title: 'Value',
           dataIndex: 'keyValue',
           props: {
-            disabled: [110, 130].includes(values?.status),
+            disabled: [110].includes(values?.status),
           },
         },
       ],
@@ -230,7 +230,7 @@ export default class IcebergSink
     initialValue: 'EXACTLY_ONCE',
     isPro: true,
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
+      disabled: [110].includes(values?.status),
       options: [
         {
           label: 'EXACTLY_ONCE',
@@ -252,7 +252,7 @@ export default class IcebergSink
     type: EditableTable,
     props: values => ({
       size: 'small',
-      editing: ![110, 130].includes(values?.status),
+      editing: ![110].includes(values?.status),
       columns: getFieldListColumns(values),
       canBatchAdd: true,
       upsertByFieldKey: true,
@@ -276,7 +276,7 @@ const getFieldListColumns = sinkValues => {
         },
       ],
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {
@@ -296,7 +296,7 @@ const getFieldListColumns = sinkValues => {
             };
           }
         },
-        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        disabled: [110].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {

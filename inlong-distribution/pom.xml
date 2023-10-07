@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
-        <version>1.9.0-SNAPSHOT</version>
+        <version>1.10.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>inlong-distribution</artifactId>
@@ -70,7 +70,23 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <executable>${basedir}/script/backup_module_dependencys.sh</executable>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>uncompress</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>install</phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
-
 </project>

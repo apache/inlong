@@ -164,8 +164,8 @@ public class IcebergSource<T> implements Source<T, IcebergSourceSplit, IcebergEn
 
     @Override
     public SourceReader<T, IcebergSourceSplit> createReader(SourceReaderContext readerContext) {
-        InlongIcebergSourceReaderMetrics metrics =
-                new InlongIcebergSourceReaderMetrics(readerContext.metricGroup(), lazyTable().name());
+        InlongIcebergSourceReaderMetrics<T> metrics =
+                new InlongIcebergSourceReaderMetrics<>(readerContext.metricGroup(), lazyTable().name());
         metrics.registerMetrics(metricOption);
         return new IcebergSourceReader<>(metrics, readerFunction, readerContext);
     }
@@ -531,10 +531,6 @@ public class IcebergSource<T> implements Source<T, IcebergSourceSplit, IcebergEn
             Preconditions.checkNotNull(tableLoader, "tableLoader is required.");
             Preconditions.checkNotNull(splitAssignerFactory, "assignerFactory is required.");
             Preconditions.checkNotNull(readerFunction, "readerFunction is required.");
-            Preconditions.checkNotNull(inlongAuditAddress, "inlongAuditAddress is required.");
-            Preconditions.checkNotNull(inlongAuditKeys, "inlongAuditKeys is required.");
-            Preconditions.checkNotNull(inlongMetrics, "inlongMetrics is required.");
-            Preconditions.checkNotNull(metricOption, "metricOption is required.");
         }
 
         private void resolveMetricOption() {

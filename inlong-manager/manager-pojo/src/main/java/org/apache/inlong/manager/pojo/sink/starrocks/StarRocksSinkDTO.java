@@ -109,6 +109,7 @@ public class StarRocksSinkDTO {
                 ? StarRocksSinkDTO.getFromJson(extParams)
                 : new StarRocksSinkDTO();
         CommonBeanUtils.copyProperties(request, dto, true);
+        dto.setEncryptVersion(encryptVersion);
         dto.setPassword(passwd);
         return dto;
     }

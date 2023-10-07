@@ -125,6 +125,7 @@ public class ClickHouseSinkDTO {
                 : new ClickHouseSinkDTO();
         CommonBeanUtils.copyProperties(request, dto, true);
         dto.setPassword(passwd);
+        dto.setEncryptVersion(encryptVersion);
         return dto;
     }
 

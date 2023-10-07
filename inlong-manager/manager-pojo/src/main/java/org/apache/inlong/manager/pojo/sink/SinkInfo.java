@@ -31,6 +31,7 @@ public class SinkInfo {
     private String inlongGroupId;
     private String inlongStreamId;
     private String sinkType;
+    private String inlongClusterName;
     private String sinkName;
     private String dataNodeName;
     private String description;

@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>sort-end-to-end-tests</artifactId>
-        <version>1.9.0-SNAPSHOT</version>
+        <version>1.10.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-end-to-end-tests-v1.15</artifactId>
@@ -162,6 +162,14 @@
                             <artifactId>sort-connector-postgres-cdc-v1.15</artifactId>
                             <version>${project.version}</version>
                             <destFileName>sort-connector-postgres-cdc.jar</destFileName>
+                            <type>jar</type>
+                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
+                        </artifactItem>
+                        <artifactItem>
+                            <groupId>org.apache.inlong</groupId>
+                            <artifactId>sort-connector-mysql-cdc-v1.15</artifactId>
+                            <version>${project.version}</version>
+                            <destFileName>sort-connector-mysql-cdc.jar</destFileName>
                             <type>jar</type>
                             <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
                         </artifactItem>

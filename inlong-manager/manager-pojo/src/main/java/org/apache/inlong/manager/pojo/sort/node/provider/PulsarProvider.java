@@ -52,7 +52,7 @@ public class PulsarProvider implements ExtractNodeProvider {
                 pulsarSource.getPulsarTenant() + "/" + pulsarSource.getNamespace() + "/" + pulsarSource.getTopic();
 
         Format format = parsingFormat(pulsarSource.getSerializationType(),
-                pulsarSource.isWrapWithInlongMsg(),
+                pulsarSource.getWrapType(),
                 pulsarSource.getDataSeparator(),
                 pulsarSource.isIgnoreParseError());
 

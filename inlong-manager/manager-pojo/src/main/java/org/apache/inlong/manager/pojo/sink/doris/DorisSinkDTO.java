@@ -95,6 +95,7 @@ public class DorisSinkDTO {
         DorisSinkDTO dto = StringUtils.isNotBlank(extParams) ? DorisSinkDTO.getFromJson(extParams) : new DorisSinkDTO();
         CommonBeanUtils.copyProperties(request, dto, true);
         dto.setPassword(passwd);
+        dto.setEncryptVersion(encryptVersion);
         return dto;
     }
 
