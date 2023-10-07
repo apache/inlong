@@ -260,14 +260,15 @@ public class AuditServiceImpl implements AuditService {
         }
 
         Map<String, String> auditIdMap = new HashMap<>();
-        auditIdMap.put(getAuditId(sourceNodeType, false), sourceNodeType);
         auditIdMap.put(getAuditId(sinkNodeType, true), sinkNodeType);
 
         // properly overwrite audit ids by role and stream config
-        request.setAuditIds(getAuditIds(groupId, streamId, null, sinkNodeType));
-
         if (InlongConstants.DATASYNC_MODE.equals(groupEntity.getInlongGroupMode())) {
+            auditIdMap.put(getAuditId(sourceNodeType, false), sourceNodeType);
             request.setAuditIds(getAuditIds(groupId, streamId, sourceNodeType, sinkNodeType));
+        } else {
+            auditIdMap.put(getAuditId(sinkNodeType, false), sinkNodeType);
+            request.setAuditIds(getAuditIds(groupId, streamId, null, sinkNodeType));
         }
 
         List<AuditVO> result = new ArrayList<>();
@@ -344,6 +345,8 @@ public class AuditServiceImpl implements AuditService {
             InlongGroupEntity inlongGroup = inlongGroupMapper.selectByGroupId(groupId);
             if (InlongConstants.DATASYNC_MODE.equals(inlongGroup.getInlongGroupMode())) {
                 auditSet.add(getAuditId(sourceNodeType, false));
+            } else {
+                auditSet.add(getAuditId(sinkNodeType, false));
             }
         }
 

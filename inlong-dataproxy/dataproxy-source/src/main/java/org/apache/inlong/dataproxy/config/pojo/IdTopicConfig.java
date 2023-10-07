@@ -40,11 +40,20 @@ public class IdTopicConfig {
     private DataType dataType = DataType.TEXT;
     private String fieldDelimiter = "|";
     private String fileDelimiter = "\n";
+    private Boolean useExtendedFields = false;
 
     private Map<String, String> params = new HashMap<>();
 
     public IdTopicConfig() {
 
+    }
+
+    public Boolean getUseExtendedFields() {
+        return useExtendedFields;
+    }
+
+    public void setUseExtendedFields(Boolean useExtendedFields) {
+        this.useExtendedFields = useExtendedFields;
     }
 
     /**

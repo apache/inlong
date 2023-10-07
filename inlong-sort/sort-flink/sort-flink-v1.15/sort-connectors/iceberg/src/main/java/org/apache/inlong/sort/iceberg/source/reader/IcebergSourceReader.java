@@ -39,7 +39,7 @@ public class IcebergSourceReader<T>
             SingleThreadMultiplexSourceReaderBase<RecordAndPosition<T>, T, IcebergSourceSplit, IcebergSourceSplit> {
 
     public IcebergSourceReader(
-            InlongIcebergSourceReaderMetrics metrics,
+            InlongIcebergSourceReaderMetrics<T> metrics,
             ReaderFunction<T> readerFunction,
             SourceReaderContext context) {
         super(

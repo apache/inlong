@@ -82,8 +82,8 @@ public class InlongStreamBriefInfo {
     @ApiModelProperty(value = "Data storage period, unit: day")
     private Integer storagePeriod;
 
-    @ApiModelProperty(value = "Whether the message body wrapped with InlongMsg")
-    private Boolean wrapWithInlongMsg;
+    @ApiModelProperty(value = "The message body  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
+    private String wrapType;
 
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value")
     private Boolean ignoreParseError;

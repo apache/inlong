@@ -48,6 +48,7 @@
     <select id="selectInlongStreamId" resultType="org.apache.inlong.manager.pojo.dataproxy.InlongStreamId">
         select inlong_group_id,
                inlong_stream_id,
+               dataType,
                mq_resource as topic,
                ext_params
         from inlong_stream

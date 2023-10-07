@@ -467,7 +467,7 @@ public class ClientMgr {
             int randomId = random.nextInt();
             client = clientList.get(randomId % currSize);
             if (client != null && client.isActive()) {
-                clientId = randomId;
+                clientId = randomId % currSize;
                 break;
             }
             maxRetry--;
