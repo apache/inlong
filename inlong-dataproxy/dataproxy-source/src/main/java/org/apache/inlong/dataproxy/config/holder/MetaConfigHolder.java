@@ -411,7 +411,7 @@ public class MetaConfigHolder extends ConfigHolder {
                     idObject.getParams().getOrDefault("dataType", DataType.TEXT.value())));
             tmpConfig.setFieldDelimiter(idObject.getParams().getOrDefault("fieldDelimiter", "|"));
             tmpConfig.setFileDelimiter(idObject.getParams().getOrDefault("fileDelimiter", "\n"));
-            tmpConfig.setSupportExtendedFields(Boolean.valueOf(
+            tmpConfig.setUseExtendedFields(Boolean.valueOf(
                     idObject.getParams().getOrDefault("supportExtendedFields", "false")));
             tmpTopicConfigMap.put(tmpConfig.getUid(), tmpConfig);
             if (mqType.equals(CacheType.TUBE)

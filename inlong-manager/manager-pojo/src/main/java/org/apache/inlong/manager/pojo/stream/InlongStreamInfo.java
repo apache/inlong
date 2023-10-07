@@ -134,7 +134,7 @@ public class InlongStreamInfo extends BaseInlongStream {
     private String wrapType;
 
     @ApiModelProperty(value = "If support extended fields")
-    private Boolean supportExtendedFields = false;
+    private Boolean useExtendedFields = false;
 
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value")
     private Boolean ignoreParseError = true;

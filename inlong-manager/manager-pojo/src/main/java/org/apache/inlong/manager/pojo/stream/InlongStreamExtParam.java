@@ -46,7 +46,7 @@ public class InlongStreamExtParam implements Serializable {
     private boolean ignoreParseError;
 
     @ApiModelProperty(value = "If support extended fields")
-    private Boolean supportExtendedFields = false;
+    private Boolean useExtendedFields = false;
 
     /**
      * Pack extended attributes into ExtParams
