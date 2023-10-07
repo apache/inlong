@@ -47,6 +47,7 @@ import static org.apache.inlong.sort.tests.utils.StarRocksManager.INTER_CONTAINE
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.STAR_ROCKS_LOG;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.getNewStarRocksImageName;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStarRocksTable;
+import static org.apache.inlong.sort.tests.utils.StarRocksManager.buildStarRocksImage;
 
 /**
  * End-to-end tests for sort-connector-postgres-cdc-v1.15 uber jar.
@@ -65,7 +66,7 @@ public class MysqlToRocksTest extends FlinkContainerTestEnv {
         try {
             sqlFile =
                     Paths.get(MysqlToRocksTest.class.getResource("/flinkSql/mysql_test.sql").toURI()).toString();
-            StarRocksManager.buildStarRocksImage();
+            buildStarRocksImage();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
