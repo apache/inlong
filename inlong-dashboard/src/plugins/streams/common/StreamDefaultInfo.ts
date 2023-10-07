@@ -262,24 +262,27 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
     type: 'radio',
     isPro: true,
     rules: [{ required: true }],
-    initialValue: true,
-    tooltip: i18n.t('meta.Stream.WrapWithInlongMsgHelp'),
+    initialValue: 'RAW',
     props: values => ({
       disabled: [110].includes(values?.status),
       options: [
         {
-          label: i18n.t('basic.Yes'),
-          value: true,
+          label: 'RAW',
+          value: 'RAW',
         },
         {
-          label: i18n.t('basic.No'),
-          value: false,
+          label: 'INLONG_MSG_VO',
+          value: 'INLONG_MSG_VO',
+        },
+        {
+          label: 'INLONG_MSG_V1',
+          value: 'INLONG_MSG_V1',
         },
       ],
     }),
   })
   @I18n('meta.Stream.WrapWithInlongMsg')
-  wrapWithInlongMsg: boolean;
+  wrapType: string;
 
   parse(data) {
     return data;
