@@ -54,34 +54,78 @@ public class PostgreSQLJdbcUtils {
      * @return {@link Connection}
      * @throws Exception on get connection error
      */
-    public static Connection getConnection(String url, String user, String password)
-            throws Exception {
-        // Not Null
+    public static Connection getConnection(String url, String user, String password) throws Exception {
+        validateInput(url, user, password);
+
+        String host = extractHostFromUrl(url);
+        validateHostname(host);
+
+        return establishDatabaseConnection(url, user, password);
+    }
+
+    /**
+     * Validates input parameters (URL, username, and password).
+     *
+     * @param url      The PostgreSQL JDBC URL
+     * @param user     The username
+     * @param password The user's password
+     * @throws Exception If any of the parameters is empty
+     */
+    private static void validateInput(String url, String user, String password) throws Exception {
         if (StringUtils.isBlank(url) || StringUtils.isBlank(user) || StringUtils.isBlank(password)) {
             throw new Exception("URL, username, or password cannot be empty");
         }
-        // Define the allowed IP addresses or hostname patterns
-        String allowedHostsPattern = "^(localhost|192\\.168\\.1\\.\\d{1,3}|10\\.0\\.0\\.\\d{1,3})$";
-        // Verify that the URL format is valid
+    }
+
+    /**
+     * Extracts the hostname from the PostgreSQL JDBC URL.
+     *
+     * @param url The PostgreSQL JDBC URL
+     * @return The extracted hostname
+     * @throws Exception If the URL format is invalid
+     */
+    private static String extractHostFromUrl(String url) throws Exception {
         if (!url.startsWith(POSTGRES_JDBC_PREFIX)) {
-            throw new Exception("PostgreSQL server URL was invalid, it should start with " + POSTGRES_JDBC_PREFIX);
+            throw new Exception("PostgreSQL server URL is invalid, it should start with " + POSTGRES_JDBC_PREFIX);
         }
-        // Extract the hostname and port from the URL
+
         String[] urlParts = url.split(":");
         if (urlParts.length < 3) {
             throw new Exception("Invalid PostgreSQL URL format");
         }
+
         String hostPortPart = urlParts[2];
-        // Extract the hostname from the host:port part of the URL
         String[] hostParts = hostPortPart.split("/");
         if (hostParts.length < 1) {
             throw new Exception("Invalid PostgreSQL URL format");
         }
-        String host = hostParts[0];
-        // Verify that the hostname is allowed
+
+        return hostParts[0];
+    }
+
+    /**
+     * Validates the hostname against allowed patterns.
+     *
+     * @param host The hostname to validate
+     * @throws Exception If the hostname is invalid
+     */
+    private static void validateHostname(String host) throws Exception {
+        String allowedHostsPattern = "^(localhost|192\\.168\\.1\\.\\d{1,3}|10\\.0\\.0\\.\\d{1,3})$";
         if (!host.matches(allowedHostsPattern)) {
             throw new Exception("Invalid host in PostgreSQL URL");
         }
+    }
+
+    /**
+     * Establishes a PostgreSQL database connection using the provided URL, username, and password.
+     *
+     * @param url      The PostgreSQL JDBC URL
+     * @param user     The username
+     * @param password The user's password
+     * @return A {@link Connection} representing the PostgreSQL database connection
+     * @throws Exception If an error occurs during connection establishment
+     */
+    private static Connection establishDatabaseConnection(String url, String user, String password) throws Exception {
         Connection conn;
         try {
             Class.forName(POSTGRES_DRIVER_CLASS);
@@ -92,6 +136,7 @@ public class PostgreSQLJdbcUtils {
             LOG.error(errorMsg, e);
             throw new Exception(errorMsg + ": " + e.getMessage());
         }
+
         if (conn == null) {
             throw new Exception("get PostgreSQL connection failed, please contact administrator");
         }

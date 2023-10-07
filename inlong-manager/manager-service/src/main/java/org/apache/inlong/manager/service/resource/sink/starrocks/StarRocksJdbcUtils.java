@@ -45,11 +45,17 @@ public class StarRocksJdbcUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(StarRocksJdbcUtils.class);
 
     /**
-     * Get starRocks connection from starRocks url and user
+     * Get a StarRocks JDBC connection using the provided URL, username, and password.
+     *
+     * @param url      The StarRocks JDBC URL.
+     * @param user     The username for authentication.
+     * @param password The password for authentication.
+     * @return A {@link Connection} representing the StarRocks database connection.
+     * @throws Exception If an error occurs during connection establishment.
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
         if (StringUtils.isBlank(url) || !url.startsWith(STAR_ROCKS_JDBC_PREFIX)) {
-            throw new Exception("starRocks server url should start with " + STAR_ROCKS_JDBC_PREFIX);
+            throw new Exception("StarRocks server URL should start with " + STAR_ROCKS_JDBC_PREFIX);
         }
 
         // Verify that the URL format is valid
@@ -61,15 +67,22 @@ public class StarRocksJdbcUtils {
         try {
             Class.forName(STAR_ROCKS_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
-            LOGGER.info("get star rocks connection success, url={}", url);
+            LOGGER.info("Successfully obtained StarRocks connection, URL: {}", url);
             return conn;
         } catch (Exception e) {
-            String errMsg = "get star rocks connection error, please check starRocks jdbc url, username, or password";
+            String errMsg =
+                    "Failed to get StarRocks connection, please check StarRocks JDBC URL, username, or password.";
             LOGGER.error(errMsg, e);
             throw new Exception(errMsg + ", error: " + e.getMessage());
         }
     }
 
+    /**
+     * Validates the format of the given JDBC URL.
+     *
+     * @param url The JDBC URL to validate.
+     * @return {@code true} if the URL format is valid, {@code false} otherwise.
+     */
     private static boolean isValidUrlFormat(String url) {
         // Modify this regular expression to match your URL format
         String urlPattern = "^jdbc:mysql://(localhost|\\d{1,3}(\\.\\d{1,3}){3})(:\\d{1,5})/.*$";

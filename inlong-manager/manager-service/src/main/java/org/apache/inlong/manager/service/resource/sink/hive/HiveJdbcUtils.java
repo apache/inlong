@@ -54,34 +54,103 @@ public class HiveJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        // Non-empty validation
+        validateInput(url, user, password);
+
+        String hostPort = extractHostPort(url);
+        String host = extractHost(hostPort);
+        String port = extractPort(hostPort);
+
+        validateHost(host);
+        validatePort(port);
+
+        return createConnection(url, user, password);
+    }
+
+    /**
+     * Validates the input parameters (URL, username, and password).
+     *
+     * @param url      The Hive JDBC URL
+     * @param user     The username
+     * @param password The user's password
+     * @throws Exception If any of the parameters is empty
+     */
+    private static void validateInput(String url, String user, String password) throws Exception {
         if (StringUtils.isBlank(url) || StringUtils.isBlank(user) || StringUtils.isBlank(password)) {
             throw new Exception("URL, username, or password cannot be empty");
         }
-        // Validate URL format
+    }
+
+    /**
+     * Extracts and validates the host and port from the Hive JDBC URL.
+     *
+     * @param url The Hive JDBC URL
+     * @return The host and port part of the URL
+     * @throws Exception If the URL is invalid
+     */
+    private static String extractHostPort(String url) throws Exception {
         if (!url.startsWith(HIVE_JDBC_PREFIX)) {
             throw new Exception("Hive JDBC URL is invalid, it should start with " + HIVE_JDBC_PREFIX);
         }
-        // Extract hostname and port from the URL
+
         String hostPortPart = url.substring(HIVE_JDBC_PREFIX.length());
         String[] hostPortParts = hostPortPart.split("/");
+
         if (hostPortParts.length < 1) {
             throw new Exception("Invalid Hive JDBC URL format");
         }
-        String hostPort = hostPortParts[0];
-        // Extract hostname and port
+
+        return hostPortParts[0];
+    }
+
+    /**
+     * Extracts the host from the host and port part.
+     *
+     * @param hostPort The host and port part in host:port format
+     * @return The extracted host
+     * @throws Exception If the host:port format is invalid
+     */
+    private static String extractHost(String hostPort) throws Exception {
         String[] hostPortSplit = hostPort.split(":");
+
         if (hostPortSplit.length != 2) {
             throw new Exception("Invalid host:port format in Hive JDBC URL");
         }
-        String host = hostPortSplit[0];
-        String port = hostPortSplit[1];
-        // Validate hostname
+
+        return hostPortSplit[0];
+    }
+
+    /**
+     * Extracts the port from the host and port part.
+     *
+     * @param hostPort The host and port part in host:port format
+     * @return The extracted port
+     */
+    private static String extractPort(String hostPort) {
+        String[] hostPortSplit = hostPort.split(":");
+        return hostPortSplit[1];
+    }
+
+    /**
+     * Validates the host against allowed host patterns.
+     *
+     * @param host The host to validate
+     * @throws Exception If the host is invalid
+     */
+    private static void validateHost(String host) throws Exception {
         String allowedHostsPattern = "^(localhost|192\\.168\\.1\\.\\d{1,3}|10\\.0\\.0\\.\\d{1,3})$";
+
         if (!host.matches(allowedHostsPattern)) {
             throw new Exception("Invalid host in Hive JDBC URL");
         }
-        // Validate port number
+    }
+
+    /**
+     * Validates the port as a valid numeric value within the allowed range.
+     *
+     * @param port The port to validate
+     * @throws Exception If the port is invalid
+     */
+    private static void validatePort(String port) throws Exception {
         try {
             int portNumber = Integer.parseInt(port);
             if (portNumber < 1 || portNumber > 65535) {
@@ -90,19 +159,33 @@ public class HiveJdbcUtils {
         } catch (NumberFormatException e) {
             throw new Exception("Invalid port number format in Hive JDBC URL");
         }
+    }
+
+    /**
+     * Creates a Hive JDBC connection using the provided URL, username, and password.
+     *
+     * @param url      The Hive JDBC URL
+     * @param user     The username
+     * @param password The user's password
+     * @return A {@link Connection} object representing the Hive database connection
+     * @throws Exception If an error occurs while obtaining the connection
+     */
+    private static Connection createConnection(String url, String user, String password) throws Exception {
         Connection conn;
         try {
             Class.forName(HIVE_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            String errorMsg = "get Hive connection error, please check Hive JDBC URL, username, or password!";
+            String errorMsg = "Failed to get Hive connection, please check Hive JDBC URL, username, or password!";
             LOGGER.error(errorMsg, e);
-            throw new Exception(errorMsg + " other error msg: " + e.getMessage());
+            throw new Exception(errorMsg + " Other error message: " + e.getMessage());
         }
+
         if (conn == null) {
-            throw new Exception("get Hive connection failed, please contact administrator.");
+            throw new Exception("Failed to get Hive connection, please contact the administrator.");
         }
-        LOGGER.info("get Hive connection success for url={}", url);
+
+        LOGGER.info("Successfully obtained Hive connection for URL: {}", url);
         return conn;
     }
 

@@ -58,18 +58,25 @@ public class MasterServiceImpl implements MasterService {
     @Autowired
     MasterRepository masterRepository;
 
+    /**
+     * Request the master using the given URL.
+     *
+     * @param url The URL to request.
+     * @return TubeMQResult representing the result of the request.
+     */
     @Override
     public TubeMQResult requestMaster(String url) {
         log.info("start to request {}", url);
         long startTime = System.currentTimeMillis();
-        // 验证URL是否合法
+
         if (!isValidURL(url)) {
             log.error("Invalid URL: {}", url);
             logRequestDetails(url, startTime, "Invalid URL");
             return TubeMQResult.errorResult("Invalid URL.");
         }
+
         String hostname = getHostnameFromURL(url);
-        // 进行DNS解析检查
+
         if (!isValidHostname(hostname)) {
             log.error("Invalid hostname: {}", hostname);
             logRequestDetails(url, startTime, "Invalid hostname");
@@ -77,7 +84,85 @@ public class MasterServiceImpl implements MasterService {
         }
 
         HttpGet httpGet = new HttpGet(url);
+        return executeHttpRequest(httpGet, url, startTime);
+    }
+
+    /**
+     * Logs request details including URL, status, and duration.
+     *
+     * @param url     The URL being requested.
+     * @param startTime The start time of the request.
+     * @param status  The status of the request.
+     */
+    private void logRequestDetails(String url, long startTime, String status) {
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        log.info("Request Details - URL: {}, Status: {}, Duration: {} ms", url, status, duration);
+    }
+
+    /**
+     * Extracts the hostname from the given URL.
+     *
+     * @param url The URL from which to extract the hostname.
+     * @return The extracted hostname.
+     */
+    private String getHostnameFromURL(String url) {
+        try {
+            URL u = new URL(url);
+            return u.getHost();
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Validates the hostname by performing DNS resolution.
+     *
+     * @param hostname The hostname to validate.
+     * @return true if the hostname is valid, false otherwise.
+     */
+    private boolean isValidHostname(String hostname) {
+        if (hostname == null) {
+            return false;
+        }
+        try {
+            InetAddress.getByName(hostname);
+            return true;
+        } catch (UnknownHostException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Validates the format of the URL and checks if it starts with "http" or "https".
+     *
+     * @param url The URL to validate.
+     * @return true if the URL is valid, false otherwise.
+     */
+    private boolean isValidURL(String url) {
+        try {
+            URL u = new URL(url);
+            String protocol = u.getProtocol().toLowerCase();
+            if ("http".equals(protocol) || "https".equals(protocol)) {
+                return true;
+            }
+        } catch (MalformedURLException e) {
+            return false;
+        }
+        return false;
+    }
+
+    /**
+     * Executes an HTTP request and returns the TubeMQResult.
+     *
+     * @param httpGet    The HttpGet request to execute.
+     * @param url        The URL being requested.
+     * @param startTime  The start time of the request.
+     * @return TubeMQResult representing the result of the HTTP request.
+     */
+    private TubeMQResult executeHttpRequest(HttpGet httpGet, String url, long startTime) {
         TubeMQResult defaultResult = new TubeMQResult();
+
         try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
             TubeHttpResponse tubeResponse =
                     gson.fromJson(new InputStreamReader(response.getEntity().getContent(),
@@ -98,46 +183,6 @@ public class MasterServiceImpl implements MasterService {
         return defaultResult;
     }
 
-    private void logRequestDetails(String url, long startTime, String status) {
-        long endTime = System.currentTimeMillis();
-        long duration = endTime - startTime;
-        log.info("Request Details - URL: {}, Status: {}, Duration: {} ms", url, status, duration);
-    }
-
-    private String getHostnameFromURL(String url) {
-        try {
-            URL u = new URL(url);
-            return u.getHost();
-        } catch (MalformedURLException e) {
-            return null;
-        }
-    }
-
-    private boolean isValidHostname(String hostname) {
-        if (hostname == null) {
-            return false;
-        }
-        try {
-            InetAddress.getByName(hostname);
-            return true;
-        } catch (UnknownHostException e) {
-            return false;
-        }
-    }
-
-    private boolean isValidURL(String url) {
-        try {
-            URL u = new URL(url);
-            String protocol = u.getProtocol().toLowerCase();
-            if ("http".equals(protocol) || "https".equals(protocol)) {
-                return true;
-            }
-        } catch (MalformedURLException e) {
-            return false;
-        }
-        return false;
-    }
-
     /**
      * query master to get node info
      *
@@ -147,7 +192,7 @@ public class MasterServiceImpl implements MasterService {
     @Override
     public String queryMaster(String url) {
         log.info("start to request {}", url);
-        // 验证URL是否合法
+
         if (!isValidURL(url)) {
             log.error("Invalid URL: {}", url);
             return gson.toJson(TubeMQResult.errorResult("Invalid URL."));
@@ -156,7 +201,7 @@ public class MasterServiceImpl implements MasterService {
         HttpGet httpGet = new HttpGet(url);
         TubeMQResult defaultResult = new TubeMQResult();
         try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
-            // 如果重定向后的URL与原始URL不同，进行进一步验证
+            // If the redirected URL is different from the original URL, perform further validation
             String redirectedUrl = response.getHeaders("Location")[0].getValue();
             if (!url.equals(redirectedUrl) && !isValidURL(redirectedUrl)) {
                 log.error("Invalid redirected URL: {}", redirectedUrl);

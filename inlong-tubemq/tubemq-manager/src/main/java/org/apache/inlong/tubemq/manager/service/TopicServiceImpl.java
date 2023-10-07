@@ -117,40 +117,109 @@ public class TopicServiceImpl implements TopicService {
         return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_GROUP);
     }
 
+    /**
+     * Requests and retrieves topic view information from a TubeMQ cluster.
+     *
+     * @param clusterId  The ID of the TubeMQ cluster.
+     * @param topicName  The name of the topic to retrieve information for.
+     * @return           The TopicView object containing topic information.
+     * @throws IllegalArgumentException  If any validation checks fail.
+     * @throws RuntimeException          If an exception occurs during the request.
+     */
     @Override
     public TopicView requestTopicViewInfo(Long clusterId, String topicName) {
         MasterEntry masterNode = masterService.getMasterNode(clusterId);
-        // Validate if MasterEntry is valid
+        validateMasterEntry(masterNode, clusterId);
+        validateTopicName(topicName, clusterId);
+
+        String url = buildTopicViewURL(masterNode, topicName, clusterId);
+        HttpGet httpget = new HttpGet(url);
+        try (CloseableHttpResponse response = httpclient.execute(httpget)) {
+            return parseTopicViewResponse(response);
+        } catch (Exception ex) {
+            handleRequestException(clusterId, topicName, ex);
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+
+    /**
+     * Validates if the provided MasterEntry is valid.
+     *
+     * @param masterNode The MasterEntry to validate.
+     * @param clusterId  The ID of the TubeMQ cluster.
+     * @throws IllegalArgumentException If the MasterEntry is invalid.
+     */
+    private void validateMasterEntry(MasterEntry masterNode, Long clusterId) {
         if (masterNode == null || StringUtils.isBlank(masterNode.getIp()) || masterNode.getWebPort() <= 0) {
             log.error("Invalid MasterEntry: ClusterId = {}", clusterId);
             throw new IllegalArgumentException("Invalid MasterEntry.");
         }
-        // Validate if the Topic name is empty or contains dangerous characters
-        if (StringUtils.isBlank(topicName) || containsDangerousChars(topicName)) {
+    }
+
+    /**
+     * Validates if the provided topic name is valid.
+     *
+     * @param topicName The topic name to validate.
+     * @param clusterId The ID of the TubeMQ cluster.
+     * @throws IllegalArgumentException If the topic name is invalid.
+     */
+    private void validateTopicName(String topicName, Long clusterId) {
+        if (StringUtils.isBlank(topicName) || containsDangerousChars(topicName)
+                || topicName.length() > MAX_TOPIC_NAME_LENGTH) {
             log.error("Invalid topicName: ClusterId = {}, TopicName = {}", clusterId, topicName);
             throw new IllegalArgumentException("Invalid topicName.");
         }
-        if (topicName.length() > MAX_TOPIC_NAME_LENGTH) {
-            log.error("TopicName is too long: ClusterId = {}, TopicName = {}", clusterId, topicName);
-            throw new IllegalArgumentException("TopicName is too long.");
-        }
+    }
+
+    /**
+     * Builds the URL for requesting topic view information.
+     *
+     * @param masterNode The MasterEntry representing the TubeMQ master node.
+     * @param topicName  The name of the topic.
+     * @param clusterId  The ID of the TubeMQ cluster.
+     * @return           The constructed URL.
+     * @throws IllegalArgumentException If the URL is invalid.
+     */
+    private String buildTopicViewURL(MasterEntry masterNode, String topicName, Long clusterId) {
         String url = TubeConst.SCHEMA + masterNode.getIp() + ":" + masterNode.getWebPort() + TubeConst.TOPIC_VIEW;
         if (!isValidURL(url)) {
             log.error("Invalid URL: ClusterId = {}, URL = {}", clusterId, url);
             throw new IllegalArgumentException("Invalid URL.");
         }
-        url += TubeConst.TOPIC_NAME + topicName;
-        HttpGet httpget = new HttpGet(url);
-        try (CloseableHttpResponse response = httpclient.execute(httpget)) {
-            return gson.fromJson(new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8),
-                    TopicView.class);
-        } catch (Exception ex) {
-            log.error("Exception caught while requesting group status: ClusterId = {}, TopicName = {}", clusterId,
-                    topicName, ex);
-            throw new RuntimeException(ex.getMessage());
-        }
+        return url + TubeConst.TOPIC_NAME + topicName;
     }
 
+    /**
+     * Parses the response to obtain a TopicView object.
+     *
+     * @param response The HTTP response containing topic view information.
+     * @return         The parsed TopicView object.
+     * @throws Exception If an exception occurs during parsing.
+     */
+    private TopicView parseTopicViewResponse(CloseableHttpResponse response) throws Exception {
+        return gson.fromJson(new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8),
+                TopicView.class);
+    }
+
+    /**
+     * Handles exceptions that occur during the request.
+     *
+     * @param clusterId The ID of the TubeMQ cluster.
+     * @param topicName The name of the topic.
+     * @param ex        The exception that occurred.
+     */
+    private void handleRequestException(Long clusterId, String topicName, Exception ex) {
+        log.error("Exception caught while requesting topic view: ClusterId = {}, TopicName = {}", clusterId, topicName,
+                ex);
+    }
+
+    /**
+     * Checks if the input string contains dangerous characters or keywords that may pose security risks,
+     * such as those commonly associated with SSRF attacks.
+     *
+     * @param input The input string to be checked for dangerous characters or keywords.
+     * @return True if the input contains dangerous characters or keywords, otherwise false.
+     */
     private boolean containsDangerousChars(String input) {
         input = input.toLowerCase();
         String[] dangerousKeywords =
@@ -170,6 +239,12 @@ public class TopicServiceImpl implements TopicService {
         return matcher.find();
     }
 
+    /**
+     * Validates if the provided URL string is in a valid URL format.
+     *
+     * @param url The URL string to be validated.
+     * @return True if the URL is in a valid format, otherwise false.
+     */
     private boolean isValidURL(String url) {
         try {
             new URL(url);

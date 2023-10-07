@@ -66,6 +66,12 @@ public class ClickHouseJdbcUtils {
         return conn;
     }
 
+    /**
+     * Validates the format of the ClickHouse JDBC URL.
+     *
+     * @param url The ClickHouse JDBC URL to validate
+     * @throws Exception If the URL format is invalid
+     */
     private static void validateUrlFormat(String url) throws Exception {
         if (!url.startsWith(CLICKHOUSE_JDBC_PREFIX)) {
             throw new Exception("ClickHouse JDBC URL is invalid, it should start with " + CLICKHOUSE_JDBC_PREFIX);
@@ -77,6 +83,13 @@ public class ClickHouseJdbcUtils {
         }
     }
 
+    /**
+     * Extracts the host from the ClickHouse JDBC URL.
+     *
+     * @param url The ClickHouse JDBC URL from which to extract the host
+     * @return The extracted host
+     * @throws Exception If the URL format is invalid
+     */
     private static String extractHostFromUrl(String url) throws Exception {
         String hostPortPart = url.substring(CLICKHOUSE_JDBC_PREFIX.length()).split("/")[0];
         String[] hostPortSplit = hostPortPart.split(":");
@@ -86,6 +99,13 @@ public class ClickHouseJdbcUtils {
         return hostPortSplit[0];
     }
 
+    /**
+     * Extracts the port from the ClickHouse JDBC URL.
+     *
+     * @param url The ClickHouse JDBC URL from which to extract the port
+     * @return The extracted port
+     * @throws Exception If the URL format is invalid
+     */
     private static String extractPortFromUrl(String url) throws Exception {
         String hostPortPart = url.substring(CLICKHOUSE_JDBC_PREFIX.length()).split("/")[0];
         String[] hostPortSplit = hostPortPart.split(":");
@@ -95,6 +115,12 @@ public class ClickHouseJdbcUtils {
         return hostPortSplit[1];
     }
 
+    /**
+     * Validates the host against allowed host patterns.
+     *
+     * @param host The host to validate
+     * @throws Exception If the host is invalid
+     */
     private static void validateHost(String host) throws Exception {
         String allowedHostsPattern = "^(localhost|192\\.168\\.1\\.\\d{1,3}|10\\.0\\.0\\.\\d{1,3})$";
         if (!host.matches(allowedHostsPattern)) {
@@ -102,6 +128,12 @@ public class ClickHouseJdbcUtils {
         }
     }
 
+    /**
+     * Validates the port as a valid numeric value within the allowed range.
+     *
+     * @param port The port to validate
+     * @throws Exception If the port is invalid
+     */
     private static void validatePort(String port) throws Exception {
         try {
             int portNumber = Integer.parseInt(port);
@@ -113,6 +145,15 @@ public class ClickHouseJdbcUtils {
         }
     }
 
+    /**
+     * Establishes a ClickHouse JDBC connection using the provided URL, username, and password.
+     *
+     * @param url      The ClickHouse JDBC URL
+     * @param user     The username
+     * @param password The user's password
+     * @return A {@link Connection} object representing the ClickHouse database connection
+     * @throws Exception If an error occurs while obtaining the connection
+     */
     private static Connection establishConnection(String url, String user, String password) throws Exception {
         Connection conn;
         try {
@@ -131,6 +172,14 @@ public class ClickHouseJdbcUtils {
         return conn;
     }
 
+    /**
+     * Validates the input parameters (URL, username, and password).
+     *
+     * @param url      The ClickHouse JDBC URL
+     * @param user     The username
+     * @param password The user's password
+     * @throws Exception If any of the parameters is empty
+     */
     private static void validateInput(String url, String user, String password) throws Exception {
         if (StringUtils.isBlank(url) || StringUtils.isBlank(user) || StringUtils.isBlank(password)) {
             throw new Exception("URL, username, or password cannot be empty");

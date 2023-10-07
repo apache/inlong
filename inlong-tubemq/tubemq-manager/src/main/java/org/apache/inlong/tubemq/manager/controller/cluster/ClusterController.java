@@ -77,56 +77,76 @@ public class ClusterController {
     @Autowired
     private MasterService masterService;
 
+    /**
+     * Handles cluster-related requests based on the specified method.
+     *
+     * @param method The method to perform (e.g., "add", "delete", "modify", "switch")
+     * @param req    The request body containing relevant data
+     * @return A TubeMQResult indicating the result of the operation
+     */
     @PostMapping("")
     public @ResponseBody TubeMQResult clusterMethodProxy(@RequestParam String method, @RequestBody String req) {
-        // Validate the 'method' parameter to ensure it's one of the allowed methods
         if (!isValidMethod(method)) {
-            // Log audit: Record the invalid 'method' value
             LOGGER.warn("Invalid method value received: {}", method);
             return TubeMQResult.errorResult("Invalid method value.");
         }
-        // Validate the 'req' parameter to ensure it's a valid URL
+
         if (!isValidURL(req)) {
-            // Log audit: Record the invalid URL
             LOGGER.warn("Invalid URL format received: {}", req);
             return TubeMQResult.errorResult("Invalid URL format.");
         }
-        // Perform further processing based on the 'method' parameter
-        switch (method) {
-            case TubeConst.ADD:
-                // Log audit: Record the 'add' operation
-                LOGGER.info("Received 'add' operation with URL: {}", req);
-                return addNewCluster(gson.fromJson(req, AddClusterReq.class));
-            case TubeConst.DELETE:
-                // Log audit: Record the 'delete' operation
-                LOGGER.info("Received 'delete' operation with URL: {}", req);
-                return deleteCluster(gson.fromJson(req, DeleteClusterReq.class));
-            case TubeConst.MODIFY:
-                // Log audit: Record the 'modify' operation
-                LOGGER.info("Received 'modify' operation with URL: {}", req);
-                return changeCluster(gson.fromJson(req, ClusterDto.class));
-            case TubeConst.SWITCH:
-                // Log audit: Record the 'switch' operation
-                LOGGER.info("Received 'switch' operation with URL: {}", req);
-                return masterService.baseRequestMaster(gson.fromJson(req, SwitchClusterReq.class));
-            default:
-                // Log audit: Record an unknown method
-                LOGGER.warn("Received unknown method: {}", method);
-                return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_METHOD);
-        }
+
+        return processClusterRequest(method, req);
     }
 
+    /**
+     * Validates if the provided URL is in a valid format.
+     *
+     * @param url The URL to validate
+     * @return True if the URL is valid, otherwise false
+     */
     private static boolean isValidURL(String url) {
-        // Use the regular expression pattern to validate the URL
         String urlPattern = "^(https?|ftp)://[a-zA-Z0-9.-]+(/.*)?$";
         return url.matches(urlPattern);
     }
 
+    /**
+     * Validates if the provided method is one of the allowed methods.
+     *
+     * @param method The method to validate
+     * @return True if the method is valid, otherwise false
+     */
     private static boolean isValidMethod(String method) {
-        // Define a list of allowed methods
         List<String> allowedMethods =
                 Arrays.asList(TubeConst.ADD, TubeConst.DELETE, TubeConst.MODIFY, TubeConst.SWITCH);
         return allowedMethods.contains(method);
+    }
+
+    /**
+     * Processes the cluster-related request based on the specified method.
+     *
+     * @param method The method to perform (e.g., "add", "delete", "modify", "switch")
+     * @param req    The request body containing relevant data
+     * @return A TubeMQResult indicating the result of the operation
+     */
+    private TubeMQResult processClusterRequest(String method, String req) {
+        switch (method) {
+            case TubeConst.ADD:
+                LOGGER.info("Received 'add' operation with URL: {}", req);
+                return addNewCluster(gson.fromJson(req, AddClusterReq.class));
+            case TubeConst.DELETE:
+                LOGGER.info("Received 'delete' operation with URL: {}", req);
+                return deleteCluster(gson.fromJson(req, DeleteClusterReq.class));
+            case TubeConst.MODIFY:
+                LOGGER.info("Received 'modify' operation with URL: {}", req);
+                return changeCluster(gson.fromJson(req, ClusterDto.class));
+            case TubeConst.SWITCH:
+                LOGGER.info("Received 'switch' operation with URL: {}", req);
+                return masterService.baseRequestMaster(gson.fromJson(req, SwitchClusterReq.class));
+            default:
+                LOGGER.warn("Received unknown method: {}", method);
+                return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_METHOD);
+        }
     }
 
     /**

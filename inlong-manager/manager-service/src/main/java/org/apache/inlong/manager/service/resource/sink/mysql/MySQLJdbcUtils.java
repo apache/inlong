@@ -52,34 +52,79 @@ public class MySQLJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        // Non-empty validation
+        // Validate input parameters
+        validateInput(url, user, password);
+
+        // Parse and validate the URL, and extract the host
+        String host = parseAndValidateURL(url);
+
+        // Validate hostname and port
+        validateHostnameAndPort(host);
+
+        // Establish a database connection
+        Connection conn = establishDatabaseConnection(url, user, password);
+
+        // Check if the connection was successful
+        validateConnection(conn, url);
+
+        return conn;
+    }
+
+    /**
+     * Validates the input parameters (URL, username, and password).
+     *
+     * @param url      The JDBC URL
+     * @param user     The username
+     * @param password The user's password
+     * @throws Exception If any of the parameters is empty
+     */
+    private static void validateInput(String url, String user, String password) throws Exception {
         if (StringUtils.isBlank(url) || StringUtils.isBlank(user) || StringUtils.isBlank(password)) {
             throw new Exception("URL, username, or password cannot be empty");
         }
-        // Validate URL format
+    }
+
+    /**
+     * Parses and validates the JDBC URL, and returns the host part.
+     *
+     * @param url The JDBC URL
+     * @return The host part of the URL
+     * @throws Exception If the URL is invalid
+     */
+    private static String parseAndValidateURL(String url) throws Exception {
         if (!url.startsWith(MYSQL_JDBC_PREFIX)) {
             throw new Exception("MySQL JDBC URL is invalid, it should start with " + MYSQL_JDBC_PREFIX);
         }
-        // Extract hostname and port from the URL
+
         String hostPortPart = url.substring(MYSQL_JDBC_PREFIX.length());
         String[] hostPortParts = hostPortPart.split("/");
         if (hostPortParts.length < 1) {
             throw new Exception("Invalid MySQL JDBC URL format");
         }
-        String hostPort = hostPortParts[0];
-        // Extract hostname and port
-        String[] hostPortSplit = hostPort.split(":");
+
+        return hostPortParts[0];
+    }
+
+    /**
+     * Validates the hostname and port in the JDBC URL.
+     *
+     * @param host The hostname and port in host:port format
+     * @throws Exception If the hostname or port is invalid
+     */
+    private static void validateHostnameAndPort(String host) throws Exception {
+        String[] hostPortSplit = host.split(":");
         if (hostPortSplit.length != 2) {
             throw new Exception("Invalid host:port format in MySQL JDBC URL");
         }
-        String host = hostPortSplit[0];
+
+        String hostName = hostPortSplit[0];
         String port = hostPortSplit[1];
-        // Validate hostname
+
         String allowedHostsPattern = "^(localhost|192\\.168\\.1\\.\\d{1,3}|10\\.0\\.0\\.\\d{1,3})$";
-        if (!host.matches(allowedHostsPattern)) {
+        if (!hostName.matches(allowedHostsPattern)) {
             throw new Exception("Invalid host in MySQL JDBC URL");
         }
-        // Validate port number
+
         try {
             int portNumber = Integer.parseInt(port);
             if (portNumber < 1 || portNumber > 65535) {
@@ -88,20 +133,42 @@ public class MySQLJdbcUtils {
         } catch (NumberFormatException e) {
             throw new Exception("Invalid port number format in MySQL JDBC URL");
         }
+    }
+
+    /**
+     * Establishes a database connection using the provided URL, username, and password.
+     *
+     * @param url      The JDBC URL
+     * @param user     The username
+     * @param password The user's password
+     * @return A {@link Connection} object representing the database connection
+     * @throws Exception If an error occurs while obtaining the connection
+     */
+    private static Connection establishDatabaseConnection(String url, String user, String password) throws Exception {
         Connection conn;
         try {
             Class.forName(MYSQL_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            String errorMsg = "get MySQL connection error, please check MySQL JDBC URL, username, or password!";
+            String errorMsg = "Failed to get MySQL connection, please check MySQL JDBC URL, username, or password!";
             LOGGER.error(errorMsg, e);
-            throw new Exception(errorMsg + " other error msg: " + e.getMessage());
+            throw new Exception(errorMsg + " Other error message: " + e.getMessage());
         }
-        if (conn == null) {
-            throw new Exception("get MySQL connection failed, please contact administrator.");
-        }
-        LOGGER.info("get MySQL connection success for url={}", url);
         return conn;
+    }
+
+    /**
+     * Validates if the database connection was successfully obtained.
+     *
+     * @param conn The database connection
+     * @param url  The JDBC URL
+     * @throws Exception If the connection is null
+     */
+    private static void validateConnection(Connection conn, String url) throws Exception {
+        if (conn == null) {
+            throw new Exception("Failed to get MySQL connection, please contact the administrator.");
+        }
+        LOGGER.info("Successfully obtained MySQL connection for URL: {}", url);
     }
 
     /**
