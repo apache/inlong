@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.cluster;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -24,35 +25,30 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
-import org.apache.inlong.manager.pojo.cluster.sortstandalone.SortStandaloneClusterDTO;
 import org.apache.inlong.manager.pojo.cluster.sortstandalone.SortStandaloneClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.sortstandalone.SortStandaloneClusterRequest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
 
 @Slf4j
 @Service
 public class SortStandaloneClusterOperator extends AbstractClusterOperator {
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @Override
     protected void setTargetEntity(ClusterRequest request, InlongClusterEntity targetEntity) {
         SortStandaloneClusterRequest standaloneRequest = (SortStandaloneClusterRequest) request;
         CommonBeanUtils.copyProperties(standaloneRequest, targetEntity, true);
-        try {
-            SortStandaloneClusterDTO dto = SortStandaloneClusterDTO.getFromRequest(standaloneRequest,
-                    targetEntity.getExtParams());
-            targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
-            log.debug("success to set entity for SortStandalone cluster");
-        } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
-                    String.format("serialize extParams of SortStandalone Cluster failure: %s", e.getMessage()));
+        Set<String> supportedTypes = standaloneRequest.getSupportedSinkTypes();
+        if (CollectionUtils.isNotEmpty(supportedTypes)) {
+            String extTag = Joiner.on(InlongConstants.COMMA).join(supportedTypes);
+            targetEntity.setExtTag(extTag);
         }
     }
 
@@ -74,9 +70,10 @@ public class SortStandaloneClusterOperator extends AbstractClusterOperator {
 
         SortStandaloneClusterInfo clusterInfo = new SortStandaloneClusterInfo();
         CommonBeanUtils.copyProperties(entity, clusterInfo);
-        if (StringUtils.isNotBlank(entity.getExtParams())) {
-            SortStandaloneClusterDTO dto = SortStandaloneClusterDTO.getFromJson(entity.getExtParams());
-            CommonBeanUtils.copyProperties(dto, clusterInfo);
+        String extTag = entity.getExtTag();
+        if (StringUtils.isNotBlank(extTag)) {
+            Set<String> supportedTypes = Sets.newHashSet(extTag.split(InlongConstants.COMMA));
+            clusterInfo.setSupportedSinkTypes(supportedTypes);
         }
         return clusterInfo;
     }

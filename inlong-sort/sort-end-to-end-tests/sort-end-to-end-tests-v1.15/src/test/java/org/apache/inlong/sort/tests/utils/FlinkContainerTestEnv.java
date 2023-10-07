@@ -117,6 +117,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
                         .withNetworkAliases(INTER_CONTAINER_JM_ALIAS)
                         .withExposedPorts(JOB_MANAGER_REST_PORT, DEBUG_PORT)
                         .withEnv("FLINK_PROPERTIES", FLINK_PROPERTIES)
+                        .withExposedPorts(JOB_MANAGER_REST_PORT)
                         .withLogConsumer(new Slf4jLogConsumer(JM_LOG));
         taskManager =
                 new GenericContainer<>("flink:1.15.4-scala_2.12")
