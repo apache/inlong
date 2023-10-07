@@ -106,6 +106,26 @@ public class StreamSourceClient {
     }
 
     /**
+     * Stop data source information by id.
+     */
+    public boolean stopSource(int id) {
+        Preconditions.expectTrue(id > 0, "sourceId is illegal");
+        Response<Boolean> response = ClientUtils.executeHttpCall(streamSourceApi.stopSource(id));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Restart data source information by id.
+     */
+    public boolean restartSource(int id) {
+        Preconditions.expectTrue(id > 0, "sourceId is illegal");
+        Response<Boolean> response = ClientUtils.executeHttpCall(streamSourceApi.restartSource(id));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
      * Force deletes the stream source by groupId and streamId
      *
      * @param groupId The belongs group id.
