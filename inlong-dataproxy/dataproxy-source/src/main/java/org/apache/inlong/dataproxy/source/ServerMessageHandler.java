@@ -656,7 +656,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
      */
     private ByteBuf buildHBRspPackage(byte[] attrData, byte version, int loadValue) {
         // calculate total length
-        // binTotalLen = mstType + dataTime + version + bodyLen + body + attrsLen + attrs + magic
+        // binTotalLen = mstType + dataTime + body_ver + bodyLen + body + attrsLen + attrs + magic
         int binTotalLen = 1 + 4 + 1 + 4 + 2 + 2 + 2;
         if (null != attrData) {
             binTotalLen += attrData.length;
