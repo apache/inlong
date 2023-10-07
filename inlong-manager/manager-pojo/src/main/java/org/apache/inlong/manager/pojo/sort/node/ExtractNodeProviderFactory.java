@@ -21,6 +21,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.HudiProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.IcebergProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.KafkaProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.MongoDBProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.MySQLBinlogProvider;
@@ -56,6 +57,7 @@ public class ExtractNodeProviderFactory {
         EXTRACT_NODE_PROVIDER_LIST.add(new SQLServerProvider());
         EXTRACT_NODE_PROVIDER_LIST.add(new PostgreSQLProvider());
         EXTRACT_NODE_PROVIDER_LIST.add(new MySQLBinlogProvider());
+        EXTRACT_NODE_PROVIDER_LIST.add(new IcebergProvider());
 
     }
 

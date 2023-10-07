@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.cdc.base.util.RecordUtils.shouldUseCatalogBeforeSchema;
 
 /** The information used to describe a finished snapshot split.
  * Copy from com.ververica:flink-cdc-base:2.3.0.
@@ -140,6 +141,8 @@ public class FinishedSnapshotSplitInfo implements OffsetDeserializerSerializer {
     }
 
     public byte[] serialize(final DataOutputSerializer out) throws IOException {
+        boolean useCatalogBeforeSchema = shouldUseCatalogBeforeSchema(this.getTableId());
+        out.writeBoolean(useCatalogBeforeSchema);
         out.writeUTF(this.getTableId().toString());
         out.writeUTF(this.getSplitId());
         out.writeUTF(SerializerUtils.rowToSerializedString(this.getSplitStart()));

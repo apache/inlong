@@ -74,4 +74,9 @@ export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
     value: 'SQLSERVER',
     LoadEntity: () => import('./SQLServer'),
   },
+  {
+    label: 'Iceberg',
+    value: 'ICEBERG',
+    LoadEntity: () => import('./Iceberg'),
+  },
 ];

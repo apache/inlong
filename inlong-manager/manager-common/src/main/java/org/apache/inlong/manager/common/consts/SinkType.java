@@ -23,7 +23,6 @@ package org.apache.inlong.manager.common.consts;
 public class SinkType extends StreamType {
 
     public static final String HIVE = "HIVE";
-    public static final String ICEBERG = "ICEBERG";
     public static final String CLICKHOUSE = "CLICKHOUSE";
     public static final String HBASE = "HBASE";
     public static final String ELASTICSEARCH = "ELASTICSEARCH";
@@ -35,4 +34,9 @@ public class SinkType extends StreamType {
     public static final String STARROCKS = "STARROCKS";
     public static final String KUDU = "KUDU";
     public static final String REDIS = "REDIS";
+    /**
+     * Tencent cloud log service
+     * Details: <a href="https://www.tencentcloud.com/products/cls">CLS</a>
+     */
+    public static final String CLS = "CLS";
 }

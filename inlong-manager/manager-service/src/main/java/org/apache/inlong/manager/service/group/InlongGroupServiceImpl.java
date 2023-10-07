@@ -155,7 +155,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             throw new BusinessException(ErrorCodeEnum.GROUP_DUPLICATE);
         }
 
-        request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
+        if (request.getEnableZookeeper() == null) {
+            request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
+        }
         InlongGroupOperator instance = groupOperatorFactory.getInstance(request.getMqType());
         groupId = instance.saveOpt(request, operator);
 
@@ -174,7 +176,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         if (entity != null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_DUPLICATE);
         }
-        request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
+        if (request.getEnableZookeeper() == null) {
+            request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
+        }
+
         InlongGroupOperator instance = groupOperatorFactory.getInstance(request.getMqType());
         groupId = instance.saveOpt(request, opInfo.getName());
         // save ext info
@@ -311,9 +316,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
         Page<InlongGroupEntity> entityPage = (Page<InlongGroupEntity>) groupMapper.selectByCondition(request);
+        PageResult<InlongGroupBriefInfo> pageResult = PageResult.fromPage(entityPage)
+                .map(entity -> CommonBeanUtils.copyProperties(entity, InlongGroupBriefInfo::new));
 
-        List<InlongGroupBriefInfo> briefInfos = CommonBeanUtils.copyListProperties(entityPage,
-                InlongGroupBriefInfo::new);
+        List<InlongGroupBriefInfo> briefInfos = pageResult.getList();
 
         // list all related sources
         if (request.isListSources() && CollectionUtils.isNotEmpty(briefInfos)) {
@@ -331,9 +337,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
                 group.setStreamSources(sources);
             });
         }
-
-        PageResult<InlongGroupBriefInfo> pageResult = new PageResult<>(briefInfos,
-                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
 
         LOGGER.debug("success to list inlong group for {}", request);
         return pageResult;
@@ -391,7 +394,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // check whether the current status can be modified
         doUpdateCheck(entity, request, operator);
 
-        request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
+        if (request.getEnableZookeeper() == null) {
+            request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
+        }
+
         InlongGroupOperator instance = groupOperatorFactory.getInstance(request.getMqType());
         instance.updateOpt(request, operator);
 
@@ -423,7 +429,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
                     String.format("Current status=%s is not allowed to update MQ type", curStatus));
         }
         // update record
-        request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
+        if (request.getEnableZookeeper() == null) {
+            request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
+        }
+
         InlongGroupOperator instance = groupOperatorFactory.getInstance(request.getMqType());
         instance.updateOpt(request, opInfo.getName());
         // save ext info

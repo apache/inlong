@@ -84,6 +84,16 @@ public enum SourceStatus {
             TO_BE_ISSUED_BACKTRACK, TO_BE_ISSUED_STOP, TO_BE_ISSUED_ACTIVE,
             TO_BE_ISSUED_CHECK, TO_BE_ISSUED_REDO_METRIC, TO_BE_ISSUED_MAKEUP);
 
+    public static final Set<SourceStatus> NORMAL_STATUS_SET = Sets.newHashSet(
+            SOURCE_NORMAL, TO_BE_ISSUED_ADD, TO_BE_ISSUED_RETRY,
+            TO_BE_ISSUED_BACKTRACK, TO_BE_ISSUED_ACTIVE, TO_BE_ISSUED_CHECK,
+            TO_BE_ISSUED_REDO_METRIC, TO_BE_ISSUED_MAKEUP, BEEN_ISSUED_ADD,
+            BEEN_ISSUED_RETRY, BEEN_ISSUED_BACKTRACK, BEEN_ISSUED_ACTIVE,
+            BEEN_ISSUED_CHECK, BEEN_ISSUED_REDO_METRIC, BEEN_ISSUED_MAKEUP);
+
+    public static final Set<SourceStatus> STOP_STATUS_SET = Sets.newHashSet(SOURCE_STOP, SOURCE_FAILED,
+            TO_BE_ISSUED_STOP, BEEN_ISSUED_STOP);
+
     private static final Map<SourceStatus, Set<SourceStatus>> SOURCE_STATE_AUTOMATON = Maps.newHashMap();
 
     static {

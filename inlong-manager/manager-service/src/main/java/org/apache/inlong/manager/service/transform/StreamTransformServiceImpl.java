@@ -142,7 +142,6 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         String streamId = request.getInlongStreamId();
         LOGGER.debug("begin to fetch transform info by groupId={} and streamId={} ", groupId, streamId);
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        PageResult<TransformResponse> pageResponse = new PageResult<>();
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         if (groupEntity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
@@ -151,13 +150,11 @@ public class StreamTransformServiceImpl implements StreamTransformService {
 
         // query result
         List<StreamTransformEntity> entityList = transformMapper.selectByCondition(request);
-        if (CollectionUtils.isEmpty(entityList)) {
-            pageResponse.setList(Collections.emptyList());
-            return pageResponse;
+        List<TransformResponse> responses = Collections.emptyList();
+        if (!CollectionUtils.isEmpty(entityList)) {
+            responses = getTransformResponse(entityList);
         }
-
-        pageResponse.setList(getTransformResponse(entityList));
-        return pageResponse;
+        return new PageResult<>(responses, (long) responses.size(), request.getPageNum(), request.getPageSize());
     }
 
     @Override

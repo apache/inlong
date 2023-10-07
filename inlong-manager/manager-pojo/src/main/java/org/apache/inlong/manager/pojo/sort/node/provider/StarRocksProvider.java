@@ -17,23 +17,31 @@
 
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.starrocks.StarRocksSink;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
+import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.load.StarRocksLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * The Provider for creating StarRocks load nodes.
  */
+@Slf4j
 public class StarRocksProvider implements LoadNodeProvider {
 
     @Override
@@ -71,4 +79,22 @@ public class StarRocksProvider implements LoadNodeProvider {
                 starRocksSink.getDatabasePattern(),
                 starRocksSink.getTablePattern());
     }
+
+    @Override
+    public List<SinkField> addSinkMetaFields(List<SinkField> sinkFields) {
+        List<String> fieldNames = sinkFields.stream().map(SinkField::getFieldName).collect(Collectors.toList());
+        if (!fieldNames.contains(MetaField.AUDIT_DATA_TIME.name())) {
+            sinkFields.add(0, new SinkField(0, "long", MetaField.AUDIT_DATA_TIME.name(), "long",
+                    MetaField.AUDIT_DATA_TIME.name()));
+        }
+        return sinkFields;
+    }
+
+    @Override
+    public List<FieldInfo> getMetaFields() {
+        List<FieldInfo> fieldInfos = new ArrayList<>();
+        fieldInfos.add(0, new FieldInfo(MetaField.AUDIT_DATA_TIME.name(), new LongFormatInfo()));
+        return fieldInfos;
+    }
+
 }

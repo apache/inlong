@@ -27,7 +27,6 @@ import { streams, defaultValue as defaultStream } from './streams';
 import { sources, defaultValue as defaultSource } from './sources';
 import { sinks, defaultValue as defaultSink } from './sinks';
 import { sync, defaultValue as defaultSync } from './sync';
-import { transform, defaultValue as defaultTransform } from './transform';
 
 export type {
   ClusterMetaType,
@@ -38,7 +37,6 @@ export type {
   SinkMetaType,
   StreamMetaType,
   SyncMetaType,
-  TransformMetaType,
 } from './types';
 
 export interface UseLoadMetaResult<T> {
@@ -54,8 +52,7 @@ export type MetaTypeKeys =
   | 'stream'
   | 'source'
   | 'sink'
-  | 'sync'
-  | 'transform';
+  | 'sync';
 
 const metasMap: Record<MetaTypeKeys, [MetaExportWithBackendList<any>, string?]> = {
   consume: [consumes, defaultConsume],
@@ -66,7 +63,6 @@ const metasMap: Record<MetaTypeKeys, [MetaExportWithBackendList<any>, string?]> 
   source: [sources, defaultSource],
   sink: [sinks, defaultSink],
   sync: [sync, defaultSync],
-  transform: [transform, defaultTransform],
 };
 
 export const useDefaultMeta = (metaType: MetaTypeKeys) => {

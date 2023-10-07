@@ -118,10 +118,8 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
 
         Page<WorkflowApproverEntity> page = (Page<WorkflowApproverEntity>) approverMapper.selectByCondition(request);
-        List<ApproverResponse> resultList = CommonBeanUtils.copyListProperties(page,
-                ApproverResponse::new);
-
-        return new PageResult<>(resultList, page.getTotal(), page.getPageNum(), page.getPageSize());
+        return PageResult.fromPage(page)
+                .map(entity -> CommonBeanUtils.copyProperties(entity, ApproverResponse::new));
     }
 
     @Override

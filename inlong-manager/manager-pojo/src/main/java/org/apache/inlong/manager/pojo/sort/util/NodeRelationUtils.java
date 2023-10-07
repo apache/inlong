@@ -119,6 +119,16 @@ public class NodeRelationUtils {
     }
 
     /**
+     * Create node relation from the given inputs, outputs
+     */
+    public static NodeRelation createNodeRelation(List<String> inputs, List<String> outputs) {
+        NodeRelation relation = new NodeRelation();
+        relation.setInputs(inputs);
+        relation.setOutputs(outputs);
+        return relation;
+    }
+
+    /**
      * Optimize relation of node, JoinerRelation must be rebuilt.
      */
     public static void optimizeNodeRelation(StreamInfo streamInfo, List<TransformResponse> transformResponses) {

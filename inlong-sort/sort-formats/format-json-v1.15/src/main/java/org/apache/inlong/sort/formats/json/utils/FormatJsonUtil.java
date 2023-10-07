@@ -43,45 +43,11 @@ import org.apache.flink.table.types.logical.VarCharType;
 
 import java.util.Map;
 
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.DEFAULT_DECIMAL_PRECISION;
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.DEFAULT_DECIMAL_SCALE;
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.ORACLE_TIMESTAMP_TIME_ZONE;
+
 public class FormatJsonUtil {
-
-    private static final int DEFAULT_DECIMAL_PRECISION = 15;
-    private static final int DEFAULT_DECIMAL_SCALE = 5;
-    private static final Integer ORACLE_TIMESTAMP_TIME_ZONE = -101;
-
-    public static RowDataToJsonConverter rowDataToJsonConverter(DataType physicalRowDataType) {
-        return rowDataToJsonConverter(TimestampFormat.SQL, null, physicalRowDataType);
-    }
-
-    public static RowDataToJsonConverter rowDataToJsonConverter(TimestampFormat timestampFormat,
-            String mapNullKeyLiteral,
-            DataType physicalRowDataType) {
-        return rowDataToJsonConverter(timestampFormat, MapNullKeyMode.DROP, mapNullKeyLiteral, physicalRowDataType);
-    }
-
-    public static RowDataToJsonConverter rowDataToJsonConverter(TimestampFormat timestampFormat,
-            MapNullKeyMode mapNullKeyMode,
-            String mapNullKeyLiteral, DataType physicalRowDataType) {
-        return new RowDataToJsonConverters(timestampFormat, mapNullKeyMode, mapNullKeyLiteral)
-                .createConverter(physicalRowDataType.getLogicalType());
-    }
-
-    public static RowDataToJsonConverter rowDataToJsonConverter(LogicalType rowType) {
-        return rowDataToJsonConverter(TimestampFormat.SQL, null, rowType);
-    }
-
-    public static RowDataToJsonConverter rowDataToJsonConverter(TimestampFormat timestampFormat,
-            String mapNullKeyLiteral,
-            LogicalType rowType) {
-        return rowDataToJsonConverter(timestampFormat, MapNullKeyMode.DROP, mapNullKeyLiteral, rowType);
-    }
-
-    public static RowDataToJsonConverter rowDataToJsonConverter(TimestampFormat timestampFormat,
-            MapNullKeyMode mapNullKeyMode,
-            String mapNullKeyLiteral, LogicalType rowType) {
-        return new RowDataToJsonConverters(timestampFormat, mapNullKeyMode, mapNullKeyLiteral)
-                .createConverter(rowType);
-    }
 
     public static final Map<Integer, LogicalType> SQL_TYPE_2_FLINK_TYPE_MAPPING =
             ImmutableMap.<Integer, LogicalType>builder()
@@ -116,7 +82,6 @@ public class FormatJsonUtil {
                     .put(java.sql.Types.TINYINT, new TinyIntType())
                     .put(java.sql.Types.OTHER, new VarCharType())
                     .build();
-
     public static final Map<Integer, LogicalType> SQL_TYPE_2_SPARK_SUPPORTED_FLINK_TYPE_MAPPING =
             ImmutableMap.<Integer, LogicalType>builder()
                     .put(java.sql.Types.CHAR, new CharType())
@@ -148,7 +113,6 @@ public class FormatJsonUtil {
                     .put(java.sql.Types.TINYINT, new TinyIntType())
                     .put(java.sql.Types.OTHER, new VarCharType())
                     .build();
-
     public static final Map<String, LogicalType> DEBEZIUM_TYPE_2_FLINK_TYPE_MAPPING =
             ImmutableMap.<String, LogicalType>builder()
                     .put("BOOLEAN", new BooleanType())
@@ -161,4 +125,38 @@ public class FormatJsonUtil {
                     .put("STRING", new VarCharType())
                     .put("BYTES", new VarBinaryType())
                     .build();
+
+    public static RowDataToJsonConverter rowDataToJsonConverter(DataType physicalRowDataType) {
+        return rowDataToJsonConverter(TimestampFormat.SQL, null, physicalRowDataType);
+    }
+
+    public static RowDataToJsonConverter rowDataToJsonConverter(TimestampFormat timestampFormat,
+            String mapNullKeyLiteral,
+            DataType physicalRowDataType) {
+        return rowDataToJsonConverter(timestampFormat, MapNullKeyMode.DROP, mapNullKeyLiteral, physicalRowDataType);
+    }
+
+    public static RowDataToJsonConverter rowDataToJsonConverter(TimestampFormat timestampFormat,
+            MapNullKeyMode mapNullKeyMode,
+            String mapNullKeyLiteral, DataType physicalRowDataType) {
+        return new RowDataToJsonConverters(timestampFormat, mapNullKeyMode, mapNullKeyLiteral)
+                .createConverter(physicalRowDataType.getLogicalType());
+    }
+
+    public static RowDataToJsonConverter rowDataToJsonConverter(LogicalType rowType) {
+        return rowDataToJsonConverter(TimestampFormat.SQL, null, rowType);
+    }
+
+    public static RowDataToJsonConverter rowDataToJsonConverter(TimestampFormat timestampFormat,
+            String mapNullKeyLiteral,
+            LogicalType rowType) {
+        return rowDataToJsonConverter(timestampFormat, MapNullKeyMode.DROP, mapNullKeyLiteral, rowType);
+    }
+
+    public static RowDataToJsonConverter rowDataToJsonConverter(TimestampFormat timestampFormat,
+            MapNullKeyMode mapNullKeyMode,
+            String mapNullKeyLiteral, LogicalType rowType) {
+        return new RowDataToJsonConverters(timestampFormat, mapNullKeyMode, mapNullKeyLiteral)
+                .createConverter(rowType);
+    }
 }

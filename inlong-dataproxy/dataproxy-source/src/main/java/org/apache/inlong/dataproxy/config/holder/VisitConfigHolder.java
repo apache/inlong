@@ -63,7 +63,7 @@ public class VisitConfigHolder extends ConfigHolder {
         try {
             Map<String, Long> tmpHolder = loadFile();
             if (tmpHolder == null) {
-                return false;
+                return true;
             }
             // clear removed records
             boolean added = false;
@@ -126,14 +126,23 @@ public class VisitConfigHolder extends ConfigHolder {
                     added = true;
                 }
             }
-            if (!tmpKeys.isEmpty()) {
-                if (this.isBlackList) {
+            // output load result
+            if (this.isBlackList) {
+                if (!tmpKeys.isEmpty()) {
                     LOG.warn("Load BlackList data error, found error data items: " + tmpKeys);
-                } else {
+                }
+                if (added) {
+                    LOG.info("Load BlackList data, new data items are added!");
+                }
+            } else {
+                if (!tmpKeys.isEmpty()) {
                     LOG.warn("Load WhiteList data error, found error data items: " + tmpKeys);
                 }
+                if (removed) {
+                    LOG.info("Load WhiteList data, cached data items are deleted!");
+                }
             }
-            return (isBlackList && added) || (!isBlackList && removed);
+            return true;
         } finally {
             readWriteLock.writeLock().unlock();
         }

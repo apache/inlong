@@ -30,6 +30,7 @@ import org.apache.inlong.manager.service.tenant.InlongTenantService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -90,4 +91,13 @@ public class InlongTenantController {
         return Response.success(tenantService.delete(name));
     }
 
+    @RequestMapping(value = "/tenant/migrate/{group}/{tenant}", method = RequestMethod.GET)
+    @ApiOperation(value = "Migrate group to another tenant")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "group", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "tenant", dataTypeClass = String.class, required = true),
+    })
+    public Response<Boolean> migrate(@PathVariable String group, @PathVariable String tenant) {
+        return Response.success(tenantService.migrate(group, tenant));
+    }
 }

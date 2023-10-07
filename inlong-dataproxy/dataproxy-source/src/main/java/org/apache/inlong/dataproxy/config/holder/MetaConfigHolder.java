@@ -110,10 +110,6 @@ public class MetaConfigHolder extends ConfigHolder {
                 idTopicConfig = id2TopicSrcMap.get(groupId);
             }
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Get Topic Config by groupId = {}, streamId = {}, IdTopicConfig = {}",
-                    groupId, streamId, idTopicConfig);
-        }
         return idTopicConfig;
     }
 
@@ -130,10 +126,6 @@ public class MetaConfigHolder extends ConfigHolder {
             if (idTopicConfig != null) {
                 topic = idTopicConfig.getTopicName();
             }
-        }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Get topic by groupId = {}, streamId = {}, topic = {}",
-                    groupId, streamId, topic);
         }
         return topic;
     }
@@ -154,12 +146,10 @@ public class MetaConfigHolder extends ConfigHolder {
     }
 
     public String getConfigMd5() {
-        synchronized (this.lastUpdVersion) {
-            if (this.lastSyncVersion.get() > this.lastUpdVersion.get()) {
-                return tmpDataMd5;
-            } else {
-                return dataMd5;
-            }
+        if (this.lastSyncVersion.get() > this.lastUpdVersion.get()) {
+            return tmpDataMd5;
+        } else {
+            return dataMd5;
         }
     }
 
@@ -169,18 +159,16 @@ public class MetaConfigHolder extends ConfigHolder {
             return false;
         }
         synchronized (this.lastSyncVersion) {
-            synchronized (this.lastUpdVersion) {
-                if (this.lastSyncVersion.get() > this.lastUpdVersion.get()) {
-                    if (inDataJsonStr.equals(tmpDataMd5)) {
-                        return false;
-                    }
-                    LOG.info("Load changed metadata {} , but reloading content, over {} ms",
-                            getFileName(), System.currentTimeMillis() - this.lastSyncVersion.get());
+            if (this.lastSyncVersion.get() > this.lastUpdVersion.get()) {
+                if (inDataJsonStr.equals(tmpDataMd5)) {
                     return false;
-                } else {
-                    if (inDataMd5.equalsIgnoreCase(dataMd5)) {
-                        return false;
-                    }
+                }
+                LOG.info("Load changed metadata {} , but reloading content, over {} ms",
+                        getFileName(), System.currentTimeMillis() - this.lastSyncVersion.get());
+                return false;
+            } else {
+                if (inDataMd5.equals(dataMd5)) {
+                    return false;
                 }
             }
             return storeConfigToFile(inDataMd5, inDataJsonStr);
@@ -223,69 +211,57 @@ public class MetaConfigHolder extends ConfigHolder {
 
     @Override
     protected boolean loadFromFileToHolder() {
+        // check meta update setting
+        if (!CommonConfigHolder.getInstance().isEnableStartupUsingLocalMetaFile()
+                && !ConfigManager.handshakeManagerOk.get()) {
+            LOG.warn("Failed to load json config from {}, don't obtain metadata from the Manager,"
+                    + " and the startup via the cache file is false", getFileName());
+            return false;
+        }
         String jsonString = "";
-        readWriteLock.readLock().lock();
+        readWriteLock.writeLock().lock();
         try {
             jsonString = loadConfigFromFile();
             if (StringUtils.isBlank(jsonString)) {
-                LOG.info("Load changed json {}, but no records configured", getFileName());
-                return false;
+                LOG.warn("Load changed json {}, but no records configured", getFileName());
+                return true;
             }
             DataProxyConfigResponse metaConfig =
                     GSON.fromJson(jsonString, DataProxyConfigResponse.class);
+            // check result tag
             if (!metaConfig.isResult() || metaConfig.getErrCode() != DataProxyConfigResponse.SUCC) {
                 LOG.warn("Load failed json config from {}, error code is {}",
                         getFileName(), metaConfig.getErrCode());
-                return false;
+                return true;
             }
+            // check cluster data
             DataProxyCluster clusterObj = metaConfig.getData();
             if (clusterObj == null) {
                 LOG.warn("Load failed json config from {}, malformed content, data is null", getFileName());
-                return false;
-            }
-            if (!CommonConfigHolder.getInstance().isEnableStartupUsingLocalMetaFile()
-                    && !ConfigManager.handshakeManagerOk.get()) {
-                LOG.info("Failed to load json config from {}, don't obtain metadata from the Manager,"
-                        + " and the startup via the cache file is false", getFileName());
-                return false;
-            }
-            // update cache data
-            if (updateCacheData(clusterObj)) {
-                // update cache string
-                synchronized (this.lastUpdVersion) {
-                    if (this.lastSyncVersion.get() == 0) {
-                        this.lastUpdVersion.set(System.currentTimeMillis());
-                        this.lastSyncVersion.compareAndSet(0, this.lastUpdVersion.get());
-                    } else {
-                        this.lastUpdVersion.set(this.lastSyncVersion.get());
-                    }
-                    this.dataMd5 = metaConfig.getMd5();
-                    this.dataStr = jsonString;
-                }
-                LOG.info(
-                        "Load changed {}, loaded dataMd5={}, data={}, id2TopicSrcMap={}, mqClusterMap={}, id2TopicSinkMap={}",
-                        getFileName(), dataMd5, dataStr, id2TopicSrcMap, mqClusterMap, id2TopicSinkMap);
                 return true;
             }
-            return false;
+            // update cache data
+            if (updateCacheData(jsonString, metaConfig)) {
+                LOG.info("Load changed {} file success!", getFileName());
+            }
+            return true;
         } catch (Throwable e) {
-            //
             LOG.warn("Process json {} changed data {} failure", getFileName(), jsonString, e);
             return false;
         } finally {
-            readWriteLock.readLock().unlock();
+            readWriteLock.writeLock().unlock();
         }
     }
 
-    private boolean updateCacheData(DataProxyCluster metaConfigObj) {
+    private boolean updateCacheData(String jsonString, DataProxyConfigResponse metaConfig) {
         // get and valid inlongIds configure
-        ProxyClusterObject proxyClusterObject = metaConfigObj.getProxyCluster();
+        ProxyClusterObject proxyClusterObject = metaConfig.getData().getProxyCluster();
         if (proxyClusterObject == null) {
             LOG.warn("Load failed json config from {}, malformed content, proxyCluster field is null",
                     getFileName());
             return false;
         }
-        CacheClusterSetObject clusterSetObject = metaConfigObj.getCacheClusterSet();
+        CacheClusterSetObject clusterSetObject = metaConfig.getData().getCacheClusterSet();
         if (clusterSetObject == null) {
             LOG.warn("Load failed json config from {}, malformed content, cacheClusterSet field is null",
                     getFileName());
@@ -324,8 +300,14 @@ public class MetaConfigHolder extends ConfigHolder {
         // get topic config info
         Map<String, IdTopicConfig> tmpTopicConfigMap = buildCacheTopicConfig(mqType, inLongIds);
         replaceCacheConfig(mqType, tmpClusterConfigMap, tmpTopicConfigMap);
-        if (mqType.equals(CacheType.TUBE)) {
-            executeCallbacks();
+        // update cached data
+        this.dataMd5 = metaConfig.getMd5();
+        this.dataStr = jsonString;
+        if (this.lastSyncVersion.get() == 0) {
+            this.lastUpdVersion.set(System.currentTimeMillis());
+            this.lastSyncVersion.compareAndSet(0, this.lastUpdVersion.get());
+        } else {
+            this.lastUpdVersion.set(this.lastSyncVersion.get());
         }
         return true;
     }
@@ -429,6 +411,8 @@ public class MetaConfigHolder extends ConfigHolder {
                     idObject.getParams().getOrDefault("dataType", DataType.TEXT.value())));
             tmpConfig.setFieldDelimiter(idObject.getParams().getOrDefault("fieldDelimiter", "|"));
             tmpConfig.setFileDelimiter(idObject.getParams().getOrDefault("fileDelimiter", "\n"));
+            tmpConfig.setUseExtendedFields(Boolean.valueOf(
+                    idObject.getParams().getOrDefault("useExtendedFields", "false")));
             tmpTopicConfigMap.put(tmpConfig.getUid(), tmpConfig);
             if (mqType.equals(CacheType.TUBE)
                     && !tmpConfig.getUid().equals(tmpConfig.getInlongGroupId())

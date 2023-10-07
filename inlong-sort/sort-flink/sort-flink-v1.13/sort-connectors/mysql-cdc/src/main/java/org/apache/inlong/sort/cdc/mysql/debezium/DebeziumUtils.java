@@ -230,7 +230,7 @@ public class DebeziumUtils {
 
     /**
      * Creates {@link RelationalTableFilters} from configuration. The {@link RelationalTableFilters}
-     * can be used to filter tables according to "table.whitelist" and "database.whitelist" options.
+     * can be used to filter tables according to "table.include.list" and "database.include.list" options.
      */
     public static RelationalTableFilters createTableFilters(MySqlSourceConfig configuration) {
         Configuration debeziumConfig = configuration.getDbzConfiguration();

@@ -308,12 +308,13 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             source.addMetric(false, event.getBody().length, event);
             if (msgCodec.isNeedResp()) {
                 msgCodec.setFailureInfo(DataProxyErrCode.PUT_EVENT_TO_CHANNEL_FAILURE,
-                        strBuff.append("Put event to channel failure: ").append(ex.getMessage()).toString());
+                        strBuff.append("Put msg event to channel failure: ").append(ex.getMessage()).toString());
                 strBuff.delete(0, strBuff.length());
                 responseV0Msg(channel, msgCodec, strBuff);
             }
             if (logCounter.shouldPrint()) {
-                logger.error("Error writing event to channel failure.", ex);
+                logger.error("Error writing msg event to channel failure, attrs={}",
+                        msgCodec.getAttr(), ex);
             }
         }
     }
@@ -428,8 +429,9 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         for (ProxyEvent event : events) {
             // get configured topic name
             String topic = configManager.getTopicName(event.getInlongGroupId(), event.getInlongStreamId());
-            if (StringUtils.isBlank(topic)) {
-                source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
+            if (StringUtils.isEmpty(topic)) {
+                source.fileMetricIncWithDetailStats(
+                        StatConstants.EVENT_SOURCE_TOPIC_MISSING, event.getInlongGroupId());
                 source.addMetric(false, event.getBody().length, event);
                 this.responsePackage(ctx, ProxySdk.ResultCode.ERR_ID_ERROR, packObject);
                 return;
@@ -654,7 +656,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
      */
     private ByteBuf buildHBRspPackage(byte[] attrData, byte version, int loadValue) {
         // calculate total length
-        // binTotalLen = mstType + dataTime + version + bodyLen + body + attrsLen + attrs + magic
+        // binTotalLen = mstType + dataTime + body_ver + bodyLen + body + attrsLen + attrs + magic
         int binTotalLen = 1 + 4 + 1 + 4 + 2 + 2 + 2;
         if (null != attrData) {
             binTotalLen += attrData.length;

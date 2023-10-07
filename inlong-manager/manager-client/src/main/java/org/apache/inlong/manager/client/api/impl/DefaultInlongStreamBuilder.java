@@ -180,7 +180,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         InlongStreamInfo streamInfo = streamContext.getStreamInfo();
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
-        List<TransformResponse> transformResponses = transformClient.listTransform(groupId, streamId);
+        List<TransformResponse> transformResponses = transformClient.listTransform(groupId, streamId).getList();
         List<String> updateTransformNames = Lists.newArrayList();
         for (TransformResponse transformResponse : transformResponses) {
             StreamTransform transform = StreamTransformTransfer.parseStreamTransform(transformResponse);

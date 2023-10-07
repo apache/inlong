@@ -166,6 +166,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
 
             auditData.setLogTs(auditMessageBody.getLogTs());
             auditData.setAuditId(auditMessageBody.getAuditId());
+            auditData.setAuditTag(auditMessageBody.getAuditTag());
             auditData.setCount(auditMessageBody.getCount());
             auditData.setDelay(auditMessageBody.getDelay());
             auditData.setInlongGroupId(auditMessageBody.getInlongGroupId());

@@ -50,6 +50,8 @@ public interface AgentService {
      */
     TaskResult getTaskResult(TaskRequest request);
 
+    TaskResult getExistTaskConfig(TaskRequest request);
+
     /**
      * Divide the agent into different groups, which collect different stream source tasks.
      *

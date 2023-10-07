@@ -43,11 +43,92 @@ import org.apache.flink.table.types.logical.VarCharType;
 
 import java.util.Map;
 
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.DEFAULT_CHAR_LENGTH;
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.DEFAULT_CHAR_TIME_LENGTH;
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.DEFAULT_DECIMAL_PRECISION;
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.DEFAULT_DECIMAL_SCALE;
+import static org.apache.inlong.sort.protocol.constant.DataTypeConstants.ORACLE_TIMESTAMP_TIME_ZONE;
+
 public class FormatJsonUtil {
 
-    private static final int DEFAULT_DECIMAL_PRECISION = 15;
-    private static final int DEFAULT_DECIMAL_SCALE = 5;
-    private static final Integer ORACLE_TIMESTAMP_TIME_ZONE = -101;
+    public static final Map<String, LogicalType> DEBEZIUM_TYPE_2_FLINK_TYPE_MAPPING =
+            ImmutableMap.<String, LogicalType>builder()
+                    .put("BOOLEAN", new BooleanType())
+                    .put("INT8", new TinyIntType())
+                    .put("INT16", new SmallIntType())
+                    .put("INT32", new IntType())
+                    .put("INT64", new BigIntType())
+                    .put("FLOAT32", new FloatType())
+                    .put("FLOAT64", new DoubleType())
+                    .put("STRING", new VarCharType())
+                    .put("BYTES", new VarBinaryType())
+                    .build();
+    public static final Map<Integer, LogicalType> SQL_TYPE_2_FLINK_TYPE_MAPPING =
+            ImmutableMap.<Integer, LogicalType>builder()
+                    .put(java.sql.Types.CHAR, new CharType(DEFAULT_CHAR_LENGTH))
+                    .put(java.sql.Types.VARCHAR, new VarCharType(VarCharType.MAX_LENGTH))
+                    .put(java.sql.Types.SMALLINT, new SmallIntType())
+                    .put(java.sql.Types.INTEGER, new IntType())
+                    .put(java.sql.Types.BIGINT, new BigIntType())
+                    .put(java.sql.Types.REAL, new FloatType())
+                    .put(java.sql.Types.DOUBLE, new DoubleType())
+                    .put(java.sql.Types.FLOAT, new FloatType())
+                    .put(java.sql.Types.DECIMAL, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
+                    .put(java.sql.Types.NUMERIC, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
+                    .put(java.sql.Types.BIT, new BooleanType())
+                    .put(java.sql.Types.TIME, new TimeType())
+                    .put(java.sql.Types.TIME_WITH_TIMEZONE, new TimeType())
+                    .put(java.sql.Types.TIMESTAMP_WITH_TIMEZONE, new LocalZonedTimestampType())
+                    .put(ORACLE_TIMESTAMP_TIME_ZONE, new LocalZonedTimestampType())
+                    .put(java.sql.Types.TIMESTAMP, new TimestampType())
+                    .put(java.sql.Types.BINARY, new BinaryType(BinaryType.MAX_LENGTH))
+                    .put(java.sql.Types.VARBINARY, new VarBinaryType(VarBinaryType.MAX_LENGTH))
+                    .put(java.sql.Types.BLOB, new VarBinaryType(VarBinaryType.MAX_LENGTH))
+                    .put(java.sql.Types.CLOB, new VarBinaryType(VarBinaryType.MAX_LENGTH))
+                    .put(java.sql.Types.DATE, new DateType())
+                    .put(java.sql.Types.BOOLEAN, new BooleanType())
+                    .put(java.sql.Types.LONGNVARCHAR, new VarCharType(VarCharType.MAX_LENGTH))
+                    .put(java.sql.Types.LONGVARBINARY, new VarCharType(VarCharType.MAX_LENGTH))
+                    .put(java.sql.Types.LONGVARCHAR, new VarCharType(VarCharType.MAX_LENGTH))
+                    .put(java.sql.Types.ARRAY, new VarCharType(VarCharType.MAX_LENGTH))
+                    .put(java.sql.Types.NCHAR, new CharType(DEFAULT_CHAR_LENGTH))
+                    .put(java.sql.Types.NCLOB, new VarBinaryType(VarBinaryType.MAX_LENGTH))
+                    .put(java.sql.Types.TINYINT, new TinyIntType())
+                    .put(java.sql.Types.OTHER, new VarCharType(VarCharType.MAX_LENGTH))
+                    .build();
+    public static final Map<Integer, LogicalType> SQL_TYPE_2_SPARK_SUPPORTED_FLINK_TYPE_MAPPING =
+            ImmutableMap.<Integer, LogicalType>builder()
+                    .put(java.sql.Types.CHAR, new CharType(DEFAULT_CHAR_LENGTH))
+                    .put(java.sql.Types.VARCHAR, new VarCharType(VarCharType.MAX_LENGTH))
+                    .put(java.sql.Types.SMALLINT, new SmallIntType())
+                    .put(java.sql.Types.INTEGER, new IntType())
+                    .put(java.sql.Types.BIGINT, new BigIntType())
+                    .put(java.sql.Types.REAL, new FloatType())
+                    .put(java.sql.Types.DOUBLE, new DoubleType())
+                    .put(java.sql.Types.FLOAT, new FloatType())
+                    .put(java.sql.Types.DECIMAL, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
+                    .put(java.sql.Types.NUMERIC, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
+                    .put(java.sql.Types.BIT, new BooleanType())
+                    .put(java.sql.Types.TIME, new VarCharType(DEFAULT_CHAR_TIME_LENGTH))
+                    .put(java.sql.Types.TIME_WITH_TIMEZONE, new VarCharType(DEFAULT_CHAR_TIME_LENGTH))
+                    .put(java.sql.Types.TIMESTAMP_WITH_TIMEZONE, new LocalZonedTimestampType())
+                    .put(ORACLE_TIMESTAMP_TIME_ZONE, new LocalZonedTimestampType())
+                    .put(java.sql.Types.TIMESTAMP, new LocalZonedTimestampType())
+                    .put(java.sql.Types.BINARY, new BinaryType(BinaryType.MAX_LENGTH))
+                    .put(java.sql.Types.VARBINARY, new VarBinaryType(VarBinaryType.MAX_LENGTH))
+                    .put(java.sql.Types.BLOB, new VarBinaryType(VarBinaryType.MAX_LENGTH))
+                    .put(java.sql.Types.CLOB, new VarBinaryType(VarBinaryType.MAX_LENGTH))
+                    .put(java.sql.Types.DATE, new DateType())
+                    .put(java.sql.Types.BOOLEAN, new BooleanType())
+                    .put(java.sql.Types.LONGNVARCHAR, new VarCharType(VarCharType.MAX_LENGTH))
+                    .put(java.sql.Types.LONGVARBINARY, new VarCharType(VarCharType.MAX_LENGTH))
+                    .put(java.sql.Types.LONGVARCHAR, new VarCharType(VarCharType.MAX_LENGTH))
+                    .put(java.sql.Types.ARRAY, new VarCharType(VarCharType.MAX_LENGTH))
+                    .put(java.sql.Types.NCHAR, new CharType(DEFAULT_CHAR_LENGTH))
+                    .put(java.sql.Types.NCLOB, new VarBinaryType(VarBinaryType.MAX_LENGTH))
+                    .put(java.sql.Types.TINYINT, new TinyIntType())
+                    .put(java.sql.Types.OTHER, new VarCharType(VarCharType.MAX_LENGTH))
+                    .build();
 
     public static RowDataToJsonConverter rowDataToJsonConverter(DataType physicalRowDataType) {
         return rowDataToJsonConverter(TimestampFormat.SQL, null, physicalRowDataType);
@@ -82,84 +163,5 @@ public class FormatJsonUtil {
         return new RowDataToJsonConverters(timestampFormat, mapNullKeyMode, mapNullKeyLiteral)
                 .createConverter(rowType);
     }
-
-    public static final Map<Integer, LogicalType> SQL_TYPE_2_FLINK_TYPE_MAPPING =
-            ImmutableMap.<Integer, LogicalType>builder()
-                    .put(java.sql.Types.CHAR, new CharType())
-                    .put(java.sql.Types.VARCHAR, new VarCharType())
-                    .put(java.sql.Types.SMALLINT, new SmallIntType())
-                    .put(java.sql.Types.INTEGER, new IntType())
-                    .put(java.sql.Types.BIGINT, new BigIntType())
-                    .put(java.sql.Types.REAL, new FloatType())
-                    .put(java.sql.Types.DOUBLE, new DoubleType())
-                    .put(java.sql.Types.FLOAT, new FloatType())
-                    .put(java.sql.Types.DECIMAL, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
-                    .put(java.sql.Types.NUMERIC, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
-                    .put(java.sql.Types.BIT, new BooleanType())
-                    .put(java.sql.Types.TIME, new TimeType())
-                    .put(java.sql.Types.TIME_WITH_TIMEZONE, new TimeType())
-                    .put(java.sql.Types.TIMESTAMP_WITH_TIMEZONE, new LocalZonedTimestampType())
-                    .put(ORACLE_TIMESTAMP_TIME_ZONE, new LocalZonedTimestampType())
-                    .put(java.sql.Types.TIMESTAMP, new TimestampType())
-                    .put(java.sql.Types.BINARY, new BinaryType())
-                    .put(java.sql.Types.VARBINARY, new VarBinaryType())
-                    .put(java.sql.Types.BLOB, new VarBinaryType())
-                    .put(java.sql.Types.CLOB, new VarBinaryType())
-                    .put(java.sql.Types.DATE, new DateType())
-                    .put(java.sql.Types.BOOLEAN, new BooleanType())
-                    .put(java.sql.Types.LONGNVARCHAR, new VarCharType())
-                    .put(java.sql.Types.LONGVARBINARY, new VarCharType())
-                    .put(java.sql.Types.LONGVARCHAR, new VarCharType())
-                    .put(java.sql.Types.ARRAY, new VarCharType())
-                    .put(java.sql.Types.NCHAR, new CharType())
-                    .put(java.sql.Types.NCLOB, new VarBinaryType())
-                    .put(java.sql.Types.TINYINT, new TinyIntType())
-                    .put(java.sql.Types.OTHER, new VarCharType())
-                    .build();
-
-    public static final Map<Integer, LogicalType> SQL_TYPE_2_SPARK_SUPPORTED_FLINK_TYPE_MAPPING =
-            ImmutableMap.<Integer, LogicalType>builder()
-                    .put(java.sql.Types.CHAR, new CharType())
-                    .put(java.sql.Types.VARCHAR, new VarCharType())
-                    .put(java.sql.Types.SMALLINT, new SmallIntType())
-                    .put(java.sql.Types.INTEGER, new IntType())
-                    .put(java.sql.Types.BIGINT, new BigIntType())
-                    .put(java.sql.Types.REAL, new FloatType())
-                    .put(java.sql.Types.DOUBLE, new DoubleType())
-                    .put(java.sql.Types.FLOAT, new FloatType())
-                    .put(java.sql.Types.DECIMAL, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
-                    .put(java.sql.Types.NUMERIC, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
-                    .put(java.sql.Types.BIT, new BooleanType())
-                    .put(java.sql.Types.TIME, new VarCharType())
-                    .put(java.sql.Types.TIMESTAMP_WITH_TIMEZONE, new LocalZonedTimestampType())
-                    .put(ORACLE_TIMESTAMP_TIME_ZONE, new LocalZonedTimestampType())
-                    .put(java.sql.Types.TIMESTAMP, new LocalZonedTimestampType())
-                    .put(java.sql.Types.BINARY, new BinaryType())
-                    .put(java.sql.Types.VARBINARY, new VarBinaryType())
-                    .put(java.sql.Types.BLOB, new VarBinaryType())
-                    .put(java.sql.Types.DATE, new DateType())
-                    .put(java.sql.Types.BOOLEAN, new BooleanType())
-                    .put(java.sql.Types.LONGNVARCHAR, new VarCharType())
-                    .put(java.sql.Types.LONGVARBINARY, new VarCharType())
-                    .put(java.sql.Types.LONGVARCHAR, new VarCharType())
-                    .put(java.sql.Types.ARRAY, new VarCharType())
-                    .put(java.sql.Types.NCHAR, new CharType())
-                    .put(java.sql.Types.NCLOB, new VarBinaryType())
-                    .put(java.sql.Types.TINYINT, new TinyIntType())
-                    .put(java.sql.Types.OTHER, new VarCharType())
-                    .build();
-
-    public static final Map<String, LogicalType> DEBEZIUM_TYPE_2_FLINK_TYPE_MAPPING =
-            ImmutableMap.<String, LogicalType>builder()
-                    .put("BOOLEAN", new BooleanType())
-                    .put("INT8", new TinyIntType())
-                    .put("INT16", new SmallIntType())
-                    .put("INT32", new IntType())
-                    .put("INT64", new BigIntType())
-                    .put("FLOAT32", new FloatType())
-                    .put("FLOAT64", new DoubleType())
-                    .put("STRING", new VarCharType())
-                    .put("BYTES", new VarBinaryType())
-                    .build();
 
 }

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.source.pulsar;
 
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
@@ -83,9 +84,9 @@ public class PulsarSource extends StreamSource {
     @Builder.Default
     private boolean isInlongComponent = false;
 
-    @ApiModelProperty("Whether wrap content with InlongMsg")
+    @ApiModelProperty(value = "The message body wrap  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
     @Builder.Default
-    private boolean wrapWithInlongMsg = true;
+    private String wrapType = MessageWrapType.INLONG_MSG_V0.getName();
 
     public PulsarSource() {
         this.setSourceType(SourceType.PULSAR);

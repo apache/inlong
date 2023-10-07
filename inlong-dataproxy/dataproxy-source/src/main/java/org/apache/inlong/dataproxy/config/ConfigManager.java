@@ -359,8 +359,8 @@ public class ConfigManager {
                 String returnStr = EntityUtils.toString(response.getEntity());
                 long dltTime = System.currentTimeMillis() - startTime;
                 if (dltTime >= CommonConfigHolder.getInstance().getMetaConfigWastAlarmMs()) {
-                    LOG.warn("End to request {} to get config info:{}, WAIST {} ms",
-                            url, returnStr, dltTime);
+                    LOG.warn("End to request {} to get config info, WAIST {} ms, over alarm value {} ms",
+                            url, dltTime, CommonConfigHolder.getInstance().getMetaConfigWastAlarmMs());
                 } else {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("End to request {} to get config info:{}, WAIST {} ms",

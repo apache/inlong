@@ -43,7 +43,7 @@ public abstract class ConfigHolder {
     private final AtomicBoolean fileChanged = new AtomicBoolean(false);
     // list of callbacks for this holder
     private final List<ConfigUpdateCallback> callbackList = new ArrayList<>();
-    private long lastModifyTime;
+    private long lastModifyTime = 0;
     private String filePath;
     private File configFile;
 
@@ -51,9 +51,6 @@ public abstract class ConfigHolder {
         this.fileName = fileName;
         setFilePath(fileName);
         CONFIG_HOLDER_LIST.add(this);
-        if (configFile != null) {
-            this.lastModifyTime = configFile.lastModified();
-        }
     }
 
     /**
@@ -77,7 +74,7 @@ public abstract class ConfigHolder {
     /**
      * load from file to holder
      *
-     * @return - true if configure updated
+     * @return - true if the configure file read, otherwise it will be false.
      */
     protected abstract boolean loadFromFileToHolder();
 
@@ -89,11 +86,22 @@ public abstract class ConfigHolder {
     public boolean checkAndUpdateHolder() {
         if (fileChanged.compareAndSet(true, false)
                 || (configFile != null && configFile.lastModified() != this.lastModifyTime)) {
-            if (configFile != null) {
-                this.lastModifyTime = configFile.lastModified();
+            long startTime = System.currentTimeMillis();
+            if (loadFromFileToHolder()) {
+                boolean initialized = (this.lastModifyTime != 0L);
+                if (configFile != null) {
+                    this.lastModifyTime = configFile.lastModified();
+                }
+                if (initialized) {
+                    LOG.info("File {} has changed, reload from local file, wast {} ms",
+                            this.fileName, (System.currentTimeMillis() - startTime));
+                } else {
+                    LOG.info("File {} has imported, reload from local file, wast {} ms",
+                            this.fileName, (System.currentTimeMillis() - startTime));
+                }
+                return true;
             }
-            LOG.info("File {} has changed, reload from local file", this.fileName);
-            return loadFromFileToHolder();
+            LOG.warn("File {} has changed, but reload content failure", this.fileName);
         }
         return false;
     }

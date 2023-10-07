@@ -142,7 +142,7 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
                 String serializationType = DataTypeEnum.forType(streamInfo.getDataType()).getType();
                 pulsarSource.setSerializationType(serializationType);
             }
-            pulsarSource.setWrapWithInlongMsg(streamInfo.getWrapWithInlongMsg());
+            pulsarSource.setWrapType(streamInfo.getWrapType());
             pulsarSource.setIgnoreParseError(streamInfo.getIgnoreParseError());
 
             // set the token info

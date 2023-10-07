@@ -18,7 +18,7 @@
 package org.apache.inlong.dataproxy.source.httpMsg;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
-import org.apache.inlong.common.enums.DataProxyMsgEncType;
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
@@ -275,7 +275,7 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
         // get and check streamId
         String streamId = reqAttrs.get(HttpAttrConst.KEY_STREAM_ID);
         if (StringUtils.isBlank(streamId)) {
-            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_STREAMID_MISSING);
+            source.fileMetricIncWithDetailStats(StatConstants.EVENT_MSG_STREAMID_MISSING, groupId);
             sendResponse(ctx, DataProxyErrCode.MISS_REQUIRED_STREAMID_ARGUMENT.getErrCode(),
                     strBuff.append("Field ").append(HttpAttrConst.KEY_STREAM_ID)
                             .append(" must exist and not blank!").toString(),
@@ -284,8 +284,8 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
         }
         // get and check topicName
         String topicName = ConfigManager.getInstance().getTopicName(groupId, streamId);
-        if (StringUtils.isBlank(topicName)) {
-            source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
+        if (StringUtils.isEmpty(topicName)) {
+            source.fileMetricIncWithDetailStats(StatConstants.EVENT_SOURCE_TOPIC_MISSING, groupId);
             sendResponse(ctx, DataProxyErrCode.TOPIC_IS_BLANK.getErrCode(),
                     strBuff.append("Topic not configured for ").append(HttpAttrConst.KEY_GROUP_ID)
                             .append("(").append(groupId).append("),")
@@ -308,13 +308,13 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
         String body = reqAttrs.get(HttpAttrConst.KEY_BODY);
         if (StringUtils.isBlank(body)) {
             if (body == null) {
-                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_BODY_MISSING);
+                source.fileMetricIncWithDetailStats(StatConstants.EVENT_MSG_BODY_MISSING, groupId);
                 sendResponse(ctx, DataProxyErrCode.MISS_REQUIRED_BODY_ARGUMENT.getErrCode(),
                         strBuff.append("Field ").append(HttpAttrConst.KEY_BODY)
                                 .append(" is not exist!").toString(),
                         isCloseCon, callback);
             } else {
-                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_BODY_BLANK);
+                source.fileMetricIncWithDetailStats(StatConstants.EVENT_MSG_BODY_BLANK, groupId);
                 sendResponse(ctx, DataProxyErrCode.EMPTY_MSG.getErrCode(),
                         strBuff.append("Field ").append(HttpAttrConst.KEY_BODY)
                                 .append(" is Blank!").toString(),
@@ -323,7 +323,7 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
             return;
         }
         if (body.length() > source.getMaxMsgLength()) {
-            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_BODY_OVERMAX);
+            source.fileMetricIncWithDetailStats(StatConstants.EVENT_MSG_BODY_OVERMAX, groupId);
             sendResponse(ctx, DataProxyErrCode.BODY_EXCEED_MAX_LEN.getErrCode(),
                     strBuff.append("Error msg, the ").append(HttpAttrConst.KEY_BODY)
                             .append(" length(").append(body.length())
@@ -360,9 +360,9 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
         eventHeaders.put(ConfigConstants.DATAPROXY_IP_KEY, source.getSrcHost());
         eventHeaders.put(ConfigConstants.MSG_COUNTER_KEY, strMsgCount);
         eventHeaders.put(ConfigConstants.MSG_ENCODE_VER,
-                DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
+                MessageWrapType.INLONG_MSG_V0.getStrId());
         eventHeaders.put(EventConstants.HEADER_KEY_VERSION,
-                DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
+                MessageWrapType.INLONG_MSG_V0.getStrId());
         eventHeaders.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
         eventHeaders.put(ConfigConstants.PKG_TIME_KEY, String.valueOf(pkgTime));
         Event event = EventBuilder.withBody(inlongMsgData, eventHeaders);
@@ -377,7 +377,7 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
                     "b2b", dataTime, pkgTime, 1);
             source.addMetric(false, event.getBody().length, event);
             sendErrorMsg(ctx, DataProxyErrCode.PUT_EVENT_TO_CHANNEL_FAILURE,
-                    strBuff.append("Put event to channel failure: ").append(ex.getMessage()).toString(), callback);
+                    strBuff.append("Put HTTP event to channel failure: ").append(ex.getMessage()).toString(), callback);
             if (logCounter.shouldPrint()) {
                 logger.error("Error writing HTTP event to channel failure.", ex);
             }

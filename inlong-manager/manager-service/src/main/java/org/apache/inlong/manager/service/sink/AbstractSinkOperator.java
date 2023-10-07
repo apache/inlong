@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -45,7 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Default operation of stream sink.
@@ -54,6 +54,8 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
 
     protected static final String KEY_GROUP_ID = "inlongGroupId";
     protected static final String KEY_STREAM_ID = "inlongStreamId";
+    protected static final String KEY_DATA_TYPE = "dataType";
+    protected static final String KEY_SEPARATOR = "separator";
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSinkOperator.class);
     @Autowired
     protected StreamSinkEntityMapper sinkMapper;
@@ -61,6 +63,8 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     protected StreamSinkFieldEntityMapper sinkFieldMapper;
     @Autowired
     protected DataNodeOperateHelper dataNodeHelper;
+    @Autowired
+    protected InlongStreamEntityMapper inlongStreamEntityMapper;
 
     /**
      * Setting the parameters of the latest entity.
@@ -104,13 +108,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         if (CollectionUtils.isEmpty(entityPage)) {
             return PageResult.empty();
         }
-
-        List<StreamSink> streamSinks = entityPage.getResult()
-                .stream()
-                .map(this::getFromEntity)
-                .collect(Collectors.toList());
-
-        return new PageResult<>(streamSinks, entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
+        return PageResult.fromPage(entityPage).map(this::getFromEntity);
     }
 
     @Override

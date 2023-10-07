@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.common.consts;
 
-import org.apache.inlong.common.enums.DataProxyMsgEncType;
+import org.apache.inlong.common.enums.MessageWrapType;
 
 import com.google.common.collect.Sets;
 
@@ -46,6 +46,8 @@ public class InlongConstants {
 
     public static final String BLANK = " ";
 
+    public static final String EMPTY = "";
+
     public static final String SLASH = "/";
 
     public static final String COLON = ":";
@@ -58,13 +60,19 @@ public class InlongConstants {
 
     public static final String UNDERSCORE = "_";
 
+    public static final String CENTER_LINE = "\\|";
+
     public static final String LEFT_BRACKET = "(";
 
     public static final String PERCENT = "%";
 
     public static final String QUESTION_MARK = "?";
 
+    public static final String AMPERSAND = "&";
+
     public static final String NEW_LINE = "\n";
+
+    public static final String REGEX_WHITESPACE = "\\s";
 
     public static final String ADMIN_USER = "admin";
 
@@ -194,7 +202,7 @@ public class InlongConstants {
     /**
      * Message compression type, 0: Raw message without any InLong format, 1: InlongMsgPb, 2: InlongMsg
      * <p/>
-     * See more: {@link DataProxyMsgEncType}
+     * See more: {@link MessageWrapType}
      */
     public static final String MSG_ENCODE_VER = "msgEnType";
 

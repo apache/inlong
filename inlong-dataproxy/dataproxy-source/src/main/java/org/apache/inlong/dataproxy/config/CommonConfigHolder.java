@@ -436,7 +436,7 @@ public class CommonConfigHolder {
         tmpValue = this.props.get(KEY_UNCONFIGURED_TOPIC_DEFAULT_TOPICS);
         if (StringUtils.isNotBlank(tmpValue)) {
             List<String> tmpList = new ArrayList<>();
-            String[] topicItems = tmpValue.split("\\s+");
+            String[] topicItems = tmpValue.split(",|\\s+");
             for (String item : topicItems) {
                 if (StringUtils.isBlank(item)) {
                     continue;

@@ -80,6 +80,18 @@ public class FileSourceDTO {
     @ApiModelProperty("Column separator of data source ")
     private String dataSeparator;
 
+    @ApiModelProperty("Cycle unit")
+    private String cycleUnit = "D";
+
+    @ApiModelProperty("Whether retry")
+    private Boolean retry = false;
+
+    @ApiModelProperty("Start time")
+    private Long startTime = 0L;
+
+    @ApiModelProperty("End time")
+    private Long endTime = 0L;
+
     @ApiModelProperty("Metadata filters by label, special parameters for K8S")
     private Map<String, String> filterMetaByLabels;
 
