@@ -268,15 +268,15 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
       disabled: [110].includes(values?.status),
       options: [
         {
-          label: 'RAW',
+          label: 'Raw',
           value: 'RAW',
         },
         {
-          label: 'INLONG_MSG_VO',
+          label: 'InLongMsg V0',
           value: 'INLONG_MSG_VO',
         },
         {
-          label: 'INLONG_MSG_V1',
+          label: 'InLongMsg V1',
           value: 'INLONG_MSG_V1',
         },
       ],
