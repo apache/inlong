@@ -36,6 +36,7 @@ import static com.ververica.cdc.debezium.table.DebeziumOptions.DEBEZIUM_OPTIONS_
 import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
 import static com.ververica.cdc.debezium.utils.ResolvedSchemaUtils.getPhysicalSchema;
 
+/** Factory for creating configured instance of {@link com.ververica.cdc.connectors.sqlserver.SqlServerSource}. */
 public class SqlserverTableFactory implements DynamicTableSourceFactory {
 
     private static final String IDENTIFIER = "sqlserver-cdc-inlong";

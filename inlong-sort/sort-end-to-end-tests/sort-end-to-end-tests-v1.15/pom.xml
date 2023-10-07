@@ -166,7 +166,7 @@
                         <dependency>
                             <groupId>com.microsoft.sqlserver</groupId>
                             <artifactId>mssql-jdbc</artifactId>
-                            <version>12.4.1.jre8</version>
+                            <version>${mssql.jdbc.version}</version>
                             <destFileName>mssql-driver.jar</destFileName>
                             <type>jar</type>
                             <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
