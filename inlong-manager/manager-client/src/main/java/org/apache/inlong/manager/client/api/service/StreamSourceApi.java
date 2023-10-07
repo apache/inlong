@@ -50,7 +50,7 @@ public interface StreamSourceApi {
 
     @POST("source/restart/{id}")
     Call<Response<Boolean>> restartSource(@Path("id") Integer sourceId);
-    
+
     @DELETE("source/forceDelete")
     Call<Response<Boolean>> forceDelete(@Query("inlongGroupId") String groupId,
             @Query("inlongStreamId") String streamId);
