@@ -262,7 +262,8 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
     type: 'radio',
     isPro: true,
     rules: [{ required: true }],
-    initialValue: 'RAW',
+    initialValue: 'INLONG_MSG_VO',
+    tooltip: i18n.t('meta.Stream.WrapWithInlongMsgHelp'),
     props: values => ({
       disabled: [110].includes(values?.status),
       options: [

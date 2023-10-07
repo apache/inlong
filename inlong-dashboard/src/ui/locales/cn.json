@@ -456,7 +456,7 @@
   "meta.Stream.ExecuteConfirm": "确认执行工作流吗?",
   "meta.Stream.ExecuteSuccess": "执行成功",
   "meta.Stream.WrapWithInlongMsg": "消息打包格式",
-  "meta.Stream.WrapWithInlongMsgHelp": "消息体使用 InlongMsg 打包",
+  "meta.Stream.WrapWithInlongMsgHelp": "消息体打包类型，默认 INLONG_MSG_VO。RAW：不对消息体进行任何协议打包，INLONG_MSG_VO：六段式打包协议，INLONG_MSG_V1：PB打包协议",
   "meta.Transform.Name": "转换名称",
   "meta.Transform.NameRule": "只能包含英文字母、数字、点号(.)、中划线(-)、下划线(_)",
   "meta.Transform.Type": "转换类型",
