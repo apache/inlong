@@ -55,9 +55,7 @@ public class ClickHouseJdbcUtils {
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
         // Non-empty validation
-        if (StringUtils.isBlank(url) || StringUtils.isBlank(user) || StringUtils.isBlank(password)) {
-            throw new Exception("URL, username, or password cannot be empty");
-        }
+        validateInput(url, user, password);
         // Validate URL format
         if (!url.startsWith(CLICKHOUSE_JDBC_PREFIX)) {
             throw new Exception("ClickHouse JDBC URL is invalid, it should start with " + CLICKHOUSE_JDBC_PREFIX);
@@ -104,6 +102,12 @@ public class ClickHouseJdbcUtils {
         }
         LOG.info("get ClickHouse connection success, url={}", url);
         return conn;
+    }
+
+    private static void validateInput(String url, String user, String password) throws Exception {
+        if (StringUtils.isBlank(url) || StringUtils.isBlank(user) || StringUtils.isBlank(password)) {
+            throw new Exception("URL, username, or password cannot be empty");
+        }
     }
 
     /**
