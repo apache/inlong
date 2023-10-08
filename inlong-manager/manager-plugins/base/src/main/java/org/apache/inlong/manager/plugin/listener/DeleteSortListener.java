@@ -35,6 +35,7 @@ import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.api.common.JobStatus;
 
 import java.util.HashMap;
 import java.util.List;
@@ -113,16 +114,17 @@ public class DeleteSortListener implements SortOperateListener {
         try {
             flinkOperation.delete(flinkInfo);
             log.info("job delete success for jobId={}", jobId);
-            return ListenerResult.success();
         } catch (Exception e) {
             flinkInfo.setException(true);
             flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
-            flinkOperation.pollJobStatus(flinkInfo);
+            flinkOperation.pollJobStatus(flinkInfo, JobStatus.CANCELED);
 
             String message = String.format("delete sort failed for groupId=%s", groupId);
             log.error(message, e);
             return ListenerResult.fail(message + ": " + e.getMessage());
         }
+        flinkOperation.pollJobStatus(flinkInfo, JobStatus.CANCELED);
+        return ListenerResult.success();
     }
 
 }
