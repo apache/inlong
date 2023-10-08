@@ -59,6 +59,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <plugin.compile.version>3.8.1</plugin.compile.version>
+        <plugin.deploy.version>3.1.1</plugin.deploy.version>
         <plugin.assembly.version>3.2.0</plugin.assembly.version>
         <plugin.surefire.version>3.0.0-M7</plugin.surefire.version>
         <plugin.failsafe.version>3.0.0-M7</plugin.failsafe.version>
