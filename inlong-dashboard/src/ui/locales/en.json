@@ -408,7 +408,7 @@
   "meta.Group.TubeMq.TenThousand/Day": "Ten thousand / Day",
   "meta.Group.TubeMq.AccessSize": "Access size",
   "meta.Group.TubeMq.GB/Day": "GB / Day",
-  "meta.Group.TubeMq.AccessPeakPerSecond": "Pead records",
+  "meta.Group.TubeMq.AccessPeakPerSecond": "Peak records",
   "meta.Group.TubeMq.Stripe/Second": "Records / Second",
   "meta.Group.TubeMq.SingleStripMaximumLength": "Single max length",
   "meta.Group.Kafka.Partition": "Number of partitions",
