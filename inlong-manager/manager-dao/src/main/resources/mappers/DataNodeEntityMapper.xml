@@ -86,6 +86,17 @@
             and type = #{type, jdbcType=VARCHAR}
         </where>
     </select>
+
+    <select id="selectByName" resultType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from data_node
+        <where>
+             is_deleted = 0
+            and name = #{name, jdbcType=VARCHAR}
+            and type = #{type, jdbcType=VARCHAR}
+        </where>
+    </select>
     <select id="selectByCondition"
             parameterType="org.apache.inlong.manager.pojo.node.DataNodePageRequest"
             resultType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
