@@ -262,14 +262,14 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
     type: 'radio',
     isPro: true,
     rules: [{ required: true }],
-    initialValue: 'INLONG_MSG_VO',
-    tooltip: i18n.t('meta.Stream.WrapWithInlongMsgHelp'),
+    initialValue: 'INLONG_MSG_V0',
+    tooltip: i18n.t('meta.Stream.WrapTypeHelp'),
     props: values => ({
       disabled: [110].includes(values?.status),
       options: [
         {
           label: 'InLongMsg V0',
-          value: 'INLONG_MSG_VO',
+          value: 'INLONG_MSG_V0',
         },
         {
           label: 'InLongMsg V1',
@@ -282,7 +282,7 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
       ],
     }),
   })
-  @I18n('meta.Stream.WrapWithInlongMsg')
+  @I18n('meta.Stream.WrapType')
   wrapType: string;
 
   parse(data) {
