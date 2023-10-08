@@ -37,6 +37,7 @@ import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.api.common.JobStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -132,10 +133,9 @@ public class StartupSortListener implements SortOperateListener {
             flinkOperation.start(flinkInfo);
             log.info("job submit success, jobId is [{}]", flinkInfo.getJobId());
         } catch (Exception e) {
-            flinkOperation.pollJobStatus(flinkInfo);
             flinkInfo.setException(true);
             flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
-            flinkOperation.pollJobStatus(flinkInfo);
+            flinkOperation.pollJobStatus(flinkInfo, JobStatus.RUNNING);
 
             String message = String.format("startup sort failed for groupId [%s] ", groupId);
             log.error(message, e);
@@ -143,7 +143,7 @@ public class StartupSortListener implements SortOperateListener {
         }
 
         saveInfo(groupId, InlongConstants.SORT_JOB_ID, flinkInfo.getJobId(), extList);
-        flinkOperation.pollJobStatus(flinkInfo);
+        flinkOperation.pollJobStatus(flinkInfo, JobStatus.RUNNING);
         return ListenerResult.success();
     }
 
