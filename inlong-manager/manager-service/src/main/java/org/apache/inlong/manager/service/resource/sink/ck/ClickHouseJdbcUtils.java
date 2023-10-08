@@ -71,9 +71,8 @@ public class ClickHouseJdbcUtils {
      * @throws Exception If the URL format is invalid
      */
     private static void validateUrlFormat(String url) throws Exception {
-        String regex = "^[^\\s]+$";
         String[] hostPortParts = url.substring(CLICKHOUSE_JDBC_PREFIX.length() + 3).split("/");
-        if (hostPortParts.length < 1 || !url.matches(regex)) {
+        if (hostPortParts.length < 1) {
             throw new Exception("Invalid ClickHouse JDBC URL format");
         }
         if (!url.startsWith(CLICKHOUSE_JDBC_PREFIX)) {

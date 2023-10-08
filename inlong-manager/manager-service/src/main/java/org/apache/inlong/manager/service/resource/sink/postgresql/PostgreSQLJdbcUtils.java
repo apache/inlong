@@ -20,7 +20,6 @@ package org.apache.inlong.manager.service.resource.sink.postgresql;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLTableInfo;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,25 +54,9 @@ public class PostgreSQLJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        validateInput(url, user, password);
-
         String hostPort = extractHostPort(url);
         extractAndValidatePort(hostPort);
         return establishDatabaseConnection(url, user, password);
-    }
-
-    /**
-     * Validates input parameters (URL, username, and password).
-     *
-     * @param url      The PostgreSQL JDBC URL
-     * @param user     The username
-     * @param password The user's password
-     * @throws Exception If any of the parameters is empty
-     */
-    private static void validateInput(String url, String user, String password) throws Exception {
-        if (StringUtils.isBlank(url) || StringUtils.isBlank(user) || StringUtils.isBlank(password)) {
-            throw new Exception("URL, username, or password cannot be empty");
-        }
     }
 
     /**

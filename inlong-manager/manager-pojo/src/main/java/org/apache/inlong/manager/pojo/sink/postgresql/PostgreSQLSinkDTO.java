@@ -29,8 +29,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -46,12 +48,16 @@ import java.util.Map;
 public class PostgreSQLSinkDTO {
 
     @ApiModelProperty("JDBC URL of the PostgreSQL server")
+    @Length(max = 512, message = "length must be less than or equal to 512")
+    @Pattern(regexp = "^((?!\\s).)*$", message = "not supports blank in url")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")
+    @Length(max = 128, message = "length must be less than or equal to 128")
     private String username;
 
     @ApiModelProperty("User password")
+    @Length(max = 512, message = "length must be less than or equal to 512")
     private String password;
 
     @ApiModelProperty("Target database name")

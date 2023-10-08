@@ -21,7 +21,6 @@ import org.apache.inlong.manager.pojo.sink.mysql.MySQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLTableInfo;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,27 +51,12 @@ public class MySQLJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        validateInput(url, user, password);
         String host = parseAndValidateURL(url);
         validateHostnameAndPort(host);
         Connection conn = establishDatabaseConnection(url, user, password);
         validateConnection(conn, url);
 
         return conn;
-    }
-
-    /**
-     * Validates the input parameters (URL, username, and password).
-     *
-     * @param url      The JDBC URL
-     * @param user     The username
-     * @param password The user's password
-     * @throws Exception If any of the parameters is empty
-     */
-    private static void validateInput(String url, String user, String password) throws Exception {
-        if (StringUtils.isBlank(url) || StringUtils.isBlank(user) || StringUtils.isBlank(password)) {
-            throw new Exception("URL, username, or password cannot be empty");
-        }
     }
 
     /**

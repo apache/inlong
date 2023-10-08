@@ -21,7 +21,6 @@ import org.apache.inlong.manager.pojo.sink.starrocks.StarRocksColumnInfo;
 import org.apache.inlong.manager.pojo.sink.starrocks.StarRocksTableInfo;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hive.jdbc.HiveDatabaseMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,10 +52,7 @@ public class StarRocksJdbcUtils {
      * @throws Exception If an error occurs during connection establishment.
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        // Non-empty validation
-        validateInput(url, user, password);
         validateUrlFormat(url);
-
         Connection conn;
         try {
             Class.forName(STAR_ROCKS_DRIVER_CLASS);
@@ -78,10 +74,6 @@ public class StarRocksJdbcUtils {
      * @throws Exception If the URL format is invalid, if the port number is out of the valid range, or if the URL is not prefixed with "jdbc:mysql".
      */
     private static void validateUrlFormat(String url) throws Exception {
-        String regex = "^[^\\s]+$";
-        if (!url.matches(regex)) {
-            throw new Exception("Invalid StarRocks JDBC URL format");
-        }
         if (!url.startsWith(STAR_ROCKS_JDBC_PREFIX)) {
             throw new Exception("StarRocks JDBC URL is invalid, it should start with " + STAR_ROCKS_JDBC_PREFIX);
         }
@@ -113,20 +105,6 @@ public class StarRocksJdbcUtils {
             }
         } catch (NumberFormatException e) {
             throw new Exception("Invalid port number format in StarRocks JDBC URL. Port must be a valid integer.");
-        }
-    }
-
-    /**
-     * Validates that the provided input parameters (URL, user, password) are not empty.
-     *
-     * @param url      The StarRocks JDBC URL.
-     * @param user     The username for authentication.
-     * @param password The password for authentication.
-     * @throws Exception If any of the input parameters are empty.
-     */
-    private static void validateInput(String url, String user, String password) throws Exception {
-        if (StringUtils.isBlank(url) || StringUtils.isBlank(user) || StringUtils.isBlank(password)) {
-            throw new Exception("URL, username, or password cannot be empty");
         }
     }
 
