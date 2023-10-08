@@ -35,6 +35,7 @@ import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.api.common.JobStatus;
 
 import java.util.HashMap;
 import java.util.List;
@@ -111,18 +112,21 @@ public class SuspendSortListener implements SortOperateListener {
         FlinkService flinkService = new FlinkService(flinkInfo.getEndpoint());
         FlinkOperation flinkOperation = new FlinkOperation(flinkService);
         try {
-            flinkOperation.stop(flinkInfo);
+            // todo Currently, savepoint is not being used to stop, but will be improved in the future
+            flinkOperation.delete(flinkInfo);
             log.info("job suspend success for [{}]", jobId);
-            return ListenerResult.success();
         } catch (Exception e) {
             flinkInfo.setException(true);
             flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
-            flinkOperation.pollJobStatus(flinkInfo);
+            flinkOperation.pollJobStatus(flinkInfo, JobStatus.CANCELED);
 
             String message = String.format("suspend sort failed for groupId [%s] ", groupId);
             log.error(message, e);
             return ListenerResult.fail(message + e.getMessage());
         }
+        flinkOperation.pollJobStatus(flinkInfo, JobStatus.CANCELED);
+        return ListenerResult.success();
+
     }
 
 }
