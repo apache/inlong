@@ -114,7 +114,7 @@ public class ClsSinkOperator extends AbstractSinkOperator {
         Map<String, String> params = super.parse2IdParams(streamSink, fields);
         ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(streamSink.getExtParams(), ClsSinkDTO.class);
         params.put(TOPIC_ID, clsSinkDTO.getTopicId());
-        DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectByName(streamSink.getDataNodeName(),
+        DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectByNameAndType(streamSink.getDataNodeName(),
                 DataNodeType.CLS);
         ClsDataNodeDTO clsDataNodeDTO = JsonUtils.parseObject(dataNodeEntity.getExtParams(),
                 ClsDataNodeDTO.class);

@@ -221,11 +221,15 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields) {
         Map<String, String> param;
         try {
-            param = JsonUtils.parseObject(streamSink.getExtParams(), HashMap.class);
-            // put group and stream info
-            assert param != null;
+            HashMap<String, Object> streamInfoMap = JsonUtils.parseObject(streamSink.getExtParams(), HashMap.class);
+            param = new HashMap<>();
+            assert streamInfoMap != null;
+            for (String key : streamInfoMap.keySet()) {
+                param.put(key, String.valueOf(streamInfoMap.get(key)));
+            }
             param.put(KEY_GROUP_ID, streamSink.getInlongGroupId());
             param.put(KEY_STREAM_ID, streamSink.getInlongStreamId());
+            // put group and stream info
             return param;
         } catch (Exception e) {
             LOGGER.error(String.format(

@@ -40,8 +40,8 @@ public class ClsSinkRequest extends SinkRequest {
     @ApiModelProperty("Cloud log service topic name")
     private String topicName;
 
-    @ApiModelProperty("Cloud log service topic save time")
-    private Integer saveTime;
+    @ApiModelProperty("Cloud log service topic storage duration")
+    private Integer storageDuration;
 
     @ApiModelProperty("Cloud log service tag name")
     private String tag;
