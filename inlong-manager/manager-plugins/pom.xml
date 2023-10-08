@@ -28,14 +28,35 @@
     <packaging>pom</packaging>
     <name>Apache InLong - Manager Plugins</name>
 
-    <modules>
-        <module>manager-plugins-flink-v1.13</module>
-        <module>manager-plugins-flink-v1.15</module>
-        <module>base</module>
-    </modules>
-
     <properties>
         <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
     </properties>
+    <profiles>
+        <profile>
+            <id>flink-all-version</id>
+            <modules>
+                <module>manager-plugins-flink-v1.13</module>
+                <module>manager-plugins-flink-v1.15</module>
+                <module>base</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>v1.13</id>
+            <modules>
+                <module>manager-plugins-flink-v1.13</module>
+                <module>base</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>v1.15</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>manager-plugins-flink-v1.15</module>
+                <module>base</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>

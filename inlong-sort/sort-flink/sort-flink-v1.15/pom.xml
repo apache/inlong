@@ -52,9 +52,11 @@
         <flink.protobuf.version>2.7.6</flink.protobuf.version>
         <sqlserver.jdbc.version>7.2.2.jre8</sqlserver.jdbc.version>
         <hudi.version>0.12.3</hudi.version>
+        <hive.version>3.1.3</hive.version>
         <thrift.version>0.9.3</thrift.version>
         <kafka-clients.version>2.7.1</kafka-clients.version>
         <flink-connector-debezium.version>2.3.0</flink-connector-debezium.version>
+        <flink-connector-hive.version>2.12</flink-connector-hive.version>
     </properties>
 
     <dependencyManagement>
@@ -143,8 +145,18 @@
                 <artifactId>mssql-jdbc</artifactId>
                 <version>${sqlserver.jdbc.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.hive</groupId>
+                <artifactId>hive-exec</artifactId>
+                <version>${hive.version}</version>
+            </dependency>
 
             <!-- flink -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-table-api-scala-bridge_${flink.scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-table-api-java-bridge</artifactId>
@@ -152,17 +164,17 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-table-runtime</artifactId>
+                <artifactId>flink-table-api-java</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-clients</artifactId>
+                <artifactId>flink-table-api-scala_${flink.scala.binary.version}</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-table-planner_${flink.scala.binary.version}</artifactId>
+                <artifactId>flink-table-runtime_${flink.scala.binary.version}</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <dependency>

@@ -37,6 +37,7 @@
         <module>sqlserver-cdc</module>
         <module>mysql-cdc</module>
         <module>iceberg</module>
+        <module>hive</module>
     </modules>
 
     <properties>
