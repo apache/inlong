@@ -57,9 +57,8 @@ public class PostgreSQLJdbcUtils {
     public static Connection getConnection(String url, String user, String password) throws Exception {
         validateInput(url, user, password);
 
-        String host = extractHostFromUrl(url);
-        validateHostname(host);
-
+        String hostPort = extractHostPort(url);
+        extractAndValidatePort(hostPort);
         return establishDatabaseConnection(url, user, password);
     }
 
@@ -84,35 +83,41 @@ public class PostgreSQLJdbcUtils {
      * @return The extracted hostname
      * @throws Exception If the URL format is invalid
      */
-    private static String extractHostFromUrl(String url) throws Exception {
+    private static String extractHostPort(String url) throws Exception {
         if (!url.startsWith(POSTGRES_JDBC_PREFIX)) {
-            throw new Exception("PostgreSQL server URL is invalid, it should start with " + POSTGRES_JDBC_PREFIX);
+            throw new Exception("Hive JDBC URL is invalid, it should start with " + POSTGRES_JDBC_PREFIX);
         }
 
-        String[] urlParts = url.split(":");
-        if (urlParts.length < 3) {
-            throw new Exception("Invalid PostgreSQL URL format");
+        String hostPortPart = url.substring(POSTGRES_JDBC_PREFIX.length() + 3);
+        String[] hostPortParts = hostPortPart.split("/");
+
+        if (hostPortParts.length < 1) {
+            throw new Exception("Invalid Hive JDBC URL format");
         }
 
-        String hostPortPart = urlParts[2];
-        String[] hostParts = hostPortPart.split("/");
-        if (hostParts.length < 1) {
-            throw new Exception("Invalid PostgreSQL URL format");
-        }
-
-        return hostParts[0];
+        return hostPortParts[0];
     }
 
     /**
-     * Validates the hostname against allowed patterns.
+     * Extracts and validates the port from the host and port part.
      *
-     * @param host The hostname to validate
-     * @throws Exception If the hostname is invalid
+     * @param hostPort The host and port part in host:port format
+     * @throws Exception If the port is invalid
      */
-    private static void validateHostname(String host) throws Exception {
-        String allowedHostsPattern = "^(localhost|192\\.168\\.1\\.\\d{1,3}|10\\.0\\.0\\.\\d{1,3})$";
-        if (!host.matches(allowedHostsPattern)) {
-            throw new Exception("Invalid host in PostgreSQL URL");
+    private static void extractAndValidatePort(String hostPort) throws Exception {
+        String[] hostPortSplit = hostPort.split(":");
+        if (hostPortSplit.length != 2) {
+            throw new Exception("Invalid host:port format in JDBC URL");
+        }
+
+        String portStr = hostPortSplit[1];
+        try {
+            int portNumber = Integer.parseInt(portStr);
+            if (portNumber < 1 || portNumber > 65535) {
+                throw new Exception("Invalid port number in JDBC URL");
+            }
+        } catch (NumberFormatException e) {
+            throw new Exception("Invalid port number format in JDBC URL");
         }
     }
 

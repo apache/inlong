@@ -57,9 +57,7 @@ public class ClickHouseJdbcUtils {
         // Non-empty validation
         validateInput(url, user, password);
         validateUrlFormat(url);
-        String host = extractHostFromUrl(url);
         String port = extractPortFromUrl(url);
-        validateHost(host);
         validatePort(port);
 
         Connection conn = establishConnection(url, user, password);
@@ -73,30 +71,14 @@ public class ClickHouseJdbcUtils {
      * @throws Exception If the URL format is invalid
      */
     private static void validateUrlFormat(String url) throws Exception {
+        String regex = "^[^\\s]+$";
+        String[] hostPortParts = url.substring(CLICKHOUSE_JDBC_PREFIX.length() + 3).split("/");
+        if (hostPortParts.length < 1 || !url.matches(regex)) {
+            throw new Exception("Invalid ClickHouse JDBC URL format");
+        }
         if (!url.startsWith(CLICKHOUSE_JDBC_PREFIX)) {
             throw new Exception("ClickHouse JDBC URL is invalid, it should start with " + CLICKHOUSE_JDBC_PREFIX);
         }
-
-        String[] hostPortParts = url.substring(CLICKHOUSE_JDBC_PREFIX.length()).split("/");
-        if (hostPortParts.length < 1) {
-            throw new Exception("Invalid ClickHouse JDBC URL format");
-        }
-    }
-
-    /**
-     * Extracts the host from the ClickHouse JDBC URL.
-     *
-     * @param url The ClickHouse JDBC URL from which to extract the host
-     * @return The extracted host
-     * @throws Exception If the URL format is invalid
-     */
-    private static String extractHostFromUrl(String url) throws Exception {
-        String hostPortPart = url.substring(CLICKHOUSE_JDBC_PREFIX.length()).split("/")[0];
-        String[] hostPortSplit = hostPortPart.split(":");
-        if (hostPortSplit.length != 2) {
-            throw new Exception("Invalid host:port format in ClickHouse JDBC URL");
-        }
-        return hostPortSplit[0];
     }
 
     /**
@@ -107,25 +89,18 @@ public class ClickHouseJdbcUtils {
      * @throws Exception If the URL format is invalid
      */
     private static String extractPortFromUrl(String url) throws Exception {
-        String hostPortPart = url.substring(CLICKHOUSE_JDBC_PREFIX.length()).split("/")[0];
+        String urlWithoutPrefix = url.substring(CLICKHOUSE_JDBC_PREFIX.length() + 3);
+        String[] parts = urlWithoutPrefix.split("/");
+        if (parts.length < 2) {
+            throw new Exception("Invalid ClickHouse JDBC URL format");
+        }
+        String hostPortPart = parts[0];
         String[] hostPortSplit = hostPortPart.split(":");
         if (hostPortSplit.length != 2) {
             throw new Exception("Invalid host:port format in ClickHouse JDBC URL");
         }
+        // Return the port part
         return hostPortSplit[1];
-    }
-
-    /**
-     * Validates the host against allowed host patterns.
-     *
-     * @param host The host to validate
-     * @throws Exception If the host is invalid
-     */
-    private static void validateHost(String host) throws Exception {
-        String allowedHostsPattern = "^(localhost|192\\.168\\.1\\.\\d{1,3}|10\\.0\\.0\\.\\d{1,3})$";
-        if (!host.matches(allowedHostsPattern)) {
-            throw new Exception("Invalid host in ClickHouse JDBC URL");
-        }
     }
 
     /**

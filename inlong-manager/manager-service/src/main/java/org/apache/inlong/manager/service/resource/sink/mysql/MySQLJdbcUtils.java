@@ -52,19 +52,10 @@ public class MySQLJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        // Validate input parameters
         validateInput(url, user, password);
-
-        // Parse and validate the URL, and extract the host
         String host = parseAndValidateURL(url);
-
-        // Validate hostname and port
         validateHostnameAndPort(host);
-
-        // Establish a database connection
         Connection conn = establishDatabaseConnection(url, user, password);
-
-        // Check if the connection was successful
         validateConnection(conn, url);
 
         return conn;
@@ -96,7 +87,7 @@ public class MySQLJdbcUtils {
             throw new Exception("MySQL JDBC URL is invalid, it should start with " + MYSQL_JDBC_PREFIX);
         }
 
-        String hostPortPart = url.substring(MYSQL_JDBC_PREFIX.length());
+        String hostPortPart = url.substring(MYSQL_JDBC_PREFIX.length() + 3);
         String[] hostPortParts = hostPortPart.split("/");
         if (hostPortParts.length < 1) {
             throw new Exception("Invalid MySQL JDBC URL format");
@@ -112,19 +103,14 @@ public class MySQLJdbcUtils {
      * @throws Exception If the hostname or port is invalid
      */
     private static void validateHostnameAndPort(String host) throws Exception {
+        if (host == null || host.isEmpty()) {
+            throw new Exception("Host is empty in MySQL JDBC URL");
+        }
         String[] hostPortSplit = host.split(":");
         if (hostPortSplit.length != 2) {
             throw new Exception("Invalid host:port format in MySQL JDBC URL");
         }
-
-        String hostName = hostPortSplit[0];
         String port = hostPortSplit[1];
-
-        String allowedHostsPattern = "^(localhost|192\\.168\\.1\\.\\d{1,3}|10\\.0\\.0\\.\\d{1,3})$";
-        if (!hostName.matches(allowedHostsPattern)) {
-            throw new Exception("Invalid host in MySQL JDBC URL");
-        }
-
         try {
             int portNumber = Integer.parseInt(port);
             if (portNumber < 1 || portNumber > 65535) {

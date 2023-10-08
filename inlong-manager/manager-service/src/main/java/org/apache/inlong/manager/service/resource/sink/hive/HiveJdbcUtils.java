@@ -55,14 +55,8 @@ public class HiveJdbcUtils {
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
         validateInput(url, user, password);
-
         String hostPort = extractHostPort(url);
-        String host = extractHost(hostPort);
-        String port = extractPort(hostPort);
-
-        validateHost(host);
-        validatePort(port);
-
+        extractAndValidatePort(hostPort);
         return createConnection(url, user, password);
     }
 
@@ -92,7 +86,7 @@ public class HiveJdbcUtils {
             throw new Exception("Hive JDBC URL is invalid, it should start with " + HIVE_JDBC_PREFIX);
         }
 
-        String hostPortPart = url.substring(HIVE_JDBC_PREFIX.length());
+        String hostPortPart = url.substring(HIVE_JDBC_PREFIX.length() + 3);
         String[] hostPortParts = hostPortPart.split("/");
 
         if (hostPortParts.length < 1) {
@@ -103,61 +97,25 @@ public class HiveJdbcUtils {
     }
 
     /**
-     * Extracts the host from the host and port part.
+     * Extracts and validates the port from the host and port part.
      *
      * @param hostPort The host and port part in host:port format
-     * @return The extracted host
-     * @throws Exception If the host:port format is invalid
-     */
-    private static String extractHost(String hostPort) throws Exception {
-        String[] hostPortSplit = hostPort.split(":");
-
-        if (hostPortSplit.length != 2) {
-            throw new Exception("Invalid host:port format in Hive JDBC URL");
-        }
-
-        return hostPortSplit[0];
-    }
-
-    /**
-     * Extracts the port from the host and port part.
-     *
-     * @param hostPort The host and port part in host:port format
-     * @return The extracted port
-     */
-    private static String extractPort(String hostPort) {
-        String[] hostPortSplit = hostPort.split(":");
-        return hostPortSplit[1];
-    }
-
-    /**
-     * Validates the host against allowed host patterns.
-     *
-     * @param host The host to validate
-     * @throws Exception If the host is invalid
-     */
-    private static void validateHost(String host) throws Exception {
-        String allowedHostsPattern = "^(localhost|192\\.168\\.1\\.\\d{1,3}|10\\.0\\.0\\.\\d{1,3})$";
-
-        if (!host.matches(allowedHostsPattern)) {
-            throw new Exception("Invalid host in Hive JDBC URL");
-        }
-    }
-
-    /**
-     * Validates the port as a valid numeric value within the allowed range.
-     *
-     * @param port The port to validate
      * @throws Exception If the port is invalid
      */
-    private static void validatePort(String port) throws Exception {
+    private static void extractAndValidatePort(String hostPort) throws Exception {
+        String[] hostPortSplit = hostPort.split(":");
+        if (hostPortSplit.length != 2) {
+            throw new Exception("Invalid host:port format in JDBC URL");
+        }
+
+        String portStr = hostPortSplit[1];
         try {
-            int portNumber = Integer.parseInt(port);
+            int portNumber = Integer.parseInt(portStr);
             if (portNumber < 1 || portNumber > 65535) {
-                throw new Exception("Invalid port number in Hive JDBC URL");
+                throw new Exception("Invalid port number in JDBC URL");
             }
         } catch (NumberFormatException e) {
-            throw new Exception("Invalid port number format in Hive JDBC URL");
+            throw new Exception("Invalid port number format in JDBC URL");
         }
     }
 

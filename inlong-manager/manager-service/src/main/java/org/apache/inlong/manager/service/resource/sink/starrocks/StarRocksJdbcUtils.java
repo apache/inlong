@@ -33,7 +33,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 public class StarRocksJdbcUtils {
 
@@ -54,14 +53,9 @@ public class StarRocksJdbcUtils {
      * @throws Exception If an error occurs during connection establishment.
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        if (StringUtils.isBlank(url) || !url.startsWith(STAR_ROCKS_JDBC_PREFIX)) {
-            throw new Exception("StarRocks server URL should start with " + STAR_ROCKS_JDBC_PREFIX);
-        }
-
-        // Verify that the URL format is valid
-        if (!isValidUrlFormat(url)) {
-            throw new Exception("Invalid URL format");
-        }
+        // Non-empty validation
+        validateInput(url, user, password);
+        validateUrlFormat(url);
 
         Connection conn;
         try {
@@ -78,15 +72,62 @@ public class StarRocksJdbcUtils {
     }
 
     /**
-     * Validates the format of the given JDBC URL.
+     * Validates the format of the StarRocks JDBC URL, including the port number.
      *
-     * @param url The JDBC URL to validate.
-     * @return {@code true} if the URL format is valid, {@code false} otherwise.
+     * @param url The StarRocks JDBC URL to validate
+     * @throws Exception If the URL format is invalid, if the port number is out of the valid range, or if the URL is not prefixed with "jdbc:mysql".
      */
-    private static boolean isValidUrlFormat(String url) {
-        // Modify this regular expression to match your URL format
-        String urlPattern = "^jdbc:mysql://(localhost|\\d{1,3}(\\.\\d{1,3}){3})(:\\d{1,5})/.*$";
-        return Pattern.matches(urlPattern, url);
+    private static void validateUrlFormat(String url) throws Exception {
+        String regex = "^[^\\s]+$";
+        if (!url.matches(regex)) {
+            throw new Exception("Invalid StarRocks JDBC URL format");
+        }
+        if (!url.startsWith(STAR_ROCKS_JDBC_PREFIX)) {
+            throw new Exception("StarRocks JDBC URL is invalid, it should start with " + STAR_ROCKS_JDBC_PREFIX);
+        }
+        String[] hostPortParts = url.substring(STAR_ROCKS_JDBC_PREFIX.length() + 3).split("/");
+        if (hostPortParts.length < 1) {
+            throw new Exception("Invalid StarRocks JDBC URL format");
+        }
+
+        String hostPortPart = hostPortParts[0];
+        String[] hostPortSplit = hostPortPart.split(":");
+        if (hostPortSplit.length != 2) {
+            throw new Exception("Invalid host:port format in StarRocks JDBC URL");
+        }
+        String port = hostPortSplit[1];
+        validatePort(port);
+    }
+
+    /**
+     * Validates the port as a valid numeric value within the allowed range (1-65535).
+     *
+     * @param port The port to validate
+     * @throws Exception If the port is invalid or out of the valid range.
+     */
+    private static void validatePort(String port) throws Exception {
+        try {
+            int portNumber = Integer.parseInt(port);
+            if (portNumber < 1 || portNumber > 65535) {
+                throw new Exception("Invalid port number in StarRocks JDBC URL. Port must be in the range 1-65535.");
+            }
+        } catch (NumberFormatException e) {
+            throw new Exception("Invalid port number format in StarRocks JDBC URL. Port must be a valid integer.");
+        }
+    }
+
+    /**
+     * Validates that the provided input parameters (URL, user, password) are not empty.
+     *
+     * @param url      The StarRocks JDBC URL.
+     * @param user     The username for authentication.
+     * @param password The password for authentication.
+     * @throws Exception If any of the input parameters are empty.
+     */
+    private static void validateInput(String url, String user, String password) throws Exception {
+        if (StringUtils.isBlank(url) || StringUtils.isBlank(user) || StringUtils.isBlank(password)) {
+            throw new Exception("URL, username, or password cannot be empty");
+        }
     }
 
     /**
