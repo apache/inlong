@@ -36,6 +36,7 @@ import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.api.common.JobStatus;
 
 import java.util.HashMap;
 import java.util.List;
@@ -111,7 +112,6 @@ public class RestartSortListener implements SortOperateListener {
         }
 
         FlinkInfo flinkInfo = new FlinkInfo();
-        flinkInfo.setJobId(jobId);
         String jobName = Constants.SORT_JOB_NAME_GENERATOR.apply(processForm);
         flinkInfo.setJobName(jobName);
         String sortUrl = kvConf.get(InlongConstants.SORT_URL);
@@ -121,18 +121,33 @@ public class RestartSortListener implements SortOperateListener {
         FlinkOperation flinkOperation = new FlinkOperation(flinkService);
         try {
             flinkOperation.genPath(flinkInfo, dataflow);
-            flinkOperation.restart(flinkInfo);
+            // todo Currently, savepoint is not being used to restart, but will be improved in the future
+            flinkOperation.start(flinkInfo);
             log.info("job restart success for [{}]", jobId);
-            return ListenerResult.success();
         } catch (Exception e) {
             flinkInfo.setException(true);
             flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
-            flinkOperation.pollJobStatus(flinkInfo);
+            flinkOperation.pollJobStatus(flinkInfo, JobStatus.RUNNING);
 
             String message = String.format("restart sort failed for groupId [%s] ", groupId);
             log.error(message, e);
             return ListenerResult.fail(message + e.getMessage());
         }
+        extList.forEach(groupExtInfo -> kvConf.remove(InlongConstants.SORT_JOB_ID));
+        saveInfo(groupId, InlongConstants.SORT_JOB_ID, flinkInfo.getJobId(), extList);
+        flinkOperation.pollJobStatus(flinkInfo, JobStatus.RUNNING);
+        return ListenerResult.success();
+    }
+
+    /**
+     * Save ext info into list.
+     */
+    private void saveInfo(String inlongGroupId, String keyName, String keyValue, List<InlongGroupExtInfo> extInfoList) {
+        InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
+        extInfo.setInlongGroupId(inlongGroupId);
+        extInfo.setKeyName(keyName);
+        extInfo.setKeyValue(keyValue);
+        extInfoList.add(extInfo);
     }
 
 }
