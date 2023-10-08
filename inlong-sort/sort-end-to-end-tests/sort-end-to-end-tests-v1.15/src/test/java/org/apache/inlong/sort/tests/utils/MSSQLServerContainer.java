@@ -26,6 +26,10 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+/**
+ * Docker container for MSSQLServerContainer.
+ * Use {@link org.testcontainers.containers.MSSQLServerContainer} and edit some settings for test.
+ * */
 public class MSSQLServerContainer extends JdbcDatabaseContainer {
 
     private static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("mcr.microsoft.com/mssql/server");

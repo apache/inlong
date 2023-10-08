@@ -46,60 +46,6 @@ public class SqlserverTableFactory implements DynamicTableSourceFactory {
         return IDENTIFIER;
     }
 
-    @Override
-    public Set<ConfigOption<?>> requiredOptions() {
-        Set<ConfigOption<?>> options = new HashSet<>();
-        options.add(HOSTNAME);
-        options.add(USERNAME);
-        options.add(PASSWORD);
-        options.add(DATABASE_NAME);
-        options.add(SCHEMA_NAME);
-        options.add(TABLE_NAME);
-        return options;
-    }
-
-    @Override
-    public Set<ConfigOption<?>> optionalOptions() {
-        Set<ConfigOption<?>> options = new HashSet<>();
-        options.add(PORT);
-        options.add(SERVER_TIME_ZONE);
-        options.add(SCAN_STARTUP_MODE);
-
-        return options;
-    }
-
-    @Override
-    public DynamicTableSource createDynamicTableSource(Context context) {
-        final FactoryUtil.TableFactoryHelper helper =
-                FactoryUtil.createTableFactoryHelper(this, context);
-        helper.validateExcept(DEBEZIUM_OPTIONS_PREFIX);
-
-        final ReadableConfig config = helper.getOptions();
-        String hostname = config.get(HOSTNAME);
-        String username = config.get(USERNAME);
-        String password = config.get(PASSWORD);
-        String databaseName = config.get(DATABASE_NAME);
-        String tableName = config.get(TABLE_NAME);
-        String schemaName = config.get(SCHEMA_NAME);
-        ZoneId serverTimeZone = ZoneId.of(config.get(SERVER_TIME_ZONE));
-        int port = config.get(PORT);
-        ResolvedSchema physicalSchema =
-                getPhysicalSchema(context.getCatalogTable().getResolvedSchema());
-
-        return new SqlServerTableSource(
-                physicalSchema,
-                port,
-                hostname,
-                databaseName,
-                schemaName,
-                tableName,
-                serverTimeZone,
-                username,
-                password,
-                getDebeziumProperties(context.getCatalogTable().getOptions()),
-                getStartupOptions(config));
-    }
-
     private static final ConfigOption<String> SCHEMA_NAME =
             ConfigOptions.key("schema-name")
                     .stringType()
@@ -157,6 +103,60 @@ public class SqlserverTableFactory implements DynamicTableSourceFactory {
                     .withDescription(
                             "Optional startup mode for SqlServer CDC consumer, valid enumerations are "
                                     + "\"initial\", \"initial-only\", \"latest-offset\"");
+
+    @Override
+    public Set<ConfigOption<?>> requiredOptions() {
+        Set<ConfigOption<?>> options = new HashSet<>();
+        options.add(HOSTNAME);
+        options.add(USERNAME);
+        options.add(PASSWORD);
+        options.add(DATABASE_NAME);
+        options.add(SCHEMA_NAME);
+        options.add(TABLE_NAME);
+        return options;
+    }
+
+    @Override
+    public Set<ConfigOption<?>> optionalOptions() {
+        Set<ConfigOption<?>> options = new HashSet<>();
+        options.add(PORT);
+        options.add(SERVER_TIME_ZONE);
+        options.add(SCAN_STARTUP_MODE);
+
+        return options;
+    }
+
+    @Override
+    public DynamicTableSource createDynamicTableSource(Context context) {
+        final FactoryUtil.TableFactoryHelper helper =
+                FactoryUtil.createTableFactoryHelper(this, context);
+        helper.validateExcept(DEBEZIUM_OPTIONS_PREFIX);
+
+        final ReadableConfig config = helper.getOptions();
+        String hostname = config.get(HOSTNAME);
+        String username = config.get(USERNAME);
+        String password = config.get(PASSWORD);
+        String databaseName = config.get(DATABASE_NAME);
+        String tableName = config.get(TABLE_NAME);
+        String schemaName = config.get(SCHEMA_NAME);
+        ZoneId serverTimeZone = ZoneId.of(config.get(SERVER_TIME_ZONE));
+        int port = config.get(PORT);
+        ResolvedSchema physicalSchema =
+                getPhysicalSchema(context.getCatalogTable().getResolvedSchema());
+
+        return new SqlServerTableSource(
+                physicalSchema,
+                port,
+                hostname,
+                databaseName,
+                schemaName,
+                tableName,
+                serverTimeZone,
+                username,
+                password,
+                getDebeziumProperties(context.getCatalogTable().getOptions()),
+                getStartupOptions(config));
+    }
 
     private static final String SCAN_STARTUP_MODE_VALUE_INITIAL = "initial";
     private static final String SCAN_STARTUP_MODE_VALUE_INITIAL_ONLY = "initial-only";
