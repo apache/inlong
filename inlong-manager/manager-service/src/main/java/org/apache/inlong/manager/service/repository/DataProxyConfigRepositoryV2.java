@@ -90,6 +90,7 @@ public class DataProxyConfigRepositoryV2 implements IRepository {
     public static final String KEY_NAMESPACE = "namespace";
     public static final String KEY_BACKUP_CLUSTER_TAG = "backup_cluster_tag";
     public static final String KEY_BACKUP_TOPIC = "backup_topic";
+    public static final String KEY_DATA_TYPE = "dataType";
     public static final String KEY_SORT_TASK_NAME = "defaultSortTaskName";
     public static final String KEY_DATA_NODE_NAME = "defaultDataNodeName";
     public static final String KEY_SORT_CONSUMER_GROUP = "defaultSortConsumerGroup";
@@ -363,7 +364,11 @@ public class DataProxyConfigRepositoryV2 implements IRepository {
                 .forEach(v -> streamIdMap.put(getInlongId(v.getInlongGroupId(), v.getInlongStreamId()), v));
         // reload inlong stream ext params
         Map<String, Map<String, String>> streamParams = new HashMap<>();
-        streamIdMap.forEach((k, v) -> streamParams.put(k, fromJsonToMap(v.getExtParams())));
+        streamIdMap.forEach((k, v) -> {
+            Map<String, String> params = fromJsonToMap(v.getExtParams());
+            params.computeIfAbsent(KEY_DATA_TYPE, type -> v.getDataType());
+            streamParams.put(k, params);
+        });
         // reload inlong stream ext
         List<InlongStreamExtEntity> streamExtCursor = sortConfigLoader
                 .loadStreamBackupInfo(ClusterSwitch.BACKUP_MQ_RESOURCE);

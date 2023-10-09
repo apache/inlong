@@ -51,14 +51,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.apache.flink.api.common.JobStatus.RUNNING;
-
 /**
  * Flink task operation, such restart or stop flink job.
  */
 @Slf4j
 public class FlinkOperation {
 
+    private static final Integer TRY_MAX_TIMES = 60;
     private static final String CONFIG_FILE = "application.properties";
     private static final String CONNECTOR_DIR_KEY = "sort.connector.dir";
     private static final String JOB_TERMINATED_MSG = "the job not found by id %s, "
@@ -332,7 +331,7 @@ public class FlinkOperation {
     /**
      * Status of Flink job.
      */
-    public void pollJobStatus(FlinkInfo flinkInfo) throws Exception {
+    public void pollJobStatus(FlinkInfo flinkInfo, JobStatus expectStatus) throws Exception {
         if (flinkInfo.isException()) {
             throw new BusinessException("startup failed: " + flinkInfo.getExceptionMsg());
         }
@@ -341,8 +340,8 @@ public class FlinkOperation {
             log.error("job id cannot empty for {}", flinkInfo);
             throw new Exception("job id cannot empty");
         }
-
-        while (true) {
+        int retryTimes = 0;
+        while (retryTimes <= TRY_MAX_TIMES) {
             try {
                 JobDetailsInfo jobDetailsInfo = flinkService.getJobDetail(jobId);
                 if (jobDetailsInfo == null) {
@@ -351,20 +350,21 @@ public class FlinkOperation {
                 }
 
                 JobStatus jobStatus = jobDetailsInfo.getJobStatus();
-                if (jobStatus.isTerminalState()) {
+                if (jobStatus.isTerminalState() && expectStatus != JobStatus.CANCELED) {
                     log.error("job was terminated for {}, exception: {}", jobId, flinkInfo.getExceptionMsg());
                     throw new Exception("job was terminated for " + jobId);
                 }
 
-                if (jobStatus == RUNNING) {
-                    log.info("job status is Running for {}", jobId);
+                if (jobStatus == expectStatus) {
+                    log.info("job status is {} for {}", jobStatus, jobId);
                     break;
                 }
-                log.info("job was not Running for {}", jobId);
-                TimeUnit.SECONDS.sleep(5);
+                log.info("job status is {} for {}", jobStatus, jobId);
             } catch (Exception e) {
                 log.error("poll job status error for {}, exception: ", flinkInfo, e);
             }
+            TimeUnit.SECONDS.sleep(5);
+            retryTimes++;
         }
     }
 

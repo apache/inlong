@@ -53,6 +53,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>12.4.1.jre8</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
@@ -157,6 +163,14 @@
                             <type>jar</type>
                             <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
                         </dependency>
+                        <dependency>
+                            <groupId>com.microsoft.sqlserver</groupId>
+                            <artifactId>mssql-jdbc</artifactId>
+                            <version>${mssql.jdbc.version}</version>
+                            <destFileName>mssql-driver.jar</destFileName>
+                            <type>jar</type>
+                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
+                        </dependency>
                         <artifactItem>
                             <groupId>org.apache.inlong</groupId>
                             <artifactId>sort-connector-postgres-cdc-v1.15</artifactId>
@@ -167,9 +181,25 @@
                         </artifactItem>
                         <artifactItem>
                             <groupId>org.apache.inlong</groupId>
+                            <artifactId>sort-connector-mysql-cdc-v1.15</artifactId>
+                            <version>${project.version}</version>
+                            <destFileName>sort-connector-mysql-cdc.jar</destFileName>
+                            <type>jar</type>
+                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
+                        </artifactItem>
+                        <artifactItem>
+                            <groupId>org.apache.inlong</groupId>
                             <artifactId>sort-connector-starrocks-v1.15</artifactId>
                             <version>${project.version}</version>
                             <destFileName>sort-connector-starrocks.jar</destFileName>
+                            <type>jar</type>
+                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
+                        </artifactItem>
+                        <artifactItem>
+                            <groupId>org.apache.inlong</groupId>
+                            <artifactId>sort-connector-sqlserver-cdc-v1.15</artifactId>
+                            <version>${project.version}</version>
+                            <destFileName>sort-connector-sqlserver-cdc.jar</destFileName>
                             <type>jar</type>
                             <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
                         </artifactItem>

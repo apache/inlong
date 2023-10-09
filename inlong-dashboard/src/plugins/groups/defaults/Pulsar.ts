@@ -32,7 +32,7 @@ export default class PulsarGroup
 {
   @FieldDecorator({
     type: 'radio',
-    initialValue: 'SERIAL',
+    initialValue: 'PARALLEL',
     rules: [{ required: true }],
     props: {
       options: [
@@ -60,7 +60,7 @@ export default class PulsarGroup
       max: 100,
       precision: 0,
     },
-    visible: values => values.queueModule === 'PARALLEL',
+    visible: values => values.queueModule !== 'SERIAL',
   })
   @I18n('meta.Group.Pulsar.PartitionNum')
   partitionNum: number;
