@@ -101,11 +101,7 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
         ClsDataNodeDTO clsDataNode = getClsDataNode(sinkInfo);
         ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(sinkInfo.getExtParams(), ClsSinkDTO.class);
         try {
-            String topicID = describeTopicIDByTopicName(sinkInfo, clsDataNode);
-            if (Strings.isEmpty(topicID)) {
-                // if topic don't exist,create topic in cls
-                topicID = createTopicReturnTopicId(clsDataNode, clsSinkDTO);
-            }
+            String topicID = getTopicID(sinkInfo, clsDataNode, clsSinkDTO);
             clsSinkDTO.setTopicId(topicID);
             sinkInfo.setExtParams(JsonUtils.toJsonString(clsSinkDTO));
             // create topic index by tokenizer
@@ -122,6 +118,16 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
             throw new BusinessException(errMsg);
         }
+    }
+
+    private String getTopicID(SinkInfo sinkInfo, ClsDataNodeDTO clsDataNode, ClsSinkDTO clsSinkDTO)
+            throws TencentCloudSDKException {
+        String topicID = describeTopicIDByTopicName(sinkInfo, clsDataNode);
+        if (Strings.isEmpty(topicID)) {
+            // if topic don't exist,create topic in cls
+            topicID = createTopicReturnTopicId(clsDataNode, clsSinkDTO);
+        }
+        return topicID;
     }
 
     private String createTopicReturnTopicId(ClsDataNodeDTO clsDataNode, ClsSinkDTO clsSinkDTO)
@@ -285,7 +291,8 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
             String tag = allTags[i];
             String[] keyAndValueOfTag = tag.split(InlongConstants.COLON);
             Tag tagInfo = new Tag();
-            tagInfo.set(keyAndValueOfTag[0], keyAndValueOfTag[1]);
+            tagInfo.setKey(keyAndValueOfTag[0]);
+            tagInfo.setValue(keyAndValueOfTag[1]);
             tags[i] = tagInfo;
         }
         return tags;
