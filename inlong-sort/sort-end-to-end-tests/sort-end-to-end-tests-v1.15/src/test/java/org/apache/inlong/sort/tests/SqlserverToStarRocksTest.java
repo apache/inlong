@@ -19,9 +19,8 @@ package org.apache.inlong.sort.tests;
 
 import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
 import org.apache.inlong.sort.tests.utils.JdbcProxy;
-import org.apache.inlong.sort.tests.utils.MySqlContainer;
+import org.apache.inlong.sort.tests.utils.MSSQLServerContainer;
 import org.apache.inlong.sort.tests.utils.StarRocksContainer;
-import org.apache.inlong.sort.tests.utils.StarRocksManager;
 import org.apache.inlong.sort.tests.utils.TestUtils;
 
 import org.junit.AfterClass;
@@ -31,6 +30,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.utility.DockerImageName;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -49,23 +49,21 @@ import static org.apache.inlong.sort.tests.utils.StarRocksManager.getNewStarRock
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStarRocksTable;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.buildStarRocksImage;
 
-/**
- * End-to-end tests for sort-connector-postgres-cdc-v1.15 uber jar.
- * Test flink sql Mysql cdc to StarRocks
- */
-public class MysqlToRocksTest extends FlinkContainerTestEnv {
+public class SqlserverToStarRocksTest extends FlinkContainerTestEnv {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MysqlToRocksTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SqlserverToStarRocksTest.class);
 
-    private static final Path mysqlJar = TestUtils.getResource("sort-connector-mysql-cdc.jar");
+    private static final Path sqlserverJar = TestUtils.getResource("sort-connector-sqlserver-cdc.jar");
     private static final Path jdbcJar = TestUtils.getResource("sort-connector-starrocks.jar");
-    private static final Path mysqlJdbcJar = TestUtils.getResource("mysql-driver.jar");
+
+    private static final Path mysqlJar = TestUtils.getResource("mysql-driver.jar");
+
     private static final String sqlFile;
 
     static {
         try {
-            sqlFile =
-                    Paths.get(MysqlToRocksTest.class.getResource("/flinkSql/mysql_test.sql").toURI()).toString();
+            sqlFile = Paths.get(SqlserverToStarRocksTest.class.getResource("/flinkSql/sqlserver_test.sql").toURI())
+                    .toString();
             buildStarRocksImage();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -82,34 +80,55 @@ public class MysqlToRocksTest extends FlinkContainerTestEnv {
                     .withLogConsumer(new Slf4jLogConsumer(STAR_ROCKS_LOG));
 
     @ClassRule
-    public static final MySqlContainer MYSQL_CONTAINER =
-            (MySqlContainer) new MySqlContainer(MySqlContainer.MySqlVersion.V8_0)
-                    .withDatabaseName("test")
+    public static final MSSQLServerContainer SQLSERVER_CONTAINER = (MSSQLServerContainer) new MSSQLServerContainer(
+            DockerImageName.parse("mcr.microsoft.com/mssql/server").withTag("2022-latest"))
+                    .acceptLicense()
                     .withNetwork(NETWORK)
-                    .withNetworkAliases("mysql")
+                    .withNetworkAliases("sqlserver")
                     .withLogConsumer(new Slf4jLogConsumer(LOG));
 
     @Before
     public void setup() {
         waitUntilJobRunning(Duration.ofSeconds(30));
-        initializeMysqlTable();
+        initializeSqlserverTable();
         initializeStarRocksTable(STAR_ROCKS);
     }
 
-    private void initializeMysqlTable() {
+    private void initializeSqlserverTable() {
         try {
-            Class.forName(MYSQL_CONTAINER.getDriverClassName());
+            // Waiting for MSSQL Agent started.
+            LOG.info("Sleep until the MSSQL Agent is started...");
+            Thread.sleep(20 * 1000);
+            LOG.info("Now continue initialize task...");
+            Class.forName(SQLSERVER_CONTAINER.getDriverClassName());
             Connection conn = DriverManager
-                    .getConnection(MYSQL_CONTAINER.getJdbcUrl(), MYSQL_CONTAINER.getUsername(),
-                            MYSQL_CONTAINER.getPassword());
+                    .getConnection(SQLSERVER_CONTAINER.getJdbcUrl(), SQLSERVER_CONTAINER.getUsername(),
+                            SQLSERVER_CONTAINER.getPassword());
             Statement stat = conn.createStatement();
+            stat.execute("CREATE DATABASE test;");
+            stat.execute("USE test;");
             stat.execute(
-                    "CREATE TABLE test_input1 (\n"
-                            + "  id SERIAL,\n"
-                            + "  name VARCHAR(255) NOT NULL DEFAULT 'flink',\n"
-                            + "  description VARCHAR(512),\n"
-                            + "  PRIMARY  KEY(id)\n"
-                            + ");");
+                    "CREATE TABLE test_input1 (\n" +
+                            "    id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,\n" +
+                            "    name NVARCHAR(255) NOT NULL DEFAULT 'flink',\n" +
+                            "    description NVARCHAR(512)\n" +
+                            ");");
+            stat.execute("if exists(select 1 from sys.databases where name='test' and is_cdc_enabled=0)\n" +
+                    "begin\n" +
+                    "    exec sys.sp_cdc_enable_db\n" +
+                    "end");
+            stat.execute("IF EXISTS(SELECT 1 FROM sys.tables WHERE name='test_input1' AND is_tracked_by_cdc = 0)\n" +
+                    "BEGIN\n" +
+                    "    EXEC sys.sp_cdc_enable_table\n" +
+                    "        @source_schema = 'dbo', -- source_schema\n" +
+                    "        @source_name = 'test_input1', -- table_name\n" +
+                    "        @capture_instance = NULL, -- capture_instance\n" +
+                    "        @supports_net_changes = '1', -- capture_instance\n" +
+                    "        @index_name = NULL,  -- \n" +
+                    "        @captured_column_list  = NULL, -- \n" +
+                    "        @filegroup_name = 'PRIMARY', -- \n" +
+                    "        @role_name = NULL -- role_name\n" +
+                    "END");
             stat.close();
             conn.close();
         } catch (Exception e) {
@@ -119,8 +138,8 @@ public class MysqlToRocksTest extends FlinkContainerTestEnv {
 
     @AfterClass
     public static void teardown() {
-        if (MYSQL_CONTAINER != null) {
-            MYSQL_CONTAINER.stop();
+        if (SQLSERVER_CONTAINER != null) {
+            SQLSERVER_CONTAINER.stop();
         }
         if (STAR_ROCKS != null) {
             STAR_ROCKS.stop();
@@ -133,20 +152,26 @@ public class MysqlToRocksTest extends FlinkContainerTestEnv {
      * @throws Exception The exception may throws when execute the case
      */
     @Test
-    public void testMysqlUpdateAndDelete() throws Exception {
-        submitSQLJob(sqlFile, jdbcJar, mysqlJar, mysqlJdbcJar);
+    public void testSqlserverUpdateAndDelete() throws Exception {
+        submitSQLJob(sqlFile, jdbcJar, sqlserverJar, mysqlJar);
         waitUntilJobRunning(Duration.ofSeconds(10));
 
         // generate input
         try (Connection conn =
-                DriverManager.getConnection(MYSQL_CONTAINER.getJdbcUrl(), MYSQL_CONTAINER.getUsername(),
-                        MYSQL_CONTAINER.getPassword());
+                DriverManager.getConnection(SQLSERVER_CONTAINER.getJdbcUrl(), SQLSERVER_CONTAINER.getUsername(),
+                        SQLSERVER_CONTAINER.getPassword());
                 Statement stat = conn.createStatement()) {
+            stat.execute("USE test;");
             stat.execute(
-                    "INSERT INTO test_input1 "
-                            + "VALUES (1,'jacket','water resistent white wind breaker');");
+                    "SET IDENTITY_INSERT test_input1 ON;" +
+                            "INSERT INTO test_input1 (id, name, description) "
+                            + "VALUES (1, 'jacket','water resistent white wind breaker');" +
+                            "SET IDENTITY_INSERT test_input1 OFF;");
             stat.execute(
-                    "INSERT INTO test_input1 VALUES (2,'scooter','Big 2-wheel scooter ');");
+                    "SET IDENTITY_INSERT test_input1 ON;" +
+                            "INSERT INTO test_input1 (id, name, description) " +
+                            "VALUES (2,'scooter','Big 2-wheel scooter ');" +
+                            "SET IDENTITY_INSERT test_input1 OFF;");
             stat.execute(
                     "update test_input1 set name = 'tom' where id = 2;");
             stat.execute(
