@@ -43,11 +43,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.debezium</groupId>
-            <artifactId>debezium-connector-mysql</artifactId>
-            <version>${debezium.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.ververica</groupId>
             <artifactId>flink-connector-debezium</artifactId>
             <exclusions>
