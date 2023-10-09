@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.resource.sink.mysql;
 
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLTableInfo;
+import org.apache.inlong.tubemq.manager.utils.ValidateUtils;
 
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -51,58 +52,10 @@ public class MySQLJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        String host = parseAndValidateURL(url);
-        validateHostnameAndPort(host);
+        ValidateUtils.extractHostAndValidatePortFromJdbcUrl(url, MYSQL_JDBC_PREFIX);
         Connection conn = establishDatabaseConnection(url, user, password);
         validateConnection(conn, url);
-
         return conn;
-    }
-
-    /**
-     * Parses and validates the JDBC URL, and returns the host part.
-     *
-     * @param url The JDBC URL
-     * @return The host part of the URL
-     * @throws Exception If the URL is invalid
-     */
-    private static String parseAndValidateURL(String url) throws Exception {
-        if (!url.startsWith(MYSQL_JDBC_PREFIX)) {
-            throw new Exception("MySQL JDBC URL is invalid, it should start with " + MYSQL_JDBC_PREFIX);
-        }
-
-        String hostPortPart = url.substring(MYSQL_JDBC_PREFIX.length() + 3);
-        String[] hostPortParts = hostPortPart.split("/");
-        if (hostPortParts.length < 1) {
-            throw new Exception("Invalid MySQL JDBC URL format");
-        }
-
-        return hostPortParts[0];
-    }
-
-    /**
-     * Validates the hostname and port in the JDBC URL.
-     *
-     * @param host The hostname and port in host:port format
-     * @throws Exception If the hostname or port is invalid
-     */
-    private static void validateHostnameAndPort(String host) throws Exception {
-        if (host == null || host.isEmpty()) {
-            throw new Exception("Host is empty in MySQL JDBC URL");
-        }
-        String[] hostPortSplit = host.split(":");
-        if (hostPortSplit.length != 2) {
-            throw new Exception("Invalid host:port format in MySQL JDBC URL");
-        }
-        String port = hostPortSplit[1];
-        try {
-            int portNumber = Integer.parseInt(port);
-            if (portNumber < 1 || portNumber > 65535) {
-                throw new Exception("Invalid port number in MySQL JDBC URL");
-            }
-        } catch (NumberFormatException e) {
-            throw new Exception("Invalid port number format in MySQL JDBC URL");
-        }
     }
 
     /**

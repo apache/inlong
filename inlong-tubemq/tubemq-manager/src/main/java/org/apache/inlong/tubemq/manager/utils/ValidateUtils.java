@@ -29,4 +29,39 @@ public class ValidateUtils {
         return isNull(seq) || seq.isEmpty();
     }
 
+    /**
+     * Extracts the hostname and validates the port from a JDBC URL with the specified prefix.
+     *
+     * @param fullUrl The full JDBC URL to extract the hostname and port from
+     * @param prefix  The expected prefix of the JDBC URL
+     * @throws Exception If the URL format is invalid or the port is invalid
+     */
+    public static void extractHostAndValidatePortFromJdbcUrl(String fullUrl, String prefix) throws Exception {
+        if (!fullUrl.startsWith(prefix)) {
+            throw new Exception("Invalid JDBC URL, it should start with " + prefix);
+        }
+        // Extract the host and port part after the prefix
+        String hostPortPart = fullUrl.substring(prefix.length() + 3);
+        String[] hostPortParts = hostPortPart.split("/");
+
+        if (hostPortParts.length < 1) {
+            throw new Exception("Invalid JDBC URL format");
+        }
+        String hostPort = hostPortParts[0];
+        String[] hostPortSplit = hostPort.split(":");
+        if (hostPortSplit.length != 2) {
+            throw new Exception("Invalid host:port format in JDBC URL");
+        }
+
+        String portStr = hostPortSplit[1];
+        try {
+            int portNumber = Integer.parseInt(portStr);
+            if (portNumber < 1 || portNumber > 65535) {
+                throw new Exception("Invalid port number in JDBC URL");
+            }
+        } catch (NumberFormatException e) {
+            throw new Exception("Invalid port number format in JDBC URL");
+        }
+    }
+
 }

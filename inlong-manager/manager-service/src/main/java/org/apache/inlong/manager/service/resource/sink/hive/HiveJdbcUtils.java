@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.resource.sink.hive;
 
 import org.apache.inlong.manager.pojo.sink.hive.HiveColumnInfo;
 import org.apache.inlong.manager.pojo.sink.hive.HiveTableInfo;
+import org.apache.inlong.tubemq.manager.utils.ValidateUtils;
 
 import org.apache.hive.jdbc.HiveDatabaseMetaData;
 import org.slf4j.Logger;
@@ -53,54 +54,8 @@ public class HiveJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        String hostPort = extractHostPort(url);
-        extractAndValidatePort(hostPort);
+        ValidateUtils.extractHostAndValidatePortFromJdbcUrl(url, HIVE_JDBC_PREFIX);
         return createConnection(url, user, password);
-    }
-
-    /**
-     * Extracts and validates the host and port from the Hive JDBC URL.
-     *
-     * @param url The Hive JDBC URL
-     * @return The host and port part of the URL
-     * @throws Exception If the URL is invalid
-     */
-    private static String extractHostPort(String url) throws Exception {
-        if (!url.startsWith(HIVE_JDBC_PREFIX)) {
-            throw new Exception("Hive JDBC URL is invalid, it should start with " + HIVE_JDBC_PREFIX);
-        }
-
-        String hostPortPart = url.substring(HIVE_JDBC_PREFIX.length() + 3);
-        String[] hostPortParts = hostPortPart.split("/");
-
-        if (hostPortParts.length < 1) {
-            throw new Exception("Invalid Hive JDBC URL format");
-        }
-
-        return hostPortParts[0];
-    }
-
-    /**
-     * Extracts and validates the port from the host and port part.
-     *
-     * @param hostPort The host and port part in host:port format
-     * @throws Exception If the port is invalid
-     */
-    private static void extractAndValidatePort(String hostPort) throws Exception {
-        String[] hostPortSplit = hostPort.split(":");
-        if (hostPortSplit.length != 2) {
-            throw new Exception("Invalid host:port format in JDBC URL");
-        }
-
-        String portStr = hostPortSplit[1];
-        try {
-            int portNumber = Integer.parseInt(portStr);
-            if (portNumber < 1 || portNumber > 65535) {
-                throw new Exception("Invalid port number in JDBC URL");
-            }
-        } catch (NumberFormatException e) {
-            throw new Exception("Invalid port number format in JDBC URL");
-        }
     }
 
     /**

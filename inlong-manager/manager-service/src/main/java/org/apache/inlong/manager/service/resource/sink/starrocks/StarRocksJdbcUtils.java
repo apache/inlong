@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.resource.sink.starrocks;
 
 import org.apache.inlong.manager.pojo.sink.starrocks.StarRocksColumnInfo;
 import org.apache.inlong.manager.pojo.sink.starrocks.StarRocksTableInfo;
+import org.apache.inlong.tubemq.manager.utils.ValidateUtils;
 
 import com.google.common.collect.Lists;
 import org.apache.hive.jdbc.HiveDatabaseMetaData;
@@ -52,7 +53,7 @@ public class StarRocksJdbcUtils {
      * @throws Exception If an error occurs during connection establishment.
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        validateUrlFormat(url);
+        ValidateUtils.extractHostAndValidatePortFromJdbcUrl(url, STAR_ROCKS_JDBC_PREFIX);
         Connection conn;
         try {
             Class.forName(STAR_ROCKS_DRIVER_CLASS);
@@ -66,48 +67,6 @@ public class StarRocksJdbcUtils {
             throw new Exception(errMsg + ", error: " + e.getMessage());
         }
     }
-
-    /**
-     * Validates the format of the StarRocks JDBC URL, including the port number.
-     *
-     * @param url The StarRocks JDBC URL to validate
-     * @throws Exception If the URL format is invalid, if the port number is out of the valid range, or if the URL is not prefixed with "jdbc:mysql".
-     */
-    private static void validateUrlFormat(String url) throws Exception {
-        if (!url.startsWith(STAR_ROCKS_JDBC_PREFIX)) {
-            throw new Exception("StarRocks JDBC URL is invalid, it should start with " + STAR_ROCKS_JDBC_PREFIX);
-        }
-        String[] hostPortParts = url.substring(STAR_ROCKS_JDBC_PREFIX.length() + 3).split("/");
-        if (hostPortParts.length < 1) {
-            throw new Exception("Invalid StarRocks JDBC URL format");
-        }
-
-        String hostPortPart = hostPortParts[0];
-        String[] hostPortSplit = hostPortPart.split(":");
-        if (hostPortSplit.length != 2) {
-            throw new Exception("Invalid host:port format in StarRocks JDBC URL");
-        }
-        String port = hostPortSplit[1];
-        validatePort(port);
-    }
-
-    /**
-     * Validates the port as a valid numeric value within the allowed range (1-65535).
-     *
-     * @param port The port to validate
-     * @throws Exception If the port is invalid or out of the valid range.
-     */
-    private static void validatePort(String port) throws Exception {
-        try {
-            int portNumber = Integer.parseInt(port);
-            if (portNumber < 1 || portNumber > 65535) {
-                throw new Exception("Invalid port number in StarRocks JDBC URL. Port must be in the range 1-65535.");
-            }
-        } catch (NumberFormatException e) {
-            throw new Exception("Invalid port number format in StarRocks JDBC URL. Port must be a valid integer.");
-        }
-    }
-
     /**
      * Execute sql on the specified starRocks Server
      *

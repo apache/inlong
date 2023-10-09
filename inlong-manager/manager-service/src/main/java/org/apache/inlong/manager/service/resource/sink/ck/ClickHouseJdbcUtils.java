@@ -19,8 +19,8 @@ package org.apache.inlong.manager.service.resource.sink.ck;
 
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseFieldInfo;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseTableInfo;
+import org.apache.inlong.tubemq.manager.utils.ValidateUtils;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.yandex.clickhouse.ClickHouseDatabaseMetadata;
@@ -55,68 +55,9 @@ public class ClickHouseJdbcUtils {
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
         // Non-empty validation
-        validateInput(url, user, password);
-        validateUrlFormat(url);
-        String port = extractPortFromUrl(url);
-        validatePort(port);
-
+        ValidateUtils.extractHostAndValidatePortFromJdbcUrl(url, CLICKHOUSE_JDBC_PREFIX);
         Connection conn = establishConnection(url, user, password);
         return conn;
-    }
-
-    /**
-     * Validates the format of the ClickHouse JDBC URL.
-     *
-     * @param url The ClickHouse JDBC URL to validate
-     * @throws Exception If the URL format is invalid
-     */
-    private static void validateUrlFormat(String url) throws Exception {
-        String[] hostPortParts = url.substring(CLICKHOUSE_JDBC_PREFIX.length() + 3).split("/");
-        if (hostPortParts.length < 1) {
-            throw new Exception("Invalid ClickHouse JDBC URL format");
-        }
-        if (!url.startsWith(CLICKHOUSE_JDBC_PREFIX)) {
-            throw new Exception("ClickHouse JDBC URL is invalid, it should start with " + CLICKHOUSE_JDBC_PREFIX);
-        }
-    }
-
-    /**
-     * Extracts the port from the ClickHouse JDBC URL.
-     *
-     * @param url The ClickHouse JDBC URL from which to extract the port
-     * @return The extracted port
-     * @throws Exception If the URL format is invalid
-     */
-    private static String extractPortFromUrl(String url) throws Exception {
-        String urlWithoutPrefix = url.substring(CLICKHOUSE_JDBC_PREFIX.length() + 3);
-        String[] parts = urlWithoutPrefix.split("/");
-        if (parts.length < 2) {
-            throw new Exception("Invalid ClickHouse JDBC URL format");
-        }
-        String hostPortPart = parts[0];
-        String[] hostPortSplit = hostPortPart.split(":");
-        if (hostPortSplit.length != 2) {
-            throw new Exception("Invalid host:port format in ClickHouse JDBC URL");
-        }
-        // Return the port part
-        return hostPortSplit[1];
-    }
-
-    /**
-     * Validates the port as a valid numeric value within the allowed range.
-     *
-     * @param port The port to validate
-     * @throws Exception If the port is invalid
-     */
-    private static void validatePort(String port) throws Exception {
-        try {
-            int portNumber = Integer.parseInt(port);
-            if (portNumber < 1 || portNumber > 65535) {
-                throw new Exception("Invalid port number in ClickHouse JDBC URL");
-            }
-        } catch (NumberFormatException e) {
-            throw new Exception("Invalid port number format in ClickHouse JDBC URL");
-        }
     }
 
     /**
@@ -144,20 +85,6 @@ public class ClickHouseJdbcUtils {
         }
         LOG.info("get ClickHouse connection success, url={}", url);
         return conn;
-    }
-
-    /**
-     * Validates the input parameters (URL, username, and password).
-     *
-     * @param url      The ClickHouse JDBC URL
-     * @param user     The username
-     * @param password The user's password
-     * @throws Exception If any of the parameters is empty
-     */
-    private static void validateInput(String url, String user, String password) throws Exception {
-        if (StringUtils.isBlank(url) || StringUtils.isBlank(user) || StringUtils.isBlank(password)) {
-            throw new Exception("URL, username, or password cannot be empty");
-        }
     }
 
     /**
