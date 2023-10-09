@@ -1187,6 +1187,11 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   com.microsoft.sqlserver:mssql-jdbc:7.2.2.jre8 - Microsoft JDBC Driver for SQL Server (https://github.com/Microsoft/mssql-jdbc/tree/v7.2.2), (MIT License)
   org.slf4j:slf4j-api:1.7.36 - SLF4J API Module (http://www.slf4j.org), (MIT License)
 
+Codes:
+  1. inlong-sort/sort-end-to-end-tests-v1.15/src/test/org/apache/inlong/sort/tests/utils/MSSQLServerContainer.java
+
+  Source: testcontainers-java:mssqlserver:1.17
+  License: https://github.com/testcontainers/testcontainers-java/blob/main/LICENSE
 
 ========================================================================
 CDDL licenses
