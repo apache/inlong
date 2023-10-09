@@ -32,7 +32,7 @@ export default class PulsarGroup
 {
   @FieldDecorator({
     type: 'radio',
-    initialValue: 'SERIAL',
+    initialValue: 'PARALLEL',
     rules: [{ required: true }],
     props: {
       options: [
