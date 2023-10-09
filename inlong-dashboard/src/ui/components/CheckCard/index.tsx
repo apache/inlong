@@ -63,13 +63,16 @@ const CheckCard: React.FC<CheckCardProps> = ({ options, value, onChange, disable
     */
     (async () => {
       setLogoMap(
-        (await Promise.allSettled(options.map(option => option.image))).reduce((res, item) => {
-          if (item.status === 'fulfilled' && item.value) {
-            const url = typeof item.value === 'string' ? item.value : item.value.default;
-            res[url.split('/').pop().split('.').shift()] = url;
-          }
-          return res;
-        }, {}),
+        (await Promise.allSettled(options.map(option => option.image))).reduce(
+          (res, item, index) => {
+            if (item.status === 'fulfilled' && item.value) {
+              const url = typeof item.value === 'string' ? item.value : item.value.default;
+              res[options[index].label] = url;
+            }
+            return res;
+          },
+          {},
+        ),
       );
     })();
   }, [options]);
