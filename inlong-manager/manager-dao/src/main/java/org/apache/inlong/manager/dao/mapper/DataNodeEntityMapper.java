@@ -39,9 +39,6 @@ public interface DataNodeEntityMapper {
 
     DataNodeEntity selectByUniqueKey(@Param("name") String name, @Param("type") String type);
 
-    @MultiTenantQuery(with = false)
-    DataNodeEntity selectByNameAndType(@Param("name") String name, @Param("type") String type);
-
     List<DataNodeEntity> selectByCondition(DataNodePageRequest request);
 
     @MultiTenantQuery(with = false)
