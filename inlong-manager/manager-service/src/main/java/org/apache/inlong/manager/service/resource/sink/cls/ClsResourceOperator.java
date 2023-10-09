@@ -110,7 +110,7 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
             updateSinkInfo(sinkInfo, clsSinkDTO);
             String info = "success to create cls resource";
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
-            LOG.info("update cls sink = {}info status  success ,topicName {}", sinkInfo.getSinkName(),
+            LOG.info("update cls info status success for sinkId= {},topicName ={}", sinkInfo.getSinkName(),
                     clsSinkDTO.getTopicName());
         } catch (TencentCloudSDKException e) {
             String errMsg = "Create cls topic  failed: " + e.getMessage();
@@ -135,7 +135,8 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
         ClsClient client = getClsClient(clsDataNode);
         CreateTopicRequest req = getCreateTopicRequest(clsDataNode, clsSinkDTO);
         CreateTopicResponse resp = client.CreateTopic(req);
-        LOG.info("create cls topic {} success ,topicId {}", clsSinkDTO.getTopicName(), resp.getTopicId());
+        LOG.info("create cls topic success for topicName = {}, topicId = {}", clsSinkDTO.getTopicName(),
+                resp.getTopicId());
         return resp.getTopicId();
     }
 
@@ -171,8 +172,8 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
     private void createTopicIndex(SinkInfo sinkInfo, ClsDataNodeDTO clsDataNode) throws BusinessException {
 
         ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(sinkInfo.getExtParams(), ClsSinkDTO.class);
-        if (StringUtils.isEmpty(clsSinkDTO.getTokenizer())) {
-            LOG.warn("topic {} tokenizer is empty", clsSinkDTO.getTopicName());
+        if (StringUtils.isBlank(clsSinkDTO.getTokenizer())) {
+            LOG.warn("topic {} tokenizer is blank", clsSinkDTO.getTopicName());
             return;
         }
         FullTextInfo topicIndexFullText = getTopicIndexFullText(sinkInfo, clsDataNode);
@@ -191,7 +192,8 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
             throw new BusinessException(errMsg);
         }
-        LOG.info("topic {} create index success tokenizer is {}", clsSinkDTO.getTopicName(), clsSinkDTO.getTokenizer());
+        LOG.info("create index success for topic ={}, tokenizer = {}", clsSinkDTO.getTopicName(),
+                clsSinkDTO.getTokenizer());
     }
 
     private CreateIndexRequest getCreateIndexRequest(ClsSinkDTO clsSinkDTO) {
@@ -273,16 +275,17 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
     }
 
     private Filter[] getDescribeFilters(ClsDataNodeDTO clsDataNode, ClsSinkDTO clsSinkDTO) {
-        Filter filter = new Filter();
-        String[] filterValues = new String[1];
-        filterValues[0] = clsSinkDTO.getTopicName();
-        filter.setKey(TOPIC_NAME);
-        filter.setValues(filterValues);
-        Filter filter1 = new Filter();
-        String[] filterValues1 = new String[]{clsDataNode.getLogSetId()};
-        filter1.setKey(LOG_SET_ID);
-        filter1.setValues(filterValues1);
-        return new Filter[]{filter, filter1};
+        Filter topicNameFilter = new Filter();
+        topicNameFilter.setKey(TOPIC_NAME);
+        String[] topicNameFilterValues = new String[1];
+        topicNameFilterValues[0] = clsSinkDTO.getTopicName();
+        topicNameFilter.setValues(topicNameFilterValues);
+
+        Filter logSetIdFilter = new Filter();
+        logSetIdFilter.setKey(LOG_SET_ID);
+        String[] logSetFilterValues = new String[]{clsDataNode.getLogSetId()};
+        logSetIdFilter.setValues(logSetFilterValues);
+        return new Filter[]{topicNameFilter, logSetIdFilter};
     }
 
     private Tag[] convertTags(String[] allTags) {
