@@ -229,9 +229,9 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
             for (String key : streamInfoMap.keySet()) {
                 param.put(key, String.valueOf(streamInfoMap.get(key)));
             }
+            // put group and stream info
             param.put(KEY_GROUP_ID, streamSink.getInlongGroupId());
             param.put(KEY_STREAM_ID, streamSink.getInlongStreamId());
-            // put group and stream info
             return param;
         } catch (Exception e) {
             LOGGER.error(String.format(
