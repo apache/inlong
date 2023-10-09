@@ -27,7 +27,9 @@ import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.cls.ClsDataNodeDTO;
+import org.apache.inlong.manager.pojo.node.cls.ClsDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -110,17 +112,15 @@ public class ClsSinkOperator extends AbstractSinkOperator {
     }
 
     @Override
-    public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields) {
-        Map<String, String> params = super.parse2IdParams(streamSink, fields);
+    public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields,
+            DataNodeInfo dataNodeInfo) {
+        Map<String, String> params = super.parse2IdParams(streamSink, fields, dataNodeInfo);
         ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(streamSink.getExtParams(), ClsSinkDTO.class);
         params.put(TOPIC_ID, clsSinkDTO.getTopicId());
-        DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectByNameAndType(streamSink.getDataNodeName(),
-                DataNodeType.CLS);
-        ClsDataNodeDTO clsDataNodeDTO = JsonUtils.parseObject(dataNodeEntity.getExtParams(),
-                ClsDataNodeDTO.class);
-        params.put(SECRET_ID, clsDataNodeDTO.getSendSecretId());
-        params.put(SECRET_KEY, clsDataNodeDTO.getSendSecretKey());
-        params.put(END_POINT, clsDataNodeDTO.getEndpoint());
+        ClsDataNodeInfo clsDataNodeInfo = (ClsDataNodeInfo) dataNodeInfo;
+        params.put(SECRET_ID, clsDataNodeInfo.getSendSecretId());
+        params.put(SECRET_KEY, clsDataNodeInfo.getSendSecretKey());
+        params.put(END_POINT, clsDataNodeInfo.getEndpoint());
         StringBuilder fieldNames = new StringBuilder();
         for (String field : fields) {
             fieldNames.append(field).append(InlongConstants.BLANK);
