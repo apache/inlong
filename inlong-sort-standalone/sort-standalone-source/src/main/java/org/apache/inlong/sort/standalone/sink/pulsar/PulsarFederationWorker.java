@@ -131,14 +131,10 @@ public class PulsarFederationWorker extends Thread {
      * 
      * @param currentRecord
      */
-    private String fillTopic(Event currentRecord) {
-        Map<String, String> headers = currentRecord.getHeaders();
-        String inlongGroupId = headers.get(Constants.INLONG_GROUP_ID);
-        String inlongStreamId = headers.get(Constants.INLONG_STREAM_ID);
-        String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
-        String topic = this.context.getTopic(uid);
+    private String fillTopic(ProfileEvent currentRecord) {
+        String topic = this.context.getTopic(currentRecord.getUid());
         if (!StringUtils.isBlank(topic)) {
-            headers.put(Constants.TOPIC, topic);
+            currentRecord.getHeaders().put(Constants.TOPIC, topic);
             return topic;
         }
         return "-";
