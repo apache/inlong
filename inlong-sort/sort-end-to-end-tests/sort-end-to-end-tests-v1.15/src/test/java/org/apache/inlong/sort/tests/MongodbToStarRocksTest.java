@@ -17,15 +17,15 @@
 
 package org.apache.inlong.sort.tests;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
 import org.apache.inlong.sort.tests.utils.JdbcProxy;
 import org.apache.inlong.sort.tests.utils.StarRocksContainer;
 import org.apache.inlong.sort.tests.utils.TestUtils;
 
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -123,9 +123,9 @@ public class MongodbToStarRocksTest extends FlinkContainerTestEnv {
     @ClassRule
     public static MongoDBContainer MONGODB_CONTAINER = new MongoDBContainer(
             DockerImageName.parse("mongo:4.0.10").asCompatibleSubstituteFor("mongo"))
-            .withNetwork(NETWORK)
-            .withNetworkAliases("mongo")
-            .withLogConsumer(new Slf4jLogConsumer(LOG));
+                    .withNetwork(NETWORK)
+                    .withNetworkAliases("mongo")
+                    .withLogConsumer(new Slf4jLogConsumer(LOG));
 
     @Before
     public void setup() {
@@ -135,9 +135,9 @@ public class MongodbToStarRocksTest extends FlinkContainerTestEnv {
 
     private void initializeStarRocksTable() {
         try (Connection conn =
-                     DriverManager.getConnection(STAR_ROCKS.getJdbcUrl(), STAR_ROCKS.getUsername(),
-                             STAR_ROCKS.getPassword());
-             Statement stat = conn.createStatement()) {
+                DriverManager.getConnection(STAR_ROCKS.getJdbcUrl(), STAR_ROCKS.getUsername(),
+                        STAR_ROCKS.getPassword());
+                Statement stat = conn.createStatement()) {
             stat.execute("CREATE TABLE IF NOT EXISTS test_output1 (\n"
                     + "       _id INT NOT NULL,\n"
                     + "       name VARCHAR(255) NOT NULL DEFAULT 'flink',\n"
@@ -186,7 +186,7 @@ public class MongodbToStarRocksTest extends FlinkContainerTestEnv {
         documents.add(document2);
         collection.insertMany(documents);
         collection.updateOne(eq("_id", 2), combine(set("name", "tom")));
-        collection.deleteOne(eq("_id",1));
+        collection.deleteOne(eq("_id", 1));
 
         JdbcProxy proxy =
                 new JdbcProxy(STAR_ROCKS.getJdbcUrl(), STAR_ROCKS.getUsername(),
@@ -201,4 +201,3 @@ public class MongodbToStarRocksTest extends FlinkContainerTestEnv {
                 60000L);
     }
 }
-
