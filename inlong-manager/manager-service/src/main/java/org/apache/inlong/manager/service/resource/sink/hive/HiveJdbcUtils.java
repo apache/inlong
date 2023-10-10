@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.resource.sink.hive;
 
+import org.apache.inlong.manager.common.util.ValidationUtils;
 import org.apache.inlong.manager.pojo.sink.hive.HiveColumnInfo;
 import org.apache.inlong.manager.pojo.sink.hive.HiveTableInfo;
-import org.apache.inlong.tubemq.manager.utils.ValidateUtils;
 
 import org.apache.hive.jdbc.HiveDatabaseMetaData;
 import org.slf4j.Logger;
@@ -54,7 +54,7 @@ public class HiveJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        ValidateUtils.extractHostAndValidatePortFromJdbcUrl(url, HIVE_JDBC_PREFIX);
+        ValidationUtils.extractHostAndValidatePortFromJdbcUrl(url, HIVE_JDBC_PREFIX);
         return createConnection(url, user, password);
     }
 

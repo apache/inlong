@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.resource.sink.postgresql;
 
+import org.apache.inlong.manager.common.util.ValidationUtils;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLTableInfo;
-import org.apache.inlong.tubemq.manager.utils.ValidateUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +55,7 @@ public class PostgreSQLJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        ValidateUtils.extractHostAndValidatePortFromJdbcUrl(url, POSTGRES_JDBC_PREFIX);
+        ValidationUtils.extractHostAndValidatePortFromJdbcUrl(url, POSTGRES_JDBC_PREFIX);
         return establishDatabaseConnection(url, user, password);
     }
 

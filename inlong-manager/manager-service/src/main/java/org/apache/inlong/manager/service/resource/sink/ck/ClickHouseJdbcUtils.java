@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.resource.sink.ck;
 
+import org.apache.inlong.manager.common.util.ValidationUtils;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseFieldInfo;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseTableInfo;
-import org.apache.inlong.tubemq.manager.utils.ValidateUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +55,7 @@ public class ClickHouseJdbcUtils {
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
         // Non-empty validation
-        ValidateUtils.extractHostAndValidatePortFromJdbcUrl(url, CLICKHOUSE_JDBC_PREFIX);
+        ValidationUtils.extractHostAndValidatePortFromJdbcUrl(url, CLICKHOUSE_JDBC_PREFIX);
         Connection conn = establishConnection(url, user, password);
         return conn;
     }

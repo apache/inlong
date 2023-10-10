@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.resource.sink.mysql;
 
+import org.apache.inlong.manager.common.util.ValidationUtils;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLTableInfo;
-import org.apache.inlong.tubemq.manager.utils.ValidateUtils;
 
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -52,7 +52,7 @@ public class MySQLJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        ValidateUtils.extractHostAndValidatePortFromJdbcUrl(url, MYSQL_JDBC_PREFIX);
+        ValidationUtils.extractHostAndValidatePortFromJdbcUrl(url, MYSQL_JDBC_PREFIX);
         Connection conn = establishDatabaseConnection(url, user, password);
         validateConnection(conn, url);
         return conn;

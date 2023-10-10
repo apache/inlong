@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.resource.sink.starrocks;
 
+import org.apache.inlong.manager.common.util.ValidationUtils;
 import org.apache.inlong.manager.pojo.sink.starrocks.StarRocksColumnInfo;
 import org.apache.inlong.manager.pojo.sink.starrocks.StarRocksTableInfo;
-import org.apache.inlong.tubemq.manager.utils.ValidateUtils;
 
 import com.google.common.collect.Lists;
 import org.apache.hive.jdbc.HiveDatabaseMetaData;
@@ -53,7 +53,7 @@ public class StarRocksJdbcUtils {
      * @throws Exception If an error occurs during connection establishment.
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        ValidateUtils.extractHostAndValidatePortFromJdbcUrl(url, STAR_ROCKS_JDBC_PREFIX);
+        ValidationUtils.extractHostAndValidatePortFromJdbcUrl(url, STAR_ROCKS_JDBC_PREFIX);
         Connection conn;
         try {
             Class.forName(STAR_ROCKS_DRIVER_CLASS);
