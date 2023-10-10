@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.sink.ck;
 
-import org.apache.inlong.manager.common.util.ValidationUtils;
+import org.apache.inlong.manager.common.util.UrlVerificationUtils;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseFieldInfo;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseTableInfo;
 
@@ -40,7 +40,7 @@ public class ClickHouseJdbcUtils {
 
     private static final String CLICKHOUSE_DRIVER_CLASS = "ru.yandex.clickhouse.ClickHouseDriver";
     private static final String COLUMN_LABEL = "TABLE_NAME";
-    private static final String CLICKHOUSE_JDBC_PREFIX = "jdbc:clickhouse";
+    private static final String CLICKHOUSE_JDBC_PREFIX = "jdbc:clickhouse://";
 
     private static final Logger LOG = LoggerFactory.getLogger(ClickHouseJdbcUtils.class);
 
@@ -55,7 +55,7 @@ public class ClickHouseJdbcUtils {
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
         // Non-empty validation
-        ValidationUtils.extractHostAndValidatePortFromJdbcUrl(url, CLICKHOUSE_JDBC_PREFIX);
+        UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, CLICKHOUSE_JDBC_PREFIX);
         Connection conn = establishConnection(url, user, password);
         return conn;
     }

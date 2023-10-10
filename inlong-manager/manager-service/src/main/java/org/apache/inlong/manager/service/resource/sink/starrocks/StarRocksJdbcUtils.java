@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.sink.starrocks;
 
-import org.apache.inlong.manager.common.util.ValidationUtils;
+import org.apache.inlong.manager.common.util.UrlVerificationUtils;
 import org.apache.inlong.manager.pojo.sink.starrocks.StarRocksColumnInfo;
 import org.apache.inlong.manager.pojo.sink.starrocks.StarRocksTableInfo;
 
@@ -39,7 +39,7 @@ public class StarRocksJdbcUtils {
     private static final String STAR_ROCKS_DRIVER_CLASS = "com.mysql.cj.jdbc.Driver";
     private static final String METADATA_TYPE = "TABLE";
     private static final String COLUMN_LABEL = "TABLE_NAME";
-    private static final String STAR_ROCKS_JDBC_PREFIX = "jdbc:mysql";
+    private static final String STAR_ROCKS_JDBC_PREFIX = "jdbc:mysql://";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StarRocksJdbcUtils.class);
 
@@ -53,7 +53,7 @@ public class StarRocksJdbcUtils {
      * @throws Exception If an error occurs during connection establishment.
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        ValidationUtils.extractHostAndValidatePortFromJdbcUrl(url, STAR_ROCKS_JDBC_PREFIX);
+        UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, STAR_ROCKS_JDBC_PREFIX);
         Connection conn;
         try {
             Class.forName(STAR_ROCKS_DRIVER_CLASS);

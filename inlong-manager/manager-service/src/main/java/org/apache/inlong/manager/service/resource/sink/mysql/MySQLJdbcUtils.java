@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.sink.mysql;
 
-import org.apache.inlong.manager.common.util.ValidationUtils;
+import org.apache.inlong.manager.common.util.UrlVerificationUtils;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLTableInfo;
 
@@ -38,7 +38,7 @@ import java.util.Objects;
  */
 public class MySQLJdbcUtils {
 
-    private static final String MYSQL_JDBC_PREFIX = "jdbc:mysql";
+    private static final String MYSQL_JDBC_PREFIX = "jdbc:mysql://";
     private static final String MYSQL_DRIVER_CLASS = "com.mysql.cj.jdbc.Driver";
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLJdbcUtils.class);
 
@@ -52,9 +52,8 @@ public class MySQLJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        ValidationUtils.extractHostAndValidatePortFromJdbcUrl(url, MYSQL_JDBC_PREFIX);
+        UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, MYSQL_JDBC_PREFIX);
         Connection conn = establishDatabaseConnection(url, user, password);
-        validateConnection(conn, url);
         return conn;
     }
 
@@ -77,21 +76,8 @@ public class MySQLJdbcUtils {
             LOGGER.error(errorMsg, e);
             throw new Exception(errorMsg + " Other error message: " + e.getMessage());
         }
+        LOGGER.info("get MySQL connection success for url={}", url);
         return conn;
-    }
-
-    /**
-     * Validates if the database connection was successfully obtained.
-     *
-     * @param conn The database connection
-     * @param url  The JDBC URL
-     * @throws Exception If the connection is null
-     */
-    private static void validateConnection(Connection conn, String url) throws Exception {
-        if (conn == null) {
-            throw new Exception("Failed to get MySQL connection, please contact the administrator.");
-        }
-        LOGGER.info("Successfully obtained MySQL connection for URL: {}", url);
     }
 
     /**

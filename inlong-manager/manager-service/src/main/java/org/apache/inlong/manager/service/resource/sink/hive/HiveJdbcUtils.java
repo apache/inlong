@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.sink.hive;
 
-import org.apache.inlong.manager.common.util.ValidationUtils;
+import org.apache.inlong.manager.common.util.UrlVerificationUtils;
 import org.apache.inlong.manager.pojo.sink.hive.HiveColumnInfo;
 import org.apache.inlong.manager.pojo.sink.hive.HiveTableInfo;
 
@@ -40,7 +40,7 @@ public class HiveJdbcUtils {
     private static final String HIVE_DRIVER_CLASS = "org.apache.hive.jdbc.HiveDriver";
     private static final String METADATA_TYPE = "TABLE";
     private static final String COLUMN_LABEL = "TABLE_NAME";
-    private static final String HIVE_JDBC_PREFIX = "jdbc:hive2";
+    private static final String HIVE_JDBC_PREFIX = "jdbc:hive2://";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HiveJdbcUtils.class);
 
@@ -54,7 +54,7 @@ public class HiveJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        ValidationUtils.extractHostAndValidatePortFromJdbcUrl(url, HIVE_JDBC_PREFIX);
+        UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, HIVE_JDBC_PREFIX);
         return createConnection(url, user, password);
     }
 

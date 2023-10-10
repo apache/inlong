@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.sink.postgresql;
 
-import org.apache.inlong.manager.common.util.ValidationUtils;
+import org.apache.inlong.manager.common.util.UrlVerificationUtils;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLTableInfo;
 
@@ -39,7 +39,7 @@ public class PostgreSQLJdbcUtils {
 
     private static final String POSTGRES_DRIVER_CLASS = "org.postgresql.Driver";
 
-    private static final String POSTGRES_JDBC_PREFIX = "jdbc:postgresql";
+    private static final String POSTGRES_JDBC_PREFIX = "jdbc:postgresql://";
 
     private static final String POSTGRESQL_DEFAULT_SCHEMA = "public";
 
@@ -55,7 +55,7 @@ public class PostgreSQLJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        ValidationUtils.extractHostAndValidatePortFromJdbcUrl(url, POSTGRES_JDBC_PREFIX);
+        UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, POSTGRES_JDBC_PREFIX);
         return establishDatabaseConnection(url, user, password);
     }
 
