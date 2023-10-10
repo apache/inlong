@@ -114,9 +114,12 @@ public class QueueResourceListener implements QueueOperateListener {
         groupProcessForm.setStreamInfos(streamService.list(groupId));
 
         String operator = context.getOperator();
+        GroupOperateType operateType = groupProcessForm.getGroupOperateType();
         if (InlongConstants.DATASYNC_MODE.equals(groupInfo.getInlongGroupMode())) {
             log.warn("skip to execute QueueResourceListener as sync mode for groupId={}", groupId);
-            this.createQueueForStreams(groupInfo, groupProcessForm.getStreamInfos(), operator);
+            if (GroupOperateType.INIT.equals(operateType)) {
+                this.createQueueForStreams(groupInfo, groupProcessForm.getStreamInfos(), operator);
+            }
             return ListenerResult.success("skip - disable create mq resource for sync mode");
         }
 
@@ -126,7 +129,6 @@ public class QueueResourceListener implements QueueOperateListener {
         }
 
         QueueResourceOperator queueOperator = queueOperatorFactory.getInstance(groupInfo.getMqType());
-        GroupOperateType operateType = groupProcessForm.getGroupOperateType();
         switch (operateType) {
             case INIT:
                 groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), operator);
