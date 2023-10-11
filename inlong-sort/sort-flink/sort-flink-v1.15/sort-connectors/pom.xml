@@ -38,6 +38,7 @@
         <module>mysql-cdc</module>
         <module>iceberg</module>
         <module>pulsar</module>
+        <module>hbase</module>
     </modules>
 
     <properties>

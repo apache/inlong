@@ -138,6 +138,17 @@
             <artifactId>clickhouse-jdbc</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -203,6 +214,14 @@
                             <type>jar</type>
                             <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
                         </artifactItem>
+                        <artifactItem>
+                            <groupId>org.apache.inlong</groupId>
+                            <artifactId>sort-connector-hbase-v1.15</artifactId>
+                            <version>${project.version}</version>
+                            <destFileName>sort-connector-hbase.jar</destFileName>
+                            <type>jar</type>
+                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
+                        </artifactItem>
                     </artifactItems>
                 </configuration>
                 <executions>
@@ -212,6 +231,17 @@
                             <goal>copy</goal>
                         </goals>
                         <phase>pre-integration-test</phase>
+                    </execution>
+                    <execution>
+                        <id>store-classpath-in-target-for-tests</id>
+                        <goals>
+                            <goal>build-classpath</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <outputFile>${project.build.directory}/hadoop.classpath</outputFile>
+                            <excludeGroupIds>org.apache.flink</excludeGroupIds>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
