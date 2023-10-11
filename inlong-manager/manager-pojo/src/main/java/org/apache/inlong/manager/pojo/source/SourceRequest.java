@@ -101,7 +101,7 @@ public class SourceRequest {
     @Length(min = 1, max = 163840, message = "length must be between 1 and 163840")
     private String snapshot;
 
-    @ApiModelProperty(value = "Whether to get schema after saving or updating. Default is false")
+    @ApiModelProperty(value = "Whether to sync schema from source after saving or updating. Default is false")
     private Boolean enableSyncSchema = false;
 
     @ApiModelProperty("Version")
