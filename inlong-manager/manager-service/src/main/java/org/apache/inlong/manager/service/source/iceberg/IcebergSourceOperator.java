@@ -102,7 +102,7 @@ public class IcebergSourceOperator extends AbstractSourceOperator {
     public void syncSourceFieldInfo(SourceRequest request, String operator) {
         IcebergSourceRequest sourceRequest = (IcebergSourceRequest) request;
 
-        LOGGER.info("get field for iceberg {}", sourceRequest);
+        LOGGER.info("sync source field for iceberg {}", sourceRequest);
         String metastoreUri = sourceRequest.getUri();
         String dbName = sourceRequest.getDatabase();
         String tableName = sourceRequest.getTableName();
