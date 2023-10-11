@@ -76,6 +76,9 @@ public class TopicServiceImpl implements TopicService {
     private final Gson gson = new Gson();
     private static final Pattern SPECIAL_CHAR_PATTERN = Pattern.compile("[%\\x00-\\x1F\\x7F-\\uFFFF]");
     private static final int MAX_TOPIC_NAME_LENGTH = 255;
+    private static final String[] DANGEROUS_KEYWORDS = {
+            "exec", "system", "cmd", "shell", "php", "perl", "python", "ruby", "javascript", "java"
+    };
 
     @Value("${manager.broker.webPort:8081}")
     private int brokerWebPort;
@@ -222,10 +225,6 @@ public class TopicServiceImpl implements TopicService {
      */
     private boolean containsDangerousChars(String input) {
         input = input.toLowerCase();
-        // Define dangerous keywords as a constant array
-        final String[] DANGEROUS_KEYWORDS = {
-                "exec", "system", "cmd", "shell", "php", "perl", "python", "ruby", "javascript", "java"
-        };
         // Prevent SSRF attacks by checking for "://"
         if (input.contains("://")) {
             return true;
