@@ -1,4 +1,24 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.inlong.manager.service.resource.sink.cls;
+
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import com.tencentcloudapi.cls.v20201016.ClsClient;
 import com.tencentcloudapi.cls.v20201016.models.CreateIndexRequest;
@@ -18,16 +38,15 @@ import com.tencentcloudapi.common.Credential;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import com.tencentcloudapi.common.profile.ClientProfile;
 import com.tencentcloudapi.common.profile.HttpProfile;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ClsOperator {
@@ -51,10 +70,10 @@ public class ClsOperator {
     /**
      * Create topic index by tokenizer
      */
-    public void createTopicIndex(String tokenizer, String topicId, String secretId, String secretKey, String
-            endPoint, String region) throws BusinessException {
+    public void createTopicIndex(String tokenizer, String topicId, String secretId, String secretKey, String endPoint,
+            String region) throws BusinessException {
 
-        LOG.debug("create topic index start for topicId = {}, tokenizer = {}",topicId,tokenizer);
+        LOG.debug("create topic index start for topicId = {}, tokenizer = {}", topicId, tokenizer);
         if (StringUtils.isBlank(tokenizer)) {
             LOG.warn("tokenizer is blank for topic = {}", topicId);
             return;
@@ -62,7 +81,7 @@ public class ClsOperator {
         FullTextInfo topicIndexFullText = getTopicIndexFullText(secretId, secretKey, endPoint, region, topicId);
         if (ObjectUtils.anyNotNull(topicIndexFullText)) {
             // if topic index exist,update
-            LOG.debug("cls topic is exist and update for topicId = {},tokenizer = {}",topicId,tokenizer);
+            LOG.debug("cls topic is exist and update for topicId = {},tokenizer = {}", topicId, tokenizer);
             updateTopicIndex(tokenizer, topicId, secretId, secretKey, endPoint, region);
             return;
         }
@@ -119,8 +138,8 @@ public class ClsOperator {
     /**
      * Get cls topic index full text
      */
-    public FullTextInfo getTopicIndexFullText(String secretId, String secretKey, String
-            endPoint, String region, String topicId) {
+    public FullTextInfo getTopicIndexFullText(String secretId, String secretKey, String endPoint, String region,
+            String topicId) {
 
         ClsClient clsClient = getClsClient(secretId, secretKey, endPoint, region);
         DescribeIndexRequest req = new DescribeIndexRequest();
@@ -202,6 +221,5 @@ public class ClsOperator {
         }
         return tagList.toArray(new Tag[0]);
     }
-
 
 }

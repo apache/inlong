@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.sink.cls;
 
-import com.tencentcloudapi.common.exception.TencentCloudSDKException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
@@ -34,6 +32,9 @@ import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.cls.ClsSinkDTO;
 import org.apache.inlong.manager.service.resource.sink.AbstractStandaloneSinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
+
+import com.tencentcloudapi.common.exception.TencentCloudSDKException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,7 +122,6 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
         streamSinkEntity.setExtParams(JsonUtils.toJsonString(clsSinkDTO));
         streamSinkEntityMapper.updateByIdSelective(streamSinkEntity);
     }
-
 
     private ClsDataNodeDTO getClsDataNode(SinkInfo sinkInfo) {
         DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectByUniqueKey(sinkInfo.getDataNodeName(),
