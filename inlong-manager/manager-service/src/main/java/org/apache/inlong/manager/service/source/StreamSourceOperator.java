@@ -117,11 +117,11 @@ public interface StreamSourceOperator {
     void restartOpt(SourceRequest request, String operator);
 
     /**
-     * Get the source field info.
+     * Sync the source field info to stream fields.
      *
      * @param request request of source
      * @param operator operator
      */
-    void getFieldInfo(SourceRequest request, String operator);
+    void syncSourceFieldInfo(SourceRequest request, String operator);
 
 }

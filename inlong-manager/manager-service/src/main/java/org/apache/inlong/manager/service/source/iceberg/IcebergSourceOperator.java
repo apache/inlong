@@ -99,7 +99,7 @@ public class IcebergSourceOperator extends AbstractSourceOperator {
 
     @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
-    public void getFieldInfo(SourceRequest request, String operator) {
+    public void syncSourceFieldInfo(SourceRequest request, String operator) {
         IcebergSourceRequest sourceRequest = (IcebergSourceRequest) request;
 
         LOGGER.info("get field for iceberg {}", sourceRequest);

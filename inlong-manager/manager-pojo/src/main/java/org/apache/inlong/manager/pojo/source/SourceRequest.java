@@ -102,7 +102,7 @@ public class SourceRequest {
     private String snapshot;
 
     @ApiModelProperty(value = "Whether to get schema after saving or updating. Default is false")
-    private Boolean enableGetSchema = false;
+    private Boolean enableSyncSchema = false;
 
     @ApiModelProperty("Version")
     @NotNull(groups = UpdateValidation.class, message = "version cannot be null")
