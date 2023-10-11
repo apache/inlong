@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.iceberg.source.utils;
+package org.apache.inlong.sort.iceberg.utils;
 
 import org.apache.inlong.sort.iceberg.IcebergReadableMetadata.MetadataConverter;
 
