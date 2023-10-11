@@ -116,4 +116,11 @@ public interface StreamSourceOperator {
      */
     void restartOpt(SourceRequest request, String operator);
 
+    /**
+     * Get the source field info.
+     *
+     * @param request request of source
+     */
+    void getFieldInfo(SourceRequest request, String operator);
+
 }

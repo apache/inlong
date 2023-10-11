@@ -97,6 +97,9 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         setTargetEntity(request, entity);
         sourceMapper.insert(entity);
         saveFieldOpt(entity, request.getFieldList());
+        if (request.getEnableGetSchema()) {
+            getFieldInfo(request, operator);
+        }
         return entity.getId();
     }
 
@@ -320,5 +323,11 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         }
 
         return DataTypeEnum.forType(streamDataType).getType();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
+    public void getFieldInfo(SourceRequest request, String operator) {
+        LOGGER.info("not support get field info for source type ={}", request.getSourceType());
     }
 }

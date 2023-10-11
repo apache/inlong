@@ -17,23 +17,34 @@
 
 package org.apache.inlong.manager.service.source.iceberg;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.pojo.sink.iceberg.IcebergColumnInfo;
+import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.iceberg.IcebergSource;
 import org.apache.inlong.manager.pojo.source.iceberg.IcebergSourceDTO;
 import org.apache.inlong.manager.pojo.source.iceberg.IcebergSourceRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
+import org.apache.inlong.manager.service.resource.sink.iceberg.IcebergCatalogUtils;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,6 +52,8 @@ import java.util.List;
  */
 @Service
 public class IcebergSourceOperator extends AbstractSourceOperator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(IcebergSourceOperator.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -82,5 +95,53 @@ public class IcebergSourceOperator extends AbstractSourceOperator {
         List<StreamField> sourceFields = super.getSourceFields(entity.getId());
         source.setFieldList(sourceFields);
         return source;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
+    public void getFieldInfo(SourceRequest request, String operator) {
+        IcebergSourceRequest sourceRequest = (IcebergSourceRequest) request;
+
+        LOGGER.info("get field for iceberg {}", sourceRequest);
+        String metastoreUri = sourceRequest.getUri();
+        String dbName = sourceRequest.getDatabase();
+        String tableName = sourceRequest.getTableName();
+        boolean tableExists = IcebergCatalogUtils.tableExists(metastoreUri, dbName, tableName);
+        List<StreamField> streamFields = new ArrayList<>();
+        if (tableExists) {
+            List<IcebergColumnInfo> existColumns = IcebergCatalogUtils.getColumns(metastoreUri, dbName, tableName);
+            for (IcebergColumnInfo columnInfo : existColumns) {
+                StreamField streamField = new StreamField();
+                streamField.setFieldName(columnInfo.getName());
+                streamField.setFieldType(FieldInfoUtils.sqlTypeToJavaTypeStr(columnInfo.getType()));
+                streamField.setFieldComment(columnInfo.getDesc());
+                streamFields.add(streamField);
+            }
+            updateField(sourceRequest.getInlongGroupId(), sourceRequest.getInlongStreamId(), streamFields);
+        }
+    }
+
+    public void updateField(String groupId, String streamId, List<StreamField> fieldList) {
+        LOGGER.debug("begin to update inlong stream field, groupId={}, streamId={}, field={}", groupId, streamId,
+                fieldList);
+        try {
+            streamFieldMapper.deleteAllByIdentifier(groupId, streamId);
+            if (CollectionUtils.isEmpty(fieldList)) {
+                return;
+            }
+            fieldList.forEach(streamField -> streamField.setId(null));
+            List<InlongStreamFieldEntity> list = CommonBeanUtils.copyListProperties(fieldList,
+                    InlongStreamFieldEntity::new);
+            for (InlongStreamFieldEntity entity : list) {
+                entity.setInlongGroupId(groupId);
+                entity.setInlongStreamId(streamId);
+                entity.setIsDeleted(InlongConstants.UN_DELETED);
+            }
+            streamFieldMapper.insertAll(list);
+            LOGGER.info("success to update inlong stream field for groupId={}", groupId);
+        } catch (Exception e) {
+            LOGGER.error("failed to update inlong stream field: ", e);
+            throw new BusinessException(ErrorCodeEnum.STREAM_FIELD_SAVE_FAILED);
+        }
     }
 }

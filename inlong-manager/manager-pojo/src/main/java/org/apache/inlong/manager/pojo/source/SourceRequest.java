@@ -101,6 +101,9 @@ public class SourceRequest {
     @Length(min = 1, max = 163840, message = "length must be between 1 and 163840")
     private String snapshot;
 
+    @ApiModelProperty(value = "Whether to get schema after saving or updating. Default is false")
+    private Boolean enableGetSchema = false;
+
     @ApiModelProperty("Version")
     @NotNull(groups = UpdateValidation.class, message = "version cannot be null")
     private Integer version;
