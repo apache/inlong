@@ -86,6 +86,7 @@
                                     <include>io.debezium:debezium-api</include>
                                     <include>io.debezium:debezium-embedded</include>
                                     <include>io.debezium:debezium-core</include>
+                                    <include>com.ververica:flink-connector-debezium</include>
                                     <include>com.ververica:flink-connector-mongodb-cdc</include>
                                     <include>org.mongodb.kafka:mongo-kafka-connect</include>
                                     <include>org.mongodb:mongodb-driver-sync</include>
@@ -94,10 +95,12 @@
                                     <include>org.apache.avro:avro</include>
                                     <include>org.apache.kafka:*</include>
                                     <include>com.fasterxml.*:*</include>
+                                    <include>com.google.code.gson:*</include>
                                     <include>com.google.guava:*</include>
                                     <!--  Include fixed version 18.0-13.0 of flink shaded guava  -->
                                     <include>org.apache.flink:flink-shaded-guava</include>
                                     <include>com.google.protobuf:*</include>
+                                    <include>com.ververica:flink-cdc-base</include>
                                 </includes>
                             </artifactSet>
                             <filters>
@@ -123,8 +126,16 @@
                             </filters>
                             <relocations>
                                 <relocation>
+                                    <pattern>org.apache.inlong.sort.base</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.cdc.mongodb.shaded.org.apache.inlong.sort.base</shadedPattern>
+                                </relocation>
+                                <relocation>
                                     <pattern>org.apache.kafka</pattern>
                                     <shadedPattern>com.ververica.cdc.connectors.shaded.org.apache.kafka</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.avro</pattern>
+                                    <shadedPattern>com.ververica.cdc.connectors.shaded.org.apache.avro</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.fasterxml</pattern>
