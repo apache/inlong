@@ -222,17 +222,17 @@ public class TopicServiceImpl implements TopicService {
      */
     private boolean containsDangerousChars(String input) {
         input = input.toLowerCase();
-        String[] dangerousKeywords =
-                {"exec", "system", "cmd", "shell", "php", "perl", "python", "ruby", "javascript", "java"};
+        // Define dangerous keywords as a constant array
+        final String[] DANGEROUS_KEYWORDS = {
+                "exec", "system", "cmd", "shell", "php", "perl", "python", "ruby", "javascript", "java"
+        };
         // Prevent SSRF attacks by checking for "://"
         if (input.contains("://")) {
             return true;
         }
         // Check for other possible dangerous characters or keywords
-        for (String keyword : dangerousKeywords) {
-            if (input.contains(keyword)) {
-                return true;
-            }
+        if (StringUtils.containsAny(input, DANGEROUS_KEYWORDS)) {
+            return true;
         }
         // Check for encoding of special characters or escape characters
         Matcher matcher = SPECIAL_CHAR_PATTERN.matcher(input);
@@ -250,6 +250,7 @@ public class TopicServiceImpl implements TopicService {
             new URL(url);
             return true;
         } catch (MalformedURLException e) {
+            log.warn("URL validation failed with exception: {}", e.getMessage());
             return false;
         }
     }

@@ -111,6 +111,7 @@ public class MasterServiceImpl implements MasterService {
             URL u = new URL(url);
             return u.getHost();
         } catch (MalformedURLException e) {
+            log.warn("Failed to extract hostname from URL: {}", e.getMessage());
             return null;
         }
     }
@@ -129,6 +130,7 @@ public class MasterServiceImpl implements MasterService {
             InetAddress.getByName(hostname);
             return true;
         } catch (UnknownHostException e) {
+            log.error("DNS resolution failed for hostname: {}", hostname, e);
             return false;
         }
     }
@@ -147,6 +149,7 @@ public class MasterServiceImpl implements MasterService {
                 return true;
             }
         } catch (MalformedURLException e) {
+            log.warn("URL validation failed with exception: {}", e.getMessage());
             return false;
         }
         return false;

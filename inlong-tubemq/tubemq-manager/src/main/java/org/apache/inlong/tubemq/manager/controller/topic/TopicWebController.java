@@ -248,6 +248,7 @@ public class TopicWebController {
             gson.fromJson(json, Object.class);
             return true;
         } catch (JsonSyntaxException e) {
+            LOGGER.error("JSON validation failed with exception: {}", e.getMessage());
             return false;
         }
     }
