@@ -120,6 +120,7 @@ public interface StreamSourceOperator {
      * Get the source field info.
      *
      * @param request request of source
+     * @param operator operator
      */
     void getFieldInfo(SourceRequest request, String operator);
 
