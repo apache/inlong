@@ -18,7 +18,6 @@
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
-import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
@@ -28,8 +27,6 @@ import org.apache.flume.Event;
 import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.slf4j.Logger;
-
-import java.util.Map;
 
 /**
  * 
@@ -131,14 +128,10 @@ public class PulsarFederationWorker extends Thread {
      * 
      * @param currentRecord
      */
-    private String fillTopic(Event currentRecord) {
-        Map<String, String> headers = currentRecord.getHeaders();
-        String inlongGroupId = headers.get(Constants.INLONG_GROUP_ID);
-        String inlongStreamId = headers.get(Constants.INLONG_STREAM_ID);
-        String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
-        String topic = this.context.getTopic(uid);
+    private String fillTopic(ProfileEvent currentRecord) {
+        String topic = this.context.getTopic(currentRecord.getUid());
         if (!StringUtils.isBlank(topic)) {
-            headers.put(Constants.TOPIC, topic);
+            currentRecord.getHeaders().put(Constants.TOPIC, topic);
             return topic;
         }
         return "-";
