@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.service.resource.sink.postgresql;
 
+import org.apache.inlong.manager.common.util.UrlVerificationUtils;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLTableInfo;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ public class PostgreSQLJdbcUtils {
 
     private static final String POSTGRES_DRIVER_CLASS = "org.postgresql.Driver";
 
-    private static final String POSTGRES_JDBC_PREFIX = "jdbc:postgresql";
+    private static final String POSTGRES_JDBC_PREFIX = "jdbc:postgresql://";
 
     private static final String POSTGRESQL_DEFAULT_SCHEMA = "public";
 
@@ -54,20 +54,32 @@ public class PostgreSQLJdbcUtils {
      * @return {@link Connection}
      * @throws Exception on get connection error
      */
-    public static Connection getConnection(String url, String user, String password)
-            throws Exception {
-        if (StringUtils.isBlank(url) || !url.startsWith(POSTGRES_JDBC_PREFIX)) {
-            throw new Exception("PostgreSQL server URL was invalid, it should start with jdbc:postgresql");
-        }
+    public static Connection getConnection(String url, String user, String password) throws Exception {
+        UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, POSTGRES_JDBC_PREFIX);
+        return establishDatabaseConnection(url, user, password);
+    }
+
+    /**
+     * Establishes a PostgreSQL database connection using the provided URL, username, and password.
+     *
+     * @param url      The PostgreSQL JDBC URL
+     * @param user     The username
+     * @param password The user's password
+     * @return A {@link Connection} representing the PostgreSQL database connection
+     * @throws Exception If an error occurs during connection establishment
+     */
+    private static Connection establishDatabaseConnection(String url, String user, String password) throws Exception {
         Connection conn;
         try {
             Class.forName(POSTGRES_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            String errorMsg = "get PostgreSQL connection error, please check postgresql jdbc url, username or password";
+            String errorMsg =
+                    "get PostgreSQL connection error, please check PostgreSQL JDBC URL, username, or password";
             LOG.error(errorMsg, e);
             throw new Exception(errorMsg + ": " + e.getMessage());
         }
+
         if (conn == null) {
             throw new Exception("get PostgreSQL connection failed, please contact administrator");
         }

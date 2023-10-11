@@ -43,6 +43,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
@@ -54,6 +56,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -66,6 +69,7 @@ public class ClusterController {
 
     private final Gson gson = new Gson();
     private final TubeMQResult result = new TubeMQResult();
+    private static final Logger LOGGER = LogManager.getLogger(ClusterController.class);
 
     @Autowired
     private ClusterService clusterService;
@@ -73,18 +77,74 @@ public class ClusterController {
     @Autowired
     private MasterService masterService;
 
+    /**
+     * Handles cluster-related requests based on the specified method.
+     *
+     * @param method The method to perform (e.g., "add", "delete", "modify", "switch")
+     * @param req    The request body containing relevant data
+     * @return A TubeMQResult indicating the result of the operation
+     */
     @PostMapping("")
     public @ResponseBody TubeMQResult clusterMethodProxy(@RequestParam String method, @RequestBody String req) {
+        if (!isValidMethod(method)) {
+            LOGGER.warn("Invalid method value received: {}", method);
+            return TubeMQResult.errorResult("Invalid method value.");
+        }
+
+        if (!isValidURL(req)) {
+            LOGGER.warn("Invalid URL format received: {}", req);
+            return TubeMQResult.errorResult("Invalid URL format.");
+        }
+
+        return processClusterRequest(method, req);
+    }
+
+    /**
+     * Validates if the provided URL is in a valid format.
+     *
+     * @param url The URL to validate
+     * @return True if the URL is valid, otherwise false
+     */
+    private static boolean isValidURL(String url) {
+        String urlPattern = "^(https?|ftp)://[a-zA-Z0-9.-]+(/.*)?$";
+        return url.matches(urlPattern);
+    }
+
+    /**
+     * Validates if the provided method is one of the allowed methods.
+     *
+     * @param method The method to validate
+     * @return True if the method is valid, otherwise false
+     */
+    private static boolean isValidMethod(String method) {
+        List<String> allowedMethods =
+                Arrays.asList(TubeConst.ADD, TubeConst.DELETE, TubeConst.MODIFY, TubeConst.SWITCH);
+        return allowedMethods.contains(method);
+    }
+
+    /**
+     * Processes the cluster-related request based on the specified method.
+     *
+     * @param method The method to perform (e.g., "add", "delete", "modify", "switch")
+     * @param req    The request body containing relevant data
+     * @return A TubeMQResult indicating the result of the operation
+     */
+    private TubeMQResult processClusterRequest(String method, String req) {
         switch (method) {
             case TubeConst.ADD:
+                LOGGER.info("Received 'add' operation with URL: {}", req);
                 return addNewCluster(gson.fromJson(req, AddClusterReq.class));
             case TubeConst.DELETE:
+                LOGGER.info("Received 'delete' operation with URL: {}", req);
                 return deleteCluster(gson.fromJson(req, DeleteClusterReq.class));
             case TubeConst.MODIFY:
+                LOGGER.info("Received 'modify' operation with URL: {}", req);
                 return changeCluster(gson.fromJson(req, ClusterDto.class));
             case TubeConst.SWITCH:
+                LOGGER.info("Received 'switch' operation with URL: {}", req);
                 return masterService.baseRequestMaster(gson.fromJson(req, SwitchClusterReq.class));
             default:
+                LOGGER.warn("Received unknown method: {}", method);
                 return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_METHOD);
         }
     }
