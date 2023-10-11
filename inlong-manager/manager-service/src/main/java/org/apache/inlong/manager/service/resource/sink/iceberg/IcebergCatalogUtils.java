@@ -149,6 +149,7 @@ public class IcebergCatalogUtils {
             IcebergColumnInfo info = new IcebergColumnInfo();
             info.setName(column.name());
             info.setRequired(column.isRequired());
+            info.setType(column.type().toString());
             columnList.add(info);
         }
         return columnList;

@@ -17,8 +17,10 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
+import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
@@ -38,14 +40,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @JsonTypeName("icebergLoad")
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class IcebergLoadNode extends LoadNode implements InlongMetric, Serializable {
+public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata, Serializable {
 
     private static final long serialVersionUID = -1L;
 
@@ -128,4 +132,13 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Serializa
         return super.getPartitionFields();
     }
 
+    @Override
+    public boolean isVirtual(MetaField metaField) {
+        return true;
+    }
+
+    @Override
+    public Set<MetaField> supportedMetaFields() {
+        return EnumSet.of(MetaField.AUDIT_DATA_TIME);
+    }
 }
