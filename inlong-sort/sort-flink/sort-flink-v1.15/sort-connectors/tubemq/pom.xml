@@ -47,18 +47,6 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
-        <!--        only for test-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.flink</groupId>-->
-        <!--            <artifactId>flink-json</artifactId>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.flink</groupId>-->
-        <!--            <artifactId>flink-shaded-jackson</artifactId>-->
-        <!--            <version>2.14.2-17.0</version>-->
-        <!--            &lt;!&ndash;            2.14.2-17.0&ndash;&gt;-->
-        <!--            &lt;!&ndash;            2.12.1-13.0&ndash;&gt;-->
-        <!--        </dependency>-->
 
     </dependencies>
 
@@ -106,7 +94,8 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org.apache.inlong.sort.base</pattern>
-                                    <shadedPattern>org.apache.inlong.sort.tubemq.shaded.org.apache.inlong.sort.base</shadedPattern>
+                                    <shadedPattern>org.apache.inlong.sort.tubemq.shaded.org.apache.inlong.sort.base
+                                    </shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
