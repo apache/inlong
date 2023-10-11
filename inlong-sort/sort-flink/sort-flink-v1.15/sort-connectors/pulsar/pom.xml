@@ -31,7 +31,6 @@
     <name>Apache InLong - Sort-connector-pulsar-v1.15</name>
 
     <properties>
-        <flink.version>1.15.4</flink.version>
         <pulsar.version>2.10.2</pulsar.version>
         <flink.connector.pulsar.version>3.0-SNAPSHOT</flink.connector.pulsar.version>
         <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
@@ -39,7 +38,6 @@
 
     <dependencies>
 
-        <!-- Core -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-base</artifactId>
