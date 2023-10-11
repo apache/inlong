@@ -49,7 +49,7 @@ public class MySqlContainer extends JdbcDatabaseContainer {
 
     public MySqlContainer(MySqlVersion version) {
         super(DockerImageName.parse(IMAGE + ":" + version.getVersion()));
-        addFixedExposedPort(33306, 3306);
+        addExposedPort(MYSQL_PORT);
     }
 
     @Override
@@ -59,8 +59,6 @@ public class MySqlContainer extends JdbcDatabaseContainer {
 
     @Override
     protected void configure() {
-        // HERE is the difference, copy to /etc/mysql/, if copy to /etc/mysql/conf.d will be wrong
-
         if (parameters.containsKey(SETUP_SQL_PARAM_NAME)) {
             optionallyMapResourceParameterAsVolume(
                     SETUP_SQL_PARAM_NAME, "/docker-entrypoint-initdb.d/", "N/A");
