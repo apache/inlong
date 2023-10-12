@@ -80,7 +80,7 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
         ClsDataNodeDTO clsDataNode = getClsDataNode(sinkInfo);
         ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(sinkInfo.getExtParams(), ClsSinkDTO.class);
         try {
-            String topicId = getTopicID(sinkInfo, clsDataNode, clsSinkDTO);
+            String topicId = getTopicID(clsDataNode, clsSinkDTO);
             clsSinkDTO.setTopicId(topicId);
             sinkInfo.setExtParams(JsonUtils.toJsonString(clsSinkDTO));
             // create topic index by tokenizer
@@ -101,14 +101,14 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
         }
     }
 
-    private String getTopicID(SinkInfo sinkInfo, ClsDataNodeDTO clsDataNode, ClsSinkDTO clsSinkDTO)
+    private String getTopicID(ClsDataNodeDTO clsDataNode, ClsSinkDTO clsSinkDTO)
             throws TencentCloudSDKException {
         String topicId = clsOperator.describeTopicIDByTopicName(clsSinkDTO.getTopicName(), clsDataNode.getLogSetId(),
                 clsSinkDTO.getTag(),
                 clsDataNode.getManageSecretId(), clsDataNode.getManageSecretKey(), clsDataNode.getEndpoint(),
                 clsDataNode.getRegion());
         if (StringUtils.isBlank(topicId)) {
-            // if topic don't exist,create topic in cls
+            // if topic don't exist, create topic in cls
             topicId = clsOperator.createTopicReturnTopicId(clsSinkDTO.getTopicName(), clsDataNode.getLogSetId(),
                     clsSinkDTO.getTag(), clsDataNode.getManageSecretId(), clsDataNode.getManageSecretKey(),
                     clsDataNode.getEndpoint(),

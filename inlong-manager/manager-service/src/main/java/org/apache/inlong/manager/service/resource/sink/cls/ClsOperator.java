@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import com.tencentcloudapi.cls.v20201016.ClsClient;
 import com.tencentcloudapi.cls.v20201016.models.CreateIndexRequest;
+import com.tencentcloudapi.cls.v20201016.models.CreateIndexResponse;
 import com.tencentcloudapi.cls.v20201016.models.CreateTopicRequest;
 import com.tencentcloudapi.cls.v20201016.models.CreateTopicResponse;
 import com.tencentcloudapi.cls.v20201016.models.DescribeIndexRequest;
@@ -31,6 +32,7 @@ import com.tencentcloudapi.cls.v20201016.models.DescribeTopicsResponse;
 import com.tencentcloudapi.cls.v20201016.models.Filter;
 import com.tencentcloudapi.cls.v20201016.models.FullTextInfo;
 import com.tencentcloudapi.cls.v20201016.models.ModifyIndexRequest;
+import com.tencentcloudapi.cls.v20201016.models.ModifyIndexResponse;
 import com.tencentcloudapi.cls.v20201016.models.RuleInfo;
 import com.tencentcloudapi.cls.v20201016.models.Tag;
 import com.tencentcloudapi.cls.v20201016.models.TopicInfo;
@@ -80,7 +82,7 @@ public class ClsOperator {
         }
         FullTextInfo topicIndexFullText = getTopicIndexFullText(secretId, secretKey, endPoint, region, topicId);
         if (ObjectUtils.anyNotNull(topicIndexFullText)) {
-            // if topic index exist,update
+            // if topic index exist, update
             LOG.debug("cls topic is exist and update for topicId = {},tokenizer = {}", topicId, tokenizer);
             updateTopicIndex(tokenizer, topicId, secretId, secretKey, endPoint, region);
             return;
@@ -88,14 +90,15 @@ public class ClsOperator {
         ClsClient clsClient = getClsClient(secretId, secretKey, endPoint, region);
         CreateIndexRequest req = getCreateIndexRequest(tokenizer, topicId);
         try {
-            clsClient.CreateIndex(req);
+            CreateIndexResponse createIndexResponse = clsClient.CreateIndex(req);
+            LOG.debug("create index success for topic = {}, tokenizer = {}, requestId = {}", topicId,
+                    tokenizer, createIndexResponse.getRequestId());
         } catch (TencentCloudSDKException e) {
             String errMsg = "Create cls topic index failed: " + e.getMessage();
             LOG.error(errMsg, e);
             throw new BusinessException(errMsg);
         }
-        LOG.debug("create index success for topic = {}, tokenizer = {}", topicId,
-                tokenizer);
+
     }
 
     /**
@@ -166,13 +169,14 @@ public class ClsOperator {
         req.setTopicId(topicId);
         req.setRule(ruleInfo);
         try {
-            clsClient.ModifyIndex(req);
+            ModifyIndexResponse modifyIndexResponse = clsClient.ModifyIndex(req);
+            LOG.debug("update index success for topicId = {}, tokenizer = {}, requestId = {}", topicId, tokenizer,
+                    modifyIndexResponse.getRequestId());
         } catch (TencentCloudSDKException e) {
             String errMsg = "update cls topic index failed: " + e.getMessage();
             LOG.error(errMsg, e);
             throw new BusinessException(errMsg);
         }
-        LOG.debug("update index success for topicId = {}, tokenizer = {}", topicId, tokenizer);
     }
 
     public ClsClient getClsClient(String secretId, String secretKey, String endPoint, String region) {
