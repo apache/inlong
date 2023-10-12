@@ -131,19 +131,19 @@
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.kafka</pattern>
-                                    <shadedPattern>com.ververica.cdc.connectors.shaded.org.apache.kafka</shadedPattern>
+                                    <shadedPattern>corg.apache.inlong.sort.shaded.org.apache.kafka</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.avro</pattern>
-                                    <shadedPattern>com.ververica.cdc.connectors.shaded.org.apache.avro</shadedPattern>
+                                    <shadedPattern>org.apache.inlong.sort.shaded.org.apache.avro</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.fasterxml</pattern>
-                                    <shadedPattern>com.ververica.cdc.connectors.shaded.com.fasterxml</shadedPattern>
+                                    <shadedPattern>org.apache.inlong.sort.shaded.com.fasterxml</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.google</pattern>
-                                    <shadedPattern>com.ververica.cdc.connectors.shaded.com.google</shadedPattern>
+                                    <shadedPattern>org.apache.inlong.sort.shaded.com.google</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

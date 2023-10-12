@@ -31,6 +31,7 @@
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
         <flink.version>1.15.4</flink.version>
+        <mongodb-driver-sync.version>4.10.2</mongodb-driver-sync.version>
     </properties>
 
     <dependencies>
@@ -55,7 +56,7 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-sync</artifactId>
-            <version>4.10.2</version>
+            <version>${mongodb-driver-sync.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
