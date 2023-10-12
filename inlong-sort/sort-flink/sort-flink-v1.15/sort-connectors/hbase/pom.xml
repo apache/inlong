@@ -69,13 +69,13 @@
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-format-common</artifactId>
-            <version>1.10.0-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-core</artifactId>
-            <version>1.10.0-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -161,35 +161,35 @@
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.zookeeper</pattern>
-                                    <shadedPattern>org.apache.flink.hbase.shaded.org.apache.zookeeper</shadedPattern>
+                                    <shadedPattern>org.apache.inlong.sort.hbase.shaded.org.apache.zookeeper</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.htrace</pattern>
-                                    <shadedPattern>org.apache.flink.hbase.shaded.org.apache.htrace</shadedPattern>
+                                    <shadedPattern>org.apache.inlong.sort.hbase.shaded.org.apache.htrace</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.google</pattern>
-                                    <shadedPattern>org.apache.flink.hbase.shaded.com.google</shadedPattern>
+                                    <shadedPattern>org.apache.inlong.sort.hbase.shaded.com.google</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.yammer.metrics</pattern>
-                                    <shadedPattern>org.apache.flink.hbase.shaded.com.yammer.metrics</shadedPattern>
+                                    <shadedPattern>org.apache.inlong.sort.hbase.shaded.com.yammer.metrics</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.commons</pattern>
-                                    <shadedPattern>org.apache.flink.hbase.shaded.org.apache.commons</shadedPattern>
+                                    <shadedPattern>org.apache.inlong.sort.hbase.shaded.org.apache.commons</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.jute</pattern>
-                                    <shadedPattern>org.apache.flink.hbase.shaded.org.apache.jute</shadedPattern>
+                                    <shadedPattern>org.apache.inlong.sort.hbase.shaded.org.apache.jute</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>io.netty</pattern>
-                                    <shadedPattern>org.apache.flink.hbase.shaded.io.netty</shadedPattern>
+                                    <shadedPattern>org.apache.inlong.sort.hbase.shaded.io.netty</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.hadoop.hbase</pattern>
-                                    <shadedPattern>org.apache.flink.hbase.shaded.org.apache.hadoop.hbase</shadedPattern>
+                                    <shadedPattern>org.apache.inlong.sort.hbase.shaded.org.apache.hadoop.hbase</shadedPattern>
                                     <!-- HBase client uses shaded KeyValueCodec to encode data and put the class name
                                      in the header of request, the HBase region server can not load the shaded
                                      KeyValueCodec class when decode the data, so we exclude them here. -->
