@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.sink.cls;
 
-import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
-
 import com.tencentcloudapi.cls.v20201016.ClsClient;
 import com.tencentcloudapi.cls.v20201016.models.CreateIndexRequest;
 import com.tencentcloudapi.cls.v20201016.models.CreateIndexResponse;
@@ -33,6 +30,8 @@ import com.tencentcloudapi.cls.v20201016.models.Filter;
 import com.tencentcloudapi.cls.v20201016.models.FullTextInfo;
 import com.tencentcloudapi.cls.v20201016.models.ModifyIndexRequest;
 import com.tencentcloudapi.cls.v20201016.models.ModifyIndexResponse;
+import com.tencentcloudapi.cls.v20201016.models.ModifyTopicRequest;
+import com.tencentcloudapi.cls.v20201016.models.ModifyTopicResponse;
 import com.tencentcloudapi.cls.v20201016.models.RuleInfo;
 import com.tencentcloudapi.cls.v20201016.models.Tag;
 import com.tencentcloudapi.cls.v20201016.models.TopicInfo;
@@ -40,15 +39,16 @@ import com.tencentcloudapi.common.Credential;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import com.tencentcloudapi.common.profile.ClientProfile;
 import com.tencentcloudapi.common.profile.HttpProfile;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class ClsOperator {
@@ -64,9 +64,20 @@ public class ClsOperator {
         ClsClient client = getClsClient(secretId, secretKey, endPoint, region);
         CreateTopicRequest req = getCreateTopicRequest(tag, logSetId, topicName);
         CreateTopicResponse resp = client.CreateTopic(req);
-        LOG.info("create cls topic success for topicName = {}, topicId = {}", topicName,
-                resp.getTopicId());
+        LOG.info("create cls topic success for topicName = {}, topicId = {}, requestId = {}", topicName,
+                resp.getTopicId(), resp.getRequestId());
+        updateTopicTag(resp.getTopicId(), tag, secretId, secretKey, endPoint, region);
         return resp.getTopicId();
+    }
+
+    public void updateTopicTag(String topicId, String tag, String secretId,
+            String secretKey, String endPoint, String region) throws TencentCloudSDKException {
+        ClsClient client = getClsClient(secretId, secretKey, endPoint, region);
+        ModifyTopicRequest modifyTopicRequest = new ModifyTopicRequest();
+        modifyTopicRequest.setTags(convertTags(tag.split(InlongConstants.CENTER_LINE)));
+        modifyTopicRequest.setTopicId(topicId);
+        ModifyTopicResponse resp = client.ModifyTopic(modifyTopicRequest);
+        LOG.info("update cls topic tag success for topicId = {}, requestId = {}", topicId, resp.getRequestId());
     }
 
     /**
