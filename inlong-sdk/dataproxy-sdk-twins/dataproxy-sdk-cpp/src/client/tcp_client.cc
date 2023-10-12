@@ -167,15 +167,15 @@ void TcpClient::OnWroten(const asio::error_code error,
       // operation aborted
       return;
     }
-    LOG_ERROR("write error:" << error.message() << CLIENT_INFO);
     status_ = kWriting;
+    LOG_ERROR("write error:" << error.message() << CLIENT_INFO);
     HandleFail();
     return;
   }
 
   if (0 == bytes_transferred) {
-    LOG_ERROR("transferred 0 bytes." << CLIENT_INFO);
     status_ = kWaiting;
+    LOG_ERROR("transferred 0 bytes." << CLIENT_INFO);
     HandleFail();
     return;
   }
@@ -201,6 +201,7 @@ void TcpClient::OnReturn(asio::error_code error, std::size_t len) {
   }
   if (len != sizeof(uint32_t)) {
     status_ = kWaiting;
+    LOG_ERROR("len :" << len <<" != sizeof(uint32_t):" <<sizeof(uint32_t)<< CLIENT_INFO);
     HandleFail();
     return;
   }
@@ -209,6 +210,7 @@ void TcpClient::OnReturn(asio::error_code error, std::size_t len) {
 
   if (resp_len > recv_buf_->m_max_size) {
     status_ = kWaiting;
+    LOG_ERROR("invalid resp_len :" << resp_len << CLIENT_INFO);
     HandleFail();
     return;
   }
