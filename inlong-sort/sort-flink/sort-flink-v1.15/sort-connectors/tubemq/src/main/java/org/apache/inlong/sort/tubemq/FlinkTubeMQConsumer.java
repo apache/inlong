@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.tubemq;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.sort.tubemq.table.TubeMQOptions;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.consumer.ConsumePosition;
@@ -27,6 +26,7 @@ import org.apache.inlong.tubemq.client.factory.TubeSingleSessionFactory;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.state.ListState;
@@ -302,11 +302,11 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
                 rowDataList.forEach(data -> records.add((T) data));
             }
         }
-      if (CollectionUtils.isEmpty(messageList)) {
-          return lastConsumeInstant;
-      }
-      
-      // other logic
+        if (CollectionUtils.isEmpty(messageList)) {
+            return lastConsumeInstant;
+        }
+
+        // other logic
         return null;
     }
 
