@@ -68,8 +68,6 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
 
     private static final Logger LOG = LoggerFactory.getLogger(FlinkTubeMQConsumer.class);
     private static final String TUBE_OFFSET_STATE = "tube-offset-state";
-    private static final String SPLIT_COMMA = ",";
-    private static final String SPLIT_COLON = ":";
 
     /**
      * The address of TubeMQ master, format eg: 127.0.0.1:8715,127.0.0.2:8715.
