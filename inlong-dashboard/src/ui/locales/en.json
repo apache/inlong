@@ -12,6 +12,7 @@
   "basic.DeleteSuccess": "Delete Success",
   "basic.Status": "Status",
   "basic.Creator": "Creator",
+  "basic.Modifier": "Modifier",
   "basic.CreateTime": "CreateTime",
   "basic.Yes": "Yes",
   "basic.No": "No",

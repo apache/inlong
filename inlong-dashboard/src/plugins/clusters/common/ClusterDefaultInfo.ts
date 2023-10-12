@@ -118,6 +118,10 @@ export class ClusterDefaultInfo implements DataWithBackend, RenderRow, RenderLis
   @I18n('pages.Clusters.Description')
   description: string;
 
+  @ColumnDecorator()
+  @I18n('basic.Creator')
+  readonly creator: string;
+
   version?: number;
 
   parse(data) {

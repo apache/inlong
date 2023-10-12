@@ -12,6 +12,7 @@
   "basic.DeleteSuccess": "删除成功",
   "basic.Status": "状态",
   "basic.Creator": "创建人",
+  "basic.Modifier": "修改人",
   "basic.CreateTime": "创建时间",
   "basic.Yes": "是",
   "basic.No": "否",
