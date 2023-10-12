@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.service.resource.sink.hive;
 
+import org.apache.inlong.manager.common.util.UrlVerificationUtils;
 import org.apache.inlong.manager.pojo.sink.hive.HiveColumnInfo;
 import org.apache.inlong.manager.pojo.sink.hive.HiveTableInfo;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hive.jdbc.HiveDatabaseMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,28 +40,50 @@ public class HiveJdbcUtils {
     private static final String HIVE_DRIVER_CLASS = "org.apache.hive.jdbc.HiveDriver";
     private static final String METADATA_TYPE = "TABLE";
     private static final String COLUMN_LABEL = "TABLE_NAME";
-    private static final String HIVE_JDBC_PREFIX = "jdbc:hive2";
+    private static final String HIVE_JDBC_PREFIX = "jdbc:hive2://";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HiveJdbcUtils.class);
 
     /**
-     * Get Hive connection from hive url and user
+     * Get Hive connection from Hive URL and user.
+     *
+     * @param url      JDBC URL, such as jdbc:hive2://host:port/database
+     * @param user     Username for JDBC URL
+     * @param password User password
+     * @return {@link Connection}
+     * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        if (StringUtils.isBlank(url) || !url.startsWith(HIVE_JDBC_PREFIX)) {
-            throw new Exception("hive server url should start with " + HIVE_JDBC_PREFIX);
-        }
+        UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, HIVE_JDBC_PREFIX);
+        return createConnection(url, user, password);
+    }
+
+    /**
+     * Creates a Hive JDBC connection using the provided URL, username, and password.
+     *
+     * @param url      The Hive JDBC URL
+     * @param user     The username
+     * @param password The user's password
+     * @return A {@link Connection} object representing the Hive database connection
+     * @throws Exception If an error occurs while obtaining the connection
+     */
+    private static Connection createConnection(String url, String user, String password) throws Exception {
         Connection conn;
         try {
             Class.forName(HIVE_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
-            LOGGER.info("get hive connection success, url={}", url);
-            return conn;
         } catch (Exception e) {
-            String errMsg = "get hive connection error, please check hive jdbc url, username or password";
-            LOGGER.error(errMsg, e);
-            throw new Exception(errMsg + ", error: " + e.getMessage());
+            String errorMsg = "Failed to get Hive connection, please check Hive JDBC URL, username, or password!";
+            LOGGER.error(errorMsg, e);
+            throw new Exception(errorMsg + " Other error message: " + e.getMessage());
         }
+
+        if (conn == null) {
+            throw new Exception("Failed to get Hive connection, please contact the administrator.");
+        }
+
+        LOGGER.info("Successfully obtained Hive connection for URL: {}", url);
+        return conn;
     }
 
     /**

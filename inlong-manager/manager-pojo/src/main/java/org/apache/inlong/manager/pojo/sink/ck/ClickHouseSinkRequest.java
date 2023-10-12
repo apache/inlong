@@ -26,6 +26,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Pattern;
 
@@ -40,13 +41,16 @@ import javax.validation.constraints.Pattern;
 public class ClickHouseSinkRequest extends SinkRequest {
 
     @ApiModelProperty("JDBC URL of the ClickHouse server")
+    @Length(max = 512, message = "length must be less than or equal to 512")
     @Pattern(regexp = "^((?!\\s).)*$", message = "not supports blank in url")
     private String jdbcUrl;
 
     @ApiModelProperty("Username of the ClickHouse server")
+    @Length(max = 128, message = "length must be less than or equal to 128")
     private String username;
 
     @ApiModelProperty("User password of the ClickHouse server")
+    @Length(max = 512, message = "length must be less than or equal to 512")
     private String password;
 
     @ApiModelProperty("Target database name")
