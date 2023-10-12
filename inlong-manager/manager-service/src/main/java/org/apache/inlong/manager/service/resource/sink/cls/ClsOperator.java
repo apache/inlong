@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.service.resource.sink.cls;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+
 import com.tencentcloudapi.cls.v20201016.ClsClient;
 import com.tencentcloudapi.cls.v20201016.models.CreateIndexRequest;
 import com.tencentcloudapi.cls.v20201016.models.CreateIndexResponse;
@@ -39,16 +42,15 @@ import com.tencentcloudapi.common.Credential;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import com.tencentcloudapi.common.profile.ClientProfile;
 import com.tencentcloudapi.common.profile.HttpProfile;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ClsOperator {
