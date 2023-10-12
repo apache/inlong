@@ -158,7 +158,7 @@ public class FlinkTubeMQProducer<T> extends RichSinkFunction<T> implements Check
             }
         }
 
-        throw new IOException("Could not properly send the message to hippo.", exception);
+        throw new IOException("Could not properly send the message to tube.", exception);
     }
 
     @Override
