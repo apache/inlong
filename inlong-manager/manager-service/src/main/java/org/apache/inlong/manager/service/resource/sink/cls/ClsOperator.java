@@ -225,10 +225,10 @@ public class ClsOperator {
 
     public Tag[] convertTags(String[] allTags) {
         List<Tag> tagList = new ArrayList<>();
-        int noTag = 2;
+        int tagStyleError = 2;
         for (String tag : allTags) {
             String[] keyAndValueOfTag = tag.split(InlongConstants.COLON);
-            if (keyAndValueOfTag.length < noTag) {
+            if (keyAndValueOfTag.length < tagStyleError) {
                 continue;
             }
             Tag tagInfo = new Tag();
