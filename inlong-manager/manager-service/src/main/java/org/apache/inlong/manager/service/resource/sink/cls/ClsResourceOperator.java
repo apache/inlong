@@ -86,7 +86,7 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
             // create topic index by tokenizer
             clsOperator.createTopicIndex(clsSinkDTO.getTokenizer(), clsSinkDTO.getTopicId(),
                     clsDataNode.getManageSecretId(),
-                    clsDataNode.getSendSecretKey(), clsDataNode.getEndpoint(), clsDataNode.getRegion());
+                    clsDataNode.getManageSecretKey(), clsDataNode.getEndpoint(), clsDataNode.getRegion());
             // update set topic id into sink info
             updateSinkInfo(sinkInfo, clsSinkDTO);
             String info = "success to create cls resource";
