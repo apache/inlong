@@ -303,7 +303,11 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
                 rowDataList.forEach(data -> records.add((T) data));
             }
         }
-        return lastConsumeInstant;
+      if (CollectionUtils.isEmpty(messageList) {
+          return lastConsumeInstant;
+      }
+      
+      // other logic
     }
 
     @Override
