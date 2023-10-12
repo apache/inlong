@@ -96,12 +96,11 @@ export const useColumns = ({ onDelete, openModal, onRestart, onStop }) => {
                 {i18n.t('pages.GroupDashboard.config.Stop')}
               </Button>
             )}
-            {record?.status &&
-              (record?.status === 120 || record?.status === 130 || record?.status === 150) && (
-                <Button type="link" onClick={() => openModal(record)}>
-                  {i18n.t('pages.GroupDashboard.config.ExecuteLog')}
-                </Button>
-              )}
+            {record?.status && (record?.status === 120 || record?.status === 130) && (
+              <Button type="link" onClick={() => openModal(record)}>
+                {i18n.t('pages.GroupDashboard.config.ExecuteLog')}
+              </Button>
+            )}
           </>
         ),
       },
