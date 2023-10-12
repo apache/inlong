@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.TreeSet;
 
+import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 public class FlinkTubeMQProducer<T> extends RichSinkFunction<T> implements CheckpointedFunction {
@@ -93,11 +94,14 @@ public class FlinkTubeMQProducer<T> extends RichSinkFunction<T> implements Check
         checkNotNull(tidSet, "The tid set must not be null.");
         checkNotNull(configuration, "The configuration must not be null.");
 
+        int max_retries = configuration.getInteger(TubeMQOptions.MAX_RETRIES);
+        checkArgument(max_retries > 0);
+
         this.topic = topic;
         this.masterAddress = masterAddress;
         this.serializationSchema = serializationSchema;
         this.tidSet = tidSet;
-        this.maxRetries = configuration.getInteger(TubeMQOptions.MAX_RETRIES);
+        this.maxRetries = max_retries;
     }
 
     @Override
@@ -146,7 +150,7 @@ public class FlinkTubeMQProducer<T> extends RichSinkFunction<T> implements Check
                             sendResult.getErrCode(), sendResult.getErrMsg());
                 }
             } catch (Exception e) {
-                LOG.warn("Could not properly send the message to hippo "
+                LOG.warn("Could not properly send the message to tube "
                         + "(retries: {}).", retries, e);
 
                 retries++;
@@ -163,11 +167,9 @@ public class FlinkTubeMQProducer<T> extends RichSinkFunction<T> implements Check
         try {
             if (producer != null) {
                 producer.shutdown();
-                producer = null;
             }
             if (sessionFactory != null) {
                 sessionFactory.shutdown();
-                sessionFactory = null;
             }
         } catch (Throwable e) {
             LOG.error("Shutdown producer error", e);

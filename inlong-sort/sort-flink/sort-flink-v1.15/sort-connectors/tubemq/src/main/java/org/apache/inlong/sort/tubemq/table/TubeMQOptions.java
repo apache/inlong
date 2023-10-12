@@ -139,12 +139,12 @@ public class TubeMQOptions {
                     .defaultValue("default_session_key")
                     .withDescription("The session key for this consumer group at startup.");
 
-    public static final ConfigOption<List<String>> TID =
-            ConfigOptions.key("topic.tid")
+    public static final ConfigOption<List<String>> STREAMID =
+            ConfigOptions.key("topic.streamId")
                     .stringType()
                     .asList()
                     .noDefaultValue()
-                    .withDescription("The tid owned this topic.");
+                    .withDescription("The streamId owned this topic.");
 
     public static final ConfigOption<Integer> MAX_RETRIES =
             ConfigOptions.key("max.retries")
@@ -388,7 +388,7 @@ public class TubeMQOptions {
 
     public static TreeSet<String> getTiSet(ReadableConfig tableOptions) {
         TreeSet<String> set = new TreeSet<>();
-        tableOptions.getOptional(TID).ifPresent(new Consumer<List<String>>() {
+        tableOptions.getOptional(STREAMID).ifPresent(new Consumer<List<String>>() {
 
             @Override
             public void accept(List<String> strings) {

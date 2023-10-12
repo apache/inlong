@@ -53,7 +53,7 @@ import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.GROUP_ID;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.KEY_FORMAT;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.MASTER_RPC;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.SESSION_KEY;
-import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.TID;
+import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.STREAMID;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.TOPIC;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.TOPIC_PATTERN;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.getTubeMQProperties;
@@ -171,7 +171,7 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
             DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat,
             String topic,
             String url,
-            TreeSet<String> tid,
+            TreeSet<String> streamId,
             String consumerGroup,
             String sessionKey,
             Configuration properties) {
@@ -180,7 +180,7 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
                 valueDecodingFormat,
                 url,
                 topic,
-                tid,
+                streamId,
                 consumerGroup,
                 sessionKey,
                 properties,
@@ -195,14 +195,14 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
             EncodingFormat<SerializationSchema<RowData>> valueEncodingFormat,
             String topic,
             String masterAddress,
-            TreeSet<String> tid,
+            TreeSet<String> streamId,
             Configuration configuration) {
         return new TubeMQTableSink(
                 physicalDataType,
                 valueEncodingFormat,
                 topic,
                 masterAddress,
-                tid,
+                streamId,
                 configuration);
     }
 
@@ -224,7 +224,7 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
         options.add(FORMAT);
         options.add(TOPIC);
         options.add(GROUP_ID);
-        options.add(TID);
+        options.add(STREAMID);
         options.add(SESSION_KEY);
         options.add(BOOTSTRAP_FROM_MAX);
         options.add(TOPIC_PATTERN);
