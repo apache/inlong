@@ -21,7 +21,6 @@ import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
 import org.apache.inlong.sort.tests.utils.JdbcProxy;
 import org.apache.inlong.sort.tests.utils.MySqlContainer;
 import org.apache.inlong.sort.tests.utils.StarRocksContainer;
-import org.apache.inlong.sort.tests.utils.StarRocksManager;
 import org.apache.inlong.sort.tests.utils.TestUtils;
 
 import org.junit.AfterClass;
@@ -45,9 +44,9 @@ import java.util.List;
 
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.INTER_CONTAINER_STAR_ROCKS_ALIAS;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.STAR_ROCKS_LOG;
+import static org.apache.inlong.sort.tests.utils.StarRocksManager.buildStarRocksImage;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.getNewStarRocksImageName;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStarRocksTable;
-import static org.apache.inlong.sort.tests.utils.StarRocksManager.buildStarRocksImage;
 
 /**
  * End-to-end tests for sort-connector-postgres-cdc-v1.15 uber jar.
