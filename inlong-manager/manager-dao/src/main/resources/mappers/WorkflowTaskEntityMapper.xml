@@ -132,7 +132,7 @@
         </where>
         order by id desc
     </select>
-    <select id="countByStatus">
+    <select id="countByStatus" resultType="java.lang.Integer">
         select count(1)
         from workflow_task
         where tenant = #{tenant,jdbcType=VARCHAR}
