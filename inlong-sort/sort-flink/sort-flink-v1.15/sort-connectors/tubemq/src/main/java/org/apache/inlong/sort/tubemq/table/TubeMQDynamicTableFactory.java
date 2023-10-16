@@ -154,7 +154,6 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
 
         final Configuration properties = getTubeMQProperties(context.getCatalogTable().getOptions());
 
-        // final DataType physicalDataType = context.getCatalogTable().getSchema().toPhysicalRowDataType();
         final DataType physicalDataType = context.getCatalogTable().getResolvedSchema().toPhysicalRowDataType();
 
         return createTubeMQTableSink(

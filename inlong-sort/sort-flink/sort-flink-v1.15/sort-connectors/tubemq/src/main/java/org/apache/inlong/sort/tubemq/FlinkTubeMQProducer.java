@@ -137,11 +137,6 @@ public class FlinkTubeMQProducer<T> extends RichSinkFunction<T> implements Check
             try {
                 byte[] body = serializationSchema.serialize(in);
                 Message message = new Message(topic, body);
-                // if (!tidSet.isEmpty()) {
-                // SimpleDateFormat sdf = new SimpleDateFormat(SYSTEM_HEADER_TIME_FORMAT);
-                // long currTimeMillis = System.currentTimeMillis();
-                // message.putSystemHeader(tidSet.toString(), sdf.format(new Date(currTimeMillis)));
-                // }
                 MessageSentResult sendResult = producer.sendMessage(message);
                 if (sendResult.isSuccess()) {
                     return;
