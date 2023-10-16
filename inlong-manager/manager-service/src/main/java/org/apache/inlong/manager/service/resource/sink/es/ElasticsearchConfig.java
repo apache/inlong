@@ -17,22 +17,15 @@
 
 package org.apache.inlong.manager.service.resource.sink.es;
 
-import org.apache.inlong.manager.common.consts.InlongConstants;
-
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
-import org.elasticsearch.client.RestHighLevelClient;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +38,8 @@ import java.util.List;
 public class ElasticsearchConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConfig.class);
-    private static RestHighLevelClient highLevelClient;
+    private static RestTemplate restTemplate;
+    private static List<HttpHost> httpHosts;
     @Value("${es.index.search.hostname}")
     private String hosts;
     @Value("${es.auth.enable}")
@@ -60,50 +54,49 @@ public class ElasticsearchConfig {
      *
      * @return RestHighLevelClient
      */
-    public RestHighLevelClient highLevelClient() {
-        if (highLevelClient != null) {
-            return highLevelClient;
+    public RestTemplate getRestClient() {
+        if (restTemplate != null) {
+            return restTemplate;
         }
         try {
-            synchronized (RestHighLevelClient.class) {
-                if (highLevelClient == null) {
-                    List<HttpHost> hosts = new ArrayList<>();
-                    String[] hostArrays = this.hosts.split(InlongConstants.SEMICOLON);
-                    for (String host : hostArrays) {
-                        if (StringUtils.isNotBlank(host)) {
-                            host = host.trim();
-                            hosts.add(HttpHost.create(host));
-                        }
-                    }
-                    RestClientBuilder clientBuilder = RestClient.builder(hosts.toArray(new HttpHost[0]));
-                    this.setEsAuth(clientBuilder);
-                    highLevelClient = new RestHighLevelClient(clientBuilder);
+            synchronized (RestTemplate.class) {
+                if (restTemplate == null) {
+                    restTemplate = new RestTemplate();
                 }
             }
         } catch (Exception e) {
             logger.error("get es high level client error", e);
         }
-        return highLevelClient;
+        return restTemplate;
     }
 
-    /**
-     * Elasticsearch authentication
-     *
-     * @param builder The builder
-     */
-    private void setEsAuth(RestClientBuilder builder) {
+    public List<HttpHost> getHttpHosts() {
+        if (httpHosts != null) {
+            return httpHosts;
+        }
         try {
-            logger.info("set es auth of enable={}", authEnable);
-            if (authEnable) {
-                final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
-                builder.setHttpClientConfigCallback(
-                        httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
-
+            synchronized (HttpHost.class) {
+                httpHosts = new ArrayList<>();
+                String[] hostArrays = this.hosts.split(InlongConstants.SEMICOLON);
+                for (String host : hostArrays) {
+                    if (StringUtils.isNotBlank(host)) {
+                        host = host.trim();
+                        httpHosts.add(HttpHost.create(host));
+                    }
+                }
             }
         } catch (Exception e) {
-            logger.error("set es auth error ", e);
+            logger.error("get es http hosts error", e);
         }
+        return httpHosts;
     }
 
+    public String getOneHttpUrl() throws Exception {
+        getHttpHosts();
+        if (!httpHosts.isEmpty() && httpHosts.size() > 0) {
+            return httpHosts.get(0).toString();
+        } else {
+            throw new Exception("http hosts is empty! please check hosts!");
+        }
+    }
 }

@@ -17,28 +17,28 @@
 
 package org.apache.inlong.manager.service.resource.sink.es;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.inlong.manager.common.util.HttpUtils;
+import org.apache.inlong.manager.pojo.sink.es.ElasticsearchCreateIndexResponse;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.support.master.AcknowledgedResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.CreateIndexResponse;
-import org.elasticsearch.client.indices.GetMappingsRequest;
-import org.elasticsearch.client.indices.PutMappingRequest;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException.NotFound;
+import sun.misc.BASE64Encoder;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,10 +46,19 @@ import java.util.Map;
 /**
  * elasticsearch template service
  */
+@Slf4j
 @Component
 public class ElasticsearchApi {
 
+    private static final Gson GSON = new GsonBuilder().create();
+
+    private static final String MAPPINGS_KEY = "mappings";
+
     private static final String FIELD_KEY = "properties";
+
+    private static final String CONTENT_TYPE_KEY = "Content-Type";
+
+    private static final String CONTENT_TYPE_VALUE = "application/json;charset=UTF-8";
 
     private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchApi.class);
 
@@ -57,54 +66,80 @@ public class ElasticsearchApi {
     private ElasticsearchConfig esConfig;
 
     /**
-     * Search
+     * get http headers by token.
      *
-     * @param searchRequest The search request of Elasticsearch
-     * @return Search reponse of Elasticsearch
-     * @throws IOException The io exception may throws
+     * @return
      */
-    public SearchResponse search(SearchRequest searchRequest) throws IOException {
-        return search(searchRequest, RequestOptions.DEFAULT);
+    private HttpHeaders getHttpHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
+        if (esConfig.getAuthEnable()) {
+            if (StringUtils.isNotEmpty(esConfig.getUsername()) && StringUtils.isNotEmpty(esConfig.getPassword())) {
+                String tokenStr = esConfig.getUsername() + ":" + esConfig.getPassword();
+                String token = String.valueOf(new BASE64Encoder().encode(tokenStr.getBytes(StandardCharsets.UTF_8)));
+                headers.add("Authorization", "Basic " + token);
+            }
+        }
+        return headers;
     }
 
     /**
      * Search
      *
-     * @param searchRequest The search request of Elasticsearch
-     * @param options The options of Elasticsearch
-     * @return Search reponse of Elasticsearch
-     * @throws IOException The io exception may throws
+     * @param indexName The index name
+     * @param request The request json
+     * @return
+     * @throws Exception
      */
-    public SearchResponse search(SearchRequest searchRequest, RequestOptions options) throws IOException {
-        LOG.info("get es search request of {}", searchRequest.source().toString());
-        return getEsClient().search(searchRequest, options);
+    public JsonObject search(String indexName, JsonObject request) throws Exception {
+        LOG.info("get es search es index:{} request:{}", indexName, request.toString());
+        String url = esConfig.getOneHttpUrl() + "/" + indexName + "/_search";
+        return HttpUtils.request(esConfig.getRestClient(), url, HttpMethod.POST, request.toString(), getHttpHeaders(),
+                JsonObject.class);
     }
 
     /**
      * Check index exists
      *
-     * @param indexName The index name of Elasticsearch
-     * @return true if exists else false
-     * @throws IOException The exception may throws
+     * @param indexName
+     * @return
+     * @throws Exception
      */
-    public boolean indexExists(String indexName) throws IOException {
-        GetIndexRequest getIndexRequest = new GetIndexRequest();
-        getIndexRequest.indices(indexName);
-        return getEsClient().indices().exists(getIndexRequest, RequestOptions.DEFAULT);
+    public boolean indexExists(String indexName) throws Exception {
+        String url = esConfig.getOneHttpUrl() + "/" + indexName;
+        HttpHeaders header = new HttpHeaders();
+        header.add(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
+        try {
+            return HttpUtils.headRequest(esConfig.getRestClient(), url, null, header);
+        } catch (NotFound e) {
+            return false;
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     /**
-     * Create index
+     * Check if the cluster is available
      *
-     * @param indexName The index name of Elasticsearch
-     * @throws IOException The exception may throws
+     * @return
      */
-    public void createIndex(String indexName) throws IOException {
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
+    public boolean ping() throws Exception {
+        String url = esConfig.getOneHttpUrl() + "/";
+        return HttpUtils.headRequest(esConfig.getRestClient(), url, null, getHttpHeaders());
+    }
 
-        CreateIndexResponse createIndexResponse = getEsClient().indices()
-                .create(createIndexRequest, RequestOptions.DEFAULT);
-        LOG.info("create es index:{} result: {}", indexName, createIndexResponse.isAcknowledged());
+    /**
+     * Create index by REST API
+     *
+     * @param indexName
+     * @throws IOException
+     */
+    public void createIndex(String indexName) throws Exception {
+        String url = esConfig.getOneHttpUrl() + "/" + indexName;
+        ElasticsearchCreateIndexResponse response = HttpUtils.putRequest(esConfig.getRestClient(), url, null,
+                getHttpHeaders(), new ParameterizedTypeReference<ElasticsearchCreateIndexResponse>() {
+                });
+        LOG.info("create es index:{} result: {}", indexName, response.getAcknowledged());
     }
 
     /**
@@ -147,89 +182,86 @@ public class ElasticsearchApi {
     }
 
     /**
-     * Create index and mapping
+     * Create index and mapping by REST API
      *
      * @param indexName Index name of creating
      * @param fieldInfos Field infos
-     * @throws IOException The exception may throws
+     * @throws Exception The exception may throws
      */
-    public void createIndexAndMapping(String indexName,
-            List<ElasticsearchFieldInfo> fieldInfos) throws IOException {
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
+    public void createIndexAndMapping(String indexName, List<ElasticsearchFieldInfo> fieldInfos) throws Exception {
         List<String> fieldList = getMappingInfo(fieldInfos);
-        StringBuilder mapping = new StringBuilder().append("{\n      \"properties\" : {\n")
-                .append(StringUtils.join(fieldList, ",\n")).append("\n      }\n}");
-        createIndexRequest.mapping(mapping.toString(), XContentType.JSON);
-
-        CreateIndexResponse createIndexResponse = getEsClient().indices()
-                .create(createIndexRequest, RequestOptions.DEFAULT);
-        LOG.info("create {}:{}", indexName, createIndexResponse.isAcknowledged());
+        StringBuilder mapping = new StringBuilder().append("\n{\"mappings\":\n{\n\"properties\":{\n")
+                .append(StringUtils.join(fieldList, ",\n")).append("\n}\n}\n}");
+        String url = esConfig.getOneHttpUrl() + "/" + indexName;
+        ElasticsearchCreateIndexResponse response = HttpUtils.request(esConfig.getRestClient(), url, HttpMethod.PUT,
+                mapping.toString(), getHttpHeaders(),
+                new ParameterizedTypeReference<ElasticsearchCreateIndexResponse>() {
+                });
+        LOG.info("create {}:{}", indexName, response.getIndex());
     }
 
     /**
-     * Get fields
+     * Get mapping map
      *
-     * @param indexName The index name of Elasticsearch
-     * @return a {@link Map} collection that contains {@link String}
-     *     as key and {@link MappingMetaData} as value.
-     * @throws IOException The exception may throws
+     * @param indexName
+     * @return
      */
-    public Map<String, MappingMetaData> getFields(String indexName) throws IOException {
-        GetMappingsRequest request = new GetMappingsRequest().indices(indexName);
-        return getEsClient().indices().getMapping(request, RequestOptions.DEFAULT).mappings();
+    public Map<String, Map<String, String>> getMappingMap(String indexName) throws Exception {
+        String url = esConfig.getOneHttpUrl() + "/" + indexName + "/_mapping";
+        JsonObject result = HttpUtils.request(esConfig.getRestClient(), url, HttpMethod.GET, null, getHttpHeaders(),
+                JsonObject.class);
+        JsonObject mappings = result.getAsJsonObject(indexName);
+        JsonObject properties = null;
+        JsonObject fields = null;
+        Map<String, Map<String, String>> fieldInfo = null;
+        if (ObjectUtils.isNotEmpty(mappings)) {
+            properties = mappings.getAsJsonObject(MAPPINGS_KEY);
+        }
+        if (ObjectUtils.isNotEmpty(properties)) {
+            fields = properties.getAsJsonObject(FIELD_KEY);
+        }
+        if (ObjectUtils.isNotEmpty(fields)) {
+            fieldInfo = GSON.fromJson(fields.toString(), Map.class);
+        }
+        return fieldInfo;
     }
 
     /**
-     * Add fieldss
+     * Add fields by REST API
      *
-     * @param indexName The index name of Elasticsearch
-     * @param fieldInfos The fields info of Elasticsearch
-     * @throws IOException The exception may throws
+     * @param indexName
+     * @param fieldInfos
+     * @throws Exception
      */
-    public void addFields(String indexName, List<ElasticsearchFieldInfo> fieldInfos) throws IOException {
-        if (CollectionUtils.isNotEmpty(fieldInfos)) {
-            List<String> fieldList = getMappingInfo(fieldInfos);
-            StringBuilder mapping = new StringBuilder().append("{\n      \"properties\" : {\n")
-                    .append(StringUtils.join(fieldList, ",\n")).append("\n      }\n}");
-            System.out.println(mapping.toString());
-            PutMappingRequest indexRequest = new PutMappingRequest(indexName)
-                    .source(mapping.toString(), XContentType.JSON);
-            AcknowledgedResponse acknowledgedResponse = getEsClient().indices()
-                    .putMapping(indexRequest, RequestOptions.DEFAULT);
-            LOG.info("put mapping: {} result: {}", mapping.toString(), acknowledgedResponse.toString());
+    public void addFields(String indexName, List<ElasticsearchFieldInfo> fieldInfos) throws Exception {
+        List<String> fieldList = getMappingInfo(fieldInfos);
+        if (!fieldList.isEmpty()) {
+            String url = esConfig.getOneHttpUrl() + "/" + indexName + "/_mapping";
+            StringBuilder mapping = new StringBuilder().append("{\n\"properties\":{\n")
+                    .append(StringUtils.join(fieldList, ",\n")).append("\n}\n}");
+            HttpUtils.request(esConfig.getRestClient(), url, HttpMethod.PUT,
+                    mapping.toString(), getHttpHeaders(), Object.class);
         }
     }
 
     /**
-     * Add not exist fields
+     * Add not exist fields by REST API
      *
-     * @param indexName The index name of elasticsearch
-     * @param fieldInfos The fields info of elasticsearch
-     * @throws IOException The exception may throws
+     * @param indexName
+     * @param fieldInfos
+     * @throws Exception
      */
-    public void addNotExistFields(String indexName,
-            List<ElasticsearchFieldInfo> fieldInfos) throws IOException {
-        List<ElasticsearchFieldInfo> notExistFieldInfos = new ArrayList<>(fieldInfos);
-        Map<String, MappingMetaData> mapping = getFields(indexName);
-        Map<String, Object> filedMap = (Map<String, Object>) mapping.get(indexName).getSourceAsMap().get(FIELD_KEY);
-        for (String key : filedMap.keySet()) {
-            for (ElasticsearchFieldInfo field : notExistFieldInfos) {
-                if (field.getFieldName().equals(key)) {
-                    notExistFieldInfos.remove(field);
-                    break;
-                }
+    public void addNotExistFields(String indexName, List<ElasticsearchFieldInfo> fieldInfos) throws Exception {
+        List<ElasticsearchFieldInfo> notExistFieldInfos = new ArrayList<>();
+        Map<String, Map<String, String>> mappings = getMappingMap(indexName);
+        for (ElasticsearchFieldInfo fieldInfo : fieldInfos) {
+            if (!mappings.containsKey(fieldInfo.getFieldName())) {
+                notExistFieldInfos.add(fieldInfo);
             }
         }
-        addFields(indexName, notExistFieldInfos);
-    }
-
-    /**
-     * Get Elasticsearch client
-     *
-     * @return RestHighLevelClient
-     */
-    public RestHighLevelClient getEsClient() {
-        return esConfig.highLevelClient();
+        if (!notExistFieldInfos.isEmpty()) {
+            addFields(indexName, notExistFieldInfos);
+        }
     }
 
     /**

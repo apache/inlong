@@ -96,6 +96,25 @@ public class HttpUtils {
     }
 
     /**
+     * Send HEAD request to the specified URL.
+     */
+    public static boolean headRequest(RestTemplate restTemplate, String url, Map<String, Object> params,
+            HttpHeaders header) {
+        ResponseEntity<String> exchange;
+        boolean result = false;
+        HttpEntity<String> request = new HttpEntity(params, header);
+        log.debug("send request to {}, param {}", url, params);
+        exchange = restTemplate.exchange(url, HttpMethod.HEAD, request, String.class);
+        HttpStatus statusCode = exchange.getStatusCode();
+        if (statusCode.is2xxSuccessful()) {
+            result = true;
+        } else {
+            log.debug("success request to {},  status code {}, body {}", url, statusCode, exchange.getBody());
+        }
+        return result;
+    }
+
+    /**
      * Send an HTTP request
      */
     public static <T> T request(RestTemplate restTemplate, String url, HttpMethod httpMethod, Object requestBody,

@@ -34,7 +34,6 @@ import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchConfig;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.client.RequestOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +102,7 @@ public class ElasticsearchDataNodeOperator extends AbstractDataNodeOperator {
         client.setEsConfig(config);
         boolean result;
         try {
-            result = client.getEsClient().ping(RequestOptions.DEFAULT);
+            result = client.ping();
             LOGGER.info("elasticsearch connection is {} for url={}, username={}, password={}", result, url, username,
                     password);
             return result;
