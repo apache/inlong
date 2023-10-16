@@ -39,6 +39,7 @@
         <module>iceberg</module>
         <module>mongodb-cdc</module>
         <module>pulsar</module>
+        <module>tubemq</module>
     </modules>
 
     <properties>
