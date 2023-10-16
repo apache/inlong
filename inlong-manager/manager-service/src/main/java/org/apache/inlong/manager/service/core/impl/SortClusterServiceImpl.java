@@ -243,7 +243,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                         return SortTaskConfig.builder()
                                 .name(taskName)
                                 .type(type)
-                                .idParams(this.parseIdParams(streams))
+                                .idParams(this.parseIdParams(streams, nodeInfo))
                                 .sinkParams(this.parseSinkParams(nodeInfo))
                                 .build();
                     } catch (Exception e) {
@@ -260,13 +260,13 @@ public class SortClusterServiceImpl implements SortClusterService {
                 .build();
     }
 
-    private List<Map<String, String>> parseIdParams(List<StreamSinkEntity> streams) {
+    private List<Map<String, String>> parseIdParams(List<StreamSinkEntity> streams, DataNodeInfo dataNodeInfo) {
         return streams.stream()
                 .map(streamSink -> {
                     try {
                         StreamSinkOperator operator = sinkOperatorFactory.getInstance(streamSink.getSinkType());
                         List<String> fields = fieldMap.get(streamSink.getInlongGroupId());
-                        return operator.parse2IdParams(streamSink, fields);
+                        return operator.parse2IdParams(streamSink, fields, dataNodeInfo);
                     } catch (Exception e) {
                         LOGGER.error("fail to parse id params of groupId={}, streamId={} name={}, type={}}",
                                 streamSink.getInlongGroupId(), streamSink.getInlongStreamId(),

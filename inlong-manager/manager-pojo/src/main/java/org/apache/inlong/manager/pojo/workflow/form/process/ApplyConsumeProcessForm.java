@@ -60,6 +60,7 @@ public class ApplyConsumeProcessForm extends BaseProcessForm {
         Map<String, Object> show = Maps.newHashMap();
         if (consumeInfo != null) {
             show.put("inlongGroupId", consumeInfo.getInlongGroupId());
+            show.put("consumerGroup", consumeInfo.getConsumerGroup());
         }
         return show;
     }

@@ -52,6 +52,10 @@ export const getColumns = ({ onEdit }) => {
       dataIndex: 'creator',
     },
     {
+      title: i18n.t('basic.Modifier'),
+      dataIndex: 'modifier',
+    },
+    {
       title: i18n.t('pages.Tenant.config.CreateTime'),
       dataIndex: 'createTime',
       render: text => text && timestampFormat(text),

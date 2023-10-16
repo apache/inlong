@@ -76,6 +76,10 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
   readonly creator: string;
 
   @ColumnDecorator()
+  @I18n('basic.Modifier')
+  readonly modifier: string;
+
+  @ColumnDecorator()
   @I18n('basic.CreateTime')
   readonly createTime: string;
 

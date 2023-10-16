@@ -45,9 +45,9 @@ import java.util.List;
 
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.INTER_CONTAINER_STAR_ROCKS_ALIAS;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.STAR_ROCKS_LOG;
+import static org.apache.inlong.sort.tests.utils.StarRocksManager.buildStarRocksImage;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.getNewStarRocksImageName;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStarRocksTable;
-import static org.apache.inlong.sort.tests.utils.StarRocksManager.buildStarRocksImage;
 
 public class SqlserverToStarRocksTest extends FlinkContainerTestEnv {
 

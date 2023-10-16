@@ -191,6 +191,14 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
   @I18n('pages.ConsumeDashboard.config.OperatingStatus')
   readonly lastConsumeStatus: string;
 
+  @ColumnDecorator()
+  @I18n('basic.Creator')
+  readonly creator: string;
+
+  @ColumnDecorator()
+  @I18n('basic.Modifier')
+  readonly modifier: string;
+
   parse(data) {
     return data;
   }

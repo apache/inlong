@@ -546,7 +546,7 @@ The text of each license is the standard Apache 2.0 license.
   io.prometheus:simpleclient_tracer_otel:0.14.1 - Prometheus Java Span Context Supplier - OpenTelemetry (https://github.com/prometheus/client_java/tree/parent-0.14.1), (The Apache Software License, Version 2.0)
   io.prometheus:simpleclient_tracer_otel_agent:0.14.1 - Prometheus Java Span Context Supplier - OpenTelemetry Agent (https://github.com/prometheus/client_java/tree/parent-0.14.1), (The Apache Software License, Version 2.0)
   org.yaml:snakeyaml:1.30 - SnakeYAML (https://bitbucket.org/snakeyaml/snakeyaml/src/snakeyaml-1.30/), (Apache License, Version 2.0)
-  org.xerial.snappy:snappy-java:1.1.10.1 - snappy-java (https://github.com/xerial/snappy-java), (Apache-2.0)
+  org.xerial.snappy:snappy-java:1.1.10.4 - snappy-java (https://github.com/xerial/snappy-java), (Apache-2.0)
   org.springframework.boot:spring-boot:2.6.15 - spring-boot (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
   org.springframework.boot:spring-boot-autoconfigure:2.6.15 - spring-boot-autoconfigure (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
   org.springframework.boot:spring-boot-configuration-processor:2.6.15 - spring-boot-configuration-processor (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
@@ -590,8 +590,8 @@ The text of each license is the standard Apache 2.0 license.
   com.fasterxml.woodstox:woodstox-core:5.4.0 - Woodstox (https://github.com/FasterXML/woodstox/tree/woodstox-core-5.4.0), (The Apache License, Version 2.0)
   xerces:xercesImpl:2.12.0 - Xerces2 Java Parser (http://xerces.apache.org/xerces2-j), (The Apache License, Version 2.0)
   xml-apis:xml-apis:1.4.01 - XML Commons External Components XML APIs (http://xml.apache.org/commons/components/external/), (The Apache Software License, Version 2.0), (Apache 2.0, The SAX License, The W3C License)
-  org.apache.zookeeper:zookeeper:3.6.3 - Apache ZooKeeper - Server (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-server), (Apache License, Version 2.0)
-  org.apache.zookeeper:zookeeper-jute:3.6.3 - Apache ZooKeeper - Jute (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-jute), (Apache License, Version 2.0)
+  org.apache.zookeeper:zookeeper:3.7.2 - Apache ZooKeeper - Server (https://github.com/apache/zookeeper/tree/release-3.7.2/zookeeper-server), (Apache License, Version 2.0)
+  org.apache.zookeeper:zookeeper-jute:3.7.2 - Apache ZooKeeper - Jute (https://github.com/apache/zookeeper/tree/release-3.7.2/zookeeper-jute), (Apache License, Version 2.0)
 
 ========================================================================
 Apache 2.0 License
