@@ -64,7 +64,7 @@ public class FlinkTubeMQProducer<T> extends RichSinkFunction<T> implements Check
      */
     private final TreeSet<String> tidSet;
     /**
-     * The serializer for the records sent to pulsar.
+     * The serializer for the records sent to tube.
      */
     private final SerializationSchema<T> serializationSchema;
 

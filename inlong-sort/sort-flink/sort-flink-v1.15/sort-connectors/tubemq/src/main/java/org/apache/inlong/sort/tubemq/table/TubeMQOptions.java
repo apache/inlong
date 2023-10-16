@@ -22,23 +22,14 @@ import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.configuration.description.Description;
-import org.apache.flink.table.api.TableException;
-import org.apache.flink.table.api.ValidationException;
-import org.apache.flink.table.types.DataType;
-import org.apache.flink.table.types.logical.LogicalType;
-import org.apache.flink.table.types.logical.LogicalTypeRoot;
-import org.apache.flink.table.types.logical.utils.LogicalTypeChecks;
-import org.apache.flink.util.Preconditions;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
-import java.util.stream.IntStream;
 
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 
@@ -223,128 +214,6 @@ public class TubeMQOptions {
             CONSUMER_FROM_MAX_OFFSET_ALWAYS,
             CONSUMER_FROM_LATEST_OFFSET,
             CONSUMER_FROM_FIRST_OFFSET));
-
-    public static void validateTableSourceOptions(ReadableConfig tableOptions) {
-        validateSourceTopic(tableOptions);
-    }
-
-    public static void validateSourceTopic(ReadableConfig tableOptions) {
-        Optional<String> topic = tableOptions.getOptional(TOPIC);
-        Optional<String> pattern = tableOptions.getOptional(TOPIC_PATTERN);
-
-        if (topic.isPresent() && pattern.isPresent()) {
-            throw new ValidationException(
-                    "Option 'topic' and 'topic-pattern' shouldn't be set together.");
-        }
-
-        if (!topic.isPresent() && !pattern.isPresent()) {
-            throw new ValidationException("Either 'topic' or 'topic-pattern' must be set.");
-        }
-    }
-
-    /**
-     * Creates an array of indices that determine which physical fields of the table schema to
-     * include in the value format.
-     *
-     * <p>See  {@link #VALUE_FIELDS_INCLUDE}, and {@link #KEY_FIELDS_PREFIX}
-     * for more information.</p>
-     */
-    public static int[] createValueFormatProjection(
-            ReadableConfig options, DataType physicalDataType) {
-        final LogicalType physicalType = physicalDataType.getLogicalType();
-        Preconditions.checkArgument(
-                physicalType.getTypeRoot() == LogicalTypeRoot.ROW, "Row data type expected.");
-        final int physicalFieldCount = LogicalTypeChecks.getFieldCount(physicalType);
-        final IntStream physicalFields = IntStream.range(0, physicalFieldCount);
-
-        final String keyPrefix = options.getOptional(KEY_FIELDS_PREFIX).orElse("");
-
-        final ValueFieldsStrategy strategy = options.get(VALUE_FIELDS_INCLUDE);
-        if (strategy == ValueFieldsStrategy.ALL) {
-            if (keyPrefix.length() > 0) {
-                throw new ValidationException(
-                        String.format(
-                                "A key prefix is not allowed when option '%s' is set to '%s'. "
-                                        + "Set it to '%s' instead to avoid field overlaps.",
-                                VALUE_FIELDS_INCLUDE.key(),
-                                ValueFieldsStrategy.ALL,
-                                ValueFieldsStrategy.EXCEPT_KEY));
-            }
-            return physicalFields.toArray();
-        } else if (strategy == ValueFieldsStrategy.EXCEPT_KEY) {
-            final int[] keyProjection = createKeyFormatProjection(options, physicalDataType);
-            return physicalFields
-                    .filter(pos -> IntStream.of(keyProjection).noneMatch(k -> k == pos))
-                    .toArray();
-        }
-        throw new TableException("Unknown value fields strategy:" + strategy);
-    }
-
-    /**
-     * Creates an array of indices that determine which physical fields of the table schema to
-     * include in the key format and the order that those fields have in the key format.
-     *
-     * <p>See {@link #KEY_FIELDS}for more information.</p>
-     */
-    public static int[] createKeyFormatProjection(
-            ReadableConfig options, DataType physicalDataType) {
-        final LogicalType physicalType = physicalDataType.getLogicalType();
-        Preconditions.checkArgument(
-                physicalType.getTypeRoot() == LogicalTypeRoot.ROW, "Row data type expected.");
-        final Optional<String> optionalKeyFormat = options.getOptional(KEY_FORMAT);
-        final Optional<List<String>> optionalKeyFields = options.getOptional(KEY_FIELDS);
-
-        if (!optionalKeyFormat.isPresent() && optionalKeyFields.isPresent()) {
-            throw new ValidationException(
-                    String.format(
-                            "The option '%s' can only be declared if a key format is defined using '%s'.",
-                            KEY_FIELDS.key(), KEY_FORMAT.key()));
-        } else if (optionalKeyFormat.isPresent()
-                && (!optionalKeyFields.isPresent() || optionalKeyFields.get().size() == 0)) {
-            throw new ValidationException(
-                    String.format(
-                            "A key format '%s' requires the declaration of one or more of key fields using '%s'.",
-                            KEY_FORMAT.key(), KEY_FIELDS.key()));
-        }
-
-        if (!optionalKeyFormat.isPresent()) {
-            return new int[0];
-        }
-
-        final String keyPrefix = options.getOptional(KEY_FIELDS_PREFIX).orElse("");
-
-        final List<String> keyFields = optionalKeyFields.get();
-        final List<String> physicalFields = LogicalTypeChecks.getFieldNames(physicalType);
-        return keyFields.stream()
-                .mapToInt(
-                        keyField -> {
-                            final int pos = physicalFields.indexOf(keyField);
-                            // check that field name exists
-                            if (pos < 0) {
-                                throw new ValidationException(
-                                        String.format(
-                                                "Could not find the field '%s' in the table schema for usage "
-                                                        + "in the key format.A key field must be a regular,"
-                                                        + " physical column.The following columns can "
-                                                        + "be selected in the '%s' option:\n"
-                                                        + "%s",
-                                                keyField, KEY_FIELDS.key(), physicalFields));
-                            }
-                            // check that field name is prefixed correctly
-                            if (!keyField.startsWith(keyPrefix)) {
-                                throw new ValidationException(
-                                        String.format(
-                                                "All fields in '%s' must be prefixed with '%s' when option '%s' "
-                                                        + "is set but field '%s' is not prefixed.",
-                                                KEY_FIELDS.key(),
-                                                keyPrefix,
-                                                KEY_FIELDS_PREFIX.key(),
-                                                keyField));
-                            }
-                            return pos;
-                        })
-                .toArray();
-    }
 
     public static Configuration getTubeMQProperties(Map<String, String> tableOptions) {
         final Configuration tubeMQProperties = new Configuration();

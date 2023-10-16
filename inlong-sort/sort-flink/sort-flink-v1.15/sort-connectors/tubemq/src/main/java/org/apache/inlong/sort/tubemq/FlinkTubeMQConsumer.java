@@ -26,7 +26,6 @@ import org.apache.inlong.tubemq.client.factory.TubeSingleSessionFactory;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.state.ListState;
@@ -129,7 +128,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
     /**
      * The current offsets of partitions which are stored in {@link #offsetsState}
      * once a checkpoint is triggered.
-     *
+     * <p>
      * NOTE: The offsets are populated in the main thread and saved in the
      * checkpoint thread. Its usage must be guarded by the checkpoint lock.</p>
      */
@@ -146,13 +145,13 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
     /**
      * Build a TubeMQ source function
      *
-     * @param masterAddress the master address of TubeMQ
-     * @param topic the topic name
-     * @param tidSet the  topic's filter condition items
-     * @param consumerGroup the consumer group name
+     * @param masterAddress         the master address of TubeMQ
+     * @param topic                 the topic name
+     * @param tidSet                the  topic's filter condition items
+     * @param consumerGroup         the consumer group name
      * @param deserializationSchema the deserialize schema
-     * @param configuration the configure
-     * @param sessionKey the tube session key
+     * @param configuration         the configure
+     * @param sessionKey            the tube session key
      */
     public FlinkTubeMQConsumer(
             String masterAddress,
@@ -302,12 +301,9 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
                 rowDataList.forEach(data -> records.add((T) data));
             }
         }
-        if (CollectionUtils.isEmpty(messageList)) {
-            return lastConsumeInstant;
-        }
 
-        // other logic
-        return null;
+        return lastConsumeInstant;
+
     }
 
     @Override
