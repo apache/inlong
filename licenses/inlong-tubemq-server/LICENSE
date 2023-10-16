@@ -405,8 +405,8 @@ The text of each license is the standard Apache 2.0 license.
   io.prometheus:simpleclient_tracer_otel_agent:0.14.1 - Prometheus Java Span Context Supplier - OpenTelemetry Agent (https://github.com/prometheus/client_java/tree/parent-0.14.1), (The Apache Software License, Version 2.0)
   org.apache.velocity:velocity-engine-core:2.3 - Apache Velocity - Engine (https://github.com/apache/velocity-engine), (Apache License, Version 2.0)
   org.apache.velocity.tools:velocity-tools-generic:3.1 - Apache Velocity Tools - Generic tools (https://github.com/apache/velocity-tools), (Apache License, Version 2.0)
-  org.apache.zookeeper:zookeeper:3.6.3 - Apache ZooKeeper - Server (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-server), (Apache License, Version 2.0)
-  org.apache.zookeeper:zookeeper-jute:3.6.3 - Apache ZooKeeper - Jute (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-jute), (Apache License, Version 2.0)
+  org.apache.zookeeper:zookeeper:3.7.2 - Apache ZooKeeper - Server (https://github.com/apache/zookeeper/tree/release-3.7.2/zookeeper-server), (Apache License, Version 2.0)
+  org.apache.zookeeper:zookeeper-jute:3.7.2 - Apache ZooKeeper - Jute (https://github.com/apache/zookeeper/tree/release-3.7.2/zookeeper-jute), (Apache License, Version 2.0)
 
 
 ========================================================================
