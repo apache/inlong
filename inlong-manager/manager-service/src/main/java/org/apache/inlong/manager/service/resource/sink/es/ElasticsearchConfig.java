@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.service.resource.sink.es;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
+
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

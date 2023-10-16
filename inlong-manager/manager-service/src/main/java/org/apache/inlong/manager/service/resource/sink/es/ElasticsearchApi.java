@@ -17,15 +17,15 @@
 
 package org.apache.inlong.manager.service.resource.sink.es;
 
+import org.apache.inlong.manager.common.util.HttpUtils;
+import org.apache.inlong.manager.pojo.sink.es.ElasticsearchCreateIndexResponse;
+import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.inlong.manager.common.util.HttpUtils;
-import org.apache.inlong.manager.pojo.sink.es.ElasticsearchCreateIndexResponse;
-import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
