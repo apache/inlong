@@ -213,17 +213,6 @@
                         </goals>
                         <phase>pre-integration-test</phase>
                     </execution>
-                    <execution>
-                        <id>store-classpath-in-target-for-tests</id>
-                        <goals>
-                            <goal>build-classpath</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <outputFile>${project.build.directory}/hadoop.classpath</outputFile>
-                            <excludeGroupIds>org.apache.flink</excludeGroupIds>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
 
