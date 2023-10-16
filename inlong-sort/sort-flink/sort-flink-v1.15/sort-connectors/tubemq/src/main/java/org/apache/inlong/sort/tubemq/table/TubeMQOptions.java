@@ -108,8 +108,8 @@ public class TubeMQOptions {
                     .noDefaultValue()
                     .withDescription("Required TubeMQ master connection string");
 
-    public static final ConfigOption<String> GROUP_ID =
-            ConfigOptions.key("group.id")
+    public static final ConfigOption<String> GROUP_NAME =
+            ConfigOptions.key("group.name")
                     .stringType()
                     .noDefaultValue()
                     .withDescription(
@@ -399,7 +399,7 @@ public class TubeMQOptions {
     }
 
     public static String getConsumerGroup(ReadableConfig tableOptions) {
-        return tableOptions.getOptional(GROUP_ID).orElse(null);
+        return tableOptions.getOptional(GROUP_NAME).orElse(null);
     }
 
     public static String getSessionKey(ReadableConfig tableOptions) {
