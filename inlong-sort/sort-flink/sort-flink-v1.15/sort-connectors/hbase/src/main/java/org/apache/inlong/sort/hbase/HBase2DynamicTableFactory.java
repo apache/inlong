@@ -77,7 +77,6 @@ public class HBase2DynamicTableFactory
         final ReadableConfig tableOptions = helper.getOptions();
 
         DataType tableSchema = context.getCatalogTable().getResolvedSchema().toPhysicalRowDataType();
-        // Map<String, String> options = context.getCatalogTable().getOptions();
 
         validatePrimaryKey(tableSchema, new int[]{0});
 
@@ -99,7 +98,6 @@ public class HBase2DynamicTableFactory
         final ReadableConfig tableOptions = helper.getOptions();
 
         DataType tableSchema = context.getCatalogTable().getResolvedSchema().toPhysicalRowDataType();
-        // Map<String, String> options = context.getCatalogTable().getOptions();
 
         validatePrimaryKey(tableSchema, new int[]{0});
 
