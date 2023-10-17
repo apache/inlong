@@ -47,6 +47,8 @@ public:
       inlong_group_ids_;   // Initialize the inlong groupid collection
   uint32_t recv_buf_size_; // Receive buf size, tid granularity
   uint32_t send_buf_size_; // Send buf size, bid granularity
+  uint32_t max_group_id_num_; // Send buf size, bid granularity
+  uint32_t max_stream_id_num_; // Send buf size, bid granularity
 
   // thread parameters
   uint32_t per_groupid_thread_nums_; // Sending thread per groupid
