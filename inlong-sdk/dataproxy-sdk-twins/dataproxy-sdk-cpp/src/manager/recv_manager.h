@@ -44,6 +44,8 @@ private:
 
   uint32_t dispatch_interval_;
 
+  uint64_t max_groupid_streamid_num_;
+
   void Run();
 
 public:
