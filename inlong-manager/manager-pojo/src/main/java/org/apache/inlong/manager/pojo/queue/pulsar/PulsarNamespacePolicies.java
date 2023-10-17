@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PulsarNamespacePolicies {
 
-    private int message_ttl_in_seconds;
-    private PulsarRetentionPolicies retention_policies;
+    private int messageTtlInSeconds;
+    private PulsarRetentionPolicies retentionPolicies;
     private PulsarPersistencePolicies persistence;
 }

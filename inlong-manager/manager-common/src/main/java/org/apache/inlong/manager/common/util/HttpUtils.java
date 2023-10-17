@@ -117,10 +117,7 @@ public class HttpUtils {
      */
     public static void request(RestTemplate restTemplate, String url, HttpMethod httpMethod, Object requestBody,
             HttpHeaders header) {
-        if (log.isDebugEnabled()) {
-            log.debug("begin request to {} by request body {}", url, GSON.toJson(requestBody));
-        }
-
+        log.debug("begin request to {} by request body {}", url, GSON.toJson(requestBody));
         HttpEntity<Object> requestEntity = new HttpEntity<>(requestBody, header);
         ResponseEntity<String> response = restTemplate.exchange(url, httpMethod, requestEntity, String.class);
 

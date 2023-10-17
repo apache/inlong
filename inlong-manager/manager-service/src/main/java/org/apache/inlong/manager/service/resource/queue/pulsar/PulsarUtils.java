@@ -25,7 +25,8 @@ import org.apache.inlong.manager.pojo.queue.pulsar.PulsarPartitionedInternalStat
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTenantInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicMetadata;
 
-import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpEntity;
@@ -56,6 +57,8 @@ public class PulsarUtils {
     public static final String QUERY_NAMESPACE_PATH = "/admin/v2/namespaces";
     public static final String QUERY_PERSISTENT_PATH = "/admin/v2/persistent";
     public static final String LOOKUP_TOPIC_PATH = "/lookup/v2/topic";
+
+    private static final Gson GSON = new GsonBuilder().create(); // thread safe
 
     /**
      * get http headers by token.
@@ -148,7 +151,7 @@ public class PulsarUtils {
         MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
         headers.setContentType(type);
         headers.add("Accept", MediaType.APPLICATION_JSON.toString());
-        String param = JSON.toJSONString(tenantInfo);
+        String param = GSON.toJson(tenantInfo);
         HttpUtils.request(restTemplate, url, HttpMethod.PUT, param, headers);
     }
 
@@ -168,7 +171,7 @@ public class PulsarUtils {
         MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
         headers.setContentType(type);
         headers.add("Accept", MediaType.APPLICATION_JSON.toString());
-        String param = JSON.toJSONString(policies);
+        String param = GSON.toJson(policies);
         HttpUtils.request(restTemplate, url, HttpMethod.PUT, param, headers);
     }
 
