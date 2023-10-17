@@ -172,6 +172,8 @@ public class PulsarUtils {
         headers.setContentType(type);
         headers.add("Accept", MediaType.APPLICATION_JSON.toString());
         String param = GSON.toJson(policies);
+        param = param.replaceAll("messageTtlInSeconds", "message_ttl_in_seconds")
+                .replaceAll("retentionPolicies", "retention_policies");
         HttpUtils.request(restTemplate, url, HttpMethod.PUT, param, headers);
     }
 
