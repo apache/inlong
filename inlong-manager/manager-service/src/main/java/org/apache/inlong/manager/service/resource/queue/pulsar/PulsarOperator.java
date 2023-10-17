@@ -121,7 +121,7 @@ public class PulsarOperator {
             // Configure message TTL
             Integer ttl = pulsarInfo.getTtl();
             if (ttl > 0) {
-                policies.setMessage_ttl_in_seconds(conversionHandle.handleConversion(ttl,
+                policies.setMessageTtlInSeconds(conversionHandle.handleConversion(ttl,
                         pulsarInfo.getTtlUnit().toLowerCase() + "_seconds"));
             }
 
@@ -139,7 +139,7 @@ public class PulsarOperator {
 
             // Configure retention policies
             PulsarRetentionPolicies retentionPolicies = new PulsarRetentionPolicies(retentionTime, retentionSize);
-            policies.setRetention_policies(retentionPolicies);
+            policies.setRetentionPolicies(retentionPolicies);
 
             // Configure persistence policies
             PulsarPersistencePolicies persistencePolicies = new PulsarPersistencePolicies(pulsarInfo.getEnsemble(),
