@@ -124,7 +124,7 @@
             inlong_group_id,
             inlong_stream_id,
             field_name
-        from inlong_stream_field
+        from stream_sink_field
         where is_deleted = 0
         order by id asc
     </select>

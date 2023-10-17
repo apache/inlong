@@ -17,7 +17,33 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
+import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.manager.dao.entity.DataNodeEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
+import org.apache.inlong.manager.pojo.sort.standalone.SortFieldInfo;
+import org.apache.inlong.manager.pojo.sort.standalone.SortTaskInfo;
+import org.apache.inlong.manager.service.core.SortClusterService;
+import org.apache.inlong.manager.service.core.SortConfigLoader;
+import org.apache.inlong.manager.service.node.DataNodeOperator;
+import org.apache.inlong.manager.service.node.DataNodeOperatorFactory;
+import org.apache.inlong.manager.service.sink.SinkOperatorFactory;
+import org.apache.inlong.manager.service.sink.StreamSinkOperator;
+
 import com.google.gson.Gson;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.PostConstruct;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,32 +55,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
-import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
-import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
-import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.dao.entity.DataNodeEntity;
-import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
-import org.apache.inlong.manager.pojo.node.DataNodeInfo;
-import org.apache.inlong.manager.pojo.sort.standalone.SortFieldInfo;
-import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo;
-import org.apache.inlong.manager.pojo.sort.standalone.SortTaskInfo;
-import org.apache.inlong.manager.pojo.stream.InlongStreamExtParam;
-import org.apache.inlong.manager.service.core.SortClusterService;
-import org.apache.inlong.manager.service.core.SortConfigLoader;
-import org.apache.inlong.manager.service.node.DataNodeOperator;
-import org.apache.inlong.manager.service.node.DataNodeOperatorFactory;
-import org.apache.inlong.manager.service.sink.SinkOperatorFactory;
-import org.apache.inlong.manager.service.sink.StreamSinkOperator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Used to cache the sort cluster config and reduce the number of query to database.
@@ -84,8 +84,6 @@ public class SortClusterServiceImpl implements SortClusterService {
     private Map<String, SortClusterConfig> sortClusterConfigMap = new ConcurrentHashMap<>();
     // key : sort cluster name, value : error log
     private Map<String, String> sortClusterErrorLogMap = new ConcurrentHashMap<>();
-    // key: group id ,value: {key: stream id, value: stream info}
-    private Map<String, Map<String, SortSourceStreamInfo>> allStreams;
 
     private long reloadInterval;
 
@@ -185,12 +183,6 @@ public class SortClusterServiceImpl implements SortClusterService {
                         && StringUtils.isNotBlank(dto.getSinkType()))
                 .collect(Collectors.groupingBy(SortTaskInfo::getSortClusterName));
 
-        // reload all streams
-        allStreams = sortConfigLoader.loadAllStreams()
-                .stream()
-                .collect(Collectors.groupingBy(SortSourceStreamInfo::getInlongGroupId,
-                        Collectors.toMap(SortSourceStreamInfo::getInlongStreamId, info -> info)));
-
         // get all stream sinks
         Map<String, List<StreamSinkEntity>> task2AllStreams = sinkEntities.stream()
                 .filter(entity -> StringUtils.isNotBlank(entity.getInlongClusterName()))
@@ -274,16 +266,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                     try {
                         StreamSinkOperator operator = sinkOperatorFactory.getInstance(streamSink.getSinkType());
                         List<String> fields = fieldMap.get(streamSink.getInlongGroupId());
-                        Map<String, String> params = operator.parse2IdParams(streamSink, fields, dataNodeInfo);
-                        SortSourceStreamInfo sortSourceStreamInfo = allStreams.get(streamSink.getInlongGroupId())
-                                .get(streamSink.getInlongStreamId());
-                        InlongStreamExtParam inlongStreamExtParam = JsonUtils.parseObject(
-                                sortSourceStreamInfo.getExtParams(), InlongStreamExtParam.class);
-                        assert inlongStreamExtParam != null;
-                        if(!inlongStreamExtParam.getUseExtendedFields()){
-                            params.put("fieldOffset", String.valueOf(0));
-                        }
-                        return params;
+                        return operator.parse2IdParams(streamSink, fields, dataNodeInfo);
                     } catch (Exception e) {
                         LOGGER.error("fail to parse id params of groupId={}, streamId={} name={}, type={}}",
                                 streamSink.getInlongGroupId(), streamSink.getInlongStreamId(),
