@@ -186,7 +186,8 @@ public class InlongStreamClient {
     public boolean suspendProcess(String groupId, String streamId, boolean sync) {
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
-        Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.suspendProcess(groupId, streamId, sync));
+        Response<Boolean> response =
+                ClientUtils.executeHttpCall(inlongStreamApi.suspendProcess(groupId, streamId, sync));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -202,7 +203,8 @@ public class InlongStreamClient {
     public boolean restartProcess(String groupId, String streamId, boolean sync) {
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
-        Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.restartProcess(groupId, streamId, sync));
+        Response<Boolean> response =
+                ClientUtils.executeHttpCall(inlongStreamApi.restartProcess(groupId, streamId, sync));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -218,7 +220,8 @@ public class InlongStreamClient {
     public boolean deleteProcess(String groupId, String streamId, boolean sync) {
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
-        Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.deleteProcess(groupId, streamId, sync));
+        Response<Boolean> response =
+                ClientUtils.executeHttpCall(inlongStreamApi.deleteProcess(groupId, streamId, sync));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
