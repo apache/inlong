@@ -123,7 +123,8 @@ public class PulsarSinkOperator extends AbstractSinkOperator {
     }
 
     private String getFullTopicName(PulsarSinkDTO pulsarSinkDTO) {
-        return pulsarSinkDTO.getPulsarTenant() + "/" + pulsarSinkDTO.getNamespace() + "/" + pulsarSinkDTO.getTopic();
+        return "persistent://" + pulsarSinkDTO.getPulsarTenant() + "/" + pulsarSinkDTO.getNamespace() + "/"
+                + pulsarSinkDTO.getTopic();
     }
 
 }
