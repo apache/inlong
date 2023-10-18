@@ -298,8 +298,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                 .get(streamSink.getInlongStreamId());
         InlongStreamExtParam inlongStreamExtParam = JsonUtils.parseObject(
                 sortSourceStreamInfo.getExtParams(), InlongStreamExtParam.class);
-        assert inlongStreamExtParam != null;
-        if (!inlongStreamExtParam.getUseExtendedFields()) {
+        if (inlongStreamExtParam != null && !inlongStreamExtParam.getUseExtendedFields()) {
             params.put(FILED_OFFSET, String.valueOf(0));
         }
         return params;
