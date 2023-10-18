@@ -17,21 +17,6 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import com.google.gson.Gson;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
@@ -49,12 +34,30 @@ import org.apache.inlong.manager.service.node.DataNodeOperator;
 import org.apache.inlong.manager.service.node.DataNodeOperatorFactory;
 import org.apache.inlong.manager.service.sink.SinkOperatorFactory;
 import org.apache.inlong.manager.service.sink.StreamSinkOperator;
+
+import com.google.gson.Gson;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.PostConstruct;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Used to cache the sort cluster config and reduce the number of query to database.
@@ -76,6 +79,7 @@ public class SortClusterServiceImpl implements SortClusterService {
 
     private static final String KEY_GROUP_ID = "inlongGroupId";
     private static final String KEY_STREAM_ID = "inlongStreamId";
+    private static final String FILED_OFFSET = "fieldOffset";
     private Map<String, List<String>> fieldMap;
 
     // key : sort cluster name, value : md5
@@ -275,14 +279,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                         StreamSinkOperator operator = sinkOperatorFactory.getInstance(streamSink.getSinkType());
                         List<String> fields = fieldMap.get(streamSink.getInlongGroupId());
                         Map<String, String> params = operator.parse2IdParams(streamSink, fields, dataNodeInfo);
-                        SortSourceStreamInfo sortSourceStreamInfo = allStreams.get(streamSink.getInlongGroupId())
-                                .get(streamSink.getInlongStreamId());
-                        InlongStreamExtParam inlongStreamExtParam = JsonUtils.parseObject(
-                                sortSourceStreamInfo.getExtParams(), InlongStreamExtParam.class);
-                        assert inlongStreamExtParam != null;
-                        if(!inlongStreamExtParam.getUseExtendedFields()){
-                            params.put("fieldOffset", String.valueOf(0));
-                        }
+                        params = setFiledOffset(streamSink, params);
                         return params;
                     } catch (Exception e) {
                         LOGGER.error("fail to parse id params of groupId={}, streamId={} name={}, type={}}",
@@ -293,6 +290,19 @@ public class SortClusterServiceImpl implements SortClusterService {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+    }
+
+    private Map<String, String> setFiledOffset(StreamSinkEntity streamSink, Map<String, String> params) {
+
+        SortSourceStreamInfo sortSourceStreamInfo = allStreams.get(streamSink.getInlongGroupId())
+                .get(streamSink.getInlongStreamId());
+        InlongStreamExtParam inlongStreamExtParam = JsonUtils.parseObject(
+                sortSourceStreamInfo.getExtParams(), InlongStreamExtParam.class);
+        assert inlongStreamExtParam != null;
+        if (!inlongStreamExtParam.getUseExtendedFields()) {
+            params.put(FILED_OFFSET, String.valueOf(0));
+        }
+        return params;
     }
 
     private Map<String, String> parseSinkParams(DataNodeInfo nodeInfo) {
