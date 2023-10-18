@@ -237,6 +237,7 @@ public class SortSourceServiceImpl implements SortSourceService {
         // reload all streams
         allStreams = configLoader.loadAllStreams()
                 .stream()
+                .filter(stream -> StringUtils.isNotBlank(stream.getMqResource()))
                 .collect(Collectors.groupingBy(SortSourceStreamInfo::getInlongGroupId,
                         Collectors.toMap(SortSourceStreamInfo::getInlongStreamId, info -> info)));
 
