@@ -51,6 +51,10 @@ public interface InlongStreamApi {
     Call<Response<InlongStreamInfo>> getStream(@Query("groupId") String groupId,
             @Query("streamId") String streamId);
 
+    @GET("/stream/getBrieft")
+    Call<Response<InlongStreamBriefInfo>> getStreamBriefInfo(@Query("groupId") String groupId,
+            @Query("streamId") String streamId);
+
     @POST("stream/list")
     Call<Response<PageResult<InlongStreamBriefInfo>>> listByCondition(@Body InlongStreamPageRequest request);
 
