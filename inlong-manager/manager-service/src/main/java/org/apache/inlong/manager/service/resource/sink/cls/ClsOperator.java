@@ -63,11 +63,12 @@ public class ClsOperator {
     private static final String LOG_SET_ID = "logsetId";
     private static final long PRECISE_SEARCH = 1L;
 
-    public String createTopicReturnTopicId(String topicName, String logSetId, String tag,Integer storageDuration, String secretId,
+    public String createTopicReturnTopicId(String topicName, String logSetId, String tag, Integer storageDuration,
+            String secretId,
             String secretKey, String region)
             throws TencentCloudSDKException {
         ClsClient client = getClsClient(secretId, secretKey, region);
-        CreateTopicRequest req = getCreateTopicRequest(tag, logSetId, topicName);
+        CreateTopicRequest req = getCreateTopicRequest(tag, logSetId, topicName, storageDuration);
         CreateTopicResponse resp = client.CreateTopic(req);
         LOG.info("create cls topic success for topicName = {}, topicId = {}, requestId = {}", topicName,
                 resp.getTopicId(), resp.getRequestId());
@@ -218,11 +219,13 @@ public class ClsOperator {
         return req;
     }
 
-    public CreateTopicRequest getCreateTopicRequest(String tags, String logSetId, String topicName) {
+    public CreateTopicRequest getCreateTopicRequest(String tags, String logSetId, String topicName,
+            Integer storageDuration) {
         CreateTopicRequest req = new CreateTopicRequest();
         req.setTags(convertTags(tags.split(InlongConstants.CENTER_LINE)));
         req.setLogsetId(logSetId);
         req.setTopicName(topicName);
+        req.setPeriod(storageDuration == null ? null : Long.valueOf(storageDuration));
         return req;
     }
 

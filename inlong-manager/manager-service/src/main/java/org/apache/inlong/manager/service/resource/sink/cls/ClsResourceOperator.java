@@ -109,7 +109,8 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
         if (StringUtils.isBlank(topicId)) {
             // if topic don't exist, create topic in cls
             topicId = clsOperator.createTopicReturnTopicId(clsSinkDTO.getTopicName(), clsDataNode.getLogSetId(),
-                    clsSinkDTO.getTag(),clsSinkDTO.getStorageDuration(), clsDataNode.getManageSecretId(), clsDataNode.getManageSecretKey(),
+                    clsSinkDTO.getTag(), clsSinkDTO.getStorageDuration(), clsDataNode.getManageSecretId(),
+                    clsDataNode.getManageSecretKey(),
                     clsDataNode.getRegion());
         }
         return topicId;
