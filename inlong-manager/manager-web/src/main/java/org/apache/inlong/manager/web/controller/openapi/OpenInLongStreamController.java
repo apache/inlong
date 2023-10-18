@@ -134,7 +134,7 @@ public class OpenInLongStreamController {
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
     public Response<Boolean> startProcess(@PathVariable String groupId, @PathVariable String streamId,
-            @RequestParam boolean sync) {
+            @RequestParam(required = false, defaultValue = "false") boolean sync) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamProcessOperation.startProcess(groupId, streamId, operator, sync));
     }
