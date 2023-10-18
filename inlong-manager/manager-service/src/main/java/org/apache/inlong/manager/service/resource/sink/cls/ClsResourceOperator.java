@@ -86,7 +86,7 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
             // create topic index by tokenizer
             clsOperator.createTopicIndex(clsSinkDTO.getTokenizer(), clsSinkDTO.getTopicId(),
                     clsDataNode.getManageSecretId(),
-                    clsDataNode.getManageSecretKey(), clsDataNode.getEndpoint(), clsDataNode.getRegion());
+                    clsDataNode.getManageSecretKey(), clsDataNode.getRegion());
             // update set topic id into sink info
             updateSinkInfo(sinkInfo, clsSinkDTO);
             String info = "success to create cls resource";
@@ -104,14 +104,12 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
     private String getTopicID(ClsDataNodeDTO clsDataNode, ClsSinkDTO clsSinkDTO)
             throws TencentCloudSDKException {
         String topicId = clsOperator.describeTopicIDByTopicName(clsSinkDTO.getTopicName(), clsDataNode.getLogSetId(),
-                clsSinkDTO.getTag(),
-                clsDataNode.getManageSecretId(), clsDataNode.getManageSecretKey(), clsDataNode.getEndpoint(),
+                clsDataNode.getManageSecretId(), clsDataNode.getManageSecretKey(),
                 clsDataNode.getRegion());
         if (StringUtils.isBlank(topicId)) {
             // if topic don't exist, create topic in cls
             topicId = clsOperator.createTopicReturnTopicId(clsSinkDTO.getTopicName(), clsDataNode.getLogSetId(),
                     clsSinkDTO.getTag(), clsDataNode.getManageSecretId(), clsDataNode.getManageSecretKey(),
-                    clsDataNode.getEndpoint(),
                     clsDataNode.getRegion());
         }
         return topicId;
