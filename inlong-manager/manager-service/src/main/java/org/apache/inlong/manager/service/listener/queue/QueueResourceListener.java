@@ -138,7 +138,7 @@ public class QueueResourceListener implements QueueOperateListener {
                 this.createQueueForStreams(groupInfo, groupProcessForm.getStreamInfos(), operator);
                 break;
             case DELETE:
-                groupService.updateStatus(groupId, GroupStatus.DELETING.getCode(), operator);
+                groupService.updateStatus(groupId, GroupStatus.CONFIG_DELETING.getCode(), operator);
                 queueOperator.deleteQueueForGroup(groupInfo, operator);
                 break;
             default:
