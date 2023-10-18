@@ -41,14 +41,13 @@ public enum GroupStatus {
     CONFIG_FAILED(120, "configuration failed"),
     CONFIG_SUCCESSFUL(130, "configuration successful"),
 
-    SUSPENDING(141, "suspending"),
-    SUSPENDED(140, "suspended"),
+    CONFIG_OFFLINE_ING(141, "in configure offline"),
+    CONFIGURATION_OFFLINE(140, "configure offline successful"),
 
-    RESTARTING(151, "restarting"),
-    RESTARTED(150, "restarted"),
+    CONFIG_ONLINE_ING(151, "in configure online"),
 
-    DELETING(41, "deleting"),
-    DELETED(40, "deleted"),
+    CONFIG_DELETING(41, "configure deleting"),
+    CONFIG_DELETED(40, "configure deleted"),
 
     // FINISH is used for batch task.
     FINISH(131, "finish");
@@ -59,28 +58,29 @@ public enum GroupStatus {
      * Init group finite status automaton
      */
     static {
-        GROUP_STATE_AUTOMATON.put(TO_BE_SUBMIT, Sets.newHashSet(TO_BE_SUBMIT, TO_BE_APPROVAL, DELETING));
+        GROUP_STATE_AUTOMATON.put(TO_BE_SUBMIT, Sets.newHashSet(TO_BE_SUBMIT, TO_BE_APPROVAL, CONFIG_DELETING));
         GROUP_STATE_AUTOMATON.put(TO_BE_APPROVAL, Sets.newHashSet(APPROVE_REJECTED, APPROVE_PASSED));
 
-        GROUP_STATE_AUTOMATON.put(APPROVE_REJECTED, Sets.newHashSet(APPROVE_REJECTED, TO_BE_APPROVAL, DELETING));
-        GROUP_STATE_AUTOMATON.put(APPROVE_PASSED, Sets.newHashSet(APPROVE_PASSED, CONFIG_ING, DELETING));
+        GROUP_STATE_AUTOMATON.put(APPROVE_REJECTED, Sets.newHashSet(APPROVE_REJECTED, TO_BE_APPROVAL, CONFIG_DELETING));
+        GROUP_STATE_AUTOMATON.put(APPROVE_PASSED, Sets.newHashSet(APPROVE_PASSED, CONFIG_ING, CONFIG_DELETING));
 
         GROUP_STATE_AUTOMATON.put(CONFIG_ING, Sets.newHashSet(CONFIG_ING, CONFIG_FAILED, CONFIG_SUCCESSFUL, FINISH));
         GROUP_STATE_AUTOMATON.put(CONFIG_FAILED,
-                Sets.newHashSet(CONFIG_FAILED, CONFIG_ING, CONFIG_SUCCESSFUL, TO_BE_APPROVAL, DELETING));
+                Sets.newHashSet(CONFIG_FAILED, CONFIG_ING, CONFIG_SUCCESSFUL, TO_BE_APPROVAL, CONFIG_DELETING));
         GROUP_STATE_AUTOMATON.put(CONFIG_SUCCESSFUL,
-                Sets.newHashSet(CONFIG_SUCCESSFUL, TO_BE_APPROVAL, CONFIG_ING, SUSPENDING, DELETING));
+                Sets.newHashSet(CONFIG_SUCCESSFUL, TO_BE_APPROVAL, CONFIG_ING, CONFIG_OFFLINE_ING, CONFIG_DELETING));
 
-        GROUP_STATE_AUTOMATON.put(SUSPENDING, Sets.newHashSet(SUSPENDING, SUSPENDED, CONFIG_FAILED));
-        GROUP_STATE_AUTOMATON.put(SUSPENDED, Sets.newHashSet(SUSPENDED, RESTARTING, DELETING));
+        GROUP_STATE_AUTOMATON.put(
+                CONFIG_OFFLINE_ING, Sets.newHashSet(CONFIG_OFFLINE_ING, CONFIGURATION_OFFLINE, CONFIG_FAILED));
+        GROUP_STATE_AUTOMATON.put(CONFIGURATION_OFFLINE, Sets.newHashSet(CONFIGURATION_OFFLINE, CONFIG_ONLINE_ING,
+                CONFIG_DELETING));
 
-        GROUP_STATE_AUTOMATON.put(RESTARTING, Sets.newHashSet(RESTARTING, RESTARTED, CONFIG_FAILED));
-        GROUP_STATE_AUTOMATON.put(RESTARTED, Sets.newHashSet(RESTARTED, SUSPENDING, TO_BE_APPROVAL, DELETING));
+        GROUP_STATE_AUTOMATON.put(CONFIG_ONLINE_ING, Sets.newHashSet(CONFIG_ONLINE_ING, CONFIG_FAILED));
 
-        GROUP_STATE_AUTOMATON.put(DELETING, Sets.newHashSet(DELETING, DELETED, CONFIG_FAILED));
-        GROUP_STATE_AUTOMATON.put(DELETED, Sets.newHashSet(DELETED));
+        GROUP_STATE_AUTOMATON.put(CONFIG_DELETING, Sets.newHashSet(CONFIG_DELETING, CONFIG_DELETED, CONFIG_FAILED));
+        GROUP_STATE_AUTOMATON.put(CONFIG_DELETED, Sets.newHashSet(CONFIG_DELETED));
 
-        GROUP_STATE_AUTOMATON.put(FINISH, Sets.newHashSet(FINISH, DELETING));
+        GROUP_STATE_AUTOMATON.put(FINISH, Sets.newHashSet(FINISH, CONFIG_DELETING));
     }
 
     private final Integer code;
@@ -112,9 +112,9 @@ public enum GroupStatus {
     public static boolean notAllowedUpdate(GroupStatus status) {
         return status == GroupStatus.TO_BE_APPROVAL
                 || status == GroupStatus.CONFIG_ING
-                || status == GroupStatus.SUSPENDING
-                || status == GroupStatus.RESTARTING
-                || status == GroupStatus.DELETING;
+                || status == GroupStatus.CONFIG_OFFLINE_ING
+                || status == GroupStatus.CONFIG_ONLINE_ING
+                || status == GroupStatus.CONFIG_DELETING;
     }
 
     /**
@@ -142,8 +142,7 @@ public enum GroupStatus {
         return status == GroupStatus.APPROVE_PASSED
                 || status == GroupStatus.CONFIG_FAILED
                 || status == GroupStatus.CONFIG_SUCCESSFUL
-                || status == GroupStatus.SUSPENDED
-                || status == GroupStatus.RESTARTED
+                || status == GroupStatus.CONFIGURATION_OFFLINE
                 || status == GroupStatus.FINISH;
     }
 
@@ -155,7 +154,7 @@ public enum GroupStatus {
     public static boolean allowedDeleteSubInfos(GroupStatus status) {
         return status == GroupStatus.TO_BE_SUBMIT
                 || status == GroupStatus.APPROVE_REJECTED
-                || status == GroupStatus.DELETED;
+                || status == GroupStatus.CONFIG_DELETED;
     }
 
     /**
@@ -163,8 +162,7 @@ public enum GroupStatus {
      */
     public static boolean allowedSuspend(GroupStatus status) {
         return status == GroupStatus.CONFIG_SUCCESSFUL
-                || status == GroupStatus.RESTARTED
-                || status == GroupStatus.SUSPENDED
+                || status == GroupStatus.CONFIGURATION_OFFLINE
                 || status == GroupStatus.FINISH;
     }
 
@@ -174,9 +172,9 @@ public enum GroupStatus {
     public static boolean isTempStatus(GroupStatus status) {
         return status == TO_BE_APPROVAL
                 || status == CONFIG_ING
-                || status == SUSPENDING
-                || status == RESTARTING
-                || status == DELETING;
+                || status == CONFIG_OFFLINE_ING
+                || status == CONFIG_ONLINE_ING
+                || status == CONFIG_DELETING;
     }
 
     public Integer getCode() {
