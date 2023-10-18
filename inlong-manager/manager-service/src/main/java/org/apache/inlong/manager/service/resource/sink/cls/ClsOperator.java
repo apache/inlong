@@ -63,7 +63,7 @@ public class ClsOperator {
     private static final String LOG_SET_ID = "logsetId";
     private static final long PRECISE_SEARCH = 1L;
 
-    public String createTopicReturnTopicId(String topicName, String logSetId, String tag, String secretId,
+    public String createTopicReturnTopicId(String topicName, String logSetId, String tag,Integer storageDuration, String secretId,
             String secretKey, String region)
             throws TencentCloudSDKException {
         ClsClient client = getClsClient(secretId, secretKey, region);
