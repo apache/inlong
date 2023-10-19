@@ -61,7 +61,7 @@ public class TubeMQSource extends StreamSource {
     private String innerFormat;
 
     /**
-     * The TubeMQ consumers use this tid set to filter records reading from server.
+     * The TubeMQ consumers use this streamId set to filter records reading from server.
      */
     @ApiModelProperty("Tid of the TubeMQ")
     private TreeSet<String> streamId;

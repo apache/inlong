@@ -84,7 +84,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
      */
     private final String topic;
     /**
-     * The TubeMQ tid filter collection.
+     * The TubeMQ streamId filter collection.
      */
     private final TreeSet<String> streamIdSet;
     /**
@@ -137,7 +137,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
         Preconditions.checkNotNull(valueDecodingFormat, "The deserialization schema must not be null.");
         Preconditions.checkNotNull(masterAddress, "The master address must not be null.");
         Preconditions.checkNotNull(topic, "The topic must not be null.");
-        Preconditions.checkNotNull(streamIdSet, "The tid set must not be null.");
+        Preconditions.checkNotNull(streamIdSet, "The streamId set must not be null.");
         Preconditions.checkNotNull(consumerGroup, "The consumer group must not be null.");
         Preconditions.checkNotNull(configuration, "The configuration must not be null.");
 

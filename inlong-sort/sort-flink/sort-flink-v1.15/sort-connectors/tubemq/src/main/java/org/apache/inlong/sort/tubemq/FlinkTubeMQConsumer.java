@@ -80,7 +80,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
     private final String topic;
 
     /**
-     * The tubemq consumers use this tid set to filter records reading from server.
+     * The tubemq consumers use this streamId set to filter records reading from server.
      */
     private final TreeSet<String> streamIdSet;
 
@@ -164,7 +164,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
             Boolean innerFormat) {
         checkNotNull(masterAddress, "The master address must not be null.");
         checkNotNull(topic, "The topic must not be null.");
-        checkNotNull(streamIdSet, "The tid set must not be null.");
+        checkNotNull(streamIdSet, "The streamId set must not be null.");
         checkNotNull(consumerGroup, "The consumer group must not be null.");
         checkNotNull(deserializationSchema, "The deserialization schema must not be null.");
         checkNotNull(configuration, "The configuration must not be null.");

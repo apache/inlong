@@ -50,7 +50,7 @@ public class TubeMQTableSink implements DynamicTableSink {
      */
     private final String masterAddress;
     /**
-     * The TubeMQ tid filter collection.
+     * The TubeMQ streamId filter collection.
      */
     private final TreeSet<String> streamIdSet;
     /**
@@ -70,7 +70,7 @@ public class TubeMQTableSink implements DynamicTableSink {
         Preconditions.checkNotNull(topic, "Topic must not be null.");
         Preconditions.checkNotNull(masterAddress, "Master address must not be null.");
         Preconditions.checkNotNull(configuration, "The configuration must not be null.");
-        Preconditions.checkNotNull(streamIdSet, "The tid set must not be null.");
+        Preconditions.checkNotNull(streamIdSet, "The streamId set must not be null.");
 
         this.valueEncodingFormat = valueEncodingFormat;
         this.physicalDataType = physicalDataType;

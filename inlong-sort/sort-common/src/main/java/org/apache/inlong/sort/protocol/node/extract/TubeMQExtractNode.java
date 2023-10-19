@@ -68,7 +68,7 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
     private String sessionKey;
 
     /**
-     * The tubemq consumers use this tid set to filter records reading from server.
+     * The tubemq consumers use this streamId set to filter records reading from server.
      */
     @JsonProperty("streamId")
     private TreeSet<String> streamId;
