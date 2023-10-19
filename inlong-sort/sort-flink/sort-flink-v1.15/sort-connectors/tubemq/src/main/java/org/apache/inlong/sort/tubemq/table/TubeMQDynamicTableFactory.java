@@ -47,7 +47,7 @@ import java.util.TreeSet;
 
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.BOOTSTRAP_FROM_MAX;
-import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.GROUP_NAME;
+import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.CONSUME_GROUP;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.KEY_FORMAT;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.MASTER_RPC;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.SESSION_KEY;
@@ -220,7 +220,7 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
         final Set<ConfigOption<?>> options = new HashSet<>();
         options.add(FORMAT);
         options.add(TOPIC);
-        options.add(GROUP_NAME);
+        options.add(CONSUME_GROUP);
         options.add(STREAMID);
         options.add(SESSION_KEY);
         options.add(BOOTSTRAP_FROM_MAX);

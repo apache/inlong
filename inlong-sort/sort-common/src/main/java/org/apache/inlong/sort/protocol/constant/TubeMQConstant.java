@@ -24,7 +24,7 @@ public class TubeMQConstant {
 
     public static final String TOPIC = "topic";
 
-    public static final String GROUP_ID = "group.id";
+    public static final String CONSUME_GROUP = "consume.group";
 
     public static final String CONNECTOR = "connector";
 
@@ -40,7 +40,7 @@ public class TubeMQConstant {
     /**
      * The tubemq consumers use this tid set to filter records reading from server.
      */
-    public static final String TID = "tid";
+    public static final String STREAMID = "stream.id";
 
     public static final String CONSUMER_STARTUP_MODE = "consumer.startup.mode";
 

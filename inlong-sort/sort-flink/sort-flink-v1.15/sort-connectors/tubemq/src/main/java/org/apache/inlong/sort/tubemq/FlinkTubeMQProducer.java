@@ -62,7 +62,7 @@ public class FlinkTubeMQProducer<T> extends RichSinkFunction<T> implements Check
     /**
      * The tubemq consumers use this tid set to filter records reading from server.
      */
-    private final TreeSet<String> tidSet;
+    private final TreeSet<String> streamIdSet;
     /**
      * The serializer for the records sent to tube.
      */
@@ -86,12 +86,12 @@ public class FlinkTubeMQProducer<T> extends RichSinkFunction<T> implements Check
     public FlinkTubeMQProducer(String topic,
             String masterAddress,
             SerializationSchema<T> serializationSchema,
-            TreeSet<String> tidSet,
+            TreeSet<String> streamIdSet,
             Configuration configuration) {
         checkNotNull(topic, "The topic must not be null.");
         checkNotNull(masterAddress, "The master address must not be null.");
         checkNotNull(serializationSchema, "The serialization schema must not be null.");
-        checkNotNull(tidSet, "The tid set must not be null.");
+        checkNotNull(streamIdSet, "The tid set must not be null.");
         checkNotNull(configuration, "The configuration must not be null.");
 
         int max_retries = configuration.getInteger(TubeMQOptions.MAX_RETRIES);
@@ -100,7 +100,7 @@ public class FlinkTubeMQProducer<T> extends RichSinkFunction<T> implements Check
         this.topic = topic;
         this.masterAddress = masterAddress;
         this.serializationSchema = serializationSchema;
-        this.tidSet = tidSet;
+        this.streamIdSet = streamIdSet;
         this.maxRetries = max_retries;
     }
 
