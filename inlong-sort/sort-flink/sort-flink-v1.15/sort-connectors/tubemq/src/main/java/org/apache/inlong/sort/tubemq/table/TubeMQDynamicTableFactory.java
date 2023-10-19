@@ -63,7 +63,7 @@ import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.getTubeMQPropert
  */
 public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
-    public static final String IDENTIFIER = "tubemq";
+    public static final String IDENTIFIER = "tubemq-inlong";
 
     public static final List<String> INNERFORMATTYPE = Arrays.asList("inlong-msg");
 
