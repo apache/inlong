@@ -88,7 +88,7 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
             @Nonnull @JsonProperty("format") String format,
             @Nonnull @JsonProperty("consumeGroup") String consumeGroup,
             @JsonProperty("sessionKey") String sessionKey,
-            @JsonProperty("tid") TreeSet<String> streamId,
+            @JsonProperty("streamId") TreeSet<String> streamId,
             @JsonProperty("inlong-msg.inner.format") String innerFormat) {
         super(id, name, fields, waterMarkField, properties);
         this.masterRpc = Preconditions.checkNotNull(masterRpc, "TubeMQ masterRpc is null");
@@ -114,7 +114,7 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
         }
 
         if (null != streamId && !streamId.isEmpty()) {
-            map.put(TubeMQConstant.STREAMID, StringUtils.concatCsv(tid.toArray(new String[0]),
+            map.put(TubeMQConstant.STREAMID, StringUtils.concatCsv(streamId.toArray(new String[0]),
                     ',', null, null));
         }
 
