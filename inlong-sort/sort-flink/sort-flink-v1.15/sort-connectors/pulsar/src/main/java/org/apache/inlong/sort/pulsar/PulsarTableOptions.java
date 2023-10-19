@@ -79,7 +79,7 @@ public final class PulsarTableOptions {
      * Copied because we want to have a default value for it.
      */
     public static final ConfigOption<String> SOURCE_SUBSCRIPTION_NAME =
-            ConfigOptions.key("source.subscription-name")
+            ConfigOptions.key("scan.startup.sub-name")
                     .stringType()
                     .noDefaultValue()
                     .withDescription(
@@ -88,8 +88,8 @@ public final class PulsarTableOptions {
                                             "The subscription name of the consumer that is used by the runtime [Pulsar DataStream source connector](https://nightlies.apache.org/flink/flink-docs-master/docs/connectors/datastream/pulsar/#pulsar-source). This argument is required for constructing the consumer.")
                                     .build());
 
-    public static final ConfigOption<String> SOURCE_START_FROM_MESSAGE_ID =
-            ConfigOptions.key("source.start.message-id")
+    public static final ConfigOption<String> STARTUP_MODE =
+            ConfigOptions.key("scan.startup.mode")
                     .stringType()
                     .noDefaultValue()
                     .withDescription(
