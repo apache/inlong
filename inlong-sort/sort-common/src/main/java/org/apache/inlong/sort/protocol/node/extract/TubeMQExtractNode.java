@@ -109,7 +109,7 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
         map.put(TubeMQConstant.GROUP_ID, groupId);
         map.put(TubeMQConstant.FORMAT, format);
         map.put(TubeMQConstant.SESSION_KEY, sessionKey);
-        if (format.startsWith("inlong-msg")) {
+        if (format.startsWith(INLONG_MSG)) {
             map.put(TubeMQConstant.INNER_FORMAT, innerFormat);
         }
 
