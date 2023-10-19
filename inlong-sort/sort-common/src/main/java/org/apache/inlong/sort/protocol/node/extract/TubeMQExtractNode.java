@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import org.apache.inlong.sort.formats.util.StringUtils;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.TubeMQConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
@@ -72,6 +73,9 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
     @JsonProperty("tid")
     private TreeSet<String> tid;
 
+    @JsonProperty("inlong-msg.inner.format")
+    private String innerFormat;
+
     @JsonCreator
     public TubeMQExtractNode(
             @JsonProperty("id") String id,
@@ -84,13 +88,15 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
             @Nonnull @JsonProperty("format") String format,
             @Nonnull @JsonProperty("groupId") String groupId,
             @JsonProperty("sessionKey") String sessionKey,
-            @JsonProperty("tid") TreeSet<String> tid) {
+            @JsonProperty("tid") TreeSet<String> tid,
+            @JsonProperty("inlong-msg.inner.format") String innerFormat) {
         super(id, name, fields, waterMarkField, properties);
         this.masterRpc = Preconditions.checkNotNull(masterRpc, "TubeMQ masterRpc is null");
         this.topic = Preconditions.checkNotNull(topic, "TubeMQ topic is null");
         this.format = Preconditions.checkNotNull(format, "Format is null");
         this.groupId = Preconditions.checkNotNull(groupId, "Group id is null");
         this.sessionKey = sessionKey;
+        this.innerFormat = innerFormat;
         this.tid = tid;
     }
 
@@ -103,9 +109,15 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
         map.put(TubeMQConstant.GROUP_ID, groupId);
         map.put(TubeMQConstant.FORMAT, format);
         map.put(TubeMQConstant.SESSION_KEY, sessionKey);
-        if (null != tid && !tid.isEmpty()) {
-            map.put(TubeMQConstant.TID, tid.toString());
+        if (format.startsWith("inlong-msg")) {
+            map.put(TubeMQConstant.INNER_FORMAT, innerFormat);
         }
+
+        if (null != tid && !tid.isEmpty()) {
+            map.put(TubeMQConstant.TID, StringUtils.concatCsv(tid.toArray(new String[0]),
+                    ',', null, null));
+        }
+
         return map;
     }
 

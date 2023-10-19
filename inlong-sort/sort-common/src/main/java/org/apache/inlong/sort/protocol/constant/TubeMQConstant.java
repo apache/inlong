@@ -28,11 +28,12 @@ public class TubeMQConstant {
 
     public static final String CONNECTOR = "connector";
 
-    public static final String TUBEMQ = "tubemq";
+    public static final String TUBEMQ = "tubemq-inlong";
 
     public static final String MASTER_RPC = "master.rpc";
 
     public static final String FORMAT = "format";
+    public static final String INNER_FORMAT = "inlong-msg.inner.format";
 
     public static final String SESSION_KEY = "session.key";
 
