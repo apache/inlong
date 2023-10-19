@@ -36,12 +36,12 @@ import java.util.Set;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptionUtils.getValueDecodingFormat;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.KEY_FIELDS;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.KEY_FORMAT;
-import static org.apache.inlong.sort.pulsar.PulsarTableOptions.STARTUP_MODE;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_START_FROM_PUBLISH_TIME;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AFTER_MESSAGE_ID;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AT_MESSAGE_ID;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AT_PUBLISH_TIME;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_SUBSCRIPTION_TYPE;
+import static org.apache.inlong.sort.pulsar.PulsarTableOptions.STARTUP_MODE;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.TOPIC;
 import static org.apache.pulsar.common.naming.TopicName.isValid;
 
@@ -96,7 +96,7 @@ public class PulsarTableValidationUtils {
             throw new ValidationException(
                     String.format(
                             "Only one of %s and %s can be specified. Detected both of them",
-                        STARTUP_MODE, SOURCE_START_FROM_PUBLISH_TIME));
+                            STARTUP_MODE, SOURCE_START_FROM_PUBLISH_TIME));
         }
     }
 
