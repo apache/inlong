@@ -59,7 +59,7 @@ public class TubeMQNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("salary", new FloatFormatInfo()));
 
         return new TubeMQExtractNode(id, "tubeMQ_input", fields, null, null,
-                "127.0.0.1:8715", "inlong", "json", "test", null, null);
+                "127.0.0.1:8715", "inlong", "json", "test", null, null, null);
     }
 
     /**
