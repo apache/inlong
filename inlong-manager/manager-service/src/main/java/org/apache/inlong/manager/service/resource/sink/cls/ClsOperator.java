@@ -56,7 +56,7 @@ import java.util.List;
 @Service
 public class ClsOperator {
 
-    @Value("${cls.manager.endpoint:cls.internal.tencentcloudapi.com}")
+    @Value("${cls.manager.endpoint}")
     private String endpoint;
     private static final Logger LOG = LoggerFactory.getLogger(ClsOperator.class);
     private static final String TOPIC_NAME = "topicName";
@@ -64,8 +64,7 @@ public class ClsOperator {
     private static final long PRECISE_SEARCH = 1L;
 
     public String createTopicReturnTopicId(String topicName, String logSetId, String tag, Integer storageDuration,
-            String secretId,
-            String secretKey, String region)
+            String secretId, String secretKey, String region)
             throws TencentCloudSDKException {
         ClsClient client = getClsClient(secretId, secretKey, region);
         CreateTopicRequest req = getCreateTopicRequest(tag, logSetId, topicName, storageDuration);
@@ -76,8 +75,8 @@ public class ClsOperator {
         return resp.getTopicId();
     }
 
-    public void updateTopicTag(String topicId, String tag, String secretId,
-            String secretKey, String region) throws TencentCloudSDKException {
+    public void updateTopicTag(String topicId, String tag, String secretId, String secretKey, String region)
+            throws TencentCloudSDKException {
         ClsClient client = getClsClient(secretId, secretKey, region);
         ModifyTopicRequest modifyTopicRequest = new ModifyTopicRequest();
         modifyTopicRequest.setTags(convertTags(tag.split(InlongConstants.CENTER_LINE)));
@@ -89,8 +88,8 @@ public class ClsOperator {
     /**
      * Create topic index by tokenizer
      */
-    public void createTopicIndex(String tokenizer, String topicId, String secretId, String secretKey,
-            String region) throws BusinessException {
+    public void createTopicIndex(String tokenizer, String topicId, String secretId, String secretKey, String region)
+            throws BusinessException {
 
         LOG.debug("create topic index start for topicId = {}, tokenizer = {}", topicId, tokenizer);
         if (StringUtils.isBlank(tokenizer)) {
@@ -121,8 +120,8 @@ public class ClsOperator {
     /**
      * Describe cls topicId by topic name
      */
-    public String describeTopicIDByTopicName(String topicName, String logSetId, String secretId,
-            String secretKey, String region) {
+    public String describeTopicIDByTopicName(String topicName, String logSetId, String secretId, String secretKey,
+            String region) {
         ClsClient clsClient = getClsClient(secretId, secretKey, region);
         Filter[] filters = getDescribeFilters(topicName, logSetId);
         DescribeTopicsRequest req = new DescribeTopicsRequest();
@@ -158,8 +157,7 @@ public class ClsOperator {
     /**
      * Get cls topic index full text
      */
-    public FullTextInfo getTopicIndexFullText(String secretId, String secretKey, String region,
-            String topicId) {
+    public FullTextInfo getTopicIndexFullText(String secretId, String secretKey, String region, String topicId) {
 
         ClsClient clsClient = getClsClient(secretId, secretKey, region);
         DescribeIndexRequest req = new DescribeIndexRequest();
@@ -174,8 +172,7 @@ public class ClsOperator {
         }
     }
 
-    public void updateTopicIndex(String tokenizer, String topicId,
-            String secretId, String secretKey, String region) {
+    public void updateTopicIndex(String tokenizer, String topicId, String secretId, String secretKey, String region) {
         ClsClient clsClient = getClsClient(secretId, secretKey, region);
         RuleInfo ruleInfo = new RuleInfo();
         FullTextInfo fullTextInfo = new FullTextInfo();
