@@ -709,6 +709,7 @@
   "pages.Approvals.status.Ok": "审批通过",
   "pages.Approvals.ApplicationTime": "申请时间",
   "pages.Approvals.ApplicationType": "申请类型",
+  "pages.Approvals.Approval": "审批",
   "pages.Approvals.Approver": "审批人",
   "pages.Approvals.Applicant": "申请人",
   "pages.Approvals.ProcessID": "流程单 ID",

@@ -129,7 +129,7 @@ export const getColumns = activedName => [
       <Link
         to={`/process/${activedName}/${record.processId}?taskId=${record.id}&inlongGroupMode=${record.showInList?.inlongGroupMode}`}
       >
-        {i18n.t('basic.Detail')}
+        {i18n.t('pages.Approvals.Approval')}
       </Link>
     ),
   },
