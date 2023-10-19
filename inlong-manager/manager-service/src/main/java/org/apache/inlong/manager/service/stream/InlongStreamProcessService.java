@@ -82,7 +82,7 @@ public class InlongStreamProcessService {
         InlongGroupInfo groupInfo = groupService.get(groupId);
         Preconditions.expectNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
-        if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL && groupStatus != GroupStatus.RESTARTED) {
+        if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL) {
             throw new BusinessException(String.format("group status=%s not support start stream"
                     + " for groupId=%s", groupStatus, groupId));
         }
@@ -168,7 +168,7 @@ public class InlongStreamProcessService {
         InlongGroupInfo groupInfo = groupService.get(groupId);
         Preconditions.expectNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
-        if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL && groupStatus != GroupStatus.RESTARTED) {
+        if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL) {
             throw new BusinessException(
                     String.format("group status=%s not support restart stream for groupId=%s", groupStatus, groupId));
         }
@@ -214,7 +214,7 @@ public class InlongStreamProcessService {
         }
 
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
-        if (GroupStatus.notAllowedTransition(groupStatus, GroupStatus.DELETING)) {
+        if (GroupStatus.notAllowedTransition(groupStatus, GroupStatus.CONFIG_DELETING)) {
             throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_NOT_ALLOWED,
                     String.format("group status=%s not support delete stream for groupId=%s", groupStatus, groupId));
         }

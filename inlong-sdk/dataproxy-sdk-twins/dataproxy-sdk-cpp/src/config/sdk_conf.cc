@@ -83,6 +83,8 @@ void SdkConfig::defaultInit() {
   send_buf_size_ = constants::kSendBufSize;
   recv_buf_size_ = constants::kRecvBufSize;
   max_msg_size_ = constants::kExtPackSize;
+  max_group_id_num_ = constants::kMaxGroupIdNum;
+  max_stream_id_num_=constants::kMaxStreamIdNum;
 
   // Packaging parameters
   enable_pack_ = constants::kEnablePack;
@@ -158,6 +160,22 @@ void SdkConfig::InitCacheParam(const rapidjson::Value &doc) {
     send_buf_size_ = obj.GetInt();
   } else {
     send_buf_size_ = constants::kSendBufSize;
+  }
+
+  if (doc.HasMember("max_group_id_num") && doc["max_group_id_num"].IsInt() &&
+      doc["max_group_id_num"].GetInt() > 0) {
+    const rapidjson::Value &obj = doc["max_group_id_num"];
+    max_group_id_num_ = obj.GetInt();
+  } else {
+    max_group_id_num_ = constants::kMaxGroupIdNum;
+  }
+
+  if (doc.HasMember("max_stream_id_num") && doc["max_stream_id_num"].IsInt() &&
+      doc["max_stream_id_num"].GetInt() > 0) {
+    const rapidjson::Value &obj = doc["max_stream_id_num"];
+    max_stream_id_num_ = obj.GetInt();
+  } else {
+    max_stream_id_num_ = constants::kMaxGroupIdNum;
   }
 }
 
@@ -440,6 +458,8 @@ void SdkConfig::ShowClientConfig() {
   LOG_INFO("need_auth: " << need_auth_ ? "true" : "false");
   LOG_INFO("auth_id: " << auth_id_.c_str());
   LOG_INFO("auth_key: " << auth_key_.c_str());
+  LOG_INFO("max_group_id_num: " << max_group_id_num_);
+  LOG_INFO("max_stream_id_num: " << max_stream_id_num_);
 }
 
 } // namespace inlong

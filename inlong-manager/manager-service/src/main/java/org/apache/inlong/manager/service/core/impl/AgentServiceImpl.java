@@ -449,7 +449,8 @@ public class AgentServiceImpl implements AgentService {
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectTemplateSourceByCluster(needCopiedStatusList,
                 Lists.newArrayList(SourceType.FILE), agentClusterName);
         Set<GroupStatus> noNeedAddTask = Sets.newHashSet(
-                GroupStatus.SUSPENDED, GroupStatus.SUSPENDING, GroupStatus.DELETING, GroupStatus.DELETED);
+                GroupStatus.CONFIGURATION_OFFLINE, GroupStatus.CONFIG_OFFLINE_ING, GroupStatus.CONFIG_DELETING,
+                GroupStatus.CONFIG_DELETED);
         sourceEntities.stream()
                 .forEach(sourceEntity -> {
                     InlongGroupEntity groupEntity = groupMapper.selectByGroupId(sourceEntity.getInlongGroupId());
@@ -523,8 +524,7 @@ public class AgentServiceImpl implements AgentService {
                     SourceStatus.SOURCE_NORMAL,
                     SourceStatus.TO_BE_ISSUED_ADD,
                     SourceStatus.TO_BE_ISSUED_ACTIVE);
-            Set<GroupStatus> matchedGroupStatus = Sets.newHashSet(
-                    GroupStatus.CONFIG_SUCCESSFUL, GroupStatus.RESTARTED);
+            Set<GroupStatus> matchedGroupStatus = Sets.newHashSet(GroupStatus.CONFIG_SUCCESSFUL);
             if (matchGroup(sourceEntity, clusterNodeEntity)
                     && groupEntity != null
                     && !exceptedMatchedSourceStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))

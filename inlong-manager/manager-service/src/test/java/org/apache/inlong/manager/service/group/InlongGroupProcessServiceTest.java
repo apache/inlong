@@ -96,7 +96,7 @@ public class InlongGroupProcessServiceTest extends ServiceBaseTest {
         ProcessResponse response = result.getProcessInfo();
         Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
         InlongGroupInfo groupInfo = groupService.get(GROUP_ID);
-        Assertions.assertEquals(groupInfo.getStatus(), GroupStatus.SUSPENDED.getCode());
+        Assertions.assertEquals(groupInfo.getStatus(), GroupStatus.CONFIGURATION_OFFLINE.getCode());
     }
 
     private void testRestartProcess() {
@@ -104,7 +104,7 @@ public class InlongGroupProcessServiceTest extends ServiceBaseTest {
         ProcessResponse response = result.getProcessInfo();
         Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
         InlongGroupInfo groupInfo = groupService.get(GROUP_ID);
-        Assertions.assertEquals(groupInfo.getStatus(), GroupStatus.RESTARTED.getCode());
+        Assertions.assertEquals(groupInfo.getStatus(), GroupStatus.CONFIG_SUCCESSFUL.getCode());
     }
 
 }

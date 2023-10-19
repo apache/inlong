@@ -79,9 +79,24 @@ export const getColumns = activedName => [
     render: (text, record) => record.showInList?.inlongGroupId,
   },
   {
+    title: i18n.t('pages.Approvals.ConsumeName'),
+    dataIndex: 'consumerGroup',
+    width: 200,
+    render: (text, record) => record.showInList?.consumerGroup,
+  },
+  {
     title: i18n.t('pages.Approvals.GroupMode'),
     dataIndex: 'inlongGroupMode',
     render: (text, record) => {
+      if (record.processName === 'APPLY_CONSUME_PROCESS') {
+        return (
+          <StatusTag
+            type={'warning'}
+            icon={<span />}
+            title={i18n.t('pages.Approvals.GroupMode.Subscription')}
+          />
+        );
+      }
       return record.showInList?.inlongGroupMode === 1 ? (
         <StatusTag
           type={'success'}
@@ -114,7 +129,7 @@ export const getColumns = activedName => [
       <Link
         to={`/process/${activedName}/${record.processId}?taskId=${record.id}&inlongGroupMode=${record.showInList?.inlongGroupMode}`}
       >
-        {i18n.t('basic.Detail')}
+        {i18n.t('pages.Approvals.Approval')}
       </Link>
     ),
   },
