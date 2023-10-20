@@ -57,6 +57,9 @@ public class TubeMQSource extends StreamSource {
     @ApiModelProperty("Session key of the TubeMQ")
     private String sessionKey;
 
+    @ApiModelProperty("inlong-msg.inner.format")
+    private String innerFormat;
+
     /**
      * The TubeMQ consumers use this tid set to filter records reading from server.
      */

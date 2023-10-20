@@ -40,9 +40,7 @@ import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
 
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -63,9 +61,9 @@ import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.getTubeMQPropert
  */
 public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
-    public static final String IDENTIFIER = "tubemq";
+    public static final String IDENTIFIER = "tubemq-inlong";
 
-    public static final List<String> INNERFORMATTYPE = Arrays.asList("inlong-msg");
+    public static final String INNERFORMATTYPE = "inlong-msg";
 
     public static boolean innerFormat = false;
 
@@ -87,7 +85,6 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
                 && format.getChangelogMode().containsOnly(RowKind.INSERT)) {
             Configuration options = Configuration.fromMap(catalogTable.getOptions());
             String formatName = options.getOptional(FORMAT).orElse(options.get(FORMAT));
-            innerFormat = INNERFORMATTYPE.contains(formatName);
             throw new ValidationException(String.format(
                     "The TubeMQ table '%s' with '%s' format doesn't support defining PRIMARY KEY constraint"
                             + " on the table, because it can't guarantee the semantic of primary key.",
@@ -123,6 +120,7 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
         helper.validate();
 
         validatePKConstraints(context.getObjectIdentifier(), context.getCatalogTable(), valueDecodingFormat);
+        innerFormat = INNERFORMATTYPE.equals(tableOptions.get(FORMAT));
 
         final Configuration properties = getTubeMQProperties(context.getCatalogTable().getOptions());
 

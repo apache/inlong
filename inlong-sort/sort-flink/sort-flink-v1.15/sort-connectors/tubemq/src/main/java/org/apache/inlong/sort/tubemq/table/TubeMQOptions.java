@@ -77,6 +77,13 @@ public class TubeMQOptions {
     // TubeMQ specific options
     // --------------------------------------------------------------------------------------------
 
+    public static final ConfigOption<String> INNER_FORMAT =
+            ConfigOptions.key("inlong-msg.inner.format")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "Inner format");
+
     public static final ConfigOption<String> TOPIC =
             ConfigOptions.key("topic")
                     .stringType()
