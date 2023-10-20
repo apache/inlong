@@ -108,9 +108,8 @@ public class HttpUtils {
         HttpStatus statusCode = exchange.getStatusCode();
         if (statusCode.is2xxSuccessful()) {
             result = true;
-        } else {
-            log.debug("success request to {},  status code {}, body {}", url, statusCode, exchange.getBody());
         }
+        log.debug("success request to {},  status code {}, body {}", url, statusCode, exchange.getBody());
         return result;
     }
 

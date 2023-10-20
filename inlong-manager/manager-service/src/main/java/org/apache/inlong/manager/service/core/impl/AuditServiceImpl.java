@@ -102,6 +102,15 @@ public class AuditServiceImpl implements AuditService {
     private static final DateTimeFormatter HOUR_DATE_FORMATTER = DateTimeFormat.forPattern(HOUR_FORMAT);
     private static final DateTimeFormatter DAY_DATE_FORMATTER = DateTimeFormat.forPattern(DAY_FORMAT);
 
+    private static final double ES_DEFAULT_BOOST = 1.0;
+    private static final boolean ES_ADJUST_PURE_NEGATIVE = true;
+    private static final int ES_QUERY_FROM = 0;
+    private static final int ES_QUERY_SIZE = 0;
+    private static final String ES_SORT_ORDER = "ASC";
+    private static final String ES_TERM_FILED = "log_ts";
+    private static final String ES_AGGREGATIONS_COUNT = "count";
+    private static final String ES_AGGREGATIONS_DELAY = "delay";
+
     // key: type of audit base item, value: entity of audit base item
     private final Map<String, AuditBaseEntity> auditSentItemMap = new ConcurrentHashMap<>();
 
@@ -370,26 +379,33 @@ public class AuditServiceImpl implements AuditService {
      */
     public static JsonObject toAuditSearchRequestJson(String groupId, String streamId) {
         JsonObject result = new JsonObject();
-        result.addProperty("from", 0);
-        result.addProperty("size", 0);
+        result.addProperty("from", ES_QUERY_FROM);
+        result.addProperty("size", ES_QUERY_SIZE);
         JsonObject query = new JsonObject();
-        final String termGroupId = "{\"term\":{\"inlong_group_id\":{\"value\":\"" + groupId + "\",\"boost\":1.0 }}}";
-        final String termStreamId = "{\"term\":{\"inlong_stream_id\":{\"value\":\"" + streamId + "\",\"boost\":1.0}}}";
+        final String termGroupId =
+                "{\"term\":{\"inlong_group_id\":{\"value\":\"" + groupId + "\",\"boost\":" + ES_DEFAULT_BOOST + "}}}";
+        final String termStreamId =
+                "{\"term\":{\"inlong_stream_id\":{\"value\":\"" + streamId + "\",\"boost\":" + ES_DEFAULT_BOOST + "}}}";
         JsonArray mustArray = new JsonArray();
         mustArray.add(GSON.fromJson(termGroupId, JsonElement.class));
         mustArray.add(GSON.fromJson(termStreamId, JsonElement.class));
         JsonObject bool = new JsonObject();
         bool.add("must", mustArray);
-        bool.addProperty("adjust_pure_negative", true);
-        bool.addProperty("boost", 1.0);
+        bool.addProperty("adjust_pure_negative", ES_ADJUST_PURE_NEGATIVE);
+        bool.addProperty("boost", ES_DEFAULT_BOOST);
         query.add("bool", bool);
         result.add("query", query);
-        final String sortStr = "[{\"log_ts\": {\"order\": \"asc\"}}]";
+        final String sortStr = "[{\"log_ts\": {\"order\": " + ES_SORT_ORDER + "}}]";
         result.add("sort", GSON.fromJson(sortStr, JsonArray.class));
-        final String aggregationsStr = "{\"log_ts\": {\"terms\": {\"field\": \"log_ts\",\"size\": 2147483647, "
-                + "\"min_doc_count\": 1,\"shard_min_doc_count\": 0, \"show_term_doc_count_error\": false,"
-                + "\"order\":[{\"_count\": \"desc\" },{\"_key\": \"asc\" }]},\"aggregations\": "
-                + "{\"count\":{\"sum\":{\"field\":\"count\" }},\"delay\": {\"sum\":{\"field\":\"delay\"}}}}}";
+        final String aggregationsStr = "{\"log_ts\": {\"terms\": {\"field\": "
+                + ES_TERM_FILED
+                + ",\"size\": "
+                + Integer.MAX_VALUE
+                + "},\"aggregations\":{\"count\":{\"sum\":{\"field\": "
+                + ES_AGGREGATIONS_COUNT
+                + " }},\"delay\": {\"sum\":{\"field\": "
+                + ES_AGGREGATIONS_DELAY
+                + "}}}}}";
         result.add("aggregations", GSON.fromJson(aggregationsStr, JsonElement.class));
         return result;
     }
