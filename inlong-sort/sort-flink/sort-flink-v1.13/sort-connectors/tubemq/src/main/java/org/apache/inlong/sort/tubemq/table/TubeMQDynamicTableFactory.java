@@ -44,11 +44,11 @@ import java.util.TreeSet;
 
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.BOOTSTRAP_FROM_MAX;
-import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.GROUP_ID;
+import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.CONSUME_GROUP;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.KEY_FORMAT;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.MASTER_RPC;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.SESSION_KEY;
-import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.TID;
+import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.STREAMID;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.TOPIC;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.TOPIC_PATTERN;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.getTubeMQProperties;
@@ -169,8 +169,8 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory {
         final Set<ConfigOption<?>> options = new HashSet<>();
         options.add(FORMAT);
         options.add(TOPIC);
-        options.add(GROUP_ID);
-        options.add(TID);
+        options.add(CONSUME_GROUP);
+        options.add(STREAMID);
         options.add(SESSION_KEY);
         options.add(BOOTSTRAP_FROM_MAX);
         options.add(TOPIC_PATTERN);

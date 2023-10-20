@@ -53,9 +53,9 @@ public class TubeMqProvider implements ExtractNodeProvider {
                 source.getMasterRpc(),
                 source.getTopic(),
                 source.getSerializationType(),
-                source.getGroupId(),
+                source.getConsumeGroup(),
                 source.getSessionKey(),
-                source.getTid(),
+                source.getStreamId(),
                 source.getInnerFormat());
     }
 }

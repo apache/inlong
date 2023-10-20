@@ -130,6 +130,7 @@
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
+                <version>${protobuf.maven.plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <!-- Currently Flink azure test pipeline would first pre-compile and then upload the compiled
@@ -157,6 +158,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${build.helper.maven.version}</version>
                 <executions>
                     <execution>
                         <id>add-test-source</id>

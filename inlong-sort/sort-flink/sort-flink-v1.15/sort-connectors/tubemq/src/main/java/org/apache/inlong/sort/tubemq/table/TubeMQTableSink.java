@@ -50,9 +50,9 @@ public class TubeMQTableSink implements DynamicTableSink {
      */
     private final String masterAddress;
     /**
-     * The TubeMQ tid filter collection.
+     * The TubeMQ streamId filter collection.
      */
-    private final TreeSet<String> tidSet;
+    private final TreeSet<String> streamIdSet;
     /**
      * The parameters collection for tubemq producer.
      */
@@ -63,20 +63,20 @@ public class TubeMQTableSink implements DynamicTableSink {
             EncodingFormat<SerializationSchema<RowData>> valueEncodingFormat,
             String topic,
             String masterAddress,
-            TreeSet<String> tidSet,
+            TreeSet<String> streamIdSet,
             Configuration configuration) {
         Preconditions.checkNotNull(valueEncodingFormat, "The serialization schema must not be null.");
         Preconditions.checkNotNull(physicalDataType, "Physical data type must not be null.");
         Preconditions.checkNotNull(topic, "Topic must not be null.");
         Preconditions.checkNotNull(masterAddress, "Master address must not be null.");
         Preconditions.checkNotNull(configuration, "The configuration must not be null.");
-        Preconditions.checkNotNull(tidSet, "The tid set must not be null.");
+        Preconditions.checkNotNull(streamIdSet, "The streamId set must not be null.");
 
         this.valueEncodingFormat = valueEncodingFormat;
         this.physicalDataType = physicalDataType;
         this.topic = topic;
         this.masterAddress = masterAddress;
-        this.tidSet = tidSet;
+        this.streamIdSet = streamIdSet;
         this.configuration = configuration;
     }
 
@@ -102,7 +102,7 @@ public class TubeMQTableSink implements DynamicTableSink {
             SerializationSchema<RowData> serializationSchema,
             Configuration configuration) {
         final FlinkTubeMQProducer<RowData> tubeMQProducer =
-                new FlinkTubeMQProducer(topic, masterAddress, serializationSchema, tidSet, configuration);
+                new FlinkTubeMQProducer(topic, masterAddress, serializationSchema, streamIdSet, configuration);
         return tubeMQProducer;
     }
 
@@ -120,7 +120,7 @@ public class TubeMQTableSink implements DynamicTableSink {
                 valueEncodingFormat,
                 topic,
                 masterAddress,
-                tidSet,
+                streamIdSet,
                 configuration);
     }
 
