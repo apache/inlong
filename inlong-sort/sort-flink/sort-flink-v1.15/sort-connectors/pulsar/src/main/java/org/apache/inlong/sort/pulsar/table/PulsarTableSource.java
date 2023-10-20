@@ -19,7 +19,6 @@ package org.apache.inlong.sort.pulsar.table;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.connector.pulsar.source.PulsarSource;
-import org.apache.flink.connector.pulsar.source.PulsarSourceOptions;
 import org.apache.flink.connector.pulsar.source.enumerator.cursor.StartCursor;
 import org.apache.flink.connector.pulsar.source.enumerator.cursor.StopCursor;
 import org.apache.flink.connector.pulsar.source.reader.deserializer.PulsarDeserializationSchema;
@@ -119,7 +118,9 @@ public class PulsarTableSource implements ScanTableSource, SupportsReadingMetada
                         .setUnboundedStopCursor(stopCursor)
                         .setDeserializationSchema(deserializationSchema)
                         .setProperties(properties)
-                        .setConfig(PulsarSourceOptions.PULSAR_ENABLE_AUTO_ACKNOWLEDGE_MESSAGE, true)
+                        // only support exclusive since shared mode requires pulsar with transaction enabled
+                        // and supporting transaction consumes more resources in pulsar broker
+                        .setSubscriptionType(SubscriptionType.Exclusive)
                         .build();
         return SourceProvider.of(source);
     }

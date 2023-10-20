@@ -64,13 +64,13 @@ import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SERVICE_URL;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SINK_CUSTOM_TOPIC_ROUTER;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SINK_MESSAGE_DELAY_INTERVAL;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SINK_TOPIC_ROUTING_MODE;
-import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_START_FROM_MESSAGE_ID;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_START_FROM_PUBLISH_TIME;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AFTER_MESSAGE_ID;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AT_MESSAGE_ID;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AT_PUBLISH_TIME;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_SUBSCRIPTION_NAME;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_SUBSCRIPTION_TYPE;
+import static org.apache.inlong.sort.pulsar.PulsarTableOptions.STARTUP_MODE;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.TOPIC;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.VALUE_FORMAT;
 import static org.apache.inlong.sort.pulsar.PulsarTableValidationUtils.validatePrimaryKeyConstraints;
@@ -179,7 +179,7 @@ public class PulsarTableFactory implements DynamicTableSourceFactory {
                 VALUE_FORMAT,
                 SOURCE_SUBSCRIPTION_NAME,
                 SOURCE_SUBSCRIPTION_TYPE,
-                SOURCE_START_FROM_MESSAGE_ID,
+                STARTUP_MODE,
                 SOURCE_START_FROM_PUBLISH_TIME,
                 SOURCE_STOP_AT_MESSAGE_ID,
                 SOURCE_STOP_AFTER_MESSAGE_ID,
@@ -203,7 +203,7 @@ public class PulsarTableFactory implements DynamicTableSourceFactory {
                 SERVICE_URL,
                 SOURCE_SUBSCRIPTION_TYPE,
                 SOURCE_SUBSCRIPTION_NAME,
-                SOURCE_START_FROM_MESSAGE_ID,
+                STARTUP_MODE,
                 SOURCE_START_FROM_PUBLISH_TIME,
                 SOURCE_STOP_AT_MESSAGE_ID,
                 SOURCE_STOP_AFTER_MESSAGE_ID,
