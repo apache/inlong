@@ -47,6 +47,9 @@ import static org.apache.flink.connector.pulsar.common.config.PulsarOptions.PULS
 import static org.apache.flink.connector.pulsar.common.config.PulsarOptions.PULSAR_SERVICE_URL;
 import static org.apache.flink.connector.pulsar.source.PulsarSourceOptions.PULSAR_SUBSCRIPTION_NAME;
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptionUtils.createKeyFormatProjection;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptionUtils.createValueFormatProjection;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptionUtils.getKeyDecodingFormat;
@@ -137,6 +140,10 @@ public class PulsarTableFactory implements DynamicTableSourceFactory {
         final int[] valueProjection = createValueFormatProjection(tableOptions, physicalDataType);
         final int[] keyProjection = createKeyFormatProjection(tableOptions, physicalDataType);
 
+        String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
+        String auditHostAndPorts = tableOptions.get(INLONG_AUDIT);
+        String auditKeys = tableOptions.get(AUDIT_KEYS);
+
         final PulsarTableDeserializationSchemaFactory deserializationSchemaFactory =
                 new PulsarTableDeserializationSchemaFactory(
                         physicalDataType,
@@ -144,7 +151,10 @@ public class PulsarTableFactory implements DynamicTableSourceFactory {
                         keyProjection,
                         valueDecodingFormat,
                         valueProjection,
-                        UPSERT_DISABLED);
+                        UPSERT_DISABLED,
+                        inlongMetric,
+                        auditHostAndPorts,
+                        auditKeys);
 
         // Set default values for configuration not exposed to user.
         final DecodingFormat<DeserializationSchema<RowData>> decodingFormatForMetadataPushdown =
@@ -190,8 +200,10 @@ public class PulsarTableFactory implements DynamicTableSourceFactory {
                 SINK_PARALLELISM,
                 KEY_FORMAT,
                 KEY_FIELDS,
-                EXPLICIT)
-                .collect(Collectors.toSet());
+                EXPLICIT,
+                AUDIT_KEYS,
+                INLONG_METRIC,
+                INLONG_AUDIT).collect(Collectors.toSet());
     }
 
     /** Format and Delivery guarantee related options are not forward options. */
