@@ -61,10 +61,10 @@ public class PulsarUtils {
     private static final Gson GSON = new GsonBuilder().create(); // thread safe
 
     /**
-     * get http headers by token.
+     * Get http headers by token.
      *
-     * @param token
-     * @return
+     * @param token pulsar token info
+     * @return add http headers for token info
      */
     private static HttpHeaders getHttpHeaders(String token) {
         HttpHeaders headers = new HttpHeaders();
@@ -77,10 +77,10 @@ public class PulsarUtils {
     /**
      * Get pulsar cluster info list.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @return
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @return list of pulsar cluster infos
+     * @throws Exception any exception if occurred
      */
     public static List<String> getPulsarClusters(RestTemplate restTemplate, PulsarClusterInfo clusterInfo)
             throws Exception {
@@ -92,10 +92,10 @@ public class PulsarUtils {
     /**
      * Get the list of active brokers.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @return
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @return list of pulsar broker infos
+     * @throws Exception any exception if occurred
      */
     public static List<String> getPulsarBrokers(RestTemplate restTemplate, PulsarClusterInfo clusterInfo)
             throws Exception {
@@ -107,10 +107,10 @@ public class PulsarUtils {
     /**
      * Get pulsar tenant info list.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @return
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @return list of pulsar tenant infos
+     * @throws Exception any exception if occurred
      */
     public static List<String> getPulsarTenants(RestTemplate restTemplate, PulsarClusterInfo clusterInfo)
             throws Exception {
@@ -122,11 +122,11 @@ public class PulsarUtils {
     /**
      * Get pulsar namespace info list.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param tenant
-     * @return
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param tenant pulsar tenant name
+     * @return list of pulsar namespace infos
+     * @throws Exception any exception if occurred
      */
     public static List<String> getPulsarNamespaces(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String tenant) throws Exception {
@@ -138,11 +138,11 @@ public class PulsarUtils {
     /**
      * Create a new pulsar tenant.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param tenant
-     * @param tenantInfo
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param tenant pulsar tenant name
+     * @param tenantInfo  pulsar tenant info
+     * @throws Exception any exception if occurred
      */
     public static void createTenant(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String tenant,
             PulsarTenantInfo tenantInfo) throws Exception {
@@ -158,11 +158,11 @@ public class PulsarUtils {
     /**
      * Creates a new pulsar namespace with the specified policies.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param namespaceName
-     * @param policies
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param namespaceName pulsar namespace name
+     * @param policies pulsar namespace policies info
+     * @throws Exception any exception if occurred
      */
     public static void createNamespace(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String namespaceName,
             PulsarNamespacePolicies policies) throws Exception {
@@ -180,12 +180,12 @@ public class PulsarUtils {
     /**
      * Get the list of topics under a namespace.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param tenant
-     * @param namespace
-     * @return
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param tenant pulsar tenant name
+     * @param namespace pulsar namespace name
+     * @return list of pulsar topic infos
+     * @throws Exception any exception if occurred
      */
     public static List<String> getPulsarTopics(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String tenant,
             String namespace) throws Exception {
@@ -197,12 +197,12 @@ public class PulsarUtils {
     /**
      * Get the list of partitioned topics under a namespace.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param tenant
-     * @param namespace
-     * @return
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param tenant pulsar tenant name
+     * @param namespace pulsar namespace name
+     * @return list of pulsar partitioned topic infos
+     * @throws Exception any exception if occurred
      */
     public static List<String> getPulsarPartitionedTopics(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String tenant, String namespace) throws Exception {
@@ -215,10 +215,10 @@ public class PulsarUtils {
     /**
      * Create a non-partitioned topic.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param topicPath
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param topicPath pulsar topic path
+     * @throws Exception any exception if occurred
      */
     public static void createNonPartitionedTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath) throws Exception {
@@ -229,10 +229,10 @@ public class PulsarUtils {
     /**
      * Create a partitioned topic.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param topicPath
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param topicPath pulsar topic path
+     * @throws Exception any exception if occurred
      */
     public static void createPartitionedTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath, Integer numPartitions) throws Exception {
@@ -244,11 +244,11 @@ public class PulsarUtils {
     /**
      * Get the stats-internal for the partitioned topic.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param topicPath
-     * @return
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param topicPath pulsar topic path
+     * @return pulsar internal stat info of partitioned topic
+     * @throws Exception any exception if occurred
      */
     public static PulsarPartitionedInternalStats getPulsarStatsPartitionedTopics(RestTemplate restTemplate,
             PulsarClusterInfo clusterInfo, String topicPath) throws Exception {
@@ -260,11 +260,11 @@ public class PulsarUtils {
     /**
      * Get partitioned topic metadata.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param topicPath
-     * @return
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param topicPath pulsar topic path
+     * @return pulsar topic metadata info
+     * @throws Exception any exception if occurred
      */
     public static PulsarTopicMetadata getPulsarPartitionedTopicMetadata(RestTemplate restTemplate,
             PulsarClusterInfo clusterInfo, String topicPath) throws Exception {
@@ -276,10 +276,10 @@ public class PulsarUtils {
     /**
      * Delete a topic.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param topicPath
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param topicPath pulsar topic path
+     * @throws Exception any exception if occurred
      */
     public static void deleteNonPartitionedTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath) throws Exception {
@@ -290,10 +290,10 @@ public class PulsarUtils {
     /**
      * Force delete a topic.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param topicPath
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param topicPath pulsar topic path
+     * @throws Exception any exception if occurred
      */
     public static void forceDeleteNonPartitionedTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath) throws Exception {
@@ -306,10 +306,10 @@ public class PulsarUtils {
     /**
      * Delete a partitioned topic.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param topicPath
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param topicPath pulsar topic path
+     * @throws Exception any exception if occurred
      */
     public static void deletePartitionedTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath) throws Exception {
@@ -320,10 +320,10 @@ public class PulsarUtils {
     /**
      * Force delete a partitioned topic.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param topicPath
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param topicPath pulsar topic path
+     * @throws Exception any exception if occurred
      */
     public static void forceDeletePartitionedTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath) throws Exception {
@@ -336,11 +336,11 @@ public class PulsarUtils {
     /**
      * Delete a partitioned or non-partitioned topic.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param topicPath
-     * @param isPartitioned
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param topicPath pulsar topic path
+     * @param isPartitioned pulsar is partitioned topic
+     * @throws Exception any exception if occurred
      */
     public static void deleteTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String topicPath,
             boolean isPartitioned) throws Exception {
@@ -354,11 +354,11 @@ public class PulsarUtils {
     /**
      * Force delete a partitioned or non-partitioned topic.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param topicPath
-     * @param isPartitioned
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param topicPath pulsar topic path
+     * @param isPartitioned pulsar is partitioned topic
+     * @throws Exception any exception if occurred
      */
     public static void forceDeleteTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String topicPath,
             boolean isPartitioned)
@@ -373,11 +373,11 @@ public class PulsarUtils {
     /**
      * lookup persistent topic info.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param topicPath
-     * @return
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param topicPath pulsar topic path
+     * @return pulsar broker url
+     * @throws Exception any exception if occurred
      */
     public static String lookupTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String topicPath)
             throws Exception {
@@ -390,11 +390,11 @@ public class PulsarUtils {
     /**
      * lookup persistent partitioned topic info.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param topicPath
-     * @return
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param topicPath pulsar topic path
+     * @return map of partitioned topic info
+     * @throws Exception any exception if occurred
      */
     public static Map<String, String> lookupPartitionedTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath) throws Exception {
@@ -414,11 +414,11 @@ public class PulsarUtils {
     /**
      * Get topic subscriptions.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param topicPath
-     * @return
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param topicPath pulsar topic path
+     * @return list of pulsar topic subscription info
+     * @throws Exception any exception if occurred
      */
     public static List<String> getSubscriptions(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath) throws Exception {
@@ -430,11 +430,11 @@ public class PulsarUtils {
     /**
      * Create a topic subscription.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param topicPath
-     * @param subscription
-     * @throws Exception
+     * @param restTemplate  spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param topicPath pulsar topic path
+     * @param subscription pulsar topic subscription info
+     * @throws Exception any exception if occurred
      */
     public static void createSubscription(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String topicPath,
             String subscription) throws Exception {
@@ -445,13 +445,13 @@ public class PulsarUtils {
     /**
      * Examine a pulsar message.
      *
-     * @param restTemplate
-     * @param clusterInfo
-     * @param topicPartition
-     * @param messageType
-     * @param messagePosition
-     * @return
-     * @throws Exception
+     * @param restTemplate spring framework RestTemplate
+     * @param clusterInfo pulsar cluster info
+     * @param topicPartition  pulsar topic partition info
+     * @param messageType pulsar message type info
+     * @param messagePosition pulsar message position info
+     * @return spring framework HttpEntity
+     * @throws Exception any exception if occurred
      */
     public static ResponseEntity<byte[]> examineMessage(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPartition, String messageType, int messagePosition) throws Exception {

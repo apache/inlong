@@ -277,10 +277,10 @@ public class PulsarOperator {
     /**
      * Check if Pulsar tenant exists
      *
-     * @param pulsarClusterInfo
-     * @param tenant
-     * @return
-     * @throws Exception
+     * @param pulsarClusterInfo pulsar cluster info
+     * @param tenant pulsar tenant info
+     * @return true or false
+     * @throws Exception any exception if occurred
      */
     private boolean tenantIsExists(PulsarClusterInfo pulsarClusterInfo, String tenant) throws Exception {
         List<String> tenants = PulsarUtils.getPulsarTenants(restTemplate, pulsarClusterInfo);
@@ -290,11 +290,11 @@ public class PulsarOperator {
     /**
      * Check whether the Pulsar namespace exists under the specified tenant.
      *
-     * @param pulsarClusterInfo
-     * @param tenant
-     * @param namespace
-     * @return
-     * @throws Exception
+     * @param pulsarClusterInfo pulsar cluster info
+     * @param tenant pulsar tenant info
+     * @param namespace pulsar namespace info
+     * @return true or false
+     * @throws Exception any exception if occurred
      */
     private boolean namespaceExists(PulsarClusterInfo pulsarClusterInfo, String tenant, String namespace)
             throws Exception {
