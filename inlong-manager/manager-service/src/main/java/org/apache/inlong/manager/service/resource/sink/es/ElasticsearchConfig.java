@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -39,7 +40,10 @@ import java.util.List;
 public class ElasticsearchConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConfig.class);
-    private static RestTemplate restTemplate;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
     private static List<HttpHost> httpHosts;
     @Value("${es.index.search.hostname}")
     private String hosts;
