@@ -37,6 +37,7 @@ import org.apache.inlong.manager.service.sink.StreamSinkOperator;
 
 import com.google.gson.Gson;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -279,7 +280,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                         StreamSinkOperator operator = sinkOperatorFactory.getInstance(streamSink.getSinkType());
                         List<String> fields = fieldMap.get(streamSink.getInlongGroupId());
                         Map<String, String> params = operator.parse2IdParams(streamSink, fields, dataNodeInfo);
-                        params = setFiledOffset(streamSink, params);
+                        setFiledOffset(streamSink, params);
                         return params;
                     } catch (Exception e) {
                         LOGGER.error("fail to parse id params of groupId={}, streamId={} name={}, type={}}",
@@ -292,16 +293,15 @@ public class SortClusterServiceImpl implements SortClusterService {
                 .collect(Collectors.toList());
     }
 
-    private Map<String, String> setFiledOffset(StreamSinkEntity streamSink, Map<String, String> params) {
+    private void setFiledOffset(StreamSinkEntity streamSink, Map<String, String> params) {
 
         SortSourceStreamInfo sortSourceStreamInfo = allStreams.get(streamSink.getInlongGroupId())
                 .get(streamSink.getInlongStreamId());
         InlongStreamExtParam inlongStreamExtParam = JsonUtils.parseObject(
                 sortSourceStreamInfo.getExtParams(), InlongStreamExtParam.class);
-        if (inlongStreamExtParam != null && !inlongStreamExtParam.getUseExtendedFields()) {
+        if (ObjectUtils.anyNotNull(inlongStreamExtParam) && !inlongStreamExtParam.getUseExtendedFields()) {
             params.put(FILED_OFFSET, String.valueOf(0));
         }
-        return params;
     }
 
     private Map<String, String> parseSinkParams(DataNodeInfo nodeInfo) {
