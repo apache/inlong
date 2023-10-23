@@ -209,7 +209,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
     public void open(Configuration parameters) throws Exception {
         ConsumerConfig consumerConfig = new ConsumerConfig(masterAddress, consumerGroup);
         consumerConfig.setConsumePosition(consumeFromMax
-                ? ConsumePosition.CONSUMER_FROM_MAX_OFFSET_ALWAYS
+                ? ConsumePosition.CONSUMER_FROM_LATEST_OFFSET
                 : ConsumePosition.CONSUMER_FROM_FIRST_OFFSET);
 
         consumerConfig.setMsgNotFoundWaitPeriodMs(messageNotFoundWaitPeriod.toMillis());
