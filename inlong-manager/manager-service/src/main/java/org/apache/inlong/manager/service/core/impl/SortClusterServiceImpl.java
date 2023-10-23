@@ -81,7 +81,8 @@ public class SortClusterServiceImpl implements SortClusterService {
     private static final String KEY_GROUP_ID = "inlongGroupId";
     private static final String KEY_STREAM_ID = "inlongStreamId";
     private static final String FILED_OFFSET = "fieldOffset";
-    private Map<String, List<String>> fieldMap;
+    // key: sink id, value: fileNames
+    private Map<Integer, List<String>> fieldMap;
 
     // key : sort cluster name, value : md5
     private Map<String, String> sortClusterMd5Map = new ConcurrentHashMap<>();
@@ -176,7 +177,7 @@ public class SortClusterServiceImpl implements SortClusterService {
         List<SortFieldInfo> fieldInfos = sortConfigLoader.loadAllFields();
         fieldMap = new HashMap<>();
         fieldInfos.forEach(info -> {
-            List<String> fields = fieldMap.computeIfAbsent(info.getInlongGroupId(), k -> new ArrayList<>());
+            List<String> fields = fieldMap.computeIfAbsent(info.getSinkId(), k -> new ArrayList<>());
             fields.add(info.getFieldName());
         });
 
@@ -278,7 +279,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                 .map(streamSink -> {
                     try {
                         StreamSinkOperator operator = sinkOperatorFactory.getInstance(streamSink.getSinkType());
-                        List<String> fields = fieldMap.get(streamSink.getInlongGroupId());
+                        List<String> fields = fieldMap.get(streamSink.getId());
                         Map<String, String> params = operator.parse2IdParams(streamSink, fields, dataNodeInfo);
                         setFiledOffset(streamSink, params);
                         return params;
