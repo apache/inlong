@@ -55,9 +55,9 @@ public class ElasticsearchConfig {
     private String password;
 
     /**
-     * highLevelClient
+     *  Get http rest client.
      *
-     * @return RestHighLevelClient
+     * @return springframework RestTemplate
      */
     public RestTemplate getRestClient() {
         if (restTemplate != null) {
@@ -75,6 +75,11 @@ public class ElasticsearchConfig {
         return restTemplate;
     }
 
+    /**
+     * Get http hosts.
+     *
+     * @return list of http host info
+     */
     public List<HttpHost> getHttpHosts() {
         if (httpHosts != null) {
             return httpHosts;
@@ -96,6 +101,12 @@ public class ElasticsearchConfig {
         return httpHosts;
     }
 
+    /**
+     * Get one http url.
+     *
+     * @return a http url
+     * @throws Exception any exception if occurred
+     */
     public String getOneHttpUrl() throws Exception {
         getHttpHosts();
         if (!httpHosts.isEmpty() && httpHosts.size() > 0) {

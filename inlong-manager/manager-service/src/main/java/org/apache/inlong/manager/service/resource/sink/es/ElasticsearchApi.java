@@ -66,9 +66,9 @@ public class ElasticsearchApi {
     private ElasticsearchConfig esConfig;
 
     /**
-     * get http headers by token.
+     * Get http headers by token.
      *
-     * @return
+     * @return http header infos
      */
     private HttpHeaders getHttpHeaders() {
         HttpHeaders headers = new HttpHeaders();
@@ -84,12 +84,12 @@ public class ElasticsearchApi {
     }
 
     /**
-     * Search
+     * Search.
      *
      * @param indexName The index name
      * @param request The request json
-     * @return
-     * @throws Exception
+     * @return the elasticsearch seqrch result
+     * @throws Exception any exception if occurred
      */
     public JsonObject search(String indexName, JsonObject request) throws Exception {
         LOG.info("get es search es index:{} request:{}", indexName, request.toString());
@@ -99,11 +99,11 @@ public class ElasticsearchApi {
     }
 
     /**
-     * Check index exists
+     * Check index exists.
      *
-     * @param indexName
-     * @return
-     * @throws Exception
+     * @param indexName The elasticsearch index name
+     * @return true or false
+     * @throws Exception any exception if occurred
      */
     public boolean indexExists(String indexName) throws Exception {
         final String url = esConfig.getOneHttpUrl() + "/" + indexName;
@@ -117,9 +117,9 @@ public class ElasticsearchApi {
     }
 
     /**
-     * Check if the cluster is available
+     * Check if the cluster is available.
      *
-     * @return
+     * @return true or false
      */
     public boolean ping() throws Exception {
         final String url = esConfig.getOneHttpUrl() + "/";
@@ -127,10 +127,10 @@ public class ElasticsearchApi {
     }
 
     /**
-     * Create index by REST API
+     * Create index by REST API.
      *
-     * @param indexName
-     * @throws IOException
+     * @param indexName elasticsearch index name
+     * @throws IOException any IOException if occurred
      */
     public void createIndex(String indexName) throws Exception {
         final String url = esConfig.getOneHttpUrl() + "/" + indexName;
@@ -141,7 +141,7 @@ public class ElasticsearchApi {
     }
 
     /**
-     * Get mapping info
+     * Get mapping info.
      *
      * @param fieldsInfo The fields info of Elasticsearch
      * @return String list of fields translation
@@ -180,7 +180,7 @@ public class ElasticsearchApi {
     }
 
     /**
-     * Create index and mapping by REST API
+     * Create index and mapping by REST API.
      *
      * @param indexName Index name of creating
      * @param fieldInfos Field infos
@@ -199,10 +199,10 @@ public class ElasticsearchApi {
     }
 
     /**
-     * Get mapping map
+     * Get mapping map.
      *
-     * @param indexName
-     * @return
+     * @param indexName elasticsearch index name
+     * @return map of elasticsearch index mapping info
      */
     public Map<String, Map<String, String>> getMappingMap(String indexName) throws Exception {
         final String url = esConfig.getOneHttpUrl() + "/" + indexName + "/_mapping";
@@ -225,11 +225,11 @@ public class ElasticsearchApi {
     }
 
     /**
-     * Add fields by REST API
+     * Add fields by REST API.
      *
-     * @param indexName
-     * @param fieldInfos
-     * @throws Exception
+     * @param indexName elasticsearch index name
+     * @param fieldInfos elasticsearch field infos
+     * @throws Exception any exception if occurred
      */
     public void addFields(String indexName, List<ElasticsearchFieldInfo> fieldInfos) throws Exception {
         List<String> fieldList = getMappingInfo(fieldInfos);
@@ -243,11 +243,11 @@ public class ElasticsearchApi {
     }
 
     /**
-     * Add not exist fields by REST API
+     * Add not exist fields by REST API.
      *
-     * @param indexName
-     * @param fieldInfos
-     * @throws Exception
+     * @param indexName elasticsearch index name
+     * @param fieldInfos elasticsearch field infos
+     * @throws Exception any exception if occurred
      */
     public void addNotExistFields(String indexName, List<ElasticsearchFieldInfo> fieldInfos) throws Exception {
         List<ElasticsearchFieldInfo> notExistFieldInfos = new ArrayList<>();
@@ -263,7 +263,7 @@ public class ElasticsearchApi {
     }
 
     /**
-     * Get Elasticsearch client
+     * Get Elasticsearch configuration.
      *
      * @param config Elasticsearch's configuration
      */
