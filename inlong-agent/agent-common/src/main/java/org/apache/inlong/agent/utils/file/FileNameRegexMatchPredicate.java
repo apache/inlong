@@ -40,11 +40,7 @@ public class FileNameRegexMatchPredicate implements Predicate<File> {
         if (matcher.matches()) {
             return true;
         } else {
-            if (matcher.lookingAt()) {
-                return true;
-            } else {
-                return false;
-            }
+            return matcher.lookingAt();
         }
     }
 
