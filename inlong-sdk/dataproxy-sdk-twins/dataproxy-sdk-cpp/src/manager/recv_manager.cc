@@ -24,6 +24,10 @@ RecvManager::RecvManager(std::shared_ptr<SendManager> send_manager)
       exit_flag_(false) {
   dispatch_interval_ = SdkConfig::getInstance()->dispatch_interval_zip_;
 
+  max_groupid_streamid_num_ = SdkConfig::getInstance()->max_group_id_num_ *
+                              SdkConfig::getInstance()->max_stream_id_num_;
+  LOG_INFO("max_groupid_streamid_num " <<max_groupid_streamid_num_);
+
   check_timer_ = std::make_shared<asio::steady_timer>(io_context_);
   check_timer_->expires_after(std::chrono::milliseconds(10));
   check_timer_->async_wait(
@@ -54,9 +58,13 @@ RecvGroupPtr RecvManager::GetRecvGroup(const std::string &groupId,
                                        const std::string &streamId) {
   std::lock_guard<std::mutex> lck(mutex_);
   auto it = recv_group_map_.find(groupId + streamId);
-  if (it != recv_group_map_.end())
+  if (it != recv_group_map_.end()) {
     return it->second;
-  else {
+  } else {
+    if (recv_group_map_.size() > max_groupid_streamid_num_) {
+      return nullptr;
+    }
+
     RecvGroupPtr recv_group =
         std::make_shared<RecvGroup>(groupId, streamId, send_manager_);
     recv_group_map_.emplace(groupId + streamId, recv_group);

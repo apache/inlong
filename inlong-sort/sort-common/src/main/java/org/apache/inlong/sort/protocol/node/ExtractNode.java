@@ -71,6 +71,8 @@ import java.util.Map;
 @NoArgsConstructor
 public abstract class ExtractNode implements Node {
 
+    public static final String INLONG_MSG = "inlong-msg";
+
     @JsonProperty("id")
     private String id;
     @JsonInclude(Include.NON_NULL)
