@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.utils;
+package org.apache.inlong.agent.utils.file;
 
 /*
  * The Alphanum Algorithm is an improved sorting algorithm for strings

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.utils;
+package org.apache.inlong.agent.utils.file;
 
 import com.google.common.base.Predicate;
 
@@ -23,11 +23,14 @@ import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class FileNameRegexMatchPredicate implements Predicate<File> {
+public class DirNameRegexMatchPredicate implements Predicate<File> {
 
     private Pattern pattern;
 
-    public FileNameRegexMatchPredicate(String regex, boolean caseSensitive) {
+    public DirNameRegexMatchPredicate(String regex, boolean caseSensitive) {
+        if (regex == null || regex.isEmpty()) {
+            regex = ".*";
+        }
         if (!caseSensitive) {
             pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
         } else {

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.utils;
+package org.apache.inlong.agent.utils.file;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
