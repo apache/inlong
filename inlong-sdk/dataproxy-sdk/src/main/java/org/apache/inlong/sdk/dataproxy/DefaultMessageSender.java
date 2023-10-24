@@ -70,7 +70,7 @@ public class DefaultMessageSender implements MessageSender {
     public DefaultMessageSender(ProxyClientConfig configure, ThreadFactory selfDefineFactory) throws Exception {
         ProxyUtils.validClientConfig(configure);
         sender = new Sender(configure, selfDefineFactory);
-        groupId = configure.getGroupId();
+        groupId = configure.getInlongGroupId();
         indexCol = new IndexCollectThread(storeIndex);
         indexCol.start();
 
@@ -111,7 +111,7 @@ public class DefaultMessageSender implements MessageSender {
         // initial sender object
         ProxyConfigManager proxyConfigManager = new ProxyConfigManager(configure,
                 Utils.getLocalIp(), null);
-        proxyConfigManager.setGroupId(configure.getGroupId());
+        proxyConfigManager.setInlongGroupId(configure.getInlongGroupId());
         ProxyConfigEntry entry = proxyConfigManager.getGroupIdConfigure();
         DefaultMessageSender sender = CACHE_SENDER.get(entry.getClusterId());
         if (sender != null) {

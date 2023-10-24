@@ -77,7 +77,7 @@ public class HttpProxySender extends Thread {
         try {
             proxyConfigManager = new ProxyConfigManager(configure,
                     Utils.getLocalIp(), null);
-            proxyConfigManager.setGroupId(configure.getGroupId());
+            proxyConfigManager.setInlongGroupId(configure.getInlongGroupId());
             ProxyConfigEntry proxyConfigEntry = retryGettingProxyConfig();
             hostList.addAll(proxyConfigEntry.getHostMap().values());
 
