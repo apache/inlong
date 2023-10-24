@@ -53,7 +53,7 @@ public class TubeMQSourceDTO {
     private String format;
 
     @ApiModelProperty("Group of the TubeMQ")
-    private String groupId;
+    private String consumeGroup;
 
     @ApiModelProperty("Session key of the TubeMQ")
     private String sessionKey;
@@ -62,7 +62,7 @@ public class TubeMQSourceDTO {
      * The tubemq consumers use this tid set to filter records reading from server.
      */
     @ApiModelProperty("Tid of the TubeMQ")
-    private TreeSet<String> tid;
+    private TreeSet<String> streamId;
 
     @ApiModelProperty("Properties for TubeMQ")
     private Map<String, Object> properties;

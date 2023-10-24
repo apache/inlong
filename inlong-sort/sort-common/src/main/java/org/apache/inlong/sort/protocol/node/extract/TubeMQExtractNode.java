@@ -21,6 +21,7 @@ import org.apache.inlong.sort.formats.util.StringUtils;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.TubeMQConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
+import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import com.google.common.base.Preconditions;
@@ -58,7 +59,7 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
 
     @Nonnull
     @JsonProperty("format")
-    private String format;
+    private Format format;
 
     @Nonnull
     @JsonProperty("consumeGroup")
@@ -73,9 +74,6 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
     @JsonProperty("streamId")
     private TreeSet<String> streamId;
 
-    @JsonProperty("inlong-msg.inner.format")
-    private String innerFormat;
-
     @JsonCreator
     public TubeMQExtractNode(
             @JsonProperty("id") String id,
@@ -85,11 +83,10 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
             @JsonProperty("properties") Map<String, String> properties,
             @Nonnull @JsonProperty("masterRpc") String masterRpc,
             @Nonnull @JsonProperty("topic") String topic,
-            @Nonnull @JsonProperty("format") String format,
+            @Nonnull @JsonProperty("format") Format format,
             @Nonnull @JsonProperty("consumeGroup") String consumeGroup,
             @JsonProperty("sessionKey") String sessionKey,
-            @JsonProperty("streamId") TreeSet<String> streamId,
-            @JsonProperty("inlong-msg.inner.format") String innerFormat) {
+            @JsonProperty("streamId") TreeSet<String> streamId) {
         super(id, name, fields, waterMarkField, properties);
         this.masterRpc = Preconditions.checkNotNull(masterRpc, "TubeMQ masterRpc is null");
         this.topic = Preconditions.checkNotNull(topic, "TubeMQ topic is null");
@@ -97,21 +94,21 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
         this.consumeGroup = Preconditions.checkNotNull(consumeGroup, "Group id is null");
         this.sessionKey = sessionKey;
         this.streamId = streamId;
-        this.innerFormat = innerFormat;
     }
 
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> map = super.tableOptions();
         map.put(TubeMQConstant.CONNECTOR, TubeMQConstant.TUBEMQ);
+        map.putAll(format.generateOptions(false));
         map.put(TubeMQConstant.TOPIC, topic);
         map.put(TubeMQConstant.MASTER_RPC, masterRpc);
         map.put(TubeMQConstant.CONSUME_GROUP, consumeGroup);
-        map.put(TubeMQConstant.FORMAT, format);
+        // map.put(TubeMQConstant.FORMAT, format);
         map.put(TubeMQConstant.SESSION_KEY, sessionKey);
-        if (format.startsWith(INLONG_MSG)) {
-            map.put(TubeMQConstant.INNER_FORMAT, innerFormat);
-        }
+        // if (format.startsWith(INLONG_MSG)) {
+        // map.put(TubeMQConstant.INNER_FORMAT, innerFormat);
+        // }
 
         if (null != streamId && !streamId.isEmpty()) {
             map.put(TubeMQConstant.STREAMID, StringUtils.concatCsv(streamId.toArray(new String[0]),
