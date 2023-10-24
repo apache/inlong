@@ -60,7 +60,7 @@ import java.util.stream.Collectors;
  * Collections.sort(your list, new AlphanumComparator());
  */
 public class AlphanumComparator implements Comparator<String> {
-    
+
     private boolean isDigit(char ch) {
         return ((ch >= 48) && (ch <= 57));
     }

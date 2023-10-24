@@ -48,7 +48,6 @@ public class FileFinderIterator implements Iterator<File> {
     /**
      * A stack that stores all files and directories that still habe to be processed.
      */
-    // private LinkedList<File> fileStack = new LinkedList<File>();
     private LinkedList<DepthControl> depthStack = new LinkedList<DepthControl>();
     /**
      * A queue to cache results that will be offered one by one by the {@link Iterator}.
