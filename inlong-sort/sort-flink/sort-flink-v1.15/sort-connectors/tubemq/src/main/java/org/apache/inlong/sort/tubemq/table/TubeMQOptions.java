@@ -77,6 +77,13 @@ public class TubeMQOptions {
     // TubeMQ specific options
     // --------------------------------------------------------------------------------------------
 
+    public static final ConfigOption<String> INNER_FORMAT =
+            ConfigOptions.key("inlong-msg.inner.format")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "Inner format");
+
     public static final ConfigOption<String> TOPIC =
             ConfigOptions.key("topic")
                     .stringType()
@@ -99,8 +106,8 @@ public class TubeMQOptions {
                     .noDefaultValue()
                     .withDescription("Required TubeMQ master connection string");
 
-    public static final ConfigOption<String> GROUP_NAME =
-            ConfigOptions.key("group.name")
+    public static final ConfigOption<String> CONSUME_GROUP =
+            ConfigOptions.key("consume.group")
                     .stringType()
                     .noDefaultValue()
                     .withDescription(
@@ -131,7 +138,7 @@ public class TubeMQOptions {
                     .withDescription("The session key for this consumer group at startup.");
 
     public static final ConfigOption<List<String>> STREAMID =
-            ConfigOptions.key("topic.streamId")
+            ConfigOptions.key("stream.id")
                     .stringType()
                     .asList()
                     .noDefaultValue()
@@ -268,7 +275,7 @@ public class TubeMQOptions {
     }
 
     public static String getConsumerGroup(ReadableConfig tableOptions) {
-        return tableOptions.getOptional(GROUP_NAME).orElse(null);
+        return tableOptions.getOptional(CONSUME_GROUP).orElse(null);
     }
 
     public static String getSessionKey(ReadableConfig tableOptions) {

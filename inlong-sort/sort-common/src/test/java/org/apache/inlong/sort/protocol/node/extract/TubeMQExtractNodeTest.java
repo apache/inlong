@@ -40,7 +40,7 @@ public class TubeMQExtractNodeTest extends SerializeBaseTest<TubeMQExtractNode> 
                 new FieldInfo("salary", new FloatFormatInfo()));
 
         return new TubeMQExtractNode("1", "tubeMQ_input", fields, null, null,
-                "127.0.0.1:8715", "inlong", "json", "test", null, null);
+                "127.0.0.1:8715", "inlong", "json", "test", null, null, null);
 
     }
 }

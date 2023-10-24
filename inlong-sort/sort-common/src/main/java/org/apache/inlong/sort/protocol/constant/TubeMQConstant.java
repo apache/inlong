@@ -24,22 +24,23 @@ public class TubeMQConstant {
 
     public static final String TOPIC = "topic";
 
-    public static final String GROUP_ID = "group.id";
+    public static final String CONSUME_GROUP = "consume.group";
 
     public static final String CONNECTOR = "connector";
 
-    public static final String TUBEMQ = "tubemq";
+    public static final String TUBEMQ = "tubemq-inlong";
 
     public static final String MASTER_RPC = "master.rpc";
 
     public static final String FORMAT = "format";
+    public static final String INNER_FORMAT = "inlong-msg.inner.format";
 
     public static final String SESSION_KEY = "session.key";
 
     /**
-     * The tubemq consumers use this tid set to filter records reading from server.
+     * The tubemq consumers use this streamId set to filter records reading from server.
      */
-    public static final String TID = "tid";
+    public static final String STREAMID = "stream.id";
 
     public static final String CONSUMER_STARTUP_MODE = "consumer.startup.mode";
 

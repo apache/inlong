@@ -15,15 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.standalone;
+package org.apache.inlong.common.enums;
 
-import lombok.Data;
+/**
+ * Enum of instance state.
+ */
+public enum InstanceStateEnum {
 
-@Data
-public class SortFieldInfo {
+    DEFAULT(0),
+    FINISHED(1),
+    DELETE(2);
 
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private Integer sinkId;
-    private String fieldName;
+    private final int state;
+
+    InstanceStateEnum(int state) {
+        this.state = state;
+    }
+
+    public static InstanceStateEnum getTaskState(int state) {
+        switch (state) {
+            case 0:
+                return DEFAULT;
+            case 1:
+                return FINISHED;
+            case 2:
+                return DELETE;
+            default:
+                throw new RuntimeException("Unsupported instance state " + state);
+        }
+    }
+
+    public int getState() {
+        return state;
+    }
+
 }

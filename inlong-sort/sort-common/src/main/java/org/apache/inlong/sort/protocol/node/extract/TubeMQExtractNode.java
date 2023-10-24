@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import org.apache.inlong.sort.formats.util.StringUtils;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.TubeMQConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
@@ -60,17 +61,20 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
     private String format;
 
     @Nonnull
-    @JsonProperty("groupId")
-    private String groupId;
+    @JsonProperty("consumeGroup")
+    private String consumeGroup;
 
     @JsonProperty("sessionKey")
     private String sessionKey;
 
     /**
-     * The tubemq consumers use this tid set to filter records reading from server.
+     * The tubemq consumers use this streamId set to filter records reading from server.
      */
-    @JsonProperty("tid")
-    private TreeSet<String> tid;
+    @JsonProperty("streamId")
+    private TreeSet<String> streamId;
+
+    @JsonProperty("inlong-msg.inner.format")
+    private String innerFormat;
 
     @JsonCreator
     public TubeMQExtractNode(
@@ -82,16 +86,18 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
             @Nonnull @JsonProperty("masterRpc") String masterRpc,
             @Nonnull @JsonProperty("topic") String topic,
             @Nonnull @JsonProperty("format") String format,
-            @Nonnull @JsonProperty("groupId") String groupId,
+            @Nonnull @JsonProperty("consumeGroup") String consumeGroup,
             @JsonProperty("sessionKey") String sessionKey,
-            @JsonProperty("tid") TreeSet<String> tid) {
+            @JsonProperty("streamId") TreeSet<String> streamId,
+            @JsonProperty("inlong-msg.inner.format") String innerFormat) {
         super(id, name, fields, waterMarkField, properties);
         this.masterRpc = Preconditions.checkNotNull(masterRpc, "TubeMQ masterRpc is null");
         this.topic = Preconditions.checkNotNull(topic, "TubeMQ topic is null");
         this.format = Preconditions.checkNotNull(format, "Format is null");
-        this.groupId = Preconditions.checkNotNull(groupId, "Group id is null");
+        this.consumeGroup = Preconditions.checkNotNull(consumeGroup, "Group id is null");
         this.sessionKey = sessionKey;
-        this.tid = tid;
+        this.streamId = streamId;
+        this.innerFormat = innerFormat;
     }
 
     @Override
@@ -100,12 +106,18 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
         map.put(TubeMQConstant.CONNECTOR, TubeMQConstant.TUBEMQ);
         map.put(TubeMQConstant.TOPIC, topic);
         map.put(TubeMQConstant.MASTER_RPC, masterRpc);
-        map.put(TubeMQConstant.GROUP_ID, groupId);
+        map.put(TubeMQConstant.CONSUME_GROUP, consumeGroup);
         map.put(TubeMQConstant.FORMAT, format);
         map.put(TubeMQConstant.SESSION_KEY, sessionKey);
-        if (null != tid && !tid.isEmpty()) {
-            map.put(TubeMQConstant.TID, tid.toString());
+        if (format.startsWith(INLONG_MSG)) {
+            map.put(TubeMQConstant.INNER_FORMAT, innerFormat);
         }
+
+        if (null != streamId && !streamId.isEmpty()) {
+            map.put(TubeMQConstant.STREAMID, StringUtils.concatCsv(streamId.toArray(new String[0]),
+                    ',', null, null));
+        }
+
         return map;
     }
 

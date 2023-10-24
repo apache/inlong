@@ -15,15 +15,41 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.standalone;
+package org.apache.inlong.common.enums;
 
-import lombok.Data;
+/**
+ * Enum of task state.
+ */
+public enum TaskStateEnum {
 
-@Data
-public class SortFieldInfo {
+    NEW(0),
+    RUNNING(1),
+    FROZEN(2),
+    FINISH(3);
 
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private Integer sinkId;
-    private String fieldName;
+    private final int state;
+
+    TaskStateEnum(int state) {
+        this.state = state;
+    }
+
+    public static TaskStateEnum getTaskState(int state) {
+        switch (state) {
+            case 0:
+                return NEW;
+            case 1:
+                return RUNNING;
+            case 2:
+                return FROZEN;
+            case 3:
+                return FINISH;
+            default:
+                throw new RuntimeException("Unsupported task state " + state);
+        }
+    }
+
+    public int getType() {
+        return state;
+    }
+
 }
