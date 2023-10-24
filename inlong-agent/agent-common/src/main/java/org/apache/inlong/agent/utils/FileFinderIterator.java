@@ -66,17 +66,6 @@ public class FileFinderIterator implements Iterator<File> {
      * @param fileFilter The {@link Predicate} that is used as filter to find specific
      *         files.
      */
-    // public FileFinderIterator(File baseDir, Predicate<File> yieldFilter,
-    // Predicate<File> branchFilter, Predicate<File> fileFilter) {
-    // this.yieldFilter = yieldFilter;
-    // this.branchFilter = branchFilter;
-    // this.fileFilter = fileFilter;
-    // this.maxDepth = 1;
-    // // fileStack.addAll(Arrays.asList(baseDir.listFiles()));
-    // for(File f : baseDir.listFiles()) {
-    // depthStack.add(new DepthControl(1, f));
-    // }
-    // }
     public FileFinderIterator(File baseDir, Predicate<File> yieldFilter,
             Predicate<File> branchFilter, Predicate<File> fileFilter,
             Predicate<File> dirFilter, int maxDepth) {
@@ -85,7 +74,6 @@ public class FileFinderIterator implements Iterator<File> {
         this.fileFilter = fileFilter;
         this.maxDepth = maxDepth;
         this.dirFilter = dirFilter;
-        // fileStack.addAll(Arrays.asList(baseDir.listFiles()));
         File[] listFiles = baseDir.listFiles();
         if (listFiles != null) {
             for (File f : listFiles) {
@@ -122,20 +110,6 @@ public class FileFinderIterator implements Iterator<File> {
      * Fills the result queue by processing the files and directories from fileStack.
      */
     private void populateResults() {
-
-        // while (!fileStack.isEmpty() && resultQueue.isEmpty()) {
-        // File currentFile = fileStack.pop();
-        //
-        // if (yieldFilter.apply(currentFile) && fileFilter.apply(currentFile))
-        // {
-        // resultQueue.offer(currentFile);
-        // }
-        //
-        // if (currentFile.isDirectory() && branchFilter.apply(currentFile)) {
-        // pushAllOnTop(fileStack, currentFile.listFiles());
-        // }
-        // }
-
         while (!depthStack.isEmpty() && resultQueue.isEmpty()) {
             DepthControl currentDepthControl = depthStack.pop();
             File currentFile = currentDepthControl.getFile();
