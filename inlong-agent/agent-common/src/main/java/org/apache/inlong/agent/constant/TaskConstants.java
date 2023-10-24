@@ -148,7 +148,7 @@ public class TaskConstants extends CommonConstants {
     public static final String DEFAULT_JOB_FILE_TIME_OFFSET = "0d";
 
     // time in min
-    public static final int DEFAULT_JOB_FILE_MAX_WAIT = 1;
+    public static final int DEFAULT_JOB_FILE_MAX_WAIT_TIME = 1;
 
     public static final String JOB_READ_WAIT_TIMEOUT = "job.file.read.wait";
 
