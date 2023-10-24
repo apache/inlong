@@ -60,18 +60,7 @@ import java.util.stream.Collectors;
  * Collections.sort(your list, new AlphanumComparator());
  */
 public class AlphanumComparator implements Comparator<String> {
-
-    /**
-     * Shows an example of how the comparator works. Feel free to delete this in your own code!
-     */
-    public static void main(String[] args) {
-        List<String> values = Arrays
-                .asList("dazzle2", "dazzle10", "dazzle1", "dazzle2.7", "dazzle2.10", "2", "10", "1",
-                        "EctoMorph6", "EctoMorph62", "EctoMorph7");
-        System.out.println(
-                values.stream().sorted(new AlphanumComparator()).collect(Collectors.joining(" ")));
-    }
-
+    
     private boolean isDigit(char ch) {
         return ((ch >= 48) && (ch <= 57));
     }
