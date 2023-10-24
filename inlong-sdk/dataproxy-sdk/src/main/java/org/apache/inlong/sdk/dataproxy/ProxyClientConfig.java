@@ -137,7 +137,8 @@ public class ProxyClientConfig {
         this.maxRetry = maxRetry;
     }
 
-    public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp, int managerPort, String inlongGroupId,
+    public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp, int managerPort,
+            String inlongGroupId,
             String netTag, String authSecretId, String authSecretKey) throws ProxysdkException {
         this(localHost, isLocalVisit, managerIp, managerPort, inlongGroupId, netTag, authSecretId, authSecretKey,
                 ConfigConstants.DEFAULT_LOAD_BALANCE, ConfigConstants.DEFAULT_VIRTUAL_NODE,
