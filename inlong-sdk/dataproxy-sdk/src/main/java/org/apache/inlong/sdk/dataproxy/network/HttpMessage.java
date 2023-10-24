@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
+import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;

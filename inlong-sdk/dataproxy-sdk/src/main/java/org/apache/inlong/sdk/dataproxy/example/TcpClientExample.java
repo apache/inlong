@@ -20,7 +20,7 @@ package org.apache.inlong.sdk.dataproxy.example;
 import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.SendResult;
+import org.apache.inlong.sdk.dataproxy.common.SendResult;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

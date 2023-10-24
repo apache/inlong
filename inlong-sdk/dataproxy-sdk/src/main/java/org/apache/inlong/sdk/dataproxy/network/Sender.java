@@ -17,11 +17,11 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import org.apache.inlong.sdk.dataproxy.FileCallback;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
-import org.apache.inlong.sdk.dataproxy.SendResult;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
+import org.apache.inlong.sdk.dataproxy.common.FileCallback;
+import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
+import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.threads.MetricWorkerThread;
 import org.apache.inlong.sdk.dataproxy.threads.TimeoutScanThread;

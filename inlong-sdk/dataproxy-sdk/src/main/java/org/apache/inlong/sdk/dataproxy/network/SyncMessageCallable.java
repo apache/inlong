@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import org.apache.inlong.sdk.dataproxy.SendResult;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
+import org.apache.inlong.sdk.dataproxy.common.SendResult;
 
 import io.netty.channel.ChannelFuture;
 import org.slf4j.Logger;

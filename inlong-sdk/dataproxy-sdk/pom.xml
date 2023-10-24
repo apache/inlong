@@ -31,6 +31,7 @@
 
     <properties>
         <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
+        <maven.shaded.version>3.1.1</maven.shaded.version>
     </properties>
 
     <dependencies>
@@ -111,22 +112,23 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
+                <version>${maven.shaded.version}</version>
                 <configuration>
                     <relocations>
                         <relocation>
                             <pattern>com.fasterxml.jackson</pattern>
-                            <shadedPattern>org.apache.inlong.dataproxy.shaded.jackson2.com.fasterxml.jackson</shadedPattern>
+                            <shadedPattern>org.apache.inlong.dataproxy.shaded.com.fasterxml.jackson</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.apache.commons.lang3</pattern>
-                            <shadedPattern>org.apache.inlong.dataproxy.shaded.lang3.org.apache.commons.lang3</shadedPattern>
+                            <shadedPattern>org.apache.inlong.dataproxy.shaded.org.apache.commons.lang3</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>io.netty</pattern>
                             <shadedPattern>org.apache.inlong.dataproxy.shaded.io.netty</shadedPattern>
                         </relocation>
                     </relocations>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
                 </configuration>
                 <executions>
                     <execution>

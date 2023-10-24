@@ -23,6 +23,7 @@ import org.apache.inlong.common.util.BasicAuth;
 import org.apache.inlong.sdk.dataproxy.ConfigConstants;
 import org.apache.inlong.sdk.dataproxy.LoadBalance;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.common.Code;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
 import org.apache.inlong.sdk.dataproxy.network.HashRing;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
@@ -745,7 +746,8 @@ public class ProxyConfigManager extends Thread {
                 httpPost.setEntity(urlEncodedFormEntity);
                 HttpResponse response = httpClient.execute(httpPost);
                 returnStr = EntityUtils.toString(response.getEntity());
-                if (Utils.isNotBlank(returnStr) && response.getStatusLine().getStatusCode() == 200) {
+                if (Utils.isNotBlank(returnStr)
+                        && response.getStatusLine().getStatusCode() == Code.SUCCESS.getValue()) {
                     LOGGER.info("Get configure from manager is " + returnStr);
                     return returnStr;
                 }
