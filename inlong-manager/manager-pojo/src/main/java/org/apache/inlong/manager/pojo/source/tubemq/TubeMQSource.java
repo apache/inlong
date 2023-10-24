@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.source.tubemq;
 
-import lombok.Builder;
 import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -28,6 +27,7 @@ import org.apache.inlong.manager.pojo.source.StreamSource;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
