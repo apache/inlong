@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class PulsarUtilsTest {
 
-    private static final String DEFAULT_SERVICE_URL = "http://172.16.80.220:8080";
+    private static final String DEFAULT_SERVICE_URL = "http://127.0.0.1:8080";
 
     private static final PulsarClusterInfo PULSAR_CLUSTER_INFO = new PulsarClusterInfo();
 
