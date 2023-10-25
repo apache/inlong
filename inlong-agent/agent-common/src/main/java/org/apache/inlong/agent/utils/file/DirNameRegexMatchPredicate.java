@@ -40,15 +40,7 @@ public class DirNameRegexMatchPredicate implements Predicate<File> {
 
     public boolean apply(File input) {
         Matcher matcher = pattern.matcher(input.getAbsolutePath());
-        if (matcher.matches()) {
-            return true;
-        } else {
-            if (matcher.lookingAt()) {
-                return true;
-            } else {
-                return false;
-            }
-        }
+        return matcher.matches() || matcher.lookingAt();
     }
 
 }

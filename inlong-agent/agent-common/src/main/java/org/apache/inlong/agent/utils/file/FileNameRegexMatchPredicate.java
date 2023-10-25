@@ -37,11 +37,7 @@ public class FileNameRegexMatchPredicate implements Predicate<File> {
 
     public boolean apply(File input) {
         Matcher matcher = pattern.matcher(input.getAbsolutePath());
-        if (matcher.matches()) {
-            return true;
-        } else {
-            return matcher.lookingAt();
-        }
+        return matcher.matches() || matcher.lookingAt();
     }
 
 }
