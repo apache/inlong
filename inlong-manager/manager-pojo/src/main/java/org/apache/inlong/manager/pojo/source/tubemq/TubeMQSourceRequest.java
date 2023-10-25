@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.source.tubemq;
 
-import lombok.Builder;
-import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.source.pulsar;
 
-import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
