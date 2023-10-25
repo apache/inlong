@@ -190,7 +190,6 @@ public class PulsarUtilsTest {
         }
     }
 
-
     /**
      * Just using in local test.
      */
