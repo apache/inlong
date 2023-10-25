@@ -44,6 +44,7 @@ public class StandaloneAutoAssignTest extends ServiceBaseTest {
     private InlongClusterService clusterService;
     @Autowired
     private TestStandaloneSinkResourceOperator testResourceOperator;
+
     @Test
     public void testAutoAssign() {
 
@@ -76,8 +77,8 @@ public class StandaloneAutoAssignTest extends ServiceBaseTest {
         clsSinkEntity.setInlongGroupId(groupId);
         clsSinkEntity.setInlongStreamId(streamId);
         clsSinkEntity.setCreator(GLOBAL_OPERATOR);
-
-        return sinkEntityMapper.insert(clsSinkEntity);
+        sinkEntityMapper.insert(clsSinkEntity);
+        return clsSinkEntity.getId();
     }
 
     public Integer saveStandaloneCluster(String clusterTag, String clusterName, Set<String> supportedSinkTypes) {

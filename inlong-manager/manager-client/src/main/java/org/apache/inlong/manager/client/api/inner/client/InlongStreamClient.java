@@ -102,9 +102,8 @@ public class InlongStreamClient {
         }
         if (response.getErrMsg().contains("not exist")) {
             return null;
-        } else {
-            throw new RuntimeException(response.getErrMsg());
         }
+        throw new RuntimeException(response.getErrMsg());
     }
 
     /**
@@ -119,9 +118,8 @@ public class InlongStreamClient {
         }
         if (response.getErrMsg().contains("not exist")) {
             return null;
-        } else {
-            throw new RuntimeException(response.getErrMsg());
         }
+        throw new RuntimeException(response.getErrMsg());
     }
 
     /**
