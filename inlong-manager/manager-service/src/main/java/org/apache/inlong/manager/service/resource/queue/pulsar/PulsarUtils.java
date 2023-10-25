@@ -19,11 +19,11 @@ package org.apache.inlong.manager.service.resource.queue.pulsar;
 
 import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
-import org.apache.inlong.manager.pojo.queue.pulsar.PulsarLookupTopicInfo;
-import org.apache.inlong.manager.pojo.queue.pulsar.PulsarNamespacePolicies;
-import org.apache.inlong.manager.pojo.queue.pulsar.PulsarPartitionedInternalStats;
-import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTenantInfo;
-import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicMetadata;
+import org.apache.inlong.manager.pojo.sink.queue.pulsar.PulsarLookupTopicInfo;
+import org.apache.inlong.manager.pojo.sink.queue.pulsar.PulsarNamespacePolicies;
+import org.apache.inlong.manager.pojo.sink.queue.pulsar.PulsarPartitionedInternalStats;
+import org.apache.inlong.manager.pojo.sink.queue.pulsar.PulsarTenantInfo;
+import org.apache.inlong.manager.pojo.sink.queue.pulsar.PulsarTopicMetadata;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -422,7 +422,7 @@ public class PulsarUtils {
      */
     public static List<String> getSubscriptions(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath) throws Exception {
-        String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + topicPath + "/subscriptions";
+        String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/subscriptions";
         return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
                 ArrayList.class);
     }
@@ -438,7 +438,7 @@ public class PulsarUtils {
      */
     public static void createSubscription(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String topicPath,
             String subscription) throws Exception {
-        String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + topicPath + "/subscriptions/" + subscription;
+        String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/subscriptions/" + subscription;
         HttpUtils.request(restTemplate, url, HttpMethod.PUT, "latest", getHttpHeaders(clusterInfo.getToken()));
     }
 
