@@ -108,6 +108,23 @@ public class InlongStreamClient {
     }
 
     /**
+     * Get inlong stream brief info by the given groupId and streamId.
+     */
+    public InlongStreamBriefInfo getStreamBriefInfo(String groupId, String streamId) {
+        Response<InlongStreamBriefInfo> response =
+                ClientUtils.executeHttpCall(inlongStreamApi.getStreamBriefInfo(groupId, streamId));
+
+        if (response.isSuccess()) {
+            return response.getData();
+        }
+        if (response.getErrMsg().contains("not exist")) {
+            return null;
+        } else {
+            throw new RuntimeException(response.getErrMsg());
+        }
+    }
+
+    /**
      * Get inlong stream by the given inlong group id and stream id.
      *
      * @param streamInfo the given inlong stream info
