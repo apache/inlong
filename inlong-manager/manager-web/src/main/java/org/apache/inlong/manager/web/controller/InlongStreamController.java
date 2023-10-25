@@ -147,7 +147,7 @@ public class InlongStreamController {
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
     public Response<Boolean> startProcess(@PathVariable String groupId, @PathVariable String streamId,
-            @RequestParam boolean sync) {
+            @RequestParam(required = false, defaultValue = "false") boolean sync) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamProcessOperation.startProcess(groupId, streamId, operator, sync));
     }
@@ -159,7 +159,7 @@ public class InlongStreamController {
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
     public Response<Boolean> suspendProcess(@PathVariable String groupId, @PathVariable String streamId,
-            @RequestParam boolean sync) {
+            @RequestParam(required = false, defaultValue = "false") boolean sync) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamProcessOperation.suspendProcess(groupId, streamId, operator, sync));
     }
@@ -171,7 +171,7 @@ public class InlongStreamController {
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
     public Response<Boolean> restartProcess(@PathVariable String groupId, @PathVariable String streamId,
-            @RequestParam boolean sync) {
+            @RequestParam(required = false, defaultValue = "false") boolean sync) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamProcessOperation.restartProcess(groupId, streamId, operator, sync));
     }
@@ -183,7 +183,7 @@ public class InlongStreamController {
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
     public Response<Boolean> deleteProcess(@PathVariable String groupId, @PathVariable String streamId,
-            @RequestParam boolean sync) {
+            @RequestParam(required = false, defaultValue = "false") boolean sync) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamProcessOperation.deleteProcess(groupId, streamId, operator, sync));
     }

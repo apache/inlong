@@ -112,7 +112,6 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric {
         if (adminUrl != null) {
             options.put("admin-url", adminUrl);
         }
-        options.put("generic", "true");
         options.put("service-url", serviceUrl);
         options.put("topic", topic);
         options.put("scan.startup.mode", scanStartupMode);

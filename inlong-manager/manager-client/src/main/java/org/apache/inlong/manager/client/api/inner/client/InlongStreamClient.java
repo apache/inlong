@@ -108,6 +108,23 @@ public class InlongStreamClient {
     }
 
     /**
+     * Get inlong stream brief info by the given groupId and streamId.
+     */
+    public InlongStreamBriefInfo getStreamBriefInfo(String groupId, String streamId) {
+        Response<InlongStreamBriefInfo> response =
+                ClientUtils.executeHttpCall(inlongStreamApi.getStreamBriefInfo(groupId, streamId));
+
+        if (response.isSuccess()) {
+            return response.getData();
+        }
+        if (response.getErrMsg().contains("not exist")) {
+            return null;
+        } else {
+            throw new RuntimeException(response.getErrMsg());
+        }
+    }
+
+    /**
      * Get inlong stream by the given inlong group id and stream id.
      *
      * @param streamInfo the given inlong stream info
@@ -164,12 +181,13 @@ public class InlongStreamClient {
      *
      * @param groupId inlong group id
      * @param streamId inlong stream id
+     * @param sync Create stream in synchronous/asynchronous way.
      * @return whether succeed
      */
-    public boolean startProcess(String groupId, String streamId) {
+    public boolean startProcess(String groupId, String streamId, boolean sync) {
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
-        Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.startProcess(groupId, streamId));
+        Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.startProcess(groupId, streamId, sync));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -179,12 +197,14 @@ public class InlongStreamClient {
      *
      * @param groupId inlong group id
      * @param streamId inlong stream id
+     * @param sync Suspend stream in synchronous/asynchronous way.
      * @return whether succeed
      */
-    public boolean suspendProcess(String groupId, String streamId) {
+    public boolean suspendProcess(String groupId, String streamId, boolean sync) {
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
-        Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.suspendProcess(groupId, streamId));
+        Response<Boolean> response =
+                ClientUtils.executeHttpCall(inlongStreamApi.suspendProcess(groupId, streamId, sync));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -194,12 +214,14 @@ public class InlongStreamClient {
      *
      * @param groupId inlong group id
      * @param streamId inlong stream id
+     * @param sync Restart stream in synchronous/asynchronous way.
      * @return whether succeed
      */
-    public boolean restartProcess(String groupId, String streamId) {
+    public boolean restartProcess(String groupId, String streamId, boolean sync) {
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
-        Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.restartProcess(groupId, streamId));
+        Response<Boolean> response =
+                ClientUtils.executeHttpCall(inlongStreamApi.restartProcess(groupId, streamId, sync));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -209,12 +231,14 @@ public class InlongStreamClient {
      *
      * @param groupId inlong group id
      * @param streamId inlong stream id
+     * @param sync Delete stream in synchronous/asynchronous way.
      * @return whether succeed
      */
-    public boolean deleteProcess(String groupId, String streamId) {
+    public boolean deleteProcess(String groupId, String streamId, boolean sync) {
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
-        Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.deleteProcess(groupId, streamId));
+        Response<Boolean> response =
+                ClientUtils.executeHttpCall(inlongStreamApi.deleteProcess(groupId, streamId, sync));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

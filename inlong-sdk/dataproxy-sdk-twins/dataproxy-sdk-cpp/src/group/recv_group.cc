@@ -18,13 +18,13 @@
 #include "recv_group.h"
 
 #include "../protocol/msg_protocol.h"
+#include "../utils/capi_constant.h"
 #include "../utils/utils.h"
 #include "api_code.h"
 #include <cstdlib>
 #include <functional>
 
 namespace inlong {
-const uint32_t ATTR_LENGTH = 10;
 const uint32_t DEFAULT_PACK_ATTR = 400;
 RecvGroup::RecvGroup(const std::string &inlong_group_id,
                      const std::string &inlong_stream_id,
@@ -96,13 +96,13 @@ int32_t RecvGroup::DoDispatchMsg() {
   std::vector<SdkMsgPtr> msgs_to_dispatch;
   while (!msgs_.empty()) {
     SdkMsgPtr msg = msgs_.front();
-    if (msg->msg_.size() + total_length + ATTR_LENGTH >
+    if (msg->msg_.size() + total_length + constants::ATTR_LENGTH >
         SdkConfig::getInstance()->pack_size_) {
       break;
     }
     msgs_to_dispatch.push_back(msg);
     msgs_.pop();
-    total_length = msg->msg_.size() + total_length + ATTR_LENGTH;
+    total_length = msg->msg_.size() + total_length + constants::ATTR_LENGTH;
   }
 
   cur_len_ = cur_len_ - total_length;
@@ -144,7 +144,7 @@ void RecvGroup::AddMsg(const std::string &msg, std::string client_ip,
                                       data_pack_format_attr, user_client_ip,
                                       user_report_time));
 
-  cur_len_ += msg.size() + ATTR_LENGTH;
+  cur_len_ += msg.size() + constants::ATTR_LENGTH;
 }
 
 bool RecvGroup::ShouldPack(int32_t msg_len) {
@@ -322,7 +322,7 @@ bool RecvGroup::IsZipAndOperate(std::string &res, uint32_t real_cur_len) {
 }
 
 void RecvGroup::DispatchMsg(bool exit) {
-  if (cur_len_ <= ATTR_LENGTH || msgs_.empty())
+  if (cur_len_ <= constants::ATTR_LENGTH || msgs_.empty())
     return;
   bool len_enough = cur_len_ > SdkConfig::getInstance()->pack_size_;
   bool time_enough = (Utils::getCurrentMsTime() - last_pack_time_) >

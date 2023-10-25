@@ -51,6 +51,10 @@ public interface InlongStreamApi {
     Call<Response<InlongStreamInfo>> getStream(@Query("groupId") String groupId,
             @Query("streamId") String streamId);
 
+    @GET("/stream/getBrieft")
+    Call<Response<InlongStreamBriefInfo>> getStreamBriefInfo(@Query("groupId") String groupId,
+            @Query("streamId") String streamId);
+
     @POST("stream/list")
     Call<Response<PageResult<InlongStreamBriefInfo>>> listByCondition(@Body InlongStreamPageRequest request);
 
@@ -58,16 +62,20 @@ public interface InlongStreamApi {
     Call<Response<PageResult<InlongStreamInfo>>> listStream(@Body InlongStreamPageRequest request);
 
     @POST("stream/startProcess/{groupId}/{streamId}")
-    Call<Response<Boolean>> startProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);
+    Call<Response<Boolean>> startProcess(@Path("groupId") String groupId, @Path("streamId") String streamId,
+            @Query("sync") boolean sync);
 
     @POST("stream/suspendProcess/{groupId}/{streamId}")
-    Call<Response<Boolean>> suspendProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);
+    Call<Response<Boolean>> suspendProcess(@Path("groupId") String groupId, @Path("streamId") String streamId,
+            @Query("sync") boolean sync);
 
     @POST("stream/restartProcess/{groupId}/{streamId}")
-    Call<Response<Boolean>> restartProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);
+    Call<Response<Boolean>> restartProcess(@Path("groupId") String groupId, @Path("streamId") String streamId,
+            @Query("sync") boolean sync);
 
     @POST("stream/deleteProcess/{groupId}/{streamId}")
-    Call<Response<Boolean>> deleteProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);
+    Call<Response<Boolean>> deleteProcess(@Path("groupId") String groupId, @Path("streamId") String streamId,
+            @Query("sync") boolean sync);
 
     @DELETE("stream/delete")
     Call<Response<Boolean>> delete(@Query("groupId") String groupId, @Query("streamId") String streamId);

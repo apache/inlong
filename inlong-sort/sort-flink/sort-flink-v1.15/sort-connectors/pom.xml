@@ -40,6 +40,7 @@
         <module>mongodb-cdc</module>
         <module>pulsar</module>
         <module>tubemq</module>
+        <module>hbase</module>
     </modules>
 
     <properties>

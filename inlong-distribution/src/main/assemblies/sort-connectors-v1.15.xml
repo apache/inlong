@@ -91,5 +91,13 @@
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>../inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/hbase/target</directory>
+            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <includes>
+                <include>sort-connector-hbase-v1.15-${project.version}.jar</include>
+            </includes>
+            <fileMode>0644</fileMode>
+        </fileSet>
     </fileSets>
 </assembly>

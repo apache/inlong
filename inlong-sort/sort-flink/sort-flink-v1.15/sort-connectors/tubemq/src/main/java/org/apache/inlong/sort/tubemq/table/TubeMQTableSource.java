@@ -84,9 +84,9 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
      */
     private final String topic;
     /**
-     * The TubeMQ tid filter collection.
+     * The TubeMQ streamId filter collection.
      */
-    private final TreeSet<String> tidSet;
+    private final TreeSet<String> streamIdSet;
     /**
      * The TubeMQ consumer group name.
      */
@@ -129,7 +129,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
     public TubeMQTableSource(DataType physicalDataType,
             DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat,
             String masterAddress, String topic,
-            TreeSet<String> tidSet, String consumerGroup, String sessionKey,
+            TreeSet<String> streamIdSet, String consumerGroup, String sessionKey,
             Configuration configuration, @Nullable WatermarkStrategy<RowData> watermarkStrategy,
             Optional<String> proctimeAttribute, Boolean ignoreErrors, Boolean innerFormat) {
 
@@ -137,7 +137,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
         Preconditions.checkNotNull(valueDecodingFormat, "The deserialization schema must not be null.");
         Preconditions.checkNotNull(masterAddress, "The master address must not be null.");
         Preconditions.checkNotNull(topic, "The topic must not be null.");
-        Preconditions.checkNotNull(tidSet, "The tid set must not be null.");
+        Preconditions.checkNotNull(streamIdSet, "The streamId set must not be null.");
         Preconditions.checkNotNull(consumerGroup, "The consumer group must not be null.");
         Preconditions.checkNotNull(configuration, "The configuration must not be null.");
 
@@ -147,7 +147,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
         this.valueDecodingFormat = valueDecodingFormat;
         this.masterAddress = masterAddress;
         this.topic = topic;
-        this.tidSet = tidSet;
+        this.streamIdSet = streamIdSet;
         this.consumerGroup = consumerGroup;
         this.sessionKey = sessionKey;
         this.configuration = configuration;
@@ -182,7 +182,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
     public DynamicTableSource copy() {
         return new TubeMQTableSource(
                 physicalDataType, valueDecodingFormat, masterAddress,
-                topic, tidSet, consumerGroup, sessionKey, configuration,
+                topic, streamIdSet, consumerGroup, sessionKey, configuration,
                 watermarkStrategy, proctimeAttribute, ignoreErrors, innerFormat);
     }
 
@@ -247,7 +247,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
                 && Objects.equals(valueDecodingFormat, that.valueDecodingFormat)
                 && Objects.equals(masterAddress, that.masterAddress)
                 && Objects.equals(topic, that.topic)
-                && Objects.equals(String.valueOf(tidSet), String.valueOf(that.tidSet))
+                && Objects.equals(String.valueOf(streamIdSet), String.valueOf(that.streamIdSet))
                 && Objects.equals(consumerGroup, that.consumerGroup)
                 && Objects.equals(proctimeAttribute, that.proctimeAttribute)
                 && Objects.equals(watermarkStrategy, that.watermarkStrategy);
@@ -260,7 +260,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
                 valueDecodingFormat,
                 masterAddress,
                 topic,
-                tidSet,
+                streamIdSet,
                 consumerGroup,
                 configuration,
                 watermarkStrategy,
@@ -302,7 +302,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
         final DeserializationSchema<RowData> tubeMQDeserializer = new DynamicTubeMQDeserializationSchema(
                 deserialization, metadataConverters, producedTypeInfo, ignoreErrors);
 
-        final FlinkTubeMQConsumer<RowData> tubeMQConsumer = new FlinkTubeMQConsumer(masterAddress, topic, tidSet,
+        final FlinkTubeMQConsumer<RowData> tubeMQConsumer = new FlinkTubeMQConsumer(masterAddress, topic, streamIdSet,
                 consumerGroup, tubeMQDeserializer, configuration, sessionKey, innerFormat);
         return tubeMQConsumer;
     }
