@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import { Tooltip } from 'antd';
-import { StarOutlined, BulbOutlined } from '@ant-design/icons';
+import { Button, Tooltip } from 'antd';
+import { StarOutlined, BulbOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { config } from '@/configs/default';
 import menusTree from '@/configs/menus';
 import defaultSettings from './defaultSettings';
@@ -37,6 +37,7 @@ import { State } from '@/core/stores';
 import NavWidget from './NavWidget';
 import LocaleSelect from './NavWidget/LocaleSelect';
 import Tenant from './Tenant';
+import i18n from '@/i18n';
 
 const BasicLayout: React.FC = props => {
   const location = useLocation();
@@ -130,6 +131,15 @@ const BasicLayout: React.FC = props => {
             </Tooltip>
           ),
           <LocaleSelect />,
+          <Tooltip title={i18n.t('components.Layout.UserManual')}>
+            <Button
+              type="link"
+              style={{ color: 'grey' }}
+              target="_blank"
+              href="https://inlong.apache.org/docs/next/introduction"
+              icon={<QuestionCircleOutlined />}
+            ></Button>
+          </Tooltip>,
           <NavWidget />,
           <Tenant />,
         ]}
