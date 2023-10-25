@@ -15,21 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sink.queue.pulsar;
+package org.apache.inlong.manager.pojo.queue.tubemq;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
+import java.util.List;
+
+/**
+ * Topic view of TubeMQ
+ */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PulsarPersistencePolicies {
+public class ConsumerGroupResponse {
 
-    private int bookkeeperEnsemble;
-    private int bookkeeperWriteQuorum;
-    private int bookkeeperAckQuorum;
-    private double managedLedgerMaxMarkDeleteRate;
+    // true, or false
+    private boolean result;
+
+    // 0 is success, other is failed
+    private int errCode;
+
+    // OK, or err msg
+    private String errMsg;
+
+    private List<ConsumerGroupInfo> data;
+
+    private int count;
+
+    @Data
+    public static class ConsumerGroupInfo {
+
+        private String topicName;
+        private String groupName;
+        private String createUser;
+        private String modifyUser;
+        private String createDate; // 20150619115100
+        private String modifyDate;
+    }
+
 }

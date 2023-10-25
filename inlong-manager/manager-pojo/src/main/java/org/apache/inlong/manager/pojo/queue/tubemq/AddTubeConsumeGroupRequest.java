@@ -15,21 +15,41 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sink.queue.pulsar;
+package org.apache.inlong.manager.pojo.queue.tubemq;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
+import java.util.List;
+
+/**
+ * The request info of add TubeMQ consume group.
+ */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PulsarLookupTopicInfo {
+public class AddTubeConsumeGroupRequest {
 
-    private String brokerUrl;
-    private String httpUrl;
-    private String nativeUrl;
-    private String brokerUrlSsl;
+    private int clusterId;
+    private String createUser;
+    private List<GroupNameJsonSetBean> groupNameJsonSet;
+
+    public static class GroupNameJsonSetBean {
+
+        private String topicName;
+        private String groupName;
+
+        public String getTopicName() {
+            return topicName;
+        }
+
+        public void setTopicName(String topicName) {
+            this.topicName = topicName;
+        }
+
+        public String getGroupName() {
+            return groupName;
+        }
+
+        public void setGroupName(String groupName) {
+            this.groupName = groupName;
+        }
+    }
 }

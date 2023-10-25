@@ -15,23 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sink.queue.tubemq;
+package org.apache.inlong.manager.pojo.queue.pulsar;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-/**
- * The response info of TubeMQ manager.
- */
 @Data
-public class TubeHttpResponse {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PulsarNamespacePolicies {
 
-    // true, or false
-    private boolean result;
-
-    // 0 is success, other is failed
-    private int errCode;
-
-    // OK, or err msg
-    private String errMsg;
-
+    private int messageTtlInSeconds;
+    private PulsarRetentionPolicies retentionPolicies;
+    private PulsarPersistencePolicies persistence;
 }

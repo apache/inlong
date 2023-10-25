@@ -15,31 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sink.queue.pulsar;
+package org.apache.inlong.manager.pojo.queue.pulsar;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Pulsar topic bean, including tenant, namespace, etc.
- */
+import java.util.Set;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PulsarTopicInfo {
+public class PulsarTenantInfo {
 
-    private String pulsarTenant;
+    Set<String> adminRoles;
 
-    private String namespace;
-
-    private String topicName;
-
-    private String queueModule;
-
-    @Builder.Default
-    private Integer numPartitions = 0;
-
+    Set<String> allowedClusters;
 }

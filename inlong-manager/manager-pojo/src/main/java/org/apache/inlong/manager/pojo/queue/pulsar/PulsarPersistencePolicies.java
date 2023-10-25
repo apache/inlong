@@ -15,22 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sink.queue.pulsar;
+package org.apache.inlong.manager.pojo.queue.pulsar;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PulsarPartitionedInternalStats {
+public class PulsarPersistencePolicies {
 
-    private Map<String, String> partitions;
-
-    private Map<String, String> metadata;
+    private int bookkeeperEnsemble;
+    private int bookkeeperWriteQuorum;
+    private int bookkeeperAckQuorum;
+    private double managedLedgerMaxMarkDeleteRate;
 }

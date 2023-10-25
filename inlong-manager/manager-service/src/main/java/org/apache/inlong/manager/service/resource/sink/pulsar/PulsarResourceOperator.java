@@ -30,7 +30,7 @@ import org.apache.inlong.manager.pojo.node.pulsar.PulsarDataNodeDTO;
 import org.apache.inlong.manager.pojo.node.pulsar.PulsarDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.pulsar.PulsarSinkDTO;
-import org.apache.inlong.manager.pojo.sink.queue.pulsar.PulsarTopicInfo;
+import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicInfo;
 import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarOperator;
 import org.apache.inlong.manager.service.resource.sink.AbstractStandaloneSinkResourceOperator;

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sink.queue.pulsar;
+package org.apache.inlong.manager.pojo.queue.pulsar;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,8 +26,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PulsarRetentionPolicies {
+public class PulsarLookupTopicInfo {
 
-    private int retentionTimeInMinutes;
-    private long retentionSizeInMB;
+    private String brokerUrl;
+    private String httpUrl;
+    private String nativeUrl;
+    private String brokerUrlSsl;
 }
