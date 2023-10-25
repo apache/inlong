@@ -17,12 +17,12 @@
 
 package org.apache.inlong.manager.service.queue;
 
-import com.google.gson.JsonObject;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicMetadata;
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarUtils;
 
+import com.google.gson.JsonObject;
+import org.apache.commons.lang3.ObjectUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -104,8 +104,9 @@ public class PulsarUtilsTest {
     public void testGetPulsarPartitionedTopics() throws Exception {
         List<String> result = PulsarUtils.getPulsarPartitionedTopics(restTemplate, PULSAR_CLUSTER_INFO, DEFAULT_TENANT,
                 DEFAULT_NAMESPACE);
-        if(result.size() == 0) {
-            PulsarUtils.createPartitionedTopic(restTemplate, PULSAR_CLUSTER_INFO, DEFAULT_TOPIC_PATH, DEFAULT_PARTITIONS_NUM);
+        if (result.size() == 0) {
+            PulsarUtils.createPartitionedTopic(restTemplate, PULSAR_CLUSTER_INFO, DEFAULT_TOPIC_PATH,
+                    DEFAULT_PARTITIONS_NUM);
         }
         result = PulsarUtils.getPulsarPartitionedTopics(restTemplate, PULSAR_CLUSTER_INFO, DEFAULT_TENANT,
                 DEFAULT_NAMESPACE);
@@ -117,7 +118,7 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testGetSubscriptions() throws Exception {
-        PulsarUtils.getSubscriptions(restTemplate, PULSAR_CLUSTER_INFO,DEFAULT_TOPIC_PATH);
+        PulsarUtils.getSubscriptions(restTemplate, PULSAR_CLUSTER_INFO, DEFAULT_TOPIC_PATH);
     }
 
     /**
@@ -195,7 +196,8 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testLookupPartitionedTopic() throws Exception {
-        Map<String,String> result = PulsarUtils.lookupPartitionedTopic(restTemplate, PULSAR_CLUSTER_INFO, DEFAULT_TOPIC_PATH);
+        Map<String, String> result = PulsarUtils.lookupPartitionedTopic(restTemplate, PULSAR_CLUSTER_INFO,
+                DEFAULT_TOPIC_PATH);
         assertTrue(ObjectUtils.isNotEmpty(result));
     }
 
