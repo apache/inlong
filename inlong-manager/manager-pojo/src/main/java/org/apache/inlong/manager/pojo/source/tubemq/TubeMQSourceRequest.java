@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.pojo.source.tubemq;
 
+import lombok.Builder;
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
@@ -50,6 +52,12 @@ public class TubeMQSourceRequest extends SourceRequest {
 
     @ApiModelProperty("Session key of the TubeMQ")
     private String sessionKey;
+
+    @ApiModelProperty(value = "Data separator")
+    private String dataSeparator;
+
+    @ApiModelProperty(value = "The message body wrap  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
+    private String wrapType;
 
     /**
      * The TubeMQ consumers use this tid set to filter records reading from server.

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.source.pulsar;
 
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -76,6 +77,9 @@ public class PulsarSourceDTO {
             + "Available options are earliest, latest, external-subscription, and specific-offsets.")
     @Builder.Default
     private String scanStartupMode = "earliest";
+
+    @ApiModelProperty(value = "The message body wrap  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
+    private String wrapType;
 
     @ApiModelProperty("Properties for Pulsar")
     private Map<String, Object> properties;

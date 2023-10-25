@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.source.tubemq;
 
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -49,14 +50,17 @@ public class TubeMQSourceDTO {
     @ApiModelProperty("Topic of the TubeMQ")
     private String topic;
 
-    @ApiModelProperty("Format of the TubeMQ")
-    private String format;
-
     @ApiModelProperty("Group of the TubeMQ")
     private String consumeGroup;
 
     @ApiModelProperty("Session key of the TubeMQ")
     private String sessionKey;
+
+    @ApiModelProperty(value = "Data separator")
+    private String dataSeparator;
+
+    @ApiModelProperty(value = "The message body wrap  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
+    private String wrapType;
 
     /**
      * The tubemq consumers use this tid set to filter records reading from server.
@@ -74,7 +78,6 @@ public class TubeMQSourceDTO {
         TubeMQSourceDTO dto = StringUtils.isNotBlank(extParams)
                 ? TubeMQSourceDTO.getFromJson(extParams)
                 : new TubeMQSourceDTO();
-        dto.setFormat(request.getSerializationType());
         return CommonBeanUtils.copyProperties(request, dto, true);
     }
 

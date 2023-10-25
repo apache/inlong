@@ -46,8 +46,8 @@ public class TubeMqProvider implements ExtractNodeProvider {
         Format format = parsingFormat(
                 source.getSerializationType(),
                 source.getWrapType(),
-                null,
-                false);
+                source.getDataSeparator(),
+                source.isIgnoreParseError());
         Map<String, String> properties = parseProperties(source.getProperties());
 
         return new TubeMQExtractNode(
