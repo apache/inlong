@@ -438,7 +438,8 @@ public class PulsarUtils {
      */
     public static void createSubscription(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String topicPath,
             String subscription) throws Exception {
-        String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/subscriptions/" + subscription;
+        String url =
+                clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/subscriptions/" + subscription;
         HttpUtils.request(restTemplate, url, HttpMethod.PUT, "latest", getHttpHeaders(clusterInfo.getToken()));
     }
 
