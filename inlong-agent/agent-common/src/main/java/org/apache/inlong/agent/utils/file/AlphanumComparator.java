@@ -47,10 +47,7 @@ package org.apache.inlong.agent.utils.file;
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * This is an updated version with enhancements made by Daniel Migowski, Andre Bogus, and David
