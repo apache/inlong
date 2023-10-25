@@ -17,13 +17,16 @@
 
 package org.apache.inlong.manager.pojo.sink.iceberg;
 
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.sink.SinkField;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -32,10 +35,10 @@ import org.apache.commons.lang3.StringUtils;
  * Iceberg column info
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class IcebergColumnInfo {
+@JsonTypeDefine(value = SinkType.ICEBERG)
+public class IcebergColumnInfo extends SinkField {
 
     @ApiModelProperty("Length of fixed type")
     private Integer length;
@@ -55,11 +58,14 @@ public class IcebergColumnInfo {
     @ApiModelProperty("Width param of truncate partition")
     private Integer width;
 
-    // The following are passed from base field and need not be part of API for extra param
-    private String name;
-    private String type;
-    private String desc;
     private boolean required;
+
+    /**
+     * Get the dto instance from the request
+     */
+    public static IcebergColumnInfo getFromRequest(SinkField sinkField) {
+        return CommonBeanUtils.copyProperties(sinkField, IcebergColumnInfo::new, true);
+    }
 
     /**
      * Get the extra param from the Json

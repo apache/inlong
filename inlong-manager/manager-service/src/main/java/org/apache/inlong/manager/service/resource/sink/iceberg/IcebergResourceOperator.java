@@ -160,9 +160,9 @@ public class IcebergResourceOperator implements SinkResourceOperator {
         List<IcebergColumnInfo> columnList = new ArrayList<>();
         for (StreamSinkFieldEntity field : fieldList) {
             IcebergColumnInfo column = IcebergColumnInfo.getFromJson(field.getExtParams());
-            column.setName(field.getFieldName());
-            column.setType(field.getFieldType());
-            column.setDesc(field.getFieldComment());
+            column.setFieldName(field.getFieldName());
+            column.setFieldType(field.getFieldType());
+            column.setFieldComment(field.getFieldComment());
             column.setRequired(field.getIsRequired() != null && field.getIsRequired() > 0);
             columnList.add(column);
         }
