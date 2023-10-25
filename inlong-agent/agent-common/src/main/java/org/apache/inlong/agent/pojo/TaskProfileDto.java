@@ -32,6 +32,7 @@ import static java.util.Objects.requireNonNull;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
 import static org.apache.inlong.agent.constant.TaskConstants.SYNC_SEND_OPEN;
+import static org.apache.inlong.common.enums.DataReportTypeEnum.NORMAL_SEND_TO_DATAPROXY;
 
 @Data
 public class TaskProfileDto {
@@ -411,7 +412,7 @@ public class TaskProfileDto {
         task.setState(dataConfig.getState());
 
         // set sink type
-        if (dataConfig.getDataReportType() == 0) {
+        if (dataConfig.getDataReportType() == NORMAL_SEND_TO_DATAPROXY.ordinal()) {
             task.setSink(FILE_DATAPROXY_SINK);
             task.setProxySend(false);
         } else if (dataConfig.getDataReportType() == 1) {
