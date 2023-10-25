@@ -15,23 +15,41 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.queue.tubemq;
+package org.apache.inlong.manager.pojo.sink.queue.tubemq;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
- * The response info of TubeMQ manager.
+ * The request info of add TubeMQ consume group.
  */
 @Data
-public class TubeHttpResponse {
+public class AddTubeConsumeGroupRequest {
 
-    // true, or false
-    private boolean result;
+    private int clusterId;
+    private String createUser;
+    private List<GroupNameJsonSetBean> groupNameJsonSet;
 
-    // 0 is success, other is failed
-    private int errCode;
+    public static class GroupNameJsonSetBean {
 
-    // OK, or err msg
-    private String errMsg;
+        private String topicName;
+        private String groupName;
 
+        public String getTopicName() {
+            return topicName;
+        }
+
+        public void setTopicName(String topicName) {
+            this.topicName = topicName;
+        }
+
+        public String getGroupName() {
+            return groupName;
+        }
+
+        public void setGroupName(String groupName) {
+            this.groupName = groupName;
+        }
+    }
 }

@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.queue;
 
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
-import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicMetadata;
+import org.apache.inlong.manager.pojo.sink.queue.pulsar.PulsarTopicMetadata;
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarUtils;
 
 import org.junit.jupiter.api.BeforeAll;

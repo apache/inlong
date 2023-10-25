@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.queue.tubemq;
+package org.apache.inlong.manager.pojo.sink.queue.tubemq;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 

@@ -15,36 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.queue.tubemq;
+package org.apache.inlong.manager.pojo.sink.queue.pulsar;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Map;
 
-/**
- * Topic view of TubeMQ
- */
 @Data
-public class TopicResponse {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PulsarTopicMetadata {
 
-    private int errCode;
-    private String errMsg;
+    private int partitions;
 
-    // total topic info list
-    private List<TopicInfo> data;
+    private boolean deleted;
 
-    private int dataCount;
-
-    @Data
-    public static class TopicInfo {
-
-        private String topicName;
-        private int totalCfgBrokerCnt;
-        private int totalCfgNumPart;
-        private int totalRunNumPartCount;
-        private boolean isSrvAcceptPublish;
-        private boolean isSrvAcceptSubscribe;
-        private boolean enableAuthControl;
-    }
-
+    private Map<String, String> properties;
 }
