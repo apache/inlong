@@ -21,12 +21,12 @@ import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarLookupTopicInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarNamespacePolicies;
-import org.apache.inlong.manager.pojo.queue.pulsar.PulsarPartitionedInternalStats;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTenantInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicMetadata;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpEntity;
@@ -250,11 +250,11 @@ public class PulsarUtils {
      * @return pulsar internal stat info of partitioned topic
      * @throws Exception any exception if occurred
      */
-    public static PulsarPartitionedInternalStats getPulsarStatsPartitionedTopics(RestTemplate restTemplate,
+    public static JsonObject getPulsarStatsPartitionedTopics(RestTemplate restTemplate,
             PulsarClusterInfo clusterInfo, String topicPath) throws Exception {
         String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/partitioned-internalStats";
         return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
-                PulsarPartitionedInternalStats.class);
+                JsonObject.class);
     }
 
     /**
@@ -398,7 +398,6 @@ public class PulsarUtils {
      */
     public static Map<String, String> lookupPartitionedTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath) throws Exception {
-        String url = clusterInfo.getAdminUrl() + LOOKUP_TOPIC_PATH + "/persistent/" + topicPath;
         PulsarTopicMetadata metadata = getPulsarPartitionedTopicMetadata(restTemplate, clusterInfo, topicPath);
         Map<String, String> map = new LinkedHashMap<>();
         for (int i = 0; i < metadata.getPartitions(); i++) {
