@@ -71,7 +71,6 @@ import java.util.List;
  * for (File f : Files.find("src/java/").recursive(noSvnDir)) { ... }
  * </code></pre>
  *
- * @author Florian Maul
  */
 public class FileFinder implements Iterable<File> {
 

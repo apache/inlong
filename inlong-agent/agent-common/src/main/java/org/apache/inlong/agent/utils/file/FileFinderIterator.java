@@ -28,7 +28,6 @@ import java.util.Queue;
  * Implements an {@link Iterator<File>} that runs the recursive search that has been defined by the
  * {@link FileFinder} builder object.
  *
- * @author Florian Maul
  */
 public class FileFinderIterator implements Iterator<File> {
 
