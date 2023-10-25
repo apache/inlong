@@ -118,8 +118,9 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
     }
 
     @Override
-    public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields) {
-        Map<String, String> idParams = super.parse2IdParams(streamSink, fields);
+    public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields,
+            DataNodeInfo dataNodeInfo) {
+        Map<String, String> idParams = super.parse2IdParams(streamSink, fields, dataNodeInfo);
         StringBuilder sb = new StringBuilder();
         for (String field : fields) {
             sb.append(field).append(" ");

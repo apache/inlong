@@ -18,8 +18,8 @@
 package org.apache.inlong.sort.iceberg.source.reader;
 
 import org.apache.inlong.sort.iceberg.IcebergReadableMetadata.MetadataConverter;
-import org.apache.inlong.sort.iceberg.source.utils.RecyclableJoinedRowData;
-import org.apache.inlong.sort.iceberg.source.utils.RowDataCloneUtil;
+import org.apache.inlong.sort.iceberg.utils.RecyclableJoinedRowData;
+import org.apache.inlong.sort.iceberg.utils.RowDataCloneUtil;
 
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.table.data.RowData;

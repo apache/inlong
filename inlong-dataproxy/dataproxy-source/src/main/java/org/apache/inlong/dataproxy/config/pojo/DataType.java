@@ -22,7 +22,7 @@ package org.apache.inlong.dataproxy.config.pojo;
  */
 public enum DataType {
 
-    TEXT("text"), PB("pb"), JCE("jce"), N("n");
+    TEXT("text"), PB("pb"), JCE("jce"), N("n"), CSV("csv"), KV("kv");
 
     private final String value;
 

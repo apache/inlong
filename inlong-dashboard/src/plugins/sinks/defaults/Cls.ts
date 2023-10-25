@@ -79,27 +79,27 @@ export default class ClsSink extends SinkInfo implements DataWithBackend, Render
       disabled: [110].includes(values?.status),
       options: [
         {
-          label: i18n.t('meta.Sinks.Cls.SaveTime.Week'),
+          label: i18n.t('meta.Sinks.Cls.StorageDuration.Week'),
           value: 7,
         },
         {
-          label: i18n.t('meta.Sinks.Cls.SaveTime.Month'),
+          label: i18n.t('meta.Sinks.Cls.StorageDuration.Month'),
           value: 30,
         },
         {
-          label: i18n.t('meta.Sinks.Cls.SaveTime.HalfAYear'),
+          label: i18n.t('meta.Sinks.Cls.StorageDuration.HalfAYear'),
           value: 182,
         },
         {
-          label: i18n.t('meta.Sinks.Cls.SaveTime.OneYear'),
+          label: i18n.t('meta.Sinks.Cls.StorageDuration.OneYear'),
           value: 365,
         },
       ],
     }),
   })
-  @I18n('meta.Sinks.Cls.SaveTime')
+  @I18n('meta.Sinks.Cls.StorageDuration')
   @SyncField()
-  saveTime: number;
+  storageDuration: number;
 
   @FieldDecorator({
     type: NodeSelect,

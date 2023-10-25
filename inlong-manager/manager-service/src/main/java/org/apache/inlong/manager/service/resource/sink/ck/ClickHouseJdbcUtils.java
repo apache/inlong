@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.service.resource.sink.ck;
 
+import org.apache.inlong.manager.common.util.UrlVerificationUtils;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseFieldInfo;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseTableInfo;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.yandex.clickhouse.ClickHouseDatabaseMetadata;
@@ -39,34 +39,51 @@ import java.util.Objects;
 public class ClickHouseJdbcUtils {
 
     private static final String CLICKHOUSE_DRIVER_CLASS = "ru.yandex.clickhouse.ClickHouseDriver";
-    private static final String METADATA_TYPE = "TABLE";
     private static final String COLUMN_LABEL = "TABLE_NAME";
-    private static final String CLICKHOUSE_JDBC_PREFIX = "jdbc:clickhouse";
+    private static final String CLICKHOUSE_JDBC_PREFIX = "jdbc:clickhouse://";
 
     private static final Logger LOG = LoggerFactory.getLogger(ClickHouseJdbcUtils.class);
 
     /**
-     * Get ClickHouse connection from clickhouse url and user
+     * Get ClickHouse connection from ClickHouse URL and user.
+     *
+     * @param url      JDBC URL, such as jdbc:clickhouse://host:port/database
+     * @param user     Username for JDBC URL
+     * @param password User password
+     * @return {@link Connection}
+     * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        if (StringUtils.isBlank(url) || !url.startsWith(CLICKHOUSE_JDBC_PREFIX)) {
-            throw new Exception("ClickHouse server URL was invalid, it should start with jdbc:clickhouse");
-        }
+        // Non-empty validation
+        UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, CLICKHOUSE_JDBC_PREFIX);
+        Connection conn = establishConnection(url, user, password);
+        return conn;
+    }
+
+    /**
+     * Establishes a ClickHouse JDBC connection using the provided URL, username, and password.
+     *
+     * @param url      The ClickHouse JDBC URL
+     * @param user     The username
+     * @param password The user's password
+     * @return A {@link Connection} object representing the ClickHouse database connection
+     * @throws Exception If an error occurs while obtaining the connection
+     */
+    private static Connection establishConnection(String url, String user, String password) throws Exception {
         Connection conn;
         try {
             Class.forName(CLICKHOUSE_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            LOG.error("get clickhouse connection error, please check clickhouse jdbc url, username or password", e);
-            throw new Exception("get clickhouse connection error, please check jdbc url, username or password. "
+            LOG.error("get ClickHouse connection error, please check ClickHouse JDBC URL, username or password", e);
+            throw new Exception("get ClickHouse connection error, please check JDBC URL, username or password. "
                     + "other error msg: " + e.getMessage());
         }
 
         if (conn == null) {
-            throw new Exception("get clickhouse connection failed, please contact administrator");
+            throw new Exception("get ClickHouse connection failed, please contact administrator");
         }
-
-        LOG.info("get clickhouse connection success, url={}", url);
+        LOG.info("get ClickHouse connection success, url={}", url);
         return conn;
     }
 

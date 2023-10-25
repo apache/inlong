@@ -20,6 +20,7 @@
 import { DataWithBackend } from '@/plugins/DataWithBackend';
 import { RenderRow } from '@/plugins/RenderRow';
 import { RenderList } from '@/plugins/RenderList';
+import { loadImage } from '@/plugins/images';
 import CheckCard from '@/ui/components/CheckCard';
 import { statusList, genStatusTag } from './status';
 import { sources, defaultValue } from '..';
@@ -66,6 +67,7 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
         .map(item => ({
           label: item.label,
           value: item.value,
+          image: loadImage(item.label),
         })),
     }),
   })
@@ -112,6 +114,14 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
   @I18n('basic.Status')
   readonly status: string;
 
+  @ColumnDecorator()
+  @I18n('basic.Creator')
+  readonly creator: string;
+
+  @ColumnDecorator()
+  @I18n('basic.Modifier')
+  readonly modifier: string;
+
   parse(data) {
     return data;
   }
@@ -133,6 +143,7 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
             .map(item => ({
               label: item.label,
               value: item.value,
+              image: loadImage(item.label),
             })),
         });
       }
@@ -152,6 +163,7 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
             .map(item => ({
               label: item.label,
               value: item.value,
+              image: loadImage(item.label),
             })),
         });
       }
