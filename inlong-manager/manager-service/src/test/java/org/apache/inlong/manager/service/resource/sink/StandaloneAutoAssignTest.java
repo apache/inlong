@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.sink;
 
+import com.google.common.collect.Sets;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -27,8 +28,6 @@ import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
-
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +43,7 @@ public class StandaloneAutoAssignTest extends ServiceBaseTest {
     private InlongClusterService clusterService;
     @Autowired
     private TestStandaloneSinkResourceOperator testResourceOperator;
+
     @Test
     public void testAutoAssign() {
 
@@ -76,8 +76,8 @@ public class StandaloneAutoAssignTest extends ServiceBaseTest {
         clsSinkEntity.setInlongGroupId(groupId);
         clsSinkEntity.setInlongStreamId(streamId);
         clsSinkEntity.setCreator(GLOBAL_OPERATOR);
-
-        return sinkEntityMapper.insert(clsSinkEntity);
+        sinkEntityMapper.insert(clsSinkEntity);
+        return clsSinkEntity.getId();
     }
 
     public Integer saveStandaloneCluster(String clusterTag, String clusterName, Set<String> supportedSinkTypes) {
