@@ -97,6 +97,9 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         setTargetEntity(request, entity);
         sourceMapper.insert(entity);
         saveFieldOpt(entity, request.getFieldList());
+        if (request.getEnableSyncSchema()) {
+            syncSourceFieldInfo(request, operator);
+        }
         return entity.getId();
     }
 
@@ -320,5 +323,11 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         }
 
         return DataTypeEnum.forType(streamDataType).getType();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
+    public void syncSourceFieldInfo(SourceRequest request, String operator) {
+        LOGGER.info("not support sync source field info for type ={}", request.getSourceType());
     }
 }

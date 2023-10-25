@@ -38,6 +38,8 @@ static const uint8_t kBinSnappyFlag = 1 << 5;
 static const int32_t kPerGroupidThreadNums = 1;
 static const int32_t kSendBufSize = 10240000;
 static const int32_t kRecvBufSize = 10240000;
+static const uint32_t kMaxGroupIdNum = 50;
+static const uint32_t kMaxStreamIdNum = 100;
 
 static const int32_t kDispatchIntervalZip = 8;
 static const int32_t kDispatchIntervalSend = 10;
@@ -86,6 +88,7 @@ static const char kProtocolType[] = "TCP";
 static const bool kNeedAuth = false;
 
 static const uint32_t kMaxAttrLen = 2048;
+const uint32_t ATTR_LENGTH = 10;
 
 } // namespace constants
 } // namespace inlong

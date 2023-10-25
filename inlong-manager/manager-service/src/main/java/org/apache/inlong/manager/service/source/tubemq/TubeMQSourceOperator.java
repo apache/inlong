@@ -107,7 +107,7 @@ public class TubeMQSourceOperator extends AbstractSourceOperator {
             String streamId = streamInfo.getInlongStreamId();
             tubeMQSource.setSourceName(streamId);
             tubeMQSource.setTopic(groupInfo.getMqResource());
-            tubeMQSource.setGroupId(streamId);
+            tubeMQSource.setConsumeGroup(streamId);
             tubeMQSource.setMasterRpc(masterRpc);
             tubeMQSource.setIgnoreParseError(streamInfo.getIgnoreParseError());
 

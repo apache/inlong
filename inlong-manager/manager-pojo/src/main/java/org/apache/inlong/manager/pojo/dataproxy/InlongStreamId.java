@@ -25,7 +25,16 @@ public class InlongStreamId {
     private String inlongGroupId;
     private String inlongStreamId;
     private String topic;
+    private String dataType;
     private String extParams;
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
 
     /**
      * get inlongGroupId

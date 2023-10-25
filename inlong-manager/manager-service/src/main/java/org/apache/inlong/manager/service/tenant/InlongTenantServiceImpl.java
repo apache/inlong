@@ -188,7 +188,7 @@ public class InlongTenantServiceImpl implements InlongTenantService {
         List<InlongGroupEntity> groups = groupMapper.selectAllGroupsByTenant(name);
         List<InlongGroupEntity> notStopGroups =
                 groups.stream().filter(
-                        group -> !GroupStatus.DELETED.getCode().equals(group.getStatus()))
+                        group -> !GroupStatus.CONFIG_DELETED.getCode().equals(group.getStatus()))
                         .collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(notStopGroups)) {
             List<String> notStopGroupNames =

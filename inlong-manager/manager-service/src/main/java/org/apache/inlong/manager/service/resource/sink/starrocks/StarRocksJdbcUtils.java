@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.service.resource.sink.starrocks;
 
+import org.apache.inlong.manager.common.util.UrlVerificationUtils;
 import org.apache.inlong.manager.pojo.sink.starrocks.StarRocksColumnInfo;
 import org.apache.inlong.manager.pojo.sink.starrocks.StarRocksTableInfo;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hive.jdbc.HiveDatabaseMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,30 +39,34 @@ public class StarRocksJdbcUtils {
     private static final String STAR_ROCKS_DRIVER_CLASS = "com.mysql.cj.jdbc.Driver";
     private static final String METADATA_TYPE = "TABLE";
     private static final String COLUMN_LABEL = "TABLE_NAME";
-    private static final String STAR_ROCKS_JDBC_PREFIX = "jdbc:mysql";
+    private static final String STAR_ROCKS_JDBC_PREFIX = "jdbc:mysql://";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StarRocksJdbcUtils.class);
 
     /**
-     * Get starRocks connection from starRocks url and user
+     * Get a StarRocks JDBC connection using the provided URL, username, and password.
+     *
+     * @param url      The StarRocks JDBC URL.
+     * @param user     The username for authentication.
+     * @param password The password for authentication.
+     * @return A {@link Connection} representing the StarRocks database connection.
+     * @throws Exception If an error occurs during connection establishment.
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        if (StringUtils.isBlank(url) || !url.startsWith(STAR_ROCKS_JDBC_PREFIX)) {
-            throw new Exception("starRocks server url should start with " + STAR_ROCKS_JDBC_PREFIX);
-        }
+        UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, STAR_ROCKS_JDBC_PREFIX);
         Connection conn;
         try {
             Class.forName(STAR_ROCKS_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
-            LOGGER.info("get star rocks connection success, url={}", url);
+            LOGGER.info("Successfully obtained StarRocks connection, URL: {}", url);
             return conn;
         } catch (Exception e) {
-            String errMsg = "get star rocks connection error, please check starRocks jdbc url, username or password";
+            String errMsg =
+                    "Failed to get StarRocks connection, please check StarRocks JDBC URL, username, or password.";
             LOGGER.error(errMsg, e);
             throw new Exception(errMsg + ", error: " + e.getMessage());
         }
     }
-
     /**
      * Execute sql on the specified starRocks Server
      *

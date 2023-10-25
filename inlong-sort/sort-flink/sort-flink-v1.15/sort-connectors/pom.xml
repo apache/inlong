@@ -34,7 +34,13 @@
     <modules>
         <module>postgres-cdc</module>
         <module>starrocks</module>
+        <module>sqlserver-cdc</module>
+        <module>mysql-cdc</module>
         <module>iceberg</module>
+        <module>mongodb-cdc</module>
+        <module>pulsar</module>
+        <module>tubemq</module>
+        <module>hbase</module>
     </modules>
 
     <properties>

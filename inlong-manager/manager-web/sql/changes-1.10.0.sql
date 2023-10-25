@@ -26,6 +26,7 @@ USE `apache_inlong_manager`;
 ALTER TABLE `inlong_stream`
     ADD COLUMN `wrap_type` varchar(256) DEFAULT 'INLONG_MSG_V0' COMMENT 'The message body wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc';
 
+UPDATE inlong_group SET status = 130 where status = 150;
 
 
 

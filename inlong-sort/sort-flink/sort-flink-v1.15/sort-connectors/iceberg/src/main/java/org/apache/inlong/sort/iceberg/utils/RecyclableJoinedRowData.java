@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.iceberg.source.utils;
+package org.apache.inlong.sort.iceberg.utils;
 
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.table.data.ArrayData;

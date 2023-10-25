@@ -88,6 +88,14 @@ export class NodeDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   @I18n('meta.Nodes.Description')
   description?: string;
 
+  @ColumnDecorator()
+  @I18n('basic.Creator')
+  readonly creator: string;
+
+  @ColumnDecorator()
+  @I18n('basic.Modifier')
+  readonly modifier: string;
+
   readonly version?: number;
 
   parse(data) {

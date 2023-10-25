@@ -76,6 +76,10 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
   readonly creator: string;
 
   @ColumnDecorator()
+  @I18n('basic.Modifier')
+  readonly modifier: string;
+
+  @ColumnDecorator()
   @I18n('basic.CreateTime')
   readonly createTime: string;
 
@@ -262,24 +266,28 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
     type: 'radio',
     isPro: true,
     rules: [{ required: true }],
-    initialValue: true,
-    tooltip: i18n.t('meta.Stream.WrapWithInlongMsgHelp'),
+    initialValue: 'INLONG_MSG_V0',
+    tooltip: i18n.t('meta.Stream.WrapTypeHelp'),
     props: values => ({
       disabled: [110].includes(values?.status),
       options: [
         {
-          label: i18n.t('basic.Yes'),
-          value: true,
+          label: 'InLongMsg V0',
+          value: 'INLONG_MSG_V0',
         },
         {
-          label: i18n.t('basic.No'),
-          value: false,
+          label: 'InLongMsg V1',
+          value: 'INLONG_MSG_V1',
+        },
+        {
+          label: 'Raw',
+          value: 'RAW',
         },
       ],
     }),
   })
-  @I18n('meta.Stream.WrapWithInlongMsg')
-  wrapWithInlongMsg: boolean;
+  @I18n('meta.Stream.WrapType')
+  wrapType: string;
 
   parse(data) {
     return data;

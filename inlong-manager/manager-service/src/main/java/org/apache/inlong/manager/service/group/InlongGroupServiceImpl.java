@@ -549,7 +549,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
         // determine whether the current status can be deleted
         GroupStatus curState = GroupStatus.forCode(groupInfo.getStatus());
-        if (GroupStatus.notAllowedTransition(curState, GroupStatus.DELETING)) {
+        if (GroupStatus.notAllowedTransition(curState, GroupStatus.CONFIG_DELETING)) {
             throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_NOT_ALLOWED,
                     String.format("current group status=%s was not allowed to delete", curState));
         }
@@ -580,7 +580,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
 
         entity.setIsDeleted(entity.getId());
-        entity.setStatus(GroupStatus.DELETED.getCode());
+        entity.setStatus(GroupStatus.CONFIG_DELETED.getCode());
         entity.setModifier(operator);
         int rowCount = groupMapper.updateByIdentifierSelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {

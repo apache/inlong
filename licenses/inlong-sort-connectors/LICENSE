@@ -768,19 +768,52 @@
          inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/FlinkCatalogFactory.java
          inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/FlinkDynamicTableFactory.java
          inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/FlinkEnvironmentContext.java
-         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/reader/ArrayBatchRecords.java
-         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/reader/ArrayPoolDataIteratorBatcher.java
-         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/reader/IcebergSourceReader.java
-         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/reader/IcebergSourceRecordEmitter.java
-         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/reader/IcebergSourceSplitReader.java
-         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/reader/InlongIcebergSourceReaderMetrics.java
-         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/reader/MetaDataReaderFunction.java
-         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/reader/RecordFactory.java
-         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/reader/RowDataReaderFunction.java
-         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/reader/RowDataRecordFactory.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/source/reader/ArrayBatchRecords.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/source/reader/ArrayPoolDataIteratorBatcher.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/source/reader/IcebergSourceReader.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/source/reader/IcebergSourceRecordEmitter.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/source/reader/IcebergSourceSplitReader.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/source/reader/InlongIcebergSourceReaderMetrics.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/source/reader/MetaDataReaderFunction.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/source/reader/RecordFactory.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/source/reader/RowDataReaderFunction.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/source/reader/RowDataRecordFactory.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/sink/CommitSummary.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/sink/DeltaManifests.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/sink/DeltaManifestsSerializer.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/sink/EqualityFieldKeySelector.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/sink/FlinkManifestUtil.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/sink/FlinkSink.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/sink/IcebergFilesCommitter.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/sink/IcebergFilesCommitterMetrics.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/sink/IcebergStreamWriter.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/sink/IcebergStreamWriterMetrics.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/sink/IcebergTableSink.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/sink/ManifestOutputFileFactory.java
+         inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/iceberg/src/main/java/org/apache/inlong/sort/iceberg/sink/PartitionKeySelector.java
 
  Source  : iceberg-flink:iceberg-flink-1.15:1.3.1 (Please note that the software have been modified.)
  License : https://github.com/apache/iceberg/LICENSE
+
+1.3.18 inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/PulsarReadableMetadata.java
+        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/PulsarRowDataConverter.java
+        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/PulsarTableDeserializationSchema.java
+        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/PulsarTableDeserializationSchemaFactory.java
+        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/PulsarTableSource.java
+        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/PulsarTableFactory.java
+        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/PulsarTableOptions.java
+        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/PulsarTableOptionUtils.java
+        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/pulsar/src/main/java/org/apache/inlong/sort/pulsar/PulsarTableValidationUtils.java
+
+ Source  : flink-connector-pulsar 4.0-SNAPSHOT (Please note that the software have been modified.)
+ License : https://github.com/apache/flink-connector-pulsar/blob/main/LICENSE
+
+1.3.19 inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/hbase/src/main/java/org/apache/inlong/sort/hbase/HBase2DynamicTableFactory.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/hbase/src/main/java/org/apache/inlong/sort/hbase/sink/HBaseSinkFunction.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/hbase/src/main/java/org/apache/inlong/sort/hbase/sink/HBaseDynamicTableSink.java
+
+ Source  : flink-connector-hbase-2.2 1.15.4 (Please note that the software have been modified.)
+ License : https://github.com/apache/flink/blob/master/LICENSE
 
 =======================================================================
 Apache InLong Subcomponents:
@@ -1000,7 +1033,7 @@ The text of each license is the standard Apache 2.0 license.
   org.reflections:reflections:0.10.2 - Reflections (https://github.com/ronmamo/reflections/tree/0.10.2), (The Apache Software License, Version 2.0;  WTFPL)
   org.yaml:snakeyaml:1.17 - SnakeYAML (https://bitbucket.org/snakeyaml/snakeyaml/src/v1.17/), (Apache License, Version 2.0)
   org.yaml:snakeyaml:1.26 - SnakeYAML (https://bitbucket.org/snakeyaml/snakeyaml/src/v1.26/), (Apache License, Version 2.0)
-  org.xerial.snappy:snappy-java:1.1.10.1 - snappy-java (https://github.com/xerial/snappy-java), (Apache-2.0)
+  org.xerial.snappy:snappy-java:1.1.10.4 - snappy-java (https://github.com/xerial/snappy-java), (Apache-2.0)
   com.tdunning:t-digest:3.2 - T-Digest (https://github.com/tdunning/t-digest/tree/t-digest-3.2), (The Apache Software License, Version 2.0)
   javax.validation:validation-api:1.1.0.Final - Bean Validation API (http://beanvalidation.org), (The Apache Software License, Version 2.0)
   com.fasterxml.woodstox:woodstox-core:5.4.0 - Woodstox (https://github.com/FasterXML/woodstox/tree/woodstox-core-5.4.0), (The Apache License, Version 2.0)
@@ -1187,6 +1220,11 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   com.microsoft.sqlserver:mssql-jdbc:7.2.2.jre8 - Microsoft JDBC Driver for SQL Server (https://github.com/Microsoft/mssql-jdbc/tree/v7.2.2), (MIT License)
   org.slf4j:slf4j-api:1.7.36 - SLF4J API Module (http://www.slf4j.org), (MIT License)
 
+Codes:
+  1. inlong-sort/sort-end-to-end-tests-v1.15/src/test/org/apache/inlong/sort/tests/utils/MSSQLServerContainer.java
+
+  Source: testcontainers-java:mssqlserver:1.17
+  License: https://github.com/testcontainers/testcontainers-java/blob/main/LICENSE
 
 ========================================================================
 CDDL licenses

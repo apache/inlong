@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.sink;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -115,5 +116,5 @@ public interface StreamSinkOperator {
      * @param streamSink
      * @return
      */
-    Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields);
+    Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields, DataNodeInfo dataNodeInfo);
 }

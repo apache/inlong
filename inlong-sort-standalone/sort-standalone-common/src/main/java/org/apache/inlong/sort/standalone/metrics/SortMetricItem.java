@@ -157,7 +157,7 @@ public class SortMetricItem extends MetricItem {
     public static String getInlongGroupId(Map<String, String> headers) {
         String inlongGroupId = headers.get(Constants.INLONG_GROUP_ID);
         if (inlongGroupId == null) {
-            inlongGroupId = headers.getOrDefault(Constants.TOPIC, "");
+            inlongGroupId = headers.getOrDefault(AttributeConstants.GROUP_ID, "");
         }
         return inlongGroupId;
     }

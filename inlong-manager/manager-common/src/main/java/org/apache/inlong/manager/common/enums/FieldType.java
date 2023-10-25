@@ -48,6 +48,7 @@ public enum FieldType {
     FLOAT64,
     DATETIME,
     TIMESTAMP,
+    TIMESTAMPTZ,
     LOCAL_ZONE_TIMESTAMP,
     ARRAY,
     MAP,

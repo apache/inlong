@@ -29,6 +29,7 @@ import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -218,12 +219,17 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     }
 
     @Override
-    public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields) {
+    public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields,
+            DataNodeInfo dataNodeInfo) {
         Map<String, String> param;
         try {
-            param = JsonUtils.parseObject(streamSink.getExtParams(), HashMap.class);
+            HashMap<String, Object> streamInfoMap = JsonUtils.parseObject(streamSink.getExtParams(), HashMap.class);
+            param = new HashMap<>();
+            assert streamInfoMap != null;
+            for (String key : streamInfoMap.keySet()) {
+                param.put(key, String.valueOf(streamInfoMap.get(key)));
+            }
             // put group and stream info
-            assert param != null;
             param.put(KEY_GROUP_ID, streamSink.getInlongGroupId());
             param.put(KEY_STREAM_ID, streamSink.getInlongStreamId());
             return param;

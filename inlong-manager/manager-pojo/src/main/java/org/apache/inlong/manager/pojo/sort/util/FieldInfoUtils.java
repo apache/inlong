@@ -56,6 +56,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
 
@@ -213,14 +214,25 @@ public class FieldInfoUtils {
             case DECIMAL:
                 return BigDecimal.class;
             case VARCHAR:
+            case STRING:
                 return String.class;
             case DATE:
             case TIME:
-            case TIMESTAMP:
                 return java.util.Date.class;
+            case TIMESTAMP:
+            case TIMESTAMPTZ:
+                return Timestamp.class;
             default:
                 return Object.class;
         }
+    }
+
+    /**
+     * Convert SQL type names to Java type string.
+     */
+    public static String sqlTypeToJavaTypeStr(String type) {
+        Class<?> clazz = FieldInfoUtils.sqlTypeToJavaType(type);
+        return clazz == Object.class ? "string" : clazz.getSimpleName().toLowerCase();
     }
 
     /**
