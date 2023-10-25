@@ -569,6 +569,7 @@
   "components.Layout.NavWidget.ConfirmPassword": "Confirm password",
   "components.Layout.NavWidget.Remind": "Password does not match, please re-enter",
   "components.Layout.Tenant.Success": "Success",
+  "components.Layout.UserManual": "User manual",
   "components.HighSelect.Customize": "Customize",
   "components.HighSelect.SearchPlaceholder": "Please enter keyword...",
   "components.NodeSelect.Create": "Create Node",
