@@ -109,7 +109,7 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory {
         final DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat = getValueDecodingFormat(helper);
 
         // validate all options
-        helper.validate();
+        helper.validateExcept(INNERFORMATTYPE.toArray(new String[0]));
 
         validatePKConstraints(context.getObjectIdentifier(), context.getCatalogTable(), valueDecodingFormat);
 

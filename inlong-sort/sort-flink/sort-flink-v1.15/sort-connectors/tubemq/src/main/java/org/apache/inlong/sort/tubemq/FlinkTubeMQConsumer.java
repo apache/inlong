@@ -218,6 +218,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
         messageSessionFactory = new TubeSingleSessionFactory(consumerConfig);
         messagePullConsumer = messageSessionFactory.createPullConsumer(consumerConfig);
         messagePullConsumer.subscribe(topic, streamIdSet);
+        String sessionKey = this.sessionKey.concat(getRuntimeContext().getJobId().toString());
         messagePullConsumer.completeSubscribe(sessionKey, numTasks, true, currentOffsets);
 
         running = true;
