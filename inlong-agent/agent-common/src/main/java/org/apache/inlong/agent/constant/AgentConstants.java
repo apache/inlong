@@ -44,6 +44,9 @@ public class AgentConstants {
 
     public static final String AGENT_ROCKS_DB_PATH = "agent.rocks.db.path";
     public static final String DEFAULT_AGENT_ROCKS_DB_PATH = ".rocksdb";
+    public static final String AGENT_LOCAL_DB_PATH_TASK = ".localdb/task";
+    public static final String AGENT_LOCAL_DB_PATH_INSTANCE = ".localdb/instance";
+    public static final String AGENT_LOCAL_DB_PATH_OFFSET = ".localdb/offset";
 
     public static final String AGENT_UNIQ_ID = "agent.uniq.id";
     public static final String AGENT_DB_INSTANCE_NAME = "agent.db.instance.name";

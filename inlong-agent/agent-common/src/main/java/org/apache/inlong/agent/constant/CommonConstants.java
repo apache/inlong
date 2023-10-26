@@ -61,8 +61,8 @@ public class CommonConstants {
     // the same task must have the same Partition Key if choose sync
     public static final String PROXY_SEND_PARTITION_KEY = "proxy.partitionKey";
 
-    // max size of single batch in bytes, default is 800KB.
-    public static final int DEFAULT_PROXY_PACKAGE_MAX_SIZE = 800000;
+    // max size of single batch in bytes, default is 500KB
+    public static final int DEFAULT_PROXY_PACKAGE_MAX_SIZE = 500000;
 
     public static final String PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER = "proxy.group.queue.maxNumber";
     public static final int DEFAULT_PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER = 10000;
@@ -141,10 +141,17 @@ public class CommonConstants {
     public static final String PULSAR_PRODUCER_BLOCK_QUEUE = "pulsar.producer.block.queue";
     public static final boolean DEFAULT_PULSAR_PRODUCER_BLOCK_QUEUE = true;
 
-    public static final String FILE_MAX_NUM = "file.max.num";
     public static final int DEFAULT_FILE_MAX_NUM = 4096;
 
+    public static final String FILE_MAX_NUM = "file.max.num";
+
     public static final String TRIGGER_ID_PREFIX = "trigger_";
+
+    public static final String TASK_ID_PREFIX = "task_";
+
+    public static final String INSTANCE_ID_PREFIX = "ins_";
+
+    public static final String OFFSET_ID_PREFIX = "offset_";
 
     public static final String COMMAND_STORE_INSTANCE_NAME = "commandStore";
 
