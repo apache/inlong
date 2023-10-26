@@ -24,9 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * used to store task position to db, task position is stored as properties in JobProfile.
- * where key is task read file name and value is task sink position
- * note that this class is generated
+ * used to store instance offset to db
+ * where key is task id + read file name and value is instance offset
  */
 public class OffsetManager {
 
