@@ -29,6 +29,7 @@ import org.apache.inlong.agent.core.trigger.TriggerManager;
 import org.apache.inlong.agent.db.CommandDb;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.JobProfileDb;
+import org.apache.inlong.agent.db.RocksDbImp;
 import org.apache.inlong.agent.db.TriggerProfileDb;
 
 import org.slf4j.Logger;
@@ -102,11 +103,8 @@ public class AgentManager extends AbstractDaemon {
      */
     private Db initDb() {
         try {
-            // db is a required component, so if not init correctly,
-            // throw exception and stop running.
-            return (Db) Class.forName(conf.get(
-                    AgentConstants.AGENT_DB_CLASSNAME, AgentConstants.DEFAULT_AGENT_DB_CLASSNAME))
-                    .newInstance();
+            String childPath = conf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.DEFAULT_AGENT_ROCKS_DB_PATH);
+            return new RocksDbImp(childPath);
         } catch (Exception ex) {
             throw new UnsupportedClassVersionError(ex.getMessage());
         }
