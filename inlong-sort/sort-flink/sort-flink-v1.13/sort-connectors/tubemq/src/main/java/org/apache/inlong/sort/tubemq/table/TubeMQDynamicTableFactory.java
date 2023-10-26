@@ -60,7 +60,7 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory {
 
     public static final String IDENTIFIER = "tubemq-inlong";
 
-    public static final List<String> INNERFORMATTYPE = Arrays.asList("inlong-msg");
+    public static final String INNERFORMATTYPE = "inlong-msg";
 
     public static boolean innerFormat = false;
 
@@ -76,7 +76,7 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory {
                 && format.getChangelogMode().containsOnly(RowKind.INSERT)) {
             Configuration options = Configuration.fromMap(catalogTable.getOptions());
             String formatName = options.getOptional(FORMAT).orElse(options.get(FORMAT));
-            innerFormat = INNERFORMATTYPE.contains(formatName);
+            innerFormat = INNERFORMATTYPE.equals(formatName);
             throw new ValidationException(String.format(
                     "The TubeMQ table '%s' with '%s' format doesn't support defining PRIMARY KEY constraint"
                             + " on the table, because it can't guarantee the semantic of primary key.",
@@ -109,7 +109,7 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory {
         final DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat = getValueDecodingFormat(helper);
 
         // validate all options
-        helper.validateExcept(INNERFORMATTYPE.toArray(new String[0]));
+        helper.validateExcept(INNERFORMATTYPE);
 
         validatePKConstraints(context.getObjectIdentifier(), context.getCatalogTable(), valueDecodingFormat);
 
