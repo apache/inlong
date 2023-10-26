@@ -56,7 +56,7 @@ const Comp: React.FC<Props> = ({
         inlongGroupId,
         inlongStreamId,
         processNames: inlongStreamId
-          ? 'CREATE_STREAM_RESOURCE'
+          ? 'CREATE_STREAM_RESOURCE,SUSPEND_STREAM_RESOURCE,RESTART_STREAM_RESOURCE,DELETE_STREAM_RESOURCE'
           : 'CREATE_GROUP_RESOURCE,SUSPEND_GROUP_PROCESS,RESTART_GROUP_PROCESS,DELETE_GROUP_PROCESS',
         taskType: 'ServiceTask',
       },
