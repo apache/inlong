@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.db;
 
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.OffsetProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 
 /**
@@ -88,6 +89,13 @@ public class KeyValueEntity {
      */
     public TriggerProfile getAsTriggerProfile() {
         return TriggerProfile.parseJsonStr(getJsonValue());
+    }
+
+    /**
+     * convert keyValue to offset profile
+     */
+    public OffsetProfile getAsOffsetProfile() {
+        return OffsetProfile.parseJsonStr(getJsonValue());
     }
 
     /**
