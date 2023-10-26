@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * db interface for task profile.
+ * db interface for instance profile.
  */
 public class InstanceDb {
 
