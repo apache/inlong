@@ -62,7 +62,7 @@ public class CommonConstants {
     public static final String PROXY_SEND_PARTITION_KEY = "proxy.partitionKey";
 
     // max size of single batch in bytes, default is 500KB
-    public static final int DEFAULT_PROXY_PACKAGE_MAX_SIZE = 500000;
+    public static final int DEFAULT_PROXY_PACKAGE_MAX_SIZE = 500 * 1024;
 
     public static final String PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER = "proxy.group.queue.maxNumber";
     public static final int DEFAULT_PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER = 10000;
