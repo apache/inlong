@@ -93,7 +93,7 @@ public class AgentBaseTestsHelper {
         fileTaskConfig.setTimeOffset("0d");
         fileTaskConfig.setMaxFileCount(100);
         fileTaskConfig.setCycleUnit("D");
-        fileTaskConfig.setRetry(retry); 
+        fileTaskConfig.setRetry(retry);
         fileTaskConfig.setStartTime(startTime);
         fileTaskConfig.setEndTime(endTime);
         dataConfig.setExtParams(GSON.toJson(fileTaskConfig));
