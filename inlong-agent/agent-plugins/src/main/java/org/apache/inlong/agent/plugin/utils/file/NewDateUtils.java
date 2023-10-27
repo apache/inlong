@@ -220,10 +220,10 @@ public class NewDateUtils {
             timeInterval = DAY_TIMEOUT_INTERVAL;
         }
 
-        // 处理偏移量，超时周期要加上时间偏移偏移量
+        // To handle the offset, add the time offset to the timeout period
         if (timeOffset.startsWith("-")) {
             timeInterval += caclOffset(timeOffset);
-        } else { // 处理向后偏移
+        } else { // Process Backward Offset
             timeInterval -= caclOffset(timeOffset);
         }
 
@@ -243,11 +243,11 @@ public class NewDateUtils {
     public static long caclOffset(String timeOffset) {
         String offsetUnit = timeOffset.substring(timeOffset.length() - 1);
         int startIndex = timeOffset.charAt(0) == '-' ? 1 : 0;
-        // 默认向后偏移
+        // Default Backward Offset
         int symbol = 1;
         if (startIndex == 1) {
             symbol = 1;
-        } else if (startIndex == 0) { // 向前偏移
+        } else if (startIndex == 0) { // Forward offset
             symbol = -1;
         }
         int offsetTime = Integer
