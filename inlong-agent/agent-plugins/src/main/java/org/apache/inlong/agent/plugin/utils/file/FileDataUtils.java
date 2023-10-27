@@ -15,9 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.utils;
+package org.apache.inlong.agent.plugin.utils.file;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.AbstractConfiguration;
+import org.apache.inlong.agent.plugin.utils.MetaDataUtils;
+import org.apache.inlong.agent.plugin.utils.PluginUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -32,6 +34,10 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -50,6 +56,13 @@ public class FileDataUtils {
     public static final String KUBERNETES_LOG = "log";
     private static final Logger LOGGER = LoggerFactory.getLogger(FileDataUtils.class);
     private static final Gson GSON = new Gson();
+
+    public static String getInodeInfo(String fileName) throws IOException {
+        BasicFileAttributes attributesAfter;
+        Path path = Paths.get(fileName);
+        attributesAfter = Files.readAttributes(path, BasicFileAttributes.class);
+        return attributesAfter.fileKey().toString();
+    }
 
     /**
      * Get standard log for k8s
@@ -84,7 +97,7 @@ public class FileDataUtils {
     /**
      * Filter file by conditions
      */
-    public static Collection<File> filterFile(Collection<File> allFiles, JobProfile jobConf) {
+    public static Collection<File> filterFile(Collection<File> allFiles, AbstractConfiguration jobConf) {
         // filter file by labels
         Collection<File> files = null;
         try {
@@ -98,7 +111,8 @@ public class FileDataUtils {
     /**
      * Filter file by labels if standard log for k8s
      */
-    private static Collection<File> filterByLabels(Collection<File> allFiles, JobProfile jobConf) throws IOException {
+    private static Collection<File> filterByLabels(Collection<File> allFiles, AbstractConfiguration jobConf)
+            throws IOException {
         Map<String, String> labelsMap = MetaDataUtils.getPodLabels(jobConf);
         if (labelsMap.isEmpty()) {
             return allFiles;
