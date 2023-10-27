@@ -233,8 +233,9 @@ public class NewDateUtils {
     /**
      * Calculate offset time based on offset
      * The current offset will only be offset forward, or it can be offset backward to be compatible with the previous
-     * calculation method (subtraction). When it is offset backward, it returns negative; When offset forward, return to
-     * positive
+     * calculation method (subtraction).
+     * When it is offset backward, it returns negative;
+     * When offset forward, return positive
      *
      * @param timeOffset offset，such as -1d,-4h,-10m；
      * @return
