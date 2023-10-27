@@ -231,10 +231,12 @@ public class NewDateUtils {
     }
 
     /**
-     * 根据偏移量计算偏移时间
-     * 当前偏移只会向前偏移，也可向后偏移为兼容之前的计算方式(相减)，当为向后偏移时，返回负；当向前偏移，返回正
+     * Calculate offset time based on offset
+     * The current offset will only be offset forward, or it can be offset backward to be compatible with the previous
+     * calculation method (subtraction). When it is offset backward, it returns negative; When offset forward, return to
+     * positive
      *
-     * @param timeOffset 偏移量，如-1d,-4h,-10m等；
+     * @param timeOffset offset，such as -1d,-4h,-10m；
      * @return
      */
     public static long caclOffset(String timeOffset) {
@@ -410,7 +412,8 @@ public class NewDateUtils {
 
         Matcher mat = Pattern.compile(longestDatePattern).matcher(fileName);
         boolean find = mat.find();
-        // TODO : 存在文件名中有多个部分匹配到时间表达式的情况("/data/joox_logs/2000701106/201602170040.log" YYYYMMDDhh)
+        // TODO : more than one part match the time regex in file name ("/data/joox_logs/2000701106/201602170040.log"
+        // YYYYMMDDhh)
         if (!find) {
             logger.error("Can't find the pattern {} for file name {}", longestDatePattern,
                     fileName);
@@ -716,222 +719,5 @@ public class NewDateUtils {
         }
 
         return ret;
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        // String aa = "/data/taox/YYYYMMDDt_log/[0-9]+_YYYYMMDD_hh00.log";
-        /*
-         * String aa = "/data/taox/YYYYt_logMMDD/[0-9]+_YYYYMMDD_hh00.log"; String bb =
-         * replaceDateExpressionWithRegex(aa); System.out.println("---------: " + bb);
-         *
-         * String cc = replaceDateExpression(Calendar.getInstance(), aa); System.out.println("---------: " + cc);
-         *
-         * String dd = replaceDateExpression1(Calendar.getInstance(), aa); System.out.println("---------: " + dd);
-         */
-
-        // String text = "/data1/qq_BaseInfo/YYYY-MM/YYYY-MM-DD/gamedr.gamedb[0-9]+.minigame
-        // .db/YYYY-MM-DD-[0-9]+.txt";
-        // System.out.println(replaceDateExpressionWithRegex(text));
-        //
-        // int timeInterval = 1000;
-        // String timeOffset = "10H";
-        //
-        // String offsetUnit = timeOffset.substring(timeOffset.length() - 1);
-        // int startIndex = timeOffset.charAt(0) == '-' ? 1 : 0;
-        // int offsetTime = Integer.parseInt(timeOffset.substring(startIndex, timeOffset.length()
-        // - 1));
-        // if("d".equalsIgnoreCase(offsetUnit)){
-        // timeInterval += offsetTime * 24 * 3600 * 1000;
-        // }else if("h".equalsIgnoreCase(offsetUnit)){
-        // timeInterval += offsetTime * 3600 * 1000;
-        // }else if("m".equalsIgnoreCase(offsetUnit)){
-        // timeInterval += offsetTime * 60 * 1000;
-        // }
-        //
-        // System.out.println(timeInterval);
-        //
-        // SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
-        //
-        // Calendar calendar = NewDateUtils.getCurDate("D", "-10D");
-        // System.out.println("year: " + calendar.get(Calendar.YEAR) + ", month: "
-        // + (calendar.get(Calendar.MONTH) + 1) + ", day: "
-        // + calendar.get(Calendar.DAY_OF_MONTH) + ", hour: "
-        // + calendar.get(Calendar.HOUR_OF_DAY) + ", minute: "
-        // + calendar.get(Calendar.MINUTE) + ", second: "
-        // + calendar.get(Calendar.SECOND));
-        // System.out.println(dateFormat.format(calendar.getTimeInMillis()));
-        //
-        // calendar = getCurDate("H", "-2H");
-        // System.out.println("year: " + calendar.get(Calendar.YEAR) + ", month: "
-        // + (calendar.get(Calendar.MONTH) + 1) + ", day: "
-        // + calendar.get(Calendar.DAY_OF_MONTH) + ", hour: "
-        // + calendar.get(Calendar.HOUR_OF_DAY) + ", minute: "
-        // + calendar.get(Calendar.MINUTE) + ", second: "
-        // + calendar.get(Calendar.SECOND));
-        // System.out.println(dateFormat.format(calendar.getTimeInMillis()));
-        //
-        // calendar = getCurDate("H", "-2D");
-        // System.out.println("year: " + calendar.get(Calendar.YEAR) + ", month: "
-        // + (calendar.get(Calendar.MONTH) + 1) + ", day: "
-        // + calendar.get(Calendar.DAY_OF_MONTH) + ", hour: "
-        // + calendar.get(Calendar.HOUR_OF_DAY) + ", minute: "
-        // + calendar.get(Calendar.MINUTE) + ", second: "
-        // + calendar.get(Calendar.SECOND));
-        // System.out.println(dateFormat.format(calendar.getTimeInMillis()));
-        //
-        // calendar = getCurDate("5m", "-20m");
-        // System.out.println("year: " + calendar.get(Calendar.YEAR) + ", month: "
-        // + (calendar.get(Calendar.MONTH) + 1) + ", day: "
-        // + calendar.get(Calendar.DAY_OF_MONTH) + ", hour: "
-        // + calendar.get(Calendar.HOUR_OF_DAY) + ", minute: "
-        // + calendar.get(Calendar.MINUTE) + ", second: "
-        // + calendar.get(Calendar.SECOND));
-        // System.out.println(dateFormat.format(calendar.getTimeInMillis()));
-        //
-        // String directory = "/data/home/user00/xyshome/logsvr/log/YYYYMMDD/[0-9]+_YYYYMMDD_hh00
-        // .log";
-        // calendar = getCurDate("H", "-3H");
-        // System.out.println(replaceDateExpression(calendar, directory));
-        //
-        // System.out.println(NewDateUtils.timeStrConvertTomillSec("201404031105",
-        // "m"));
-        // System.out.println(NewDateUtils.timeStrConvertTomillSec("2014040223",
-        // "H"));
-        // System.out.println(NewDateUtils
-        // .timeStrConvertTomillSec("20140402", "D"));
-        //
-        // System.out.println(NewDateUtils.millSecConvertToTimeStr(
-        // System.currentTimeMillis(), "Y"));
-        // System.out.println(NewDateUtils.millSecConvertToTimeStr(
-        // System.currentTimeMillis(), "M"));
-        // System.out.println(NewDateUtils.millSecConvertToTimeStr(
-        // System.currentTimeMillis(), "D"));
-        // System.out.println(NewDateUtils.millSecConvertToTimeStr(
-        // System.currentTimeMillis(), "H"));
-        // System.out.println(NewDateUtils.millSecConvertToTimeStr(
-        // System.currentTimeMillis(), "10m"));
-        // System.out.println(NewDateUtils.millSecConvertToTimeStr(
-        // System.currentTimeMillis(), "15m"));
-        // System.out.println(NewDateUtils.millSecConvertToTimeStr(
-        // System.currentTimeMillis(), "30m"));
-        // System.out.println(NewDateUtils.millSecConvertToTimeStr(
-        // NewDateUtils.timeStrConvertTomillSec("201404121900", "10m"),
-        // "10m"));
-        //
-        // NewDateUtils.getDateRegion("20120810", "20120813", "D");
-        // NewDateUtils.getDateRegion("2012081005", "2012081300", "H");
-        // NewDateUtils.getDateRegion("201404111649", "201404111600", "10m");
-        // String dataTime = "20160122";
-        // System.out.println(NewDateUtils.getShouldStartTime(dataTime, "D", "-2h"));
-
-        // String dataPath = "/data/herococo/YYYYMMDD_*/YYYYMMDDhhmm.log";
-        // dataPath = NewDateUtils.replaceDateExpressionWithRegex(dataPath);
-        // System.out.println("dataPath: " + dataPath);
-        //
-        // Pattern pattern = Pattern.compile(dataPath, Pattern.CASE_INSENSITIVE
-        // | Pattern.DOTALL | Pattern.MULTILINE);
-        // // Pattern pattern = Pattern.compile("/data/herococo/\\d+/\\d+.log",
-        // // Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE);
-        // Matcher m = pattern
-        // .matcher("/data/herococo/20140406_a/20140406152730.log");
-        // System.out.println(m.matches());
-        //
-        // dataPath = "/data/home/user00/xyshome/logsvr/log/YYYYMMDD/[0-9]+_YYYYMMDD_hh00.log";
-        // dataPath = NewDateUtils.replaceDateExpressionWithRegex(dataPath);
-        // pattern = Pattern.compile(dataPath, Pattern.CASE_INSENSITIVE
-        // | Pattern.DOTALL | Pattern.MULTILINE);
-        // m = pattern
-        // .matcher("/data/home/user00/xyshome/logsvr/log/20140406/8_20140406_1600.log");
-        // System.out.println(dataPath);
-        // System.out.println(m.matches());
-        //
-        // dataPath = "/data/work/data2/abc/YYYYMMDDhh.*.txt";
-        // dataPath = NewDateUtils.replaceDateExpressionWithRegex(dataPath);
-        // pattern = Pattern.compile(dataPath, Pattern.CASE_INSENSITIVE
-        // | Pattern.DOTALL | Pattern.MULTILINE);
-        // m = pattern.matcher("/data/work/data2/abc/201404102242.txt");
-        // System.out.println(dataPath);
-        // System.out.println(m.matches());
-        //
-        // List<Long> retTimeList = NewDateUtils.getDateRegion("20140411",
-        // "20140411", "D");
-        // for (Long time : retTimeList) {
-        // System.out.println(NewDateUtils.millSecConvertToTimeStr(time, "D"));
-        // }
-        //
-        // pattern = Pattern
-        // .compile(
-        // "/data/home/tlog/logplat/log/tlogd_1/[0-9]+_\\d{4}\\d{2}\\d{2}_\\d{2}00
-        // .log",
-        // Pattern.CASE_INSENSITIVE | Pattern.DOTALL
-        // | Pattern.MULTILINE);
-        // m = pattern
-        // .matcher("/data/home/tlog/logplat/log/tlogd_1/65535_20140506_1600.log.1");
-        // System.out.println(m.matches());
-        // System.out.println(m.lookingAt());
-        //
-        // String unit = "h";
-        // if (StringUtils.endsWithIgnoreCase("h", "H")) {
-        // System.out.println("yes");
-        // }
-        //
-        // System.out.println(NewDateUtils.getDateTime("20160106", "D", "-4h"));
-
-        // PathDateExpression dateExpression = DateUtils
-        // .extractLongestTimeRegexWithPrefixOrSuffix
-        // ("/data/log/qqtalk/[0-9]+_[0-9]+_id20522_[0-9]+_YYYYMMDD_hh.log");
-        // System.out.println(dateExpression.getLongestDatePattern());
-        // String fileTime = getDateTime("/data/log/qqtalk/3900626911_11217_id20522_17_20160420
-        // .log", dateExpression);
-        // System.out.println(fileTime);
-
-        // String dataTime = "20180411";
-        //
-        // String shouldStart = getShouldStartTime(dataTime, "D", "4h");
-        // System.out.println(shouldStart);
-        //
-        // String fileName = "rc_trade_water[0-9]*.YYYY-MM-DD-hh.[0-9]+";
-        //
-        // String newFileName = "rc_trade_water.2016-11-20-12.9";
-        //
-        // /**
-        // * 打印出文件名中 最长的时间表达式
-        // */
-        // PathDateExpression dateExpression = DateUtils.extractLongestTimeRegexWithPrefixOrSuffix
-        // (fileName);
-        // System.out.println(dateExpression.getLongestDatePattern());
-        //
-        // /**
-        // * 检查正则表达式是否能匹配到文件
-        // */
-        // Pattern pattern = Pattern.compile(replaceDateExpressionWithRegex(fileName),
-        // Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE);
-        //
-        // Matcher matcher = pattern.matcher(newFileName);
-        //
-        // if (matcher.matches() || matcher.lookingAt()) {
-        // System.out.println("Matched File");
-        // }
-        //
-        // /**
-        // * 打印文件名的时间
-        // */
-        // String fileTime = getDateTime(newFileName, dateExpression);
-        // System.out.println(fileTime);
-        //
-        //
-        // String fileName1 = "/data/joox_logs/2000701106/201602170040.log";
-        // String filePathRegx = "/data/joox_logs/2000701106/{YYYYMMDDhh}40.log";
-        // String fullRegx = replaceDateExpressionWithRegex(filePathRegx, "dateTimeGN");
-        // System.out.println(fullRegx);
-        // Pattern fullPattern = Pattern.compile(fullRegx);
-        // Matcher fullMatcher = fullPattern.matcher(fileName1);
-        // while (fullMatcher.find()) {
-        // System.out.println(fullMatcher.group("dateTimeGN"));
-        // }
-
-        System.out.println(
-                timeStrConvertTomillSec("2018111209", "h", TimeZone.getTimeZone("GMT+8:00")));
     }
 }
