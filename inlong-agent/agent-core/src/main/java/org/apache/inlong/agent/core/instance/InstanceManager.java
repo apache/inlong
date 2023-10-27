@@ -132,21 +132,29 @@ public class InstanceManager extends AbstractDaemon {
         instanceDb.getInstances(taskId).forEach((profileFromDb) -> {
             InstanceStateEnum dbState = profileFromDb.getState();
             Instance task = instanceMap.get(profileFromDb.getInstanceId());
-            if (dbState == InstanceStateEnum.DEFAULT) {
-                if (task == null) {
-                    LOGGER.info("traverseDbTasksToMemory add instance to mem taskId {} instanceId {}",
-                            profileFromDb.getTaskId(), profileFromDb.getInstanceId());
-                    addToMemory(profileFromDb);
+            switch (dbState) {
+                case DEFAULT: {
+                    if (task == null) {
+                        LOGGER.info("traverseDbTasksToMemory add instance to mem taskId {} instanceId {}",
+                                profileFromDb.getTaskId(), profileFromDb.getInstanceId());
+                        addToMemory(profileFromDb);
+                    }
+                    break;
                 }
-            } else if (dbState == InstanceStateEnum.FINISHED || dbState == InstanceStateEnum.DELETE) {
-                if (task != null) {
-                    LOGGER.info("traverseDbTasksToMemory delete instance from mem taskId {} instanceId {}",
-                            profileFromDb.getTaskId(), profileFromDb.getInstanceId());
-                    deleteFromMemory(profileFromDb.getInstanceId());
+                case FINISHED:
+                    DELETE: {
+                        if (task != null) {
+                            LOGGER.info("traverseDbTasksToMemory delete instance from mem taskId {} instanceId {}",
+                                    profileFromDb.getTaskId(), profileFromDb.getInstanceId());
+                            deleteFromMemory(profileFromDb.getInstanceId());
+                        }
+                        break;
+                    }
+                default: {
+                    LOGGER.error("instance invalid state {} taskId {} instanceId {}", dbState,
+                            profileFromDb.getTaskId(),
+                            profileFromDb.getInstanceId());
                 }
-            } else {
-                LOGGER.error("instance invalid state {} taskId {} instanceId {}", dbState, profileFromDb.getTaskId(),
-                        profileFromDb.getInstanceId());
             }
         });
     }
