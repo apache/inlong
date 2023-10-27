@@ -82,18 +82,18 @@ public class AgentBaseTestsHelper {
     private DataConfig getDataConfig(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
             TaskStateEnum state) {
         DataConfig dataConfig = new DataConfig();
-        dataConfig.setInlongGroupId("testGroupId"); // 老字段 groupId
-        dataConfig.setInlongStreamId("testStreamId"); // 老字段 streamId
-        dataConfig.setDataReportType(1); // 老字段 reportType
-        dataConfig.setTaskType(3); // 老字段 任务类型，3 代表文件采集
-        dataConfig.setTaskId(taskId); // 老字段 任务 id
-        dataConfig.setState(state.ordinal()); // 新增！ 任务状态 1 正常 2 暂停
+        dataConfig.setInlongGroupId("testGroupId");
+        dataConfig.setInlongStreamId("testStreamId");
+        dataConfig.setDataReportType(1);
+        dataConfig.setTaskType(3);
+        dataConfig.setTaskId(taskId);
+        dataConfig.setState(state.ordinal());
         FileTaskConfig fileTaskConfig = new FileTaskConfig();
-        fileTaskConfig.setPattern(pattern);// 正则
-        fileTaskConfig.setTimeOffset("0d"); // 老字段 时间偏移 "-1d" 采一天前的 "-2h" 采 2 小时前的
-        fileTaskConfig.setMaxFileCount(100); // 最大文件数
-        fileTaskConfig.setCycleUnit("D"); // 新增！ 任务周期 "D" 天 "h" 小时
-        fileTaskConfig.setRetry(retry); // 新增！ 是否补录，如果是补录任务则为 true
+        fileTaskConfig.setPattern(pattern);
+        fileTaskConfig.setTimeOffset("0d");
+        fileTaskConfig.setMaxFileCount(100);
+        fileTaskConfig.setCycleUnit("D");
+        fileTaskConfig.setRetry(retry); 
         fileTaskConfig.setStartTime(startTime);
         fileTaskConfig.setEndTime(endTime);
         dataConfig.setExtParams(GSON.toJson(fileTaskConfig));
