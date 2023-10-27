@@ -21,8 +21,8 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.file.FileReaderOperator;
 import org.apache.inlong.agent.plugin.sources.reader.file.TriggerFileReader;
-import org.apache.inlong.agent.plugin.utils.FileDataUtils;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
+import org.apache.inlong.agent.plugin.utils.file.FileDataUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

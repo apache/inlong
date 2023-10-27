@@ -42,7 +42,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_TIMEOUT_MS;
 
 /**
- * Handle List of BusMessage, which belong to the same stream id.
+ * Handle List of Proxy Message, which belong to the same stream id.
  */
 public class ProxyMessageCache {
 
@@ -67,9 +67,6 @@ public class ProxyMessageCache {
      */
     private Map<String, String> extraMap = new HashMap<>();
 
-    /**
-     * Init PackBusMessage
-     */
     public ProxyMessageCache(InstanceProfile instanceProfile, String groupId, String streamId) {
         this.taskId = instanceProfile.getTaskId();
         this.instanceId = instanceProfile.getInstanceId();
@@ -77,7 +74,6 @@ public class ProxyMessageCache {
         this.maxQueueNumber = instanceProfile.getInt(PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER,
                 DEFAULT_PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER);
         this.cacheTimeout = instanceProfile.getInt(PROXY_PACKAGE_MAX_TIMEOUT_MS, DEFAULT_PROXY_PACKAGE_MAX_TIMEOUT_MS);
-        // double size of package
         this.messageQueue = new LinkedBlockingQueue<>(maxQueueNumber);
         this.groupId = groupId;
         this.streamId = streamId;
