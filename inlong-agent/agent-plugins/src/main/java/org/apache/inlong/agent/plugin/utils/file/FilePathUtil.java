@@ -160,11 +160,7 @@ public class FilePathUtil {
     public static boolean isSameDir(String fileName1, String fileName2) {
         ArrayList<String> ret1 = FilePathUtil.cutDirectory(fileName1);
         ArrayList<String> ret2 = FilePathUtil.cutDirectory(fileName2);
-        if (ret1.get(0).equals(ret2.get(0))) {
-            return true;
-        } else {
-            return false;
-        }
+        return ret1.get(0).equals(ret2.get(0));
     }
 
 }
