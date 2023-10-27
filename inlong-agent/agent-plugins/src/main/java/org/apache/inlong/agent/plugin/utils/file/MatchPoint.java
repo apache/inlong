@@ -17,9 +17,6 @@
 
 package org.apache.inlong.agent.plugin.utils.file;
 
-/**
- * Created by lamberliu on 2015/11/13.
- */
 public class MatchPoint {
 
     String str;
