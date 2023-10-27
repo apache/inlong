@@ -87,7 +87,6 @@ export default class TDSQLPostgreSQLSink
   schemaName: string;
 
   @FieldDecorator({
-    // type: 'input',
     type: CreateTable,
     rules: [{ required: true }],
     props: values => ({
@@ -137,7 +136,6 @@ export default class TDSQLPostgreSQLSink
       ],
     }),
   })
-  // @SyncField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 

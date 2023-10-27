@@ -107,14 +107,11 @@ export default class SqlServerSink
   serverTimezone: string;
 
   @FieldDecorator({
-    // type: 'input',
     type: CreateTable,
     rules: [{ required: true }],
     initialValue: 'UTC',
-    // suffix: CreateTable,
     props: values => ({
       disabled: [110].includes(values?.status),
-      // addonAfter: CreateTable,
       sinkType: values.sinkType,
       inlongGroupId: values.inlongGroupId,
       inlongStreamId: values.inlongStreamId,

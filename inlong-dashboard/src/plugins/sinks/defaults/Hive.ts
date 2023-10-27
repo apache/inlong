@@ -67,7 +67,6 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   dbName: string;
 
   @FieldDecorator({
-    // type: 'input',
     type: CreateTable,
     rules: [{ required: true }],
     props: values => ({
@@ -105,7 +104,6 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
       ],
     }),
   })
-  // @SyncField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
@@ -178,7 +176,6 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     }),
   })
   @I18n('meta.Sinks.Hive.FileFormat')
-  // @SyncField()
   @SyncCreateTableField()
   fileFormat: string;
 
@@ -201,7 +198,6 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     rules: [{ required: true }],
   })
   @I18n('meta.Sinks.Hive.DataEncoding')
-  // @SyncField()
   @SyncCreateTableField()
   dataEncoding: string;
 
@@ -255,7 +251,6 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     ],
   })
   @I18n('meta.Sinks.Hive.DataSeparator')
-  // @SyncField()
   @SyncCreateTableField()
   dataSeparator: string;
 

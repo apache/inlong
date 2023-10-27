@@ -124,7 +124,6 @@ export default class IcebergSink
   dbName: string;
 
   @FieldDecorator({
-    // type: 'input',
     type: CreateTable,
     rules: [{ required: true }],
     props: values => ({
@@ -163,7 +162,6 @@ export default class IcebergSink
     }),
   })
   @I18n('meta.Sinks.EnableCreateResource')
-  // @SyncField()
   enableCreateResource: number;
 
   @FieldDecorator({

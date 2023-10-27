@@ -87,7 +87,6 @@ export default class StarRocksSink
   databaseName: string;
 
   @FieldDecorator({
-    // type: 'input',
     type: CreateTable,
     rules: [{ required: true }],
     props: values => ({

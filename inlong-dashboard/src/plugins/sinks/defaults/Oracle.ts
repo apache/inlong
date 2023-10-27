@@ -74,7 +74,6 @@ export default class OracleSink extends SinkInfo implements DataWithBackend, Ren
   jdbcUrl: string;
 
   @FieldDecorator({
-    // type: 'input',
     type: CreateTable,
     rules: [{ required: true }],
     props: values => ({
@@ -125,7 +124,6 @@ export default class OracleSink extends SinkInfo implements DataWithBackend, Ren
     }),
   })
   @I18n('meta.Sinks.EnableCreateResource')
-  // @SyncField()
   enableCreateResource: number;
 
   @FieldDecorator({

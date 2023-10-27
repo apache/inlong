@@ -90,7 +90,6 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   dbName: string;
 
   @FieldDecorator({
-    // type: 'input',
     type: CreateTable,
     rules: [{ required: true }],
     props: values => ({
@@ -140,7 +139,6 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
       ],
     }),
   })
-  // @SyncField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
