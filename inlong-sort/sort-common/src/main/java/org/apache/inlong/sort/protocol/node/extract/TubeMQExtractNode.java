@@ -104,11 +104,7 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
         map.put(TubeMQConstant.TOPIC, topic);
         map.put(TubeMQConstant.MASTER_RPC, masterRpc);
         map.put(TubeMQConstant.CONSUME_GROUP, consumeGroup);
-        // map.put(TubeMQConstant.FORMAT, format);
         map.put(TubeMQConstant.SESSION_KEY, sessionKey);
-        // if (format.startsWith(INLONG_MSG)) {
-        // map.put(TubeMQConstant.INNER_FORMAT, innerFormat);
-        // }
 
         if (null != streamId && !streamId.isEmpty()) {
             map.put(TubeMQConstant.STREAMID, StringUtils.concatCsv(streamId.toArray(new String[0]),
