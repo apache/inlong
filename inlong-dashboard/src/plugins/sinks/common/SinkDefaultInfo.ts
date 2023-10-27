@@ -27,7 +27,7 @@ import { statusList, genStatusTag } from './status';
 import { sinks, defaultValue } from '..';
 
 const { I18nMap, I18n } = DataWithBackend;
-const { FieldList, FieldDecorator, SyncField, SyncFieldSet } = RenderRow;
+const { FieldList, FieldDecorator, SyncField, SyncFieldSet, SyncCreateTableFieldSet } = RenderRow;
 const { ColumnList, ColumnDecorator } = RenderList;
 
 export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
@@ -35,6 +35,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   static FieldList = FieldList;
   static ColumnList = ColumnList;
   static SyncFieldSet = SyncFieldSet;
+  static SyncCreateTableFieldSet = SyncCreateTableFieldSet;
 
   readonly id: number;
 
@@ -157,6 +158,12 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     const constructor = this.constructor as typeof SinkDefaultInfo;
     const { FieldList, SyncFieldSet } = constructor;
     return FieldList.filter(item => SyncFieldSet.has(item.name as string));
+  }
+
+  renderSyncCreateTableRow() {
+    const constructor = this.constructor as typeof SinkDefaultInfo;
+    const { FieldList, SyncCreateTableFieldSet } = constructor;
+    return FieldList.filter(item => SyncCreateTableFieldSet.has(item.name as string));
   }
 
   renderRow() {

@@ -576,6 +576,8 @@
   "components.FieldList.SinkFieldName": "Sink field name",
   "components.FieldList.SinkFieldType": "Sink field type",
   "components.FieldList.FieldComment": "Field comment",
+  "components.CreateTable.Table": "Create table",
+  "components.CreateTable.TableType": "Table type",
   "configs.pagination.Total": "Total {{total}} items",
   "pages.GroupDashboard.ExecutionLogModal.Re-executingSuccess": "Re-executing success",
   "pages.GroupDashboard.ExecutionLogModal.TaskType": "Task type",

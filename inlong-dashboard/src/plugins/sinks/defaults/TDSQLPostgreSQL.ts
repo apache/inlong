@@ -22,9 +22,10 @@ import i18n from '@/i18n';
 import EditableTable from '@/ui/components/EditableTable';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
+import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const tdsqlPostgreSQLFieldTypes = [
@@ -86,10 +87,18 @@ export default class TDSQLPostgreSQLSink
   schemaName: string;
 
   @FieldDecorator({
-    type: 'input',
+    // type: 'input',
+    type: CreateTable,
     rules: [{ required: true }],
     props: values => ({
       disabled: [110].includes(values?.status),
+      sinkType: values.sinkType,
+      inlongGroupId: values.inlongGroupId,
+      inlongStreamId: values.inlongStreamId,
+      fieldName: 'tableName',
+      sinkObj: {
+        ...values,
+      },
     }),
   })
   @ColumnDecorator()
@@ -128,7 +137,7 @@ export default class TDSQLPostgreSQLSink
       ],
     }),
   })
-  @SyncField()
+  // @SyncField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
@@ -164,6 +173,7 @@ export default class TDSQLPostgreSQLSink
       upsertByFieldKey: true,
     }),
   })
+  @SyncCreateTableField()
   sinkFieldList: Record<string, unknown>[];
 }
 

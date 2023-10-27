@@ -25,9 +25,10 @@ import EditableTable from '@/ui/components/EditableTable';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
 import NodeSelect from '@/ui/components/NodeSelect';
+import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const esTypes = [
@@ -77,11 +78,18 @@ export default class ElasticsearchSink
   indexName: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: CreateTable,
     rules: [{ required: true }],
     tooltip: i18n.t('meta.Sinks.ES.PrimaryKeyHelp'),
     props: values => ({
       disabled: [110].includes(values?.status),
+      sinkType: values.sinkType,
+      inlongGroupId: values.inlongGroupId,
+      inlongStreamId: values.inlongStreamId,
+      fieldName: 'primaryKey',
+      sinkObj: {
+        ...values,
+      },
     }),
   })
   @ColumnDecorator()
@@ -121,7 +129,7 @@ export default class ElasticsearchSink
     }),
   })
   @I18n('meta.Sinks.EnableCreateResource')
-  @SyncField()
+  // @SyncField()
   enableCreateResource: number;
 
   @FieldDecorator({
@@ -135,7 +143,7 @@ export default class ElasticsearchSink
     }),
   })
   @ColumnDecorator()
-  @SyncField()
+  @SyncCreateTableField()
   @I18n('meta.Sinks.ES.FlushRecord')
   flushRecord: number;
 
@@ -150,7 +158,7 @@ export default class ElasticsearchSink
     }),
   })
   @ColumnDecorator()
-  @SyncField()
+  @SyncCreateTableField()
   @I18n('meta.Sinks.ES.RetryTimes')
   retryTime: number;
 
@@ -164,7 +172,7 @@ export default class ElasticsearchSink
     }),
   })
   @ColumnDecorator()
-  @SyncField()
+  @SyncCreateTableField()
   @I18n('meta.Sinks.ES.EsVersion')
   esVersion: number;
 
@@ -178,6 +186,7 @@ export default class ElasticsearchSink
       upsertByFieldKey: true,
     }),
   })
+  @SyncCreateTableField()
   sinkFieldList: Record<string, unknown>[];
 }
 

@@ -25,9 +25,10 @@ import EditableTable from '@/ui/components/EditableTable';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
 import NodeSelect from '@/ui/components/NodeSelect';
+import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const icebergFieldTypes = [
@@ -123,10 +124,18 @@ export default class IcebergSink
   dbName: string;
 
   @FieldDecorator({
-    type: 'input',
+    // type: 'input',
+    type: CreateTable,
     rules: [{ required: true }],
     props: values => ({
       disabled: [110].includes(values?.status),
+      sinkType: values.sinkType,
+      inlongGroupId: values.inlongGroupId,
+      inlongStreamId: values.inlongStreamId,
+      fieldName: 'tableName',
+      sinkObj: {
+        ...values,
+      },
     }),
   })
   @ColumnDecorator()
@@ -154,7 +163,7 @@ export default class IcebergSink
     }),
   })
   @I18n('meta.Sinks.EnableCreateResource')
-  @SyncField()
+  // @SyncField()
   enableCreateResource: number;
 
   @FieldDecorator({
@@ -258,6 +267,7 @@ export default class IcebergSink
       upsertByFieldKey: true,
     }),
   })
+  @SyncCreateTableField()
   sinkFieldList: Record<string, unknown>[];
 }
 

@@ -20,12 +20,13 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Spin, Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
-import { useRequest, useUpdateEffect } from '@/ui/hooks';
+import { useRequest, useSelector, useUpdateEffect } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import EditableTable from '@/ui/components/EditableTable';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import { useLoadMeta, SinkMetaType } from '@/plugins';
 import request from '@/core/utils/request';
+import { State } from '@/core/stores';
 
 export interface DetailModalProps extends ModalProps {
   inlongGroupId: string;
@@ -51,6 +52,8 @@ const Comp: React.FC<DetailModalProps> = ({
   const [sinkType, setSinkType] = useState('');
 
   const { loading: pluginLoading, Entity } = useLoadMeta<SinkMetaType>('sink', sinkType);
+
+  const syncTableData = useSelector<State, State['syncTableData']>(state => state.syncTableData);
 
   const { data: groupData, run: getGroupData } = useRequest(`/group/get/${inlongGroupId}`, {
     manual: true,
@@ -83,7 +86,7 @@ const Comp: React.FC<DetailModalProps> = ({
         getGroupData();
         getData(id);
       } else {
-        form.setFieldsValue({ inlongGroupId, sinkType: defaultType });
+        form.setFieldsValue({ inlongGroupId, inlongStreamId, sinkType: defaultType });
         setSinkType(defaultType);
       }
     } else {
@@ -120,6 +123,7 @@ const Comp: React.FC<DetailModalProps> = ({
       method: 'POST',
       data: {
         ...submitData,
+        ...syncTableData,
         inlongGroupId,
         inlongStreamId,
       },

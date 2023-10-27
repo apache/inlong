@@ -25,9 +25,10 @@ import EditableTable from '@/ui/components/EditableTable';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
 import NodeSelect from '@/ui/components/NodeSelect';
+import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const redisTargetTypes = [
@@ -252,12 +253,18 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
   formatDataSeparator: string;
 
   @FieldDecorator({
-    type: 'inputnumber',
+    type: CreateTable,
     rules: [{ required: false }],
     props: values => ({
       disabled: [110].includes(values?.status),
-      min: 0,
-      placholder: '0',
+      sinkType: values.sinkType,
+      inlongGroupId: values.inlongGroupId,
+      inlongStreamId: values.inlongStreamId,
+      useNumber: true,
+      fieldName: 'database',
+      sinkObj: {
+        ...values,
+      },
     }),
   })
   @ColumnDecorator()
@@ -289,6 +296,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
       upsertByFieldKey: true,
     }),
   })
+  @SyncCreateTableField()
   sinkFieldList: Record<string, unknown>[];
 
   @FieldDecorator({
