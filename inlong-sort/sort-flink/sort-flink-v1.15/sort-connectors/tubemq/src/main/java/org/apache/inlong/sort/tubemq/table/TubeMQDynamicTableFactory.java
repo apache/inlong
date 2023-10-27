@@ -117,7 +117,7 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
         final DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat = getValueDecodingFormat(helper);
 
         // validate all options
-        helper.validate();
+        helper.validateExcept(INNERFORMATTYPE);
 
         validatePKConstraints(context.getObjectIdentifier(), context.getCatalogTable(), valueDecodingFormat);
         innerFormat = INNERFORMATTYPE.equals(tableOptions.get(FORMAT));
@@ -146,7 +146,7 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
         final EncodingFormat<SerializationSchema<RowData>> valueEncodingFormat = getValueEncodingFormat(helper);
 
         // validate all options
-        helper.validate();
+        helper.validateExcept(INNERFORMATTYPE);
 
         validatePKConstraints(context.getObjectIdentifier(), context.getCatalogTable(), valueEncodingFormat);
 

@@ -69,6 +69,9 @@ public class PulsarSourceRequest extends SourceRequest {
     @ApiModelProperty(value = "Data field escape symbol")
     private String dataEscapeChar;
 
+    @ApiModelProperty(value = "The message body wrap  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
+    private String wrapType;
+
     @ApiModelProperty("Configure the Source's startup mode."
             + " Available options are earliest, latest, external-subscription, and specific-offsets.")
     private String scanStartupMode = "earliest";

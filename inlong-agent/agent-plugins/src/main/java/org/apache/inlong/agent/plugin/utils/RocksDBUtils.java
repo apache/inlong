@@ -17,7 +17,9 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
+import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TriggerProfile;
+import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.RocksDbImp;
@@ -31,7 +33,9 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_ID_PREFIX;
 public class RocksDBUtils {
 
     public static void main(String[] args) {
-        Db db = new RocksDbImp();
+        AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
+        Db db = new RocksDbImp(
+                agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.DEFAULT_AGENT_ROCKS_DB_PATH));
         upgrade(db);
     }
 

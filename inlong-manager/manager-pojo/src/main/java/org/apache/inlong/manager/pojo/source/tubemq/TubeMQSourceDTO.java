@@ -49,20 +49,23 @@ public class TubeMQSourceDTO {
     @ApiModelProperty("Topic of the TubeMQ")
     private String topic;
 
-    @ApiModelProperty("Format of the TubeMQ")
-    private String format;
-
     @ApiModelProperty("Group of the TubeMQ")
-    private String groupId;
+    private String consumeGroup;
 
     @ApiModelProperty("Session key of the TubeMQ")
     private String sessionKey;
+
+    @ApiModelProperty(value = "Data separator")
+    private String dataSeparator;
+
+    @ApiModelProperty(value = "The message body wrap  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
+    private String wrapType;
 
     /**
      * The tubemq consumers use this tid set to filter records reading from server.
      */
     @ApiModelProperty("Tid of the TubeMQ")
-    private TreeSet<String> tid;
+    private TreeSet<String> streamId;
 
     @ApiModelProperty("Properties for TubeMQ")
     private Map<String, Object> properties;
@@ -74,7 +77,6 @@ public class TubeMQSourceDTO {
         TubeMQSourceDTO dto = StringUtils.isNotBlank(extParams)
                 ? TubeMQSourceDTO.getFromJson(extParams)
                 : new TubeMQSourceDTO();
-        dto.setFormat(request.getSerializationType());
         return CommonBeanUtils.copyProperties(request, dto, true);
     }
 

@@ -51,7 +51,7 @@ public class TubeMQSourceServiceTest extends ServiceBaseTest {
         sourceInfo.setMasterRpc("127.0.0.1:8715");
         sourceInfo.setTopic("inlong");
         sourceInfo.setSerializationType("json");
-        sourceInfo.setGroupId("test1");
+        sourceInfo.setConsumeGroup("test1");
         sourceInfo.setSourceType(SourceType.TUBEMQ);
         return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
     }

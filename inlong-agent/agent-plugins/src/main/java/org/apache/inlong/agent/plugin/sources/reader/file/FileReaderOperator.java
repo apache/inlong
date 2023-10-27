@@ -29,7 +29,7 @@ import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.reader.AbstractReader;
-import org.apache.inlong.agent.plugin.utils.FileDataUtils;
+import org.apache.inlong.agent.plugin.utils.file.FileDataUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
 
 import com.google.gson.Gson;
