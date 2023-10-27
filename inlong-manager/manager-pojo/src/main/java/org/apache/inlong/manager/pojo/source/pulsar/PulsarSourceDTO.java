@@ -77,6 +77,9 @@ public class PulsarSourceDTO {
     @Builder.Default
     private String scanStartupMode = "earliest";
 
+    @ApiModelProperty(value = "The message body wrap  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
+    private String wrapType;
+
     @ApiModelProperty("Properties for Pulsar")
     private Map<String, Object> properties;
 
