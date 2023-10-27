@@ -168,7 +168,7 @@ public class TaskManager extends AbstractDaemon {
                 TaskProfile profile = action.getProfile();
                 switch (action.getActionType()) {
                     case FINISH:
-                        LOGGER.info("test123 deal finish action, taskId {}", profile.getTaskId());
+                        LOGGER.info("deal finish action, taskId {}", profile.getTaskId());
                         finishTask(profile);
                         break;
                     default:
