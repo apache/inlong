@@ -51,7 +51,7 @@ public class NewDateUtils {
     private static final int DEFAULT_LENGTH = "yyyyMMddHHmm".length();
     public static long DAY_TIMEOUT_INTERVAL = 2 * 24 * 3600 * 1000;
     public static long HOUR_TIMEOUT_INTERVAL = 2 * 3600 * 1000;
-    // 数据源配置异常 */
+    // data source config error */
     public static final String DATA_SOURCE_CONFIG_ERROR = "ERROR-0-TDAgent|10001|ERROR"
             + "|ERROR_DATA_SOURCE_CONFIG|";
 
@@ -99,7 +99,7 @@ public class NewDateUtils {
          */
         if (offset.startsWith("-")) {
             offset = offset.substring(1, offset.length());
-        } else { // 为正，配置提前读取文件
+        } else { // positive，read file earlier
             offset = "-" + offset;
         }
 
@@ -140,15 +140,10 @@ public class NewDateUtils {
     }
 
     public static String getDateTime(long time, String cycleUnit, String offset) {
-        // String retTime = NewDateUtils.millSecConvertToTimeStr(System.currentTimeMillis(),
-        // cycleUnit);
-
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
         Calendar retCalendar = getDateTime(calendar, cycleUnit, offset);
         return NewDateUtils.millSecConvertToTimeStr(retCalendar.getTime().getTime(), cycleUnit);
-
-        // return retTime;
     }
 
     private static Calendar getDateTime(Calendar calendar, String cycleUnit, String offset) {
@@ -164,19 +159,6 @@ public class NewDateUtils {
          * minutely task, the offset cycle unit can be day, hour and minute, but if the offset cycle unit is minute, the
          * offset must be divided by cycle number.
          */
-        // if (("D".equalsIgnoreCase(cycleUnit) && !"D".equalsIgnoreCase(offsetUnit))) {
-        // return calendar;
-        // }
-        //
-        // if (("H".equalsIgnoreCase(cycleUnit) && "m".equals(offsetUnit))) {
-        // return calendar;
-        // }
-        //
-        // if (("m".equals(cycleUnit) && "m".equals(offsetUnit) &&
-        // cycleNumber != 0 && offsetNumber % cycleNumber != 0)) {
-        // return calendar;
-        // }
-
         if (cycleUnit.length() > 1 && (StringUtils.endsWithIgnoreCase(cycleUnit, "M"))) {
             calendar.set(Calendar.SECOND, 0);
             int minTime = calendar.get(Calendar.MINUTE);
