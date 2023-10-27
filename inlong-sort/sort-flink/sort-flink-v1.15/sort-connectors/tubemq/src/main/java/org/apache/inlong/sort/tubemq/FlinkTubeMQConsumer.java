@@ -207,6 +207,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
 
     @Override
     public void open(Configuration parameters) throws Exception {
+
         ConsumerConfig consumerConfig = new ConsumerConfig(masterAddress, consumerGroup);
         consumerConfig.setConsumePosition(consumeFromMax
                 ? ConsumePosition.CONSUMER_FROM_LATEST_OFFSET
@@ -218,7 +219,8 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
         messageSessionFactory = new TubeSingleSessionFactory(consumerConfig);
         messagePullConsumer = messageSessionFactory.createPullConsumer(consumerConfig);
         messagePullConsumer.subscribe(topic, streamIdSet);
-        messagePullConsumer.completeSubscribe(sessionKey, numTasks, true, currentOffsets);
+        String jobId = getRuntimeContext().getJobId().toString();
+        messagePullConsumer.completeSubscribe(sessionKey.concat(jobId), numTasks, true, currentOffsets);
 
         running = true;
     }
