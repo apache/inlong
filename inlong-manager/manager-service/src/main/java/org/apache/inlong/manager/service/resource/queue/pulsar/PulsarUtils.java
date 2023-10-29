@@ -99,9 +99,15 @@ public class PulsarUtils {
      */
     public static List<String> getPulsarBrokers(RestTemplate restTemplate, PulsarClusterInfo clusterInfo)
             throws Exception {
-        final String url = clusterInfo.getAdminUrl() + QUERY_BROKERS_PATH;
-        return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
-                ArrayList.class);
+        List<String> clusters = getPulsarClusters(restTemplate, clusterInfo);
+        List<String> brokers = new ArrayList<>();
+        for (String brokerName : brokers) {
+            String url = clusterInfo.getAdminUrl() + QUERY_BROKERS_PATH + "/" + brokerName;
+            clusters.addAll(
+                    HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
+                            ArrayList.class));
+        }
+        return clusters;
     }
 
     /**
@@ -411,7 +417,7 @@ public class PulsarUtils {
     }
 
     /**
-     * Get topic subscriptions.
+     * Get the list of persistent subscriptions for a given topic.
      *
      * @param restTemplate spring framework RestTemplate
      * @param clusterInfo pulsar cluster info
@@ -427,7 +433,7 @@ public class PulsarUtils {
     }
 
     /**
-     * Create a topic subscription.
+     * Create a subscription on the topic.
      *
      * @param restTemplate  spring framework RestTemplate
      * @param clusterInfo pulsar cluster info
@@ -438,12 +444,20 @@ public class PulsarUtils {
     public static void createSubscription(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String topicPath,
             String subscription) throws Exception {
         String url =
-                clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/subscriptions/" + subscription;
-        HttpUtils.request(restTemplate, url, HttpMethod.PUT, "latest", getHttpHeaders(clusterInfo.getToken()));
+                clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/subscription/" + subscription;
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("entryId", Long.MAX_VALUE);
+        jsonObject.addProperty("ledgerId", Long.MAX_VALUE);
+        jsonObject.addProperty("partitionIndex", -1);
+        HttpHeaders headers = getHttpHeaders(clusterInfo.getToken());
+        MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+        headers.setContentType(type);
+        headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+        HttpUtils.request(restTemplate, url, HttpMethod.PUT, jsonObject.toString(), headers);
     }
 
     /**
-     * Examine a pulsar message.
+     * Examine a specific message on a topic by position relative to the earliest or the latest message.
      *
      * @param restTemplate spring framework RestTemplate
      * @param clusterInfo pulsar cluster info
