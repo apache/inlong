@@ -74,9 +74,9 @@ public class TestLogfileCollectTask {
     public static void setup() {
         helper = new AgentBaseTestsHelper(TestLogfileCollectTask.class.getName()).setupAgentHome();
         Db basicDb = TaskManager.initDb("/localdb");
-        resourceName = LOADER.getResource("test/20230928.log_1").getPath();
+        resourceName = LOADER.getResource("test/20230928_1.log").getPath();
         File f = new File(resourceName);
-        String pattern = f.getParent() + "/YYYYMMDD.log_[0-9]+";
+        String pattern = f.getParent() + "/YYYYMMDD_[0-9]+.log";
         TaskProfile taskProfile = helper.getTaskProfile(1, pattern, true, 0L, 0L, TaskStateEnum.RUNNING);
         try {
             String startStr = "2023-09-20 00:00:00";
