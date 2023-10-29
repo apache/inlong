@@ -336,7 +336,6 @@ public class PulsarUtilsTest {
         assertThat(requestEntity.getValue().getHeaders(), allOf(notNullValue(), is(headers)));
     }
 
-
     /**
      * Test cases for {@link PulsarUtils#getPulsarStatsPartitionedTopics}.
      * href: <a>https://pulsar.apache.org/admin-rest-api/#operation/PersistentTopics_getPartitionedStatsInternal</a>
@@ -566,7 +565,8 @@ public class PulsarUtilsTest {
         final String url =
                 DEFAULT_SERVICE_URL + PulsarUtils.QUERY_PERSISTENT_PATH + "/" + DEFAULT_TOPIC_PATH + "/subscription/"
                         + subscriptionName;
-        final String requestBody = "{\"entryId\":9223372036854775807,\"ledgerId\":9223372036854775807,\"partitionIndex\":-1}";
+        final String requestBody =
+                "{\"entryId\":9223372036854775807,\"ledgerId\":9223372036854775807,\"partitionIndex\":-1}";
 
         when(restTemplate.exchange(eq(url), eq(HttpMethod.PUT), any(HttpEntity.class), eq(String.class))).thenReturn(
                 exchange);
