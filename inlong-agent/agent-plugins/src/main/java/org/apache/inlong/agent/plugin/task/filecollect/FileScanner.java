@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
 
 /*
  * This class is mainly used for scanning log file that we want to read. We use this class at
- * tdagent recover process, the do and redo tasks and the current log file access when we deploy a
+ * inlong_agent recover process, the do and redo tasks and the current log file access when we deploy a
  * new data source.
  */
 public class FileScanner {
@@ -114,10 +114,6 @@ public class FileScanner {
 
     private static ArrayList<String> getUpdatedOrNewFiles(String firstDir, String secondDir,
             String fileName, long depth, int maxFileNum) {
-
-        // logger.info("getUpdatedOrNewFiles: firstdir: {}, seconddir: {} filename: {}",
-        // new Object[]{firstDir, secondDir, fileName});
-
         ArrayList<String> ret = new ArrayList<String>();
         ArrayList<File> readyFiles = new ArrayList<File>();
 
