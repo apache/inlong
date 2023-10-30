@@ -198,7 +198,7 @@ public class WatchEntity {
                         logger.info("Register a new directory: " + dirName);
                     } catch (IOException e) {
                         /**
-                         * 捕获异常，不能注册的子目录就忽略。
+                         * catch error，ignore the child directory that can not register
                          */
                         logger.error("Register directory {} error, skip it. ", dirName, e);
                         continue;

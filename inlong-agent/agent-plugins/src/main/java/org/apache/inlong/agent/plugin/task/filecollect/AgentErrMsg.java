@@ -21,47 +21,47 @@ public class AgentErrMsg {
 
     public static final String CONFIG_SUCCESS = "SUCCESS";
 
-    // 数据源配置异常 */
-    public static final String DATA_SOURCE_CONFIG_ERROR = "ERROR-0-TDAgent|10001|ERROR"
+    // data source config error */
+    public static final String DATA_SOURCE_CONFIG_ERROR = "ERROR-0-INLONG_AGENT|10001|ERROR"
             + "|ERROR_DATA_SOURCE_CONFIG|";
 
-    // 监控文件夹不存在 */
-    public static final String DIRECTORY_NOT_FOUND_ERROR = "ERROR-0-TDAgent|11001|WARN"
+    // directory not found error */
+    public static final String DIRECTORY_NOT_FOUND_ERROR = "ERROR-0-INLONG_AGENT|11001|WARN"
             + "|WARN_DIRECTORY_NOT_EXIST|";
 
-    // 监控文件夹时出错 */
-    public static final String WATCH_DIR_ERROR = "ERROR-0-TDAgent|11002|ERROR"
+    // watch directory error */
+    public static final String WATCH_DIR_ERROR = "ERROR-0-INLONG_AGENT|11002|ERROR"
             + "|ERROR_WATCH_DIR_ERROR|";
 
-    // 要读取的文件异常（不存在，rotate）
-    public static final String FILE_ERROR = "ERROR-0-TDAgent|10002|ERROR|ERROR_SOURCE_FILE|";
+    // file error（not found，rotate）
+    public static final String FILE_ERROR = "ERROR-0-INLONG_AGENT|10002|ERROR|ERROR_SOURCE_FILE|";
 
-    // 读取文件异常
-    public static final String FILE_OP_ERROR = "ERROR-1-TDAgent|30002|ERROR|ERROR_OPERATE_FILE|";
+    // read file error
+    public static final String FILE_OP_ERROR = "ERROR-1-INLONG_AGENT|30002|ERROR|ERROR_OPERATE_FILE|";
 
-    // 磁盘满
-    public static final String DISK_FULL = "ERROR-1-TDAgent|30001|FATAL|FATAL_DISK_FULL|";
+    // disk full
+    public static final String DISK_FULL = "ERROR-1-INLONG_AGENT|30001|FATAL|FATAL_DISK_FULL|";
 
-    // 内存溢出
-    public static final String OOM_ERROR = "ERROR-1-TDAgent|30001|FATAL|FATAL_OOM_ERROR|";
+    // out of memory
+    public static final String OOM_ERROR = "ERROR-1-INLONG_AGENT|30001|FATAL|FATAL_OOM_ERROR|";
 
-    // watcher异常
-    public static final String WATCHER_INVALID = "ERROR-1-TDAgent|40001|WARN|WARN_INVALID_WATCHER|";
+    // watcher error
+    public static final String WATCHER_INVALID = "ERROR-1-INLONG_AGENT|40001|WARN|WARN_INVALID_WATCHER|";
 
-    // 连不上tdmanager
-    public static final String CONNECT_TDM_ERROR = "ERROR-1-TDAgent|30002|ERROR"
-            + "|ERROR_CANNOT_CONNECT_TO_TDM|";
+    // could not connect to manager
+    public static final String CONNECT_MANAGER_ERROR = "ERROR-1-INLONG_AGENT|30002|ERROR"
+            + "|ERROR_CANNOT_CONNECT_TO_MANAGER|";
 
-    // 发送数据到tdbus失败
-    public static final String SEND_TO_BUS_ERROR = "ERROR-1-TDAgent|30003|ERROR|ERROR_SEND_TO_BUS|";
+    // send data to dataProxy failed
+    public static final String SEND_TO_BUS_ERROR = "ERROR-1-INLONG_AGENT|30003|ERROR|ERROR_SEND_TO_BUS|";
 
-    // 操作bdb异常
-    public static final String BDB_ERROR = "ERROR-1-TDAgent|30003|ERROR|BDB_OPERATION_ERROR|";
+    // operate bdb error
+    public static final String BDB_ERROR = "ERROR-1-INLONG_AGENT|30003|ERROR|BDB_OPERATION_ERROR|";
 
-    // 内部缓存满
-    public static final String MSG_BUFFER_FULL = "ERROR-1-TDAgent|40002|WARN|WARN_MSG_BUFFER_FULL|";
+    // buffer full
+    public static final String MSG_BUFFER_FULL = "ERROR-1-INLONG_AGENT|40002|WARN|WARN_MSG_BUFFER_FULL|";
 
-    // 监控到的事件不合法（任务已删除）
-    public static final String FOUND_EVENT_INVALID = "ERROR-1-TDAgent|30003|ERROR"
+    // found event invalid（task has been delete）
+    public static final String FOUND_EVENT_INVALID = "ERROR-1-INLONG_AGENT|30003|ERROR"
             + "|FOUND_EVENT_INVALID|";
 }

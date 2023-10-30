@@ -52,7 +52,7 @@ public class NewDateUtils {
     public static long DAY_TIMEOUT_INTERVAL = 2 * 24 * 3600 * 1000;
     public static long HOUR_TIMEOUT_INTERVAL = 2 * 3600 * 1000;
     // data source config error */
-    public static final String DATA_SOURCE_CONFIG_ERROR = "ERROR-0-TDAgent|10001|ERROR"
+    public static final String DATA_SOURCE_CONFIG_ERROR = "ERROR-0-INLONG_AGENT|10001|ERROR"
             + "|ERROR_DATA_SOURCE_CONFIG|";
 
     /* Return the time in milliseconds for a data time. */
