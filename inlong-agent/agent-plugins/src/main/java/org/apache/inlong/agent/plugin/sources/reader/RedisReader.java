@@ -17,7 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
@@ -85,8 +85,7 @@ public class RedisReader extends AbstractReader {
     private Gson gson;
 
     @Override
-    public void init(JobProfile jobConf) {
-        super.init(jobConf);
+    public void init(InstanceProfile jobConf) {
         LOGGER.info("Init redis reader with jobConf {}", jobConf.toJsonStr());
         port = jobConf.get(JOB_REDIS_PORT);
         hostName = jobConf.get(JOB_REDIS_HOSTNAME);

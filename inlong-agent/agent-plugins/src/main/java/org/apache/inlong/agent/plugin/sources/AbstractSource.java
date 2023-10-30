@@ -17,10 +17,10 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
-import org.apache.inlong.agent.plugin.Source;
+import org.apache.inlong.agent.plugin.file.Source;
 import org.apache.inlong.common.metric.MetricRegister;
 
 import java.util.HashMap;
@@ -46,9 +46,10 @@ public abstract class AbstractSource implements Source {
     protected Map<String, String> dimensions;
     protected static final AtomicLong METRIX_INDEX = new AtomicLong(0);
 
-    protected void init(JobProfile conf) {
-        inlongGroupId = conf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
-        inlongStreamId = conf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
+    @Override
+    public void init(InstanceProfile profile) {
+        inlongGroupId = profile.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
+        inlongStreamId = profile.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
         // register metric
         this.dimensions = new HashMap<>();
         dimensions.put(KEY_PLUGIN_ID, this.getClass().getSimpleName());
@@ -59,5 +60,9 @@ public abstract class AbstractSource implements Source {
         this.metricItemSet = new AgentMetricItemSet(metricName);
         MetricRegister.register(metricItemSet);
         sourceMetric = metricItemSet.findMetricItem(dimensions);
+    }
+
+    public void destroy() {
+
     }
 }

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.constant.SnapshotModeConstants;
 import org.apache.inlong.agent.plugin.sources.reader.BinlogReader;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
@@ -67,7 +67,7 @@ public class TestBinlogReader {
 
     // @Test
     public void binlogStartSpacialTest() throws Exception {
-        JobProfile jobProfile = new JobProfile();
+        InstanceProfile jobProfile = new InstanceProfile();
         jobProfile.set(BinlogReader.JOB_DATABASE_USER, "root");
         jobProfile.set(BinlogReader.JOB_DATABASE_PASSWORD, "123456");
         jobProfile.set(BinlogReader.JOB_DATABASE_HOSTNAME, "");

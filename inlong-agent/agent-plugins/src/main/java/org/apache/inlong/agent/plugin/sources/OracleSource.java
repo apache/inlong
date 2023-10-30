@@ -17,8 +17,9 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.plugin.Reader;
+import org.apache.inlong.agent.conf.TaskProfile;
+import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.OracleReader;
 
 import org.slf4j.Logger;
@@ -38,12 +39,26 @@ public class OracleSource extends AbstractSource {
     }
 
     @Override
-    public List<Reader> split(JobProfile conf) {
-        super.init(conf);
+    public List<Reader> split(TaskProfile conf) {
         Reader oracleReader = new OracleReader();
         List<Reader> readerList = new ArrayList<>();
         readerList.add(oracleReader);
         sourceMetric.sourceSuccessCount.incrementAndGet();
         return readerList;
+    }
+
+    @Override
+    public Message read() {
+        return null;
+    }
+
+    @Override
+    public boolean sourceFinish() {
+        return false;
+    }
+
+    @Override
+    public boolean sourceExist() {
+        return false;
     }
 }

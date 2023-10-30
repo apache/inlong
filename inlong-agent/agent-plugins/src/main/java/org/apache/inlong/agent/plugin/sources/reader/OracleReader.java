@@ -18,7 +18,7 @@
 package org.apache.inlong.agent.plugin.sources.reader;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.OracleConstants;
 import org.apache.inlong.agent.constant.SnapshotModeConstants;
@@ -106,7 +106,7 @@ public class OracleReader extends AbstractReader {
      * pair.right : actual data
      */
     private LinkedBlockingQueue<Pair<String, String>> oracleMessageQueue;
-    private JobProfile jobProfile;
+    private InstanceProfile jobProfile;
     private boolean destroyed = false;
 
     public OracleReader() {
@@ -190,7 +190,7 @@ public class OracleReader extends AbstractReader {
     }
 
     @Override
-    public void init(JobProfile jobConf) {
+    public void init(InstanceProfile jobConf) {
         super.init(jobConf);
         jobProfile = jobConf;
         LOGGER.info("init oracle reader with jobConf {}", jobConf.toJsonStr());

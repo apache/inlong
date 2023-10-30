@@ -17,10 +17,10 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
-import org.apache.inlong.agent.plugin.Reader;
+import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.pojo.DebeziumOffset;
 import org.apache.inlong.agent.utils.DebeziumOffsetSerializer;
 import org.apache.inlong.common.metric.MetricRegister;
@@ -58,9 +58,9 @@ public abstract class AbstractReader implements Reader {
     protected Map<String, String> dimensions;
 
     @Override
-    public void init(JobProfile jobConf) {
-        inlongGroupId = jobConf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
-        inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
+    public void init(InstanceProfile profile) {
+        inlongGroupId = profile.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
+        inlongStreamId = profile.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
 
         this.dimensions = new HashMap<>();
         dimensions.put(KEY_PLUGIN_ID, this.getClass().getSimpleName());

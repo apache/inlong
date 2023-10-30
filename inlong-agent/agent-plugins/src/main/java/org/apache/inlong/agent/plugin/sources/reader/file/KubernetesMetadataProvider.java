@@ -17,7 +17,8 @@
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.InstanceProfile;
+import org.apache.inlong.agent.plugin.sources.LogFileSource;
 import org.apache.inlong.agent.plugin.utils.MetaDataUtils;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
 
@@ -54,9 +55,9 @@ public final class KubernetesMetadataProvider {
     private static final Gson GSON = new Gson();
 
     private KubernetesClient client;
-    private FileReaderOperator fileReaderOperator;
+    private LogFileSource fileReaderOperator;
 
-    KubernetesMetadataProvider(FileReaderOperator fileReaderOperator) {
+    public KubernetesMetadataProvider(LogFileSource fileReaderOperator) {
         this.fileReaderOperator = fileReaderOperator;
     }
 
@@ -69,7 +70,7 @@ public final class KubernetesMetadataProvider {
         } catch (IOException e) {
             log.error("get k8s client error: ", e);
         }
-        getK8sMetadata(fileReaderOperator.jobConf);
+        getK8sMetadata(fileReaderOperator.profile);
     }
 
     /**
@@ -86,12 +87,12 @@ public final class KubernetesMetadataProvider {
     /**
      * get pod metadata by namespace and pod name
      */
-    public void getK8sMetadata(JobProfile jobConf) {
+    public void getK8sMetadata(InstanceProfile jobConf) {
         if (Objects.isNull(jobConf)) {
             return;
         }
-        Map<String, String> k8sInfo = MetaDataUtils.getLogInfo(fileReaderOperator.file.getName());
-        log.info("file name is: {}, k8s information size: {}", fileReaderOperator.file.getName(), k8sInfo.size());
+        Map<String, String> k8sInfo = MetaDataUtils.getLogInfo(fileReaderOperator.getFile().getName());
+        log.info("file name is: {}, k8s information size: {}", fileReaderOperator.getFile().getName(), k8sInfo.size());
         if (k8sInfo.isEmpty()) {
             return;
         }

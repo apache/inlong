@@ -17,8 +17,9 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.plugin.Reader;
+import org.apache.inlong.agent.conf.TaskProfile;
+import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.SqlReader;
 import org.apache.inlong.agent.utils.AgentDbUtils;
 
@@ -69,8 +70,7 @@ public class DatabaseSqlSource extends AbstractSource {
      * @return reader list or null if database type is not correct.
      */
     @Override
-    public List<Reader> split(JobProfile conf) {
-        super.init(conf);
+    public List<Reader> split(TaskProfile conf) {
         String sqlPattern = conf.get(JOB_DATABASE_SQL, "").toLowerCase();
         List<Reader> readerList = null;
         if (!sqlPattern.isEmpty()) {
@@ -85,5 +85,20 @@ public class DatabaseSqlSource extends AbstractSource {
             sourceMetric.sourceFailCount.incrementAndGet();
         }
         return readerList;
+    }
+
+    @Override
+    public Message read() {
+        return null;
+    }
+
+    @Override
+    public boolean sourceFinish() {
+        return false;
+    }
+
+    @Override
+    public boolean sourceExist() {
+        return false;
     }
 }
