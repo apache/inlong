@@ -220,10 +220,9 @@ public class SenderManager {
     }
 
     /**
-     * sender
+     * createMessageSender
      *
-     * @param tagName group id
-     * @return DefaultMessageSender
+     * @param tagName we use group id as tag name
      */
     private void createMessageSender(String tagName) throws Exception {
 
@@ -309,15 +308,6 @@ public class SenderManager {
         boolean suc = false;
         while (!suc) {
             try {
-                // suc = true;
-                // AgentSenderCallback cb = new AgentSenderCallback(message, retry);
-                // if (cb.message.getAckInfo().getIndex() % 500 == testRandom.nextInt(500)) {
-                // SendResult sr = SendResult.NO_CONNECTION;
-                // cb.onMessageAck(sr);
-                // } else {
-                // SendResult sr = SendResult.OK;
-                // cb.onMessageAck(sr);
-                // }
                 AgentSenderCallback cb = new AgentSenderCallback(message, retry);
                 asyncSendByMessageSender(cb, message.getDataList(), message.getGroupId(),
                         message.getStreamId(), message.getDataTime(), SEQUENTIAL_ID.getNextUuid(),
