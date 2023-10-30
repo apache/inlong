@@ -112,8 +112,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>${maven.shaded.version}</version>
                 <configuration>
+                    <artifactSet>
+                        <includes>
+                            <include>org.apache.inlong:*</include>
+                            <include>com.fasterxml.*:*</include>
+                            <include>org.apache.commons:*</include>
+                            <include>io.netty:*</include>
+                        </includes>
+                    </artifactSet>
                     <relocations>
                         <relocation>
                             <pattern>com.fasterxml.jackson</pattern>
@@ -129,6 +136,7 @@
                         </relocation>
                     </relocations>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <minimizeJar>true</minimizeJar>
                 </configuration>
                 <executions>
                     <execution>
