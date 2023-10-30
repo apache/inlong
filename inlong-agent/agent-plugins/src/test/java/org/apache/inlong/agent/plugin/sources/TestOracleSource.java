@@ -77,7 +77,7 @@ public class TestOracleSource {
     }
 
     /**
-     * Test cases for .
+     * Test cases for {@link OracleSource#split(JobProfile)}.
      */
     @Test
     public void testSplit() {
