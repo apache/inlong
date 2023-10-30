@@ -47,6 +47,8 @@ import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_WRI
 public class ProxySink extends AbstractSink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxySink.class);
+    private final int WRITE_FAILED_WAIT_TIME_MS = 10;
+    private final int DESTROY_LOOP_WAIT_TIME_MS = 10;
     private static AtomicLong index = new AtomicLong(0);
     private static final ThreadPoolExecutor EXECUTOR_SERVICE = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE,
@@ -72,7 +74,7 @@ public class ProxySink extends AbstractSink {
         while (!suc) {
             suc = putInCache(message);
             if (!suc) {
-                AgentUtils.silenceSleepInMs(batchFlushInterval);
+                AgentUtils.silenceSleepInMs(WRITE_FAILED_WAIT_TIME_MS);
             }
         }
     }
@@ -193,7 +195,7 @@ public class ProxySink extends AbstractSink {
         }
         shutdown = true;
         while (running) {
-            AgentUtils.silenceSleepInMs(1);
+            AgentUtils.silenceSleepInMs(DESTROY_LOOP_WAIT_TIME_MS);
         }
         MemoryManager.getInstance().release(AGENT_GLOBAL_WRITER_PERMIT, (int) cache.getCacheSize());
         senderManager.Stop();
