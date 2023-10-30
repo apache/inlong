@@ -18,12 +18,13 @@
 package org.apache.inlong.agent.plugin.sources.reader;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.PostgreSQLConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.sources.reader.file.AbstractReader;
 import org.apache.inlong.agent.plugin.sources.snapshot.PostgreSQLSnapshotBase;
 import org.apache.inlong.agent.plugin.utils.InLongFileOffsetBackingStore;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
@@ -95,7 +96,7 @@ public class PostgreSQLReader extends AbstractReader {
      * pair.right : actual data
      */
     private LinkedBlockingQueue<Pair<String, String>> postgreSQLMessageQueue;
-    private JobProfile jobProfile;
+    private InstanceProfile jobProfile;
     private boolean destroyed = false;
 
     public PostgreSQLReader() {
@@ -117,8 +118,7 @@ public class PostgreSQLReader extends AbstractReader {
         return new DefaultMessage(message.getValue().getBytes(StandardCharsets.UTF_8), header);
     }
 
-    @Override
-    public void init(JobProfile jobConf) {
+    public void init(InstanceProfile jobConf) {
         super.init(jobConf);
         jobProfile = jobConf;
         LOGGER.info("init PostgreSQL reader with jobConf {}", jobConf.toJsonStr());
