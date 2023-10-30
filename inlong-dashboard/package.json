@@ -5,6 +5,7 @@
   "dependencies": {
     "@ant-design/icons": "^5.0.1",
     "@ant-design/pro-layout": "^7.10.3",
+    "@babel/traverse": "^7.23.2",
     "ahooks": "^2.10.0",
     "antd": "^5.3.3",
     "dayjs": "^1.10.4",
