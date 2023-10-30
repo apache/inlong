@@ -17,8 +17,10 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.plugin.Reader;
+import org.apache.inlong.agent.conf.TaskProfile;
+import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.file.Reader;
+import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
 import org.apache.inlong.agent.plugin.sources.reader.KafkaReader;
 
 import com.google.gson.Gson;
@@ -37,16 +39,16 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FILTER;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BOOTSTRAP_SERVERS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_GROUP_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_OFFSET;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_TOPIC;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_LINE_FILTER_PATTERN;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
+import static org.apache.inlong.agent.constant.TaskConstants.DEFAULT_JOB_LINE_FILTER;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_KAFKA_BOOTSTRAP_SERVERS;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_KAFKA_GROUP_ID;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_KAFKA_OFFSET;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_KAFKA_TOPIC;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_LINE_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_OFFSET_DELIMITER;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_ID;
 
 /**
  * kafka source, split kafka source job into multi readers
@@ -70,8 +72,7 @@ public class KafkaSource extends AbstractSource {
     }
 
     @Override
-    public List<Reader> split(JobProfile conf) {
-        super.init(conf);
+    public List<Reader> split(TaskProfile conf) {
         List<Reader> result = new ArrayList<>();
         String filterPattern = conf.get(JOB_LINE_FILTER_PATTERN, DEFAULT_JOB_LINE_FILTER);
 
@@ -103,7 +104,7 @@ public class KafkaSource extends AbstractSource {
             for (PartitionInfo partitionInfo : partitionInfoList) {
                 props.put(JOB_KAFKA_GROUP_ID.replace(JOB_KAFKAJOB_PARAM_PREFIX, StringUtils.EMPTY),
                         map.getOrDefault(JOB_KAFKA_GROUP_ID,
-                                map.get(JOB_ID) + JOB_OFFSET_DELIMITER
+                                map.get(TASK_ID) + JOB_OFFSET_DELIMITER
                                         + "group" + partitionInfo.partition()));
                 KafkaConsumer<String, byte[]> partitonConsumer = new KafkaConsumer<>(props);
                 partitonConsumer.assign(Collections.singletonList(
@@ -132,6 +133,21 @@ public class KafkaSource extends AbstractSource {
             sourceMetric.sourceFailCount.incrementAndGet();
         }
         return result;
+    }
+
+    @Override
+    public Message read() {
+        return null;
+    }
+
+    @Override
+    public boolean sourceFinish() {
+        return false;
+    }
+
+    @Override
+    public boolean sourceExist() {
+        return false;
     }
 
     private void addValidator(String filterPattern, KafkaReader kafkaReader) {

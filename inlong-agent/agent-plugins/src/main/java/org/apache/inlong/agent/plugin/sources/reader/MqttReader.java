@@ -17,10 +17,11 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.sources.reader.file.AbstractReader;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -70,7 +71,7 @@ public class MqttReader extends AbstractReader {
     private int qos;
     private boolean cleanSession = false;
     private boolean automaticReconnect = true;
-    private JobProfile jobProfile;
+    private InstanceProfile jobProfile;
     private String instanceId;
     private String clientId;
     private int mqttVersion = MqttConnectOptions.MQTT_VERSION_DEFAULT;
@@ -86,7 +87,7 @@ public class MqttReader extends AbstractReader {
      *
      * @param jobConf
      */
-    private void setGlobalParamsValue(JobProfile jobConf) {
+    private void setGlobalParamsValue(InstanceProfile jobConf) {
         mqttMessagesQueue = new LinkedBlockingQueue<>(jobConf.getInt(JOB_MQTT_QUEUE_SIZE, 1000));
         instanceId = jobConf.getInstanceId();
         userName = jobConf.get(JOB_MQTT_USERNAME);
@@ -156,7 +157,7 @@ public class MqttReader extends AbstractReader {
     }
 
     @Override
-    public void init(JobProfile jobConf) {
+    public void init(InstanceProfile jobConf) {
         super.init(jobConf);
         jobProfile = jobConf;
         LOGGER.info("init mqtt reader with jobConf {}", jobConf.toJsonStr());
