@@ -51,7 +51,7 @@ public interface InlongStreamApi {
     Call<Response<InlongStreamInfo>> getStream(@Query("groupId") String groupId,
             @Query("streamId") String streamId);
 
-    @GET("/stream/getBrief")
+    @GET("stream/getBrief")
     Call<Response<InlongStreamBriefInfo>> getStreamBriefInfo(@Query("groupId") String groupId,
             @Query("streamId") String streamId);
 
