@@ -348,7 +348,7 @@ func (w *worker) handleSendData(req *sendDataReq) {
 			metrics:    w.metrics,
 			addColumns: w.options.addColumnStr,
 		}
-		w.log.Debug("worker[", w.index, "] new a batch:", batch.batchID, ", streamID:", batch.streamID)
+		//w.log.Debug("worker[", w.index, "] new a batch:", batch.batchID, ", streamID:", batch.streamID)
 		w.pendingBatches[streamID] = batch
 	}
 
@@ -448,7 +448,7 @@ func (w *worker) handleSendFailed(b *sendFailedBatchReq) {
 func (w *worker) backoffRetry(ctx context.Context, batch *batchReq) {
 	if batch.retries >= w.options.MaxRetries {
 		batch.done(errSendTimeout)
-		w.log.Debug("to many reties, batch done:", batch.batchID)
+		//w.log.Debug("to many reties, batch done:", batch.batchID)
 		return
 	}
 
@@ -502,7 +502,7 @@ func (w *worker) handleRetry(batch *batchReq, retryOnFail bool) {
 	batch.retries++
 	if batch.retries >= w.options.MaxRetries {
 		batch.done(errSendTimeout)
-		w.log.Debug("to many reties, batch done:", batch.batchID)
+		//w.log.Debug("to many reties, batch done:", batch.batchID)
 		return
 	}
 
@@ -512,9 +512,9 @@ func (w *worker) handleRetry(batch *batchReq, retryOnFail bool) {
 }
 
 func (w *worker) handleBatchTimeout() {
-	for streamID, batch := range w.pendingBatches {
+	for _, batch := range w.pendingBatches {
 		if time.Since(batch.batchTime) > w.options.BatchingMaxPublishDelay {
-			w.log.Debug("worker[", w.index, "] batch timeout, send it now:", batch.batchID, ", streamID:", streamID)
+			//w.log.Debug("worker[", w.index, "] batch timeout, send it now:", batch.batchID, ", streamID:", streamID)
 			w.sendBatch(batch, true)
 			delete(w.pendingBatches, batch.streamID)
 		}
@@ -543,7 +543,7 @@ func (w *worker) handleCleanMap() {
 		return
 	}
 
-	w.log.Debug("clean map")
+	//w.log.Debug("clean map")
 	// create a new map and copy the data from the old map
 	newMap := make(map[string]*batchReq)
 	for k, v := range w.unackedBatches {
@@ -597,7 +597,7 @@ func (w *worker) handleRsp(rsp *batchRsp) {
 	batchID := rsp.batchID
 	batch, ok := w.unackedBatches[batchID]
 	if !ok {
-		w.log.Debug("worker[", w.index, "] batch not found in unackedBatches map:", batchID, ", send time:", rsp.dt, ", now:", time.Now().UnixMilli())
+		//w.log.Debug("worker[", w.index, "] batch not found in unackedBatches map:", batchID, ", send time:", rsp.dt, ", now:", time.Now().UnixMilli())
 		w.metrics.incError(errNoMatchReq4Rsp.strCode)
 		return
 	}
@@ -728,7 +728,7 @@ func (w *worker) handleUpdateConn() {
 }
 
 func (w *worker) updateConn(old gnet.Conn, err error) {
-	w.log.Debug("worker[", w.index, "] updateConn")
+	//w.log.Debug("worker[", w.index, "] updateConn")
 	newConn, newErr := w.client.getConn()
 	if newErr != nil {
 		w.log.Error("get new conn error:", newErr)
