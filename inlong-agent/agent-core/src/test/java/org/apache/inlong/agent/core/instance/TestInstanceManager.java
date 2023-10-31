@@ -47,7 +47,7 @@ public class TestInstanceManager {
     @BeforeClass
     public static void setup() {
         helper = new AgentBaseTestsHelper(TestInstanceManager.class.getName()).setupAgentHome();
-        String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
+        String pattern = helper.getTestRootDir() + "/YYYYMMDD_[0-9]+.txt";
         Db basicDb = TaskManager.initDb("/localdb");
         taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING);
         manager = new InstanceManager("1", basicDb);
@@ -64,7 +64,7 @@ public class TestInstanceManager {
     public void testInstanceManager() {
         long timeBefore = AgentUtils.getCurrentTime();
         InstanceProfile profile = taskProfile.createInstanceProfile(MockInstance.class.getCanonicalName(),
-                helper.getTestRootDir() + "/20230927.log_1", "20230927");
+                helper.getTestRootDir() + "/20230927_1.txt", "20230927");
         String instanceId = profile.getInstanceId();
         InstanceAction action = new InstanceAction();
         action.setActionType(ActionType.ADD);
@@ -95,8 +95,8 @@ public class TestInstanceManager {
         action.setActionType(ActionType.DELETE);
         manager.submitAction(action);
         await().atMost(1, TimeUnit.SECONDS).until(() -> manager.getInstanceProfile(instanceId) == null);
-        Assert.assertTrue(instance.initTime == MockInstance.INIT_TIME);
-        Assert.assertTrue(instance.runtime == MockInstance.RUN_TIME);
-        Assert.assertTrue(instance.destroyTime == MockInstance.DESTROY_TIME);
+        Assert.assertTrue(String.valueOf(instance.initTime), instance.initTime == MockInstance.INIT_TIME);
+        Assert.assertTrue(String.valueOf(instance.runtime), instance.runtime == MockInstance.RUN_TIME);
+        Assert.assertTrue(String.valueOf(instance.destroyTime), instance.destroyTime == MockInstance.DESTROY_TIME);
     }
 }
