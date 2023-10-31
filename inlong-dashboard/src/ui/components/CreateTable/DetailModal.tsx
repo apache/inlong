@@ -17,17 +17,17 @@
  * under the License.
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Modal, message, Button } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
-import { useDispatch, useRequest } from '@/ui/hooks';
+import { useRequest } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
-import request from '@/core/utils/request';
 import i18n from '@/i18n';
 import { SinkMetaType, useLoadMeta } from '@/plugins';
 import EditableTable from '../EditableTable';
 import { sinks } from '@/plugins/sinks';
+import { useLocalStorage } from '@/core/utils/localStorage';
 
 export interface Props extends ModalProps {
   sinkType: string;
@@ -45,9 +45,10 @@ const Comp: React.FC<Props> = ({
 }) => {
   const [form] = useForm();
   const { t } = useTranslation();
-  const dispatch = useDispatch();
 
   const { loading, Entity } = useLoadMeta<SinkMetaType>('sink', sinkType);
+
+  const [getLocalStorage, setLocalStorage, removeLocalStorage] = useLocalStorage('createTableData');
 
   const { data, run: getData } = useRequest(
     id => ({
@@ -77,24 +78,11 @@ const Comp: React.FC<Props> = ({
 
   const onOk = async () => {
     const values = await form.validateFields();
-    const isUpdate = Boolean(sinkObj?.id);
     const submitData = {
-      ...sinkObj,
       ...values,
-      inlongGroupId,
-      inlongStreamId,
       enableCreateResource: 1,
     };
-    if (isUpdate) {
-      submitData.id = sinkObj?.id;
-      submitData.version = sinkObj?.version;
-    }
-    dispatch({
-      type: 'setSyncTableData',
-      payload: {
-        syncTableData: values,
-      },
-    });
+    setLocalStorage(submitData);
     modalProps?.onOk(values);
     message.success(t('pages.GroupDetail.Sources.SaveSuccessfully'));
   };

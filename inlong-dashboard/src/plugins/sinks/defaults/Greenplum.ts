@@ -176,7 +176,7 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `GREENPLUM${i18n.t('meta.Sinks.Greenplum.FieldName')}`,
+      title: `Greeplum ${i18n.t('meta.Sinks.Greenplum.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
@@ -191,7 +191,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `GREENPLUM${i18n.t('meta.Sinks.Greenplum.FieldType')}`,
+      title: `Greeplum ${i18n.t('meta.Sinks.Greenplum.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: greenplumFieldTypes[0].value,
       type: 'autocomplete',

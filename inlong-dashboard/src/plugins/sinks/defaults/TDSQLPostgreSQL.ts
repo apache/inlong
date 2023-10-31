@@ -179,7 +179,7 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `TDSQLPOSTGRESQL${i18n.t('meta.Sinks.TDSQLPostgreSQL.FieldName')}`,
+      title: `TDSQLPostgreSQL ${i18n.t('meta.Sinks.TDSQLPostgreSQL.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
@@ -194,7 +194,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `TDSQLPOSTGRESQL${i18n.t('meta.Sinks.TDSQLPostgreSQL.FieldType')}`,
+      title: `TDSQLPostgreSQL ${i18n.t('meta.Sinks.TDSQLPostgreSQL.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: tdsqlPostgreSQLFieldTypes[0].value,
       type: 'select',

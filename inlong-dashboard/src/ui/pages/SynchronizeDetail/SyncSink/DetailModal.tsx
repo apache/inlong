@@ -27,6 +27,7 @@ import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import { useLoadMeta, SinkMetaType } from '@/plugins';
 import request from '@/core/utils/request';
 import { State } from '@/core/stores';
+import { useLocalStorage } from '@/core/utils/localStorage';
 
 export interface DetailModalProps extends ModalProps {
   inlongGroupId: string;
@@ -54,6 +55,8 @@ const Comp: React.FC<DetailModalProps> = ({
   const { loading: pluginLoading, Entity } = useLoadMeta<SinkMetaType>('sink', sinkType);
 
   const syncTableData = useSelector<State, State['syncTableData']>(state => state.syncTableData);
+
+  const [getLocalStorage, setLocalStorage, removeLocalStorage] = useLocalStorage('createTableData');
 
   const { data: groupData, run: getGroupData } = useRequest(`/group/get/${inlongGroupId}`, {
     manual: true,
@@ -111,6 +114,7 @@ const Comp: React.FC<DetailModalProps> = ({
     const values = await form.validateFields();
     const submitData = new Entity()?.stringify(values) || values;
     const isUpdate = Boolean(id);
+    const createData = getLocalStorage('createTableData');
     if (startProcess) {
       submitData.startProcess = true;
     }
@@ -118,17 +122,18 @@ const Comp: React.FC<DetailModalProps> = ({
       submitData.id = id;
       submitData.version = data?.version;
     }
+    const sinkData = Object.assign(submitData, createData);
     await request({
       url: isUpdate ? '/sink/update' : '/sink/save',
       method: 'POST',
       data: {
-        ...submitData,
-        ...syncTableData,
+        ...sinkData,
         inlongGroupId,
         inlongStreamId,
       },
     });
-    modalProps?.onOk(submitData);
+    modalProps?.onOk(sinkData);
+    removeLocalStorage('createTableData');
     message.success(t('basic.OperatingSuccess'));
   };
 

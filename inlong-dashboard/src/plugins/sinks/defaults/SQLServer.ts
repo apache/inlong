@@ -109,7 +109,6 @@ export default class SqlServerSink
   @FieldDecorator({
     type: CreateTable,
     rules: [{ required: true }],
-    initialValue: 'UTC',
     props: values => ({
       disabled: [110].includes(values?.status),
       sinkType: values.sinkType,
@@ -222,7 +221,7 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `SQLSERVER${i18n.t('meta.Sinks.SQLServer.FieldName')}`,
+      title: `SQLServer ${i18n.t('meta.Sinks.SQLServer.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
@@ -237,7 +236,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `SQLSERVER${i18n.t('meta.Sinks.SQLServer.FieldType')}`,
+      title: `SQLServer ${i18n.t('meta.Sinks.SQLServer.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: sqlserverFieldTypes[0].value,
       type: 'autocomplete',

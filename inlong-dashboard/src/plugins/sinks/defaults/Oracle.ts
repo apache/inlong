@@ -168,7 +168,7 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `ORACLE${i18n.t('meta.Sinks.Oracle.FieldName')}`,
+      title: `Oracle ${i18n.t('meta.Sinks.Oracle.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
@@ -183,7 +183,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `ORACLE${i18n.t('meta.Sinks.Oracle.FieldType')}`,
+      title: `Oracle ${i18n.t('meta.Sinks.Oracle.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: oracleFieldTypes[0].value,
       type: 'autocomplete',

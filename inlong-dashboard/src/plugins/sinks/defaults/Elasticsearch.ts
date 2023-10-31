@@ -194,7 +194,7 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `Elasticsearch${i18n.t('meta.Sinks.ES.FieldName')}`,
+      title: `Elasticsearch ${i18n.t('meta.Sinks.ES.FieldName')}`,
       dataIndex: 'fieldName',
       rules: [
         { required: true },
@@ -208,7 +208,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `Elasticsearch${i18n.t('meta.Sinks.ES.FieldType')}`,
+      title: `Elasticsearch ${i18n.t('meta.Sinks.ES.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: esTypes[0].value,
       type: 'select',
@@ -228,7 +228,7 @@ const getFieldListColumns = sinkValues => {
       visible: (text, record) => record.fieldType === 'text',
     },
     {
-      title: 'SearchAnalyzer',
+      title: 'Search analyzer',
       dataIndex: 'searchAnalyzer',
       props: (text, record, idx, isNew) => ({
         disabled: [110].includes(sinkValues?.status as number) && !isNew,
@@ -244,7 +244,7 @@ const getFieldListColumns = sinkValues => {
       visible: (text, record) => record.fieldType === 'date',
     },
     {
-      title: 'ScalingFactor',
+      title: 'Scaling factor',
       dataIndex: 'scalingFactor',
       props: (text, record, idx, isNew) => ({
         disabled: [110].includes(sinkValues?.status as number) && !isNew,

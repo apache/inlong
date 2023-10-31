@@ -184,7 +184,7 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `POSTGRESQL${i18n.t('meta.Sinks.PostgreSQL.FieldName')}`,
+      title: `PostgreSQL ${i18n.t('meta.Sinks.PostgreSQL.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
@@ -199,7 +199,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `POSTGRESQL${i18n.t('meta.Sinks.PostgreSQL.FieldType')}`,
+      title: `PostgreSQL ${i18n.t('meta.Sinks.PostgreSQL.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: postgreSqlFieldTypes[0].value,
       type: 'autocomplete',

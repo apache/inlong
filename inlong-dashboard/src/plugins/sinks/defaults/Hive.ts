@@ -317,7 +317,7 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `Hive${i18n.t('meta.Sinks.Hive.FieldName')}`,
+      title: `Hive ${i18n.t('meta.Sinks.Hive.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
@@ -332,7 +332,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `Hive${i18n.t('meta.Sinks.Hive.FieldType')}`,
+      title: `Hive ${i18n.t('meta.Sinks.Hive.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: hiveFieldTypes[0].value,
       type: 'select',

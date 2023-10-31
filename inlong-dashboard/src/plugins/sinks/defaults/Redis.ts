@@ -413,7 +413,7 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `Redis${i18n.t('meta.Sinks.Redis.FieldName')}`,
+      title: `Redis ${i18n.t('meta.Sinks.Redis.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
@@ -428,7 +428,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `Redis${i18n.t('meta.Sinks.Redis.FieldType')}`,
+      title: `Redis ${i18n.t('meta.Sinks.Redis.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: redisTargetTypes[0].value,
       type: 'select',

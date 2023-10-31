@@ -43,15 +43,19 @@ const CreateTable: React.FC<Props> = ({
 
   return (
     <Space>
-      <Form.Item name={fieldName} rules={[{ required: true }]}>
-        {useNumber ? (
-          <>{<InputNumber min={0} />}</>
-        ) : (
-          <>
+      {useNumber ? (
+        <>
+          <Form.Item name={fieldName} rules={[{ required: true }]}>
+            <InputNumber min={0} />
+          </Form.Item>
+        </>
+      ) : (
+        <>
+          <Form.Item name={fieldName} rules={[{ required: true }]}>
             <Input style={{ width: 200 }} />
-          </>
-        )}
-      </Form.Item>
+          </Form.Item>
+        </>
+      )}
       <Button
         style={{ marginBottom: 20 }}
         type="link"

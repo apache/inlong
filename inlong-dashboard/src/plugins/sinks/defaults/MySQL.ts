@@ -138,6 +138,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
       nodeType: 'MYSQL',
     }),
   })
+  @SyncField()
   @I18n('meta.Sinks.DataNodeName')
   dataNodeName: string;
 
@@ -159,7 +160,7 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `MYSQL${i18n.t('meta.Sinks.MySQL.FieldName')}`,
+      title: `MySQL ${i18n.t('meta.Sinks.MySQL.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
@@ -174,7 +175,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `MYSQL${i18n.t('meta.Sinks.MySQL.FieldType')}`,
+      title: `MySQL ${i18n.t('meta.Sinks.MySQL.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: fieldTypes[0].value,
       type: 'autocomplete',

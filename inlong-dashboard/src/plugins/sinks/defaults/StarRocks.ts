@@ -134,7 +134,7 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `StarRocks${i18n.t('meta.Sinks.StarRocks.FieldName')}`,
+      title: `StarRocks ${i18n.t('meta.Sinks.StarRocks.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
@@ -149,7 +149,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `StarRocks${i18n.t('meta.Sinks.StarRocks.FieldType')}`,
+      title: `StarRocks ${i18n.t('meta.Sinks.StarRocks.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: fieldTypes[0].value,
       type: 'autocomplete',
