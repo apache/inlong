@@ -37,7 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * file instance contains source and sink.
+ * main job is to read from source and write to sink
  */
 public class FileInstance extends Instance {
 
@@ -46,6 +47,7 @@ public class FileInstance extends Instance {
     private Sink sink;
     private InstanceProfile profile;
     public static final int CORE_THREAD_SLEEP_TIME = 1;
+    private static final int DESTROY_LOOP_WAIT_TIME_MS = 10;
     private InstanceManager instanceManager;
     private volatile boolean running = false;
     private volatile boolean inited = false;
@@ -78,7 +80,7 @@ public class FileInstance extends Instance {
         }
         doChangeState(State.SUCCEEDED);
         while (running) {
-            AgentUtils.silenceSleepInMs(1);
+            AgentUtils.silenceSleepInMs(DESTROY_LOOP_WAIT_TIME_MS);
         }
         this.source.destroy();
         this.sink.destroy();
