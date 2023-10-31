@@ -384,7 +384,7 @@
   "meta.Sinks.Cls.FieldFormat": "字段格式",
   "meta.Sinks.Cls.FieldNameRule": "以英文字母或下划线开头，只能包含英文字母、数字、下划线",
   "meta.Group.InlongGroupId": "数据流组 ID",
-  "meta.Group.InlongGroupIdRules": "只能包含英文字母、数字、点号(.)、中划线(-)、下划线(_)",
+  "meta.Group.InlongGroupIdRules": "只能包含小写字母、数字、点号(.)、中划线(-)、下划线(_)",
   "meta.Group.InlongGroupName": "数据流组名称",
   "meta.Group.InlongGroupOwners": "责任人",
   "meta.Group.InlongGroupOwnersExtra": "责任人，可查看、修改数据流组信息",
