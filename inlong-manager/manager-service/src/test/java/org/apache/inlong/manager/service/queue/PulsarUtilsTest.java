@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.queue;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
-import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarLookupTopicInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarMessageInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarNamespacePolicies;

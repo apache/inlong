@@ -17,12 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.DateFormatter;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarBrokerEntryMetadata;
@@ -33,10 +27,15 @@ import org.apache.inlong.manager.pojo.queue.pulsar.PulsarNamespacePolicies;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTenantInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicMetadata;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -663,14 +662,13 @@ public class PulsarUtils {
         }
 
         List<String> tmpList = (List) headers.get("X-Pulsar-replicated-to");
-        if(ObjectUtils.isNotEmpty(tmpList)){
+        if (ObjectUtils.isNotEmpty(tmpList)) {
             if (ObjectUtils.isEmpty(messageMetadata.getReplicateTos())) {
                 messageMetadata.setReplicateTos(Lists.newArrayList(tmpList));
-            }else {
+            } else {
                 messageMetadata.getReplicateTos().addAll(tmpList);
             }
         }
-
 
         tmp = headers.getFirst("X-Pulsar-batch-size");
         if (tmp != null) {
@@ -761,7 +759,7 @@ public class PulsarUtils {
             switch (tag) {
                 case 10:
                     int _propertiesSize = readVarInt(buffer);
-                    parseFrom(metadata,buffer, _propertiesSize);
+                    parseFrom(metadata, buffer, _propertiesSize);
                     break;
                 case 18:
                     int _partitionKeyBufferLen = readVarInt(buffer);
@@ -880,11 +878,11 @@ public class PulsarUtils {
         }
     }
 
-    private static void parseFrom(PulsarMessageMetadata metadata,ByteBuf _buffer, int _size) {
-        if(ObjectUtils.isEmpty(metadata.getProperties())) {
+    private static void parseFrom(PulsarMessageMetadata metadata, ByteBuf _buffer, int _size) {
+        if (ObjectUtils.isEmpty(metadata.getProperties())) {
             metadata.setProperties(new HashMap<>());
         }
-        Map<String,String> properties = metadata.getProperties();
+        Map<String, String> properties = metadata.getProperties();
         int _endIdx = _buffer.readerIndex() + _size;
         String key = null;
         String value = null;
