@@ -17,7 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.constant.SnapshotModeConstants;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.reader.PostgreSQLReader;
@@ -76,7 +76,7 @@ public class PostgreSQLReaderTest {
      */
     // @Test
     public void postgresLoadTest() {
-        JobProfile jobProfile = new JobProfile();
+        InstanceProfile jobProfile = new InstanceProfile();
         jobProfile.set(PostgreSQLReader.JOB_POSTGRESQL_USER, "postgres");
         jobProfile.set(PostgreSQLReader.JOB_DATABASE_SERVER_NAME, "postgres");
         jobProfile.set(PostgreSQLReader.JOB_DATABASE_PLUGIN_NAME, "pgoutput");

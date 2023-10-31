@@ -132,6 +132,7 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
     @Override
     public Map<String, Object> getClusterInfoByTag(String clusterTag) {
         Map<String, Object> clusterMap = new HashMap<>();
+        clusterMap.put("inlongClusterTag", clusterTag);
         Set<String> mqClusters = Sets.newHashSet(ClusterType.PULSAR, ClusterType.TUBEMQ, ClusterType.KAFKA);
         List<InlongClusterEntity> clusterEntities = clusterEntityMapper.selectByClusterTag(clusterTag);
         for (InlongClusterEntity clusterEntity : clusterEntities) {

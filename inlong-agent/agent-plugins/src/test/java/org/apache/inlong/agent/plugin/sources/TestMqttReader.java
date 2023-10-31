@@ -17,7 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
@@ -64,7 +64,7 @@ public class TestMqttReader {
     private MqttReader reader;
 
     @Mock
-    private JobProfile jobProfile;
+    private InstanceProfile jobProfile;
 
     @Mock
     private AgentMetricItemSet agentMetricItemSet;

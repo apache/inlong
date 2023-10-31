@@ -17,8 +17,8 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constant.JobConstants;
+import org.apache.inlong.agent.conf.InstanceProfile;
+import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.reader.OracleReader;
 
@@ -40,7 +40,7 @@ public class TestOracleConnect {
 
     @Ignore
     public void testOracle() {
-        JobProfile jobProfile = new JobProfile();
+        InstanceProfile jobProfile = new InstanceProfile();
         jobProfile.set("job.oracleJob.hostname", "localhost");
         jobProfile.set("job.oracleJob.port", "1521");
         jobProfile.set("job.oracleJob.user", "c##dbzuser");
@@ -48,7 +48,7 @@ public class TestOracleConnect {
         jobProfile.set("job.oracleJob.sid", "ORCLCDB");
         jobProfile.set("job.oracleJob.dbname", "ORCLCDB");
         jobProfile.set("job.oracleJob.serverName", "server1");
-        jobProfile.set(JobConstants.JOB_INSTANCE_ID, UUID.randomUUID().toString());
+        jobProfile.set(TaskConstants.JOB_INSTANCE_ID, UUID.randomUUID().toString());
         jobProfile.set(PROXY_INLONG_GROUP_ID, UUID.randomUUID().toString());
         jobProfile.set(PROXY_INLONG_STREAM_ID, UUID.randomUUID().toString());
         OracleReader oracleReader = new OracleReader();

@@ -18,13 +18,14 @@
 package org.apache.inlong.agent.plugin.sources.reader;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.SnapshotModeConstants;
 import org.apache.inlong.agent.constant.SqlServerConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.sources.reader.file.AbstractReader;
 import org.apache.inlong.agent.plugin.sources.snapshot.SqlServerSnapshotBase;
 import org.apache.inlong.agent.plugin.utils.InLongDatabaseHistory;
 import org.apache.inlong.agent.plugin.utils.InLongFileOffsetBackingStore;
@@ -103,7 +104,7 @@ public class SQLServerReader extends AbstractReader {
     private boolean finished = false;
 
     private LinkedBlockingQueue<Pair<String, String>> sqlServerMessageQueue;
-    private JobProfile jobProfile;
+    private InstanceProfile jobProfile;
     private boolean destroyed = false;
 
     public SQLServerReader() {
@@ -192,7 +193,7 @@ public class SQLServerReader extends AbstractReader {
     }
 
     @Override
-    public void init(JobProfile jobConf) {
+    public void init(InstanceProfile jobConf) {
         super.init(jobConf);
         jobProfile = jobConf;
         LOGGER.info("init SqlServer reader with jobConf {}", jobConf.toJsonStr());

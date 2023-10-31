@@ -17,11 +17,8 @@
 
 package org.apache.inlong.agent.plugin.filter;
 
-import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
-import org.apache.inlong.agent.plugin.Reader;
-import org.apache.inlong.agent.plugin.sources.TextFileSource;
-import org.apache.inlong.agent.plugin.trigger.PathPattern;
+import org.apache.inlong.agent.plugin.task.PathPattern;
 import org.apache.inlong.agent.utils.AgentUtils;
 
 import org.junit.AfterClass;
@@ -36,13 +33,7 @@ import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
-
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
 
 public class TestDateFormatRegex {
 
@@ -73,7 +64,7 @@ public class TestDateFormatRegex {
     }
 
     @Test
-    public void testRegexAndTimeoffset() throws IOException {
+    public void testRegexAndTimeOffset() throws IOException {
         ZonedDateTime zoned = ZonedDateTime.now().plusDays(-1);
         String pathTime = DateTimeFormatter.ofPattern("yyyyMMdd").withLocale(Locale.getDefault()).format(zoned);
         File file = Paths.get(helper.getTestRootDir().toString(), pathTime.concat(".log")).toFile();
@@ -82,20 +73,5 @@ public class TestDateFormatRegex {
                 Collections.singleton(helper.getTestRootDir().toString() + "/yyyyMMdd.log"), "-1d");
         boolean flag = entity.suitable(file.getPath());
         Assert.assertTrue(flag);
-    }
-
-    @Test
-    public void testFileFilter() throws Exception {
-        String currentDate = AgentUtils.formatCurrentTime("yyyyMMdd");
-        Paths.get(testPath.toString(), currentDate + "_0").toFile().createNewFile();
-        TextFileSource source = new TextFileSource();
-        JobProfile profile = new JobProfile();
-        profile.set(JOB_DIR_FILTER_PATTERNS, Paths.get(testPath.toString(), "YYYYMMDD_0").toString());
-        profile.set(JOB_INSTANCE_ID, "test");
-        profile.set(JOB_GROUP_ID, "groupId");
-        profile.set(JOB_STREAM_ID, "streamId");
-
-        List<Reader> readerList = source.split(profile);
-        Assert.assertEquals(1, readerList.size());
     }
 }
