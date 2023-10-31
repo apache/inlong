@@ -41,6 +41,7 @@
         <module>pulsar</module>
         <module>tubemq</module>
         <module>hbase</module>
+        <module>hudi</module>
     </modules>
 
     <properties>

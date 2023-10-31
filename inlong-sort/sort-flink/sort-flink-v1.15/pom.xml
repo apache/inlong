@@ -130,7 +130,7 @@
             <!-- hudi -->
             <dependency>
                 <groupId>org.apache.hudi</groupId>
-                <artifactId>hudi-flink1.13-bundle</artifactId>
+                <artifactId>hudi-flink1.15-bundle</artifactId>
                 <version>${hudi.version}</version>
             </dependency>
             <dependency>
