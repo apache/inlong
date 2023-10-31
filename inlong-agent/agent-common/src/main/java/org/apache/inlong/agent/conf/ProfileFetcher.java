@@ -19,24 +19,9 @@ package org.apache.inlong.agent.conf;
 
 import org.apache.inlong.agent.common.Service;
 
-import java.util.List;
-
 /**
  * fetch profile from other system, communicate with json format string
  */
 public interface ProfileFetcher extends Service {
 
-    /**
-     * get job profiles
-     *
-     * @return job profile list
-     */
-    List<JobProfile> getJobProfiles();
-
-    /**
-     * get trigger profiles
-     *
-     * @return trigger profile lisy
-     */
-    List<TriggerProfile> getTriggerProfiles();
 }

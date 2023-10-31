@@ -18,16 +18,12 @@
 package org.apache.inlong.agent.pojo;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.pojo.FileJob.Line;
-import org.apache.inlong.common.constant.MQType;
-import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 
 import com.google.gson.Gson;
 import lombok.Data;
 
-import static java.util.Objects.requireNonNull;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
 import static org.apache.inlong.agent.constant.JobConstants.SYNC_SEND_OPEN;
@@ -376,113 +372,6 @@ public class JobProfileDto {
             proxy.setPartitionKey(dataConfigs.getSyncPartitionKey());
         }
         return proxy;
-    }
-
-    /**
-     * convert DataConfig to TriggerProfile
-     */
-    public static TriggerProfile convertToTriggerProfile(DataConfig dataConfig) {
-        if (!dataConfig.isValid()) {
-            throw new IllegalArgumentException("input dataConfig" + dataConfig + "is invalid please check");
-        }
-
-        JobProfileDto profileDto = new JobProfileDto();
-        Proxy proxy = getProxy(dataConfig);
-        profileDto.setProxy(proxy);
-        Job job = new Job();
-
-        // common attribute
-        job.setId(String.valueOf(dataConfig.getTaskId()));
-        job.setGroupId(dataConfig.getInlongGroupId());
-        job.setStreamId(dataConfig.getInlongStreamId());
-        job.setChannel(DEFAULT_CHANNEL);
-        job.setIp(dataConfig.getIp());
-        job.setOp(dataConfig.getOp());
-        job.setDeliveryTime(dataConfig.getDeliveryTime());
-        job.setUuid(dataConfig.getUuid());
-        job.setVersion(dataConfig.getVersion());
-        // set sink type
-        if (dataConfig.getDataReportType() == 0) {
-            job.setSink(DEFAULT_DATAPROXY_SINK);
-            job.setProxySend(false);
-        } else if (dataConfig.getDataReportType() == 1) {
-            job.setSink(DEFAULT_DATAPROXY_SINK);
-            job.setProxySend(true);
-        } else {
-            String mqType = dataConfig.getMqClusters().get(0).getMqType();
-            job.setMqClusters(GSON.toJson(dataConfig.getMqClusters()));
-            job.setTopicInfo(GSON.toJson(dataConfig.getTopicInfo()));
-            if (mqType.equals(MQType.PULSAR)) {
-                job.setSink(PULSAR_SINK);
-            } else if (mqType.equals(MQType.KAFKA)) {
-                job.setSink(KAFKA_SINK);
-            } else {
-                throw new IllegalArgumentException("input dataConfig" + dataConfig + "is invalid please check");
-            }
-        }
-        TaskTypeEnum taskType = TaskTypeEnum.getTaskType(dataConfig.getTaskType());
-        switch (requireNonNull(taskType)) {
-            case SQL:
-            case BINLOG:
-                BinlogJob binlogJob = getBinlogJob(dataConfig);
-                job.setBinlogJob(binlogJob);
-                job.setSource(BINLOG_SOURCE);
-                profileDto.setJob(job);
-                break;
-            case FILE:
-                FileJob fileJob = getFileJob(dataConfig);
-                job.setFileJob(fileJob);
-                job.setSource(DEFAULT_SOURCE);
-                profileDto.setJob(job);
-                break;
-            case KAFKA:
-                KafkaJob kafkaJob = getKafkaJob(dataConfig);
-                job.setKafkaJob(kafkaJob);
-                job.setSource(KAFKA_SOURCE);
-                profileDto.setJob(job);
-                break;
-            case POSTGRES:
-                PostgreSQLJob postgreSQLJob = getPostgresJob(dataConfig);
-                job.setPostgreSQLJob(postgreSQLJob);
-                job.setSource(POSTGRESQL_SOURCE);
-                profileDto.setJob(job);
-                break;
-            case ORACLE:
-                OracleJob oracleJob = getOracleJob(dataConfig);
-                job.setOracleJob(oracleJob);
-                job.setSource(ORACLE_SOURCE);
-                profileDto.setJob(job);
-                break;
-            case SQLSERVER:
-                SqlServerJob sqlserverJob = getSqlServerJob(dataConfig);
-                job.setSqlserverJob(sqlserverJob);
-                job.setSource(SQLSERVER_SOURCE);
-                profileDto.setJob(job);
-                break;
-            case MONGODB:
-                MongoJob mongoJob = getMongoJob(dataConfig);
-                job.setMongoJob(mongoJob);
-                job.setSource(MONGO_SOURCE);
-                profileDto.setJob(job);
-                break;
-            case REDIS:
-                RedisJob redisJob = getRedisJob(dataConfig);
-                job.setRedisJob(redisJob);
-                job.setSource(REDIS_SOURCE);
-                profileDto.setJob(job);
-                break;
-            case MQTT:
-                MqttJob mqttJob = getMqttJob(dataConfig);
-                job.setMqttJob(mqttJob);
-                job.setSource(MQTT_SOURCE);
-                profileDto.setJob(job);
-                break;
-            case MOCK:
-                profileDto.setJob(job);
-                break;
-            default:
-        }
-        return TriggerProfile.parseJsonStr(GSON.toJson(profileDto));
     }
 
     @Data

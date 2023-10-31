@@ -21,7 +21,6 @@ import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.OffsetProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
-import org.apache.inlong.agent.conf.TriggerProfile;
 
 /**
  * key value entity. key is string and value is a json
@@ -84,13 +83,6 @@ public class KeyValueEntity {
     public JobProfile getAsJobProfile() {
         // convert jsonValue to jobConfiguration
         return JobProfile.parseJsonStr(getJsonValue());
-    }
-
-    /**
-     * convert keyValue to trigger profile
-     */
-    public TriggerProfile getAsTriggerProfile() {
-        return TriggerProfile.parseJsonStr(getJsonValue());
     }
 
     /**
