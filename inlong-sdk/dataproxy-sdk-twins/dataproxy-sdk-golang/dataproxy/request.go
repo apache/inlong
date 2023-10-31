@@ -293,9 +293,13 @@ func (b *batchRsp) decode(input []byte) {
 
 	// fmt.Println(string(attr))
 
-	attrList := strings.Split(string(attr), "&")
+	attrList := strings.FieldsFunc(string(attr), func(r rune) bool {
+		return r == '&'
+	})
 	for _, item := range attrList {
-		kv := strings.Split(item, "=")
+		kv := strings.FieldsFunc(item, func(r rune) bool {
+			return r == '='
+		})
 		if len(kv) != 2 {
 			continue
 		}
