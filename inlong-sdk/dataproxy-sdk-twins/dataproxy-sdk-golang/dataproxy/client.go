@@ -22,7 +22,6 @@ import (
 	"errors"
 	"math"
 	"sync"
-	"time"
 
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/connpool"
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/discoverer"
@@ -215,16 +214,16 @@ func (c *client) Dial(addr string) (gnet.Conn, error) {
 }
 
 func (c *client) Send(ctx context.Context, msg Message) error {
-	worker := c.getWorker()
-	if worker == nil {
+	worker, err := c.getWorker()
+	if err != nil {
 		return ErrNoAvailableWorker
 	}
 	return worker.send(ctx, msg)
 }
 
 func (c *client) SendAsync(ctx context.Context, msg Message, cb Callback) {
-	worker := c.getWorker()
-	if worker == nil {
+	worker, err := c.getWorker()
+	if err != nil {
 		if cb != nil {
 			cb(msg, ErrNoAvailableWorker)
 		}
@@ -234,23 +233,17 @@ func (c *client) SendAsync(ctx context.Context, msg Message, cb Callback) {
 	worker.sendAsync(ctx, msg, cb)
 }
 
-func (c *client) getWorker() *worker {
-	for i := 0; i < c.options.WorkerNum; i++ {
-		index := c.curWorkerIndex.Load()
-		w := c.workers[index%uint64(len(c.workers))]
-		c.curWorkerIndex.Add(1)
+func (c *client) getWorker() (*worker, error) {
+	index := c.curWorkerIndex.Load()
+	w := c.workers[index%uint64(len(c.workers))]
+	c.curWorkerIndex.Add(1)
 
-		if w.available() {
-			return w
-		} else if i == c.options.WorkerNum-1 {
-			c.metrics.incError(errAllWorkerBusy.strCode)
-			return w
-		} else {
-			time.Sleep(1 * time.Millisecond)
-			continue
-		}
+	if w.available() {
+		return w, nil
 	}
-	return nil
+
+	c.metrics.incError(workerBusy.strCode)
+	return nil, workerBusy
 }
 
 func (c *client) Close() {
