@@ -101,31 +101,31 @@ func getErrorCode(err error) string {
 }
 
 type worker struct {
-	client             *client                 // parent client
-	index              int                     // worker id
-	indexStr           string                  // worker id string
-	options            *Options                // config options
-	state              atomic.Int32            // worker state
-	log                logger.Logger           // debug logger
-	conn               atomic.Value            // connection used to send data
-	cmdChan            chan interface{}        // command channel
-	dataChan           chan *sendDataReq       // data channel
-	dataSemaphore      syncx.Semaphore         // semaphore used to handle message queueing
-	pendingBatches     map[string]*batchReq    // pending batches
-	unackedBatches     map[string]*batchReq    // sent but not acknowledged batches
-	sendFailedBatches  chan sendFailedBatchReq // send failed batches channel
-	retryBatches       chan *batchReq          // retry batches  channel
-	responseBatches    chan batchRsp           // batch response channel
-	batchTimeoutTicker *time.Ticker            // batch timeout ticker
-	sendTimeoutTicker  *time.Ticker            // send timeout ticker
-	heartbeatTicker    *time.Ticker            // heartbeat ticker
-	mapCleanTicker     *time.Ticker            // map clean ticker, clean the unackedBatches map periodically
-	updateConnTicker   *time.Ticker            // update connection ticker, change connection periodically
-	unackedBatchCount  int                     // sent but not acknowledged batches counter, used to clean the unackedBatches map periodically
-	metrics            *metrics                // metrics
-	bufferPool         bufferpool.BufferPool   // buffer pool
-	bytePool           bufferpool.BytePool     // byte pool
-	stop               bool                    // stop the worker
+	client             *client                  // parent client
+	index              int                      // worker id
+	indexStr           string                   // worker id string
+	options            *Options                 // config options
+	state              atomic.Int32             // worker state
+	log                logger.Logger            // debug logger
+	conn               atomic.Value             // connection used to send data
+	cmdChan            chan interface{}         // command channel
+	dataChan           chan *sendDataReq        // data channel
+	dataSemaphore      syncx.Semaphore          // semaphore used to handle message queueing
+	pendingBatches     map[string]*batchReq     // pending batches
+	unackedBatches     map[string]*batchReq     // sent but not acknowledged batches
+	sendFailedBatches  chan *sendFailedBatchReq // send failed batches channel
+	retryBatches       chan *batchReq           // retry batches  channel
+	responseBatches    chan *batchRsp           // batch response channel
+	batchTimeoutTicker *time.Ticker             // batch timeout ticker
+	sendTimeoutTicker  *time.Ticker             // send timeout ticker
+	heartbeatTicker    *time.Ticker             // heartbeat ticker
+	mapCleanTicker     *time.Ticker             // map clean ticker, clean the unackedBatches map periodically
+	updateConnTicker   *time.Ticker             // update connection ticker, change connection periodically
+	unackedBatchCount  int                      // sent but not acknowledged batches counter, used to clean the unackedBatches map periodically
+	metrics            *metrics                 // metrics
+	bufferPool         bufferpool.BufferPool    // buffer pool
+	bytePool           bufferpool.BytePool      // byte pool
+	stop               bool                     // stop the worker
 }
 
 func newWorker(cli *client, index int, opts *Options) (*worker, error) {
@@ -144,9 +144,9 @@ func newWorker(cli *client, index int, opts *Options) (*worker, error) {
 		dataSemaphore:      syncx.NewSemaphore(int32(opts.MaxPendingMessages)),
 		pendingBatches:     make(map[string]*batchReq),
 		unackedBatches:     make(map[string]*batchReq),
-		sendFailedBatches:  make(chan sendFailedBatchReq, opts.MaxPendingMessages),
+		sendFailedBatches:  make(chan *sendFailedBatchReq, opts.MaxPendingMessages),
 		retryBatches:       make(chan *batchReq, opts.MaxPendingMessages),
-		responseBatches:    make(chan batchRsp, opts.MaxPendingMessages),
+		responseBatches:    make(chan *batchRsp, opts.MaxPendingMessages),
 		batchTimeoutTicker: time.NewTicker(opts.BatchingMaxPublishDelay),
 		sendTimeoutTicker:  time.NewTicker(sendTimeout),
 		heartbeatTicker:    time.NewTicker(defaultHeartbeatInterval * time.Second),
@@ -387,7 +387,7 @@ func (w *worker) sendBatch(b *batchReq, retryOnFail bool) {
 		// from this callback directly, or will be panic, so we put into the w.sendFailedBatches channel, and it will be
 		// deleted and retried in handleSendFailed() one by one
 		if inCallback {
-			w.sendFailedBatches <- sendFailedBatchReq{batch: b, retry: retryOnFail}
+			w.sendFailedBatches <- &sendFailedBatchReq{batch: b, retry: retryOnFail}
 			return
 		}
 
@@ -423,7 +423,7 @@ func (w *worker) sendBatch(b *batchReq, retryOnFail bool) {
 	w.unackedBatches[b.batchID] = b
 }
 
-func (w *worker) handleSendFailed(b sendFailedBatchReq) {
+func (w *worker) handleSendFailed(b *sendFailedBatchReq) {
 	// send failed, delete the batch from unackedBatches, when retried, it will be pushed back
 	delete(w.unackedBatches, b.batch.batchID)
 	if b.retry {
@@ -573,7 +573,7 @@ func (w *worker) handleSendHeartbeat() {
 	}
 }
 
-func (w *worker) onRsp(rsp batchRsp) {
+func (w *worker) onRsp(rsp *batchRsp) {
 	// close already
 	if w.getState() == stateClosed {
 		return
@@ -581,7 +581,7 @@ func (w *worker) onRsp(rsp batchRsp) {
 	w.responseBatches <- rsp
 }
 
-func (w *worker) handleRsp(rsp batchRsp) {
+func (w *worker) handleRsp(rsp *batchRsp) {
 	batchID := rsp.batchID
 	batch, ok := w.unackedBatches[batchID]
 	if !ok {
