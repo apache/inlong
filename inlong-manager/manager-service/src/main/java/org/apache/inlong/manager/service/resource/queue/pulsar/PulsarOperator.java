@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
+import org.apache.inlong.manager.pojo.queue.pulsar.PulsarMessageInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarNamespacePolicies;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarPersistencePolicies;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarRetentionPolicies;
@@ -447,15 +448,16 @@ public class PulsarOperator {
             InlongStreamInfo streamInfo, int messagePosition) {
         List<BriefMQMessage> briefMQMessages = new ArrayList<>();
         try {
-            ResponseEntity<byte[]> pulsarMessage =
+            ResponseEntity<byte[]> httpResponse =
                     PulsarUtils.examineMessage(restTemplate, pulsarClusterInfo, topicPartition, "latest",
                             messagePosition);
-            Map<String, String> headers = pulsarMessage.getHeaders().toSingleValueMap();
+            PulsarMessageInfo messageInfo = PulsarUtils.getMessageFromHttpResponse(httpResponse, topicPartition);
+            Map<String, String> headers = messageInfo.getProperties();
             int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
                     Integer.toString(MessageWrapType.INLONG_MSG_V0.getId())));
             DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
                     MessageWrapType.valueOf(wrapTypeId));
-            briefMQMessages.addAll(deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getBody(),
+            briefMQMessages.addAll(deserializeOperator.decodeMsg(streamInfo, messageInfo.getBody(),
                     headers, index));
         } catch (Exception e) {
             LOGGER.warn("query message from pulsar error for groupId = {}, streamId = {}",

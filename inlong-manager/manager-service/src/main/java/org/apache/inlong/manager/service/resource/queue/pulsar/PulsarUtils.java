@@ -17,9 +17,18 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.DateFormatter;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
+import org.apache.inlong.manager.pojo.queue.pulsar.PulsarBrokerEntryMetadata;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarLookupTopicInfo;
+import org.apache.inlong.manager.pojo.queue.pulsar.PulsarMessageInfo;
+import org.apache.inlong.manager.pojo.queue.pulsar.PulsarMessageMetadata;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarNamespacePolicies;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTenantInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicMetadata;
@@ -36,11 +45,18 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Pulsar connection utils
@@ -50,6 +66,9 @@ public class PulsarUtils {
 
     private PulsarUtils() {
     }
+
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(
+            ZoneId.systemDefault());
 
     public static final String QUERY_CLUSTERS_PATH = "/admin/v2/clusters";
     public static final String QUERY_BROKERS_PATH = "/admin/v2/brokers";
@@ -478,7 +497,423 @@ public class PulsarUtils {
                 .append(messageType)
                 .append("&messagePosition=")
                 .append(messagePosition);
-        return restTemplate.exchange(urlBuilder.toString(), HttpMethod.GET,
+        ResponseEntity<byte[]> response = restTemplate.exchange(urlBuilder.toString(), HttpMethod.GET,
                 new HttpEntity<>(getHttpHeaders(clusterInfo.getToken())), byte[].class);
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            log.error("request error for {}, status code {}, body {}", urlBuilder.toString(), response.getStatusCode(),
+                    response.getBody());
+        }
+        return response;
+    }
+
+    public static PulsarMessageInfo getMessageFromHttpResponse(ResponseEntity<byte[]> response, String topic)
+            throws Exception {
+        List<PulsarMessageInfo> messages = PulsarUtils.getMessagesFromHttpResponse(response, topic);
+        if (messages.size() > 0) {
+            return messages.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    public static List<PulsarMessageInfo> getMessagesFromHttpResponse(ResponseEntity<byte[]> response, String topic)
+            throws Exception {
+        HttpHeaders headers = response.getHeaders();
+        String msgId = headers.getFirst("X-Pulsar-Message-ID");
+        String brokerEntryTimestamp = headers.getFirst("X-Pulsar-Broker-Entry-METADATA-timestamp");
+        String brokerEntryIndex = headers.getFirst("X-Pulsar-Broker-Entry-METADATA-index");
+        PulsarBrokerEntryMetadata brokerEntryMetadata;
+        if (brokerEntryTimestamp == null && brokerEntryIndex == null) {
+            brokerEntryMetadata = null;
+        } else {
+            brokerEntryMetadata = new PulsarBrokerEntryMetadata();
+            if (brokerEntryTimestamp != null) {
+                brokerEntryMetadata.setBrokerTimestamp(parse(brokerEntryTimestamp.toString()));
+            }
+            if (brokerEntryIndex != null) {
+                brokerEntryMetadata.setIndex(Long.parseLong(brokerEntryIndex));
+            }
+        }
+
+        PulsarMessageMetadata messageMetadata = new PulsarMessageMetadata();
+        Map<String, String> properties = Maps.newTreeMap();
+
+        Object tmp = headers.getFirst("X-Pulsar-publish-time");
+        if (tmp != null) {
+            messageMetadata.setPublishTime(parse(tmp.toString()));
+        }
+
+        tmp = headers.getFirst("X-Pulsar-event-time");
+        if (tmp != null) {
+            messageMetadata.setEventTime(parse(tmp.toString()));
+        }
+        tmp = headers.getFirst("X-Pulsar-deliver-at-time");
+        if (tmp != null) {
+            messageMetadata.setDeliverAtTime(parse(tmp.toString()));
+        }
+
+        tmp = headers.getFirst("X-Pulsar-null-value");
+        if (tmp != null) {
+            messageMetadata.setNullValue(Boolean.parseBoolean(tmp.toString()));
+        }
+
+        tmp = headers.getFirst("X-Pulsar-producer-name");
+        if (tmp != null) {
+            messageMetadata.setProducerName(tmp.toString());
+        }
+
+        tmp = headers.getFirst("X-Pulsar-sequence-id");
+        if (tmp != null) {
+            messageMetadata.setSequenceId(Long.parseLong(tmp.toString()));
+        }
+
+        tmp = headers.getFirst("X-Pulsar-replicated-from");
+        if (tmp != null) {
+            messageMetadata.setReplicatedFrom(tmp.toString());
+        }
+
+        tmp = headers.getFirst("X-Pulsar-partition-key");
+        if (tmp != null) {
+            messageMetadata.setPartitionKey(tmp.toString());
+        }
+
+        tmp = headers.getFirst("X-Pulsar-compression");
+        if (tmp != null) {
+            messageMetadata.setCompression(tmp.toString());
+        }
+
+        tmp = headers.getFirst("X-Pulsar-uncompressed-size");
+        if (tmp != null) {
+            messageMetadata.setUncompressedSize(Integer.parseInt(tmp.toString()));
+        }
+
+        tmp = headers.getFirst("X-Pulsar-encryption-algo");
+        if (tmp != null) {
+            messageMetadata.setEncryptionAlgo(tmp.toString());
+        }
+
+        tmp = headers.getFirst("X-Pulsar-partition-key-b64-encoded");
+        if (tmp != null) {
+            messageMetadata.setPartitionKeyB64Encoded(Boolean.parseBoolean(tmp.toString()));
+        }
+
+        tmp = headers.getFirst("X-Pulsar-marker-type");
+        if (tmp != null) {
+            messageMetadata.setMarkerType(Integer.parseInt(tmp.toString()));
+        }
+
+        tmp = headers.getFirst("X-Pulsar-txnid-least-bits");
+        if (tmp != null) {
+            messageMetadata.setTxnidLeastBits(Long.parseLong(tmp.toString()));
+        }
+
+        tmp = headers.getFirst("X-Pulsar-txnid-most-bits");
+        if (tmp != null) {
+            messageMetadata.setTxnidMostBits(Long.parseLong(tmp.toString()));
+        }
+
+        tmp = headers.getFirst("X-Pulsar-highest-sequence-id");
+        if (tmp != null) {
+            messageMetadata.setHighestSequenceId(Long.parseLong(tmp.toString()));
+        }
+
+        tmp = headers.getFirst("X-Pulsar-uuid");
+        if (tmp != null) {
+            messageMetadata.setUuid(tmp.toString());
+        }
+
+        tmp = headers.getFirst("X-Pulsar-num-chunks-from-msg");
+        if (tmp != null) {
+            messageMetadata.setNumChunksFromMsg(Integer.parseInt(tmp.toString()));
+        }
+
+        tmp = headers.getFirst("X-Pulsar-total-chunk-msg-size");
+        if (tmp != null) {
+            messageMetadata.setTotalChunkMsgSize(Integer.parseInt(tmp.toString()));
+        }
+
+        tmp = headers.getFirst("X-Pulsar-chunk-id");
+        if (tmp != null) {
+            messageMetadata.setChunkId(Integer.parseInt(tmp.toString()));
+        }
+
+        tmp = headers.getFirst("X-Pulsar-null-partition-key");
+        if (tmp != null) {
+            messageMetadata.setNullPartitionKey(Boolean.parseBoolean(tmp.toString()));
+        }
+
+        tmp = headers.getFirst("X-Pulsar-Base64-encryption-param");
+        if (tmp != null) {
+            messageMetadata.setEncryptionParam(Base64.getDecoder().decode(tmp.toString()));
+        }
+
+        tmp = headers.getFirst("X-Pulsar-Base64-ordering-key");
+        if (tmp != null) {
+            messageMetadata.setOrderingKey(Base64.getDecoder().decode(tmp.toString()));
+        }
+
+        tmp = headers.getFirst("X-Pulsar-Base64-schema-version-b64encoded");
+        if (tmp != null) {
+            messageMetadata.setSchemaVersion(Base64.getDecoder().decode(tmp.toString()));
+        }
+
+        tmp = headers.getFirst("X-Pulsar-Base64-encryption-param");
+        if (tmp != null) {
+            messageMetadata.setEncryptionParam(Base64.getDecoder().decode(tmp.toString()));
+        }
+
+        List<String> tmpList = (List) headers.get("X-Pulsar-replicated-to");
+        if(ObjectUtils.isNotEmpty(tmpList)){
+            if (ObjectUtils.isEmpty(messageMetadata.getReplicateTos())) {
+                messageMetadata.setReplicateTos(Lists.newArrayList(tmpList));
+            }else {
+                messageMetadata.getReplicateTos().addAll(tmpList);
+            }
+        }
+
+
+        tmp = headers.getFirst("X-Pulsar-batch-size");
+        if (tmp != null) {
+            properties.put("X-Pulsar-batch-size", (String) tmp);
+        }
+
+        for (Entry<String, List<String>> entry : headers.entrySet()) {
+            if (entry.getKey().contains("X-Pulsar-PROPERTY-")) {
+                String keyName = entry.getKey().substring("X-Pulsar-PROPERTY-".length());
+                properties.put(keyName, (String) ((List) entry.getValue()).get(0));
+            }
+        }
+
+        tmp = headers.getFirst("X-Pulsar-num-batch-message");
+        if (tmp != null) {
+            properties.put("X-Pulsar-num-batch-message", (String) tmp);
+        }
+        boolean isEncrypted = false;
+        tmp = headers.getFirst("X-Pulsar-Is-Encrypted");
+        if (tmp != null) {
+            isEncrypted = Boolean.parseBoolean(tmp.toString());
+        }
+
+        if (!isEncrypted && headers.get("X-Pulsar-num-batch-message") != null) {
+            return getIndividualMsgsFromBatch(topic, msgId, response.getBody(), properties, messageMetadata,
+                    brokerEntryMetadata);
+        }
+
+        PulsarMessageInfo messageInfo = new PulsarMessageInfo();
+        messageInfo.setTopic(topic);
+        messageInfo.setMessageId(msgId);
+        messageInfo.setProperties(messageMetadata.getProperties());
+        messageInfo.setBody(response.getBody());
+        messageInfo.setPulsarMessageMetadata(messageMetadata);
+        if (brokerEntryMetadata != null) {
+            messageInfo.setPulsarBrokerEntryMetadata(brokerEntryMetadata);
+        }
+        return Collections.singletonList(messageInfo);
+    }
+
+    private static long parse(String datetime) throws DateTimeParseException {
+        Instant instant = Instant.from(DATE_FORMAT.parse(datetime));
+        return instant.toEpochMilli();
+    }
+
+    private static List<PulsarMessageInfo> getIndividualMsgsFromBatch(String topic, String msgId, byte[] data,
+            Map<String, String> properties, PulsarMessageMetadata metadata, PulsarBrokerEntryMetadata brokerMetadata) {
+        List<PulsarMessageInfo> ret = new ArrayList<>();
+        int batchSize = Integer.parseInt(properties.get("X-Pulsar-num-batch-message"));
+        ByteBuf buffer = Unpooled.copiedBuffer(data);
+        for (int i = 0; i < batchSize; ++i) {
+            String batchMsgId = msgId + ":" + i;
+            PulsarMessageMetadata singleMetadata = new PulsarMessageMetadata();
+            singleMetadata.setProperties(properties);
+            ByteBuf singleMessagePayload = deSerializeSingleMessageInBatch(buffer, singleMetadata, i, batchSize);
+            PulsarMessageInfo messageInfo = new PulsarMessageInfo();
+            messageInfo.setTopic(topic);
+            messageInfo.setMessageId(batchMsgId);
+            messageInfo.setProperties(singleMetadata.getProperties());
+            messageInfo.setPulsarMessageMetadata(metadata);
+            messageInfo.setBody(singleMessagePayload.array());
+            if (brokerMetadata != null) {
+                messageInfo.setPulsarBrokerEntryMetadata(brokerMetadata);
+            }
+            ret.add(messageInfo);
+        }
+        buffer.release();
+        return ret;
+    }
+
+    private static ByteBuf deSerializeSingleMessageInBatch(ByteBuf uncompressedPayload, PulsarMessageMetadata metadata,
+            int index, int batchSize) {
+        int singleMetaSize = (int) uncompressedPayload.readUnsignedInt();
+        metaDataParseFrom(metadata, uncompressedPayload, singleMetaSize);
+        int singleMessagePayloadSize = metadata.getPayloadSize();
+        int readerIndex = uncompressedPayload.readerIndex();
+        ByteBuf singleMessagePayload = uncompressedPayload.retainedSlice(readerIndex, singleMessagePayloadSize);
+        if (index < batchSize) {
+            uncompressedPayload.readerIndex(readerIndex + singleMessagePayloadSize);
+        }
+        return singleMessagePayload;
+    }
+
+    private static void metaDataParseFrom(PulsarMessageMetadata metadata, ByteBuf buffer, int size) {
+        int endIdx = size + buffer.readerIndex();
+        while (buffer.readerIndex() < endIdx) {
+            int tag = readVarInt(buffer);
+            switch (tag) {
+                case 10:
+                    int _propertiesSize = readVarInt(buffer);
+                    parseFrom(metadata,buffer, _propertiesSize);
+                    break;
+                case 18:
+                    int _partitionKeyBufferLen = readVarInt(buffer);
+                    byte[] partitionKeyArray = new byte[_partitionKeyBufferLen];
+                    buffer.readBytes(partitionKeyArray);
+                    metadata.setPartitionKey(new String(partitionKeyArray));
+                    break;
+                case 24:
+                    int payloadSize = readVarInt(buffer);
+                    metadata.setPayloadSize(payloadSize);
+                    break;
+                case 32:
+                    boolean compactedOut = readVarInt(buffer) == 1;
+                    metadata.setCompactedOut(compactedOut);
+                    break;
+                case 40:
+                    long eventTime = readVarInt64(buffer);
+                    metadata.setEventTime(eventTime);
+                    break;
+                case 48:
+                    boolean partitionKeyB64Encoded = readVarInt(buffer) == 1;
+                    metadata.setPartitionKeyB64Encoded(partitionKeyB64Encoded);
+                    break;
+                case 58:
+                    int _orderingKeyLen = readVarInt(buffer);
+                    byte[] orderingKeyArray = new byte[_orderingKeyLen];
+                    metadata.setOrderingKey(orderingKeyArray);
+                    break;
+                case 64:
+                    long sequenceId = readVarInt64(buffer);
+                    metadata.setSequenceId(sequenceId);
+                    break;
+                case 72:
+                    boolean nullValue = readVarInt(buffer) == 1;
+                    metadata.setNullValue(nullValue);
+                    break;
+                case 80:
+                    boolean nullPartitionKey = readVarInt(buffer) == 1;
+                    metadata.setNullPartitionKey(nullPartitionKey);
+                    break;
+                default:
+                    skipUnknownField(tag, buffer);
+            }
+        }
+    }
+
+    private static int readVarInt(ByteBuf buf) {
+        byte tmp = buf.readByte();
+        if (tmp >= 0) {
+            return tmp;
+        } else {
+            int result = tmp & 127;
+            if ((tmp = buf.readByte()) >= 0) {
+                result |= tmp << 7;
+            } else {
+                result |= (tmp & 127) << 7;
+                if ((tmp = buf.readByte()) >= 0) {
+                    result |= tmp << 14;
+                } else {
+                    result |= (tmp & 127) << 14;
+                    if ((tmp = buf.readByte()) >= 0) {
+                        result |= tmp << 21;
+                    } else {
+                        result |= (tmp & 127) << 21;
+                        result |= (tmp = buf.readByte()) << 28;
+                        if (tmp < 0) {
+                            for (int i = 0; i < 5; ++i) {
+                                if (buf.readByte() >= 0) {
+                                    return result;
+                                }
+                            }
+                            throw new IllegalArgumentException("Encountered a malformed varint.");
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+    }
+
+    private static long readVarInt64(ByteBuf buf) {
+        int shift = 0;
+        for (long result = 0L; shift < 64; shift += 7) {
+            byte b = buf.readByte();
+            result |= (long) (b & 127) << shift;
+            if ((b & 128) == 0) {
+                return result;
+            }
+        }
+        throw new IllegalArgumentException("Encountered a malformed varint.");
+    }
+
+    private static int getTagType(int tag) {
+        return tag & 7;
+    }
+
+    private static void skipUnknownField(int tag, ByteBuf buffer) {
+        int tagType = getTagType(tag);
+        switch (tagType) {
+            case 0:
+                readVarInt(buffer);
+                break;
+            case 1:
+                buffer.skipBytes(8);
+                break;
+            case 2:
+                int len = readVarInt(buffer);
+                buffer.skipBytes(len);
+                break;
+            case 3:
+            case 4:
+            default:
+                throw new IllegalArgumentException("Invalid unknonwn tag type: " + tagType);
+            case 5:
+                buffer.skipBytes(4);
+        }
+    }
+
+    private static void parseFrom(PulsarMessageMetadata metadata,ByteBuf _buffer, int _size) {
+        if(ObjectUtils.isEmpty(metadata.getProperties())) {
+            metadata.setProperties(new HashMap<>());
+        }
+        Map<String,String> properties = metadata.getProperties();
+        int _endIdx = _buffer.readerIndex() + _size;
+        String key = null;
+        String value = null;
+        while (_buffer.readerIndex() < _endIdx) {
+            int _tag = readVarInt(_buffer);
+            if (StringUtils.isNotEmpty(key) && StringUtils.isNotEmpty(value)) {
+                properties.put(key, value);
+                key = null;
+                value = null;
+            }
+            switch (_tag) {
+                case 10:
+                    int _keyBufferLen = readVarInt(_buffer);
+                    byte[] keyArray = new byte[_keyBufferLen];
+                    _buffer.readBytes(keyArray);
+                    key = new String(keyArray);
+                    break;
+                case 18:
+                    int _valueBufferLen = readVarInt(_buffer);
+                    byte[] valueArray = new byte[_valueBufferLen];
+                    _buffer.readBytes(valueArray);
+                    value = new String(valueArray);
+                    break;
+                default:
+                    skipUnknownField(_tag, _buffer);
+            }
+        }
+        if (StringUtils.isNotEmpty(key) && StringUtils.isNotEmpty(value)) {
+            properties.put(key, value);
+        }
     }
 }
