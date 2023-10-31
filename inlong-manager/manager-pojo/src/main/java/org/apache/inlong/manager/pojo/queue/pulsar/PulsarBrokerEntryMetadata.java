@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.manager.pojo.queue.pulsar;
 
 import lombok.AllArgsConstructor;
