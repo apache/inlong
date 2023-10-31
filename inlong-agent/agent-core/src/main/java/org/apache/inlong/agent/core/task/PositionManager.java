@@ -51,7 +51,6 @@ public class PositionManager extends AbstractDaemon {
     private PositionManager(AgentManager agentManager) {
         this.conf = AgentConfiguration.getAgentConf();
         this.agentManager = agentManager;
-        // this.jobConfDb = agentManager.getJobManager().getJobConfDb();
         this.jobTaskPositionMap = new ConcurrentHashMap<>();
     }
 

@@ -172,24 +172,6 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
             heartbeatMsg.setNodeGroup(nodeGroup);
         }
 
-        /*
-         * Map<String, JobWrapper> jobWrapperMap = taskManager.getJobs(); List<GroupHeartbeat> groupHeartbeats =
-         * Lists.newArrayList(); List<StreamHeartbeat> streamHeartbeats = Lists.newArrayList(); List<String> jobIds =
-         * Lists.newArrayList(); jobWrapperMap.values().forEach(jobWrapper -> { Job job = jobWrapper.getJob();
-         * JobProfile jobProfile = job.getJobConf(); jobIds.add(jobProfile.getInstanceId()); final String groupId =
-         * jobProfile.get(JOB_GROUP_ID); final String streamId = jobProfile.get(JOB_STREAM_ID); State currentState =
-         * jobWrapper.getCurrentState(); String status = currentState.name(); GroupHeartbeat groupHeartbeat = new
-         * GroupHeartbeat(); groupHeartbeat.setInlongGroupId(groupId); groupHeartbeat.setStatus(status);
-         * groupHeartbeats.add(groupHeartbeat);
-         *
-         * StreamHeartbeat streamHeartbeat = new StreamHeartbeat(); streamHeartbeat.setInlongGroupId(groupId);
-         * streamHeartbeat.setInlongStreamId(streamId); streamHeartbeat.setStatus(status);
-         * streamHeartbeats.add(streamHeartbeat); });
-         *
-         * heartbeatMsg.setGroupHeartbeats(groupHeartbeats); heartbeatMsg.setStreamHeartbeats(streamHeartbeats);
-         *
-         * LOGGER.info("heartbeat jobIds {} heartbeatMsg {}", jobIds, heartbeatMsg);
-         */
         return heartbeatMsg;
     }
 
