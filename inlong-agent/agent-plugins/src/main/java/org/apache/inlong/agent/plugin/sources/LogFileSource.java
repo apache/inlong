@@ -511,7 +511,7 @@ public class LogFileSource extends AbstractSource {
     }
 
     private void clearQueue(BlockingQueue<SourceData> queue) {
-        if (queue != null) {
+        if (queue == null) {
             return;
         }
         while (queue != null && !queue.isEmpty()) {
