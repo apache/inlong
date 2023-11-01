@@ -324,7 +324,6 @@ func (w *worker) buildBatchID() string {
 }
 
 func (w *worker) handleSendData(req *sendDataReq) {
-	// w.log.Debug("worker[", w.index, "] handleSendData")
 	// only the messages that with the same stream ID can be sent in a batch, we use the stream ID as the key
 	batch, ok := w.pendingBatches[req.msg.StreamID]
 	if !ok {
@@ -348,7 +347,6 @@ func (w *worker) handleSendData(req *sendDataReq) {
 			metrics:    w.metrics,
 			addColumns: w.options.addColumnStr,
 		}
-		w.log.Debug("worker[", w.index, "] new a batch:", batch.batchID, ", streamID:", batch.streamID)
 		w.pendingBatches[streamID] = batch
 	}
 
@@ -368,7 +366,6 @@ func (w *worker) handleSendData(req *sendDataReq) {
 }
 
 func (w *worker) sendBatch(b *batchReq, retryOnFail bool) {
-	// w.log.Debug("worker[", w.index, "] sendBatch")
 	b.lastSendTime = time.Now()
 	b.encode()
 
@@ -412,7 +409,6 @@ func (w *worker) sendBatch(b *batchReq, retryOnFail bool) {
 		}
 	}
 
-	// w.log.Debug("worker[", w.index, "] write to:", conn.RemoteAddr())
 	// very important：'cause we use gnet, we must call AsyncWrite to send data in goroutines that are different from gnet.OnTraffic() callback
 	conn := w.getConn()
 	err := conn.AsyncWrite(b.buffer.Bytes(), func(c gnet.Conn, e error) error {
@@ -448,7 +444,6 @@ func (w *worker) handleSendFailed(b *sendFailedBatchReq) {
 func (w *worker) backoffRetry(ctx context.Context, batch *batchReq) {
 	if batch.retries >= w.options.MaxRetries {
 		batch.done(errSendTimeout)
-		w.log.Debug("to many reties, batch done:", batch.batchID)
 		return
 	}
 
@@ -502,7 +497,6 @@ func (w *worker) handleRetry(batch *batchReq, retryOnFail bool) {
 	batch.retries++
 	if batch.retries >= w.options.MaxRetries {
 		batch.done(errSendTimeout)
-		w.log.Debug("to many reties, batch done:", batch.batchID)
 		return
 	}
 
@@ -512,9 +506,8 @@ func (w *worker) handleRetry(batch *batchReq, retryOnFail bool) {
 }
 
 func (w *worker) handleBatchTimeout() {
-	for streamID, batch := range w.pendingBatches {
+	for _, batch := range w.pendingBatches {
 		if time.Since(batch.batchTime) > w.options.BatchingMaxPublishDelay {
-			w.log.Debug("worker[", w.index, "] batch timeout, send it now:", batch.batchID, ", streamID:", streamID)
 			w.sendBatch(batch, true)
 			delete(w.pendingBatches, batch.streamID)
 		}
@@ -543,7 +536,6 @@ func (w *worker) handleCleanMap() {
 		return
 	}
 
-	w.log.Debug("clean map")
 	// create a new map and copy the data from the old map
 	newMap := make(map[string]*batchReq)
 	for k, v := range w.unackedBatches {
@@ -597,16 +589,10 @@ func (w *worker) handleRsp(rsp *batchRsp) {
 	batchID := rsp.batchID
 	batch, ok := w.unackedBatches[batchID]
 	if !ok {
-		w.log.Debug("worker[", w.index, "] batch not found in unackedBatches map:", batchID, ", send time:", rsp.dt, ", now:", time.Now().UnixMilli())
 		w.metrics.incError(errNoMatchReq4Rsp.strCode)
 		return
 	}
 
-	/*
-		w.log.Debug("worker[", w.index, "] batch done:", batchID, ", batch time:", batch.batchTime.UnixMilli(),
-			", batch last send time:", batch.lastSendTime.UnixMilli(), ", now:", time.Now().UnixMilli(),
-			"batch retry:", batch.retries)
-	*/
 	// call batch.done to release the resources it holds
 	var err = error(nil)
 	if rsp.errCode != 0 {
@@ -728,7 +714,6 @@ func (w *worker) handleUpdateConn() {
 }
 
 func (w *worker) updateConn(old gnet.Conn, err error) {
-	w.log.Debug("worker[", w.index, "] updateConn")
 	newConn, newErr := w.client.getConn()
 	if newErr != nil {
 		w.log.Error("get new conn error:", newErr)
