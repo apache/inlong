@@ -18,10 +18,8 @@
 package org.apache.inlong.manager.pojo.cluster.sort.pulsar;
 
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.pojo.sort.BaseSortClusterInfo;
 
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
@@ -35,14 +33,10 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = ClusterType.SORT_PULSAR)
 @ApiModel("Inlong cluster info for SortPulsar")
-public class SortPulsarClusterInfo extends ClusterInfo {
+public class SortPulsarClusterInfo extends BaseSortClusterInfo {
 
     public SortPulsarClusterInfo() {
         this.setType(ClusterType.SORT_PULSAR);
     }
 
-    @Override
-    public ClusterRequest genRequest() {
-        return CommonBeanUtils.copyProperties(this, SortPulsarClusterRequest::new);
-    }
 }

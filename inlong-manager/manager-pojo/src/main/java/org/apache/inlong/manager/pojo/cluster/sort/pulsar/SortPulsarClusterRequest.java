@@ -19,7 +19,7 @@ package org.apache.inlong.manager.pojo.cluster.sort.pulsar;
 
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.pojo.sort.BaseSortClusterRequest;
 
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
@@ -31,7 +31,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = ClusterType.SORT_PULSAR)
 @ApiModel("Inlong cluster request for SortPulsar")
-public class SortPulsarClusterRequest extends ClusterRequest {
+public class SortPulsarClusterRequest extends BaseSortClusterRequest {
 
     public SortPulsarClusterRequest() {
         this.setType(ClusterType.SORT_PULSAR);

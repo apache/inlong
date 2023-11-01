@@ -15,30 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.cluster.sort.es;
+package org.apache.inlong.manager.pojo.sort;
 
-import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.sort.BaseSortClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 
 /**
- * Elasticsearch cluster info
+ * Inlong base sort cluster request
  */
 @Data
-@SuperBuilder
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.SORT_ES)
-@ApiModel("Inlong cluster info for Elasticsearch")
-public class SortEsClusterInfo extends BaseSortClusterInfo {
+@ApiModel("Inlong base sort cluster request")
+public class BaseSortClusterRequest extends ClusterRequest {
 
-    public SortEsClusterInfo() {
-        this.setType(ClusterType.SORT_ES);
-    }
 }
