@@ -361,7 +361,7 @@ func (c *client) onResponse(frame []byte) {
 		return
 	}
 
-	c.workers[index].onRsp(rsp)
+	c.workers[index].onRsp(&rsp)
 }
 
 func (c *client) OnEndpointUpdate(all, add, del discoverer.EndpointList) {
