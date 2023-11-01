@@ -36,12 +36,12 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.SORTES)
+@JsonTypeDefine(value = ClusterType.SORT_ES)
 @ApiModel("Inlong cluster info for Elasticsearch")
 public class SortEsClusterInfo extends ClusterInfo {
 
     public SortEsClusterInfo() {
-        this.setType(ClusterType.SORTES);
+        this.setType(ClusterType.SORT_ES);
     }
 
     @Override

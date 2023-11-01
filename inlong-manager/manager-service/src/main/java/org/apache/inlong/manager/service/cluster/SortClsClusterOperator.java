@@ -39,7 +39,7 @@ public class SortClsClusterOperator extends AbstractClusterOperator {
 
     @Override
     public String getClusterType() {
-        return ClusterType.SORTCLS;
+        return ClusterType.SORT_CLS;
     }
 
     @Override

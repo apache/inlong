@@ -42,7 +42,7 @@ public class SortEsClusterOperator extends AbstractClusterOperator {
 
     @Override
     public String getClusterType() {
-        return ClusterType.SORTES;
+        return ClusterType.SORT_ES;
     }
 
     @Override

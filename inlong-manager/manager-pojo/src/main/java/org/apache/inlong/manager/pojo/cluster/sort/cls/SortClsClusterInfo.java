@@ -33,12 +33,12 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.SORTCLS)
+@JsonTypeDefine(value = ClusterType.SORT_CLS)
 @ApiModel("Inlong cluster info for SortCls")
 public class SortClsClusterInfo extends ClusterInfo {
 
     public SortClsClusterInfo() {
-        this.setType(ClusterType.SORTCLS);
+        this.setType(ClusterType.SORT_CLS);
     }
 
     @Override

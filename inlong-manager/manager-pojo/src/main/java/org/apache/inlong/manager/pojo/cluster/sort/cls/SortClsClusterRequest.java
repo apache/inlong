@@ -29,11 +29,11 @@ import lombok.ToString;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.SORTCLS)
+@JsonTypeDefine(value = ClusterType.SORT_CLS)
 @ApiModel("Inlong cluster request for SortCls")
 public class SortClsClusterRequest extends ClusterRequest {
 
     public SortClsClusterRequest() {
-        this.setType(ClusterType.SORTCLS);
+        this.setType(ClusterType.SORT_CLS);
     }
 }

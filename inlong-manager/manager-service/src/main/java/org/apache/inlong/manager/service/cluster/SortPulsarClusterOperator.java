@@ -39,7 +39,7 @@ public class SortPulsarClusterOperator extends AbstractClusterOperator {
 
     @Override
     public String getClusterType() {
-        return ClusterType.SORTPULSAR;
+        return ClusterType.SORT_PULSAR;
     }
 
     @Override

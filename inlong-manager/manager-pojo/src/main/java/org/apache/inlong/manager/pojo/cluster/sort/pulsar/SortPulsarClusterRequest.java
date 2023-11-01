@@ -29,11 +29,11 @@ import lombok.ToString;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.SORTPULSAR)
+@JsonTypeDefine(value = ClusterType.SORT_PULSAR)
 @ApiModel("Inlong cluster request for SortPulsar")
 public class SortPulsarClusterRequest extends ClusterRequest {
 
     public SortPulsarClusterRequest() {
-        this.setType(ClusterType.SORTPULSAR);
+        this.setType(ClusterType.SORT_PULSAR);
     }
 }
