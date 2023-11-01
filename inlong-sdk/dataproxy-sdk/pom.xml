@@ -153,8 +153,8 @@
                             <shadedPattern>org.apache.inlong.dataproxy.shaded.com.fasterxml.jackson</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>org.apache.commons.lang3</pattern>
-                            <shadedPattern>org.apache.inlong.dataproxy.shaded.org.apache.commons.lang3</shadedPattern>
+                            <pattern>org.apache.commons</pattern>
+                            <shadedPattern>org.apache.inlong.dataproxy.shaded.org.apache.commons</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>io.netty</pattern>
