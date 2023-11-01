@@ -107,7 +107,7 @@ public class HttpUtils {
         exchange = restTemplate.exchange(url, HttpMethod.HEAD, request, String.class);
         HttpStatus statusCode = exchange.getStatusCode();
         if (statusCode.is2xxSuccessful()) {
-            result = statusCode.is2xxSuccessful()
+            result = statusCode.is2xxSuccessful();
         }
         log.debug("success request to {},  status code {}, body {}", url, statusCode, exchange.getBody());
         return result;
