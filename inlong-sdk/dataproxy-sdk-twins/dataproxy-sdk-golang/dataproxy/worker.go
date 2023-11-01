@@ -62,7 +62,7 @@ var (
 	errBadLog           = &errNo{code: 10010, strCode: "10010", message: "input log is invalid"}
 	errServerError      = &errNo{code: 10011, strCode: "10011", message: "server error"}
 	errServerPanic      = &errNo{code: 10012, strCode: "10012", message: "server panic"}
-	errAllWorkerBusy    = &errNo{code: 10013, strCode: "10013", message: "all workers are busy"}
+	workerBusy          = &errNo{code: 10013, strCode: "10013", message: "worker is busy"}
 	errNoMatchReq4Rsp   = &errNo{code: 10014, strCode: "10014", message: "no match unacknowledged request for response"}
 	errConnClosedByPeer = &errNo{code: 10015, strCode: "10015", message: "conn closed by peer"}
 	errUnknown          = &errNo{code: 20001, strCode: "20001", message: "unknown"}
