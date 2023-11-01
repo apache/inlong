@@ -515,6 +515,14 @@ public class PulsarUtils {
         }
     }
 
+    /**
+     *  Copy from getMessagesFromHttpResponse method of org.apache.pulsar.client.admin.internal.TopicsImpl class.
+     *
+     * @param response
+     * @param topic
+     * @return
+     * @throws Exception
+     */
     public static List<PulsarMessageInfo> getMessagesFromHttpResponse(ResponseEntity<byte[]> response, String topic)
             throws Exception {
         HttpHeaders headers = response.getHeaders();
@@ -714,6 +722,17 @@ public class PulsarUtils {
         return instant.toEpochMilli();
     }
 
+    /**
+     * Copy from getIndividualMsgsFromBatch method of org.apache.pulsar.client.admin.internal.TopicsImpl class.
+     *
+     * @param topic
+     * @param msgId
+     * @param data
+     * @param properties
+     * @param metadata
+     * @param brokerMetadata
+     * @return
+     */
     private static List<PulsarMessageInfo> getIndividualMsgsFromBatch(String topic, String msgId, byte[] data,
             Map<String, String> properties, PulsarMessageMetadata metadata, PulsarBrokerEntryMetadata brokerMetadata) {
         List<PulsarMessageInfo> ret = new ArrayList<>();
@@ -739,6 +758,15 @@ public class PulsarUtils {
         return ret;
     }
 
+    /**
+     * Copy from deSerializeSingleMessageInBatch method of org.apache.pulsar.common.protocol.Commands class.
+     *
+     * @param uncompressedPayload
+     * @param metadata
+     * @param index
+     * @param batchSize
+     * @return
+     */
     private static ByteBuf deSerializeSingleMessageInBatch(ByteBuf uncompressedPayload, PulsarMessageMetadata metadata,
             int index, int batchSize) {
         int singleMetaSize = (int) uncompressedPayload.readUnsignedInt();
@@ -752,6 +780,13 @@ public class PulsarUtils {
         return singleMessagePayload;
     }
 
+    /**
+     * Copy from parseFrom method of org.apache.pulsar.common.api.proto.SingleMessageMetadata class.
+     *
+     * @param metadata
+     * @param buffer
+     * @param size
+     */
     private static void metaDataParseFrom(PulsarMessageMetadata metadata, ByteBuf buffer, int size) {
         int endIdx = size + buffer.readerIndex();
         while (buffer.readerIndex() < endIdx) {
@@ -806,6 +841,12 @@ public class PulsarUtils {
         }
     }
 
+    /**
+     * Copy from readVarInt method of org.apache.pulsar.common.api.proto.LightProtoCodec class.
+     *
+     * @param buf
+     * @return
+     */
     private static int readVarInt(ByteBuf buf) {
         byte tmp = buf.readByte();
         if (tmp >= 0) {
@@ -840,6 +881,12 @@ public class PulsarUtils {
         }
     }
 
+    /**
+     * Copy from readVarInt64 method of org.apache.pulsar.common.api.proto.LightProtoCodec class.
+     *
+     * @param buf
+     * @return
+     */
     private static long readVarInt64(ByteBuf buf) {
         int shift = 0;
         for (long result = 0L; shift < 64; shift += 7) {
@@ -852,10 +899,22 @@ public class PulsarUtils {
         throw new IllegalArgumentException("Encountered a malformed varint.");
     }
 
+    /**
+     * Copy from getTagType method of org.apache.pulsar.common.api.proto.LightProtoCodec class.
+     *
+     * @param tag
+     * @return
+     */
     private static int getTagType(int tag) {
         return tag & 7;
     }
 
+    /**
+     * Copy from skipUnknownField method of org.apache.pulsar.common.api.proto.LightProtoCodec class.
+     *
+     * @param tag
+     * @param buffer
+     */
     private static void skipUnknownField(int tag, ByteBuf buffer) {
         int tagType = getTagType(tag);
         switch (tagType) {
@@ -878,6 +937,13 @@ public class PulsarUtils {
         }
     }
 
+    /**
+     * Copy from parseFrom method of org.apache.pulsar.common.api.proto.KeyValue class.
+     *
+     * @param metadata
+     * @param _buffer
+     * @param _size
+     */
     private static void parseFrom(PulsarMessageMetadata metadata, ByteBuf _buffer, int _size) {
         if (ObjectUtils.isEmpty(metadata.getProperties())) {
             metadata.setProperties(new HashMap<>());
