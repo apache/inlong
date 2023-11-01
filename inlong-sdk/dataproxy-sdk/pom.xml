@@ -31,7 +31,7 @@
 
     <properties>
         <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
-        <maven.shaded.version>3.1.1</maven.shaded.version>
+        <apache.thrift.version>0.14.1</apache.thrift.version>
     </properties>
 
     <dependencies>
@@ -90,6 +90,31 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.flume</groupId>
+            <artifactId>flume-ng-sdk</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.thrift</groupId>
+                    <artifactId>libthrift</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flume</groupId>
+            <artifactId>flume-ng-core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.thrift</groupId>
+                    <artifactId>libthrift</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
+            <version>${apache.thrift.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -119,6 +144,7 @@
                             <include>com.fasterxml.*:*</include>
                             <include>org.apache.commons:*</include>
                             <include>io.netty:*</include>
+                            <inclue>org.apache.thrift:*</inclue>
                         </includes>
                     </artifactSet>
                     <relocations>
@@ -134,9 +160,13 @@
                             <pattern>io.netty</pattern>
                             <shadedPattern>org.apache.inlong.dataproxy.shaded.io.netty</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>org.apache.thrift</pattern>
+                            <shadedPattern>org.apache.inlong.dataproxy.shaded.org.apache.thrift</shadedPattern>
+                        </relocation>
                     </relocations>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
-                    <minimizeJar>true</minimizeJar>
+                    <minimizeJar>false</minimizeJar>
                 </configuration>
                 <executions>
                     <execution>
