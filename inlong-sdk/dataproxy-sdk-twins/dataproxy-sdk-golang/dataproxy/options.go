@@ -21,10 +21,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/bufferpool"
-	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/logger"
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/util"
 
+	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/bufferpool"
+	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/logger"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -35,8 +35,19 @@ const (
 var (
 	// DefaultURL is the default Manager URL for discovering the DataProxy cluster
 	DefaultURL = "http://127.0.0.1:8083/inlong/manager/openapi/dataproxy/getIpList"
-	localIP, _ = util.GetFirstPrivateIP()
+	localIP    = ""
 )
+
+func init() {
+	var err error
+	localIP, err = util.GetFirstPrivateIP()
+	if err != nil {
+		localIP, err = util.GetFirstIP()
+		if err != nil {
+			localIP = "noIP"
+		}
+	}
+}
 
 // Options is the DataProxy go client configs
 type Options struct {

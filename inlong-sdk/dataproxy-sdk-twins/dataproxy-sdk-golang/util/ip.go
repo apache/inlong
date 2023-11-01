@@ -63,7 +63,7 @@ func IsPrivateIP(ip string) bool {
 		return false
 	}
 
-	if first == 11 || first == 10 || first == 9 || first == 30 ||
+	if first == 11 || first == 10 || first == 9 || first == 30 || first == 21 ||
 		(first == 100 && second >= 64 && second <= 127) ||
 		(first == 172 && second >= 16 && second <= 31) ||
 		(first == 192 && second == 168) ||
@@ -106,4 +106,22 @@ func GetFirstPrivateIP() (string, error) {
 	}
 
 	return ips[0], nil
+}
+
+// GetFirstIP gets the first IP of the current host
+func GetFirstIP() (string, error) {
+	ips, err := net.InterfaceAddrs()
+	if err != nil {
+		return "", err
+	}
+
+	for _, ip := range ips {
+		parts := strings.Split(ip.String(), "/")
+		if len(parts) != 2 {
+			continue
+		}
+		return parts[0], nil
+	}
+
+	return "", fmt.Errorf("no ip")
 }

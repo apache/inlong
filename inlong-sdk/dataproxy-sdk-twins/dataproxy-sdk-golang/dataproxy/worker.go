@@ -23,11 +23,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/bufferpool"
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/logger"
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/syncx"
-	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/util"
-
 	"github.com/panjf2000/gnet/v2"
 	"go.uber.org/atomic"
 )
@@ -315,6 +315,14 @@ func (w *worker) sendAsync(ctx context.Context, msg Message, callback Callback) 
 	w.doSendAsync(ctx, msg, callback, false)
 }
 
+func (w *worker) buildBatchID() string {
+	u, err := uuid.NewV4()
+	if err != nil {
+		return w.indexStr + ":" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	}
+	return u.String()
+}
+
 func (w *worker) handleSendData(req *sendDataReq) {
 	// w.log.Debug("worker[", w.index, "] handleSendData")
 	// only the messages that with the same stream ID can be sent in a batch, we use the stream ID as the key
@@ -329,7 +337,7 @@ func (w *worker) handleSendData(req *sendDataReq) {
 		*batch = batchReq{
 			pool:       batchPool,
 			workerID:   w.indexStr,
-			batchID:    util.SnowFlakeID(),
+			batchID:    w.buildBatchID(),
 			groupID:    w.options.GroupID,
 			streamID:   streamID,
 			dataReqs:   dataReqs,
