@@ -766,8 +766,8 @@ public class PulsarUtils {
      * @param batchSize
      * @return
      */
-    private static ByteBuffer deSerializeSingleMessageInBatch(ByteBuffer uncompressedPayload, PulsarMessageMetadata metadata,
-            int index, int batchSize) {
+    private static ByteBuffer deSerializeSingleMessageInBatch(ByteBuffer uncompressedPayload,
+            PulsarMessageMetadata metadata, int index, int batchSize) {
         int singleMetaSize = (int) uncompressedPayload.getInt();
         metaDataParseFrom(metadata, uncompressedPayload, singleMetaSize);
         int singleMessagePayloadSize = metadata.getPayloadSize();
