@@ -322,13 +322,17 @@ func (w *worker) handleSendData(req *sendDataReq) {
 	if !ok {
 		streamID := req.msg.StreamID
 		batch = batchPool.Get().(*batchReq)
+		dataReqs := batch.dataReqs
+		if dataReqs == nil {
+			dataReqs = make([]*sendDataReq, 0, w.options.BatchingMaxMessages)
+		}
 		*batch = batchReq{
 			pool:       batchPool,
 			workerID:   w.indexStr,
 			batchID:    util.SnowFlakeID(),
 			groupID:    w.options.GroupID,
 			streamID:   streamID,
-			dataReqs:   make([]*sendDataReq, 0, w.options.BatchingMaxMessages),
+			dataReqs:   dataReqs,
 			batchTime:  time.Now(),
 			retries:    0,
 			bufferPool: w.bufferPool,
