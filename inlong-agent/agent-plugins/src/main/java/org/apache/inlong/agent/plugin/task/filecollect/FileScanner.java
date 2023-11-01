@@ -60,8 +60,8 @@ public class FileScanner {
             long recoverTime, boolean isRetry) {
         String cycleUnit = conf.getCycleUnit();
         if (!isRetry) {
-            failTime -= NewDateUtils.caclOffset(conf.getTimeOffset());
-            recoverTime -= NewDateUtils.caclOffset(conf.getTimeOffset());
+            failTime -= NewDateUtils.calcOffset(conf.getTimeOffset());
+            recoverTime -= NewDateUtils.calcOffset(conf.getTimeOffset());
         }
 
         String startTime = NewDateUtils.millSecConvertToTimeStr(failTime, cycleUnit);
