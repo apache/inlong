@@ -25,13 +25,11 @@ import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 
 /**
  * Elasticsearch cluster info
  */
 @Data
-@SuperBuilder
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = ClusterType.SORT_ES)
