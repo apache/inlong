@@ -62,10 +62,10 @@ public class RocksDbImp implements Db {
     private ConcurrentHashMap<String, ColumnFamilyDescriptor> columnDescriptorMap;
     private String storePath;
 
-    public RocksDbImp() {
+    public RocksDbImp(String childPath) {
         // init rocks db
         this.conf = AgentConfiguration.getAgentConf();
-        this.db = initEnv();
+        this.db = initEnv(childPath);
         // add a command column family
         addColumnFamily(commandFamilyName);
     }
@@ -74,10 +74,10 @@ public class RocksDbImp implements Db {
         return new ColumnFamilyDescriptor(columnFamilyName, new ColumnFamilyOptions());
     }
 
-    private RocksDB initEnv() {
-        String configPath = conf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.DEFAULT_AGENT_ROCKS_DB_PATH);
+    private RocksDB initEnv(String childPath) {
         String parentPath = conf.get(AgentConstants.AGENT_HOME, AgentConstants.DEFAULT_AGENT_HOME);
-        File finalPath = new File(parentPath, configPath);
+        LOGGER.info("parentPath {} childPath {}", parentPath, childPath);
+        File finalPath = new File(parentPath, childPath);
         storePath = finalPath.getAbsolutePath();
         RocksDB.loadLibrary();
         final Options options = new Options();
@@ -160,23 +160,12 @@ public class RocksDbImp implements Db {
 
     @Override
     public CommandEntity getCommand(String commandId) {
-        try {
-            byte[] bytes = db.get(columnHandlesMap.get(commandFamilyName), commandId.getBytes());
-            return bytes == null ? null : GSON.fromJson(new String(bytes), CommandEntity.class);
-        } catch (Exception e) {
-            throw new RuntimeException("get command value error", e);
-        }
+        return null;
     }
 
     @Override
     public CommandEntity putCommand(CommandEntity entity) {
-        requireNonNull(entity);
-        try {
-            db.put(columnHandlesMap.get(commandFamilyName), entity.getId().getBytes(), GSON.toJson(entity).getBytes());
-        } catch (Exception e) {
-            throw new RuntimeException("put value to rocks db error", e);
-        }
-        return entity;
+        return null;
     }
 
     @Override
@@ -229,6 +218,11 @@ public class RocksDbImp implements Db {
     }
 
     @Override
+    public List<CommandEntity> searchCommands(boolean isAcked) {
+        return null;
+    }
+
+    @Override
     public List<KeyValueEntity> search(StateSearchKey searchKey) {
         List<KeyValueEntity> results = new LinkedList<>();
         try (final RocksIterator it = db.newIterator(columnHandlesMap.get(defaultFamilyName))) {
@@ -253,22 +247,6 @@ public class RocksDbImp implements Db {
                 KeyValueEntity keyValue = GSON.fromJson(new String(it.value()), KeyValueEntity.class);
                 if (Objects.nonNull(keyValue) && searchKeys.contains(keyValue.getStateSearchKey())) {
                     results.add(keyValue);
-                }
-                it.next();
-            }
-        }
-        return results;
-    }
-
-    @Override
-    public List<CommandEntity> searchCommands(boolean isAcked) {
-        List<CommandEntity> results = new LinkedList<>();
-        try (final RocksIterator it = db.newIterator(columnHandlesMap.get(commandFamilyName))) {
-            it.seekToFirst();
-            while (it.isValid()) {
-                CommandEntity commandEntity = GSON.fromJson(new String(it.value()), CommandEntity.class);
-                if (commandEntity.isAcked() == isAcked) {
-                    results.add(commandEntity);
                 }
                 it.next();
             }

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.reader.RedisReader;
 
@@ -38,7 +38,7 @@ public class RedisReaderTest {
      */
     @Ignore
     public void redisLoadTest() {
-        JobProfile jobProfile = new JobProfile();
+        InstanceProfile jobProfile = new InstanceProfile();
         jobProfile.set(RedisReader.JOB_REDIS_HOSTNAME, "localhost");
         jobProfile.set(RedisReader.JOB_REDIS_PORT, "6379");
         jobProfile.set(RedisReader.JOB_REDIS_OFFSET, "7945");

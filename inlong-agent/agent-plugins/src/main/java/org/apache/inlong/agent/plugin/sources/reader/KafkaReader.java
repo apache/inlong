@@ -17,11 +17,12 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Validator;
+import org.apache.inlong.agent.plugin.sources.reader.file.AbstractReader;
 import org.apache.inlong.agent.plugin.validator.PatternValidator;
 import org.apache.inlong.agent.utils.AgentUtils;
 
@@ -44,11 +45,11 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BYTE_SPEED_LIMIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_OFFSET;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_RECORD_SPEED_LIMIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_TOPIC;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_KAFKA_BYTE_SPEED_LIMIT;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_KAFKA_OFFSET;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_KAFKA_RECORD_SPEED_LIMIT;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_KAFKA_TOPIC;
 
 /**
  * read kafka data
@@ -170,7 +171,7 @@ public class KafkaReader<K, V> extends AbstractReader {
     }
 
     @Override
-    public void init(JobProfile jobConf) {
+    public void init(InstanceProfile jobConf) {
         super.init(jobConf);
         // get offset from jobConf
         snapshot = jobConf.get(JOB_KAFKA_OFFSET, null);
@@ -189,7 +190,7 @@ public class KafkaReader<K, V> extends AbstractReader {
         }
     }
 
-    private void initReadTimeout(JobProfile jobConf) {
+    private void initReadTimeout(InstanceProfile jobConf) {
         int waitTime = jobConf.getInt(JOB_KAFKAJOB_READ_TIMEOUT, NEVER_STOP_SIGN);
         if (waitTime == NEVER_STOP_SIGN) {
             timeout = NEVER_STOP_SIGN;

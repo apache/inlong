@@ -44,14 +44,13 @@ public class PositionManager extends AbstractDaemon {
     private static final Logger LOGGER = LoggerFactory.getLogger(PositionManager.class);
     private static volatile PositionManager positionManager = null;
     private final AgentManager agentManager;
-    private final JobProfileDb jobConfDb;
+    private JobProfileDb jobConfDb;
     private final AgentConfiguration conf;
     private ConcurrentHashMap<String, ConcurrentHashMap<String, Long>> jobTaskPositionMap;
 
     private PositionManager(AgentManager agentManager) {
         this.conf = AgentConfiguration.getAgentConf();
         this.agentManager = agentManager;
-        this.jobConfDb = agentManager.getJobManager().getJobConfDb();
         this.jobTaskPositionMap = new ConcurrentHashMap<>();
     }
 

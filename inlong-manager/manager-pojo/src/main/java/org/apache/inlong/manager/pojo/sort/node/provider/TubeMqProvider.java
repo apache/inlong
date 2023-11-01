@@ -24,6 +24,7 @@ import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.TubeMQExtractNode;
+import org.apache.inlong.sort.protocol.node.format.Format;
 
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,11 @@ public class TubeMqProvider implements ExtractNodeProvider {
     public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
         TubeMQSource source = (TubeMQSource) streamNodeInfo;
         List<FieldInfo> fieldInfos = parseStreamFieldInfos(source.getFieldList(), source.getSourceName());
+        Format format = parsingFormat(
+                source.getSerializationType(),
+                source.getWrapType(),
+                source.getDataSeparator(),
+                source.isIgnoreParseError());
         Map<String, String> properties = parseProperties(source.getProperties());
 
         return new TubeMQExtractNode(
@@ -52,10 +58,9 @@ public class TubeMqProvider implements ExtractNodeProvider {
                 properties,
                 source.getMasterRpc(),
                 source.getTopic(),
-                source.getSerializationType(),
+                format,
                 source.getConsumeGroup(),
                 source.getSessionKey(),
-                source.getStreamId(),
-                source.getInnerFormat());
+                source.getStreamId());
     }
 }

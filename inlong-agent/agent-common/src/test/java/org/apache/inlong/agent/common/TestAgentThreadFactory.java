@@ -26,6 +26,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import static org.apache.inlong.agent.common.AgentThreadFactory.NAMED_THREAD_PLACEHOLDER;
+
 public class TestAgentThreadFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestAgentThreadFactory.class);
@@ -35,7 +37,7 @@ public class TestAgentThreadFactory {
         ExecutorService executor = Executors
                 .newSingleThreadExecutor(new AgentThreadFactory("test"));
         Future<?> result = executor.submit(() -> {
-            Assert.assertEquals("test-running-thread-1", Thread.currentThread().getName());
+            Assert.assertEquals("test-" + NAMED_THREAD_PLACEHOLDER + "-1", Thread.currentThread().getName());
             LOGGER.info("thread finished");
         });
         result.get();

@@ -112,9 +112,9 @@ public class IcebergSourceOperator extends AbstractSourceOperator {
             List<IcebergColumnInfo> existColumns = IcebergCatalogUtils.getColumns(metastoreUri, dbName, tableName);
             for (IcebergColumnInfo columnInfo : existColumns) {
                 StreamField streamField = new StreamField();
-                streamField.setFieldName(columnInfo.getName());
-                streamField.setFieldType(FieldInfoUtils.sqlTypeToJavaTypeStr(columnInfo.getType()));
-                streamField.setFieldComment(columnInfo.getDesc());
+                streamField.setFieldName(columnInfo.getFieldName());
+                streamField.setFieldType(FieldInfoUtils.sqlTypeToJavaTypeStr(columnInfo.getFieldType()));
+                streamField.setFieldComment(columnInfo.getFieldComment());
                 streamFields.add(streamField);
             }
             updateField(sourceRequest.getInlongGroupId(), sourceRequest.getInlongStreamId(), streamFields);
