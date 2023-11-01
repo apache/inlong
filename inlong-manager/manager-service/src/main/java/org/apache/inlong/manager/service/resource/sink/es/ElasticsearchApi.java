@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.sink.es;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchCreateIndexResponse;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
@@ -30,7 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
@@ -93,7 +93,7 @@ public class ElasticsearchApi {
      */
     public JsonObject search(String indexName, JsonObject request) throws Exception {
         LOG.info("get es search es index:{} request:{}", indexName, request.toString());
-        final String url = esConfig.getOneHttpUrl() + "/" + indexName + "/_search";
+        final String url = esConfig.getOneHttpUrl() + InlongConstants.SLASH + indexName + "/_search";
         return HttpUtils.request(esConfig.getRestClient(), url, HttpMethod.POST, request.toString(), getHttpHeaders(),
                 JsonObject.class);
     }
@@ -106,7 +106,7 @@ public class ElasticsearchApi {
      * @throws Exception any exception if occurred
      */
     public boolean indexExists(String indexName) throws Exception {
-        final String url = esConfig.getOneHttpUrl() + "/" + indexName;
+        final String url = esConfig.getOneHttpUrl() + InlongConstants.SLASH + indexName;
         try {
             return HttpUtils.headRequest(esConfig.getRestClient(), url, null, getHttpHeaders());
         } catch (NotFound e) {
@@ -122,7 +122,7 @@ public class ElasticsearchApi {
      * @return true or false
      */
     public boolean ping() throws Exception {
-        final String url = esConfig.getOneHttpUrl() + "/";
+        final String url = esConfig.getOneHttpUrl() + InlongConstants.SLASH;
         return HttpUtils.headRequest(esConfig.getRestClient(), url, null, getHttpHeaders());
     }
 
@@ -133,10 +133,9 @@ public class ElasticsearchApi {
      * @throws IOException any IOException if occurred
      */
     public void createIndex(String indexName) throws Exception {
-        final String url = esConfig.getOneHttpUrl() + "/" + indexName;
-        ElasticsearchCreateIndexResponse response = HttpUtils.putRequest(esConfig.getRestClient(), url, null,
-                getHttpHeaders(), new ParameterizedTypeReference<ElasticsearchCreateIndexResponse>() {
-                });
+        final String url = esConfig.getOneHttpUrl() + InlongConstants.SLASH + indexName;
+        ElasticsearchCreateIndexResponse response = HttpUtils.request(esConfig.getRestClient(), url, HttpMethod.PUT,
+                null, getHttpHeaders(), ElasticsearchCreateIndexResponse.class);
         LOG.info("create es index:{} result: {}", indexName, response.getAcknowledged());
     }
 
@@ -192,9 +191,7 @@ public class ElasticsearchApi {
                 .append(StringUtils.join(fieldList, ",\n")).append("\n}\n}\n}");
         final String url = esConfig.getOneHttpUrl() + "/" + indexName;
         ElasticsearchCreateIndexResponse response = HttpUtils.request(esConfig.getRestClient(), url, HttpMethod.PUT,
-                mapping.toString(), getHttpHeaders(),
-                new ParameterizedTypeReference<ElasticsearchCreateIndexResponse>() {
-                });
+                mapping.toString(), getHttpHeaders(), ElasticsearchCreateIndexResponse.class);
         LOG.info("create {}:{}", indexName, response.getIndex());
     }
 
@@ -205,7 +202,7 @@ public class ElasticsearchApi {
      * @return map of elasticsearch index mapping info
      */
     public Map<String, Map<String, String>> getMappingMap(String indexName) throws Exception {
-        final String url = esConfig.getOneHttpUrl() + "/" + indexName + "/_mapping";
+        final String url = esConfig.getOneHttpUrl() + InlongConstants.SLASH + indexName + "/_mapping";
         JsonObject result = HttpUtils.request(esConfig.getRestClient(), url, HttpMethod.GET, null, getHttpHeaders(),
                 JsonObject.class);
         JsonObject mappings = result.getAsJsonObject(indexName);
@@ -234,7 +231,7 @@ public class ElasticsearchApi {
     public void addFields(String indexName, List<ElasticsearchFieldInfo> fieldInfos) throws Exception {
         List<String> fieldList = getMappingInfo(fieldInfos);
         if (!fieldList.isEmpty()) {
-            String url = esConfig.getOneHttpUrl() + "/" + indexName + "/_mapping";
+            String url = esConfig.getOneHttpUrl() + InlongConstants.SLASH + indexName + "/_mapping";
             StringBuilder mapping = new StringBuilder().append("{\n\"properties\":{\n")
                     .append(StringUtils.join(fieldList, ",\n")).append("\n}\n}");
             HttpUtils.request(esConfig.getRestClient(), url, HttpMethod.PUT,
