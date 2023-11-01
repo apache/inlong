@@ -32,8 +32,6 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +42,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -737,12 +736,12 @@ public class PulsarUtils {
             Map<String, String> properties, PulsarMessageMetadata metadata, PulsarBrokerEntryMetadata brokerMetadata) {
         List<PulsarMessageInfo> ret = new ArrayList<>();
         int batchSize = Integer.parseInt(properties.get("X-Pulsar-num-batch-message"));
-        ByteBuf buffer = Unpooled.copiedBuffer(data);
+        ByteBuffer buffer = ByteBuffer.wrap(data);
         for (int i = 0; i < batchSize; ++i) {
             String batchMsgId = msgId + ":" + i;
             PulsarMessageMetadata singleMetadata = new PulsarMessageMetadata();
             singleMetadata.setProperties(properties);
-            ByteBuf singleMessagePayload = deSerializeSingleMessageInBatch(buffer, singleMetadata, i, batchSize);
+            ByteBuffer singleMessagePayload = deSerializeSingleMessageInBatch(buffer, singleMetadata, i, batchSize);
             PulsarMessageInfo messageInfo = new PulsarMessageInfo();
             messageInfo.setTopic(topic);
             messageInfo.setMessageId(batchMsgId);
@@ -754,7 +753,7 @@ public class PulsarUtils {
             }
             ret.add(messageInfo);
         }
-        buffer.release();
+        buffer.clear();
         return ret;
     }
 
@@ -767,17 +766,18 @@ public class PulsarUtils {
      * @param batchSize
      * @return
      */
-    private static ByteBuf deSerializeSingleMessageInBatch(ByteBuf uncompressedPayload, PulsarMessageMetadata metadata,
+    private static ByteBuffer deSerializeSingleMessageInBatch(ByteBuffer uncompressedPayload, PulsarMessageMetadata metadata,
             int index, int batchSize) {
-        int singleMetaSize = (int) uncompressedPayload.readUnsignedInt();
+        int singleMetaSize = (int) uncompressedPayload.getInt();
         metaDataParseFrom(metadata, uncompressedPayload, singleMetaSize);
         int singleMessagePayloadSize = metadata.getPayloadSize();
-        int readerIndex = uncompressedPayload.readerIndex();
-        ByteBuf singleMessagePayload = uncompressedPayload.retainedSlice(readerIndex, singleMessagePayloadSize);
+        int readerIndex = uncompressedPayload.position();
+        byte[] singleMessagePayload = new byte[singleMessagePayloadSize];
+        uncompressedPayload.get(singleMessagePayload);
         if (index < batchSize) {
-            uncompressedPayload.readerIndex(readerIndex + singleMessagePayloadSize);
+            uncompressedPayload.position(readerIndex + singleMessagePayloadSize);
         }
-        return singleMessagePayload;
+        return ByteBuffer.wrap(singleMessagePayload);
     }
 
     /**
@@ -787,9 +787,9 @@ public class PulsarUtils {
      * @param buffer
      * @param size
      */
-    private static void metaDataParseFrom(PulsarMessageMetadata metadata, ByteBuf buffer, int size) {
-        int endIdx = size + buffer.readerIndex();
-        while (buffer.readerIndex() < endIdx) {
+    private static void metaDataParseFrom(PulsarMessageMetadata metadata, ByteBuffer buffer, int size) {
+        int endIdx = size + buffer.position();
+        while (buffer.position() < endIdx) {
             int tag = readVarInt(buffer);
             switch (tag) {
                 case 10:
@@ -799,7 +799,7 @@ public class PulsarUtils {
                 case 18:
                     int _partitionKeyBufferLen = readVarInt(buffer);
                     byte[] partitionKeyArray = new byte[_partitionKeyBufferLen];
-                    buffer.readBytes(partitionKeyArray);
+                    buffer.get(partitionKeyArray);
                     metadata.setPartitionKey(new String(partitionKeyArray));
                     break;
                 case 24:
@@ -847,28 +847,28 @@ public class PulsarUtils {
      * @param buf
      * @return
      */
-    private static int readVarInt(ByteBuf buf) {
-        byte tmp = buf.readByte();
+    private static int readVarInt(ByteBuffer buf) {
+        byte tmp = buf.get();
         if (tmp >= 0) {
             return tmp;
         } else {
             int result = tmp & 127;
-            if ((tmp = buf.readByte()) >= 0) {
+            if ((tmp = buf.get()) >= 0) {
                 result |= tmp << 7;
             } else {
                 result |= (tmp & 127) << 7;
-                if ((tmp = buf.readByte()) >= 0) {
+                if ((tmp = buf.get()) >= 0) {
                     result |= tmp << 14;
                 } else {
                     result |= (tmp & 127) << 14;
-                    if ((tmp = buf.readByte()) >= 0) {
+                    if ((tmp = buf.get()) >= 0) {
                         result |= tmp << 21;
                     } else {
                         result |= (tmp & 127) << 21;
-                        result |= (tmp = buf.readByte()) << 28;
+                        result |= (tmp = buf.get()) << 28;
                         if (tmp < 0) {
                             for (int i = 0; i < 5; ++i) {
-                                if (buf.readByte() >= 0) {
+                                if (buf.get() >= 0) {
                                     return result;
                                 }
                             }
@@ -887,10 +887,10 @@ public class PulsarUtils {
      * @param buf
      * @return
      */
-    private static long readVarInt64(ByteBuf buf) {
+    private static long readVarInt64(ByteBuffer buf) {
         int shift = 0;
         for (long result = 0L; shift < 64; shift += 7) {
-            byte b = buf.readByte();
+            byte b = buf.get();
             result |= (long) (b & 127) << shift;
             if ((b & 128) == 0) {
                 return result;
@@ -915,25 +915,25 @@ public class PulsarUtils {
      * @param tag
      * @param buffer
      */
-    private static void skipUnknownField(int tag, ByteBuf buffer) {
+    private static void skipUnknownField(int tag, ByteBuffer buffer) {
         int tagType = getTagType(tag);
         switch (tagType) {
             case 0:
                 readVarInt(buffer);
                 break;
             case 1:
-                buffer.skipBytes(8);
+                buffer.get(new byte[8]);
                 break;
             case 2:
                 int len = readVarInt(buffer);
-                buffer.skipBytes(len);
+                buffer.get(new byte[len]);
                 break;
             case 3:
             case 4:
             default:
                 throw new IllegalArgumentException("Invalid unknonwn tag type: " + tagType);
             case 5:
-                buffer.skipBytes(4);
+                buffer.get(new byte[4]);
         }
     }
 
@@ -944,15 +944,15 @@ public class PulsarUtils {
      * @param _buffer
      * @param _size
      */
-    private static void parseFrom(PulsarMessageMetadata metadata, ByteBuf _buffer, int _size) {
+    private static void parseFrom(PulsarMessageMetadata metadata, ByteBuffer _buffer, int _size) {
         if (ObjectUtils.isEmpty(metadata.getProperties())) {
             metadata.setProperties(new HashMap<>());
         }
         Map<String, String> properties = metadata.getProperties();
-        int _endIdx = _buffer.readerIndex() + _size;
+        int _endIdx = _buffer.position() + _size;
         String key = null;
         String value = null;
-        while (_buffer.readerIndex() < _endIdx) {
+        while (_buffer.position() < _endIdx) {
             int _tag = readVarInt(_buffer);
             if (StringUtils.isNotEmpty(key) && StringUtils.isNotEmpty(value)) {
                 properties.put(key, value);
@@ -963,13 +963,13 @@ public class PulsarUtils {
                 case 10:
                     int _keyBufferLen = readVarInt(_buffer);
                     byte[] keyArray = new byte[_keyBufferLen];
-                    _buffer.readBytes(keyArray);
+                    _buffer.get(keyArray);
                     key = new String(keyArray);
                     break;
                 case 18:
                     int _valueBufferLen = readVarInt(_buffer);
                     byte[] valueArray = new byte[_valueBufferLen];
-                    _buffer.readBytes(valueArray);
+                    _buffer.get(valueArray);
                     value = new String(valueArray);
                     break;
                 default:
