@@ -64,6 +64,6 @@ public interface InlongClusterEntityMapper {
 
     int deleteByPrimaryKey(Integer id);
 
-    List<InlongClusterEntity> selectStandaloneClusterByType(@Param("sinkType") String sinkType);
+    List<InlongClusterEntity> selectSortClusterByType(@Param("sinkType") String sinkType);
 
 }

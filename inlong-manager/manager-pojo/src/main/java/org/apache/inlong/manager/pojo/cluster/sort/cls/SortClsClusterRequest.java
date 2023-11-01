@@ -15,32 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.cluster.sortstandalone;
+package org.apache.inlong.manager.pojo.cluster.sort.cls;
 
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.util.Set;
-
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.SORTSTANDALONE)
-@ApiModel("Inlong cluster request for SortStandalone")
-public class SortStandaloneClusterRequest extends ClusterRequest {
+@JsonTypeDefine(value = ClusterType.SORTCLS)
+@ApiModel("Inlong cluster request for SortCls")
+public class SortClsClusterRequest extends ClusterRequest {
 
-    @ApiModelProperty(value = "Supported sink types")
-    private Set<String> supportedSinkTypes;
-
-    public SortStandaloneClusterRequest() {
-        this.setType(ClusterType.SORTSTANDALONE);
+    public SortClsClusterRequest() {
+        this.setType(ClusterType.SORTCLS);
     }
-
 }

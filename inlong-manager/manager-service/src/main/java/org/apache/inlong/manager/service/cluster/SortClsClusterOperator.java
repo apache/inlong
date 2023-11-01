@@ -24,26 +24,13 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
-import org.apache.inlong.manager.pojo.cluster.es.ElasticsearchClusterDTO;
-import org.apache.inlong.manager.pojo.cluster.es.ElasticsearchClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.es.ElasticsearchClusterRequest;
+import org.apache.inlong.manager.pojo.cluster.sort.cls.SortClsClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.sort.cls.SortClsClusterRequest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * Elasticsearch cluster operator.
- */
 @Service
-public class ElasticsearchClusterOperator extends AbstractClusterOperator {
-
-    @Autowired
-    private ObjectMapper mapper;
+public class SortClsClusterOperator extends AbstractClusterOperator {
 
     @Override
     public Boolean accept(String clusterType) {
@@ -52,21 +39,13 @@ public class ElasticsearchClusterOperator extends AbstractClusterOperator {
 
     @Override
     public String getClusterType() {
-        return ClusterType.ELASTICSEARCH;
+        return ClusterType.SORTCLS;
     }
 
     @Override
     protected void setTargetEntity(ClusterRequest request, InlongClusterEntity targetEntity) {
-        ElasticsearchClusterRequest esRequest = (ElasticsearchClusterRequest) request;
+        SortClsClusterRequest esRequest = (SortClsClusterRequest) request;
         CommonBeanUtils.copyProperties(esRequest, targetEntity, true);
-        try {
-            ElasticsearchClusterDTO dto =
-                    ElasticsearchClusterDTO.getFromRequest(esRequest, targetEntity.getExtParams());
-            targetEntity.setExtParams(mapper.writeValueAsString(dto));
-        } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
-                    String.format("serialize extParams of Elasticsearch Cluster failure: %s", e.getMessage()));
-        }
     }
 
     @Override
@@ -74,20 +53,8 @@ public class ElasticsearchClusterOperator extends AbstractClusterOperator {
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
-        ElasticsearchClusterInfo info = new ElasticsearchClusterInfo();
+        SortClsClusterInfo info = new SortClsClusterInfo();
         CommonBeanUtils.copyProperties(entity, info);
-        if (StringUtils.isNotBlank(entity.getExtParams())) {
-            ElasticsearchClusterDTO dto = ElasticsearchClusterDTO.getFromJson(entity.getExtParams());
-            CommonBeanUtils.copyProperties(dto, info);
-        }
         return info;
-    }
-
-    @Override
-    public Object getClusterInfo(InlongClusterEntity entity) {
-        ElasticsearchClusterInfo elasticsearchClusterInfo = (ElasticsearchClusterInfo) this.getFromEntity(entity);
-        Map<String, String> map = new HashMap<>();
-        map.put("url", elasticsearchClusterInfo.getUrl());
-        return map;
     }
 }

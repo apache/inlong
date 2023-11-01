@@ -189,13 +189,12 @@
         from inlong_cluster
         where is_deleted = 0
     </select>
-    <select id="selectStandaloneClusterByType" resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
+    <select id="selectSortClusterByType" resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         select
         <include refid="Base_Column_List"/>
         from inlong_cluster
         <where>
-            type = 'SORTSTANDALONE'
-            and find_in_set(#{sinkType, jdbcType=VARCHAR}, ext_tag)
+            type = #{sinkType, jdbcType=VARCHAR}
             and is_deleted = 0
         </where>
     </select>
