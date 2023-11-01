@@ -777,7 +777,6 @@
   "pages.Clusters.Pulsar.AdminUrlHelper": "Used to manage (e.g. create, modify) tenants, namespaces, topics and subscription groups",
   "pages.Clusters.Tube.MasterRpcUrlHelper": "Master RPC URL, used to produce and consume data",
   "pages.Clusters.Tube.MasterWebUrlHelper": "Master Web URL, used to manage (e.g. create, modify) topics and consumer groups",
-  "pages.Clusters.SortStandAlone.SinkType": "Sink type",
   "pages.ClusterTags.Name": "ClusterTag",
   "pages.ClusterTags.InCharges": "Owners",
   "pages.ClusterTags.Description": "Description",
