@@ -22,34 +22,6 @@ import { RenderRow } from '@/plugins/RenderRow';
 import { RenderList } from '@/plugins/RenderList';
 import { ClusterInfo } from '../common/ClusterInfo';
 
-const { I18n } = DataWithBackend;
-const { FieldDecorator } = RenderRow;
-
-export default class SortStandAloneCluster
+export default class SortClsCluster
   extends ClusterInfo
-  implements DataWithBackend, RenderRow, RenderList
-{
-  @FieldDecorator({
-    type: 'select',
-    rules: [{ required: true }],
-    props: {
-      mode: 'multiple',
-      options: [
-        {
-          label: 'Cls',
-          value: 'CLS',
-        },
-        {
-          label: 'Elasticsearch',
-          value: 'ELASTICSEARCH',
-        },
-        {
-          label: 'Pulsar',
-          value: 'PULSAR',
-        },
-      ],
-    },
-  })
-  @I18n('pages.Clusters.SortStandAlone.SinkType')
-  supportedSinkTypes: string;
-}
+  implements DataWithBackend, RenderRow, RenderList {}
