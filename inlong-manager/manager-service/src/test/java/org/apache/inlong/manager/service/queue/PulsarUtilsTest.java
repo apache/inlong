@@ -131,12 +131,12 @@ public class PulsarUtilsTest {
 
     }
     /**
-     * Test cases for {@link PulsarUtils#getPulsarClusters}.
+     * Test cases for {@link PulsarUtils#getClusters(RestTemplate, PulsarClusterInfo)}.
      *
      * @throws Exception
      */
     @Test
-    public void testGetPulsarClusters() throws Exception {
+    public void testGetClusters() throws Exception {
         final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_CLUSTERS_PATH;
         final String result = "[\"standalone\"]";
         List<String> expected = GSON.fromJson(result, ArrayList.class);
@@ -145,18 +145,18 @@ public class PulsarUtilsTest {
         when(exchange.getBody()).thenReturn(result);
         when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
 
-        List<String> clusters = PulsarUtils.getPulsarBrokers(restTemplate, pulsarClusterInfo);
+        List<String> clusters = PulsarUtils.getBrokers(restTemplate, pulsarClusterInfo);
         assertEquals(expected.size(), clusters.size());
         assertEquals(expected, clusters);
     }
 
     /**
-     * Test cases for {@link PulsarUtils#getPulsarBrokers}.
+     * Test cases for {@link PulsarUtils#getBrokers(RestTemplate, PulsarClusterInfo)}.
      *
      * @throws Exception
      */
     @Test
-    public void testGetPulsarBrokers() throws Exception {
+    public void testGetBrokers() throws Exception {
         final String clusters = "[\"standalone\",\"standalone1\"]";
         final String brokers1 = "[\"localhost:8080\"]";
         final String brokers2 = "[\"localhost:8081\"]";
@@ -165,17 +165,17 @@ public class PulsarUtilsTest {
         when(exchange.getBody()).thenReturn(clusters, clusters, brokers1, brokers1, brokers2, brokers2);
         when(exchange.getStatusCode()).thenReturn(HttpStatus.OK, HttpStatus.OK, HttpStatus.OK);
 
-        List<String> brokers = PulsarUtils.getPulsarBrokers(restTemplate, pulsarClusterInfo);
+        List<String> brokers = PulsarUtils.getBrokers(restTemplate, pulsarClusterInfo);
         assertEquals(2, brokers.size());
     }
 
     /**
-     * Test cases for {@link PulsarUtils#getPulsarTenants}.
+     * Test cases for {@link PulsarUtils#getTenants(RestTemplate, PulsarClusterInfo)}.
      *
      * @throws Exception
      */
     @Test
-    public void testGetPulsarTenants() throws Exception {
+    public void testGetTenants() throws Exception {
         final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_TENANTS_PATH;
         final String result = "[\"public\",\"pulsar\",\"sample\"]";
         List<String> expected = GSON.fromJson(result, ArrayList.class);
@@ -184,18 +184,18 @@ public class PulsarUtilsTest {
         when(exchange.getBody()).thenReturn(result);
         when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
 
-        List<String> tenants = PulsarUtils.getPulsarTenants(restTemplate, pulsarClusterInfo);
+        List<String> tenants = PulsarUtils.getTenants(restTemplate, pulsarClusterInfo);
         assertEquals(expected.size(), tenants.size());
         assertEquals(expected, tenants);
     }
 
     /**
-     * Test cases for {@link PulsarUtils#getPulsarNamespaces}.
+     * Test cases for {@link PulsarUtils#getNamespaces(RestTemplate, PulsarClusterInfo, String)}.
      *
      * @throws Exception
      */
     @Test
-    public void testGetPulsarNamespaces() throws Exception {
+    public void testGetNamespaces() throws Exception {
         final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_NAMESPACE_PATH + "/public";
         final String result = "[\"public/default\",\"public/functions\"]";
         List<String> expected = GSON.fromJson(result, ArrayList.class);
@@ -204,7 +204,7 @@ public class PulsarUtilsTest {
         when(exchange.getBody()).thenReturn(result);
         when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
 
-        List<String> namespaces = PulsarUtils.getPulsarNamespaces(restTemplate, pulsarClusterInfo, DEFAULT_TENANT);
+        List<String> namespaces = PulsarUtils.getNamespaces(restTemplate, pulsarClusterInfo, DEFAULT_TENANT);
         assertEquals(expected.size(), namespaces.size());
         assertEquals(expected, namespaces);
     }
@@ -230,7 +230,7 @@ public class PulsarUtilsTest {
     }
 
     /**
-     * Test cases for {@link PulsarUtils#createNamespace}.
+     * Test cases for {@link PulsarUtils#createNamespace(RestTemplate, PulsarClusterInfo, String, PulsarNamespacePolicies)}.
      *
      * @throws Exception
      */
@@ -262,12 +262,12 @@ public class PulsarUtilsTest {
     }
 
     /**
-     * Test cases for {@link PulsarUtils#getPulsarTopics}.
+     * Test cases for {@link PulsarUtils#getTopics(RestTemplate, PulsarClusterInfo, String, String)}.
      *
      * @throws Exception
      */
     @Test
-    public void testGetPulsarTopics() throws Exception {
+    public void testGetTopics() throws Exception {
         final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_PERSISTENT_PATH + "/public/default";
         final String result = "[\"persistent://public/default/testtopic-partition-0\","
                 + "\"persistent://public/default/testtopic-partition-1\","
@@ -277,14 +277,14 @@ public class PulsarUtilsTest {
                 exchange);
         when(exchange.getBody()).thenReturn(result);
         when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        List<String> topics = PulsarUtils.getPulsarTopics(restTemplate, pulsarClusterInfo, DEFAULT_TENANT,
+        List<String> topics = PulsarUtils.getTopics(restTemplate, pulsarClusterInfo, DEFAULT_TENANT,
                 DEFAULT_NAMESPACE);
         assertEquals(expected.size(), topics.size());
         assertEquals(expected, topics);
     }
 
     /**
-     * Test cases for {@link PulsarUtils#getPulsarPartitionedTopics}.
+     * Test cases for {@link PulsarUtils#getPartitionedTopics(RestTemplate, PulsarClusterInfo, String, String)}.
      * href: <a>https://pulsar.apache.org/admin-rest-api/#operation/PersistentTopics_getList</a>
      * url like this: http://{host}:{port}/admin/v2/persistent/{tenant}/{namespace}/partitioned
      * method is: GET
@@ -294,7 +294,7 @@ public class PulsarUtilsTest {
      * @throws Exception
      */
     @Test
-    public void testGetPulsarPartitionedTopics() throws Exception {
+    public void testGetPartitionedTopics() throws Exception {
         final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_PERSISTENT_PATH + "/public/default/partitioned";
         final String result = "[\"persistent://public/default/testtopic\"]";
         List<String> expected = GSON.fromJson(result, ArrayList.class);
@@ -302,14 +302,14 @@ public class PulsarUtilsTest {
                 exchange);
         when(exchange.getBody()).thenReturn(result);
         when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        List<String> topics = PulsarUtils.getPulsarPartitionedTopics(restTemplate, pulsarClusterInfo, DEFAULT_TENANT,
+        List<String> topics = PulsarUtils.getPartitionedTopics(restTemplate, pulsarClusterInfo, DEFAULT_TENANT,
                 DEFAULT_NAMESPACE);
         assertEquals(expected.size(), topics.size());
         assertEquals(expected, topics);
     }
 
     /**
-     * Test cases for {@link PulsarUtils#getPulsarPartitionedTopics}.
+     * Test cases for {@link PulsarUtils#createNonPartitionedTopic(RestTemplate, PulsarClusterInfo, String)}.
      *
      * @throws Exception
      */
@@ -333,7 +333,7 @@ public class PulsarUtilsTest {
     }
 
     /**
-     * Test cases for {@link PulsarUtils#createPartitionedTopic}.
+     * Test cases for {@link PulsarUtils#createPartitionedTopic(RestTemplate, PulsarClusterInfo, String, Integer)}.
      * href: <a>https://pulsar.apache.org/admin-rest-api/#operation/PersistentTopics_createPartitionedTopic</a>
      * url like this: http://{host}:{port}/admin/v2/persistent/{tenant}/{namespace}/{topic}/partitions
      * method is: PUT
@@ -362,7 +362,7 @@ public class PulsarUtilsTest {
     }
 
     /**
-     * Test cases for {@link PulsarUtils#getPulsarStatsPartitionedTopics}.
+     * Test cases for {@link PulsarUtils#getStatsPartitionedTopics(RestTemplate, PulsarClusterInfo, String)}.
      * href: <a>https://pulsar.apache.org/admin-rest-api/#operation/PersistentTopics_getPartitionedStatsInternal</a>
      * url like this: http://{host}:{port}/admin/v2/persistent/{tenant}/{namespace}/{topic}/partitioned-internalStats
      * method is: GET
@@ -372,7 +372,7 @@ public class PulsarUtilsTest {
      * @throws Exception
      */
     @Test
-    public void testGetPulsarStatsPartitionedTopics() throws Exception {
+    public void testGetStatsPartitionedTopics() throws Exception {
         final String json = "{\"metadata\": {\"deleted\": true,\"partitions\": 0},\"partitions\": {\"property1\": "
                 + "{\"currentLedgerEntries\": 0,\"currentLedgerSize\": 0}}}";
         JsonObject expected = GSON.fromJson(json, JsonObject.class);
@@ -383,13 +383,13 @@ public class PulsarUtilsTest {
         when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
         when(exchange.getBody()).thenReturn(json);
 
-        JsonObject stats = PulsarUtils.getPulsarStatsPartitionedTopics(restTemplate, pulsarClusterInfo,
+        JsonObject stats = PulsarUtils.getStatsPartitionedTopics(restTemplate, pulsarClusterInfo,
                 DEFAULT_TOPIC_PATH);
         assertEquals(expected.toString(), stats.toString());
     }
 
     /**
-     * Test cases for {@link PulsarUtils#getPulsarPartitionedTopicMetadata}.
+     * Test cases for {@link PulsarUtils#getPartitionedTopicMetadata(RestTemplate, PulsarClusterInfo, String)}.
      * href: <a>https://pulsar.apache.org/admin-rest-api/#operation/PersistentTopics_getPartitionedMetadata</a>
      * url like this: http://{host}:{port}/admin/v2/persistent/{tenant}/{namespace}/{topic}/partitions
      * method is: GET
@@ -399,7 +399,7 @@ public class PulsarUtilsTest {
      * @throws Exception
      */
     @Test
-    public void testGetPulsarPartitionedTopicMetadata() throws Exception {
+    public void testGetPartitionedTopicMetadata() throws Exception {
         final String json = "{\n  \"deleted\": true,\n  \"partitions\": 0,\n  \"properties\": {\n"
                 + "    \"property1\": \"string\",\n    \"property2\": \"string\"\n  }\n}";
         PulsarTopicMetadata expected = GSON.fromJson(json, PulsarTopicMetadata.class);
@@ -409,13 +409,13 @@ public class PulsarUtilsTest {
         when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
         when(exchange.getBody()).thenReturn(json);
 
-        PulsarTopicMetadata metadata = PulsarUtils.getPulsarPartitionedTopicMetadata(restTemplate, pulsarClusterInfo,
+        PulsarTopicMetadata metadata = PulsarUtils.getPartitionedTopicMetadata(restTemplate, pulsarClusterInfo,
                 DEFAULT_TOPIC_PATH);
         assertEquals(expected, metadata);
     }
 
     /**
-     * Test cases for {@link PulsarUtils#deleteNonPartitionedTopic}.
+     * Test cases for {@link PulsarUtils#deleteNonPartitionedTopic(RestTemplate, PulsarClusterInfo, String)}.
      * href: <a>https://pulsar.apache.org/admin-rest-api/#operation/PersistentTopics_deleteTopic</a>
      * url like this: http://{host}:{port}/admin/v2/persistent/{tenant}/{namespace}/{topic}
      * method is: DELETE
@@ -443,7 +443,7 @@ public class PulsarUtilsTest {
     }
 
     /**
-     * Test cases for {@link PulsarUtils#deleteNonPartitionedTopic}.
+     * Test cases for {@link PulsarUtils#forceDeleteNonPartitionedTopic(RestTemplate, PulsarClusterInfo, String)}.
      * href: <a>https://pulsar.apache.org/admin-rest-api/#operation/PersistentTopics_deleteTopic</a>
      * url like this: http://{host}:{port}/admin/v2/persistent/{tenant}/{namespace}/{topic}
      * method is: DELETE
@@ -473,7 +473,7 @@ public class PulsarUtilsTest {
     }
 
     /**
-     * Test cases for {@link PulsarUtils#deleteNonPartitionedTopic}.
+     * Test cases for {@link PulsarUtils#deletePartitionedTopic(RestTemplate, PulsarClusterInfo, String)}.
      * href: <a>https://pulsar.apache.org/admin-rest-api/#operation/PersistentTopics_deletePartitionedTopic</a>
      * url like this: http://{host}:{port}/admin/v2/persistent/{tenant}/{namespace}/{topic}/partitions
      * method is: DELETE
@@ -501,7 +501,7 @@ public class PulsarUtilsTest {
     }
 
     /**
-     * Test cases for {@link PulsarUtils#forceDeletePartitionedTopic}.
+     * Test cases for {@link PulsarUtils#forceDeletePartitionedTopic(RestTemplate, PulsarClusterInfo, String)}.
      * href: <a>https://pulsar.apache.org/admin-rest-api/#operation/PersistentTopics_deletePartitionedTopic</a>
      * url like this: http://{host}:{port}/admin/v2/persistent/{tenant}/{namespace}/{topic}/partitions
      * method is: DELETE
@@ -531,7 +531,7 @@ public class PulsarUtilsTest {
     }
 
     /**
-     * Test cases for {@link PulsarUtils#lookupTopic}.
+     * Test cases for {@link PulsarUtils#lookupTopic(RestTemplate, PulsarClusterInfo, String)}.
      *
      * @throws Exception
      */
@@ -552,7 +552,7 @@ public class PulsarUtilsTest {
     }
 
     /**
-     * Test cases for {@link PulsarUtils#lookupPartitionedTopic}.
+     * Test cases for {@link PulsarUtils#lookupPartitionedTopic(RestTemplate, PulsarClusterInfo, String)}.
      *
      * @throws Exception
      */
@@ -574,7 +574,7 @@ public class PulsarUtilsTest {
     }
 
     /**
-     * Test cases for {@link PulsarUtils#getSubscriptions}.
+     * Test cases for {@link PulsarUtils#getSubscriptions(RestTemplate, PulsarClusterInfo, String)}.
      * href: <a>https://pulsar.apache.org/admin-rest-api/#operation/PersistentTopics_getSubscriptions</a>
      * url like this: http://{host}:{port}/admin/v2/persistent/{tenant}/{namespace}/{topic}/subscriptions
      * method is: GET
@@ -598,7 +598,7 @@ public class PulsarUtilsTest {
     }
 
     /**
-     * Test cases for {@link PulsarUtils#createSubscription}.
+     * Test cases for {@link PulsarUtils#createSubscription(RestTemplate, PulsarClusterInfo, String, String)}.
      * href: <a>https://pulsar.apache.org/admin-rest-api/#operation/PersistentTopics_createSubscription</a>
      * url like this: http://{host}:{port}/admin/v2/persistent/{tenant}/{namespace}/{topic}/subscription/{subscriptionName}
      * method is: PUT
@@ -633,7 +633,7 @@ public class PulsarUtilsTest {
     }
 
     /**
-     * Test cases for {@link PulsarUtils#examineMessage}.
+     * Test cases for {@link PulsarUtils#examineMessage(RestTemplate, PulsarClusterInfo, String, String, int)}.
      * href: <a>https://pulsar.apache.org/admin-rest-api/#operation/PersistentTopics_examineMessage</a>
      * url like this: http://{host}:{port}/admin/v2/persistent/{tenant}/{namespace}/{topic}/examinemessage
      * method is: GET

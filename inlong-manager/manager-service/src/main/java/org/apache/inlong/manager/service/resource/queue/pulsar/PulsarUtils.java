@@ -99,7 +99,7 @@ public class PulsarUtils {
      * @return list of pulsar cluster infos
      * @throws Exception any exception if occurred
      */
-    public static List<String> getPulsarClusters(RestTemplate restTemplate, PulsarClusterInfo clusterInfo)
+    public static List<String> getClusters(RestTemplate restTemplate, PulsarClusterInfo clusterInfo)
             throws Exception {
         final String url = clusterInfo.getAdminUrl() + QUERY_CLUSTERS_PATH;
         return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
@@ -114,17 +114,17 @@ public class PulsarUtils {
      * @return list of pulsar broker infos
      * @throws Exception any exception if occurred
      */
-    public static List<String> getPulsarBrokers(RestTemplate restTemplate, PulsarClusterInfo clusterInfo)
+    public static List<String> getBrokers(RestTemplate restTemplate, PulsarClusterInfo clusterInfo)
             throws Exception {
-        List<String> clusters = getPulsarClusters(restTemplate, clusterInfo);
+        List<String> clusters = getClusters(restTemplate, clusterInfo);
         List<String> brokers = new ArrayList<>();
-        for (String brokerName : brokers) {
+        for (String brokerName : clusters) {
             String url = clusterInfo.getAdminUrl() + QUERY_BROKERS_PATH + "/" + brokerName;
-            clusters.addAll(
+            brokers.addAll(
                     HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
                             ArrayList.class));
         }
-        return clusters;
+        return brokers;
     }
 
     /**
@@ -135,7 +135,7 @@ public class PulsarUtils {
      * @return list of pulsar tenant infos
      * @throws Exception any exception if occurred
      */
-    public static List<String> getPulsarTenants(RestTemplate restTemplate, PulsarClusterInfo clusterInfo)
+    public static List<String> getTenants(RestTemplate restTemplate, PulsarClusterInfo clusterInfo)
             throws Exception {
         final String url = clusterInfo.getAdminUrl() + QUERY_TENANTS_PATH;
         return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
@@ -151,7 +151,7 @@ public class PulsarUtils {
      * @return list of pulsar namespace infos
      * @throws Exception any exception if occurred
      */
-    public static List<String> getPulsarNamespaces(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
+    public static List<String> getNamespaces(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String tenant) throws Exception {
         String url = clusterInfo.getAdminUrl() + QUERY_NAMESPACE_PATH + "/" + tenant;
         return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
@@ -210,7 +210,7 @@ public class PulsarUtils {
      * @return list of pulsar topic infos
      * @throws Exception any exception if occurred
      */
-    public static List<String> getPulsarTopics(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String tenant,
+    public static List<String> getTopics(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String tenant,
             String namespace) throws Exception {
         String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + tenant + "/" + namespace;
         return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
@@ -227,7 +227,7 @@ public class PulsarUtils {
      * @return list of pulsar partitioned topic infos
      * @throws Exception any exception if occurred
      */
-    public static List<String> getPulsarPartitionedTopics(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
+    public static List<String> getPartitionedTopics(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String tenant, String namespace) throws Exception {
         String url =
                 clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + tenant + "/" + namespace + "/partitioned";
@@ -273,7 +273,7 @@ public class PulsarUtils {
      * @return pulsar internal stat info of partitioned topic
      * @throws Exception any exception if occurred
      */
-    public static JsonObject getPulsarStatsPartitionedTopics(RestTemplate restTemplate,
+    public static JsonObject getStatsPartitionedTopics(RestTemplate restTemplate,
             PulsarClusterInfo clusterInfo, String topicPath) throws Exception {
         String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/partitioned-internalStats";
         return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
@@ -289,7 +289,7 @@ public class PulsarUtils {
      * @return pulsar topic metadata info
      * @throws Exception any exception if occurred
      */
-    public static PulsarTopicMetadata getPulsarPartitionedTopicMetadata(RestTemplate restTemplate,
+    public static PulsarTopicMetadata getPartitionedTopicMetadata(RestTemplate restTemplate,
             PulsarClusterInfo clusterInfo, String topicPath) throws Exception {
         String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/partitions";
         return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
@@ -421,7 +421,7 @@ public class PulsarUtils {
      */
     public static Map<String, String> lookupPartitionedTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath) throws Exception {
-        PulsarTopicMetadata metadata = getPulsarPartitionedTopicMetadata(restTemplate, clusterInfo, topicPath);
+        PulsarTopicMetadata metadata = getPartitionedTopicMetadata(restTemplate, clusterInfo, topicPath);
         Map<String, String> map = new LinkedHashMap<>();
         for (int i = 0; i < metadata.getPartitions(); i++) {
             String partitionTopicName = topicPath + "-partition-" + i;

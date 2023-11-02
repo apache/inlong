@@ -133,7 +133,7 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
 
         try {
             // test connect for pulsar adminUrl
-            PulsarUtils.getPulsarTenants(restTemplate, pulsarInfo);
+            PulsarUtils.getTenants(restTemplate, pulsarInfo);
             return true;
         } catch (Exception e) {
             String errMsg = String.format("Pulsar connection failed for AdminUrl=%s", pulsarInfo.getAdminUrl());

@@ -111,7 +111,7 @@ public class PulsarDataNodeOperator extends AbstractDataNodeOperator {
                 .token(token).build();
         try {
             // test connect for pulsar adminUrl
-            PulsarUtils.getPulsarTenants(restTemplate, pulsarClusterInfo);
+            PulsarUtils.getTenants(restTemplate, pulsarClusterInfo);
             return true;
         } catch (Exception e) {
             String errMsg = String.format("Pulsar connection failed for AdminUrl=%s", pulsarClusterInfo.getAdminUrl());

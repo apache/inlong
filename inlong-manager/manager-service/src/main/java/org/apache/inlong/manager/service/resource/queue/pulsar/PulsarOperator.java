@@ -80,7 +80,7 @@ public class PulsarOperator {
         Preconditions.expectNotBlank(tenant, ErrorCodeEnum.INVALID_PARAMETER, "Tenant cannot be empty");
 
         try {
-            List<String> clusters = PulsarUtils.getPulsarClusters(restTemplate, pulsarClusterInfo);
+            List<String> clusters = PulsarUtils.getClusters(restTemplate, pulsarClusterInfo);
             boolean exists = this.tenantIsExists(pulsarClusterInfo, tenant);
             if (exists) {
                 LOGGER.warn("pulsar tenant={} already exists, skip to create", tenant);
@@ -179,10 +179,10 @@ public class PulsarOperator {
                 LOGGER.info("success to create topic={}, lookup result is {}", fullTopicName, res);
             } else {
                 // The number of brokers as the default value of topic partition
-                List<String> clusters = PulsarUtils.getPulsarClusters(restTemplate, pulsarClusterInfo);
+                List<String> clusters = PulsarUtils.getClusters(restTemplate, pulsarClusterInfo);
                 Integer numPartitions = topicInfo.getNumPartitions();
                 if (numPartitions < 0 || numPartitions >= MAX_PARTITION) {
-                    List<String> brokers = PulsarUtils.getPulsarBrokers(restTemplate, pulsarClusterInfo);
+                    List<String> brokers = PulsarUtils.getBrokers(restTemplate, pulsarClusterInfo);
                     numPartitions = brokers.size();
                 }
                 PulsarUtils.createPartitionedTopic(restTemplate, pulsarClusterInfo, fullTopicName,
@@ -284,7 +284,7 @@ public class PulsarOperator {
      * @throws Exception any exception if occurred
      */
     private boolean tenantIsExists(PulsarClusterInfo pulsarClusterInfo, String tenant) throws Exception {
-        List<String> tenants = PulsarUtils.getPulsarTenants(restTemplate, pulsarClusterInfo);
+        List<String> tenants = PulsarUtils.getTenants(restTemplate, pulsarClusterInfo);
         return tenants.contains(tenant);
     }
 
@@ -299,7 +299,7 @@ public class PulsarOperator {
      */
     private boolean namespaceExists(PulsarClusterInfo pulsarClusterInfo, String tenant, String namespace)
             throws Exception {
-        List<String> namespaces = PulsarUtils.getPulsarNamespaces(restTemplate, pulsarClusterInfo, tenant);
+        List<String> namespaces = PulsarUtils.getNamespaces(restTemplate, pulsarClusterInfo, tenant);
         return namespaces.contains(namespace);
     }
 
@@ -320,10 +320,10 @@ public class PulsarOperator {
         boolean topicExists = false;
         try {
             if (isPartitioned) {
-                topics = PulsarUtils.getPulsarPartitionedTopics(restTemplate, pulsarClusterInfo, tenant,
+                topics = PulsarUtils.getPartitionedTopics(restTemplate, pulsarClusterInfo, tenant,
                         namespace);
             } else {
-                topics = PulsarUtils.getPulsarTopics(restTemplate, pulsarClusterInfo, tenant, namespace);
+                topics = PulsarUtils.getTopics(restTemplate, pulsarClusterInfo, tenant, namespace);
             }
             for (String t : topics) {
                 t = t.substring(t.lastIndexOf("/") + 1); // not contains /
@@ -346,7 +346,7 @@ public class PulsarOperator {
                     LOGGER.info("check whether the pulsar topic={} exists error, try count={}", topicName, count);
                     Thread.sleep(DELAY_SECONDS);
 
-                    topics = PulsarUtils.getPulsarPartitionedTopics(restTemplate, pulsarClusterInfo,
+                    topics = PulsarUtils.getPartitionedTopics(restTemplate, pulsarClusterInfo,
                             tenant, namespace);
                     for (String t : topics) {
                         t = t.substring(t.lastIndexOf("/") + 1);
@@ -430,7 +430,7 @@ public class PulsarOperator {
     private int getPartitionCount(PulsarClusterInfo pulsarClusterInfo, String topicFullName) {
         PulsarTopicMetadata pulsarTopicMetadata;
         try {
-            pulsarTopicMetadata = PulsarUtils.getPulsarPartitionedTopicMetadata(restTemplate,
+            pulsarTopicMetadata = PulsarUtils.getPartitionedTopicMetadata(restTemplate,
                     pulsarClusterInfo, topicFullName);
         } catch (Exception e) {
             String errMsg = "get pulsar partition error ";
