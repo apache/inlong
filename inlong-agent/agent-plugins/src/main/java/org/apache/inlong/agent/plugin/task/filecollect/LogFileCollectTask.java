@@ -266,7 +266,7 @@ public class LogFileCollectTask extends Task {
     private void scanExistingFile() {
         originPatterns.forEach((originPattern) -> {
             List<BasicFileInfo> fileInfos = scanExistingFileByPattern(originPattern);
-            LOGGER.debug("scan {} get file count {}", originPattern, fileInfos.size());
+            LOGGER.info("scan {} get file count {}", originPattern, fileInfos.size());
             fileInfos.forEach((fileInfo) -> {
                 addToEvenMap(fileInfo.fileName, fileInfo.dataTime);
             });
@@ -279,7 +279,7 @@ public class LogFileCollectTask extends Task {
         if (!retry) {
             long currentTime = System.currentTimeMillis();
             // only scan two cycle, like two hours or two days
-            long offset = NewDateUtils.caclOffset("-2" + taskProfile.getCycleUnit());
+            long offset = NewDateUtils.calcOffset("-2" + taskProfile.getCycleUnit());
             startScanTime = currentTime - offset;
             endScanTime = currentTime;
         }
