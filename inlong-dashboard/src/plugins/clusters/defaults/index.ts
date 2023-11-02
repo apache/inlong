@@ -52,7 +52,7 @@ export const allDefaultClusters: MetaExportWithBackendList<ClusterMetaType> = [
     LoadEntity: () => import('./TubeMq'),
   },
   {
-    label: 'Sort Cls',
+    label: 'Sort CLS',
     value: 'SORT_CLS',
     LoadEntity: () => import('./SortCls'),
   },
