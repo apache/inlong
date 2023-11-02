@@ -262,14 +262,14 @@ public class ElasticsearchApiTest {
                 exchange);
         when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
         when(exchange.getBody()).thenReturn(mappingJson);
-        Map<String, Map<String, String>> result = elasticsearchApi.getMappingMap(DEFAULT_INDEXNAME);
-        assertEquals("double", result.get("count").get("type"));
-        assertEquals("double", result.get("delay").get("type"));
-        assertEquals("date", result.get("date").get("type"));
-        assertEquals("yyyy-MM-dd HH:mm:ss||yyy-MM-dd||epoch_millis", result.get("date").get("format"));
-        assertEquals("text", result.get("inlong_stream_id").get("type"));
-        assertEquals("text", result.get("inlong_group_id").get("type"));
-        assertEquals("keyword", result.get("log_ts").get("type"));
+        Map<String, ElasticsearchFieldInfo> result = elasticsearchApi.getMappingMap(DEFAULT_INDEXNAME);
+        assertEquals("double", result.get("count").getFieldType());
+        assertEquals("double", result.get("delay").getFieldType());
+        assertEquals("date", result.get("date").getFieldType());
+        assertEquals("yyyy-MM-dd HH:mm:ss||yyy-MM-dd||epoch_millis", result.get("date").getFieldFormat());
+        assertEquals("text", result.get("inlong_stream_id").getFieldType());
+        assertEquals("text", result.get("inlong_group_id").getFieldType());
+        assertEquals("keyword", result.get("log_ts").getFieldType());
     }
 
     /**

@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchCreateIndexResponse;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
 
+import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -57,6 +58,10 @@ public class ElasticsearchApi {
     private static final String FIELD_KEY = "properties";
 
     private static final String CONTENT_TYPE_KEY = "Content-Type";
+
+    private static final String FIELD_TYPE = "type";
+
+    private static final String FIELD_FORMAT = "format";
 
     private static final String CONTENT_TYPE_VALUE = "application/json;charset=UTF-8";
 
@@ -111,8 +116,6 @@ public class ElasticsearchApi {
             return HttpUtils.headRequest(esConfig.getRestClient(), url, null, getHttpHeaders());
         } catch (NotFound e) {
             return false;
-        } catch (Exception e) {
-            throw e;
         }
     }
 
@@ -201,14 +204,14 @@ public class ElasticsearchApi {
      * @param indexName elasticsearch index name
      * @return map of elasticsearch index mapping info
      */
-    public Map<String, Map<String, String>> getMappingMap(String indexName) throws Exception {
+    public Map<String, ElasticsearchFieldInfo> getMappingMap(String indexName) throws Exception {
         final String url = esConfig.getOneHttpUrl() + InlongConstants.SLASH + indexName + "/_mapping";
         JsonObject result = HttpUtils.request(esConfig.getRestClient(), url, HttpMethod.GET, null, getHttpHeaders(),
                 JsonObject.class);
         JsonObject mappings = result.getAsJsonObject(indexName);
         JsonObject properties = null;
         JsonObject fields = null;
-        Map<String, Map<String, String>> fieldInfo = null;
+        Map<String, ElasticsearchFieldInfo> fieldInfos = Maps.newHashMap();
         if (ObjectUtils.isNotEmpty(mappings)) {
             properties = mappings.getAsJsonObject(MAPPINGS_KEY);
         }
@@ -216,9 +219,22 @@ public class ElasticsearchApi {
             fields = properties.getAsJsonObject(FIELD_KEY);
         }
         if (ObjectUtils.isNotEmpty(fields)) {
-            fieldInfo = GSON.fromJson(fields.toString(), Map.class);
+            for (String key : fields.keySet()) {
+                JsonObject field = fields.getAsJsonObject(key);
+                if (StringUtils.isNotEmpty(key) && ObjectUtils.isNotEmpty(field)) {
+                    ElasticsearchFieldInfo fieldInfo = new ElasticsearchFieldInfo();
+                    if (ObjectUtils.isNotEmpty(field.get(FIELD_TYPE))) {
+                        fieldInfo.setFieldType(field.get(FIELD_TYPE).getAsString());
+                    }
+                    if (ObjectUtils.isNotEmpty(field.get(FIELD_FORMAT))) {
+                        fieldInfo.setFieldFormat(field.get(FIELD_FORMAT).getAsString());
+                    }
+                    fieldInfo.setFieldName(key);
+                    fieldInfos.put(key, fieldInfo);
+                }
+            }
         }
-        return fieldInfo;
+        return fieldInfos;
     }
 
     /**
@@ -248,7 +264,7 @@ public class ElasticsearchApi {
      */
     public void addNotExistFields(String indexName, List<ElasticsearchFieldInfo> fieldInfos) throws Exception {
         List<ElasticsearchFieldInfo> notExistFieldInfos = new ArrayList<>();
-        Map<String, Map<String, String>> mappings = getMappingMap(indexName);
+        Map<String, ElasticsearchFieldInfo> mappings = getMappingMap(indexName);
         for (ElasticsearchFieldInfo fieldInfo : fieldInfos) {
             if (!mappings.containsKey(fieldInfo.getFieldName())) {
                 notExistFieldInfos.add(fieldInfo);

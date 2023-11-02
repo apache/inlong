@@ -110,6 +110,10 @@ public class AuditServiceImpl implements AuditService {
     private static final String ES_TERM_FILED = "log_ts";
     private static final String ES_AGGREGATIONS_COUNT = "count";
     private static final String ES_AGGREGATIONS_DELAY = "delay";
+    private static final String ES_AGGREGATIONS = "aggregations";
+    private static final String ES_BUCKETS = "buckets";
+    private static final String ES_KEY = "key";
+    private static final String ES_VALUE = "value";
 
     // key: type of audit base item, value: entity of audit base item
     private final Map<String, AuditBaseEntity> auditSentItemMap = new ConcurrentHashMap<>();
@@ -299,18 +303,20 @@ public class AuditServiceImpl implements AuditService {
                     continue;
                 }
                 JsonObject response = elasticsearchApi.search(index, toAuditSearchRequestJson(groupId, streamId));
-                JsonObject aggregations = response.getAsJsonObject("aggregations").getAsJsonObject("log_ts");
+                JsonObject aggregations = response.getAsJsonObject(ES_AGGREGATIONS).getAsJsonObject(ES_TERM_FILED);
                 if (!aggregations.isJsonNull()) {
-                    JsonObject logTs = aggregations.getAsJsonObject("log_ts");
+                    JsonObject logTs = aggregations.getAsJsonObject(ES_TERM_FILED);
                     if (!logTs.isJsonNull()) {
-                        JsonArray buckets = logTs.getAsJsonArray("buckets");
+                        JsonArray buckets = logTs.getAsJsonArray(ES_BUCKETS);
                         List<AuditInfo> auditSet = new ArrayList<>();
                         for (int i = 0; i < buckets.size(); i++) {
                             JsonObject bucket = buckets.get(i).getAsJsonObject();
                             AuditInfo vo = new AuditInfo();
-                            vo.setLogTs(bucket.get("key").getAsString());
-                            vo.setCount((long) bucket.get("count").getAsJsonObject().get("value").getAsLong());
-                            vo.setDelay((long) bucket.get("delay").getAsJsonObject().get("value").getAsLong());
+                            vo.setLogTs(bucket.get(ES_KEY).getAsString());
+                            vo.setCount((long) bucket.get(ES_AGGREGATIONS_COUNT).getAsJsonObject().get(ES_VALUE)
+                                    .getAsLong());
+                            vo.setDelay((long) bucket.get(ES_AGGREGATIONS_DELAY).getAsJsonObject().get(ES_VALUE)
+                                    .getAsLong());
                             auditSet.add(vo);
                         }
                         result.add(new AuditVO(auditId, auditSet, auditIdMap.getOrDefault(auditId, null)));
