@@ -533,7 +533,7 @@ public class PulsarUtilsTest {
     @Test
     public void testExamineMessage() throws Exception {
         /*
-         * Since admin API cannot send messages to the topic, this test case will be simulated using mokitio.
+         * Since admin API cannot send messages to the topic, this test case will be simulated using mockito.
          */
         final String messageType = "latest";
         final int messagePosition = 1;
