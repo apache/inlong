@@ -319,7 +319,8 @@ public class LogFileCollectTask extends Task {
             if (sameDataTimeEvents.isEmpty()) {
                 return;
             }
-            // 根据event的数据时间、业务的周期、偏移量计算出该event是否需要在当前时间处理
+            // Calculate whether the event needs to be processed at the current time based on its data time, business
+            // cycle, and offset
             String dataTime = entry.getKey();
             String shouldStartTime =
                     NewDateUtils.getShouldStartTime(dataTime, taskProfile.getCycleUnit(), taskProfile.getTimeOffset());
