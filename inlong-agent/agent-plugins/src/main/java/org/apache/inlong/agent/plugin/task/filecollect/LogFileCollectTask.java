@@ -319,8 +319,10 @@ public class LogFileCollectTask extends Task {
             if (sameDataTimeEvents.isEmpty()) {
                 return;
             }
-            // Calculate whether the event needs to be processed at the current time based on its data time, business
-            // cycle, and offset
+            /*
+             * Calculate whether the event needs to be processed at the current time based on its data time, business
+             * cycle, and offset
+             */
             String dataTime = entry.getKey();
             String shouldStartTime =
                     NewDateUtils.getShouldStartTime(dataTime, taskProfile.getCycleUnit(), taskProfile.getTimeOffset());
@@ -353,7 +355,7 @@ public class LogFileCollectTask extends Task {
             return;
         }
         for (Map.Entry<String, Map<String, InstanceProfile>> entry : eventMap.entrySet()) {
-            // 如果event的数据时间在当前时间前(后)2天之内，则有效
+            /* If the data time of the event is within 2 days before (after) the current time, it is valid */
             String dataTime = entry.getKey();
             if (!NewDateUtils.isValidCreationTime(dataTime, DAY_TIMEOUT_INTERVAL)) {
                 /* Remove it from memory map. */
@@ -487,12 +489,12 @@ public class LogFileCollectTask extends Task {
          * For this case, we can simple think that the next file creation means the last task of this conf should finish
          * reading and start reading this new file.
          */
-        // 从文件名称中提取数据时间
+        // Extract data time from file name
         String fileTime = NewDateUtils.getDateTime(fileName, originPattern, dateExpression);
 
         /**
-         * 将文件时间中任意非数字字符替换掉
-         * 如2015-09-16_00替换成2015091600
+         * Replace any non-numeric characters in the file time
+         * such as 2015-09-16_00 replace with 2015091600
          */
         return fileTime.replaceAll("\\D", "");
     }
