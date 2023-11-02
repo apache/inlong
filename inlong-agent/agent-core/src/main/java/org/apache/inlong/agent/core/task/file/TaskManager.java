@@ -118,6 +118,10 @@ public class TaskManager extends AbstractDaemon {
         while (configQueue.size() != 0) {
             configQueue.poll();
         }
+        for (int i = 0; i < taskProfiles.size(); i++) {
+            LOGGER.info("submitTaskProfiles index {} total {} {}", i, taskProfiles.size(),
+                    taskProfiles.get(i).toJsonStr());
+        }
         configQueue.add(taskProfiles);
     }
 
@@ -187,7 +191,6 @@ public class TaskManager extends AbstractDaemon {
      * NEW and STOP only used in manager
      */
     private void keepPaceWithManager(List<TaskProfile> taskProfiles) {
-        LOGGER.info("deal with List<TaskProfile> {}", taskProfiles);
         Map<String, TaskProfile> tasksFromManager = new ConcurrentHashMap<>();
         taskProfiles.forEach((profile) -> {
             TaskStateEnum state = profile.getState();
