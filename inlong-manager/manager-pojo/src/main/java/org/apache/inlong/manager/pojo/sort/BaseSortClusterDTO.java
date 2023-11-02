@@ -40,15 +40,6 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Base sort cluster info")
 public class BaseSortClusterDTO {
 
-    @ApiModelProperty("backup data path")
-    private String backupDataPath;
-
-    @ApiModelProperty("backup hadoop proxy user")
-    private String backupHadoopProxyUser;
-
-    @ApiModelProperty("application name")
-    private String applicationName;
-
     /**
      * Get the dto instance from the request
      */

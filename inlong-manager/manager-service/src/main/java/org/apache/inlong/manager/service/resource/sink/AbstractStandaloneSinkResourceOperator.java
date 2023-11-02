@@ -81,7 +81,7 @@ public abstract class AbstractStandaloneSinkResourceOperator implements SinkReso
         InlongGroupEntity group = groupEntityMapper.selectByGroupId(groupId);
         String sortClusterType = SORT_PREFIX.concat(sinkType);
         List<InlongClusterEntity> clusters = clusterEntityMapper
-                .selectSortClusterByType(sortClusterType).stream()
+                .selectByKey(null, null, sortClusterType).stream()
                 .filter(cluster -> checkCluster(cluster.getClusterTags(), group.getInlongClusterTag()))
                 .collect(Collectors.toList());
 
