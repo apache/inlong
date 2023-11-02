@@ -375,8 +375,7 @@ public class LogFileSource extends AbstractSource {
         while (!suc) {
             suc = MemoryManager.getInstance().tryAcquire(permitName, permitLen);
             if (!suc) {
-                LOGGER.warn("get permit {} failed", permitName);
-                MemoryManager.getInstance().printDetail(permitName);
+                MemoryManager.getInstance().printDetail(permitName, "log file source");
                 if (!isRunnable()) {
                     return false;
                 }

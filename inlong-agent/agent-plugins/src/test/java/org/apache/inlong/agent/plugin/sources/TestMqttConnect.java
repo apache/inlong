@@ -21,6 +21,7 @@ import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.MqttReader;
+import org.apache.inlong.agent.utils.AgentUtils;
 
 import org.junit.Ignore;
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ public class TestMqttConnect {
 
                 @Override
                 public void run() {
-                    reader.init(jobProfile.createInstanceProfile("", "", ""));
+                    reader.init(jobProfile.createInstanceProfile("", "", "", AgentUtils.getCurrentTime()));
                     while (!reader.isFinished()) {
                         Message message = reader.read();
                         if (Objects.nonNull(message)) {

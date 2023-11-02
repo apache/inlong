@@ -166,6 +166,8 @@ public class TaskConstants extends CommonConstants {
 
     public static final String INSTANCE_STATE = "instance.state";
 
+    public static final String FILE_UPDATE_TIME = "fileUpdateTime";
+
     public static final String LAST_UPDATE_TIME = "lastUpdateTime";
 
     public static final String TRIGGER_ONLY_ONE_JOB = "job.standalone"; // TODO:delete it

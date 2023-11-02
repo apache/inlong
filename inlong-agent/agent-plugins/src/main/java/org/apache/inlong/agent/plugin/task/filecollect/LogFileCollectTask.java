@@ -273,6 +273,17 @@ public class LogFileCollectTask extends Task {
         });
     }
 
+    private boolean isInEventMap(String fileName, String dataTime) {
+        Map<String, InstanceProfile> fileToProfile = eventMap.get(dataTime);
+        if (fileToProfile == null) {
+            return false;
+        }
+        if (fileToProfile.get(fileName) == null) {
+            return false;
+        }
+        return true;
+    }
+
     private List<BasicFileInfo> scanExistingFileByPattern(String originPattern) {
         long startScanTime = startTime;
         long endScanTime = endTime;
@@ -305,14 +316,17 @@ public class LogFileCollectTask extends Task {
         removeTimeoutEven(eventMap, retry);
         for (Map.Entry<String, Map<String, InstanceProfile>> entry : eventMap.entrySet()) {
             Map<String, InstanceProfile> sameDataTimeEvents = entry.getValue();
+            if (sameDataTimeEvents.isEmpty()) {
+                return;
+            }
             // 根据event的数据时间、业务的周期、偏移量计算出该event是否需要在当前时间处理
             String dataTime = entry.getKey();
             String shouldStartTime =
                     NewDateUtils.getShouldStartTime(dataTime, taskProfile.getCycleUnit(), taskProfile.getTimeOffset());
             String currentTime = getCurrentTime();
-            LOGGER.info("taskId {}, dataTime {}, currentTime {}, shouldStartTime {}",
-                    new Object[]{getTaskId(), dataTime, currentTime, shouldStartTime});
             if (currentTime.compareTo(shouldStartTime) >= 0) {
+                LOGGER.info("submit now taskId {}, dataTime {}, currentTime {}, shouldStartTime {}",
+                        new Object[]{getTaskId(), dataTime, currentTime, shouldStartTime});
                 /* These codes will sort the FileCreationEvents by create time. */
                 Set<InstanceProfile> sortedEvents = new TreeSet<>(sameDataTimeEvents.values());
                 /* Check the file end with event creation time in asc order. */
@@ -326,6 +340,9 @@ public class LogFileCollectTask extends Task {
                     }
                     sameDataTimeEvents.remove(fileName);
                 }
+            } else {
+                LOGGER.info("submit later taskId {}, dataTime {}, currentTime {}, shouldStartTime {}",
+                        new Object[]{getTaskId(), dataTime, currentTime, shouldStartTime});
             }
         }
     }
@@ -429,9 +446,11 @@ public class LogFileCollectTask extends Task {
     }
 
     private void addToEvenMap(String fileName, String dataTime) {
-        Long lastModifyTime = FileUtils.getFileLastModifyTime(fileName);
-        if (!instanceManager.shouldAddAgain(fileName, lastModifyTime)) {
-            LOGGER.info("file {} has record in db", fileName);
+        if (isInEventMap(fileName, dataTime)) {
+            return;
+        }
+        Long fileUpdateTime = FileUtils.getFileLastModifyTime(fileName);
+        if (!instanceManager.shouldAddAgain(fileName, fileUpdateTime)) {
             return;
         }
         Map<String, InstanceProfile> sameDataTimeEvents = eventMap.computeIfAbsent(dataTime,
@@ -442,7 +461,7 @@ public class LogFileCollectTask extends Task {
             return;
         }
         InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_FILE_INSTANCE,
-                fileName, dataTime);
+                fileName, dataTime, fileUpdateTime);
         sameDataTimeEvents.put(fileName, instanceProfile);
     }
 
