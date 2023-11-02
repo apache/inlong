@@ -276,7 +276,7 @@ public class PulsarUtils {
      * @return pulsar internal stat info of partitioned topic
      * @throws Exception any exception if occurred
      */
-    public static JsonObject getStatsPartitionedTopics(RestTemplate restTemplate,
+    public static JsonObject getInternalStatsPartitionedTopics(RestTemplate restTemplate,
             PulsarClusterInfo clusterInfo, String topicPath) throws Exception {
         String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/partitioned-internalStats";
         return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),

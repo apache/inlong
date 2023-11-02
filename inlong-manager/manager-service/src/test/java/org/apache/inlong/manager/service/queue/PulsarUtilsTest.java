@@ -313,7 +313,7 @@ public class PulsarUtilsTest {
     }
 
     /**
-     * Test cases for {@link PulsarUtils#getStatsPartitionedTopics(RestTemplate, PulsarClusterInfo, String)}.
+     * Test cases for {@link PulsarUtils#getInternalStatsPartitionedTopics(RestTemplate, PulsarClusterInfo, String)}.
      * href: <a>https://pulsar.apache.org/admin-rest-api/#operation/PersistentTopics_getPartitionedStatsInternal</a>
      * url like this: http://{host}:{port}/admin/v2/persistent/{tenant}/{namespace}/{topic}/partitioned-internalStats
      * method is: GET
@@ -323,12 +323,12 @@ public class PulsarUtilsTest {
      * @throws Exception
      */
     @Test
-    public void testGetStatsPartitionedTopics() throws Exception {
+    public void testGetInternalStatsPartitionedTopics() throws Exception {
         final String topicPath = DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH
-                + "testGetStatsPartitionedTopics";
+                + "testGetInternalStatsPartitionedTopics";
 
         PulsarUtils.createPartitionedTopic(client, pulsarCluster, topicPath, DEFAULT_PARTITIONS_NUM);
-        JsonObject stats = PulsarUtils.getStatsPartitionedTopics(client, pulsarCluster, topicPath);
+        JsonObject stats = PulsarUtils.getInternalStatsPartitionedTopics(client, pulsarCluster, topicPath);
         assertNotNull(stats);
     }
 
