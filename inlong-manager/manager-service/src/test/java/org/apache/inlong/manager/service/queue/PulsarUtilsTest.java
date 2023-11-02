@@ -216,6 +216,7 @@ public class PulsarUtilsTest {
         pulsarTenantInfo.setAdminRoles(Sets.newHashSet());
         pulsarTenantInfo.setAllowedClusters(Sets.newHashSet("standalone"));
         PulsarUtils.createTenant(client, pulsarCluster, DEFAULT_CREATE_TENANT, pulsarTenantInfo);
+        Thread.sleep(500);
         List<String> tenants = PulsarUtils.getTenants(client, pulsarCluster);
         assertTrue(tenants.contains(DEFAULT_CREATE_TENANT));
     }
@@ -241,6 +242,7 @@ public class PulsarUtilsTest {
         headers.add("Accept", MediaType.APPLICATION_JSON.toString());
 
         PulsarUtils.createNamespace(client, pulsarCluster, DEFAULT_TENANT, namespaceName, policies);
+        Thread.sleep(500);
         List<String> namespaces = PulsarUtils.getNamespaces(client, pulsarCluster, DEFAULT_TENANT);
         assertTrue(namespaces.contains(namespaceInfo));
     }
@@ -286,6 +288,7 @@ public class PulsarUtilsTest {
         final String topicInfo = PERSISTENT_TOPIC_HEAD + topicPath;
 
         PulsarUtils.createNonPartitionedTopic(client, pulsarCluster, topicPath);
+        Thread.sleep(500);
         List<String> topics = PulsarUtils.getTopics(client, pulsarCluster, DEFAULT_TENANT,
                 DEFAULT_NAMESPACE);
         assertTrue(topics.contains(topicInfo));
@@ -307,6 +310,7 @@ public class PulsarUtilsTest {
         final String topicInfo = PERSISTENT_TOPIC_HEAD + topicPath;
 
         PulsarUtils.createPartitionedTopic(client, pulsarCluster, topicPath, DEFAULT_PARTITIONS_NUM);
+        Thread.sleep(500);
         List<String> topics = PulsarUtils.getPartitionedTopics(client, pulsarCluster, DEFAULT_TENANT,
                 DEFAULT_NAMESPACE);
         assertTrue(topics.contains(topicInfo));
@@ -328,6 +332,7 @@ public class PulsarUtilsTest {
                 + "testGetInternalStatsPartitionedTopics";
 
         PulsarUtils.createPartitionedTopic(client, pulsarCluster, topicPath, DEFAULT_PARTITIONS_NUM);
+        Thread.sleep(500);
         JsonObject stats = PulsarUtils.getInternalStatsPartitionedTopics(client, pulsarCluster, topicPath);
         assertNotNull(stats);
     }
@@ -347,6 +352,7 @@ public class PulsarUtilsTest {
         final String topicPath = DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH
                 + "testGetPartitionedTopicMetadata";
         PulsarUtils.createPartitionedTopic(client, pulsarCluster, topicPath, DEFAULT_PARTITIONS_NUM);
+        Thread.sleep(500);
         PulsarTopicMetadata metadata = PulsarUtils.getPartitionedTopicMetadata(client, pulsarCluster,
                 topicPath);
         assertNotNull(metadata);
@@ -368,10 +374,12 @@ public class PulsarUtilsTest {
         final String topicInfo = PERSISTENT_TOPIC_HEAD + topicPath;
 
         PulsarUtils.createNonPartitionedTopic(client, pulsarCluster, topicPath);
+        Thread.sleep(500);
         List<String> topics = PulsarUtils.getTopics(client, pulsarCluster, DEFAULT_TENANT, DEFAULT_NAMESPACE);
         assertTrue(topics.contains(topicInfo));
 
         PulsarUtils.deleteNonPartitionedTopic(client, pulsarCluster, topicPath);
+        Thread.sleep(500);
         topics = PulsarUtils.getTopics(client, pulsarCluster, DEFAULT_TENANT, DEFAULT_NAMESPACE);
         assertTrue(!topics.contains(topicInfo));
     }
@@ -392,10 +400,12 @@ public class PulsarUtilsTest {
         final String topicInfo = PERSISTENT_TOPIC_HEAD + topicPath;
 
         PulsarUtils.createNonPartitionedTopic(client, pulsarCluster, topicPath);
+        Thread.sleep(500);
         List<String> topics = PulsarUtils.getTopics(client, pulsarCluster, DEFAULT_TENANT, DEFAULT_NAMESPACE);
         assertTrue(topics.contains(topicInfo));
 
         PulsarUtils.forceDeleteNonPartitionedTopic(client, pulsarCluster, topicPath);
+        Thread.sleep(500);
         topics = PulsarUtils.getTopics(client, pulsarCluster, DEFAULT_TENANT, DEFAULT_NAMESPACE);
         assertTrue(!topics.contains(topicInfo));
     }
@@ -417,11 +427,13 @@ public class PulsarUtilsTest {
         final String topicInfo = PERSISTENT_TOPIC_HEAD + topicPath;
 
         PulsarUtils.createPartitionedTopic(client, pulsarCluster, topicPath, numPartitions);
+        Thread.sleep(500);
         List<String> topics = PulsarUtils.getPartitionedTopics(client, pulsarCluster, DEFAULT_TENANT,
                 DEFAULT_NAMESPACE);
         assertTrue(topics.contains(topicInfo));
 
         PulsarUtils.deletePartitionedTopic(client, pulsarCluster, topicPath);
+        Thread.sleep(500);
         topics = PulsarUtils.getPartitionedTopics(client, pulsarCluster, DEFAULT_TENANT, DEFAULT_NAMESPACE);
         assertTrue(!topics.contains(topicInfo));
     }
@@ -443,11 +455,13 @@ public class PulsarUtilsTest {
         final String topicInfo = PERSISTENT_TOPIC_HEAD + topicPath;
 
         PulsarUtils.createPartitionedTopic(client, pulsarCluster, topicPath, numPartitions);
+        Thread.sleep(500);
         List<String> topics = PulsarUtils.getPartitionedTopics(client, pulsarCluster, DEFAULT_TENANT,
                 DEFAULT_NAMESPACE);
         assertTrue(topics.contains(topicInfo));
 
         PulsarUtils.deletePartitionedTopic(client, pulsarCluster, topicPath);
+        Thread.sleep(500);
         topics = PulsarUtils.getPartitionedTopics(client, pulsarCluster, DEFAULT_TENANT, DEFAULT_NAMESPACE);
         assertTrue(!topics.contains(topicInfo));
     }
@@ -462,6 +476,7 @@ public class PulsarUtilsTest {
         final String topicPath =
                 DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH + "testLookupTopic";
         PulsarUtils.createNonPartitionedTopic(client, pulsarCluster, topicPath);
+        Thread.sleep(500);
         String actual = PulsarUtils.lookupTopic(client, pulsarCluster, topicPath);
         assertNotNull(actual);
     }
@@ -476,6 +491,7 @@ public class PulsarUtilsTest {
         final String topicPath = DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH
                 + "testLookupPartitionedTopic";
         PulsarUtils.createNonPartitionedTopic(client, pulsarCluster, topicPath);
+        Thread.sleep(500);
         Map<String, String> actual = PulsarUtils.lookupPartitionedTopic(client, pulsarCluster, topicPath);
         assertNotNull(actual);
     }
@@ -494,6 +510,7 @@ public class PulsarUtilsTest {
         final String topicPath = DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH
                 + "testGetSubscriptions";
         PulsarUtils.createNonPartitionedTopic(client, pulsarCluster, topicPath);
+        Thread.sleep(500);
         List<String> actual = PulsarUtils.getSubscriptions(client, pulsarCluster, topicPath);
         assertTrue(actual.size() >= 0);
     }
@@ -513,6 +530,7 @@ public class PulsarUtilsTest {
         final String topicPath = DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH
                 + "testCreateSubscription";
         PulsarUtils.createSubscription(client, pulsarCluster, topicPath, subscriptionName);
+        Thread.sleep(500);
         List<String> actual = PulsarUtils.getSubscriptions(client, pulsarCluster, topicPath);
         assertTrue(actual.contains(subscriptionName));
     }
