@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarBrokerEntryMetadata;
@@ -183,13 +184,15 @@ public class PulsarUtils {
      *
      * @param restTemplate spring framework RestTemplate
      * @param clusterInfo pulsar cluster info
+     * @param tenant pulsar namespace name
      * @param namespaceName pulsar namespace name
      * @param policies pulsar namespace policies info
      * @throws Exception any exception if occurred
      */
-    public static void createNamespace(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String namespaceName,
-            PulsarNamespacePolicies policies) throws Exception {
-        final String url = clusterInfo.getAdminUrl() + QUERY_NAMESPACE_PATH + "/" + namespaceName;
+    public static void createNamespace(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String tenant,
+            String namespaceName, PulsarNamespacePolicies policies) throws Exception {
+        final String url = clusterInfo.getAdminUrl() + QUERY_NAMESPACE_PATH + InlongConstants.SLASH + tenant
+                + InlongConstants.SLASH + namespaceName;
         HttpHeaders headers = getHttpHeaders(clusterInfo.getToken());
         MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
         headers.setContentType(type);

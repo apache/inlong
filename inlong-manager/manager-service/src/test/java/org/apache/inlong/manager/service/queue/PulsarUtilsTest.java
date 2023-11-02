@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.queue;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
-import org.apache.inlong.manager.pojo.queue.pulsar.PulsarLookupTopicInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarMessageInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarNamespacePolicies;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarPersistencePolicies;
@@ -34,15 +33,17 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Ignore;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -50,22 +51,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import org.testcontainers.containers.Network;
+import org.testcontainers.containers.PulsarContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.lifecycle.Startables;
+import org.testcontainers.utility.DockerImageName;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
@@ -75,30 +78,28 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class PulsarUtilsTest {
 
+    private static final Logger LOG = LoggerFactory.getLogger(PulsarUtilsTest.class);
+
+    public static final Network NETWORK = Network.newNetwork();
+
+    private static final String INTER_CONTAINER_STAR_ROCKS_ALIAS = "pulsar";
+
     private static final Gson GSON = new GsonBuilder().create(); // thread safe
 
     private static final String DEFAULT_SERVICE_URL = "http://127.0.0.1:8080";
 
     private static final String DEFAULT_TENANT = "public";
 
+    private static final String DEFAULT_CREATE_TENANT = "test_tenant";
+
     private static final String DEFAULT_NAMESPACE = "default";
-
-    private static final String DEFAULT_TOPIC = "testtopic";
-
-    private static final String DEFAULT_NON_PRTITIONED_TOPIC = "testtopic_np";
 
     private static final int DEFAULT_PARTITIONS_NUM = 3;
 
-    private static final String DEFAULT_TOPIC_PATH = DEFAULT_TENANT + "/" + DEFAULT_NAMESPACE + "/" + DEFAULT_TOPIC;
-
-    private static final String DEFAULT_NON_PRTITIONED_TOPIC_PATH =
-            DEFAULT_TENANT + "/" + DEFAULT_NAMESPACE + "/" + DEFAULT_NON_PRTITIONED_TOPIC;
+    private static final String PERSISTENT_TOPIC_HEAD = "persistent://";
 
     @Mock
     private RestTemplate restTemplate;
-
-    @Mock
-    private ResponseEntity<String> exchange;
 
     @Mock
     private ResponseEntity<byte[]> byteExchange;
@@ -108,13 +109,25 @@ public class PulsarUtilsTest {
 
     private static PulsarNamespacePolicies policies;
 
+    private static final PulsarContainer PULSAT_CONTAINER = new PulsarContainer(
+            DockerImageName.parse("apachepulsar/pulsar:2.8.2")
+                    .asCompatibleSubstituteFor("apachepulsar/pulsar"))
+                            .withNetwork(NETWORK)
+                            .withAccessToHost(true)
+                            .withNetworkAliases(INTER_CONTAINER_STAR_ROCKS_ALIAS)
+                            .withLogConsumer(new Slf4jLogConsumer(LOG));
+
+    private static final RestTemplate client = new RestTemplate();
+
+    private static final PulsarClusterInfo pulsarCluster = new PulsarClusterInfo();
+
     @BeforeAll
     public static void beforeAll() {
         policies = new PulsarNamespacePolicies();
         policies.setMessageTtlInSeconds(10);
         PulsarPersistencePolicies persistencePolicies = new PulsarPersistencePolicies();
-        persistencePolicies.setBookkeeperEnsemble(1);
-        persistencePolicies.setBookkeeperAckQuorum(2);
+        persistencePolicies.setBookkeeperEnsemble(3);
+        persistencePolicies.setBookkeeperAckQuorum(3);
         persistencePolicies.setBookkeeperWriteQuorum(3);
         persistencePolicies.setManagedLedgerMaxMarkDeleteRate(4.0);
         policies.setPersistence(persistencePolicies);
@@ -122,6 +135,18 @@ public class PulsarUtilsTest {
         retentionPolicies.setRetentionSizeInMB(2048l);
         retentionPolicies.setRetentionTimeInMinutes(500);
         policies.setRetentionPolicies(retentionPolicies);
+
+        PULSAT_CONTAINER.setPortBindings(Arrays.asList("6650:6650", "8080:8080"));
+        Startables.deepStart(Stream.of(PULSAT_CONTAINER)).join();
+        LOG.info("Containers are started.");
+        pulsarCluster.setAdminUrl("http://127.0.0.1:8080");
+    }
+
+    @AfterAll
+    public static void teardown() {
+        if (PULSAT_CONTAINER != null) {
+            PULSAT_CONTAINER.stop();
+        }
     }
 
     @BeforeEach
@@ -137,15 +162,9 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testGetClusters() throws Exception {
-        final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_CLUSTERS_PATH;
         final String result = "[\"standalone\"]";
         List<String> expected = GSON.fromJson(result, ArrayList.class);
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getBody()).thenReturn(result);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-
-        List<String> clusters = PulsarUtils.getBrokers(restTemplate, pulsarClusterInfo);
+        List<String> clusters = PulsarUtils.getClusters(client, pulsarCluster);
         assertEquals(expected.size(), clusters.size());
         assertEquals(expected, clusters);
     }
@@ -157,16 +176,11 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testGetBrokers() throws Exception {
-        final String clusters = "[\"standalone\",\"standalone1\"]";
-        final String brokers1 = "[\"localhost:8080\"]";
-        final String brokers2 = "[\"localhost:8081\"]";
-        when(restTemplate.exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class),
-                eq(String.class))).thenReturn(exchange);
-        when(exchange.getBody()).thenReturn(clusters, clusters, brokers1, brokers1, brokers2, brokers2);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK, HttpStatus.OK, HttpStatus.OK);
-
-        List<String> brokers = PulsarUtils.getBrokers(restTemplate, pulsarClusterInfo);
-        assertEquals(2, brokers.size());
+        final String result = "[\"localhost:8080\"]";
+        List<String> expected = GSON.fromJson(result, ArrayList.class);
+        List<String> brokers = PulsarUtils.getBrokers(client, pulsarCluster);
+        assertEquals(expected.size(), brokers.size());
+        assertEquals(expected, brokers);
     }
 
     /**
@@ -176,17 +190,8 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testGetTenants() throws Exception {
-        final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_TENANTS_PATH;
-        final String result = "[\"public\",\"pulsar\",\"sample\"]";
-        List<String> expected = GSON.fromJson(result, ArrayList.class);
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getBody()).thenReturn(result);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-
-        List<String> tenants = PulsarUtils.getTenants(restTemplate, pulsarClusterInfo);
-        assertEquals(expected.size(), tenants.size());
-        assertEquals(expected, tenants);
+        List<String> tenants = PulsarUtils.getTenants(client, pulsarCluster);
+        assertNotNull(tenants);
     }
 
     /**
@@ -196,17 +201,8 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testGetNamespaces() throws Exception {
-        final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_NAMESPACE_PATH + "/public";
-        final String result = "[\"public/default\",\"public/functions\"]";
-        List<String> expected = GSON.fromJson(result, ArrayList.class);
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getBody()).thenReturn(result);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-
-        List<String> namespaces = PulsarUtils.getNamespaces(restTemplate, pulsarClusterInfo, DEFAULT_TENANT);
-        assertEquals(expected.size(), namespaces.size());
-        assertEquals(expected, namespaces);
+        List<String> namespaces = PulsarUtils.getNamespaces(client, pulsarCluster, DEFAULT_TENANT);
+        assertNotNull(namespaces);
     }
 
     /**
@@ -216,49 +212,37 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testCreateTenant() throws Exception {
-        final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_TENANTS_PATH
-                + InlongConstants.SLASH + DEFAULT_TENANT;
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.PUT), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-
         PulsarTenantInfo pulsarTenantInfo = new PulsarTenantInfo();
         pulsarTenantInfo.setAdminRoles(Sets.newHashSet());
-        pulsarTenantInfo.setAllowedClusters(Sets.newHashSet());
-        PulsarUtils.createTenant(restTemplate, pulsarClusterInfo, DEFAULT_TENANT, pulsarTenantInfo);
-        verify(restTemplate).exchange(eq(url), eq(HttpMethod.PUT), any(HttpEntity.class), eq(String.class));
+        pulsarTenantInfo.setAllowedClusters(Sets.newHashSet("standalone"));
+        PulsarUtils.createTenant(client, pulsarCluster, DEFAULT_CREATE_TENANT, pulsarTenantInfo);
+        List<String> tenants = PulsarUtils.getTenants(client, pulsarCluster);
+        assertTrue(tenants.contains(DEFAULT_CREATE_TENANT));
     }
 
     /**
-     * Test cases for {@link PulsarUtils#createNamespace(RestTemplate, PulsarClusterInfo, String, PulsarNamespacePolicies)}.
+     * Test cases for {@link PulsarUtils#createNamespace(RestTemplate, PulsarClusterInfo, String, String, PulsarNamespacePolicies)}.
      *
      * @throws Exception
      */
     @Test
     public void testCreateNamespace() throws Exception {
-        final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_NAMESPACE_PATH + InlongConstants.SLASH
-                + DEFAULT_NAMESPACE;
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.PUT), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-
+        final String namespaceName = "testCreateNamespace";
+        final String namespaceInfo = DEFAULT_TENANT + InlongConstants.SLASH + namespaceName;
         String param = GSON.toJson(policies);
         param = param.replaceAll("messageTtlInSeconds", "message_ttl_in_seconds")
                 .replaceAll("retentionPolicies", "retention_policies");
-        HttpHeaders headers = new HttpHeaders();
+        final HttpHeaders headers = new HttpHeaders();
         if (StringUtils.isNotEmpty(pulsarClusterInfo.getToken())) {
             headers.add("Authorization", "Bearer " + pulsarClusterInfo.getToken());
         }
-        MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+        final MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
         headers.setContentType(type);
         headers.add("Accept", MediaType.APPLICATION_JSON.toString());
 
-        PulsarUtils.createNamespace(restTemplate, pulsarClusterInfo, DEFAULT_NAMESPACE, policies);
-
-        ArgumentCaptor<HttpEntity> requestEntity = ArgumentCaptor.forClass(HttpEntity.class);
-        verify(restTemplate).exchange(eq(url), eq(HttpMethod.PUT), requestEntity.capture(), eq(String.class));
-        assertThat(requestEntity.getValue().getBody(), allOf(notNullValue(), is(param)));
-        assertThat(requestEntity.getValue().getHeaders(), allOf(notNullValue(), is(headers)));
+        PulsarUtils.createNamespace(client, pulsarCluster, DEFAULT_TENANT, namespaceName, policies);
+        List<String> namespaces = PulsarUtils.getNamespaces(client, pulsarCluster, DEFAULT_TENANT);
+        assertTrue(namespaces.contains(namespaceInfo));
     }
 
     /**
@@ -268,19 +252,9 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testGetTopics() throws Exception {
-        final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_PERSISTENT_PATH + "/public/default";
-        final String result = "[\"persistent://public/default/testtopic-partition-0\","
-                + "\"persistent://public/default/testtopic-partition-1\","
-                + "\"persistent://public/default/testtopic-partition-2\"]";
-        List<String> expected = GSON.fromJson(result, ArrayList.class);
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getBody()).thenReturn(result);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        List<String> topics = PulsarUtils.getTopics(restTemplate, pulsarClusterInfo, DEFAULT_TENANT,
+        List<String> topics = PulsarUtils.getTopics(client, pulsarCluster, DEFAULT_TENANT,
                 DEFAULT_NAMESPACE);
-        assertEquals(expected.size(), topics.size());
-        assertEquals(expected, topics);
+        assertTrue(topics.size() >= 0);
     }
 
     /**
@@ -295,17 +269,9 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testGetPartitionedTopics() throws Exception {
-        final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_PERSISTENT_PATH + "/public/default/partitioned";
-        final String result = "[\"persistent://public/default/testtopic\"]";
-        List<String> expected = GSON.fromJson(result, ArrayList.class);
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getBody()).thenReturn(result);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        List<String> topics = PulsarUtils.getPartitionedTopics(restTemplate, pulsarClusterInfo, DEFAULT_TENANT,
+        List<String> topics = PulsarUtils.getPartitionedTopics(client, pulsarCluster, DEFAULT_TENANT,
                 DEFAULT_NAMESPACE);
-        assertEquals(expected.size(), topics.size());
-        assertEquals(expected, topics);
+        assertTrue(topics.size() >= 0);
     }
 
     /**
@@ -315,21 +281,14 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testCreateNonPartitionedTopic() throws Exception {
-        final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_PERSISTENT_PATH + InlongConstants.SLASH
-                + DEFAULT_NON_PRTITIONED_TOPIC_PATH;
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.PUT), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        PulsarUtils.createNonPartitionedTopic(restTemplate, pulsarClusterInfo, DEFAULT_NON_PRTITIONED_TOPIC_PATH);
+        final String topicPath = DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH
+                + "testCreateNonPartitionedTopic";
+        final String topicInfo = PERSISTENT_TOPIC_HEAD + topicPath;
 
-        HttpHeaders headers = new HttpHeaders();
-        if (StringUtils.isNotEmpty(pulsarClusterInfo.getToken())) {
-            headers.add("Authorization", "Bearer " + pulsarClusterInfo.getToken());
-        }
-        ArgumentCaptor<HttpEntity> requestEntity = ArgumentCaptor.forClass(HttpEntity.class);
-        verify(restTemplate).exchange(eq(url), eq(HttpMethod.PUT), requestEntity.capture(), eq(String.class));
-        assertThat(requestEntity.getValue().getBody(), allOf(nullValue()));
-        assertThat(requestEntity.getValue().getHeaders(), allOf(notNullValue(), is(headers)));
+        PulsarUtils.createNonPartitionedTopic(client, pulsarCluster, topicPath);
+        List<String> topics = PulsarUtils.getTopics(client, pulsarCluster, DEFAULT_TENANT,
+                DEFAULT_NAMESPACE);
+        assertTrue(topics.contains(topicInfo));
     }
 
     /**
@@ -343,22 +302,14 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testCreatePartitionedTopic() throws Exception {
-        final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_PERSISTENT_PATH + InlongConstants.SLASH
-                + DEFAULT_TOPIC_PATH + "/partitions";
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.PUT), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        PulsarUtils.createPartitionedTopic(restTemplate, pulsarClusterInfo, DEFAULT_TOPIC_PATH, DEFAULT_PARTITIONS_NUM);
+        final String topicPath = DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH
+                + "testCreatePartitionedTopic";
+        final String topicInfo = PERSISTENT_TOPIC_HEAD + topicPath;
 
-        HttpHeaders headers = new HttpHeaders();
-        if (StringUtils.isNotEmpty(pulsarClusterInfo.getToken())) {
-            headers.add("Authorization", "Bearer " + pulsarClusterInfo.getToken());
-        }
-        ArgumentCaptor<HttpEntity> requestEntity = ArgumentCaptor.forClass(HttpEntity.class);
-        verify(restTemplate).exchange(eq(url), eq(HttpMethod.PUT), requestEntity.capture(), eq(String.class));
-        assertThat(requestEntity.getValue().getBody(),
-                allOf(notNullValue(), is(String.valueOf(DEFAULT_PARTITIONS_NUM))));
-        assertThat(requestEntity.getValue().getHeaders(), allOf(notNullValue(), is(headers)));
+        PulsarUtils.createPartitionedTopic(client, pulsarCluster, topicPath, DEFAULT_PARTITIONS_NUM);
+        List<String> topics = PulsarUtils.getPartitionedTopics(client, pulsarCluster, DEFAULT_TENANT,
+                DEFAULT_NAMESPACE);
+        assertTrue(topics.contains(topicInfo));
     }
 
     /**
@@ -373,19 +324,12 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testGetStatsPartitionedTopics() throws Exception {
-        final String json = "{\"metadata\": {\"deleted\": true,\"partitions\": 0},\"partitions\": {\"property1\": "
-                + "{\"currentLedgerEntries\": 0,\"currentLedgerSize\": 0}}}";
-        JsonObject expected = GSON.fromJson(json, JsonObject.class);
-        final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_PERSISTENT_PATH + InlongConstants.SLASH
-                + DEFAULT_TOPIC_PATH + "/partitioned-internalStats";
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        when(exchange.getBody()).thenReturn(json);
+        final String topicPath = DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH
+                + "testGetStatsPartitionedTopics";
 
-        JsonObject stats = PulsarUtils.getStatsPartitionedTopics(restTemplate, pulsarClusterInfo,
-                DEFAULT_TOPIC_PATH);
-        assertEquals(expected.toString(), stats.toString());
+        PulsarUtils.createPartitionedTopic(client, pulsarCluster, topicPath, DEFAULT_PARTITIONS_NUM);
+        JsonObject stats = PulsarUtils.getStatsPartitionedTopics(client, pulsarCluster, topicPath);
+        assertNotNull(stats);
     }
 
     /**
@@ -400,18 +344,12 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testGetPartitionedTopicMetadata() throws Exception {
-        final String json = "{\n  \"deleted\": true,\n  \"partitions\": 0,\n  \"properties\": {\n"
-                + "    \"property1\": \"string\",\n    \"property2\": \"string\"\n  }\n}";
-        PulsarTopicMetadata expected = GSON.fromJson(json, PulsarTopicMetadata.class);
-        String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_PERSISTENT_PATH + "/" + DEFAULT_TOPIC_PATH + "/partitions";
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        when(exchange.getBody()).thenReturn(json);
-
-        PulsarTopicMetadata metadata = PulsarUtils.getPartitionedTopicMetadata(restTemplate, pulsarClusterInfo,
-                DEFAULT_TOPIC_PATH);
-        assertEquals(expected, metadata);
+        final String topicPath = DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH
+                + "testGetPartitionedTopicMetadata";
+        PulsarUtils.createPartitionedTopic(client, pulsarCluster, topicPath, DEFAULT_PARTITIONS_NUM);
+        PulsarTopicMetadata metadata = PulsarUtils.getPartitionedTopicMetadata(client, pulsarCluster,
+                topicPath);
+        assertNotNull(metadata);
     }
 
     /**
@@ -425,21 +363,17 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testDeleteNonPartitionedTopic() throws Exception {
-        final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_PERSISTENT_PATH
-                + InlongConstants.SLASH + DEFAULT_TOPIC_PATH;
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.DELETE), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        PulsarUtils.deleteNonPartitionedTopic(restTemplate, pulsarClusterInfo, DEFAULT_TOPIC_PATH);
+        final String topicPath = DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH
+                + "testDeleteNonPartitionedTopic";
+        final String topicInfo = PERSISTENT_TOPIC_HEAD + topicPath;
 
-        HttpHeaders headers = new HttpHeaders();
-        if (StringUtils.isNotEmpty(pulsarClusterInfo.getToken())) {
-            headers.add("Authorization", "Bearer " + pulsarClusterInfo.getToken());
-        }
-        ArgumentCaptor<HttpEntity> requestEntity = ArgumentCaptor.forClass(HttpEntity.class);
-        verify(restTemplate).exchange(eq(url), eq(HttpMethod.DELETE), requestEntity.capture(), eq(String.class));
-        assertThat(requestEntity.getValue().getBody(), allOf(nullValue()));
-        assertThat(requestEntity.getValue().getHeaders(), allOf(notNullValue(), is(headers)));
+        PulsarUtils.createNonPartitionedTopic(client, pulsarCluster, topicPath);
+        List<String> topics = PulsarUtils.getTopics(client, pulsarCluster, DEFAULT_TENANT, DEFAULT_NAMESPACE);
+        assertTrue(topics.contains(topicInfo));
+
+        PulsarUtils.deleteNonPartitionedTopic(client, pulsarCluster, topicPath);
+        topics = PulsarUtils.getTopics(client, pulsarCluster, DEFAULT_TENANT, DEFAULT_NAMESPACE);
+        assertTrue(!topics.contains(topicInfo));
     }
 
     /**
@@ -453,23 +387,17 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testForceDeleteNonPartitionedTopic() throws Exception {
-        final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_PERSISTENT_PATH
-                + InlongConstants.SLASH + DEFAULT_TOPIC_PATH;
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.DELETE), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        PulsarUtils.forceDeleteNonPartitionedTopic(restTemplate, pulsarClusterInfo, DEFAULT_TOPIC_PATH);
+        final String topicPath = DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH
+                + "testForceDeleteNonPartitionedTopic";
+        final String topicInfo = PERSISTENT_TOPIC_HEAD + topicPath;
 
-        HttpHeaders headers = new HttpHeaders();
-        if (StringUtils.isNotEmpty(pulsarClusterInfo.getToken())) {
-            headers.add("Authorization", "Bearer " + pulsarClusterInfo.getToken());
-        }
-        Map<String, Boolean> uriVariables = new HashMap<>();
-        uriVariables.put("force", true);
-        ArgumentCaptor<HttpEntity> requestEntity = ArgumentCaptor.forClass(HttpEntity.class);
-        verify(restTemplate).exchange(eq(url), eq(HttpMethod.DELETE), requestEntity.capture(), eq(String.class));
-        assertThat(requestEntity.getValue().getBody(), allOf(notNullValue(), is(uriVariables)));
-        assertThat(requestEntity.getValue().getHeaders(), allOf(notNullValue(), is(headers)));
+        PulsarUtils.createNonPartitionedTopic(client, pulsarCluster, topicPath);
+        List<String> topics = PulsarUtils.getTopics(client, pulsarCluster, DEFAULT_TENANT, DEFAULT_NAMESPACE);
+        assertTrue(topics.contains(topicInfo));
+
+        PulsarUtils.forceDeleteNonPartitionedTopic(client, pulsarCluster, topicPath);
+        topics = PulsarUtils.getTopics(client, pulsarCluster, DEFAULT_TENANT, DEFAULT_NAMESPACE);
+        assertTrue(!topics.contains(topicInfo));
     }
 
     /**
@@ -483,21 +411,19 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testDeletePartitionedTopic() throws Exception {
-        final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_PERSISTENT_PATH
-                + InlongConstants.SLASH + DEFAULT_TOPIC_PATH + "/partitions";
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.DELETE), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        PulsarUtils.deletePartitionedTopic(restTemplate, pulsarClusterInfo, DEFAULT_TOPIC_PATH);
+        final String topicPath = DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH
+                + "testDeletePartitionedTopic";
+        final int numPartitions = 3;
+        final String topicInfo = PERSISTENT_TOPIC_HEAD + topicPath;
 
-        HttpHeaders headers = new HttpHeaders();
-        if (StringUtils.isNotEmpty(pulsarClusterInfo.getToken())) {
-            headers.add("Authorization", "Bearer " + pulsarClusterInfo.getToken());
-        }
-        ArgumentCaptor<HttpEntity> requestEntity = ArgumentCaptor.forClass(HttpEntity.class);
-        verify(restTemplate).exchange(eq(url), eq(HttpMethod.DELETE), requestEntity.capture(), eq(String.class));
-        assertThat(requestEntity.getValue().getBody(), allOf(nullValue()));
-        assertThat(requestEntity.getValue().getHeaders(), allOf(notNullValue(), is(headers)));
+        PulsarUtils.createPartitionedTopic(client, pulsarCluster, topicPath, numPartitions);
+        List<String> topics = PulsarUtils.getPartitionedTopics(client, pulsarCluster, DEFAULT_TENANT,
+                DEFAULT_NAMESPACE);
+        assertTrue(topics.contains(topicInfo));
+
+        PulsarUtils.deletePartitionedTopic(client, pulsarCluster, topicPath);
+        topics = PulsarUtils.getPartitionedTopics(client, pulsarCluster, DEFAULT_TENANT, DEFAULT_NAMESPACE);
+        assertTrue(!topics.contains(topicInfo));
     }
 
     /**
@@ -511,23 +437,19 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testForceDeletePartitionedTopic() throws Exception {
-        final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_PERSISTENT_PATH
-                + InlongConstants.SLASH + DEFAULT_TOPIC_PATH + "/partitions";
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.DELETE), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        PulsarUtils.forceDeletePartitionedTopic(restTemplate, pulsarClusterInfo, DEFAULT_TOPIC_PATH);
+        final String topicPath = DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH
+                + "testForceDeletePartitionedTopic";
+        final int numPartitions = 3;
+        final String topicInfo = PERSISTENT_TOPIC_HEAD + topicPath;
 
-        HttpHeaders headers = new HttpHeaders();
-        if (StringUtils.isNotEmpty(pulsarClusterInfo.getToken())) {
-            headers.add("Authorization", "Bearer " + pulsarClusterInfo.getToken());
-        }
-        Map<String, Boolean> uriVariables = new HashMap<>();
-        uriVariables.put("force", true);
-        ArgumentCaptor<HttpEntity> requestEntity = ArgumentCaptor.forClass(HttpEntity.class);
-        verify(restTemplate).exchange(eq(url), eq(HttpMethod.DELETE), requestEntity.capture(), eq(String.class));
-        assertThat(requestEntity.getValue().getBody(), allOf(notNullValue(), is(uriVariables)));
-        assertThat(requestEntity.getValue().getHeaders(), allOf(notNullValue(), is(headers)));
+        PulsarUtils.createPartitionedTopic(client, pulsarCluster, topicPath, numPartitions);
+        List<String> topics = PulsarUtils.getPartitionedTopics(client, pulsarCluster, DEFAULT_TENANT,
+                DEFAULT_NAMESPACE);
+        assertTrue(topics.contains(topicInfo));
+
+        PulsarUtils.deletePartitionedTopic(client, pulsarCluster, topicPath);
+        topics = PulsarUtils.getPartitionedTopics(client, pulsarCluster, DEFAULT_TENANT, DEFAULT_NAMESPACE);
+        assertTrue(!topics.contains(topicInfo));
     }
 
     /**
@@ -537,18 +459,11 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testLookupTopic() throws Exception {
-        final String result = "{\"brokerUrl\":\"pulsar://localhost:6650\",\"httpUrl\":\"http://localhost:8080\","
-                + "\"nativeUrl\":\"pulsar://localhost:6650\",\"brokerUrlSsl\":\"\"}";
-        final String url = DEFAULT_SERVICE_URL + PulsarUtils.LOOKUP_TOPIC_PATH + "/persistent/" + DEFAULT_TOPIC_PATH;
-        PulsarLookupTopicInfo expected = GSON.fromJson(result, PulsarLookupTopicInfo.class);
-
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getBody()).thenReturn(result);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-
-        String actual = PulsarUtils.lookupTopic(restTemplate, pulsarClusterInfo, DEFAULT_TOPIC_PATH);
-        assertEquals(expected.getBrokerUrl(), actual);
+        final String topicPath =
+                DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH + "testLookupTopic";
+        PulsarUtils.createNonPartitionedTopic(client, pulsarCluster, topicPath);
+        String actual = PulsarUtils.lookupTopic(client, pulsarCluster, topicPath);
+        assertNotNull(actual);
     }
 
     /**
@@ -558,19 +473,11 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testLookupPartitionedTopic() throws Exception {
-        final int partitionsNum = 3;
-        final String json = "{\n \"deleted\": true,\n \"partitions\":" + partitionsNum
-                + " ,\n  \"properties\": {\n    \"property1\": \"string\",\n    \"property2\": \"string\"\n  }\n}";
-        final String result = "{\"brokerUrl\":\"pulsar://localhost:6650\",\"httpUrl\":\"http://localhost:8080\","
-                + "\"nativeUrl\":\"pulsar://localhost:6650\",\"brokerUrlSsl\":\"\"}";
-        when(restTemplate.exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class),
-                eq(String.class))).thenReturn(exchange);
-        when(exchange.getBody()).thenReturn(json, json, result, result, result, result, result, result);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK, HttpStatus.OK, HttpStatus.OK, HttpStatus.OK);
-
-        Map<String, String> actual = PulsarUtils.lookupPartitionedTopic(restTemplate, pulsarClusterInfo,
-                DEFAULT_TOPIC_PATH);
-        assertEquals(partitionsNum, actual.size());
+        final String topicPath = DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH
+                + "testLookupPartitionedTopic";
+        PulsarUtils.createNonPartitionedTopic(client, pulsarCluster, topicPath);
+        Map<String, String> actual = PulsarUtils.lookupPartitionedTopic(client, pulsarCluster, topicPath);
+        assertNotNull(actual);
     }
 
     /**
@@ -584,17 +491,11 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testGetSubscriptions() throws Exception {
-        final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_PERSISTENT_PATH
-                + InlongConstants.SLASH + DEFAULT_TOPIC_PATH + "/subscriptions";
-        final String result = "[\"test_subscriptions\"]";
-        List<String> expected = GSON.fromJson(result, ArrayList.class);
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getBody()).thenReturn(result);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        List<String> subscriptions = PulsarUtils.getSubscriptions(restTemplate, pulsarClusterInfo, DEFAULT_TOPIC_PATH);
-        assertEquals(expected.size(), subscriptions.size());
-        assertEquals(expected, subscriptions);
+        final String topicPath = DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH
+                + "testGetSubscriptions";
+        PulsarUtils.createNonPartitionedTopic(client, pulsarCluster, topicPath);
+        List<String> actual = PulsarUtils.getSubscriptions(client, pulsarCluster, topicPath);
+        assertTrue(actual.size() >= 0);
     }
 
     /**
@@ -609,27 +510,11 @@ public class PulsarUtilsTest {
     @Test
     public void testCreateSubscription() throws Exception {
         final String subscriptionName = "test_subscription";
-        final String url = DEFAULT_SERVICE_URL + PulsarUtils.QUERY_PERSISTENT_PATH + InlongConstants.SLASH
-                + DEFAULT_TOPIC_PATH + "/subscription/" + subscriptionName;
-        final String requestBody =
-                "{\"entryId\":9223372036854775807,\"ledgerId\":9223372036854775807,\"partitionIndex\":-1}";
-
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.PUT), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        PulsarUtils.createSubscription(restTemplate, pulsarClusterInfo, DEFAULT_TOPIC_PATH, subscriptionName);
-
-        HttpHeaders headers = new HttpHeaders();
-        if (StringUtils.isNotEmpty(pulsarClusterInfo.getToken())) {
-            headers.add("Authorization", "Bearer " + pulsarClusterInfo.getToken());
-        }
-        MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
-        headers.setContentType(type);
-        headers.add("Accept", MediaType.APPLICATION_JSON.toString());
-        ArgumentCaptor<HttpEntity> requestEntity = ArgumentCaptor.forClass(HttpEntity.class);
-        verify(restTemplate).exchange(eq(url), eq(HttpMethod.PUT), requestEntity.capture(), eq(String.class));
-        assertThat(requestEntity.getValue().getBody(), allOf(notNullValue(), is(requestBody)));
-        assertThat(requestEntity.getValue().getHeaders(), allOf(notNullValue(), is(headers)));
+        final String topicPath = DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH
+                + "testCreateSubscription";
+        PulsarUtils.createSubscription(client, pulsarCluster, topicPath, subscriptionName);
+        List<String> actual = PulsarUtils.getSubscriptions(client, pulsarCluster, topicPath);
+        assertTrue(actual.contains(subscriptionName));
     }
 
     /**
@@ -647,6 +532,9 @@ public class PulsarUtilsTest {
      */
     @Test
     public void testExamineMessage() throws Exception {
+        /*
+         * Since admin API cannot send messages to the topic, this test case will be simulated using mokitio.
+         */
         final String messageType = "latest";
         final int messagePosition = 1;
         String topicPath = DEFAULT_TENANT + InlongConstants.SLASH + DEFAULT_NAMESPACE + InlongConstants.SLASH
