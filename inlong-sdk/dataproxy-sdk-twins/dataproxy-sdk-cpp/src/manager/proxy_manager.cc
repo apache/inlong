@@ -262,26 +262,26 @@ bool ProxyManager::HasProxy(const std::string &inlong_group_id) {
     return CheckClusterId(inlong_group_id);
   }
 }
-int32_t ProxyManager::GetProxyByGroupid(const std::string &bid,
-                                        ProxyInfoVec &bus_info_vec) {
+int32_t ProxyManager::GetProxyByGroupid(const std::string &inlong_group_id,
+                                        ProxyInfoVec &proxy_info_vec) {
   unique_read_lock<read_write_mutex> rdlck(groupid_2_proxy_map_rwmutex_);
-  auto it = groupid_2_proxy_map_.find(bid);
+  auto it = groupid_2_proxy_map_.find(inlong_group_id);
   if (it == groupid_2_proxy_map_.end()) {
-    LOG_ERROR("GetBusByBid  failed . bid " << bid);
+    LOG_ERROR("GetProxy failed! inlong_group_id: " << inlong_group_id);
     return SdkCode::kFailGetConn;
   }
-  bus_info_vec = it->second;
+  proxy_info_vec = it->second;
   return SdkCode::kSuccess;
 }
 int32_t ProxyManager::GetProxyByClusterId(const std::string &cluster_id,
-                                          ProxyInfoVec &bus_info_vec) {
+                                          ProxyInfoVec &proxy_info_vec) {
   unique_read_lock<read_write_mutex> rdlck(clusterid_2_proxy_map_rwmutex_);
   auto it = cluster_id_2_proxy_map_.find(cluster_id);
   if (it == cluster_id_2_proxy_map_.end()) {
-    LOG_ERROR("GetBusByBid failed! bid:" << cluster_id);
+    LOG_ERROR("GetProxy failed! cluster_id:" << cluster_id);
     return SdkCode::kFailGetConn;
   }
-  bus_info_vec = it->second;
+  proxy_info_vec = it->second;
   return SdkCode::kSuccess;
 }
 std::string ProxyManager::GetSendGroupKey(const std::string &groupid) {

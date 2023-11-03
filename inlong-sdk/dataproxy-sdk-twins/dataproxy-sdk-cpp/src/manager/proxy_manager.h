@@ -63,9 +63,9 @@ public:
   void DoUpdate();
   void Init();
   int32_t GetProxy(const std::string &groupid, ProxyInfoVec &proxy_info_vec);
-  int32_t GetProxyByGroupid(const std::string &bid, ProxyInfoVec &bus_info_vec);
+  int32_t GetProxyByGroupid(const std::string &inlong_group_id, ProxyInfoVec &proxy_info_vec);
   int32_t GetProxyByClusterId(const std::string &cluster_id,
-                              ProxyInfoVec &bus_info_vec);
+                              ProxyInfoVec &proxy_info_vec);
   std::string GetSendGroupKey(const std::string &groupid);
   bool HasProxy(const std::string &inlong_group_id);
   bool CheckGroupid(const std::string &groupid);
