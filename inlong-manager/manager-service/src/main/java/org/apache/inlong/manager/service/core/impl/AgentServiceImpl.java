@@ -55,6 +55,7 @@ import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeDTO;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperator;
 
@@ -101,6 +102,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.apache.inlong.manager.common.consts.InlongConstants.DOT;
+import static org.apache.inlong.manager.pojo.stream.InlongStreamExtParam.unpackExtParams;
 
 /**
  * Agent service layer implementation
@@ -161,7 +163,7 @@ public class AgentServiceImpl implements AgentService {
         // because the eviction handler needs to query cluster info cache
         long expireTime = 10 * 5;
         taskCache = Caffeine.newBuilder()
-                .expireAfterAccess(expireTime * 2L, TimeUnit.SECONDS)
+                .expireAfterWrite(expireTime * 2L, TimeUnit.SECONDS)
                 .build(this::fetchTask);
 
         if (updateTaskTimeoutEnabled) {
@@ -600,6 +602,11 @@ public class AgentServiceImpl implements AgentService {
                 String dataSeparator = streamEntity.getDataSeparator();
                 extParams = (null != dataSeparator ? getExtParams(extParams, dataSeparator) : extParams);
             }
+
+            InlongStreamInfo streamInfo = CommonBeanUtils.copyProperties(streamEntity, InlongStreamInfo::new);
+            // Processing extParams
+            unpackExtParams(streamEntity.getExtParams(), streamInfo);
+            dataConfig.setPredefinedFields(streamInfo.getPredefinedFields());
 
             int dataReportType = groupEntity.getDataReportType();
             dataConfig.setDataReportType(dataReportType);
