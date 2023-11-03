@@ -79,6 +79,7 @@ public class LogFileCollectTask extends Task {
             new ConcurrentHashMap<>();
     public static final long DAY_TIMEOUT_INTERVAL = 2 * 24 * 3600 * 1000;
     public static final int CORE_THREAD_SLEEP_TIME = 1000;
+    public static final int CORE_THREAD_MAX_GAP_TIME_MS = 60 * 1000;
     private boolean retry;
     private long startTime;
     private long endTime;
@@ -87,6 +88,7 @@ public class LogFileCollectTask extends Task {
     private long lastScanTime = 0;
     public final long SCAN_INTERVAL = 1 * 60 * 1000;
     private volatile boolean runAtLeastOneTime = false;
+    private volatile long coreThreadUpdateTime = 0;
     private volatile boolean running = false;
 
     @Override
@@ -196,6 +198,10 @@ public class LogFileCollectTask extends Task {
 
     private void releaseWatchers(Map<String, WatchEntity> watchers) {
         while (running) {
+            if (AgentUtils.getCurrentTime() - coreThreadUpdateTime > CORE_THREAD_MAX_GAP_TIME_MS) {
+                LOGGER.error("core thread not update, maybe it has broken");
+                break;
+            }
             AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
         }
         watchers.forEach((taskId, watcher) -> {
@@ -227,6 +233,7 @@ public class LogFileCollectTask extends Task {
         Thread.currentThread().setName("directory-task-core-" + getTaskId());
         running = true;
         while (!isFinished()) {
+            coreThreadUpdateTime = AgentUtils.getCurrentTime();
             AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
             if (!initOK) {
                 continue;
