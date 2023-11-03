@@ -101,6 +101,10 @@ public class InstanceProfile extends AbstractConfiguration implements Comparable
         setLong(TaskConstants.FILE_UPDATE_TIME, lastUpdateTime);
     }
 
+    public String getPredefineFields() {
+        return get(TaskConstants.PREDEFINE_FIELDS, "");
+    }
+
     @Override
     public boolean allRequiredKeyExist() {
         return hasKey(TaskConstants.FILE_UPDATE_TIME);
