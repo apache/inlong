@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
-import org.apache.flink.table.data.TimestampData;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgDeserializationSchema.MetadataConverter;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -28,6 +27,7 @@ import org.apache.flink.table.connector.format.DecodingFormat;
 import org.apache.flink.table.connector.source.DynamicTableSource.Context;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
+import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 
@@ -153,17 +153,17 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
                 }),
 
         CREATE_TIME(
-            "create-time",
-            DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE().notNull(),
-            new MetadataConverter() {
+                "create-time",
+                DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE().notNull(),
+                new MetadataConverter() {
 
-                private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = 1L;
 
-                @Override
-                public Object read(InLongMsgHead head) {
-                    return TimestampData.fromTimestamp(head.getTime());
-                }
-            }),
+                    @Override
+                    public Object read(InLongMsgHead head) {
+                        return TimestampData.fromTimestamp(head.getTime());
+                    }
+                }),
 
         STREAM_ID(
                 "stream-id",
