@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import org.apache.flink.table.data.TimestampData;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgDeserializationSchema.MetadataConverter;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -138,7 +139,7 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
 
     enum ReadableMetadata {
 
-        CREATE_TIME(
+        DATA_TIME(
                 "data-time",
                 DataTypes.BIGINT().notNull(),
                 new MetadataConverter() {
@@ -150,6 +151,19 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
                         return head.getTime().getTime();
                     }
                 }),
+
+        CREATE_TIME(
+            "create-time",
+            DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE().notNull(),
+            new MetadataConverter() {
+
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Object read(InLongMsgHead head) {
+                    return TimestampData.fromTimestamp(head.getTime());
+                }
+            }),
 
         STREAM_ID(
                 "stream-id",
