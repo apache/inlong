@@ -17,8 +17,6 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
-import java.util.EnumSet;
-import java.util.Set;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
@@ -38,8 +36,10 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("pulsarExtract")
@@ -150,7 +150,7 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric, Meta
                 break;
             default:
                 throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
-                    this.getClass().getSimpleName(), metaField));
+                        this.getClass().getSimpleName(), metaField));
         }
         return metadataKey;
     }

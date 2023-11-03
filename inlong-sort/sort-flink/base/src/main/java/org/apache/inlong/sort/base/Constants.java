@@ -421,4 +421,12 @@ public final class Constants {
                     .booleanType()
                     .defaultValue(false)
                     .withDescription("Whether supporting auto create table when snapshot, default value is 'false'");
+
+    public static final ConfigOption<String> INNER_FORMAT =
+            ConfigOptions.key("inlong-msg.inner.format")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "Inner format");
+
 }
