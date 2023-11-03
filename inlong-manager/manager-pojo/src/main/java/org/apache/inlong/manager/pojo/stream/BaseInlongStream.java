@@ -30,5 +30,6 @@ import lombok.Data;
 public class BaseInlongStream {
 
     // you can add extend parameters in this class
+    private String predefinedFields;
 
 }
