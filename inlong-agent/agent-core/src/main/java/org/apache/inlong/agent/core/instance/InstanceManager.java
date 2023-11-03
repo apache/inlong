@@ -21,7 +21,6 @@ import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.InstanceProfile;
-import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.InstanceDb;
 import org.apache.inlong.agent.plugin.Instance;
@@ -62,7 +61,7 @@ public class InstanceManager extends AbstractDaemon {
             new SynchronousQueue<>(),
             new AgentThreadFactory("instance-manager"));
 
-    private final int taskMaxLimit;
+    private final int instanceLimit;
     private final AgentConfiguration agentConf;
     private final String taskId;
     private volatile boolean runAtLeastOneTime = false;
@@ -71,12 +70,12 @@ public class InstanceManager extends AbstractDaemon {
     /**
      * Init task manager.
      */
-    public InstanceManager(String taskId, Db basicDb) {
+    public InstanceManager(String taskId, int instanceLimit, Db basicDb) {
         this.taskId = taskId;
         instanceDb = new InstanceDb(basicDb);
         this.agentConf = AgentConfiguration.getAgentConf();
         instanceMap = new ConcurrentHashMap<>();
-        taskMaxLimit = agentConf.getInt(AgentConstants.JOB_NUMBER_LIMIT, AgentConstants.DEFAULT_JOB_NUMBER_LIMIT);
+        this.instanceLimit = instanceLimit;
         actionQueue = new LinkedBlockingQueue<>(ACTION_QUEUE_CAPACITY);
     }
 
@@ -236,6 +235,10 @@ public class InstanceManager extends AbstractDaemon {
     }
 
     private void addInstance(InstanceProfile profile) {
+        if (instanceMap.size() >= instanceLimit) {
+            LOGGER.error("instanceMap size {} over limit {}", instanceMap.size(), instanceLimit);
+            return;
+        }
         LOGGER.info("add instance taskId {} instanceId {}", taskId, profile.getInstanceId());
         if (!shouldAddAgain(profile.getInstanceId(), profile.getFileUpdateTime())) {
             LOGGER.info("shouldAddAgain returns false skip taskId {} instanceId {}", taskId, profile.getInstanceId());

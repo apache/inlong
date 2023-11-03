@@ -113,7 +113,8 @@ public class LogFileCollectTask extends Task {
         retry = taskProfile.getBoolean(TaskConstants.TASK_RETRY, false);
         originPatterns = Stream.of(taskProfile.get(TaskConstants.FILE_DIR_FILTER_PATTERNS).split(","))
                 .collect(Collectors.toSet());
-        instanceManager = new InstanceManager(taskProfile.getTaskId(), basicDb);
+        instanceManager = new InstanceManager(taskProfile.getTaskId(), taskProfile.getInt(TaskConstants.FILE_MAX_NUM),
+                basicDb);
         try {
             instanceManager.start();
         } catch (Exception e) {
@@ -409,7 +410,7 @@ public class LogFileCollectTask extends Task {
                 continue;
             }
             if (Files.isDirectory(child)) {
-                LOGGER.warn("The find creation event is triggered by a directory: " + child
+                LOGGER.info("The find creation event is triggered by a directory: " + child
                         .getFileName());
                 entity.registerRecursively(child);
                 continue;
