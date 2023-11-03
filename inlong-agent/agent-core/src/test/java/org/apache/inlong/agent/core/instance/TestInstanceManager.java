@@ -64,7 +64,7 @@ public class TestInstanceManager {
     public void testInstanceManager() {
         long timeBefore = AgentUtils.getCurrentTime();
         InstanceProfile profile = taskProfile.createInstanceProfile(MockInstance.class.getCanonicalName(),
-                helper.getTestRootDir() + "/20230927_1.txt", "20230927");
+                helper.getTestRootDir() + "/20230927_1.txt", "20230927", AgentUtils.getCurrentTime());
         String instanceId = profile.getInstanceId();
         InstanceAction action = new InstanceAction();
         action.setActionType(ActionType.ADD);
@@ -85,8 +85,11 @@ public class TestInstanceManager {
         Assert.assertTrue(manager.shouldAddAgain(profile.getInstanceId(), AgentUtils.getCurrentTime()));
 
         // test continue
+        profile = taskProfile.createInstanceProfile(MockInstance.class.getCanonicalName(),
+                helper.getTestRootDir() + "/20230927_1.txt", "20230927", AgentUtils.getCurrentTime());
+        action = new InstanceAction();
         action.setActionType(ActionType.ADD);
-        profile.setState(InstanceStateEnum.DEFAULT);
+        action.setProfile(profile);
         manager.submitAction(action);
         await().atMost(1, TimeUnit.SECONDS).until(() -> manager.getInstance(instanceId) != null);
         Assert.assertTrue(manager.getInstanceProfile(instanceId).getState() == InstanceStateEnum.DEFAULT);

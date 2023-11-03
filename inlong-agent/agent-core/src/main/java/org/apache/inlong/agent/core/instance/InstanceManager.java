@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 public class InstanceManager extends AbstractDaemon {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InstanceManager.class);
-    private static final int ACTION_QUEUE_CAPACITY = 100000;
+    private static final int ACTION_QUEUE_CAPACITY = 100;
     public static final int CORE_THREAD_SLEEP_TIME = 100;
     // task in db
     private final InstanceDb instanceDb;
@@ -236,7 +236,11 @@ public class InstanceManager extends AbstractDaemon {
     }
 
     private void addInstance(InstanceProfile profile) {
-        LOGGER.info("addInstance taskId {} instanceId {}", taskId, profile.getInstanceId());
+        LOGGER.info("add instance taskId {} instanceId {}", taskId, profile.getInstanceId());
+        if (!shouldAddAgain(profile.getInstanceId(), profile.getFileUpdateTime())) {
+            LOGGER.info("shouldAddAgain returns false skip taskId {} instanceId {}", taskId, profile.getInstanceId());
+            return;
+        }
         addToDb(profile);
         addToMemory(profile);
     }
@@ -274,7 +278,7 @@ public class InstanceManager extends AbstractDaemon {
     }
 
     private void addToDb(InstanceProfile profile) {
-        LOGGER.info("add instance to db instanceId {} ", profile.getInstanceId());
+        LOGGER.info("add instance to db state {} instanceId {}", profile.getState(), profile.getInstanceId());
         instanceDb.storeInstance(profile);
     }
 
@@ -287,7 +291,7 @@ public class InstanceManager extends AbstractDaemon {
             oldInstance.destroy();
             instanceMap.remove(instanceProfile.getInstanceId());
             LOGGER.error("old instance {} should not exist, try stop it first",
-                    instanceProfile);
+                    instanceProfile.getInstanceId());
         }
         LOGGER.info("instanceProfile {}", instanceProfile.toJsonStr());
         try {
@@ -315,13 +319,16 @@ public class InstanceManager extends AbstractDaemon {
     public boolean shouldAddAgain(String fileName, long lastModifyTime) {
         InstanceProfile profileFromDb = instanceDb.getInstance(taskId, fileName);
         if (profileFromDb == null) {
+            LOGGER.debug("not in db should add {}", fileName);
             return true;
         } else {
             InstanceStateEnum state = profileFromDb.getState();
             if (state == InstanceStateEnum.FINISHED && lastModifyTime > profileFromDb.getModifyTime()) {
+                LOGGER.debug("finished but file update again {}", fileName);
                 return true;
             }
             if (state == InstanceStateEnum.DELETE) {
+                LOGGER.debug("delete and add again {}", fileName);
                 return true;
             }
             return false;

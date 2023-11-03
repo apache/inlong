@@ -369,7 +369,7 @@ public class TaskManager extends AbstractDaemon {
      */
     private void addToDb(TaskProfile taskProfile) {
         if (taskDb.getTask(taskProfile.getTaskId()) != null) {
-            LOGGER.error("task {} should not exist", taskProfile);
+            LOGGER.error("task {} should not exist", taskProfile.getTaskId());
         }
         taskDb.storeTask(taskProfile);
     }
@@ -398,7 +398,7 @@ public class TaskManager extends AbstractDaemon {
             oldTask.destroy();
             taskMap.remove(taskProfile.getTaskId());
             LOGGER.error("old task {} should not exist, try stop it first",
-                    taskProfile);
+                    taskProfile.getTaskId());
         }
         try {
             Class<?> taskClass = Class.forName(taskProfile.getTaskClass());

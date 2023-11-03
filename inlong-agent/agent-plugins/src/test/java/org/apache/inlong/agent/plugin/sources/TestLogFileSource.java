@@ -24,6 +24,7 @@ import org.apache.inlong.agent.core.task.file.MemoryManager;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.utils.file.FileDataUtils;
+import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.enums.TaskStateEnum;
 
 import com.google.gson.Gson;
@@ -60,7 +61,7 @@ public class TestLogFileSource {
         String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
         TaskProfile taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING);
         instanceProfile = taskProfile.createInstanceProfile("",
-                fileName, "20230928");
+                fileName, "20230928", AgentUtils.getCurrentTime());
 
     }
 

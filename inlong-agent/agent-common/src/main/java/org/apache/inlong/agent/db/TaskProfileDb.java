@@ -64,10 +64,7 @@ public class TaskProfileDb {
             String keyName = getKeyByTaskId(task.getTaskId());
             KeyValueEntity entity = new KeyValueEntity(keyName,
                     task.toJsonStr(), task.get(TaskConstants.FILE_DIR_FILTER_PATTERNS));
-            KeyValueEntity oldEntity = db.put(entity);
-            if (oldEntity != null) {
-                LOGGER.warn("task profile {} has been replaced", oldEntity.getKey());
-            }
+            db.put(entity);
         }
     }
 

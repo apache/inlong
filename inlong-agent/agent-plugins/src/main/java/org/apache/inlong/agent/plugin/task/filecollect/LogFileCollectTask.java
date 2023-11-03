@@ -273,6 +273,17 @@ public class LogFileCollectTask extends Task {
         });
     }
 
+    private boolean isInEventMap(String fileName, String dataTime) {
+        Map<String, InstanceProfile> fileToProfile = eventMap.get(dataTime);
+        if (fileToProfile == null) {
+            return false;
+        }
+        if (fileToProfile.get(fileName) == null) {
+            return false;
+        }
+        return true;
+    }
+
     private List<BasicFileInfo> scanExistingFileByPattern(String originPattern) {
         long startScanTime = startTime;
         long endScanTime = endTime;
@@ -305,14 +316,20 @@ public class LogFileCollectTask extends Task {
         removeTimeoutEven(eventMap, retry);
         for (Map.Entry<String, Map<String, InstanceProfile>> entry : eventMap.entrySet()) {
             Map<String, InstanceProfile> sameDataTimeEvents = entry.getValue();
-            // 根据event的数据时间、业务的周期、偏移量计算出该event是否需要在当前时间处理
+            if (sameDataTimeEvents.isEmpty()) {
+                return;
+            }
+            /*
+             * Calculate whether the event needs to be processed at the current time based on its data time, business
+             * cycle, and offset
+             */
             String dataTime = entry.getKey();
             String shouldStartTime =
                     NewDateUtils.getShouldStartTime(dataTime, taskProfile.getCycleUnit(), taskProfile.getTimeOffset());
             String currentTime = getCurrentTime();
-            LOGGER.info("taskId {}, dataTime {}, currentTime {}, shouldStartTime {}",
-                    new Object[]{getTaskId(), dataTime, currentTime, shouldStartTime});
             if (currentTime.compareTo(shouldStartTime) >= 0) {
+                LOGGER.info("submit now taskId {}, dataTime {}, currentTime {}, shouldStartTime {}",
+                        new Object[]{getTaskId(), dataTime, currentTime, shouldStartTime});
                 /* These codes will sort the FileCreationEvents by create time. */
                 Set<InstanceProfile> sortedEvents = new TreeSet<>(sameDataTimeEvents.values());
                 /* Check the file end with event creation time in asc order. */
@@ -326,6 +343,9 @@ public class LogFileCollectTask extends Task {
                     }
                     sameDataTimeEvents.remove(fileName);
                 }
+            } else {
+                LOGGER.info("submit later taskId {}, dataTime {}, currentTime {}, shouldStartTime {}",
+                        new Object[]{getTaskId(), dataTime, currentTime, shouldStartTime});
             }
         }
     }
@@ -335,7 +355,7 @@ public class LogFileCollectTask extends Task {
             return;
         }
         for (Map.Entry<String, Map<String, InstanceProfile>> entry : eventMap.entrySet()) {
-            // 如果event的数据时间在当前时间前(后)2天之内，则有效
+            /* If the data time of the event is within 2 days before (after) the current time, it is valid */
             String dataTime = entry.getKey();
             if (!NewDateUtils.isValidCreationTime(dataTime, DAY_TIMEOUT_INTERVAL)) {
                 /* Remove it from memory map. */
@@ -429,9 +449,11 @@ public class LogFileCollectTask extends Task {
     }
 
     private void addToEvenMap(String fileName, String dataTime) {
-        Long lastModifyTime = FileUtils.getFileLastModifyTime(fileName);
-        if (!instanceManager.shouldAddAgain(fileName, lastModifyTime)) {
-            LOGGER.info("file {} has record in db", fileName);
+        if (isInEventMap(fileName, dataTime)) {
+            return;
+        }
+        Long fileUpdateTime = FileUtils.getFileLastModifyTime(fileName);
+        if (!instanceManager.shouldAddAgain(fileName, fileUpdateTime)) {
             return;
         }
         Map<String, InstanceProfile> sameDataTimeEvents = eventMap.computeIfAbsent(dataTime,
@@ -442,7 +464,7 @@ public class LogFileCollectTask extends Task {
             return;
         }
         InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_FILE_INSTANCE,
-                fileName, dataTime);
+                fileName, dataTime, fileUpdateTime);
         sameDataTimeEvents.put(fileName, instanceProfile);
     }
 
@@ -467,12 +489,12 @@ public class LogFileCollectTask extends Task {
          * For this case, we can simple think that the next file creation means the last task of this conf should finish
          * reading and start reading this new file.
          */
-        // 从文件名称中提取数据时间
+        // Extract data time from file name
         String fileTime = NewDateUtils.getDateTime(fileName, originPattern, dateExpression);
 
         /**
-         * 将文件时间中任意非数字字符替换掉
-         * 如2015-09-16_00替换成2015091600
+         * Replace any non-numeric characters in the file time
+         * such as 2015-09-16_00 replace with 2015091600
          */
         return fileTime.replaceAll("\\D", "");
     }
