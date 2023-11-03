@@ -26,6 +26,7 @@ import org.apache.inlong.audit.util.StatInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -42,8 +43,9 @@ import static org.apache.inlong.audit.protocol.AuditApi.BaseCommand.Type.AUDIT_R
 /**
  * Audit operator, which is singleton.
  */
-public class AuditOperator {
+public class AuditOperator implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditOperator.class);
     private static final String FIELD_SEPARATORS = ":";
     private static final String DEFAULT_AUDIT_TAG = "-1";
