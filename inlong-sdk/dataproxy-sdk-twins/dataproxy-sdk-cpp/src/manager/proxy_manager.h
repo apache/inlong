@@ -31,11 +31,17 @@ class ProxyManager {
 private:
   static ProxyManager *instance_;
   uint32_t timeout_;
-  read_write_mutex groupid_2_cluster_rwmutex_;
+  read_write_mutex groupid_2_cluster_id_rwmutex_;
   read_write_mutex groupid_2_proxy_map_rwmutex_;
+  read_write_mutex clusterid_2_proxy_map_rwmutex_;
 
-  std::unordered_map<std::string, int32_t> groupid_2_cluster_map_;
+  std::unordered_map<std::string, std::string> groupid_2_cluster_id_map_;
+  std::unordered_map<std::string, int32_t> groupid_2_cluster_id_update_map_;
+
   std::unordered_map<std::string, ProxyInfoVec> groupid_2_proxy_map_;
+  std::unordered_map<std::string, ProxyInfoVec>
+      cluster_id_2_proxy_map_; //<cluster_id,busList>
+
   bool update_flag_;
   std::mutex cond_mutex_;
   std::mutex update_mutex_;
@@ -45,7 +51,7 @@ private:
   std::thread update_conf_thread_;
   volatile bool inited_ = false;
 
-  int32_t ParseAndGet(const std::string &groupid, const std::string &meta_data,
+  int32_t ParseAndGet(const std::string &key, const std::string &meta_data,
                       ProxyInfoVec &proxy_info_vec);
 
 public:
@@ -57,7 +63,15 @@ public:
   void DoUpdate();
   void Init();
   int32_t GetProxy(const std::string &groupid, ProxyInfoVec &proxy_info_vec);
-  bool IsExist(const std::string &inlong_group_id);
+  int32_t GetProxyByGroupid(const std::string &bid, ProxyInfoVec &bus_info_vec);
+  int32_t GetProxyByClusterId(const std::string &cluster_id,
+                              ProxyInfoVec &bus_info_vec);
+  std::string GetSendGroupKey(const std::string &groupid);
+  bool HasProxy(const std::string &inlong_group_id);
+  bool CheckGroupid(const std::string &groupid);
+  bool CheckClusterId(const std::string &cluster_id);
+  void UpdateClusterId2ProxyMap();
+  void UpdateGroupid2ClusterIdMap();
 };
 } // namespace inlong
 

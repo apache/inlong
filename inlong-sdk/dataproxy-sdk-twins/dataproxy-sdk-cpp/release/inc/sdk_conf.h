@@ -79,6 +79,7 @@ public:
   uint32_t manager_url_timeout_;     // URL parsing timeout, seconds
   uint32_t max_proxy_num_;
   uint32_t msg_type_;
+  bool enable_isolation_;
 
   // Network parameters
   bool enable_tcp_nagle_;
