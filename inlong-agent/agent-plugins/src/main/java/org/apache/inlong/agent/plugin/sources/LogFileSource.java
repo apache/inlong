@@ -32,6 +32,7 @@ import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
 import org.apache.inlong.agent.plugin.sources.reader.file.KubernetesMetadataProvider;
+import org.apache.inlong.agent.plugin.utils.MetaDataUtils;
 import org.apache.inlong.agent.plugin.utils.file.FileDataUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
 
@@ -137,7 +138,7 @@ public class LogFileSource extends AbstractSource {
     @Override
     public void init(InstanceProfile profile) {
         try {
-            LOGGER.info("FileReaderOperator init: {}", profile.toJsonStr());
+            LOGGER.info("LogFileSource init: {}", profile.toJsonStr());
             this.profile = profile;
             super.init(profile);
             taskId = profile.getTaskId();
@@ -348,6 +349,7 @@ public class LogFileSource extends AbstractSource {
         Map<String, String> header = new HashMap<>();
         header.put(PROXY_KEY_DATA, proxyPartitionKey);
         header.put(OFFSET, sourceData.offset.toString());
+        header.putAll(MetaDataUtils.parseAddAttr(profile.getPredefineFields()));
         Message finalMsg = new DefaultMessage(msgWithMetaData.getBytes(StandardCharsets.UTF_8), header);
         // if the message size is greater than max pack size,should drop it.
         if (finalMsg.getBody().length > maxPackSize) {

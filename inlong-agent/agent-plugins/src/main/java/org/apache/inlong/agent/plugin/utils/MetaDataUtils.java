@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -135,5 +136,29 @@ public class MetaDataUtils {
             return null;
         }).filter(Objects::nonNull).collect(Collectors.toList());
         return podName.isEmpty() ? null : podName.get(0);
+    }
+
+    public static Map<String, String> parseAddAttr(String addictiveAttr) {
+        StringTokenizer token = new StringTokenizer(addictiveAttr, "&");
+        Map<String, String> attr = new HashMap<String, String>();
+        while (token.hasMoreTokens()) {
+            String value = token.nextToken().trim();
+            if (value.contains("=")) {
+                String[] pairs = value.split("=");
+
+                if (pairs[0].equalsIgnoreCase("m")) {
+                    continue;
+                }
+
+                // 当addictiveattr 类似 "m=10&__addcol1__worldid=" 时
+                if (value.endsWith("=") && pairs.length == 1) {
+                    attr.put(pairs[0], "");
+                } else {
+                    attr.put(pairs[0], pairs[1]);
+                }
+
+            }
+        }
+        return attr;
     }
 }

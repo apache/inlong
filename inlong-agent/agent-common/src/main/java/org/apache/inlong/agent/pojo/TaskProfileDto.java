@@ -154,7 +154,7 @@ public class TaskProfileDto {
         }
 
         if (null != taskConfig.getLineEndPattern()) {
-            FileTask.Line line = new Line();
+            Line line = new Line();
             line.setEndPattern(taskConfig.getLineEndPattern());
             fileTask.setLine(line);
         }
@@ -410,6 +410,7 @@ public class TaskProfileDto {
         task.setUuid(dataConfig.getUuid());
         task.setVersion(dataConfig.getVersion());
         task.setState(dataConfig.getState());
+        task.setPredefinedFields(dataConfig.getPredefinedFields());
 
         // set sink type
         if (dataConfig.getDataReportType() == NORMAL_SEND_TO_DATAPROXY.ordinal()) {
@@ -516,6 +517,7 @@ public class TaskProfileDto {
         private String mqClusters;
         private String topicInfo;
         private String taskClass;
+        private String predefinedFields;
         private Integer state;
 
         private FileTask fileTask;
