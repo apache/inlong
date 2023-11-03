@@ -50,7 +50,7 @@ public class TestInstanceManager {
         String pattern = helper.getTestRootDir() + "/YYYYMMDD_[0-9]+.txt";
         Db basicDb = TaskManager.initDb("/localdb");
         taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING);
-        manager = new InstanceManager("1", basicDb);
+        manager = new InstanceManager("1", 2, basicDb);
         manager.start();
     }
 
