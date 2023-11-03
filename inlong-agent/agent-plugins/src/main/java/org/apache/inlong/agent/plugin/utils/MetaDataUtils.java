@@ -150,7 +150,7 @@ public class MetaDataUtils {
                     continue;
                 }
 
-                // 当addictiveattr 类似 "m=10&__addcol1__worldid=" 时
+                // when addictiveattr like "m=10&__addcol1__worldid=" 
                 if (value.endsWith("=") && pairs.length == 1) {
                     attr.put(pairs[0], "");
                 } else {
