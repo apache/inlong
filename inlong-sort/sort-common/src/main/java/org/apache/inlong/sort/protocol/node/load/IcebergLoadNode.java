@@ -133,8 +133,22 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
     }
 
     @Override
+    public String getMetadataKey(MetaField metaField) {
+        String metadataKey;
+        switch (metaField) {
+            case AUDIT_DATA_TIME:
+                metadataKey = "audit_data_time";
+                break;
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
+                        this.getClass().getSimpleName(), metaField));
+        }
+        return metadataKey;
+    }
+
+    @Override
     public boolean isVirtual(MetaField metaField) {
-        return true;
+        return false;
     }
 
     @Override

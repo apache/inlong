@@ -172,17 +172,13 @@ public class PulsarTableDeserializationSchemaFactory implements Serializable {
                 .withAuditKeys(auditKeys)
                 .build();
 
-        if (metricOption != null) {
-            sourceMetricData = new SourceMetricData(metricOption);
-        }
-
         return new PulsarTableDeserializationSchema(
                 keyDeserialization,
                 valueDeserialization,
                 producedTypeInfo,
                 rowDataConverter,
                 upsertMode,
-                sourceMetricData);
+                metricOption);
     }
 
     public void setProducedDataType(DataType producedDataType) {

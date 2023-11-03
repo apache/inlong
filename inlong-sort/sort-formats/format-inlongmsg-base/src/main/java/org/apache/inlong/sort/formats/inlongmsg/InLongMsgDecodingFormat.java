@@ -140,15 +140,15 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
     enum ReadableMetadata {
 
         CREATE_TIME(
-                "create-time",
-                DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE().notNull(),
+                "data-time",
+                DataTypes.BIGINT().notNull(),
                 new MetadataConverter() {
 
                     private static final long serialVersionUID = 1L;
 
                     @Override
                     public Object read(InLongMsgHead head) {
-                        return TimestampData.fromTimestamp(head.getTime());
+                        return head.getTime().getTime();
                     }
                 }),
 
