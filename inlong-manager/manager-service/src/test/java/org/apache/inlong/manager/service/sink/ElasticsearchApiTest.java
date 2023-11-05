@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.sink;
 
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
 import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi;
 import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchConfig;
@@ -25,40 +24,32 @@ import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchConfig;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-import sun.misc.BASE64Encoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.Network;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.elasticsearch.ElasticsearchContainer;
+import org.testcontainers.lifecycle.Startables;
+import org.testcontainers.utility.DockerImageName;
 
-import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test class for {@link org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi}.
@@ -67,33 +58,56 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class ElasticsearchApiTest {
 
-    @InjectMocks
-    private ElasticsearchConfig elasticsearchConfig;
+    private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchApiTest.class);
 
-    @Mock
-    private RestTemplate restTemplate;
+    public static final Network NETWORK = Network.newNetwork();
 
-    @Mock
-    private ResponseEntity<String> exchange;
+    private static final String INTER_CONTAINER_ELASTICSEARCH_ALIAS = "elasticsearch";
+
+    private static final String ELASTICSEARCH_DOCKER_IMAGE_NAME = "elasticsearch:7.9.3";
 
     private ElasticsearchApi elasticsearchApi;
 
-    public static final String DEFAULT_INDEXNAME = "test_index";
+    private ElasticsearchConfig elasticsearchConfig;
 
     private static final Gson GSON = new GsonBuilder().create();
 
-    private static final String CONTENT_TYPE_KEY = "Content-Type";
+    private static final ElasticsearchContainer ELASTICSEARCH_CONTAINER = new ElasticsearchContainer(
+            DockerImageName.parse(ELASTICSEARCH_DOCKER_IMAGE_NAME)
+                    .asCompatibleSubstituteFor("docker.elastic.co/elasticsearch/elasticsearch"))
+                            .withNetwork(NETWORK)
+                            .withAccessToHost(true)
+                            .withEnv("discovery.type", "single-node")
+                            .withEnv("ES_JAVA_OPTS", "-Xms512m -Xmx512m")
+                            .withEnv("ELASTIC_PASSWORD", "test")
+                            .withNetworkAliases(INTER_CONTAINER_ELASTICSEARCH_ALIAS)
+                            .withLogConsumer(new Slf4jLogConsumer(LOG));
 
-    private static final String CONTENT_TYPE_VALUE = "application/json;charset=UTF-8";
+    @BeforeAll
+    public static void beforeAll() {
+        ELASTICSEARCH_CONTAINER.setPortBindings(Arrays.asList("9200:9200", "9300:9300"));
+        ELASTICSEARCH_CONTAINER.withStartupTimeout(Duration.ofSeconds(300));
+        ELASTICSEARCH_CONTAINER.setDockerImageName(ELASTICSEARCH_DOCKER_IMAGE_NAME);
+        Startables.deepStart(Stream.of(ELASTICSEARCH_CONTAINER)).join();
+        LOG.info("Containers are started.");
+    }
 
     @BeforeEach
     public void before() {
+        elasticsearchConfig = new ElasticsearchConfig();
         elasticsearchConfig.setHosts("http://127.0.0.1:9200");
         elasticsearchConfig.setAuthEnable(true);
         elasticsearchConfig.setUsername("admin");
         elasticsearchConfig.setPassword("inlong");
         elasticsearchApi = new ElasticsearchApi();
         elasticsearchApi.setEsConfig(elasticsearchConfig);
+    }
+
+    @AfterAll
+    public static void teardown() {
+        if (ELASTICSEARCH_CONTAINER != null) {
+            ELASTICSEARCH_CONTAINER.stop();
+        }
     }
 
     /**
@@ -103,35 +117,12 @@ public class ElasticsearchApiTest {
      */
     @Test
     public void testSearch() throws Exception {
-        final String url = elasticsearchConfig.getOneHttpUrl() + InlongConstants.SLASH + DEFAULT_INDEXNAME + "/_search";
-        final String resultJson = "{\n"
-                + "  \"took\" : 2,\n"
-                + "  \"timed_out\" : false,\n"
-                + "  \"_shards\" : {\n"
-                + "    \"total\" : 1,\n"
-                + "    \"successful\" : 1,\n"
-                + "    \"skipped\" : 0,\n"
-                + "    \"failed\" : 0\n"
-                + "  },\n"
-                + "  \"hits\" : {\n"
-                + "    \"total\" : {\n"
-                + "      \"value\" : 3,\n"
-                + "      \"relation\" : \"eq\"\n"
-                + "    },"
-                + "  \"max_score\" : 1.0,\n"
-                + "    \"hits\" : []"
-                + "  }\n"
-                + "}\n";
+        final String indexName = "test_search";
         final String searchJson = "{\n  \"query\": {\n    \"match_all\": {}\n  }\n}";
-        final JsonObject expected = GSON.fromJson(resultJson, JsonObject.class);
         final JsonObject search = GSON.fromJson(searchJson, JsonObject.class);
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getBody()).thenReturn(resultJson);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-
-        JsonObject result = elasticsearchApi.search(DEFAULT_INDEXNAME, search);
-        assertEquals(expected, result);
+        elasticsearchApi.createIndex(indexName);
+        JsonObject result = elasticsearchApi.search(indexName, search);
+        assertNotNull(result);
     }
 
     /**
@@ -141,12 +132,11 @@ public class ElasticsearchApiTest {
      */
     @Test
     public void testIndexExists() throws Exception {
-        final String url = elasticsearchConfig.getOneHttpUrl() + InlongConstants.SLASH + DEFAULT_INDEXNAME;
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.HEAD), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-
-        boolean result = elasticsearchApi.indexExists(DEFAULT_INDEXNAME);
+        final String indexName = "test_index_exists";
+        boolean result = elasticsearchApi.indexExists(indexName);
+        assertEquals(false, result);
+        elasticsearchApi.createIndex(indexName);
+        result = elasticsearchApi.indexExists(indexName);
         assertEquals(true, result);
     }
 
@@ -157,11 +147,6 @@ public class ElasticsearchApiTest {
      */
     @Test
     public void testPing() throws Exception {
-        final String url = elasticsearchConfig.getOneHttpUrl() + InlongConstants.SLASH;
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.HEAD), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-
         boolean result = elasticsearchApi.ping();
         assertEquals(true, result);
     }
@@ -173,22 +158,9 @@ public class ElasticsearchApiTest {
      */
     @Test
     public void testCreateIndex() throws Exception {
-        final String url = elasticsearchConfig.getOneHttpUrl() + InlongConstants.SLASH + DEFAULT_INDEXNAME;
-        final String createJson = "{\n"
-                + "  \"acknowledged\" : true,\n"
-                + "  \"shards_acknowledged\" : true,\n"
-                + "  \"index\" : \"test_index\"\n"
-                + "}";
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.PUT), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        when(exchange.getBody()).thenReturn(createJson);
-        elasticsearchApi.createIndex(DEFAULT_INDEXNAME);
-
-        ArgumentCaptor<HttpEntity> requestEntity = ArgumentCaptor.forClass(HttpEntity.class);
-        verify(restTemplate).exchange(eq(url), eq(HttpMethod.PUT), requestEntity.capture(), eq(String.class));
-        assertThat(requestEntity.getValue().getBody(), allOf(nullValue()));
-        assertThat(requestEntity.getValue().getHeaders(), allOf(notNullValue(), is(getHeaders())));
+        final String indexName = "test_create_index";
+        elasticsearchApi.createIndex(indexName);
+        assertTrue(elasticsearchApi.indexExists(indexName));
     }
 
     /**
@@ -198,27 +170,14 @@ public class ElasticsearchApiTest {
      */
     @Test
     public void testCreateIndexAndMapping() throws Exception {
-        final String url = elasticsearchConfig.getOneHttpUrl() + InlongConstants.SLASH + DEFAULT_INDEXNAME;
-        final String createJson = "{\n"
-                + "  \"acknowledged\" : true,\n"
-                + "  \"shards_acknowledged\" : true,\n"
-                + "  \"index\" : \"test_index\"\n"
-                + "}";
+        final String indexName = "test_create_index_and_mapping";
         final List<ElasticsearchFieldInfo> fieldInfos = new ArrayList<>();
         final ElasticsearchFieldInfo log_ts = new ElasticsearchFieldInfo();
         log_ts.setFieldType("keyword");
         log_ts.setFieldName("log_ts");
         fieldInfos.add(log_ts);
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.PUT), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        when(exchange.getBody()).thenReturn(createJson);
-        elasticsearchApi.createIndexAndMapping(DEFAULT_INDEXNAME, fieldInfos);
-
-        ArgumentCaptor<HttpEntity> requestEntity = ArgumentCaptor.forClass(HttpEntity.class);
-        verify(restTemplate).exchange(eq(url), eq(HttpMethod.PUT), requestEntity.capture(), eq(String.class));
-        assertThat(requestEntity.getValue().getBody(), allOf(notNullValue()));
-        assertThat(requestEntity.getValue().getHeaders(), allOf(notNullValue(), is(getHeaders())));
+        elasticsearchApi.createIndexAndMapping(indexName, fieldInfos);
+        assertTrue(elasticsearchApi.indexExists(indexName));
     }
 
     /**
@@ -228,41 +187,35 @@ public class ElasticsearchApiTest {
      */
     @Test
     public void testGetMappingInfo() throws Exception {
-        final String url =
-                elasticsearchConfig.getOneHttpUrl() + InlongConstants.SLASH + DEFAULT_INDEXNAME + "/_mapping";
-        final String mappingJson = "{\n"
-                + "  \"test_index\" : {\n"
-                + "    \"mappings\" : {\n"
-                + "      \"properties\" : {\n"
-                + "        \"count\" : {\n"
-                + "          \"type\" : \"double\"\n"
-                + "        },\n"
-                + "        \"date\" : {\n"
-                + "          \"type\" : \"date\",\n"
-                + "          \"format\" : \"yyyy-MM-dd HH:mm:ss||yyy-MM-dd||epoch_millis\"\n"
-                + "        },\n"
-                + "        \"delay\" : {\n"
-                + "          \"type\" : \"double\"\n"
-                + "        },\n"
-                + "        \"inlong_group_id\" : {\n"
-                + "          \"type\" : \"text\"\n"
-                + "        },\n"
-                + "        \"inlong_stream_id\" : {\n"
-                + "          \"type\" : \"text\"\n"
-                + "        },\n"
-                + "        \"log_ts\" : {\n"
-                + "          \"type\" : \"keyword\"\n"
-                + "        }\n"
-                + "      }\n"
-                + "    }\n"
-                + "  }\n"
-                + "}\n";
-
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        when(exchange.getBody()).thenReturn(mappingJson);
-        Map<String, ElasticsearchFieldInfo> result = elasticsearchApi.getMappingMap(DEFAULT_INDEXNAME);
+        final String indexName = "test_get_mapping_info";
+        final List<ElasticsearchFieldInfo> fieldInfos = new ArrayList<>();
+        final ElasticsearchFieldInfo count = new ElasticsearchFieldInfo();
+        count.setFieldType("double");
+        count.setFieldName("count");
+        fieldInfos.add(count);
+        final ElasticsearchFieldInfo date = new ElasticsearchFieldInfo();
+        date.setFieldType("date");
+        date.setFieldName("date");
+        date.setFieldFormat("yyyy-MM-dd HH:mm:ss||yyy-MM-dd||epoch_millis");
+        fieldInfos.add(date);
+        final ElasticsearchFieldInfo delay = new ElasticsearchFieldInfo();
+        delay.setFieldType("double");
+        delay.setFieldName("delay");
+        fieldInfos.add(delay);
+        final ElasticsearchFieldInfo inlong_group_id = new ElasticsearchFieldInfo();
+        inlong_group_id.setFieldType("text");
+        inlong_group_id.setFieldName("inlong_group_id");
+        fieldInfos.add(inlong_group_id);
+        final ElasticsearchFieldInfo inlong_stream_id = new ElasticsearchFieldInfo();
+        inlong_stream_id.setFieldType("text");
+        inlong_stream_id.setFieldName("inlong_stream_id");
+        fieldInfos.add(inlong_stream_id);
+        final ElasticsearchFieldInfo log_ts = new ElasticsearchFieldInfo();
+        log_ts.setFieldType("keyword");
+        log_ts.setFieldName("log_ts");
+        fieldInfos.add(log_ts);
+        elasticsearchApi.createIndexAndMapping(indexName, fieldInfos);
+        Map<String, ElasticsearchFieldInfo> result = elasticsearchApi.getMappingMap(indexName);
         assertEquals("double", result.get("count").getFieldType());
         assertEquals("double", result.get("delay").getFieldType());
         assertEquals("date", result.get("date").getFieldType());
@@ -279,68 +232,23 @@ public class ElasticsearchApiTest {
      */
     @Test
     public void testAddFields() throws Exception {
-        final String url =
-                elasticsearchConfig.getOneHttpUrl() + InlongConstants.SLASH + DEFAULT_INDEXNAME + "/_mapping";
-        final String mappingJson = "{\n"
-                + "  \"test_index\" : {\n"
-                + "    \"mappings\" : {\n"
-                + "      \"properties\" : {\n"
-                + "        \"count\" : {\n"
-                + "          \"type\" : \"double\"\n"
-                + "        },\n"
-                + "        \"date\" : {\n"
-                + "          \"type\" : \"date\",\n"
-                + "          \"format\" : \"yyyy-MM-dd HH:mm:ss||yyy-MM-dd||epoch_millis\"\n"
-                + "        }\n"
-                + "      }\n"
-                + "    }\n"
-                + "  }\n"
-                + "}\n";
+        final String indexName = "test_add_fields";
         final List<ElasticsearchFieldInfo> fieldInfos = new ArrayList<>();
+        final ElasticsearchFieldInfo count = new ElasticsearchFieldInfo();
+        count.setFieldType("double");
+        count.setFieldName("count");
+        fieldInfos.add(count);
+        elasticsearchApi.createIndexAndMapping(indexName, fieldInfos);
+
+        final List<ElasticsearchFieldInfo> addFieldInfos = new ArrayList<>();
         final ElasticsearchFieldInfo log_ts = new ElasticsearchFieldInfo();
         log_ts.setFieldType("keyword");
         log_ts.setFieldName("log_ts");
-        fieldInfos.add(log_ts);
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.PUT), any(HttpEntity.class), eq(String.class))).thenReturn(
-                exchange);
-        when(exchange.getStatusCode()).thenReturn(HttpStatus.OK);
-        when(exchange.getBody()).thenReturn(mappingJson);
+        addFieldInfos.add(log_ts);
+        elasticsearchApi.addFields(indexName, addFieldInfos);
 
-        elasticsearchApi.addFields(DEFAULT_INDEXNAME, fieldInfos);
-        ArgumentCaptor<HttpEntity> requestEntity = ArgumentCaptor.forClass(HttpEntity.class);
-        verify(restTemplate).exchange(eq(url), eq(HttpMethod.PUT), requestEntity.capture(), eq(String.class));
-        assertThat(requestEntity.getValue().getBody(), allOf(notNullValue()));
-        assertThat(requestEntity.getValue().getHeaders(), allOf(notNullValue(), is(getHeaders())));
-
-    }
-
-    private HttpHeaders getHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
-        if (elasticsearchConfig.getAuthEnable()) {
-            if (StringUtils.isNotEmpty(elasticsearchConfig.getUsername()) && StringUtils.isNotEmpty(
-                    elasticsearchConfig.getPassword())) {
-                String tokenStr = elasticsearchConfig.getUsername() + ":" + elasticsearchConfig.getPassword();
-                String token = String.valueOf(new BASE64Encoder().encode(tokenStr.getBytes(StandardCharsets.UTF_8)));
-                headers.add("Authorization", "Basic " + token);
-            }
-        }
-        return headers;
-    }
-
-    /**
-     * The case only supports local testing.
-     *
-     * @throws Exception
-     */
-    @Ignore
-    public void testLocal() throws Exception {
-        ElasticsearchConfig config = new ElasticsearchConfig();
-        config.setHosts("http://127.0.0.1:9200");
-        ElasticsearchApi api = new ElasticsearchApi();
-        api.setEsConfig(config);
-        api.ping();
-        api.createIndex(DEFAULT_INDEXNAME);
-        api.getMappingMap(DEFAULT_INDEXNAME);
+        Map<String, ElasticsearchFieldInfo> result = elasticsearchApi.getMappingMap(indexName);
+        assertEquals("double", result.get("count").getFieldType());
+        assertEquals("keyword", result.get("log_ts").getFieldType());
     }
 }
