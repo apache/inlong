@@ -287,6 +287,7 @@ public class PulsarUtilsTest {
                 + "testCreateNonPartitionedTopic";
         final String topicInfo = PERSISTENT_TOPIC_HEAD + topicPath;
 
+        Thread.sleep(500);
         PulsarUtils.createNonPartitionedTopic(client, pulsarCluster, topicPath);
         Thread.sleep(500);
         List<String> topics = PulsarUtils.getTopics(client, pulsarCluster, DEFAULT_TENANT,
