@@ -84,7 +84,7 @@ void SdkConfig::defaultInit() {
   recv_buf_size_ = constants::kRecvBufSize;
   max_msg_size_ = constants::kExtPackSize;
   max_group_id_num_ = constants::kMaxGroupIdNum;
-  max_stream_id_num_=constants::kMaxStreamIdNum;
+  max_stream_id_num_ = constants::kMaxStreamIdNum;
 
   // Packaging parameters
   enable_pack_ = constants::kEnablePack;
@@ -106,6 +106,7 @@ void SdkConfig::defaultInit() {
   manager_update_interval_ = constants::kManagerUpdateInterval;
   manager_url_timeout_ = constants::kManagerTimeout;
   max_proxy_num_ = constants::kMaxProxyNum;
+  enable_isolation_ = constants::kEnableIsolation;
 
   local_ip_ = constants::kSerIP;
   local_port_ = constants::kSerPort;
@@ -325,6 +326,13 @@ void SdkConfig::InitManagerParam(const rapidjson::Value &doc) {
     std::string inlong_group_ids_str = obj.GetString();
     Utils::splitOperate(inlong_group_ids_str, inlong_group_ids_, ",");
   }
+  // enable isolation
+  if (doc.HasMember("enable_isolation") && doc["enable_isolation"].IsBool()) {
+    const rapidjson::Value &obj = doc["enable_isolation"];
+    enable_isolation_ = obj.GetBool();
+  } else {
+    enable_isolation_ = constants::kEnableIsolation;
+  }
 }
 
 void SdkConfig::InitTcpParam(const rapidjson::Value &doc) {
@@ -460,6 +468,7 @@ void SdkConfig::ShowClientConfig() {
   LOG_INFO("auth_key: " << auth_key_.c_str());
   LOG_INFO("max_group_id_num: " << max_group_id_num_);
   LOG_INFO("max_stream_id_num: " << max_stream_id_num_);
+  LOG_INFO("enable_isolation: " << enable_isolation_);
 }
 
 } // namespace inlong

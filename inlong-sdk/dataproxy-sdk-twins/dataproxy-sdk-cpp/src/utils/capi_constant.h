@@ -89,6 +89,7 @@ static const bool kNeedAuth = false;
 
 static const uint32_t kMaxAttrLen = 2048;
 const uint32_t ATTR_LENGTH = 10;
+static const bool kEnableIsolation = false;
 
 } // namespace constants
 } // namespace inlong
