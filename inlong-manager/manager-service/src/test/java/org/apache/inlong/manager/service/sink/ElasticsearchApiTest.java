@@ -54,8 +54,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test class for {@link org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi}.
  */
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 public class ElasticsearchApiTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchApiTest.class);
