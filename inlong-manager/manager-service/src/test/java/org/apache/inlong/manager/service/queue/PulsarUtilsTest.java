@@ -82,7 +82,7 @@ public class PulsarUtilsTest {
 
     public static final Network NETWORK = Network.newNetwork();
 
-    private static final String INTER_CONTAINER_STAR_ROCKS_ALIAS = "pulsar";
+    private static final String INTER_CONTAINER_PULSAR_ALIAS = "pulsar";
 
     private static final Gson GSON = new GsonBuilder().create(); // thread safe
 
@@ -114,7 +114,7 @@ public class PulsarUtilsTest {
                     .asCompatibleSubstituteFor("apachepulsar/pulsar"))
                             .withNetwork(NETWORK)
                             .withAccessToHost(true)
-                            .withNetworkAliases(INTER_CONTAINER_STAR_ROCKS_ALIAS)
+                            .withNetworkAliases(INTER_CONTAINER_PULSAR_ALIAS)
                             .withLogConsumer(new Slf4jLogConsumer(LOG));
 
     private static final RestTemplate client = new RestTemplate();
