@@ -28,6 +28,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Elasticsearch sink info
@@ -36,6 +37,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Elasticsearch sink info")
+@SuperBuilder
 @JsonTypeDefine(value = SinkType.ELASTICSEARCH)
 public class ElasticsearchSink extends StreamSink {
 
