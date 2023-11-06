@@ -107,9 +107,8 @@ public class InlongGroupClient {
 
         if (responseBody.getErrMsg().contains("not exist")) {
             return null;
-        } else {
-            throw new RuntimeException(responseBody.getErrMsg());
         }
+        throw new RuntimeException(responseBody.getErrMsg());
     }
 
     /**
@@ -130,9 +129,8 @@ public class InlongGroupClient {
         }
         if (pageInfoResponse.getErrMsg().contains("not exist")) {
             return null;
-        } else {
-            throw new RuntimeException(pageInfoResponse.getErrMsg());
         }
+        throw new RuntimeException(pageInfoResponse.getErrMsg());
     }
 
     /**
@@ -263,9 +261,8 @@ public class InlongGroupClient {
                     InlongGroupCountResponse.class);
         } else if (response.getErrMsg().contains("not exist")) {
             return null;
-        } else {
-            throw new RuntimeException(response.getErrMsg());
         }
+        throw new RuntimeException(response.getErrMsg());
     }
 
     public InlongGroupTopicInfo getTopic(String id) {
@@ -275,9 +272,8 @@ public class InlongGroupClient {
                     InlongGroupTopicInfo.class);
         } else if (response.getErrMsg().contains("not exist")) {
             return null;
-        } else {
-            throw new RuntimeException(response.getErrMsg());
         }
+        throw new RuntimeException(response.getErrMsg());
     }
 
     public List<InlongGroupTopicInfo> listTopics(InlongGroupTopicRequest request) {
@@ -287,8 +283,7 @@ public class InlongGroupClient {
             return response.getData();
         } else if (response.getErrMsg().contains("not exist")) {
             return null;
-        } else {
-            throw new RuntimeException(response.getErrMsg());
         }
+        throw new RuntimeException(response.getErrMsg());
     }
 }

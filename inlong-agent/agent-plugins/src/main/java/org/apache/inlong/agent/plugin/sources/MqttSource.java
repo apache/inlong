@@ -17,9 +17,11 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
-import org.apache.inlong.agent.plugin.Reader;
+import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.file.Reader;
+import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
 import org.apache.inlong.agent.plugin.sources.reader.MqttReader;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -64,12 +66,10 @@ public class MqttSource extends AbstractSource {
     }
 
     @Override
-    public List<Reader> split(JobProfile conf) {
-        super.init(conf);
+    public List<Reader> split(TaskProfile conf) {
         String topics = conf.get(JOB_MQTTJOB_TOPICS, StringUtils.EMPTY);
         List<Reader> readerList = null;
         if (StringUtils.isNotEmpty(topics)) {
-            readerList = splitSqlJob(topics, conf.getInstanceId());
         }
         if (CollectionUtils.isNotEmpty(readerList)) {
             sourceMetric.sourceSuccessCount.incrementAndGet();
@@ -77,5 +77,20 @@ public class MqttSource extends AbstractSource {
             sourceMetric.sourceFailCount.incrementAndGet();
         }
         return readerList;
+    }
+
+    @Override
+    public Message read() {
+        return null;
+    }
+
+    @Override
+    public boolean sourceFinish() {
+        return false;
+    }
+
+    @Override
+    public boolean sourceExist() {
+        return false;
     }
 }

@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.pulsar.source.reader.deserializer.PulsarDeserializationSchema;
@@ -86,13 +89,21 @@ public class PulsarTableDeserializationSchemaFactory implements Serializable {
 
     private final boolean upsertMode;
 
+    private String inlongMetric;
+    private String auditHostAndPorts;
+    private String auditKeys;
+    private SourceMetricData sourceMetricData;
+
     public PulsarTableDeserializationSchemaFactory(
             DataType physicalDataType,
             @Nullable DecodingFormat<DeserializationSchema<RowData>> keyDecodingFormat,
             int[] keyProjection,
             DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat,
             int[] valueProjection,
-            boolean upsertMode) {
+            boolean upsertMode,
+            String inlongMetric,
+            String auditHostAndPorts,
+            String auditKeys) {
         this.physicalDataType =
                 checkNotNull(physicalDataType, "field physicalDataType must not be null.");
         this.keyDecodingFormat = keyDecodingFormat;
@@ -105,6 +116,10 @@ public class PulsarTableDeserializationSchemaFactory implements Serializable {
         this.producedDataType = physicalDataType;
         this.connectorMetadataKeys = Collections.emptyList();
         this.upsertMode = upsertMode;
+
+        this.inlongMetric = inlongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
+        this.auditKeys = auditKeys;
     }
 
     private @Nullable DeserializationSchema<RowData> createDeserialization(
@@ -151,12 +166,19 @@ public class PulsarTableDeserializationSchemaFactory implements Serializable {
                         readableMetadata,
                         upsertMode);
 
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withAuditAddress(auditHostAndPorts)
+                .withAuditKeys(auditKeys)
+                .build();
+
         return new PulsarTableDeserializationSchema(
                 keyDeserialization,
                 valueDeserialization,
                 producedTypeInfo,
                 rowDataConverter,
-                upsertMode);
+                upsertMode,
+                metricOption);
     }
 
     public void setProducedDataType(DataType producedDataType) {

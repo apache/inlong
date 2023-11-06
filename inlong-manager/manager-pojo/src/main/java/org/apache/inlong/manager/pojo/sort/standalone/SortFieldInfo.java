@@ -24,5 +24,6 @@ public class SortFieldInfo {
 
     private String inlongGroupId;
     private String inlongStreamId;
+    private Integer sinkId;
     private String fieldName;
 }

@@ -25,7 +25,6 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -35,11 +34,10 @@ import lombok.experimental.SuperBuilder;
  * Elasticsearch sink info
  */
 @Data
-@SuperBuilder
-@AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Elasticsearch sink info")
+@SuperBuilder
 @JsonTypeDefine(value = SinkType.ELASTICSEARCH)
 public class ElasticsearchSink extends StreamSink {
 

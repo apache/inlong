@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.utils;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.constant.AgentConstants;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -42,16 +43,6 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
-
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_ENABLE_OOM_EXIT;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID_OPEN;
-import static org.apache.inlong.agent.constant.AgentConstants.CUSTOM_FIXED_IP;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_LOCAL_UUID_OPEN;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_ENABLE_OOM_EXIT;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_LOCAL_HOST;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_LOCAL_IP;
 
 /**
  * Agent utils
@@ -131,7 +122,7 @@ public class AgentUtils {
      * Get local IP
      */
     public static String getLocalIp() {
-        String ip = DEFAULT_LOCAL_IP;
+        String ip = AgentConstants.DEFAULT_LOCAL_IP;
         try (DatagramSocket socket = new DatagramSocket()) {
             socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
             ip = socket.getLocalAddress().getHostAddress();
@@ -145,7 +136,7 @@ public class AgentUtils {
      * Get local host
      */
     public static String getLocalHost() {
-        String host = DEFAULT_LOCAL_HOST;
+        String host = AgentConstants.DEFAULT_LOCAL_HOST;
         try {
             host = InetAddress.getLocalHost().getHostName();
         } catch (Exception ex) {
@@ -292,10 +283,10 @@ public class AgentUtils {
      * Check agent ip from manager
      */
     public static String fetchLocalIp() {
-        if (StringUtils.isNoneBlank(AgentConfiguration.getAgentConf().get(CUSTOM_FIXED_IP, null))) {
-            return AgentConfiguration.getAgentConf().get(CUSTOM_FIXED_IP);
+        if (StringUtils.isNoneBlank(AgentConfiguration.getAgentConf().get(AgentConstants.CUSTOM_FIXED_IP, null))) {
+            return AgentConfiguration.getAgentConf().get(AgentConstants.CUSTOM_FIXED_IP);
         }
-        return AgentConfiguration.getAgentConf().get(AGENT_LOCAL_IP, getLocalIp());
+        return AgentConfiguration.getAgentConf().get(AgentConstants.AGENT_LOCAL_IP, getLocalIp());
     }
 
     /**
@@ -303,11 +294,12 @@ public class AgentUtils {
      */
     public static String fetchLocalUuid() {
         String uuid = "";
-        if (!AgentConfiguration.getAgentConf().getBoolean(AGENT_LOCAL_UUID_OPEN, DEFAULT_AGENT_LOCAL_UUID_OPEN)) {
+        if (!AgentConfiguration.getAgentConf().getBoolean(AgentConstants.AGENT_LOCAL_UUID_OPEN,
+                AgentConstants.DEFAULT_AGENT_LOCAL_UUID_OPEN)) {
             return uuid;
         }
         try {
-            String localUuid = AgentConfiguration.getAgentConf().get(AGENT_LOCAL_UUID);
+            String localUuid = AgentConfiguration.getAgentConf().get(AgentConstants.AGENT_LOCAL_UUID);
             if (StringUtils.isNotEmpty(localUuid)) {
                 uuid = localUuid;
                 return uuid;
@@ -386,6 +378,7 @@ public class AgentUtils {
      * Whether the config of exiting the program when OOM is enabled
      */
     public static boolean enableOOMExit() {
-        return AgentConfiguration.getAgentConf().getBoolean(AGENT_ENABLE_OOM_EXIT, DEFAULT_ENABLE_OOM_EXIT);
+        return AgentConfiguration.getAgentConf().getBoolean(AgentConstants.AGENT_ENABLE_OOM_EXIT,
+                AgentConstants.DEFAULT_ENABLE_OOM_EXIT);
     }
 }

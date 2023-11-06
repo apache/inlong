@@ -20,11 +20,14 @@ package org.apache.inlong.manager.service.core.impl;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortFieldInfo;
+import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortTaskInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamExtParam;
 import org.apache.inlong.manager.service.core.SortClusterService;
 import org.apache.inlong.manager.service.core.SortConfigLoader;
 import org.apache.inlong.manager.service.node.DataNodeOperator;
@@ -34,6 +37,7 @@ import org.apache.inlong.manager.service.sink.StreamSinkOperator;
 
 import com.google.gson.Gson;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +80,9 @@ public class SortClusterServiceImpl implements SortClusterService {
 
     private static final String KEY_GROUP_ID = "inlongGroupId";
     private static final String KEY_STREAM_ID = "inlongStreamId";
-    private Map<String, List<String>> fieldMap;
+    private static final String FILED_OFFSET = "fieldOffset";
+    // key: sink id, value: fileNames
+    private Map<Integer, List<String>> fieldMap;
 
     // key : sort cluster name, value : md5
     private Map<String, String> sortClusterMd5Map = new ConcurrentHashMap<>();
@@ -84,6 +90,8 @@ public class SortClusterServiceImpl implements SortClusterService {
     private Map<String, SortClusterConfig> sortClusterConfigMap = new ConcurrentHashMap<>();
     // key : sort cluster name, value : error log
     private Map<String, String> sortClusterErrorLogMap = new ConcurrentHashMap<>();
+    // key: group id ,value: {key: stream id, value: stream info}
+    private Map<String, Map<String, SortSourceStreamInfo>> allStreams;
 
     private long reloadInterval;
 
@@ -169,7 +177,7 @@ public class SortClusterServiceImpl implements SortClusterService {
         List<SortFieldInfo> fieldInfos = sortConfigLoader.loadAllFields();
         fieldMap = new HashMap<>();
         fieldInfos.forEach(info -> {
-            List<String> fields = fieldMap.computeIfAbsent(info.getInlongGroupId(), k -> new ArrayList<>());
+            List<String> fields = fieldMap.computeIfAbsent(info.getSinkId(), k -> new ArrayList<>());
             fields.add(info.getFieldName());
         });
 
@@ -182,6 +190,12 @@ public class SortClusterServiceImpl implements SortClusterService {
                         && StringUtils.isNotBlank(dto.getDataNodeName())
                         && StringUtils.isNotBlank(dto.getSinkType()))
                 .collect(Collectors.groupingBy(SortTaskInfo::getSortClusterName));
+
+        // reload all streams
+        allStreams = sortConfigLoader.loadAllStreams()
+                .stream()
+                .collect(Collectors.groupingBy(SortSourceStreamInfo::getInlongGroupId,
+                        Collectors.toMap(SortSourceStreamInfo::getInlongStreamId, info -> info)));
 
         // get all stream sinks
         Map<String, List<StreamSinkEntity>> task2AllStreams = sinkEntities.stream()
@@ -265,8 +279,10 @@ public class SortClusterServiceImpl implements SortClusterService {
                 .map(streamSink -> {
                     try {
                         StreamSinkOperator operator = sinkOperatorFactory.getInstance(streamSink.getSinkType());
-                        List<String> fields = fieldMap.get(streamSink.getInlongGroupId());
-                        return operator.parse2IdParams(streamSink, fields, dataNodeInfo);
+                        List<String> fields = fieldMap.get(streamSink.getId());
+                        Map<String, String> params = operator.parse2IdParams(streamSink, fields, dataNodeInfo);
+                        setFiledOffset(streamSink, params);
+                        return params;
                     } catch (Exception e) {
                         LOGGER.error("fail to parse id params of groupId={}, streamId={} name={}, type={}}",
                                 streamSink.getInlongGroupId(), streamSink.getInlongStreamId(),
@@ -276,6 +292,17 @@ public class SortClusterServiceImpl implements SortClusterService {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+    }
+
+    private void setFiledOffset(StreamSinkEntity streamSink, Map<String, String> params) {
+
+        SortSourceStreamInfo sortSourceStreamInfo = allStreams.get(streamSink.getInlongGroupId())
+                .get(streamSink.getInlongStreamId());
+        InlongStreamExtParam inlongStreamExtParam = JsonUtils.parseObject(
+                sortSourceStreamInfo.getExtParams(), InlongStreamExtParam.class);
+        if (ObjectUtils.anyNotNull(inlongStreamExtParam) && !inlongStreamExtParam.getUseExtendedFields()) {
+            params.put(FILED_OFFSET, String.valueOf(0));
+        }
     }
 
     private Map<String, String> parseSinkParams(DataNodeInfo nodeInfo) {

@@ -569,6 +569,8 @@
   "components.Layout.NavWidget.ConfirmPassword": "确认密码",
   "components.Layout.NavWidget.Remind": "密码不一致，请重新输入",
   "components.Layout.Tenant.Success": "切换成功",
+  "components.Layout.UserManual": "用户手册",
+  "components.Layout.Feedback": "建议反馈",
   "components.HighSelect.Customize": "自定义",
   "components.HighSelect.SearchPlaceholder": "请输入关键字搜索",
   "components.NodeSelect.Create": "新建节点",

@@ -17,10 +17,11 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.Reader;
+import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.MqttReader;
+import org.apache.inlong.agent.utils.AgentUtils;
 
 import org.junit.Ignore;
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ public class TestMqttConnect {
      */
     @Ignore
     public void testMqttReader() throws Exception {
-        JobProfile jobProfile = JobProfile.parseJsonStr("{}");
+        TaskProfile jobProfile = TaskProfile.parseJsonStr("{}");
         jobProfile.set(MqttReader.JOB_MQTT_SERVER_URI, "tcp://broker.hivemq.com:1883");
         jobProfile.set(MqttReader.JOB_MQTT_CLIENT_ID_PREFIX, "mqtt_client");
         jobProfile.set(MqttReader.JOB_MQTT_USERNAME, "test");
@@ -60,7 +61,7 @@ public class TestMqttConnect {
 
                 @Override
                 public void run() {
-                    reader.init(jobProfile);
+                    reader.init(jobProfile.createInstanceProfile("", "", "", AgentUtils.getCurrentTime()));
                     while (!reader.isFinished()) {
                         Message message = reader.read();
                         if (Objects.nonNull(message)) {

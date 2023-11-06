@@ -17,8 +17,8 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constant.JobConstants;
+import org.apache.inlong.agent.conf.InstanceProfile;
+import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.reader.MongoDBReader;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
@@ -94,7 +94,7 @@ public class TestMongoDBReader {
      */
     @Ignore
     public void readChangeEventFromMongo() {
-        JobProfile jobProfile = new JobProfile();
+        InstanceProfile jobProfile = new InstanceProfile();
         jobProfile.set("job.mongoJob.hosts", "localhost:37018");
         jobProfile.set("job.mongoJob.user", "mongo");
         jobProfile.set("job.mongoJob.password", "root");
@@ -103,7 +103,7 @@ public class TestMongoDBReader {
         jobProfile.set("job.mongoJob.databaseIncludeList", "mall");
         jobProfile.set("job.mongoJob.collectionIncludeList", "order");
         jobProfile.set("job.mongoJob.snapshotMode", "never");
-        jobProfile.set(JobConstants.JOB_INSTANCE_ID, UUID.randomUUID().toString());
+        jobProfile.set(TaskConstants.JOB_INSTANCE_ID, UUID.randomUUID().toString());
 
         jobProfile.set(PROXY_INLONG_GROUP_ID, UUID.randomUUID().toString());
         jobProfile.set(PROXY_INLONG_STREAM_ID, UUID.randomUUID().toString());

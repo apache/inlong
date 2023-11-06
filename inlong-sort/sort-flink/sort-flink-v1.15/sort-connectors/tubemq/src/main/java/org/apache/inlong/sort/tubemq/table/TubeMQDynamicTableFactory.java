@@ -40,16 +40,14 @@ import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
 
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.BOOTSTRAP_FROM_MAX;
-import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.GROUP_NAME;
+import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.CONSUME_GROUP;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.KEY_FORMAT;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.MASTER_RPC;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.SESSION_KEY;
@@ -63,9 +61,9 @@ import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.getTubeMQPropert
  */
 public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
-    public static final String IDENTIFIER = "tubemq";
+    public static final String IDENTIFIER = "tubemq-inlong";
 
-    public static final List<String> INNERFORMATTYPE = Arrays.asList("inlong-msg");
+    public static final String INNERFORMATTYPE = "inlong-msg";
 
     public static boolean innerFormat = false;
 
@@ -87,7 +85,6 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
                 && format.getChangelogMode().containsOnly(RowKind.INSERT)) {
             Configuration options = Configuration.fromMap(catalogTable.getOptions());
             String formatName = options.getOptional(FORMAT).orElse(options.get(FORMAT));
-            innerFormat = INNERFORMATTYPE.contains(formatName);
             throw new ValidationException(String.format(
                     "The TubeMQ table '%s' with '%s' format doesn't support defining PRIMARY KEY constraint"
                             + " on the table, because it can't guarantee the semantic of primary key.",
@@ -120,9 +117,10 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
         final DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat = getValueDecodingFormat(helper);
 
         // validate all options
-        helper.validate();
+        helper.validateExcept(INNERFORMATTYPE);
 
         validatePKConstraints(context.getObjectIdentifier(), context.getCatalogTable(), valueDecodingFormat);
+        innerFormat = INNERFORMATTYPE.equals(tableOptions.get(FORMAT));
 
         final Configuration properties = getTubeMQProperties(context.getCatalogTable().getOptions());
 
@@ -148,7 +146,7 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
         final EncodingFormat<SerializationSchema<RowData>> valueEncodingFormat = getValueEncodingFormat(helper);
 
         // validate all options
-        helper.validate();
+        helper.validateExcept(INNERFORMATTYPE);
 
         validatePKConstraints(context.getObjectIdentifier(), context.getCatalogTable(), valueEncodingFormat);
 
@@ -222,7 +220,7 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
         final Set<ConfigOption<?>> options = new HashSet<>();
         options.add(FORMAT);
         options.add(TOPIC);
-        options.add(GROUP_NAME);
+        options.add(CONSUME_GROUP);
         options.add(STREAMID);
         options.add(SESSION_KEY);
         options.add(BOOTSTRAP_FROM_MAX);

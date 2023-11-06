@@ -39,7 +39,6 @@ import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
-import org.apache.pulsar.common.naming.TopicName;
 
 import javax.annotation.Nullable;
 
@@ -163,7 +162,7 @@ public class PulsarDynamicTableFactory
         FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         ReadableConfig tableOptions = helper.getOptions();
 
-        List<String> topics = generateTopic(context.getObjectIdentifier(), tableOptions);
+        List<String> topics = generateTopic(tableOptions);
         if (topics != null && !topics.isEmpty()) {
             ((Configuration) tableOptions).set(TOPIC, Collections.singletonList(topics.get(0)));
         }
@@ -231,7 +230,7 @@ public class PulsarDynamicTableFactory
         FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         ReadableConfig tableOptions = helper.getOptions();
 
-        List<String> topics = generateTopic(context.getObjectIdentifier(), tableOptions);
+        List<String> topics = generateTopic(tableOptions);
         if (topics != null && !topics.isEmpty()) {
             ((Configuration) tableOptions).set(TOPIC, Collections.singletonList(topics.get(0)));
         }
@@ -338,17 +337,8 @@ public class PulsarDynamicTableFactory
         return options;
     }
 
-    private List<String> generateTopic(ObjectIdentifier table, ReadableConfig tableOptions) {
-        List<String> topics = null;
-        if (tableOptions.get(GENERIC)) {
-            topics = tableOptions.getOptional(TOPIC).orElse(null);
-        } else {
-            String rawTopic = table.getDatabaseName() + "/" + table.getObjectName();
-            final String topic = TopicName.get(rawTopic).toString();
-            topics = Collections.singletonList(topic);
-        }
-
-        return topics;
+    private List<String> generateTopic(ReadableConfig tableOptions) {
+        return tableOptions.getOptional(TOPIC).orElse(null);
     }
 
     // --------------------------------------------------------------------------------------------

@@ -28,7 +28,7 @@
 
     <artifactId>sort-connector-pulsar-v1.15</artifactId>
     <packaging>jar</packaging>
-    <name>Apache InLong - Sort-connector-pulsar-v1.15</name>
+    <name>Apache InLong - Sort-connector-pulsar</name>
 
     <properties>
         <pulsar.version>2.10.2</pulsar.version>
@@ -37,6 +37,12 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-connector-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -83,8 +89,6 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <scope>provided</scope>
-            <optional>true</optional>
         </dependency>
 
         <!-- Pulsar Client -->
@@ -123,6 +127,11 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -130,6 +139,7 @@
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
+                <version>${protobuf.maven.plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <!-- Currently Flink azure test pipeline would first pre-compile and then upload the compiled
@@ -157,6 +167,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${build.helper.maven.version}</version>
                 <executions>
                     <execution>
                         <id>add-test-source</id>

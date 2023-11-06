@@ -46,6 +46,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.PULSAR_TOPIC_FORMAT;
+
 /**
  * Pulsar sink operator
  */
@@ -123,7 +125,9 @@ public class PulsarSinkOperator extends AbstractSinkOperator {
     }
 
     private String getFullTopicName(PulsarSinkDTO pulsarSinkDTO) {
-        return pulsarSinkDTO.getPulsarTenant() + "/" + pulsarSinkDTO.getNamespace() + "/" + pulsarSinkDTO.getTopic();
+        return String.format(PULSAR_TOPIC_FORMAT, pulsarSinkDTO.getPulsarTenant(), pulsarSinkDTO.getNamespace(),
+                pulsarSinkDTO.getTopic());
+
     }
 
 }

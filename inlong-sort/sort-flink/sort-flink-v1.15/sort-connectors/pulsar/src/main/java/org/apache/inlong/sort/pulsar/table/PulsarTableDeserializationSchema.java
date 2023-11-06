@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricsCollector;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
+
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -53,12 +57,17 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
 
     private final boolean upsertMode;
 
+    private SourceMetricData sourceMetricData;
+
+    private MetricOption metricOption;
+
     public PulsarTableDeserializationSchema(
             @Nullable DeserializationSchema<RowData> keyDeserialization,
             DeserializationSchema<RowData> valueDeserialization,
             TypeInformation<RowData> producedTypeInfo,
             PulsarRowDataConverter rowDataConverter,
-            boolean upsertMode) {
+            boolean upsertMode,
+            MetricOption metricOption) {
         if (upsertMode) {
             checkNotNull(keyDeserialization, "upsert mode must specify a key format");
         }
@@ -67,6 +76,7 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
         this.rowDataConverter = checkNotNull(rowDataConverter);
         this.producedTypeInfo = checkNotNull(producedTypeInfo);
         this.upsertMode = upsertMode;
+        this.metricOption = metricOption;
     }
 
     @Override
@@ -74,6 +84,9 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
             throws Exception {
         if (keyDeserialization != null) {
             keyDeserialization.open(context);
+        }
+        if (metricOption != null) {
+            sourceMetricData = new SourceMetricData(metricOption);
         }
         valueDeserialization.open(context);
     }
@@ -96,7 +109,8 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
             return;
         }
 
-        valueDeserialization.deserialize(message.getData(), new ListCollector<>(valueRowData));
+        valueDeserialization.deserialize(message.getData(),
+                new MetricsCollector<>(new ListCollector<>(valueRowData), sourceMetricData));
 
         rowDataConverter.projectToProducedRowAndCollect(
                 message, keyRowData, valueRowData, collector);

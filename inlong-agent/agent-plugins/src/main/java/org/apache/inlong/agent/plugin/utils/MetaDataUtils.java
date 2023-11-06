@@ -17,7 +17,7 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.AbstractConfiguration;
 import org.apache.inlong.agent.constant.CommonConstants;
 
 import com.google.gson.Gson;
@@ -29,16 +29,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_FILTER_BY_LABELS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_PROPERTIES;
 import static org.apache.inlong.agent.constant.KubernetesConstants.CONTAINER_ID;
 import static org.apache.inlong.agent.constant.KubernetesConstants.CONTAINER_NAME;
 import static org.apache.inlong.agent.constant.KubernetesConstants.NAMESPACE;
 import static org.apache.inlong.agent.constant.KubernetesConstants.POD_NAME;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_FILE_META_FILTER_BY_LABELS;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_FILE_PROPERTIES;
 
 /**
  * Metadata utils
@@ -89,21 +90,21 @@ public class MetaDataUtils {
      *
      * get labels of pod
      */
-    public static Map<String, String> getPodLabels(JobProfile jobProfile) {
-        if (Objects.isNull(jobProfile) || !jobProfile.hasKey(JOB_FILE_META_FILTER_BY_LABELS)) {
+    public static Map<String, String> getPodLabels(AbstractConfiguration taskProfile) {
+        if (Objects.isNull(taskProfile) || !taskProfile.hasKey(JOB_FILE_META_FILTER_BY_LABELS)) {
             return new HashMap<>();
         }
-        String labels = jobProfile.get(JOB_FILE_META_FILTER_BY_LABELS);
+        String labels = taskProfile.get(JOB_FILE_META_FILTER_BY_LABELS);
         Type type = new TypeToken<HashMap<String, String>>() {
         }.getType();
         return GSON.fromJson(labels, type);
     }
 
-    public static List<String> getNamespace(JobProfile jobProfile) {
-        if (Objects.isNull(jobProfile) || !jobProfile.hasKey(JOB_FILE_PROPERTIES)) {
+    public static List<String> getNamespace(AbstractConfiguration taskProfile) {
+        if (Objects.isNull(taskProfile) || !taskProfile.hasKey(JOB_FILE_PROPERTIES)) {
             return null;
         }
-        String property = jobProfile.get(JOB_FILE_PROPERTIES);
+        String property = taskProfile.get(JOB_FILE_PROPERTIES);
         Type type = new TypeToken<HashMap<Integer, String>>() {
         }.getType();
         Map<String, String> properties = GSON.fromJson(property, type);
@@ -120,11 +121,11 @@ public class MetaDataUtils {
      *
      * get name of pod
      */
-    public static String getPodName(JobProfile jobProfile) {
-        if (Objects.isNull(jobProfile) || !jobProfile.hasKey(JOB_FILE_PROPERTIES)) {
+    public static String getPodName(AbstractConfiguration taskProfile) {
+        if (Objects.isNull(taskProfile) || !taskProfile.hasKey(JOB_FILE_PROPERTIES)) {
             return null;
         }
-        String property = jobProfile.get(JOB_FILE_PROPERTIES);
+        String property = taskProfile.get(JOB_FILE_PROPERTIES);
         Type type = new TypeToken<HashMap<Integer, String>>() {
         }.getType();
         Map<String, String> properties = GSON.fromJson(property, type);
@@ -135,5 +136,29 @@ public class MetaDataUtils {
             return null;
         }).filter(Objects::nonNull).collect(Collectors.toList());
         return podName.isEmpty() ? null : podName.get(0);
+    }
+
+    public static Map<String, String> parseAddAttr(String addictiveAttr) {
+        StringTokenizer token = new StringTokenizer(addictiveAttr, "&");
+        Map<String, String> attr = new HashMap<String, String>();
+        while (token.hasMoreTokens()) {
+            String value = token.nextToken().trim();
+            if (value.contains("=")) {
+                String[] pairs = value.split("=");
+
+                if (pairs[0].equalsIgnoreCase("m")) {
+                    continue;
+                }
+
+                // when addictiveattr like "m=10&__addcol1__worldid="
+                if (value.endsWith("=") && pairs.length == 1) {
+                    attr.put(pairs[0], "");
+                } else {
+                    attr.put(pairs[0], pairs[1]);
+                }
+
+            }
+        }
+        return attr;
     }
 }
