@@ -25,7 +25,8 @@ import { useUpdateEffect, useRequest } from '@/ui/hooks';
 import i18n from '@/i18n';
 import { useLoadMeta, useDefaultMeta, StreamMetaType } from '@/plugins';
 import request from '@/core/utils/request';
-import { dataToValues, valuesToData } from './helper';
+import { dataToString, dataToValues, valuesToData } from './helper';
+import EditableTable from '@/ui/components/EditableTable';
 
 export interface Props extends ModalProps {
   inlongGroupId: string;
@@ -104,6 +105,36 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
         },
         visible: mqType === 'PULSAR',
       },
+      {
+        type: EditableTable,
+        label: i18n.t('meta.Stream.PredefinedFields'),
+        name: 'predefinedFields',
+        visible: mqType === 'PULSAR',
+        isPro: true,
+        initialValue: [],
+        props: {
+          size: 'small',
+          canBatchAdd: false,
+          columns: [
+            {
+              title: 'Key',
+              dataIndex: 'keyName',
+              rules: [
+                { required: true },
+                {
+                  pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
+                },
+              ],
+            },
+            {
+              type: 'input',
+              title: 'Value',
+              dataIndex: 'keyValue',
+              rules: [{ required: true }],
+            },
+          ],
+        },
+      },
     ];
   }, [entityFields, mqType]);
 
@@ -124,6 +155,11 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
   const onOk = async () => {
     const isUpdate = !!inlongStreamId;
     const values = await form.validateFields();
+    if (values?.predefinedFields?.length !== 0) {
+      values.predefinedFields = dataToString(values.predefinedFields).join('&');
+    } else {
+      values.predefinedFields = '';
+    }
     const submitData = valuesToData(values, inlongGroupId);
     if (isUpdate) {
       submitData.id = savedData?.id;

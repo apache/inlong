@@ -458,6 +458,7 @@
   "meta.Stream.ExecuteSuccess": "Execution Success",
   "meta.Stream.WrapType": "Message type",
   "meta.Stream.WrapTypeHelp": "Message body packaging type, default InLongMsg V0. Raw: No protocol packaging of the message body, InLongMsg V0: Six-stage packaging protocol, InLongMsg V1: PB packaging protocol",
+  "meta.Stream.PredefinedFields": "Predefined fields",
   "meta.Transform.Name": "Transform name",
   "meta.Transform.NameRule": "Only supports letters, numbers, dots(.), minus(-), and underscores(_)",
   "meta.Transform.Type": "Transform Type",
