@@ -85,45 +85,31 @@ public class RedisSinkOperator extends AbstractSinkOperator {
 
         RedisSinkRequest sinkRequest = (RedisSinkRequest) request;
 
-        String clusterMode;
-        String clusterNodes;
-        String sentinelMasterName;
-        String sentinelsInfo;
-        String host;
-        Integer port;
-
         if (StringUtils.isNotBlank(targetEntity.getDataNodeName())) {
             RedisDataNodeInfo dataNodeInfo = (RedisDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     targetEntity.getDataNodeName(), targetEntity.getSinkType());
-            clusterMode = dataNodeInfo.getClusterMode();
-            clusterNodes = dataNodeInfo.getClusterNodes();
-            sentinelMasterName = dataNodeInfo.getMasterName();
-            sentinelsInfo = dataNodeInfo.getSentinelsInfo();
-            host = dataNodeInfo.getHost();
-            port = dataNodeInfo.getPort();
-        } else {
-            clusterMode = sinkRequest.getClusterMode();
-            clusterNodes = sinkRequest.getClusterNodes();
-            sentinelMasterName = sinkRequest.getMasterName();
-            sentinelsInfo = sinkRequest.getSentinelsInfo();
-            host = sinkRequest.getHost();
-            port = sinkRequest.getPort();
+
+            CommonBeanUtils.copyProperties(dataNodeInfo, sinkRequest, true);
         }
 
-        RedisClusterMode redisClusterMode = RedisClusterMode.of(clusterMode);
+        RedisClusterMode redisClusterMode = RedisClusterMode.of(sinkRequest.getClusterMode());
 
         expectNotNull(redisClusterMode,
                 "Redis ClusterMode must in one of " + Arrays.toString(RedisClusterMode.values()) + " !");
 
         switch (redisClusterMode) {
             case CLUSTER:
-                checkClusterNodes(clusterNodes);
+                checkClusterNodes(sinkRequest.getClusterNodes());
                 break;
             case SENTINEL:
-                expectNotEmpty(sentinelMasterName, "Redis MasterName of Sentinel cluster must not null!");
-                expectNotEmpty(sentinelsInfo, "Redis sentinelsInfo of Sentinel cluster must not null!");
+                expectNotEmpty(sinkRequest.getMasterName(), "Redis MasterName of Sentinel cluster must not null!");
+                expectNotEmpty(sinkRequest.getSentinelsInfo(),
+                        "Redis sentinelsInfo of Sentinel cluster must not null!");
                 break;
             case STANDALONE:
+                String host = sinkRequest.getHost();
+                Integer port = sinkRequest.getPort();
+
                 expectNotEmpty(host, "Redis server host must not null!");
                 expectTrue(
                         port != null && port > 1 && port < PORT_MAX_VALUE,
@@ -174,6 +160,7 @@ public class RedisSinkOperator extends AbstractSinkOperator {
             }
             RedisDataNodeInfo dataNodeInfo = (RedisDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     entity.getDataNodeName(), entity.getSinkType());
+            CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
             String clusterMode = dataNodeInfo.getClusterMode();
             dto.setClusterMode(clusterMode);
             switch (RedisClusterMode.of(clusterMode)) {
