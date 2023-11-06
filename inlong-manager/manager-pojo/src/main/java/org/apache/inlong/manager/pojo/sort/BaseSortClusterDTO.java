@@ -21,10 +21,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
@@ -33,9 +30,6 @@ import javax.validation.constraints.NotNull;
  * Base sort cluster DTO
  */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @ApiModel("Base sort cluster info")
 public class BaseSortClusterDTO {
 
