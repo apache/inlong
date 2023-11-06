@@ -168,22 +168,27 @@ public class RedisSinkOperator extends AbstractSinkOperator {
         }
 
         RedisSinkDTO dto = RedisSinkDTO.getFromJson(entity.getExtParams());
-        RedisDataNodeInfo dataNodeInfo = (RedisDataNodeInfo) dataNodeHelper.getDataNodeInfo(entity.getDataNodeName(),
-                entity.getSinkType());
-        String clusterMode = dataNodeInfo.getClusterMode();
-        dto.setClusterMode(clusterMode);
-        switch (RedisClusterMode.of(clusterMode)) {
-            case CLUSTER:
-                dto.setClusterNodes(dataNodeInfo.getClusterNodes());
-                break;
-            case SENTINEL:
-                dto.setMasterName(dataNodeInfo.getMasterName());
-                dto.setSentinelsInfo(dataNodeInfo.getSentinelsInfo());
-                break;
-            case STANDALONE:
-                dto.setHost(dataNodeInfo.getHost());
-                dto.setPort(dataNodeInfo.getPort());
-                break;
+        if (StringUtils.isBlank(dto.getHost())) {
+            if (StringUtils.isBlank(entity.getDataNodeName())) {
+                throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT, "redis data node is blank");
+            }
+            RedisDataNodeInfo dataNodeInfo = (RedisDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+                    entity.getDataNodeName(), entity.getSinkType());
+            String clusterMode = dataNodeInfo.getClusterMode();
+            dto.setClusterMode(clusterMode);
+            switch (RedisClusterMode.of(clusterMode)) {
+                case CLUSTER:
+                    dto.setClusterNodes(dataNodeInfo.getClusterNodes());
+                    break;
+                case SENTINEL:
+                    dto.setMasterName(dataNodeInfo.getMasterName());
+                    dto.setSentinelsInfo(dataNodeInfo.getSentinelsInfo());
+                    break;
+                case STANDALONE:
+                    dto.setHost(dataNodeInfo.getHost());
+                    dto.setPort(dataNodeInfo.getPort());
+                    break;
+            }
         }
 
         CommonBeanUtils.copyProperties(entity, sink, true);
