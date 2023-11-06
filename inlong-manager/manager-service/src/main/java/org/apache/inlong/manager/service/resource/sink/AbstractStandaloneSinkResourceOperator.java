@@ -46,6 +46,8 @@ public abstract class AbstractStandaloneSinkResourceOperator implements SinkReso
     @Autowired
     private InlongGroupEntityMapper groupEntityMapper;
 
+    private static final String SORT_PREFIX = "SORT_";
+
     private Random rand = new Random();
 
     @VisibleForTesting
@@ -77,8 +79,9 @@ public abstract class AbstractStandaloneSinkResourceOperator implements SinkReso
 
     private String assignFromRelated(String sinkType, String groupId) {
         InlongGroupEntity group = groupEntityMapper.selectByGroupId(groupId);
+        String sortClusterType = SORT_PREFIX.concat(sinkType);
         List<InlongClusterEntity> clusters = clusterEntityMapper
-                .selectStandaloneClusterByType(sinkType).stream()
+                .selectByKey(null, null, sortClusterType).stream()
                 .filter(cluster -> checkCluster(cluster.getClusterTags(), group.getInlongClusterTag()))
                 .collect(Collectors.toList());
 

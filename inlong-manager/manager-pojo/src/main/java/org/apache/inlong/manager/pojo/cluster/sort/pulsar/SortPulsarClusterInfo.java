@@ -15,28 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.cluster.es;
+package org.apache.inlong.manager.pojo.cluster.sort.pulsar;
 
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.pojo.sort.BaseSortClusterInfo;
 
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-/**
- * Inlong cluster request for Elasticsearch
- */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.ELASTICSEARCH)
-@ApiModel("Inlong cluster request for Elasticsearch")
-public class ElasticsearchClusterRequest extends ClusterRequest {
+@JsonTypeDefine(value = ClusterType.SORT_PULSAR)
+@ApiModel("Inlong cluster info for SortPulsar")
+public class SortPulsarClusterInfo extends BaseSortClusterInfo {
 
-    public ElasticsearchClusterRequest() {
-        this.setType(ClusterType.ELASTICSEARCH);
+    public SortPulsarClusterInfo() {
+        this.setType(ClusterType.SORT_PULSAR);
     }
+
 }
