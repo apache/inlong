@@ -83,7 +83,6 @@ void TcpClient::AsyncConnect() {
       asio::error_code error;
       socket_->close(error);
       if (asio::error::operation_aborted == error) {
-        // operation aborted必须退出，否则会引发定时器异常
         return;
       }
     }
@@ -103,7 +102,6 @@ void TcpClient::DoAsyncConnect(asio::error_code error) {
   }
   if (error) {
     if (asio::error::operation_aborted == error) {
-      // operation aborted必须退出，否则会引发定时器异常
       return;
     }
   }
@@ -123,7 +121,6 @@ void TcpClient::OnConnected(asio::error_code error) {
     return;
   }
   if (asio::error::operation_aborted == error) {
-    // operation aborted必须退出，否则会引发定时器异常
     return;
   }
   status_ = kConnectFailed;
@@ -165,7 +162,6 @@ void TcpClient::OnWroten(const asio::error_code error,
   }
   if (error) {
     if (asio::error::operation_aborted == error) {
-      // operation aborted必须退出，否则会引发定时器异常
       return;
     }
     LOG_ERROR("write error:" << error.message() << CLIENT_INFO);
@@ -192,7 +188,6 @@ void TcpClient::OnReturn(asio::error_code error, std::size_t len) {
   }
   if (error) {
     if (asio::error::operation_aborted == error) {
-      // operation aborted必须退出，否则会引发定时器异常
       return;
     }
     LOG_ERROR("OnReturn error:" << error.message() << CLIENT_INFO);
@@ -227,7 +222,6 @@ void TcpClient::OnBody(asio::error_code error, size_t bytesTransferred) {
 
   if (error) {
     if (asio::error::operation_aborted == error) {
-      // operation aborted必须退出，否则会引发定时器异常
       return;
     }
     LOG_ERROR("OnBody error:" << error.message() << CLIENT_INFO);
@@ -405,8 +399,8 @@ void TcpClient::ParseGenericResponse() {
 }
 
 int32_t TcpClient::GetAvgLoad() {
-  int32_t numerator = 0;   // 分子，加权后的负载值
-  int32_t denominator = 0; // 分母，权重值
+  int32_t numerator = 0;
+  int32_t denominator = 0;
   for (int i = 0; i < proxy_loads_.size(); i++) {
     if (proxy_loads_[i] > 0) {
       numerator += proxy_loads_[i] * constants::kWeight[i];

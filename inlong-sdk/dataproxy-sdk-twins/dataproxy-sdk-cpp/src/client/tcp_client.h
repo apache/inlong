@@ -30,27 +30,27 @@
 
 namespace inlong {
 enum ClientStatus {
-  kUndefined = 0,     // 未知状态
-  kConnecting = 1,    // 正在连接
-  kWriting = 2,       // 正在写
-  kFree = 3,          // 空闲
-  kConnectFailed = 4, // 操作被取消
-  kWaiting = 5,       // 错误等待
-  kStopped = 6,       // 停止
+  kUndefined = 0,
+  kConnecting = 1,
+  kWriting = 2,
+  kFree = 3,
+  kConnectFailed = 4,
+  kWaiting = 5,
+  kStopped = 6,
   kClientResponse = 7,
   kHeartBeat = 8
 };
 
 enum {
-  kConnectTimeout = 1000 * 20, // connect操作超时设置，毫秒级
+  kConnectTimeout = 1000 * 20,
 };
 using IOContext = asio::io_context;
 using TcpSocketPtr = std::shared_ptr<asio::ip::tcp::socket>;
 class TcpClient {
 private:
   TcpSocketPtr socket_;
-  SteadyTimerPtr wait_timer_;       // 用于连接超时
-  SteadyTimerPtr keep_alive_timer_; // 用于探测tcp状态
+  SteadyTimerPtr wait_timer_;
+  SteadyTimerPtr keep_alive_timer_;
   ClientStatus status_;
   std::string ip_;
 

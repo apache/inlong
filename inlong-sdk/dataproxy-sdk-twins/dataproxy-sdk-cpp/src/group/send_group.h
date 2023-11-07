@@ -36,7 +36,7 @@ using io_context_work =
 class SendGroup : noncopyable {
 private:
   IOContext io_context_;
-  io_context_work work_; // 保持io_context.run()在无任何任务时不退出
+  io_context_work work_;
   std::thread thread_;
   void Run();
   uint64_t max_proxy_num_;
@@ -49,9 +49,9 @@ public:
   ProxyInfoVec current_bus_vec_;
   std::queue<SendBufferPtrT> send_buf_list_;
 
-  SteadyTimerPtr send_timer_;         // 发送管理器
-  SteadyTimerPtr update_conf_timer_;  // 发送管理器
-  SteadyTimerPtr load_balance_timer_; // 负载均衡管理器
+  SteadyTimerPtr send_timer_;
+  SteadyTimerPtr update_conf_timer_;
+  SteadyTimerPtr load_balance_timer_;
 
   read_write_mutex send_group_mutex_;
   read_write_mutex work_clients_mutex_;
