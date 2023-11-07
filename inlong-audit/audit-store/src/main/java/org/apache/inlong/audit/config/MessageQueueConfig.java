@@ -72,6 +72,12 @@ public class MessageQueueConfig {
     @Value("${audit.kafka.topic:}")
     private String kafkaTopic;
 
+    @Value("${audit.kafka.topic.numPartitions:3}")
+    private String numPartitions;
+
+    @Value("${audit.kafka.topic.replicationFactor:2}")
+    private String replicationFactor;
+
     @Value("${audit.kafka.consumer.name:}")
     private String kafkaConsumerName;
 
