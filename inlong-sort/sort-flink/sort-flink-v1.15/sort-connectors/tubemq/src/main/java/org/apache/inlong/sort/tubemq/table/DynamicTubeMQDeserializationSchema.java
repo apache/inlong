@@ -17,22 +17,31 @@
 
 package org.apache.inlong.sort.tubemq.table;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricsCollector;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.tubemq.corebase.Message;
 
 import com.google.common.base.Objects;
+import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class DynamicTubeMQDeserializationSchema implements DeserializationSchema<RowData> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(DynamicTubeMQDeserializationSchema.class);
     /**
      * data buffer message
      */
@@ -53,15 +62,28 @@ public class DynamicTubeMQDeserializationSchema implements DeserializationSchema
      */
     private final boolean ignoreErrors;
 
+    private SourceMetricData sourceMetricData;
+
+    private MetricOption metricOption;
+
     public DynamicTubeMQDeserializationSchema(
             DeserializationSchema<RowData> schema,
             MetadataConverter[] metadataConverters,
             TypeInformation<RowData> producedTypeInfo,
-            boolean ignoreErrors) {
+            boolean ignoreErrors,
+            MetricOption metricOption) {
         this.deserializationSchema = schema;
         this.metadataConverters = metadataConverters;
         this.producedTypeInfo = producedTypeInfo;
         this.ignoreErrors = ignoreErrors;
+        this.metricOption = metricOption;
+    }
+
+    @Override
+    public void open(InitializationContext context) {
+        if (metricOption != null) {
+            sourceMetricData = new SourceMetricData(metricOption);
+        }
     }
 
     @Override
@@ -71,7 +93,10 @@ public class DynamicTubeMQDeserializationSchema implements DeserializationSchema
 
     @Override
     public void deserialize(byte[] message, Collector<RowData> out) throws IOException {
-        deserializationSchema.deserialize(message, out);
+        List<RowData> rows = new ArrayList<>();
+        deserializationSchema.deserialize(message,
+                new MetricsCollector<>(new ListCollector<>(rows), sourceMetricData));
+        rows.forEach(out::collect);
     }
 
     @Override

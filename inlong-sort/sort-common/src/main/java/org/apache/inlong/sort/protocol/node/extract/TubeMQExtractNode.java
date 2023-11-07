@@ -17,8 +17,11 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.util.StringUtils;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.InlongMetric;
+import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.constant.TubeMQConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.format.Format;
@@ -35,8 +38,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 /**
@@ -45,7 +50,7 @@ import java.util.TreeSet;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("tubeMQExtract")
 @Data
-public class TubeMQExtractNode extends ExtractNode implements Serializable {
+public class TubeMQExtractNode extends ExtractNode implements Serializable, InlongMetric, Metadata {
 
     private static final long serialVersionUID = -2544747886429528474L;
 
@@ -117,6 +122,30 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
     @Override
     public String genTableName() {
         return String.format("table_%s", super.getId());
+    }
+
+    @Override
+    public String getMetadataKey(MetaField metaField) {
+        String metadataKey;
+        switch (metaField) {
+            case AUDIT_DATA_TIME:
+                metadataKey = "value.data-time";
+                break;
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
+                        this.getClass().getSimpleName(), metaField));
+        }
+        return metadataKey;
+    }
+
+    @Override
+    public boolean isVirtual(MetaField metaField) {
+        return true;
+    }
+
+    @Override
+    public Set<MetaField> supportedMetaFields() {
+        return EnumSet.of(MetaField.AUDIT_DATA_TIME);
     }
 
 }
