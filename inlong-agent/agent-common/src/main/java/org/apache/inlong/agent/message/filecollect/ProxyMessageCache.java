@@ -79,6 +79,7 @@ public class ProxyMessageCache {
         this.streamId = streamId;
         this.inodeInfo = instanceProfile.get(TaskConstants.INODE_INFO);
         extraMap.put(AttributeConstants.MESSAGE_SYNC_SEND, "false");
+        extraMap.putAll(AgentUtils.parseAddAttrToMap(instanceProfile.getPredefineFields()));
     }
 
     public void generateExtraMap(String dataKey) {
