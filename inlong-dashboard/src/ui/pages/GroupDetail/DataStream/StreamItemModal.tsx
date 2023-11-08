@@ -112,9 +112,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
         visible: mqType === 'PULSAR',
         isPro: true,
         initialValue: [],
-        props: {
+        props: values => ({
           size: 'small',
           canBatchAdd: false,
+          editing: !Boolean(values?.id),
           columns: [
             {
               title: 'Key',
@@ -133,7 +134,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
               rules: [{ required: true }],
             },
           ],
-        },
+        }),
       },
     ];
   }, [entityFields, mqType]);

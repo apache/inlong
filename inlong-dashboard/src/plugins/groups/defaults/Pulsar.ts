@@ -95,7 +95,7 @@ export default class PulsarGroup
 
   @FieldDecorator({
     type: 'inputnumber',
-    initialValue: 2,
+    initialValue: 1,
     suffix: i18n.t('meta.Group.Pulsar.WriteQuorumSuffix'),
     extra: i18n.t('meta.Group.Pulsar.WriteQuorumExtra'),
     props: {
@@ -109,7 +109,7 @@ export default class PulsarGroup
 
   @FieldDecorator({
     type: 'inputnumber',
-    initialValue: 2,
+    initialValue: 1,
     suffix: i18n.t('meta.Group.Pulsar.AckQuorumSuffix'),
     extra: i18n.t('meta.Group.Pulsar.AckQuorumExtra'),
     props: {
