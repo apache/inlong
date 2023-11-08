@@ -100,7 +100,7 @@ public class PostgreSQLResourceOperator implements SinkResourceOperator {
         try (Connection conn = PostgreSQLJdbcUtils.getConnection(postgreSQLSink.getJdbcUrl(),
                 postgreSQLSink.getUsername(), postgreSQLSink.getPassword())) {
             // 1.If schema not exists,create it
-            PostgreSQLJdbcUtils.createSchema(conn, tableInfo.getTableName(), tableInfo.getUserName());
+            PostgreSQLJdbcUtils.createSchema(conn, tableInfo.getSchemaName(), tableInfo.getUserName());
             // 2.If table not exists, create it
             PostgreSQLJdbcUtils.createTable(conn, tableInfo);
             // 3.Table exists, add columns - skip the exists columns

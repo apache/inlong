@@ -104,7 +104,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       }
       acc[cur.logTs] = {
         ...acc[cur.logTs],
-        [cur.auditId]: cur.count === 0 ? cur.delay : Math.floor(cur.delay / cur.count),
+        [cur.auditId]: cur.delay,
       };
       return acc;
     }, {});
@@ -134,7 +134,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       }
       acc[cur.logTs] = {
         ...acc[cur.logTs],
-        [cur.auditId]: cur.count === 0 ? cur.delay : Math.floor(cur.delay / cur.count),
+        [cur.auditId]: cur.delay,
       };
       return acc;
     }, {});

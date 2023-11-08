@@ -131,6 +131,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
       nodeType: 'MYSQL',
     }),
   })
+  @SyncField()
   @I18n('meta.Sinks.DataNodeName')
   dataNodeName: string;
 
