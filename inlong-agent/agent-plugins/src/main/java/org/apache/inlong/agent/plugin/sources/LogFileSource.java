@@ -378,7 +378,7 @@ public class LogFileSource extends AbstractSource {
             suc = MemoryManager.getInstance().tryAcquire(permitName, permitLen);
             if (!suc) {
                 MemoryManager.getInstance().printDetail(permitName, "log file source");
-                if (!isRunnable()) {
+                if (!isInodeChanged() || !isRunnable()) {
                     return false;
                 }
                 AgentUtils.silenceSleepInSeconds(1);
