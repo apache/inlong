@@ -64,7 +64,7 @@ public class IcebergSinkRequest extends SinkRequest {
     @ApiModelProperty("Primary key")
     private String primaryKey;
 
-    @ApiModelProperty("Upsert mode")
-    private Boolean upsert;
+    @ApiModelProperty("append mode, UPSERT or APPEND")
+    private String appendMode;
 
 }

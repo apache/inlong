@@ -74,8 +74,8 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
     @JsonProperty("warehouse")
     private String warehouse;
 
-    @JsonProperty("upsert")
-    private Boolean upsert;
+    @JsonProperty("append mode, UPSERT or APPEND")
+    private String appendMode;
 
     @JsonCreator
     public IcebergLoadNode(@JsonProperty("id") String id,
@@ -92,7 +92,7 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
             @JsonProperty("catalogType") IcebergConstant.CatalogType catalogType,
             @JsonProperty("uri") String uri,
             @JsonProperty("warehouse") String warehouse,
-            @JsonProperty("upsert") Boolean upsert) {
+            @JsonProperty("appendMode") String appendMode) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
         this.dbName = Preconditions.checkNotNull(dbName, "db name is null");
@@ -100,7 +100,7 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
         this.catalogType = catalogType == null ? CatalogType.HIVE : catalogType;
         this.uri = uri;
         this.warehouse = warehouse;
-        this.upsert = Optional.ofNullable(upsert).orElse(false);
+        this.appendMode = appendMode;
     }
 
     @Override
@@ -114,7 +114,7 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
         options.put(IcebergConstant.DEFAULT_DATABASE_KEY, dbName);
         options.put(IcebergConstant.CATALOG_TYPE_KEY, catalogType.name());
         options.put(IcebergConstant.CATALOG_NAME_KEY, catalogType.name());
-        options.put(IcebergConstant.UPSERT_KEY, upsert.toString());
+        options.put(IcebergConstant.APPEND_MODE_KEY, appendMode);
         if (null != uri) {
             options.put(IcebergConstant.URI_KEY, uri);
         }
