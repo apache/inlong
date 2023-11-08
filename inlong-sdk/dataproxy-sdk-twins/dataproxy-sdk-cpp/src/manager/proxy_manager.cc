@@ -181,6 +181,17 @@ int32_t ProxyManager::ParseAndGet(const std::string &inlong_group_id,
   }
   groupid_2_cluster_id_update_map_[inlong_group_id] =
       clusterInfo["clusterId"].GetInt();
+
+  // check load
+  int32_t load = 0;
+  if (clusterInfo.HasMember("load") && clusterInfo["load"].IsInt() &&
+      !clusterInfo["load"].IsNull()) {
+    const rapidjson::Value &obj = clusterInfo["load"];
+    load = obj.GetInt();
+  } else {
+    load = 0;
+  }
+
   // proxy list
   for (auto &proxy : nodeList.GetArray()) {
     std::string ip;
@@ -212,7 +223,7 @@ int32_t ProxyManager::ParseAndGet(const std::string &inlong_group_id,
       LOG_WARN("there is no id info of inlong_group_id");
       continue;
     }
-    proxy_info_vec.emplace_back(id, ip, port);
+    proxy_info_vec.emplace_back(id, ip, port, load);
   }
 
   return SdkCode::kSuccess;

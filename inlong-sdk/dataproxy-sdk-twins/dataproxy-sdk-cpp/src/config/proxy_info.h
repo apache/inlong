@@ -29,13 +29,17 @@ private:
   std::string proxy_str_id_;
   std::string ip_;
   int32_t port_;
+  int32_t load_;
 
 public:
-  ProxyInfo(std::string proxy_str_id, std::string ip, int32_t port)
-      : proxy_str_id_(proxy_str_id), ip_(ip), port_(port) {}
+  ProxyInfo(std::string proxy_str_id, std::string ip, int32_t port,int32_t load)
+      : proxy_str_id_(proxy_str_id), ip_(ip), port_(port), load_(load) {}
   ProxyInfo(){};
+  void setIp(const std::string& ip) { ip_ = ip; }
+  void setPort(int32_t port) { port_ = port; }
   std::string ip() const { return ip_; }
   int32_t port() const { return port_; }
+  int32_t GetLoad() const { return load_; }
 };
 using ProxyInfoVec = std::vector<ProxyInfo>;
 } // namespace inlong
