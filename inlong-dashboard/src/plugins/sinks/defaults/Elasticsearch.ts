@@ -129,7 +129,7 @@ export default class ElasticsearchSink
     }),
   })
   @I18n('meta.Sinks.EnableCreateResource')
-  // @SyncField()
+  @SyncField()
   enableCreateResource: number;
 
   @FieldDecorator({

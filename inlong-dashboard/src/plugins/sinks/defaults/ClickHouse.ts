@@ -354,12 +354,27 @@ export default class ClickHouseSink
     props: values => ({
       size: 'small',
       editing: ![110].includes(values?.status),
-      columns: getFieldListColumns(values),
+      columns: getFieldListColumns(values).filter(
+        item => item.dataIndex !== 'sourceFieldName' && item.dataIndex !== 'sourceFieldType',
+      ),
       canBatchAdd: true,
       upsertByFieldKey: true,
     }),
   })
   @SyncCreateTableField()
+  createTableField: Record<string, unknown>[];
+
+  @FieldDecorator({
+    type: EditableTable,
+    props: values => ({
+      size: 'small',
+      editing: ![110].includes(values?.status),
+      columns: getFieldListColumns(values),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
+    }),
+  })
+  // @SyncCreateTableField()
   sinkFieldList: Record<string, unknown>[];
 }
 

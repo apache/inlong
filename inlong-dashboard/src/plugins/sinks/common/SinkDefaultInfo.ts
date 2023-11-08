@@ -143,7 +143,6 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
 
   stringify(data) {
     const { sinkType } = data;
-    // console.log(data, 'stringify');
 
     if (Array.isArray(data.sinkFieldList)) {
       data.sinkFieldList = data.sinkFieldList.map(item => ({
@@ -158,37 +157,12 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   renderSyncRow() {
     const constructor = this.constructor as typeof SinkDefaultInfo;
     const { FieldList, SyncFieldSet } = constructor;
-    // return FieldList.filter(item => SyncFieldSet.has(item.name as string));
-    return FieldList.filter(item => {
-      // console.log(item, '234');
-      if (item.name === 'tableName') {
-        // item.type = 'input';
-        // console.log(item, 'tanl');
-      }
-      return SyncFieldSet.has(item.name as string);
-    });
+    return FieldList.filter(item => SyncFieldSet.has(item.name as string));
   }
 
   renderSyncCreateTableRow() {
     const constructor = this.constructor as typeof SinkDefaultInfo;
     const { FieldList, SyncCreateTableFieldSet } = constructor;
-    // constructor.FieldList.map(item => {
-    //   if (item.name === 'sinkFieldList') {
-    //     console.log(item.props);
-    //     // item.props = values => ({
-    //     //   disabled: Boolean(values.id),
-    //     //   dropdownMatchSelectWidth: false,
-    //     //   options: sources
-    //     //     .filter(item => item.value)
-    //     //     .map(item => ({
-    //     //       label: item.label,
-    //     //       value: item.value,
-    //     //       image: loadImage(item.label),
-    //     //     })),
-    //     // });
-    //   }
-    // });
-    // return constructor.FieldList;
     return FieldList.filter(item => SyncCreateTableFieldSet.has(item.name as string));
   }
 

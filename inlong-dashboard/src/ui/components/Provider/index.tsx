@@ -77,7 +77,7 @@ const Provider = ({ children }) => {
       import(
         /* webpackInclude: /(zh-cn|en)\.js$/ */
         /* webpackChunkName: 'dayjs-locales-[request]' */
-        `node_modules/dayjs/esm/locale/${dayjsPath}.js`
+        `dayjs/esm/locale/${dayjsPath}.js`
       ),
     ]);
     i18n.changeLanguage(locale);
