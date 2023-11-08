@@ -123,15 +123,16 @@ const Comp: React.FC<DetailModalProps> = ({
       submitData.version = data?.version;
     }
     const sinkData = Object.assign(submitData, createData);
-    await request({
-      url: isUpdate ? '/sink/update' : '/sink/save',
-      method: 'POST',
-      data: {
-        ...sinkData,
-        inlongGroupId,
-        inlongStreamId,
-      },
-    });
+    console.log(createData, 'createData');
+    // await request({
+    //   url: isUpdate ? '/sink/update' : '/sink/save',
+    //   method: 'POST',
+    //   data: {
+    //     ...sinkData,
+    //     inlongGroupId,
+    //     inlongStreamId,
+    //   },
+    // });
     modalProps?.onOk(sinkData);
     removeLocalStorage('createTableData');
     message.success(t('basic.OperatingSuccess'));

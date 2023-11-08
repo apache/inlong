@@ -15,13 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.pojo;
+package org.apache.inlong.manager.pojo.sort;
 
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+/**
+ * Inlong base sort cluster request
+ */
 @Data
-public class DbCollectorTaskRequestDto {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@ApiModel("Inlong base sort cluster request")
+public class BaseSortClusterRequest extends ClusterRequest {
 
-    private String version;
-    private String md5;
 }

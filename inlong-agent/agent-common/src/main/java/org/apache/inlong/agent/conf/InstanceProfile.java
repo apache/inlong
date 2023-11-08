@@ -93,9 +93,21 @@ public class InstanceProfile extends AbstractConfiguration implements Comparable
         setInt(INSTANCE_STATE, state.ordinal());
     }
 
+    public long getFileUpdateTime() {
+        return getLong(TaskConstants.FILE_UPDATE_TIME, 0);
+    }
+
+    public void setFileUpdateTime(long lastUpdateTime) {
+        setLong(TaskConstants.FILE_UPDATE_TIME, lastUpdateTime);
+    }
+
+    public String getPredefineFields() {
+        return get(TaskConstants.PREDEFINE_FIELDS, "");
+    }
+
     @Override
     public boolean allRequiredKeyExist() {
-        return true;
+        return hasKey(TaskConstants.FILE_UPDATE_TIME);
     }
 
     /**

@@ -15,13 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.pojo;
+package org.apache.inlong.manager.pojo.cluster.sort.pulsar;
 
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.sort.BaseSortClusterInfo;
+
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
-public class DbCollectorTaskReportResponse {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(value = ClusterType.SORT_PULSAR)
+@ApiModel("Inlong cluster info for SortPulsar")
+public class SortPulsarClusterInfo extends BaseSortClusterInfo {
 
-    private String version;
-    private String md5;
+    public SortPulsarClusterInfo() {
+        this.setType(ClusterType.SORT_PULSAR);
+    }
+
 }

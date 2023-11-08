@@ -24,6 +24,7 @@ import org.apache.inlong.agent.core.task.file.MemoryManager;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.utils.file.FileDataUtils;
+import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.enums.TaskStateEnum;
 
 import com.google.gson.Gson;
@@ -46,9 +47,11 @@ public class TestLogFileSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestLogFileSource.class);
     private static final ClassLoader LOADER = TestLogFileSource.class.getClassLoader();
-    private static LogFileSource source;
     private static AgentBaseTestsHelper helper;
     private static final Gson GSON = new Gson();
+    private static final String[] check = {"hello line-end-symbol aa", "world line-end-symbol",
+            "agent line-end-symbol"};
+    private static InstanceProfile instanceProfile;
 
     @BeforeClass
     public static void setup() {
@@ -57,11 +60,15 @@ public class TestLogFileSource {
         helper = new AgentBaseTestsHelper(TestLogFileSource.class.getName()).setupAgentHome();
         String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
         TaskProfile taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING);
-        InstanceProfile instanceProfile = taskProfile.createInstanceProfile("",
-                fileName, "20230928");
+        instanceProfile = taskProfile.createInstanceProfile("",
+                fileName, "20230928", AgentUtils.getCurrentTime());
+
+    }
+
+    private LogFileSource getSource() {
         try {
             instanceProfile.set(TaskConstants.INODE_INFO, FileDataUtils.getInodeInfo(instanceProfile.getInstanceId()));
-            source = new LogFileSource();
+            LogFileSource source = new LogFileSource();
             Whitebox.setInternalState(source, "BATCH_READ_LINE_COUNT", 1);
             Whitebox.setInternalState(source, "BATCH_READ_LINE_TOTAL_LEN", 10);
             Whitebox.setInternalState(source, "PRINT_INTERVAL_MS", 0);
@@ -69,25 +76,31 @@ public class TestLogFileSource {
             Whitebox.setInternalState(source, "FINISH_READ_MAX_COUNT", 1);
             Whitebox.setInternalState(source, "READ_WAIT_TIMEOUT_MS", 10);
             source.init(instanceProfile);
+            return source;
         } catch (Exception e) {
             LOGGER.error("source init error {}", e);
             Assert.assertTrue("source init error", false);
         }
+        return null;
     }
 
     @AfterClass
     public static void teardown() throws Exception {
-        source.destroy();
         helper.teardownAgentHome();
     }
 
     @Test
-    public void testTaskManager() {
-        String[] check = {"hello line-end-symbol aa", "world line-end-symbol", "agent line-end-symbol"};
+    public void testLogFileSource() {
+        testFullRead();
+        testCleanQueue();
+    }
+
+    private void testFullRead() {
         int srcLen = 0;
         for (int i = 0; i < check.length; i++) {
             srcLen += check[i].getBytes(StandardCharsets.UTF_8).length;
         }
+        LogFileSource source = getSource();
         await().atMost(2, TimeUnit.SECONDS).until(() -> source.sourceFinish());
         int cnt = 0;
         int leftBeforeRead = MemoryManager.getInstance().getLeft(AGENT_GLOBAL_READER_QUEUE_PERMIT);
@@ -101,8 +114,20 @@ public class TestLogFileSource {
             msg = source.read();
             cnt++;
         }
+        source.destroy();
         Assert.assertTrue(cnt == 3);
         Assert.assertTrue(srcLen == readLen);
+        int leftAfterRead = MemoryManager.getInstance().getLeft(AGENT_GLOBAL_READER_QUEUE_PERMIT);
+        Assert.assertTrue(leftAfterRead == DEFAULT_AGENT_GLOBAL_READER_QUEUE_PERMIT);
+    }
+
+    private void testCleanQueue() {
+        LogFileSource source = getSource();
+        await().atMost(2, TimeUnit.SECONDS).until(() -> source.sourceFinish());
+        for (int i = 0; i < 2; i++) {
+            source.read();
+        }
+        source.destroy();
         int leftAfterRead = MemoryManager.getInstance().getLeft(AGENT_GLOBAL_READER_QUEUE_PERMIT);
         Assert.assertTrue(leftAfterRead == DEFAULT_AGENT_GLOBAL_READER_QUEUE_PERMIT);
     }

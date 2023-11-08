@@ -222,9 +222,9 @@ public class NewDateUtils {
 
         // To handle the offset, add the time offset to the timeout period
         if (timeOffset.startsWith("-")) {
-            timeInterval += caclOffset(timeOffset);
+            timeInterval += calcOffset(timeOffset);
         } else { // Process Backward Offset
-            timeInterval -= caclOffset(timeOffset);
+            timeInterval -= calcOffset(timeOffset);
         }
 
         return isValidCreationTime(dataTime, timeInterval);
@@ -240,7 +240,7 @@ public class NewDateUtils {
      * @param timeOffset offset，such as -1d,-4h,-10m；
      * @return
      */
-    public static long caclOffset(String timeOffset) {
+    public static long calcOffset(String timeOffset) {
         String offsetUnit = timeOffset.substring(timeOffset.length() - 1);
         int startIndex = timeOffset.charAt(0) == '-' ? 1 : 0;
         // Default Backward Offset
@@ -250,8 +250,11 @@ public class NewDateUtils {
         } else if (startIndex == 0) { // Forward offset
             symbol = -1;
         }
-        int offsetTime = Integer
-                .parseInt(timeOffset.substring(startIndex, timeOffset.length() - 1));
+        String strOffset = timeOffset.substring(startIndex, timeOffset.length() - 1);
+        if (strOffset.length() == 0) {
+            return 0;
+        }
+        int offsetTime = Integer.parseInt(strOffset);
         if ("d".equalsIgnoreCase(offsetUnit)) {
             return offsetTime * 24 * 3600 * 1000 * symbol;
         } else if ("h".equalsIgnoreCase(offsetUnit)) {

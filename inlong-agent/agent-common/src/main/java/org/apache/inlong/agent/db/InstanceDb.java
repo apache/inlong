@@ -65,10 +65,7 @@ public class InstanceDb {
                     instance.get(TaskConstants.INSTANCE_ID));
             KeyValueEntity entity = new KeyValueEntity(keyName,
                     instance.toJsonStr(), instance.get(TaskConstants.INSTANCE_ID));
-            KeyValueEntity oldEntity = db.put(entity);
-            if (oldEntity != null) {
-                LOGGER.warn("instance profile {} has been replaced", oldEntity.getKey());
-            }
+            db.put(entity);
         } else {
             LOGGER.error("instance profile invalid!");
         }

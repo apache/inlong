@@ -15,31 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.pojo;
+package org.apache.inlong.manager.pojo.cluster.sort.cls;
 
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.sort.BaseSortClusterInfo;
+
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
-public class DbCollectorTask {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(value = ClusterType.SORT_CLS)
+@ApiModel("Inlong cluster info for SortCls")
+public class SortClsClusterInfo extends BaseSortClusterInfo {
 
-    private String id;
-    private Integer type;
-    private Integer dbType;
-    private String ip;
-    private Integer dbport;
-    private String dbName;
-    private String user;
-    private String password;
-    private String sqlStatement;
-    private Integer totalLimit;
-    private Integer onceLimit;
-    private Integer timeLimit;
-    private Integer retryTimes;
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private String seperator;
-
-    public boolean isValid() {
-        return true;
+    public SortClsClusterInfo() {
+        this.setType(ClusterType.SORT_CLS);
     }
 }

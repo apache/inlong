@@ -51,6 +51,39 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId }) => {
     },
   });
 
+  // const { data: streamData, run: getStream } = useRequest(
+  //   {
+  //     url: `/stream/getBrief`,
+  //     params: {
+  //       groupId: inlongGroupId,
+  //       streamId: inlongStreamId,
+  //     },
+  //   },
+  //   {
+  //     manual: true,
+  //     onSuccess: result => {
+  //       console.log(result, 'rr');
+  //     },
+  //   },
+  // );
+
+  // const { data: sourceData, run: getSource } = useRequest(
+  //   {
+  //     url: '/source/list',
+  //     method: 'POST',
+  //     data: {
+  //       inlongGroupId,
+  //       inlongStreamId,
+  //     },
+  //   },
+  //   {
+  //     manual: true,
+  //     onSuccess: result => {
+  //       console.log(result, 'ss');
+  //     },
+  //   },
+  // );
+
   const sinkColumns: ColumnsType = [
     {
       title: i18n.t('components.FieldList.SinkFieldName'),

@@ -82,7 +82,8 @@ const Comp: React.FC<Props> = ({
       ...values,
       enableCreateResource: 1,
     };
-    setLocalStorage(submitData);
+    console.log(submitData, 'sub');
+    // setLocalStorage(submitData);
     modalProps?.onOk(values);
     message.success(t('pages.GroupDetail.Sources.SaveSuccessfully'));
   };
@@ -114,7 +115,7 @@ const Comp: React.FC<Props> = ({
       Entity.FieldList?.some(item => item.name === 'sinkFieldList')
     ) {
       form.setFieldsValue({
-        sinkFieldList: streamData.fieldList.map(item => ({
+        createTableField: streamData.fieldList.map(item => ({
           sourceFieldName: item.fieldName,
           sourceFieldType: item.fieldType,
           fieldName: item.fieldName,

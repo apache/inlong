@@ -272,7 +272,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
   @FieldDecorator({
     type: 'input',
     tooltip: i18n.t('meta.Sinks.Hudi.PrimaryKeyHelper'),
-    rules: [{ required: true }],
+    // rules: [{ required: true }],
     props: values => ({
       disabled: [110].includes(values?.status),
     }),

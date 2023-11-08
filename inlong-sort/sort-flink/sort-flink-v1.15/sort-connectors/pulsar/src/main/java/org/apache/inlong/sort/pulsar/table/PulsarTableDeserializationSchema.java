@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 
@@ -58,13 +59,15 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
 
     private SourceMetricData sourceMetricData;
 
+    private MetricOption metricOption;
+
     public PulsarTableDeserializationSchema(
             @Nullable DeserializationSchema<RowData> keyDeserialization,
             DeserializationSchema<RowData> valueDeserialization,
             TypeInformation<RowData> producedTypeInfo,
             PulsarRowDataConverter rowDataConverter,
             boolean upsertMode,
-            SourceMetricData sourceMetricData) {
+            MetricOption metricOption) {
         if (upsertMode) {
             checkNotNull(keyDeserialization, "upsert mode must specify a key format");
         }
@@ -73,7 +76,7 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
         this.rowDataConverter = checkNotNull(rowDataConverter);
         this.producedTypeInfo = checkNotNull(producedTypeInfo);
         this.upsertMode = upsertMode;
-        this.sourceMetricData = sourceMetricData;
+        this.metricOption = metricOption;
     }
 
     @Override
@@ -81,6 +84,9 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
             throws Exception {
         if (keyDeserialization != null) {
             keyDeserialization.open(context);
+        }
+        if (metricOption != null) {
+            sourceMetricData = new SourceMetricData(metricOption);
         }
         valueDeserialization.open(context);
     }

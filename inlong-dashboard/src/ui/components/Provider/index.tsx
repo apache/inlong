@@ -72,12 +72,12 @@ const Provider = ({ children }) => {
       import(
         /* webpackInclude: /(zh_CN|en_US)\.js$/ */
         /* webpackChunkName: 'antd-locales-[request]' */
-        `antd/es/locale/${uiComponentPath}.js`
+        `../../../../node_modules/antd/es/locale/${uiComponentPath}.js`
       ),
       import(
         /* webpackInclude: /(zh-cn|en)\.js$/ */
         /* webpackChunkName: 'dayjs-locales-[request]' */
-        `dayjs/esm/locale/${dayjsPath}.js`
+        `../../../../node_modules/dayjs/esm/locale/${dayjsPath}.js`
       ),
     ]);
     i18n.changeLanguage(locale);

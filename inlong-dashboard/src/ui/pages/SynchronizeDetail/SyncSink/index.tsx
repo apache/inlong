@@ -78,6 +78,39 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
     },
   );
 
+  const { data: streamData, run: getStream } = useRequest(
+    {
+      url: `/stream/getBrief`,
+      params: {
+        groupId: inlongGroupId,
+        streamId: inlongStreamId,
+      },
+    },
+    {
+      manual: true,
+      onSuccess: result => {
+        console.log(result, 'rr');
+      },
+    },
+  );
+
+  const { data: sourceData, run: getSource } = useRequest(
+    {
+      url: '/source/list',
+      method: 'POST',
+      data: {
+        inlongGroupId,
+        inlongStreamId,
+      },
+    },
+    {
+      manual: true,
+      onSuccess: result => {
+        console.log(result, 'ss');
+      },
+    },
+  );
+
   const onEdit = useCallback(({ id }) => {
     setCreateModal({ open: true, id });
   }, []);
@@ -195,7 +228,16 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
               key="create"
               style={{ visibility: data?.total === 1 ? 'hidden' : 'visible' }}
               type="link"
-              onClick={() => setCreateModal({ open: true })}
+              // onClick={() => setCreateModal({ open: true })}
+              onClick={() => {
+                getSource();
+                getStream();
+                if (sourceData?.total > 0 && streamData.fieldList.length > 0) {
+                  setCreateModal({ open: true });
+                } else {
+                  message.warning('请先创建数据源和源字段映射');
+                }
+              }}
             >
               {i18n.t('basic.Create')}
             </Button>

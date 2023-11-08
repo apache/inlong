@@ -15,33 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.pojo;
+package org.apache.inlong.manager.pojo.cluster.sort.cls;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.sort.BaseSortClusterRequest;
 
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
-public class DbCollectorTaskResult {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(value = ClusterType.SORT_CLS)
+@ApiModel("Inlong cluster request for SortCls")
+public class SortClsClusterRequest extends BaseSortClusterRequest {
 
-    private String version;
-    private boolean result;
-    private Integer errCode;
-    private String md5;
-
-    private DbCollectorTask data = new DbCollectorTask();
-
-    /**
-     * get JobProfile based on DbCollectorTask
-     *
-     * @return JobProfile
-     */
-    public JobProfile getJobProfile() {
-        JobProfile profile = null;
-        if (data == null) {
-            return profile;
-        }
-        profile = SqlJobProfileDto.convertToJobProfile(data);
-        return profile;
+    public SortClsClusterRequest() {
+        this.setType(ClusterType.SORT_CLS);
     }
 }

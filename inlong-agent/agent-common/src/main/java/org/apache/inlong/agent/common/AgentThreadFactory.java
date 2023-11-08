@@ -33,7 +33,7 @@ public class AgentThreadFactory implements ThreadFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentThreadFactory.class);
 
-    public static final String NAMED_THREAD_PLACEHOLDER = "running-thread";
+    public static final String NAMED_THREAD_PLACEHOLDER = "agent-thread-factory";
 
     private final AtomicInteger mThreadNum = new AtomicInteger(1);
 

@@ -106,7 +106,8 @@ public class TaskProfile extends AbstractConfiguration {
         return GSON.toJson(getConfigStorage());
     }
 
-    public InstanceProfile createInstanceProfile(String instanceClass, String fileName, String dataTime) {
+    public InstanceProfile createInstanceProfile(String instanceClass, String fileName, String dataTime,
+            long fileUpdateTime) {
         InstanceProfile instanceProfile = InstanceProfile.parseJsonStr(toJsonStr());
         instanceProfile.setInstanceClass(instanceClass);
         instanceProfile.setInstanceId(fileName);
@@ -114,6 +115,7 @@ public class TaskProfile extends AbstractConfiguration {
         instanceProfile.setCreateTime(AgentUtils.getCurrentTime());
         instanceProfile.setModifyTime(AgentUtils.getCurrentTime());
         instanceProfile.setState(InstanceStateEnum.DEFAULT);
+        instanceProfile.setFileUpdateTime(fileUpdateTime);
         return instanceProfile;
     }
 }
