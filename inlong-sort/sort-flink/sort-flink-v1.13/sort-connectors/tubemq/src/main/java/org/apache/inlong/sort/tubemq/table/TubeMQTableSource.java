@@ -137,12 +137,12 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
     private WatermarkStrategy<RowData> watermarkStrategy;
 
     public TubeMQTableSource(DataType physicalDataType,
-                             DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat,
-                             String masterAddress, String topic,
-                             TreeSet<String> streamIdSet, String consumerGroup, String sessionKey,
-                             Configuration configuration, @Nullable WatermarkStrategy<RowData> watermarkStrategy,
-                             Optional<String> proctimeAttribute, Boolean ignoreErrors, Boolean innerFormat,
-                             String inlongMetric, String auditHostAndPorts, String auditKeys) {
+            DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat,
+            String masterAddress, String topic,
+            TreeSet<String> streamIdSet, String consumerGroup, String sessionKey,
+            Configuration configuration, @Nullable WatermarkStrategy<RowData> watermarkStrategy,
+            Optional<String> proctimeAttribute, Boolean ignoreErrors, Boolean innerFormat,
+            String inlongMetric, String auditHostAndPorts, String auditKeys) {
 
         Preconditions.checkNotNull(physicalDataType, "Physical data type must not be null.");
         Preconditions.checkNotNull(valueDecodingFormat, "The deserialization schema must not be null.");

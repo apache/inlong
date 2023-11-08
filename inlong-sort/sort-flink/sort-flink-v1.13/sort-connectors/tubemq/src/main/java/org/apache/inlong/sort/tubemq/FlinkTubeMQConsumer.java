@@ -64,7 +64,7 @@ import static org.apache.flink.util.TimeUtils.parseDuration;
  */
 public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
         implements
-        CheckpointedFunction {
+            CheckpointedFunction {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlinkTubeMQConsumer.class);
     private static final String TUBE_OFFSET_STATE = "tube-offset-state";

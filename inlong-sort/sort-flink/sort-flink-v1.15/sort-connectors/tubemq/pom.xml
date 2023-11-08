@@ -53,8 +53,8 @@
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>flink-connector-base</artifactId>
                     <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-connector-base</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

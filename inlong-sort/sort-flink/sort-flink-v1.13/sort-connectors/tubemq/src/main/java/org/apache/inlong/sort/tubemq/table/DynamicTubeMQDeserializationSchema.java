@@ -120,7 +120,7 @@ public class DynamicTubeMQDeserializationSchema implements DeserializationSchema
         DynamicTubeMQDeserializationSchema that = (DynamicTubeMQDeserializationSchema) o;
         return ignoreErrors == that.ignoreErrors
                 && Objects.equal(Arrays.stream(metadataConverters).collect(Collectors.toList()),
-                Arrays.stream(that.metadataConverters).collect(Collectors.toList()))
+                        Arrays.stream(that.metadataConverters).collect(Collectors.toList()))
                 && Objects.equal(deserializationSchema, that.deserializationSchema)
                 && Objects.equal(producedTypeInfo, that.producedTypeInfo);
     }
