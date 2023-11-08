@@ -47,7 +47,9 @@ public class InstanceManager extends AbstractDaemon {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InstanceManager.class);
     private static final int ACTION_QUEUE_CAPACITY = 100;
-    public static final int CORE_THREAD_SLEEP_TIME = 100;
+    public volatile int CORE_THREAD_SLEEP_TIME_MS = 1000;
+    public static final int CORE_THREAD_PRINT_TIME = 10000;
+    private long lastPrintTime = 0;
     // task in db
     private final InstanceDb instanceDb;
     // task in memory
@@ -109,7 +111,8 @@ public class InstanceManager extends AbstractDaemon {
             running = true;
             while (isRunnable()) {
                 try {
-                    AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
+                    AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME_MS);
+                    printInstanceDetail();
                     dealWithActionQueue(actionQueue);
                     keepPaceWithDb();
                 } catch (Throwable ex) {
@@ -120,6 +123,22 @@ public class InstanceManager extends AbstractDaemon {
             }
             running = false;
         };
+    }
+
+    private void printInstanceDetail() {
+        if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_TIME) {
+            LOGGER.info("instanceManager coreThread running! taskId {} action count {}", taskId,
+                    actionQueue.size());
+            List<InstanceProfile> instances = instanceDb.getInstances(taskId);
+            for (int i = 0; i < instances.size(); i++) {
+                InstanceProfile instance = instances.get(i);
+                LOGGER.info(
+                        "instanceManager coreThread instance taskId {} index {} total {} instanceId {} state {}",
+                        taskId, i,
+                        instances.size(), instance.getInstanceId(), instance.getState());
+            }
+            lastPrintTime = AgentUtils.getCurrentTime();
+        }
     }
 
     private void keepPaceWithDb() {
@@ -215,7 +234,7 @@ public class InstanceManager extends AbstractDaemon {
     public void waitForTerminate() {
         super.waitForTerminate();
         while (running) {
-            AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
+            AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME_MS);
         }
     }
 
@@ -241,7 +260,8 @@ public class InstanceManager extends AbstractDaemon {
         }
         LOGGER.info("add instance taskId {} instanceId {}", taskId, profile.getInstanceId());
         if (!shouldAddAgain(profile.getInstanceId(), profile.getFileUpdateTime())) {
-            LOGGER.info("shouldAddAgain returns false skip taskId {} instanceId {}", taskId, profile.getInstanceId());
+            LOGGER.info("addInstance shouldAddAgain returns false skip taskId {} instanceId {}", taskId,
+                    profile.getInstanceId());
             return;
         }
         addToDb(profile);
