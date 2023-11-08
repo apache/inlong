@@ -23,6 +23,7 @@ import org.apache.inlong.common.pojo.sdk.CacheZone;
 import org.apache.inlong.common.pojo.sdk.CacheZoneConfig;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.common.pojo.sdk.Topic;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -37,6 +38,7 @@ import org.apache.inlong.manager.service.core.SortSourceService;
 
 import com.google.gson.Gson;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -302,7 +305,8 @@ public class SortSourceServiceImpl implements SortSourceService {
             List<SortSourceStreamSinkInfo> sinkList) {
 
         Preconditions.expectNotNull(sortClusters.get(clusterName), "sort cluster should not be NULL");
-        String sortClusterTag = sortClusters.get(clusterName).getClusterTags();
+        List<String> sortClusterTags = Arrays.asList(
+                sortClusters.get(clusterName).getClusterTags().split(InlongConstants.SEMICOLON));
 
         // get group infos
         List<SortSourceStreamSinkInfo> sinkInfoList = sinkList.stream()
@@ -315,10 +319,10 @@ public class SortSourceServiceImpl implements SortSourceService {
         Map<String, List<SortSourceStreamSinkInfo>> tag2SinkInfos = sinkInfoList.stream()
                 .filter(sink -> Objects.nonNull(groupInfos.get(sink.getGroupId())))
                 .filter(sink -> {
-                    if (StringUtils.isBlank(sortClusterTag)) {
+                    if (CollectionUtils.isEmpty(sortClusterTags)) {
                         return true;
                     }
-                    return sortClusterTag.equals(groupInfos.get(sink.getGroupId()).getClusterTag());
+                    return sortClusterTags.contains(groupInfos.get(sink.getGroupId()).getClusterTag());
                 })
                 .collect(Collectors.groupingBy(sink -> {
                     SortSourceGroupInfo groupInfo = groupInfos.get(sink.getGroupId());
@@ -329,10 +333,10 @@ public class SortSourceServiceImpl implements SortSourceService {
         Map<String, List<SortSourceStreamSinkInfo>> backupTag2SinkInfos = sinkInfoList.stream()
                 .filter(sink -> backupClusterTag.containsKey(sink.getGroupId()))
                 .filter(sink -> {
-                    if (StringUtils.isBlank(sortClusterTag)) {
+                    if (CollectionUtils.isEmpty(sortClusterTags)) {
                         return true;
                     }
-                    return sortClusterTag.equals(backupClusterTag.get(sink.getGroupId()));
+                    return sortClusterTags.contains(backupClusterTag.get(sink.getGroupId()));
                 })
                 .collect(Collectors.groupingBy(info -> backupClusterTag.get(info.getGroupId())));
 
@@ -393,7 +397,7 @@ public class SortSourceServiceImpl implements SortSourceService {
             boolean isBackupTag) {
         Map<String, String> param = cluster.getExtParamsMap();
         String tenant = Optional.ofNullable(param.get(KEY_NEW_TENANT)).orElse(param.get(KEY_OLD_TENANT));
-        String auth = param.get(KEY_AUTH);
+        String auth = param.getOrDefault(KEY_AUTH, StringUtils.EMPTY);
         List<Topic> sdkTopics = sinks.stream()
                 .map(sink -> {
                     String groupId = sink.getGroupId();
