@@ -36,6 +36,8 @@ public class IcebergConstant {
     public static final String STREAMING = "streaming";
     public static final String STARTING_STRATEGY_KEY = "starting-strategy";
 
+    public static final String UPSERT_KEY = "upsert";
+
     /**
      * Iceberg supported catalog type
      */

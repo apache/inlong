@@ -72,6 +72,9 @@ public class IcebergSink extends StreamSink {
     @ApiModelProperty("Primary key")
     private String primaryKey;
 
+    @ApiModelProperty("Upsert mode")
+    private Boolean upsert;
+
     public IcebergSink() {
         this.setSinkType(SinkType.ICEBERG);
     }

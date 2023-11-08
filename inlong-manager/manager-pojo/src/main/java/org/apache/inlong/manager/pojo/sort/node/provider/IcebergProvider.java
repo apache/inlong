@@ -96,7 +96,8 @@ public class IcebergProvider implements ExtractNodeProvider, LoadNodeProvider {
                 icebergSink.getPrimaryKey(),
                 catalogType,
                 icebergSink.getCatalogUri(),
-                icebergSink.getWarehouse());
+                icebergSink.getWarehouse(),
+                icebergSink.getUpsert());
     }
 
     @Override
