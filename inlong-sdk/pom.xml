@@ -37,7 +37,6 @@
 
     <properties>
         <inlong.root.dir>${project.parent.basedir}</inlong.root.dir>
-        <apache.thrift.version>0.14.1</apache.thrift.version>
     </properties>
 
     <dependencies>
