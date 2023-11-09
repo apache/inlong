@@ -55,6 +55,9 @@ public class KafkaConsume extends BaseConsume {
     private String serverUrl;
     private String topic;
 
+    private static final int DEFAULT_NUM_PARTITIONS = 3;
+    private static final int DEFAULT_REPLICATION_FACTOR = 2;
+
     /**
      * Constructor
      *
@@ -91,15 +94,14 @@ public class KafkaConsume extends BaseConsume {
      * create topic if need
      */
     private void createTopic() {
-        int defaultNumPartitions = 3;
-        int defaultReplicationFactor = 2;
-
+        int numPartitions = DEFAULT_NUM_PARTITIONS;
         if (StringUtils.isNotEmpty(mqConfig.getNumPartitions())) {
-            defaultNumPartitions = Integer.parseInt(mqConfig.getNumPartitions());
+            numPartitions = Integer.parseInt(mqConfig.getNumPartitions());
         }
 
+        int replicationFactor = DEFAULT_REPLICATION_FACTOR;
         if (StringUtils.isNotEmpty(mqConfig.getReplicationFactor())) {
-            defaultReplicationFactor = Integer.parseInt(mqConfig.getReplicationFactor());
+            replicationFactor = Integer.parseInt(mqConfig.getReplicationFactor());
         }
 
         try (AdminClient adminClient = AdminClient.create(getProperties(mqConfig))) {
@@ -115,11 +117,12 @@ public class KafkaConsume extends BaseConsume {
 
             DescribeClusterResult describeClusterResult = adminClient.describeCluster();
             Collection<Node> nodes = describeClusterResult.nodes().get();
-            if (nodes.isEmpty())
+            if (nodes.isEmpty()) {
                 throw new IllegalArgumentException("kafka server not find");
+            }
 
-            int partition = Math.min(defaultNumPartitions, nodes.size());
-            int factor = nodes.size() > 1 ? Math.min(defaultReplicationFactor, nodes.size()) : 1;
+            int partition = Math.min(numPartitions, nodes.size());
+            int factor = nodes.size() > 1 ? Math.min(replicationFactor, nodes.size()) : 1;
 
             NewTopic needCreateTopic = new NewTopic(topic, partition, (short) factor);
 
@@ -129,7 +132,7 @@ public class KafkaConsume extends BaseConsume {
 
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(
-                    String.format("create audit topic:{} error with config:%s", getProperties(mqConfig)));
+                    String.format("create audit topic:%s error with config:%s", topic, getProperties(mqConfig)), e);
         }
     }
 
