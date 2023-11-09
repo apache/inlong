@@ -28,5 +28,12 @@ ALTER TABLE `inlong_stream`
 
 UPDATE inlong_group SET status = 130 where status = 150;
 
+INSERT INTO `audit_base`(`name`, `type`, `is_sent`, `audit_id`)
+VALUES ('audit_sort_mysql_binlog_input', 'MYSQL_BINLOG', 0, '29'),
+       ('audit_sort_mysql_binlog_output', 'MYSQL_BINLOG', 1, '30'),
+       ('audit_sort_pulsar_input', 'PULSAR', 0, '31'),
+       ('audit_sort_pulsar_output', 'PULSAR', 1, '32'),
+       ('audit_sort_tube_input', 'TUBEMQ', 0, '33'),
+       ('audit_sort_tube_output', 'TUBEMQ', 1, '34');
 
 
