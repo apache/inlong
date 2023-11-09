@@ -71,7 +71,7 @@ public class TestLogFileSource {
             LogFileSource source = new LogFileSource();
             Whitebox.setInternalState(source, "BATCH_READ_LINE_COUNT", 1);
             Whitebox.setInternalState(source, "BATCH_READ_LINE_TOTAL_LEN", 10);
-            Whitebox.setInternalState(source, "PRINT_INTERVAL_MS", 0);
+            Whitebox.setInternalState(source, "CORE_THREAD_PRINT_INTERVAL_MS", 0);
             Whitebox.setInternalState(source, "SIZE_OF_BUFFER_TO_READ_FILE", 2);
             Whitebox.setInternalState(source, "FINISH_READ_MAX_COUNT", 1);
             Whitebox.setInternalState(source, "READ_WAIT_TIMEOUT_MS", 10);
