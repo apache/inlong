@@ -115,7 +115,7 @@ public class ProxyClientConfig {
             throw new ProxysdkException("groupId is blank!");
         }
         this.proxyIPServiceURL =
-                "http://" + managerIp + ":" + managerPort + ConfigConstants.MANAGER_DATAPROXY_API + inlongGroupId;
+                getProxyIPServiceURL(managerIp, managerPort, inlongGroupId, isLocalVisit);
         this.inlongGroupId = inlongGroupId;
         this.netTag = netTag;
         this.isLocalVisit = isLocalVisit;
@@ -135,6 +135,14 @@ public class ProxyClientConfig {
         this.loadBalance = loadBalance;
         this.virtualNode = virtualNode;
         this.maxRetry = maxRetry;
+    }
+
+    private String getProxyIPServiceURL(String managerIp, int managerPort, String inlongGroupId, boolean isLocalVisit) {
+        String protocolType = "http://";
+        if (!isLocalVisit) {
+            protocolType = "https://";
+        }
+        return protocolType + managerIp + ":" + managerPort + ConfigConstants.MANAGER_DATAPROXY_API + inlongGroupId;
     }
 
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp, int managerPort,
