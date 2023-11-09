@@ -114,8 +114,9 @@ public abstract class StreamSource extends StreamNode {
     @ApiModelProperty("Sub source information of existing agents")
     private List<SubSourceDTO> subSourceList;
 
+    @Builder.Default
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value, true as default")
-    private boolean ignoreParseError;
+    private boolean ignoreParseError = true;
 
     public SourceRequest genSourceRequest() {
         return null;
