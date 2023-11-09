@@ -18,7 +18,7 @@
 package org.apache.inlong.sdk.dataproxy.pb.context;
 
 import org.apache.inlong.sdk.commons.protocol.SdkEvent;
-import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
+import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 
 import org.apache.flume.Event;
 

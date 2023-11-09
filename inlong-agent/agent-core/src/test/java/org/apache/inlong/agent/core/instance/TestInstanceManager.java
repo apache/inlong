@@ -51,6 +51,7 @@ public class TestInstanceManager {
         Db basicDb = TaskManager.initDb("/localdb");
         taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING);
         manager = new InstanceManager("1", 2, basicDb);
+        manager.CORE_THREAD_SLEEP_TIME_MS = 100;
         manager.start();
     }
 

@@ -71,7 +71,7 @@ public class ProxySink extends AbstractSink {
             return;
         }
         boolean suc = false;
-        while (!suc) {
+        while (running && !suc) {
             suc = putInCache(message);
             if (!suc) {
                 AgentUtils.silenceSleepInMs(WRITE_FAILED_WAIT_TIME_MS);

@@ -21,6 +21,9 @@ import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.util.MessageUtils;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
+import org.apache.inlong.sdk.dataproxy.common.FileCallback;
+import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
+import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
@@ -70,7 +73,7 @@ public class DefaultMessageSender implements MessageSender {
     public DefaultMessageSender(ProxyClientConfig configure, ThreadFactory selfDefineFactory) throws Exception {
         ProxyUtils.validClientConfig(configure);
         sender = new Sender(configure, selfDefineFactory);
-        groupId = configure.getGroupId();
+        groupId = configure.getInlongGroupId();
         indexCol = new IndexCollectThread(storeIndex);
         indexCol.start();
 
@@ -111,7 +114,7 @@ public class DefaultMessageSender implements MessageSender {
         // initial sender object
         ProxyConfigManager proxyConfigManager = new ProxyConfigManager(configure,
                 Utils.getLocalIp(), null);
-        proxyConfigManager.setGroupId(configure.getGroupId());
+        proxyConfigManager.setInlongGroupId(configure.getInlongGroupId());
         ProxyConfigEntry entry = proxyConfigManager.getGroupIdConfigure();
         DefaultMessageSender sender = CACHE_SENDER.get(entry.getClusterId());
         if (sender != null) {
