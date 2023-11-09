@@ -137,7 +137,7 @@ public class LogFileSource extends AbstractSource {
     @Override
     public void init(InstanceProfile profile) {
         try {
-            LOGGER.info("FileReaderOperator init: {}", profile.toJsonStr());
+            LOGGER.info("LogFileSource init: {}", profile.toJsonStr());
             this.profile = profile;
             super.init(profile);
             taskId = profile.getTaskId();
@@ -375,9 +375,8 @@ public class LogFileSource extends AbstractSource {
         while (!suc) {
             suc = MemoryManager.getInstance().tryAcquire(permitName, permitLen);
             if (!suc) {
-                LOGGER.warn("get permit {} failed", permitName);
-                MemoryManager.getInstance().printDetail(permitName);
-                if (!isRunnable()) {
+                MemoryManager.getInstance().printDetail(permitName, "log file source");
+                if (!isInodeChanged() || !isRunnable()) {
                     return false;
                 }
                 AgentUtils.silenceSleepInSeconds(1);

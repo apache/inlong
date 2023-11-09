@@ -25,7 +25,7 @@ public class SinkType extends StreamType {
     public static final String HIVE = "HIVE";
     public static final String CLICKHOUSE = "CLICKHOUSE";
     public static final String HBASE = "HBASE";
-    public static final String ELASTICSEARCH = "ELASTICSEARCH";
+    public static final String ELASTICSEARCH = "ES";
     public static final String HDFS = "HDFS";
     public static final String GREENPLUM = "GREENPLUM";
     public static final String MYSQL = "MYSQL";

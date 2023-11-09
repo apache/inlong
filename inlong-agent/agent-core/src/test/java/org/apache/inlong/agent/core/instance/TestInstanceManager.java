@@ -50,7 +50,8 @@ public class TestInstanceManager {
         String pattern = helper.getTestRootDir() + "/YYYYMMDD_[0-9]+.txt";
         Db basicDb = TaskManager.initDb("/localdb");
         taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING);
-        manager = new InstanceManager("1", basicDb);
+        manager = new InstanceManager("1", 2, basicDb);
+        manager.CORE_THREAD_SLEEP_TIME_MS = 100;
         manager.start();
     }
 
@@ -64,7 +65,7 @@ public class TestInstanceManager {
     public void testInstanceManager() {
         long timeBefore = AgentUtils.getCurrentTime();
         InstanceProfile profile = taskProfile.createInstanceProfile(MockInstance.class.getCanonicalName(),
-                helper.getTestRootDir() + "/20230927_1.txt", "20230927");
+                helper.getTestRootDir() + "/20230927_1.txt", "20230927", AgentUtils.getCurrentTime());
         String instanceId = profile.getInstanceId();
         InstanceAction action = new InstanceAction();
         action.setActionType(ActionType.ADD);
@@ -85,8 +86,11 @@ public class TestInstanceManager {
         Assert.assertTrue(manager.shouldAddAgain(profile.getInstanceId(), AgentUtils.getCurrentTime()));
 
         // test continue
+        profile = taskProfile.createInstanceProfile(MockInstance.class.getCanonicalName(),
+                helper.getTestRootDir() + "/20230927_1.txt", "20230927", AgentUtils.getCurrentTime());
+        action = new InstanceAction();
         action.setActionType(ActionType.ADD);
-        profile.setState(InstanceStateEnum.DEFAULT);
+        action.setProfile(profile);
         manager.submitAction(action);
         await().atMost(1, TimeUnit.SECONDS).until(() -> manager.getInstance(instanceId) != null);
         Assert.assertTrue(manager.getInstanceProfile(instanceId).getState() == InstanceStateEnum.DEFAULT);

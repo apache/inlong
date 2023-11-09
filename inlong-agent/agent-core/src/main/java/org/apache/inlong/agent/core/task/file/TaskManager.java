@@ -56,7 +56,9 @@ public class TaskManager extends AbstractDaemon {
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskManager.class);
     public static final int CONFIG_QUEUE_CAPACITY = 1;
     public static final int CORE_THREAD_SLEEP_TIME = 1000;
+    public static final int CORE_THREAD_PRINT_TIME = 10000;
     private static final int ACTION_QUEUE_CAPACITY = 100000;
+    private long lastPrintTime = 0;
     // task basic db
     private final Db taskBasicDb;
     // instance basic db
@@ -118,6 +120,10 @@ public class TaskManager extends AbstractDaemon {
         while (configQueue.size() != 0) {
             configQueue.poll();
         }
+        for (int i = 0; i < taskProfiles.size(); i++) {
+            LOGGER.info("submitTaskProfiles index {} total {} {}", i, taskProfiles.size(),
+                    taskProfiles.get(i).toJsonStr());
+        }
         configQueue.add(taskProfiles);
     }
 
@@ -139,6 +145,7 @@ public class TaskManager extends AbstractDaemon {
             while (isRunnable()) {
                 try {
                     AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
+                    printTaskDetail();
                     dealWithConfigQueue(configQueue);
                     dealWithActionQueue(actionQueue);
                 } catch (Throwable ex) {
@@ -147,6 +154,20 @@ public class TaskManager extends AbstractDaemon {
                 }
             }
         };
+    }
+
+    private void printTaskDetail() {
+        if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_TIME) {
+            LOGGER.info("taskManager coreThread running!");
+            List<TaskProfile> tasks = taskDb.getTasks();
+            for (int i = 0; i < tasks.size(); i++) {
+                TaskProfile task = tasks.get(i);
+                LOGGER.info("taskManager coreThread task index {} total {} taskId {} state {}",
+                        i, tasks.size(), task.getTaskId(), task.getState());
+            }
+            lastPrintTime = AgentUtils.getCurrentTime();
+        }
+
     }
 
     private void dealWithConfigQueue(BlockingQueue<List<TaskProfile>> queue) {
@@ -187,7 +208,6 @@ public class TaskManager extends AbstractDaemon {
      * NEW and STOP only used in manager
      */
     private void keepPaceWithManager(List<TaskProfile> taskProfiles) {
-        LOGGER.info("deal with List<TaskProfile> {}", taskProfiles);
         Map<String, TaskProfile> tasksFromManager = new ConcurrentHashMap<>();
         taskProfiles.forEach((profile) -> {
             TaskStateEnum state = profile.getState();
@@ -366,7 +386,7 @@ public class TaskManager extends AbstractDaemon {
      */
     private void addToDb(TaskProfile taskProfile) {
         if (taskDb.getTask(taskProfile.getTaskId()) != null) {
-            LOGGER.error("task {} should not exist", taskProfile);
+            LOGGER.error("task {} should not exist", taskProfile.getTaskId());
         }
         taskDb.storeTask(taskProfile);
     }
@@ -395,7 +415,7 @@ public class TaskManager extends AbstractDaemon {
             oldTask.destroy();
             taskMap.remove(taskProfile.getTaskId());
             LOGGER.error("old task {} should not exist, try stop it first",
-                    taskProfile);
+                    taskProfile.getTaskId());
         }
         try {
             Class<?> taskClass = Class.forName(taskProfile.getTaskClass());

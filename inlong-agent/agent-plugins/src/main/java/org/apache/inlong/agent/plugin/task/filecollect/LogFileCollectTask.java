@@ -79,6 +79,7 @@ public class LogFileCollectTask extends Task {
             new ConcurrentHashMap<>();
     public static final long DAY_TIMEOUT_INTERVAL = 2 * 24 * 3600 * 1000;
     public static final int CORE_THREAD_SLEEP_TIME = 1000;
+    public static final int CORE_THREAD_MAX_GAP_TIME_MS = 60 * 1000;
     private boolean retry;
     private long startTime;
     private long endTime;
@@ -87,6 +88,7 @@ public class LogFileCollectTask extends Task {
     private long lastScanTime = 0;
     public final long SCAN_INTERVAL = 1 * 60 * 1000;
     private volatile boolean runAtLeastOneTime = false;
+    private volatile long coreThreadUpdateTime = 0;
     private volatile boolean running = false;
 
     @Override
@@ -111,7 +113,8 @@ public class LogFileCollectTask extends Task {
         retry = taskProfile.getBoolean(TaskConstants.TASK_RETRY, false);
         originPatterns = Stream.of(taskProfile.get(TaskConstants.FILE_DIR_FILTER_PATTERNS).split(","))
                 .collect(Collectors.toSet());
-        instanceManager = new InstanceManager(taskProfile.getTaskId(), basicDb);
+        instanceManager = new InstanceManager(taskProfile.getTaskId(), taskProfile.getInt(TaskConstants.FILE_MAX_NUM),
+                basicDb);
         try {
             instanceManager.start();
         } catch (Exception e) {
@@ -196,6 +199,10 @@ public class LogFileCollectTask extends Task {
 
     private void releaseWatchers(Map<String, WatchEntity> watchers) {
         while (running) {
+            if (AgentUtils.getCurrentTime() - coreThreadUpdateTime > CORE_THREAD_MAX_GAP_TIME_MS) {
+                LOGGER.error("core thread not update, maybe it has broken");
+                break;
+            }
             AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
         }
         watchers.forEach((taskId, watcher) -> {
@@ -227,6 +234,7 @@ public class LogFileCollectTask extends Task {
         Thread.currentThread().setName("directory-task-core-" + getTaskId());
         running = true;
         while (!isFinished()) {
+            coreThreadUpdateTime = AgentUtils.getCurrentTime();
             AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
             if (!initOK) {
                 continue;
@@ -266,11 +274,22 @@ public class LogFileCollectTask extends Task {
     private void scanExistingFile() {
         originPatterns.forEach((originPattern) -> {
             List<BasicFileInfo> fileInfos = scanExistingFileByPattern(originPattern);
-            LOGGER.debug("scan {} get file count {}", originPattern, fileInfos.size());
+            LOGGER.info("scan {} get file count {}", originPattern, fileInfos.size());
             fileInfos.forEach((fileInfo) -> {
                 addToEvenMap(fileInfo.fileName, fileInfo.dataTime);
             });
         });
+    }
+
+    private boolean isInEventMap(String fileName, String dataTime) {
+        Map<String, InstanceProfile> fileToProfile = eventMap.get(dataTime);
+        if (fileToProfile == null) {
+            return false;
+        }
+        if (fileToProfile.get(fileName) == null) {
+            return false;
+        }
+        return true;
     }
 
     private List<BasicFileInfo> scanExistingFileByPattern(String originPattern) {
@@ -279,7 +298,7 @@ public class LogFileCollectTask extends Task {
         if (!retry) {
             long currentTime = System.currentTimeMillis();
             // only scan two cycle, like two hours or two days
-            long offset = NewDateUtils.caclOffset("-2" + taskProfile.getCycleUnit());
+            long offset = NewDateUtils.calcOffset("-2" + taskProfile.getCycleUnit());
             startScanTime = currentTime - offset;
             endScanTime = currentTime;
         }
@@ -305,14 +324,20 @@ public class LogFileCollectTask extends Task {
         removeTimeoutEven(eventMap, retry);
         for (Map.Entry<String, Map<String, InstanceProfile>> entry : eventMap.entrySet()) {
             Map<String, InstanceProfile> sameDataTimeEvents = entry.getValue();
-            // 根据event的数据时间、业务的周期、偏移量计算出该event是否需要在当前时间处理
+            if (sameDataTimeEvents.isEmpty()) {
+                continue;
+            }
+            /*
+             * Calculate whether the event needs to be processed at the current time based on its data time, business
+             * cycle, and offset
+             */
             String dataTime = entry.getKey();
             String shouldStartTime =
                     NewDateUtils.getShouldStartTime(dataTime, taskProfile.getCycleUnit(), taskProfile.getTimeOffset());
             String currentTime = getCurrentTime();
-            LOGGER.info("taskId {}, dataTime {}, currentTime {}, shouldStartTime {}",
-                    new Object[]{getTaskId(), dataTime, currentTime, shouldStartTime});
             if (currentTime.compareTo(shouldStartTime) >= 0) {
+                LOGGER.info("submit now taskId {}, dataTime {}, currentTime {}, shouldStartTime {}",
+                        new Object[]{getTaskId(), dataTime, currentTime, shouldStartTime});
                 /* These codes will sort the FileCreationEvents by create time. */
                 Set<InstanceProfile> sortedEvents = new TreeSet<>(sameDataTimeEvents.values());
                 /* Check the file end with event creation time in asc order. */
@@ -326,6 +351,9 @@ public class LogFileCollectTask extends Task {
                     }
                     sameDataTimeEvents.remove(fileName);
                 }
+            } else {
+                LOGGER.info("submit later taskId {}, dataTime {}, currentTime {}, shouldStartTime {}",
+                        new Object[]{getTaskId(), dataTime, currentTime, shouldStartTime});
             }
         }
     }
@@ -335,7 +363,7 @@ public class LogFileCollectTask extends Task {
             return;
         }
         for (Map.Entry<String, Map<String, InstanceProfile>> entry : eventMap.entrySet()) {
-            // 如果event的数据时间在当前时间前(后)2天之内，则有效
+            /* If the data time of the event is within 2 days before (after) the current time, it is valid */
             String dataTime = entry.getKey();
             if (!NewDateUtils.isValidCreationTime(dataTime, DAY_TIMEOUT_INTERVAL)) {
                 /* Remove it from memory map. */
@@ -382,7 +410,7 @@ public class LogFileCollectTask extends Task {
                 continue;
             }
             if (Files.isDirectory(child)) {
-                LOGGER.warn("The find creation event is triggered by a directory: " + child
+                LOGGER.info("The find creation event is triggered by a directory: " + child
                         .getFileName());
                 entity.registerRecursively(child);
                 continue;
@@ -414,10 +442,10 @@ public class LogFileCollectTask extends Task {
 
     private void handleFilePath(Path filePath, WatchEntity entity) {
         String newFileName = filePath.toFile().getAbsolutePath();
-        LOGGER.info("[New File] {} {}", newFileName, entity.getOriginPattern());
+        LOGGER.info("new file {} {}", newFileName, entity.getOriginPattern());
         Matcher matcher = entity.getPattern().matcher(newFileName);
         if (matcher.matches() || matcher.lookingAt()) {
-            LOGGER.info("[Matched File] {} {}", newFileName, entity.getOriginPattern());
+            LOGGER.info("matched file {} {}", newFileName, entity.getOriginPattern());
             String dataTime = getDataTimeFromFileName(newFileName, entity.getOriginPattern(),
                     entity.getDateExpression());
             if (!checkFileNameForTime(newFileName, entity)) {
@@ -429,9 +457,15 @@ public class LogFileCollectTask extends Task {
     }
 
     private void addToEvenMap(String fileName, String dataTime) {
-        Long lastModifyTime = FileUtils.getFileLastModifyTime(fileName);
-        if (!instanceManager.shouldAddAgain(fileName, lastModifyTime)) {
-            LOGGER.info("file {} has record in db", fileName);
+        if (isInEventMap(fileName, dataTime)) {
+            LOGGER.info("addToEvenMap isInEventMap returns true skip taskId {} dataTime {} fileName {}",
+                    taskProfile.getTaskId(), dataTime, fileName);
+            return;
+        }
+        Long fileUpdateTime = FileUtils.getFileLastModifyTime(fileName);
+        if (!instanceManager.shouldAddAgain(fileName, fileUpdateTime)) {
+            LOGGER.info("addToEvenMap shouldAddAgain returns false skip taskId {} dataTime {} fileName {}",
+                    taskProfile.getTaskId(), dataTime, fileName);
             return;
         }
         Map<String, InstanceProfile> sameDataTimeEvents = eventMap.computeIfAbsent(dataTime,
@@ -442,8 +476,9 @@ public class LogFileCollectTask extends Task {
             return;
         }
         InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_FILE_INSTANCE,
-                fileName, dataTime);
+                fileName, dataTime, fileUpdateTime);
         sameDataTimeEvents.put(fileName, instanceProfile);
+        LOGGER.info("add to eventMap taskId {} dataTime {} fileName {}", taskProfile.getTaskId(), dataTime, fileName);
     }
 
     private boolean checkFileNameForTime(String newFileName, WatchEntity entity) {
@@ -467,12 +502,12 @@ public class LogFileCollectTask extends Task {
          * For this case, we can simple think that the next file creation means the last task of this conf should finish
          * reading and start reading this new file.
          */
-        // 从文件名称中提取数据时间
+        // Extract data time from file name
         String fileTime = NewDateUtils.getDateTime(fileName, originPattern, dateExpression);
 
         /**
-         * 将文件时间中任意非数字字符替换掉
-         * 如2015-09-16_00替换成2015091600
+         * Replace any non-numeric characters in the file time
+         * such as 2015-09-16_00 replace with 2015091600
          */
         return fileTime.replaceAll("\\D", "");
     }

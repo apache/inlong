@@ -24,6 +24,7 @@
 #include "../utils/capi_constant.h"
 #include "../utils/read_write_mutex.h"
 #include "../utils/send_buffer.h"
+#include "msg_protocol.h"
 #include "stat.h"
 #include <queue>
 
@@ -36,8 +37,10 @@ enum ClientStatus {
   kConnectFailed = 4,
   kWaiting = 5,
   kStopped = 6,
-  CLIENT_RESPONSE = 7
+  kClientResponse = 7,
+  kHeartBeat = 8
 };
+
 enum {
   kConnectTimeout = 1000 * 20,
 };
@@ -50,9 +53,23 @@ private:
   SteadyTimerPtr keep_alive_timer_;
   ClientStatus status_;
   std::string ip_;
+
+public:
+  const std::string &getIp() const;
+
+private:
   uint32_t port_;
+
+public:
+  uint32_t getPort() const;
+
+private:
   std::string client_info_;
 
+public:
+  const std::string &getClientInfo() const;
+
+private:
   std::shared_ptr<SendBuffer> sendBuffer_;
   asio::ip::tcp::endpoint endpoint_;
   BlockMemoryPtrT recv_buf_;
@@ -61,6 +78,12 @@ private:
   uint64_t last_update_time_;
   Stat stat_;
   bool exit_;
+  BinaryHB bin_hb_ = {0};
+  std::vector<int32_t> proxy_loads_;
+  uint32_t heart_beat_index_;
+  bool wait_heart_beat_;
+  bool reset_client_;
+  volatile bool only_heart_heat_;
 
 public:
   TcpClient(IOContext &io_context, std::string ip, uint32_t port);
@@ -74,9 +97,16 @@ public:
   void OnBody(asio::error_code error, size_t bytesTransferred);
   void DoClose();
   void HandleFail();
-  bool isFree() { return (status_ == kFree); };
+  bool isFree() { return (status_ == kFree); }
   void write(SendBufferPtrT sendBuffer);
   void DetectStatus(const asio::error_code error);
+  void HeartBeat(bool only_heart_heat = false);
+  void SetHeartBeatStatus();
+  void ParseHeartBeat(size_t total_length);
+  void ParseGenericResponse();
+  void UpdateClient(const std::string ip, const uint32_t port);
+  void RestClient();
+  int32_t GetAvgLoad();
 };
 typedef std::shared_ptr<TcpClient> TcpClientTPtrT;
 typedef std::vector<TcpClientTPtrT> TcpClientTPtrVecT;

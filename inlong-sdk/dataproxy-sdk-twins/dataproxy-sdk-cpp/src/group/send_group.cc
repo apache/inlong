@@ -25,19 +25,26 @@
 
 namespace inlong {
 const int kDefaultQueueSize = 20;
-SendGroup::SendGroup(std::string group_id)
-    : work_(asio::make_work_guard(io_context_)), group_id_(group_id),
-      send_idx_(0) {
+SendGroup::SendGroup(std::string send_group_key)
+    : work_(asio::make_work_guard(io_context_)),
+      send_group_key_(send_group_key), send_idx_(0), dispatch_stat_(0),
+      load_threshold_(0), max_proxy_num_(0) {
   max_send_queue_num_ = SdkConfig::getInstance()->send_buf_size_ /
                         SdkConfig::getInstance()->pack_size_;
   if (max_send_queue_num_ <= 0) {
     max_send_queue_num_ = kDefaultQueueSize;
   }
-  LOG_INFO("SendGroup  max_send_queue_num " << max_send_queue_num_);
+  LOG_INFO("SendGroup: " << send_group_key_
+                         << ", max send queue num: " << max_send_queue_num_);
   dispatch_interval_ = SdkConfig::getInstance()->dispatch_interval_send_;
-  tcp_clients_old_ = nullptr;
-  tcp_clients_ = std::make_shared<std::vector<TcpClientTPtrT>>();
-  tcp_clients_->reserve(SdkConfig::getInstance()->max_proxy_num_);
+  load_balance_interval_ = SdkConfig::getInstance()->load_balance_interval_;
+  heart_beat_interval_ =
+      SdkConfig::getInstance()->heart_beat_interval_ / dispatch_interval_;
+  need_balance_ = SdkConfig::getInstance()->enable_balance_;
+
+  work_clients_old_ = nullptr;
+  work_clients_ = std::make_shared<std::vector<TcpClientTPtrT>>();
+  work_clients_->reserve(SdkConfig::getInstance()->max_proxy_num_);
 
   send_timer_ = std::make_shared<asio::steady_timer>(io_context_);
   send_timer_->expires_after(std::chrono::milliseconds(dispatch_interval_));
@@ -49,13 +56,29 @@ SendGroup::SendGroup(std::string group_id)
   update_conf_timer_->async_wait(
       std::bind(&SendGroup::UpdateConf, this, std::placeholders::_1));
 
-  current_proxy_vec_.reserve(SdkConfig::getInstance()->max_proxy_num_);
+  if (SdkConfig::getInstance()->enable_balance_) {
+    load_balance_timer_ = std::make_shared<asio::steady_timer>(io_context_);
+    load_balance_timer_->expires_after(
+        std::chrono::milliseconds(load_balance_interval_));
+    load_balance_timer_->async_wait(
+        std::bind(&SendGroup::LoadBalance, this, std::placeholders::_1));
+  }
+
+  current_bus_vec_.reserve(SdkConfig::getInstance()->max_proxy_num_);
   thread_ = std::thread(&SendGroup::Run, this);
 }
 SendGroup::~SendGroup() {
   LOG_INFO("~SendGroup ");
-  send_timer_->cancel();
-  update_conf_timer_->cancel();
+  if (send_timer_) {
+    send_timer_->cancel();
+  }
+  if (update_conf_timer_) {
+    update_conf_timer_->cancel();
+  }
+  if (load_balance_timer_) {
+    update_conf_timer_->cancel();
+  }
+
   io_context_.stop();
   if (thread_.joinable()) {
     thread_.join();
@@ -76,19 +99,18 @@ void SendGroup::DispatchData(std::error_code error) {
     return;
   }
   try {
-    unique_read_lock<read_write_mutex> rdlck(remote_proxy_list_mutex_);
-    if (tcp_clients_ != nullptr) {
-      if (send_idx_ >= tcp_clients_->size()) {
+    unique_read_lock<read_write_mutex> rdlck(work_clients_mutex_);
+    if (work_clients_ != nullptr) {
+      if (send_idx_ >= work_clients_->size()) {
         send_idx_ = 0;
       }
-
-      while (send_idx_ < tcp_clients_->size()) {
-        if ((*tcp_clients_)[send_idx_]->isFree()) {
+      while (send_idx_ < work_clients_->size()) {
+        if ((*work_clients_)[send_idx_]->isFree()) {
           SendBufferPtrT send_buf = PopData();
           if (send_buf == nullptr) {
             break;
           }
-          (*tcp_clients_)[send_idx_]->write(send_buf);
+          (*work_clients_)[send_idx_]->write(send_buf);
         }
         send_idx_++;
       }
@@ -96,9 +118,32 @@ void SendGroup::DispatchData(std::error_code error) {
   } catch (std::exception &e) {
     LOG_ERROR("Exception " << e.what());
   }
+
+  if (need_balance_ && dispatch_stat_++ > heart_beat_interval_) {
+    HeartBeat();
+    dispatch_stat_ = 0;
+  }
+
   send_timer_->expires_after(std::chrono::milliseconds(dispatch_interval_));
   send_timer_->async_wait(
       std::bind(&SendGroup::DispatchData, this, std::placeholders::_1));
+}
+void SendGroup::HeartBeat() {
+  unique_read_lock<read_write_mutex> rdlck(work_clients_mutex_);
+  if (work_clients_ == nullptr) {
+    return;
+  }
+  for (int idx = 0; idx < work_clients_->size(); idx++) {
+    if ((*work_clients_)[idx]->isFree()) {
+      (*work_clients_)[idx]->HeartBeat();
+    } else {
+      (*work_clients_)[idx]->SetHeartBeatStatus();
+    }
+  }
+
+  for (int idx = 0; idx < reserve_clients_.size(); idx++) {
+    reserve_clients_[idx]->HeartBeat(true);
+  }
 }
 
 bool SendGroup::IsFull() { return GetQueueSize() > max_send_queue_num_; }
@@ -120,30 +165,36 @@ void SendGroup::UpdateConf(std::error_code error) {
 
   ClearOldTcpClients();
 
-  ProxyInfoVec new_proxy_info;
-  if (ProxyManager::GetInstance()->GetProxy(group_id_, new_proxy_info) !=
+  ProxyInfoVec new_bus_info;
+  if (ProxyManager::GetInstance()->GetProxy(send_group_key_, new_bus_info) !=
           kSuccess ||
-      new_proxy_info.empty()) {
+      new_bus_info.empty()) {
+    update_conf_timer_->expires_after(std::chrono::milliseconds(kTimerMinute));
+    update_conf_timer_->async_wait(
+        std::bind(&SendGroup::UpdateConf, this, std::placeholders::_1));
+    return;
+  }
+  if (new_bus_info.empty()) {
+    LOG_INFO("UpdateConf new_bus_info is empty!");
+    return;
+  }
+
+  load_threshold_ = new_bus_info[0].GetLoad() > constants::kDefaultLoadThreshold
+                        ? constants::kDefaultLoadThreshold
+                        : std::max((new_bus_info[0].GetLoad()), 0);
+
+  if (!IsConfChanged(current_bus_vec_, new_bus_info)) {
+    LOG_INFO("Don`t need UpdateConf. current bus size("
+             << current_bus_vec_.size() << ")=bus size(" << new_bus_info.size()
+             << ")");
     update_conf_timer_->expires_after(std::chrono::milliseconds(kTimerMinute));
     update_conf_timer_->async_wait(
         std::bind(&SendGroup::UpdateConf, this, std::placeholders::_1));
     return;
   }
 
-  if (!IsConfChanged(current_proxy_vec_, new_proxy_info)) {
-    LOG_INFO("Don`t need UpdateConf. current proxy size("
-             << current_proxy_vec_.size() << ")=proxy size("
-             << new_proxy_info.size() << ")");
-    update_conf_timer_->expires_after(std::chrono::milliseconds(kTimerMinute));
-    update_conf_timer_->async_wait(
-        std::bind(&SendGroup::UpdateConf, this, std::placeholders::_1));
-    return;
-  }
-
-  uint32_t proxy_num = SdkConfig::getInstance()->max_proxy_num_;
-  if (proxy_num > new_proxy_info.size()) {
-    proxy_num = new_proxy_info.size();
-  }
+  max_proxy_num_ =
+      std::min(SdkConfig::getInstance()->max_proxy_num_, new_bus_info.size());
 
   std::shared_ptr<std::vector<TcpClientTPtrT>> tcp_clients_tmp =
       std::make_shared<std::vector<TcpClientTPtrT>>();
@@ -155,32 +206,33 @@ void SendGroup::UpdateConf(std::error_code error) {
     return;
   }
 
-  std::random_shuffle(new_proxy_info.begin(), new_proxy_info.end());
+  std::random_shuffle(new_bus_info.begin(), new_bus_info.end());
 
-  tcp_clients_tmp->reserve(proxy_num);
-  for (int i = 0; i < proxy_num; i++) {
-    ProxyInfo proxy_tmp = new_proxy_info[i];
-    TcpClientTPtrT tcpClientTPtrT = std::make_shared<TcpClient>(
-        io_context_, proxy_tmp.ip(), proxy_tmp.port());
+  tcp_clients_tmp->reserve(max_proxy_num_);
+  for (int i = 0; i < max_proxy_num_; i++) {
+    ProxyInfo bus_tmp = new_bus_info[i];
+    TcpClientTPtrT tcpClientTPtrT =
+        std::make_shared<TcpClient>(io_context_, bus_tmp.ip(), bus_tmp.port());
     tcp_clients_tmp->push_back(tcpClientTPtrT);
-    LOG_INFO("new proxy info.[" << proxy_tmp.ip() << ":" << proxy_tmp.port()
-                                << "]");
+    LOG_INFO("new bus info.[" << bus_tmp.ip() << ":" << bus_tmp.port() << "]");
   }
 
   {
     LOG_INFO("do change tcp clients.");
-    unique_write_lock<read_write_mutex> wtlck(remote_proxy_list_mutex_);
-    tcp_clients_old_ = tcp_clients_;
-    tcp_clients_ = tcp_clients_tmp;
+    unique_write_lock<read_write_mutex> wtlck(work_clients_mutex_);
+    work_clients_old_ = work_clients_;
+    work_clients_ = tcp_clients_tmp;
   }
 
-  if (tcp_clients_old_ != nullptr) {
-    for (int j = 0; j < tcp_clients_old_->size(); j++) {
-      (*tcp_clients_old_)[j]->DoClose();
+  if (work_clients_old_ != nullptr) {
+    for (int j = 0; j < work_clients_old_->size(); j++) {
+      (*work_clients_old_)[j]->DoClose();
     }
   }
 
-  current_proxy_vec_ = new_proxy_info;
+  current_bus_vec_ = new_bus_info;
+
+  InitReserveClient();
 
   update_conf_timer_->expires_after(std::chrono::milliseconds(kTimerMinute));
   update_conf_timer_->async_wait(
@@ -204,25 +256,25 @@ uint32_t SendGroup::GetQueueSize() {
   return send_buf_list_.size();
 }
 
-bool SendGroup::IsConfChanged(ProxyInfoVec &current_proxy_vec,
-                              ProxyInfoVec &new_proxy_vec) {
-  if (new_proxy_vec.empty())
+bool SendGroup::IsConfChanged(ProxyInfoVec &current_bus_vec,
+                              ProxyInfoVec &new_bus_vec) {
+  if (new_bus_vec.empty())
     return false;
-  if (current_proxy_vec.size() != new_proxy_vec.size()) {
+  if (current_bus_vec.size() != new_bus_vec.size()) {
     return true;
   }
 
-  for (auto &current_bu : current_proxy_vec) {
-    for (int i = 0; i < new_proxy_vec.size(); i++) {
-      if ((current_bu.ip() == new_proxy_vec[i].ip()) &&
-          (current_bu.port() == new_proxy_vec[i].port()))
+  for (auto &current_bu : current_bus_vec) {
+    for (int i = 0; i < new_bus_vec.size(); i++) {
+      if ((current_bu.ip() == new_bus_vec[i].ip()) &&
+          (current_bu.port() == new_bus_vec[i].port()))
         break;
-      if (i == (new_proxy_vec.size() - 1)) {
-        if ((current_bu.ip() != new_proxy_vec[i].ip() ||
-             current_bu.port() == new_proxy_vec[i].port())) {
-          LOG_INFO("current proxy ip." << current_bu.ip() << ":"
-                                       << current_bu.port()
-                                       << " can`t find in proxy.");
+      if (i == (new_bus_vec.size() - 1)) {
+        if ((current_bu.ip() != new_bus_vec[i].ip() ||
+             current_bu.port() == new_bus_vec[i].port())) {
+          LOG_INFO("current bus ip." << current_bu.ip() << ":"
+                                     << current_bu.port()
+                                     << " can`t find in bus.");
           return true;
         }
       }
@@ -232,20 +284,188 @@ bool SendGroup::IsConfChanged(ProxyInfoVec &current_proxy_vec,
 }
 
 bool SendGroup::IsAvailable() {
-  unique_read_lock<read_write_mutex> rdlck(remote_proxy_list_mutex_);
-  if (tcp_clients_ == nullptr) {
+  unique_read_lock<read_write_mutex> rdlck(work_clients_mutex_);
+  if (work_clients_ == nullptr) {
     return false;
   }
-  if (tcp_clients_->empty()) {
+  if (work_clients_->empty()) {
     return false;
   }
   return true;
 }
 void SendGroup::ClearOldTcpClients() {
-  if (tcp_clients_old_ != nullptr) {
-    LOG_INFO("ClearOldTcpClients." << tcp_clients_old_->size());
-    tcp_clients_old_->clear();
-    tcp_clients_old_.reset();
+  if (work_clients_old_ != nullptr) {
+    LOG_INFO("ClearOldTcpClients." << work_clients_old_->size());
+    work_clients_old_->clear();
+    work_clients_old_.reset();
   }
+}
+
+void SendGroup::LoadBalance(std::error_code error) {
+  if (error) {
+    return;
+  }
+
+  if (NeedDoLoadBalance()) {
+    DoLoadBalance();
+  }
+  uint64_t interval = load_balance_interval_ + rand() % 120 * 1000;
+  LOG_INFO("LoadBalance interval:" << interval);
+  load_balance_timer_->expires_after(std::chrono::milliseconds(interval));
+  load_balance_timer_->async_wait(
+      std::bind(&SendGroup::LoadBalance, this, std::placeholders::_1));
+}
+
+void SendGroup::DoLoadBalance() {
+  if (reserve_clients_.empty()) {
+    return;
+  }
+
+  TcpClientTPtrT work_client = GetMaxLoadClient();
+  TcpClientTPtrT reserve_client = GetReserveClient();
+  if (reserve_client == nullptr || work_client == nullptr) {
+    LOG_ERROR("client nullptr");
+    return;
+  }
+
+  if ((work_client->GetAvgLoad() - reserve_client->GetAvgLoad()) >
+      load_threshold_) {
+    LOG_INFO("DoLoadBalance " << reserve_client->getClientInfo() << "replace"
+                              << work_client->getClientInfo() << ",load[work "
+                              << work_client->GetAvgLoad() << "][reserve "
+                              << reserve_client->GetAvgLoad() << "][threshold "
+                              << load_threshold_ << "]");
+    std::string ip = work_client->getIp();
+    uint32_t port = work_client->getPort();
+    work_client->UpdateClient(reserve_client->getIp(),
+                              reserve_client->getPort());
+
+    ProxyInfo proxy = GetRandomProxy(ip, port);
+    if (!proxy.ip().empty()) {
+      reserve_client->UpdateClient(proxy.ip(), proxy.port());
+    }
+  }
+
+  need_balance_ = true;
+}
+bool SendGroup::NeedDoLoadBalance() {
+  unique_read_lock<read_write_mutex> rdlck(work_clients_mutex_);
+  if (load_threshold_ <= 0 ||
+      work_clients_->size() == current_bus_vec_.size()) {
+    LOG_INFO("Don`t need DoLoadBalance [load_threshold]:"
+             << load_threshold_
+             << ",[tcp_client size]:" << work_clients_->size()
+             << ",[current_bus_vec size]:" << current_bus_vec_.size());
+    need_balance_ = false;
+    return false;
+  }
+  need_balance_ = true;
+  return true;
+}
+void SendGroup::InitReserveClient() {
+  if (max_proxy_num_ >= current_bus_vec_.size()) {
+    return;
+  }
+  uint64_t max_reserve_num = current_bus_vec_.size() - max_proxy_num_;
+  uint64_t reserve_num =
+      std::min(SdkConfig::getInstance()->reserve_proxy_num_, max_reserve_num);
+  if (reserve_num <= 0) {
+    return;
+  }
+
+  unique_write_lock<read_write_mutex> wtlck(reserve_clients_mutex_);
+  reserve_clients_.clear();
+
+  for (uint64_t i = current_bus_vec_.size() - reserve_num;
+       i < current_bus_vec_.size(); i++) {
+    ProxyInfo bus_tmp = current_bus_vec_[i];
+    TcpClientTPtrT tcpClientTPtrT =
+        std::make_shared<TcpClient>(io_context_, bus_tmp.ip(), bus_tmp.port());
+    reserve_clients_.push_back(tcpClientTPtrT);
+  }
+  LOG_INFO(
+      "InitReserveClient reserve_clients size:" << reserve_clients_.size());
+}
+bool SendGroup::UpSort(const TcpClientTPtrT &begin, const TcpClientTPtrT &end) {
+  if (begin && end) {
+    return begin->GetAvgLoad() < end->GetAvgLoad();
+  }
+  return false;
+}
+
+TcpClientTPtrT SendGroup::GetMaxLoadClient() {
+  unique_read_lock<read_write_mutex> rdlck(work_clients_mutex_);
+  uint32_t client_index = 0;
+  int32_t max_load = (*work_clients_)[0]->GetAvgLoad();
+  for (int index = 1; index < work_clients_->size(); index++) {
+    int32_t proxy_load = (*work_clients_)[index]->GetAvgLoad();
+    if (proxy_load > max_load) {
+      max_load = proxy_load;
+      client_index = index;
+    }
+  }
+  return (*work_clients_)[client_index];
+}
+
+ProxyInfo SendGroup::GetRandomProxy(const std::string &ip, uint32_t port) {
+  ProxyInfo proxy_info;
+  for (auto &it : current_bus_vec_) {
+    if (it.ip() == ip && it.port() == port) {
+      continue;
+    }
+    bool exist = false;
+    for (int index = 0; index < reserve_clients_.size(); index++) {
+      if (it.ip() == reserve_clients_[index]->getIp() &&
+          it.port() == reserve_clients_[index]->getPort()) {
+        exist = true;
+        break;
+      }
+    }
+    if (exist) {
+      continue;
+    }
+    if (ExistInWorkClient(it.ip(), it.port())) {
+      continue;
+    }
+    proxy_info.setIp(it.ip());
+    proxy_info.setPort(it.port());
+    return proxy_info;
+  }
+  return proxy_info;
+}
+
+TcpClientTPtrT SendGroup::GetReserveClient() {
+  std::sort(reserve_clients_.begin(), reserve_clients_.end(), UpSort);
+  unique_read_lock<read_write_mutex> rdlck(work_clients_mutex_);
+  ProxyInfo proxy_info;
+  for (auto &it : reserve_clients_) {
+    if (it->GetAvgLoad() <= 0) {
+      continue;
+    }
+    bool exist = false;
+    for (int index = 0; index < work_clients_->size(); index++) {
+      if (it->getIp() == (*work_clients_)[index]->getIp() &&
+          it->getPort() == (*work_clients_)[index]->getPort()) {
+        exist = true;
+        break;
+      }
+    }
+    if (exist) {
+      continue;
+    }
+    return it;
+  }
+  return nullptr;
+}
+
+bool SendGroup::ExistInWorkClient(const std::string &ip, uint32_t port) {
+  unique_read_lock<read_write_mutex> rdlck(work_clients_mutex_);
+  for (int index = 0; index < work_clients_->size(); index++) {
+    if (ip == (*work_clients_)[index]->getIp() &&
+        port == (*work_clients_)[index]->getPort()) {
+      return true;
+    }
+  }
+  return false;
 }
 } // namespace inlong

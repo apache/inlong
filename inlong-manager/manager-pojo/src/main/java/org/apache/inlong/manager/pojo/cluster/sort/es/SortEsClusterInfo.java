@@ -15,38 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.cluster.sortstandalone;
+package org.apache.inlong.manager.pojo.cluster.sort.es;
 
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.pojo.sort.BaseSortClusterInfo;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.util.Set;
-
+/**
+ * Elasticsearch cluster info
+ */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.SORTSTANDALONE)
-@ApiModel("Inlong cluster info for SortStandalone")
-public class SortStandaloneClusterInfo extends ClusterInfo {
+@JsonTypeDefine(value = ClusterType.SORT_ES)
+@ApiModel("Inlong cluster info for Elasticsearch")
+public class SortEsClusterInfo extends BaseSortClusterInfo {
 
-    @ApiModelProperty(value = "Supported sink types")
-    private Set<String> supportedSinkTypes;
-
-    public SortStandaloneClusterInfo() {
-        this.setType(ClusterType.SORTSTANDALONE);
-    }
-
-    @Override
-    public ClusterRequest genRequest() {
-        return CommonBeanUtils.copyProperties(this, SortStandaloneClusterRequest::new);
+    public SortEsClusterInfo() {
+        this.setType(ClusterType.SORT_ES);
     }
 }

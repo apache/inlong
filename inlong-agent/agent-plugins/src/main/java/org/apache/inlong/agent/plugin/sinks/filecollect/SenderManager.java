@@ -246,11 +246,13 @@ public class SenderManager {
     }
 
     public void sendBatch(SenderMessage message) {
-        while (!resendQueue.isEmpty()) {
+        while (!shutdown && !resendQueue.isEmpty()) {
             AgentUtils.silenceSleepInMs(retrySleepTime);
         }
         addAckInfo(message.getAckInfo());
-        sendBatchWithRetryCount(message, 0);
+        if (!shutdown) {
+            sendBatchWithRetryCount(message, 0);
+        }
     }
 
     private void addAckInfo(PackageAckInfo info) {

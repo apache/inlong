@@ -55,7 +55,6 @@ import static org.apache.inlong.agent.constant.KubernetesConstants.HTTPS;
 import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES_SERVICE_HOST;
 import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES_SERVICE_PORT;
 import static org.apache.inlong.agent.constant.TaskConstants.FILE_DIR_FILTER_PATTERNS;
-import static org.apache.inlong.agent.constant.TaskConstants.FILE_MAX_NUM;
 import static org.apache.inlong.agent.constant.TaskConstants.JOB_RETRY_TIME;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_FILE_TIME_OFFSET;
 
@@ -97,7 +96,7 @@ public class PluginUtils {
         Set<PathPattern> pathPatterns =
                 PathPattern.buildPathPattern(dirPatterns, jobConf.get(TASK_FILE_TIME_OFFSET, null));
         updateRetryTime(jobConf, pathPatterns);
-        int maxFileNum = jobConf.getInt(FILE_MAX_NUM, DEFAULT_FILE_MAX_NUM);
+        int maxFileNum = DEFAULT_FILE_MAX_NUM;
         LOGGER.info("dir pattern {}, max file num {}", dirPatterns, maxFileNum);
         Collection<File> allFiles = new ArrayList<>();
         pathPatterns.forEach(pathPattern -> allFiles.addAll(pathPattern.walkSuitableFiles(maxFileNum)));

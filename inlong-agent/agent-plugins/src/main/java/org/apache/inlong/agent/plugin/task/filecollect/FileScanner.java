@@ -18,7 +18,6 @@
 package org.apache.inlong.agent.plugin.task.filecollect;
 
 import org.apache.inlong.agent.conf.TaskProfile;
-import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.plugin.utils.file.FilePathUtil;
 import org.apache.inlong.agent.plugin.utils.file.FileTimeComparator;
 import org.apache.inlong.agent.plugin.utils.file.Files;
@@ -34,6 +33,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FILE_MAX_NUM;
 
 /*
  * This class is mainly used for scanning log file that we want to read. We use this class at
@@ -60,8 +61,8 @@ public class FileScanner {
             long recoverTime, boolean isRetry) {
         String cycleUnit = conf.getCycleUnit();
         if (!isRetry) {
-            failTime -= NewDateUtils.caclOffset(conf.getTimeOffset());
-            recoverTime -= NewDateUtils.caclOffset(conf.getTimeOffset());
+            failTime -= NewDateUtils.calcOffset(conf.getTimeOffset());
+            recoverTime -= NewDateUtils.calcOffset(conf.getTimeOffset());
         }
 
         String startTime = NewDateUtils.millSecConvertToTimeStr(failTime, cycleUnit);
@@ -69,14 +70,12 @@ public class FileScanner {
         logger.info("task {} this scan time is between {} and {}.",
                 new Object[]{conf.getTaskId(), startTime, endTime});
 
-        return scanTaskBetweenTimes(conf, originPattern, startTime, endTime);
+        return scanTaskBetweenTimes(conf.getCycleUnit(), originPattern, startTime, endTime);
     }
 
     /* Scan log files and create tasks between two times. */
-    public static List<BasicFileInfo> scanTaskBetweenTimes(TaskProfile conf, String originPattern, String startTime,
+    public static List<BasicFileInfo> scanTaskBetweenTimes(String cycleUnit, String originPattern, String startTime,
             String endTime) {
-        String cycleUnit = conf.getCycleUnit();
-        int maxFileNum = conf.getInt(TaskConstants.FILE_MAX_NUM);
         List<Long> dateRegion = NewDateUtils.getDateRegion(startTime, endTime, cycleUnit);
         List<BasicFileInfo> infos = new ArrayList<BasicFileInfo>();
         for (Long time : dateRegion) {
@@ -87,7 +86,7 @@ public class FileScanner {
             String firstDir = allPaths.get(0);
             String secondDir = allPaths.get(0) + File.separator + allPaths.get(1);
             ArrayList<String> fileList = getUpdatedOrNewFiles(firstDir, secondDir, filename, 3,
-                    maxFileNum);
+                    DEFAULT_FILE_MAX_NUM);
             for (String file : fileList) {
                 // TODO the time is not YYYYMMDDHH
                 String dataTime = NewDateUtils.millSecConvertToTimeStr(time, cycleUnit);
@@ -100,8 +99,7 @@ public class FileScanner {
         return infos;
     }
 
-    public static ArrayList<String> scanFile(TaskProfile conf, String originPattern, long dataTime) {
-        int maxFileNum = conf.getInt(TaskConstants.FILE_MAX_NUM);
+    public static ArrayList<String> scanFile(int maxFileNum, String originPattern, long dataTime) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(dataTime);
 

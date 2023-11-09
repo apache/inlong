@@ -17,8 +17,10 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
+import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
@@ -34,13 +36,15 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("pulsarExtract")
 @Data
-public class PulsarExtractNode extends ExtractNode implements InlongMetric {
+public class PulsarExtractNode extends ExtractNode implements InlongMetric, Metadata {
 
     private static final long serialVersionUID = 1L;
 
@@ -136,4 +140,29 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric {
     public List<FieldInfo> getPartitionFields() {
         return super.getPartitionFields();
     }
+
+    @Override
+    public String getMetadataKey(MetaField metaField) {
+        String metadataKey;
+        switch (metaField) {
+            case AUDIT_DATA_TIME:
+                metadataKey = "value.data-time";
+                break;
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
+                        this.getClass().getSimpleName(), metaField));
+        }
+        return metadataKey;
+    }
+
+    @Override
+    public boolean isVirtual(MetaField metaField) {
+        return true;
+    }
+
+    @Override
+    public Set<MetaField> supportedMetaFields() {
+        return EnumSet.of(MetaField.AUDIT_DATA_TIME);
+    }
+
 }

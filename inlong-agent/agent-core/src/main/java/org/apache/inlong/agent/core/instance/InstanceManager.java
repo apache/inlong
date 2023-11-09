@@ -21,7 +21,6 @@ import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.InstanceProfile;
-import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.InstanceDb;
 import org.apache.inlong.agent.plugin.Instance;
@@ -47,8 +46,10 @@ import java.util.concurrent.TimeUnit;
 public class InstanceManager extends AbstractDaemon {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InstanceManager.class);
-    private static final int ACTION_QUEUE_CAPACITY = 100000;
-    public static final int CORE_THREAD_SLEEP_TIME = 100;
+    private static final int ACTION_QUEUE_CAPACITY = 100;
+    public volatile int CORE_THREAD_SLEEP_TIME_MS = 1000;
+    public static final int CORE_THREAD_PRINT_TIME = 10000;
+    private long lastPrintTime = 0;
     // task in db
     private final InstanceDb instanceDb;
     // task in memory
@@ -62,7 +63,7 @@ public class InstanceManager extends AbstractDaemon {
             new SynchronousQueue<>(),
             new AgentThreadFactory("instance-manager"));
 
-    private final int taskMaxLimit;
+    private final int instanceLimit;
     private final AgentConfiguration agentConf;
     private final String taskId;
     private volatile boolean runAtLeastOneTime = false;
@@ -71,12 +72,12 @@ public class InstanceManager extends AbstractDaemon {
     /**
      * Init task manager.
      */
-    public InstanceManager(String taskId, Db basicDb) {
+    public InstanceManager(String taskId, int instanceLimit, Db basicDb) {
         this.taskId = taskId;
         instanceDb = new InstanceDb(basicDb);
         this.agentConf = AgentConfiguration.getAgentConf();
         instanceMap = new ConcurrentHashMap<>();
-        taskMaxLimit = agentConf.getInt(AgentConstants.JOB_NUMBER_LIMIT, AgentConstants.DEFAULT_JOB_NUMBER_LIMIT);
+        this.instanceLimit = instanceLimit;
         actionQueue = new LinkedBlockingQueue<>(ACTION_QUEUE_CAPACITY);
     }
 
@@ -110,7 +111,8 @@ public class InstanceManager extends AbstractDaemon {
             running = true;
             while (isRunnable()) {
                 try {
-                    AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
+                    AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME_MS);
+                    printInstanceDetail();
                     dealWithActionQueue(actionQueue);
                     keepPaceWithDb();
                 } catch (Throwable ex) {
@@ -121,6 +123,22 @@ public class InstanceManager extends AbstractDaemon {
             }
             running = false;
         };
+    }
+
+    private void printInstanceDetail() {
+        if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_TIME) {
+            LOGGER.info("instanceManager coreThread running! taskId {} action count {}", taskId,
+                    actionQueue.size());
+            List<InstanceProfile> instances = instanceDb.getInstances(taskId);
+            for (int i = 0; i < instances.size(); i++) {
+                InstanceProfile instance = instances.get(i);
+                LOGGER.info(
+                        "instanceManager coreThread instance taskId {} index {} total {} instanceId {} state {}",
+                        taskId, i,
+                        instances.size(), instance.getInstanceId(), instance.getState());
+            }
+            lastPrintTime = AgentUtils.getCurrentTime();
+        }
     }
 
     private void keepPaceWithDb() {
@@ -216,7 +234,7 @@ public class InstanceManager extends AbstractDaemon {
     public void waitForTerminate() {
         super.waitForTerminate();
         while (running) {
-            AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
+            AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME_MS);
         }
     }
 
@@ -236,7 +254,16 @@ public class InstanceManager extends AbstractDaemon {
     }
 
     private void addInstance(InstanceProfile profile) {
-        LOGGER.info("addInstance taskId {} instanceId {}", taskId, profile.getInstanceId());
+        if (instanceMap.size() >= instanceLimit) {
+            LOGGER.error("instanceMap size {} over limit {}", instanceMap.size(), instanceLimit);
+            return;
+        }
+        LOGGER.info("add instance taskId {} instanceId {}", taskId, profile.getInstanceId());
+        if (!shouldAddAgain(profile.getInstanceId(), profile.getFileUpdateTime())) {
+            LOGGER.info("addInstance shouldAddAgain returns false skip taskId {} instanceId {}", taskId,
+                    profile.getInstanceId());
+            return;
+        }
         addToDb(profile);
         addToMemory(profile);
     }
@@ -274,7 +301,7 @@ public class InstanceManager extends AbstractDaemon {
     }
 
     private void addToDb(InstanceProfile profile) {
-        LOGGER.info("add instance to db instanceId {} ", profile.getInstanceId());
+        LOGGER.info("add instance to db state {} instanceId {}", profile.getState(), profile.getInstanceId());
         instanceDb.storeInstance(profile);
     }
 
@@ -287,7 +314,7 @@ public class InstanceManager extends AbstractDaemon {
             oldInstance.destroy();
             instanceMap.remove(instanceProfile.getInstanceId());
             LOGGER.error("old instance {} should not exist, try stop it first",
-                    instanceProfile);
+                    instanceProfile.getInstanceId());
         }
         LOGGER.info("instanceProfile {}", instanceProfile.toJsonStr());
         try {
@@ -315,13 +342,16 @@ public class InstanceManager extends AbstractDaemon {
     public boolean shouldAddAgain(String fileName, long lastModifyTime) {
         InstanceProfile profileFromDb = instanceDb.getInstance(taskId, fileName);
         if (profileFromDb == null) {
+            LOGGER.debug("not in db should add {}", fileName);
             return true;
         } else {
             InstanceStateEnum state = profileFromDb.getState();
             if (state == InstanceStateEnum.FINISHED && lastModifyTime > profileFromDb.getModifyTime()) {
+                LOGGER.debug("finished but file update again {}", fileName);
                 return true;
             }
             if (state == InstanceStateEnum.DELETE) {
+                LOGGER.debug("delete and add again {}", fileName);
                 return true;
             }
             return false;

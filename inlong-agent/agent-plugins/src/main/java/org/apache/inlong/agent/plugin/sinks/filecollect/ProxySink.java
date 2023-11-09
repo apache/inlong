@@ -71,7 +71,7 @@ public class ProxySink extends AbstractSink {
             return;
         }
         boolean suc = false;
-        while (!suc) {
+        while (running && !suc) {
             suc = putInCache(message);
             if (!suc) {
                 AgentUtils.silenceSleepInMs(WRITE_FAILED_WAIT_TIME_MS);
@@ -96,8 +96,7 @@ public class ProxySink extends AbstractSink {
             boolean writerPermitSuc = MemoryManager.getInstance()
                     .tryAcquire(AGENT_GLOBAL_WRITER_PERMIT, message.getBody().length);
             if (!writerPermitSuc) {
-                LOGGER.warn("writer tryAcquire failed");
-                MemoryManager.getInstance().printDetail(AGENT_GLOBAL_WRITER_PERMIT);
+                MemoryManager.getInstance().printDetail(AGENT_GLOBAL_WRITER_PERMIT, "proxy sink");
                 return false;
             }
             cache.generateExtraMap(proxyMessage.getDataKey());

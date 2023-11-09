@@ -15,49 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.cluster.es;
+package org.apache.inlong.manager.pojo.sort;
 
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModel;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
 /**
- * Elasticsearch cluster info
+ * Base sort cluster DTO
  */
 @Data
-@Builder
-@NoArgsConstructor
-@ApiModel("Elasticsearch cluster info")
-public class ElasticsearchClusterDTO {
+@ApiModel("Base sort cluster info")
+public class BaseSortClusterDTO {
 
     /**
      * Get the dto instance from the request
      */
-    public static ElasticsearchClusterDTO getFromRequest(ElasticsearchClusterRequest request, String extParams) {
-        ElasticsearchClusterDTO dto = StringUtils.isNotBlank(extParams)
-                ? ElasticsearchClusterDTO.getFromJson(extParams)
-                : new ElasticsearchClusterDTO();
+    public static BaseSortClusterDTO getFromRequest(BaseSortClusterRequest request, String extParams) throws Exception {
+        BaseSortClusterDTO dto = StringUtils.isNotBlank(extParams)
+                ? BaseSortClusterDTO.getFromJson(extParams)
+                : new BaseSortClusterDTO();
         return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**
      * Get the dto instance from the JSON string.
      */
-    public static ElasticsearchClusterDTO getFromJson(@NotNull String extParams) {
-        try {
-            return JsonUtils.parseObject(extParams, ElasticsearchClusterDTO.class);
-        } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
-                    String.format("parse extParams of Elasticsearch Cluster failure: %s", e.getMessage()));
-        }
+    public static BaseSortClusterDTO getFromJson(@NotNull String extParams) {
+        return JsonUtils.parseObject(extParams, BaseSortClusterDTO.class);
     }
 }
