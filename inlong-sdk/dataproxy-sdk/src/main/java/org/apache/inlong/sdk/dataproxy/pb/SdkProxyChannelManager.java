@@ -19,7 +19,7 @@ package org.apache.inlong.sdk.dataproxy.pb;
 
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResponseInfo;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResultCode;
-import org.apache.inlong.sdk.dataproxy.SendResult;
+import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.pb.context.SdkProfile;
 import org.apache.inlong.sdk.dataproxy.pb.context.SdkSinkContext;
 import org.apache.inlong.sdk.dataproxy.pb.dispatch.DispatchProfile;
