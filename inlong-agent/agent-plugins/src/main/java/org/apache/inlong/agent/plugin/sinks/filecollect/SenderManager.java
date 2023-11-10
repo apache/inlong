@@ -35,8 +35,8 @@ import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
-import org.apache.inlong.sdk.dataproxy.SendResult;
+import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
+import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
 
 import io.netty.util.concurrent.DefaultThreadFactory;

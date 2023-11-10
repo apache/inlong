@@ -119,9 +119,9 @@ public class ClientMgr {
         /* ready to Start the thread which refreshes the proxy list. */
         ipManager = new ProxyConfigManager(configure, Utils.getLocalIp(), this);
         ipManager.setName("proxyConfigManager");
-        if (configure.getGroupId() != null) {
-            ipManager.setGroupId(configure.getGroupId());
-            groupId = configure.getGroupId();
+        if (configure.getInlongGroupId() != null) {
+            ipManager.setInlongGroupId(configure.getInlongGroupId());
+            groupId = configure.getInlongGroupId();
         }
 
         /*

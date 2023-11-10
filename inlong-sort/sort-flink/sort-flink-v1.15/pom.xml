@@ -179,7 +179,7 @@
             <dependency>
                 <groupId>org.apache.thrift</groupId>
                 <artifactId>libfb303</artifactId>
-                <version>${thrift.version}</version>
+                <version>${libfb303.version}</version>
             </dependency>
 
             <dependency>

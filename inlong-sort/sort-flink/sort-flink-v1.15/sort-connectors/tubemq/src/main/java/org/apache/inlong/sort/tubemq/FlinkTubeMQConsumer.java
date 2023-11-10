@@ -208,6 +208,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
     @Override
     public void open(Configuration parameters) throws Exception {
 
+        deserializationSchema.open(null);
         ConsumerConfig consumerConfig = new ConsumerConfig(masterAddress, consumerGroup);
         consumerConfig.setConsumePosition(consumeFromMax
                 ? ConsumePosition.CONSUMER_FROM_LATEST_OFFSET

@@ -17,9 +17,9 @@
 
 package org.apache.inlong.sdk.dataproxy.threads;
 
-import org.apache.inlong.sdk.dataproxy.FileCallback;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.SendResult;
+import org.apache.inlong.sdk.dataproxy.common.FileCallback;
+import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
 import org.apache.inlong.sdk.dataproxy.network.QueueObject;
 import org.apache.inlong.sdk.dataproxy.network.TimeScanObject;
