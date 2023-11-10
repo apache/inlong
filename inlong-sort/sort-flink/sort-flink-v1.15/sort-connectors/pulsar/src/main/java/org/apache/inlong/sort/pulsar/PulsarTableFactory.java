@@ -94,7 +94,6 @@ public class PulsarTableFactory implements DynamicTableSourceFactory {
 
     public static final boolean UPSERT_DISABLED = false;
 
-    public static final String INNER_FORMAT_TYPE = "inlong-msg";
     public static boolean innerFormat = false;
 
     @Override
@@ -107,7 +106,7 @@ public class PulsarTableFactory implements DynamicTableSourceFactory {
                 getValueDecodingFormat(helper);
         ReadableConfig tableOptions = helper.getOptions();
 
-        innerFormat = INNER_FORMAT_TYPE.equals(tableOptions.get(FORMAT));
+        innerFormat = ExtractNode.INLONG_MSG.equals(tableOptions.get(FORMAT));
 
         // Validate configs are not conflict; each options is consumed; no unwanted configs
         // PulsarOptions, PulsarSourceOptions and PulsarSinkOptions is not part of the validation.

@@ -22,7 +22,9 @@ import org.apache.flink.table.data.GenericMapData;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
+import org.apache.flink.table.planner.expressions.Extract;
 import org.apache.flink.table.types.DataType;
+import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.pulsar.client.api.Message;
 
 import java.io.Serializable;
@@ -116,7 +118,7 @@ public class PulsarReadableMetadata implements Serializable {
                 message -> TimestampData.fromEpochMillis(message.getEventTime())),
 
         CONSUME_TIME(
-                "consume_time",
+                ExtractNode.CONSUME_AUDIT_TIME,
                 DataTypes.BIGINT().notNull(),
                 message -> System.currentTimeMillis()),
 

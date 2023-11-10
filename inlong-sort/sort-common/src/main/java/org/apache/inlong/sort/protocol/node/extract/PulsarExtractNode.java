@@ -148,13 +148,13 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric, Meta
         switch (metaField) {
             case AUDIT_DATA_TIME:
                 if (format instanceof InLongMsgFormat) {
-                    metadataKey = "value.data-time";
+                    metadataKey = INLONG_MSG_AUDIT_TIME;
                 } else {
-                    metadataKey = "consume_time";
+                    metadataKey = CONSUME_AUDIT_TIME;
                 }
                 break;
             default:
-                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
+                throw new UnsupportedOperationException(String.format("Unsupported meta field for %s: %s",
                         this.getClass().getSimpleName(), metaField));
         }
         return metadataKey;
