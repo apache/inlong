@@ -253,6 +253,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, ...mod
             <EditableTable
               columns={isSource === true ? fieldList : sinkFieldList}
               dataSource={isSource === true ? data?.fieldList : sinkData?.list[0]?.sinkFieldList}
+              canBatchAdd={true}
+              upsetByFieldKey={true}
             ></EditableTable>
           </Form.Item>
         </Form>
