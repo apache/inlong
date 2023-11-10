@@ -118,7 +118,7 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
 
         // reset time stamp if the deserialize schema has not inner format
         if (!innerFormat) {
-            metricsCollector.resetTimestamp(message.getEventTime());
+            metricsCollector.resetTimestamp(System.currentTimeMillis());
         }
 
         valueDeserialization.deserialize(message.getData(), metricsCollector);
