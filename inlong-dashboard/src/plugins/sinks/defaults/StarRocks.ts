@@ -30,23 +30,23 @@ const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const fieldTypesConf = {
-  CHAR: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
-  VARCHAR: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
-  DATE: () => '',
-  TINYINT: (m, d) => (1 <= m && m <= 4 ? '' : '1<=M<=4'),
-  SMALLINT: (m, d) => (1 <= m && m <= 6 ? '' : '1<=M<=6'),
-  INT: (m, d) => (1 <= m && m <= 11 ? '' : '1<=M<=11'),
-  BIGINT: (m, d) => (1 <= m && m <= 20 ? '' : '1<=M<=20'),
-  LARGEINT: () => '',
-  STRING: () => '',
-  DATETIME: () => '',
-  FLOAT: (m, d) =>
+  char: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
+  varchar: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
+  date: () => '',
+  tinyint: (m, d) => (1 <= m && m <= 4 ? '' : '1<=M<=4'),
+  smallint: (m, d) => (1 <= m && m <= 6 ? '' : '1<=M<=6'),
+  int: (m, d) => (1 <= m && m <= 11 ? '' : '1<=M<=11'),
+  bigint: (m, d) => (1 <= m && m <= 20 ? '' : '1<=M<=20'),
+  largeint: () => '',
+  string: () => '',
+  datetime: () => '',
+  float: (m, d) =>
     1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
-  DOUBLE: (m, d) =>
+  double: (m, d) =>
     1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
-  DECIMAL: (m, d) =>
+  decimal: (m, d) =>
     1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
-  BOOLEAN: () => '',
+  boolean: () => '',
 };
 
 const fieldTypes = Object.keys(fieldTypesConf).reduce(

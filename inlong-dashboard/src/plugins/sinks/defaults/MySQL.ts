@@ -30,29 +30,29 @@ const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const fieldTypesConf = {
-  TINYINT: (m, d) => (1 <= m && m <= 4 ? '' : '1<=M<=4'),
-  SMALLINT: (m, d) => (1 <= m && m <= 6 ? '' : '1<=M<=6'),
-  MEDIUMINT: (m, d) => (1 <= m && m <= 9 ? '' : '1<=M<=9'),
-  INT: (m, d) => (1 <= m && m <= 11 ? '' : '1<=M<=11'),
-  FLOAT: (m, d) =>
+  tinyint: (m, d) => (1 <= m && m <= 4 ? '' : '1<=M<=4'),
+  smallint: (m, d) => (1 <= m && m <= 6 ? '' : '1<=M<=6'),
+  mediumint: (m, d) => (1 <= m && m <= 9 ? '' : '1<=M<=9'),
+  int: (m, d) => (1 <= m && m <= 11 ? '' : '1<=M<=11'),
+  float: (m, d) =>
     1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
-  BIGINT: (m, d) => (1 <= m && m <= 20 ? '' : '1<=M<=20'),
-  DOUBLE: (m, d) =>
+  bigint: (m, d) => (1 <= m && m <= 20 ? '' : '1<=M<=20'),
+  double: (m, d) =>
     1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
-  NUMERIC: (m, d) =>
+  numeric: (m, d) =>
     1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
-  DECIMAL: (m, d) =>
+  decimal: (m, d) =>
     1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
-  BOOLEAN: () => '',
-  DATE: () => '',
-  TIME: () => '',
-  DATETIME: () => '',
-  CHAR: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
-  VARCHAR: (m, d) => (1 <= m && m <= 16383 ? '' : '1<=M<=16383'),
-  TEXT: () => '',
-  BINARY: (m, d) => (1 <= m && m <= 64 ? '' : '1<=M<=64'),
-  VARBINARY: (m, d) => (1 <= m && m <= 64 ? '' : '1<=M<=64'),
-  BLOB: () => '',
+  boolean: () => '',
+  date: () => '',
+  time: () => '',
+  datetime: () => '',
+  char: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
+  varchar: (m, d) => (1 <= m && m <= 16383 ? '' : '1<=M<=16383'),
+  text: () => '',
+  binary: (m, d) => (1 <= m && m <= 64 ? '' : '1<=M<=64'),
+  varbinary: (m, d) => (1 <= m && m <= 64 ? '' : '1<=M<=64'),
+  blob: () => '',
 };
 
 const fieldTypes = Object.keys(fieldTypesConf).reduce(
