@@ -23,7 +23,6 @@ import org.apache.inlong.common.pojo.sdk.CacheZone;
 import org.apache.inlong.common.pojo.sdk.CacheZoneConfig;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.common.pojo.sdk.Topic;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -50,7 +49,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -305,8 +303,7 @@ public class SortSourceServiceImpl implements SortSourceService {
             List<SortSourceStreamSinkInfo> sinkList) {
 
         Preconditions.expectNotNull(sortClusters.get(clusterName), "sort cluster should not be NULL");
-        List<String> sortClusterTags = Arrays.asList(
-                sortClusters.get(clusterName).getClusterTags().split(InlongConstants.SEMICOLON));
+        List<String> sortClusterTags = sortClusters.get(clusterName).getClusterTagList();
 
         // get group infos
         List<SortSourceStreamSinkInfo> sinkInfoList = sinkList.stream()

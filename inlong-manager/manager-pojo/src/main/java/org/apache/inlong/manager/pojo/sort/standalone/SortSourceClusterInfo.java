@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.pojo.sort.standalone;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
+
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -26,7 +28,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -67,6 +72,13 @@ public class SortSourceClusterInfo {
             }
         }
         return extParamsMap;
+    }
+
+    public List<String> getClusterTagList() {
+        if (clusterTags == null) {
+            return new ArrayList<>();
+        }
+        return Arrays.asList(clusterTags.split(InlongConstants.SEMICOLON));
     }
 
     public Map<String, String> getExtTagMap() {
