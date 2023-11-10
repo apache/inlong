@@ -97,7 +97,13 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
 
     @Override
     public Map<String, String> parse2SinkParams(DataNodeInfo info) {
-        return JsonUtils.parseObject(info.getExtParams(), HashMap.class);
+        HashMap<String,String> params = new HashMap<>();
+        HashMap<String,Object> streamInfoMap = JsonUtils.parseObject(info.getExtParams(), HashMap.class);
+        assert streamInfoMap != null;
+        for (String key : streamInfoMap.keySet()) {
+            params.put(key, String.valueOf(streamInfoMap.get(key)));
+        }
+        return params;
     }
 
     @Override
