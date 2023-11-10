@@ -29,8 +29,6 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -110,7 +108,6 @@ public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDes
         rows.forEach(row -> emitRow(message, (GenericRowData) row, out));
 
     }
-
 
     @Override
     public TypeInformation<RowData> getProducedType() {

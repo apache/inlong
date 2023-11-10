@@ -323,8 +323,9 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
                 .withAuditKeys(auditKeys)
                 .build();
 
-        final DynamicTubeMQDeserializationSchema<RowData> tubeMQDeserializer = new DynamicTubeMQTableDeserializationSchema(
-                deserialization, metadataConverters, producedTypeInfo, ignoreErrors, innerFormat, metricOption);
+        final DynamicTubeMQDeserializationSchema<RowData> tubeMQDeserializer =
+                new DynamicTubeMQTableDeserializationSchema(
+                        deserialization, metadataConverters, producedTypeInfo, ignoreErrors, innerFormat, metricOption);
 
         final FlinkTubeMQConsumer<RowData> tubeMQConsumer = new FlinkTubeMQConsumer(masterAddress, topic, streamIdSet,
                 consumerGroup, tubeMQDeserializer, configuration, sessionKey, innerFormat);
@@ -340,8 +341,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
         CONSUME_TIME(
                 ExtractNode.CONSUME_AUDIT_TIME,
                 DataTypes.BIGINT().notNull(),
-                m -> System.currentTimeMillis()
-        ),
+                m -> System.currentTimeMillis()),
 
         TOPIC(
                 "topic",

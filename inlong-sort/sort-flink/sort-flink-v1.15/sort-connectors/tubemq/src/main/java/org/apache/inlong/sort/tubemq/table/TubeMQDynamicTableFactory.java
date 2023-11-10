@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.tubemq.table;
 
+import org.apache.inlong.sort.protocol.node.ExtractNode;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ConfigOption;
@@ -39,7 +41,6 @@ import org.apache.flink.table.factories.FactoryUtil.TableFactoryHelper;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.protocol.node.ExtractNode;
 
 import java.util.HashSet;
 import java.util.Optional;
