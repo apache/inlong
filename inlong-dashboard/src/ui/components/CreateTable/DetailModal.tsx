@@ -81,9 +81,9 @@ const Comp: React.FC<Props> = ({
     const submitData = {
       ...values,
       enableCreateResource: 1,
+      sinkFieldList: values.createTableField,
     };
-    console.log(submitData, 'sub');
-    // setLocalStorage(submitData);
+    setLocalStorage(submitData);
     modalProps?.onOk(values);
     message.success(t('pages.GroupDetail.Sources.SaveSuccessfully'));
   };

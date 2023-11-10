@@ -296,8 +296,22 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
       upsertByFieldKey: true,
     }),
   })
-  @SyncCreateTableField()
   sinkFieldList: Record<string, unknown>[];
+
+  @FieldDecorator({
+    type: EditableTable,
+    props: values => ({
+      size: 'small',
+      editing: ![110].includes(values?.status),
+      columns: getFieldListColumns(values).filter(
+        item => item.dataIndex !== 'sourceFieldName' && item.dataIndex !== 'sourceFieldType',
+      ),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
+    }),
+  })
+  @SyncCreateTableField()
+  createTableField: Record<string, unknown>[];
 
   @FieldDecorator({
     type: EditableTable,

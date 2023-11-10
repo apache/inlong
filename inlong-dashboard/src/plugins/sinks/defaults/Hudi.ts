@@ -121,7 +121,6 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
   dbName: string;
 
   @FieldDecorator({
-    // type: 'input',
     type: CreateTable,
     rules: [{ required: true }],
     props: values => ({
@@ -160,7 +159,6 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
     }),
   })
   @I18n('meta.Sinks.EnableCreateResource')
-  // @SyncField()
   enableCreateResource: number;
 
   @FieldDecorator({
@@ -266,13 +264,26 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
       columns: getFieldListColumns(values),
     }),
   })
-  @SyncCreateTableField()
   sinkFieldList: Record<string, unknown>[];
+
+  @FieldDecorator({
+    type: EditableTable,
+    props: values => ({
+      size: 'small',
+      editing: ![110].includes(values?.status),
+      columns: getFieldListColumns(values).filter(
+        item => item.dataIndex !== 'sourceFieldName' && item.dataIndex !== 'sourceFieldType',
+      ),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
+    }),
+  })
+  @SyncCreateTableField()
+  createTableField: Record<string, unknown>[];
 
   @FieldDecorator({
     type: 'input',
     tooltip: i18n.t('meta.Sinks.Hudi.PrimaryKeyHelper'),
-    // rules: [{ required: true }],
     props: values => ({
       disabled: [110].includes(values?.status),
     }),

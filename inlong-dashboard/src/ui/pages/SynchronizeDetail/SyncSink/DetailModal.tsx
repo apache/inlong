@@ -28,6 +28,7 @@ import { useLoadMeta, SinkMetaType } from '@/plugins';
 import request from '@/core/utils/request';
 import { State } from '@/core/stores';
 import { useLocalStorage } from '@/core/utils/localStorage';
+import { dataToMap } from '../SyncT/helper';
 
 export interface DetailModalProps extends ModalProps {
   inlongGroupId: string;
@@ -115,6 +116,12 @@ const Comp: React.FC<DetailModalProps> = ({
     const submitData = new Entity()?.stringify(values) || values;
     const isUpdate = Boolean(id);
     const createData = getLocalStorage('createTableData');
+    if (submitData?.properties !== undefined && submitData?.properties.length !== 0) {
+      submitData.properties = dataToMap(submitData.properties);
+    } else {
+      submitData.properties = {};
+    }
+
     if (startProcess) {
       submitData.startProcess = true;
     }

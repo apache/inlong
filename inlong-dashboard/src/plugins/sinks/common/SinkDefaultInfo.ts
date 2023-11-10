@@ -168,6 +168,14 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
 
   renderRow() {
     const constructor = this.constructor as typeof SinkDefaultInfo;
+    constructor.FieldList.filter(item => {
+      if (item.name === 'tableName' || item.name === 'primaryKey' || item.name === 'database') {
+        item.type = 'input';
+      }
+      if (item.name === 'createTableField') {
+        item.hidden = true;
+      }
+    });
     return constructor.FieldList;
   }
 
