@@ -78,7 +78,7 @@ public class SortSourceClusterInfo {
         if (clusterTags == null) {
             return new ArrayList<>();
         }
-        return Arrays.asList(clusterTags.split(InlongConstants.SEMICOLON));
+        return Arrays.asList(clusterTags.split(InlongConstants.COMMA));
     }
 
     public Map<String, String> getExtTagMap() {
