@@ -201,6 +201,7 @@
   "meta.Sinks.Iceberg.DbName": "DB 名称",
   "meta.Sinks.Iceberg.TableName": "表名称",
   "meta.Sinks.Iceberg.FileFormat": "⽂件格式",
+  "meta.Sinks.Iceberg.AppendMode": "附加模式",
   "meta.Sinks.Iceberg.Description": "表描述",
   "meta.Sinks.Iceberg.ExtList": "属性",
   "meta.Sinks.Iceberg.DataConsistency": "数据一致性",
