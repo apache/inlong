@@ -23,6 +23,7 @@ import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.format.Format;
+import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import com.google.common.base.Preconditions;
@@ -146,7 +147,11 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric, Meta
         String metadataKey;
         switch (metaField) {
             case AUDIT_DATA_TIME:
-                metadataKey = "value.data-time";
+                if (format instanceof InLongMsgFormat) {
+                    metadataKey = "value.data-time";
+                } else {
+                    metadataKey = "consume_time";
+                }
                 break;
             default:
                 throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",

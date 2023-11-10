@@ -115,6 +115,11 @@ public class PulsarReadableMetadata implements Serializable {
                 DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).notNull(),
                 message -> TimestampData.fromEpochMillis(message.getEventTime())),
 
+        CONSUME_TIME(
+                "consume_time",
+                DataTypes.BIGINT().notNull(),
+                message -> System.currentTimeMillis()),
+
         PROPERTIES(
                 "properties",
                 // key and value of the map are nullable to make handling easier in queries
