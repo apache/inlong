@@ -49,6 +49,7 @@ public class ProxySink extends AbstractSink {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxySink.class);
     private final int WRITE_FAILED_WAIT_TIME_MS = 10;
     private final int DESTROY_LOOP_WAIT_TIME_MS = 10;
+    private final Integer FINISH_READ_MAX_COUNT = 30;
     private static AtomicLong index = new AtomicLong(0);
     private static final ThreadPoolExecutor EXECUTOR_SERVICE = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE,
@@ -61,6 +62,7 @@ public class ProxySink extends AbstractSink {
     private volatile boolean shutdown = false;
     private volatile boolean running = false;
     private volatile boolean inited = false;
+    private volatile int readEndCount = 0;
 
     public ProxySink() {
     }
@@ -144,6 +146,7 @@ public class ProxySink extends AbstractSink {
                 try {
                     SenderMessage senderMessage = cache.fetchSenderMessage();
                     if (senderMessage != null) {
+                        readEndCount = 0;
                         senderManager.sendBatch(senderMessage);
                         if (AgentUtils.getCurrentTime() - lastPrintTime > TimeUnit.SECONDS.toMillis(1)) {
                             lastPrintTime = AgentUtils.getCurrentTime();
@@ -153,6 +156,8 @@ public class ProxySink extends AbstractSink {
                                     profile.getInstanceId(),
                                     senderMessage.getDataTime());
                         }
+                    } else {
+                        readEndCount++;
                     }
                 } catch (Exception ex) {
                     LOGGER.error("error caught", ex);
@@ -206,7 +211,15 @@ public class ProxySink extends AbstractSink {
      */
     @Override
     public boolean sinkFinish() {
-        return cache.isEmpty() && senderManager.sendFinished();
+        if (finishReadLog() && senderManager.sendFinished()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean finishReadLog() {
+        return readEndCount > FINISH_READ_MAX_COUNT;
     }
 
 }
