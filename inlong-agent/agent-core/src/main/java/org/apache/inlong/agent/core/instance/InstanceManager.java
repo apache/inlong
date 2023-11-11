@@ -69,6 +69,39 @@ public class InstanceManager extends AbstractDaemon {
     private volatile boolean runAtLeastOneTime = false;
     private volatile boolean running = false;
 
+    private class InstancePrintStat {
+
+        public int defaultCount = 0;
+        public int finishedCount = 0;
+        public int deleteCount = 0;
+        public int otherCount = 0;
+
+        private void stat(InstanceStateEnum state) {
+            switch (state) {
+                case DEFAULT: {
+                    defaultCount++;
+                    break;
+                }
+                case FINISHED: {
+                    finishedCount++;
+                    break;
+                }
+                case DELETE: {
+                    deleteCount++;
+                }
+                default: {
+                    otherCount++;
+                }
+            }
+        }
+
+        @Override
+        public String toString() {
+            return String.format("default %d finished %d delete %d other %d", defaultCount, finishedCount,
+                    deleteCount, otherCount);
+        }
+    }
+
     /**
      * Init task manager.
      */
@@ -130,13 +163,13 @@ public class InstanceManager extends AbstractDaemon {
             LOGGER.info("instanceManager coreThread running! taskId {} action count {}", taskId,
                     actionQueue.size());
             List<InstanceProfile> instances = instanceDb.getInstances(taskId);
+            InstancePrintStat stat = new InstancePrintStat();
             for (int i = 0; i < instances.size(); i++) {
                 InstanceProfile instance = instances.get(i);
-                LOGGER.info(
-                        "instanceManager coreThread instance taskId {} index {} total {} instanceId {} state {}",
-                        taskId, i,
-                        instances.size(), instance.getInstanceId(), instance.getState());
+                stat.stat(instance.getState());
             }
+            LOGGER.info("instanceManager coreThread running! taskId {} memory total {} db total {} db detail {} ",
+                    taskId, instanceMap.size(), instances.size(), stat);
             lastPrintTime = AgentUtils.getCurrentTime();
         }
     }

@@ -78,6 +78,45 @@ public class TaskManager extends AbstractDaemon {
     // instance profile queue.
     private final BlockingQueue<TaskAction> actionQueue;
 
+    private class TaskPrintStat {
+
+        public int newCount = 0;
+        public int runningCont = 0;
+        public int frozenCount = 0;
+        public int finishedCount = 0;
+        public int otherCount = 0;
+
+        private void stat(TaskStateEnum state) {
+            switch (state) {
+                case NEW: {
+                    newCount++;
+                    break;
+                }
+                case RUNNING: {
+                    runningCont++;
+                    break;
+                }
+                case FROZEN: {
+                    frozenCount++;
+                    break;
+                }
+                case FINISH: {
+                    finishedCount++;
+                    break;
+                }
+                default: {
+                    otherCount++;
+                }
+            }
+        }
+
+        @Override
+        public String toString() {
+            return String.format("new %d running %d frozen %d finished %d other %d", newCount, runningCont, frozenCount,
+                    finishedCount, otherCount);
+        }
+    }
+
     /**
      * Init task manager.
      */
@@ -158,16 +197,16 @@ public class TaskManager extends AbstractDaemon {
 
     private void printTaskDetail() {
         if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_TIME) {
-            LOGGER.info("taskManager coreThread running!");
-            List<TaskProfile> tasks = taskDb.getTasks();
-            for (int i = 0; i < tasks.size(); i++) {
-                TaskProfile task = tasks.get(i);
-                LOGGER.info("taskManager coreThread task index {} total {} taskId {} state {}",
-                        i, tasks.size(), task.getTaskId(), task.getState());
+            List<TaskProfile> tasksInDb = taskDb.getTasks();
+            TaskPrintStat stat = new TaskPrintStat();
+            for (int i = 0; i < tasksInDb.size(); i++) {
+                TaskProfile task = tasksInDb.get(i);
+                stat.stat(task.getState());
             }
+            LOGGER.info("taskManager coreThread running! memory total {} db total {} db detail {} ", taskMap.size(),
+                    tasksInDb.size(), stat);
             lastPrintTime = AgentUtils.getCurrentTime();
         }
-
     }
 
     private void dealWithConfigQueue(BlockingQueue<List<TaskProfile>> queue) {
