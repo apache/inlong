@@ -132,6 +132,7 @@ public class LogFileSource extends AbstractSource {
     private volatile boolean running = false;
 
     public LogFileSource() {
+        OffsetManager.init();
     }
 
     @Override
@@ -175,7 +176,7 @@ public class LogFileSource extends AbstractSource {
     }
 
     private long getInitLineOffset(boolean isIncrement, String taskId, String instanceId, String inodeInfo) {
-        OffsetProfile offsetProfile = OffsetManager.init().getOffset(taskId, instanceId);
+        OffsetProfile offsetProfile = OffsetManager.getInstance().getOffset(taskId, instanceId);
         int fileLineCount = getRealLineCount(instanceId);
         long offset = 0;
         if (offsetProfile != null && offsetProfile.getInodeInfo().compareTo(inodeInfo) == 0) {
@@ -334,9 +335,8 @@ public class LogFileSource extends AbstractSource {
         }
         if (sourceData == null) {
             return null;
-        } else {
-            MemoryManager.getInstance().release(AGENT_GLOBAL_READER_QUEUE_PERMIT, sourceData.data.length());
         }
+        MemoryManager.getInstance().release(AGENT_GLOBAL_READER_QUEUE_PERMIT, sourceData.data.length());
         Message finalMsg = createMessage(sourceData);
         return finalMsg;
     }
@@ -377,7 +377,7 @@ public class LogFileSource extends AbstractSource {
             suc = MemoryManager.getInstance().tryAcquire(permitName, permitLen);
             if (!suc) {
                 MemoryManager.getInstance().printDetail(permitName, "log file source");
-                if (!isInodeChanged() || !isRunnable()) {
+                if (isInodeChanged() || !isRunnable()) {
                     return false;
                 }
                 AgentUtils.silenceSleepInSeconds(1);
@@ -530,6 +530,14 @@ public class LogFileSource extends AbstractSource {
 
     @Override
     public boolean sourceFinish() {
+        if (finishReadLog() && queue.isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean finishReadLog() {
         return readEndCount > FINISH_READ_MAX_COUNT;
     }
 
