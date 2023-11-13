@@ -28,6 +28,7 @@ import org.apache.inlong.agent.message.filecollect.PackageAckInfo;
 import org.apache.inlong.agent.message.filecollect.SenderMessage;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.message.SequentialID;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
@@ -47,7 +48,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -122,7 +122,6 @@ public class SenderManager {
     private List<PackageAckInfo> packageAckInfoList = new ArrayList<>();
     private final ReentrantReadWriteLock packageAckInfoLock = new ReentrantReadWriteLock(true);
     protected InstanceProfile profile;
-    private Random testRandom = new Random();
     private volatile boolean offsetRunning = false;
     private volatile boolean resendRunning = false;
     private volatile boolean started = false;
@@ -175,7 +174,6 @@ public class SenderManager {
         this.metricItemSet = new AgentMetricItemSet(metricName);
         MetricRegister.register(metricItemSet);
         resendQueue = new LinkedBlockingQueue<>();
-
     }
 
     public void Start() throws Exception {
@@ -429,6 +427,8 @@ public class SenderManager {
             if (result != null && result.equals(SendResult.OK)) {
                 message.getAckInfo().setHasAck(true);
                 getMetricItem(groupId, streamId).pluginSendSuccessCount.addAndGet(msgCnt);
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId,
+                        System.currentTimeMillis(), message.getMsgCnt(), message.getTotalSize());
             } else {
                 LOGGER.warn("send groupId {}, streamId {}, taskId {}, instanceId {}, dataTime {} fail with times {}, "
                         + "error {}", groupId, streamId, taskId, instanceId, dataTime, retry, result);

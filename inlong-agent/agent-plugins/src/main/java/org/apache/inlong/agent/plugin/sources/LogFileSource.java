@@ -103,7 +103,7 @@ public class LogFileSource extends AbstractSource {
             new AgentThreadFactory("log-file-source"));
     private final Integer BATCH_READ_LINE_COUNT = 10000;
     private final Integer BATCH_READ_LINE_TOTAL_LEN = 1024 * 1024;
-    private final Integer PRINT_INTERVAL_MS = 1000;
+    private final Integer CORE_THREAD_PRINT_INTERVAL_MS = 1000;
     private final Integer CACHE_QUEUE_SIZE = 10 * BATCH_READ_LINE_COUNT;
     private final Integer SIZE_OF_BUFFER_TO_READ_FILE = 64 * 1024;
     private final Integer FINISH_READ_MAX_COUNT = 30;
@@ -117,8 +117,8 @@ public class LogFileSource extends AbstractSource {
     private String fileName;
     private File file;
     private byte[] bufferToReadFile;
-    public long linePosition = 0;
-    public long bytePosition = 0;
+    public volatile long linePosition = 0;
+    public volatile long bytePosition = 0;
     private boolean needMetadata = false;
     public Map<String, String> metadata;
     private boolean isIncrement = false;
@@ -128,10 +128,11 @@ public class LogFileSource extends AbstractSource {
     private volatile int readEndCount = 0;
     private volatile boolean fileExist = true;
     private String inodeInfo;
-    private long lastInodeUpdateTime = 0;
+    private volatile long lastInodeUpdateTime = 0;
     private volatile boolean running = false;
 
     public LogFileSource() {
+        OffsetManager.init();
     }
 
     @Override
@@ -144,20 +145,20 @@ public class LogFileSource extends AbstractSource {
             instanceId = profile.getInstanceId();
             fileName = profile.getInstanceId();
             maxPackSize = profile.getInt(PROXY_PACKAGE_MAX_SIZE, DEFAULT_PROXY_PACKAGE_MAX_SIZE);
+            bufferToReadFile = new byte[SIZE_OF_BUFFER_TO_READ_FILE];
             isIncrement = isIncrement(profile);
             file = new File(fileName);
             inodeInfo = profile.get(TaskConstants.INODE_INFO);
             lastInodeUpdateTime = AgentUtils.getCurrentTime();
             linePosition = getInitLineOffset(isIncrement, taskId, instanceId, inodeInfo);
             bytePosition = getBytePositionByLine(linePosition);
-            bufferToReadFile = new byte[SIZE_OF_BUFFER_TO_READ_FILE];
             queue = new LinkedBlockingQueue<>(CACHE_QUEUE_SIZE);
             try {
                 registerMeta(profile);
             } catch (Exception ex) {
                 LOGGER.error("init metadata error", ex);
             }
-            EXECUTOR_SERVICE.execute(run());
+            EXECUTOR_SERVICE.execute(coreThread());
         } catch (Exception ex) {
             stopRunning();
             throw new FileException("error init stream for " + file.getPath(), ex);
@@ -175,17 +176,18 @@ public class LogFileSource extends AbstractSource {
     }
 
     private long getInitLineOffset(boolean isIncrement, String taskId, String instanceId, String inodeInfo) {
-        OffsetProfile offsetProfile = OffsetManager.init().getOffset(taskId, instanceId);
+        OffsetProfile offsetProfile = OffsetManager.getInstance().getOffset(taskId, instanceId);
         int fileLineCount = getRealLineCount(instanceId);
         long offset = 0;
         if (offsetProfile != null && offsetProfile.getInodeInfo().compareTo(inodeInfo) == 0) {
             offset = offsetProfile.getOffset();
             if (fileLineCount < offset) {
-                LOGGER.info("getInitLineOffset taskId {} file rotate, offset set to 0, file {}", taskId,
+                LOGGER.info("getInitLineOffset inode no change taskId {} file rotate, offset set to 0, file {}", taskId,
                         fileName);
                 offset = 0;
             } else {
-                LOGGER.info("getInitLineOffset taskId {} from db {}, file {}", taskId, offset, fileName);
+                LOGGER.info("getInitLineOffset inode no change taskId {} from db {}, file {}", taskId, offset,
+                        fileName);
             }
         } else {
             if (isIncrement) {
@@ -247,7 +249,7 @@ public class LogFileSource extends AbstractSource {
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("getBytePositionByLine error {}", e.getMessage());
+            LOGGER.error("getBytePositionByLine error {}", e.getStackTrace());
         } finally {
             if (input != null) {
                 input.close();
@@ -333,9 +335,8 @@ public class LogFileSource extends AbstractSource {
         }
         if (sourceData == null) {
             return null;
-        } else {
-            MemoryManager.getInstance().release(AGENT_GLOBAL_READER_QUEUE_PERMIT, sourceData.data.length());
         }
+        MemoryManager.getInstance().release(AGENT_GLOBAL_READER_QUEUE_PERMIT, sourceData.data.length());
         Message finalMsg = createMessage(sourceData);
         return finalMsg;
     }
@@ -376,7 +377,7 @@ public class LogFileSource extends AbstractSource {
             suc = MemoryManager.getInstance().tryAcquire(permitName, permitLen);
             if (!suc) {
                 MemoryManager.getInstance().printDetail(permitName, "log file source");
-                if (!isInodeChanged() || !isRunnable()) {
+                if (isInodeChanged() || !isRunnable()) {
                     return false;
                 }
                 AgentUtils.silenceSleepInSeconds(1);
@@ -397,7 +398,7 @@ public class LogFileSource extends AbstractSource {
         return false;
     }
 
-    public Runnable run() {
+    public Runnable coreThread() {
         return () -> {
             AgentThreadFactory.nameThread("log-file-source-" + taskId + "-" + file);
             running = true;
@@ -441,10 +442,10 @@ public class LogFileSource extends AbstractSource {
                     AgentUtils.silenceSleepInSeconds(1);
                 } else {
                     readEndCount = 0;
-                    if (AgentUtils.getCurrentTime() - lastPrintTime > PRINT_INTERVAL_MS) {
+                    if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_INTERVAL_MS) {
                         lastPrintTime = AgentUtils.getCurrentTime();
-                        LOGGER.info("path is {}, linePosition {}, bytePosition is {}, reads lines size {}",
-                                file.getName(), linePosition, bytePosition, lines.size());
+                        LOGGER.info("path is {}, linePosition {}, bytePosition is {} file len {}, reads lines size {}",
+                                file.getName(), linePosition, bytePosition, file.length(), lines.size());
                     }
                 }
             }
@@ -529,6 +530,14 @@ public class LogFileSource extends AbstractSource {
 
     @Override
     public boolean sourceFinish() {
+        if (finishReadLog() && queue.isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean finishReadLog() {
         return readEndCount > FINISH_READ_MAX_COUNT;
     }
 
