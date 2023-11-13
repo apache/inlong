@@ -944,39 +944,39 @@ public class PulsarUtils {
      * Copy from parseFrom method of org.apache.pulsar.common.api.proto.KeyValue class.
      *
      * @param metadata
-     * @param _buffer
-     * @param _size
+     * @param buffer
+     * @param size
      */
-    private static void parseFrom(PulsarMessageMetadata metadata, ByteBuffer _buffer, int _size) {
+    private static void parseFrom(PulsarMessageMetadata metadata, ByteBuffer buffer, int size) {
         if (ObjectUtils.isEmpty(metadata.getProperties())) {
             metadata.setProperties(new HashMap<>());
         }
         Map<String, String> properties = metadata.getProperties();
-        int _endIdx = _buffer.position() + _size;
+        int endIdx = buffer.position() + size;
         String key = null;
         String value = null;
-        while (_buffer.position() < _endIdx) {
-            int _tag = readVarInt(_buffer);
+        while (buffer.position() < endIdx) {
+            int tag = readVarInt(buffer);
             if (StringUtils.isNotEmpty(key) && StringUtils.isNotEmpty(value)) {
                 properties.put(key, value);
                 key = null;
                 value = null;
             }
-            switch (_tag) {
+            switch (tag) {
                 case 10:
-                    int _keyBufferLen = readVarInt(_buffer);
-                    byte[] keyArray = new byte[_keyBufferLen];
-                    _buffer.get(keyArray);
+                    int keyBufferLen = readVarInt(buffer);
+                    byte[] keyArray = new byte[keyBufferLen];
+                    buffer.get(keyArray);
                     key = new String(keyArray);
                     break;
                 case 18:
-                    int _valueBufferLen = readVarInt(_buffer);
-                    byte[] valueArray = new byte[_valueBufferLen];
-                    _buffer.get(valueArray);
+                    int valueBufferLen = readVarInt(buffer);
+                    byte[] valueArray = new byte[valueBufferLen];
+                    buffer.get(valueArray);
                     value = new String(valueArray);
                     break;
                 default:
-                    skipUnknownField(_tag, _buffer);
+                    skipUnknownField(tag, buffer);
             }
         }
         if (StringUtils.isNotEmpty(key) && StringUtils.isNotEmpty(value)) {
