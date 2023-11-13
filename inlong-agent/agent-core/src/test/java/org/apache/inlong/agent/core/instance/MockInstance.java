@@ -20,13 +20,17 @@ package org.apache.inlong.agent.core.instance;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.plugin.Instance;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.atomic.AtomicLong;
+
 public class MockInstance extends Instance {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MockInstance.class);
     public static final int INIT_TIME = 100;
-    public static final int RUN_TIME = 101;
-    public static final int DESTROY_TIME = 102;
     private InstanceProfile profile;
-    private long index = INIT_TIME;
+    private AtomicLong index = new AtomicLong(INIT_TIME);
     public long initTime = 0;
     public long destroyTime = 0;
     public long runtime = 0;
@@ -36,12 +40,14 @@ public class MockInstance extends Instance {
     public void init(Object instanceManager, InstanceProfile profile) {
         this.instanceManager = (InstanceManager) instanceManager;
         this.profile = profile;
-        initTime = index++;
+        LOGGER.info("init called " + index);
+        initTime = index.getAndAdd(1);
     }
 
     @Override
     public void destroy() {
-        destroyTime = index++;
+        LOGGER.info("destroy called " + index);
+        destroyTime = index.getAndAdd(1);
     }
 
     @Override
@@ -66,7 +72,8 @@ public class MockInstance extends Instance {
 
     @Override
     public void run() {
-        runtime = index++;
+        LOGGER.info("run called " + index);
+        runtime = index.getAndAdd(1);
     }
 
     public void sendFinishAction() {

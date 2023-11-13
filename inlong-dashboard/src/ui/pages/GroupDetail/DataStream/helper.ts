@@ -56,8 +56,12 @@ export const dataToValues = data => {
   const output = {
     ...data,
     ...fieldList,
-    predefinedFields: stringToData(data?.predefinedFields),
   };
+
+  if (data?.predefinedFields !== undefined) {
+    const predefinedFields = stringToData(data?.predefinedFields);
+    output.predefinedFields = predefinedFields;
+  }
 
   return output;
 };
