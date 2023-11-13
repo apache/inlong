@@ -20,7 +20,7 @@ package org.apache.inlong.sdk.dataproxy.codec;
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.MsgType;
-import org.apache.inlong.sdk.dataproxy.SendResult;
+import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 
 import com.google.common.base.Splitter;

@@ -20,7 +20,7 @@ package org.apache.inlong.sdk.dataproxy.example;
 import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.SendResult;
+import org.apache.inlong.sdk.dataproxy.common.SendResult;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -40,14 +40,13 @@ public class TcpClientExample {
      */
     public static void main(String[] args) throws InterruptedException {
 
-        String dataProxyGroup = "test_test";
         String inlongGroupId = "test_test";
         String inlongStreamId = "test_test";
         String netTag = "";
 
         /*
          * 1. if isLocalVisit is true, will get dataproxy server info from local file in
-         * ${configBasePath}/${dataProxyGroup}.local file
+         * ${configBasePath}/${inlongGroupId}.local file
          *
          * for example: /data/inlong/config/test_test.local and file context like this:
          * {"isInterVisit":1,"clusterId":"1","size":1,"switch":1,"address":[{"host":"127.0.0.1",
@@ -68,19 +67,19 @@ public class TcpClientExample {
         TcpClientExample tcpClientExample = new TcpClientExample();
         DefaultMessageSender sender = tcpClientExample
                 .getMessageSender(localIP, inLongManagerAddr, inLongManagerPort, netTag,
-                        dataProxyGroup, false, false, configBasePath, msgType);
+                        inlongGroupId, false, false, configBasePath, msgType);
         tcpClientExample.sendTcpMessage(sender, inlongGroupId, inlongStreamId,
                 messageBody, System.currentTimeMillis());
     }
 
     public DefaultMessageSender getMessageSender(String localIP, String inLongManagerAddr, String inLongManagerPort,
-            String netTag, String dataProxyGroup, boolean isLocalVisit, boolean isReadProxyIPFromLocal,
+            String netTag, String inlongGroupId, boolean isLocalVisit, boolean isReadProxyIPFromLocal,
             String configBasePath, int msgType) {
         ProxyClientConfig dataProxyConfig = null;
         DefaultMessageSender messageSender = null;
         try {
             dataProxyConfig = new ProxyClientConfig(localIP, isLocalVisit, inLongManagerAddr,
-                    Integer.valueOf(inLongManagerPort), dataProxyGroup, netTag, "test", "123456");
+                    Integer.valueOf(inLongManagerPort), inlongGroupId, netTag, "test", "123456");
             if (StringUtils.isNotEmpty(configBasePath)) {
                 dataProxyConfig.setConfStoreBasePath(configBasePath);
             }

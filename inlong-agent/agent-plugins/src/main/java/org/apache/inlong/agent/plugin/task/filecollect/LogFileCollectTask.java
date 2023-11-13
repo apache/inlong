@@ -325,7 +325,7 @@ public class LogFileCollectTask extends Task {
         for (Map.Entry<String, Map<String, InstanceProfile>> entry : eventMap.entrySet()) {
             Map<String, InstanceProfile> sameDataTimeEvents = entry.getValue();
             if (sameDataTimeEvents.isEmpty()) {
-                return;
+                continue;
             }
             /*
              * Calculate whether the event needs to be processed at the current time based on its data time, business
@@ -442,10 +442,10 @@ public class LogFileCollectTask extends Task {
 
     private void handleFilePath(Path filePath, WatchEntity entity) {
         String newFileName = filePath.toFile().getAbsolutePath();
-        LOGGER.info("[New File] {} {}", newFileName, entity.getOriginPattern());
+        LOGGER.info("new file {} {}", newFileName, entity.getOriginPattern());
         Matcher matcher = entity.getPattern().matcher(newFileName);
         if (matcher.matches() || matcher.lookingAt()) {
-            LOGGER.info("[Matched File] {} {}", newFileName, entity.getOriginPattern());
+            LOGGER.info("matched file {} {}", newFileName, entity.getOriginPattern());
             String dataTime = getDataTimeFromFileName(newFileName, entity.getOriginPattern(),
                     entity.getDateExpression());
             if (!checkFileNameForTime(newFileName, entity)) {
@@ -458,10 +458,14 @@ public class LogFileCollectTask extends Task {
 
     private void addToEvenMap(String fileName, String dataTime) {
         if (isInEventMap(fileName, dataTime)) {
+            LOGGER.info("addToEvenMap isInEventMap returns true skip taskId {} dataTime {} fileName {}",
+                    taskProfile.getTaskId(), dataTime, fileName);
             return;
         }
         Long fileUpdateTime = FileUtils.getFileLastModifyTime(fileName);
         if (!instanceManager.shouldAddAgain(fileName, fileUpdateTime)) {
+            LOGGER.info("addToEvenMap shouldAddAgain returns false skip taskId {} dataTime {} fileName {}",
+                    taskProfile.getTaskId(), dataTime, fileName);
             return;
         }
         Map<String, InstanceProfile> sameDataTimeEvents = eventMap.computeIfAbsent(dataTime,
@@ -474,6 +478,7 @@ public class LogFileCollectTask extends Task {
         InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_FILE_INSTANCE,
                 fileName, dataTime, fileUpdateTime);
         sameDataTimeEvents.put(fileName, instanceProfile);
+        LOGGER.info("add to eventMap taskId {} dataTime {} fileName {}", taskProfile.getTaskId(), dataTime, fileName);
     }
 
     private boolean checkFileNameForTime(String newFileName, WatchEntity entity) {

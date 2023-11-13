@@ -40,6 +40,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -249,6 +250,30 @@ public class AgentUtils {
             getAttrs(attr, s, pairs);
         }
         return Pair.of(mValue, attr);
+    }
+
+    public static Map<String, String> parseAddAttrToMap(String addictiveAttr) {
+        StringTokenizer token = new StringTokenizer(addictiveAttr, "&");
+        Map<String, String> attr = new HashMap<String, String>();
+        while (token.hasMoreTokens()) {
+            String value = token.nextToken().trim();
+            if (value.contains("=")) {
+                String[] pairs = value.split("=");
+
+                if (pairs[0].equalsIgnoreCase("m")) {
+                    continue;
+                }
+
+                // when addictiveattr like "m=10&__addcol1__worldid="
+                if (value.endsWith("=") && pairs.length == 1) {
+                    attr.put(pairs[0], "");
+                } else {
+                    attr.put(pairs[0], pairs[1]);
+                }
+
+            }
+        }
+        return attr;
     }
 
     /**

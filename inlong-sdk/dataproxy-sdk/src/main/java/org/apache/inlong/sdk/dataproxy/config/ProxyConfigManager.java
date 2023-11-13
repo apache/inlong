@@ -40,7 +40,9 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
@@ -100,7 +102,7 @@ public class ProxyConfigManager extends Thread {
     private List<HostInfo> proxyInfoList = new ArrayList<HostInfo>();
     /* the status of the cluster.if this value is changed,we need rechoose three proxy */
     private int oldStat = 0;
-    private String groupId;
+    private String inlongGroupId;
     private String localMd5;
     private boolean bShutDown = false;
     private long doworkTime = 0;
@@ -113,12 +115,12 @@ public class ProxyConfigManager extends Thread {
         this.hashRing.setVirtualNode(configure.getVirtualNode());
     }
 
-    public String getGroupId() {
-        return groupId;
+    public String getInlongGroupId() {
+        return inlongGroupId;
     }
 
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
+    public void setInlongGroupId(String inlongGroupId) {
+        this.inlongGroupId = inlongGroupId;
     }
 
     public void shutDown() {
@@ -170,7 +172,7 @@ public class ProxyConfigManager extends Thread {
             if (diffTime < clientConfig.getMaxProxyCacheTimeInMs()) {
                 JsonReader reader = new JsonReader(new FileReader(configCachePath));
                 ProxyConfigEntry proxyConfigEntry = gson.fromJson(reader, ProxyConfigEntry.class);
-                LOGGER.info("{} has a backup! {}", groupId, proxyConfigEntry);
+                LOGGER.info("{} has a backup! {}", inlongGroupId, proxyConfigEntry);
                 return proxyConfigEntry;
             }
         } catch (Exception ex) {
@@ -218,7 +220,7 @@ public class ProxyConfigManager extends Thread {
      */
     public ProxyConfigEntry getGroupIdConfigure() throws Exception {
         ProxyConfigEntry proxyEntry;
-        String configAddr = clientConfig.getConfStoreBasePath() + groupId;
+        String configAddr = clientConfig.getConfStoreBasePath() + inlongGroupId;
         if (this.clientConfig.isReadProxyIPFromLocal()) {
             configAddr = configAddr + ".local";
             proxyEntry = getLocalProxyListFromFile(configAddr);
@@ -259,7 +261,7 @@ public class ProxyConfigManager extends Thread {
             localMd5 = calcHostInfoMd5(proxyInfoList);
         }
         ProxyConfigEntry proxyEntry = null;
-        String configAddr = clientConfig.getConfStoreBasePath() + groupId;
+        String configAddr = clientConfig.getConfStoreBasePath() + inlongGroupId;
         if (clientConfig.isReadProxyIPFromLocal()) {
             configAddr = configAddr + ".local";
             proxyEntry = getLocalProxyListFromFile(configAddr);
@@ -634,7 +636,7 @@ public class ProxyConfigManager extends Thread {
 
         ProxyConfigEntry proxyEntry = new ProxyConfigEntry();
         proxyEntry.setClusterId(clusterId);
-        proxyEntry.setGroupId(clientConfig.getGroupId());
+        proxyEntry.setGroupId(clientConfig.getInlongGroupId());
         proxyEntry.setInterVisit(isIntranet);
         proxyEntry.setHostMap(hostMap);
         proxyEntry.setSwitchStat(isSwitch);
@@ -740,11 +742,12 @@ public class ProxyConfigManager extends Thread {
                 httpPost.addHeader(BasicAuth.BASIC_AUTH_HEADER,
                         BasicAuth.genBasicAuthCredential(clientConfig.getAuthSecretId(),
                                 clientConfig.getAuthSecretKey()));
-                StringEntity se = getEntity(params);
-                httpPost.setEntity(se);
+                UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(params, "UTF-8");
+                httpPost.setEntity(urlEncodedFormEntity);
                 HttpResponse response = httpClient.execute(httpPost);
                 returnStr = EntityUtils.toString(response.getEntity());
-                if (Utils.isNotBlank(returnStr) && response.getStatusLine().getStatusCode() == 200) {
+                if (Utils.isNotBlank(returnStr)
+                        && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                     LOGGER.info("Get configure from manager is " + returnStr);
                     return returnStr;
                 }

@@ -80,7 +80,7 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_START_TIME = "task.fileTask.startTime";
     public static final String TASK_END_TIME = "task.fileTask.endTime";
     public static final String FILE_MAX_NUM = "task.fileTask.maxFileCount";
-    public static final String PREDEFINE_FIELDS = "task.predefineFields";
+    public static final String PREDEFINE_FIELDS = "task.predefinedFields";
 
     // Binlog job
     public static final String JOB_DATABASE_USER = "job.binlogJob.user";

@@ -46,6 +46,9 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.BOOTSTRAP_FROM_MAX;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.CONSUME_GROUP;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.KEY_FORMAT;
@@ -126,6 +129,10 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
 
         final DataType physicalDataType = context.getCatalogTable().getResolvedSchema().toPhysicalRowDataType();
 
+        String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
+        String auditHostAndPorts = tableOptions.get(INLONG_AUDIT);
+        String auditKeys = tableOptions.get(AUDIT_KEYS);
+
         return createTubeMQTableSource(
                 physicalDataType,
                 valueDecodingFormat,
@@ -134,7 +141,10 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
                 TubeMQOptions.getTiSet(tableOptions),
                 TubeMQOptions.getConsumerGroup(tableOptions),
                 TubeMQOptions.getSessionKey(tableOptions),
-                properties);
+                properties,
+                inlongMetric,
+                auditHostAndPorts,
+                auditKeys);
     }
 
     @Override
@@ -171,7 +181,10 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
             TreeSet<String> streamId,
             String consumerGroup,
             String sessionKey,
-            Configuration properties) {
+            Configuration properties,
+            String inlongMetric,
+            String auditHostAndPorts,
+            String auditKeys) {
         return new TubeMQTableSource(
                 physicalDataType,
                 valueDecodingFormat,
@@ -184,7 +197,10 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
                 null,
                 null,
                 false,
-                innerFormat);
+                innerFormat,
+                inlongMetric,
+                auditHostAndPorts,
+                auditKeys);
     }
 
     protected TubeMQTableSink createTubeMQTableSink(
@@ -225,6 +241,9 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
         options.add(SESSION_KEY);
         options.add(BOOTSTRAP_FROM_MAX);
         options.add(TOPIC_PATTERN);
+        options.add(AUDIT_KEYS);
+        options.add(INLONG_METRIC);
+        options.add(INLONG_AUDIT);
         return options;
     }
 

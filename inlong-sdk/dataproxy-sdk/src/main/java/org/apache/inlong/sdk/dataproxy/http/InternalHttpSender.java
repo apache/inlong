@@ -19,7 +19,7 @@ package org.apache.inlong.sdk.dataproxy.http;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.SendResult;
+import org.apache.inlong.sdk.dataproxy.common.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
 import org.apache.inlong.sdk.dataproxy.network.HttpMessage;
 import org.apache.inlong.sdk.dataproxy.network.Utils;

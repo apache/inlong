@@ -197,6 +197,28 @@ export default class IcebergSink
   fileFormat: string;
 
   @FieldDecorator({
+    type: 'radio',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110].includes(values?.status),
+      options: [
+        {
+          label: 'append',
+          value: 'APPEND',
+        },
+        {
+          label: 'upsert',
+          value: 'UPSERT',
+        },
+      ],
+    }),
+  })
+  @ColumnDecorator()
+  @SyncField()
+  @I18n('meta.Sinks.Iceberg.AppendMode')
+  appendMode: string;
+
+  @FieldDecorator({
     type: EditableTable,
     initialValue: [],
     props: values => ({
