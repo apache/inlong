@@ -83,6 +83,7 @@ public class ElasticsearchSink extends StreamSink {
     @ApiModelProperty("The multiple index-pattern of sink")
     private String indexPattern;
 
+    //sortstandalone
     @ApiModelProperty("indexNamePattern")
     private String indexNamePattern;
 

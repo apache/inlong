@@ -17,10 +17,12 @@
 
 package org.apache.inlong.manager.service.node.es;
 
+import com.google.common.collect.Maps;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
@@ -40,10 +42,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class ElasticsearchDataNodeOperator extends AbstractDataNodeOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchDataNodeOperator.class);
+
+    // in order to compatible with the old sortstandalone version
+    public static final String KEY_PASSWORD = "password";
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -65,6 +73,8 @@ public class ElasticsearchDataNodeOperator extends AbstractDataNodeOperator {
         try {
             ElasticsearchDataNodeDTO dto =
                     ElasticsearchDataNodeDTO.getFromRequest(esRequest, targetEntity.getExtParams());
+            dto.setHttpHosts(request.getUrl());
+            dto.setPassword(request.getToken());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

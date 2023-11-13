@@ -79,6 +79,9 @@ public class ElasticsearchDataNodeDTO {
     @ApiModelProperty("user name")
     private String username;
 
+    @ApiModelProperty("token")
+    private String token;
+
     @ApiModelProperty("password")
     private String password;
 

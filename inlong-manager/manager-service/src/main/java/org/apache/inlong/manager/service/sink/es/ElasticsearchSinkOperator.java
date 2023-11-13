@@ -32,9 +32,7 @@ import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSink;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSinkDTO;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSinkRequest;
-import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
-import org.apache.inlong.manager.service.stream.InlongStreamService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
@@ -59,8 +57,6 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
 
     @Autowired
     private ObjectMapper objectMapper;
-    @Autowired
-    private InlongStreamService inlongStreamService;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -81,14 +77,6 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
         ElasticsearchSinkRequest sinkRequest = (ElasticsearchSinkRequest) request;
         try {
             ElasticsearchSinkDTO dto = ElasticsearchSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
-
-            InlongStreamInfo stream =
-                    inlongStreamService.get(request.getInlongGroupId(), request.getInlongStreamId());
-            if (stream.getUseExtendedFields()) {
-                dto.setContentOffset(0);
-                dto.setFieldOffset(2);
-            }
-            dto.setSeparator(String.valueOf(Integer.parseInt(stream.getDataSeparator())));
 
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {

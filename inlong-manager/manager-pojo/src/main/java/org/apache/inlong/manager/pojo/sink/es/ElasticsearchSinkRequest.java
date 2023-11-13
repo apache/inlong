@@ -40,4 +40,13 @@ public class ElasticsearchSinkRequest extends SinkRequest {
     @ApiModelProperty("indexNamePattern")
     private String indexNamePattern;
 
+    @ApiModelProperty("contentOffset")
+    private Integer contentOffset;
+
+    @ApiModelProperty("fieldOffset")
+    private Integer fieldOffset;
+
+    @ApiModelProperty("separator")
+    private String separator;
+
 }
