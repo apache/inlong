@@ -45,6 +45,9 @@ public class ElasticsearchDataNodeOperator extends AbstractDataNodeOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchDataNodeOperator.class);
 
+    // in order to compatible with the old sortstandalone version
+    public static final String KEY_PASSWORD = "password";
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -65,6 +68,8 @@ public class ElasticsearchDataNodeOperator extends AbstractDataNodeOperator {
         try {
             ElasticsearchDataNodeDTO dto =
                     ElasticsearchDataNodeDTO.getFromRequest(esRequest, targetEntity.getExtParams());
+            dto.setHttpHosts(request.getUrl());
+            dto.setPassword(request.getToken());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
