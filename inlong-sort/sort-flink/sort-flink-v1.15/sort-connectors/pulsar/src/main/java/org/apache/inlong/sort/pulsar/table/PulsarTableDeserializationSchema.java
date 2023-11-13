@@ -116,7 +116,7 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
         MetricsCollector<RowData> metricsCollector =
                 new MetricsCollector<>(new ListCollector<>(valueRowData), sourceMetricData);
 
-        // reset time stamp if the deserialize schema has not inner format
+        // reset timestamp if the deserialize schema has not inner format
         if (!innerFormat) {
             metricsCollector.resetTimestamp(System.currentTimeMillis());
         }
