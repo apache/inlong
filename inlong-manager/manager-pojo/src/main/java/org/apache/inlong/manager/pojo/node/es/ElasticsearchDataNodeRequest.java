@@ -64,9 +64,6 @@ public class ElasticsearchDataNodeRequest extends DataNodeRequest {
     @ApiModelProperty("audit set name")
     private String auditSetName;
 
-    @ApiModelProperty("http hosts")
-    private String httpHosts;
-
     public ElasticsearchDataNodeRequest() {
         setType(DataNodeType.ELASTICSEARCH);
     }
