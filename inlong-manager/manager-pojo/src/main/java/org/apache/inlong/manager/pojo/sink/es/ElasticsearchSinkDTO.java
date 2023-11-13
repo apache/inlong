@@ -19,7 +19,6 @@ package org.apache.inlong.manager.pojo.sink.es;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
@@ -32,9 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-
 /**
  * Sink info of Elasticsearch
  */
@@ -44,44 +40,17 @@ import java.util.Map;
 @AllArgsConstructor
 public class ElasticsearchSinkDTO {
 
-    @ApiModelProperty("Host of the Elasticsearch server")
-    private String hosts;
+    @ApiModelProperty("indexNamePattern")
+    private String indexNamePattern;
 
-    @ApiModelProperty("Username of the Elasticsearch server")
-    private String username;
+    @ApiModelProperty("contentOffset")
+    private Integer contentOffset;
 
-    @ApiModelProperty("User password of the Elasticsearch server")
-    private String password;
+    @ApiModelProperty("fieldOffset")
+    private Integer fieldOffset;
 
-    @ApiModelProperty("Elasticsearch index name")
-    private String indexName;
-
-    @ApiModelProperty("Flush interval, unit: second, default is 1s")
-    private Integer flushInterval;
-
-    @ApiModelProperty("Flush when record number reaches flushRecord")
-    private Integer flushRecord;
-
-    @ApiModelProperty("Write max retry times, default is 3")
-    private Integer retryTimes;
-
-    @ApiModelProperty("Key field names, separate with commas")
-    private String keyFieldNames;
-
-    @ApiModelProperty("Document Type")
-    private String documentType;
-
-    @ApiModelProperty("Primary Key")
-    private String primaryKey;
-
-    @ApiModelProperty("Elasticsearch version")
-    private Integer esVersion;
-
-    @ApiModelProperty("Password encrypt version")
-    private Integer encryptVersion;
-
-    @ApiModelProperty("Properties for elasticsearch")
-    private Map<String, Object> properties;
+    @ApiModelProperty("separator")
+    private String separator;
 
     /**
      * Get the dto instance from the request
@@ -98,19 +67,11 @@ public class ElasticsearchSinkDTO {
      */
     public static ElasticsearchSinkDTO getFromJson(@NotNull String extParams) {
         try {
-            return JsonUtils.parseObject(extParams, ElasticsearchSinkDTO.class).decryptPassword();
+            return JsonUtils.parseObject(extParams, ElasticsearchSinkDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
                     String.format("parse extParams of Elasticsearch SinkDTO failure: %s", e.getMessage()));
         }
-    }
-
-    private ElasticsearchSinkDTO decryptPassword() throws Exception {
-        if (StringUtils.isNotEmpty(this.password)) {
-            byte[] passwordBytes = AESUtils.decryptAsString(this.password, this.encryptVersion);
-            this.password = new String(passwordBytes, StandardCharsets.UTF_8);
-        }
-        return this;
     }
 
 }

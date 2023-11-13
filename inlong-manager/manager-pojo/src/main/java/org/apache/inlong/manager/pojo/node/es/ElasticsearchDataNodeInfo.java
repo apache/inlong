@@ -70,6 +70,15 @@ public class ElasticsearchDataNodeInfo extends DataNodeInfo {
     @ApiModelProperty("audit set name")
     private String auditSetName;
 
+    @ApiModelProperty("http hosts")
+    private String httpHosts;
+
+    @ApiModelProperty("user name")
+    private String username;
+
+    @ApiModelProperty("password")
+    private String password;
+
     public ElasticsearchDataNodeInfo() {
         setType(DataNodeType.ELASTICSEARCH);
     }
