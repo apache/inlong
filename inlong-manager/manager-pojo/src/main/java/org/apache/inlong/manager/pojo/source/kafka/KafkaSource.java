@@ -67,7 +67,7 @@ public class KafkaSource extends StreamSource {
     private String timestampMillis;
 
     @ApiModelProperty(value = "The strategy of auto offset reset", notes = "including earliest, specific, latest (the default), none")
-    private String autoOffsetReset;
+    private String autoOffsetReset = "latest";
 
     @ApiModelProperty("database pattern used for filter in canal format")
     private String databasePattern;
