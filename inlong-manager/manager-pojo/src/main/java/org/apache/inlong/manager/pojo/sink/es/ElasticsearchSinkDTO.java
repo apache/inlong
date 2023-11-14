@@ -44,7 +44,7 @@ public class ElasticsearchSinkDTO {
     private String indexNamePattern;
 
     @ApiModelProperty("contentOffset")
-    private Integer contentOffset;
+    private Integer contentOffset = 0;
 
     @ApiModelProperty("fieldOffset")
     private Integer fieldOffset;

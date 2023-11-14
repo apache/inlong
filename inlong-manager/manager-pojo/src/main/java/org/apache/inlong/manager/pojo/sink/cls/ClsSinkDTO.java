@@ -55,6 +55,15 @@ public class ClsSinkDTO {
     @ApiModelProperty("Cloud log service index tokenizer")
     private String tokenizer;
 
+    @ApiModelProperty("contentOffset")
+    private Integer contentOffset = 0;
+
+    @ApiModelProperty("fieldOffset")
+    private Integer fieldOffset;
+
+    @ApiModelProperty("separator")
+    private String separator;
+
     /**
      * Get the dto instance from the request
      */
