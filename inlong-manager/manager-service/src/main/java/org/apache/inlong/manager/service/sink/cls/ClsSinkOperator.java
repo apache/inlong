@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
@@ -36,6 +37,7 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.cls.ClsSink;
 import org.apache.inlong.manager.pojo.sink.cls.ClsSinkDTO;
 import org.apache.inlong.manager.pojo.sink.cls.ClsSinkRequest;
+import org.apache.inlong.manager.pojo.stream.InlongStreamExtParam;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -74,6 +76,15 @@ public class ClsSinkOperator extends AbstractSinkOperator {
         ClsSinkRequest sinkRequest = (ClsSinkRequest) request;
         try {
             ClsSinkDTO dto = ClsSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
+
+            InlongStreamEntity stream = inlongStreamEntityMapper
+                    .selectByIdentifier(request.getInlongGroupId(), request.getInlongStreamId());
+            dto.setSeparator(String.valueOf((char) (Integer.parseInt(stream.getDataSeparator()))));
+
+            InlongStreamExtParam streamExt =
+                    JsonUtils.parseObject(stream.getExtParams(), InlongStreamExtParam.class);
+            dto.setFieldOffset(streamExt.getExtendedFieldSize());
+
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
@@ -116,16 +127,16 @@ public class ClsSinkOperator extends AbstractSinkOperator {
             DataNodeInfo dataNodeInfo) {
         Map<String, String> params = super.parse2IdParams(streamSink, fields, dataNodeInfo);
         ClsSinkDTO clsSinkDTO = JsonUtils.parseObject(streamSink.getExtParams(), ClsSinkDTO.class);
-        params.put(TOPIC_ID, clsSinkDTO.getTopicId());
+        params.computeIfAbsent(TOPIC_ID, k -> clsSinkDTO.getTopicId());
         ClsDataNodeInfo clsDataNodeInfo = (ClsDataNodeInfo) dataNodeInfo;
-        params.put(SECRET_ID, clsDataNodeInfo.getSendSecretId());
-        params.put(SECRET_KEY, clsDataNodeInfo.getSendSecretKey());
-        params.put(END_POINT, clsDataNodeInfo.getEndpoint());
+        params.computeIfAbsent(SECRET_ID, k -> clsDataNodeInfo.getSendSecretId());
+        params.computeIfAbsent(SECRET_KEY, k -> clsDataNodeInfo.getSendSecretKey());
+        params.computeIfAbsent(END_POINT, k -> clsDataNodeInfo.getEndpoint());
         StringBuilder fieldNames = new StringBuilder();
         for (String field : fields) {
             fieldNames.append(field).append(InlongConstants.BLANK);
         }
-        params.put(KEY_FIELDS, fieldNames.toString());
+        params.computeIfAbsent(KEY_FIELDS, k -> fieldNames.toString());
         return params;
     }
 }
