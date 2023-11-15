@@ -46,8 +46,8 @@ public class TestUtils {
 
     @Test
     public void testCalcOffset() {
-        Assert.assertTrue(NewDateUtils.calcOffset("-1h") == 3600 * 1000);
-        Assert.assertTrue(NewDateUtils.calcOffset("1D") == -24 * 3600 * 1000);
+        Assert.assertTrue(NewDateUtils.calcOffset("-1h") == -3600 * 1000);
+        Assert.assertTrue(NewDateUtils.calcOffset("1D") == 24 * 3600 * 1000);
         Assert.assertTrue(NewDateUtils.calcOffset("0") == 0);
         Assert.assertTrue(NewDateUtils.calcOffset("1") == 0);
         Assert.assertTrue(NewDateUtils.calcOffset("10") == 0);

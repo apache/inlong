@@ -18,6 +18,9 @@
  */
 
 #include "sdk_conf.h"
+#include <net/if.h>
+#include <arpa/inet.h>
+#include <sys/ioctl.h>
 #include <rapidjson/document.h>
 
 #include "../utils/capi_constant.h"
@@ -62,6 +65,7 @@ bool SdkConfig::ParseConfig(const std::string &config_path) {
   InitLogParam(doc);
   InitManagerParam(doc);
   InitTcpParam(doc);
+  InitLocalIp();
   OthersParam(doc);
   InitAuthParm(doc);
 
@@ -419,8 +423,6 @@ void SdkConfig::OthersParam(const rapidjson::Value &doc) {
   if (doc.HasMember("ser_ip") && doc["ser_ip"].IsString()) {
     const rapidjson::Value &obj = doc["ser_ip"];
     local_ip_ = obj.GetString();
-  } else {
-    local_ip_ = constants::kSerIP;
   }
   // ser_port
   if (doc.HasMember("ser_port") && doc["ser_port"].IsInt() &&
@@ -456,6 +458,26 @@ void SdkConfig::OthersParam(const rapidjson::Value &doc) {
   } else {
     extend_field_ = constants::kExtendField;
   }
+}
+
+void SdkConfig::InitLocalIp() {
+  struct sockaddr_in dest;
+  dest.sin_family = AF_INET;
+
+  int fd = socket(AF_INET, SOCK_DGRAM, 0);
+  if (fd <= 0) {
+    throw std::runtime_error(std::string("socket failed") + strerror(errno));
+  }
+
+  struct ifreq ifreq_Buf;
+  strcpy(ifreq_Buf.ifr_name, "eth1"); // just check the eth1
+  if (-1 == ioctl(fd, SIOCGIFADDR, &ifreq_Buf)) {
+    throw std::runtime_error(std::string("ioctl failed") + strerror(errno));
+  }
+
+  close(fd);
+  struct sockaddr_in *addr = (struct sockaddr_in *)&ifreq_Buf.ifr_addr;
+  local_ip_ = inet_ntoa(addr->sin_addr);
 }
 
 void SdkConfig::ShowClientConfig() {

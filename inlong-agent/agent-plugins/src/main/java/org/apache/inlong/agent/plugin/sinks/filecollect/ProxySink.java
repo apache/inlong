@@ -36,7 +36,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FIELD_SPLITTER;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_WRITER_PERMIT;
@@ -49,8 +48,8 @@ public class ProxySink extends AbstractSink {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxySink.class);
     private final int WRITE_FAILED_WAIT_TIME_MS = 10;
     private final int DESTROY_LOOP_WAIT_TIME_MS = 10;
-    private final Integer FINISH_READ_MAX_COUNT = 30;
-    private static AtomicLong index = new AtomicLong(0);
+    private final Integer NO_WRITE_WAIT_AT_LEAST_MS = 5 * 1000;
+    private final Integer SINK_FINISH_AT_LEAST_COUNT = 5;
     private static final ThreadPoolExecutor EXECUTOR_SERVICE = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE,
             1L, TimeUnit.SECONDS,
@@ -62,18 +61,17 @@ public class ProxySink extends AbstractSink {
     private volatile boolean shutdown = false;
     private volatile boolean running = false;
     private volatile boolean inited = false;
-    private volatile int readEndCount = 0;
+    private volatile long lastWriteTime = 0;
+    private volatile long checkSinkFinishCount = 0;
 
     public ProxySink() {
     }
 
     @Override
     public void write(Message message) {
-        if (message == null) {
-            return;
-        }
         boolean suc = false;
-        while (running && !suc) {
+        while (!shutdown && !suc) {
+            lastWriteTime = AgentUtils.getCurrentTime();
             suc = putInCache(message);
             if (!suc) {
                 AgentUtils.silenceSleepInMs(WRITE_FAILED_WAIT_TIME_MS);
@@ -146,7 +144,7 @@ public class ProxySink extends AbstractSink {
                 try {
                     SenderMessage senderMessage = cache.fetchSenderMessage();
                     if (senderMessage != null) {
-                        readEndCount = 0;
+                        checkSinkFinishCount = 0;
                         senderManager.sendBatch(senderMessage);
                         if (AgentUtils.getCurrentTime() - lastPrintTime > TimeUnit.SECONDS.toMillis(1)) {
                             lastPrintTime = AgentUtils.getCurrentTime();
@@ -156,8 +154,11 @@ public class ProxySink extends AbstractSink {
                                     profile.getInstanceId(),
                                     senderMessage.getDataTime());
                         }
+                    }
+                    if (noWriteLongEnough() && senderManager.sendFinished()) {
+                        checkSinkFinishCount++;
                     } else {
-                        readEndCount++;
+                        checkSinkFinishCount = 0;
                     }
                 } catch (Exception ex) {
                     LOGGER.error("error caught", ex);
@@ -211,15 +212,18 @@ public class ProxySink extends AbstractSink {
      */
     @Override
     public boolean sinkFinish() {
-        if (finishReadLog() && senderManager.sendFinished()) {
+        if (noWriteLongEnough() && sinkFinishLongEnough()) {
             return true;
         } else {
             return false;
         }
     }
 
-    public boolean finishReadLog() {
-        return readEndCount > FINISH_READ_MAX_COUNT;
+    public boolean noWriteLongEnough() {
+        return AgentUtils.getCurrentTime() - lastWriteTime > NO_WRITE_WAIT_AT_LEAST_MS;
     }
 
+    public boolean sinkFinishLongEnough() {
+        return checkSinkFinishCount > SINK_FINISH_AT_LEAST_COUNT;
+    }
 }

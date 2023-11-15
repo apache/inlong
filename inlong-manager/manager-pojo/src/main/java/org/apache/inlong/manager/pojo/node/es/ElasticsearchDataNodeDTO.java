@@ -73,6 +73,18 @@ public class ElasticsearchDataNodeDTO {
     @ApiModelProperty("audit set name")
     private String auditSetName;
 
+    @ApiModelProperty("http hosts")
+    private String httpHosts;
+
+    @ApiModelProperty("user name")
+    private String username;
+
+    @ApiModelProperty("token")
+    private String token;
+
+    @ApiModelProperty("password")
+    private String password;
+
     /**
      * Get the dto instance from the request
      */

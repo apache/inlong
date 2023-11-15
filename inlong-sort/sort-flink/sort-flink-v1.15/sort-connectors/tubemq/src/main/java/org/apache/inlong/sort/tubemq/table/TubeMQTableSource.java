@@ -18,8 +18,9 @@
 package org.apache.inlong.sort.tubemq.table;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.tubemq.FlinkTubeMQConsumer;
-import org.apache.inlong.sort.tubemq.table.DynamicTubeMQDeserializationSchema.MetadataConverter;
+import org.apache.inlong.sort.tubemq.table.DynamicTubeMQTableDeserializationSchema.MetadataConverter;
 import org.apache.inlong.tubemq.corebase.Message;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -322,8 +323,9 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
                 .withAuditKeys(auditKeys)
                 .build();
 
-        final DeserializationSchema<RowData> tubeMQDeserializer = new DynamicTubeMQDeserializationSchema(
-                deserialization, metadataConverters, producedTypeInfo, ignoreErrors, metricOption);
+        final DynamicTubeMQDeserializationSchema<RowData> tubeMQDeserializer =
+                new DynamicTubeMQTableDeserializationSchema(
+                        deserialization, metadataConverters, producedTypeInfo, ignoreErrors, innerFormat, metricOption);
 
         final FlinkTubeMQConsumer<RowData> tubeMQConsumer = new FlinkTubeMQConsumer(masterAddress, topic, streamIdSet,
                 consumerGroup, tubeMQDeserializer, configuration, sessionKey, innerFormat);
@@ -335,6 +337,11 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
     // --------------------------------------------------------------------------------------------
 
     enum ReadableMetadata {
+
+        CONSUME_TIME(
+                ExtractNode.CONSUME_AUDIT_TIME,
+                DataTypes.BIGINT().notNull(),
+                m -> System.currentTimeMillis()),
 
         TOPIC(
                 "topic",
