@@ -22,6 +22,7 @@ import org.apache.inlong.agent.plugin.utils.file.FilePathUtil;
 import org.apache.inlong.agent.plugin.utils.file.NewDateUtils;
 import org.apache.inlong.agent.plugin.utils.file.NonRegexPatternPosition;
 import org.apache.inlong.agent.plugin.utils.file.PathDateExpression;
+import org.apache.inlong.agent.utils.DateTransUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -273,7 +274,7 @@ public class WatchEntity {
         logger.info("removeUselessWatchDirectories {}", curDataTime);
 
         /* Calculate the data time which is 3 cycle units earlier than current task data time. */
-        long curDataTimeMillis = NewDateUtils.timeStrConvertTomillSec(curDataTime, cycleUnit);
+        long curDataTimeMillis = DateTransUtils.timeStrConvertTomillSec(curDataTime, cycleUnit);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(curDataTimeMillis);
         if ("D".equalsIgnoreCase(cycleUnit)) {
