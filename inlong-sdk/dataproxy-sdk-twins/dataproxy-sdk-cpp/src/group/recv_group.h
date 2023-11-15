@@ -38,11 +38,8 @@ private:
   uint32_t cur_len_;
   AtomicInt pack_err_;
   uint64_t data_time_;
-//  std::string inlong_group_id_;
-//  std::string inlong_stream_id_;
   uint16_t groupId_num_;
   uint16_t streamId_num_;
- // std::string topic_desc_;
   uint32_t msg_type_;
   mutable std::mutex mutex_;
 
