@@ -160,16 +160,15 @@ public class InstanceManager extends AbstractDaemon {
 
     private void printInstanceDetail() {
         if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_TIME) {
-            LOGGER.info("instanceManager coreThread running! taskId {} action count {}", taskId,
-                    actionQueue.size());
             List<InstanceProfile> instances = instanceDb.getInstances(taskId);
             InstancePrintStat stat = new InstancePrintStat();
             for (int i = 0; i < instances.size(); i++) {
                 InstanceProfile instance = instances.get(i);
                 stat.stat(instance.getState());
             }
-            LOGGER.info("instanceManager coreThread running! taskId {} memory total {} db total {} db detail {} ",
-                    taskId, instanceMap.size(), instances.size(), stat);
+            LOGGER.info(
+                    "instanceManager running! taskId {} mem {} db total {} {} action count {}",
+                    taskId, instanceMap.size(), instances.size(), stat, actionQueue.size());
             lastPrintTime = AgentUtils.getCurrentTime();
         }
     }

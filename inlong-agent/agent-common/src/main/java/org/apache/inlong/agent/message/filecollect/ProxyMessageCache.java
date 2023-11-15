@@ -21,11 +21,13 @@ import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.message.ProxyMessage;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.common.msg.AttributeConstants;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +42,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_PAC
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_SIZE;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_TIMEOUT_MS;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_CYCLE_UNIT;
 
 /**
  * Handle List of Proxy Message, which belong to the same stream id.
@@ -62,6 +65,7 @@ public class ProxyMessageCache {
     private final AtomicLong cacheSize = new AtomicLong(0);
     private Long packageIndex = 0L;
     private long lastPrintTime = 0;
+    private long dataTime;
     /**
      * extra map used when sending to dataproxy
      */
@@ -78,6 +82,12 @@ public class ProxyMessageCache {
         this.groupId = groupId;
         this.streamId = streamId;
         this.inodeInfo = instanceProfile.get(TaskConstants.INODE_INFO);
+        try {
+            dataTime = DateTransUtils.timeStrConvertTomillSec(instanceProfile.getDataTime(),
+                    instanceProfile.get(TASK_CYCLE_UNIT));
+        } catch (ParseException e) {
+            LOGGER.info("trans dataTime error", e);
+        }
         extraMap.put(AttributeConstants.MESSAGE_SYNC_SEND, "false");
         extraMap.putAll(AgentUtils.parseAddAttrToMap(instanceProfile.getPredefineFields()));
     }
@@ -163,7 +173,7 @@ public class ProxyMessageCache {
         if (!bodyList.isEmpty()) {
             PackageAckInfo ackInfo = new PackageAckInfo(packageIndex, packageOffset, resultBatchSize, false);
             SenderMessage senderMessage = new SenderMessage(taskId, instanceId, groupId, streamId, bodyList,
-                    AgentUtils.getCurrentTime(), extraMap, ackInfo);
+                    dataTime, extraMap, ackInfo);
             packageIndex++;
             return senderMessage;
         }

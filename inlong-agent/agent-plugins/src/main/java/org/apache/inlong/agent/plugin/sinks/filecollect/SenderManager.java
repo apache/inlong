@@ -331,11 +331,11 @@ public class SenderManager {
     }
 
     private void asyncSendByMessageSender(SendMessageCallback cb,
-            List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
+            List<byte[]> bodyList, String groupId, String streamId, long dataTime, String msgUUID,
             long timeout, TimeUnit timeUnit,
             Map<String, String> extraAttrMap, boolean isProxySend) throws ProxysdkException {
         sender.asyncSendMessage(cb, bodyList, groupId,
-                streamId, dt, msgUUID,
+                streamId, dataTime, msgUUID,
                 timeout, timeUnit, extraAttrMap, isProxySend);
     }
 
@@ -428,7 +428,7 @@ public class SenderManager {
                 message.getAckInfo().setHasAck(true);
                 getMetricItem(groupId, streamId).pluginSendSuccessCount.addAndGet(msgCnt);
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId,
-                        System.currentTimeMillis(), message.getMsgCnt(), message.getTotalSize());
+                        dataTime, message.getMsgCnt(), message.getTotalSize());
             } else {
                 LOGGER.warn("send groupId {}, streamId {}, taskId {}, instanceId {}, dataTime {} fail with times {}, "
                         + "error {}", groupId, streamId, taskId, instanceId, dataTime, retry, result);

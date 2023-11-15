@@ -44,7 +44,6 @@ public class DateTransUtils {
     public static long timeStrConvertTomillSec(String time, String cycleUnit, TimeZone timeZone)
             throws ParseException {
         long retTime = 0;
-        // SimpleDateFormat df=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         SimpleDateFormat df = null;
         if (cycleUnit.equals("Y") && time.length() == 4) {
             df = new SimpleDateFormat("yyyy");
