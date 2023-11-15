@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.source.kafka;
 
 import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.enums.KafkaOffset;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
@@ -67,7 +68,7 @@ public class KafkaSource extends StreamSource {
     private String timestampMillis;
 
     @ApiModelProperty(value = "The strategy of auto offset reset", notes = "including earliest, specific, latest (the default), none")
-    private String autoOffsetReset = "latest";
+    private KafkaOffset autoOffsetReset = KafkaOffset.LATEST;
 
     @ApiModelProperty("database pattern used for filter in canal format")
     private String databasePattern;

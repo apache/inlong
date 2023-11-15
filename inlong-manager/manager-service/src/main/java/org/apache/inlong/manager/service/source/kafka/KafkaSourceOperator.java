@@ -30,7 +30,7 @@ import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
-import org.apache.inlong.manager.pojo.source.kafka.KafkaOffset;
+import org.apache.inlong.manager.common.enums.KafkaOffset;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSourceDTO;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSourceRequest;
@@ -154,7 +154,7 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
 
             kafkaSource.setWrapType(streamInfo.getWrapType());
 
-            kafkaSource.setAutoOffsetReset(KafkaOffset.EARLIEST.getName());
+            kafkaSource.setAutoOffsetReset(KafkaOffset.EARLIEST);
             kafkaSource.setFieldList(streamInfo.getFieldList());
             sourceMap.computeIfAbsent(streamId, key -> Lists.newArrayList()).add(kafkaSource);
         });

@@ -22,7 +22,7 @@ import org.apache.inlong.manager.common.consts.StreamType;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
-import org.apache.inlong.manager.pojo.source.kafka.KafkaOffset;
+import org.apache.inlong.manager.common.enums.KafkaOffset;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
@@ -119,12 +119,11 @@ public class KafkaProvider implements ExtractNodeProvider, LoadNodeProvider {
     /**
      * parse Startup Mode
      *
-     * @param autoOffsetReset The strategy of auto offset reset, including earliest, specific, latest (the
+     * @param kafkaOffset The strategy of auto offset reset, including earliest, specific, latest (the
      *         default), none
      * @return kafka scan startup mode
      */
-    private KafkaScanStartupMode parseStartupMode(String autoOffsetReset) {
-        KafkaOffset kafkaOffset = KafkaOffset.forName(autoOffsetReset);
+    private KafkaScanStartupMode parseStartupMode(KafkaOffset kafkaOffset) {
         KafkaScanStartupMode startupMode;
         switch (kafkaOffset) {
             case EARLIEST:
