@@ -37,7 +37,7 @@ include_directories(src/client)
 link_directories(${PROJECT_SOURCE_DIR}/third_party/lib)
 link_directories(${PROJECT_SOURCE_DIR}/third_party/lib64)
 
-add_subdirectory(third_party)
+#add_subdirectory(third_party)
 add_subdirectory(src/utils)
 add_subdirectory(src/config)
 add_subdirectory(src/core)

@@ -87,7 +87,7 @@ public:
   void doUserCallBack() {
     for (auto it : user_msg_vector_) {
       if (it->cb_) {
-        it->cb_(inlong_group_id_.data(), inlong_stream_id_.data(),
+        it->cb_(it->inlong_group_id_.data(), it->inlong_stream_id_.data(),
                 it->msg_.data(), it->msg_.size(), it->user_report_time_,
                 it->user_client_ip_.data());
       }
