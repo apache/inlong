@@ -34,6 +34,7 @@ import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
 import org.apache.inlong.agent.plugin.sources.reader.file.KubernetesMetadataProvider;
 import org.apache.inlong.agent.plugin.utils.file.FileDataUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.DateTransUtils;
 
 import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
@@ -80,6 +81,7 @@ import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_HOST_N
 import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_SOURCE_IP;
 import static org.apache.inlong.agent.constant.TaskConstants.JOB_FILE_META_ENV_LIST;
 import static org.apache.inlong.agent.constant.TaskConstants.OFFSET;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_CYCLE_UNIT;
 
 /**
  * Read text files
@@ -106,9 +108,9 @@ public class LogFileSource extends AbstractSource {
     private final Integer CORE_THREAD_PRINT_INTERVAL_MS = 1000;
     private final Integer CACHE_QUEUE_SIZE = 10 * BATCH_READ_LINE_COUNT;
     private final Integer SIZE_OF_BUFFER_TO_READ_FILE = 64 * 1024;
-    private final Integer FINISH_READ_MAX_COUNT = 30;
+    private final Integer EMPTY_CHECK_COUNT_AT_LEAST = 30;
     private final Long INODE_UPDATE_INTERVAL_MS = 1000L;
-    private final Integer READ_WAIT_TIMEOUT_MS = 1000;
+    private final Integer READ_WAIT_TIMEOUT_MS = 10;
     private final SimpleDateFormat RECORD_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     public InstanceProfile profile;
     private String taskId;
@@ -125,11 +127,12 @@ public class LogFileSource extends AbstractSource {
     private BlockingQueue<SourceData> queue;
     private final Gson GSON = new Gson();
     private volatile boolean runnable = true;
-    private volatile int readEndCount = 0;
     private volatile boolean fileExist = true;
     private String inodeInfo;
     private volatile long lastInodeUpdateTime = 0;
     private volatile boolean running = false;
+    private long dataTime = 0;
+    private volatile long emptyCount = 0;
 
     public LogFileSource() {
         OffsetManager.init();
@@ -153,6 +156,8 @@ public class LogFileSource extends AbstractSource {
             linePosition = getInitLineOffset(isIncrement, taskId, instanceId, inodeInfo);
             bytePosition = getBytePositionByLine(linePosition);
             queue = new LinkedBlockingQueue<>(CACHE_QUEUE_SIZE);
+            dataTime = DateTransUtils.timeStrConvertTomillSec(profile.getDataTime(),
+                    profile.get(TASK_CYCLE_UNIT));
             try {
                 registerMeta(profile);
             } catch (Exception ex) {
@@ -249,7 +254,7 @@ public class LogFileSource extends AbstractSource {
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("getBytePositionByLine error {}", e.getStackTrace());
+            LOGGER.error("getBytePositionByLine error: ", e);
         } finally {
             if (input != null) {
                 input.close();
@@ -344,7 +349,7 @@ public class LogFileSource extends AbstractSource {
     private Message createMessage(SourceData sourceData) {
         String msgWithMetaData = fillMetaData(sourceData.data);
         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
-                System.currentTimeMillis(), 1, msgWithMetaData.length());
+                dataTime, 1, msgWithMetaData.length());
         String proxyPartitionKey = profile.get(PROXY_SEND_PARTITION_KEY, DigestUtils.md5Hex(inlongGroupId));
         Map<String, String> header = new HashMap<>();
         header.put(PROXY_KEY_DATA, proxyPartitionKey);
@@ -429,6 +434,17 @@ public class LogFileSource extends AbstractSource {
                 } catch (IOException e) {
                     LOGGER.error("readFromPos error {}", e.getMessage());
                 }
+                MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
+                if (lines.isEmpty()) {
+                    if (queue.isEmpty()) {
+                        emptyCount++;
+                    } else {
+                        emptyCount = 0;
+                    }
+                    AgentUtils.silenceSleepInSeconds(1);
+                    continue;
+                }
+                emptyCount = 0;
                 for (int i = 0; i < lines.size(); i++) {
                     boolean suc4Queue = waitForPermit(AGENT_GLOBAL_READER_QUEUE_PERMIT, lines.get(i).data.length());
                     if (!suc4Queue) {
@@ -436,17 +452,10 @@ public class LogFileSource extends AbstractSource {
                     }
                     putIntoQueue(lines.get(i));
                 }
-                MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
-                if (lines.isEmpty()) {
-                    readEndCount++;
-                    AgentUtils.silenceSleepInSeconds(1);
-                } else {
-                    readEndCount = 0;
-                    if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_INTERVAL_MS) {
-                        lastPrintTime = AgentUtils.getCurrentTime();
-                        LOGGER.info("path is {}, linePosition {}, bytePosition is {} file len {}, reads lines size {}",
-                                file.getName(), linePosition, bytePosition, file.length(), lines.size());
-                    }
+                if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_INTERVAL_MS) {
+                    lastPrintTime = AgentUtils.getCurrentTime();
+                    LOGGER.info("path is {}, linePosition {}, bytePosition is {} file len {}, reads lines size {}",
+                            file.getName(), linePosition, bytePosition, file.length(), lines.size());
                 }
             }
             running = false;
@@ -530,15 +539,7 @@ public class LogFileSource extends AbstractSource {
 
     @Override
     public boolean sourceFinish() {
-        if (finishReadLog() && queue.isEmpty()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean finishReadLog() {
-        return readEndCount > FINISH_READ_MAX_COUNT;
+        return emptyCount > EMPTY_CHECK_COUNT_AT_LEAST;
     }
 
     @Override
