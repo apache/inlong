@@ -51,6 +51,9 @@ public class InlongStreamExtParam implements Serializable {
     @ApiModelProperty(value = "Predefined fields")
     private String predefinedFields;
 
+    @ApiModelProperty(value = "Extended field size")
+    private Integer extendedFieldSize = 0;
+
     /**
      * Pack extended attributes into ExtParams
      *
