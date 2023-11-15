@@ -36,12 +36,18 @@ struct SdkMsg {
   std::string user_client_ip_;
 
   std::string data_pack_format_attr_;
+
+  std::string inlong_group_id_;
+  std::string inlong_stream_id_;
+
   SdkMsg(const std::string &mmsg, const std::string &mclient_ip,
          int64_t mreport_time, UserCallBack mcb, const std::string &attr,
-         const std::string &u_ip, int64_t u_time)
+         const std::string &u_ip, int64_t u_time,const std::string& inlong_group_id,const std::string& inlong_stream_id)
       : msg_(mmsg), client_ip_(mclient_ip), report_time_(mreport_time),
         cb_(mcb), user_report_time_(u_time), user_client_ip_(u_ip),
-        data_pack_format_attr_(attr) {}
+        data_pack_format_attr_(attr),
+        inlong_group_id_(inlong_group_id),
+        inlong_stream_id_(inlong_stream_id){}
 };
 using SdkMsgPtr = std::shared_ptr<SdkMsg>;
 

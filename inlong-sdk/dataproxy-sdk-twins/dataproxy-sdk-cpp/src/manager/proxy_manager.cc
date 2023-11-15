@@ -295,7 +295,7 @@ int32_t ProxyManager::GetProxyByClusterId(const std::string &cluster_id,
   proxy_info_vec = it->second;
   return SdkCode::kSuccess;
 }
-std::string ProxyManager::GetSendGroupKey(const std::string &groupid) {
+std::string ProxyManager::GetGroupKey(const std::string &groupid) {
   if (SdkConfig::getInstance()->enable_isolation_) {
     return groupid;
   }
