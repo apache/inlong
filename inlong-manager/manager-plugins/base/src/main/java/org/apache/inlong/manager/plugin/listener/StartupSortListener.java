@@ -106,8 +106,8 @@ public class StartupSortListener implements SortOperateListener {
             log.info("stream ext info: {}", extList);
             Map<String, String> kvConf = extList.stream().filter(v -> StringUtils.isNotEmpty(v.getKeyName())
                     && StringUtils.isNotEmpty(v.getKeyValue())).collect(Collectors.toMap(
-                    InlongStreamExtInfo::getKeyName,
-                    InlongStreamExtInfo::getKeyValue));
+                            InlongStreamExtInfo::getKeyName,
+                            InlongStreamExtInfo::getKeyValue));
 
             String sortExt = kvConf.get(InlongConstants.SORT_PROPERTIES);
             if (StringUtils.isNotEmpty(sortExt)) {
