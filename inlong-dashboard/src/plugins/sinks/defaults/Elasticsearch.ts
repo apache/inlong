@@ -69,104 +69,61 @@ export default class ElasticsearchSink
     rules: [{ required: true }],
     props: values => ({
       disabled: [110].includes(values?.status),
+      onChange: value => {
+        if (values.indexNamePattern !== undefined) {
+          const pattern = values.indexNamePattern.split('_');
+          return {
+            indexNamePattern: `${value.target.value}_${pattern[1]}`,
+          };
+        }
+      },
     }),
+    suffix: {
+      type: 'text',
+      name: 'indexNamePattern',
+      rules: [{ required: true }],
+    },
   })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.ES.IndexName')
-  @SyncField()
-  indexName: string;
+  @I18n('meta.Sinks.ES.Index')
+  index: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: 'select',
     rules: [{ required: true }],
-    tooltip: i18n.t('meta.Sinks.ES.PrimaryKeyHelp'),
-    props: values => ({
-      disabled: [110].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @SyncField()
-  @I18n('meta.Sinks.ES.PrimaryKey')
-  primaryKey: string;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: [110].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @SyncField()
-  @I18n('meta.Sinks.ES.DocumentType')
-  documentType: string;
-
-  @FieldDecorator({
-    type: 'radio',
-    rules: [{ required: true }],
-    initialValue: 1,
-    tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
+    visible: values => values.index !== undefined || values.indexNamePattern !== undefined,
     props: values => ({
       disabled: [110].includes(values?.status),
       options: [
         {
-          label: i18n.t('basic.Yes'),
-          value: 1,
+          label: i18n.t('meta.Sinks.ES.Cycle.Day'),
+          value: '_{yyyyMMdd}',
         },
         {
-          label: i18n.t('basic.No'),
-          value: 0,
+          label: i18n.t('meta.Sinks.ES.Cycle.Hour'),
+          value: '_{yyyyMMddHH}',
+        },
+        {
+          label: i18n.t('meta.Sinks.ES.Cycle.Minute'),
+          value: '_{yyyyMMddHHmm}',
         },
       ],
-    }),
-  })
-  @I18n('meta.Sinks.EnableCreateResource')
-  @SyncField()
-  enableCreateResource: number;
-
-  @FieldDecorator({
-    type: 'inputnumber',
-    initialValue: 1000,
-    rules: [{ required: true }],
-    suffix: i18n.t('meta.Sinks.ES.FlushRecordUnit'),
-    props: values => ({
-      min: 1,
-      disabled: [110].includes(values?.status),
+      onChange: (value, option) => {
+        if (values.indexNamePattern !== undefined) {
+          const pattern = values.indexNamePattern.split('_');
+          return {
+            indexNamePattern: `${pattern[0]}${value}`,
+          };
+        }
+        return {
+          indexNamePattern: `${values.index}${value}`,
+        };
+      },
     }),
   })
   @ColumnDecorator()
+  @I18n('meta.Sinks.ES.Cycle')
   @SyncField()
-  @I18n('meta.Sinks.ES.FlushRecord')
-  flushRecord: number;
-
-  @FieldDecorator({
-    type: 'inputnumber',
-    initialValue: 3,
-    rules: [{ required: true }],
-    suffix: i18n.t('meta.Sinks.ES.RetryTimesUnit'),
-    props: values => ({
-      min: 1,
-      disabled: [110].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @SyncField()
-  @I18n('meta.Sinks.ES.RetryTimes')
-  retryTime: number;
-
-  @FieldDecorator({
-    type: 'inputnumber',
-    rules: [{ required: true }],
-    tooltip: i18n.t('meta.Sinks.ES.EsVersionHelp'),
-    props: values => ({
-      min: 1,
-      disabled: [110].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @SyncField()
-  @I18n('meta.Sinks.ES.EsVersion')
-  esVersion: number;
+  cycle: string;
 
   @FieldDecorator({
     type: EditableTable,
@@ -185,7 +142,7 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `Elasticsearch${i18n.t('meta.Sinks.ES.FieldName')}`,
+      title: `Elasticsearch ${i18n.t('meta.Sinks.ES.FieldName')}`,
       dataIndex: 'fieldName',
       rules: [
         { required: true },
@@ -199,7 +156,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `Elasticsearch${i18n.t('meta.Sinks.ES.FieldType')}`,
+      title: `Elasticsearch ${i18n.t('meta.Sinks.ES.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: esTypes[0].value,
       type: 'select',
@@ -219,7 +176,7 @@ const getFieldListColumns = sinkValues => {
       visible: (text, record) => record.fieldType === 'text',
     },
     {
-      title: 'SearchAnalyzer',
+      title: 'Search analyzer',
       dataIndex: 'searchAnalyzer',
       props: (text, record, idx, isNew) => ({
         disabled: [110].includes(sinkValues?.status as number) && !isNew,
@@ -235,7 +192,7 @@ const getFieldListColumns = sinkValues => {
       visible: (text, record) => record.fieldType === 'date',
     },
     {
-      title: 'ScalingFactor',
+      title: 'Scaling factor',
       dataIndex: 'scalingFactor',
       props: (text, record, idx, isNew) => ({
         disabled: [110].includes(sinkValues?.status as number) && !isNew,

@@ -73,6 +73,11 @@ const Comp: React.FC<DetailModalProps> = ({
       formatResult: result => new Entity()?.parse(result) || result,
       onSuccess: result => {
         setSinkType(result.sinkType);
+        if (result.indexNamePattern !== undefined) {
+          const pattern = result?.indexNamePattern.split('_');
+          form.setFieldValue('index', pattern[0]);
+          form.setFieldValue('cycle', `_${pattern[1]}`);
+        }
         form.setFieldsValue(result);
       },
     },
