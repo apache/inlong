@@ -156,7 +156,7 @@ public class LogFileSource extends AbstractSource {
             linePosition = getInitLineOffset(isIncrement, taskId, instanceId, inodeInfo);
             bytePosition = getBytePositionByLine(linePosition);
             queue = new LinkedBlockingQueue<>(CACHE_QUEUE_SIZE);
-            dataTime = DateTransUtils.timeStrConvertTomillSec(profile.getDataTime(),
+            dataTime = DateTransUtils.timeStrConvertTomillSec(profile.getSourceDataTime(),
                     profile.get(TASK_CYCLE_UNIT));
             try {
                 registerMeta(profile);
