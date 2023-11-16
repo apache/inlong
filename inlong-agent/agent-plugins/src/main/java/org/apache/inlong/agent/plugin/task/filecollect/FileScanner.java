@@ -22,6 +22,7 @@ import org.apache.inlong.agent.plugin.utils.file.FilePathUtil;
 import org.apache.inlong.agent.plugin.utils.file.FileTimeComparator;
 import org.apache.inlong.agent.plugin.utils.file.Files;
 import org.apache.inlong.agent.plugin.utils.file.NewDateUtils;
+import org.apache.inlong.agent.utils.DateTransUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,20 +58,19 @@ public class FileScanner {
 
     private static final Logger logger = LoggerFactory.getLogger(FileScanner.class);
 
-    public static List<BasicFileInfo> scanTaskBetweenTimes(TaskProfile conf, String originPattern, long failTime,
-            long recoverTime, boolean isRetry) {
+    public static List<BasicFileInfo> scanTaskBetweenTimes(TaskProfile conf, String originPattern, long startTime,
+            long endTime, boolean isRetry) {
         String cycleUnit = conf.getCycleUnit();
         if (!isRetry) {
-            failTime -= NewDateUtils.calcOffset(conf.getTimeOffset());
-            recoverTime -= NewDateUtils.calcOffset(conf.getTimeOffset());
+            startTime += NewDateUtils.calcOffset(conf.getTimeOffset());
+            endTime += NewDateUtils.calcOffset(conf.getTimeOffset());
         }
-
-        String startTime = NewDateUtils.millSecConvertToTimeStr(failTime, cycleUnit);
-        String endTime = NewDateUtils.millSecConvertToTimeStr(recoverTime, cycleUnit);
+        String strStartTime = DateTransUtils.millSecConvertToTimeStr(startTime, cycleUnit);
+        String strEndTime = DateTransUtils.millSecConvertToTimeStr(endTime, cycleUnit);
         logger.info("task {} this scan time is between {} and {}.",
-                new Object[]{conf.getTaskId(), startTime, endTime});
+                new Object[]{conf.getTaskId(), strStartTime, strEndTime});
 
-        return scanTaskBetweenTimes(conf.getCycleUnit(), originPattern, startTime, endTime);
+        return scanTaskBetweenTimes(conf.getCycleUnit(), originPattern, strStartTime, strEndTime);
     }
 
     /* Scan log files and create tasks between two times. */
@@ -89,10 +89,10 @@ public class FileScanner {
                     DEFAULT_FILE_MAX_NUM);
             for (String file : fileList) {
                 // TODO the time is not YYYYMMDDHH
-                String dataTime = NewDateUtils.millSecConvertToTimeStr(time, cycleUnit);
+                String dataTime = DateTransUtils.millSecConvertToTimeStr(time, cycleUnit);
                 BasicFileInfo info = new BasicFileInfo(file, dataTime);
                 logger.info("scan new task fileName {} ,dataTime {}", file,
-                        NewDateUtils.millSecConvertToTimeStr(time, cycleUnit));
+                        DateTransUtils.millSecConvertToTimeStr(time, cycleUnit));
                 infos.add(info);
             }
         }

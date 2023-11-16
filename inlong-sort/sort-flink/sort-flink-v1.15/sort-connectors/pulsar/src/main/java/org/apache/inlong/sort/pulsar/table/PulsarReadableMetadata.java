@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import org.apache.inlong.sort.protocol.node.ExtractNode;
+
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.data.GenericMapData;
 import org.apache.flink.table.data.GenericRowData;
@@ -114,6 +116,11 @@ public class PulsarReadableMetadata implements Serializable {
                 "event_time",
                 DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).notNull(),
                 message -> TimestampData.fromEpochMillis(message.getEventTime())),
+
+        CONSUME_TIME(
+                ExtractNode.CONSUME_AUDIT_TIME,
+                DataTypes.BIGINT().notNull(),
+                message -> System.currentTimeMillis()),
 
         PROPERTIES(
                 "properties",

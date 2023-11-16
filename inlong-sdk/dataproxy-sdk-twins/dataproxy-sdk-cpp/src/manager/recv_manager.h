@@ -52,7 +52,7 @@ public:
   RecvManager(std::shared_ptr<SendManager> send_manager);
   ~RecvManager();
   void DispatchData(std::error_code error);
-  RecvGroupPtr GetRecvGroup(const std::string &bid, const std::string &tid);
+  RecvGroupPtr GetRecvGroup(const std::string &bid);
 };
 } // namespace inlong
 

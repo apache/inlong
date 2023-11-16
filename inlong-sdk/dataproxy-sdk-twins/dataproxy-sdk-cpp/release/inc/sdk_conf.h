@@ -40,8 +40,9 @@ private:
   void InitTcpParam(const rapidjson::Value &doc);
   void InitAuthParm(const rapidjson::Value &doc);
   void OthersParam(const rapidjson::Value &doc);
+  void InitLocalIp();
 
-public:
+      public:
   // cache parameter
   std::vector<std::string>
       inlong_group_ids_;   // Initialize the inlong groupid collection

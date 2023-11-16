@@ -124,6 +124,9 @@ public class InlongStreamRequest extends BaseInlongStream {
     @ApiModelProperty(value = "If use extended fields")
     private Boolean useExtendedFields = false;
 
+    @ApiModelProperty(value = "Extended field size")
+    private Integer extendedFieldSize = 0;
+
     @ApiModelProperty(value = "The message body  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, PB, etc")
     private String wrapType;
 
