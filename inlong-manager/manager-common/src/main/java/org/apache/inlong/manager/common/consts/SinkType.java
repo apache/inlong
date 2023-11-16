@@ -17,6 +17,11 @@
 
 package org.apache.inlong.manager.common.consts;
 
+import com.google.common.collect.Sets;
+
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Constants of sink type.
  */
@@ -39,4 +44,14 @@ public class SinkType extends StreamType {
      * Details: <a href="https://www.tencentcloud.com/products/cls">CLS</a>
      */
     public static final String CLS = "CLS";
+
+    public static final Set<String> SORT_FLINK_SINK = new HashSet<>();
+    public static final Set<String> SORT_STANDALONE_SINK = new HashSet<>();
+
+    static {
+        SORT_FLINK_SINK.addAll(
+                Sets.newHashSet(HIVE, CLICKHOUSE, HBASE, HDFS, GREENPLUM, MYSQL, TDSQLPOSTGRESQL, DORIS,
+                        STARROCKS, KUDU, REDIS, KAFKA, HUDI, POSTGRESQL, SQLSERVER, ORACLE, ICEBERG));
+        SORT_STANDALONE_SINK.addAll(Sets.newHashSet(CLS, ELASTICSEARCH, PULSAR));
+    }
 }

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.listener.sort;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.TaskEvent;
@@ -41,8 +42,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Event listener of build the Sort config for one inlong stream,
@@ -85,6 +86,17 @@ public class StreamSortConfigListener implements SortOperateListener {
         InlongStreamInfo streamInfo = form.getStreamInfo();
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
+        // Read the current information
+        InlongGroupInfo groupInfo = groupService.get(groupId);
+        if (groupInfo == null) {
+            String msg = "inlong group not found with groupId=" + groupId;
+            LOGGER.error(msg);
+            throw new WorkflowListenerException(msg);
+        }
+        form.setGroupInfo(groupInfo);
+        form.setStreamInfo(streamService.get(groupId, streamId));
+        groupInfo = form.getGroupInfo();
+        streamInfo = form.getStreamInfo();
         LOGGER.info("begin to build sort config for groupId={}, streamId={}", groupId, streamId);
 
         GroupOperateType operateType = form.getGroupOperateType();
@@ -94,7 +106,6 @@ public class StreamSortConfigListener implements SortOperateListener {
             return ListenerResult.success();
         }
 
-        InlongGroupInfo groupInfo = groupService.get(groupId);
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
         Preconditions.expectTrue(GroupStatus.CONFIG_FAILED != groupStatus,
                 String.format("group status=%s not support start stream for groupId=%s", groupStatus, groupId));
@@ -103,17 +114,19 @@ public class StreamSortConfigListener implements SortOperateListener {
             LOGGER.warn("not build sort config for groupId={}, streamId={}, as not found any sinks", groupId, streamId);
             return ListenerResult.success();
         }
-        // Read the current information
-        form.setGroupInfo(groupInfo);
-        form.setStreamInfo(streamService.get(groupId, streamId));
 
-        List<InlongStreamInfo> streamInfos = Collections.singletonList(streamInfo);
         try {
-            SortConfigOperator operator = operatorFactory.getInstance(groupInfo.getEnableZookeeper());
-            operator.buildConfig(groupInfo, streamInfos, true);
+
+            List<String> sinkTypeList = streamSinks.stream().map(StreamSink::getSinkType).collect(Collectors.toList());
+            List<SortConfigOperator> operatorList = operatorFactory.getInstance(sinkTypeList);
+            for (SortConfigOperator operator : operatorList) {
+                operator.buildConfig(groupInfo, streamInfo,
+                        InlongConstants.SYNC_SEND.equals(groupInfo.getInlongGroupMode()));
+            }
+
         } catch (Exception e) {
             String msg = String.format("failed to build sort config for groupId=%s, streamId=%s, ", groupId, streamId);
-            LOGGER.error(msg + "streamInfos=" + streamInfos, e);
+            LOGGER.error(msg + "streamInfo=" + streamInfo, e);
             throw new WorkflowListenerException(msg + e.getMessage());
         }
 

@@ -29,9 +29,11 @@ import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongStreamExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
@@ -106,6 +108,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     private InlongStreamService streamService;
     @Autowired
     private StreamSourceEntityMapper streamSourceMapper;
+    @Autowired
+    private InlongStreamExtEntityMapper streamExtMapper;
     @Autowired
     private InlongClusterService clusterService;
 
@@ -211,7 +215,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         List<InlongGroupExtEntity> extEntityList = groupExtMapper.selectByGroupId(groupId);
         List<InlongGroupExtInfo> extList = CommonBeanUtils.copyListProperties(extEntityList, InlongGroupExtInfo::new);
         groupInfo.setExtList(extList);
-        BaseSortConf sortConf = buildSortConfig(extList);
+        List<InlongStreamExtEntity> streamExtEntities = streamExtMapper.selectByRelatedId(groupId, null);
+        BaseSortConf sortConf = buildSortConfig(streamExtEntities);
         groupInfo.setSortConf(sortConf);
 
         LOGGER.debug("success to get inlong group for groupId={}", groupId);
@@ -232,7 +237,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         List<InlongGroupExtEntity> extEntityList = groupExtMapper.selectByGroupId(groupId);
         List<InlongGroupExtInfo> extList = CommonBeanUtils.copyListProperties(extEntityList, InlongGroupExtInfo::new);
         groupInfo.setExtList(extList);
-        BaseSortConf sortConf = buildSortConfig(extList);
+        List<InlongStreamExtEntity> streamExtEntities = streamExtMapper.selectByRelatedId(groupId, null);
+        BaseSortConf sortConf = buildSortConfig(streamExtEntities);
         groupInfo.setSortConf(sortConf);
         return groupInfo;
     }
@@ -595,7 +601,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         return true;
     }
 
-    private BaseSortConf buildSortConfig(List<InlongGroupExtInfo> extInfos) {
+    private BaseSortConf buildSortConfig(List<InlongStreamExtEntity> extInfos) {
         Map<String, String> extMap = new HashMap<>();
         extInfos.forEach(extInfo -> extMap.put(extInfo.getKeyName(), extInfo.getKeyValue()));
         String type = extMap.get(InlongConstants.SORT_TYPE);
