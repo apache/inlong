@@ -40,7 +40,7 @@
     <modules>
         <module>inlong-common</module>
         <module>inlong-sdk</module>
-        <module>inlong-tubemq</module>
+        <!--        <module>inlong-tubemq</module>-->
         <module>inlong-audit</module>
         <module>inlong-dataproxy</module>
         <module>inlong-agent</module>

@@ -22,7 +22,6 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
-import org.apache.inlong.manager.pojo.source.kafka.KafkaOffset;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -57,7 +56,7 @@ public class KafkaSink extends StreamSink {
     private String serializationType;
 
     @ApiModelProperty(value = "The strategy of auto offset reset", notes = "including earliest, latest (the default), none")
-    private KafkaOffset autoOffsetReset = KafkaOffset.LATEST;
+    private String autoOffsetReset;
 
     @ApiModelProperty("Primary key is required when serializationType is json, avro")
     private String primaryKey;

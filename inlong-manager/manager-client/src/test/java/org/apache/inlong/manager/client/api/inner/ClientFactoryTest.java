@@ -76,7 +76,6 @@ import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.autopush.AutoPushSource;
 import org.apache.inlong.manager.pojo.source.file.FileSource;
-import org.apache.inlong.manager.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -580,7 +579,7 @@ class ClientFactoryTest {
                 KafkaSource.builder()
                         .id(4)
                         .sourceType(SourceType.KAFKA)
-                        .autoOffsetReset(KafkaOffset.LATEST)
+                        .autoOffsetReset("11")
                         .bootstrapServers("127.0.0.1")
                         .build());
 

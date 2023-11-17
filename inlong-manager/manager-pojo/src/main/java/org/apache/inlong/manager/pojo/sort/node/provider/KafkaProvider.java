@@ -119,11 +119,12 @@ public class KafkaProvider implements ExtractNodeProvider, LoadNodeProvider {
     /**
      * parse Startup Mode
      *
-     * @param kafkaOffset The strategy of auto offset reset, including earliest, specific, latest (the
+     * @param autoOffsetReset The strategy of auto offset reset, including earliest, specific, latest (the
      *         default), none
      * @return kafka scan startup mode
      */
-    private KafkaScanStartupMode parseStartupMode(KafkaOffset kafkaOffset) {
+    private KafkaScanStartupMode parseStartupMode(String autoOffsetReset) {
+        KafkaOffset kafkaOffset = KafkaOffset.forName(autoOffsetReset);
         KafkaScanStartupMode startupMode;
         switch (kafkaOffset) {
             case EARLIEST:
