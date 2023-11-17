@@ -17,6 +17,7 @@
 
 #include "recv_manager.h"
 #include "../utils/utils.h"
+#include "proxy_manager.h"
 
 namespace inlong {
 RecvManager::RecvManager(std::shared_ptr<SendManager> send_manager)
@@ -24,8 +25,9 @@ RecvManager::RecvManager(std::shared_ptr<SendManager> send_manager)
       exit_flag_(false) {
   dispatch_interval_ = SdkConfig::getInstance()->dispatch_interval_zip_;
 
-  max_groupid_streamid_num_ = SdkConfig::getInstance()->max_group_id_num_ *
-                              SdkConfig::getInstance()->max_stream_id_num_;
+  max_groupid_streamid_num_ =
+      std::max(SdkConfig::getInstance()->max_group_id_num_,
+               SdkConfig::getInstance()->max_stream_id_num_);
   LOG_INFO("max_groupid_streamid_num " <<max_groupid_streamid_num_);
 
   check_timer_ = std::make_shared<asio::steady_timer>(io_context_);
@@ -54,10 +56,13 @@ RecvManager::~RecvManager() {
   }
 }
 void RecvManager::Run() { io_context_.run(); }
-RecvGroupPtr RecvManager::GetRecvGroup(const std::string &groupId,
-                                       const std::string &streamId) {
+RecvGroupPtr RecvManager::GetRecvGroup(const std::string &groupId) {
   std::lock_guard<std::mutex> lck(mutex_);
-  auto it = recv_group_map_.find(groupId + streamId);
+  std::string group_key = ProxyManager::GetInstance()->GetGroupKey(groupId);
+  if (group_key.empty()) {
+    return nullptr;
+  }
+  auto it = recv_group_map_.find(group_key);
   if (it != recv_group_map_.end()) {
     return it->second;
   } else {
@@ -66,8 +71,8 @@ RecvGroupPtr RecvManager::GetRecvGroup(const std::string &groupId,
     }
 
     RecvGroupPtr recv_group =
-        std::make_shared<RecvGroup>(groupId, streamId, send_manager_);
-    recv_group_map_.emplace(groupId + streamId, recv_group);
+        std::make_shared<RecvGroup>(group_key, send_manager_);
+    recv_group_map_.emplace(group_key, recv_group);
     return recv_group;
   }
 }

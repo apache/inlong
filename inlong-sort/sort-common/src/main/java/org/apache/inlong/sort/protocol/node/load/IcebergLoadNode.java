@@ -73,6 +73,9 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
     @JsonProperty("warehouse")
     private String warehouse;
 
+    @JsonProperty("appendMode")
+    private String appendMode;
+
     @JsonCreator
     public IcebergLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
@@ -87,7 +90,8 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
             @JsonProperty("primaryKey") String primaryKey,
             @JsonProperty("catalogType") IcebergConstant.CatalogType catalogType,
             @JsonProperty("uri") String uri,
-            @JsonProperty("warehouse") String warehouse) {
+            @JsonProperty("warehouse") String warehouse,
+            @JsonProperty("appendMode") String appendMode) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
         this.dbName = Preconditions.checkNotNull(dbName, "db name is null");
@@ -95,6 +99,7 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
         this.catalogType = catalogType == null ? CatalogType.HIVE : catalogType;
         this.uri = uri;
         this.warehouse = warehouse;
+        this.appendMode = appendMode;
     }
 
     @Override
@@ -108,11 +113,12 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
         options.put(IcebergConstant.DEFAULT_DATABASE_KEY, dbName);
         options.put(IcebergConstant.CATALOG_TYPE_KEY, catalogType.name());
         options.put(IcebergConstant.CATALOG_NAME_KEY, catalogType.name());
+        options.put(IcebergConstant.APPEND_MODE_KEY, appendMode);
         if (null != uri) {
-            options.put("uri", uri);
+            options.put(IcebergConstant.URI_KEY, uri);
         }
         if (null != warehouse) {
-            options.put("warehouse", warehouse);
+            options.put(IcebergConstant.WAREHOUSE_KEY, warehouse);
         }
         return options;
     }

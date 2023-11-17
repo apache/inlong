@@ -22,6 +22,8 @@ import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
@@ -32,6 +34,7 @@ import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSink;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSinkDTO;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSinkRequest;
+import org.apache.inlong.manager.pojo.stream.InlongStreamExtParam;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -78,6 +81,14 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
         try {
             ElasticsearchSinkDTO dto = ElasticsearchSinkDTO.getFromRequest(sinkRequest, targetEntity.getExtParams());
 
+            InlongStreamEntity stream = inlongStreamEntityMapper
+                    .selectByIdentifier(request.getInlongGroupId(), request.getInlongStreamId());
+            dto.setSeparator(String.valueOf((char) (Integer.parseInt(stream.getDataSeparator()))));
+
+            InlongStreamExtParam streamExt =
+                    JsonUtils.parseObject(stream.getExtParams(), InlongStreamExtParam.class);
+            dto.setFieldOffset(streamExt.getExtendedFieldSize());
+
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
@@ -108,7 +119,7 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
         for (String field : fields) {
             sb.append(field).append(" ");
         }
-        idParams.put(KEY_FIELDS, sb.toString());
+        idParams.computeIfAbsent(KEY_FIELDS, k -> sb.toString());
         return idParams;
     }
 

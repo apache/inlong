@@ -316,9 +316,6 @@ public class IcebergSingleFileCommiter extends IcebergProcessFunction<WriteResul
             }
             continuousEmptyCheckpoints = 0;
         }
-        // remove already committed snapshot manifest info
-
-        pendingMap.keySet().forEach(deltaManifestsMap::remove);
         pendingMap.clear();
 
         // Delete the committed manifests.

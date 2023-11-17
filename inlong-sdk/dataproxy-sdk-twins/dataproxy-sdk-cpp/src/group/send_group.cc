@@ -34,8 +34,8 @@ SendGroup::SendGroup(std::string send_group_key)
   if (max_send_queue_num_ <= 0) {
     max_send_queue_num_ = kDefaultQueueSize;
   }
-  LOG_INFO("SendGroup: " << send_group_key_
-                         << ", max send queue num: " << max_send_queue_num_);
+  LOG_INFO("SendGroup:" << send_group_key_
+                         << ",max send queue num:" << max_send_queue_num_);
   dispatch_interval_ = SdkConfig::getInstance()->dispatch_interval_send_;
   load_balance_interval_ = SdkConfig::getInstance()->load_balance_interval_;
   heart_beat_interval_ =

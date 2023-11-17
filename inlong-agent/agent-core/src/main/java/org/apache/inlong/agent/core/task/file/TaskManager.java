@@ -203,8 +203,7 @@ public class TaskManager extends AbstractDaemon {
                 TaskProfile task = tasksInDb.get(i);
                 stat.stat(task.getState());
             }
-            LOGGER.info("taskManager coreThread running! memory total {} db total {} db detail {} ", taskMap.size(),
-                    tasksInDb.size(), stat);
+            LOGGER.info("taskManager running! mem {} db total {} {} ", taskMap.size(), tasksInDb.size(), stat);
             lastPrintTime = AgentUtils.getCurrentTime();
         }
     }

@@ -155,18 +155,26 @@ public class InstanceProfile extends AbstractConfiguration implements Comparable
         set(TaskConstants.INSTANCE_ID, instanceId);
     }
 
-    public void setDataTime(String dataTime) {
-        set(TaskConstants.JOB_DATA_TIME, dataTime);
+    public void setSourceDataTime(String dataTime) {
+        set(TaskConstants.SOURCE_DATA_TIME, dataTime);
     }
 
-    public String getDataTime() {
-        return get(TaskConstants.JOB_DATA_TIME);
+    public String getSourceDataTime() {
+        return get(TaskConstants.SOURCE_DATA_TIME);
+    }
+
+    public void setSinkDataTime(Long dataTime) {
+        setLong(TaskConstants.SINK_DATA_TIME, dataTime);
+    }
+
+    public Long getSinkDataTime() {
+        return getLong(TaskConstants.SINK_DATA_TIME, 0);
     }
 
     @Override
     public int compareTo(InstanceProfile object) {
         int ret = ComparisonChain.start()
-                .compare(getDataTime(), object.getDataTime())
+                .compare(getSourceDataTime(), object.getSourceDataTime())
                 .compare(FileUtils.getFileCreationTime(getInstanceId()),
                         FileUtils.getFileCreationTime(object.getInstanceId()))
                 .compare(FileUtils.getFileLastModifyTime(getInstanceId()),

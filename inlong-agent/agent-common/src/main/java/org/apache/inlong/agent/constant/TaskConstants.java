@@ -64,6 +64,7 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_DIR_FILTER_PATTERN = "task.fileTask.dir.pattern"; // deprecated
     public static final String FILE_DIR_FILTER_PATTERNS = "task.fileTask.dir.patterns";
     public static final String TASK_FILE_TIME_OFFSET = "task.fileTask.timeOffset";
+    public static final String TASK_FILE_TIME_ZONE = "task.fileTask.timeZone";
     public static final String TASK_FILE_MAX_WAIT = "task.fileTask.file.max.wait";
     public static final String TASK_CYCLE_UNIT = "task.fileTask.cycleUnit";
     public static final String TASK_FILE_TRIGGER_TYPE = "task.fileTask.collectType";
@@ -179,8 +180,11 @@ public class TaskConstants extends CommonConstants {
     // job delivery time
     public static final String JOB_DELIVERY_TIME = "job.deliveryTime";
 
-    // job time reading file
-    public static final String JOB_DATA_TIME = "job.dataTime";
+    // data time reading file
+    public static final String SOURCE_DATA_TIME = "source.dataTime";
+
+    // data time for sink
+    public static final String SINK_DATA_TIME = "sink.dataTime";
 
     // job of the number of seconds to wait before starting the task
     public static final String JOB_TASK_BEGIN_WAIT_SECONDS = "job.taskWaitSeconds";
