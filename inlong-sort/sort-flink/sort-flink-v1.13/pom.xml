@@ -56,7 +56,6 @@
         <flink.connector.doris.version>1.0.3</flink.connector.doris.version>
         <hudi.version>0.12.3</hudi.version>
         <sqlserver.jdbc.version>7.2.2.jre8</sqlserver.jdbc.version>
-        <thrift.version>0.9.3</thrift.version>
         <flink.iceberg.version>1.1.0</flink.iceberg.version>
     </properties>
 
@@ -187,7 +186,7 @@
             <dependency>
                 <groupId>org.apache.thrift</groupId>
                 <artifactId>libfb303</artifactId>
-                <version>${thrift.version}</version>
+                <version>${libfb303.version}</version>
             </dependency>
 
             <dependency>

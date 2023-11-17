@@ -21,20 +21,18 @@ import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
-import org.apache.inlong.manager.pojo.cluster.sortstandalone.SortStandaloneClusterRequest;
+import org.apache.inlong.manager.pojo.cluster.sort.cls.SortClsClusterRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.Set;
 
 public class StandaloneAutoAssignTest extends ServiceBaseTest {
 
@@ -44,6 +42,7 @@ public class StandaloneAutoAssignTest extends ServiceBaseTest {
     private InlongClusterService clusterService;
     @Autowired
     private TestStandaloneSinkResourceOperator testResourceOperator;
+
     @Test
     public void testAutoAssign() {
 
@@ -54,8 +53,7 @@ public class StandaloneAutoAssignTest extends ServiceBaseTest {
         Integer id = saveClsSink(groupInfo.getInlongGroupId(), streamInfo.getInlongStreamId());
 
         String clusterName = "clsCluster";
-        Set<String> types = Sets.newHashSet(SinkType.CLS, SinkType.ELASTICSEARCH);
-        saveStandaloneCluster(groupInfo.getInlongClusterTag(), clusterName, types);
+        saveStandaloneCluster(groupInfo.getInlongClusterTag(), clusterName);
 
         List<SinkInfo> sinkInfos = sinkEntityMapper.selectAllConfig(groupInfo.getInlongGroupId(), null);
         Assertions.assertEquals(1, sinkInfos.size());
@@ -76,15 +74,14 @@ public class StandaloneAutoAssignTest extends ServiceBaseTest {
         clsSinkEntity.setInlongGroupId(groupId);
         clsSinkEntity.setInlongStreamId(streamId);
         clsSinkEntity.setCreator(GLOBAL_OPERATOR);
-
-        return sinkEntityMapper.insert(clsSinkEntity);
+        sinkEntityMapper.insert(clsSinkEntity);
+        return clsSinkEntity.getId();
     }
 
-    public Integer saveStandaloneCluster(String clusterTag, String clusterName, Set<String> supportedSinkTypes) {
-        SortStandaloneClusterRequest request = new SortStandaloneClusterRequest();
+    public Integer saveStandaloneCluster(String clusterTag, String clusterName) {
+        SortClsClusterRequest request = new SortClsClusterRequest();
         request.setClusterTags(clusterTag);
         request.setName(clusterName);
-        request.setSupportedSinkTypes(supportedSinkTypes);
         request.setInCharges(GLOBAL_OPERATOR);
         return clusterService.save(request, GLOBAL_OPERATOR);
     }

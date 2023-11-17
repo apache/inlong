@@ -17,10 +17,15 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.util.StringUtils;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.InlongMetric;
+import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.constant.TubeMQConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
+import org.apache.inlong.sort.protocol.node.format.Format;
+import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import com.google.common.base.Preconditions;
@@ -34,8 +39,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 /**
@@ -44,7 +51,7 @@ import java.util.TreeSet;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("tubeMQExtract")
 @Data
-public class TubeMQExtractNode extends ExtractNode implements Serializable {
+public class TubeMQExtractNode extends ExtractNode implements Serializable, InlongMetric, Metadata {
 
     private static final long serialVersionUID = -2544747886429528474L;
 
@@ -58,7 +65,7 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
 
     @Nonnull
     @JsonProperty("format")
-    private String format;
+    private Format format;
 
     @Nonnull
     @JsonProperty("consumeGroup")
@@ -73,9 +80,6 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
     @JsonProperty("streamId")
     private TreeSet<String> streamId;
 
-    @JsonProperty("inlong-msg.inner.format")
-    private String innerFormat;
-
     @JsonCreator
     public TubeMQExtractNode(
             @JsonProperty("id") String id,
@@ -85,11 +89,10 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
             @JsonProperty("properties") Map<String, String> properties,
             @Nonnull @JsonProperty("masterRpc") String masterRpc,
             @Nonnull @JsonProperty("topic") String topic,
-            @Nonnull @JsonProperty("format") String format,
+            @Nonnull @JsonProperty("format") Format format,
             @Nonnull @JsonProperty("consumeGroup") String consumeGroup,
             @JsonProperty("sessionKey") String sessionKey,
-            @JsonProperty("streamId") TreeSet<String> streamId,
-            @JsonProperty("inlong-msg.inner.format") String innerFormat) {
+            @JsonProperty("streamId") TreeSet<String> streamId) {
         super(id, name, fields, waterMarkField, properties);
         this.masterRpc = Preconditions.checkNotNull(masterRpc, "TubeMQ masterRpc is null");
         this.topic = Preconditions.checkNotNull(topic, "TubeMQ topic is null");
@@ -97,21 +100,17 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
         this.consumeGroup = Preconditions.checkNotNull(consumeGroup, "Group id is null");
         this.sessionKey = sessionKey;
         this.streamId = streamId;
-        this.innerFormat = innerFormat;
     }
 
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> map = super.tableOptions();
         map.put(TubeMQConstant.CONNECTOR, TubeMQConstant.TUBEMQ);
+        map.putAll(format.generateOptions(false));
         map.put(TubeMQConstant.TOPIC, topic);
         map.put(TubeMQConstant.MASTER_RPC, masterRpc);
         map.put(TubeMQConstant.CONSUME_GROUP, consumeGroup);
-        map.put(TubeMQConstant.FORMAT, format);
         map.put(TubeMQConstant.SESSION_KEY, sessionKey);
-        if (format.startsWith(INLONG_MSG)) {
-            map.put(TubeMQConstant.INNER_FORMAT, innerFormat);
-        }
 
         if (null != streamId && !streamId.isEmpty()) {
             map.put(TubeMQConstant.STREAMID, StringUtils.concatCsv(streamId.toArray(new String[0]),
@@ -124,6 +123,34 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
     @Override
     public String genTableName() {
         return String.format("table_%s", super.getId());
+    }
+
+    @Override
+    public String getMetadataKey(MetaField metaField) {
+        String metadataKey;
+        switch (metaField) {
+            case AUDIT_DATA_TIME:
+                if (format instanceof InLongMsgFormat) {
+                    metadataKey = INLONG_MSG_AUDIT_TIME;
+                } else {
+                    metadataKey = CONSUME_AUDIT_TIME;
+                }
+                break;
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupported meta field for %s: %s",
+                        this.getClass().getSimpleName(), metaField));
+        }
+        return metadataKey;
+    }
+
+    @Override
+    public boolean isVirtual(MetaField metaField) {
+        return true;
+    }
+
+    @Override
+    public Set<MetaField> supportedMetaFields() {
+        return EnumSet.of(MetaField.AUDIT_DATA_TIME);
     }
 
 }

@@ -17,11 +17,12 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.constant.SnapshotModeConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.sources.reader.file.AbstractReader;
 import org.apache.inlong.agent.plugin.sources.snapshot.MongoDBSnapshotBase;
 import org.apache.inlong.agent.plugin.utils.InLongFileOffsetBackingStore;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
@@ -77,34 +78,34 @@ import static io.debezium.connector.mongodb.MongoDbConnectorConfig.SSL_ENABLED;
 import static io.debezium.connector.mongodb.MongoDbConnectorConfig.USER;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPACITY;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_BACKOFF_INITIAL_DELAY;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_BACKOFF_MAX_DELAY;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_CAPTURE_MODE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_COLLECTION_EXCLUDE_LIST;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_COLLECTION_INCLUDE_LIST;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_CONNECT_MAX_ATTEMPTS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_CONNECT_TIMEOUT_MS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_CURSOR_MAX_AWAIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_DATABASE_EXCLUDE_LIST;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_DATABASE_INCLUDE_LIST;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_FIELD_EXCLUDE_LIST;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_FIELD_RENAMES;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_HOSTS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_INITIAL_SYNC_MAX_THREADS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_MEMBERS_DISCOVER;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_OFFSETS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_OFFSET_SPECIFIC_OFFSET_FILE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_OFFSET_SPECIFIC_OFFSET_POS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_PASSWORD;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_POLL_INTERVAL;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_QUEUE_SIZE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_SELECTION_TIMEOUT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_SNAPSHOT_MODE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_SOCKET_TIMEOUT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_SSL_ENABLE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_SSL_INVALID_HOSTNAME_ALLOWED;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_STORE_HISTORY_FILENAME;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_USER;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_BACKOFF_INITIAL_DELAY;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_BACKOFF_MAX_DELAY;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_CAPTURE_MODE;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_COLLECTION_EXCLUDE_LIST;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_COLLECTION_INCLUDE_LIST;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_CONNECT_MAX_ATTEMPTS;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_CONNECT_TIMEOUT_MS;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_CURSOR_MAX_AWAIT;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_DATABASE_EXCLUDE_LIST;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_DATABASE_INCLUDE_LIST;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_FIELD_EXCLUDE_LIST;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_FIELD_RENAMES;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_HOSTS;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_INITIAL_SYNC_MAX_THREADS;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_MEMBERS_DISCOVER;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_OFFSETS;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_OFFSET_SPECIFIC_OFFSET_FILE;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_OFFSET_SPECIFIC_OFFSET_POS;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_PASSWORD;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_POLL_INTERVAL;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_QUEUE_SIZE;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_SELECTION_TIMEOUT;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_SNAPSHOT_MODE;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_SOCKET_TIMEOUT;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_SSL_ENABLE;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_SSL_INVALID_HOSTNAME_ALLOWED;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_STORE_HISTORY_FILENAME;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_USER;
 
 /**
  * MongoDBReader : mongo source, split mongo source job into multi readers
@@ -193,7 +194,7 @@ public class MongoDBReader extends AbstractReader {
     }
 
     @Override
-    public void init(JobProfile jobConf) {
+    public void init(InstanceProfile jobConf) {
         super.init(jobConf);
         this.setGlobalParamsValue(jobConf);
         this.startEmbeddedDebeziumEngine(jobConf);
@@ -221,7 +222,7 @@ public class MongoDBReader extends AbstractReader {
      *
      * @param jobConf job conf
      */
-    private void setGlobalParamsValue(JobProfile jobConf) {
+    private void setGlobalParamsValue(InstanceProfile jobConf) {
         bufferPool = new LinkedBlockingQueue<>(jobConf.getInt(JOB_MONGO_QUEUE_SIZE, 1000));
         instanceId = jobConf.getInstanceId();
         // offset file absolute path
@@ -241,7 +242,7 @@ public class MongoDBReader extends AbstractReader {
      *
      * @param jobConf job conf
      */
-    private void startEmbeddedDebeziumEngine(JobProfile jobConf) {
+    private void startEmbeddedDebeziumEngine(InstanceProfile jobConf) {
         DebeziumEngine<ChangeEvent<String, String>> debeziumEngine = DebeziumEngine.create(Json.class)
                 .using(this.buildMongoConnectorConfig(jobConf))
                 .notifying(this::handleChangeEvent)
@@ -272,7 +273,7 @@ public class MongoDBReader extends AbstractReader {
      *
      * @return Configuration
      */
-    private Properties buildMongoConnectorConfig(JobProfile jobConf) {
+    private Properties buildMongoConnectorConfig(InstanceProfile jobConf) {
         Configuration.Builder builder = Configuration.create();
         setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_HOSTS, HOSTS);
         setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_USER, USER);
@@ -324,7 +325,7 @@ public class MongoDBReader extends AbstractReader {
         return props;
     }
 
-    private void setEngineConfigIfNecessary(JobProfile jobConf,
+    private void setEngineConfigIfNecessary(InstanceProfile jobConf,
             Configuration.Builder builder, String key, Field field) {
         String value = jobConf.get(key, field.defaultValueAsString());
         if (StringUtils.isBlank(value)) {

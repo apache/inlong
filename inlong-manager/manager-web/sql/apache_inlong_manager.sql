@@ -872,8 +872,8 @@ VALUES ('audit_sdk_collect', 'SDK', 0, '1'),
        ('audit_sort_hive_output', 'HIVE', 1, '8'),
        ('audit_sort_clickhouse_input', 'CLICKHOUSE', 0, '9'),
        ('audit_sort_clickhouse_output', 'CLICKHOUSE', 1, '10'),
-       ('audit_sort_es_input', 'ELASTICSEARCH', 0, '11'),
-       ('audit_sort_es_output', 'ELASTICSEARCH', 1, '12'),
+       ('audit_sort_es_input', 'ES', 0, '11'),
+       ('audit_sort_es_output', 'ES', 1, '12'),
        ('audit_sort_starrocks_input', 'STARROCKS', 0, '13'),
        ('audit_sort_starrocks_output', 'STARROCKS', 1, '14'),
        ('audit_sort_hudi_input', 'HUDI', 0, '15'),
@@ -889,7 +889,13 @@ VALUES ('audit_sdk_collect', 'SDK', 0, '1'),
        ('audit_sort_kudu_input', 'KUDU', 0, '25'),
        ('audit_sort_kudu_output', 'KUDU', 1, '26'),
        ('audit_sort_postgres_input', 'POSTGRESQL', 0, '27'),
-       ('audit_sort_postgres_output', 'POSTGRESQL', 1, '28');
+       ('audit_sort_postgres_output', 'POSTGRESQL', 1, '28'),
+       ('audit_sort_mysql_binlog_input', 'MYSQL_BINLOG', 0, '29'),
+       ('audit_sort_mysql_binlog_output', 'MYSQL_BINLOG', 1, '30'),
+       ('audit_sort_pulsar_input', 'PULSAR', 0, '31'),
+       ('audit_sort_pulsar_output', 'PULSAR', 1, '32'),
+       ('audit_sort_tube_input', 'TUBEMQ', 0, '33'),
+       ('audit_sort_tube_output', 'TUBEMQ', 1, '34');
 
 -- ----------------------------
 -- Table structure for audit_source

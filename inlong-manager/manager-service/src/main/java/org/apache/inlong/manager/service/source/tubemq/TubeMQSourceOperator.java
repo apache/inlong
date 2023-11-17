@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.source.tubemq;
 
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -39,6 +40,7 @@ import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -109,6 +111,7 @@ public class TubeMQSourceOperator extends AbstractSourceOperator {
             tubeMQSource.setTopic(groupInfo.getMqResource());
             tubeMQSource.setConsumeGroup(streamId);
             tubeMQSource.setMasterRpc(masterRpc);
+            tubeMQSource.setWrapType(streamInfo.getWrapType());
             tubeMQSource.setIgnoreParseError(streamInfo.getIgnoreParseError());
 
             for (StreamSource sourceInfo : streamSources) {
@@ -117,6 +120,12 @@ public class TubeMQSourceOperator extends AbstractSourceOperator {
                 }
 
                 tubeMQSource.setSerializationType(getSerializationType(sourceInfo, streamInfo.getDataType()));
+            }
+            if (DataTypeEnum.CSV.getType().equalsIgnoreCase(tubeMQSource.getSerializationType())) {
+                tubeMQSource.setDataSeparator(streamInfo.getDataSeparator());
+                if (StringUtils.isBlank(tubeMQSource.getDataSeparator())) {
+                    tubeMQSource.setDataSeparator(String.valueOf((int) ','));
+                }
             }
             tubeMQSource.setFieldList(streamInfo.getFieldList());
             sourceMap.computeIfAbsent(streamId, key -> Lists.newArrayList()).add(tubeMQSource);

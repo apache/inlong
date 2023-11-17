@@ -80,6 +80,8 @@ public class PulsarTableDeserializationSchemaFactory implements Serializable {
 
     private final int[] valueProjection;
 
+    private final boolean innerFormat;
+
     // --------------------------------------------------------------------------------------------
     // Mutable attributes. Will be updated after the applyReadableMetadata()
     // --------------------------------------------------------------------------------------------
@@ -101,6 +103,7 @@ public class PulsarTableDeserializationSchemaFactory implements Serializable {
             DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat,
             int[] valueProjection,
             boolean upsertMode,
+            boolean innerFormat,
             String inlongMetric,
             String auditHostAndPorts,
             String auditKeys) {
@@ -116,6 +119,7 @@ public class PulsarTableDeserializationSchemaFactory implements Serializable {
         this.producedDataType = physicalDataType;
         this.connectorMetadataKeys = Collections.emptyList();
         this.upsertMode = upsertMode;
+        this.innerFormat = innerFormat;
 
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
@@ -172,17 +176,14 @@ public class PulsarTableDeserializationSchemaFactory implements Serializable {
                 .withAuditKeys(auditKeys)
                 .build();
 
-        if (metricOption != null) {
-            sourceMetricData = new SourceMetricData(metricOption);
-        }
-
         return new PulsarTableDeserializationSchema(
                 keyDeserialization,
                 valueDeserialization,
                 producedTypeInfo,
                 rowDataConverter,
                 upsertMode,
-                sourceMetricData);
+                innerFormat,
+                metricOption);
     }
 
     public void setProducedDataType(DataType producedDataType) {

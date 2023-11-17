@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
+import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.fieldtype.strategy.ClickHouseFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.MongoDBFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.MySQLFieldTypeStrategy;
@@ -39,6 +40,18 @@ import org.junit.jupiter.api.Test;
  * Different data source field type conversion mapping test class.
  */
 public class FieldInfoUtilsTest {
+
+    @Test
+    public void testCreateFieldTypeInfo() {
+
+        StreamField streamField = new StreamField(0, FieldType.STRING.toString(), "name", null, null);
+
+        FieldInfo fieldInfo = FieldInfoUtils.parseStreamFieldInfo(streamField,
+                "nodeId", new MySQLFieldTypeStrategy());
+
+        TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();
+        Assertions.assertTrue(typeInfo instanceof StringTypeInfo);
+    }
 
     @Test
     public void testPostgreSQLFieldTypeInfo() {

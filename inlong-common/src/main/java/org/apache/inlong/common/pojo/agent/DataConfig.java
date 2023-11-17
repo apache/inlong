@@ -48,6 +48,7 @@ public class DataConfig {
     private Integer syncSend;
     private String syncPartitionKey;
     private Integer state;
+    private String predefinedFields;
     private String extParams;
     /**
      * The task version.

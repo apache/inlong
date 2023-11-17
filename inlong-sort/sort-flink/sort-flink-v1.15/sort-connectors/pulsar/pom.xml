@@ -32,7 +32,7 @@
 
     <properties>
         <pulsar.version>2.10.2</pulsar.version>
-        <flink.connector.pulsar.version>3.0-SNAPSHOT</flink.connector.pulsar.version>
+        <flink.connector.pulsar.version>3.0.1-1.16</flink.connector.pulsar.version>
         <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
     </properties>
 
@@ -89,8 +89,6 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <scope>provided</scope>
-            <optional>true</optional>
         </dependency>
 
         <!-- Pulsar Client -->

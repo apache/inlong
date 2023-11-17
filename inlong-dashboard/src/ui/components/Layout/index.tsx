@@ -37,6 +37,7 @@ import { State } from '@/core/stores';
 import NavWidget from './NavWidget';
 import LocaleSelect from './NavWidget/LocaleSelect';
 import Tenant from './Tenant';
+import HintSelect from './NavWidget/HintSelect';
 
 const BasicLayout: React.FC = props => {
   const location = useLocation();
@@ -130,6 +131,7 @@ const BasicLayout: React.FC = props => {
             </Tooltip>
           ),
           <LocaleSelect />,
+          <HintSelect />,
           <NavWidget />,
           <Tenant />,
         ]}

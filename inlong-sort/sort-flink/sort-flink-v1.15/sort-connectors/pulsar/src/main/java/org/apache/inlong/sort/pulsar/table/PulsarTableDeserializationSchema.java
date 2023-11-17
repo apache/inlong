@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 
@@ -56,7 +57,11 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
 
     private final boolean upsertMode;
 
+    private final boolean innerFormat;
+
     private SourceMetricData sourceMetricData;
+
+    private MetricOption metricOption;
 
     public PulsarTableDeserializationSchema(
             @Nullable DeserializationSchema<RowData> keyDeserialization,
@@ -64,7 +69,8 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
             TypeInformation<RowData> producedTypeInfo,
             PulsarRowDataConverter rowDataConverter,
             boolean upsertMode,
-            SourceMetricData sourceMetricData) {
+            boolean innerFormat,
+            MetricOption metricOption) {
         if (upsertMode) {
             checkNotNull(keyDeserialization, "upsert mode must specify a key format");
         }
@@ -73,7 +79,8 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
         this.rowDataConverter = checkNotNull(rowDataConverter);
         this.producedTypeInfo = checkNotNull(producedTypeInfo);
         this.upsertMode = upsertMode;
-        this.sourceMetricData = sourceMetricData;
+        this.innerFormat = innerFormat;
+        this.metricOption = metricOption;
     }
 
     @Override
@@ -81,6 +88,9 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
             throws Exception {
         if (keyDeserialization != null) {
             keyDeserialization.open(context);
+        }
+        if (metricOption != null) {
+            sourceMetricData = new SourceMetricData(metricOption);
         }
         valueDeserialization.open(context);
     }
@@ -103,8 +113,15 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
             return;
         }
 
-        valueDeserialization.deserialize(message.getData(),
-                new MetricsCollector<>(new ListCollector<>(valueRowData), sourceMetricData));
+        MetricsCollector<RowData> metricsCollector =
+                new MetricsCollector<>(new ListCollector<>(valueRowData), sourceMetricData);
+
+        // reset timestamp if the deserialize schema has not inner format
+        if (!innerFormat) {
+            metricsCollector.resetTimestamp(System.currentTimeMillis());
+        }
+
+        valueDeserialization.deserialize(message.getData(), metricsCollector);
 
         rowDataConverter.projectToProducedRowAndCollect(
                 message, keyRowData, valueRowData, collector);

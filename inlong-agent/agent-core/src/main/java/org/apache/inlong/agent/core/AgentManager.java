@@ -21,15 +21,8 @@ import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.ProfileFetcher;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.core.conf.ConfigJetty;
-import org.apache.inlong.agent.core.job.JobManager;
-import org.apache.inlong.agent.core.task.PositionManager;
-import org.apache.inlong.agent.core.task.TaskManager;
-import org.apache.inlong.agent.core.trigger.TriggerManager;
-import org.apache.inlong.agent.db.CommandDb;
-import org.apache.inlong.agent.db.Db;
-import org.apache.inlong.agent.db.JobProfileDb;
-import org.apache.inlong.agent.db.TriggerProfileDb;
+import org.apache.inlong.agent.core.task.OffsetManager;
+import org.apache.inlong.agent.core.task.file.TaskManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,37 +39,19 @@ import java.util.concurrent.Executors;
 public class AgentManager extends AbstractDaemon {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentManager.class);
-    private final JobManager jobManager;
     private final TaskManager taskManager;
-    private final TriggerManager triggerManager;
-    private final PositionManager positionManager;
     private final HeartbeatManager heartbeatManager;
     private final ProfileFetcher fetcher;
     private final AgentConfiguration conf;
     private final ExecutorService agentConfMonitor;
-    private final Db db;
-    private final CommandDb commandDb;
-    private final JobProfileDb jobProfileDb;
-    // jetty for config operations via http.
-    private ConfigJetty configJetty;
 
     public AgentManager() {
         conf = AgentConfiguration.getAgentConf();
         agentConfMonitor = Executors.newSingleThreadExecutor();
-        this.db = initDb();
-        commandDb = new CommandDb(db);
-        jobProfileDb = new JobProfileDb(db);
-        triggerManager = new TriggerManager(this, new TriggerProfileDb(db));
-        jobManager = new JobManager(this, jobProfileDb);
-        taskManager = new TaskManager(this);
+        OffsetManager.init();
+        taskManager = new TaskManager();
         fetcher = initFetcher(this);
         heartbeatManager = HeartbeatManager.getInstance(this);
-        positionManager = PositionManager.getInstance(this);
-        // need to be an option.
-        if (conf.getBoolean(
-                AgentConstants.AGENT_ENABLE_HTTP, AgentConstants.DEFAULT_AGENT_ENABLE_HTTP)) {
-            this.configJetty = new ConfigJetty(jobManager, triggerManager);
-        }
     }
 
     /**
@@ -95,23 +70,6 @@ public class AgentManager extends AbstractDaemon {
         return null;
     }
 
-    /**
-     * init db by class name
-     *
-     * @return db
-     */
-    private Db initDb() {
-        try {
-            // db is a required component, so if not init correctly,
-            // throw exception and stop running.
-            return (Db) Class.forName(conf.get(
-                    AgentConstants.AGENT_DB_CLASSNAME, AgentConstants.DEFAULT_AGENT_DB_CLASSNAME))
-                    .newInstance();
-        } catch (Exception ex) {
-            throw new UnsupportedClassVersionError(ex.getMessage());
-        }
-    }
-
     private Runnable startHotConfReplace() {
         return new Runnable() {
 
@@ -119,6 +77,7 @@ public class AgentManager extends AbstractDaemon {
 
             @Override
             public void run() {
+                Thread.currentThread().setName("agent-manager-hotConfReplace");
                 while (true) {
                     try {
                         Thread.sleep(10 * 1000); // 10s check
@@ -139,32 +98,8 @@ public class AgentManager extends AbstractDaemon {
         };
     }
 
-    public JobManager getJobManager() {
-        return jobManager;
-    }
-
-    public Db getDb() {
-        return db;
-    }
-
-    public JobProfileDb getJobProfileDb() {
-        return jobProfileDb;
-    }
-
     public ProfileFetcher getFetcher() {
         return fetcher;
-    }
-
-    public CommandDb getCommandDb() {
-        return commandDb;
-    }
-
-    public TriggerManager getTriggerManager() {
-        return triggerManager;
-    }
-
-    public PositionManager getTaskPositionManager() {
-        return positionManager;
     }
 
     public TaskManager getTaskManager() {
@@ -178,7 +113,6 @@ public class AgentManager extends AbstractDaemon {
     @Override
     public void join() {
         super.join();
-        jobManager.join();
         taskManager.join();
     }
 
@@ -186,16 +120,11 @@ public class AgentManager extends AbstractDaemon {
     public void start() throws Exception {
         LOGGER.info("starting agent manager");
         agentConfMonitor.submit(startHotConfReplace());
-        LOGGER.info("starting job manager");
-        jobManager.start();
-        LOGGER.info("starting trigger manager");
-        triggerManager.start();
         LOGGER.info("starting task manager");
         taskManager.start();
         LOGGER.info("starting heartbeat manager");
         heartbeatManager.start();
         LOGGER.info("starting task position manager");
-        positionManager.start();
         LOGGER.info("starting read job from local");
         LOGGER.info("starting fetcher");
         if (fetcher != null) {
@@ -211,21 +140,13 @@ public class AgentManager extends AbstractDaemon {
      */
     @Override
     public void stop() throws Exception {
-        if (configJetty != null) {
-            configJetty.close();
-        }
         if (fetcher != null) {
             fetcher.stop();
         }
         // TODO: change job state which is in running state.
         LOGGER.info("stopping agent manager");
-        // close in order: trigger -> job -> task
-        triggerManager.stop();
-        jobManager.stop();
         taskManager.stop();
         heartbeatManager.stop();
-        positionManager.stop();
         agentConfMonitor.shutdown();
-        this.db.close();
     }
 }

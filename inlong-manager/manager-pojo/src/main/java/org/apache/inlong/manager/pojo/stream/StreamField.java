@@ -101,6 +101,8 @@ public class StreamField implements Serializable {
         this.fieldName = fieldName;
         this.fieldComment = fieldComment;
         this.fieldValue = fieldValue;
+        // default
+        this.isMetaField = 0;
     }
 
     public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
