@@ -127,7 +127,7 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `Elasticsearch ${i18n.t('meta.Sinks.ES.FieldName')}`,
+      title: i18n.t('meta.Sinks.ES.FieldName'),
       dataIndex: 'fieldName',
       rules: [
         { required: true },
@@ -141,7 +141,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `Elasticsearch ${i18n.t('meta.Sinks.ES.FieldType')}`,
+      title: i18n.t('meta.Sinks.ES.FieldType'),
       dataIndex: 'fieldType',
       initialValue: esTypes[0].value,
       type: 'select',
