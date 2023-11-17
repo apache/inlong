@@ -21,6 +21,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.source.kafka.KafkaOffset;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -55,7 +56,7 @@ public class KafkaSinkDTO {
     private String serializationType;
 
     @ApiModelProperty(value = "The strategy of auto offset reset", notes = "including earliest, latest (the default), none")
-    private String autoOffsetReset;
+    private KafkaOffset autoOffsetReset = KafkaOffset.LATEST;
 
     @ApiModelProperty("Primary key is required when serializationType is json, avro")
     private String primaryKey;

@@ -70,7 +70,7 @@ public class KafkaSourceDTO {
      * @see <a href="https://docs.confluent.io/platform/current/clients/consumer.html">Kafka_consumer_config</a>
      */
     @ApiModelProperty(value = "The strategy of auto offset reset", notes = "including earliest, latest (the default), none")
-    private String autoOffsetReset;
+    private KafkaOffset autoOffsetReset = KafkaOffset.LATEST;
 
     @ApiModelProperty("Data Serialization, support: json, canal, avro, etc")
     private String serializationType;
