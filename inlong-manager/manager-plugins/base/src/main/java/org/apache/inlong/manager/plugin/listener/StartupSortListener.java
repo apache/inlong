@@ -73,7 +73,7 @@ public class StartupSortListener implements SortOperateListener {
         }
 
         log.info("add startup group listener for groupId [{}]", groupId);
-        return true;
+        return InlongConstants.DATASYNC_MODE.equals(groupProcessForm.getGroupInfo().getInlongGroupMode());
     }
 
     @Override

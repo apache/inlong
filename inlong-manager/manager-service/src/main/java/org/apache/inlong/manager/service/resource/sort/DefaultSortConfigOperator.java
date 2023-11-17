@@ -102,7 +102,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         }
         List<StreamSink> sinkList = new ArrayList<>();
         for (StreamSink sink : streamInfo.getSinkList()) {
-            if (SinkType.SORT_STANDALONE_SINK.contains(sink.getSinkType())) {
+            if (SinkType.SORT_FLINK_SINK.contains(sink.getSinkType())) {
                 sinkList.add(sink);
             }
         }
