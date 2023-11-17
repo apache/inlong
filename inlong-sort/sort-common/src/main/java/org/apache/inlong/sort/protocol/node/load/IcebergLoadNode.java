@@ -17,13 +17,6 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
-import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_DATABASE_PATTERN;
-import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_ENABLE;
-import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_FORMAT;
-import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_TABLE_PATTERN;
-import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_SCHEMA_CHANGE_POLICIES;
-
-import java.util.Objects;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
@@ -37,6 +30,7 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
+import org.apache.inlong.sort.util.SchemaChangeUtils;
 
 import com.google.common.base.Preconditions;
 import lombok.Data;
@@ -53,8 +47,14 @@ import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import org.apache.inlong.sort.util.SchemaChangeUtils;
+
+import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_DATABASE_PATTERN;
+import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_ENABLE;
+import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_FORMAT;
+import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_TABLE_PATTERN;
+import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_SCHEMA_CHANGE_POLICIES;
 
 @JsonTypeName("icebergLoad")
 @Data
@@ -138,27 +138,26 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
 
     @JsonCreator
     public IcebergLoadNode(@JsonProperty("id") String id,
-        @JsonProperty("name") String name,
-        @JsonProperty("fields") List<FieldInfo> fields,
-        @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
-        @JsonProperty("filters") List<FilterFunction> filters,
-        @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
-        @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
-        @JsonProperty("properties") Map<String, String> properties,
-        @Nonnull @JsonProperty("dbName") String dbName,
-        @Nonnull @JsonProperty("tableName") String tableName,
-        @JsonProperty("primaryKey") String primaryKey,
-        @JsonProperty("catalogType") IcebergConstant.CatalogType catalogType,
-        @JsonProperty("uri") String uri,
-        @JsonProperty("warehouse") String warehouse,
-        @JsonProperty("appendMode") String appendMode,
-        @Nullable @JsonProperty(value = "sinkMultipleEnable", defaultValue = "false") Boolean sinkMultipleEnable,
-        @Nullable @JsonProperty("sinkMultipleFormat") Format sinkMultipleFormat,
-        @Nullable @JsonProperty("databasePattern") String databasePattern,
-        @Nullable @JsonProperty("tablePattern") String tablePattern,
-        @JsonProperty("enableSchemaChange") boolean enableSchemaChange,
-        @Nullable @JsonProperty("policyMap") Map<SchemaChangeType, SchemaChangePolicy> policyMap
-        ) {
+            @JsonProperty("name") String name,
+            @JsonProperty("fields") List<FieldInfo> fields,
+            @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
+            @JsonProperty("filters") List<FilterFunction> filters,
+            @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
+            @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
+            @JsonProperty("properties") Map<String, String> properties,
+            @Nonnull @JsonProperty("dbName") String dbName,
+            @Nonnull @JsonProperty("tableName") String tableName,
+            @JsonProperty("primaryKey") String primaryKey,
+            @JsonProperty("catalogType") IcebergConstant.CatalogType catalogType,
+            @JsonProperty("uri") String uri,
+            @JsonProperty("warehouse") String warehouse,
+            @JsonProperty("appendMode") String appendMode,
+            @Nullable @JsonProperty(value = "sinkMultipleEnable", defaultValue = "false") Boolean sinkMultipleEnable,
+            @Nullable @JsonProperty("sinkMultipleFormat") Format sinkMultipleFormat,
+            @Nullable @JsonProperty("databasePattern") String databasePattern,
+            @Nullable @JsonProperty("tablePattern") String tablePattern,
+            @JsonProperty("enableSchemaChange") boolean enableSchemaChange,
+            @Nullable @JsonProperty("policyMap") Map<SchemaChangeType, SchemaChangePolicy> policyMap) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.primaryKey = primaryKey;
         this.catalogType = catalogType == null ? CatalogType.HIVE : catalogType;
@@ -173,12 +172,12 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
             this.databasePattern = Preconditions.checkNotNull(databasePattern, "databasePattern is null");
             this.tablePattern = Preconditions.checkNotNull(tablePattern, "tablePattern is null");
             this.sinkMultipleFormat = Preconditions.checkNotNull(sinkMultipleFormat,
-                "sinkMultipleFormat is null");
+                    "sinkMultipleFormat is null");
         }
         this.enableSchemaChange = enableSchemaChange;
         this.policyMap = policyMap;
         Preconditions.checkState(!enableSchemaChange || policyMap != null && !policyMap.isEmpty(),
-            "policyMap is empty when enableSchemaChange is 'true'");
+                "policyMap is empty when enableSchemaChange is 'true'");
     }
 
     @Override
