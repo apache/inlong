@@ -167,7 +167,7 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
         this.appendMode = appendMode;
         this.sinkMultipleEnable = sinkMultipleEnable;
         if (sinkMultipleEnable == null || !sinkMultipleEnable) {
-            this.tableName = Preconditions.checkNotNull(tableName, "tableIdentifier is null");
+            this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
             this.dbName = Preconditions.checkNotNull(dbName, "db name is null");
         } else {
             this.databasePattern = Preconditions.checkNotNull(databasePattern, "databasePattern is null");
