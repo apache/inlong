@@ -286,8 +286,7 @@ public class SchemaChangeUtils {
         for (String colName : intersectColSet) {
             ColumnSchema oldCol = oldColumnSchemas.get(colName);
             ColumnSchema newCol = newColumnSchemas.get(colName);
-            if (!oldCol.getType().equals(newCol.getType())
-                    || !oldCol.getComment().equals(newCol.getComment())) {
+            if (!oldCol.getType().equals(newCol.getType())) {
                 tableChanges.add(
                         new TableChange.UpdateColumn(
                                 new String[]{newCol.getName()},
