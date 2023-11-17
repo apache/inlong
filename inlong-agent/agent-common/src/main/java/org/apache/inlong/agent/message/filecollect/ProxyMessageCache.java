@@ -83,7 +83,7 @@ public class ProxyMessageCache {
         this.streamId = streamId;
         this.inodeInfo = instanceProfile.get(TaskConstants.INODE_INFO);
         try {
-            dataTime = DateTransUtils.timeStrConvertTomillSec(instanceProfile.getDataTime(),
+            dataTime = DateTransUtils.timeStrConvertTomillSec(instanceProfile.getSourceDataTime(),
                     instanceProfile.get(TASK_CYCLE_UNIT));
         } catch (ParseException e) {
             LOGGER.info("trans dataTime error", e);

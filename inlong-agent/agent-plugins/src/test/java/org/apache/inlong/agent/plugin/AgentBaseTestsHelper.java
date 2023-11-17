@@ -97,6 +97,8 @@ public class AgentBaseTestsHelper {
         FileTaskConfig fileTaskConfig = new FileTaskConfig();
         fileTaskConfig.setPattern(pattern);
         fileTaskConfig.setTimeOffset("0d");
+        // GMT-8:00 same with Asia/Shanghai
+        fileTaskConfig.setTimeZone("GMT-8:00");
         fileTaskConfig.setMaxFileCount(100);
         fileTaskConfig.setCycleUnit("D");
         fileTaskConfig.setRetry(retry);
