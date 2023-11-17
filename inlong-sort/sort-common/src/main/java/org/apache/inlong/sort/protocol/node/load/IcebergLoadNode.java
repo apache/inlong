@@ -17,11 +17,11 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
-import static org.apache.inlong.sort.base.Constants.SINK_SCHEMA_CHANGE_POLICIES;
 import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_DATABASE_PATTERN;
 import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_ENABLE;
 import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_FORMAT;
 import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_TABLE_PATTERN;
+import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_SCHEMA_CHANGE_POLICIES;
 
 import java.util.Objects;
 import org.apache.inlong.common.enums.MetaField;
@@ -205,7 +205,7 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
             options.put(SINK_MULTIPLE_FORMAT, Objects.requireNonNull(sinkMultipleFormat).identifier());
             options.put(SINK_MULTIPLE_DATABASE_PATTERN, databasePattern);
             options.put(SINK_MULTIPLE_TABLE_PATTERN, tablePattern);
-            options.put(SINK_SCHEMA_CHANGE_POLICIES.key(), SchemaChangeUtils.serialize(policyMap));
+            options.put(SINK_SCHEMA_CHANGE_POLICIES, SchemaChangeUtils.serialize(policyMap));
         } else {
             options.put(SINK_MULTIPLE_ENABLE, "false");
         }
