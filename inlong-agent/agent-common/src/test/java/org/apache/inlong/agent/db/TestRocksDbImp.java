@@ -18,9 +18,6 @@
 package org.apache.inlong.agent.db;
 
 import org.apache.inlong.agent.AgentBaseTestsHelper;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.utils.AgentUtils;
-import org.apache.inlong.common.db.CommandEntity;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -30,10 +27,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.List;
 
-import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_ID_PREFIX;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
-
 public class TestRocksDbImp {
 
     private static RocksDbImp db;
@@ -42,7 +35,7 @@ public class TestRocksDbImp {
     @BeforeClass
     public static void setup() throws Exception {
         helper = new AgentBaseTestsHelper(TestRocksDbImp.class.getName()).setupAgentHome();
-        db = new RocksDbImp();
+        db = new RocksDbImp("/localdb");
     }
 
     @AfterClass
@@ -81,22 +74,6 @@ public class TestRocksDbImp {
         db.put(entity);
         KeyValueEntity newEntity = db.get("test1");
         Assert.assertEquals("testC", newEntity.getJsonValue());
-
-    }
-
-    @Test
-    public void testCommandDb() {
-        CommandEntity commandEntity = new CommandEntity();
-        commandEntity.setId("1");
-        commandEntity.setCommandResult(0);
-        commandEntity.setAcked(false);
-        commandEntity.setTaskId(1);
-        commandEntity.setVersion(1);
-        db.putCommand(commandEntity);
-        CommandEntity command = db.getCommand("1");
-        Assert.assertEquals("1", command.getId());
-        List<CommandEntity> commandEntities = db.searchCommands(false);
-        Assert.assertEquals("1", commandEntities.get(0).getId());
     }
 
     @Test
@@ -115,16 +92,4 @@ public class TestRocksDbImp {
         KeyValueEntity entityResult = db.searchOne(StateSearchKey.ACCEPTED);
         Assert.assertEquals("searchKey1", entityResult.getKey());
     }
-
-    @Test
-    public void testBinlogJobStore() {
-        JobProfile jobProfile = JobProfile.parseJsonFile("binlogJob.json");
-        JobProfileDb jobDb = new JobProfileDb(db);
-        String jobId = jobProfile.get(JOB_ID);
-        jobProfile.set(JOB_INSTANCE_ID, AgentUtils.getSingleJobId(JOB_ID_PREFIX, jobId));
-        jobDb.storeJobFirstTime(jobProfile);
-        List<JobProfile> restarts = jobDb.getRestartJobs();
-        Assert.assertEquals(1, restarts.size());
-    }
-
 }

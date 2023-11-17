@@ -19,29 +19,20 @@ package org.apache.inlong.agent.core;
 
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.core.job.Job;
-import org.apache.inlong.agent.core.job.JobManager;
-import org.apache.inlong.agent.core.job.JobWrapper;
-import org.apache.inlong.agent.core.task.MemoryManager;
-import org.apache.inlong.agent.state.State;
+import org.apache.inlong.agent.core.task.file.MemoryManager;
+import org.apache.inlong.agent.core.task.file.TaskManager;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.HttpManager;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
-import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
-import org.apache.inlong.common.heartbeat.StreamHeartbeat;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -53,8 +44,6 @@ import static org.apache.inlong.agent.constant.AgentConstants.AGENT_NODE_GROUP;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_HTTP_PORT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_HEARTBEAT_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
 
 /**
  * report heartbeat to inlong-manager
@@ -64,7 +53,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
     private static final Logger LOGGER = LoggerFactory.getLogger(HeartbeatManager.class);
     public static final int PRINT_MEMORY_PERMIT_INTERVAL_SECOND = 60;
     private static HeartbeatManager heartbeatManager = null;
-    private final JobManager jobmanager;
+    private final TaskManager taskManager;
     private final AgentConfiguration conf;
     private final HttpManager httpManager;
     private final String baseManagerUrl;
@@ -76,7 +65,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
      */
     private HeartbeatManager(AgentManager agentManager) {
         this.conf = AgentConfiguration.getAgentConf();
-        jobmanager = agentManager.getJobManager();
+        taskManager = agentManager.getTaskManager();
         httpManager = new HttpManager(conf);
         baseManagerUrl = HttpManager.buildBaseUrl();
         reportHeartbeatUrl = buildReportHeartbeatUrl(baseManagerUrl);
@@ -88,7 +77,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         baseManagerUrl = HttpManager.buildBaseUrl();
         reportHeartbeatUrl = buildReportHeartbeatUrl(baseManagerUrl);
 
-        jobmanager = null;
+        taskManager = null;
     }
 
     public static HeartbeatManager getInstance(AgentManager agentManager) {
@@ -117,6 +106,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
 
     private Runnable printMemoryPermitThread() {
         return () -> {
+            Thread.currentThread().setName("heartBeat-printMemoryPermit");
             while (isRunnable()) {
                 MemoryManager.getInstance().printAll();
                 AgentUtils.silenceSleepInSeconds(PRINT_MEMORY_PERMIT_INTERVAL_SECOND);
@@ -126,6 +116,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
 
     private Runnable heartbeatReportThread() {
         return () -> {
+            Thread.currentThread().setName("heartBeat-heartbeatReportThread");
             while (isRunnable()) {
                 try {
                     HeartbeatMsg heartbeatMsg = buildHeartbeatMsg();
@@ -181,34 +172,6 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
             heartbeatMsg.setNodeGroup(nodeGroup);
         }
 
-        Map<String, JobWrapper> jobWrapperMap = jobmanager.getJobs();
-        List<GroupHeartbeat> groupHeartbeats = Lists.newArrayList();
-        List<StreamHeartbeat> streamHeartbeats = Lists.newArrayList();
-        List<String> jobIds = Lists.newArrayList();
-        jobWrapperMap.values().forEach(jobWrapper -> {
-            Job job = jobWrapper.getJob();
-            JobProfile jobProfile = job.getJobConf();
-            jobIds.add(jobProfile.getInstanceId());
-            final String groupId = jobProfile.get(JOB_GROUP_ID);
-            final String streamId = jobProfile.get(JOB_STREAM_ID);
-            State currentState = jobWrapper.getCurrentState();
-            String status = currentState.name();
-            GroupHeartbeat groupHeartbeat = new GroupHeartbeat();
-            groupHeartbeat.setInlongGroupId(groupId);
-            groupHeartbeat.setStatus(status);
-            groupHeartbeats.add(groupHeartbeat);
-
-            StreamHeartbeat streamHeartbeat = new StreamHeartbeat();
-            streamHeartbeat.setInlongGroupId(groupId);
-            streamHeartbeat.setInlongStreamId(streamId);
-            streamHeartbeat.setStatus(status);
-            streamHeartbeats.add(streamHeartbeat);
-        });
-
-        heartbeatMsg.setGroupHeartbeats(groupHeartbeats);
-        heartbeatMsg.setStreamHeartbeats(streamHeartbeats);
-
-        LOGGER.info("heartbeat jobIds {} heartbeatMsg {}", jobIds, heartbeatMsg);
         return heartbeatMsg;
     }
 

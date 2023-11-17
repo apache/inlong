@@ -23,11 +23,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/bufferpool"
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/logger"
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/syncx"
-	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/util"
-
 	"github.com/panjf2000/gnet/v2"
 	"go.uber.org/atomic"
 )
@@ -62,7 +62,7 @@ var (
 	errBadLog           = &errNo{code: 10010, strCode: "10010", message: "input log is invalid"}
 	errServerError      = &errNo{code: 10011, strCode: "10011", message: "server error"}
 	errServerPanic      = &errNo{code: 10012, strCode: "10012", message: "server panic"}
-	errAllWorkerBusy    = &errNo{code: 10013, strCode: "10013", message: "all workers are busy"}
+	workerBusy          = &errNo{code: 10013, strCode: "10013", message: "worker is busy"}
 	errNoMatchReq4Rsp   = &errNo{code: 10014, strCode: "10014", message: "no match unacknowledged request for response"}
 	errConnClosedByPeer = &errNo{code: 10015, strCode: "10015", message: "conn closed by peer"}
 	errUnknown          = &errNo{code: 20001, strCode: "20001", message: "unknown"}
@@ -101,31 +101,31 @@ func getErrorCode(err error) string {
 }
 
 type worker struct {
-	client             *client                 // parent client
-	index              int                     // worker id
-	indexStr           string                  // worker id string
-	options            *Options                // config options
-	state              atomic.Int32            // worker state
-	log                logger.Logger           // debug logger
-	conn               atomic.Value            // connection used to send data
-	cmdChan            chan interface{}        // command channel
-	dataChan           chan *sendDataReq       // data channel
-	dataSemaphore      syncx.Semaphore         // semaphore used to handle message queueing
-	pendingBatches     map[string]*batchReq    // pending batches
-	unackedBatches     map[string]*batchReq    // sent but not acknowledged batches
-	sendFailedBatches  chan sendFailedBatchReq // send failed batches channel
-	retryBatches       chan *batchReq          // retry batches  channel
-	responseBatches    chan batchRsp           // batch response channel
-	batchTimeoutTicker *time.Ticker            // batch timeout ticker
-	sendTimeoutTicker  *time.Ticker            // send timeout ticker
-	heartbeatTicker    *time.Ticker            // heartbeat ticker
-	mapCleanTicker     *time.Ticker            // map clean ticker, clean the unackedBatches map periodically
-	updateConnTicker   *time.Ticker            // update connection ticker, change connection periodically
-	unackedBatchCount  int                     // sent but not acknowledged batches counter, used to clean the unackedBatches map periodically
-	metrics            *metrics                // metrics
-	bufferPool         bufferpool.BufferPool   // buffer pool
-	bytePool           bufferpool.BytePool     // byte pool
-	stop               bool                    // stop the worker
+	client             *client                  // parent client
+	index              int                      // worker id
+	indexStr           string                   // worker id string
+	options            *Options                 // config options
+	state              atomic.Int32             // worker state
+	log                logger.Logger            // debug logger
+	conn               atomic.Value             // connection used to send data
+	cmdChan            chan interface{}         // command channel
+	dataChan           chan *sendDataReq        // data channel
+	dataSemaphore      syncx.Semaphore          // semaphore used to handle message queueing
+	pendingBatches     map[string]*batchReq     // pending batches
+	unackedBatches     map[string]*batchReq     // sent but not acknowledged batches
+	sendFailedBatches  chan *sendFailedBatchReq // send failed batches channel
+	retryBatches       chan *batchReq           // retry batches  channel
+	responseBatches    chan *batchRsp           // batch response channel
+	batchTimeoutTicker *time.Ticker             // batch timeout ticker
+	sendTimeoutTicker  *time.Ticker             // send timeout ticker
+	heartbeatTicker    *time.Ticker             // heartbeat ticker
+	mapCleanTicker     *time.Ticker             // map clean ticker, clean the unackedBatches map periodically
+	updateConnTicker   *time.Ticker             // update connection ticker, change connection periodically
+	unackedBatchCount  int                      // sent but not acknowledged batches counter, used to clean the unackedBatches map periodically
+	metrics            *metrics                 // metrics
+	bufferPool         bufferpool.BufferPool    // buffer pool
+	bytePool           bufferpool.BytePool      // byte pool
+	stop               bool                     // stop the worker
 }
 
 func newWorker(cli *client, index int, opts *Options) (*worker, error) {
@@ -144,9 +144,9 @@ func newWorker(cli *client, index int, opts *Options) (*worker, error) {
 		dataSemaphore:      syncx.NewSemaphore(int32(opts.MaxPendingMessages)),
 		pendingBatches:     make(map[string]*batchReq),
 		unackedBatches:     make(map[string]*batchReq),
-		sendFailedBatches:  make(chan sendFailedBatchReq, opts.MaxPendingMessages),
+		sendFailedBatches:  make(chan *sendFailedBatchReq, opts.MaxPendingMessages),
 		retryBatches:       make(chan *batchReq, opts.MaxPendingMessages),
-		responseBatches:    make(chan batchRsp, opts.MaxPendingMessages),
+		responseBatches:    make(chan *batchRsp, opts.MaxPendingMessages),
 		batchTimeoutTicker: time.NewTicker(opts.BatchingMaxPublishDelay),
 		sendTimeoutTicker:  time.NewTicker(sendTimeout),
 		heartbeatTicker:    time.NewTicker(defaultHeartbeatInterval * time.Second),
@@ -315,20 +315,31 @@ func (w *worker) sendAsync(ctx context.Context, msg Message, callback Callback) 
 	w.doSendAsync(ctx, msg, callback, false)
 }
 
+func (w *worker) buildBatchID() string {
+	u, err := uuid.NewV4()
+	if err != nil {
+		return w.indexStr + ":" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	}
+	return u.String()
+}
+
 func (w *worker) handleSendData(req *sendDataReq) {
-	// w.log.Debug("worker[", w.index, "] handleSendData")
 	// only the messages that with the same stream ID can be sent in a batch, we use the stream ID as the key
 	batch, ok := w.pendingBatches[req.msg.StreamID]
 	if !ok {
 		streamID := req.msg.StreamID
 		batch = batchPool.Get().(*batchReq)
+		dataReqs := batch.dataReqs
+		if dataReqs == nil {
+			dataReqs = make([]*sendDataReq, 0, w.options.BatchingMaxMessages)
+		}
 		*batch = batchReq{
 			pool:       batchPool,
 			workerID:   w.indexStr,
-			batchID:    util.SnowFlakeID(),
+			batchID:    w.buildBatchID(),
 			groupID:    w.options.GroupID,
 			streamID:   streamID,
-			dataReqs:   make([]*sendDataReq, 0, w.options.BatchingMaxMessages),
+			dataReqs:   dataReqs,
 			batchTime:  time.Now(),
 			retries:    0,
 			bufferPool: w.bufferPool,
@@ -336,7 +347,6 @@ func (w *worker) handleSendData(req *sendDataReq) {
 			metrics:    w.metrics,
 			addColumns: w.options.addColumnStr,
 		}
-		w.log.Debug("worker[", w.index, "] new a batch:", batch.batchID, ", streamID:", batch.streamID)
 		w.pendingBatches[streamID] = batch
 	}
 
@@ -356,7 +366,6 @@ func (w *worker) handleSendData(req *sendDataReq) {
 }
 
 func (w *worker) sendBatch(b *batchReq, retryOnFail bool) {
-	// w.log.Debug("worker[", w.index, "] sendBatch")
 	b.lastSendTime = time.Now()
 	b.encode()
 
@@ -387,7 +396,7 @@ func (w *worker) sendBatch(b *batchReq, retryOnFail bool) {
 		// from this callback directly, or will be panic, so we put into the w.sendFailedBatches channel, and it will be
 		// deleted and retried in handleSendFailed() one by one
 		if inCallback {
-			w.sendFailedBatches <- sendFailedBatchReq{batch: b, retry: retryOnFail}
+			w.sendFailedBatches <- &sendFailedBatchReq{batch: b, retry: retryOnFail}
 			return
 		}
 
@@ -400,7 +409,6 @@ func (w *worker) sendBatch(b *batchReq, retryOnFail bool) {
 		}
 	}
 
-	// w.log.Debug("worker[", w.index, "] write to:", conn.RemoteAddr())
 	// very important：'cause we use gnet, we must call AsyncWrite to send data in goroutines that are different from gnet.OnTraffic() callback
 	conn := w.getConn()
 	err := conn.AsyncWrite(b.buffer.Bytes(), func(c gnet.Conn, e error) error {
@@ -423,7 +431,7 @@ func (w *worker) sendBatch(b *batchReq, retryOnFail bool) {
 	w.unackedBatches[b.batchID] = b
 }
 
-func (w *worker) handleSendFailed(b sendFailedBatchReq) {
+func (w *worker) handleSendFailed(b *sendFailedBatchReq) {
 	// send failed, delete the batch from unackedBatches, when retried, it will be pushed back
 	delete(w.unackedBatches, b.batch.batchID)
 	if b.retry {
@@ -436,7 +444,6 @@ func (w *worker) handleSendFailed(b sendFailedBatchReq) {
 func (w *worker) backoffRetry(ctx context.Context, batch *batchReq) {
 	if batch.retries >= w.options.MaxRetries {
 		batch.done(errSendTimeout)
-		w.log.Debug("to many reties, batch done:", batch.batchID)
 		return
 	}
 
@@ -490,7 +497,6 @@ func (w *worker) handleRetry(batch *batchReq, retryOnFail bool) {
 	batch.retries++
 	if batch.retries >= w.options.MaxRetries {
 		batch.done(errSendTimeout)
-		w.log.Debug("to many reties, batch done:", batch.batchID)
 		return
 	}
 
@@ -500,9 +506,8 @@ func (w *worker) handleRetry(batch *batchReq, retryOnFail bool) {
 }
 
 func (w *worker) handleBatchTimeout() {
-	for streamID, batch := range w.pendingBatches {
+	for _, batch := range w.pendingBatches {
 		if time.Since(batch.batchTime) > w.options.BatchingMaxPublishDelay {
-			w.log.Debug("worker[", w.index, "] batch timeout, send it now:", batch.batchID, ", streamID:", streamID)
 			w.sendBatch(batch, true)
 			delete(w.pendingBatches, batch.streamID)
 		}
@@ -531,7 +536,6 @@ func (w *worker) handleCleanMap() {
 		return
 	}
 
-	w.log.Debug("clean map")
 	// create a new map and copy the data from the old map
 	newMap := make(map[string]*batchReq)
 	for k, v := range w.unackedBatches {
@@ -573,7 +577,7 @@ func (w *worker) handleSendHeartbeat() {
 	}
 }
 
-func (w *worker) onRsp(rsp batchRsp) {
+func (w *worker) onRsp(rsp *batchRsp) {
 	// close already
 	if w.getState() == stateClosed {
 		return
@@ -581,20 +585,14 @@ func (w *worker) onRsp(rsp batchRsp) {
 	w.responseBatches <- rsp
 }
 
-func (w *worker) handleRsp(rsp batchRsp) {
+func (w *worker) handleRsp(rsp *batchRsp) {
 	batchID := rsp.batchID
 	batch, ok := w.unackedBatches[batchID]
 	if !ok {
-		w.log.Debug("worker[", w.index, "] batch not found in unackedBatches map:", batchID, ", send time:", rsp.dt, ", now:", time.Now().UnixMilli())
 		w.metrics.incError(errNoMatchReq4Rsp.strCode)
 		return
 	}
 
-	/*
-		w.log.Debug("worker[", w.index, "] batch done:", batchID, ", batch time:", batch.batchTime.UnixMilli(),
-			", batch last send time:", batch.lastSendTime.UnixMilli(), ", now:", time.Now().UnixMilli(),
-			"batch retry:", batch.retries)
-	*/
 	// call batch.done to release the resources it holds
 	var err = error(nil)
 	if rsp.errCode != 0 {
@@ -716,7 +714,6 @@ func (w *worker) handleUpdateConn() {
 }
 
 func (w *worker) updateConn(old gnet.Conn, err error) {
-	w.log.Debug("worker[", w.index, "] updateConn")
 	newConn, newErr := w.client.getConn()
 	if newErr != nil {
 		w.log.Error("get new conn error:", newErr)

@@ -20,7 +20,6 @@ package org.apache.inlong.agent.plugin.sinks;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.ProxyMessage;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
-import org.apache.inlong.agent.plugin.MiniAgent;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -38,12 +37,10 @@ public class PulsarSinkTest {
     private static MockSink pulsarSink;
     private static JobProfile jobProfile;
     private static AgentBaseTestsHelper helper;
-    private static MiniAgent agent;
 
     @BeforeClass
     public static void setUp() throws Exception {
         helper = new AgentBaseTestsHelper(PulsarSinkTest.class.getName()).setupAgentHome();
-        agent = new MiniAgent();
         jobProfile = JobProfile.parseJsonFile("pulsarSinkJob.json");
         jobProfile.set("job.mqClusters",
                 "[{\"url\":\"mqurl\",\"token\":\"token\",\"mqType\":\"PULSAR\",\"params\":{}}]");

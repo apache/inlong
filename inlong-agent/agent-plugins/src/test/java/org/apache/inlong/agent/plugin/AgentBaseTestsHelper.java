@@ -18,13 +18,18 @@
 package org.apache.inlong.agent.plugin;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.pojo.FileTask.FileTaskConfig;
+import org.apache.inlong.common.enums.TaskStateEnum;
+import org.apache.inlong.common.pojo.agent.DataConfig;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -34,7 +39,8 @@ import java.nio.file.Paths;
 public class AgentBaseTestsHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentBaseTestsHelper.class);
-
+    private static final GsonBuilder gsonBuilder = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final Gson GSON = gsonBuilder.create();
     private final String className;
     private Path testRootDir;
     private Path parentPath;
@@ -45,8 +51,8 @@ public class AgentBaseTestsHelper {
 
     public AgentBaseTestsHelper setupAgentHome() {
         parentPath = Paths.get("./").toAbsolutePath();
-        testRootDir = Paths.get(parentPath + File.separator + "logs",
-                AgentBaseTestsHelper.class.getSimpleName(), className);
+        testRootDir = Paths
+                .get("/tmp", AgentBaseTestsHelper.class.getSimpleName(), className);
         teardownAgentHome();
         boolean result = testRootDir.toFile().mkdirs();
         LOGGER.info("try to create {}, result is {}", testRootDir, result);
@@ -54,12 +60,12 @@ public class AgentBaseTestsHelper {
         return this;
     }
 
-    public Path getTestRootDir() {
-        return testRootDir.toAbsolutePath();
-    }
-
     public Path getParentPath() {
         return parentPath;
+    }
+
+    public Path getTestRootDir() {
+        return testRootDir;
     }
 
     public void teardownAgentHome() {
@@ -70,5 +76,35 @@ public class AgentBaseTestsHelper {
                 LOGGER.warn("deleteDirectory error ", ignored);
             }
         }
+    }
+
+    public TaskProfile getTaskProfile(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
+            TaskStateEnum state) {
+        DataConfig dataConfig = getDataConfig(taskId, pattern, retry, startTime, endTime, state);
+        TaskProfile profile = TaskProfile.convertToTaskProfile(dataConfig);
+        return profile;
+    }
+
+    private DataConfig getDataConfig(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
+            TaskStateEnum state) {
+        DataConfig dataConfig = new DataConfig();
+        dataConfig.setInlongGroupId("testGroupId");
+        dataConfig.setInlongStreamId("testStreamId");
+        dataConfig.setDataReportType(1);
+        dataConfig.setTaskType(3);
+        dataConfig.setTaskId(taskId);
+        dataConfig.setState(state.ordinal());
+        FileTaskConfig fileTaskConfig = new FileTaskConfig();
+        fileTaskConfig.setPattern(pattern);
+        fileTaskConfig.setTimeOffset("0d");
+        // GMT-8:00 same with Asia/Shanghai
+        fileTaskConfig.setTimeZone("GMT-8:00");
+        fileTaskConfig.setMaxFileCount(100);
+        fileTaskConfig.setCycleUnit("D");
+        fileTaskConfig.setRetry(retry);
+        fileTaskConfig.setStartTime(startTime);
+        fileTaskConfig.setEndTime(endTime);
+        dataConfig.setExtParams(GSON.toJson(fileTaskConfig));
+        return dataConfig;
     }
 }

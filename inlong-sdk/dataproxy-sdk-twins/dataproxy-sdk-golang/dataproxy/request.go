@@ -53,7 +53,9 @@ func init() {
 	}
 	batchPool = &sync.Pool{
 		New: func() interface{} {
-			return &batchReq{}
+			return &batchReq{
+				dataReqs: make([]*sendDataReq, 0, 50),
+			}
 		},
 	}
 }
@@ -109,12 +111,17 @@ func (b *batchReq) append(req *sendDataReq) {
 
 func (b *batchReq) done(err error) {
 	errorCode := getErrorCode(err)
-	for _, req := range b.dataReqs {
+	for i, req := range b.dataReqs {
 		req.done(err, errorCode)
+		b.dataReqs[i] = nil
+	}
+	if b.dataReqs != nil {
+		b.dataReqs = b.dataReqs[:0]
 	}
 
 	if b.callback != nil {
 		b.callback()
+		b.callback = nil
 	}
 
 	if b.buffer != nil && b.bufferPool != nil {
@@ -128,10 +135,12 @@ func (b *batchReq) done(err error) {
 		}
 		b.metrics.observeTime(errorCode, time.Since(b.batchTime).Milliseconds())
 		b.metrics.observeSize(errorCode, b.dataSize)
+		b.metrics = nil
 	}
 
 	if b.pool != nil {
 		b.pool.Put(b)
+		b.pool = nil
 	}
 }
 
@@ -293,9 +302,13 @@ func (b *batchRsp) decode(input []byte) {
 
 	// fmt.Println(string(attr))
 
-	attrList := strings.Split(string(attr), "&")
+	attrList := strings.FieldsFunc(string(attr), func(r rune) bool {
+		return r == '&'
+	})
 	for _, item := range attrList {
-		kv := strings.Split(item, "=")
+		kv := strings.FieldsFunc(item, func(r rune) bool {
+			return r == '='
+		})
 		if len(kv) != 2 {
 			continue
 		}
@@ -334,25 +347,29 @@ type sendDataReq struct {
 func (s *sendDataReq) done(err error, errCode string) {
 	if s.semaphore != nil {
 		s.semaphore.Release()
+		if s.metrics != nil {
+			s.metrics.decPending(s.workerID)
+		}
+		s.semaphore = nil
 	}
 
 	if s.callback != nil {
 		s.callback(s.msg, err)
+		s.callback = nil
 	}
 
 	if s.metrics != nil {
-		if s.semaphore != nil {
-			s.metrics.decPending(s.workerID)
-		}
 		if errCode == "" {
 			errCode = getErrorCode(err)
 		}
 
 		s.metrics.incMessage(errCode)
+		s.metrics = nil
 	}
 
 	if s.pool != nil {
 		s.pool.Put(s)
+		s.pool = nil
 	}
 }
 

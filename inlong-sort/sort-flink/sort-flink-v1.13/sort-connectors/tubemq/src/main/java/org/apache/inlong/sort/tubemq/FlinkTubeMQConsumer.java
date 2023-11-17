@@ -68,8 +68,6 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
 
     private static final Logger LOG = LoggerFactory.getLogger(FlinkTubeMQConsumer.class);
     private static final String TUBE_OFFSET_STATE = "tube-offset-state";
-    private static final String SPLIT_COMMA = ",";
-    private static final String SPLIT_COLON = ":";
 
     /**
      * The address of TubeMQ master, format eg: 127.0.0.1:8715,127.0.0.2:8715.
@@ -82,9 +80,9 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
     private final String topic;
 
     /**
-     * The tubemq consumers use this tid set to filter records reading from server.
+     * The tubemq consumers use this streamId set to filter records reading from server.
      */
-    private final TreeSet<String> tidSet;
+    private final TreeSet<String> streamIdSet;
 
     /**
      * The consumer group name.
@@ -130,7 +128,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
     /**
      * The current offsets of partitions which are stored in {@link #offsetsState}
      * once a checkpoint is triggered.
-     *
+     * <p>
      * NOTE: The offsets are populated in the main thread and saved in the
      * checkpoint thread. Its usage must be guarded by the checkpoint lock.</p>
      */
@@ -147,18 +145,18 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
     /**
      * Build a TubeMQ source function
      *
-     * @param masterAddress the master address of TubeMQ
-     * @param topic the topic name
-     * @param tidSet the  topic's filter condition items
-     * @param consumerGroup the consumer group name
+     * @param masterAddress         the master address of TubeMQ
+     * @param topic                 the topic name
+     * @param streamIdSet                the  topic's filter condition items
+     * @param consumerGroup         the consumer group name
      * @param deserializationSchema the deserialize schema
-     * @param configuration the configure
-     * @param sessionKey the tube session key
+     * @param configuration         the configure
+     * @param sessionKey            the tube session key
      */
     public FlinkTubeMQConsumer(
             String masterAddress,
             String topic,
-            TreeSet<String> tidSet,
+            TreeSet<String> streamIdSet,
             String consumerGroup,
             DeserializationSchema<T> deserializationSchema,
             Configuration configuration,
@@ -166,14 +164,14 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
             Boolean innerFormat) {
         checkNotNull(masterAddress, "The master address must not be null.");
         checkNotNull(topic, "The topic must not be null.");
-        checkNotNull(tidSet, "The tid set must not be null.");
+        checkNotNull(streamIdSet, "The streamId set must not be null.");
         checkNotNull(consumerGroup, "The consumer group must not be null.");
         checkNotNull(deserializationSchema, "The deserialization schema must not be null.");
         checkNotNull(configuration, "The configuration must not be null.");
 
         this.masterAddress = masterAddress;
         this.topic = topic;
-        this.tidSet = tidSet;
+        this.streamIdSet = streamIdSet;
         this.consumerGroup = consumerGroup;
         this.deserializationSchema = deserializationSchema;
         this.sessionKey = sessionKey;
@@ -209,9 +207,11 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
 
     @Override
     public void open(Configuration parameters) throws Exception {
+
+        deserializationSchema.open(null);
         ConsumerConfig consumerConfig = new ConsumerConfig(masterAddress, consumerGroup);
         consumerConfig.setConsumePosition(consumeFromMax
-                ? ConsumePosition.CONSUMER_FROM_MAX_OFFSET_ALWAYS
+                ? ConsumePosition.CONSUMER_FROM_LATEST_OFFSET
                 : ConsumePosition.CONSUMER_FROM_FIRST_OFFSET);
 
         consumerConfig.setMsgNotFoundWaitPeriodMs(messageNotFoundWaitPeriod.toMillis());
@@ -219,8 +219,9 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
         final int numTasks = getRuntimeContext().getNumberOfParallelSubtasks();
         messageSessionFactory = new TubeSingleSessionFactory(consumerConfig);
         messagePullConsumer = messageSessionFactory.createPullConsumer(consumerConfig);
-        messagePullConsumer.subscribe(topic, tidSet);
-        messagePullConsumer.completeSubscribe(sessionKey, numTasks, true, currentOffsets);
+        messagePullConsumer.subscribe(topic, streamIdSet);
+        String jobId = getRuntimeContext().getJobId().toString();
+        messagePullConsumer.completeSubscribe(sessionKey.concat(jobId), numTasks, true, currentOffsets);
 
         running = true;
     }
@@ -303,7 +304,9 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
                 rowDataList.forEach(data -> records.add((T) data));
             }
         }
+
         return lastConsumeInstant;
+
     }
 
     @Override

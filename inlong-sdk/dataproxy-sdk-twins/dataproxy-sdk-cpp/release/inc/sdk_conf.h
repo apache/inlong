@@ -40,18 +40,23 @@ private:
   void InitTcpParam(const rapidjson::Value &doc);
   void InitAuthParm(const rapidjson::Value &doc);
   void OthersParam(const rapidjson::Value &doc);
+  void InitLocalIp();
 
-public:
+      public:
   // cache parameter
   std::vector<std::string>
       inlong_group_ids_;   // Initialize the inlong groupid collection
   uint32_t recv_buf_size_; // Receive buf size, tid granularity
   uint32_t send_buf_size_; // Send buf size, bid granularity
+  uint32_t max_group_id_num_; // Send buf size, bid granularity
+  uint32_t max_stream_id_num_; // Send buf size, bid granularity
 
   // thread parameters
   uint32_t per_groupid_thread_nums_; // Sending thread per groupid
   uint32_t dispatch_interval_zip_;   // Compression thread distribution interval
   uint32_t dispatch_interval_send_;  // sending thread sending interval
+  uint32_t load_balance_interval_;
+  uint32_t heart_beat_interval_;
 
   // Packaging parameters
   bool enable_pack_;
@@ -75,13 +80,16 @@ public:
   std::string manager_cluster_url_;
   uint32_t manager_update_interval_; // Automatic update interval, minutes
   uint32_t manager_url_timeout_;     // URL parsing timeout, seconds
-  uint32_t max_proxy_num_;
+  uint64_t max_proxy_num_;
+  uint64_t reserve_proxy_num_;
   uint32_t msg_type_;
+  bool enable_isolation_;
 
   // Network parameters
   bool enable_tcp_nagle_;
   uint64_t tcp_idle_time_;          // The time when tcpclient did not send data
   uint32_t tcp_detection_interval_; // tcp-client detection interval
+  bool enable_balance_;
 
   // auth settings
   bool need_auth_;

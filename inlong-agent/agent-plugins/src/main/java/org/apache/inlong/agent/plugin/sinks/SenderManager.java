@@ -21,12 +21,10 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
-import org.apache.inlong.agent.core.task.MemoryManager;
 import org.apache.inlong.agent.core.task.PositionManager;
 import org.apache.inlong.agent.message.BatchProxyMessage;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
-import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.message.SequentialID;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
@@ -34,8 +32,8 @@ import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
-import org.apache.inlong.sdk.dataproxy.SendResult;
+import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
+import org.apache.inlong.sdk.dataproxy.common.SendResult;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
@@ -53,7 +51,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_BATCH_FLUSH_INTERVAL;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_BATCH_FLUSH_INTERVAL;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_WRITER_PERMIT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
@@ -175,10 +172,6 @@ public class SenderManager {
         while (!resendQueue.isEmpty()) {
             try {
                 AgentSenderCallback callback = resendQueue.poll(1, TimeUnit.SECONDS);
-                if (callback != null) {
-                    MemoryManager.getInstance()
-                            .release(AGENT_GLOBAL_WRITER_PERMIT, (int) callback.batchMessage.getTotalSize());
-                }
             } catch (InterruptedException e) {
                 LOGGER.error("clean resend queue error{}", e.getMessage());
             }
@@ -324,9 +317,6 @@ public class SenderManager {
             String jobId = batchMessage.getJobId();
             long dataTime = batchMessage.getDataTime();
             if (result != null && result.equals(SendResult.OK)) {
-                MemoryManager.getInstance().release(AGENT_GLOBAL_WRITER_PERMIT, (int) batchMessage.getTotalSize());
-                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, msgCnt,
-                        batchMessage.getTotalSize());
                 getMetricItem(groupId, streamId).pluginSendSuccessCount.addAndGet(msgCnt);
                 PositionManager.getInstance()
                         .updateSinkPosition(batchMessage.getJobId(), sourcePath, msgCnt, false);

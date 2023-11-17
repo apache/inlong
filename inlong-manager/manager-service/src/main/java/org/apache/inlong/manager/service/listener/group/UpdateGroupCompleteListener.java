@@ -65,11 +65,11 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
         String operator = context.getOperator();
         switch (operateType) {
             case SUSPEND:
-                groupService.updateStatus(groupId, GroupStatus.SUSPENDED.getCode(), operator);
+                groupService.updateStatus(groupId, GroupStatus.CONFIGURATION_OFFLINE.getCode(), operator);
                 groupService.update(groupRequest, operator);
                 break;
             case RESTART:
-                groupService.updateStatus(groupId, GroupStatus.RESTARTED.getCode(), operator);
+                groupService.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), operator);
                 groupService.update(groupRequest, operator);
                 break;
             case DELETE:

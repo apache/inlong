@@ -54,6 +54,7 @@ public class InLongMsgUtils {
 
     // keys in attributes
     public static final String INLONGMSG_ATTR_STREAM_ID = "streamId";
+    public static final String INLONGMSG_ATTR_TID = "tid";
     public static final String INLONGMSG_ATTR_TIME_T = "t";
     public static final String INLONGMSG_ATTR_TIME_DT = "dt";
     public static final String INLONGMSG_ATTR_ADD_COLUMN_PREFIX = "__addcol";
@@ -118,6 +119,8 @@ public class InLongMsgUtils {
 
         if (attributes.containsKey(INLONGMSG_ATTR_STREAM_ID)) {
             streamId = attributes.get(INLONGMSG_ATTR_STREAM_ID);
+        } else if (attributes.containsKey(INLONGMSG_ATTR_TID)) {
+            streamId = attributes.get(INLONGMSG_ATTR_TID);
         } else {
             throw new IllegalArgumentException("Could not find " + INLONGMSG_ATTR_STREAM_ID + " in attributes!");
         }

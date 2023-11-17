@@ -207,6 +207,7 @@ public class SortSourceServiceImpl implements SortSourceService {
         streamSinkMap = new HashMap<>();
         allStreamSinks.stream()
                 .filter(sink -> StringUtils.isNotBlank(sink.getSortClusterName()))
+                .filter(sink -> Objects.nonNull(sortClusters.get(sink.getSortClusterName())))
                 .filter(sink -> StringUtils.isNotBlank(sink.getSortTaskName()))
                 .forEach(sink -> {
                     Map<String, List<SortSourceStreamSinkInfo>> task2groupsMap =
@@ -219,6 +220,8 @@ public class SortSourceServiceImpl implements SortSourceService {
         // reload all groups
         groupInfos = configLoader.loadAllGroup()
                 .stream()
+                .filter(group -> StringUtils.isNotBlank(group.getMqResource()))
+                .filter(group -> StringUtils.isNotBlank(group.getClusterTag()))
                 .collect(Collectors.toMap(SortSourceGroupInfo::getGroupId, info -> info));
 
         // reload all back up cluster
@@ -234,6 +237,7 @@ public class SortSourceServiceImpl implements SortSourceService {
         // reload all streams
         allStreams = configLoader.loadAllStreams()
                 .stream()
+                .filter(stream -> StringUtils.isNotBlank(stream.getMqResource()))
                 .collect(Collectors.groupingBy(SortSourceStreamInfo::getInlongGroupId,
                         Collectors.toMap(SortSourceStreamInfo::getInlongStreamId, info -> info)));
 
@@ -389,7 +393,7 @@ public class SortSourceServiceImpl implements SortSourceService {
             boolean isBackupTag) {
         Map<String, String> param = cluster.getExtParamsMap();
         String tenant = Optional.ofNullable(param.get(KEY_NEW_TENANT)).orElse(param.get(KEY_OLD_TENANT));
-        String auth = param.get(KEY_AUTH);
+        String auth = param.getOrDefault(KEY_AUTH, StringUtils.EMPTY);
         List<Topic> sdkTopics = sinks.stream()
                 .map(sink -> {
                     String groupId = sink.getGroupId();

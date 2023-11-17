@@ -94,7 +94,7 @@ public class SortConfigListener implements SortOperateListener {
                 groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), context.getOperator());
                 break;
             case RESTART:
-                groupService.updateStatus(groupId, GroupStatus.RESTARTING.getCode(), context.getOperator());
+                groupService.updateStatus(groupId, GroupStatus.CONFIG_ONLINE_ING.getCode(), context.getOperator());
                 break;
         }
         InlongGroupInfo groupInfo = groupService.get(groupId);

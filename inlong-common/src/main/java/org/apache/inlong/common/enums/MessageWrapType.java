@@ -17,6 +17,8 @@
 
 package org.apache.inlong.common.enums;
 
+import java.util.Objects;
+
 /**
  * Enumeration class of encoding format of data output from DataProxy to MQ
  */
@@ -52,6 +54,15 @@ public enum MessageWrapType {
     public static MessageWrapType valueOf(int value) {
         for (MessageWrapType msgEncType : MessageWrapType.values()) {
             if (msgEncType.getId() == value) {
+                return msgEncType;
+            }
+        }
+        return UNKNOWN;
+    }
+
+    public static MessageWrapType forType(String type) {
+        for (MessageWrapType msgEncType : MessageWrapType.values()) {
+            if (Objects.equals(msgEncType.getName(), type)) {
                 return msgEncType;
             }
         }

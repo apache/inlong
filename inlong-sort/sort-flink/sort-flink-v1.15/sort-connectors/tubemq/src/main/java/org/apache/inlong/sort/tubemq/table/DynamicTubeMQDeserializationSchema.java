@@ -19,116 +19,43 @@ package org.apache.inlong.sort.tubemq.table;
 
 import org.apache.inlong.tubemq.corebase.Message;
 
-import com.google.common.base.Objects;
-import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.table.data.GenericRowData;
-import org.apache.flink.table.data.RowData;
+import org.apache.flink.annotation.PublicEvolving;
+import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
 import org.apache.flink.util.Collector;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
-public class DynamicTubeMQDeserializationSchema implements DeserializationSchema<RowData> {
+public interface DynamicTubeMQDeserializationSchema<T> extends Serializable, ResultTypeQueryable<T> {
 
-    /**
-     * data buffer message
-     */
-    private final DeserializationSchema<RowData> deserializationSchema;
-
-    /**
-     * {@link MetadataConverter} of how to produce metadata from message.
-     */
-    private final MetadataConverter[] metadataConverters;
-
-    /**
-     * {@link TypeInformation} of the produced {@link RowData} (physical + meta data).
-     */
-    private final TypeInformation<RowData> producedTypeInfo;
-
-    /**
-     * status of error
-     */
-    private final boolean ignoreErrors;
-
-    public DynamicTubeMQDeserializationSchema(
-            DeserializationSchema<RowData> schema,
-            MetadataConverter[] metadataConverters,
-            TypeInformation<RowData> producedTypeInfo,
-            boolean ignoreErrors) {
-        this.deserializationSchema = schema;
-        this.metadataConverters = metadataConverters;
-        this.producedTypeInfo = producedTypeInfo;
-        this.ignoreErrors = ignoreErrors;
-    }
-
-    @Override
-    public RowData deserialize(byte[] bytes) throws IOException {
-        return deserializationSchema.deserialize(bytes);
-    }
-
-    @Override
-    public void deserialize(byte[] message, Collector<RowData> out) throws IOException {
-        deserializationSchema.deserialize(message, out);
-    }
-
-    @Override
-    public boolean isEndOfStream(RowData rowData) {
-        return false;
-    }
-
-    @Override
-    public TypeInformation<RowData> getProducedType() {
-        return producedTypeInfo;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof DynamicTubeMQDeserializationSchema)) {
-            return false;
-        }
-        DynamicTubeMQDeserializationSchema that = (DynamicTubeMQDeserializationSchema) o;
-        return ignoreErrors == that.ignoreErrors
-                && Objects.equal(Arrays.stream(metadataConverters).collect(Collectors.toList()),
-                        Arrays.stream(that.metadataConverters).collect(Collectors.toList()))
-                && Objects.equal(deserializationSchema, that.deserializationSchema)
-                && Objects.equal(producedTypeInfo, that.producedTypeInfo);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(deserializationSchema, metadataConverters, producedTypeInfo, ignoreErrors);
+    @PublicEvolving
+    default void open() throws Exception {
     }
 
     /**
-     * add metadata column
+     * Deserializes the byte message.
+     *
+     * @param message The message, as a byte array.
+     * @return The deserialized message as an object (null if the message cannot be deserialized).
      */
-    private void emitRow(Message head, GenericRowData physicalRow, Collector<RowData> out) {
-        if (metadataConverters.length == 0) {
-            out.collect(physicalRow);
-            return;
-        }
-        final int physicalArity = physicalRow.getArity();
-        final int metadataArity = metadataConverters.length;
-        final GenericRowData producedRow =
-                new GenericRowData(physicalRow.getRowKind(), physicalArity + metadataArity);
-        for (int physicalPos = 0; physicalPos < physicalArity; physicalPos++) {
-            producedRow.setField(physicalPos, physicalRow.getField(physicalPos));
-        }
-        for (int metadataPos = 0; metadataPos < metadataArity; metadataPos++) {
-            producedRow.setField(
-                    physicalArity + metadataPos, metadataConverters[metadataPos].read(head));
-        }
-        out.collect(producedRow);
-    }
+    T deserialize(Message message) throws IOException;
 
-    interface MetadataConverter extends Serializable {
-
-        Object read(Message head);
+    /**
+     * Deserializes the byte message.
+     *
+     * <p>Can output multiple records through the {@link Collector}. Note that number and size of
+     * the produced records should be relatively small. Depending on the source implementation
+     * records can be buffered in memory or collecting records might delay emitting checkpoint
+     * barrier.
+     *
+     * @param message The message, as a byte array.
+     * @param out The collector to put the resulting messages.
+     */
+    @PublicEvolving
+    default void deserialize(Message message, Collector<T> out) throws IOException {
+        T deserialize = deserialize(message);
+        if (deserialize != null) {
+            out.collect(deserialize);
+        }
     }
 }

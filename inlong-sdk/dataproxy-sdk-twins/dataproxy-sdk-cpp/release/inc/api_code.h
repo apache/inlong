@@ -31,7 +31,7 @@ enum SdkCode {
   kInvalidBid = 12,
   kFailGetBufferPool = 13,
   kFailGetSendBuf = 14,
-  kFailWriteToBuf = 15,
+  kMsgEmpty = 15,
   kErrorCURL = 16,
   kErrorParseJson = 17,
   kFailGetRevGroup = 18,

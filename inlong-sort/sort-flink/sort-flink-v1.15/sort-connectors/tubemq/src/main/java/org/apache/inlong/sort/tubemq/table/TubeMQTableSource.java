@@ -17,8 +17,10 @@
 
 package org.apache.inlong.sort.tubemq.table;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.tubemq.FlinkTubeMQConsumer;
-import org.apache.inlong.sort.tubemq.table.DynamicTubeMQDeserializationSchema.MetadataConverter;
+import org.apache.inlong.sort.tubemq.table.DynamicTubeMQTableDeserializationSchema.MetadataConverter;
 import org.apache.inlong.tubemq.corebase.Message;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -40,6 +42,8 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.utils.LogicalTypeChecks;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.util.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
@@ -61,6 +65,8 @@ import java.util.stream.Stream;
 public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetadata, SupportsWatermarkPushDown {
 
     private static final String VALUE_METADATA_PREFIX = "value.";
+
+    private static final Logger LOG = LoggerFactory.getLogger(TubeMQTableSource.class);
 
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
@@ -84,9 +90,9 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
      */
     private final String topic;
     /**
-     * The TubeMQ tid filter collection.
+     * The TubeMQ streamId filter collection.
      */
-    private final TreeSet<String> tidSet;
+    private final TreeSet<String> streamIdSet;
     /**
      * The TubeMQ consumer group name.
      */
@@ -120,6 +126,11 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
      * Metadata that is appended at the end of a physical source row.
      */
     protected List<String> metadataKeys;
+
+    private String inlongMetric;
+    private String auditHostAndPorts;
+    private String auditKeys;
+
     /**
      * Watermark strategy that is used to generate per-partition watermark.
      */
@@ -129,15 +140,16 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
     public TubeMQTableSource(DataType physicalDataType,
             DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat,
             String masterAddress, String topic,
-            TreeSet<String> tidSet, String consumerGroup, String sessionKey,
+            TreeSet<String> streamIdSet, String consumerGroup, String sessionKey,
             Configuration configuration, @Nullable WatermarkStrategy<RowData> watermarkStrategy,
-            Optional<String> proctimeAttribute, Boolean ignoreErrors, Boolean innerFormat) {
+            Optional<String> proctimeAttribute, Boolean ignoreErrors, Boolean innerFormat,
+            String inlongMetric, String auditHostAndPorts, String auditKeys) {
 
         Preconditions.checkNotNull(physicalDataType, "Physical data type must not be null.");
         Preconditions.checkNotNull(valueDecodingFormat, "The deserialization schema must not be null.");
         Preconditions.checkNotNull(masterAddress, "The master address must not be null.");
         Preconditions.checkNotNull(topic, "The topic must not be null.");
-        Preconditions.checkNotNull(tidSet, "The tid set must not be null.");
+        Preconditions.checkNotNull(streamIdSet, "The streamId set must not be null.");
         Preconditions.checkNotNull(consumerGroup, "The consumer group must not be null.");
         Preconditions.checkNotNull(configuration, "The configuration must not be null.");
 
@@ -147,7 +159,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
         this.valueDecodingFormat = valueDecodingFormat;
         this.masterAddress = masterAddress;
         this.topic = topic;
-        this.tidSet = tidSet;
+        this.streamIdSet = streamIdSet;
         this.consumerGroup = consumerGroup;
         this.sessionKey = sessionKey;
         this.configuration = configuration;
@@ -155,6 +167,9 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
         this.proctimeAttribute = proctimeAttribute;
         this.ignoreErrors = ignoreErrors;
         this.innerFormat = innerFormat;
+        this.inlongMetric = inlongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
+        this.auditKeys = auditKeys;
     }
 
     @Override
@@ -167,6 +182,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
         final LogicalType physicalType = physicalDataType.getLogicalType();
         final int physicalFieldCount = LogicalTypeChecks.getFieldCount(physicalType);
         final IntStream physicalFields = IntStream.range(0, physicalFieldCount);
+
         final DeserializationSchema<RowData> deserialization = createDeserialization(context,
                 valueDecodingFormat, physicalFields.toArray(), null);
 
@@ -182,8 +198,9 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
     public DynamicTableSource copy() {
         return new TubeMQTableSource(
                 physicalDataType, valueDecodingFormat, masterAddress,
-                topic, tidSet, consumerGroup, sessionKey, configuration,
-                watermarkStrategy, proctimeAttribute, ignoreErrors, innerFormat);
+                topic, streamIdSet, consumerGroup, sessionKey, configuration,
+                watermarkStrategy, proctimeAttribute, ignoreErrors, innerFormat,
+                inlongMetric, auditHostAndPorts, auditKeys);
     }
 
     @Override
@@ -247,7 +264,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
                 && Objects.equals(valueDecodingFormat, that.valueDecodingFormat)
                 && Objects.equals(masterAddress, that.masterAddress)
                 && Objects.equals(topic, that.topic)
-                && Objects.equals(String.valueOf(tidSet), String.valueOf(that.tidSet))
+                && Objects.equals(String.valueOf(streamIdSet), String.valueOf(that.streamIdSet))
                 && Objects.equals(consumerGroup, that.consumerGroup)
                 && Objects.equals(proctimeAttribute, that.proctimeAttribute)
                 && Objects.equals(watermarkStrategy, that.watermarkStrategy);
@@ -260,7 +277,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
                 valueDecodingFormat,
                 masterAddress,
                 topic,
-                tidSet,
+                streamIdSet,
                 consumerGroup,
                 configuration,
                 watermarkStrategy,
@@ -299,10 +316,18 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
                                 .orElseThrow(IllegalStateException::new))
                         .map(m -> m.converter)
                         .toArray(MetadataConverter[]::new);
-        final DeserializationSchema<RowData> tubeMQDeserializer = new DynamicTubeMQDeserializationSchema(
-                deserialization, metadataConverters, producedTypeInfo, ignoreErrors);
 
-        final FlinkTubeMQConsumer<RowData> tubeMQConsumer = new FlinkTubeMQConsumer(masterAddress, topic, tidSet,
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withAuditAddress(auditHostAndPorts)
+                .withAuditKeys(auditKeys)
+                .build();
+
+        final DynamicTubeMQDeserializationSchema<RowData> tubeMQDeserializer =
+                new DynamicTubeMQTableDeserializationSchema(
+                        deserialization, metadataConverters, producedTypeInfo, ignoreErrors, innerFormat, metricOption);
+
+        final FlinkTubeMQConsumer<RowData> tubeMQConsumer = new FlinkTubeMQConsumer(masterAddress, topic, streamIdSet,
                 consumerGroup, tubeMQDeserializer, configuration, sessionKey, innerFormat);
         return tubeMQConsumer;
     }
@@ -312,6 +337,11 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
     // --------------------------------------------------------------------------------------------
 
     enum ReadableMetadata {
+
+        CONSUME_TIME(
+                ExtractNode.CONSUME_AUDIT_TIME,
+                DataTypes.BIGINT().notNull(),
+                m -> System.currentTimeMillis()),
 
         TOPIC(
                 "topic",

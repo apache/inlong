@@ -55,6 +55,7 @@ import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeDTO;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperator;
 
@@ -101,6 +102,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.apache.inlong.manager.common.consts.InlongConstants.DOT;
+import static org.apache.inlong.manager.pojo.stream.InlongStreamExtParam.unpackExtParams;
 
 /**
  * Agent service layer implementation
@@ -161,7 +163,7 @@ public class AgentServiceImpl implements AgentService {
         // because the eviction handler needs to query cluster info cache
         long expireTime = 10 * 5;
         taskCache = Caffeine.newBuilder()
-                .expireAfterAccess(expireTime * 2L, TimeUnit.SECONDS)
+                .expireAfterWrite(expireTime * 2L, TimeUnit.SECONDS)
                 .build(this::fetchTask);
 
         if (updateTaskTimeoutEnabled) {
@@ -449,7 +451,8 @@ public class AgentServiceImpl implements AgentService {
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectTemplateSourceByCluster(needCopiedStatusList,
                 Lists.newArrayList(SourceType.FILE), agentClusterName);
         Set<GroupStatus> noNeedAddTask = Sets.newHashSet(
-                GroupStatus.SUSPENDED, GroupStatus.SUSPENDING, GroupStatus.DELETING, GroupStatus.DELETED);
+                GroupStatus.CONFIGURATION_OFFLINE, GroupStatus.CONFIG_OFFLINE_ING, GroupStatus.CONFIG_DELETING,
+                GroupStatus.CONFIG_DELETED);
         sourceEntities.stream()
                 .forEach(sourceEntity -> {
                     InlongGroupEntity groupEntity = groupMapper.selectByGroupId(sourceEntity.getInlongGroupId());
@@ -523,8 +526,7 @@ public class AgentServiceImpl implements AgentService {
                     SourceStatus.SOURCE_NORMAL,
                     SourceStatus.TO_BE_ISSUED_ADD,
                     SourceStatus.TO_BE_ISSUED_ACTIVE);
-            Set<GroupStatus> matchedGroupStatus = Sets.newHashSet(
-                    GroupStatus.CONFIG_SUCCESSFUL, GroupStatus.RESTARTED);
+            Set<GroupStatus> matchedGroupStatus = Sets.newHashSet(GroupStatus.CONFIG_SUCCESSFUL);
             if (matchGroup(sourceEntity, clusterNodeEntity)
                     && groupEntity != null
                     && !exceptedMatchedSourceStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))
@@ -600,6 +602,11 @@ public class AgentServiceImpl implements AgentService {
                 String dataSeparator = streamEntity.getDataSeparator();
                 extParams = (null != dataSeparator ? getExtParams(extParams, dataSeparator) : extParams);
             }
+
+            InlongStreamInfo streamInfo = CommonBeanUtils.copyProperties(streamEntity, InlongStreamInfo::new);
+            // Processing extParams
+            unpackExtParams(streamEntity.getExtParams(), streamInfo);
+            dataConfig.setPredefinedFields(streamInfo.getPredefinedFields());
 
             int dataReportType = groupEntity.getDataReportType();
             dataConfig.setDataReportType(dataReportType);
