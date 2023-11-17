@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.plugin.listener;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -98,8 +99,9 @@ public class StartupSortListener implements SortOperateListener {
 
         for (InlongStreamInfo streamInfo : streamInfos) {
             List<StreamSink> sinkList = streamInfo.getSinkList();
-            if (CollectionUtils.isEmpty(sinkList)) {
-                continue;
+            List<String> sinkTypes = sinkList.stream().map(StreamSink::getSinkType).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(sinkList) || !SinkType.containSortFlinkSink(sinkTypes)) {
+                return ListenerResult.success();
             }
 
             List<InlongStreamExtInfo> extList = streamInfo.getExtList();

@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.consts;
 import com.google.common.collect.Sets;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -53,5 +54,14 @@ public class SinkType extends StreamType {
                 Sets.newHashSet(HIVE, CLICKHOUSE, HBASE, HDFS, GREENPLUM, MYSQL, TDSQLPOSTGRESQL, DORIS,
                         STARROCKS, KUDU, REDIS, KAFKA, HUDI, POSTGRESQL, SQLSERVER, ORACLE, ICEBERG));
         SORT_STANDALONE_SINK.addAll(Sets.newHashSet(CLS, ELASTICSEARCH, PULSAR));
+    }
+
+    public static boolean containSortFlinkSink(List<String> sinkTypes) {
+        for (String sinkType : sinkTypes) {
+            if (SinkType.SORT_FLINK_SINK.contains(sinkType)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
