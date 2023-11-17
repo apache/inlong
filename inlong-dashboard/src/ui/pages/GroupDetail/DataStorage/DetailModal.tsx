@@ -73,11 +73,6 @@ const Comp: React.FC<DetailModalProps> = ({
       formatResult: result => new Entity()?.parse(result) || result,
       onSuccess: result => {
         setSinkType(result.sinkType);
-        if (result.indexNamePattern !== undefined) {
-          const pattern = result?.indexNamePattern.split('_');
-          form.setFieldValue('index', pattern[0]);
-          form.setFieldValue('cycle', `_${pattern[1]}`);
-        }
         form.setFieldsValue(result);
       },
     },
@@ -156,6 +151,9 @@ const Comp: React.FC<DetailModalProps> = ({
     if (isUpdate) {
       submitData.id = id;
       submitData.version = data?.version;
+    }
+    if (submitData.index !== null && submitData.cycle !== null) {
+      submitData.indexNamePattern = `${submitData.index}${submitData.cycle}`;
     }
     if (startProcess) {
       submitData.startProcess = true;

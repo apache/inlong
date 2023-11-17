@@ -67,63 +67,48 @@ export default class ElasticsearchSink
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
+    visible: values => values.id === undefined,
     props: values => ({
       disabled: [110].includes(values?.status),
-      onChange: value => {
-        if (values.indexNamePattern !== undefined) {
-          const pattern = values.indexNamePattern.split('_');
-          return {
-            indexNamePattern: `${value.target.value}_${pattern[1]}`,
-          };
-        }
-      },
     }),
     suffix: {
-      type: 'text',
-      name: 'indexNamePattern',
+      type: 'select',
+      name: 'cycle',
       rules: [{ required: true }],
+      label: i18n.t('meta.Sinks.ES.Cycle'),
+      visible: values => values.index !== undefined,
+      props: values => ({
+        disabled: [110].includes(values?.status),
+        options: [
+          {
+            label: i18n.t('meta.Sinks.ES.Cycle.Day'),
+            value: '_{yyyyMMdd}',
+          },
+          {
+            label: i18n.t('meta.Sinks.ES.Cycle.Hour'),
+            value: '_{yyyyMMddHH}',
+          },
+          {
+            label: i18n.t('meta.Sinks.ES.Cycle.Minute'),
+            value: '_{yyyyMMddHHmm}',
+          },
+        ],
+      }),
     },
   })
   @I18n('meta.Sinks.ES.Index')
   index: string;
 
   @FieldDecorator({
-    type: 'select',
+    type: 'input',
     rules: [{ required: true }],
-    visible: values => values.index !== undefined || values.indexNamePattern !== undefined,
+    visible: values => values.id !== undefined,
     props: values => ({
-      disabled: [110].includes(values?.status),
-      options: [
-        {
-          label: i18n.t('meta.Sinks.ES.Cycle.Day'),
-          value: '_{yyyyMMdd}',
-        },
-        {
-          label: i18n.t('meta.Sinks.ES.Cycle.Hour'),
-          value: '_{yyyyMMddHH}',
-        },
-        {
-          label: i18n.t('meta.Sinks.ES.Cycle.Minute'),
-          value: '_{yyyyMMddHHmm}',
-        },
-      ],
-      onChange: (value, option) => {
-        if (values.indexNamePattern !== undefined) {
-          const pattern = values.indexNamePattern.split('_');
-          return {
-            indexNamePattern: `${pattern[0]}${value}`,
-          };
-        }
-        return {
-          indexNamePattern: `${values.index}${value}`,
-        };
-      },
+      disabled: Boolean(values.id),
     }),
   })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.ES.Cycle')
-  @SyncField()
-  cycle: string;
+  @I18n('meta.Sinks.ES.Index')
+  indexNamePattern: string;
 
   @FieldDecorator({
     type: EditableTable,
