@@ -148,6 +148,9 @@ public class TaskProfileDto {
         if (taskConfig.getTimeOffset() != null) {
             fileTask.setTimeOffset(taskConfig.getTimeOffset());
         }
+        if (taskConfig.getTimeZone() != null) {
+            fileTask.setTimeZone(taskConfig.getTimeZone());
+        }
 
         if (taskConfig.getAdditionalAttr() != null) {
             fileTask.setAddictiveString(taskConfig.getAdditionalAttr());

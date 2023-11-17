@@ -33,6 +33,7 @@ public class FileTask {
     private Long startTime;
     private Long endTime;
     private String timeOffset;
+    private String timeZone;
     private String addictiveString;
     private String collectType;
     private Line line;
@@ -109,6 +110,8 @@ public class FileTask {
         // '1d' means one day after, '-1d' means one day before
         // Null means from current timestamp
         private String timeOffset;
+        // Asia/Shanghai
+        private String timeZone;
         // For example: a=b&c=b&e=f
         private String additionalAttr;
 
