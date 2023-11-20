@@ -112,9 +112,6 @@ public class ClientMgr {
         bootstrap.channel(EventLoopUtil.getClientSocketChannelClass(eventLoopGroup));
         bootstrap.option(ChannelOption.SO_RCVBUF, ConfigConstants.DEFAULT_RECEIVE_BUFFER_SIZE);
         bootstrap.option(ChannelOption.SO_SNDBUF, ConfigConstants.DEFAULT_SEND_BUFFER_SIZE);
-        if (configure.getNetTag().equals("bobcat")) {
-            bootstrap.option(ChannelOption.IP_TOS, 96);
-        }
         bootstrap.handler(new ClientPipelineFactory(this, sender));
         /* ready to Start the thread which refreshes the proxy list. */
         ipManager = new ProxyConfigManager(configure, Utils.getLocalIp(), this);

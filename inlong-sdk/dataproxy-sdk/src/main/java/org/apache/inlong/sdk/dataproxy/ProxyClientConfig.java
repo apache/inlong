@@ -36,7 +36,6 @@ public class ProxyClientConfig {
     private String proxyIPServiceURL = "";
     private int proxyUpdateIntervalMinutes;
     private int proxyUpdateMaxRetry;
-    private String netTag;
     private String inlongGroupId;
     private boolean isFile = false;
     private boolean isLocalVisit = true;
@@ -103,7 +102,7 @@ public class ProxyClientConfig {
 
     /* pay attention to the last url parameter ip */
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp,
-            int managerPort, String inlongGroupId, String netTag, String authSecretId, String authSecretKey,
+            int managerPort, String inlongGroupId,  String authSecretId, String authSecretKey,
             LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
         if (Utils.isBlank(localHost)) {
             throw new ProxysdkException("localHost is blank!");
@@ -117,7 +116,6 @@ public class ProxyClientConfig {
         this.proxyIPServiceURL =
                 getProxyIPServiceURL(managerIp, managerPort, inlongGroupId, isLocalVisit);
         this.inlongGroupId = inlongGroupId;
-        this.netTag = netTag;
         this.isLocalVisit = isLocalVisit;
         this.managerPort = managerPort;
         this.managerIP = managerIp;
@@ -148,7 +146,7 @@ public class ProxyClientConfig {
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp, int managerPort,
             String inlongGroupId,
             String netTag, String authSecretId, String authSecretKey) throws ProxysdkException {
-        this(localHost, isLocalVisit, managerIp, managerPort, inlongGroupId, netTag, authSecretId, authSecretKey,
+        this(localHost, isLocalVisit, managerIp, managerPort, inlongGroupId,  authSecretId, authSecretKey,
                 ConfigConstants.DEFAULT_LOAD_BALANCE, ConfigConstants.DEFAULT_VIRTUAL_NODE,
                 ConfigConstants.DEFAULT_RANDOM_MAX_RETRY);
     }
@@ -297,9 +295,6 @@ public class ProxyClientConfig {
         this.requestTimeoutMillis = requestTimeoutMillis;
     }
 
-    public String getNetTag() {
-        return netTag;
-    }
 
     public String getRsaPubKeyUrl() {
         return rsaPubKeyUrl;
