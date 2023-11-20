@@ -22,7 +22,7 @@ import org.apache.inlong.agent.conf.InstanceProfile;
 import java.util.Map;
 
 // For some private, customized extension processing
-public class ExtendedHandler {
+public abstract class ExtendedHandler {
 
     public ExtendedHandler(InstanceProfile profile) {
 

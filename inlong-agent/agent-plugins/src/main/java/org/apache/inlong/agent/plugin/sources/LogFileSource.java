@@ -52,6 +52,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -81,6 +82,7 @@ import static org.apache.inlong.agent.constant.MetadataConstants.ENV_CVM;
 import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_FILE_NAME;
 import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_HOST_NAME;
 import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_SOURCE_IP;
+import static org.apache.inlong.agent.constant.TaskConstants.DEFAULT_FILE_SOURCE_EXTEND_CLASS;
 import static org.apache.inlong.agent.constant.TaskConstants.JOB_FILE_META_ENV_LIST;
 import static org.apache.inlong.agent.constant.TaskConstants.OFFSET;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_CYCLE_UNIT;
@@ -161,7 +163,14 @@ public class LogFileSource extends AbstractSource {
             queue = new LinkedBlockingQueue<>(CACHE_QUEUE_SIZE);
             dataTime = DateTransUtils.timeStrConvertToMillSec(profile.getSourceDataTime(),
                     profile.get(TASK_CYCLE_UNIT));
-            extendedHandler = new ExtendedHandler(profile);
+            if (DEFAULT_FILE_SOURCE_EXTEND_CLASS.compareTo(ExtendedHandler.class.getCanonicalName()) != 0) {
+                Constructor<?> constructor =
+                        Class.forName(
+                                profile.get(TaskConstants.FILE_SOURCE_EXTEND_CLASS, DEFAULT_FILE_SOURCE_EXTEND_CLASS))
+                                .getDeclaredConstructor(InstanceProfile.class);
+                constructor.setAccessible(true);
+                extendedHandler = (ExtendedHandler) constructor.newInstance(profile);
+            }
             try {
                 registerMeta(profile);
             } catch (Exception ex) {
@@ -357,7 +366,9 @@ public class LogFileSource extends AbstractSource {
         header.put(PROXY_KEY_DATA, proxyPartitionKey);
         header.put(OFFSET, sourceData.offset.toString());
         header.put(PROXY_KEY_STREAM_ID, inlongStreamId);
-        extendedHandler.dealWithHeader(header, sourceData.getData().getBytes(StandardCharsets.UTF_8));
+        if (extendedHandler != null) {
+            extendedHandler.dealWithHeader(header, sourceData.getData().getBytes(StandardCharsets.UTF_8));
+        }
         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, header.get(PROXY_KEY_STREAM_ID),
                 dataTime, 1, msgWithMetaData.length());
         Message finalMsg = new DefaultMessage(msgWithMetaData.getBytes(StandardCharsets.UTF_8), header);
