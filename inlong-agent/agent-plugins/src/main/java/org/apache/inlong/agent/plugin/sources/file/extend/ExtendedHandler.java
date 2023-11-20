@@ -21,12 +21,14 @@ import org.apache.inlong.agent.conf.InstanceProfile;
 
 import java.util.Map;
 
+// For some private, customized extension processing
 public class ExtendedHandler {
 
     public ExtendedHandler(InstanceProfile profile) {
 
     }
 
+    // Modify the header by the body
     public void dealWithHeader(Map<String, String> header, byte[] body) {
 
     }
