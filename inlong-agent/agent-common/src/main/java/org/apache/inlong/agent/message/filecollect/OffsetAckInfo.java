@@ -19,15 +19,12 @@ package org.apache.inlong.agent.message.filecollect;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-public class PackageAckInfo {
+public class OffsetAckInfo {
 
-    private Long index;
     private Long offset;
-    private Integer len;
+    private int len;
     private Boolean hasAck;
 }

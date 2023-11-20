@@ -110,7 +110,8 @@ public class TaskProfile extends AbstractConfiguration {
         return hasKey(TaskConstants.TASK_ID) && hasKey(TaskConstants.TASK_SOURCE)
                 && hasKey(TaskConstants.TASK_SINK) && hasKey(TaskConstants.TASK_CHANNEL)
                 && hasKey(TaskConstants.TASK_GROUP_ID) && hasKey(TaskConstants.TASK_STREAM_ID)
-                && hasKey(TaskConstants.TASK_CYCLE_UNIT);
+                && hasKey(TaskConstants.TASK_CYCLE_UNIT)
+                && hasKey(TaskConstants.TASK_FILE_TIME_ZONE);
     }
 
     public String toJsonStr() {
@@ -125,10 +126,13 @@ public class TaskProfile extends AbstractConfiguration {
         instanceProfile.setSourceDataTime(dataTime);
         Long sinkDataTime = 0L;
         try {
-            sinkDataTime = DateTransUtils.timeStrConvertTomillSec(dataTime, getCycleUnit(),
+            sinkDataTime = DateTransUtils.timeStrConvertToMillSec(dataTime, getCycleUnit(),
                     TimeZone.getTimeZone(getTimeZone()));
         } catch (ParseException e) {
-            logger.error("createInstanceProfile error: ", e);
+            logger.error("createInstanceProfile ParseException error: ", e);
+            return null;
+        } catch (Exception e) {
+            logger.error("createInstanceProfile Exception error: ", e);
             return null;
         }
         instanceProfile.setSinkDataTime(sinkDataTime);
