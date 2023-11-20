@@ -67,106 +67,48 @@ export default class ElasticsearchSink
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
+    visible: values => values.id === undefined,
     props: values => ({
       disabled: [110].includes(values?.status),
     }),
+    suffix: {
+      type: 'select',
+      name: 'cycle',
+      rules: [{ required: true }],
+      label: i18n.t('meta.Sinks.ES.Cycle'),
+      visible: values => values.index !== undefined,
+      props: values => ({
+        disabled: [110].includes(values?.status),
+        options: [
+          {
+            label: i18n.t('meta.Sinks.ES.Cycle.Day'),
+            value: '_{yyyyMMdd}',
+          },
+          {
+            label: i18n.t('meta.Sinks.ES.Cycle.Hour'),
+            value: '_{yyyyMMddHH}',
+          },
+          {
+            label: i18n.t('meta.Sinks.ES.Cycle.Minute'),
+            value: '_{yyyyMMddHHmm}',
+          },
+        ],
+      }),
+    },
   })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.ES.IndexName')
-  @SyncField()
-  indexName: string;
+  @I18n('meta.Sinks.ES.Index')
+  index: string;
 
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
-    tooltip: i18n.t('meta.Sinks.ES.PrimaryKeyHelp'),
+    visible: values => values.id !== undefined,
     props: values => ({
-      disabled: [110].includes(values?.status),
+      disabled: Boolean(values.id),
     }),
   })
-  @ColumnDecorator()
-  @SyncField()
-  @I18n('meta.Sinks.ES.PrimaryKey')
-  primaryKey: string;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: [110].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @SyncField()
-  @I18n('meta.Sinks.ES.DocumentType')
-  documentType: string;
-
-  @FieldDecorator({
-    type: 'radio',
-    rules: [{ required: true }],
-    initialValue: 1,
-    tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
-    props: values => ({
-      disabled: [110].includes(values?.status),
-      options: [
-        {
-          label: i18n.t('basic.Yes'),
-          value: 1,
-        },
-        {
-          label: i18n.t('basic.No'),
-          value: 0,
-        },
-      ],
-    }),
-  })
-  @I18n('meta.Sinks.EnableCreateResource')
-  @SyncField()
-  enableCreateResource: number;
-
-  @FieldDecorator({
-    type: 'inputnumber',
-    initialValue: 1000,
-    rules: [{ required: true }],
-    suffix: i18n.t('meta.Sinks.ES.FlushRecordUnit'),
-    props: values => ({
-      min: 1,
-      disabled: [110].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @SyncField()
-  @I18n('meta.Sinks.ES.FlushRecord')
-  flushRecord: number;
-
-  @FieldDecorator({
-    type: 'inputnumber',
-    initialValue: 3,
-    rules: [{ required: true }],
-    suffix: i18n.t('meta.Sinks.ES.RetryTimesUnit'),
-    props: values => ({
-      min: 1,
-      disabled: [110].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @SyncField()
-  @I18n('meta.Sinks.ES.RetryTimes')
-  retryTime: number;
-
-  @FieldDecorator({
-    type: 'inputnumber',
-    rules: [{ required: true }],
-    tooltip: i18n.t('meta.Sinks.ES.EsVersionHelp'),
-    props: values => ({
-      min: 1,
-      disabled: [110].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @SyncField()
-  @I18n('meta.Sinks.ES.EsVersion')
-  esVersion: number;
+  @I18n('meta.Sinks.ES.Index')
+  indexNamePattern: string;
 
   @FieldDecorator({
     type: EditableTable,
@@ -185,7 +127,7 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `Elasticsearch${i18n.t('meta.Sinks.ES.FieldName')}`,
+      title: i18n.t('meta.Sinks.ES.FieldName'),
       dataIndex: 'fieldName',
       rules: [
         { required: true },
@@ -199,7 +141,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `Elasticsearch${i18n.t('meta.Sinks.ES.FieldType')}`,
+      title: i18n.t('meta.Sinks.ES.FieldType'),
       dataIndex: 'fieldType',
       initialValue: esTypes[0].value,
       type: 'select',
@@ -219,7 +161,7 @@ const getFieldListColumns = sinkValues => {
       visible: (text, record) => record.fieldType === 'text',
     },
     {
-      title: 'SearchAnalyzer',
+      title: 'Search analyzer',
       dataIndex: 'searchAnalyzer',
       props: (text, record, idx, isNew) => ({
         disabled: [110].includes(sinkValues?.status as number) && !isNew,
@@ -235,7 +177,7 @@ const getFieldListColumns = sinkValues => {
       visible: (text, record) => record.fieldType === 'date',
     },
     {
-      title: 'ScalingFactor',
+      title: 'Scaling factor',
       dataIndex: 'scalingFactor',
       props: (text, record, idx, isNew) => ({
         disabled: [110].includes(sinkValues?.status as number) && !isNew,

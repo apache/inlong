@@ -156,7 +156,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
   const onOk = async () => {
     const isUpdate = !!inlongStreamId;
     const values = await form.validateFields();
-    if (values?.predefinedFields?.length !== 0) {
+    if (values?.predefinedFields !== undefined && values?.predefinedFields?.length !== 0) {
       values.predefinedFields = dataToString(values.predefinedFields).join('&');
     } else {
       values.predefinedFields = '';
