@@ -274,7 +274,7 @@ public class WatchEntity {
         logger.info("removeUselessWatchDirectories {}", curDataTime);
 
         /* Calculate the data time which is 3 cycle units earlier than current task data time. */
-        long curDataTimeMillis = DateTransUtils.timeStrConvertTomillSec(curDataTime, cycleUnit);
+        long curDataTimeMillis = DateTransUtils.timeStrConvertToMillSec(curDataTime, cycleUnit);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(curDataTimeMillis);
         if ("D".equalsIgnoreCase(cycleUnit)) {

@@ -20,11 +20,7 @@ package org.apache.inlong.agent.plugin.sinks.filecollect;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.InstanceProfile;
-import org.apache.inlong.agent.conf.OffsetProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
-import org.apache.inlong.agent.core.task.OffsetManager;
-import org.apache.inlong.agent.core.task.file.MemoryManager;
-import org.apache.inlong.agent.message.filecollect.PackageAckInfo;
 import org.apache.inlong.agent.message.filecollect.SenderMessage;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
@@ -44,7 +40,6 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,19 +48,15 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_BATCH_FLUSH_INTERVAL;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_BATCH_FLUSH_INTERVAL;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_WRITER_PERMIT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
 import static org.apache.inlong.agent.constant.TaskConstants.DEFAULT_JOB_PROXY_SEND;
-import static org.apache.inlong.agent.constant.TaskConstants.INODE_INFO;
 import static org.apache.inlong.agent.constant.TaskConstants.JOB_PROXY_SEND;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_STREAM_ID;
@@ -78,8 +69,6 @@ public class SenderManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SenderManager.class);
     private static final SequentialID SEQUENTIAL_ID = SequentialID.getInstance();
-    public final int SAVE_OFFSET_INTERVAL_MS = 1000;
-    private final AtomicInteger SENDER_INDEX = new AtomicInteger(0);
     // cache for group and sender list, share the map cross agent lifecycle.
     private DefaultMessageSender sender;
     private LinkedBlockingQueue<AgentSenderCallback> resendQueue;
@@ -113,16 +102,12 @@ public class SenderManager {
     // metric
     private AgentMetricItemSet metricItemSet;
     private Map<String, String> dimensions;
-    private OffsetManager offsetManager;
     private int ioThreadNum;
     private boolean enableBusyWait;
     private String authSecretId;
     private String authSecretKey;
     protected int batchFlushInterval;
-    private List<PackageAckInfo> packageAckInfoList = new ArrayList<>();
-    private final ReentrantReadWriteLock packageAckInfoLock = new ReentrantReadWriteLock(true);
     protected InstanceProfile profile;
-    private volatile boolean offsetRunning = false;
     private volatile boolean resendRunning = false;
     private volatile boolean started = false;
 
@@ -155,7 +140,6 @@ public class SenderManager {
         retrySleepTime = profile.getLong(
                 CommonConstants.PROXY_RETRY_SLEEP, CommonConstants.DEFAULT_PROXY_RETRY_SLEEP);
         isFile = profile.getBoolean(CommonConstants.PROXY_IS_FILE, CommonConstants.DEFAULT_IS_FILE);
-        offsetManager = OffsetManager.init();
         ioThreadNum = profile.getInt(CommonConstants.PROXY_CLIENT_IO_THREAD_NUM,
                 CommonConstants.DEFAULT_PROXY_CLIENT_IO_THREAD_NUM);
         enableBusyWait = profile.getBoolean(CommonConstants.PROXY_CLIENT_ENABLE_BUSY_WAIT,
@@ -178,7 +162,6 @@ public class SenderManager {
 
     public void Start() throws Exception {
         createMessageSender(inlongGroupId);
-        EXECUTOR_SERVICE.execute(flushOffset());
         EXECUTOR_SERVICE.execute(flushResendQueue());
         started = true;
     }
@@ -189,11 +172,10 @@ public class SenderManager {
         if (!started) {
             return;
         }
-        while (offsetRunning || resendRunning) {
+        while (resendRunning) {
             AgentUtils.silenceSleepInMs(1);
         }
         closeMessageSender();
-        clearOffset();
         LOGGER.info("stop send manager end");
     }
 
@@ -247,58 +229,9 @@ public class SenderManager {
         while (!shutdown && !resendQueue.isEmpty()) {
             AgentUtils.silenceSleepInMs(retrySleepTime);
         }
-        addAckInfo(message.getAckInfo());
         if (!shutdown) {
             sendBatchWithRetryCount(message, 0);
         }
-    }
-
-    private void addAckInfo(PackageAckInfo info) {
-        packageAckInfoLock.writeLock().lock();
-        packageAckInfoList.add(info);
-        packageAckInfoLock.writeLock().unlock();
-    }
-
-    public boolean sendFinished() {
-        boolean finished = false;
-        packageAckInfoLock.writeLock().lock();
-        if (packageAckInfoList.isEmpty()) {
-            finished = true;
-        }
-        packageAckInfoLock.writeLock().unlock();
-        return finished;
-    }
-
-    /**
-     * flushOffset
-     */
-    private void doFlushOffset() {
-        packageAckInfoLock.writeLock().lock();
-        PackageAckInfo info = null;
-        for (int i = 0; i < packageAckInfoList.size();) {
-            if (packageAckInfoList.get(i).getHasAck()) {
-                info = packageAckInfoList.remove(i);
-                MemoryManager.getInstance().release(AGENT_GLOBAL_WRITER_PERMIT, info.getLen());
-            } else {
-                break;
-            }
-        }
-        if (info != null) {
-            LOGGER.info("save offset {} taskId {} instanceId {}", info.getOffset(), profile.getTaskId(),
-                    profile.getInstanceId());
-            OffsetProfile offsetProfile = new OffsetProfile(profile.getTaskId(), profile.getInstanceId(),
-                    info.getOffset(), profile.get(INODE_INFO));
-            offsetManager.setOffset(offsetProfile);
-        }
-        packageAckInfoLock.writeLock().unlock();
-    }
-
-    private void clearOffset() {
-        packageAckInfoLock.writeLock().lock();
-        for (int i = 0; i < packageAckInfoList.size();) {
-            MemoryManager.getInstance().release(AGENT_GLOBAL_WRITER_PERMIT, packageAckInfoList.remove(i).getLen());
-        }
-        packageAckInfoLock.writeLock().unlock();
     }
 
     /**
@@ -370,26 +303,6 @@ public class SenderManager {
     }
 
     /**
-     * flushOffset
-     *
-     * @return thread runner
-     */
-    private Runnable flushOffset() {
-        return () -> {
-            AgentThreadFactory.nameThread(
-                    "flushOffset-" + profile.getTaskId() + "-" + profile.getInstanceId());
-            LOGGER.info("start flush offset {}:{}", inlongGroupId, sourcePath);
-            offsetRunning = true;
-            while (!shutdown) {
-                doFlushOffset();
-                AgentUtils.silenceSleepInMs(SAVE_OFFSET_INTERVAL_MS);
-            }
-            LOGGER.info("stop flush offset {}:{}", inlongGroupId, sourcePath);
-            offsetRunning = false;
-        };
-    }
-
-    /**
      * put the data into resend queue and will be resent later.
      *
      * @param batchMessageCallBack
@@ -400,6 +313,10 @@ public class SenderManager {
         } catch (Throwable throwable) {
             LOGGER.error("putInResendQueue e = {}", throwable);
         }
+    }
+
+    public boolean sendFinished() {
+        return true;
     }
 
     /**
@@ -425,7 +342,7 @@ public class SenderManager {
             String instanceId = message.getInstanceId();
             long dataTime = message.getDataTime();
             if (result != null && result.equals(SendResult.OK)) {
-                message.getAckInfo().setHasAck(true);
+                message.getOffsetAckList().forEach(ack -> ack.setHasAck(true));
                 getMetricItem(groupId, streamId).pluginSendSuccessCount.addAndGet(msgCnt);
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId,
                         dataTime, message.getMsgCnt(), message.getTotalSize());

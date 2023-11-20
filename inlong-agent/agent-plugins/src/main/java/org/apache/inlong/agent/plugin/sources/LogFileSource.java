@@ -68,6 +68,7 @@ import java.util.concurrent.TimeUnit;
 import static org.apache.inlong.agent.constant.CommonConstants.COMMA;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_PACKAGE_MAX_SIZE;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_SIZE;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_PARTITION_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_QUEUE_PERMIT;
@@ -156,7 +157,7 @@ public class LogFileSource extends AbstractSource {
             linePosition = getInitLineOffset(isIncrement, taskId, instanceId, inodeInfo);
             bytePosition = getBytePositionByLine(linePosition);
             queue = new LinkedBlockingQueue<>(CACHE_QUEUE_SIZE);
-            dataTime = DateTransUtils.timeStrConvertTomillSec(profile.getSourceDataTime(),
+            dataTime = DateTransUtils.timeStrConvertToMillSec(profile.getSourceDataTime(),
                     profile.get(TASK_CYCLE_UNIT));
             try {
                 registerMeta(profile);
@@ -348,12 +349,13 @@ public class LogFileSource extends AbstractSource {
 
     private Message createMessage(SourceData sourceData) {
         String msgWithMetaData = fillMetaData(sourceData.data);
-        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
-                dataTime, 1, msgWithMetaData.length());
         String proxyPartitionKey = profile.get(PROXY_SEND_PARTITION_KEY, DigestUtils.md5Hex(inlongGroupId));
         Map<String, String> header = new HashMap<>();
         header.put(PROXY_KEY_DATA, proxyPartitionKey);
         header.put(OFFSET, sourceData.offset.toString());
+        header.put(PROXY_KEY_STREAM_ID, inlongStreamId);
+        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, header.get(PROXY_KEY_STREAM_ID),
+                dataTime, 1, msgWithMetaData.length());
         Message finalMsg = new DefaultMessage(msgWithMetaData.getBytes(StandardCharsets.UTF_8), header);
         // if the message size is greater than max pack size,should drop it.
         if (finalMsg.getBody().length > maxPackSize) {

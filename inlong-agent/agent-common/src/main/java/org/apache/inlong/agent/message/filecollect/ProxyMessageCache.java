@@ -18,8 +18,6 @@
 package org.apache.inlong.agent.message.filecollect;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
-import org.apache.inlong.agent.constant.TaskConstants;
-import org.apache.inlong.agent.message.ProxyMessage;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.common.msg.AttributeConstants;
@@ -32,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -51,19 +50,17 @@ public class ProxyMessageCache {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyMessageCache.class);
 
-    private final String groupId;
-    private final String streamId;
     private final String taskId;
     private final String instanceId;
     private final int maxPackSize;
     private final int maxQueueNumber;
-    private final String inodeInfo;
+    private final String groupId;
     // ms
     private final int cacheTimeout;
     // streamId -> list of proxyMessage
-    private final LinkedBlockingQueue<ProxyMessage> messageQueue;
+    private final ConcurrentHashMap<String, LinkedBlockingQueue<ProxyMessage>> messageQueueMap;
+    // private final LinkedBlockingQueue<ProxyMessage> messageQueue;
     private final AtomicLong cacheSize = new AtomicLong(0);
-    private Long packageIndex = 0L;
     private long lastPrintTime = 0;
     private long dataTime;
     /**
@@ -74,16 +71,15 @@ public class ProxyMessageCache {
     public ProxyMessageCache(InstanceProfile instanceProfile, String groupId, String streamId) {
         this.taskId = instanceProfile.getTaskId();
         this.instanceId = instanceProfile.getInstanceId();
+        this.groupId = groupId;
         this.maxPackSize = instanceProfile.getInt(PROXY_PACKAGE_MAX_SIZE, DEFAULT_PROXY_PACKAGE_MAX_SIZE);
         this.maxQueueNumber = instanceProfile.getInt(PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER,
                 DEFAULT_PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER);
         this.cacheTimeout = instanceProfile.getInt(PROXY_PACKAGE_MAX_TIMEOUT_MS, DEFAULT_PROXY_PACKAGE_MAX_TIMEOUT_MS);
-        this.messageQueue = new LinkedBlockingQueue<>(maxQueueNumber);
-        this.groupId = groupId;
-        this.streamId = streamId;
-        this.inodeInfo = instanceProfile.get(TaskConstants.INODE_INFO);
+        messageQueueMap = new ConcurrentHashMap<>();
+        // this.messageQueue = new LinkedBlockingQueue<>(maxQueueNumber);
         try {
-            dataTime = DateTransUtils.timeStrConvertTomillSec(instanceProfile.getSourceDataTime(),
+            dataTime = DateTransUtils.timeStrConvertToMillSec(instanceProfile.getSourceDataTime(),
                     instanceProfile.get(TASK_CYCLE_UNIT));
         } catch (ParseException e) {
             LOGGER.info("trans dataTime error", e);
@@ -101,22 +97,19 @@ public class ProxyMessageCache {
      *
      * @return true if is nearly full else false.
      */
-    private boolean queueIsFull() {
+    private boolean queueIsFull(LinkedBlockingQueue<ProxyMessage> messageQueue) {
         return messageQueue.size() >= maxQueueNumber - 1;
     }
 
     /**
      * Add proxy message to cache, proxy message should belong to the same stream id.
      */
-    public boolean addProxyMessage(ProxyMessage message) {
-        assert streamId.equals(message.getInlongStreamId());
+    public boolean add(ProxyMessage message) {
+        String streamId = message.getInlongStreamId();
+        LinkedBlockingQueue<ProxyMessage> messageQueue = makeSureQueueExist(streamId);
         try {
-            if (queueIsFull()) {
-                if (AgentUtils.getCurrentTime() - lastPrintTime > TimeUnit.SECONDS.toMillis(1)) {
-                    lastPrintTime = AgentUtils.getCurrentTime();
-                    LOGGER.warn("message queue is greater than {}, stop adding message, "
-                            + "maybe proxy get stuck", maxQueueNumber);
-                }
+            if (queueIsFull(messageQueue)) {
+                printQueueFull();
                 return false;
             }
             messageQueue.put(message);
@@ -128,11 +121,25 @@ public class ProxyMessageCache {
         return false;
     }
 
-    /**
-     * check message queue is empty or not
-     */
-    public boolean isEmpty() {
-        return messageQueue.isEmpty();
+    private void printQueueFull() {
+        if (AgentUtils.getCurrentTime() - lastPrintTime > TimeUnit.SECONDS.toMillis(1)) {
+            lastPrintTime = AgentUtils.getCurrentTime();
+            LOGGER.warn("message queue is greater than {}, stop adding message, "
+                    + "maybe proxy get stuck", maxQueueNumber);
+        }
+    }
+
+    public ConcurrentHashMap<String, LinkedBlockingQueue<ProxyMessage>> getMessageQueueMap() {
+        return messageQueueMap;
+    }
+
+    private LinkedBlockingQueue<ProxyMessage> makeSureQueueExist(String streamId) {
+        LinkedBlockingQueue<ProxyMessage> messageQueue = messageQueueMap.get(streamId);
+        if (messageQueue == null) {
+            messageQueue = new LinkedBlockingQueue<>();
+            messageQueueMap.put(streamId, messageQueue);
+        }
+        return messageQueue;
     }
 
     /**
@@ -140,10 +147,10 @@ public class ProxyMessageCache {
      *
      * @return map of message list, key is stream id for the batch; return null if there are no valid messages.
      */
-    public SenderMessage fetchSenderMessage() {
+    public SenderMessage fetchSenderMessage(String streamId, LinkedBlockingQueue<ProxyMessage> messageQueue) {
         int resultBatchSize = 0;
         List<byte[]> bodyList = new ArrayList<>();
-        Long packageOffset = TaskConstants.DEFAULT_OFFSET;
+        List<OffsetAckInfo> offsetList = new ArrayList<>();
         while (!messageQueue.isEmpty()) {
             // pre check message size
             ProxyMessage peekMessage = messageQueue.peek();
@@ -164,17 +171,12 @@ public class ProxyMessageCache {
             // decrease queue size.
             cacheSize.addAndGet(-bodySize);
             bodyList.add(message.getBody());
-            Long newOffset = Long.parseLong(message.getHeader().get(TaskConstants.OFFSET));
-            if (packageOffset < newOffset) {
-                packageOffset = newOffset;
-            }
+            offsetList.add(message.getAckInfo());
         }
         // make sure result is not empty.
         if (!bodyList.isEmpty()) {
-            PackageAckInfo ackInfo = new PackageAckInfo(packageIndex, packageOffset, resultBatchSize, false);
             SenderMessage senderMessage = new SenderMessage(taskId, instanceId, groupId, streamId, bodyList,
-                    dataTime, extraMap, ackInfo);
-            packageIndex++;
+                    dataTime, extraMap, offsetList);
             return senderMessage;
         }
         return null;

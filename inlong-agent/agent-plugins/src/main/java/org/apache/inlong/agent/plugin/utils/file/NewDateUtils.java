@@ -124,7 +124,7 @@ public class NewDateUtils {
         String retTime = DateTransUtils.millSecConvertToTimeStr(
                 System.currentTimeMillis(), cycleUnit);
         try {
-            long time = DateTransUtils.timeStrConvertTomillSec(dataTime, cycleUnit);
+            long time = DateTransUtils.timeStrConvertToMillSec(dataTime, cycleUnit);
 
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(time);
@@ -592,8 +592,8 @@ public class NewDateUtils {
         long startTime;
         long endTime;
         try {
-            startTime = DateTransUtils.timeStrConvertTomillSec(start, cycleUnit);
-            endTime = DateTransUtils.timeStrConvertTomillSec(end, cycleUnit);
+            startTime = DateTransUtils.timeStrConvertToMillSec(start, cycleUnit);
+            endTime = DateTransUtils.timeStrConvertToMillSec(end, cycleUnit);
         } catch (ParseException e) {
             logger.error("date format is error: ", e);
             return ret;

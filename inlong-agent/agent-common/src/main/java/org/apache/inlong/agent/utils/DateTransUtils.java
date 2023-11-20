@@ -36,12 +36,12 @@ public class DateTransUtils {
     }
 
     // convert YYYMMDD to millSec by cycleUnit
-    public static long timeStrConvertTomillSec(String time, String cycleUnit)
+    public static long timeStrConvertToMillSec(String time, String cycleUnit)
             throws ParseException {
-        return timeStrConvertTomillSec(time, cycleUnit, TimeZone.getDefault());
+        return timeStrConvertToMillSec(time, cycleUnit, TimeZone.getDefault());
     }
 
-    public static long timeStrConvertTomillSec(String time, String cycleUnit, TimeZone timeZone)
+    public static long timeStrConvertToMillSec(String time, String cycleUnit, TimeZone timeZone)
             throws ParseException {
         long retTime = 0;
         SimpleDateFormat df = null;
@@ -62,9 +62,6 @@ public class DateTransUtils {
         try {
             df.setTimeZone(timeZone);
             retTime = df.parse(time).getTime();
-            if (cycleUnit.equals("10m")) {
-
-            }
         } catch (ParseException e) {
             logger.error("convert time string error. ", e);
         }
@@ -98,7 +95,6 @@ public class DateTransUtils {
         retTime = df.format(dateTime);
 
         if (cycleUnit.contains("m")) {
-
             int cycleNum = Integer.parseInt(cycleUnit.substring(0,
                     cycleUnit.length() - 1));
             int mmTime = Integer.parseInt(retTime.substring(
