@@ -59,7 +59,6 @@ public class ProxyMessageCache {
     private final int cacheTimeout;
     // streamId -> list of proxyMessage
     private final ConcurrentHashMap<String, LinkedBlockingQueue<ProxyMessage>> messageQueueMap;
-    // private final LinkedBlockingQueue<ProxyMessage> messageQueue;
     private final AtomicLong cacheSize = new AtomicLong(0);
     private long lastPrintTime = 0;
     private long dataTime;
@@ -77,7 +76,6 @@ public class ProxyMessageCache {
                 DEFAULT_PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER);
         this.cacheTimeout = instanceProfile.getInt(PROXY_PACKAGE_MAX_TIMEOUT_MS, DEFAULT_PROXY_PACKAGE_MAX_TIMEOUT_MS);
         messageQueueMap = new ConcurrentHashMap<>();
-        // this.messageQueue = new LinkedBlockingQueue<>(maxQueueNumber);
         try {
             dataTime = DateTransUtils.timeStrConvertToMillSec(instanceProfile.getSourceDataTime(),
                     instanceProfile.get(TASK_CYCLE_UNIT));
