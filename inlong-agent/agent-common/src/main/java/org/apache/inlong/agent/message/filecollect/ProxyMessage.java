@@ -27,7 +27,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_GROUP_I
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_STREAM_ID;
 
 /**
- * Bus message with body, header, inlongGroupId and inlongStreamId.
+ * proxy message with body, header, inlongGroupId and inlongStreamId.
  */
 public class ProxyMessage implements Message {
 
