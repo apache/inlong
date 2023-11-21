@@ -138,6 +138,7 @@ public class TaskProfileDto {
         fileTask.setDir(dir);
         fileTask.setCollectType(taskConfig.getCollectType());
         fileTask.setContentCollectType(taskConfig.getContentCollectType());
+        fileTask.setDataContentStyle(taskConfig.getDataContentStyle());
         fileTask.setDataSeparator(taskConfig.getDataSeparator());
         fileTask.setMaxFileCount(taskConfig.getMaxFileCount());
         fileTask.setRetry(taskConfig.getRetry());

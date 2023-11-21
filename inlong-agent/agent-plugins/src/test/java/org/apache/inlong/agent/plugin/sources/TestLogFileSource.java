@@ -62,7 +62,6 @@ public class TestLogFileSource {
         TaskProfile taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING);
         instanceProfile = taskProfile.createInstanceProfile("",
                 fileName, "20230928", AgentUtils.getCurrentTime());
-
     }
 
     private LogFileSource getSource() {

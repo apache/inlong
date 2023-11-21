@@ -73,7 +73,8 @@ public class TaskConstants extends CommonConstants {
     public static final String JOB_FILE_META_ENV_LIST = "job.fileTask.envList";
     public static final String JOB_FILE_META_FILTER_BY_LABELS = "job.fileTask.filterMetaByLabels";
     public static final String JOB_FILE_PROPERTIES = "job.fileTask.properties";
-    public static final String JOB_FILE_DATA_SOURCE_COLUMN_SEPARATOR = "job.fileTask.dataSeparator";
+    public static final String SOURCE_DATA_CONTENT_STYLE = "task.fileTask.dataContentStyle";
+    public static final String SOURCE_DATA_SEPARATOR = "task.fileTask.dataSeparator";
     public static final String JOB_FILE_MONITOR_INTERVAL = "job.fileTask.monitorInterval";
     public static final String JOB_FILE_MONITOR_STATUS = "job.fileTask.monitorStatus";
     public static final String JOB_FILE_MONITOR_EXPIRE = "job.fileTask.monitorExpire";
