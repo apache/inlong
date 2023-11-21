@@ -17,19 +17,21 @@
 
 package org.apache.inlong.agent.plugin;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.apache.commons.io.FileUtils;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.pojo.FileTask.FileTaskConfig;
 import org.apache.inlong.common.enums.TaskStateEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * common environment setting up for test cases.
