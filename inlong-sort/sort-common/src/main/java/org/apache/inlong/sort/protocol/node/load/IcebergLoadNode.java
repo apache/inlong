@@ -103,6 +103,7 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
     @JsonProperty("tablePattern")
     private String tablePattern;
 
+    @Nullable
     @JsonProperty("enableSchemaChange")
     private boolean enableSchemaChange;
 
@@ -110,7 +111,6 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
     @JsonProperty("policyMap")
     private Map<SchemaChangeType, SchemaChangePolicy> policyMap;
 
-    @JsonCreator
     public IcebergLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
@@ -126,14 +126,9 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
             @JsonProperty("uri") String uri,
             @JsonProperty("warehouse") String warehouse,
             @JsonProperty("appendMode") String appendMode) {
-        super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
-        this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
-        this.dbName = Preconditions.checkNotNull(dbName, "db name is null");
-        this.primaryKey = primaryKey;
-        this.catalogType = catalogType == null ? CatalogType.HIVE : catalogType;
-        this.uri = uri;
-        this.warehouse = warehouse;
-        this.appendMode = appendMode;
+        this(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties, dbName, tableName,
+            primaryKey, catalogType, uri, warehouse, appendMode, false, null,
+            null, null, false, null);
     }
 
     @JsonCreator
@@ -176,8 +171,6 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
         }
         this.enableSchemaChange = enableSchemaChange;
         this.policyMap = policyMap;
-        Preconditions.checkState(!enableSchemaChange || policyMap != null && !policyMap.isEmpty(),
-                "policyMap is empty when enableSchemaChange is 'true'");
     }
 
     @Override
