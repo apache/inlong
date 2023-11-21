@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.util;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sort.protocol.ddl.expressions.AlterColumn;
 import org.apache.inlong.sort.protocol.ddl.expressions.Column;
 import org.apache.inlong.sort.protocol.ddl.operations.AlterOperation;
@@ -29,6 +28,7 @@ import org.apache.inlong.sort.schema.TableChange;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
