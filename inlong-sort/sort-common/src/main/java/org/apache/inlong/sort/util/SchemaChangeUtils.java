@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sort.protocol.ddl.expressions.AlterColumn;
 import org.apache.inlong.sort.protocol.ddl.expressions.Column;
 import org.apache.inlong.sort.protocol.ddl.operations.AlterOperation;
@@ -286,7 +287,9 @@ public class SchemaChangeUtils {
         for (String colName : intersectColSet) {
             ColumnSchema oldCol = oldColumnSchemas.get(colName);
             ColumnSchema newCol = newColumnSchemas.get(colName);
-            if (!oldCol.getType().equals(newCol.getType())) {
+
+            if (!oldCol.getType().equals(newCol.getType())
+                    || !StringUtils.equals(oldCol.getComment(), newCol.getComment())) {
                 tableChanges.add(
                         new TableChange.UpdateColumn(
                                 new String[]{newCol.getName()},
