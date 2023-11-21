@@ -127,8 +127,8 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
             @JsonProperty("warehouse") String warehouse,
             @JsonProperty("appendMode") String appendMode) {
         this(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties, dbName, tableName,
-            primaryKey, catalogType, uri, warehouse, appendMode, false, null,
-            null, null, false, null);
+                primaryKey, catalogType, uri, warehouse, appendMode, false, null,
+                null, null, false, null);
     }
 
     @JsonCreator
