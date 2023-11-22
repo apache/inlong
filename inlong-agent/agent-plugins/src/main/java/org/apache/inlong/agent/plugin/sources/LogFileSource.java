@@ -370,7 +370,7 @@ public class LogFileSource extends AbstractSource {
             extendedHandler.dealWithHeader(header, sourceData.getData().getBytes(StandardCharsets.UTF_8));
         }
         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, header.get(PROXY_KEY_STREAM_ID),
-                dataTime, 1, msgWithMetaData.length());
+                profile.getSinkDataTime(), 1, msgWithMetaData.length());
         Message finalMsg = new DefaultMessage(msgWithMetaData.getBytes(StandardCharsets.UTF_8), header);
         // if the message size is greater than max pack size,should drop it.
         if (finalMsg.getBody().length > maxPackSize) {
