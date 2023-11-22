@@ -66,6 +66,9 @@ public interface InlongClusterApi {
     @POST("cluster/list")
     Call<Response<PageResult<ClusterInfo>>> list(@Body ClusterPageRequest request);
 
+    @POST("cluster/listByTenantRole")
+    Call<Response<PageResult<ClusterInfo>>> listByTenantRole(@Body ClusterPageRequest request);
+
     @POST("cluster/update")
     Call<Response<Boolean>> update(@Body ClusterRequest request);
 
