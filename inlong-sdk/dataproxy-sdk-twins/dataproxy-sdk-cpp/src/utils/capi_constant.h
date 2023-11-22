@@ -46,6 +46,7 @@ static const int32_t kDispatchIntervalSend = 10;
 static const int32_t kLoadBalanceInterval = 300000;
 static const int32_t kHeartBeatInterval = 60000;
 static const bool kEnableBalance = true;
+static const bool kEnableLocalCache = true;
 
 static const bool kEnablePack = true;
 static const uint32_t kPackSize = 409600;
@@ -100,6 +101,9 @@ const uint32_t MAX_STAT = 10000000;
 static const int32_t kWeight[30] = {1,  1,  1,  1,  1,  2,  2,  2,   2,   2,
                                     3,  3,  3,  3,  3,  6,  6,  6,   6,   6,
                                     12, 12, 12, 12, 12, 48, 96, 192, 384, 1000};
+
+static const char kCacheFile[] = ".proxy_list.ini";
+static const char kCacheTmpFile[] = ".proxy_list.ini.tmp";
 
 } // namespace constants
 } // namespace inlong

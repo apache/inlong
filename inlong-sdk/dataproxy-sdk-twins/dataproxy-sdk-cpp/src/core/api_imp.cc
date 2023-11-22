@@ -104,6 +104,7 @@ int32_t ApiImp::DoInit() {
   LOG_INFO("inlong dataproxy cpp sdk Init complete!");
 
   ProxyManager::GetInstance()->Init();
+  ProxyManager::GetInstance()->ReadLocalCache();
 
   for (int i = 0; i < SdkConfig::getInstance()->inlong_group_ids_.size(); i++) {
     LOG_INFO("DoInit CheckConf inlong_group_id:"

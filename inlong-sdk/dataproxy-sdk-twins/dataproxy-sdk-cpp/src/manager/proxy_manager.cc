@@ -18,6 +18,7 @@
  */
 
 #include "proxy_manager.h"
+#include "../config/ini_help.h"
 #include "../utils/capi_constant.h"
 #include "../utils/logger.h"
 #include "../utils/utils.h"
@@ -107,6 +108,23 @@ void ProxyManager::DoUpdate() {
           break;
         } // request success
       }
+
+      if (ret != SdkCode::kSuccess) {
+        if (groupid_2_proxy_map_.find(groupid2cluster.first) != groupid_2_proxy_map_.end()) {
+          LOG_WARN("failed to request from manager, use previous " << groupid2cluster.first);
+          continue;
+        }
+        if (!SdkConfig::getInstance()->enable_local_cache_) {
+          LOG_WARN("failed to request from manager, forbid local cache!");
+          continue;
+        }
+        meta_data = RecoverFromLocalCache(groupid2cluster.first);
+        if (meta_data.empty()) {
+          LOG_WARN("local cache is empty!");
+          continue;
+        }
+      }
+
       ProxyInfoVec proxyInfoVec;
       ret = ParseAndGet(groupid2cluster.first, meta_data, proxyInfoVec);
       if (ret != SdkCode::kSuccess) {
@@ -117,6 +135,7 @@ void ProxyManager::DoUpdate() {
       if (!proxyInfoVec.empty()) {
         unique_write_lock<read_write_mutex> wtlck(groupid_2_proxy_map_rwmutex_);
         groupid_2_proxy_map_[groupid2cluster.first] = proxyInfoVec;
+        cache_proxy_info_[groupid2cluster.first] = meta_data;
         LOG_INFO("groupid:" << groupid2cluster.first << " success update "
                             << proxyInfoVec.size() << " proxy-ip.");
       }
@@ -126,6 +145,10 @@ void ProxyManager::DoUpdate() {
   UpdateGroupid2ClusterIdMap();
 
   UpdateClusterId2ProxyMap();
+
+  if (SdkConfig::getInstance()->enable_local_cache_) {
+    WriteLocalCache();
+  }
 
   update_mutex_.unlock();
   LOG_INFO("finish ProxyManager DoUpdate.");
@@ -343,4 +366,79 @@ void ProxyManager::UpdateGroupid2ClusterIdMap() {
                                                  << it.second);
   }
 }
+
+void ProxyManager::BuildLocalCache(std::ofstream &file, int32_t bid_index, const std::string &bid,
+                                     const std::string &meta_data) {
+  file << "[bid" << bid_index << "]" << std::endl;
+  file << "bid=" << bid << std::endl;
+  file << "bus_cfg=" << meta_data << std::endl;
+}
+
+void ProxyManager::ReadLocalCache() {
+  try {
+    IniFile ini = IniFile();
+    if (ini.load(constants::kCacheFile)) {
+      LOG_INFO("there is no bus list cache file");
+      return;
+    }
+    int32_t bid_count = 0;
+    if (ini.getInt("main", "bid_count", &bid_count)) {
+      LOG_WARN("failed to parse .bus list.ini file");
+      return;
+    }
+    for (int32_t i = 0; i < bid_count; i++) {
+      std::string bidlist = "bid" + std::to_string(i);
+      std::string bid, bus;
+      if (ini.getString(bidlist, "bid", &bid)) {
+        LOG_WARN("failed to get from cache file." << bid);
+        continue;
+      }
+      if (ini.getString(bidlist, "bus_cfg", &bus)) {
+        LOG_WARN("failed to get cache bus list" << bid);
+        continue;
+      }
+      LOG_INFO("read cache file, bid:" << bid << ", local config:" << bus);
+      cache_proxy_info_[bid] = bus;
+    }
+  }catch (...){
+    LOG_ERROR("ReadLocalCache error!");
+  }
+}
+
+void ProxyManager::WriteLocalCache() {
+  int32_t bid_count = 0;
+  try {
+    std::ofstream outfile;
+    outfile.open(constants::kCacheTmpFile, std::ios::out | std::ios::trunc);
+
+    for (auto &it : cache_proxy_info_) {
+      BuildLocalCache(outfile, bid_count, it.first, it.second);
+      bid_count++;
+    }
+    if (outfile) {
+      if (bid_count) {
+        outfile << "[main]" << std::endl;
+        outfile << "bid_count=" << bid_count << std::endl;
+      }
+      outfile.close();
+    }
+    if (bid_count) {
+      rename(constants::kCacheTmpFile, constants::kCacheFile);
+    }
+  } catch (...) {
+    LOG_ERROR("WriteLocalCache error!");
+  }
+  LOG_INFO("WriteLocalCache bid number:" << bid_count);
+}
+
+std::string ProxyManager::RecoverFromLocalCache(const std::string &bid) {
+  std::string meta_data;
+  auto it = cache_proxy_info_.find(bid);
+  if (it != cache_proxy_info_.end()) {
+    meta_data = it->second;
+  }
+  LOG_INFO("RecoverFromLocalCache:" << bid << ",local cache:" << meta_data);
+  return meta_data;
+}
+
 } // namespace inlong

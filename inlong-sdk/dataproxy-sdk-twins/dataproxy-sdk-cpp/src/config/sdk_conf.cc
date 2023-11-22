@@ -115,6 +115,7 @@ void SdkConfig::defaultInit() {
   max_proxy_num_ = constants::kMaxProxyNum;
   enable_isolation_ = constants::kEnableIsolation;
   reserve_proxy_num_ = constants::kReserveProxyNum;
+  enable_local_cache_ = constants::kEnableLocalCache;
 
   local_ip_ = constants::kSerIP;
   local_port_ = constants::kSerPort;
@@ -358,6 +359,14 @@ void SdkConfig::InitManagerParam(const rapidjson::Value &doc) {
     enable_isolation_ = obj.GetBool();
   } else {
     enable_isolation_ = constants::kEnableIsolation;
+  }
+
+  // enable local cache
+  if (doc.HasMember("enable_local_cache") && doc["enable_local_cache"].IsBool()) {
+    const rapidjson::Value &obj = doc["enable_local_cache"];
+    enable_local_cache_ = obj.GetBool();
+  } else {
+    enable_local_cache_ = constants::kEnableLocalCache;
   }
 }
 
