@@ -367,10 +367,10 @@ void ProxyManager::UpdateGroupid2ClusterIdMap() {
   }
 }
 
-void ProxyManager::BuildLocalCache(std::ofstream &file, int32_t id_index, const std::string &groupid,
+void ProxyManager::BuildLocalCache(std::ofstream &file, int32_t groupid_index, const std::string &groupid,
                                      const std::string &meta_data) {
-  file << "[id" << id_index << "]" << std::endl;
-  file << "id=" << groupid << std::endl;
+  file << "[groupid" << groupid_index << "]" << std::endl;
+  file << "groupid=" << groupid << std::endl;
   file << "proxy_cfg=" << meta_data << std::endl;
 }
 
@@ -382,7 +382,7 @@ void ProxyManager::ReadLocalCache() {
       return;
     }
     int32_t groupid_count = 0;
-    if (ini.getInt("main", "id_count", &groupid_count)) {
+    if (ini.getInt("main", "groupid_count", &groupid_count)) {
       LOG_WARN("failed to parse .proxy list.ini file");
       return;
     }

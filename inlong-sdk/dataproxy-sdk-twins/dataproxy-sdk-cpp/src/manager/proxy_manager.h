@@ -73,7 +73,7 @@ public:
   bool CheckClusterId(const std::string &cluster_id);
   void UpdateClusterId2ProxyMap();
   void UpdateGroupid2ClusterIdMap();
-  void BuildLocalCache(std::ofstream &file, int32_t id_index, const std::string &groupid, const std::string &meta_data);
+  void BuildLocalCache(std::ofstream &file, int32_t groupid_index, const std::string &groupid, const std::string &meta_data);
   void ReadLocalCache();
   void WriteLocalCache();
   std::string RecoverFromLocalCache(const std::string&groupid);
