@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
@@ -70,7 +71,8 @@ public class TestInstanceManager {
                 helper.getTestRootDir() + "/2023092710_1.txt", "2023092710", AgentUtils.getCurrentTime());
         String sinkDataTime = String.valueOf(profile.getSinkDataTime());
         try {
-            String add2TimeZone = String.valueOf(DateTransUtils.timeStrConvertToMillSec("2023092712", "h"));
+            String add2TimeZone = String.valueOf(
+                    DateTransUtils.timeStrConvertToMillSec("2023092712", "h", TimeZone.getTimeZone("GMT+8:00")));
             Assert.assertTrue(sinkDataTime, sinkDataTime.equals(add2TimeZone));
         } catch (ParseException e) {
             LOGGER.error("testInstanceManager error: ", e);
