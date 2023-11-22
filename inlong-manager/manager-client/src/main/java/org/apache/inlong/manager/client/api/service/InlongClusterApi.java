@@ -29,7 +29,6 @@ import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
-
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -65,6 +64,9 @@ public interface InlongClusterApi {
 
     @POST("cluster/list")
     Call<Response<PageResult<ClusterInfo>>> list(@Body ClusterPageRequest request);
+
+    @POST("cluster/listByTenantRole")
+    Call<Response<PageResult<ClusterInfo>>> listByTenantRole(@Body ClusterPageRequest request);
 
     @POST("cluster/update")
     Call<Response<Boolean>> update(@Body ClusterRequest request);
