@@ -367,11 +367,11 @@ void ProxyManager::UpdateGroupid2ClusterIdMap() {
   }
 }
 
-void ProxyManager::BuildLocalCache(std::ofstream &file, int32_t bid_index, const std::string &bid,
+void ProxyManager::BuildLocalCache(std::ofstream &file, int32_t id_index, const std::string &groupid,
                                      const std::string &meta_data) {
-  file << "[bid" << bid_index << "]" << std::endl;
-  file << "bid=" << bid << std::endl;
-  file << "bus_cfg=" << meta_data << std::endl;
+  file << "[id" << id_index << "]" << std::endl;
+  file << "id=" << groupid << std::endl;
+  file << "proxy_cfg=" << meta_data << std::endl;
 }
 
 void ProxyManager::ReadLocalCache() {
@@ -381,24 +381,24 @@ void ProxyManager::ReadLocalCache() {
       LOG_INFO("there is no bus list cache file");
       return;
     }
-    int32_t bid_count = 0;
-    if (ini.getInt("main", "bid_count", &bid_count)) {
-      LOG_WARN("failed to parse .bus list.ini file");
+    int32_t groupid_count = 0;
+    if (ini.getInt("main", "id_count", &groupid_count)) {
+      LOG_WARN("failed to parse .proxy list.ini file");
       return;
     }
-    for (int32_t i = 0; i < bid_count; i++) {
-      std::string bidlist = "bid" + std::to_string(i);
-      std::string bid, bus;
-      if (ini.getString(bidlist, "bid", &bid)) {
-        LOG_WARN("failed to get from cache file." << bid);
+    for (int32_t i = 0; i < groupid_count; i++) {
+      std::string groupid_list = "groupid" + std::to_string(i);
+      std::string groupid, proxy;
+      if (ini.getString(groupid_list, "groupid", &groupid)) {
+        LOG_WARN("failed to get from cache file." << groupid);
         continue;
       }
-      if (ini.getString(bidlist, "bus_cfg", &bus)) {
-        LOG_WARN("failed to get cache bus list" << bid);
+      if (ini.getString(groupid_list, "proxy_cfg", &proxy)) {
+        LOG_WARN("failed to get cache proxy list" << groupid);
         continue;
       }
-      LOG_INFO("read cache file, bid:" << bid << ", local config:" << bus);
-      cache_proxy_info_[bid] = bus;
+      LOG_INFO("read cache file, id:" << groupid << ", local config:" << proxy);
+      cache_proxy_info_[groupid] = proxy;
     }
   }catch (...){
     LOG_ERROR("ReadLocalCache error!");
@@ -406,38 +406,38 @@ void ProxyManager::ReadLocalCache() {
 }
 
 void ProxyManager::WriteLocalCache() {
-  int32_t bid_count = 0;
+  int32_t groupid_count = 0;
   try {
     std::ofstream outfile;
     outfile.open(constants::kCacheTmpFile, std::ios::out | std::ios::trunc);
 
     for (auto &it : cache_proxy_info_) {
-      BuildLocalCache(outfile, bid_count, it.first, it.second);
-      bid_count++;
+      BuildLocalCache(outfile, groupid_count, it.first, it.second);
+      groupid_count++;
     }
     if (outfile) {
-      if (bid_count) {
+      if (groupid_count) {
         outfile << "[main]" << std::endl;
-        outfile << "bid_count=" << bid_count << std::endl;
+        outfile << "groupid_count=" << groupid_count << std::endl;
       }
       outfile.close();
     }
-    if (bid_count) {
+    if (groupid_count) {
       rename(constants::kCacheTmpFile, constants::kCacheFile);
     }
   } catch (...) {
     LOG_ERROR("WriteLocalCache error!");
   }
-  LOG_INFO("WriteLocalCache bid number:" << bid_count);
+  LOG_INFO("WriteLocalCache bid number:" << groupid_count);
 }
 
-std::string ProxyManager::RecoverFromLocalCache(const std::string &bid) {
+std::string ProxyManager::RecoverFromLocalCache(const std::string &groupid) {
   std::string meta_data;
-  auto it = cache_proxy_info_.find(bid);
+  auto it = cache_proxy_info_.find(groupid);
   if (it != cache_proxy_info_.end()) {
     meta_data = it->second;
   }
-  LOG_INFO("RecoverFromLocalCache:" << bid << ",local cache:" << meta_data);
+  LOG_INFO("RecoverFromLocalCache:" << groupid << ",local cache:" << meta_data);
   return meta_data;
 }
 
