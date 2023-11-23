@@ -205,14 +205,14 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `Kudu ${i18n.t('meta.Sinks.Kudu.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       width: 110,
       dataIndex: 'fieldName',
       rules: [
         { required: true },
         {
           pattern: /^[a-zA-Z_][a-zA-Z0-9_]*$/,
-          message: i18n.t('meta.Sinks.Kudu.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -220,7 +220,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `Kudu ${i18n.t('meta.Sinks.Kudu.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       width: 130,
       initialValue: kuduFieldTypes[0].value,
@@ -275,7 +275,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: i18n.t('meta.Sinks.Kudu.FieldDescription'),
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
     },
   ];

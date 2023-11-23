@@ -127,13 +127,13 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: i18n.t('meta.Sinks.ES.FieldName'),
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       dataIndex: 'fieldName',
       rules: [
         { required: true },
         {
           pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-          message: i18n.t('meta.Sinks.ES.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -141,7 +141,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: i18n.t('meta.Sinks.ES.FieldType'),
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       initialValue: esTypes[0].value,
       type: 'select',
@@ -185,7 +185,7 @@ const getFieldListColumns = sinkValues => {
       visible: (text, record) => record.fieldType === 'scaled_float',
     },
     {
-      title: i18n.t('meta.Sinks.ES.FieldDescription'),
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
       props: (text, record, idx, isNew) => ({
         disabled: [110].includes(sinkValues?.status as number) && !isNew,

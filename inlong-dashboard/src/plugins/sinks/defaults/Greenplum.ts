@@ -167,14 +167,14 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `GREENPLUM${i18n.t('meta.Sinks.Greenplum.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('meta.Sinks.Greenplum.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -182,7 +182,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `GREENPLUM${i18n.t('meta.Sinks.Greenplum.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       initialValue: greenplumFieldTypes[0].value,
       type: 'autocomplete',
@@ -242,7 +242,7 @@ const getFieldListColumns = sinkValues => {
         ['BIGINT', 'DATE', 'TIMESTAMP'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('meta.Sinks.Greenplum.FieldDescription'),
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },

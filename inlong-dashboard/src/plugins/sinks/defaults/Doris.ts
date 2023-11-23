@@ -30,23 +30,23 @@ const { FieldDecorator, SyncField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const dorisTargetTypes = [
-  'NULL_TYPE',
-  'BOOLEAN',
-  'TINYINT',
-  'SMALLINT',
-  'INT',
-  'BIGINT',
-  'FLOAT',
-  'DOUBLE',
-  'DATE',
-  'DATETIME',
-  'DECIMAL',
-  'CHAR',
-  'LARGEINT',
-  'VARCHAR',
-  'DECIMALV2',
-  'TIME',
-  'HLL',
+  'null_type',
+  'boolean',
+  'tinyint',
+  'smallint',
+  'int',
+  'bigint',
+  'float',
+  'double',
+  'date',
+  'datetime',
+  'decimal',
+  'char',
+  'largenint',
+  'varchar',
+  'decimalv2',
+  'time',
+  'hll',
 ].map(item => ({
   label: item,
   value: item,
@@ -198,14 +198,14 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `Doris${i18n.t('meta.Sinks.Doris.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('meta.Sinks.Doris.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -213,7 +213,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `Doris${i18n.t('meta.Sinks.Doris.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       initialValue: dorisTargetTypes[0].value,
       type: 'select',
@@ -255,7 +255,7 @@ const getFieldListColumns = sinkValues => {
       visible: (text, record) => ['BIGINT', 'DATE'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('meta.Sinks.Doris.FieldDescription'),
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },
