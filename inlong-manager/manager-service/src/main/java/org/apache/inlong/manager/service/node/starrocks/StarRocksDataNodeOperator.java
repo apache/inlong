@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
+import org.apache.inlong.manager.pojo.node.mysql.MySQLDataNodeDTO;
 import org.apache.inlong.manager.pojo.node.starrocks.StarRocksDataNodeDTO;
 import org.apache.inlong.manager.pojo.node.starrocks.StarRocksDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.starrocks.StarRocksDataNodeRequest;
@@ -88,7 +89,7 @@ public class StarRocksDataNodeOperator extends AbstractDataNodeOperator {
 
     @Override
     public Boolean testConnection(DataNodeRequest request) {
-        String jdbcUrl = request.getUrl();
+        String jdbcUrl = MySQLDataNodeDTO.convertToJdbcurl(request.getUrl());
         String username = request.getUsername();
         String password = request.getToken();
         Preconditions.expectNotBlank(jdbcUrl, ErrorCodeEnum.INVALID_PARAMETER, "connection jdbcUrl cannot be empty");
