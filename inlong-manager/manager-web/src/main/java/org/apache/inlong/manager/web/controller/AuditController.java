@@ -65,7 +65,7 @@ public class AuditController {
 
     @ApiOperation(value = "Update the audit source")
     @PostMapping(value = "/audit/updateSource")
-    public Response<Integer> updateAuditSource(@RequestBody AuditSourceRequest request) {
+    public Response<Integer> updateAuditSource(@Valid @RequestBody AuditSourceRequest request) {
         return Response.success(auditService.updateAuditSource(request, LoginUserUtils.getLoginUser().getName()));
     }
 
