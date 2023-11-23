@@ -160,7 +160,7 @@ public class HudiLoadNode extends LoadNode implements InlongMetric, Serializable
 
         options.put(HUDI_OPTION_DATABASE_NAME, dbName);
         options.put(HUDI_OPTION_TABLE_NAME, tableName);
-        if (StringUtils.isNotEmpty(primaryKey)) {
+        if (StringUtils.isNoneBlank(primaryKey)) {
             options.put(HUDI_OPTION_RECORD_KEY_FIELD_NAME, primaryKey);
         }
         options.put("connector", "hudi-inlong");
