@@ -18,10 +18,12 @@
 package org.apache.inlong.common.enums;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Enum of task type.
@@ -48,27 +50,15 @@ public enum TaskTypeEnum {
 
     ;
 
-    private static final Map<Integer, String> taskTypeEnumHashMap = Maps.newHashMap();
+    private static final Map<Integer, TaskTypeEnum> TASK_TYPE_ENUM_MAP = Maps.newHashMap();
 
     /*
      * Init tasktype
      */
     static {
-        taskTypeEnumHashMap.put(0, "DATABASE_MIGRATION");
-        taskTypeEnumHashMap.put(1, "SQL");
-        taskTypeEnumHashMap.put(2, "BINLOG");
-        taskTypeEnumHashMap.put(3, "FILE");
-        taskTypeEnumHashMap.put(4, "KAFKA");
-        taskTypeEnumHashMap.put(5, "PULSAR");
-        taskTypeEnumHashMap.put(6, "POSTGRES");
-        taskTypeEnumHashMap.put(7, "ORACLE");
-        taskTypeEnumHashMap.put(8, "SQLSERVER");
-        taskTypeEnumHashMap.put(9, "MONGODB");
-        taskTypeEnumHashMap.put(10, "TUBEMQ");
-        taskTypeEnumHashMap.put(11, "REDIS");
-        taskTypeEnumHashMap.put(12, "MQTT");
-        taskTypeEnumHashMap.put(13, "HUDI");
-        taskTypeEnumHashMap.put(201, "MOCK");
+        TASK_TYPE_ENUM_MAP.putAll(
+                Arrays.stream(TaskTypeEnum.values()).collect(Collectors.toMap(TaskTypeEnum::getType, type -> type)));
+
     }
 
     private final int type;
@@ -78,11 +68,11 @@ public enum TaskTypeEnum {
     }
 
     public static TaskTypeEnum getTaskType(int taskType) {
-        String taskTypeString = taskTypeEnumHashMap.get(taskType);
-        if (StringUtils.isBlank(taskTypeString)) {
+        TaskTypeEnum taskTypeEnum = TASK_TYPE_ENUM_MAP.get(taskType);
+        if (Objects.isNull(taskTypeEnum)) {
             throw new NoSuchElementException(String.format("Unsupported task type:[%s]", taskType));
         }
-        return TaskTypeEnum.valueOf(taskTypeString);
+        return taskTypeEnum;
     }
 
     public int getType() {

@@ -20,18 +20,22 @@ package org.apache.inlong.common.enums;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
-/**
- * Description
- *
- * @author lijie0203 2023/11/24 14:00
- */
 public class TaskTypeEnumTest {
 
     @Test
     public void testGetTaskType() {
         TaskTypeEnum taskType = TaskTypeEnum.getTaskType(4);
         assertEquals(TaskTypeEnum.KAFKA, taskType);
+
+    }
+
+    @Test
+    public void testGetTaskTypeWithOther() {
+        TaskTypeEnum taskType = TaskTypeEnum.getTaskType(14);
+        // "java.util.NoSuchElementException: Unsupported task type:[14]"
+        assertNull(taskType);
 
     }
 }
