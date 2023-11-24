@@ -19,6 +19,8 @@ package org.apache.inlong.common.enums;
 
 import org.junit.Test;
 
+import java.util.NoSuchElementException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -37,7 +39,7 @@ public class TaskTypeEnumTest {
         try {
             // not exixts type:666
             taskType = TaskTypeEnum.getTaskType(666);
-        } catch (Exception e) {
+        } catch (NoSuchElementException e) {
             System.out.println("=====error====");
         }
         // "java.util.NoSuchElementException: Unsupported task type:[14]"
