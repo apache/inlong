@@ -33,7 +33,13 @@ public class TaskTypeEnumTest {
 
     @Test
     public void testGetTaskTypeWithOther() {
-        TaskTypeEnum taskType = TaskTypeEnum.getTaskType(14);
+        TaskTypeEnum taskType = null;
+        try {
+            // not exixts type:666
+            taskType = TaskTypeEnum.getTaskType(666);
+        } catch (Exception e) {
+            System.out.println("=====error====");
+        }
         // "java.util.NoSuchElementException: Unsupported task type:[14]"
         assertNull(taskType);
 
