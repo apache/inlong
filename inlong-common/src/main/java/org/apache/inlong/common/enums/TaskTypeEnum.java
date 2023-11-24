@@ -17,6 +17,12 @@
 
 package org.apache.inlong.common.enums;
 
+import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Map;
+import java.util.NoSuchElementException;
+
 /**
  * Enum of task type.
  */
@@ -42,6 +48,29 @@ public enum TaskTypeEnum {
 
     ;
 
+    private static final Map<Integer, String> taskTypeEnumHashMap = Maps.newHashMap();
+
+    /*
+     * Init tasktype
+     */
+    static {
+        taskTypeEnumHashMap.put(0, "DATABASE_MIGRATION");
+        taskTypeEnumHashMap.put(1, "SQL");
+        taskTypeEnumHashMap.put(2, "BINLOG");
+        taskTypeEnumHashMap.put(3, "FILE");
+        taskTypeEnumHashMap.put(4, "KAFKA");
+        taskTypeEnumHashMap.put(5, "PULSAR");
+        taskTypeEnumHashMap.put(6, "POSTGRES");
+        taskTypeEnumHashMap.put(7, "ORACLE");
+        taskTypeEnumHashMap.put(8, "SQLSERVER");
+        taskTypeEnumHashMap.put(9, "MONGODB");
+        taskTypeEnumHashMap.put(10, "TUBEMQ");
+        taskTypeEnumHashMap.put(11, "REDIS");
+        taskTypeEnumHashMap.put(12, "MQTT");
+        taskTypeEnumHashMap.put(13, "HUDI");
+        taskTypeEnumHashMap.put(201, "MOCK");
+    }
+
     private final int type;
 
     TaskTypeEnum(int type) {
@@ -49,40 +78,11 @@ public enum TaskTypeEnum {
     }
 
     public static TaskTypeEnum getTaskType(int taskType) {
-        switch (taskType) {
-            case 0:
-                return DATABASE_MIGRATION;
-            case 1:
-                return SQL;
-            case 2:
-                return BINLOG;
-            case 3:
-                return FILE;
-            case 4:
-                return KAFKA;
-            case 5:
-                return PULSAR;
-            case 6:
-                return POSTGRES;
-            case 7:
-                return ORACLE;
-            case 8:
-                return SQLSERVER;
-            case 9:
-                return MONGODB;
-            case 10:
-                return TUBEMQ;
-            case 11:
-                return REDIS;
-            case 12:
-                return MQTT;
-            case 13:
-                return HUDI;
-            case 201:
-                return MOCK;
-            default:
-                throw new RuntimeException("Unsupported task type " + taskType);
+        String taskTypeString = taskTypeEnumHashMap.get(taskType);
+        if (StringUtils.isBlank(taskTypeString)) {
+            throw new NoSuchElementException(String.format("Unsupported task type:[%s]", taskType));
         }
+        return TaskTypeEnum.valueOf(taskTypeString);
     }
 
     public int getType() {
