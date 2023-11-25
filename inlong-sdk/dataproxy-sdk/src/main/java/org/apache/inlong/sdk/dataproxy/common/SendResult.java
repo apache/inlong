@@ -15,19 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.message.filecollect;
+package org.apache.inlong.sdk.dataproxy.common;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public enum SendResult {
+    INVALID_ATTRIBUTES, // including DataProxyErrCode(100,101,102,112)
+    OK,
+    TIMEOUT,
+    CONNECTION_BREAK,
+    THREAD_INTERRUPT,
+    ASYNC_CALLBACK_BUFFER_FULL,
+    NO_CONNECTION,
+    INVALID_DATA, // including DataProxyErrCode(103, 111)
+    BODY_EXCEED_MAX_LEN, // DataProxyErrCode(104)
+    SINK_SERVICE_UNREADY, // DataProxyErrCode(1)
+    UNCONFIGURED_GROUPID_OR_STREAMID, // DataProxyErrCode(113)
+    TOPIC_IS_BLANK, // DataProxyErrCode(115)
+    DATAPROXY_FAIL_TO_RECEIVE, // DataProxyErrCode(114,116,117,118,119,120)
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class PackageAckInfo {
-
-    private Long index;
-    private Long offset;
-    private Integer len;
-    private Boolean hasAck;
+    UNKOWN_ERROR
 }

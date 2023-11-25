@@ -97,11 +97,17 @@ public class AgentBaseTestsHelper {
         FileTaskConfig fileTaskConfig = new FileTaskConfig();
         fileTaskConfig.setPattern(pattern);
         fileTaskConfig.setTimeOffset("0d");
+        // GMT-8:00 same with Asia/Shanghai
+        fileTaskConfig.setTimeZone("GMT-8:00");
         fileTaskConfig.setMaxFileCount(100);
         fileTaskConfig.setCycleUnit("D");
         fileTaskConfig.setRetry(retry);
         fileTaskConfig.setStartTime(startTime);
         fileTaskConfig.setEndTime(endTime);
+        // mix: login|87601|968|67826|23579 or login|a=b&c=d&x=y&asdf
+        fileTaskConfig.setDataContentStyle("mix");
+        // 124 is the ASCII code of '|'
+        fileTaskConfig.setDataSeparator("124");
         dataConfig.setExtParams(GSON.toJson(fileTaskConfig));
         return dataConfig;
     }

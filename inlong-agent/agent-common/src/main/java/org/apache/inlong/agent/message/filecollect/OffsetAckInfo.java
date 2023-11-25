@@ -15,24 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.dataproxy;
+package org.apache.inlong.agent.message.filecollect;
 
-public abstract class FileCallback implements SendMessageCallback {
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-    /* Invoked when a message is confirmed by TDBus. */
-    public void onMessageAck(String result) {
-    }
+@Data
+@AllArgsConstructor
+public class OffsetAckInfo {
 
-    ;
-
-    public void onMessageAck(SendResult result) {
-    }
-
-    ;
-
-    /* Invoked when a message transportation interrupted by an exception. */
-    public void onException(Throwable e) {
-    }
-
-    ;
+    private Long offset;
+    private int len;
+    private Boolean hasAck;
 }

@@ -21,14 +21,14 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.TaskConstants;
-import org.apache.inlong.agent.message.filecollect.PackageAckInfo;
+import org.apache.inlong.agent.message.filecollect.OffsetAckInfo;
 import org.apache.inlong.agent.message.filecollect.SenderMessage;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.utils.file.FileDataUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.enums.TaskStateEnum;
-import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
-import org.apache.inlong.sdk.dataproxy.SendResult;
+import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
+import org.apache.inlong.sdk.dataproxy.common.SendResult;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -49,8 +49,6 @@ import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import static org.awaitility.Awaitility.await;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(SenderManager.class)
@@ -98,37 +96,45 @@ public class TestSenderManager {
                     Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyLong(), Mockito.any(),
                     Mockito.anyLong(), Mockito.any(),
                     Mockito.any(), Mockito.anyBoolean());
-
             senderManager.Start();
-            Long packageIndex = 0L;
-            Long packageOffset = 100L;
-            List<byte[]> bodyList = new ArrayList<>();
-            bodyList.add("123456789".getBytes(StandardCharsets.UTF_8));
-            Integer resultBatchSize = 0;
-            for (int i = 0; i < bodyList.size(); i++) {
-                resultBatchSize += bodyList.get(i).length;
-            }
+            Long offset = 0L;
+            List<OffsetAckInfo> ackInfoListTotal = new ArrayList<>();
             for (int i = 0; i < 10; i++) {
-                PackageAckInfo ackInfo = new PackageAckInfo(packageIndex++, packageOffset, resultBatchSize, false);
+                List<byte[]> bodyList = new ArrayList<>();
+                List<OffsetAckInfo> ackInfoList = new ArrayList<>();
+                bodyList.add("123456789".getBytes(StandardCharsets.UTF_8));
+                for (int j = 0; j < bodyList.size(); j++) {
+                    OffsetAckInfo ackInfo = new OffsetAckInfo(offset++, bodyList.get(j).length, false);
+                    ackInfoList.add(ackInfo);
+                    ackInfoListTotal.add(ackInfo);
+                }
                 SenderMessage senderMessage = new SenderMessage("taskId", "instanceId", "groupId", "streamId", bodyList,
-                        AgentUtils.getCurrentTime(), null, ackInfo);
+                        AgentUtils.getCurrentTime(), null, ackInfoList);
                 senderManager.sendBatch(senderMessage);
-                packageOffset += 100;
             }
             Assert.assertTrue(cbList.size() == 10);
             for (int i = 0; i < 5; i++) {
                 cbList.get(4 - i).onMessageAck(SendResult.OK);
             }
-
-            await().atMost(2, TimeUnit.SECONDS).until(() -> !senderManager.sendFinished());
+            Assert.assertTrue(calHasAckCount(ackInfoListTotal) == 5);
             for (int i = 5; i < 10; i++) {
                 cbList.get(i).onMessageAck(SendResult.OK);
                 AgentUtils.silenceSleepInMs(10);
             }
-            await().atMost(2, TimeUnit.SECONDS).until(() -> senderManager.sendFinished());
+            Assert.assertTrue(String.valueOf(calHasAckCount(ackInfoListTotal)), calHasAckCount(ackInfoListTotal) == 10);
         } catch (Exception e) {
             e.printStackTrace();
             Assert.assertTrue("testNormalAck failed", false);
         }
+    }
+
+    private int calHasAckCount(List<OffsetAckInfo> ackInfoListTotal) {
+        int count = 0;
+        for (int i = 0; i < ackInfoListTotal.size(); i++) {
+            if (ackInfoListTotal.get(i).getHasAck()) {
+                count++;
+            }
+        }
+        return count;
     }
 }

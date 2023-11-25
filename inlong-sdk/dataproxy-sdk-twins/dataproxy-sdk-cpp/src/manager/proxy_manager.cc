@@ -18,6 +18,7 @@
  */
 
 #include "proxy_manager.h"
+#include "../config/ini_help.h"
 #include "../utils/capi_constant.h"
 #include "../utils/logger.h"
 #include "../utils/utils.h"
@@ -107,6 +108,23 @@ void ProxyManager::DoUpdate() {
           break;
         } // request success
       }
+
+      if (ret != SdkCode::kSuccess) {
+        if (groupid_2_proxy_map_.find(groupid2cluster.first) != groupid_2_proxy_map_.end()) {
+          LOG_WARN("failed to request from manager, use previous " << groupid2cluster.first);
+          continue;
+        }
+        if (!SdkConfig::getInstance()->enable_local_cache_) {
+          LOG_WARN("failed to request from manager, forbid local cache!");
+          continue;
+        }
+        meta_data = RecoverFromLocalCache(groupid2cluster.first);
+        if (meta_data.empty()) {
+          LOG_WARN("local cache is empty!");
+          continue;
+        }
+      }
+
       ProxyInfoVec proxyInfoVec;
       ret = ParseAndGet(groupid2cluster.first, meta_data, proxyInfoVec);
       if (ret != SdkCode::kSuccess) {
@@ -117,6 +135,7 @@ void ProxyManager::DoUpdate() {
       if (!proxyInfoVec.empty()) {
         unique_write_lock<read_write_mutex> wtlck(groupid_2_proxy_map_rwmutex_);
         groupid_2_proxy_map_[groupid2cluster.first] = proxyInfoVec;
+        cache_proxy_info_[groupid2cluster.first] = meta_data;
         LOG_INFO("groupid:" << groupid2cluster.first << " success update "
                             << proxyInfoVec.size() << " proxy-ip.");
       }
@@ -126,6 +145,10 @@ void ProxyManager::DoUpdate() {
   UpdateGroupid2ClusterIdMap();
 
   UpdateClusterId2ProxyMap();
+
+  if (SdkConfig::getInstance()->enable_local_cache_) {
+    WriteLocalCache();
+  }
 
   update_mutex_.unlock();
   LOG_INFO("finish ProxyManager DoUpdate.");
@@ -181,6 +204,17 @@ int32_t ProxyManager::ParseAndGet(const std::string &inlong_group_id,
   }
   groupid_2_cluster_id_update_map_[inlong_group_id] =
       clusterInfo["clusterId"].GetInt();
+
+  // check load
+  int32_t load = 0;
+  if (clusterInfo.HasMember("load") && clusterInfo["load"].IsInt() &&
+      !clusterInfo["load"].IsNull()) {
+    const rapidjson::Value &obj = clusterInfo["load"];
+    load = obj.GetInt();
+  } else {
+    load = 0;
+  }
+
   // proxy list
   for (auto &proxy : nodeList.GetArray()) {
     std::string ip;
@@ -212,7 +246,7 @@ int32_t ProxyManager::ParseAndGet(const std::string &inlong_group_id,
       LOG_WARN("there is no id info of inlong_group_id");
       continue;
     }
-    proxy_info_vec.emplace_back(id, ip, port);
+    proxy_info_vec.emplace_back(id, ip, port, load);
   }
 
   return SdkCode::kSuccess;
@@ -284,7 +318,7 @@ int32_t ProxyManager::GetProxyByClusterId(const std::string &cluster_id,
   proxy_info_vec = it->second;
   return SdkCode::kSuccess;
 }
-std::string ProxyManager::GetSendGroupKey(const std::string &groupid) {
+std::string ProxyManager::GetGroupKey(const std::string &groupid) {
   if (SdkConfig::getInstance()->enable_isolation_) {
     return groupid;
   }
@@ -332,4 +366,79 @@ void ProxyManager::UpdateGroupid2ClusterIdMap() {
                                                  << it.second);
   }
 }
+
+void ProxyManager::BuildLocalCache(std::ofstream &file, int32_t groupid_index, const std::string &groupid,
+                                     const std::string &meta_data) {
+  file << "[groupid" << groupid_index << "]" << std::endl;
+  file << "groupid=" << groupid << std::endl;
+  file << "proxy_cfg=" << meta_data << std::endl;
+}
+
+void ProxyManager::ReadLocalCache() {
+  try {
+    IniFile ini = IniFile();
+    if (ini.load(constants::kCacheFile)) {
+      LOG_INFO("there is no bus list cache file");
+      return;
+    }
+    int32_t groupid_count = 0;
+    if (ini.getInt("main", "groupid_count", &groupid_count)) {
+      LOG_WARN("failed to parse .proxy list.ini file");
+      return;
+    }
+    for (int32_t i = 0; i < groupid_count; i++) {
+      std::string groupid_list = "groupid" + std::to_string(i);
+      std::string groupid, proxy;
+      if (ini.getString(groupid_list, "groupid", &groupid)) {
+        LOG_WARN("failed to get from cache file." << groupid);
+        continue;
+      }
+      if (ini.getString(groupid_list, "proxy_cfg", &proxy)) {
+        LOG_WARN("failed to get cache proxy list" << groupid);
+        continue;
+      }
+      LOG_INFO("read cache file, id:" << groupid << ", local config:" << proxy);
+      cache_proxy_info_[groupid] = proxy;
+    }
+  }catch (...){
+    LOG_ERROR("ReadLocalCache error!");
+  }
+}
+
+void ProxyManager::WriteLocalCache() {
+  int32_t groupid_count = 0;
+  try {
+    std::ofstream outfile;
+    outfile.open(constants::kCacheTmpFile, std::ios::out | std::ios::trunc);
+
+    for (auto &it : cache_proxy_info_) {
+      BuildLocalCache(outfile, groupid_count, it.first, it.second);
+      groupid_count++;
+    }
+    if (outfile) {
+      if (groupid_count) {
+        outfile << "[main]" << std::endl;
+        outfile << "groupid_count=" << groupid_count << std::endl;
+      }
+      outfile.close();
+    }
+    if (groupid_count) {
+      rename(constants::kCacheTmpFile, constants::kCacheFile);
+    }
+  } catch (...) {
+    LOG_ERROR("WriteLocalCache error!");
+  }
+  LOG_INFO("WriteLocalCache bid number:" << groupid_count);
+}
+
+std::string ProxyManager::RecoverFromLocalCache(const std::string &groupid) {
+  std::string meta_data;
+  auto it = cache_proxy_info_.find(groupid);
+  if (it != cache_proxy_info_.end()) {
+    meta_data = it->second;
+  }
+  LOG_INFO("RecoverFromLocalCache:" << groupid << ",local cache:" << meta_data);
+  return meta_data;
+}
+
 } // namespace inlong

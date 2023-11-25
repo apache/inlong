@@ -15,22 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.dataproxy;
+package org.apache.inlong.agent.plugin.sources.file.extend;
 
-public enum SendResult {
-    INVALID_ATTRIBUTES, // including DataProxyErrCode(100,101,102,112)
-    OK,
-    TIMEOUT,
-    CONNECTION_BREAK,
-    THREAD_INTERRUPT,
-    ASYNC_CALLBACK_BUFFER_FULL,
-    NO_CONNECTION,
-    INVALID_DATA, // including DataProxyErrCode(103, 111)
-    BODY_EXCEED_MAX_LEN, // DataProxyErrCode(104)
-    SINK_SERVICE_UNREADY, // DataProxyErrCode(1)
-    UNCONFIGURED_GROUPID_OR_STREAMID, // DataProxyErrCode(113)
-    TOPIC_IS_BLANK, // DataProxyErrCode(115)
-    DATAPROXY_FAIL_TO_RECEIVE, // DataProxyErrCode(114,116,117,118,119,120)
+import org.apache.inlong.agent.conf.InstanceProfile;
 
-    UNKOWN_ERROR
+import java.util.Map;
+
+// For some private, customized extension processing
+public abstract class ExtendedHandler {
+
+    public ExtendedHandler(InstanceProfile profile) {
+
+    }
+
+    // Modify the header by the body
+    public void dealWithHeader(Map<String, String> header, byte[] body) {
+
+    }
+
+    public static class Constants {
+
+    }
 }

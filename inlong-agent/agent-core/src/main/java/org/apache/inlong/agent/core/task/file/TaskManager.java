@@ -56,7 +56,9 @@ public class TaskManager extends AbstractDaemon {
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskManager.class);
     public static final int CONFIG_QUEUE_CAPACITY = 1;
     public static final int CORE_THREAD_SLEEP_TIME = 1000;
+    public static final int CORE_THREAD_PRINT_TIME = 10000;
     private static final int ACTION_QUEUE_CAPACITY = 100000;
+    private long lastPrintTime = 0;
     // task basic db
     private final Db taskBasicDb;
     // instance basic db
@@ -75,6 +77,45 @@ public class TaskManager extends AbstractDaemon {
     private final AgentConfiguration agentConf;
     // instance profile queue.
     private final BlockingQueue<TaskAction> actionQueue;
+
+    private class TaskPrintStat {
+
+        public int newCount = 0;
+        public int runningCont = 0;
+        public int frozenCount = 0;
+        public int finishedCount = 0;
+        public int otherCount = 0;
+
+        private void stat(TaskStateEnum state) {
+            switch (state) {
+                case NEW: {
+                    newCount++;
+                    break;
+                }
+                case RUNNING: {
+                    runningCont++;
+                    break;
+                }
+                case FROZEN: {
+                    frozenCount++;
+                    break;
+                }
+                case FINISH: {
+                    finishedCount++;
+                    break;
+                }
+                default: {
+                    otherCount++;
+                }
+            }
+        }
+
+        @Override
+        public String toString() {
+            return String.format("new %d running %d frozen %d finished %d other %d", newCount, runningCont, frozenCount,
+                    finishedCount, otherCount);
+        }
+    }
 
     /**
      * Init task manager.
@@ -143,6 +184,7 @@ public class TaskManager extends AbstractDaemon {
             while (isRunnable()) {
                 try {
                     AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
+                    printTaskDetail();
                     dealWithConfigQueue(configQueue);
                     dealWithActionQueue(actionQueue);
                 } catch (Throwable ex) {
@@ -151,6 +193,19 @@ public class TaskManager extends AbstractDaemon {
                 }
             }
         };
+    }
+
+    private void printTaskDetail() {
+        if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_TIME) {
+            List<TaskProfile> tasksInDb = taskDb.getTasks();
+            TaskPrintStat stat = new TaskPrintStat();
+            for (int i = 0; i < tasksInDb.size(); i++) {
+                TaskProfile task = tasksInDb.get(i);
+                stat.stat(task.getState());
+            }
+            LOGGER.info("taskManager running! mem {} db total {} {} ", taskMap.size(), tasksInDb.size(), stat);
+            lastPrintTime = AgentUtils.getCurrentTime();
+        }
     }
 
     private void dealWithConfigQueue(BlockingQueue<List<TaskProfile>> queue) {

@@ -62,7 +62,6 @@ public class TestLogFileSource {
         TaskProfile taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING);
         instanceProfile = taskProfile.createInstanceProfile("",
                 fileName, "20230928", AgentUtils.getCurrentTime());
-
     }
 
     private LogFileSource getSource() {
@@ -71,9 +70,9 @@ public class TestLogFileSource {
             LogFileSource source = new LogFileSource();
             Whitebox.setInternalState(source, "BATCH_READ_LINE_COUNT", 1);
             Whitebox.setInternalState(source, "BATCH_READ_LINE_TOTAL_LEN", 10);
-            Whitebox.setInternalState(source, "PRINT_INTERVAL_MS", 0);
+            Whitebox.setInternalState(source, "CORE_THREAD_PRINT_INTERVAL_MS", 0);
             Whitebox.setInternalState(source, "SIZE_OF_BUFFER_TO_READ_FILE", 2);
-            Whitebox.setInternalState(source, "FINISH_READ_MAX_COUNT", 1);
+            Whitebox.setInternalState(source, "EMPTY_CHECK_COUNT_AT_LEAST", 3);
             Whitebox.setInternalState(source, "READ_WAIT_TIMEOUT_MS", 10);
             source.init(instanceProfile);
             return source;
@@ -101,10 +100,7 @@ public class TestLogFileSource {
             srcLen += check[i].getBytes(StandardCharsets.UTF_8).length;
         }
         LogFileSource source = getSource();
-        await().atMost(2, TimeUnit.SECONDS).until(() -> source.sourceFinish());
         int cnt = 0;
-        int leftBeforeRead = MemoryManager.getInstance().getLeft(AGENT_GLOBAL_READER_QUEUE_PERMIT);
-        Assert.assertTrue(leftBeforeRead + srcLen == DEFAULT_AGENT_GLOBAL_READER_QUEUE_PERMIT);
         Message msg = source.read();
         int readLen = 0;
         while (msg != null) {
@@ -114,6 +110,7 @@ public class TestLogFileSource {
             msg = source.read();
             cnt++;
         }
+        await().atMost(6, TimeUnit.SECONDS).until(() -> source.sourceFinish());
         source.destroy();
         Assert.assertTrue(cnt == 3);
         Assert.assertTrue(srcLen == readLen);
@@ -123,10 +120,10 @@ public class TestLogFileSource {
 
     private void testCleanQueue() {
         LogFileSource source = getSource();
-        await().atMost(2, TimeUnit.SECONDS).until(() -> source.sourceFinish());
         for (int i = 0; i < 2; i++) {
             source.read();
         }
+        Assert.assertTrue(!source.sourceFinish());
         source.destroy();
         int leftAfterRead = MemoryManager.getInstance().getLeft(AGENT_GLOBAL_READER_QUEUE_PERMIT);
         Assert.assertTrue(leftAfterRead == DEFAULT_AGENT_GLOBAL_READER_QUEUE_PERMIT);

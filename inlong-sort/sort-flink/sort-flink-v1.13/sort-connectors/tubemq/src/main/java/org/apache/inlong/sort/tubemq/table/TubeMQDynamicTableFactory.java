@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.tubemq.table;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
+import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
@@ -25,6 +26,7 @@ import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.catalog.CatalogTable;
 import org.apache.flink.table.catalog.ObjectIdentifier;
 import org.apache.flink.table.connector.format.DecodingFormat;
+import org.apache.flink.table.connector.format.EncodingFormat;
 import org.apache.flink.table.connector.format.Format;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.data.RowData;
@@ -32,6 +34,7 @@ import org.apache.flink.table.factories.DeserializationFormatFactory;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.FactoryUtil.TableFactoryHelper;
+import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
 
@@ -41,6 +44,9 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.BOOTSTRAP_FROM_MAX;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.CONSUME_GROUP;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.KEY_FORMAT;
@@ -68,13 +74,18 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory {
                 .orElseGet(() -> helper.discoverDecodingFormat(DeserializationFormatFactory.class, FORMAT));
     }
 
+    private static EncodingFormat<SerializationSchema<RowData>> getValueEncodingFormat(
+            TableFactoryHelper helper) {
+        return helper.discoverOptionalEncodingFormat(SerializationFormatFactory.class, FORMAT)
+                .orElseGet(() -> helper.discoverEncodingFormat(SerializationFormatFactory.class, FORMAT));
+    }
+
     private static void validatePKConstraints(
             ObjectIdentifier tableName, CatalogTable catalogTable, Format format) {
         if (catalogTable.getSchema().getPrimaryKey().isPresent()
                 && format.getChangelogMode().containsOnly(RowKind.INSERT)) {
             Configuration options = Configuration.fromMap(catalogTable.getOptions());
             String formatName = options.getOptional(FORMAT).orElse(options.get(FORMAT));
-            innerFormat = INNERFORMATTYPE.equals(formatName);
             throw new ValidationException(String.format(
                     "The TubeMQ table '%s' with '%s' format doesn't support defining PRIMARY KEY constraint"
                             + " on the table, because it can't guarantee the semantic of primary key.",
@@ -110,10 +121,15 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory {
         helper.validateExcept(INNERFORMATTYPE);
 
         validatePKConstraints(context.getObjectIdentifier(), context.getCatalogTable(), valueDecodingFormat);
+        innerFormat = INNERFORMATTYPE.equals(tableOptions.get(FORMAT));
 
         final Configuration properties = getTubeMQProperties(context.getCatalogTable().getOptions());
 
-        final DataType physicalDataType = context.getCatalogTable().getSchema().toPhysicalRowDataType();
+        final DataType physicalDataType = context.getCatalogTable().getResolvedSchema().toPhysicalRowDataType();
+
+        String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
+        String auditHostAndPorts = tableOptions.get(INLONG_AUDIT);
+        String auditKeys = tableOptions.get(AUDIT_KEYS);
 
         return createTubeMQTableSource(
                 physicalDataType,
@@ -123,7 +139,10 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory {
                 TubeMQOptions.getTiSet(tableOptions),
                 TubeMQOptions.getConsumerGroup(tableOptions),
                 TubeMQOptions.getSessionKey(tableOptions),
-                properties);
+                properties,
+                inlongMetric,
+                auditHostAndPorts,
+                auditKeys);
     }
 
     protected TubeMQTableSource createTubeMQTableSource(
@@ -131,23 +150,29 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory {
             DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat,
             String topic,
             String url,
-            TreeSet<String> tid,
+            TreeSet<String> streamId,
             String consumerGroup,
             String sessionKey,
-            Configuration properties) {
+            Configuration properties,
+            String inlongMetric,
+            String auditHostAndPorts,
+            String auditKeys) {
         return new TubeMQTableSource(
                 physicalDataType,
                 valueDecodingFormat,
                 url,
                 topic,
-                tid,
+                streamId,
                 consumerGroup,
                 sessionKey,
                 properties,
                 null,
                 null,
                 false,
-                innerFormat);
+                innerFormat,
+                inlongMetric,
+                auditHostAndPorts,
+                auditKeys);
     }
 
     @Override
@@ -172,6 +197,10 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory {
         options.add(SESSION_KEY);
         options.add(BOOTSTRAP_FROM_MAX);
         options.add(TOPIC_PATTERN);
+        options.add(AUDIT_KEYS);
+        options.add(INLONG_METRIC);
+        options.add(INLONG_AUDIT);
         return options;
     }
+
 }

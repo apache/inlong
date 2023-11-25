@@ -37,7 +37,7 @@ public class ProxyClientConfig {
     private int proxyUpdateIntervalMinutes;
     private int proxyUpdateMaxRetry;
     private String netTag;
-    private String groupId;
+    private String inlongGroupId;
     private boolean isFile = false;
     private boolean isLocalVisit = true;
     private boolean isNeedDataEncry = false;
@@ -103,7 +103,7 @@ public class ProxyClientConfig {
 
     /* pay attention to the last url parameter ip */
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp,
-            int managerPort, String groupId, String netTag, String authSecretId, String authSecretKey,
+            int managerPort, String inlongGroupId, String netTag, String authSecretId, String authSecretKey,
             LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
         if (Utils.isBlank(localHost)) {
             throw new ProxysdkException("localHost is blank!");
@@ -111,12 +111,12 @@ public class ProxyClientConfig {
         if (Utils.isBlank(managerIp)) {
             throw new IllegalArgumentException("managerIp is Blank!");
         }
-        if (Utils.isBlank(groupId)) {
+        if (Utils.isBlank(inlongGroupId)) {
             throw new ProxysdkException("groupId is blank!");
         }
         this.proxyIPServiceURL =
-                "http://" + managerIp + ":" + managerPort + ConfigConstants.MANAGER_DATAPROXY_API + groupId;
-        this.groupId = groupId;
+                getProxyIPServiceURL(managerIp, managerPort, inlongGroupId, isLocalVisit);
+        this.inlongGroupId = inlongGroupId;
         this.netTag = netTag;
         this.isLocalVisit = isLocalVisit;
         this.managerPort = managerPort;
@@ -137,9 +137,18 @@ public class ProxyClientConfig {
         this.maxRetry = maxRetry;
     }
 
-    public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp, int managerPort, String groupId,
+    private String getProxyIPServiceURL(String managerIp, int managerPort, String inlongGroupId, boolean isLocalVisit) {
+        String protocolType = "http://";
+        if (!isLocalVisit) {
+            protocolType = "https://";
+        }
+        return protocolType + managerIp + ":" + managerPort + ConfigConstants.MANAGER_DATAPROXY_API + inlongGroupId;
+    }
+
+    public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp, int managerPort,
+            String inlongGroupId,
             String netTag, String authSecretId, String authSecretKey) throws ProxysdkException {
-        this(localHost, isLocalVisit, managerIp, managerPort, groupId, netTag, authSecretId, authSecretKey,
+        this(localHost, isLocalVisit, managerIp, managerPort, inlongGroupId, netTag, authSecretId, authSecretKey,
                 ConfigConstants.DEFAULT_LOAD_BALANCE, ConfigConstants.DEFAULT_VIRTUAL_NODE,
                 ConfigConstants.DEFAULT_RANDOM_MAX_RETRY);
     }
@@ -164,12 +173,12 @@ public class ProxyClientConfig {
         isFile = file;
     }
 
-    public String getGroupId() {
-        return groupId;
+    public String getInlongGroupId() {
+        return inlongGroupId;
     }
 
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
+    public void setInlongGroupId(String inlongGroupId) {
+        this.inlongGroupId = inlongGroupId;
     }
 
     public int getManagerPort() {

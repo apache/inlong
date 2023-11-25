@@ -18,6 +18,9 @@
  */
 
 #include "sdk_conf.h"
+#include <net/if.h>
+#include <arpa/inet.h>
+#include <sys/ioctl.h>
 #include <rapidjson/document.h>
 
 #include "../utils/capi_constant.h"
@@ -62,6 +65,7 @@ bool SdkConfig::ParseConfig(const std::string &config_path) {
   InitLogParam(doc);
   InitManagerParam(doc);
   InitTcpParam(doc);
+  InitLocalIp();
   OthersParam(doc);
   InitAuthParm(doc);
 
@@ -78,6 +82,9 @@ void SdkConfig::defaultInit() {
   dispatch_interval_zip_ = constants::kDispatchIntervalZip;
   tcp_detection_interval_ = constants::kTcpDetectionInterval;
   tcp_idle_time_ = constants::kTcpIdleTime;
+  load_balance_interval_ = constants::kLoadBalanceInterval;
+  heart_beat_interval_ = constants::kHeartBeatInterval;
+  enable_balance_ = constants::kEnableBalance;
 
   // cache parameter
   send_buf_size_ = constants::kSendBufSize;
@@ -107,6 +114,8 @@ void SdkConfig::defaultInit() {
   manager_url_timeout_ = constants::kManagerTimeout;
   max_proxy_num_ = constants::kMaxProxyNum;
   enable_isolation_ = constants::kEnableIsolation;
+  reserve_proxy_num_ = constants::kReserveProxyNum;
+  enable_local_cache_ = constants::kEnableLocalCache;
 
   local_ip_ = constants::kSerIP;
   local_port_ = constants::kSerPort;
@@ -143,6 +152,24 @@ void SdkConfig::InitThreadParam(const rapidjson::Value &doc) {
     dispatch_interval_send_ = obj.GetInt();
   } else {
     dispatch_interval_send_ = constants::kDispatchIntervalSend;
+  }
+
+  if (doc.HasMember("load_balance_interval") &&
+      doc["load_balance_interval"].IsInt() &&
+      doc["load_balance_interval"].GetInt() > 0) {
+    const rapidjson::Value &obj = doc["load_balance_interval"];
+    load_balance_interval_ = obj.GetInt();
+  } else {
+    load_balance_interval_ = constants::kLoadBalanceInterval;
+  }
+
+  if (doc.HasMember("heart_beat_interval") &&
+      doc["heart_beat_interval"].IsInt() &&
+      doc["heart_beat_interval"].GetInt() > 0) {
+    const rapidjson::Value &obj = doc["heart_beat_interval"];
+    heart_beat_interval_ = obj.GetInt();
+  } else {
+    heart_beat_interval_ = constants::kHeartBeatInterval;
   }
 }
 
@@ -333,6 +360,14 @@ void SdkConfig::InitManagerParam(const rapidjson::Value &doc) {
   } else {
     enable_isolation_ = constants::kEnableIsolation;
   }
+
+  // enable local cache
+  if (doc.HasMember("enable_local_cache") && doc["enable_local_cache"].IsBool()) {
+    const rapidjson::Value &obj = doc["enable_local_cache"];
+    enable_local_cache_ = obj.GetBool();
+  } else {
+    enable_local_cache_ = constants::kEnableLocalCache;
+  }
 }
 
 void SdkConfig::InitTcpParam(const rapidjson::Value &doc) {
@@ -359,6 +394,14 @@ void SdkConfig::InitTcpParam(const rapidjson::Value &doc) {
     tcp_idle_time_ = obj.GetInt();
   } else {
     tcp_idle_time_ = constants::kTcpIdleTime;
+  }
+
+  // enable balance
+  if (doc.HasMember("enable_balance") && doc["enable_balance"].IsBool()) {
+    const rapidjson::Value &obj = doc["enable_balance"];
+    enable_balance_ = obj.GetBool();
+  } else {
+    enable_balance_ = constants::kEnableBalance;
   }
 }
 void SdkConfig::InitAuthParm(const rapidjson::Value &doc) {
@@ -389,8 +432,6 @@ void SdkConfig::OthersParam(const rapidjson::Value &doc) {
   if (doc.HasMember("ser_ip") && doc["ser_ip"].IsString()) {
     const rapidjson::Value &obj = doc["ser_ip"];
     local_ip_ = obj.GetString();
-  } else {
-    local_ip_ = constants::kSerIP;
   }
   // ser_port
   if (doc.HasMember("ser_port") && doc["ser_port"].IsInt() &&
@@ -426,6 +467,26 @@ void SdkConfig::OthersParam(const rapidjson::Value &doc) {
   } else {
     extend_field_ = constants::kExtendField;
   }
+}
+
+void SdkConfig::InitLocalIp() {
+  struct sockaddr_in dest;
+  dest.sin_family = AF_INET;
+
+  int fd = socket(AF_INET, SOCK_DGRAM, 0);
+  if (fd <= 0) {
+    throw std::runtime_error(std::string("socket failed") + strerror(errno));
+  }
+
+  struct ifreq ifreq_Buf;
+  strcpy(ifreq_Buf.ifr_name, "eth1"); // just check the eth1
+  if (-1 == ioctl(fd, SIOCGIFADDR, &ifreq_Buf)) {
+    throw std::runtime_error(std::string("ioctl failed") + strerror(errno));
+  }
+
+  close(fd);
+  struct sockaddr_in *addr = (struct sockaddr_in *)&ifreq_Buf.ifr_addr;
+  local_ip_ = inet_ntoa(addr->sin_addr);
 }
 
 void SdkConfig::ShowClientConfig() {

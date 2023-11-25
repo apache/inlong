@@ -17,6 +17,8 @@
 
 package org.apache.inlong.agent.plugin.utils.file;
 
+import org.apache.inlong.agent.utils.DateTransUtils;
+
 import hirondelle.date4j.DateTime;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -119,10 +121,10 @@ public class NewDateUtils {
     }
 
     public static String getDateTime(String dataTime, String cycleUnit, String offset) {
-        String retTime = NewDateUtils.millSecConvertToTimeStr(
+        String retTime = DateTransUtils.millSecConvertToTimeStr(
                 System.currentTimeMillis(), cycleUnit);
         try {
-            long time = NewDateUtils.timeStrConvertTomillSec(dataTime, cycleUnit);
+            long time = DateTransUtils.timeStrConvertToMillSec(dataTime, cycleUnit);
 
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(time);
@@ -131,7 +133,7 @@ public class NewDateUtils {
                 return dataTime;
             }
 
-            retTime = NewDateUtils.millSecConvertToTimeStr(retCalendar.getTime().getTime(),
+            retTime = DateTransUtils.millSecConvertToTimeStr(retCalendar.getTime().getTime(),
                     cycleUnit);
         } catch (Exception e) {
             logger.error("getDateTime error: ", e);
@@ -143,7 +145,7 @@ public class NewDateUtils {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
         Calendar retCalendar = getDateTime(calendar, cycleUnit, offset);
-        return NewDateUtils.millSecConvertToTimeStr(retCalendar.getTime().getTime(), cycleUnit);
+        return DateTransUtils.millSecConvertToTimeStr(retCalendar.getTime().getTime(), cycleUnit);
     }
 
     private static Calendar getDateTime(Calendar calendar, String cycleUnit, String offset) {
@@ -220,11 +222,10 @@ public class NewDateUtils {
             timeInterval = DAY_TIMEOUT_INTERVAL;
         }
 
-        // To handle the offset, add the time offset to the timeout period
         if (timeOffset.startsWith("-")) {
-            timeInterval += calcOffset(timeOffset);
-        } else { // Process Backward Offset
             timeInterval -= calcOffset(timeOffset);
+        } else {
+            timeInterval += calcOffset(timeOffset);
         }
 
         return isValidCreationTime(dataTime, timeInterval);
@@ -242,14 +243,16 @@ public class NewDateUtils {
      */
     public static long calcOffset(String timeOffset) {
         String offsetUnit = timeOffset.substring(timeOffset.length() - 1);
-        int startIndex = timeOffset.charAt(0) == '-' ? 1 : 0;
-        // Default Backward Offset
-        int symbol = 1;
-        if (startIndex == 1) {
-            symbol = 1;
-        } else if (startIndex == 0) { // Forward offset
+        int startIndex;
+        int symbol;
+        if (timeOffset.charAt(0) == '-') {
             symbol = -1;
+            startIndex = 1;
+        } else {
+            symbol = 1;
+            startIndex = 0;
         }
+
         String strOffset = timeOffset.substring(startIndex, timeOffset.length() - 1);
         if (strOffset.length() == 0) {
             return 0;
@@ -292,92 +295,6 @@ public class NewDateUtils {
 
         return calendar.getTimeInMillis() >= minTime
                 && calendar.getTimeInMillis() <= maxTime;
-    }
-
-    // convert millSec to YYYMMDD by cycleUnit
-    public static String millSecConvertToTimeStr(long time, String cycleUnit, TimeZone tz) {
-        String retTime = null;
-
-        Calendar calendarInstance = Calendar.getInstance();
-        calendarInstance.setTimeInMillis(time);
-
-        Date dateTime = calendarInstance.getTime();
-        SimpleDateFormat df = null;
-        if ("Y".equalsIgnoreCase(cycleUnit)) {
-            df = new SimpleDateFormat("yyyy");
-        } else if ("M".equals(cycleUnit)) {
-            df = new SimpleDateFormat("yyyyMM");
-        } else if ("D".equalsIgnoreCase(cycleUnit)) {
-            df = new SimpleDateFormat("yyyyMMdd");
-        } else if ("h".equalsIgnoreCase(cycleUnit)) {
-            df = new SimpleDateFormat("yyyyMMddHH");
-        } else if (cycleUnit.contains("m")) {
-            df = new SimpleDateFormat("yyyyMMddHHmm");
-        } else {
-            logger.error("cycleUnit {} can't parse!", cycleUnit);
-            df = new SimpleDateFormat("yyyyMMddHH");
-        }
-        df.setTimeZone(tz);
-        retTime = df.format(dateTime);
-
-        if (cycleUnit.contains("m")) {
-
-            int cycleNum = Integer.parseInt(cycleUnit.substring(0,
-                    cycleUnit.length() - 1));
-            int mmTime = Integer.parseInt(retTime.substring(
-                    retTime.length() - 2, retTime.length()));
-            String realMMTime = "";
-            if (cycleNum * (mmTime / cycleNum) <= 0) {
-                realMMTime = "0" + cycleNum * (mmTime / cycleNum);
-            } else {
-                realMMTime = "" + cycleNum * (mmTime / cycleNum);
-            }
-            retTime = retTime.substring(0, retTime.length() - 2) + realMMTime;
-        }
-
-        return retTime;
-    }
-
-    // convert millSec to YYYMMDD by cycleUnit
-    public static String millSecConvertToTimeStr(long time, String cycleUnit) {
-        return millSecConvertToTimeStr(time, cycleUnit, TimeZone.getDefault());
-    }
-
-    // convert YYYMMDD to millSec by cycleUnit
-    public static long timeStrConvertTomillSec(String time, String cycleUnit)
-            throws ParseException {
-        return timeStrConvertTomillSec(time, cycleUnit, TimeZone.getDefault());
-    }
-
-    public static long timeStrConvertTomillSec(String time, String cycleUnit, TimeZone timeZone)
-            throws ParseException {
-        long retTime = 0;
-        // SimpleDateFormat df=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        SimpleDateFormat df = null;
-        if (cycleUnit.equals("Y") && time.length() == 4) {
-            df = new SimpleDateFormat("yyyy");
-        } else if (cycleUnit.equals("M") && time.length() == 6) {
-            df = new SimpleDateFormat("yyyyMM");
-        } else if (cycleUnit.equals("D") && time.length() == 8) {
-            df = new SimpleDateFormat("yyyyMMdd");
-        } else if (cycleUnit.equalsIgnoreCase("h") && time.length() == 10) {
-            df = new SimpleDateFormat("yyyyMMddHH");
-        } else if (cycleUnit.contains("m") && time.length() == 12) {
-            df = new SimpleDateFormat("yyyyMMddHHmm");
-        } else {
-            logger.error("time {},cycleUnit {} can't parse!", time, cycleUnit);
-            throw new ParseException(time, 0);
-        }
-        try {
-            df.setTimeZone(timeZone);
-            retTime = df.parse(time).getTime();
-            if (cycleUnit.equals("10m")) {
-
-            }
-        } catch (ParseException e) {
-            logger.error("convert time string error. ", e);
-        }
-        return retTime;
     }
 
     public static boolean isBraceContain(String dataName) {
@@ -675,8 +592,8 @@ public class NewDateUtils {
         long startTime;
         long endTime;
         try {
-            startTime = NewDateUtils.timeStrConvertTomillSec(start, cycleUnit);
-            endTime = NewDateUtils.timeStrConvertTomillSec(end, cycleUnit);
+            startTime = DateTransUtils.timeStrConvertToMillSec(start, cycleUnit);
+            endTime = DateTransUtils.timeStrConvertToMillSec(end, cycleUnit);
         } catch (ParseException e) {
             logger.error("date format is error: ", e);
             return ret;

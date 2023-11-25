@@ -20,11 +20,17 @@ package org.apache.inlong.agent.conf;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.pojo.TaskProfileDto;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.common.enums.InstanceStateEnum;
 import org.apache.inlong.common.enums.TaskStateEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.text.ParseException;
+import java.util.TimeZone;
 
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_RETRY;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_STATE;
@@ -35,6 +41,7 @@ import static org.apache.inlong.agent.constant.TaskConstants.TASK_STATE;
 public class TaskProfile extends AbstractConfiguration {
 
     private static final Gson GSON = new Gson();
+    private static final Logger logger = LoggerFactory.getLogger(TaskProfile.class);
 
     /**
      * Get a TaskProfile from a DataConfig
@@ -56,6 +63,10 @@ public class TaskProfile extends AbstractConfiguration {
 
     public String getTimeOffset() {
         return get(TaskConstants.TASK_FILE_TIME_OFFSET);
+    }
+
+    public String getTimeZone() {
+        return get(TaskConstants.TASK_FILE_TIME_ZONE);
     }
 
     public TaskStateEnum getState() {
@@ -99,7 +110,8 @@ public class TaskProfile extends AbstractConfiguration {
         return hasKey(TaskConstants.TASK_ID) && hasKey(TaskConstants.TASK_SOURCE)
                 && hasKey(TaskConstants.TASK_SINK) && hasKey(TaskConstants.TASK_CHANNEL)
                 && hasKey(TaskConstants.TASK_GROUP_ID) && hasKey(TaskConstants.TASK_STREAM_ID)
-                && hasKey(TaskConstants.TASK_CYCLE_UNIT);
+                && hasKey(TaskConstants.TASK_CYCLE_UNIT)
+                && hasKey(TaskConstants.TASK_FILE_TIME_ZONE);
     }
 
     public String toJsonStr() {
@@ -111,7 +123,19 @@ public class TaskProfile extends AbstractConfiguration {
         InstanceProfile instanceProfile = InstanceProfile.parseJsonStr(toJsonStr());
         instanceProfile.setInstanceClass(instanceClass);
         instanceProfile.setInstanceId(fileName);
-        instanceProfile.setDataTime(dataTime);
+        instanceProfile.setSourceDataTime(dataTime);
+        Long sinkDataTime = 0L;
+        try {
+            sinkDataTime = DateTransUtils.timeStrConvertToMillSec(dataTime, getCycleUnit(),
+                    TimeZone.getTimeZone(getTimeZone()));
+        } catch (ParseException e) {
+            logger.error("createInstanceProfile ParseException error: ", e);
+            return null;
+        } catch (Exception e) {
+            logger.error("createInstanceProfile Exception error: ", e);
+            return null;
+        }
+        instanceProfile.setSinkDataTime(sinkDataTime);
         instanceProfile.setCreateTime(AgentUtils.getCurrentTime());
         instanceProfile.setModifyTime(AgentUtils.getCurrentTime());
         instanceProfile.setState(InstanceStateEnum.DEFAULT);

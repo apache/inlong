@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.manager.common.consts.StreamType;
+import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
@@ -96,7 +97,8 @@ public class IcebergProvider implements ExtractNodeProvider, LoadNodeProvider {
                 icebergSink.getPrimaryKey(),
                 catalogType,
                 icebergSink.getCatalogUri(),
-                icebergSink.getWarehouse());
+                icebergSink.getWarehouse(),
+                icebergSink.getAppendMode());
     }
 
     @Override
@@ -108,6 +110,16 @@ public class IcebergProvider implements ExtractNodeProvider, LoadNodeProvider {
                             MetaField.AUDIT_DATA_TIME.name()));
         }
         return streamFields;
+    }
+
+    @Override
+    public List<SinkField> addSinkMetaFields(List<SinkField> sinkFields) {
+        List<String> fieldNames = sinkFields.stream().map(SinkField::getFieldName).collect(Collectors.toList());
+        if (!fieldNames.contains(MetaField.AUDIT_DATA_TIME.name())) {
+            sinkFields.add(0, new SinkField(0, "long", MetaField.AUDIT_DATA_TIME.name(), "iceberg meta field",
+                    MetaField.AUDIT_DATA_TIME.name(), "long", 1, MetaField.AUDIT_DATA_TIME.name(), null));
+        }
+        return sinkFields;
     }
 
     @Override

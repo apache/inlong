@@ -28,18 +28,16 @@ SendManager::SendManager() : send_group_idx_(0) {
              << SdkConfig::getInstance()->inlong_group_ids_[i]
              << " send group num:"
              << SdkConfig::getInstance()->per_groupid_thread_nums_);
-    std::string send_group_key = ProxyManager::GetInstance()->GetSendGroupKey(
+    std::string send_group_key = ProxyManager::GetInstance()->GetGroupKey(
         SdkConfig::getInstance()->inlong_group_ids_[i]);
     AddSendGroup(send_group_key);
   }
 }
 
-SendGroupPtr SendManager::GetSendGroup(const std::string &group_id) {
-  std::string send_group_key =
-      ProxyManager::GetInstance()->GetSendGroupKey(group_id);
-  SendGroupPtr send_group_ptr = DoGetSendGroup(send_group_key);
+SendGroupPtr SendManager::GetSendGroup(const std::string &group_key) {
+  SendGroupPtr send_group_ptr = DoGetSendGroup(group_key);
   if (send_group_ptr == nullptr) {
-    AddSendGroup(send_group_key);
+    AddSendGroup(group_key);
   }
   return send_group_ptr;
 }

@@ -28,29 +28,34 @@ private:
 
   uint64_t send_failed_pack_num_;
   uint64_t send_failed_msg_num_;
+  uint64_t time_cost_;
 
 public:
   Stat()
       : send_success_pack_num_(0), send_success_msg_num_(0),
-        send_failed_pack_num_(0), send_failed_msg_num_(0) {}
+        send_failed_pack_num_(0), send_failed_msg_num_(0) ,time_cost_(0) {}
 
   void AddSendSuccessPackNum(uint64_t num) { send_success_pack_num_ += num; }
   void AddSendSuccessMsgNum(uint64_t num) { send_success_msg_num_ += num; }
   void AddSendFailPackNum(uint64_t num) { send_failed_pack_num_ += num; }
   void AddSendFailMsgNum(uint64_t num) { send_failed_msg_num_ += num; }
+  void AddTimeCost(uint64_t time_cost) { time_cost_ += time_cost; }
 
   void ResetStat() {
     send_success_pack_num_ = 0;
     send_success_msg_num_ = 0;
     send_failed_pack_num_ = 0;
     send_failed_msg_num_ = 0;
+    time_cost_ = 0;
   }
   std::string ToString() {
     std::stringstream stat;
     stat << "success-pack[" << send_success_pack_num_ << "]";
-    stat << " success-msg[" << send_success_msg_num_ << "]";
+    stat << "msg[" << send_success_msg_num_ << "]";
     stat << " failed-pack[" << send_failed_pack_num_ << "]";
-    stat << " failed-msg[" << send_failed_msg_num_ << "]";
+    stat << "msg[" << send_failed_msg_num_ << "]";
+    uint64_t pack_num = send_success_pack_num_ + send_failed_msg_num_ + 1;
+    stat << " trans[" << time_cost_ / pack_num << "]";
     return stat.str();
   }
 };

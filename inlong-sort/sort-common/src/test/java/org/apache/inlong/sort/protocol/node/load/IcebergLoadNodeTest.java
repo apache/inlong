@@ -45,6 +45,7 @@ public class IcebergLoadNodeTest extends SerializeBaseTest<IcebergLoadNode> {
                 "id",
                 CatalogType.HIVE,
                 "thrift://localhost:9083",
-                "hdfs://localhost:9000/user/iceberg/warehouse");
+                "hdfs://localhost:9000/user/iceberg/warehouse",
+                null);
     }
 }

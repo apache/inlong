@@ -80,6 +80,8 @@ public class LogFileCollectTask extends Task {
     public static final long DAY_TIMEOUT_INTERVAL = 2 * 24 * 3600 * 1000;
     public static final int CORE_THREAD_SLEEP_TIME = 1000;
     public static final int CORE_THREAD_MAX_GAP_TIME_MS = 60 * 1000;
+    public static final int CORE_THREAD_PRINT_TIME = 10000;
+    private long lastPrintTime = 0;
     private boolean retry;
     private long startTime;
     private long endTime;
@@ -221,6 +223,9 @@ public class LogFileCollectTask extends Task {
 
     @Override
     public String getTaskId() {
+        if (taskProfile == null) {
+            return "";
+        }
         return taskProfile.getTaskId();
     }
 
@@ -234,6 +239,10 @@ public class LogFileCollectTask extends Task {
         Thread.currentThread().setName("directory-task-core-" + getTaskId());
         running = true;
         while (!isFinished()) {
+            if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_TIME) {
+                LOGGER.info("log file task running! taskId {}", getTaskId());
+                lastPrintTime = AgentUtils.getCurrentTime();
+            }
             coreThreadUpdateTime = AgentUtils.getCurrentTime();
             AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
             if (!initOK) {
@@ -274,7 +283,7 @@ public class LogFileCollectTask extends Task {
     private void scanExistingFile() {
         originPatterns.forEach((originPattern) -> {
             List<BasicFileInfo> fileInfos = scanExistingFileByPattern(originPattern);
-            LOGGER.info("scan {} get file count {}", originPattern, fileInfos.size());
+            LOGGER.info("taskId {} scan {} get file count {}", getTaskId(), originPattern, fileInfos.size());
             fileInfos.forEach((fileInfo) -> {
                 addToEvenMap(fileInfo.fileName, fileInfo.dataTime);
             });
@@ -299,7 +308,7 @@ public class LogFileCollectTask extends Task {
             long currentTime = System.currentTimeMillis();
             // only scan two cycle, like two hours or two days
             long offset = NewDateUtils.calcOffset("-2" + taskProfile.getCycleUnit());
-            startScanTime = currentTime - offset;
+            startScanTime = currentTime + offset;
             endScanTime = currentTime;
         }
         return FileScanner.scanTaskBetweenTimes(taskProfile, originPattern, startScanTime, endScanTime, retry);
@@ -325,7 +334,7 @@ public class LogFileCollectTask extends Task {
         for (Map.Entry<String, Map<String, InstanceProfile>> entry : eventMap.entrySet()) {
             Map<String, InstanceProfile> sameDataTimeEvents = entry.getValue();
             if (sameDataTimeEvents.isEmpty()) {
-                return;
+                continue;
             }
             /*
              * Calculate whether the event needs to be processed at the current time based on its data time, business
@@ -442,10 +451,10 @@ public class LogFileCollectTask extends Task {
 
     private void handleFilePath(Path filePath, WatchEntity entity) {
         String newFileName = filePath.toFile().getAbsolutePath();
-        LOGGER.info("[New File] {} {}", newFileName, entity.getOriginPattern());
+        LOGGER.info("new file {} {}", newFileName, entity.getOriginPattern());
         Matcher matcher = entity.getPattern().matcher(newFileName);
         if (matcher.matches() || matcher.lookingAt()) {
-            LOGGER.info("[Matched File] {} {}", newFileName, entity.getOriginPattern());
+            LOGGER.info("matched file {} {}", newFileName, entity.getOriginPattern());
             String dataTime = getDataTimeFromFileName(newFileName, entity.getOriginPattern(),
                     entity.getDateExpression());
             if (!checkFileNameForTime(newFileName, entity)) {
@@ -458,10 +467,14 @@ public class LogFileCollectTask extends Task {
 
     private void addToEvenMap(String fileName, String dataTime) {
         if (isInEventMap(fileName, dataTime)) {
+            LOGGER.info("addToEvenMap isInEventMap returns true skip taskId {} dataTime {} fileName {}",
+                    taskProfile.getTaskId(), dataTime, fileName);
             return;
         }
         Long fileUpdateTime = FileUtils.getFileLastModifyTime(fileName);
         if (!instanceManager.shouldAddAgain(fileName, fileUpdateTime)) {
+            LOGGER.info("addToEvenMap shouldAddAgain returns false skip taskId {} dataTime {} fileName {}",
+                    taskProfile.getTaskId(), dataTime, fileName);
             return;
         }
         Map<String, InstanceProfile> sameDataTimeEvents = eventMap.computeIfAbsent(dataTime,
@@ -474,6 +487,7 @@ public class LogFileCollectTask extends Task {
         InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_FILE_INSTANCE,
                 fileName, dataTime, fileUpdateTime);
         sameDataTimeEvents.put(fileName, instanceProfile);
+        LOGGER.info("add to eventMap taskId {} dataTime {} fileName {}", taskProfile.getTaskId(), dataTime, fileName);
     }
 
     private boolean checkFileNameForTime(String newFileName, WatchEntity entity) {

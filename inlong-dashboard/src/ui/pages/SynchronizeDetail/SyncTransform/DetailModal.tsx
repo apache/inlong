@@ -318,7 +318,12 @@ const Comp: React.FC<Props> = ({
             label={i18n.t('pages.SynchronizeDetail.Transform.FilterRules')}
             wrapperCol={{ offset: 1 }}
           >
-            <EditableTable columns={columns} dataSource={data}></EditableTable>
+            <EditableTable
+              columns={columns}
+              dataSource={data}
+              canBatchAdd={true}
+              upsetByFieldKey={true}
+            ></EditableTable>
           </Form.Item>
         </Form>
       </Modal>

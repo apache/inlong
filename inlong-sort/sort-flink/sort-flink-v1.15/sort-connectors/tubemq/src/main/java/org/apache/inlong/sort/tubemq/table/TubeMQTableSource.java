@@ -17,8 +17,10 @@
 
 package org.apache.inlong.sort.tubemq.table;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.tubemq.FlinkTubeMQConsumer;
-import org.apache.inlong.sort.tubemq.table.DynamicTubeMQDeserializationSchema.MetadataConverter;
+import org.apache.inlong.sort.tubemq.table.DynamicTubeMQTableDeserializationSchema.MetadataConverter;
 import org.apache.inlong.tubemq.corebase.Message;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -40,6 +42,8 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.utils.LogicalTypeChecks;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.util.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
@@ -61,6 +65,8 @@ import java.util.stream.Stream;
 public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetadata, SupportsWatermarkPushDown {
 
     private static final String VALUE_METADATA_PREFIX = "value.";
+
+    private static final Logger LOG = LoggerFactory.getLogger(TubeMQTableSource.class);
 
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
@@ -120,6 +126,11 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
      * Metadata that is appended at the end of a physical source row.
      */
     protected List<String> metadataKeys;
+
+    private String inlongMetric;
+    private String auditHostAndPorts;
+    private String auditKeys;
+
     /**
      * Watermark strategy that is used to generate per-partition watermark.
      */
@@ -131,7 +142,8 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
             String masterAddress, String topic,
             TreeSet<String> streamIdSet, String consumerGroup, String sessionKey,
             Configuration configuration, @Nullable WatermarkStrategy<RowData> watermarkStrategy,
-            Optional<String> proctimeAttribute, Boolean ignoreErrors, Boolean innerFormat) {
+            Optional<String> proctimeAttribute, Boolean ignoreErrors, Boolean innerFormat,
+            String inlongMetric, String auditHostAndPorts, String auditKeys) {
 
         Preconditions.checkNotNull(physicalDataType, "Physical data type must not be null.");
         Preconditions.checkNotNull(valueDecodingFormat, "The deserialization schema must not be null.");
@@ -155,6 +167,9 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
         this.proctimeAttribute = proctimeAttribute;
         this.ignoreErrors = ignoreErrors;
         this.innerFormat = innerFormat;
+        this.inlongMetric = inlongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
+        this.auditKeys = auditKeys;
     }
 
     @Override
@@ -167,6 +182,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
         final LogicalType physicalType = physicalDataType.getLogicalType();
         final int physicalFieldCount = LogicalTypeChecks.getFieldCount(physicalType);
         final IntStream physicalFields = IntStream.range(0, physicalFieldCount);
+
         final DeserializationSchema<RowData> deserialization = createDeserialization(context,
                 valueDecodingFormat, physicalFields.toArray(), null);
 
@@ -183,7 +199,8 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
         return new TubeMQTableSource(
                 physicalDataType, valueDecodingFormat, masterAddress,
                 topic, streamIdSet, consumerGroup, sessionKey, configuration,
-                watermarkStrategy, proctimeAttribute, ignoreErrors, innerFormat);
+                watermarkStrategy, proctimeAttribute, ignoreErrors, innerFormat,
+                inlongMetric, auditHostAndPorts, auditKeys);
     }
 
     @Override
@@ -299,8 +316,16 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
                                 .orElseThrow(IllegalStateException::new))
                         .map(m -> m.converter)
                         .toArray(MetadataConverter[]::new);
-        final DeserializationSchema<RowData> tubeMQDeserializer = new DynamicTubeMQDeserializationSchema(
-                deserialization, metadataConverters, producedTypeInfo, ignoreErrors);
+
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withAuditAddress(auditHostAndPorts)
+                .withAuditKeys(auditKeys)
+                .build();
+
+        final DynamicTubeMQDeserializationSchema<RowData> tubeMQDeserializer =
+                new DynamicTubeMQTableDeserializationSchema(
+                        deserialization, metadataConverters, producedTypeInfo, ignoreErrors, innerFormat, metricOption);
 
         final FlinkTubeMQConsumer<RowData> tubeMQConsumer = new FlinkTubeMQConsumer(masterAddress, topic, streamIdSet,
                 consumerGroup, tubeMQDeserializer, configuration, sessionKey, innerFormat);
@@ -312,6 +337,11 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
     // --------------------------------------------------------------------------------------------
 
     enum ReadableMetadata {
+
+        CONSUME_TIME(
+                ExtractNode.CONSUME_AUDIT_TIME,
+                DataTypes.BIGINT().notNull(),
+                m -> System.currentTimeMillis()),
 
         TOPIC(
                 "topic",

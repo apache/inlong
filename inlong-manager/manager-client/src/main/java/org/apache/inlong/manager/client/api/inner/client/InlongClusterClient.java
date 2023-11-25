@@ -155,6 +155,19 @@ public class InlongClusterClient {
     }
 
     /**
+     * Paging query clusters according to tenant role.
+     *
+     * @param request query conditions
+     * @return cluster list
+     */
+    public PageResult<ClusterInfo> listByTenantRole(ClusterPageRequest request) {
+        Response<PageResult<ClusterInfo>> response =
+                ClientUtils.executeHttpCall(inlongClusterApi.listByTenantRole(request));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
      * Update cluster information.
      *
      * @param request cluster to be modified
