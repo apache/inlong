@@ -39,6 +39,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -157,6 +158,13 @@ public class File2HudiExample extends BaseExample {
         fields.add(field3);
         fields.add(field4);
         sink.setSinkFieldList(fields);
+
+        List<HashMap<String, String>> extList = new ArrayList<>();
+        HashMap<String, String> map = new HashMap<>();
+        map.put("hoodie.datasource.hive_sync.partition_fields", "name");
+        extList.add(map);
+        sink.setExtList(extList);
+        sink.setPrimaryKey("name");
         return sink;
     }
 }
