@@ -119,7 +119,7 @@ public class HudiLoadNode extends LoadNode implements InlongMetric, Serializable
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
         this.dbName = Preconditions.checkNotNull(dbName, "db name is null");
-        this.primaryKey = Preconditions.checkNotNull(primaryKey, "primaryKey is null");;
+        this.primaryKey = primaryKey;
         this.catalogType = catalogType == null ? CatalogType.HIVE : catalogType;
         this.uri = uri;
         this.warehouse = warehouse;
