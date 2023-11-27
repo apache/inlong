@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -53,12 +54,7 @@ public class SinkType extends StreamType {
     public static final Set<String> SORT_STANDALONE_SINK = new HashSet<>();
 
     public static boolean containSortFlinkSink(List<String> sinkTypes) {
-        for (String sinkType : sinkTypes) {
-            if (SinkType.SORT_FLINK_SINK.contains(sinkType)) {
-                return true;
-            }
-        }
-        return false;
+        return sinkTypes.stream().anyMatch(SORT_STANDALONE_SINK::contains);
     }
 
     @Value("#{'${sort.flink.sinks}'.split(',')}")
