@@ -68,7 +68,8 @@ public class TestInstanceManager {
     public void testInstanceManager() {
         long timeBefore = AgentUtils.getCurrentTime();
         InstanceProfile profile = taskProfile.createInstanceProfile(MockInstance.class.getCanonicalName(),
-                helper.getTestRootDir() + "/2023092710_1.txt", "2023092710", AgentUtils.getCurrentTime());
+                helper.getTestRootDir() + "/2023092710_1.txt", taskProfile.getCycleUnit(), "2023092710",
+                AgentUtils.getCurrentTime());
         String sinkDataTime = String.valueOf(profile.getSinkDataTime());
         try {
             String add2TimeZone = String.valueOf(
@@ -98,7 +99,8 @@ public class TestInstanceManager {
 
         // test continue
         profile = taskProfile.createInstanceProfile(MockInstance.class.getCanonicalName(),
-                helper.getTestRootDir() + "/2023092710_1.txt", "2023092710", AgentUtils.getCurrentTime());
+                helper.getTestRootDir() + "/2023092710_1.txt", taskProfile.getCycleUnit(), "2023092710",
+                AgentUtils.getCurrentTime());
         action = new InstanceAction();
         action.setActionType(ActionType.ADD);
         action.setProfile(profile);

@@ -51,6 +51,7 @@ public class TestUtils {
         Assert.assertTrue(NewDateUtils.calcOffset("0") == 0);
         Assert.assertTrue(NewDateUtils.calcOffset("1") == 0);
         Assert.assertTrue(NewDateUtils.calcOffset("10") == 0);
+        Assert.assertTrue(NewDateUtils.calcOffset("") == 0);
     }
 
     public static String getTestTriggerProfile() {

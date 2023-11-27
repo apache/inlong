@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.plugin.task.filecollect;
 
-import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.plugin.utils.file.FilePathUtil;
 import org.apache.inlong.agent.plugin.utils.file.FileTimeComparator;
 import org.apache.inlong.agent.plugin.utils.file.Files;
@@ -58,19 +57,19 @@ public class FileScanner {
 
     private static final Logger logger = LoggerFactory.getLogger(FileScanner.class);
 
-    public static List<BasicFileInfo> scanTaskBetweenTimes(TaskProfile conf, String originPattern, long startTime,
+    public static List<BasicFileInfo> scanTaskBetweenTimes(String originPattern, String cycleUnit, String timeOffset,
+            long startTime,
             long endTime, boolean isRetry) {
-        String cycleUnit = conf.getCycleUnit();
         if (!isRetry) {
-            startTime += NewDateUtils.calcOffset(conf.getTimeOffset());
-            endTime += NewDateUtils.calcOffset(conf.getTimeOffset());
+            startTime += NewDateUtils.calcOffset(timeOffset);
+            endTime += NewDateUtils.calcOffset(timeOffset);
         }
         String strStartTime = DateTransUtils.millSecConvertToTimeStr(startTime, cycleUnit);
         String strEndTime = DateTransUtils.millSecConvertToTimeStr(endTime, cycleUnit);
-        logger.info("task {} this scan time is between {} and {}.",
-                new Object[]{conf.getTaskId(), strStartTime, strEndTime});
+        logger.info("{} scan time is between {} and {}",
+                new Object[]{originPattern, strStartTime, strEndTime});
 
-        return scanTaskBetweenTimes(conf.getCycleUnit(), originPattern, strStartTime, strEndTime);
+        return scanTaskBetweenTimes(cycleUnit, originPattern, strStartTime, strEndTime);
     }
 
     /* Scan log files and create tasks between two times. */
@@ -91,8 +90,7 @@ public class FileScanner {
                 // TODO the time is not YYYYMMDDHH
                 String dataTime = DateTransUtils.millSecConvertToTimeStr(time, cycleUnit);
                 BasicFileInfo info = new BasicFileInfo(file, dataTime);
-                logger.info("scan new task fileName {} ,dataTime {}", file,
-                        DateTransUtils.millSecConvertToTimeStr(time, cycleUnit));
+                logger.info("scan new task fileName {} ,dataTime {}", file, dataTime);
                 infos.add(info);
             }
         }
@@ -114,11 +112,9 @@ public class FileScanner {
             String fileName, long depth, int maxFileNum) {
         ArrayList<String> ret = new ArrayList<String>();
         ArrayList<File> readyFiles = new ArrayList<File>();
-
         if (!new File(firstDir).isDirectory()) {
             return ret;
         }
-
         for (File pathname : Files.find(firstDir).yieldFilesAndDirectories()
                 .recursive().withDepth((int) depth).withDirNameRegex(secondDir)
                 .withFileNameRegex(fileName)) {

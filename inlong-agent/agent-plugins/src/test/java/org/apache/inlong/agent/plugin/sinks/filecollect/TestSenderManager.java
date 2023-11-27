@@ -72,7 +72,7 @@ public class TestSenderManager {
         String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
         TaskProfile taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING);
         profile = taskProfile.createInstanceProfile("", fileName,
-                "20230927", AgentUtils.getCurrentTime());
+                taskProfile.getCycleUnit(), "20230927", AgentUtils.getCurrentTime());
     }
 
     @AfterClass

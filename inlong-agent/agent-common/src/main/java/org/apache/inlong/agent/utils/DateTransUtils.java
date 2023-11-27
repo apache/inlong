@@ -56,7 +56,7 @@ public class DateTransUtils {
         } else if (cycleUnit.contains("m") && time.length() == 12) {
             df = new SimpleDateFormat("yyyyMMddHHmm");
         } else {
-            logger.error("time {},cycleUnit {} can't parse!", time, cycleUnit);
+            logger.error("time {}, cycleUnit {} can't parse!", time, cycleUnit);
             throw new ParseException(time, 0);
         }
         try {
