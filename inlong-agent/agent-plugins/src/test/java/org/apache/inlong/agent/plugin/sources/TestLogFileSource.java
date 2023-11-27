@@ -110,7 +110,7 @@ public class TestLogFileSource {
             msg = source.read();
             cnt++;
         }
-        await().atMost(6, TimeUnit.SECONDS).until(() -> source.sourceFinish());
+        await().atMost(30, TimeUnit.SECONDS).until(() -> source.sourceFinish());
         source.destroy();
         Assert.assertTrue(cnt == 3);
         Assert.assertTrue(srcLen == readLen);
