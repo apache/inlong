@@ -21,6 +21,7 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.OffsetProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
+import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.core.task.OffsetManager;
@@ -138,6 +139,7 @@ public class LogFileSource extends AbstractSource {
     private long dataTime = 0;
     private volatile long emptyCount = 0;
     private ExtendedHandler extendedHandler;
+    private boolean isRealTime = false;
 
     public LogFileSource() {
         OffsetManager.init();
@@ -149,6 +151,11 @@ public class LogFileSource extends AbstractSource {
             LOGGER.info("LogFileSource init: {}", profile.toJsonStr());
             this.profile = profile;
             super.init(profile);
+            String cycleUnit = profile.get(TASK_CYCLE_UNIT);
+            if (cycleUnit.compareToIgnoreCase(CycleUnitType.REAL_TIME) == 0) {
+                isRealTime = true;
+                cycleUnit = CycleUnitType.HOUR;
+            }
             taskId = profile.getTaskId();
             instanceId = profile.getInstanceId();
             fileName = profile.getInstanceId();
@@ -161,8 +168,7 @@ public class LogFileSource extends AbstractSource {
             linePosition = getInitLineOffset(isIncrement, taskId, instanceId, inodeInfo);
             bytePosition = getBytePositionByLine(linePosition);
             queue = new LinkedBlockingQueue<>(CACHE_QUEUE_SIZE);
-            dataTime = DateTransUtils.timeStrConvertToMillSec(profile.getSourceDataTime(),
-                    profile.get(TASK_CYCLE_UNIT));
+            dataTime = DateTransUtils.timeStrConvertToMillSec(profile.getSourceDataTime(), cycleUnit);
             if (DEFAULT_FILE_SOURCE_EXTEND_CLASS.compareTo(ExtendedHandler.class.getCanonicalName()) != 0) {
                 Constructor<?> constructor =
                         Class.forName(
@@ -369,8 +375,14 @@ public class LogFileSource extends AbstractSource {
         if (extendedHandler != null) {
             extendedHandler.dealWithHeader(header, sourceData.getData().getBytes(StandardCharsets.UTF_8));
         }
+        long auditTime = 0;
+        if (isRealTime) {
+            auditTime = AgentUtils.getCurrentTime();
+        } else {
+            auditTime = profile.getSinkDataTime();
+        }
         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, header.get(PROXY_KEY_STREAM_ID),
-                profile.getSinkDataTime(), 1, msgWithMetaData.length());
+                auditTime, 1, msgWithMetaData.length());
         Message finalMsg = new DefaultMessage(msgWithMetaData.getBytes(StandardCharsets.UTF_8), header);
         // if the message size is greater than max pack size,should drop it.
         if (finalMsg.getBody().length > maxPackSize) {
@@ -556,6 +568,9 @@ public class LogFileSource extends AbstractSource {
 
     @Override
     public boolean sourceFinish() {
+        if (isRealTime) {
+            return false;
+        }
         return emptyCount > EMPTY_CHECK_COUNT_AT_LEAST;
     }
 

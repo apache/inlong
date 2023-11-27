@@ -466,7 +466,7 @@ public class TaskManager extends AbstractDaemon {
                     task.getTaskId(), taskMap.size(), runningPool.getTaskCount(),
                     runningPool.getActiveCount());
         } catch (Throwable t) {
-            LOGGER.error("add task error {}", t.getMessage());
+            LOGGER.error("add task error: ", t);
         }
     }
 
