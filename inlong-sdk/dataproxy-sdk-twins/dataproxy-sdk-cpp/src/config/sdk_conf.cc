@@ -68,9 +68,9 @@ bool SdkConfig::ParseConfig(const std::string &config_path) {
 
   std::string err, local_ip;
   if (GetLocalIPV4Address(err, local_ip)) {
-    local_ip = local_ip;
+    local_ip_ = local_ip;
   } else {
-    local_ip = constants::kSerIP;
+    local_ip_ = constants::kSerIP;
   }
 
   OthersParam(doc);
