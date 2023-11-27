@@ -122,7 +122,7 @@ public class KafkaConsume extends BaseConsume {
             }
 
             int partition = Math.min(numPartitions, nodes.size());
-            int factor = nodes.size() > 1 ? Math.min(replicationFactor, nodes.size()) : 1;
+            int factor = Math.min(replicationFactor, nodes.size());
 
             NewTopic needCreateTopic = new NewTopic(topic, partition, (short) factor);
 

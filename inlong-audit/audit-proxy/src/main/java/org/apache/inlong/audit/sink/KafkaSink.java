@@ -333,7 +333,7 @@ public class KafkaSink extends AbstractSink implements Configurable {
             }
 
             int partition = Math.min(topicPartitions, nodes.size());
-            int factor = nodes.size() > 1 ? Math.min(topicReplications, nodes.size()) : 1;
+            int factor = Math.min(topicReplications, nodes.size());
 
             NewTopic needCreateTopic = new NewTopic(topic, partition, (short) factor);
 
