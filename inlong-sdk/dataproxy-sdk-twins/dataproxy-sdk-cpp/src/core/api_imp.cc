@@ -126,8 +126,7 @@ int32_t ApiImp::CheckData(const std::string inlong_group_id,
 
   if (msg.empty() || inlong_group_id.empty() || inlong_stream_id.empty()) {
     LOG_ERROR("invalid input, inlong_group_id"
-              << inlong_group_id << " inlong_stream_id" << inlong_stream_id
-              << "msg" << msg);
+              << inlong_group_id << " inlong_stream_id" << inlong_stream_id);
     return SdkCode::kInvalidInput;
   }
 
