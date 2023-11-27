@@ -24,9 +24,13 @@ import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
+import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
+import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
 import org.apache.inlong.sort.protocol.node.LoadNode;
+import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
+import org.apache.inlong.sort.util.SchemaChangeUtils;
 
 import com.google.common.base.Preconditions;
 import lombok.Data;
@@ -43,7 +47,14 @@ import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+
+import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_DATABASE_PATTERN;
+import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_ENABLE;
+import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_FORMAT;
+import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_TABLE_PATTERN;
+import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_SCHEMA_CHANGE_POLICIES;
 
 @JsonTypeName("icebergLoad")
 @Data
@@ -76,7 +87,30 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
     @JsonProperty("appendMode")
     private String appendMode;
 
-    @JsonCreator
+    @Nullable
+    @JsonProperty("sinkMultipleEnable")
+    private Boolean sinkMultipleEnable = false;
+
+    @Nullable
+    @JsonProperty("sinkMultipleFormat")
+    private Format sinkMultipleFormat;
+
+    @Nullable
+    @JsonProperty("databasePattern")
+    private String databasePattern;
+
+    @Nullable
+    @JsonProperty("tablePattern")
+    private String tablePattern;
+
+    @Nullable
+    @JsonProperty("enableSchemaChange")
+    private boolean enableSchemaChange;
+
+    @Nullable
+    @JsonProperty("policyMap")
+    private Map<SchemaChangeType, SchemaChangePolicy> policyMap;
+
     public IcebergLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
@@ -92,14 +126,51 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
             @JsonProperty("uri") String uri,
             @JsonProperty("warehouse") String warehouse,
             @JsonProperty("appendMode") String appendMode) {
+        this(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties, dbName, tableName,
+                primaryKey, catalogType, uri, warehouse, appendMode, false, null,
+                null, null, false, null);
+    }
+
+    @JsonCreator
+    public IcebergLoadNode(@JsonProperty("id") String id,
+            @JsonProperty("name") String name,
+            @JsonProperty("fields") List<FieldInfo> fields,
+            @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
+            @JsonProperty("filters") List<FilterFunction> filters,
+            @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
+            @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
+            @JsonProperty("properties") Map<String, String> properties,
+            @Nonnull @JsonProperty("dbName") String dbName,
+            @Nonnull @JsonProperty("tableName") String tableName,
+            @JsonProperty("primaryKey") String primaryKey,
+            @JsonProperty("catalogType") IcebergConstant.CatalogType catalogType,
+            @JsonProperty("uri") String uri,
+            @JsonProperty("warehouse") String warehouse,
+            @JsonProperty("appendMode") String appendMode,
+            @Nullable @JsonProperty(value = "sinkMultipleEnable", defaultValue = "false") Boolean sinkMultipleEnable,
+            @Nullable @JsonProperty("sinkMultipleFormat") Format sinkMultipleFormat,
+            @Nullable @JsonProperty("databasePattern") String databasePattern,
+            @Nullable @JsonProperty("tablePattern") String tablePattern,
+            @JsonProperty("enableSchemaChange") boolean enableSchemaChange,
+            @Nullable @JsonProperty("policyMap") Map<SchemaChangeType, SchemaChangePolicy> policyMap) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
-        this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
-        this.dbName = Preconditions.checkNotNull(dbName, "db name is null");
         this.primaryKey = primaryKey;
         this.catalogType = catalogType == null ? CatalogType.HIVE : catalogType;
         this.uri = uri;
         this.warehouse = warehouse;
         this.appendMode = appendMode;
+        this.sinkMultipleEnable = sinkMultipleEnable;
+        if (sinkMultipleEnable == null || !sinkMultipleEnable) {
+            this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
+            this.dbName = Preconditions.checkNotNull(dbName, "db name is null");
+        } else {
+            this.databasePattern = Preconditions.checkNotNull(databasePattern, "databasePattern is null");
+            this.tablePattern = Preconditions.checkNotNull(tablePattern, "tablePattern is null");
+            this.sinkMultipleFormat = Preconditions.checkNotNull(sinkMultipleFormat,
+                    "sinkMultipleFormat is null");
+        }
+        this.enableSchemaChange = enableSchemaChange;
+        this.policyMap = policyMap;
     }
 
     @Override
@@ -120,6 +191,17 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
         if (null != warehouse) {
             options.put(IcebergConstant.WAREHOUSE_KEY, warehouse);
         }
+
+        if (sinkMultipleEnable != null && sinkMultipleEnable) {
+            options.put(SINK_MULTIPLE_ENABLE, sinkMultipleEnable.toString());
+            options.put(SINK_MULTIPLE_FORMAT, Objects.requireNonNull(sinkMultipleFormat).identifier());
+            options.put(SINK_MULTIPLE_DATABASE_PATTERN, databasePattern);
+            options.put(SINK_MULTIPLE_TABLE_PATTERN, tablePattern);
+            options.put(SINK_SCHEMA_CHANGE_POLICIES, SchemaChangeUtils.serialize(policyMap));
+        } else {
+            options.put(SINK_MULTIPLE_ENABLE, "false");
+        }
+
         return options;
     }
 

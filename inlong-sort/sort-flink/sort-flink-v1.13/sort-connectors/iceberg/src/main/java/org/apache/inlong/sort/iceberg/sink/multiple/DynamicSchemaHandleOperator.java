@@ -512,8 +512,10 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                             String.format("Unsupported table %s schema change: %s.", tableId.toString(), tableChange));
                 }
             }
-            IcebergSchemaChangeUtils.applySchemaChanges(transaction.updateSchema(), tableChanges);
-            LOG.info("Schema evolution in table({}) for table change: {}", tableId, tableChanges);
+            if (!tableChanges.isEmpty()) {
+                IcebergSchemaChangeUtils.applySchemaChanges(transaction.updateSchema(), tableChanges);
+                LOG.info("Schema evolution in table({}) for table change: {}", tableId, tableChanges);
+            }
         }
         transaction.commitTransaction();
         handleSchemaInfoEvent(tableId, table.schema());

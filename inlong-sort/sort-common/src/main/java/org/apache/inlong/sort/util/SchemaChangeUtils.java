@@ -28,6 +28,7 @@ import org.apache.inlong.sort.schema.TableChange;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -286,8 +287,9 @@ public class SchemaChangeUtils {
         for (String colName : intersectColSet) {
             ColumnSchema oldCol = oldColumnSchemas.get(colName);
             ColumnSchema newCol = newColumnSchemas.get(colName);
+
             if (!oldCol.getType().equals(newCol.getType())
-                    || !oldCol.getComment().equals(newCol.getComment())) {
+                    || !StringUtils.equals(oldCol.getComment(), newCol.getComment())) {
                 tableChanges.add(
                         new TableChange.UpdateColumn(
                                 new String[]{newCol.getName()},
