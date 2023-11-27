@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.message.filecollect;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
+import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.common.msg.AttributeConstants;
@@ -62,6 +63,7 @@ public class ProxyMessageCache {
     private final AtomicLong cacheSize = new AtomicLong(0);
     private long lastPrintTime = 0;
     private long dataTime;
+    private boolean isRealTime = false;
     /**
      * extra map used when sending to dataproxy
      */
@@ -77,8 +79,12 @@ public class ProxyMessageCache {
         this.cacheTimeout = instanceProfile.getInt(PROXY_PACKAGE_MAX_TIMEOUT_MS, DEFAULT_PROXY_PACKAGE_MAX_TIMEOUT_MS);
         messageQueueMap = new ConcurrentHashMap<>();
         try {
-            dataTime = DateTransUtils.timeStrConvertToMillSec(instanceProfile.getSourceDataTime(),
-                    instanceProfile.get(TASK_CYCLE_UNIT));
+            String cycleUnit = instanceProfile.get(TASK_CYCLE_UNIT);
+            if (cycleUnit.compareToIgnoreCase(CycleUnitType.REAL_TIME) == 0) {
+                isRealTime = true;
+                cycleUnit = CycleUnitType.HOUR;
+            }
+            dataTime = DateTransUtils.timeStrConvertToMillSec(instanceProfile.getSourceDataTime(), cycleUnit);
         } catch (ParseException e) {
             LOGGER.info("trans dataTime error", e);
         }
@@ -172,9 +178,15 @@ public class ProxyMessageCache {
             offsetList.add(message.getAckInfo());
         }
         // make sure result is not empty.
+        long auditTime = 0;
+        if (isRealTime) {
+            auditTime = AgentUtils.getCurrentTime();
+        } else {
+            auditTime = dataTime;
+        }
         if (!bodyList.isEmpty()) {
             SenderMessage senderMessage = new SenderMessage(taskId, instanceId, groupId, streamId, bodyList,
-                    dataTime, extraMap, offsetList);
+                    auditTime, extraMap, offsetList);
             return senderMessage;
         }
         return null;
