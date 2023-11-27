@@ -36,4 +36,14 @@ VALUES ('audit_sort_mysql_binlog_input', 'MYSQL_BINLOG', 0, '29'),
        ('audit_sort_tube_input', 'TUBEMQ', 0, '33'),
        ('audit_sort_tube_output', 'TUBEMQ', 1, '34');
 
+ALTER TABLE `operation_log`
+    ADD COLUMN  `inlong_group_id`  varchar(256) DEFAULT NULL COMMENT 'Inlong group id';
+
+ALTER TABLE `operation_log`
+    ADD COLUMN  `inlong_stream_id` varchar(256) DEFAULT NULL COMMENT 'Inlong stream id',
+
+ALTER TABLE `operation_log`
+    ADD COLUMN `operation_target` varchar(256) DEFAULT NULL COMMENT 'Operation target',
+
+
 

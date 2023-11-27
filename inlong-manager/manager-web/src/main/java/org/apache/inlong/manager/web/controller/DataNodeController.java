@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.controller;
 
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.validation.SaveValidation;
@@ -60,7 +61,7 @@ public class DataNodeController {
 
     @PostMapping(value = "/node/save")
     @ApiOperation(value = "Save node")
-    @OperationLog(operation = OperationType.CREATE)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.NODE)
     public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody DataNodeRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(dataNodeService.save(request, currentUser));
@@ -84,7 +85,7 @@ public class DataNodeController {
     }
 
     @PostMapping(value = "/node/update")
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.NODE)
     @ApiOperation(value = "Update data node")
     public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody DataNodeRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
@@ -92,7 +93,7 @@ public class DataNodeController {
     }
 
     @PostMapping(value = "/node/updateByKey")
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.NODE)
     @ApiOperation(value = "Update data node by key")
     public Response<UpdateResult> updateByKey(
             @Validated(UpdateByKeyValidation.class) @RequestBody DataNodeRequest request) {
@@ -102,7 +103,7 @@ public class DataNodeController {
 
     @DeleteMapping(value = "/node/delete/{id}")
     @ApiOperation(value = "Delete data node by id")
-    @OperationLog(operation = OperationType.DELETE)
+    @OperationLog(operation = OperationType.DELETE, operationTarget = OperationTarget.NODE)
     @ApiImplicitParam(name = "id", value = "Data node ID", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> delete(@PathVariable Integer id) {
         return Response.success(dataNodeService.delete(id, LoginUserUtils.getLoginUser().getName()));
@@ -110,7 +111,7 @@ public class DataNodeController {
 
     @DeleteMapping(value = "/node/deleteByKey")
     @ApiOperation(value = "Delete data node by key")
-    @OperationLog(operation = OperationType.DELETE)
+    @OperationLog(operation = OperationType.DELETE, operationTarget = OperationTarget.NODE)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "name", value = "Data node name", dataTypeClass = String.class, required = true),
             @ApiImplicitParam(name = "type", value = "Data node type", dataTypeClass = String.class, required = true)

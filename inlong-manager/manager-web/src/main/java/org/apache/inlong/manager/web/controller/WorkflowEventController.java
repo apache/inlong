@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.controller;
 
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.common.enums.TaskEvent;
@@ -66,7 +67,7 @@ public class WorkflowEventController {
 
     @Deprecated
     @PostMapping("/workflow/event/executeEventListener/{id}")
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.WORKFLOW)
     @ApiOperation(value = "Execute the listener based on the event log ID")
     @ApiImplicitParam(name = "id", value = "Event log ID", dataTypeClass = Integer.class, required = true)
     public Response<Object> executeEventListener(@PathVariable Integer id) {
@@ -76,7 +77,7 @@ public class WorkflowEventController {
 
     @Deprecated
     @PostMapping("/workflow/event/executeProcessEventListener")
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.WORKFLOW)
     @ApiOperation(value = "Re-execute the specified listener based on the process ID")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "processId", value = "Process ID", dataTypeClass = Integer.class),
@@ -90,7 +91,7 @@ public class WorkflowEventController {
 
     @Deprecated
     @PostMapping("/workflow/event/executeTaskEventListener")
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.WORKFLOW)
     @ApiOperation(value = "Re-execute the specified listener based on the task ID")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "taskId", value = "Task ID", dataTypeClass = Integer.class),
@@ -103,7 +104,7 @@ public class WorkflowEventController {
 
     @Deprecated
     @PostMapping("/workflow/event/triggerProcessEvent")
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.WORKFLOW)
     @ApiOperation(value = "Re-trigger the process event based on the process ID")
     public Response<Object> triggerProcessEvent(
             @ApiParam(value = "process id", required = true) Integer processId,
@@ -114,7 +115,7 @@ public class WorkflowEventController {
 
     @Deprecated
     @PostMapping("/workflow/event/triggerTaskEvent")
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.WORKFLOW)
     @ApiOperation(value = "Re-trigger the task event based on the task ID")
     public Response<Object> triggerTaskEvent(
             @ApiParam(value = "task id", required = true) Integer taskId,

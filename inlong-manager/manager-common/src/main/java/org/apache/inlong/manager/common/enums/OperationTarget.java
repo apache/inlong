@@ -15,35 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.operationlog;
-
-import org.apache.inlong.manager.common.enums.OperationTarget;
-import org.apache.inlong.manager.common.enums.OperationType;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package org.apache.inlong.manager.common.enums;
 
 /**
- * The interface of operation log
+ * Operation target
  */
-@Target({ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface OperationLog {
+public enum OperationTarget {
 
-    /**
-     * Operation type
-     */
-    OperationType operation();
+    TENANT,
 
-    /**
-     * Operation target
-     */
-    OperationTarget operationTarget();
+    GROUP,
 
-    /**
-     * Whether to store in the database
-     */
-    boolean db() default true;
+    STREAM,
+
+    SOURCE,
+
+    SINK,
+
+    CONSUME,
+
+    WORKFLOW,
+
+    NODE,
+
+    CLUSTER,
+
+    TRANSFORM,
+
+    INLONG_ROLE,
+
+    TENANT_ROLE
+
 }
