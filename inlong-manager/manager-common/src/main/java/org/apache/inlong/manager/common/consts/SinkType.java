@@ -61,12 +61,12 @@ public class SinkType extends StreamType {
         return false;
     }
 
-    @Value("#{'${sort.flink.sinks:HIVE, CLICKHOUSE, HBASE, HDFS, GREENPLUM, MYSQL, TDSQLPOSTGRESQL, DORIS, STARROCKS, KUDU, REDIS, KAFKA, HUDI, POSTGRESQL, SQLSERVER, ORACLE, ICEBERG}'.split(',')}")
+    @Value("#{'${sort.flink.sinks}'.split(',')}")
     public void setSortFlinkSink(Set<String> set) {
         SORT_FLINK_SINK.addAll(set);
     }
 
-    @Value("#{'${sort.standalone.sinks:CLS,ELASTICSEARCH,PULSAR}'.split(',')}")
+    @Value("#{'${sort.standalone.sinks}'.split(',')}")
     public void setSortStandaloneSink(Set<String> set) {
         SORT_STANDALONE_SINK.addAll(set);
     }
