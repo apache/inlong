@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.resource.sort;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sort.node.NodeFactory;
@@ -124,9 +125,6 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         // get source info
         Map<String, List<StreamSource>> sourceMap = sourceService.getSourcesMap(groupInfo,
                 Collections.singletonList(inlongStreamInfo));
-        // get sink info
-        // Map<String, List<StreamSink>> sinkMap = sinkService.getSinksMap(groupInfo,
-        // Collections.singletonList(streamInfo));
         List<TransformResponse> transformList = transformService.listTransform(groupInfo.getInlongGroupId(), streamId);
         Map<String, List<TransformResponse>> transformMap = transformList.stream()
                 .collect(Collectors.groupingBy(TransformResponse::getInlongStreamId, HashMap::new,
@@ -146,6 +144,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         // build a stream info from the nodes and relations
         List<StreamSource> sources = sourceMap.get(streamId);
         for (StreamSink sinkInfo : sinkInfos) {
+            CommonBeanUtils.copyProperties(inlongStreamInfo, sinkInfo, true);
             addAuditId(sinkInfo.getProperties(), sinkInfo.getSinkType(), true);
         }
 

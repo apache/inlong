@@ -17,7 +17,8 @@
 
 package org.apache.inlong.manager.common.consts;
 
-import com.google.common.collect.Sets;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.Set;
 /**
  * Constants of sink type.
  */
+@Component
 public class SinkType extends StreamType {
 
     public static final String HIVE = "HIVE";
@@ -47,14 +49,8 @@ public class SinkType extends StreamType {
     public static final String CLS = "CLS";
 
     public static final Set<String> SORT_FLINK_SINK = new HashSet<>();
-    public static final Set<String> SORT_STANDALONE_SINK = new HashSet<>();
 
-    static {
-        SORT_FLINK_SINK.addAll(
-                Sets.newHashSet(HIVE, CLICKHOUSE, HBASE, HDFS, GREENPLUM, MYSQL, TDSQLPOSTGRESQL, DORIS,
-                        STARROCKS, KUDU, REDIS, KAFKA, HUDI, POSTGRESQL, SQLSERVER, ORACLE, ICEBERG));
-        SORT_STANDALONE_SINK.addAll(Sets.newHashSet(CLS, ELASTICSEARCH, PULSAR));
-    }
+    public static final Set<String> SORT_STANDALONE_SINK = new HashSet<>();
 
     public static boolean containSortFlinkSink(List<String> sinkTypes) {
         for (String sinkType : sinkTypes) {
@@ -63,5 +59,15 @@ public class SinkType extends StreamType {
             }
         }
         return false;
+    }
+
+    @Value("#{'${sort.flink.sinks:HIVE, CLICKHOUSE, HBASE, HDFS, GREENPLUM, MYSQL, TDSQLPOSTGRESQL, DORIS, STARROCKS, KUDU, REDIS, KAFKA, HUDI, POSTGRESQL, SQLSERVER, ORACLE, ICEBERG}'.split(',')}")
+    public void setSortFlinkSink(Set<String> set) {
+        SORT_FLINK_SINK.addAll(set);
+    }
+
+    @Value("#{'${sort.standalone.sinks:CLS,ELASTICSEARCH,PULSAR}'.split(',')}")
+    public void setSortStandaloneSink(Set<String> set) {
+        SORT_STANDALONE_SINK.addAll(set);
     }
 }
