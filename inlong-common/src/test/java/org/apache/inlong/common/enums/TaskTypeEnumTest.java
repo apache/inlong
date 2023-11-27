@@ -23,6 +23,7 @@ import java.util.NoSuchElementException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class TaskTypeEnumTest {
 
@@ -35,15 +36,13 @@ public class TaskTypeEnumTest {
 
     @Test
     public void testGetTaskTypeWithOther() {
+        int typeNum = 666;
         TaskTypeEnum taskType = null;
         try {
-            // not exixts type:666
-            taskType = TaskTypeEnum.getTaskType(666);
-        } catch (NoSuchElementException e) {
-            System.out.println("=====error====");
+            taskType = TaskTypeEnum.getTaskType(typeNum);
+        } catch (Exception e) {
+            assertTrue(e instanceof NoSuchElementException);
         }
-        // "java.util.NoSuchElementException: Unsupported task type:[14]"
         assertNull(taskType);
-
     }
 }
