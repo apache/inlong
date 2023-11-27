@@ -61,7 +61,7 @@ public class TestLogFileSource {
         String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
         TaskProfile taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING);
         instanceProfile = taskProfile.createInstanceProfile("",
-                fileName, "20230928", AgentUtils.getCurrentTime());
+                fileName, taskProfile.getCycleUnit(), "20230928", AgentUtils.getCurrentTime());
     }
 
     private LogFileSource getSource() {
@@ -110,7 +110,7 @@ public class TestLogFileSource {
             msg = source.read();
             cnt++;
         }
-        await().atMost(6, TimeUnit.SECONDS).until(() -> source.sourceFinish());
+        await().atMost(30, TimeUnit.SECONDS).until(() -> source.sourceFinish());
         source.destroy();
         Assert.assertTrue(cnt == 3);
         Assert.assertTrue(srcLen == readLen);

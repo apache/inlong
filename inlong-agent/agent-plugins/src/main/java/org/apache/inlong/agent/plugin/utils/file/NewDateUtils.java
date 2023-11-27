@@ -242,6 +242,9 @@ public class NewDateUtils {
      * @return
      */
     public static long calcOffset(String timeOffset) {
+        if (timeOffset.length() == 0) {
+            return 0;
+        }
         String offsetUnit = timeOffset.substring(timeOffset.length() - 1);
         int startIndex;
         int symbol;
