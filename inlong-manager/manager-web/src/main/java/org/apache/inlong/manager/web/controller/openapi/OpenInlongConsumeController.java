@@ -115,11 +115,4 @@ public class OpenInlongConsumeController {
         return Response.success(consumeProcessService.startProcess(id, username));
     }
 
-    @RequestMapping(value = "/consume/autoAdd", method = RequestMethod.POST)
-    @ApiOperation(value = "Auto add inlong consume")
-    public Response<Integer> autoAdd(@RequestBody InlongConsumeRequest request) {
-        String operator = LoginUserUtils.getLoginUser().getName();
-        return Response.success(consumeService.autoAdd(request, operator));
-    }
-
 }
