@@ -21,6 +21,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.util.MySQLSensitiveUrlUtils;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -65,6 +66,13 @@ public class StarRocksDataNodeDTO {
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT,
                     String.format("Failed to parse extParams for StarRocks node: %s", e.getMessage()));
         }
+    }
+
+    /**
+     * Convert ip:post to jdbcurl.
+     */
+    public static String convertToJdbcUrl(String url) {
+        return MySQLSensitiveUrlUtils.filterSensitive(url);
     }
 
 }
