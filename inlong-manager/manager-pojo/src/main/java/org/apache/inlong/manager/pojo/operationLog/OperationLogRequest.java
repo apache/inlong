@@ -15,37 +15,42 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.pojo.operationLog;
 
+import org.apache.inlong.manager.pojo.common.PageRequest;
+
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.io.Serializable;
-import java.util.Date;
+import lombok.NoArgsConstructor;
 
 /**
- * Operation log entity, including operation type, request url, etc.
+ * Request of get operation records
  */
 @Data
-public class OperationLogEntity implements Serializable {
+@NoArgsConstructor
+@AllArgsConstructor
+public class OperationLogRequest extends PageRequest {
 
-    private static final long serialVersionUID = 1L;
-    private Integer id;
+    @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
+
+    @ApiModelProperty("Inlong stream id")
     private String inlongStreamId;
-    private String authenticationType;
+
+    @ApiModelProperty("Operation type")
     private String operationType;
+
+    @ApiModelProperty("Operation target")
     private String operationTarget;
-    private String httpMethod;
-    private String invokeMethod;
-    private String operator;
-    private String proxy;
-    private String requestUrl;
-    private String remoteAddress;
-    private Long costTime;
-    private Boolean status;
-    private Date requestTime;
-    private String body;
-    private String param;
-    private String errMsg;
+
+    @ApiModelProperty(value = "keyword")
+    private String keyword;
+
+    @ApiModelProperty(value = "query start date, format by 'yyyy-MM-dd'", required = false, example = "2022-01-01")
+    private String startDate;
+
+    @ApiModelProperty(value = "query end date, format by 'yyyy-MM-dd'", required = false, example = "2022-01-01")
+    private String endDate;
 
 }

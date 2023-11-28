@@ -15,37 +15,50 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.pojo.operationLog;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.Date;
 
-/**
- * Operation log entity, including operation type, request url, etc.
- */
 @Data
-public class OperationLogEntity implements Serializable {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Operation records")
+public class OperationLogResponse {
 
-    private static final long serialVersionUID = 1L;
-    private Integer id;
+    @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
+
+    @ApiModelProperty("Inlong stream id")
     private String inlongStreamId;
-    private String authenticationType;
-    private String operationType;
-    private String operationTarget;
+
+    @ApiModelProperty("Http method")
     private String httpMethod;
-    private String invokeMethod;
-    private String operator;
-    private String proxy;
-    private String requestUrl;
-    private String remoteAddress;
-    private Long costTime;
-    private Boolean status;
-    private Date requestTime;
+
+    @ApiModelProperty("Operation type")
+    private String operationType;
+
+    @ApiModelProperty("Operation target")
+    private String operationTarget;
+
+    @ApiModelProperty("request body")
     private String body;
-    private String param;
-    private String errMsg;
+
+    @ApiModelProperty("is success")
+    private Boolean status;
+
+    @ApiModelProperty(value = "Name of operator")
+    private String operator;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date requestTime;
 
 }

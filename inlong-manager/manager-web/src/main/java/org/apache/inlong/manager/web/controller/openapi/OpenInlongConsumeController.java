@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.web.controller;
+package org.apache.inlong.manager.web.controller.openapi;
 
 import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
@@ -52,9 +52,9 @@ import org.springframework.web.bind.annotation.RestController;
  * Inlong consume control layer
  */
 @RestController
-@RequestMapping("/api")
-@Api(tags = "Inlong-Consume-API")
-public class InlongConsumeController {
+@RequestMapping("/openapi")
+@Api(tags = "Open-Consume-API")
+public class OpenInlongConsumeController {
 
     @Autowired
     private InlongConsumeService consumeService;

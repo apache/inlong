@@ -15,32 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.client.api.service;
 
-import org.apache.inlong.manager.dao.entity.OperationLogEntity;
+import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.operationLog.OperationLogRequest;
+import org.apache.inlong.manager.pojo.operationLog.OperationLogResponse;
 
-import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.POST;
 
-import java.util.List;
+public interface OperationLogApi {
 
-@Repository
-public interface OperationLogEntityMapper {
+    @POST("operationLog/list")
+    Call<Response<PageResult<OperationLogResponse>>> list(@Body OperationLogRequest request);
 
-    int deleteByPrimaryKey(Integer id);
-
-    int insert(OperationLogEntity record);
-
-    int insertBatch(List<OperationLogEntity> list);
-
-    int insertSelective(OperationLogEntity record);
-
-    OperationLogEntity selectByPrimaryKey(Integer id);
-
-    List<OperationLogEntity> selectByCondition(@Param("request") OperationLogRequest operationLogRequest);
-
-    int updateByPrimaryKeySelective(OperationLogEntity record);
-
-    int updateByPrimaryKey(OperationLogEntity record);
 }

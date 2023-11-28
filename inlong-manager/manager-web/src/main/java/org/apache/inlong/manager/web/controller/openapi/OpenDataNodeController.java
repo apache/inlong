@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.web.controller.openapi;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.common.validation.SaveValidation;
@@ -75,7 +76,7 @@ public class OpenDataNodeController {
 
     @PostMapping(value = "/node/save")
     @ApiOperation(value = "Save node")
-    @OperationLog(operation = OperationType.CREATE)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.NODE)
     public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody DataNodeRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
@@ -84,7 +85,7 @@ public class OpenDataNodeController {
 
     @PostMapping(value = "/node/update")
     @ApiOperation(value = "Update data node")
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.NODE)
     public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody DataNodeRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY);
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
@@ -93,7 +94,7 @@ public class OpenDataNodeController {
 
     @DeleteMapping(value = "/node/delete/{id}")
     @ApiOperation(value = "Delete data node by id")
-    @OperationLog(operation = OperationType.DELETE)
+    @OperationLog(operation = OperationType.DELETE, operationTarget = OperationTarget.NODE)
     @ApiImplicitParam(name = "id", value = "Data node ID", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> delete(@PathVariable Integer id) {
         Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "data node id cannot be null");

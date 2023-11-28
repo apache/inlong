@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.controller;
 
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -62,7 +63,7 @@ public class InlongTenantController {
     }
 
     @RequestMapping(value = "/tenant/save", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.CREATE)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.TENANT)
     @ApiOperation(value = "Save inlong tenant")
     @RequiresRoles(INLONG_ADMIN)
     public Response<Integer> save(@Validated @RequestBody InlongTenantRequest request) {
@@ -76,7 +77,7 @@ public class InlongTenantController {
     }
 
     @RequestMapping(value = "/tenant/update", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.TENANT)
     @ApiOperation(value = "Update inlong tenant")
     @RequiresRoles(INLONG_ADMIN)
     public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody InlongTenantRequest request) {
