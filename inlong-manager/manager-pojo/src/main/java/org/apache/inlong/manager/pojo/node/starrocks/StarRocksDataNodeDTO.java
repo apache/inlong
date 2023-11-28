@@ -20,6 +20,7 @@ package org.apache.inlong.manager.pojo.node.starrocks;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JdbcSensitiveUrlUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModel;
@@ -29,6 +30,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkDTO;
 
 import javax.validation.constraints.NotNull;
 
@@ -65,6 +67,13 @@ public class StarRocksDataNodeDTO {
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT,
                     String.format("Failed to parse extParams for StarRocks node: %s", e.getMessage()));
         }
+    }
+
+    /**
+     * Convert ip:post to jdbcurl.
+     */
+    public static String convertToJdbcUrl(String url) {
+        return JdbcSensitiveUrlUtils.filterSensitive(url);
     }
 
 }
