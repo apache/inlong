@@ -50,6 +50,7 @@ private:
   bool exit_flag_;
   std::thread update_conf_thread_;
   volatile bool inited_ = false;
+  std::unordered_map<std::string, std::string> cache_proxy_info_;
 
   int32_t ParseAndGet(const std::string &key, const std::string &meta_data,
                       ProxyInfoVec &proxy_info_vec);
@@ -72,6 +73,10 @@ public:
   bool CheckClusterId(const std::string &cluster_id);
   void UpdateClusterId2ProxyMap();
   void UpdateGroupid2ClusterIdMap();
+  void BuildLocalCache(std::ofstream &file, int32_t groupid_index, const std::string &groupid, const std::string &meta_data);
+  void ReadLocalCache();
+  void WriteLocalCache();
+  std::string RecoverFromLocalCache(const std::string&groupid);
 };
 } // namespace inlong
 

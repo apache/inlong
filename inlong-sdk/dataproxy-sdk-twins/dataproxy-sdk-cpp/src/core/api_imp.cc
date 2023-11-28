@@ -104,6 +104,7 @@ int32_t ApiImp::DoInit() {
   LOG_INFO("inlong dataproxy cpp sdk Init complete!");
 
   ProxyManager::GetInstance()->Init();
+  ProxyManager::GetInstance()->ReadLocalCache();
 
   for (int i = 0; i < SdkConfig::getInstance()->inlong_group_ids_.size(); i++) {
     LOG_INFO("DoInit CheckConf inlong_group_id:"
@@ -125,8 +126,7 @@ int32_t ApiImp::CheckData(const std::string inlong_group_id,
 
   if (msg.empty() || inlong_group_id.empty() || inlong_stream_id.empty()) {
     LOG_ERROR("invalid input, inlong_group_id"
-              << inlong_group_id << " inlong_stream_id" << inlong_stream_id
-              << "msg" << msg);
+              << inlong_group_id << " inlong_stream_id" << inlong_stream_id);
     return SdkCode::kInvalidInput;
   }
 

@@ -405,14 +405,14 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `Redis${i18n.t('meta.Sinks.Redis.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('meta.Sinks.Redis.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -420,7 +420,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `Redis${i18n.t('meta.Sinks.Redis.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       initialValue: redisTargetTypes[0].value,
       type: 'select',
@@ -444,7 +444,7 @@ const getFieldListColumns = sinkValues => {
       visible: (text, record) => ['BIGINT', 'DATE'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('meta.Sinks.Redis.FieldDescription'),
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },

@@ -34,19 +34,30 @@ import org.apache.flume.Transaction;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.instrumentation.SinkCounter;
 import org.apache.flume.sink.AbstractSink;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.CreateTopicsResult;
+import org.apache.kafka.clients.admin.DescribeClusterResult;
+import org.apache.kafka.clients.admin.ListTopicsResult;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.KafkaFuture;
+import org.apache.kafka.common.Node;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
@@ -62,6 +73,10 @@ public class KafkaSink extends AbstractSink implements Configurable {
     private String kafkaServerUrl;
     private static final String BOOTSTRAP_SERVER = "bootstrap_servers";
     private static final String TOPIC = "topic";
+
+    private static final String TOPIC_REPLICATIONS = "topic_replications";
+
+    private static final String TOPIC_PARTITIONS = "topic_partitions";
     private static final String RETRIES = "retries";
     private static final String BATCH_SIZE = "batch_size";
     private static final String LINGER_MS = "linger_ms";
@@ -81,6 +96,12 @@ public class KafkaSink extends AbstractSink implements Configurable {
     public Map<String, KafkaProducer<String, byte[]>> producerMap;
     private SinkCounter sinkCounter;
     private String topic;
+
+    private int topicReplications;
+    private int topicPartitions;
+    private static final int DEFAULT_TOPIC_REPLICATIONS = 2;
+    private static final int DEFAULT_TOPIC_PARTITIONS = 3;
+
     private volatile boolean canSend = false;
     private volatile boolean canTake = false;
     private int threadNum;
@@ -227,6 +248,10 @@ public class KafkaSink extends AbstractSink implements Configurable {
         topic = context.getString(TOPIC);
         Preconditions.checkState(StringUtils.isNotEmpty(topic), "No topic specified");
 
+        // topic config
+        topicPartitions = context.getInteger(TOPIC_PARTITIONS, DEFAULT_TOPIC_PARTITIONS);
+        topicReplications = context.getInteger(TOPIC_REPLICATIONS, DEFAULT_TOPIC_REPLICATIONS);
+
         producerMap = new HashMap<>();
 
         logEveryNEvents = context.getInteger(LOG_EVERY_N_EVENTS, DEFAULT_LOG_EVERY_N_EVENTS);
@@ -274,12 +299,52 @@ public class KafkaSink extends AbstractSink implements Configurable {
             logger.error("topic is empty");
         }
 
+        // create topic if need
+        createTopic();
+
         if (producer == null) {
             producer = new KafkaProducer<>(properties, new StringSerializer(), new ByteArraySerializer());
         }
 
         producerMap.put(topic, producer);
         logger.info(getName() + " success create producer");
+    }
+
+    /**
+     * create topic if need
+     */
+    private void createTopic() {
+
+        try (AdminClient adminClient = AdminClient.create(properties)) {
+            ListTopicsResult topicList = adminClient.listTopics();
+            KafkaFuture<Set<String>> kafkaFuture = topicList.names();
+            Set<String> topicSet = kafkaFuture.get();
+
+            if (topicSet.contains(topic)) {
+                // not need
+                logger.info("The audit topic:{} already exists.", topic);
+                return;
+            }
+
+            DescribeClusterResult describeClusterResult = adminClient.describeCluster();
+            Collection<Node> nodes = describeClusterResult.nodes().get();
+            if (nodes.isEmpty()) {
+                throw new IllegalArgumentException("kafka server not find");
+            }
+
+            int partition = Math.min(topicPartitions, nodes.size());
+            int factor = Math.min(topicReplications, nodes.size());
+
+            NewTopic needCreateTopic = new NewTopic(topic, partition, (short) factor);
+
+            CreateTopicsResult createTopicsResult =
+                    adminClient.createTopics(Collections.singletonList(needCreateTopic));
+            createTopicsResult.all().get();
+
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(
+                    String.format("create audit topic:{} error with config:%s", properties));
+        }
     }
 
     private KafkaProducer<String, byte[]> getProducer(String topic) {

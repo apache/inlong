@@ -61,7 +61,7 @@ public class TestTaskManager {
     @Test
     public void testTaskManager() {
         String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
-        TaskProfile taskProfile1 = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING);
+        TaskProfile taskProfile1 = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING, "GMT+8:00");
         String taskId1 = taskProfile1.getTaskId();
         taskProfile1.setTaskClass(MockTask.class.getCanonicalName());
         List<TaskProfile> taskProfiles1 = new ArrayList<>();
@@ -83,7 +83,7 @@ public class TestTaskManager {
         Assert.assertTrue(manager.getTaskProfile(taskId1).getState() == TaskStateEnum.RUNNING);
 
         // test delete
-        TaskProfile taskProfile2 = helper.getTaskProfile(2, pattern, false, 0L, 0L, TaskStateEnum.RUNNING);
+        TaskProfile taskProfile2 = helper.getTaskProfile(2, pattern, false, 0L, 0L, TaskStateEnum.RUNNING, "GMT+8:00");
         taskProfile2.setTaskClass(MockTask.class.getCanonicalName());
         List<TaskProfile> taskProfiles2 = new ArrayList<>();
         taskProfiles2.add(taskProfile2);

@@ -15,19 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.message.filecollect;
+package org.apache.inlong.agent.plugin.sources.file.extend;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.apache.inlong.agent.conf.InstanceProfile;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class PackageAckInfo {
+import java.util.Map;
 
-    private Long index;
-    private Long offset;
-    private Integer len;
-    private Boolean hasAck;
+// For some private, customized extension processing
+public abstract class ExtendedHandler {
+
+    public ExtendedHandler(InstanceProfile profile) {
+
+    }
+
+    // Modify the header by the body
+    public void dealWithHeader(Map<String, String> header, byte[] body) {
+
+    }
+
+    public static class Constants {
+
+    }
 }

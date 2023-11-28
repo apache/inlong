@@ -25,6 +25,7 @@ import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 import com.google.common.base.Preconditions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -142,15 +143,17 @@ public class HudiExtractNode extends ExtractNode implements Serializable {
 
         // If the extend attributes starts with .ddl,
         // it will be passed to the ddl statement of the table
-        extList.forEach(ext -> {
-            String keyName = ext.get(EXTEND_ATTR_KEY_NAME);
-            if (StringUtils.isNoneBlank(keyName) &&
-                    keyName.startsWith(DDL_ATTR_PREFIX)) {
-                String ddlKeyName = keyName.substring(DDL_ATTR_PREFIX.length());
-                String ddlValue = ext.get(EXTEND_ATTR_VALUE_NAME);
-                options.put(ddlKeyName, ddlValue);
-            }
-        });
+        if (CollectionUtils.isNotEmpty(extList)) {
+            extList.forEach(ext -> {
+                String keyName = ext.get(EXTEND_ATTR_KEY_NAME);
+                if (StringUtils.isNoneBlank(keyName) &&
+                        keyName.startsWith(DDL_ATTR_PREFIX)) {
+                    String ddlKeyName = keyName.substring(DDL_ATTR_PREFIX.length());
+                    String ddlValue = ext.get(EXTEND_ATTR_VALUE_NAME);
+                    options.put(ddlKeyName, ddlValue);
+                }
+            });
+        }
 
         String path = String.format("%s/%s.db/%s", warehouse, dbName, tableName);
         options.put(HUDI_OPTION_DEFAULT_PATH, path);

@@ -210,7 +210,7 @@ public class MySqlSourceOptions {
     public static final ConfigOption<Boolean> INCLUDE_INCREMENTAL =
             ConfigOptions.key("include-incremental")
                     .booleanType()
-                    .defaultValue(false)
+                    .defaultValue(true)
                     .withDescription("Whether include a incremental flag in data "
                             + "when migrating all databases");
 

@@ -40,7 +40,7 @@ private:
   void InitTcpParam(const rapidjson::Value &doc);
   void InitAuthParm(const rapidjson::Value &doc);
   void OthersParam(const rapidjson::Value &doc);
-  void InitLocalIp();
+  bool GetLocalIPV4Address(std::string& err_info, std::string& localhost);
 
       public:
   // cache parameter
@@ -90,6 +90,7 @@ private:
   uint64_t tcp_idle_time_;          // The time when tcpclient did not send data
   uint32_t tcp_detection_interval_; // tcp-client detection interval
   bool enable_balance_;
+  bool enable_local_cache_;
 
   // auth settings
   bool need_auth_;

@@ -65,7 +65,14 @@ bool SdkConfig::ParseConfig(const std::string &config_path) {
   InitLogParam(doc);
   InitManagerParam(doc);
   InitTcpParam(doc);
-  InitLocalIp();
+
+  std::string err, local_ip;
+  if (GetLocalIPV4Address(err, local_ip)) {
+    local_ip_ = local_ip;
+  } else {
+    local_ip_ = constants::kSerIP;
+  }
+
   OthersParam(doc);
   InitAuthParm(doc);
 
@@ -115,6 +122,7 @@ void SdkConfig::defaultInit() {
   max_proxy_num_ = constants::kMaxProxyNum;
   enable_isolation_ = constants::kEnableIsolation;
   reserve_proxy_num_ = constants::kReserveProxyNum;
+  enable_local_cache_ = constants::kEnableLocalCache;
 
   local_ip_ = constants::kSerIP;
   local_port_ = constants::kSerPort;
@@ -359,6 +367,14 @@ void SdkConfig::InitManagerParam(const rapidjson::Value &doc) {
   } else {
     enable_isolation_ = constants::kEnableIsolation;
   }
+
+  // enable local cache
+  if (doc.HasMember("enable_local_cache") && doc["enable_local_cache"].IsBool()) {
+    const rapidjson::Value &obj = doc["enable_local_cache"];
+    enable_local_cache_ = obj.GetBool();
+  } else {
+    enable_local_cache_ = constants::kEnableLocalCache;
+  }
 }
 
 void SdkConfig::InitTcpParam(const rapidjson::Value &doc) {
@@ -460,24 +476,52 @@ void SdkConfig::OthersParam(const rapidjson::Value &doc) {
   }
 }
 
-void SdkConfig::InitLocalIp() {
-  struct sockaddr_in dest;
-  dest.sin_family = AF_INET;
+bool SdkConfig::GetLocalIPV4Address(std::string& err_info, std::string& localhost) {
+  int32_t sockfd;
+  int32_t ip_num = 0;
+  char  buf[1024] = {0};
+  struct ifreq *ifreq;
+  struct ifreq if_flag;
+  struct ifconf ifconf;
 
-  int fd = socket(AF_INET, SOCK_DGRAM, 0);
-  if (fd <= 0) {
-    throw std::runtime_error(std::string("socket failed") + strerror(errno));
+  ifconf.ifc_len = sizeof(buf);
+  ifconf.ifc_buf = buf;
+  if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+    err_info = "Open the local socket(AF_INET, SOCK_DGRAM) failure!";
+    return false;
   }
 
-  struct ifreq ifreq_Buf;
-  strcpy(ifreq_Buf.ifr_name, "eth1"); // just check the eth1
-  if (-1 == ioctl(fd, SIOCGIFADDR, &ifreq_Buf)) {
-    throw std::runtime_error(std::string("ioctl failed") + strerror(errno));
-  }
+  ioctl(sockfd, SIOCGIFCONF, &ifconf);
+  ifreq  = (struct ifreq *)buf;
+  ip_num = ifconf.ifc_len / sizeof(struct ifreq);
+  for (int32_t i = 0; i < ip_num; i++, ifreq++) {
+    if (ifreq->ifr_flags != AF_INET) {
+      continue;
+    }
+    if (0 == strncmp(&ifreq->ifr_name[0], "lo", sizeof("lo"))) {
+      continue;
+    }
+    memcpy(&if_flag.ifr_name[0], &ifreq->ifr_name[0], sizeof(ifreq->ifr_name));
+    if ((ioctl(sockfd, SIOCGIFFLAGS, (char *) &if_flag)) < 0) {
+      continue;
+    }
+    if ((if_flag.ifr_flags & IFF_LOOPBACK)
+        || !(if_flag.ifr_flags & IFF_UP)) {
+      continue;
+    }
 
-  close(fd);
-  struct sockaddr_in *addr = (struct sockaddr_in *)&ifreq_Buf.ifr_addr;
-  local_ip_ = inet_ntoa(addr->sin_addr);
+    if (!strncmp(inet_ntoa(((struct sockaddr_in*)&(ifreq->ifr_addr))->sin_addr),
+                 "127.0.0.1", 7)) {
+      continue;
+    }
+    localhost = inet_ntoa(((struct sockaddr_in*)&(ifreq->ifr_addr))->sin_addr);
+    close(sockfd);
+    err_info = "Ok";
+    return true;
+  }
+  close(sockfd);
+  err_info = "Not found the localHost in local OS";
+  return false;
 }
 
 void SdkConfig::ShowClientConfig() {
