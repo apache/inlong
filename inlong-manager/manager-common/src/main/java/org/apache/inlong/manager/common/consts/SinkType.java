@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.common.consts;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -30,39 +30,60 @@ import java.util.Set;
 @Component
 public class SinkType extends StreamType {
 
+    @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String HIVE = "HIVE";
+    @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String CLICKHOUSE = "CLICKHOUSE";
+    @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String HBASE = "HBASE";
-    public static final String ELASTICSEARCH = "ES";
+    @SupportSortType(sortType = SortType.SORT_STANDALONE)
+    public static final String ELASTICSEARCH = "ELASTICSEARCH";
+    @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String HDFS = "HDFS";
+    @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String GREENPLUM = "GREENPLUM";
+    @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String MYSQL = "MYSQL";
+    @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String TDSQLPOSTGRESQL = "TDSQLPOSTGRESQL";
+    @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String DORIS = "DORIS";
+    @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String STARROCKS = "STARROCKS";
+    @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String KUDU = "KUDU";
+    @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String REDIS = "REDIS";
+    @SupportSortType(sortType = SortType.SORT_FLINK)
+    public static final String TUBEMQ = "TUBEMQ";
+
     /**
      * Tencent cloud log service
      * Details: <a href="https://www.tencentcloud.com/products/cls">CLS</a>
      */
+    @SupportSortType(sortType = SortType.SORT_STANDALONE)
     public static final String CLS = "CLS";
 
     public static final Set<String> SORT_FLINK_SINK = new HashSet<>();
 
     public static final Set<String> SORT_STANDALONE_SINK = new HashSet<>();
 
-    public static boolean containSortFlinkSink(List<String> sinkTypes) {
-        return sinkTypes.stream().anyMatch(SORT_STANDALONE_SINK::contains);
+    public static final Set<String> SORT_ETL_SINK = new HashSet<>();
+
+    static {
+        SinkType obj = new SinkType();
+        Class<? extends SinkType> clazz = obj.getClass();
+        Field[] fields = clazz.getFields();
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(SupportSortType.class)) {
+                SupportSortType annotation = field.getAnnotation(SupportSortType.class);
+                if(Objects.equals(annotation.sortType(), SortType.SORT_STANDALONE)){
+                    SORT_STANDALONE_SINK.add(field.getName());
+                }else {
+                    SORT_FLINK_SINK.add(field.getName());
+                }
+            }
+        }
     }
 
-    @Value("#{'${sort.flink.sinks}'.split(',')}")
-    public void setSortFlinkSink(Set<String> set) {
-        SORT_FLINK_SINK.addAll(set);
-    }
-
-    @Value("#{'${sort.standalone.sinks}'.split(',')}")
-    public void setSortStandaloneSink(Set<String> set) {
-        SORT_STANDALONE_SINK.addAll(set);
-    }
 }
