@@ -80,6 +80,7 @@
                 and request_time &lt; #{request.endDate, jdbcType=VARCHAR}
             </if>
         </where>
+        order by request_time desc
     </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         delete
