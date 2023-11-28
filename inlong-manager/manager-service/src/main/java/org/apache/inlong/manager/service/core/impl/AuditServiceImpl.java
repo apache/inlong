@@ -286,6 +286,7 @@ public class AuditServiceImpl implements AuditService {
                     vo.setLogTs((String) s.get("logTs"));
                     vo.setCount(((BigDecimal) s.get("total")).longValue());
                     vo.setDelay(((BigDecimal) s.get("totalDelay")).longValue());
+                    vo.setSize(((BigDecimal) s.get("totalSize")).longValue());
                     return vo;
                 }).collect(Collectors.toList());
                 result.add(new AuditVO(auditId, auditSet, auditIdMap.getOrDefault(auditId, null)));
@@ -322,6 +323,7 @@ public class AuditServiceImpl implements AuditService {
                         vo.setLogTs(resultSet.getString("log_ts"));
                         vo.setCount(resultSet.getLong("total"));
                         vo.setDelay(resultSet.getLong("total_delay"));
+                        vo.setSize(resultSet.getLong("total_size"));
                         auditSet.add(vo);
                     }
                     result.add(new AuditVO(auditId, auditSet, auditIdMap.getOrDefault(auditId, null)));
@@ -416,7 +418,7 @@ public class AuditServiceImpl implements AuditService {
                 .toString();
 
         String sql = new SQL()
-                .SELECT("log_ts", "sum(count) as total", "sum(delay) as total_delay")
+                .SELECT("log_ts", "sum(count) as total", "sum(delay) as total_delay", "sum(size) as total_size")
                 .FROM("(" + subQuery + ") as sub")
                 .GROUP_BY("log_ts")
                 .ORDER_BY("log_ts")
@@ -459,6 +461,7 @@ public class AuditServiceImpl implements AuditService {
             AuditVO statInfo = new AuditVO();
             HashMap<String, AtomicLong> countMap = new HashMap<>();
             HashMap<String, AtomicLong> delayMap = new HashMap<>();
+            HashMap<String, AtomicLong> sizeMap = new HashMap<>();
             statInfo.setAuditId(auditVO.getAuditId());
             statInfo.setNodeType(auditVO.getNodeType());
             for (AuditInfo auditInfo : auditVO.getAuditSet()) {
@@ -472,8 +475,12 @@ public class AuditServiceImpl implements AuditService {
                 if (delayMap.get(statKey) == null) {
                     delayMap.put(statKey, new AtomicLong(0));
                 }
+                if (sizeMap.get(statKey) == null) {
+                    sizeMap.put(statKey, new AtomicLong(0));
+                }
                 countMap.get(statKey).addAndGet(auditInfo.getCount());
                 delayMap.get(statKey).addAndGet(auditInfo.getDelay());
+                sizeMap.get(statKey).addAndGet(auditInfo.getSize());
             }
 
             List<AuditInfo> auditInfoList = new LinkedList<>();
@@ -483,6 +490,7 @@ public class AuditServiceImpl implements AuditService {
                 long count = entry.getValue().get();
                 auditInfoStat.setCount(entry.getValue().get());
                 auditInfoStat.setDelay(count == 0 ? 0 : delayMap.get(entry.getKey()).get() / count);
+                auditInfoStat.setSize(count == 0 ? 0 : sizeMap.get(entry.getKey()).get() / count);
                 auditInfoList.add(auditInfoStat);
             }
             statInfo.setAuditSet(auditInfoList);
