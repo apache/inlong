@@ -47,4 +47,6 @@ ALTER TABLE `operation_log`
 
 CREATE INDEX operation_log_group_stream_index ON operation_log (`inlong_group_id`, `inlong_stream_id`);
 
+CREATE INDEX `operation_log_request_time_index` ON operation_log (`request_time`);
+
 

@@ -333,8 +333,9 @@ CREATE TABLE IF NOT EXISTS `operation_log`
     `request_time`        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Request time',
     `err_msg`             mediumtext COMMENT 'Error message',
     PRIMARY KEY (`id`),
-    INDEX `operation_log_group_stream_index` (`inlong_group_id`, `inlong_stream_id`)
-) ENGINE = InnoDB
+    INDEX `operation_log_group_stream_index` (`inlong_group_id`, `inlong_stream_id`),
+    INDEX `operation_log_request_time_index` (`request_time`)
+    ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
 -- ----------------------------
