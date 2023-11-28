@@ -21,8 +21,8 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.pojo.util.MySQLSensitiveUrlUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.util.MySQLSensitiveUrlUtils;
 
 import com.google.common.base.Strings;
 import io.swagger.annotations.ApiModelProperty;
