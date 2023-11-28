@@ -40,7 +40,7 @@ private:
   void InitTcpParam(const rapidjson::Value &doc);
   void InitAuthParm(const rapidjson::Value &doc);
   void OthersParam(const rapidjson::Value &doc);
-  void InitLocalIp();
+  bool GetLocalIPV4Address(std::string& err_info, std::string& localhost);
 
       public:
   // cache parameter
