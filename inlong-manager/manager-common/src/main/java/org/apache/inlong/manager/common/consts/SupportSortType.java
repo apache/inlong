@@ -24,7 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation is used to indicate the type of inbound task used for inbound operations, including sort link and
+ * This annotation is used to indicate the type of inbound task used for inbound operations, including sort flink and
  * sort standalone. On the user's SinkType class field, this annotation is used to identify which type of sort task each
  * SinkType uses.
  */

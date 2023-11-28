@@ -24,16 +24,22 @@ public class StreamType {
 
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String KAFKA = "KAFKA";
+
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String HUDI = "HUDI";
+
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String POSTGRESQL = "POSTGRESQL";
+
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String SQLSERVER = "SQLSERVER";
+
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String ORACLE = "ORACLE";
+
     @SupportSortType(sortType = SortType.SORT_STANDALONE)
     public static final String PULSAR = "PULSAR";
+
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String ICEBERG = "ICEBERG";
 

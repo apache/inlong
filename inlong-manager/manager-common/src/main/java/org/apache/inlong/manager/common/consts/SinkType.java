@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.common.consts;
 
-import org.springframework.stereotype.Component;
-
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.List;
@@ -28,33 +26,44 @@ import java.util.Set;
 /**
  * Constants of sink type.
  */
-@Component
 public class SinkType extends StreamType {
 
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String HIVE = "HIVE";
+
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String CLICKHOUSE = "CLICKHOUSE";
+
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String HBASE = "HBASE";
+
     @SupportSortType(sortType = SortType.SORT_STANDALONE)
     public static final String ELASTICSEARCH = "ELASTICSEARCH";
+
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String HDFS = "HDFS";
+
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String GREENPLUM = "GREENPLUM";
+
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String MYSQL = "MYSQL";
+
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String TDSQLPOSTGRESQL = "TDSQLPOSTGRESQL";
+
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String DORIS = "DORIS";
+
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String STARROCKS = "STARROCKS";
+
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String KUDU = "KUDU";
+
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String REDIS = "REDIS";
+
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String TUBEMQ = "TUBEMQ";
 
@@ -68,12 +77,6 @@ public class SinkType extends StreamType {
     public static final Set<String> SORT_FLINK_SINK = new HashSet<>();
 
     public static final Set<String> SORT_STANDALONE_SINK = new HashSet<>();
-
-    public static final Set<String> SORT_ETL_SINK = new HashSet<>();
-
-    public static boolean containSortFlinkSink(List<String> sinkTypes) {
-        return sinkTypes.stream().anyMatch(SORT_STANDALONE_SINK::contains);
-    }
 
     static {
         SinkType obj = new SinkType();
@@ -89,6 +92,10 @@ public class SinkType extends StreamType {
                 }
             }
         }
+    }
+
+    public static boolean containSortFlinkSink(List<String> sinkTypes) {
+        return sinkTypes.stream().anyMatch(SORT_STANDALONE_SINK::contains);
     }
 
 }
