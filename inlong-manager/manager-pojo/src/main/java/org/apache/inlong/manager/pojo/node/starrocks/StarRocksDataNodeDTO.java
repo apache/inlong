@@ -30,7 +30,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkDTO;
 
 import javax.validation.constraints.NotNull;
 
