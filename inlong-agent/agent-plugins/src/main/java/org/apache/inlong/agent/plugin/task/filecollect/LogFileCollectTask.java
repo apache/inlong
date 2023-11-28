@@ -97,10 +97,6 @@ public class LogFileCollectTask extends Task {
 
     @Override
     public void init(Object srcManager, TaskProfile taskProfile, Db basicDb) throws IOException {
-        if (!isProfileValid(taskProfile)) {
-            LOGGER.error("task profile invalid {}", taskProfile.toJsonStr());
-            return;
-        }
         taskManager = (TaskManager) srcManager;
         commonInit(taskProfile, basicDb);
         if (retry) {
@@ -129,7 +125,8 @@ public class LogFileCollectTask extends Task {
         }
     }
 
-    private boolean isProfileValid(TaskProfile profile) {
+    @Override
+    public boolean isProfileValid(TaskProfile profile) {
         if (!profile.allRequiredKeyExist()) {
             LOGGER.error("task profile needs all required key");
             return false;

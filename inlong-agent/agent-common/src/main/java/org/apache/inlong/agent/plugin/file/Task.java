@@ -49,4 +49,9 @@ public abstract class Task extends AbstractStateWrapper {
      * get task id
      */
     public abstract String getTaskId();
+
+    /**
+     * is profile valid
+     */
+    public abstract boolean isProfileValid(TaskProfile profile);
 }

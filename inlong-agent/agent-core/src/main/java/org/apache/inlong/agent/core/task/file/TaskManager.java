@@ -369,6 +369,10 @@ public class TaskManager extends AbstractDaemon {
             LOGGER.error("taskMap size {} over limit {}", taskMap.size(), taskMaxLimit);
             return;
         }
+        if (!isProfileValid(taskProfile)) {
+            LOGGER.error("task profile invalid {}", taskProfile.toJsonStr());
+            return;
+        }
         addToDb(taskProfile);
         TaskStateEnum state = TaskStateEnum.getTaskState(taskProfile.getInt(TASK_STATE));
         if (state == TaskStateEnum.RUNNING) {
@@ -415,6 +419,17 @@ public class TaskManager extends AbstractDaemon {
             task.destroy();
         });
         taskMap.clear();
+    }
+
+    private boolean isProfileValid(TaskProfile profile) {
+        try {
+            Class<?> taskClass = Class.forName(profile.getTaskClass());
+            Task task = (Task) taskClass.newInstance();
+            return task.isProfileValid(profile);
+        } catch (Throwable t) {
+            LOGGER.error("isProfileValid error: ", t);
+        }
+        return false;
     }
 
     /**
