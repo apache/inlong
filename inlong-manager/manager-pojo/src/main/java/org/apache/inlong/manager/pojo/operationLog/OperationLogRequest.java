@@ -38,6 +38,12 @@ public class OperationLogRequest extends PageRequest {
     @ApiModelProperty("Inlong stream id")
     private String inlongStreamId;
 
+    @ApiModelProperty("Operation type")
+    private String operationType;
+
+    @ApiModelProperty("Operation target")
+    private String operationTarget;
+
     @ApiModelProperty(value = "query start date, format by 'yyyy-MM-dd'", required = false, example = "2022-01-01")
     private String startDate;
 

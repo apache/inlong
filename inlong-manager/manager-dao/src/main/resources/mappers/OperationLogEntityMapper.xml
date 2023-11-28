@@ -63,6 +63,12 @@
             <if test="request.inlongStreamId != null and request.inlongStreamId != ''">
                 and inlong_stream_id = #{request.inlongStreamId, jdbcType=VARCHAR}
             </if>
+            <if test="request.operationType != null and request.operationType != ''">
+                and operation_type = #{request.operationType, jdbcType=VARCHAR}
+            </if>
+            <if test="request.operationTarget != null and request.operationTarget != ''">
+                and operation_target = #{request.operationTarget, jdbcType=VARCHAR}
+            </if>
             <if test="request.startDate != null and request.startDate != '' and request.endDate != null and request.endDate != ''">
                 and request_time &gt;= #{request.startDate, jdbcType=VARCHAR}
                 and request_time &lt; #{request.endDate, jdbcType=VARCHAR}
