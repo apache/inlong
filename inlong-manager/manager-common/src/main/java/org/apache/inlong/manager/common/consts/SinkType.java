@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -69,6 +70,10 @@ public class SinkType extends StreamType {
     public static final Set<String> SORT_STANDALONE_SINK = new HashSet<>();
 
     public static final Set<String> SORT_ETL_SINK = new HashSet<>();
+
+    public static boolean containSortFlinkSink(List<String> sinkTypes) {
+        return sinkTypes.stream().anyMatch(SORT_STANDALONE_SINK::contains);
+    }
 
     static {
         SinkType obj = new SinkType();
