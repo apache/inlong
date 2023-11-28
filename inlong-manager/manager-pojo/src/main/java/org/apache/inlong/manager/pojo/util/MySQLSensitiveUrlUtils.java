@@ -95,10 +95,10 @@ public class MySQLSensitiveUrlUtils {
                 resultUrl = builder.toString();
             }
 
-            log.info("the origin url [{}] was replaced to: [{}]", url, resultUrl);
+            log.info("MySQL original URL {} was replaced to {}", url, resultUrl);
             return resultUrl;
         } catch (Exception e) {
-            throw new BaseException(String.format("Filter JDBC MySQL sensitive Url failed, the origin url is [%s].\n%s",
+            throw new BaseException(String.format("Failed to filter MySQL sensitive URL: %s, error: %s",
                     url, e.getMessage()));
         }
     }
