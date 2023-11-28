@@ -77,9 +77,9 @@ public class SinkType extends StreamType {
         for (Field field : fields) {
             if (field.isAnnotationPresent(SupportSortType.class)) {
                 SupportSortType annotation = field.getAnnotation(SupportSortType.class);
-                if(Objects.equals(annotation.sortType(), SortType.SORT_STANDALONE)){
+                if (Objects.equals(annotation.sortType(), SortType.SORT_STANDALONE)) {
                     SORT_STANDALONE_SINK.add(field.getName());
-                }else {
+                } else {
                     SORT_FLINK_SINK.add(field.getName());
                 }
             }
