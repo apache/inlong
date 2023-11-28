@@ -23,6 +23,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * This annotation is used to indicate the type of sort task used for inbound operations, including sort flink and
+ * sort standalone
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Target({ElementType.FIELD})

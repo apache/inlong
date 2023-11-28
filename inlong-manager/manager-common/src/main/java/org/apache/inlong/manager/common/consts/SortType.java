@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.common.consts;
 
+/**
+ * Sort task type, including sort flink and sort standalone
+ */
 public enum SortType {
 
     SORT_FLINK,
