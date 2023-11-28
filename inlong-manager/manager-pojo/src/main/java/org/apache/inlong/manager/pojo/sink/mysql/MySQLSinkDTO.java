@@ -21,7 +21,7 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.JdbcSensitiveUrlUtils;
+import org.apache.inlong.manager.pojo.util.MySQLSensitiveUrlUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import com.google.common.base.Strings;
@@ -194,7 +194,7 @@ public class MySQLSinkDTO {
     }
 
     public static String filterSensitive(String url) {
-        return JdbcSensitiveUrlUtils.filterSensitive(url);
+        return MySQLSensitiveUrlUtils.filterSensitive(url);
     }
 
 }

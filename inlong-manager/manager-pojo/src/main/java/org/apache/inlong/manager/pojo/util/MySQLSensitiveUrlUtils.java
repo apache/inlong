@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.util;
+package org.apache.inlong.manager.pojo.util;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.exceptions.BaseException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Slf4j
-public class JdbcSensitiveUrlUtils {
+public class MySQLSensitiveUrlUtils {
 
     /**
      * The sensitive param may lead the attack.
@@ -99,8 +98,8 @@ public class JdbcSensitiveUrlUtils {
             log.info("the origin url [{}] was replaced to: [{}]", url, resultUrl);
             return resultUrl;
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
-                    ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BaseException(String.format("Filter JDBC MySQL sensitive Url failed, the origin url is [%s].\n%s",
+                    url, e.getMessage()));
         }
     }
 }

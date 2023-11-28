@@ -20,7 +20,7 @@ package org.apache.inlong.manager.pojo.node.starrocks;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.JdbcSensitiveUrlUtils;
+import org.apache.inlong.manager.pojo.util.MySQLSensitiveUrlUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModel;
@@ -72,7 +72,7 @@ public class StarRocksDataNodeDTO {
      * Convert ip:post to jdbcurl.
      */
     public static String convertToJdbcUrl(String url) {
-        return JdbcSensitiveUrlUtils.filterSensitive(url);
+        return MySQLSensitiveUrlUtils.filterSensitive(url);
     }
 
 }
