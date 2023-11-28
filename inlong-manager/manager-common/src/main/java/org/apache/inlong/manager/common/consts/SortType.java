@@ -15,26 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.plugin.sort;
-
-import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
-import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-
-import java.util.List;
+package org.apache.inlong.manager.common.consts;
 
 /**
- * Plugin poller interface for extension
+ * Sort task type, including sort flink and sort standalone
  */
-public interface SortPoller {
+public enum SortType {
 
-    /**
-     * Poll the Sort status infos by the given inlong groups
-     *
-     * @param streamInfos stream sink infos
-     * @param credentials credential info
-     * @return list of Sort status infos
-     * @throws Exception any exception if occurred
-     */
-    List<SortStatusInfo> pollSortStatus(List<InlongStreamInfo> streamInfos, String credentials) throws Exception;
+    SORT_FLINK,
 
+    SORT_STANDALONE
 }

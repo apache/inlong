@@ -15,38 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort;
+package org.apache.inlong.manager.common.consts;
 
-import org.apache.inlong.manager.common.enums.SortStatus;
-
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.Map;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Sort status info
+ * This annotation is used to indicate the type of inbound task used for inbound operations, including sort flink and
+ * sort standalone. On the user's SinkType class field, this annotation is used to identify which type of sort task each
+ * SinkType uses.
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@ApiModel("Sort status info")
-public class SortStatusInfo {
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Target({ElementType.FIELD})
+public @interface SupportSortType {
 
-    @ApiModelProperty(value = "Inlong group id")
-    private String inlongGroupId;
+    SortType sortType();
 
-    @ApiModelProperty(value = "Inlong stream id")
-    private String inlongStreamId;
-
-    @ApiModelProperty(value = "Sort status info")
-    private SortStatus sortStatus;
-
-    @ApiModelProperty("Extended properties of sort")
-    private Map<String, Object> properties;
 }
