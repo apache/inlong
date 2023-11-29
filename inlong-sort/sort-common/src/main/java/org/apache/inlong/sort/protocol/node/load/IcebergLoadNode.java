@@ -30,7 +30,6 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
-import org.apache.inlong.sort.util.SchemaChangeUtils;
 
 import com.google.common.base.Preconditions;
 import lombok.Data;
@@ -54,7 +53,6 @@ import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIP
 import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_ENABLE;
 import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_FORMAT;
 import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_TABLE_PATTERN;
-import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_SCHEMA_CHANGE_POLICIES;
 
 @JsonTypeName("icebergLoad")
 @Data
@@ -177,8 +175,6 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
         options.put(IcebergConstant.CONNECTOR_KEY, IcebergConstant.CONNECTOR);
-        // for test sink.ignore.changelog
-        // options.put("sink.ignore.changelog", "true");
         options.put(IcebergConstant.DATABASE_KEY, dbName);
         options.put(IcebergConstant.TABLE_KEY, tableName);
         options.put(IcebergConstant.DEFAULT_DATABASE_KEY, dbName);
@@ -197,7 +193,6 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
             options.put(SINK_MULTIPLE_FORMAT, Objects.requireNonNull(sinkMultipleFormat).identifier());
             options.put(SINK_MULTIPLE_DATABASE_PATTERN, databasePattern);
             options.put(SINK_MULTIPLE_TABLE_PATTERN, tablePattern);
-            options.put(SINK_SCHEMA_CHANGE_POLICIES, SchemaChangeUtils.serialize(policyMap));
         } else {
             options.put(SINK_MULTIPLE_ENABLE, "false");
         }

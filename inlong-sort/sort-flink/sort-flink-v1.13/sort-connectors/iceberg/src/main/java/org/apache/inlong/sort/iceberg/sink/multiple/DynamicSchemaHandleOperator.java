@@ -60,6 +60,7 @@ import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.types.Types;
+import org.apache.iceberg.types.Types.NestedField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +81,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.IntStream;
 
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
@@ -522,10 +524,22 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
     }
 
     // =============================== Utils method =================================================================
-    // if newSchema is not same with oldSchema, return false. It include difference in name, type, position, and
-    // quantity
+    // if newSchema is not same with oldSchema, return false.
     private boolean isCompatible(Schema newSchema, Schema oldSchema) {
-        return oldSchema.sameSchema(newSchema);
+        if (newSchema == null) {
+            return false;
+        }
+
+        List<NestedField> oldSchemaFields = oldSchema.columns();
+        List<NestedField> newSchemaFields = newSchema.columns();
+
+        if (oldSchemaFields.size() != newSchemaFields.size()) {
+            return false;
+        }
+
+        return IntStream.range(0, oldSchemaFields.size())
+                .allMatch(i -> oldSchemaFields.get(i).name().equals(newSchemaFields.get(i).name())
+                        && oldSchemaFields.get(i).type() == newSchemaFields.get(i).type());
     }
 
     private TableIdentifier parseId(JsonNode data) throws IOException {
