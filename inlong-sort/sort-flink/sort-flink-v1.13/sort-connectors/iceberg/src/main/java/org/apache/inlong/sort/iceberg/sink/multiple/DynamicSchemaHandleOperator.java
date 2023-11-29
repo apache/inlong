@@ -60,6 +60,7 @@ import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.types.Types;
+import org.apache.iceberg.types.Types.NestedField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -525,7 +526,15 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
     // if newSchema is not same with oldSchema, return false. It include difference in name, type, position, and
     // quantity
     private boolean isCompatible(Schema newSchema, Schema oldSchema) {
-        return oldSchema.sameSchema(newSchema);
+        if (newSchema == null) {
+            return false;
+        }
+        for (NestedField field : oldSchema.columns()) {
+            if (newSchema.findField(field.name()) == null) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private TableIdentifier parseId(JsonNode data) throws IOException {
