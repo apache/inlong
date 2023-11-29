@@ -254,11 +254,10 @@ int32_t ProxyManager::ParseAndGet(const std::string &inlong_group_id,
 
 int32_t ProxyManager::GetProxy(const std::string &key,
                                ProxyInfoVec &proxy_info_vec) {
-  if (SdkConfig::getInstance()->enable_isolation_) {
+  if (constants::IsolationLevel::kLevelOne == SdkConfig::getInstance()->isolation_level_) {
     return GetProxyByGroupid(key, proxy_info_vec);
-  } else {
-    return GetProxyByClusterId(key, proxy_info_vec);
   }
+  return GetProxyByClusterId(key, proxy_info_vec);
 }
 
 int32_t ProxyManager::CheckBidConf(const std::string &inlong_group_id,
@@ -289,13 +288,14 @@ int32_t ProxyManager::CheckBidConf(const std::string &inlong_group_id,
   return SdkCode::kSuccess;
 }
 
-bool ProxyManager::HasProxy(const std::string &inlong_group_id) {
-  if (SdkConfig::getInstance()->enable_isolation_) {
-    return CheckGroupid(inlong_group_id);
-  } else {
-    return CheckClusterId(inlong_group_id);
+bool ProxyManager::HasProxy(const std::string &group_key) {
+  if (constants::IsolationLevel::kLevelOne ==
+      SdkConfig::getInstance()->isolation_level_) {
+    return CheckGroupid(group_key);
   }
+  return CheckClusterId(group_key);
 }
+
 int32_t ProxyManager::GetProxyByGroupid(const std::string &inlong_group_id,
                                         ProxyInfoVec &proxy_info_vec) {
   unique_read_lock<read_write_mutex> rdlck(groupid_2_proxy_map_rwmutex_);
@@ -319,15 +319,11 @@ int32_t ProxyManager::GetProxyByClusterId(const std::string &cluster_id,
   return SdkCode::kSuccess;
 }
 std::string ProxyManager::GetGroupKey(const std::string &groupid) {
-  if (SdkConfig::getInstance()->enable_isolation_) {
-    return groupid;
+  if (constants::IsolationLevel::kLevelThird ==
+      SdkConfig::getInstance()->isolation_level_) {
+    return GetClusterID(groupid);
   }
-  unique_read_lock<read_write_mutex> rdlck(groupid_2_cluster_id_rwmutex_);
-  auto it = groupid_2_cluster_id_map_.find(groupid);
-  if (it == groupid_2_cluster_id_map_.end()) {
-    return "";
-  }
-  return it->second;
+  return groupid;
 }
 bool ProxyManager::CheckGroupid(const std::string &groupid) {
   unique_read_lock<read_write_mutex> rdlck(groupid_2_proxy_map_rwmutex_);
@@ -346,9 +342,6 @@ bool ProxyManager::CheckClusterId(const std::string &cluster_id) {
   return true;
 }
 void ProxyManager::UpdateClusterId2ProxyMap() {
-  if (SdkConfig::getInstance()->enable_isolation_) {
-    return;
-  }
   unique_read_lock<read_write_mutex> rdlck(groupid_2_cluster_id_rwmutex_);
   for (const auto &it : groupid_2_cluster_id_update_map_) {
     ProxyInfoVec proxy_info_vec;
@@ -440,5 +433,12 @@ std::string ProxyManager::RecoverFromLocalCache(const std::string &groupid) {
   LOG_INFO("RecoverFromLocalCache:" << groupid << ",local cache:" << meta_data);
   return meta_data;
 }
-
+std::string ProxyManager::GetClusterID(const std::string &groupid) {
+  unique_read_lock<read_write_mutex> rdlck(groupid_2_cluster_id_rwmutex_);
+  auto it = groupid_2_cluster_id_map_.find(groupid);
+  if (it == groupid_2_cluster_id_map_.end()) {
+    return "";
+  }
+  return it->second;
+}
 } // namespace inlong

@@ -33,6 +33,7 @@ private:
   std::unordered_map<std::string, std::vector<SendGroupPtr>> send_group_map_;
   SendGroupPtr DoGetSendGroup(const std::string &send_group_key);
   void DoAddSendGroup(const std::string &send_group_key);
+  std::string GetSendKey(const std::string &send_group_key);
   volatile uint32_t send_group_idx_;
 
 public:

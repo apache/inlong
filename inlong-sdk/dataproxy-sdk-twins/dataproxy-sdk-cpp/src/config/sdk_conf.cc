@@ -92,6 +92,7 @@ void SdkConfig::defaultInit() {
   load_balance_interval_ = constants::kLoadBalanceInterval;
   heart_beat_interval_ = constants::kHeartBeatInterval;
   enable_balance_ = constants::kEnableBalance;
+  isolation_level_=constants::IsolationLevel::kLevelSecond;
 
   // cache parameter
   send_buf_size_ = constants::kSendBufSize;
@@ -120,7 +121,6 @@ void SdkConfig::defaultInit() {
   manager_update_interval_ = constants::kManagerUpdateInterval;
   manager_url_timeout_ = constants::kManagerTimeout;
   max_proxy_num_ = constants::kMaxProxyNum;
-  enable_isolation_ = constants::kEnableIsolation;
   reserve_proxy_num_ = constants::kReserveProxyNum;
   enable_local_cache_ = constants::kEnableLocalCache;
 
@@ -360,13 +360,6 @@ void SdkConfig::InitManagerParam(const rapidjson::Value &doc) {
     std::string inlong_group_ids_str = obj.GetString();
     Utils::splitOperate(inlong_group_ids_str, inlong_group_ids_, ",");
   }
-  // enable isolation
-  if (doc.HasMember("enable_isolation") && doc["enable_isolation"].IsBool()) {
-    const rapidjson::Value &obj = doc["enable_isolation"];
-    enable_isolation_ = obj.GetBool();
-  } else {
-    enable_isolation_ = constants::kEnableIsolation;
-  }
 
   // enable local cache
   if (doc.HasMember("enable_local_cache") && doc["enable_local_cache"].IsBool()) {
@@ -374,6 +367,14 @@ void SdkConfig::InitManagerParam(const rapidjson::Value &doc) {
     enable_local_cache_ = obj.GetBool();
   } else {
     enable_local_cache_ = constants::kEnableLocalCache;
+  }
+
+  // isolation level
+  if (doc.HasMember("isolation_level") && doc["isolation_level"].IsInt() && doc["isolation_level"].GetInt() > 0) {
+    const rapidjson::Value &obj = doc["isolation_level"];
+    isolation_level_ = obj.GetInt();
+  } else {
+    isolation_level_ = constants::IsolationLevel::kLevelSecond;
   }
 }
 
@@ -564,7 +565,7 @@ void SdkConfig::ShowClientConfig() {
   LOG_INFO("auth_key: " << auth_key_.c_str());
   LOG_INFO("max_group_id_num: " << max_group_id_num_);
   LOG_INFO("max_stream_id_num: " << max_stream_id_num_);
-  LOG_INFO("enable_isolation: " << enable_isolation_);
+  LOG_INFO("isolation_level: " << isolation_level_);
 }
 
 } // namespace inlong
