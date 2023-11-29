@@ -61,8 +61,8 @@ public class FileScanner {
             long startTime,
             long endTime, boolean isRetry) {
         if (!isRetry) {
-            startTime += NewDateUtils.calcOffset(timeOffset);
-            endTime += NewDateUtils.calcOffset(timeOffset);
+            startTime += DateTransUtils.calcOffset(timeOffset);
+            endTime += DateTransUtils.calcOffset(timeOffset);
         }
         String strStartTime = DateTransUtils.millSecConvertToTimeStr(startTime, cycleUnit);
         String strEndTime = DateTransUtils.millSecConvertToTimeStr(endTime, cycleUnit);

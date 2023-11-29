@@ -34,6 +34,7 @@ import org.apache.inlong.agent.plugin.utils.file.NewDateUtils;
 import org.apache.inlong.agent.plugin.utils.file.PathDateExpression;
 import org.apache.inlong.agent.state.State;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.agent.utils.file.FileUtils;
 
 import org.slf4j.Logger;
@@ -70,6 +71,7 @@ public class LogFileCollectTask extends Task {
 
     public static final String DEFAULT_FILE_INSTANCE = "org.apache.inlong.agent.plugin.instance.FileInstance";
     private static final Logger LOGGER = LoggerFactory.getLogger(LogFileCollectTask.class);
+    public static final String SCAN_CYCLE_RANCE = "-2";
     private TaskProfile taskProfile;
     private Db basicDb;
     private TaskManager taskManager;
@@ -117,7 +119,7 @@ public class LogFileCollectTask extends Task {
             isRealTime = true;
         }
         instanceManager = new InstanceManager(taskProfile.getTaskId(), taskProfile.getInt(TaskConstants.FILE_MAX_NUM),
-                basicDb);
+                basicDb, taskManager.getTaskDb());
         try {
             instanceManager.start();
         } catch (Exception e) {
@@ -318,7 +320,7 @@ public class LogFileCollectTask extends Task {
         if (!retry) {
             long currentTime = System.currentTimeMillis();
             // only scan two cycle, like two hours or two days
-            long offset = NewDateUtils.calcOffset("-2" + taskProfile.getCycleUnit());
+            long offset = DateTransUtils.calcOffset(SCAN_CYCLE_RANCE + taskProfile.getCycleUnit());
             startScanTime = currentTime + offset;
             endScanTime = currentTime;
         }
