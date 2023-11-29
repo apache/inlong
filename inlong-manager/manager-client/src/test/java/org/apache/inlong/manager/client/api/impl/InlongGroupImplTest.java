@@ -53,8 +53,8 @@ class InlongGroupImplTest {
                 + "    \"status\" : 101,\n"
                 + "    \"creator\" : \"admin\",\n"
                 + "    \"modifier\" : \"admin\",\n"
-                + "    \"createTime\" : \"2022-06-05 20:44:22\",\n"
-                + "    \"modifyTime\" : \"2022-06-05 12:44:28\",\n"
+                + "    \"createTime\" : \"2023-11-29T18:23:36.000+0800\",\n"
+                + "    \"modifyTime\" : \"2023-11-29T18:23:36.000+0800\",\n"
                 + "    \"extList\" : [ ],\n"
                 + "    \"tenant\" : null,\n"
                 + "    \"adminUrl\" : null,\n"
@@ -85,7 +85,7 @@ class InlongGroupImplTest {
                 + "      \"clusterId\" : null,\n"
                 + "      \"clusterUrl\" : null\n"
                 + "    } ],\n"
-                + "    \"modifyTime\" : \"2022-06-05 12:44:25\"\n"
+                + "    \"modifyTime\" : \"2023-11-29T18:23:36.000+0800\"\n"
                 + "  } ]\n"
                 + "}";
 
