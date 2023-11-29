@@ -98,6 +98,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_CLUSTER_TAG;
+import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_MQ_RESOURCE;
+import static org.apache.inlong.common.constant.ClusterSwitch.CLUSTER_SWITCH_TIME;
+import static org.apache.inlong.common.constant.ClusterSwitch.FINISH_SWITCH_INTERVAL_MIN;
 import static org.apache.inlong.manager.pojo.common.PageRequest.MAX_PAGE_SIZE;
 import static org.apache.inlong.manager.workflow.event.process.ProcessEventListener.EXECUTOR_SERVICE;
 
