@@ -83,7 +83,7 @@ private:
   uint64_t max_proxy_num_;
   uint64_t reserve_proxy_num_;
   uint32_t msg_type_;
-  bool enable_isolation_;
+  uint32_t isolation_level_;
 
   // Network parameters
   bool enable_tcp_nagle_;
@@ -91,6 +91,7 @@ private:
   uint32_t tcp_detection_interval_; // tcp-client detection interval
   bool enable_balance_;
   bool enable_local_cache_;
+
 
   // auth settings
   bool need_auth_;

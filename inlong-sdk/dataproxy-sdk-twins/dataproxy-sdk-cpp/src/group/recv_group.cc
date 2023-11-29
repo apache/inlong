@@ -26,11 +26,13 @@
 
 namespace inlong {
 const uint32_t DEFAULT_PACK_ATTR = 400;
+const uint64_t LOG_SAMPLE=100;
 RecvGroup::RecvGroup(const std::string &group_key,std::shared_ptr<SendManager> send_manager)
     : cur_len_(0), groupId_num_(0), streamId_num_(0),
       msg_type_(SdkConfig::getInstance()->msg_type_),
       data_capacity_(SdkConfig::getInstance()->buf_size_),
-      send_manager_(send_manager),group_key_(group_key) {
+      send_manager_(send_manager),group_key_(group_key),
+      log_stat_(0){
   data_capacity_ = std::max(SdkConfig::getInstance()->max_msg_size_,
                             SdkConfig::getInstance()->pack_size_);
   data_capacity_ = data_capacity_ + DEFAULT_PACK_ATTR;
@@ -70,22 +72,41 @@ int32_t RecvGroup::DoDispatchMsg() {
   last_pack_time_ = Utils::getCurrentMsTime();
   std::lock_guard<std::mutex> lck(mutex_);
   if (group_key_.empty()) {
-    LOG_ERROR("groupId  is empty, check!!");
+    if (log_stat_++ > LOG_SAMPLE) {
+      LOG_ERROR("groupId  is empty, check!!");
+      log_stat_ = 0;
+    }
     return SdkCode::kInvalidInput;
   }
   if (msgs_.empty()) {
-    LOG_ERROR("no msg in msg_set, check!");
+    if (log_stat_++ > LOG_SAMPLE) {
+      LOG_ERROR("no msg in msg_set, check!");
+      log_stat_ = 0;
+    }
     return SdkCode::kMsgEmpty;
   }
   auto send_group = send_manager_->GetSendGroup(group_key_);
   if (send_group == nullptr) {
-    LOG_ERROR("failed to get send_buf, something gets wrong, checkout!");
+    if (log_stat_++ > LOG_SAMPLE) {
+      LOG_ERROR("failed to get send_buf, something gets wrong, checkout!");
+      log_stat_ = 0;
+    }
     return SdkCode::kFailGetSendBuf;
   }
   if (!send_group->IsAvailable()) {
+    if (log_stat_++ > LOG_SAMPLE) {
+      LOG_ERROR("failed to get send group! group_key:"
+                << group_key_ << " send group is not available!");
+      log_stat_ = 0;
+    }
     return SdkCode::kFailGetConn;
   }
   if (send_group->IsFull()) {
+    if (log_stat_++ > LOG_SAMPLE) {
+      LOG_ERROR("failed to get send group! group_key:"
+                << group_key_ << " send group is full!");
+      log_stat_ = 0;
+    }
     return SdkCode::kSendBufferFull;
   }
 
