@@ -262,13 +262,15 @@ public class AuditServiceImpl implements AuditService {
         Map<String, String> auditIdMap = new HashMap<>();
         auditIdMap.put(getAuditId(sinkNodeType, true), sinkNodeType);
 
-        // properly overwrite audit ids by role and stream config
-        if (InlongConstants.DATASYNC_MODE.equals(groupEntity.getInlongGroupMode())) {
-            auditIdMap.put(getAuditId(sourceNodeType, false), sourceNodeType);
-            request.setAuditIds(getAuditIds(groupId, streamId, sourceNodeType, sinkNodeType));
-        } else {
-            auditIdMap.put(getAuditId(sinkNodeType, false), sinkNodeType);
-            request.setAuditIds(getAuditIds(groupId, streamId, null, sinkNodeType));
+        if (CollectionUtils.isEmpty(request.getAuditIds())){
+            // properly overwrite audit ids by role and stream config
+            if (InlongConstants.DATASYNC_MODE.equals(groupEntity.getInlongGroupMode())) {
+                auditIdMap.put(getAuditId(sourceNodeType, false), sourceNodeType);
+                request.setAuditIds(getAuditIds(groupId, streamId, sourceNodeType, sinkNodeType));
+            } else {
+                auditIdMap.put(getAuditId(sinkNodeType, false), sinkNodeType);
+                request.setAuditIds(getAuditIds(groupId, streamId, null, sinkNodeType));
+            }
         }
 
         List<AuditVO> result = new ArrayList<>();
