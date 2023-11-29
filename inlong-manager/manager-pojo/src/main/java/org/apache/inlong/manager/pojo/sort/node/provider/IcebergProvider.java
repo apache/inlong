@@ -33,10 +33,12 @@ import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.extract.IcebergExtractNode;
+import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +84,8 @@ public class IcebergProvider implements ExtractNodeProvider, LoadNodeProvider {
         List<FieldInfo> fieldInfos = parseSinkFieldInfos(icebergSink.getSinkFieldList(), icebergSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(icebergSink.getSinkFieldList(), constantFieldMap);
         IcebergConstant.CatalogType catalogType = CatalogType.forName(icebergSink.getCatalogType());
-
+        Format format = parsingSinkMultipleFormat(icebergSink.getSinkMultipleEnable(),
+                icebergSink.getSinkMultipleFormat());
         return new IcebergLoadNode(
                 icebergSink.getSinkName(),
                 icebergSink.getSinkName(),
@@ -98,7 +101,13 @@ public class IcebergProvider implements ExtractNodeProvider, LoadNodeProvider {
                 catalogType,
                 icebergSink.getCatalogUri(),
                 icebergSink.getWarehouse(),
-                icebergSink.getAppendMode());
+                icebergSink.getAppendMode(),
+                icebergSink.getSinkMultipleEnable(),
+                format,
+                icebergSink.getDatabasePattern(),
+                icebergSink.getTablePattern(),
+                icebergSink.getEnableSchemaChange(),
+                null);
     }
 
     @Override
@@ -128,4 +137,32 @@ public class IcebergProvider implements ExtractNodeProvider, LoadNodeProvider {
         fieldInfos.add(0, new MetaFieldInfo(MetaField.AUDIT_DATA_TIME.name(), MetaField.AUDIT_DATA_TIME));
         return fieldInfos;
     }
+
+    @Override
+    public Boolean isSinkMultiple(StreamNode nodeInfo) {
+        IcebergSink icebergSink = (IcebergSink) nodeInfo;
+        return icebergSink.getSinkMultipleEnable();
+    }
+
+    @Override
+    public List<StreamField> addStreamFieldsForSinkMultiple(List<StreamField> streamFields) {
+        if (CollectionUtils.isEmpty(streamFields)) {
+            streamFields = new ArrayList<>();
+        }
+        streamFields.add(0,
+                new StreamField(0, "varbinary", MetaField.DATA_BYTES_CANAL.name(), "meta.data_canal", null, 1,
+                        MetaField.DATA_BYTES_CANAL.name()));
+        return streamFields;
+    }
+
+    @Override
+    public List<SinkField> addSinkFieldsForSinkMultiple(List<SinkField> sinkFields) {
+        if (CollectionUtils.isEmpty(sinkFields)) {
+            sinkFields = new ArrayList<>();
+        }
+        sinkFields.add(0, new SinkField(0, "varbinary", MetaField.DATA_BYTES_CANAL.name(), "meta.data_canal",
+                MetaField.DATA_BYTES_CANAL.name(), "varbinary", 0, MetaField.DATA_BYTES_CANAL.name(), null));
+        return sinkFields;
+    }
+
 }

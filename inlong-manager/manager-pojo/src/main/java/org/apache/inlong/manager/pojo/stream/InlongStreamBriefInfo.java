@@ -88,6 +88,9 @@ public class InlongStreamBriefInfo {
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value")
     private Boolean ignoreParseError;
 
+    @ApiModelProperty("The multiple enable of sink")
+    private Boolean sinkMultipleEnable = false;
+
     @ApiModelProperty(value = "Status")
     private Integer status;
 
