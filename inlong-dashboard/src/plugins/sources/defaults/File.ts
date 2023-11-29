@@ -28,6 +28,112 @@ const { I18n } = DataWithBackend;
 const { FieldDecorator } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
+const timeZoneList = [
+  {
+    label: 'GMT +00:00',
+    value: 'GMT+0:00',
+  },
+  {
+    label: 'GMT +01:00',
+    value: 'GMT+1:00',
+  },
+  {
+    label: 'GMT +02:00',
+    value: 'GMT+2:00',
+  },
+  {
+    label: 'GMT +03:00',
+    value: 'GMT+3:00',
+  },
+  {
+    label: 'GMT +04:00',
+    value: 'GMT+4:00',
+  },
+  {
+    label: 'GMT +05:00',
+    value: 'GMT+5:00',
+  },
+  {
+    label: 'GMT +06:00',
+    value: 'GMT+6:00',
+  },
+  {
+    label: 'GMT +07:00',
+    value: 'GMT+7:00',
+  },
+  {
+    label: 'GMT +08:00',
+    value: 'GMT+8:00',
+  },
+  {
+    label: 'GMT +09:00',
+    value: 'GMT+9:00',
+  },
+  {
+    label: 'GMT +10:00',
+    value: 'GMT+10:00',
+  },
+  {
+    label: 'GMT +11:00',
+    value: 'GMT+11:00',
+  },
+  {
+    label: 'GMT +12:00',
+    value: 'GMT+12:00',
+  },
+  {
+    label: 'GMT +13:00',
+    value: 'GMT+13:00',
+  },
+  {
+    label: 'GMT -01:00',
+    value: 'GMT-1:00',
+  },
+  {
+    label: 'GMT -02:00',
+    value: 'GMT-2:00',
+  },
+  {
+    label: 'GMT -03:00',
+    value: 'GMT-3:00',
+  },
+  {
+    label: 'GMT -04:00',
+    value: 'GMT-4:00',
+  },
+  {
+    label: 'GMT -05:00',
+    value: 'GMT-5:00',
+  },
+  {
+    label: 'GMT -06:00',
+    value: 'GMT-6:00',
+  },
+  {
+    label: 'GMT -07:00',
+    value: 'GMT-7:00',
+  },
+  {
+    label: 'GMT -08:00',
+    value: 'GMT-8:00',
+  },
+  {
+    label: 'GMT -09:00',
+    value: 'GMT-9:00',
+  },
+  {
+    label: 'GMT -10:00',
+    value: 'GMT-10:00',
+  },
+  {
+    label: 'GMT -11:00',
+    value: 'GMT-11:00',
+  },
+  {
+    label: 'GMT -12:00',
+    value: 'GMT-12:00',
+  },
+];
 export default class PulsarSource
   extends SourceInfo
   implements DataWithBackend, RenderRow, RenderList
@@ -36,7 +142,7 @@ export default class PulsarSource
     type: 'select',
     rules: [{ required: true }],
     props: values => ({
-      disabled: values?.status === 101,
+      disabled: Boolean(values.id),
       showSearch: true,
       allowClear: true,
       filterOption: false,
@@ -89,7 +195,7 @@ export default class PulsarSource
       },
     ],
     props: values => ({
-      disabled: values?.status === 101,
+      disabled: Boolean(values.id),
       showSearch: true,
       allowClear: true,
       filterOption: false,
@@ -125,7 +231,7 @@ export default class PulsarSource
     tooltip: i18n.t('meta.Sources.File.FilePathHelp'),
     rules: [{ required: true }],
     props: values => ({
-      disabled: values?.status === 101,
+      disabled: Boolean(values.id),
     }),
   })
   @ColumnDecorator()
@@ -133,12 +239,86 @@ export default class PulsarSource
   pattern: string;
 
   @FieldDecorator({
+    type: 'inputnumber',
+    rules: [{ required: true }],
+    props: values => ({
+      min: 1,
+      max: 100,
+      precision: 0,
+      disabled: Boolean(values.id),
+    }),
+  })
+  @I18n('meta.Sources.File.MaxFileCount')
+  maxFileCount: number;
+
+  @FieldDecorator({
+    type: 'radio',
+    rules: [{ required: true }],
+    initialValue: 'default',
+    props: values => ({
+      disabled: Boolean(values.id),
+      options: [
+        {
+          label: 'Default',
+          value: 'default',
+        },
+        {
+          label: 'Mix',
+          value: 'mix',
+        },
+      ],
+    }),
+  })
+  @I18n('meta.Sources.File.DataContentStyle')
+  dataContentStyle: string;
+
+  @FieldDecorator({
+    type: 'radio',
+    props: values => ({
+      disabled: Boolean(values.id),
+      options: [
+        {
+          label: i18n.t('meta.Sources.File.Cycle.Day'),
+          value: 'D',
+        },
+        {
+          label: i18n.t('meta.Sources.File.Cycle.Hour'),
+          value: 'H',
+        },
+        {
+          label: i18n.t('meta.Sources.File.Cycle.RealTime'),
+          value: 'R',
+        },
+      ],
+    }),
+  })
+  @I18n('meta.Sources.File.Cycle')
+  cycleUnit: string;
+
+  @FieldDecorator({
     type: 'input',
     tooltip: i18n.t('meta.Sources.File.TimeOffsetHelp'),
+    rules: [
+      {
+        pattern: /[0-9][mhd]$/,
+        message: i18n.t('meta.Sources.File.TimeOffsetRules'),
+      },
+    ],
     props: values => ({
-      disabled: values?.status === 101,
+      disabled: Boolean(values.id),
     }),
   })
   @I18n('meta.Sources.File.TimeOffset')
   timeOffset: string;
+
+  @FieldDecorator({
+    type: 'select',
+    initialValue: 'GMT+8:00',
+    props: values => ({
+      disabled: Boolean(values.id),
+      options: timeZoneList,
+    }),
+  })
+  @I18n('meta.Sources.File.TimeZone')
+  timeZone: string;
 }

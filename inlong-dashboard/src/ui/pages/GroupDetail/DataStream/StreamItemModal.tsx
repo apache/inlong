@@ -109,7 +109,6 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
         type: EditableTable,
         label: i18n.t('meta.Stream.PredefinedFields'),
         name: 'predefinedFields',
-        visible: mqType === 'PULSAR',
         isPro: true,
         initialValue: [],
         props: values => ({
