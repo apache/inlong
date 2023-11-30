@@ -182,7 +182,7 @@ public class ProxySink extends AbstractSink {
         fieldSplitter = profile.get(CommonConstants.FIELD_SPLITTER, DEFAULT_FIELD_SPLITTER).getBytes(
                 StandardCharsets.UTF_8);
         sourceName = profile.getInstanceId();
-        offsetManager = OffsetManager.init();
+        offsetManager = OffsetManager.getInstance();
         senderManager = new SenderManager(profile, inlongGroupId, sourceName);
         try {
             senderManager.Start();

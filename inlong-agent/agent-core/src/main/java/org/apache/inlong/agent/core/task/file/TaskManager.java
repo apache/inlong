@@ -22,6 +22,7 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.core.task.TaskAction;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.RocksDbImp;
@@ -131,6 +132,7 @@ public class TaskManager extends AbstractDaemon {
                 agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE));
         offsetBasicDb =
                 initDb(agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET));
+        OffsetManager.init(offsetBasicDb, instanceBasicDb);
         this.runningPool = new ThreadPoolExecutor(
                 0, Integer.MAX_VALUE,
                 60L, TimeUnit.SECONDS,
@@ -519,6 +521,7 @@ public class TaskManager extends AbstractDaemon {
     public void start() throws Exception {
         restoreFromDb();
         submitWorker(coreThread());
+        OffsetManager.getInstance().start();
     }
 
     @Override
