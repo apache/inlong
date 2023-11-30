@@ -115,8 +115,8 @@ class Kafka2HiveTest extends BaseTest {
                                         + "\"dailyStorage\":10000,\"peakRecords\":100000,\"maxLength\":10000,"
                                         + "\"inCharges\":\"test_inCharges,admin\",\"followers\":null,\"status\":101,"
                                         + "\"creator\":\"admin\",\"modifier\":\"admin\","
-                                        + "\"createTime\":\"2022-06-06 09:59:10\","
-                                        + "\"modifyTime\":\"2022-06-06 02:24:50\",\"extList\":[],\"tenant\":null,"
+                                        + "\"createTime\":\"2023-11-29T18:23:36.000+0800\","
+                                        + "\"modifyTime\":\"2023-11-29T18:23:36.000+0800\",\"extList\":[],\"tenant\":null,"
                                         + "\"adminUrl\":null,\"serviceUrl\":null,\"queueModule\":\"PARALLEL\","
                                         + "\"partitionNum\":3,\"ensemble\":3,\"writeQuorum\":3,\"ackQuorum\":2,"
                                         + "\"ttl\":24,\"ttlUnit\":\"hours\",\"retentionTime\":72,"
@@ -126,7 +126,7 @@ class Kafka2HiveTest extends BaseTest {
                                         + "\"name\":\"test_stream009\",\"sinkList\":[{\"id\":6,"
                                         + "\"inlongGroupId\":\"test_group009\",\"inlongStreamId\":\"test_stream009\","
                                         + "\"sinkType\":\"HIVE\",\"sinkName\":\"{hive.sink.name}\",\"clusterId\":null,"
-                                        + "\"clusterUrl\":null}],\"modifyTime\":\"2022-06-06 02:11:03\"}]}"))
+                                        + "\"clusterUrl\":null}],\"modifyTime\":\"2023-11-29T18:23:36.000+0800\"}]}"))
                         .build());
         initWorkflowResult.setNewTasks(
                 Lists.newArrayList(
@@ -166,7 +166,7 @@ class Kafka2HiveTest extends BaseTest {
                                 + "\"dailyRecords\":10000000,\"dailyStorage\":10000,\"peakRecords\":100000,"
                                 + "\"maxLength\":10000,\"inCharges\":\"test_inCharges,admin\",\"followers\":null,"
                                 + "\"status\":101,\"creator\":\"admin\",\"modifier\":\"admin\","
-                                + "\"createTime\":\"2022-06-06 16:36:35\",\"modifyTime\":\"2022-06-06 08:37:04\","
+                                + "\"createTime\":\"2023-11-29T18:23:36.000+0800\",\"modifyTime\":\"2023-11-29T18:23:36.000+0800\","
                                 + "\"extList\":[],\"tenant\":null,\"adminUrl\":null,\"serviceUrl\":null,"
                                 + "\"queueModule\":\"PARALLEL\",\"partitionNum\":3,\"ensemble\":3,\"writeQuorum\":3,"
                                 + "\"ackQuorum\":2,\"ttl\":24,\"ttlUnit\":\"hours\",\"retentionTime\":72,"
@@ -176,7 +176,7 @@ class Kafka2HiveTest extends BaseTest {
                                 + "\"sinkList\":[{\"id\":8,\"inlongGroupId\":\"test_group011\","
                                 + "\"inlongStreamId\":\"test_stream011\",\"sinkType\":\"HIVE\","
                                 + "\"sinkName\":\"{hive.sink.name}\",\"clusterId\":null,\"clusterUrl\":null}],"
-                                + "\"modifyTime\":\"2022-06-06 08:36:38\"}]}")
+                                + "\"modifyTime\":\"2023-11-29T18:23:36.000+0800\"}]}")
                         .build());
         startWorkflowResult.setNewTasks(new ArrayList<>());
         stubFor(
@@ -234,8 +234,6 @@ class Kafka2HiveTest extends BaseTest {
                         .status(110)
                         .creator("admin")
                         .modifier("admin")
-                        .createTime(new Date())
-                        .modifyTime(new Date())
                         .build());
 
         ArrayList<StreamSink> hiveSinks = Lists.newArrayList(

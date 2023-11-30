@@ -58,7 +58,7 @@ public class OperationLogResponse {
     @ApiModelProperty(value = "Name of operator")
     private String operator;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "YYYY-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
     private Date requestTime;
 
 }
