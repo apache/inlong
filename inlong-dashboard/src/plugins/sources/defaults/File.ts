@@ -28,112 +28,6 @@ const { I18n } = DataWithBackend;
 const { FieldDecorator } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
-const timeZoneList = [
-  {
-    label: 'GMT +00:00',
-    value: 'GMT+0:00',
-  },
-  {
-    label: 'GMT +01:00',
-    value: 'GMT+1:00',
-  },
-  {
-    label: 'GMT +02:00',
-    value: 'GMT+2:00',
-  },
-  {
-    label: 'GMT +03:00',
-    value: 'GMT+3:00',
-  },
-  {
-    label: 'GMT +04:00',
-    value: 'GMT+4:00',
-  },
-  {
-    label: 'GMT +05:00',
-    value: 'GMT+5:00',
-  },
-  {
-    label: 'GMT +06:00',
-    value: 'GMT+6:00',
-  },
-  {
-    label: 'GMT +07:00',
-    value: 'GMT+7:00',
-  },
-  {
-    label: 'GMT +08:00',
-    value: 'GMT+8:00',
-  },
-  {
-    label: 'GMT +09:00',
-    value: 'GMT+9:00',
-  },
-  {
-    label: 'GMT +10:00',
-    value: 'GMT+10:00',
-  },
-  {
-    label: 'GMT +11:00',
-    value: 'GMT+11:00',
-  },
-  {
-    label: 'GMT +12:00',
-    value: 'GMT+12:00',
-  },
-  {
-    label: 'GMT +13:00',
-    value: 'GMT+13:00',
-  },
-  {
-    label: 'GMT -01:00',
-    value: 'GMT-1:00',
-  },
-  {
-    label: 'GMT -02:00',
-    value: 'GMT-2:00',
-  },
-  {
-    label: 'GMT -03:00',
-    value: 'GMT-3:00',
-  },
-  {
-    label: 'GMT -04:00',
-    value: 'GMT-4:00',
-  },
-  {
-    label: 'GMT -05:00',
-    value: 'GMT-5:00',
-  },
-  {
-    label: 'GMT -06:00',
-    value: 'GMT-6:00',
-  },
-  {
-    label: 'GMT -07:00',
-    value: 'GMT-7:00',
-  },
-  {
-    label: 'GMT -08:00',
-    value: 'GMT-8:00',
-  },
-  {
-    label: 'GMT -09:00',
-    value: 'GMT-9:00',
-  },
-  {
-    label: 'GMT -10:00',
-    value: 'GMT-10:00',
-  },
-  {
-    label: 'GMT -11:00',
-    value: 'GMT-11:00',
-  },
-  {
-    label: 'GMT -12:00',
-    value: 'GMT-12:00',
-  },
-];
 export default class PulsarSource
   extends SourceInfo
   implements DataWithBackend, RenderRow, RenderList
@@ -316,7 +210,13 @@ export default class PulsarSource
     initialValue: 'GMT+8:00',
     props: values => ({
       disabled: Boolean(values.id),
-      options: timeZoneList,
+      options: [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11,
+        -12,
+      ].map(item => ({
+        label: Math.sign(item) === 1 || Math.sign(item) === 0 ? `GMT+${item}:00` : `GMT${item}:00`,
+        value: Math.sign(item) === 1 || Math.sign(item) === 0 ? `GMT+${item}:00` : `GMT${item}:00`,
+      })),
     }),
   })
   @I18n('meta.Sources.File.TimeZone')
