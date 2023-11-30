@@ -302,6 +302,9 @@ CREATE TABLE IF NOT EXISTS `operation_log`
 (
     `id`                  int(11)   NOT NULL AUTO_INCREMENT,
     `authentication_type` varchar(64)        DEFAULT NULL COMMENT 'Authentication type',
+    `inlong_group_id`     varchar(256)       DEFAULT NULL COMMENT 'Inlong group id',
+    `inlong_stream_id`    varchar(256)       DEFAULT NULL COMMENT 'Inlong stream id',
+    `operation_target`    varchar(256)       DEFAULT NULL COMMENT 'Operation target',
     `operation_type`      varchar(256)       DEFAULT NULL COMMENT 'Operation type',
     `http_method`         varchar(64)        DEFAULT NULL COMMENT 'Request method',
     `invoke_method`       varchar(256)       DEFAULT NULL COMMENT 'Invoke method',
