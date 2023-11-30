@@ -142,7 +142,6 @@ public class LogFileSource extends AbstractSource {
     private boolean isRealTime = false;
 
     public LogFileSource() {
-        OffsetManager.init();
     }
 
     @Override

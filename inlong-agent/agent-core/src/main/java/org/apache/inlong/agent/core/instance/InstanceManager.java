@@ -58,7 +58,7 @@ public class InstanceManager extends AbstractDaemon {
     public volatile int CORE_THREAD_SLEEP_TIME_MS = 1000;
     public static final int INSTANCE_DB_CLEAN_INTERVAL_MS = 10000;
     private long lastCleanTime = 0;
-    public static final String DB_INSTANCE_EXPIRE_CYCLE_COUNT = "-3";
+    public static final String DB_INSTANCE_EXPIRE_CYCLE_COUNT = "3";
     // instance in db
     private final InstanceDb instanceDb;
     TaskProfileDb taskProfileDb;

@@ -19,8 +19,12 @@ package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
+import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.TaskConstants;
+import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.core.task.file.MemoryManager;
+import org.apache.inlong.agent.core.task.file.TaskManager;
+import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.utils.file.FileDataUtils;
@@ -52,6 +56,10 @@ public class TestLogFileSource {
     private static final String[] check = {"hello line-end-symbol aa", "world line-end-symbol",
             "agent line-end-symbol"};
     private static InstanceProfile instanceProfile;
+    // instance basic db
+    private static Db instanceBasicDb;
+    // offset basic db
+    private static Db offsetBasicDb;
 
     @BeforeClass
     public static void setup() {
@@ -62,6 +70,10 @@ public class TestLogFileSource {
         TaskProfile taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING);
         instanceProfile = taskProfile.createInstanceProfile("",
                 fileName, taskProfile.getCycleUnit(), "20230928", AgentUtils.getCurrentTime());
+        instanceBasicDb = TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE);
+        offsetBasicDb =
+                TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET);
+        OffsetManager.init(offsetBasicDb, instanceBasicDb);
     }
 
     private LogFileSource getSource() {
