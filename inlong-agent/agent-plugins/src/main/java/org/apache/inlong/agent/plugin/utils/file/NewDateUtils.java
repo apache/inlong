@@ -223,52 +223,12 @@ public class NewDateUtils {
         }
 
         if (timeOffset.startsWith("-")) {
-            timeInterval -= calcOffset(timeOffset);
+            timeInterval -= DateTransUtils.calcOffset(timeOffset);
         } else {
-            timeInterval += calcOffset(timeOffset);
+            timeInterval += DateTransUtils.calcOffset(timeOffset);
         }
 
         return isValidCreationTime(dataTime, timeInterval);
-    }
-
-    /**
-     * Calculate offset time based on offset
-     * The current offset will only be offset forward, or it can be offset backward to be compatible with the previous
-     * calculation method (subtraction).
-     * When it is offset backward, it returns negative;
-     * When offset forward, return positive
-     *
-     * @param timeOffset offset，such as -1d,-4h,-10m；
-     * @return
-     */
-    public static long calcOffset(String timeOffset) {
-        if (timeOffset.length() == 0) {
-            return 0;
-        }
-        String offsetUnit = timeOffset.substring(timeOffset.length() - 1);
-        int startIndex;
-        int symbol;
-        if (timeOffset.charAt(0) == '-') {
-            symbol = -1;
-            startIndex = 1;
-        } else {
-            symbol = 1;
-            startIndex = 0;
-        }
-
-        String strOffset = timeOffset.substring(startIndex, timeOffset.length() - 1);
-        if (strOffset.length() == 0) {
-            return 0;
-        }
-        int offsetTime = Integer.parseInt(strOffset);
-        if ("d".equalsIgnoreCase(offsetUnit)) {
-            return offsetTime * 24 * 3600 * 1000 * symbol;
-        } else if ("h".equalsIgnoreCase(offsetUnit)) {
-            return offsetTime * 3600 * 1000 * symbol;
-        } else if ("m".equalsIgnoreCase(offsetUnit)) {
-            return offsetTime * 60 * 1000 * symbol;
-        }
-        return 0;
     }
 
     /*

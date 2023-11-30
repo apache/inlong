@@ -17,7 +17,7 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
-import org.apache.inlong.agent.plugin.utils.file.NewDateUtils;
+import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.common.metric.MetricRegister;
 
 import org.apache.commons.io.FileUtils;
@@ -46,12 +46,12 @@ public class TestUtils {
 
     @Test
     public void testCalcOffset() {
-        Assert.assertTrue(NewDateUtils.calcOffset("-1h") == -3600 * 1000);
-        Assert.assertTrue(NewDateUtils.calcOffset("1D") == 24 * 3600 * 1000);
-        Assert.assertTrue(NewDateUtils.calcOffset("0") == 0);
-        Assert.assertTrue(NewDateUtils.calcOffset("1") == 0);
-        Assert.assertTrue(NewDateUtils.calcOffset("10") == 0);
-        Assert.assertTrue(NewDateUtils.calcOffset("") == 0);
+        Assert.assertTrue(DateTransUtils.calcOffset("-1h") == -3600 * 1000);
+        Assert.assertTrue(DateTransUtils.calcOffset("1D") == 24 * 3600 * 1000);
+        Assert.assertTrue(DateTransUtils.calcOffset("0") == 0);
+        Assert.assertTrue(DateTransUtils.calcOffset("1") == 0);
+        Assert.assertTrue(DateTransUtils.calcOffset("10") == 0);
+        Assert.assertTrue(DateTransUtils.calcOffset("") == 0);
     }
 
     public static String getTestTriggerProfile() {

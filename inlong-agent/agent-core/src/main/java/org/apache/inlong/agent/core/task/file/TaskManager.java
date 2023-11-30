@@ -63,6 +63,8 @@ public class TaskManager extends AbstractDaemon {
     private final Db taskBasicDb;
     // instance basic db
     private final Db instanceBasicDb;
+    // offset basic db
+    private final Db offsetBasicDb;
     // task in db
     private final TaskProfileDb taskDb;
     // task in memory
@@ -100,7 +102,7 @@ public class TaskManager extends AbstractDaemon {
                     frozenCount++;
                     break;
                 }
-                case FINISH: {
+                case RETRY_FINISH: {
                     finishedCount++;
                     break;
                 }
@@ -122,11 +124,13 @@ public class TaskManager extends AbstractDaemon {
      */
     public TaskManager() {
         this.agentConf = AgentConfiguration.getAgentConf();
-        this.taskBasicDb = initDb(
+        taskBasicDb = initDb(
                 agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_TASK));
-        this.instanceBasicDb = initDb(
-                agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE));
         taskDb = new TaskProfileDb(taskBasicDb);
+        instanceBasicDb = initDb(
+                agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE));
+        offsetBasicDb =
+                initDb(agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET));
         this.runningPool = new ThreadPoolExecutor(
                 0, Integer.MAX_VALUE,
                 60L, TimeUnit.SECONDS,
@@ -137,6 +141,10 @@ public class TaskManager extends AbstractDaemon {
         pendingTasks = new LinkedBlockingQueue<>(taskMaxLimit);
         configQueue = new LinkedBlockingQueue<>(CONFIG_QUEUE_CAPACITY);
         actionQueue = new LinkedBlockingQueue<>(ACTION_QUEUE_CAPACITY);
+    }
+
+    public TaskProfileDb getTaskDb() {
+        return taskDb;
     }
 
     /**
@@ -284,7 +292,7 @@ public class TaskManager extends AbstractDaemon {
                 if (managerState == dbState) {
                     return;
                 }
-                if (dbState == TaskStateEnum.FINISH) {
+                if (dbState == TaskStateEnum.RETRY_FINISH) {
                     LOGGER.info("traverseManagerTasksToDb task {} dbState {} retry {}, do nothing",
                             taskFromDb.getTaskId(), dbState,
                             taskFromDb.isRetry());
@@ -335,7 +343,7 @@ public class TaskManager extends AbstractDaemon {
                     deleteFromMemory(profileFromDb.getTaskId());
                 }
             } else {
-                if (dbState != TaskStateEnum.FINISH) {
+                if (dbState != TaskStateEnum.RETRY_FINISH) {
                     LOGGER.error("task {} invalid state {}", profileFromDb.getTaskId(), dbState);
                 }
             }
@@ -394,7 +402,7 @@ public class TaskManager extends AbstractDaemon {
     }
 
     private void finishTask(TaskProfile taskProfile) {
-        taskProfile.setState(TaskStateEnum.FINISH);
+        taskProfile.setState(TaskStateEnum.RETRY_FINISH);
         updateToDb(taskProfile);
         deleteFromMemory(taskProfile.getTaskId());
     }
