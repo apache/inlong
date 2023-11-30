@@ -319,6 +319,8 @@ public class LogFileSource extends AbstractSource {
                         if (overLen) {
                             LOGGER.warn("readLines over len finally string len {}",
                                     new String(baos.toByteArray()).length());
+                            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS_REAL_TIME, inlongGroupId,
+                                    inlongStreamId, AgentUtils.getCurrentTime(), 1, maxPackSize);
                         }
                         baos.reset();
                         overLen = false;
@@ -382,6 +384,8 @@ public class LogFileSource extends AbstractSource {
         }
         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, header.get(PROXY_KEY_STREAM_ID),
                 auditTime, 1, msgWithMetaData.length());
+        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS_REAL_TIME, inlongGroupId, header.get(PROXY_KEY_STREAM_ID),
+                AgentUtils.getCurrentTime(), 1, msgWithMetaData.length());
         Message finalMsg = new DefaultMessage(msgWithMetaData.getBytes(StandardCharsets.UTF_8), header);
         // if the message size is greater than max pack size,should drop it.
         if (finalMsg.getBody().length > maxPackSize) {

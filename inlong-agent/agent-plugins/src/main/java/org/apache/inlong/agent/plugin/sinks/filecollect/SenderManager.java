@@ -346,11 +346,17 @@ public class SenderManager {
                 getMetricItem(groupId, streamId).pluginSendSuccessCount.addAndGet(msgCnt);
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId,
                         dataTime, message.getMsgCnt(), message.getTotalSize());
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS_REAL_TIME, groupId, streamId,
+                        AgentUtils.getCurrentTime(), message.getMsgCnt(), message.getTotalSize());
             } else {
                 LOGGER.warn("send groupId {}, streamId {}, taskId {}, instanceId {}, dataTime {} fail with times {}, "
                         + "error {}", groupId, streamId, taskId, instanceId, dataTime, retry, result);
                 getMetricItem(groupId, streamId).pluginSendFailCount.addAndGet(msgCnt);
                 putInResendQueue(new AgentSenderCallback(message, retry));
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_FAILED, groupId, streamId,
+                        dataTime, message.getMsgCnt(), message.getTotalSize());
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_FAILED_REAL_TIME, groupId, streamId,
+                        AgentUtils.getCurrentTime(), message.getMsgCnt(), message.getTotalSize());
             }
         }
 
