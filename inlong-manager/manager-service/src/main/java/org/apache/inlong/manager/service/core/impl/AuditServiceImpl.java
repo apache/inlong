@@ -262,7 +262,7 @@ public class AuditServiceImpl implements AuditService {
         Map<String, String> auditIdMap = new HashMap<>();
         auditIdMap.put(getAuditId(sinkNodeType, true), sinkNodeType);
 
-        if (CollectionUtils.isEmpty(request.getAuditIds())){
+        if (CollectionUtils.isEmpty(request.getAuditIds())) {
             // properly overwrite audit ids by role and stream config
             if (InlongConstants.DATASYNC_MODE.equals(groupEntity.getInlongGroupMode())) {
                 auditIdMap.put(getAuditId(sourceNodeType, false), sourceNodeType);
