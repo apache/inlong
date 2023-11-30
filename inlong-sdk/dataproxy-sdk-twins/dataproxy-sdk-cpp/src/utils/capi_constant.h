@@ -25,6 +25,9 @@
 
 namespace inlong {
 namespace constants {
+enum IsolationLevel{
+  kLevelOne =1, kLevelSecond =2, kLevelThird =3
+};
 static const int32_t kMaxRequestTDMTimes = 4;
 static const char kAttrFormat[] =
     "__addcol1__reptime=yyyymmddHHMMSS&__addcol2_ip=xxx.xxx.xxx.xxx";

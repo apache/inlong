@@ -48,6 +48,7 @@ private:
 
   uint64_t max_recv_size_;
   std::string group_key_;
+  uint64_t log_stat_;
 
   int32_t DoDispatchMsg();
   void AddMsg(const std::string &msg, std::string client_ip,

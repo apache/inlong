@@ -68,7 +68,7 @@ public:
   int32_t GetProxyByClusterId(const std::string &cluster_id,
                               ProxyInfoVec &proxy_info_vec);
   std::string GetGroupKey(const std::string &groupid);
-  bool HasProxy(const std::string &inlong_group_id);
+  bool HasProxy(const std::string &group_key);
   bool CheckGroupid(const std::string &groupid);
   bool CheckClusterId(const std::string &cluster_id);
   void UpdateClusterId2ProxyMap();
@@ -77,6 +77,7 @@ public:
   void ReadLocalCache();
   void WriteLocalCache();
   std::string RecoverFromLocalCache(const std::string&groupid);
+  std::string GetClusterID(const std::string &groupid);
 };
 } // namespace inlong
 
