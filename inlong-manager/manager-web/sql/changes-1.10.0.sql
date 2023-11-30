@@ -40,10 +40,10 @@ ALTER TABLE `operation_log`
     ADD COLUMN  `inlong_group_id`  varchar(256) DEFAULT NULL COMMENT 'Inlong group id';
 
 ALTER TABLE `operation_log`
-    ADD COLUMN  `inlong_stream_id` varchar(256) DEFAULT NULL COMMENT 'Inlong stream id',
+    ADD COLUMN  `inlong_stream_id` varchar(256) DEFAULT NULL COMMENT 'Inlong stream id';
 
 ALTER TABLE `operation_log`
-    ADD COLUMN `operation_target` varchar(256) DEFAULT NULL COMMENT 'Operation target',
+    ADD COLUMN `operation_target` varchar(256) DEFAULT NULL COMMENT 'Operation target';
 
 CREATE INDEX operation_log_group_stream_index ON operation_log (`inlong_group_id`, `inlong_stream_id`);
 

@@ -70,4 +70,19 @@ public class IcebergSinkRequest extends SinkRequest {
     @Pattern(regexp = "(?i)(UPSERT|APPEND)", message = "Invalid append mode")
     private String appendMode;
 
+    @ApiModelProperty("The multiple enable of sink")
+    private Boolean sinkMultipleEnable = false;
+
+    @ApiModelProperty("The multiple format of sink")
+    private String sinkMultipleFormat;
+
+    @ApiModelProperty("database pattern")
+    private String databasePattern;
+
+    @ApiModelProperty("table pattern")
+    private String tablePattern;
+
+    @ApiModelProperty("enable schema change")
+    private Boolean enableSchemaChange = false;
+
 }
