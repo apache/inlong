@@ -27,6 +27,7 @@
 #include <rapidjson/document.h>
 
 namespace inlong {
+const uint64_t MINUTE = 60000;
 ProxyManager *ProxyManager::instance_ = new ProxyManager();
 ProxyManager::~ProxyManager() {
   if (update_conf_thread_.joinable()) {
@@ -41,6 +42,7 @@ ProxyManager::~ProxyManager() {
 }
 void ProxyManager::Init() {
   timeout_ = SdkConfig::getInstance()->manager_url_timeout_;
+  last_update_time_ = Utils::getCurrentMsTime();
   if (__sync_bool_compare_and_swap(&inited_, false, true)) {
     update_conf_thread_ = std::thread(&ProxyManager::Update, this);
   }
@@ -65,8 +67,11 @@ void ProxyManager::Update() {
   LOG_INFO("proxylist DoUpdate thread exit");
 }
 void ProxyManager::DoUpdate() {
-  update_mutex_.try_lock();
   LOG_INFO("start ProxyManager DoUpdate.");
+  if (!update_mutex_.try_lock()) {
+    LOG_INFO("DoUpdate try_lock. " << getpid());
+    return;
+  }
 
   std::srand(unsigned(std::time(nullptr)));
 
@@ -76,79 +81,102 @@ void ProxyManager::DoUpdate() {
     return;
   }
 
-  {
-    unique_read_lock<read_write_mutex> rdlck(groupid_2_cluster_id_rwmutex_);
-    for (auto &groupid2cluster : groupid_2_cluster_id_map_) {
-      std::string url;
-      if (SdkConfig::getInstance()->enable_manager_url_from_cluster_)
-        url = SdkConfig::getInstance()->manager_cluster_url_;
-      else {
-        url = SdkConfig::getInstance()->manager_url_ + "/" +
-              groupid2cluster.first;
-      }
-      std::string post_data = "ip=" + SdkConfig::getInstance()->local_ip_ +
-                              "&version=" + constants::kVersion +
-                              "&protocolType=" + constants::kProtocolType;
-      LOG_WARN("get inlong_group_id:" << groupid2cluster.first.c_str()
-                                      << "proxy cfg url " << url.c_str()
-                                      << "post_data:" << post_data.c_str());
+  //  {
+  //    unique_read_lock<read_write_mutex> rdlck(groupid_2_cluster_id_rwmutex_);
+  //    for (auto &groupid2cluster : groupid_2_cluster_id_map_) {
+  //      std::string url;
+  //      if (SdkConfig::getInstance()->enable_manager_url_from_cluster_)
+  //        url = SdkConfig::getInstance()->manager_cluster_url_;
+  //      else {
+  //        url = SdkConfig::getInstance()->manager_url_ + "/" +
+  //              groupid2cluster.first;
+  //      }
+  //      std::string post_data = "ip=" + SdkConfig::getInstance()->local_ip_ +
+  //                              "&version=" + constants::kVersion +
+  //                              "&protocolType=" + constants::kProtocolType;
+  //      LOG_WARN("get inlong_group_id:" << groupid2cluster.first.c_str()
+  //                                      << "proxy cfg url " << url.c_str()
+  //                                      << "post_data:" << post_data.c_str());
+  //
+  //      std::string meta_data;
+  //      int32_t ret;
+  //      std::string urlByDNS;
+  //      for (int i = 0; i < constants::kMaxRequestTDMTimes; i++) {
+  //        HttpRequest request = {url,
+  //                               timeout_,
+  //                               SdkConfig::getInstance()->need_auth_,
+  //                               SdkConfig::getInstance()->auth_id_,
+  //                               SdkConfig::getInstance()->auth_key_,
+  //                               post_data};
+  //        ret = Utils::requestUrl(meta_data, &request);
+  //        if (!ret) {
+  //          break;
+  //        } // request success
+  //      }
+  //
+  //      if (ret != SdkCode::kSuccess) {
+  //        if (groupid_2_proxy_map_.find(groupid2cluster.first) !=
+  //        groupid_2_proxy_map_.end()) {
+  //          LOG_WARN("failed to request from manager, use previous " <<
+  //          groupid2cluster.first); continue;
+  //        }
+  //        if (!SdkConfig::getInstance()->enable_local_cache_) {
+  //          LOG_WARN("failed to request from manager, forbid local cache!");
+  //          continue;
+  //        }
+  //        meta_data = RecoverFromLocalCache(groupid2cluster.first);
+  //        if (meta_data.empty()) {
+  //          LOG_WARN("local cache is empty!");
+  //          continue;
+  //        }
+  //      }
+  //
+  //      ProxyInfoVec proxyInfoVec;
+  //      ret = ParseAndGet(groupid2cluster.first, meta_data, proxyInfoVec);
+  //      if (ret != SdkCode::kSuccess) {
+  //        LOG_ERROR("failed to parse groupid:%s json proxy list "
+  //                  << groupid2cluster.first.c_str());
+  //        continue;
+  //      }
+  //      if (!proxyInfoVec.empty()) {
+  //        unique_write_lock<read_write_mutex>
+  //        wtlck(groupid_2_proxy_map_rwmutex_);
+  //        groupid_2_proxy_map_[groupid2cluster.first] = proxyInfoVec;
+  //        cache_proxy_info_[groupid2cluster.first] = meta_data;
+  //        LOG_INFO("groupid:" << groupid2cluster.first << " success update "
+  //                            << proxyInfoVec.size() << " proxy-ip.");
+  //      }
+  //    }
+  //  }
+  //
+  //  UpdateGroupid2ClusterIdMap();
+  //
+  //  UpdateClusterId2ProxyMap();
 
-      std::string meta_data;
-      int32_t ret;
-      std::string urlByDNS;
-      for (int i = 0; i < constants::kMaxRequestTDMTimes; i++) {
-        HttpRequest request = {url,
-                               timeout_,
-                               SdkConfig::getInstance()->need_auth_,
-                               SdkConfig::getInstance()->auth_id_,
-                               SdkConfig::getInstance()->auth_key_,
-                               post_data};
-        ret = Utils::requestUrl(meta_data, &request);
-        if (!ret) {
-          break;
-        } // request success
-      }
+  int retry = constants::MAX_RETRY;
+  do {
+    std::unordered_map<std::string, std::string> bid_2_cluster_id =
+        BuildGroupId2ClusterId();
 
-      if (ret != SdkCode::kSuccess) {
-        if (groupid_2_proxy_map_.find(groupid2cluster.first) != groupid_2_proxy_map_.end()) {
-          LOG_WARN("failed to request from manager, use previous " << groupid2cluster.first);
-          continue;
-        }
-        if (!SdkConfig::getInstance()->enable_local_cache_) {
-          LOG_WARN("failed to request from manager, forbid local cache!");
-          continue;
-        }
-        meta_data = RecoverFromLocalCache(groupid2cluster.first);
-        if (meta_data.empty()) {
-          LOG_WARN("local cache is empty!");
-          continue;
-        }
-      }
+    UpdateProxy(bid_2_cluster_id);
 
-      ProxyInfoVec proxyInfoVec;
-      ret = ParseAndGet(groupid2cluster.first, meta_data, proxyInfoVec);
-      if (ret != SdkCode::kSuccess) {
-        LOG_ERROR("failed to parse groupid:%s json proxy list "
-                  << groupid2cluster.first.c_str());
-        continue;
-      }
-      if (!proxyInfoVec.empty()) {
-        unique_write_lock<read_write_mutex> wtlck(groupid_2_proxy_map_rwmutex_);
-        groupid_2_proxy_map_[groupid2cluster.first] = proxyInfoVec;
-        cache_proxy_info_[groupid2cluster.first] = meta_data;
-        LOG_INFO("groupid:" << groupid2cluster.first << " success update "
-                            << proxyInfoVec.size() << " proxy-ip.");
-      }
+    //  更新bid与cluster id的映射关系
+    UpdateGroupid2ClusterIdMap();
+
+    UpdateClusterId2ProxyMap();
+    uint64_t id_count = GetGroupIdCount();
+    if (bid_2_cluster_id.size() == id_count) {
+      break;
     }
-  }
-
-  UpdateGroupid2ClusterIdMap();
-
-  UpdateClusterId2ProxyMap();
+    LOG_INFO("retry DoUpdate!. update size:" << bid_2_cluster_id.size()
+                                             << " != latest size:" << id_count);
+  } while (retry--);
 
   if (SdkConfig::getInstance()->enable_local_cache_) {
     WriteLocalCache();
   }
+
+  last_update_time_ = Utils::getCurrentMsTime();
 
   update_mutex_.unlock();
   LOG_INFO("finish ProxyManager DoUpdate.");
@@ -254,7 +282,8 @@ int32_t ProxyManager::ParseAndGet(const std::string &inlong_group_id,
 
 int32_t ProxyManager::GetProxy(const std::string &key,
                                ProxyInfoVec &proxy_info_vec) {
-  if (constants::IsolationLevel::kLevelOne == SdkConfig::getInstance()->isolation_level_) {
+  if (constants::IsolationLevel::kLevelOne ==
+      SdkConfig::getInstance()->isolation_level_) {
     return GetProxyByGroupid(key, proxy_info_vec);
   }
   return GetProxyByClusterId(key, proxy_info_vec);
@@ -360,8 +389,9 @@ void ProxyManager::UpdateGroupid2ClusterIdMap() {
   }
 }
 
-void ProxyManager::BuildLocalCache(std::ofstream &file, int32_t groupid_index, const std::string &groupid,
-                                     const std::string &meta_data) {
+void ProxyManager::BuildLocalCache(std::ofstream &file, int32_t groupid_index,
+                                   const std::string &groupid,
+                                   const std::string &meta_data) {
   file << "[groupid" << groupid_index << "]" << std::endl;
   file << "groupid=" << groupid << std::endl;
   file << "proxy_cfg=" << meta_data << std::endl;
@@ -393,7 +423,7 @@ void ProxyManager::ReadLocalCache() {
       LOG_INFO("read cache file, id:" << groupid << ", local config:" << proxy);
       cache_proxy_info_[groupid] = proxy;
     }
-  }catch (...){
+  } catch (...) {
     LOG_ERROR("ReadLocalCache error!");
   }
 }
@@ -440,5 +470,103 @@ std::string ProxyManager::GetClusterID(const std::string &groupid) {
     return "";
   }
   return it->second;
+}
+
+void ProxyManager::UpdateProxy(
+    std::unordered_map<std::string, std::string> &group_id_2_cluster_id) {
+  for (auto &groupid2cluster : group_id_2_cluster_id) {
+    if (SkipUpdate(groupid2cluster.first)) {
+      LOG_WARN("SkipUpdate group_id:" << groupid2cluster.first);
+      continue;
+    }
+    std::string url;
+    if (SdkConfig::getInstance()->enable_manager_url_from_cluster_)
+      url = SdkConfig::getInstance()->manager_cluster_url_;
+    else {
+      url =
+          SdkConfig::getInstance()->manager_url_ + "/" + groupid2cluster.first;
+    }
+    std::string post_data = "ip=" + SdkConfig::getInstance()->local_ip_ +
+                            "&version=" + constants::kVersion +
+                            "&protocolType=" + constants::kProtocolType;
+    LOG_WARN("get inlong_group_id:" << groupid2cluster.first.c_str()
+                                    << "proxy cfg url " << url.c_str()
+                                    << "post_data:" << post_data.c_str());
+
+    std::string meta_data;
+    int32_t ret;
+    std::string urlByDNS;
+    for (int i = 0; i < constants::kMaxRequestTDMTimes; i++) {
+      HttpRequest request = {url,
+                             timeout_,
+                             SdkConfig::getInstance()->need_auth_,
+                             SdkConfig::getInstance()->auth_id_,
+                             SdkConfig::getInstance()->auth_key_,
+                             post_data};
+      ret = Utils::requestUrl(meta_data, &request);
+      if (!ret) {
+        break;
+      } // request success
+    }
+
+    if (ret != SdkCode::kSuccess) {
+      if (groupid_2_proxy_map_.find(groupid2cluster.first) !=
+          groupid_2_proxy_map_.end()) {
+        LOG_WARN("failed to request from manager, use previous "
+                 << groupid2cluster.first);
+        continue;
+      }
+      if (!SdkConfig::getInstance()->enable_local_cache_) {
+        LOG_WARN("failed to request from manager, forbid local cache!");
+        continue;
+      }
+      meta_data = RecoverFromLocalCache(groupid2cluster.first);
+      if (meta_data.empty()) {
+        LOG_WARN("local cache is empty!");
+        continue;
+      }
+    }
+
+    ProxyInfoVec proxyInfoVec;
+    ret = ParseAndGet(groupid2cluster.first, meta_data, proxyInfoVec);
+    if (ret != SdkCode::kSuccess) {
+      LOG_ERROR("failed to parse groupid:%s json proxy list "
+                << groupid2cluster.first.c_str());
+      continue;
+    }
+    if (!proxyInfoVec.empty()) {
+      unique_write_lock<read_write_mutex> wtlck(groupid_2_proxy_map_rwmutex_);
+      groupid_2_proxy_map_[groupid2cluster.first] = proxyInfoVec;
+      cache_proxy_info_[groupid2cluster.first] = meta_data;
+      LOG_INFO("groupid:" << groupid2cluster.first << " success update "
+                          << proxyInfoVec.size() << " proxy-ip.");
+    }
+  }
+}
+std::unordered_map<std::string, std::string>
+ProxyManager::BuildGroupId2ClusterId() {
+  std::unordered_map<std::string, std::string> bid_2_cluster_id_map_tmp;
+  unique_read_lock<read_write_mutex> rdlck(groupid_2_cluster_id_rwmutex_);
+  for (auto &bid2cluster : groupid_2_cluster_id_map_) {
+    bid_2_cluster_id_map_tmp.insert(bid2cluster);
+  }
+  return bid_2_cluster_id_map_tmp;
+}
+
+uint64_t ProxyManager::GetGroupIdCount() {
+  unique_read_lock<read_write_mutex> rdlck(groupid_2_cluster_id_rwmutex_);
+  return groupid_2_cluster_id_map_.size();
+}
+
+bool ProxyManager::SkipUpdate(const std::string &group_id) {
+  uint64_t current_time = Utils::getCurrentMsTime();
+  uint64_t diff = current_time - last_update_time_;
+  uint64_t threshold =
+      SdkConfig::getInstance()->manager_update_interval_ * MINUTE;
+  bool ret = CheckGroupid(group_id);
+  if (diff < threshold && ret) {
+    return true;
+  }
+  return false;
 }
 } // namespace inlong
