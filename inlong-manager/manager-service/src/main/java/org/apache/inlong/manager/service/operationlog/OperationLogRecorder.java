@@ -77,8 +77,11 @@ public class OperationLogRecorder {
             try {
                 JSONObject obj = (JSONObject) JSON.toJSON(arg);
                 for (String key : obj.keySet()) {
-                    if (Objects.equals(key, INLONG_GROUP_ID) || Objects.equals(key, INLONG_STREAM_ID)) {
+                    if (Objects.equals(key, INLONG_GROUP_ID)) {
                         groupId = obj.getString(key);
+                    }
+                    if (Objects.equals(key, INLONG_STREAM_ID)) {
+                        streamId = obj.getString(key);
                     }
                 }
             } catch (Exception ignored) {

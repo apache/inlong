@@ -108,13 +108,13 @@ public class PulsarOperator {
         Preconditions.expectNotBlank(namespace, ErrorCodeEnum.INVALID_PARAMETER,
                 "pulsar namespace cannot be empty during create namespace");
 
-        String namespaceName = tenant + "/" + namespace;
-        LOGGER.info("begin to create namespace={}", namespaceName);
+        String tenantNamespaceName = tenant + "/" + namespace;
+        LOGGER.info("begin to create namespace={}", tenantNamespaceName);
         try {
             // Check whether the namespace exists, and create it if it does not exist
             boolean isExists = this.namespaceExists(pulsarClusterInfo, tenant, namespace);
             if (isExists) {
-                LOGGER.warn("namespace={} already exists, skip to create", namespaceName);
+                LOGGER.warn("namespace={} already exists, skip to create", tenantNamespaceName);
                 return;
             }
 
@@ -147,10 +147,10 @@ public class PulsarOperator {
                     pulsarInfo.getWriteQuorum(), pulsarInfo.getAckQuorum(), pulsarInfo.getMaxMarkDeleteRate());
             policies.setPersistence(persistencePolicies);
 
-            PulsarUtils.createNamespace(restTemplate, pulsarClusterInfo, tenant, namespaceName, policies);
-            LOGGER.info("success to create namespace={}", namespaceName);
+            PulsarUtils.createNamespace(restTemplate, pulsarClusterInfo, tenant, namespace, policies);
+            LOGGER.info("success to create namespace={}", tenantNamespaceName);
         } catch (Exception e) {
-            LOGGER.error("failed to create namespace=" + namespaceName, e);
+            LOGGER.error("failed to create namespace=" + tenantNamespaceName, e);
             throw e;
         }
     }
