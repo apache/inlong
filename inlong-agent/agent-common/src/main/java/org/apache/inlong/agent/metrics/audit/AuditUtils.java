@@ -42,8 +42,8 @@ public class AuditUtils {
     public static final int AUDIT_DEFAULT_MAX_CACHE_ROWS = 2000000;
     public static final int AUDIT_ID_AGENT_READ_SUCCESS = 3;
     public static final int AUDIT_ID_AGENT_SEND_SUCCESS = 4;
-    public static final int AUDIT_ID_AGENT_READ_SUCCESS_REAL_TIME = 25;
-    public static final int AUDIT_ID_AGENT_SEND_SUCCESS_REAL_TIME = 26;
+    public static final int AUDIT_ID_AGENT_READ_SUCCESS_REAL_TIME = 47;
+    public static final int AUDIT_ID_AGENT_SEND_SUCCESS_REAL_TIME = 48;
     public static final int AUDIT_ID_AGENT_SEND_FAILED = 10004;
     public static final int AUDIT_ID_AGENT_SEND_FAILED_REAL_TIME = 10026;
 
