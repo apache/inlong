@@ -38,7 +38,7 @@ public class SinkType extends StreamType {
     public static final String HBASE = "HBASE";
 
     @SupportSortType(sortType = SortType.SORT_STANDALONE)
-    public static final String ELASTICSEARCH = "ELASTICSEARCH";
+    public static final String ELASTICSEARCH = "ES";
 
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String HDFS = "HDFS";

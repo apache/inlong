@@ -147,7 +147,7 @@ public class PulsarOperator {
                     pulsarInfo.getWriteQuorum(), pulsarInfo.getAckQuorum(), pulsarInfo.getMaxMarkDeleteRate());
             policies.setPersistence(persistencePolicies);
 
-            PulsarUtils.createNamespace(restTemplate, pulsarClusterInfo, tenant, namespaceName, policies);
+            PulsarUtils.createNamespace(restTemplate, pulsarClusterInfo, tenant, namespace, policies);
             LOGGER.info("success to create namespace={}", namespaceName);
         } catch (Exception e) {
             LOGGER.error("failed to create namespace=" + namespaceName, e);
