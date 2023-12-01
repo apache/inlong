@@ -20,7 +20,9 @@ package org.apache.inlong.manager.service.group;
 import org.apache.inlong.manager.common.auth.Authentication.AuthType;
 import org.apache.inlong.manager.common.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GroupMode;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
@@ -705,6 +707,13 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         InlongGroupInfo groupInfo = this.get(groupId);
 
+        // check if the group mode is data sync mode
+        if (groupInfo.getInlongGroupMode() == 1) {
+            String errMSg = String.format("no need to switch sync mode group = {}", groupId);
+            LOGGER.error(errMSg);
+            throw new BusinessException(errMSg);
+        }
+
         // check if the group is under switching
         List<InlongGroupExtInfo> groupExt = groupInfo.getExtList();
         Set<String> keys = groupExt.stream()
@@ -736,7 +745,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         for (StreamSink sink : sinks) {
             String clusterName = sink.getInlongClusterName();
             InlongClusterEntity clusterEntity =
-                    clusterEntityMapper.selectByNameAndType(clusterName, null);
+                    clusterEntityMapper.selectByNameAndType(clusterName,
+                            SinkType.relatedSortClusterType(sink.getSinkType()));
             if (clusterEntity == null) {
                 String errMsg = String.format("find no cluster with name=[%s]", clusterName);
                 LOGGER.error(errMsg);
@@ -776,6 +786,14 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         InlongGroupInfo groupInfo = this.get(groupId);
         UserInfo userInfo = LoginUserUtils.getLoginUser();
+
+        // check whether the current status supports modification
+        GroupStatus curStatus = GroupStatus.forCode(groupInfo.getStatus());
+        if (GroupStatus.notAllowedUpdate(curStatus)) {
+            String errMsg = String.format("Current status=%s is not allowed to update", curStatus);
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
+        }
 
         // check if the group is under switching
         List<InlongGroupExtInfo> groupExt = groupInfo.getExtList();
