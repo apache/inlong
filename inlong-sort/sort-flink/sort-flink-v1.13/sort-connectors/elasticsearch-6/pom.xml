@@ -256,6 +256,9 @@
                                 <relocation>
                                     <pattern>org.apache.inlong.sort.elasticsearch</pattern>
                                     <shadedPattern>org.apache.inlong.sort.elasticsearch6</shadedPattern>
+                                    <includes>
+                                        <include>org.apache.inlong.sort.elasticsearch.**</include>
+                                    </includes>
                                 </relocation>
                             </relocations>
                         </configuration>
