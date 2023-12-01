@@ -180,7 +180,13 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
         options.put(IcebergConstant.DEFAULT_DATABASE_KEY, dbName);
         options.put(IcebergConstant.CATALOG_TYPE_KEY, catalogType.name());
         options.put(IcebergConstant.CATALOG_NAME_KEY, catalogType.name());
-        options.put(IcebergConstant.APPEND_MODE_KEY, appendMode);
+
+        if ("upsert".equals(appendMode)) {
+            options.put(IcebergConstant.APPEND_MODE_KEY, Boolean.TRUE.toString());
+        } else {
+            options.put(IcebergConstant.APPEND_MODE_KEY, Boolean.FALSE.toString());
+        }
+
         if (null != uri) {
             options.put(IcebergConstant.URI_KEY, uri);
         }
@@ -194,7 +200,7 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Metadata,
             options.put(SINK_MULTIPLE_DATABASE_PATTERN, databasePattern);
             options.put(SINK_MULTIPLE_TABLE_PATTERN, tablePattern);
         } else {
-            options.put(SINK_MULTIPLE_ENABLE, "false");
+            options.put(SINK_MULTIPLE_ENABLE, Boolean.FALSE.toString());
         }
 
         return options;
