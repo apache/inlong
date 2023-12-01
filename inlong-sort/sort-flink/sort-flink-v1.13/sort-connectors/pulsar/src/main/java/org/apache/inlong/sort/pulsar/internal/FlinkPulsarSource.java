@@ -886,6 +886,9 @@ public class FlinkPulsarSource<T>
         if (!running) {
             log.debug("snapshotState() called on closed source");
         } else {
+
+            flushAudit();
+
             unionOffsetStates.clear();
 
             PulsarFetcher<T> fetcher = this.pulsarFetcher;
@@ -922,6 +925,13 @@ public class FlinkPulsarSource<T>
                     iterator.remove();
                 }
             }
+        }
+    }
+
+    // flush audit data first to avoid audit data loss
+    private void flushAudit() {
+        if (sourceMetricData != null) {
+            sourceMetricData.flushAuditData();
         }
     }
 
