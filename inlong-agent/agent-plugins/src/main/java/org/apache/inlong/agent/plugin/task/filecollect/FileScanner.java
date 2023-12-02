@@ -57,9 +57,23 @@ public class FileScanner {
 
     private static final Logger logger = LoggerFactory.getLogger(FileScanner.class);
 
+    public static List<String> getDataTimeList(long startTime, long endTime, String cycleUnit, String timeOffset,
+            boolean isRetry) {
+        if (!isRetry) {
+            startTime += DateTransUtils.calcOffset(timeOffset);
+            endTime += DateTransUtils.calcOffset(timeOffset);
+        }
+        List<String> dataTimeList = new ArrayList<>();
+        List<Long> dateRegion = NewDateUtils.getDateRegion(startTime, endTime, cycleUnit);
+        for (Long time : dateRegion) {
+            String dataTime = DateTransUtils.millSecConvertToTimeStr(time, cycleUnit);
+            dataTimeList.add(dataTime);
+        }
+        return dataTimeList;
+    }
+
     public static List<BasicFileInfo> scanTaskBetweenTimes(String originPattern, String cycleUnit, String timeOffset,
-            long startTime,
-            long endTime, boolean isRetry) {
+            long startTime, long endTime, boolean isRetry) {
         if (!isRetry) {
             startTime += DateTransUtils.calcOffset(timeOffset);
             endTime += DateTransUtils.calcOffset(timeOffset);
@@ -69,12 +83,12 @@ public class FileScanner {
         logger.info("{} scan time is between {} and {}",
                 new Object[]{originPattern, strStartTime, strEndTime});
 
-        return scanTaskBetweenTimes(cycleUnit, originPattern, strStartTime, strEndTime);
+        return scanTaskBetweenTimes(cycleUnit, originPattern, startTime, endTime);
     }
 
     /* Scan log files and create tasks between two times. */
-    public static List<BasicFileInfo> scanTaskBetweenTimes(String cycleUnit, String originPattern, String startTime,
-            String endTime) {
+    public static List<BasicFileInfo> scanTaskBetweenTimes(String cycleUnit, String originPattern, long startTime,
+            long endTime) {
         List<Long> dateRegion = NewDateUtils.getDateRegion(startTime, endTime, cycleUnit);
         List<BasicFileInfo> infos = new ArrayList<BasicFileInfo>();
         for (Long time : dateRegion) {
