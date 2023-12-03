@@ -23,6 +23,7 @@ import { RenderList } from '@/plugins/RenderList';
 import i18n from '@/i18n';
 import UserSelect from '@/ui/components/UserSelect';
 import { genStatusTag, statusList } from './status';
+import { timestampFormat } from '@/core/utils';
 
 const { I18nMap, I18n } = DataWithBackend;
 const { FieldList, FieldDecorator } = RenderRow;
@@ -134,7 +135,9 @@ export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   @I18n('basic.Status')
   readonly status: string;
 
-  @ColumnDecorator()
+  @ColumnDecorator({
+    render: text => timestampFormat(text),
+  })
   @I18n('basic.CreateTime')
   readonly createTime: string;
 
