@@ -91,14 +91,18 @@ public class MySqlContainer extends JdbcDatabaseContainer {
 
     public String getJdbcUrl(String databaseName) {
         String additionalUrlParams = constructUrlParameters("?", "&");
-        return "jdbc:mysql://"
+        String queryString = "?useSSL=false&allowPublicKeyRetrieval=true";
+        String baseUrl = "jdbc:mysql://"
                 + getHost()
                 + ":"
                 + getDatabasePort()
                 + "/"
                 + databaseName
-                + additionalUrlParams
-                + "?useSSL=false&allowPublicKeyRetrieval=true";
+                + additionalUrlParams;
+
+        return baseUrl.contains("?")
+                ? baseUrl + "&" + queryString.substring(1)
+                : baseUrl + queryString;
     }
 
     @Override
