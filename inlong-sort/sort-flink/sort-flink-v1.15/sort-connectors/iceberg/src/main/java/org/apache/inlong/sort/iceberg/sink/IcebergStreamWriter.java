@@ -17,10 +17,10 @@
 
 package org.apache.inlong.sort.iceberg.sink;
 
-import org.apache.flink.runtime.state.StateSnapshotContext;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.iceberg.utils.SinkMetadataUtils;
 
+import org.apache.flink.runtime.state.StateSnapshotContext;
 import org.apache.flink.streaming.api.operators.AbstractStreamOperator;
 import org.apache.flink.streaming.api.operators.BoundedOneInput;
 import org.apache.flink.streaming.api.operators.ChainingStrategy;
