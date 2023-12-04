@@ -317,6 +317,8 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
             offsetsState.add(new Tuple2<>(entry.getKey(), entry.getValue()));
         }
 
+        deserializationSchema.flushAudit();
+
         LOG.info("Successfully save the offsets in checkpoint {}: {}.",
                 context.getCheckpointId(), currentOffsets);
     }
