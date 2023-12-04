@@ -94,11 +94,6 @@ public class FileInstance extends Instance {
         running = true;
         while (!isFinished()) {
             if (!source.sourceExist()) {
-                if (profile.isRetry()) {
-                    handleReadEnd();
-                } else {
-                    handleSourceDeleted();
-                }
                 handleSourceDeleted();
                 break;
             }
