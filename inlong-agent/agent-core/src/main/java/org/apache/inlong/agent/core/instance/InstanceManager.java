@@ -417,7 +417,7 @@ public class InstanceManager extends AbstractDaemon {
 
     private void stopAllInstances() {
         instanceMap.values().forEach((instance) -> {
-            deleteInstance(instance.getInstanceId());
+            deleteFromMemory(instance.getInstanceId());
         });
         instanceMap.clear();
     }
