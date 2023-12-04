@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.common.consts;
 
-import org.apache.inlong.manager.common.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.common.enums.ClusterType;
 
 import java.lang.reflect.Field;
