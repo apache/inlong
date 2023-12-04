@@ -52,8 +52,8 @@ class AuditServiceTest extends ServiceBaseTest {
         List<AuditVO> result = new ArrayList<>();
         AuditVO auditVO = new AuditVO();
         auditVO.setAuditId("3");
-        auditVO.setAuditSet(Arrays.asList(new AuditInfo("2022-01-01 00:00:00", 123L, 12L),
-                new AuditInfo("2022-01-01 00:01:00", 124L, 12L)));
+        auditVO.setAuditSet(Arrays.asList(new AuditInfo("2022-01-01 00:00:00", 123L, 12L, 12L),
+                new AuditInfo("2022-01-01 00:01:00", 124L, 12L, 12L)));
         result.add(auditVO);
         Assertions.assertNotNull(result);
         // close real test for testQueryFromMySQL due to date_format function not support in h2
