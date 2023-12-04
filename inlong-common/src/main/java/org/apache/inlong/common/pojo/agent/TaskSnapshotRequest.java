@@ -42,7 +42,7 @@ public class TaskSnapshotRequest {
     /**
      * Report Time
      */
-    @JsonFormat(pattern = "YYYY-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date reportTime;
 
     /**
