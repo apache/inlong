@@ -94,10 +94,19 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
 
   return (
     <div style={{ position: 'relative' }}>
+      {data?.hasOwnProperty('inlongClusterTag') && (
+        <>
+          <Divider orientation="left">Cluster tag {t('pages.GroupDetail.Resource.Info')}</Divider>
+          <div>
+            <span>Cluster tag:</span>
+            <span style={{ marginLeft: 100 }}>{data?.inlongClusterTag}</span>
+          </div>
+        </>
+      )}
       {dividerInfo(data).map(item => {
         return (
           <>
-            <Divider orientation="left">
+            <Divider orientation="left" style={{ marginTop: 40 }}>
               {clusters.find(c => c.value === item)?.label || item}{' '}
               {t('pages.GroupDetail.Resource.Info')}
             </Divider>
@@ -111,17 +120,6 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
           </>
         );
       })}
-      {data?.hasOwnProperty('inlongClusterTag') && (
-        <>
-          <Divider orientation="left" style={{ marginTop: 40 }}>
-            Cluster tag {t('pages.GroupDetail.Resource.Info')}
-          </Divider>
-          <div>
-            <span>Cluster tag:</span>
-            <span style={{ marginLeft: 100 }}>{data?.inlongClusterTag}</span>
-          </div>
-        </>
-      )}
       {data?.hasOwnProperty('PULSAR') && (
         <>
           <Divider orientation="left" style={{ marginTop: 40 }}>
