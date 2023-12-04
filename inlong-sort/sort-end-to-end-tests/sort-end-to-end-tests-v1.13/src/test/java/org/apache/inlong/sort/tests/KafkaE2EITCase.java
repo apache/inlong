@@ -51,9 +51,9 @@ import java.util.Map;
 /**
  * End-to-end tests for sort-connector-kafka uber jar.
  */
-public class KafkaE2ECase extends FlinkContainerTestEnv {
+public class KafkaE2EITCase extends FlinkContainerTestEnv {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KafkaE2ECase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaE2EITCase.class);
 
     private static final Path kafkaJar = TestUtils.getResource("sort-connector-kafka.jar");
     private static final Path jdbcJar = TestUtils.getResource("sort-connector-jdbc.jar");
@@ -78,7 +78,7 @@ public class KafkaE2ECase extends FlinkContainerTestEnv {
 
     private Path getSql(String fileName, Map<String, Object> properties) {
         try {
-            Path file = Paths.get(KafkaE2ECase.class.getResource("/flinkSql/" + fileName).toURI());
+            Path file = Paths.get(KafkaE2EITCase.class.getResource("/flinkSql/" + fileName).toURI());
             return PlaceholderResolver.getDefaultResolver().resolveByMap(file, properties);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -87,7 +87,7 @@ public class KafkaE2ECase extends FlinkContainerTestEnv {
 
     private Path getGroupFile(String fileName, Map<String, Object> properties) {
         try {
-            Path file = Paths.get(KafkaE2ECase.class.getResource("/groupFile/" + fileName).toURI());
+            Path file = Paths.get(KafkaE2EITCase.class.getResource("/groupFile/" + fileName).toURI());
             return PlaceholderResolver.getDefaultResolver().resolveByMap(file, properties);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -96,7 +96,7 @@ public class KafkaE2ECase extends FlinkContainerTestEnv {
 
     private String getCreateStatement(String fileName, Map<String, Object> properties) {
         try {
-            Path file = Paths.get(KafkaE2ECase.class.getResource("/env/" + fileName).toURI());
+            Path file = Paths.get(KafkaE2EITCase.class.getResource("/env/" + fileName).toURI());
             return PlaceholderResolver.getDefaultResolver().resolveByMap(
                     new String(Files.readAllBytes(file), StandardCharsets.UTF_8),
                     properties);
