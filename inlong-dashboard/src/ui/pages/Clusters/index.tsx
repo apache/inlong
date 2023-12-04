@@ -154,9 +154,11 @@ const Comp: React.FC = () => {
                 {i18n.t('pages.Clusters.Node.Name')}
               </Link>
             )}
-            <Button type="link" onClick={() => onEdit(record)}>
-              {i18n.t('basic.Edit')}
-            </Button>
+            {record.type !== 'DATAPROXY' && record.type !== 'AGENT' && (
+              <Button type="link" onClick={() => onEdit(record)}>
+                {i18n.t('basic.Edit')}
+              </Button>
+            )}
             <Button type="link" onClick={() => onDelete(record)}>
               {i18n.t('basic.Delete')}
             </Button>
