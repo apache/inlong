@@ -345,6 +345,16 @@ public class SourceMetricData implements MetricData, Serializable {
         }
     }
 
+    /**
+     * flush audit data
+     * usually call this method in close method or when checkpointing
+     */
+    public void flushAuditData() {
+        if (auditOperator != null) {
+            auditOperator.send();
+        }
+    }
+
     private void outputDefaultMetrics(long rowCountSize, long rowDataSize, long fetchDelay, long emitDelay) {
         outputDefaultMetrics(rowCountSize, rowDataSize);
         this.fetchDelay = fetchDelay;

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.iceberg.sink;
 
+import org.apache.flink.runtime.state.StateSnapshotContext;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.iceberg.utils.SinkMetadataUtils;
 
@@ -76,6 +77,11 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
     public void prepareSnapshotPreBarrier(long checkpointId) throws Exception {
         flush();
         this.writer = taskWriterFactory.create();
+    }
+
+    @Override
+    public void snapshotState(StateSnapshotContext context) {
+        writerMetrics.flushAudit();
     }
 
     @Override
