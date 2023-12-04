@@ -708,7 +708,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         InlongGroupInfo groupInfo = this.get(groupId);
 
         // check if the group mode is data sync mode
-        if (groupInfo.getInlongGroupMode() == 1) {
+        if (InlongConstants.DATASYNC_MODE.equals(groupInfo.getInlongGroupMode())) {
             String errMSg = String.format("no need to switch sync mode group = {}", groupId);
             LOGGER.error(errMSg);
             throw new BusinessException(errMSg);
@@ -736,7 +736,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         TenantClusterTagEntity tenantClusterTag =
                 tenantClusterTagMapper.selectByUniqueKey(clusterTag, groupEntity.getTenant());
         if (tenantClusterTag == null) {
-            LOGGER.error("tenant cluster not found for tenant={}, cluster={}", groupEntity.getTenant(), clusterTag);
+            LOGGER.error("tenant cluster not found for tenant={}, clusterTag={}", groupEntity.getTenant(), clusterTag);
             throw new BusinessException(ErrorCodeEnum.TENANT_CLUSTER_TAG_NOT_FOUND);
         }
 
@@ -744,20 +744,13 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         List<StreamSink> sinks = streamSinkService.listSink(groupEntity.getInlongGroupId(), null);
         for (StreamSink sink : sinks) {
             String clusterName = sink.getInlongClusterName();
-            InlongClusterEntity clusterEntity =
-                    clusterEntityMapper.selectByNameAndType(clusterName,
+            List<InlongClusterEntity> clusterEntity =
+                    clusterEntityMapper.selectByKey(clusterTag, clusterName,
                             SinkType.relatedSortClusterType(sink.getSinkType()));
-            if (clusterEntity == null) {
-                String errMsg = String.format("find no cluster with name=[%s]", clusterName);
+            if (CollectionUtils.isEmpty(clusterEntity) || clusterEntity.size() != 1) {
+                String errMsg = String.format("find no cluster or multiple cluster with clusterName=[%s]", clusterName);
                 LOGGER.error(errMsg);
                 throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND, errMsg);
-            }
-
-            Set<String> tags = ImmutableSet.copyOf(clusterEntity.getClusterTags().split(InlongConstants.COMMA));
-            if (!tags.isEmpty() && !tags.contains(clusterTag)) {
-                String errMsg = String.format("find no cluster tag=[%s] in cluster name=[%s]", clusterTag, clusterName);
-                LOGGER.error(errMsg);
-                throw new BusinessException(ErrorCodeEnum.CLUSTER_TAG_NOT_FOUND, errMsg);
             }
 
         }
