@@ -95,7 +95,7 @@ public class SinkType extends StreamType {
     }
 
     public static boolean containSortFlinkSink(List<String> sinkTypes) {
-        return sinkTypes.stream().anyMatch(SORT_STANDALONE_SINK::contains);
+        return sinkTypes.stream().anyMatch(SORT_FLINK_SINK::contains);
     }
 
 }
