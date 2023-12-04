@@ -78,6 +78,7 @@ public class InstanceManager extends AbstractDaemon {
     private final String taskId;
     private volatile boolean runAtLeastOneTime = false;
     private volatile boolean running = false;
+    private final double reserveCoefficient = 0.8;
 
     private class InstancePrintStat {
 
@@ -438,6 +439,10 @@ public class InstanceManager extends AbstractDaemon {
             }
             return false;
         }
+    }
+
+    public boolean isFull() {
+        return (instanceMap.size() + actionQueue.size()) >= instanceLimit * reserveCoefficient;
     }
 
     public boolean allInstanceFinished() {
