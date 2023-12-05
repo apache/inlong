@@ -40,6 +40,7 @@ import org.apache.inlong.manager.service.operationlog.OperationLog;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -204,6 +205,23 @@ public class InlongGroupController {
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
     public Response<Map<String, Object>> detail(@PathVariable String groupId) {
         return Response.success(groupService.detail(groupId));
+    }
+
+    @RequestMapping(value = "/group/switch/start/{groupId}/{clusterTag}", method = RequestMethod.GET)
+    @ApiOperation(value = "start tag switch")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "clusterTag", value = "cluster tag", dataTypeClass = String.class, required = true)
+    })
+    public Response<Boolean> startTagSwitch(@PathVariable String groupId, @PathVariable String clusterTag) {
+        return Response.success(groupService.startTagSwitch(groupId, clusterTag));
+    }
+
+    @RequestMapping(value = "/group/switch/finish/{groupId}", method = RequestMethod.GET)
+    @ApiOperation(value = "finish tag switch")
+    @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
+    public Response<Boolean> finishTagSwitch(@PathVariable String groupId) {
+        return Response.success(groupService.finishTagSwitch(groupId));
     }
 
 }

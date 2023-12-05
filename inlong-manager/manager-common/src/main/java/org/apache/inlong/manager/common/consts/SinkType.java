@@ -17,9 +17,13 @@
 
 package org.apache.inlong.manager.common.consts;
 
+import org.apache.inlong.manager.common.enums.ClusterType;
+
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -74,9 +78,17 @@ public class SinkType extends StreamType {
     @SupportSortType(sortType = SortType.SORT_STANDALONE)
     public static final String CLS = "CLS";
 
+    public static final Map<String, String> SINK_TO_CLUSTER = new HashMap<>();
+
     public static final Set<String> SORT_FLINK_SINK = new HashSet<>();
 
     public static final Set<String> SORT_STANDALONE_SINK = new HashSet<>();
+
+    static {
+        SINK_TO_CLUSTER.put(CLS, ClusterType.SORT_CLS);
+        SINK_TO_CLUSTER.put(ELASTICSEARCH, ClusterType.SORT_ES);
+        SINK_TO_CLUSTER.put(PULSAR, ClusterType.SORT_PULSAR);
+    }
 
     static {
         SinkType obj = new SinkType();
@@ -98,4 +110,7 @@ public class SinkType extends StreamType {
         return sinkTypes.stream().anyMatch(SORT_FLINK_SINK::contains);
     }
 
+    public static String relatedSortClusterType(String sinkType) {
+        return SINK_TO_CLUSTER.get(sinkType);
+    }
 }
