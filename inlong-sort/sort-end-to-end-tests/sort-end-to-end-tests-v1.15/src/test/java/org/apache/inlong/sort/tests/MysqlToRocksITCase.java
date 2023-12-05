@@ -52,9 +52,9 @@ import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStar
  * End-to-end tests for sort-connector-postgres-cdc-v1.15 uber jar.
  * Test flink sql Mysql cdc to StarRocks
  */
-public class MysqlToRocksTest extends FlinkContainerTestEnv {
+public class MysqlToRocksITCase extends FlinkContainerTestEnv {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MysqlToRocksTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MysqlToRocksITCase.class);
 
     private static final Path mysqlJar = TestUtils.getResource("sort-connector-mysql-cdc.jar");
     private static final Path jdbcJar = TestUtils.getResource("sort-connector-starrocks.jar");
@@ -64,7 +64,7 @@ public class MysqlToRocksTest extends FlinkContainerTestEnv {
     static {
         try {
             sqlFile =
-                    Paths.get(MysqlToRocksTest.class.getResource("/flinkSql/mysql_test.sql").toURI()).toString();
+                    Paths.get(MysqlToRocksITCase.class.getResource("/flinkSql/mysql_test.sql").toURI()).toString();
             buildStarRocksImage();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
