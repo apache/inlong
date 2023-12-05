@@ -55,8 +55,6 @@ const Comp: React.FC<DetailModalProps> = ({
 
   const { loading: pluginLoading, Entity } = useLoadMeta<SinkMetaType>('sink', sinkType);
 
-  const syncTableData = useSelector<State, State['syncTableData']>(state => state.syncTableData);
-
   const [getLocalStorage, setLocalStorage, removeLocalStorage] = useLocalStorage('createTableData');
 
   const { data: groupData, run: getGroupData } = useRequest(`/group/get/${inlongGroupId}`, {
