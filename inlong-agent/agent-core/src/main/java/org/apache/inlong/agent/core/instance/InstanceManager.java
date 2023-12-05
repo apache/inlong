@@ -26,6 +26,7 @@ import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.InstanceDb;
 import org.apache.inlong.agent.db.TaskProfileDb;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Instance;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.DateTransUtils;
@@ -218,7 +219,7 @@ public class InstanceManager extends AbstractDaemon {
                 LOGGER.info("instance has expired, delete from db dataTime {} taskId {} instanceId {}",
                         instanceFromDb.getSourceDataTime(), instanceFromDb.getTaskId(),
                         instanceFromDb.getInstanceId());
-                instanceDb.deleteInstance(instanceFromDb.getTaskId(), instanceFromDb.getInstanceId());
+                deleteFromDb(instanceFromDb.getInstanceId());
                 iterator.remove();
             }
         }
@@ -347,14 +348,14 @@ public class InstanceManager extends AbstractDaemon {
                     profile.getInstanceId());
             return;
         }
-        addToDb(profile);
+        addToDb(profile, true);
         addToMemory(profile);
     }
 
     private void finishInstance(InstanceProfile profile) {
         profile.setState(InstanceStateEnum.FINISHED);
         profile.setModifyTime(AgentUtils.getCurrentTime());
-        addToDb(profile);
+        addToDb(profile, false);
         deleteFromMemory(profile.getInstanceId());
         LOGGER.info("finished instance state {} taskId {} instanceId {}", profile.getState(),
                 profile.getTaskId(), profile.getInstanceId());
@@ -366,9 +367,14 @@ public class InstanceManager extends AbstractDaemon {
     }
 
     private void deleteFromDb(String instanceId) {
+        InstanceProfile profile = instanceDb.getInstance(taskId, instanceId);
+        String inlongGroupId = profile.getInlongGroupId();
+        String inlongStreamId = profile.getInlongStreamId();
         instanceDb.deleteInstance(taskId, instanceId);
         LOGGER.info("delete instance from db: taskId {} instanceId {} result {}", taskId,
                 instanceId, instanceDb.getInstance(taskId, instanceId));
+        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_DEL_INSTANCE_DB, inlongGroupId, inlongStreamId,
+                profile.getSinkDataTime(), 1, 1);
     }
 
     private void deleteFromMemory(String instanceId) {
@@ -378,26 +384,40 @@ public class InstanceManager extends AbstractDaemon {
                     instanceId);
             return;
         }
+        String inlongGroupId = instance.getProfile().getInlongGroupId();
+        String inlongStreamId = instance.getProfile().getInlongStreamId();
         instance.destroy();
         instanceMap.remove(instanceId);
         LOGGER.info("delete instance from memory: taskId {} instanceId {}", taskId, instance.getInstanceId());
+        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_DEL_INSTANCE_MEM, inlongGroupId, inlongStreamId,
+                instance.getProfile().getSinkDataTime(), 1, 1);
     }
 
-    private void addToDb(InstanceProfile profile) {
+    private void addToDb(InstanceProfile profile, boolean addNew) {
         LOGGER.info("add instance to db state {} instanceId {}", profile.getState(), profile.getInstanceId());
         instanceDb.storeInstance(profile);
+        if (addNew) {
+            String inlongGroupId = profile.getInlongGroupId();
+            String inlongStreamId = profile.getInlongStreamId();
+            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_ADD_INSTANCE_DB, inlongGroupId, inlongStreamId,
+                    profile.getSinkDataTime(), 1, 1);
+        }
     }
 
     /**
      * add instance to memory, if there is a record refer to the instance id exist we need to destroy it first.
      */
     private void addToMemory(InstanceProfile instanceProfile) {
+        String inlongGroupId = instanceProfile.getInlongGroupId();
+        String inlongStreamId = instanceProfile.getInlongStreamId();
         Instance oldInstance = instanceMap.get(instanceProfile.getInstanceId());
         if (oldInstance != null) {
             oldInstance.destroy();
             instanceMap.remove(instanceProfile.getInstanceId());
             LOGGER.error("old instance {} should not exist, try stop it first",
                     instanceProfile.getInstanceId());
+            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_DEL_INSTANCE_MEM_UNUSUAL, inlongGroupId, inlongStreamId,
+                    instanceProfile.getSinkDataTime(), 1, 1);
         }
         LOGGER.info("instanceProfile {}", instanceProfile.toJsonStr());
         try {
@@ -410,6 +430,8 @@ public class InstanceManager extends AbstractDaemon {
                     "add instance to memory instanceId {} instanceMap size {}, runningPool instance total {}, runningPool instance active {}",
                     instance.getInstanceId(), instanceMap.size(), EXECUTOR_SERVICE.getTaskCount(),
                     EXECUTOR_SERVICE.getActiveCount());
+            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_ADD_INSTANCE_MEM, inlongGroupId, inlongStreamId,
+                    instanceProfile.getSinkDataTime(), 1, 1);
         } catch (Throwable t) {
             LOGGER.error("add instance error {}", t.getMessage());
         }
