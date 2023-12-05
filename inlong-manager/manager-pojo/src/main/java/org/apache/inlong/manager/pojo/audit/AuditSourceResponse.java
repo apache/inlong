@@ -61,10 +61,10 @@ public class AuditSourceResponse {
     @ApiModelProperty(value = "Modifier")
     private String modifier;
 
-    @JsonFormat(pattern = "YYYY-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
     private Date createTime;
 
-    @JsonFormat(pattern = "YYYY-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
     private Date modifyTime;
 
     @ApiModelProperty(value = "Version number")
