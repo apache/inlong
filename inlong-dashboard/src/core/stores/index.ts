@@ -29,7 +29,6 @@ export interface State {
   userId: number;
   roles: string[];
   tenant: string;
-  syncTableData: null | React.RefObject<any>;
   currentMenu: null | Omit<MenuItemType, 'children'>;
 }
 
@@ -39,7 +38,6 @@ const state: State = {
   userId: 0,
   roles: [],
   tenant: '',
-  syncTableData: null,
   currentMenu: null,
 };
 
@@ -51,13 +49,6 @@ const reducers = {
       userId: payload.userId,
       roles: payload.roles,
       tenant: payload.tenant,
-    };
-  },
-
-  setSyncTableData(state: State, payload) {
-    return {
-      ...state,
-      syncTableData: payload.syncTableData,
     };
   },
 
