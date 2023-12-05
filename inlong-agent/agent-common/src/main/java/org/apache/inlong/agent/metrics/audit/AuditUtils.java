@@ -46,6 +46,11 @@ public class AuditUtils {
     public static final int AUDIT_ID_AGENT_SEND_SUCCESS_REAL_TIME = 48;
     public static final int AUDIT_ID_AGENT_SEND_FAILED = 10004;
     public static final int AUDIT_ID_AGENT_SEND_FAILED_REAL_TIME = 10026;
+    public static final int AUDIT_ID_AGENT_ADD_INSTANCE_MEM = 49;
+    public static final int AUDIT_ID_AGENT_DEL_INSTANCE_MEM = 50;
+    public static final int AUDIT_ID_AGENT_ADD_INSTANCE_DB = 51;
+    public static final int AUDIT_ID_AGENT_DEL_INSTANCE_DB = 52;
+    public static final int AUDIT_ID_AGENT_DEL_INSTANCE_MEM_UNUSUAL = 10028;
 
     private static boolean IS_AUDIT = true;
 
