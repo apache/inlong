@@ -279,6 +279,16 @@ public class SinkMetricData implements MetricData, Serializable {
         outputAuditMetrics(rowCount, rowSize, dataTime);
     }
 
+    /**
+     * flush audit data
+     * usually call this method in close method or when checkpointing
+     */
+    public void flushAuditData() {
+        if (auditOperator != null) {
+            auditOperator.send();
+        }
+    }
+
     private void outputAuditMetrics(long rowCount, long rowSize, long dataTime) {
         if (auditOperator != null) {
             for (Integer key : auditKeys) {

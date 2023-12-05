@@ -255,6 +255,9 @@ public class StarRocksDynamicSinkFunctionV2<T> extends StarRocksDynamicSinkFunct
     @Override
     public void snapshotState(FunctionSnapshotContext functionSnapshotContext) throws Exception {
         sinkManager.flush();
+
+        flushAudit();
+
         if (sinkOptions.getSemantic() != StarRocksSinkSemantic.EXACTLY_ONCE) {
             return;
         }
@@ -273,6 +276,12 @@ public class StarRocksDynamicSinkFunctionV2<T> extends StarRocksDynamicSinkFunct
 
         if (legacyState != null) {
             legacyState.clear();
+        }
+    }
+
+    private void flushAudit() {
+        if (sinkMetricData != null) {
+            sinkMetricData.flushAuditData();
         }
     }
 
