@@ -291,6 +291,7 @@ export default class IcebergSink
 
   @FieldDecorator({
     type: EditableTable,
+    initialValue: [],
     props: values => ({
       size: 'small',
       editing: ![110].includes(values?.status),

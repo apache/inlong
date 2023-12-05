@@ -180,6 +180,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
 
   @FieldDecorator({
     type: EditableTable,
+    initialValue: [],
     props: values => ({
       size: 'small',
       editing: ![110].includes(values?.status),

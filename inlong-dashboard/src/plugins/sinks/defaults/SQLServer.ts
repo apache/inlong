@@ -217,6 +217,7 @@ export default class SqlServerSink
 
   @FieldDecorator({
     type: EditableTable,
+    initialValue: [],
     props: values => ({
       size: 'small',
       editing: ![110].includes(values?.status),

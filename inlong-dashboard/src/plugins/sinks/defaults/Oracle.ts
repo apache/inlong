@@ -164,6 +164,7 @@ export default class OracleSink extends SinkInfo implements DataWithBackend, Ren
 
   @FieldDecorator({
     type: EditableTable,
+    initialValue: [],
     props: values => ({
       size: 'small',
       editing: ![110].includes(values?.status),

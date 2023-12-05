@@ -130,6 +130,7 @@ export default class StarRocksSink
 
   @FieldDecorator({
     type: EditableTable,
+    initialValue: [],
     props: values => ({
       size: 'small',
       editing: ![110].includes(values?.status),

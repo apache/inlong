@@ -300,6 +300,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
 
   @FieldDecorator({
     type: EditableTable,
+    initialValue: [],
     props: values => ({
       size: 'small',
       editing: ![110].includes(values?.status),
