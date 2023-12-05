@@ -45,9 +45,9 @@ import java.util.List;
  * End-to-end tests
  * Test flink sql mysql cdc to clickHouse
  */
-public class ClickHouseCase extends FlinkContainerTestEnv {
+public class ClickHouseITCase extends FlinkContainerTestEnv {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClickHouseCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ClickHouseITCase.class);
 
     private static final Path jdbcJar = TestUtils.getResource("sort-connector-jdbc.jar");
     private static final Path mysqlJar = TestUtils.getResource("sort-connector-mysql-cdc.jar");
@@ -57,7 +57,7 @@ public class ClickHouseCase extends FlinkContainerTestEnv {
 
     static {
         try {
-            sqlFile = Paths.get(ClickHouseCase.class.getResource("/flinkSql/clickhouse_test.sql").toURI()).toString();
+            sqlFile = Paths.get(ClickHouseITCase.class.getResource("/flinkSql/clickhouse_test.sql").toURI()).toString();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
