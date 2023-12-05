@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.controller;
 
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
@@ -65,7 +66,7 @@ public class WorkflowController {
     private WorkflowService workflowService;
 
     @PostMapping("/workflow/start")
-    @OperationLog(operation = OperationType.CREATE)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.WORKFLOW)
     @ApiOperation(value = "Initiation process")
     public Response<WorkflowResult> start(@RequestBody WorkflowOperationRequest request) {
         String applicant = LoginUserUtils.getLoginUser().getName();
@@ -73,7 +74,7 @@ public class WorkflowController {
     }
 
     @PostMapping("/workflow/cancel/{id}")
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.WORKFLOW)
     @ApiOperation(value = "Cancellation process")
     @ApiImplicitParam(name = "id", value = "Process ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> cancel(@PathVariable Integer id, @RequestBody WorkflowOperationRequest request) {
@@ -82,7 +83,7 @@ public class WorkflowController {
     }
 
     @PostMapping("/workflow/continue/{id}")
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.WORKFLOW)
     @ApiOperation(value = "Continue process")
     @ApiImplicitParam(name = "id", value = "Process ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> continueProcess(@PathVariable Integer id,
@@ -92,7 +93,7 @@ public class WorkflowController {
     }
 
     @PostMapping("/workflow/approve/{id}")
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.WORKFLOW)
     @ApiOperation(value = "Approval and consent")
     @ApiImplicitParam(name = "id", value = "Task ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> approve(@PathVariable Integer id, @RequestBody WorkflowApprovalRequest request) {
@@ -101,7 +102,7 @@ public class WorkflowController {
     }
 
     @PostMapping("/workflow/reject/{id}")
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.WORKFLOW)
     @ApiOperation(value = "Approval rejected")
     @ApiImplicitParam(name = "id", value = "Task ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> reject(@PathVariable Integer id, @RequestBody WorkflowApprovalRequest request) {
@@ -110,7 +111,7 @@ public class WorkflowController {
     }
 
     @PostMapping("/workflow/transfer/{id}")
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.WORKFLOW)
     @ApiOperation(value = "Turn to another approver", notes = "Change approver")
     @ApiImplicitParam(name = "id", value = "Task ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> transfer(@PathVariable Integer id, @RequestBody WorkflowApprovalRequest request) {
@@ -120,7 +121,7 @@ public class WorkflowController {
     }
 
     @PostMapping("/workflow/complete/{id}")
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.WORKFLOW)
     @ApiOperation(value = "Complete task by ID")
     @ApiImplicitParam(name = "id", value = "Task ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> complete(@PathVariable Integer id, @RequestBody WorkflowApprovalRequest request) {

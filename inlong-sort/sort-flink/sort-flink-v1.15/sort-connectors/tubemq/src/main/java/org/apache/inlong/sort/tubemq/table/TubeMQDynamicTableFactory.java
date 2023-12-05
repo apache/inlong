@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.tubemq.table;
 
+import org.apache.inlong.sort.protocol.node.ExtractNode;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ConfigOption;
@@ -65,8 +67,6 @@ import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.getTubeMQPropert
 public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
     public static final String IDENTIFIER = "tubemq-inlong";
-
-    public static final String INNERFORMATTYPE = "inlong-msg";
 
     public static boolean innerFormat = false;
 
@@ -120,10 +120,10 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
         final DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat = getValueDecodingFormat(helper);
 
         // validate all options
-        helper.validateExcept(INNERFORMATTYPE);
+        helper.validateExcept(ExtractNode.INLONG_MSG);
 
         validatePKConstraints(context.getObjectIdentifier(), context.getCatalogTable(), valueDecodingFormat);
-        innerFormat = INNERFORMATTYPE.equals(tableOptions.get(FORMAT));
+        innerFormat = ExtractNode.INLONG_MSG.equals(tableOptions.get(FORMAT));
 
         final Configuration properties = getTubeMQProperties(context.getCatalogTable().getOptions());
 
@@ -156,7 +156,7 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory, Dyn
         final EncodingFormat<SerializationSchema<RowData>> valueEncodingFormat = getValueEncodingFormat(helper);
 
         // validate all options
-        helper.validateExcept(INNERFORMATTYPE);
+        helper.validateExcept(ExtractNode.INLONG_MSG);
 
         validatePKConstraints(context.getObjectIdentifier(), context.getCatalogTable(), valueEncodingFormat);
 

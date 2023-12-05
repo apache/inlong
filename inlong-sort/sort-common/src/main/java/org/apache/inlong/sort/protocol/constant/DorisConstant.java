@@ -65,4 +65,8 @@ public class DorisConstant {
      * The multiple table-pattern of sink
      */
     public static final String SINK_MULTIPLE_TABLE_PATTERN = "sink.multiple.table-pattern";
+    /**
+     * The schema change policies of sink
+     */
+    public static final String SINK_SCHEMA_CHANGE_POLICIES = "sink.schema-change.policies";
 }

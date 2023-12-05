@@ -113,4 +113,10 @@ class IcebergStreamWriterMetrics {
             sourceMetricData.outputMetrics(1, size, time);
         }
     }
+
+    void flushAudit() {
+        if (sourceMetricData != null) {
+            sourceMetricData.flushAuditData();
+        }
+    }
 }

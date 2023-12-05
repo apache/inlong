@@ -19,10 +19,13 @@ package org.apache.inlong.agent.plugin.sinks.filecollect;
 
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.InstanceProfile;
+import org.apache.inlong.agent.conf.OffsetProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
+import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.core.task.file.MemoryManager;
 import org.apache.inlong.agent.message.EndMessage;
-import org.apache.inlong.agent.message.ProxyMessage;
+import org.apache.inlong.agent.message.filecollect.OffsetAckInfo;
+import org.apache.inlong.agent.message.filecollect.ProxyMessage;
 import org.apache.inlong.agent.message.filecollect.SenderMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
@@ -33,13 +36,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FIELD_SPLITTER;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_WRITER_PERMIT;
+import static org.apache.inlong.agent.constant.TaskConstants.INODE_INFO;
 
 /**
  * sink message data to inlong-dataproxy
@@ -49,8 +58,7 @@ public class ProxySink extends AbstractSink {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxySink.class);
     private final int WRITE_FAILED_WAIT_TIME_MS = 10;
     private final int DESTROY_LOOP_WAIT_TIME_MS = 10;
-    private final Integer FINISH_READ_MAX_COUNT = 30;
-    private static AtomicLong index = new AtomicLong(0);
+    public final int SAVE_OFFSET_INTERVAL_MS = 1000;
     private static final ThreadPoolExecutor EXECUTOR_SERVICE = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE,
             1L, TimeUnit.SECONDS,
@@ -62,18 +70,19 @@ public class ProxySink extends AbstractSink {
     private volatile boolean shutdown = false;
     private volatile boolean running = false;
     private volatile boolean inited = false;
-    private volatile int readEndCount = 0;
+    private long lastPrintTime = 0;
+    private List<OffsetAckInfo> ackInfoList = new ArrayList<>();
+    private final ReentrantReadWriteLock packageAckInfoLock = new ReentrantReadWriteLock(true);
+    private volatile boolean offsetRunning = false;
+    private OffsetManager offsetManager;
 
     public ProxySink() {
     }
 
     @Override
     public void write(Message message) {
-        if (message == null) {
-            return;
-        }
         boolean suc = false;
-        while (running && !suc) {
+        while (!shutdown && !suc) {
             suc = putInCache(message);
             if (!suc) {
                 AgentUtils.silenceSleepInMs(WRITE_FAILED_WAIT_TIME_MS);
@@ -86,8 +95,6 @@ public class ProxySink extends AbstractSink {
             if (message == null) {
                 return true;
             }
-            message.getHeader().put(CommonConstants.PROXY_KEY_GROUP_ID, inlongGroupId);
-            message.getHeader().put(CommonConstants.PROXY_KEY_STREAM_ID, inlongStreamId);
             extractStreamFromMessage(message, fieldSplitter);
             if (message instanceof EndMessage) {
                 // increment the count of failed sinks
@@ -103,8 +110,10 @@ public class ProxySink extends AbstractSink {
             }
             cache.generateExtraMap(proxyMessage.getDataKey());
             // add message to package proxy
-            boolean suc = cache.addProxyMessage(proxyMessage);
-            if (!suc) {
+            boolean suc = cache.add(proxyMessage);
+            if (suc) {
+                addAckInfo(proxyMessage.getAckInfo());
+            } else {
                 MemoryManager.getInstance().release(AGENT_GLOBAL_WRITER_PERMIT, message.getBody().length);
                 // increment the count of failed sinks
                 sinkMetric.sinkFailCount.incrementAndGet();
@@ -125,8 +134,6 @@ public class ProxySink extends AbstractSink {
         if (messageFilter != null) {
             message.getHeader().put(CommonConstants.PROXY_KEY_STREAM_ID,
                     messageFilter.filterStreamId(message, fieldSplitter));
-        } else {
-            message.getHeader().put(CommonConstants.PROXY_KEY_STREAM_ID, inlongStreamId);
         }
     }
 
@@ -141,35 +148,32 @@ public class ProxySink extends AbstractSink {
                     "flushCache-" + profile.getTaskId() + "-" + profile.getInstanceId());
             LOGGER.info("start flush cache {}:{}", inlongGroupId, sourceName);
             running = true;
-            long lastPrintTime = AgentUtils.getCurrentTime();
             while (!shutdown) {
-                try {
-                    SenderMessage senderMessage = cache.fetchSenderMessage();
-                    if (senderMessage != null) {
-                        readEndCount = 0;
-                        senderManager.sendBatch(senderMessage);
-                        if (AgentUtils.getCurrentTime() - lastPrintTime > TimeUnit.SECONDS.toMillis(1)) {
-                            lastPrintTime = AgentUtils.getCurrentTime();
-                            LOGGER.info("send groupId {}, streamId {}, message size {}, taskId {}, "
-                                    + "instanceId {} sendTime is {}", inlongGroupId, inlongStreamId,
-                                    senderMessage.getDataList().size(), profile.getTaskId(),
-                                    profile.getInstanceId(),
-                                    senderMessage.getDataTime());
-                        }
-                    } else {
-                        readEndCount++;
-                    }
-                } catch (Exception ex) {
-                    LOGGER.error("error caught", ex);
-                } catch (Throwable t) {
-                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), t);
-                } finally {
-                    AgentUtils.silenceSleepInMs(batchFlushInterval);
-                }
+                sendMessageFromCache();
+                AgentUtils.silenceSleepInMs(batchFlushInterval);
             }
             LOGGER.info("stop flush cache {}:{}", inlongGroupId, sourceName);
             running = false;
         };
+    }
+
+    public void sendMessageFromCache() {
+        ConcurrentHashMap<String, LinkedBlockingQueue<ProxyMessage>> messageQueueMap = cache.getMessageQueueMap();
+        for (Map.Entry<String, LinkedBlockingQueue<ProxyMessage>> entry : messageQueueMap.entrySet()) {
+            SenderMessage senderMessage = cache.fetchSenderMessage(entry.getKey(), entry.getValue());
+            if (senderMessage == null) {
+                continue;
+            }
+            senderManager.sendBatch(senderMessage);
+            if (AgentUtils.getCurrentTime() - lastPrintTime > TimeUnit.SECONDS.toMillis(1)) {
+                lastPrintTime = AgentUtils.getCurrentTime();
+                LOGGER.info("send groupId {}, streamId {}, message size {}, taskId {}, "
+                        + "instanceId {} sendTime is {}", inlongGroupId, inlongStreamId,
+                        senderMessage.getDataList().size(), profile.getTaskId(),
+                        profile.getInstanceId(),
+                        senderMessage.getDataTime());
+            }
+        }
     }
 
     @Override
@@ -178,10 +182,12 @@ public class ProxySink extends AbstractSink {
         fieldSplitter = profile.get(CommonConstants.FIELD_SPLITTER, DEFAULT_FIELD_SPLITTER).getBytes(
                 StandardCharsets.UTF_8);
         sourceName = profile.getInstanceId();
+        offsetManager = OffsetManager.getInstance();
         senderManager = new SenderManager(profile, inlongGroupId, sourceName);
         try {
             senderManager.Start();
             EXECUTOR_SERVICE.execute(coreThread());
+            EXECUTOR_SERVICE.execute(flushOffset());
             inited = true;
         } catch (Throwable ex) {
             shutdown = true;
@@ -198,11 +204,11 @@ public class ProxySink extends AbstractSink {
             return;
         }
         shutdown = true;
-        while (running) {
+        while (running || offsetRunning) {
             AgentUtils.silenceSleepInMs(DESTROY_LOOP_WAIT_TIME_MS);
         }
-        MemoryManager.getInstance().release(AGENT_GLOBAL_WRITER_PERMIT, (int) cache.getCacheSize());
         senderManager.Stop();
+        clearOffset();
         LOGGER.info("destroy sink {} end", sourceName);
     }
 
@@ -211,15 +217,70 @@ public class ProxySink extends AbstractSink {
      */
     @Override
     public boolean sinkFinish() {
-        if (finishReadLog() && senderManager.sendFinished()) {
-            return true;
-        } else {
-            return false;
+        boolean finished = false;
+        packageAckInfoLock.writeLock().lock();
+        if (ackInfoList.isEmpty()) {
+            finished = true;
         }
+        packageAckInfoLock.writeLock().unlock();
+        return finished;
     }
 
-    public boolean finishReadLog() {
-        return readEndCount > FINISH_READ_MAX_COUNT;
+    private void addAckInfo(OffsetAckInfo info) {
+        packageAckInfoLock.writeLock().lock();
+        ackInfoList.add(info);
+        packageAckInfoLock.writeLock().unlock();
     }
 
+    /**
+     * flushOffset
+     *
+     * @return thread runner
+     */
+    private Runnable flushOffset() {
+        return () -> {
+            AgentThreadFactory.nameThread(
+                    "flushOffset-" + profile.getTaskId() + "-" + profile.getInstanceId());
+            LOGGER.info("start flush offset {}:{}", inlongGroupId, sourceName);
+            offsetRunning = true;
+            while (!shutdown) {
+                doFlushOffset();
+                AgentUtils.silenceSleepInMs(SAVE_OFFSET_INTERVAL_MS);
+            }
+            LOGGER.info("stop flush offset {}:{}", inlongGroupId, sourceName);
+            offsetRunning = false;
+        };
+    }
+
+    /**
+     * flushOffset
+     */
+    private void doFlushOffset() {
+        packageAckInfoLock.writeLock().lock();
+        OffsetAckInfo info = null;
+        for (int i = 0; i < ackInfoList.size();) {
+            if (ackInfoList.get(i).getHasAck()) {
+                info = ackInfoList.remove(i);
+                MemoryManager.getInstance().release(AGENT_GLOBAL_WRITER_PERMIT, info.getLen());
+            } else {
+                break;
+            }
+        }
+        if (info != null) {
+            LOGGER.info("save offset {} taskId {} instanceId {}", info.getOffset(), profile.getTaskId(),
+                    profile.getInstanceId());
+            OffsetProfile offsetProfile = new OffsetProfile(profile.getTaskId(), profile.getInstanceId(),
+                    info.getOffset(), profile.get(INODE_INFO));
+            offsetManager.setOffset(offsetProfile);
+        }
+        packageAckInfoLock.writeLock().unlock();
+    }
+
+    private void clearOffset() {
+        packageAckInfoLock.writeLock().lock();
+        for (int i = 0; i < ackInfoList.size();) {
+            MemoryManager.getInstance().release(AGENT_GLOBAL_WRITER_PERMIT, ackInfoList.remove(i).getLen());
+        }
+        packageAckInfoLock.writeLock().unlock();
+    }
 }

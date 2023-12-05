@@ -393,7 +393,7 @@ public class SortSourceServiceImpl implements SortSourceService {
             boolean isBackupTag) {
         Map<String, String> param = cluster.getExtParamsMap();
         String tenant = Optional.ofNullable(param.get(KEY_NEW_TENANT)).orElse(param.get(KEY_OLD_TENANT));
-        String auth = param.get(KEY_AUTH);
+        String auth = param.getOrDefault(KEY_AUTH, StringUtils.EMPTY);
         List<Topic> sdkTopics = sinks.stream()
                 .map(sink -> {
                     String groupId = sink.getGroupId();

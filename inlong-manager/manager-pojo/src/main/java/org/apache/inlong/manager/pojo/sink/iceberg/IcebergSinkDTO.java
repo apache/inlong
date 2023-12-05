@@ -68,6 +68,24 @@ public class IcebergSinkDTO {
     @ApiModelProperty("Partition type, like: H-hour, D-day, W-week, M-month, O-once, R-regulation")
     private String partitionType;
 
+    @ApiModelProperty("The multiple enable of sink")
+    private Boolean sinkMultipleEnable = false;
+
+    @ApiModelProperty("The multiple format of sink")
+    private String sinkMultipleFormat;
+
+    @ApiModelProperty("database pattern")
+    private String databasePattern;
+
+    @ApiModelProperty("table pattern")
+    private String tablePattern;
+
+    @ApiModelProperty("append mode, UPSERT or APPEND")
+    private String appendMode;
+
+    @ApiModelProperty("enable schema change")
+    private Boolean enableSchemaChange = false;
+
     @ApiModelProperty("Primary key")
     private String primaryKey;
 

@@ -88,7 +88,7 @@ public class StarRocksDataNodeOperator extends AbstractDataNodeOperator {
 
     @Override
     public Boolean testConnection(DataNodeRequest request) {
-        String jdbcUrl = request.getUrl();
+        String jdbcUrl = StarRocksDataNodeDTO.convertToJdbcUrl(request.getUrl());
         String username = request.getUsername();
         String password = request.getToken();
         Preconditions.expectNotBlank(jdbcUrl, ErrorCodeEnum.INVALID_PARAMETER, "connection jdbcUrl cannot be empty");

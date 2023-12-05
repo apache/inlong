@@ -31,4 +31,11 @@ public class ClusterSwitch {
      * MQ resource for backup, represents the namespace of Pulsar, the topic of TubeMQ, etc.
      */
     public static final String BACKUP_MQ_RESOURCE = "backup_mq_resource";
+
+    /**
+     * Cluster swtich start time
+     */
+    public static final String CLUSTER_SWITCH_TIME = "cluster_switch_time";
+
+    public static final int FINISH_SWITCH_INTERVAL_MIN = 10;
 }

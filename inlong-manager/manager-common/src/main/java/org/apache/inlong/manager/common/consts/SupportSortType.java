@@ -15,19 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.message.filecollect;
+package org.apache.inlong.manager.common.consts;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class PackageAckInfo {
+/**
+ * This annotation is used to indicate the type of inbound task used for inbound operations, including sort flink and
+ * sort standalone. On the user's SinkType class field, this annotation is used to identify which type of sort task each
+ * SinkType uses.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Target({ElementType.FIELD})
+public @interface SupportSortType {
 
-    private Long index;
-    private Long offset;
-    private Integer len;
-    private Boolean hasAck;
+    SortType sortType();
+
 }

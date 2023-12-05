@@ -48,9 +48,11 @@ public class FileInstance extends Instance {
     private InstanceProfile profile;
     public static final int CORE_THREAD_SLEEP_TIME = 1;
     private static final int DESTROY_LOOP_WAIT_TIME_MS = 10;
+    private static final int CHECK_FINISH_AT_LEAST_COUNT = 5;
     private InstanceManager instanceManager;
     private volatile boolean running = false;
     private volatile boolean inited = false;
+    private volatile int checkFinishCount = 0;
 
     @Override
     public void init(Object srcManager, InstanceProfile srcProfile) {
@@ -92,22 +94,21 @@ public class FileInstance extends Instance {
         running = true;
         while (!isFinished()) {
             if (!source.sourceExist()) {
-                if (profile.isRetry()) {
-                    handleReadEnd();
-                } else {
-                    handleSourceDeleted();
-                }
                 handleSourceDeleted();
                 break;
             }
             Message msg = source.read();
             if (msg == null) {
                 if (source.sourceFinish() && sink.sinkFinish()) {
-                    handleReadEnd();
-                    break;
+                    checkFinishCount++;
+                    if (checkFinishCount > CHECK_FINISH_AT_LEAST_COUNT) {
+                        handleReadEnd();
+                        break;
+                    }
                 } else {
-                    AgentUtils.silenceSleepInSeconds(CORE_THREAD_SLEEP_TIME);
+                    checkFinishCount = 0;
                 }
+                AgentUtils.silenceSleepInSeconds(CORE_THREAD_SLEEP_TIME);
             } else {
                 sink.write(msg);
             }
@@ -125,7 +126,7 @@ public class FileInstance extends Instance {
     }
 
     private void handleSourceDeleted() {
-        OffsetManager.init().deleteOffset(getTaskId(), getInstanceId());
+        OffsetManager.getInstance().deleteOffset(getTaskId(), getInstanceId());
         profile.setState(InstanceStateEnum.DELETE);
         profile.setModifyTime(AgentUtils.getCurrentTime());
         InstanceAction action = new InstanceAction(ActionType.DELETE, profile);

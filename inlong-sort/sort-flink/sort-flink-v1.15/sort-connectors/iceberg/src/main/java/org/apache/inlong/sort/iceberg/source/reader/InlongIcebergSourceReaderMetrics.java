@@ -77,4 +77,10 @@ public class InlongIcebergSourceReaderMetrics<T> extends IcebergSourceReaderMetr
         }
         return object.toString().getBytes(StandardCharsets.UTF_8).length;
     }
+
+    void flushAudit() {
+        if (sourceMetricData != null) {
+            sourceMetricData.flushAuditData();
+        }
+    }
 }

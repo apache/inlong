@@ -152,6 +152,9 @@ const Comp: React.FC<DetailModalProps> = ({
       submitData.id = id;
       submitData.version = data?.version;
     }
+    if (submitData.index !== null && submitData.cycle !== null) {
+      submitData.indexNamePattern = `${submitData.index}${submitData.cycle}`;
+    }
     if (startProcess) {
       submitData.startProcess = true;
     }

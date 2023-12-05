@@ -381,13 +381,13 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `ClickHouse ${i18n.t('meta.Sinks.ClickHouse.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       dataIndex: 'fieldName',
       rules: [
         { required: true },
         {
           pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-          message: i18n.t('meta.Sinks.ClickHouse.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -395,7 +395,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `ClickHouse ${i18n.t('meta.Sinks.ClickHouse.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       initialValue: clickHouseTargetTypes[0].value,
       type: 'select',
@@ -442,7 +442,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `ClickHouse ${i18n.t('meta.Sinks.ClickHouse.FieldDescription')}`,
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
       props: (text, record, idx, isNew) => ({
         disabled: [110].includes(sinkValues?.status as number) && !isNew,

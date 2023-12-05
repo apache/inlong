@@ -22,8 +22,11 @@
 <mapper namespace="org.apache.inlong.manager.dao.mapper.OperationLogEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.OperationLogEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
+        <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
         <result column="authentication_type" jdbcType="VARCHAR" property="authenticationType"/>
         <result column="operation_type" jdbcType="VARCHAR" property="operationType"/>
+        <result column="operation_target" jdbcType="VARCHAR" property="operationTarget"/>
         <result column="http_method" jdbcType="VARCHAR" property="httpMethod"/>
         <result column="invoke_method" jdbcType="VARCHAR" property="invokeMethod"/>
         <result column="operator" jdbcType="VARCHAR" property="operator"/>
@@ -38,7 +41,7 @@
         <result column="err_msg" jdbcType="LONGVARCHAR" property="errMsg"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, authentication_type, operation_type, http_method, invoke_method, operator,
+        id, inlong_group_id, inlong_stream_id, authentication_type, operation_type, operation_target, http_method, invoke_method, operator,
         proxy, request_url, remote_address, cost_time, status, request_time, body, param, err_msg
     </sql>
 
@@ -48,25 +51,59 @@
         from operation_log
         where id = #{id,jdbcType=INTEGER}
     </select>
+    <select id="selectByCondition" resultMap="BaseResultMap"
+            parameterType="org.apache.inlong.manager.pojo.operationLog.OperationLogRequest">
+        select
+        <include refid="Base_Column_List"/>
+        from operation_log
+        <where>
+            <if test="request.inlongGroupId != null and request.inlongGroupId != ''">
+                and inlong_group_id = #{request.inlongGroupId, jdbcType=VARCHAR}
+            </if>
+            <if test="request.inlongStreamId != null and request.inlongStreamId != ''">
+                and inlong_stream_id = #{request.inlongStreamId, jdbcType=VARCHAR}
+            </if>
+            <if test="request.operationType != null and request.operationType != ''">
+                and operation_type = #{request.operationType, jdbcType=VARCHAR}
+            </if>
+            <if test="request.operationTarget != null and request.operationTarget != ''">
+                and operation_target = #{request.operationTarget, jdbcType=VARCHAR}
+            </if>
+            <if test="request.keyword != null and request.keyword != ''">
+                and (
+                inlong_group_id like CONCAT('%', #{request.keyword}, '%')
+                or inlong_stream_id like CONCAT('%', #{request.keyword}, '%')
+                )
+            </if>
+            <if test="request.startDate != null and request.startDate != '' and request.endDate != null and request.endDate != ''">
+                and request_time &gt;= #{request.startDate, jdbcType=VARCHAR}
+                and request_time &lt; #{request.endDate, jdbcType=VARCHAR}
+            </if>
+        </where>
+        order by request_time desc
+    </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         delete
         from operation_log
         where id = #{id,jdbcType=INTEGER}
     </delete>
     <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.OperationLogEntity">
-        insert into operation_log (id, authentication_type, operation_type,
+        insert into operation_log (id, inlong_group_id, inlong_stream_id,
+                                   authentication_type, operation_type, operation_target,
                                    http_method, invoke_method, operator,
                                    proxy, request_url, remote_address,
                                    cost_time, status, request_time,
                                    body, param, err_msg)
-        values (#{id,jdbcType=INTEGER}, #{authenticationType,jdbcType=VARCHAR}, #{operationType,jdbcType=VARCHAR},
+        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
+                #{authenticationType,jdbcType=VARCHAR}, #{operationType,jdbcType=VARCHAR}, #{operationTarget,jdbcType=VARCHAR},
                 #{httpMethod,jdbcType=VARCHAR}, #{invokeMethod,jdbcType=VARCHAR}, #{operator,jdbcType=VARCHAR},
                 #{proxy,jdbcType=VARCHAR}, #{requestUrl,jdbcType=VARCHAR}, #{remoteAddress,jdbcType=VARCHAR},
                 #{costTime,jdbcType=BIGINT}, #{status,jdbcType=TINYINT}, #{requestTime,jdbcType=TIMESTAMP},
                 #{body,jdbcType=LONGVARCHAR}, #{param,jdbcType=LONGVARCHAR}, #{errMsg,jdbcType=LONGVARCHAR})
     </insert>
     <insert id="insertBatch">
-        insert into operation_log (id, authentication_type, operation_type,
+        insert into operation_log (id, inlong_group_id, inlong_stream_id,
+        authentication_type, operation_type, operation_target,
         http_method, invoke_method, operator,
         proxy, request_url, remote_address,
         cost_time, status, request_time,
@@ -75,8 +112,9 @@
         VALUES
         <foreach collection="list" item="log" separator=",">
             (
-            #{log.id,jdbcType=INTEGER}, #{log.authenticationType,jdbcType=VARCHAR},
-            #{log.operationType,jdbcType=VARCHAR},
+            #{log.id,jdbcType=INTEGER}, #{log.inlongGroupId,jdbcType=VARCHAR},
+            #{log.inlongStreamId,jdbcType=VARCHAR}, #{log.authenticationType,jdbcType=VARCHAR},
+            #{log.operationType,jdbcType=VARCHAR}, #{log.operationTarget,jdbcType=VARCHAR},
             #{log.httpMethod,jdbcType=VARCHAR}, #{log.invokeMethod,jdbcType=VARCHAR},
             #{log.operator,jdbcType=VARCHAR},
             #{log.proxy,jdbcType=VARCHAR}, #{log.requestUrl,jdbcType=VARCHAR},
@@ -95,11 +133,20 @@
             <if test="id != null">
                 id,
             </if>
+            <if test="inlongGroupId != null">
+                inlong_group_id,
+            </if>
+            <if test="inlongStreamId != null">
+                inlong_stream_id,
+            </if>
             <if test="authenticationType != null">
                 authentication_type,
             </if>
             <if test="operationType != null">
                 operation_type,
+            </if>
+            <if test="operationTarget != null">
+                operation_target,
             </if>
             <if test="httpMethod != null">
                 http_method,
@@ -142,11 +189,20 @@
             <if test="id != null">
                 #{id,jdbcType=INTEGER},
             </if>
+            <if test="inlongGroupId != null">
+                #{inlongGroupId,jdbcType=VARCHAR},
+            </if>
+            <if test="inlongStreamId != null">
+                #{inlongStreamId,jdbcType=VARCHAR},
+            </if>
             <if test="authenticationType != null">
                 #{authenticationType,jdbcType=VARCHAR},
             </if>
             <if test="operationType != null">
                 #{operationType,jdbcType=VARCHAR},
+            </if>
+            <if test="operationTarget != null">
+                #{operationTarget,jdbcType=VARCHAR},
             </if>
             <if test="httpMethod != null">
                 #{httpMethod,jdbcType=VARCHAR},
@@ -190,11 +246,20 @@
             parameterType="org.apache.inlong.manager.dao.entity.OperationLogEntity">
         update operation_log
         <set>
+            <if test="inlongGroupId != null">
+                inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
+            </if>
+            <if test="inlongStreamId != null">
+                inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
+            </if>
             <if test="authenticationType != null">
                 authentication_type = #{authenticationType,jdbcType=VARCHAR},
             </if>
             <if test="operationType != null">
                 operation_type = #{operationType,jdbcType=VARCHAR},
+            </if>
+            <if test="operationTarget != null">
+                operation_target = #{operationTarget,jdbcType=VARCHAR},
             </if>
             <if test="httpMethod != null">
                 http_method = #{httpMethod,jdbcType=VARCHAR},
@@ -238,8 +303,11 @@
     <update id="updateByPrimaryKey"
             parameterType="org.apache.inlong.manager.dao.entity.OperationLogEntity">
         update operation_log
-        set authentication_type = #{authenticationType,jdbcType=VARCHAR},
+        set inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
+            inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
+            authentication_type = #{authenticationType,jdbcType=VARCHAR},
             operation_type      = #{operationType,jdbcType=VARCHAR},
+            operation_target    = #{operationTarget,jdbcType=VARCHAR},
             http_method         = #{httpMethod,jdbcType=VARCHAR},
             invoke_method       = #{invokeMethod,jdbcType=VARCHAR},
             operator            = #{operator,jdbcType=VARCHAR},

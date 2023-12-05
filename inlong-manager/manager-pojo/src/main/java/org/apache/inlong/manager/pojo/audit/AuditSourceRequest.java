@@ -25,6 +25,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 /**
  * Audit source request
@@ -45,6 +46,7 @@ public class AuditSourceRequest {
     private String type;
 
     @NotBlank
+    @Pattern(regexp = "^(jdbc:(mysql|clickhouse)://[\\w.]+(:\\d+)?/[\\w]+(\\?.*)?|http://[\\w.]+(:\\d+)?(/[\\w]+)+(/\\d+(-\\d+)?(,\\d+(-\\d+)?)*)?)", message = "only supports MYSQL, CLICKHOUSE, ELASTICSEARCH url")
     @ApiModelProperty(value = "Audit source URL, for MYSQL or CLICKHOUSE, is jdbcUrl, and for ELASTICSEARCH is the access URL with hostname:port", required = true)
     private String url;
 

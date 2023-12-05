@@ -18,13 +18,15 @@
 package org.apache.inlong.manager.service.resource.sort;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
+import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sort.node.NodeFactory;
 import org.apache.inlong.manager.pojo.sort.util.NodeRelationUtils;
 import org.apache.inlong.manager.pojo.sort.util.TransformNodeUtils;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
@@ -48,6 +50,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -78,111 +81,120 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     private AuditService auditService;
 
     @Override
-    public Boolean accept(Integer enableZk) {
-        return InlongConstants.DISABLE_ZK.equals(enableZk);
+    public Boolean accept(List<String> sinkTypeList) {
+        for (String sinkType : sinkTypeList) {
+            if (SinkType.SORT_FLINK_SINK.contains(sinkType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
-    public void buildConfig(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos, boolean isStream)
+    public void buildConfig(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, boolean isStream)
             throws Exception {
         if (isStream) {
             LOGGER.warn("no need to build sort config for stream process when disable zk");
             return;
         }
-        if (groupInfo == null || CollectionUtils.isEmpty(streamInfos)) {
-            LOGGER.warn("no need to build sort config as the group is null or streams is empty when disable zk");
+        if (groupInfo == null || streamInfo == null) {
+            LOGGER.warn("no need to build sort config as the group is null or stream is empty when disable zk");
             return;
         }
-
-        GroupInfo sortConfigInfo = this.getGroupInfo(groupInfo, streamInfos);
+        List<StreamSink> sinkList = new ArrayList<>();
+        for (StreamSink sink : streamInfo.getSinkList()) {
+            if (SinkType.SORT_FLINK_SINK.contains(sink.getSinkType())) {
+                sinkList.add(sink);
+            }
+        }
+        if (CollectionUtils.isEmpty(sinkList)) {
+            return;
+        }
+        GroupInfo sortConfigInfo = this.getGroupInfo(groupInfo, streamInfo, sinkList);
         String dataflow = OBJECT_MAPPER.writeValueAsString(sortConfigInfo);
-        this.addToGroupExt(groupInfo, dataflow);
+        this.addToStreamExt(streamInfo, dataflow);
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("success to build sort config, isStream={}, dataflow={}", isStream, dataflow);
         }
     }
 
-    private GroupInfo getGroupInfo(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
+    private GroupInfo getGroupInfo(InlongGroupInfo groupInfo, InlongStreamInfo inlongStreamInfo,
+            List<StreamSink> sinkInfos) {
+        String streamId = inlongStreamInfo.getInlongStreamId();
         // get source info
-        Map<String, List<StreamSource>> sourceMap = sourceService.getSourcesMap(groupInfo, streamInfoList);
-        // get sink info
-        Map<String, List<StreamSink>> sinkMap = sinkService.getSinksMap(groupInfo, streamInfoList);
-        List<TransformResponse> transformList = transformService.listTransform(groupInfo.getInlongGroupId(), null);
+        Map<String, List<StreamSource>> sourceMap = sourceService.getSourcesMap(groupInfo,
+                Collections.singletonList(inlongStreamInfo));
+        List<TransformResponse> transformList = transformService.listTransform(groupInfo.getInlongGroupId(), streamId);
         Map<String, List<TransformResponse>> transformMap = transformList.stream()
                 .collect(Collectors.groupingBy(TransformResponse::getInlongStreamId, HashMap::new,
                         Collectors.toCollection(ArrayList::new)));
 
         List<StreamInfo> sortStreamInfos = new ArrayList<>();
-        for (InlongStreamInfo inlongStream : streamInfoList) {
-            String streamId = inlongStream.getInlongStreamId();
-            Map<String, StreamField> fieldMap = new HashMap<>();
-            inlongStream.getSourceList().forEach(
-                    source -> parseConstantFieldMap(source.getSourceName(), source.getFieldList(), fieldMap));
+        Map<String, StreamField> fieldMap = new HashMap<>();
+        inlongStreamInfo.getSourceList().forEach(
+                source -> parseConstantFieldMap(source.getSourceName(), source.getFieldList(), fieldMap));
 
-            List<TransformResponse> transformResponses = transformMap.get(streamId);
-            if (CollectionUtils.isNotEmpty(transformResponses)) {
-                transformResponses.forEach(
-                        trans -> parseConstantFieldMap(trans.getTransformName(), trans.getFieldList(), fieldMap));
-            }
-
-            // build a stream info from the nodes and relations
-            List<StreamSource> sources = sourceMap.get(streamId);
-            List<StreamSink> sinks = sinkMap.get(streamId);
-
-            for (StreamSink sink : sinks) {
-                addAuditId(sink.getProperties(), sink.getSinkType(), true);
-            }
-            for (StreamSource source : sources) {
-                source.setFieldList(inlongStream.getFieldList());
-            }
-            List<NodeRelation> relations;
-
-            if (InlongConstants.STANDARD_MODE.equals(groupInfo.getInlongGroupMode())) {
-                if (CollectionUtils.isNotEmpty(transformResponses)) {
-                    relations = NodeRelationUtils.createNodeRelations(inlongStream);
-                    // in standard mode(include Data Ingestion and Synchronization), replace upstream source node and
-                    // transform input fields node to MQ node (which is InLong stream id)
-                    String mqNodeName = sources.get(0).getSourceName();
-                    Set<String> nodeNameSet = getInputNodeNames(sources, transformResponses);
-                    adjustTransformField(transformResponses, nodeNameSet, mqNodeName);
-                    adjustNodeRelations(relations, nodeNameSet, mqNodeName);
-                } else {
-                    relations = NodeRelationUtils.createNodeRelations(sources, sinks);
-                }
-
-                if (sources.size() == sinks.size()) {
-                    for (int i = 0; i < sinks.size(); i++) {
-                        addAuditId(sources.get(i).getProperties(), sinks.get(i).getSinkType(), false);
-                    }
-                }
-            } else {
-                if (CollectionUtils.isNotEmpty(transformResponses)) {
-                    List<String> sourcesNames = sources.stream().map(StreamSource::getSourceName)
-                            .collect(Collectors.toList());
-                    List<String> transFormNames = transformResponses.stream().map(TransformResponse::getTransformName)
-                            .collect(Collectors.toList());
-                    List<String> sinkNames = sinks.stream().map(StreamSink::getSinkName).collect(Collectors.toList());
-                    relations = Arrays.asList(NodeRelationUtils.createNodeRelation(sourcesNames, transFormNames),
-                            NodeRelationUtils.createNodeRelation(transFormNames, sinkNames));
-                } else {
-                    relations = NodeRelationUtils.createNodeRelations(sources, sinks);
-                }
-
-                for (StreamSource source : sources) {
-                    addAuditId(source.getProperties(), source.getSourceType(), false);
-                }
-            }
-
-            // create extract-transform-load nodes
-            List<Node> nodes = this.createNodes(sources, transformResponses, sinks, fieldMap);
-
-            StreamInfo streamInfo = new StreamInfo(streamId, nodes, relations);
-            sortStreamInfos.add(streamInfo);
-
-            // rebuild joinerNode relation
-            NodeRelationUtils.optimizeNodeRelation(streamInfo, transformResponses);
+        List<TransformResponse> transformResponses = transformMap.get(streamId);
+        if (CollectionUtils.isNotEmpty(transformResponses)) {
+            transformResponses.forEach(
+                    trans -> parseConstantFieldMap(trans.getTransformName(), trans.getFieldList(), fieldMap));
         }
+
+        // build a stream info from the nodes and relations
+        List<StreamSource> sources = sourceMap.get(streamId);
+        for (StreamSink sinkInfo : sinkInfos) {
+            CommonBeanUtils.copyProperties(inlongStreamInfo, sinkInfo, true);
+            addAuditId(sinkInfo.getProperties(), sinkInfo.getSinkType(), true);
+        }
+
+        for (StreamSource source : sources) {
+            source.setFieldList(inlongStreamInfo.getFieldList());
+        }
+        List<NodeRelation> relations;
+
+        if (InlongConstants.STANDARD_MODE.equals(groupInfo.getInlongGroupMode())) {
+            if (CollectionUtils.isNotEmpty(transformResponses)) {
+                relations = NodeRelationUtils.createNodeRelations(inlongStreamInfo);
+                // in standard mode(include Data Ingestion and Synchronization), replace upstream source node and
+                // transform input fields node to MQ node (which is InLong stream id)
+                String mqNodeName = sources.get(0).getSourceName();
+                Set<String> nodeNameSet = getInputNodeNames(sources, transformResponses);
+                adjustTransformField(transformResponses, nodeNameSet, mqNodeName);
+                adjustNodeRelations(relations, nodeNameSet, mqNodeName);
+            } else {
+                relations = NodeRelationUtils.createNodeRelations(sources, sinkInfos);
+            }
+
+            for (int i = 0; i < sources.size(); i++) {
+                addAuditId(sources.get(i).getProperties(), sinkInfos.get(0).getSinkType(), false);
+            }
+        } else {
+            if (CollectionUtils.isNotEmpty(transformResponses)) {
+                List<String> sourcesNames = sources.stream().map(StreamSource::getSourceName)
+                        .collect(Collectors.toList());
+                List<String> transFormNames = transformResponses.stream().map(TransformResponse::getTransformName)
+                        .collect(Collectors.toList());
+                relations = Arrays.asList(NodeRelationUtils.createNodeRelation(sourcesNames, transFormNames),
+                        NodeRelationUtils.createNodeRelation(transFormNames,
+                                sinkInfos.stream().map(StreamSink::getSinkName).collect(Collectors.toList())));
+            } else {
+                relations = NodeRelationUtils.createNodeRelations(sources, sinkInfos);
+            }
+
+            for (StreamSource source : sources) {
+                addAuditId(source.getProperties(), source.getSourceType(), false);
+            }
+        }
+
+        // create extract-transform-load nodes
+        List<Node> nodes = this.createNodes(sources, transformResponses, sinkInfos, fieldMap);
+
+        StreamInfo streamInfo = new StreamInfo(streamId, nodes, relations);
+        sortStreamInfos.add(streamInfo);
+
+        // rebuild joinerNode relation
+        NodeRelationUtils.optimizeNodeRelation(streamInfo, transformResponses);
 
         return new GroupInfo(groupInfo.getInlongGroupId(), sortStreamInfos);
     }
@@ -265,20 +277,21 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     }
 
     /**
-     * Add config into inlong group ext info
+     * Add config into inlong stream ext info
      */
-    private void addToGroupExt(InlongGroupInfo groupInfo, String value) {
-        if (groupInfo.getExtList() == null) {
-            groupInfo.setExtList(new ArrayList<>());
+    private void addToStreamExt(InlongStreamInfo streamInfo, String value) {
+        if (streamInfo.getExtList() == null) {
+            streamInfo.setExtList(new ArrayList<>());
         }
 
-        InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
-        extInfo.setInlongGroupId(groupInfo.getInlongGroupId());
+        InlongStreamExtInfo extInfo = new InlongStreamExtInfo();
+        extInfo.setInlongGroupId(streamInfo.getInlongGroupId());
+        extInfo.setInlongStreamId(streamInfo.getInlongStreamId());
         extInfo.setKeyName(InlongConstants.DATAFLOW);
         extInfo.setKeyValue(value);
 
-        groupInfo.getExtList().removeIf(ext -> extInfo.getKeyName().equals(ext.getKeyName()));
-        groupInfo.getExtList().add(extInfo);
+        streamInfo.getExtList().removeIf(ext -> extInfo.getKeyName().equals(ext.getKeyName()));
+        streamInfo.getExtList().add(extInfo);
     }
 
     private void addAuditId(Map<String, Object> properties, String type, boolean isSent) {

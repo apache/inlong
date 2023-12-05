@@ -30,8 +30,11 @@ public class OperationLogEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer id;
+    private String inlongGroupId;
+    private String inlongStreamId;
     private String authenticationType;
     private String operationType;
+    private String operationTarget;
     private String httpMethod;
     private String invokeMethod;
     private String operator;

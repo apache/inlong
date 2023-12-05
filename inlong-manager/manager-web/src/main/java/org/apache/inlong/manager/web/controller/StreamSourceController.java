@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.controller;
 
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.SaveValidation;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
@@ -54,7 +55,7 @@ public class StreamSourceController {
     StreamSourceService sourceService;
 
     @RequestMapping(value = "/source/save", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.CREATE)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.SOURCE)
     @ApiOperation(value = "Save stream source")
     public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody SourceRequest request) {
         return Response.success(sourceService.save(request, LoginUserUtils.getLoginUser().getName()));
@@ -74,14 +75,14 @@ public class StreamSourceController {
     }
 
     @RequestMapping(value = "/source/update", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.SOURCE)
     @ApiOperation(value = "Update stream source")
     public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody SourceRequest request) {
         return Response.success(sourceService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/source/delete/{id}", method = RequestMethod.DELETE)
-    @OperationLog(operation = OperationType.DELETE)
+    @OperationLog(operation = OperationType.DELETE, operationTarget = OperationTarget.SOURCE)
     @ApiOperation(value = "Delete stream source")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> delete(@PathVariable Integer id) {
@@ -106,7 +107,7 @@ public class StreamSourceController {
     }
 
     @RequestMapping(value = "/source/forceDelete", method = RequestMethod.DELETE)
-    @OperationLog(operation = OperationType.DELETE)
+    @OperationLog(operation = OperationType.DELETE, operationTarget = OperationTarget.SOURCE)
     @ApiOperation(value = "Force delete stream source by groupId and streamId")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "inlongGroupId", dataTypeClass = String.class, required = true),

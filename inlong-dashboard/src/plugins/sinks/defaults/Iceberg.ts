@@ -309,14 +309,14 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `Iceberg ${i18n.t('meta.Sinks.Iceberg.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       width: 110,
       dataIndex: 'fieldName',
       rules: [
         { required: true },
         {
           pattern: /^[a-zA-Z_][a-zA-Z0-9_]*$/,
-          message: i18n.t('meta.Sinks.Iceberg.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -324,7 +324,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `Iceberg ${i18n.t('meta.Sinks.Iceberg.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       width: 130,
       initialValue: icebergFieldTypes[0].value,
@@ -387,7 +387,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: i18n.t('meta.Sinks.Iceberg.FieldDescription'),
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
     },
   ];

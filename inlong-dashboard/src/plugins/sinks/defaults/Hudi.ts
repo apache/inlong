@@ -311,14 +311,14 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `Hudi ${i18n.t('meta.Sinks.Hudi.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       width: 110,
       dataIndex: 'fieldName',
       rules: [
         { required: true },
         {
           pattern: /^[a-zA-Z_][a-zA-Z0-9_]*$/,
-          message: i18n.t('meta.Sinks.Hudi.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -326,7 +326,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `Hudi ${i18n.t('meta.Sinks.Hudi.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       width: 130,
       initialValue: hudiFieldTypes[0].value,
@@ -379,7 +379,7 @@ const getFieldListColumns = sinkValues => {
       visible: (text, record) => record.fieldType === 'decimal',
     },
     {
-      title: i18n.t('meta.Sinks.Hudi.FieldDescription'),
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
     },
   ];

@@ -52,6 +52,11 @@ public class CronTask extends Task {
     }
 
     @Override
+    public boolean isProfileValid(TaskProfile profile) {
+        return true;
+    }
+
+    @Override
     public void addCallbacks() {
 
     }

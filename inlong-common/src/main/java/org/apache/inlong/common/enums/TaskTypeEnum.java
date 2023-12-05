@@ -17,6 +17,14 @@
 
 package org.apache.inlong.common.enums;
 
+import com.google.common.collect.Maps;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 /**
  * Enum of task type.
  */
@@ -42,6 +50,17 @@ public enum TaskTypeEnum {
 
     ;
 
+    private static final Map<Integer, TaskTypeEnum> TASK_TYPE_ENUM_MAP = Maps.newHashMap();
+
+    /*
+     * Init tasktype
+     */
+    static {
+        TASK_TYPE_ENUM_MAP.putAll(
+                Arrays.stream(TaskTypeEnum.values()).collect(Collectors.toMap(TaskTypeEnum::getType, type -> type)));
+
+    }
+
     private final int type;
 
     TaskTypeEnum(int type) {
@@ -49,40 +68,11 @@ public enum TaskTypeEnum {
     }
 
     public static TaskTypeEnum getTaskType(int taskType) {
-        switch (taskType) {
-            case 0:
-                return DATABASE_MIGRATION;
-            case 1:
-                return SQL;
-            case 2:
-                return BINLOG;
-            case 3:
-                return FILE;
-            case 4:
-                return KAFKA;
-            case 5:
-                return PULSAR;
-            case 6:
-                return POSTGRES;
-            case 7:
-                return ORACLE;
-            case 8:
-                return SQLSERVER;
-            case 9:
-                return MONGODB;
-            case 10:
-                return TUBEMQ;
-            case 11:
-                return REDIS;
-            case 12:
-                return MQTT;
-            case 13:
-                return HUDI;
-            case 201:
-                return MOCK;
-            default:
-                throw new RuntimeException("Unsupported task type " + taskType);
+        TaskTypeEnum taskTypeEnum = TASK_TYPE_ENUM_MAP.get(taskType);
+        if (Objects.isNull(taskTypeEnum)) {
+            throw new NoSuchElementException(String.format("Unsupported task type:[%s]", taskType));
         }
+        return taskTypeEnum;
     }
 
     public int getType() {

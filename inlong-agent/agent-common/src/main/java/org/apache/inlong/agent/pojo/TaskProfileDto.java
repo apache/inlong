@@ -138,6 +138,7 @@ public class TaskProfileDto {
         fileTask.setDir(dir);
         fileTask.setCollectType(taskConfig.getCollectType());
         fileTask.setContentCollectType(taskConfig.getContentCollectType());
+        fileTask.setDataContentStyle(taskConfig.getDataContentStyle());
         fileTask.setDataSeparator(taskConfig.getDataSeparator());
         fileTask.setMaxFileCount(taskConfig.getMaxFileCount());
         fileTask.setRetry(taskConfig.getRetry());
@@ -147,6 +148,9 @@ public class TaskProfileDto {
         fileTask.setProperties(GSON.toJson(taskConfig.getProperties()));
         if (taskConfig.getTimeOffset() != null) {
             fileTask.setTimeOffset(taskConfig.getTimeOffset());
+        }
+        if (taskConfig.getTimeZone() != null) {
+            fileTask.setTimeZone(taskConfig.getTimeZone());
         }
 
         if (taskConfig.getAdditionalAttr() != null) {

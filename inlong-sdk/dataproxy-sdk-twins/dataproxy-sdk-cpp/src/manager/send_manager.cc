@@ -22,24 +22,15 @@
 #include "proxy_manager.h"
 namespace inlong {
 SendManager::SendManager() : send_group_idx_(0) {
-  for (int32_t i = 0; i < SdkConfig::getInstance()->inlong_group_ids_.size();
-       i++) {
-    LOG_INFO("SendManager, group_id:"
-             << SdkConfig::getInstance()->inlong_group_ids_[i]
-             << " send group num:"
-             << SdkConfig::getInstance()->per_groupid_thread_nums_);
-    std::string send_group_key = ProxyManager::GetInstance()->GetSendGroupKey(
-        SdkConfig::getInstance()->inlong_group_ids_[i]);
-    AddSendGroup(send_group_key);
-  }
+  LOG_INFO("SendManager,send group num:"
+           << SdkConfig::getInstance()->per_groupid_thread_nums_);
 }
 
-SendGroupPtr SendManager::GetSendGroup(const std::string &group_id) {
-  std::string send_group_key =
-      ProxyManager::GetInstance()->GetSendGroupKey(group_id);
-  SendGroupPtr send_group_ptr = DoGetSendGroup(send_group_key);
+SendGroupPtr SendManager::GetSendGroup(const std::string &group_key) {
+  std::string send_key= GetSendKey(group_key);
+  SendGroupPtr send_group_ptr = DoGetSendGroup(send_key);
   if (send_group_ptr == nullptr) {
-    AddSendGroup(send_group_key);
+    AddSendGroup(send_key);
   }
   return send_group_ptr;
 }
@@ -86,5 +77,10 @@ SendGroupPtr SendManager::DoGetSendGroup(const std::string &send_group_key) {
   }
   return send_group_vec[send_group_idx_];
 }
-
+std::string SendManager::GetSendKey(const std::string &send_group_key) {
+  if (constants::IsolationLevel::kLevelSecond == SdkConfig::getInstance()->isolation_level_) {
+    return ProxyManager::GetInstance()->GetClusterID(send_group_key);
+  }
+  return send_group_key;
+}
 } // namespace inlong

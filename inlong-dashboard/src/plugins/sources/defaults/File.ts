@@ -36,7 +36,7 @@ export default class PulsarSource
     type: 'select',
     rules: [{ required: true }],
     props: values => ({
-      disabled: values?.status === 101,
+      disabled: Boolean(values.id),
       showSearch: true,
       allowClear: true,
       filterOption: false,
@@ -89,7 +89,7 @@ export default class PulsarSource
       },
     ],
     props: values => ({
-      disabled: values?.status === 101,
+      disabled: Boolean(values.id),
       showSearch: true,
       allowClear: true,
       filterOption: false,
@@ -125,7 +125,7 @@ export default class PulsarSource
     tooltip: i18n.t('meta.Sources.File.FilePathHelp'),
     rules: [{ required: true }],
     props: values => ({
-      disabled: values?.status === 101,
+      disabled: Boolean(values.id),
     }),
   })
   @ColumnDecorator()
@@ -133,12 +133,92 @@ export default class PulsarSource
   pattern: string;
 
   @FieldDecorator({
+    type: 'inputnumber',
+    rules: [{ required: true }],
+    props: values => ({
+      min: 1,
+      max: 100,
+      precision: 0,
+      disabled: Boolean(values.id),
+    }),
+  })
+  @I18n('meta.Sources.File.MaxFileCount')
+  maxFileCount: number;
+
+  @FieldDecorator({
+    type: 'radio',
+    rules: [{ required: true }],
+    initialValue: 'default',
+    props: values => ({
+      disabled: Boolean(values.id),
+      options: [
+        {
+          label: 'Default',
+          value: 'default',
+        },
+        {
+          label: 'Mix',
+          value: 'mix',
+        },
+      ],
+    }),
+  })
+  @I18n('meta.Sources.File.DataContentStyle')
+  dataContentStyle: string;
+
+  @FieldDecorator({
+    type: 'radio',
+    props: values => ({
+      disabled: Boolean(values.id),
+      options: [
+        {
+          label: i18n.t('meta.Sources.File.Cycle.Day'),
+          value: 'D',
+        },
+        {
+          label: i18n.t('meta.Sources.File.Cycle.Hour'),
+          value: 'H',
+        },
+        {
+          label: i18n.t('meta.Sources.File.Cycle.RealTime'),
+          value: 'R',
+        },
+      ],
+    }),
+  })
+  @I18n('meta.Sources.File.Cycle')
+  cycleUnit: string;
+
+  @FieldDecorator({
     type: 'input',
     tooltip: i18n.t('meta.Sources.File.TimeOffsetHelp'),
+    rules: [
+      {
+        pattern: /[0-9][mhd]$/,
+        message: i18n.t('meta.Sources.File.TimeOffsetRules'),
+      },
+    ],
     props: values => ({
-      disabled: values?.status === 101,
+      disabled: Boolean(values.id),
     }),
   })
   @I18n('meta.Sources.File.TimeOffset')
   timeOffset: string;
+
+  @FieldDecorator({
+    type: 'select',
+    initialValue: 'GMT+8:00',
+    props: values => ({
+      disabled: Boolean(values.id),
+      options: [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11,
+        -12,
+      ].map(item => ({
+        label: Math.sign(item) === 1 || Math.sign(item) === 0 ? `GMT+${item}:00` : `GMT${item}:00`,
+        value: Math.sign(item) === 1 || Math.sign(item) === 0 ? `GMT+${item}:00` : `GMT${item}:00`,
+      })),
+    }),
+  })
+  @I18n('meta.Sources.File.TimeZone')
+  timeZone: string;
 }

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.controller;
 
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
@@ -58,7 +59,7 @@ public class InlongRoleController {
     }
 
     @RequestMapping(value = "/role/inlong/save", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.CREATE)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.INLONG_ROLE)
     @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     @ApiOperation(value = "Save inlong role")
     public Response<Integer> save(@Validated @RequestBody InlongRoleRequest request) {
@@ -67,7 +68,7 @@ public class InlongRoleController {
     }
 
     @RequestMapping(value = "/role/inlong/update", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.INLONG_ROLE)
     @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     @ApiOperation(value = "Update inlong role")
     public Response<Boolean> update(@Validated @RequestBody InlongRoleRequest request) {

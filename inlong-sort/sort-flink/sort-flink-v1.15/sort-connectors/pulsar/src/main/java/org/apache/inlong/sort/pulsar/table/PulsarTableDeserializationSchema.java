@@ -57,6 +57,8 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
 
     private final boolean upsertMode;
 
+    private final boolean innerFormat;
+
     private SourceMetricData sourceMetricData;
 
     private MetricOption metricOption;
@@ -67,6 +69,7 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
             TypeInformation<RowData> producedTypeInfo,
             PulsarRowDataConverter rowDataConverter,
             boolean upsertMode,
+            boolean innerFormat,
             MetricOption metricOption) {
         if (upsertMode) {
             checkNotNull(keyDeserialization, "upsert mode must specify a key format");
@@ -76,6 +79,7 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
         this.rowDataConverter = checkNotNull(rowDataConverter);
         this.producedTypeInfo = checkNotNull(producedTypeInfo);
         this.upsertMode = upsertMode;
+        this.innerFormat = innerFormat;
         this.metricOption = metricOption;
     }
 
@@ -109,8 +113,15 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
             return;
         }
 
-        valueDeserialization.deserialize(message.getData(),
-                new MetricsCollector<>(new ListCollector<>(valueRowData), sourceMetricData));
+        MetricsCollector<RowData> metricsCollector =
+                new MetricsCollector<>(new ListCollector<>(valueRowData), sourceMetricData);
+
+        // reset timestamp if the deserialize schema has not inner format
+        if (!innerFormat) {
+            metricsCollector.resetTimestamp(System.currentTimeMillis());
+        }
+
+        valueDeserialization.deserialize(message.getData(), metricsCollector);
 
         rowDataConverter.projectToProducedRowAndCollect(
                 message, keyRowData, valueRowData, collector);

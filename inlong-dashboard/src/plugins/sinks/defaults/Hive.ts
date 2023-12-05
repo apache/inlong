@@ -331,14 +331,14 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `Hive ${i18n.t('meta.Sinks.Hive.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('meta.Sinks.Hive.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -346,7 +346,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `Hive ${i18n.t('meta.Sinks.Hive.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       initialValue: hiveFieldTypes[0].value,
       type: 'select',
@@ -389,7 +389,7 @@ const getFieldListColumns = sinkValues => {
         ['bigint', 'date', 'timestamp'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('meta.Sinks.Hive.FieldDescription'),
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },

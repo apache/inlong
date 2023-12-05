@@ -113,6 +113,19 @@ public class HttpUtils {
     }
 
     /**
+     * Send an void HTTP request
+     */
+    public static void request(RestTemplate restTemplate, String url, HttpMethod httpMethod, Object requestBody,
+            HttpHeaders header) {
+        log.debug("begin request to {} by request body {}", url, GSON.toJson(requestBody));
+        HttpEntity<Object> requestEntity = new HttpEntity<>(requestBody, header);
+        ResponseEntity<String> response = restTemplate.exchange(url, httpMethod, requestEntity, String.class);
+
+        log.debug("success request to {}, status code {}", url, response.getStatusCode());
+        Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(), "Request failed");
+    }
+
+    /**
      * Send GET request to the specified URL.
      */
     public static <T> T getRequest(RestTemplate restTemplate, String url, Map<String, Object> params,

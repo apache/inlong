@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.tubemq;
 
+import org.apache.inlong.sort.tubemq.table.DynamicTubeMQDeserializationSchema;
 import org.apache.inlong.sort.tubemq.table.TubeMQOptions;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.consumer.ConsumePosition;
@@ -27,7 +28,6 @@ import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 
 import org.apache.flink.api.common.functions.util.ListCollector;
-import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.state.OperatorStateStore;
@@ -92,7 +92,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
     /**
      * The deserializer for records.
      */
-    private final DeserializationSchema<T> deserializationSchema;
+    private final DynamicTubeMQDeserializationSchema<T> deserializationSchema;
 
     /**
      * The random key for TubeMQ consumer group when startup.
@@ -158,7 +158,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
             String topic,
             TreeSet<String> streamIdSet,
             String consumerGroup,
-            DeserializationSchema<T> deserializationSchema,
+            DynamicTubeMQDeserializationSchema<T> deserializationSchema,
             Configuration configuration,
             String sessionKey,
             Boolean innerFormat) {
@@ -208,7 +208,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
     @Override
     public void open(Configuration parameters) throws Exception {
 
-        deserializationSchema.open(null);
+        deserializationSchema.open();
         ConsumerConfig consumerConfig = new ConsumerConfig(masterAddress, consumerGroup);
         consumerConfig.setConsumePosition(consumeFromMax
                 ? ConsumePosition.CONSUMER_FROM_LATEST_OFFSET
@@ -292,14 +292,14 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
             lastConsumeInstant = Instant.now();
             if (!innerFormat) {
                 for (Message message : messageList) {
-                    T record = deserializationSchema.deserialize(message.getData());
+                    T record = deserializationSchema.deserialize(message);
                     records.add(record);
                 }
             } else {
                 List<RowData> rowDataList = new ArrayList<>();
                 ListCollector<RowData> out = new ListCollector<>(rowDataList);
                 for (Message message : messageList) {
-                    deserializationSchema.deserialize(message.getData(), (Collector<T>) out);
+                    deserializationSchema.deserialize(message, (Collector<T>) out);
                 }
                 rowDataList.forEach(data -> records.add((T) data));
             }
@@ -316,6 +316,8 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
         for (Map.Entry<String, Long> entry : currentOffsets.entrySet()) {
             offsetsState.add(new Tuple2<>(entry.getKey(), entry.getValue()));
         }
+
+        deserializationSchema.flushAudit();
 
         LOG.info("Successfully save the offsets in checkpoint {}: {}.",
                 context.getCheckpointId(), currentOffsets);

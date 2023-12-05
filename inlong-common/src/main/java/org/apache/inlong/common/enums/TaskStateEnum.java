@@ -25,7 +25,7 @@ public enum TaskStateEnum {
     NEW(0),
     RUNNING(1),
     FROZEN(2),
-    FINISH(3);
+    RETRY_FINISH(3);
 
     private final int state;
 
@@ -42,7 +42,7 @@ public enum TaskStateEnum {
             case 2:
                 return FROZEN;
             case 3:
-                return FINISH;
+                return RETRY_FINISH;
             default:
                 throw new RuntimeException("Unsupported task state " + state);
         }

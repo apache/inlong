@@ -25,6 +25,7 @@ import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.constant.TubeMQConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.format.Format;
+import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import com.google.common.base.Preconditions;
@@ -129,10 +130,14 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable, Inlo
         String metadataKey;
         switch (metaField) {
             case AUDIT_DATA_TIME:
-                metadataKey = "value.data-time";
+                if (format instanceof InLongMsgFormat) {
+                    metadataKey = INLONG_MSG_AUDIT_TIME;
+                } else {
+                    metadataKey = CONSUME_AUDIT_TIME;
+                }
                 break;
             default:
-                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
+                throw new UnsupportedOperationException(String.format("Unsupported meta field for %s: %s",
                         this.getClass().getSimpleName(), metaField));
         }
         return metadataKey;
