@@ -297,7 +297,7 @@
   "meta.Sinks.Redis.dataType": "Data type",
   "meta.Sinks.Redis.schemaMapMode": "Schema map mode",
   "meta.Sinks.Redis.TimeoutUnit": "s",
-  "meta.Sinks.Redis.SoTimeoutUnit": "s",  
+  "meta.Sinks.Redis.SoTimeoutUnit": "s",
   "meta.Sinks.Redis.FormatDataType": "Format data type",
   "meta.Sinks.Redis.FormatIgnoreParseError": "Ignore parse error",
   "meta.Sinks.Redis.FormatDataEncoding": "Data encoding",

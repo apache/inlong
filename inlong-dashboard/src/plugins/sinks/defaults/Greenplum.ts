@@ -22,35 +22,36 @@ import i18n from '@/i18n';
 import EditableTable from '@/ui/components/EditableTable';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
+import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const fieldTypesConf = {
-  SMALLINT: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
-  INT2: () => '',
-  SMALLSERIAL: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
-  SERIAL: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
-  SERIAL2: () => '',
-  INTEGER: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
-  BIGINT: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
-  BIGSERIAL: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
-  REAL: () => '',
-  FLOAT4: () => '',
-  FLOAT8: () => '',
-  DOUBLE: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
-  NUMERIC: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
-  DECIMAL: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
-  BOOLEAN: () => '',
-  DATE: () => '',
-  TIME: () => '',
-  TIMESTAMP: () => '',
-  CHAR: (m, d) => (1 <= m && m <= 255 ? '' : '1 <= M <= 255'),
-  CHARACTER: (m, d) => (1 <= m && m <= 255 ? '' : '1 <= M <= 255'),
-  VARCHAR: (m, d) => (1 <= m && m <= 255 ? '' : '1 <= M <= 255'),
-  TEXT: () => '',
-  BYTEA: () => '',
+  smallint: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
+  int2: () => '',
+  smallserial: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
+  serial: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
+  serial2: () => '',
+  integer: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
+  bigint: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
+  bigserial: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
+  real: () => '',
+  float4: () => '',
+  float8: () => '',
+  double: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  numeric: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  decimal: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  boolean: () => '',
+  date: () => '',
+  time: () => '',
+  timestamp: () => '',
+  char: (m, d) => (1 <= m && m <= 255 ? '' : '1 <= M <= 255'),
+  character: (m, d) => (1 <= m && m <= 255 ? '' : '1 <= M <= 255'),
+  varchar: (m, d) => (1 <= m && m <= 255 ? '' : '1 <= M <= 255'),
+  text: () => '',
+  bytea: () => '',
 };
 
 const greenplumFieldTypes = Object.keys(fieldTypesConf).reduce(
@@ -80,10 +81,17 @@ export default class GreenplumSink
   jdbcUrl: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: CreateTable,
     rules: [{ required: true }],
     props: values => ({
       disabled: [110].includes(values?.status),
+      sinkType: values.sinkType,
+      inlongGroupId: values.inlongGroupId,
+      inlongStreamId: values.inlongStreamId,
+      fieldName: 'tableName',
+      sinkObj: {
+        ...values,
+      },
     }),
   })
   @ColumnDecorator()
@@ -122,7 +130,6 @@ export default class GreenplumSink
       ],
     }),
   })
-  @SyncField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
@@ -161,6 +168,22 @@ export default class GreenplumSink
     }),
   })
   sinkFieldList: Record<string, unknown>[];
+
+  @FieldDecorator({
+    type: EditableTable,
+    initialValue: [],
+    props: values => ({
+      size: 'small',
+      editing: ![110].includes(values?.status),
+      columns: getFieldListColumns(values).filter(
+        item => item.dataIndex !== 'sourceFieldName' && item.dataIndex !== 'sourceFieldType',
+      ),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
+    }),
+  })
+  @SyncCreateTableField()
+  createTableField: Record<string, unknown>[];
 }
 
 const getFieldListColumns = sinkValues => {

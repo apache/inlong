@@ -25,9 +25,10 @@ import EditableTable from '@/ui/components/EditableTable';
 import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';
 import NodeSelect from '@/ui/components/NodeSelect';
+import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const clickHouseTargetTypes = [
@@ -62,10 +63,17 @@ export default class ClickHouseSink
   dbName: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: CreateTable,
     rules: [{ required: true }],
     props: values => ({
       disabled: [110].includes(values?.status),
+      sinkType: values.sinkType,
+      inlongGroupId: values.inlongGroupId,
+      inlongStreamId: values.inlongStreamId,
+      fieldName: 'tableName',
+      sinkObj: {
+        ...values,
+      },
     }),
   })
   @ColumnDecorator()
@@ -119,6 +127,7 @@ export default class ClickHouseSink
     suffix: i18n.t('meta.Sinks.ClickHouse.FlushIntervalUnit'),
   })
   @I18n('meta.Sinks.ClickHouse.FlushInterval')
+  @SyncCreateTableField()
   @ColumnDecorator()
   flushInterval: number;
 
@@ -134,6 +143,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.FlushRecord')
   @ColumnDecorator()
+  @SyncCreateTableField()
   flushRecord: number;
 
   @FieldDecorator({
@@ -148,7 +158,8 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.RetryTimes')
   @ColumnDecorator()
-  retryTime: number;
+  @SyncCreateTableField()
+  retryTimes: number;
 
   @FieldDecorator({
     type: 'radio',
@@ -170,6 +181,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.IsDistributed')
   @ColumnDecorator()
+  @SyncCreateTableField()
   isDistributed: number;
 
   @FieldDecorator({
@@ -197,6 +209,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.PartitionStrategy')
   @ColumnDecorator()
+  @SyncCreateTableField()
   partitionStrategy: string;
 
   @FieldDecorator({
@@ -209,6 +222,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.PartitionFields')
   @ColumnDecorator()
+  @SyncCreateTableField()
   partitionFields: string;
 
   @FieldDecorator({
@@ -235,6 +249,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.Engine')
   @ColumnDecorator()
+  @SyncCreateTableField()
   engine: string;
 
   @FieldDecorator({
@@ -244,6 +259,7 @@ export default class ClickHouseSink
     }),
   })
   @I18n('meta.Sinks.ClickHouse.OrderBy')
+  @SyncCreateTableField()
   orderBy: string;
 
   @FieldDecorator({
@@ -254,6 +270,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.PartitionBy')
   @ColumnDecorator()
+  @SyncCreateTableField()
   partitionBy: string;
 
   @FieldDecorator({
@@ -273,6 +290,7 @@ export default class ClickHouseSink
     }),
   })
   @I18n('meta.Sinks.ClickHouse.Cluster')
+  @SyncCreateTableField()
   @ColumnDecorator()
   cluster: string;
 
@@ -328,6 +346,7 @@ export default class ClickHouseSink
   })
   @I18n('Time To Live')
   @ColumnDecorator()
+  @SyncCreateTableField()
   ttl: number;
 
   @FieldDecorator({
@@ -341,6 +360,22 @@ export default class ClickHouseSink
     }),
   })
   sinkFieldList: Record<string, unknown>[];
+
+  @FieldDecorator({
+    type: EditableTable,
+    initialValue: [],
+    props: values => ({
+      size: 'small',
+      editing: ![110].includes(values?.status),
+      columns: getFieldListColumns(values).filter(
+        item => item.dataIndex !== 'sourceFieldName' && item.dataIndex !== 'sourceFieldType',
+      ),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
+    }),
+  })
+  @SyncCreateTableField()
+  createTableField: Record<string, unknown>[];
 }
 
 const getFieldListColumns = sinkValues => {

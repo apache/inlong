@@ -22,35 +22,36 @@ import i18n from '@/i18n';
 import EditableTable from '@/ui/components/EditableTable';
 import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';
+import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const fieldTypesConf = {
-  SMALLINT: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
-  INT2: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
-  SMALLSERIAL: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
-  SERIAL2: () => '',
-  INTEGER: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
-  SERIAL: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
-  BIGINT: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
-  BIGSERIAL: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
-  REAL: (m, d) => (1 <= m && m <= 24 ? '' : '1 <= M <= 24'),
-  FLOAT4: (m, d) => (1 <= m && m <= 24 ? '' : '1 <= M <= 24'),
-  FLOAT8: (m, d) => (24 < m && m <= 53 ? '' : '24 < M <= 53'),
-  DOUBLE: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
-  NUMERIC: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
-  DECIMAL: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
-  BOOLEAN: () => '',
-  DATE: () => '',
-  TIME: () => '',
-  TIMESTAMP: () => '',
-  CHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
-  CHARACTER: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
-  VARCHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
-  TEXT: () => '',
-  BYTEA: () => '',
+  smallint: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
+  int2: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
+  smallserial: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
+  serial2: () => '',
+  integer: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
+  serial: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
+  bigint: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
+  bigserial: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
+  real: (m, d) => (1 <= m && m <= 24 ? '' : '1 <= M <= 24'),
+  float4: (m, d) => (1 <= m && m <= 24 ? '' : '1 <= M <= 24'),
+  float8: (m, d) => (24 < m && m <= 53 ? '' : '24 < M <= 53'),
+  double: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  numeric: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  decimal: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  boolean: () => '',
+  date: () => '',
+  time: () => '',
+  timestamp: () => '',
+  char: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
+  character: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
+  varchar: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
+  text: () => '',
+  bytea: () => '',
 };
 
 const postgreSqlFieldTypes = Object.keys(fieldTypesConf).reduce(
@@ -89,10 +90,17 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   dbName: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: CreateTable,
     rules: [{ required: true }],
     props: values => ({
       disabled: [110].includes(values?.status),
+      sinkType: values.sinkType,
+      inlongGroupId: values.inlongGroupId,
+      inlongStreamId: values.inlongStreamId,
+      fieldName: 'tableName',
+      sinkObj: {
+        ...values,
+      },
     }),
   })
   @ColumnDecorator()
@@ -131,7 +139,6 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
       ],
     }),
   })
-  @SyncField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
@@ -170,6 +177,22 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     }),
   })
   sinkFieldList: Record<string, unknown>[];
+
+  @FieldDecorator({
+    type: EditableTable,
+    initialValue: [],
+    props: values => ({
+      size: 'small',
+      editing: ![110].includes(values?.status),
+      columns: getFieldListColumns(values).filter(
+        item => item.dataIndex !== 'sourceFieldName' && item.dataIndex !== 'sourceFieldType',
+      ),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
+    }),
+  })
+  @SyncCreateTableField()
+  createTableField: Record<string, unknown>[];
 }
 
 const getFieldListColumns = sinkValues => {
