@@ -82,9 +82,6 @@ const Comp: React.FC<Props> = ({
       return;
     }
 
-    // if (sinkMultipleEnable) {
-    //   submitData.allMigration = true;
-    // }
     submitData.allMigration = sinkMultipleEnable;
 
     await request({

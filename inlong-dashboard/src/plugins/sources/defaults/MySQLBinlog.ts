@@ -139,7 +139,6 @@ export default class TubeMqSource
       ],
     }),
   })
-  // @SyncField()
   @I18n('meta.Sources.Db.AllMigration')
   allMigration: boolean;
 
