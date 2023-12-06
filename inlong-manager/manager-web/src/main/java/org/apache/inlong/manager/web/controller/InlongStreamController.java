@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.tool.excel.ExcelTool;
@@ -78,7 +79,7 @@ public class InlongStreamController {
     private InlongStreamProcessService streamProcessOperation;
 
     @RequestMapping(value = "/stream/save", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.CREATE)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.STREAM)
     @ApiOperation(value = "Save inlong stream")
     public Response<Integer> save(@RequestBody InlongStreamRequest request) {
         int result = streamService.save(request, LoginUserUtils.getLoginUser().getName());
@@ -133,7 +134,7 @@ public class InlongStreamController {
     }
 
     @RequestMapping(value = "/stream/update", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.STREAM)
     @ApiOperation(value = "Update inlong stream")
     public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody InlongStreamRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
@@ -190,7 +191,7 @@ public class InlongStreamController {
 
     @Deprecated
     @RequestMapping(value = "/stream/delete", method = RequestMethod.DELETE)
-    @OperationLog(operation = OperationType.DELETE)
+    @OperationLog(operation = OperationType.DELETE, operationTarget = OperationTarget.STREAM)
     @ApiOperation(value = "Delete inlong stream")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),

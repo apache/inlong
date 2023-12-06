@@ -28,7 +28,7 @@
 
     <groupId>org.apache.inlong</groupId>
     <artifactId>inlong</artifactId>
-    <version>1.10.0-SNAPSHOT</version>
+    <version>1.11.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Apache InLong</name>
 
@@ -73,6 +73,7 @@
         <dockerfile.maven.version>1.4.13</dockerfile.maven.version>
         <testcontainers.version>1.17.2</testcontainers.version>
         <docker.organization>inlong</docker.organization>
+        <embedded.redis.version>1.1.0</embedded.redis.version>
 
         <netty.version>4.1.94.Final</netty.version>
         <jboss.netty.version>3.10.6.Final</jboss.netty.version>

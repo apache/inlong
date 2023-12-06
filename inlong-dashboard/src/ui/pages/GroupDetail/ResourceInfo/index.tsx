@@ -79,7 +79,13 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
   const dividerInfo = data => {
     let info = [];
     for (const item in data) {
-      if (data[item] !== null && item !== 'SortInfo' && item !== 'PULSAR' && item !== 'TUBEMQ') {
+      if (
+        data[item] !== null &&
+        item !== 'SortInfo' &&
+        item !== 'PULSAR' &&
+        item !== 'TUBEMQ' &&
+        item !== 'inlongClusterTag'
+      ) {
         info.push(item);
       }
     }
@@ -88,10 +94,19 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
 
   return (
     <div style={{ position: 'relative' }}>
+      {data?.hasOwnProperty('inlongClusterTag') && (
+        <>
+          <Divider orientation="left">Cluster tag {t('pages.GroupDetail.Resource.Info')}</Divider>
+          <div>
+            <span>Cluster tag:</span>
+            <span style={{ marginLeft: 100 }}>{data?.inlongClusterTag}</span>
+          </div>
+        </>
+      )}
       {dividerInfo(data).map(item => {
         return (
           <>
-            <Divider orientation="left">
+            <Divider orientation="left" style={{ marginTop: 40 }}>
               {clusters.find(c => c.value === item)?.label || item}{' '}
               {t('pages.GroupDetail.Resource.Info')}
             </Divider>

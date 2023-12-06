@@ -25,9 +25,10 @@ import EditableTable from '@/ui/components/EditableTable';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
 import NodeSelect from '@/ui/components/NodeSelect';
+import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const hudiFieldTypes = [
@@ -120,10 +121,17 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
   dbName: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: CreateTable,
     rules: [{ required: true }],
     props: values => ({
       disabled: [110].includes(values?.status),
+      sinkType: values.sinkType,
+      inlongGroupId: values.inlongGroupId,
+      inlongStreamId: values.inlongStreamId,
+      fieldName: 'tableName',
+      sinkObj: {
+        ...values,
+      },
     }),
   })
   @ColumnDecorator()
@@ -151,7 +159,6 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
     }),
   })
   @I18n('meta.Sinks.EnableCreateResource')
-  @SyncField()
   enableCreateResource: number;
 
   @FieldDecorator({
@@ -260,9 +267,24 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
   sinkFieldList: Record<string, unknown>[];
 
   @FieldDecorator({
+    type: EditableTable,
+    initialValue: [],
+    props: values => ({
+      size: 'small',
+      editing: ![110].includes(values?.status),
+      columns: getFieldListColumns(values).filter(
+        item => item.dataIndex !== 'sourceFieldName' && item.dataIndex !== 'sourceFieldType',
+      ),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
+    }),
+  })
+  @SyncCreateTableField()
+  createTableField: Record<string, unknown>[];
+
+  @FieldDecorator({
     type: 'input',
     tooltip: i18n.t('meta.Sinks.Hudi.PrimaryKeyHelper'),
-    rules: [{ required: true }],
     props: values => ({
       disabled: [110].includes(values?.status),
     }),
@@ -290,14 +312,14 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `Hudi ${i18n.t('meta.Sinks.Hudi.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       width: 110,
       dataIndex: 'fieldName',
       rules: [
         { required: true },
         {
           pattern: /^[a-zA-Z_][a-zA-Z0-9_]*$/,
-          message: i18n.t('meta.Sinks.Hudi.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -305,7 +327,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `Hudi ${i18n.t('meta.Sinks.Hudi.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       width: 130,
       initialValue: hudiFieldTypes[0].value,
@@ -358,7 +380,7 @@ const getFieldListColumns = sinkValues => {
       visible: (text, record) => record.fieldType === 'decimal',
     },
     {
-      title: i18n.t('meta.Sinks.Hudi.FieldDescription'),
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
     },
   ];

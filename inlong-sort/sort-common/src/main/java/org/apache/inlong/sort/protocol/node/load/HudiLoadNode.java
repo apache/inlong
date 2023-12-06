@@ -29,6 +29,7 @@ import com.google.common.base.Preconditions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
@@ -145,22 +146,26 @@ public class HudiLoadNode extends LoadNode implements InlongMetric, Serializable
 
         // If the extend attributes starts with .ddl,
         // it will be passed to the ddl statement of the table
-        extList.forEach(ext -> {
-            String keyName = ext.get(EXTEND_ATTR_KEY_NAME);
-            if (StringUtils.isNoneBlank(keyName) &&
-                    keyName.startsWith(DDL_ATTR_PREFIX)) {
-                String ddlKeyName = keyName.substring(DDL_ATTR_PREFIX.length());
-                String ddlValue = ext.get(EXTEND_ATTR_VALUE_NAME);
-                options.put(ddlKeyName, ddlValue);
-            }
-        });
+        if (CollectionUtils.isNotEmpty(extList)) {
+            extList.forEach(ext -> {
+                String keyName = ext.get(EXTEND_ATTR_KEY_NAME);
+                if (StringUtils.isNoneBlank(keyName) &&
+                        keyName.startsWith(DDL_ATTR_PREFIX)) {
+                    String ddlKeyName = keyName.substring(DDL_ATTR_PREFIX.length());
+                    String ddlValue = ext.get(EXTEND_ATTR_VALUE_NAME);
+                    options.put(ddlKeyName, ddlValue);
+                }
+            });
+        }
 
         String path = String.format("%s/%s.db/%s", warehouse, dbName, tableName);
         options.put(HUDI_OPTION_DEFAULT_PATH, path);
 
         options.put(HUDI_OPTION_DATABASE_NAME, dbName);
         options.put(HUDI_OPTION_TABLE_NAME, tableName);
-        options.put(HUDI_OPTION_RECORD_KEY_FIELD_NAME, primaryKey);
+        if (StringUtils.isNoneBlank(primaryKey)) {
+            options.put(HUDI_OPTION_RECORD_KEY_FIELD_NAME, primaryKey);
+        }
         options.put("connector", "hudi-inlong");
 
         return options;

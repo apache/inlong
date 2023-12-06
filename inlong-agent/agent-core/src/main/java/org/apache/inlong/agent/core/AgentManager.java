@@ -21,7 +21,6 @@ import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.ProfileFetcher;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.core.task.file.TaskManager;
 
 import org.slf4j.Logger;
@@ -48,7 +47,6 @@ public class AgentManager extends AbstractDaemon {
     public AgentManager() {
         conf = AgentConfiguration.getAgentConf();
         agentConfMonitor = Executors.newSingleThreadExecutor();
-        OffsetManager.init();
         taskManager = new TaskManager();
         fetcher = initFetcher(this);
         heartbeatManager = HeartbeatManager.getInstance(this);

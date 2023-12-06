@@ -124,7 +124,7 @@ public class NewDateUtils {
         String retTime = DateTransUtils.millSecConvertToTimeStr(
                 System.currentTimeMillis(), cycleUnit);
         try {
-            long time = DateTransUtils.timeStrConvertTomillSec(dataTime, cycleUnit);
+            long time = DateTransUtils.timeStrConvertToMillSec(dataTime, cycleUnit);
 
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(time);
@@ -223,49 +223,12 @@ public class NewDateUtils {
         }
 
         if (timeOffset.startsWith("-")) {
-            timeInterval -= calcOffset(timeOffset);
+            timeInterval -= DateTransUtils.calcOffset(timeOffset);
         } else {
-            timeInterval += calcOffset(timeOffset);
+            timeInterval += DateTransUtils.calcOffset(timeOffset);
         }
 
         return isValidCreationTime(dataTime, timeInterval);
-    }
-
-    /**
-     * Calculate offset time based on offset
-     * The current offset will only be offset forward, or it can be offset backward to be compatible with the previous
-     * calculation method (subtraction).
-     * When it is offset backward, it returns negative;
-     * When offset forward, return positive
-     *
-     * @param timeOffset offset，such as -1d,-4h,-10m；
-     * @return
-     */
-    public static long calcOffset(String timeOffset) {
-        String offsetUnit = timeOffset.substring(timeOffset.length() - 1);
-        int startIndex;
-        int symbol;
-        if (timeOffset.charAt(0) == '-') {
-            symbol = -1;
-            startIndex = 1;
-        } else {
-            symbol = 1;
-            startIndex = 0;
-        }
-
-        String strOffset = timeOffset.substring(startIndex, timeOffset.length() - 1);
-        if (strOffset.length() == 0) {
-            return 0;
-        }
-        int offsetTime = Integer.parseInt(strOffset);
-        if ("d".equalsIgnoreCase(offsetUnit)) {
-            return offsetTime * 24 * 3600 * 1000 * symbol;
-        } else if ("h".equalsIgnoreCase(offsetUnit)) {
-            return offsetTime * 3600 * 1000 * symbol;
-        } else if ("m".equalsIgnoreCase(offsetUnit)) {
-            return offsetTime * 60 * 1000 * symbol;
-        }
-        return 0;
     }
 
     /*
@@ -581,23 +544,8 @@ public class NewDateUtils {
         return cycleUnit;
     }
 
-    // start: 20120810
-    // end: 20120817
-    // timeval: YYYYMMDDhh
-    public static List<Long> getDateRegion(String start, String end,
-            String cycleUnit) {
-        // TODO : timeval verify
-
+    public static List<Long> getDateRegion(long startTime, long endTime, String cycleUnit) {
         List<Long> ret = new ArrayList<Long>();
-        long startTime;
-        long endTime;
-        try {
-            startTime = DateTransUtils.timeStrConvertTomillSec(start, cycleUnit);
-            endTime = DateTransUtils.timeStrConvertTomillSec(end, cycleUnit);
-        } catch (ParseException e) {
-            logger.error("date format is error: ", e);
-            return ret;
-        }
         DateTime dtStart = DateTime.forInstant(startTime, TimeZone.getDefault());
         DateTime dtEnd = DateTime.forInstant(endTime, TimeZone.getDefault());
 
@@ -630,7 +578,7 @@ public class NewDateUtils {
         } else if (cycleUnit.equalsIgnoreCase("s")) {
             second = 1;
         } else {
-            logger.error("cycelUnit {} is error: ", cycleUnit);
+            logger.error("cycleUnit {} is error: ", cycleUnit);
             return ret;
         }
         while (dtStart.lteq(dtEnd)) {
@@ -638,7 +586,6 @@ public class NewDateUtils {
             dtStart = dtStart.plus(year, month, day, hour, minute, second, 0,
                     DateTime.DayOverflow.LastDay);
         }
-
         return ret;
     }
 }

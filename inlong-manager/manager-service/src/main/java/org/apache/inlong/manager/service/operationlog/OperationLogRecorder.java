@@ -17,12 +17,15 @@
 
 package org.apache.inlong.manager.service.operationlog;
 
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.util.NetworkUtils;
 import org.apache.inlong.manager.dao.entity.OperationLogEntity;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +38,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -44,6 +48,9 @@ import java.util.Optional;
 public class OperationLogRecorder {
 
     private static final String ANONYMOUS_USER = "AnonymousUser";
+    private static final String INLONG_GROUP_ID = "inlongGroupId";
+    private static final String INLONG_STREAM_ID = "inlongStreamId";
+
     private static final Gson GSON = new GsonBuilder().create(); // thread safe
 
     /**
@@ -63,6 +70,25 @@ public class OperationLogRecorder {
         String requestUrl = request.getRequestURI();
         String httpMethod = request.getMethod();
         String remoteAddress = NetworkUtils.getClientIpAddress(request);
+        Object[] args = joinPoint.getArgs();
+        String groupId = "";
+        String streamId = "";
+        for (Object arg : args) {
+            try {
+                JSONObject obj = (JSONObject) JSON.toJSON(arg);
+                for (String key : obj.keySet()) {
+                    if (Objects.equals(key, INLONG_GROUP_ID)) {
+                        groupId = obj.getString(key);
+                    }
+                    if (Objects.equals(key, INLONG_STREAM_ID)) {
+                        streamId = obj.getString(key);
+                    }
+                }
+            } catch (Exception ignored) {
+                log.debug("do nothing when exception");
+            }
+
+        }
         String param = GSON.toJson(request.getParameterMap());
         String body = GSON.toJson(joinPoint.getArgs());
 
@@ -78,7 +104,11 @@ public class OperationLogRecorder {
         } finally {
             long costTime = System.currentTimeMillis() - start;
             OperationType operationType = operationLog.operation();
+            OperationTarget operationTarget = operationLog.operationTarget();
             OperationLogEntity operationLogEntity = new OperationLogEntity();
+            operationLogEntity.setInlongGroupId(groupId);
+            operationLogEntity.setInlongStreamId(streamId);
+            operationLogEntity.setOperationTarget(operationTarget.name());
             operationLogEntity.setOperationType(operationType.name());
             operationLogEntity.setHttpMethod(httpMethod);
             operationLogEntity.setOperator(operator);

@@ -288,7 +288,7 @@ public class TubeMQOperator {
             String url = "http://" + brokerUrl + QUERY_MESSAGE_PATH + TOPIC_NAME + topicName + MSG_COUNT + msgCount;
             TubeMessageResponse response = HttpUtils.request(restTemplate, url, HttpMethod.GET,
                     null, new HttpHeaders(), TubeMessageResponse.class);
-            if (response.getErrCode() != SUCCESS_CODE) {
+            if (response.getErrCode() != SUCCESS_CODE && response.getErrCode() != 200) {
                 String msg = String.format("failed to query message for topic %s, error: %s",
                         topicName, response.getErrMsg());
                 LOGGER.error(msg + " in {} for broker {}", masterUrl, brokerUrl);

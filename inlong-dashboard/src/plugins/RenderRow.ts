@@ -23,6 +23,7 @@ import merge from 'lodash/merge';
 export abstract class RenderRow {
   static FieldList: FieldItemType[] = [];
   static SyncFieldSet = new Set<string>();
+  static SyncCreateTableFieldSet = new Set<string>();
 
   static FieldDecorator(config: FieldItemType): PropertyDecorator {
     return (target: any, propertyKey: string) => {
@@ -50,6 +51,12 @@ export abstract class RenderRow {
   static SyncField(): PropertyDecorator {
     return (target: any, propertyKey: string) => {
       target.constructor.SyncFieldSet.add(propertyKey);
+    };
+  }
+
+  static SyncCreateTableField(): PropertyDecorator {
+    return (target: any, propertyKey: string) => {
+      target.constructor.SyncCreateTableFieldSet.add(propertyKey);
     };
   }
 

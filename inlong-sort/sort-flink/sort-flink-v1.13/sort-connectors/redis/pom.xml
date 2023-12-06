@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>sort-connectors-v1.13</artifactId>
-        <version>1.10.0-SNAPSHOT</version>
+        <version>1.11.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-connector-redis</artifactId>
@@ -73,9 +73,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.kstyrc</groupId>
+            <groupId>com.github.codemonstur</groupId>
             <artifactId>embedded-redis</artifactId>
-            <version>0.6</version>
+            <version>${embedded.redis.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -119,6 +119,10 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-clients_2.11</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
         </dependency>
     </dependencies>
 

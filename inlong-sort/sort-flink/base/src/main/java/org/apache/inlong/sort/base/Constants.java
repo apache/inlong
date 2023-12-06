@@ -419,7 +419,7 @@ public final class Constants {
     public static final ConfigOption<Boolean> SINK_AUTO_CREATE_TABLE_WHEN_SNAPSHOT =
             ConfigOptions.key("sink.multiple.auto-create-table-when-snapshot")
                     .booleanType()
-                    .defaultValue(false)
+                    .defaultValue(true)
                     .withDescription("Whether supporting auto create table when snapshot, default value is 'false'");
 
     public static final ConfigOption<String> INNER_FORMAT =

@@ -28,6 +28,7 @@ import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,6 +39,7 @@ public class IcebergSourceReader<T>
         extends
             SingleThreadMultiplexSourceReaderBase<RecordAndPosition<T>, T, IcebergSourceSplit, IcebergSourceSplit> {
 
+    private final InlongIcebergSourceReaderMetrics<T> metrics;
     public IcebergSourceReader(
             InlongIcebergSourceReaderMetrics<T> metrics,
             ReaderFunction<T> readerFunction,
@@ -47,6 +49,7 @@ public class IcebergSourceReader<T>
                 new IcebergSourceRecordEmitter<>(),
                 context.getConfiguration(),
                 context);
+        this.metrics = metrics;
     }
 
     @Override
@@ -61,6 +64,11 @@ public class IcebergSourceReader<T>
     @Override
     protected void onSplitFinished(Map<String, IcebergSourceSplit> finishedSplitIds) {
         requestSplit(Lists.newArrayList(finishedSplitIds.keySet()));
+    }
+    @Override
+    public List<IcebergSourceSplit> snapshotState(long checkpointId) {
+        metrics.flushAudit();
+        return super.snapshotState(checkpointId);
     }
 
     @Override

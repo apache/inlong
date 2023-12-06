@@ -140,6 +140,28 @@ export default class TubeMqSource
   allMigration: boolean;
 
   @FieldDecorator({
+    type: 'radio',
+    rules: [{ required: true }],
+    initialValue: true,
+    props: values => ({
+      disabled: values?.status === 101,
+      options: [
+        {
+          label: i18n.t('meta.Sources.Db.FullAmountAndIncremental'),
+          value: false,
+        },
+        {
+          label: i18n.t('meta.Sources.Db.Incremental'),
+          value: true,
+        },
+      ],
+    }),
+  })
+  @SyncField()
+  @I18n('meta.Sources.Db.ReadMode')
+  onlyIncremental: boolean;
+
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     tooltip: i18n.t('meta.Sources.Db.DatabaseWhiteListHelp'),

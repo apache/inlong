@@ -30,17 +30,17 @@ public interface SortConfigOperator {
     /**
      * Determines whether the current instance matches the specified type.
      *
-     * @param enableZk is the inlong group enable the ZooKeeper, 1: enable, 0: disable
+     * @param sinkTypeList sink type list
      */
-    Boolean accept(Integer enableZk);
+    Boolean accept(List<String> sinkTypeList);
 
     /**
      * Build Sort config.
      *
      * @param groupInfo inlong group info
-     * @param streamInfos inlong stream info list
+     * @param streamInfo inlong stream info
      * @param isStream is the config built for inlong stream
      */
-    void buildConfig(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos, boolean isStream) throws Exception;
+    void buildConfig(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, boolean isStream) throws Exception;
 
 }

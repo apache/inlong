@@ -26,10 +26,12 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
 import org.apache.inlong.manager.pojo.sort.SortStatusRequest;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.core.SortClusterService;
 import org.apache.inlong.manager.service.core.SortService;
 import org.apache.inlong.manager.service.core.SortSourceService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.workflow.plugin.sort.PollerPlugin;
 import org.apache.inlong.manager.workflow.plugin.sort.SortPoller;
 
@@ -38,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -58,6 +61,8 @@ public class SortServiceImpl implements SortService, PluginBinder {
     private SortClusterService sortClusterService;
     @Autowired
     private InlongGroupService groupService;
+    @Autowired
+    private InlongStreamService streamService;
 
     /**
      * The plugin poller will be initialed after the application starts.
@@ -92,8 +97,11 @@ public class SortServiceImpl implements SortService, PluginBinder {
                     })
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
-
-            List<SortStatusInfo> statusInfos = sortPoller.pollSortStatus(groupInfoList, request.getCredentials());
+            List<InlongStreamInfo> streamInfos = new ArrayList<>();
+            groupInfoList.forEach(groupInfo -> {
+                streamInfos.addAll(streamService.list(groupInfo.getInlongGroupId()));
+            });
+            List<SortStatusInfo> statusInfos = sortPoller.pollSortStatus(streamInfos, request.getCredentials());
             log.debug("success to list sort status for request={}, result={}", request, statusInfos);
             return statusInfos;
         } catch (Exception e) {

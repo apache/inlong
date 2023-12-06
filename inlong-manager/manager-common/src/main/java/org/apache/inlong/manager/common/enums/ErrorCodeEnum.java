@@ -68,6 +68,8 @@ public enum ErrorCodeEnum {
     CLUSTER_INFO_INCORRECT(1103, "Cluster info was incorrect"),
     CLUSTER_TAG_NOT_FOUND(1104, "Cluster tag information does not exist"),
 
+    TENANT_CLUSTER_TAG_NOT_FOUND(1105, "Tenant Cluster tag does not exist"),
+
     DATA_NODE_NOT_FOUND(1150, "Data node information does not exist"),
     DATA_NODE_TYPE_NOT_SUPPORTED(1151, "Data node type '%s' not supported"),
     DATA_NODE_ID_CHANGED(1152, "Data node information's id not equals"),

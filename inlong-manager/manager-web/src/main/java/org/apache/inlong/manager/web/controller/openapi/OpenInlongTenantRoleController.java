@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.controller.openapi;
 
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
@@ -59,7 +60,7 @@ public class OpenInlongTenantRoleController {
     }
 
     @RequestMapping(value = "/role/tenant/save", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.CREATE)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.TENANT)
     @ApiOperation(value = "Save tenant role")
     @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<Integer> save(@Validated @RequestBody TenantRoleRequest request) {
@@ -68,7 +69,7 @@ public class OpenInlongTenantRoleController {
     }
 
     @RequestMapping(value = "/role/tenant/update", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.CREATE)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.TENANT)
     @ApiOperation(value = "Update tenant role")
     @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<Boolean> update(@Validated @RequestBody TenantRoleRequest request) {

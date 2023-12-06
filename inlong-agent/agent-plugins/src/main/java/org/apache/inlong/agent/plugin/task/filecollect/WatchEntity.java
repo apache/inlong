@@ -59,12 +59,10 @@ public class WatchEntity {
     private final Map<String, WatchKey> pathToKeys = new ConcurrentHashMap<String, WatchKey>();
     private final String dirSeparator = System.getProperty("file.separator");
     private String cycleUnit;
-    private String timeOffset;
 
     public WatchEntity(WatchService watchService,
             String originPattern,
-            String cycleUnit,
-            String timeOffset) {
+            String cycleUnit) {
         this.watchService = watchService;
         this.originPattern = originPattern;
         ArrayList<String> directoryLayers = FilePathUtil.getDirectoryLayers(originPattern);
@@ -83,7 +81,6 @@ public class WatchEntity {
         this.dateExpression = DateUtils.extractLongestTimeRegexWithPrefixOrSuffix(originPattern);
         this.containRegexPattern = isPathContainRegexPattern();
         this.cycleUnit = cycleUnit;
-        this.timeOffset = timeOffset;
         logger.info("add a new watchEntity {}", this);
     }
 
@@ -274,7 +271,7 @@ public class WatchEntity {
         logger.info("removeUselessWatchDirectories {}", curDataTime);
 
         /* Calculate the data time which is 3 cycle units earlier than current task data time. */
-        long curDataTimeMillis = DateTransUtils.timeStrConvertTomillSec(curDataTime, cycleUnit);
+        long curDataTimeMillis = DateTransUtils.timeStrConvertToMillSec(curDataTime, cycleUnit);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(curDataTimeMillis);
         if ("D".equalsIgnoreCase(cycleUnit)) {
@@ -343,10 +340,6 @@ public class WatchEntity {
 
     public String getCycleUnit() {
         return cycleUnit;
-    }
-
-    public String getTimeOffset() {
-        return timeOffset;
     }
 
     public String getOriginPattern() {

@@ -20,19 +20,27 @@ package org.apache.inlong.manager.service.group;
 import org.apache.inlong.manager.common.auth.Authentication.AuthType;
 import org.apache.inlong.manager.common.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.dao.entity.TenantClusterTagEntity;
+import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongStreamExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
+import org.apache.inlong.manager.dao.mapper.TenantClusterTagEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
@@ -46,16 +54,22 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf.SortType;
 import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.pojo.sort.UserDefinedSortConf;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
+import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.SourceOperatorFactory;
 import org.apache.inlong.manager.service.source.StreamSourceOperator;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
+import org.apache.inlong.manager.service.workflow.WorkflowService;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.Page;
@@ -74,6 +88,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -84,7 +99,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_CLUSTER_TAG;
+import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_MQ_RESOURCE;
+import static org.apache.inlong.common.constant.ClusterSwitch.CLUSTER_SWITCH_TIME;
+import static org.apache.inlong.common.constant.ClusterSwitch.FINISH_SWITCH_INTERVAL_MIN;
 import static org.apache.inlong.manager.pojo.common.PageRequest.MAX_PAGE_SIZE;
+import static org.apache.inlong.manager.workflow.event.process.ProcessEventListener.EXECUTOR_SERVICE;
 
 /**
  * Inlong group service layer implementation
@@ -105,9 +124,19 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Autowired
     private InlongStreamService streamService;
     @Autowired
+    private StreamSinkService streamSinkService;
+    @Autowired
     private StreamSourceEntityMapper streamSourceMapper;
     @Autowired
+    private TenantClusterTagEntityMapper tenantClusterTagMapper;
+    @Autowired
+    private InlongStreamExtEntityMapper streamExtMapper;
+    @Autowired
     private InlongClusterService clusterService;
+    @Autowired
+    private WorkflowService workflowService;
+    @Autowired
+    private InlongClusterEntityMapper clusterEntityMapper;
 
     @Autowired
     private InlongGroupOperatorFactory groupOperatorFactory;
@@ -211,7 +240,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         List<InlongGroupExtEntity> extEntityList = groupExtMapper.selectByGroupId(groupId);
         List<InlongGroupExtInfo> extList = CommonBeanUtils.copyListProperties(extEntityList, InlongGroupExtInfo::new);
         groupInfo.setExtList(extList);
-        BaseSortConf sortConf = buildSortConfig(extList);
+        List<InlongStreamExtEntity> streamExtEntities = streamExtMapper.selectByRelatedId(groupId, null);
+        BaseSortConf sortConf = buildSortConfig(streamExtEntities);
         groupInfo.setSortConf(sortConf);
 
         LOGGER.debug("success to get inlong group for groupId={}", groupId);
@@ -232,7 +262,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         List<InlongGroupExtEntity> extEntityList = groupExtMapper.selectByGroupId(groupId);
         List<InlongGroupExtInfo> extList = CommonBeanUtils.copyListProperties(extEntityList, InlongGroupExtInfo::new);
         groupInfo.setExtList(extList);
-        BaseSortConf sortConf = buildSortConfig(extList);
+        List<InlongStreamExtEntity> streamExtEntities = streamExtMapper.selectByRelatedId(groupId, null);
+        BaseSortConf sortConf = buildSortConfig(streamExtEntities);
         groupInfo.setSortConf(sortConf);
         return groupInfo;
     }
@@ -595,7 +626,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         return true;
     }
 
-    private BaseSortConf buildSortConfig(List<InlongGroupExtInfo> extInfos) {
+    private BaseSortConf buildSortConfig(List<InlongStreamExtEntity> extInfos) {
         Map<String, String> extMap = new HashMap<>();
         extInfos.forEach(extInfo -> extMap.put(extInfo.getKeyName(), extInfo.getKeyValue()));
         String type = extMap.get(InlongConstants.SORT_TYPE);
@@ -666,4 +697,143 @@ public class InlongGroupServiceImpl implements InlongGroupService {
                 String.format("record has expired with record version=%d, request version=%d",
                         entity.getVersion(), request.getVersion()));
     }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
+    public Boolean startTagSwitch(String groupId, String clusterTag) {
+        LOGGER.info("start to switch cluster tag for group={}, target tag={}", groupId, clusterTag);
+
+        InlongGroupInfo groupInfo = this.get(groupId);
+
+        // check if the group mode is data sync mode
+        if (InlongConstants.DATASYNC_MODE.equals(groupInfo.getInlongGroupMode())) {
+            String errMSg = String.format("no need to switch sync mode group = {}", groupId);
+            LOGGER.error(errMSg);
+            throw new BusinessException(errMSg);
+        }
+
+        // check if the group is under switching
+        List<InlongGroupExtInfo> groupExt = groupInfo.getExtList();
+        Set<String> keys = groupExt.stream()
+                .map(InlongGroupExtInfo::getKeyName)
+                .collect(Collectors.toSet());
+
+        if (keys.contains(BACKUP_CLUSTER_TAG) || keys.contains(BACKUP_MQ_RESOURCE)) {
+            String errMsg = String.format("switch failed, current group is under switching, group=[%s]", groupId);
+            LOGGER.error(errMsg);
+            throw new BusinessException(errMsg);
+        }
+
+        // check if the cluster tag is under current tenant
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        if (groupEntity == null) {
+            LOGGER.error("inlong group not found by groupId={}", groupId);
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+
+        TenantClusterTagEntity tenantClusterTag =
+                tenantClusterTagMapper.selectByUniqueKey(clusterTag, groupEntity.getTenant());
+        if (tenantClusterTag == null) {
+            LOGGER.error("tenant cluster not found for tenant={}, clusterTag={}", groupEntity.getTenant(), clusterTag);
+            throw new BusinessException(ErrorCodeEnum.TENANT_CLUSTER_TAG_NOT_FOUND);
+        }
+
+        // check if all sink related sort cluster has the target cluster tag
+        List<StreamSink> sinks = streamSinkService.listSink(groupEntity.getInlongGroupId(), null);
+        for (StreamSink sink : sinks) {
+            String clusterName = sink.getInlongClusterName();
+            List<InlongClusterEntity> clusterEntity =
+                    clusterEntityMapper.selectByKey(clusterTag, clusterName,
+                            SinkType.relatedSortClusterType(sink.getSinkType()));
+            if (CollectionUtils.isEmpty(clusterEntity) || clusterEntity.size() != 1) {
+                String errMsg = String.format("find no cluster or multiple cluster with clusterName=[%s]", clusterName);
+                LOGGER.error(errMsg);
+                throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND, errMsg);
+            }
+
+        }
+
+        // config cluster tag and backup_cluster_tag
+        UserInfo userInfo = LoginUserUtils.getLoginUser();
+        InlongGroupRequest request = groupInfo.genRequest();
+        String oldClusterTag = request.getInlongClusterTag();
+        request.setInlongClusterTag(clusterTag);
+        request.getExtList().add(new InlongGroupExtInfo(null, groupId, BACKUP_CLUSTER_TAG, oldClusterTag));
+        request.getExtList().add(new InlongGroupExtInfo(null, groupId, BACKUP_MQ_RESOURCE, request.getMqResource()));
+        request.getExtList().add(new InlongGroupExtInfo(null, groupId, CLUSTER_SWITCH_TIME,
+                LocalDateTime.now().toString()));
+        this.update(request, userInfo.getName());
+
+        // trigger group workflow to rebuild configs
+        this.triggerWorkFlow(groupInfo, userInfo);
+        LOGGER.info("success to switch cluster tag for group={}, target tag={}", groupId, clusterTag);
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
+    public Boolean finishTagSwitch(String groupId) {
+        LOGGER.info("start to finish switch cluster tag for group={}", groupId);
+
+        InlongGroupInfo groupInfo = this.get(groupId);
+        UserInfo userInfo = LoginUserUtils.getLoginUser();
+
+        // check whether the current status supports modification
+        GroupStatus curStatus = GroupStatus.forCode(groupInfo.getStatus());
+        if (GroupStatus.notAllowedUpdate(curStatus)) {
+            String errMsg = String.format("Current status=%s is not allowed to update", curStatus);
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
+        }
+
+        // check if the group is under switching
+        List<InlongGroupExtInfo> groupExt = groupInfo.getExtList();
+        Map<String, InlongGroupExtInfo> extInfoMap = groupExt.stream()
+                .collect(Collectors.toMap(InlongGroupExtInfo::getKeyName, v -> v));
+
+        if (!extInfoMap.containsKey(BACKUP_CLUSTER_TAG) || !extInfoMap.containsKey(BACKUP_MQ_RESOURCE)) {
+            String errMsg = String.format("finish switch failed, current group is not under switching, group=[%s]",
+                    groupId);
+            LOGGER.error(errMsg);
+            throw new BusinessException(errMsg);
+        }
+
+        InlongGroupExtInfo switchTime = extInfoMap.get(CLUSTER_SWITCH_TIME);
+        LocalDateTime switchStartTime =
+                switchTime == null ? LocalDateTime.MIN : LocalDateTime.parse(switchTime.getKeyValue());
+
+        // check the switch time
+        LocalDateTime allowSwitchTime = switchStartTime.plusMinutes(FINISH_SWITCH_INTERVAL_MIN);
+        if (LocalDateTime.now().isBefore(allowSwitchTime)) {
+            String errMsg = String.format("finish switch failed, please retry until={}", allowSwitchTime);
+            LOGGER.error(errMsg);
+            throw new BusinessException(errMsg);
+        }
+
+        // remove backup ext info
+        removeExt(extInfoMap.get(BACKUP_CLUSTER_TAG));
+        removeExt(extInfoMap.get(BACKUP_MQ_RESOURCE));
+        removeExt(extInfoMap.get(CLUSTER_SWITCH_TIME));
+
+        // trigger group workflow to rebuild configs
+        this.triggerWorkFlow(groupInfo, userInfo);
+        return true;
+    }
+
+    private void triggerWorkFlow(InlongGroupInfo groupInfo, UserInfo userInfo) {
+        GroupResourceProcessForm processForm = new GroupResourceProcessForm();
+        processForm.setGroupInfo(groupInfo);
+        List<InlongStreamInfo> streamList = streamService.list(groupInfo.getInlongGroupId());
+        processForm.setStreamInfos(streamList);
+        EXECUTOR_SERVICE.execute(
+                () -> workflowService.startAsync(ProcessName.CREATE_GROUP_RESOURCE, userInfo, processForm));
+    }
+
+    private void removeExt(InlongGroupExtInfo extInfo) {
+        if (extInfo == null || extInfo.getId() == null) {
+            return;
+        }
+        groupExtMapper.deleteByPrimaryKey(extInfo.getId());
+    }
+
 }

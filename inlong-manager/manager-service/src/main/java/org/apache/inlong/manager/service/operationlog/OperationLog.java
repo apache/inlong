@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.operationlog;
 
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 
 import java.lang.annotation.ElementType;
@@ -35,6 +36,11 @@ public @interface OperationLog {
      * Operation type
      */
     OperationType operation();
+
+    /**
+     * Operation target
+     */
+    OperationTarget operationTarget();
 
     /**
      * Whether to store in the database

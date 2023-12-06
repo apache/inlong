@@ -94,11 +94,6 @@ public class FileInstance extends Instance {
         running = true;
         while (!isFinished()) {
             if (!source.sourceExist()) {
-                if (profile.isRetry()) {
-                    handleReadEnd();
-                } else {
-                    handleSourceDeleted();
-                }
                 handleSourceDeleted();
                 break;
             }
@@ -131,7 +126,7 @@ public class FileInstance extends Instance {
     }
 
     private void handleSourceDeleted() {
-        OffsetManager.init().deleteOffset(getTaskId(), getInstanceId());
+        OffsetManager.getInstance().deleteOffset(getTaskId(), getInstanceId());
         profile.setState(InstanceStateEnum.DELETE);
         profile.setModifyTime(AgentUtils.getCurrentTime());
         InstanceAction action = new InstanceAction(ActionType.DELETE, profile);

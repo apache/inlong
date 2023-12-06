@@ -58,4 +58,6 @@ public interface DynamicTubeMQDeserializationSchema<T> extends Serializable, Res
             out.collect(deserialize);
         }
     }
+
+    void flushAudit();
 }

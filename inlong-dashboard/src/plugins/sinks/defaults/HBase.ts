@@ -165,14 +165,14 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `HBASE${i18n.t('meta.Sinks.HBase.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('meta.Sinks.HBase.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -180,7 +180,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `HBASE${i18n.t('meta.Sinks.HBase.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       initialValue: hbaseFieldTypes[0].value,
       type: 'select',

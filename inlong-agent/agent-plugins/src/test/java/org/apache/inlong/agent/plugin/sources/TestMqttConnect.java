@@ -61,7 +61,8 @@ public class TestMqttConnect {
 
                 @Override
                 public void run() {
-                    reader.init(jobProfile.createInstanceProfile("", "", "", AgentUtils.getCurrentTime()));
+                    reader.init(jobProfile.createInstanceProfile("", "", jobProfile.getCycleUnit(), "",
+                            AgentUtils.getCurrentTime()));
                     while (!reader.isFinished()) {
                         Message message = reader.read();
                         if (Objects.nonNull(message)) {

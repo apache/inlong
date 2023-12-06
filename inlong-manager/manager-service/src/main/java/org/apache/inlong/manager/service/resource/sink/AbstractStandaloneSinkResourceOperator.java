@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.resource.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -79,7 +80,7 @@ public abstract class AbstractStandaloneSinkResourceOperator implements SinkReso
 
     private String assignFromRelated(String sinkType, String groupId) {
         InlongGroupEntity group = groupEntityMapper.selectByGroupId(groupId);
-        String sortClusterType = SORT_PREFIX.concat(sinkType);
+        String sortClusterType = SinkType.relatedSortClusterType(sinkType);
         List<InlongClusterEntity> clusters = clusterEntityMapper
                 .selectByKey(null, null, sortClusterType).stream()
                 .filter(cluster -> checkCluster(cluster.getClusterTags(), group.getInlongClusterTag()))

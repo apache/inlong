@@ -25,9 +25,10 @@ import EditableTable from '@/ui/components/EditableTable';
 import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';
 import NodeSelect from '@/ui/components/NodeSelect';
+import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const hiveFieldTypes = [
@@ -66,10 +67,17 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   dbName: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: CreateTable,
     rules: [{ required: true }],
     props: values => ({
       disabled: [110].includes(values?.status),
+      sinkType: values.sinkType,
+      inlongGroupId: values.inlongGroupId,
+      inlongStreamId: values.inlongStreamId,
+      fieldName: 'tableName',
+      sinkObj: {
+        ...values,
+      },
     }),
   })
   @ColumnDecorator()
@@ -96,7 +104,6 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
       ],
     }),
   })
-  @SyncField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
@@ -169,7 +176,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     }),
   })
   @I18n('meta.Sinks.Hive.FileFormat')
-  @SyncField()
+  @SyncCreateTableField()
   fileFormat: string;
 
   @FieldDecorator({
@@ -191,7 +198,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     rules: [{ required: true }],
   })
   @I18n('meta.Sinks.Hive.DataEncoding')
-  @SyncField()
+  @SyncCreateTableField()
   dataEncoding: string;
 
   @FieldDecorator({
@@ -244,7 +251,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     ],
   })
   @I18n('meta.Sinks.Hive.DataSeparator')
-  @SyncField()
+  @SyncCreateTableField()
   dataSeparator: string;
 
   @FieldDecorator({
@@ -258,6 +265,22 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     }),
   })
   sinkFieldList: Record<string, unknown>[];
+
+  @FieldDecorator({
+    type: EditableTable,
+    initialValue: [],
+    props: values => ({
+      size: 'small',
+      editing: ![110].includes(values?.status),
+      columns: getFieldListColumns(values).filter(
+        item => item.dataIndex !== 'sourceFieldName' && item.dataIndex !== 'sourceFieldType',
+      ),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
+    }),
+  })
+  @SyncCreateTableField()
+  createTableField: Record<string, unknown>[];
 
   @FieldDecorator({
     type: EditableTable,
@@ -309,14 +332,14 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `Hive${i18n.t('meta.Sinks.Hive.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('meta.Sinks.Hive.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -324,7 +347,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `Hive${i18n.t('meta.Sinks.Hive.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       initialValue: hiveFieldTypes[0].value,
       type: 'select',
@@ -367,7 +390,7 @@ const getFieldListColumns = sinkValues => {
         ['bigint', 'date', 'timestamp'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('meta.Sinks.Hive.FieldDescription'),
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },

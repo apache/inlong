@@ -175,6 +175,7 @@ public abstract class AbstractConfiguration {
     public int getInt(String key) {
         JsonElement value = configStorage.get(key);
         if (value == null) {
+            LOGGER.error("null value for key " + key);
             throw new NullPointerException("null value for key " + key);
         }
         return value.getAsInt();
@@ -231,6 +232,7 @@ public abstract class AbstractConfiguration {
     public String get(String key) {
         JsonElement value = configStorage.get(key);
         if (value == null) {
+            LOGGER.error("null value for key " + key);
             throw new NullPointerException("null value for key " + key);
         }
         return value.getAsString();

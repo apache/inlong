@@ -79,16 +79,16 @@ public class UserInfo {
     @ApiModelProperty(value = "Name of modifier")
     private String modifier;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
     private Date createTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
     private Date modifyTime;
 
     @ApiModelProperty(value = "User status, valid or not")
     private String status;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
     private Date dueDate;
 
     @ApiModelProperty(value = "User roles")

@@ -53,7 +53,7 @@ int main(int argc, char const *argv[]) {
   cout << "---->start sdk successfully" << endl;
 
   int count = 1000;
-  string inlong_group_id = "test_cpp_sdk_20230404";
+  string inlong_group_id = "test_cpp_sdk";
   string inlong_stream_id = "stream1";
   if (4 == argc) {
     inlong_group_id = argv[2];

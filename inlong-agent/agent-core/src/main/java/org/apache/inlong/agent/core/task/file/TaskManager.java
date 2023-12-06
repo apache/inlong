@@ -22,6 +22,7 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.core.task.TaskAction;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.RocksDbImp;
@@ -63,6 +64,8 @@ public class TaskManager extends AbstractDaemon {
     private final Db taskBasicDb;
     // instance basic db
     private final Db instanceBasicDb;
+    // offset basic db
+    private final Db offsetBasicDb;
     // task in db
     private final TaskProfileDb taskDb;
     // task in memory
@@ -100,7 +103,7 @@ public class TaskManager extends AbstractDaemon {
                     frozenCount++;
                     break;
                 }
-                case FINISH: {
+                case RETRY_FINISH: {
                     finishedCount++;
                     break;
                 }
@@ -122,11 +125,14 @@ public class TaskManager extends AbstractDaemon {
      */
     public TaskManager() {
         this.agentConf = AgentConfiguration.getAgentConf();
-        this.taskBasicDb = initDb(
+        taskBasicDb = initDb(
                 agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_TASK));
-        this.instanceBasicDb = initDb(
-                agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE));
         taskDb = new TaskProfileDb(taskBasicDb);
+        instanceBasicDb = initDb(
+                agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE));
+        offsetBasicDb =
+                initDb(agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET));
+        OffsetManager.init(offsetBasicDb, instanceBasicDb);
         this.runningPool = new ThreadPoolExecutor(
                 0, Integer.MAX_VALUE,
                 60L, TimeUnit.SECONDS,
@@ -137,6 +143,10 @@ public class TaskManager extends AbstractDaemon {
         pendingTasks = new LinkedBlockingQueue<>(taskMaxLimit);
         configQueue = new LinkedBlockingQueue<>(CONFIG_QUEUE_CAPACITY);
         actionQueue = new LinkedBlockingQueue<>(ACTION_QUEUE_CAPACITY);
+    }
+
+    public TaskProfileDb getTaskDb() {
+        return taskDb;
     }
 
     /**
@@ -284,7 +294,7 @@ public class TaskManager extends AbstractDaemon {
                 if (managerState == dbState) {
                     return;
                 }
-                if (dbState == TaskStateEnum.FINISH) {
+                if (dbState == TaskStateEnum.RETRY_FINISH) {
                     LOGGER.info("traverseManagerTasksToDb task {} dbState {} retry {}, do nothing",
                             taskFromDb.getTaskId(), dbState,
                             taskFromDb.isRetry());
@@ -335,7 +345,7 @@ public class TaskManager extends AbstractDaemon {
                     deleteFromMemory(profileFromDb.getTaskId());
                 }
             } else {
-                if (dbState != TaskStateEnum.FINISH) {
+                if (dbState != TaskStateEnum.RETRY_FINISH) {
                     LOGGER.error("task {} invalid state {}", profileFromDb.getTaskId(), dbState);
                 }
             }
@@ -369,6 +379,10 @@ public class TaskManager extends AbstractDaemon {
             LOGGER.error("taskMap size {} over limit {}", taskMap.size(), taskMaxLimit);
             return;
         }
+        if (!isProfileValid(taskProfile)) {
+            LOGGER.error("task profile invalid {}", taskProfile.toJsonStr());
+            return;
+        }
         addToDb(taskProfile);
         TaskStateEnum state = TaskStateEnum.getTaskState(taskProfile.getInt(TASK_STATE));
         if (state == TaskStateEnum.RUNNING) {
@@ -390,7 +404,7 @@ public class TaskManager extends AbstractDaemon {
     }
 
     private void finishTask(TaskProfile taskProfile) {
-        taskProfile.setState(TaskStateEnum.FINISH);
+        taskProfile.setState(TaskStateEnum.RETRY_FINISH);
         updateToDb(taskProfile);
         deleteFromMemory(taskProfile.getTaskId());
     }
@@ -415,6 +429,17 @@ public class TaskManager extends AbstractDaemon {
             task.destroy();
         });
         taskMap.clear();
+    }
+
+    private boolean isProfileValid(TaskProfile profile) {
+        try {
+            Class<?> taskClass = Class.forName(profile.getTaskClass());
+            Task task = (Task) taskClass.newInstance();
+            return task.isProfileValid(profile);
+        } catch (Throwable t) {
+            LOGGER.error("isProfileValid error: ", t);
+        }
+        return false;
     }
 
     /**
@@ -466,7 +491,7 @@ public class TaskManager extends AbstractDaemon {
                     task.getTaskId(), taskMap.size(), runningPool.getTaskCount(),
                     runningPool.getActiveCount());
         } catch (Throwable t) {
-            LOGGER.error("add task error {}", t.getMessage());
+            LOGGER.error("add task error: ", t);
         }
     }
 
@@ -496,6 +521,7 @@ public class TaskManager extends AbstractDaemon {
     public void start() throws Exception {
         restoreFromDb();
         submitWorker(coreThread());
+        OffsetManager.getInstance().start();
     }
 
     @Override

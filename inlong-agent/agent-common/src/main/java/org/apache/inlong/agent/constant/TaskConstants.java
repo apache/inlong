@@ -73,7 +73,8 @@ public class TaskConstants extends CommonConstants {
     public static final String JOB_FILE_META_ENV_LIST = "job.fileTask.envList";
     public static final String JOB_FILE_META_FILTER_BY_LABELS = "job.fileTask.filterMetaByLabels";
     public static final String JOB_FILE_PROPERTIES = "job.fileTask.properties";
-    public static final String JOB_FILE_DATA_SOURCE_COLUMN_SEPARATOR = "job.fileTask.dataSeparator";
+    public static final String SOURCE_DATA_CONTENT_STYLE = "task.fileTask.dataContentStyle";
+    public static final String SOURCE_DATA_SEPARATOR = "task.fileTask.dataSeparator";
     public static final String JOB_FILE_MONITOR_INTERVAL = "job.fileTask.monitorInterval";
     public static final String JOB_FILE_MONITOR_STATUS = "job.fileTask.monitorStatus";
     public static final String JOB_FILE_MONITOR_EXPIRE = "job.fileTask.monitorExpire";
@@ -82,6 +83,9 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_END_TIME = "task.fileTask.endTime";
     public static final String FILE_MAX_NUM = "task.fileTask.maxFileCount";
     public static final String PREDEFINE_FIELDS = "task.predefinedFields";
+    public static final String FILE_SOURCE_EXTEND_CLASS = "task.fileTask.extendedClass";
+    public static final String DEFAULT_FILE_SOURCE_EXTEND_CLASS =
+            "org.apache.inlong.agent.plugin.sources.file.extend.ExtendedHandler";
 
     // Binlog job
     public static final String JOB_DATABASE_USER = "job.binlogJob.user";

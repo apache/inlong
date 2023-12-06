@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.plugin.task.filecollect;
 
-import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.plugin.utils.file.FilePathUtil;
 import org.apache.inlong.agent.plugin.utils.file.FileTimeComparator;
 import org.apache.inlong.agent.plugin.utils.file.Files;
@@ -58,24 +57,38 @@ public class FileScanner {
 
     private static final Logger logger = LoggerFactory.getLogger(FileScanner.class);
 
-    public static List<BasicFileInfo> scanTaskBetweenTimes(TaskProfile conf, String originPattern, long startTime,
-            long endTime, boolean isRetry) {
-        String cycleUnit = conf.getCycleUnit();
+    public static List<String> getDataTimeList(long startTime, long endTime, String cycleUnit, String timeOffset,
+            boolean isRetry) {
         if (!isRetry) {
-            startTime += NewDateUtils.calcOffset(conf.getTimeOffset());
-            endTime += NewDateUtils.calcOffset(conf.getTimeOffset());
+            startTime += DateTransUtils.calcOffset(timeOffset);
+            endTime += DateTransUtils.calcOffset(timeOffset);
+        }
+        List<String> dataTimeList = new ArrayList<>();
+        List<Long> dateRegion = NewDateUtils.getDateRegion(startTime, endTime, cycleUnit);
+        for (Long time : dateRegion) {
+            String dataTime = DateTransUtils.millSecConvertToTimeStr(time, cycleUnit);
+            dataTimeList.add(dataTime);
+        }
+        return dataTimeList;
+    }
+
+    public static List<BasicFileInfo> scanTaskBetweenTimes(String originPattern, String cycleUnit, String timeOffset,
+            long startTime, long endTime, boolean isRetry) {
+        if (!isRetry) {
+            startTime += DateTransUtils.calcOffset(timeOffset);
+            endTime += DateTransUtils.calcOffset(timeOffset);
         }
         String strStartTime = DateTransUtils.millSecConvertToTimeStr(startTime, cycleUnit);
         String strEndTime = DateTransUtils.millSecConvertToTimeStr(endTime, cycleUnit);
-        logger.info("task {} this scan time is between {} and {}.",
-                new Object[]{conf.getTaskId(), strStartTime, strEndTime});
+        logger.info("{} scan time is between {} and {}",
+                new Object[]{originPattern, strStartTime, strEndTime});
 
-        return scanTaskBetweenTimes(conf.getCycleUnit(), originPattern, strStartTime, strEndTime);
+        return scanTaskBetweenTimes(cycleUnit, originPattern, startTime, endTime);
     }
 
     /* Scan log files and create tasks between two times. */
-    public static List<BasicFileInfo> scanTaskBetweenTimes(String cycleUnit, String originPattern, String startTime,
-            String endTime) {
+    public static List<BasicFileInfo> scanTaskBetweenTimes(String cycleUnit, String originPattern, long startTime,
+            long endTime) {
         List<Long> dateRegion = NewDateUtils.getDateRegion(startTime, endTime, cycleUnit);
         List<BasicFileInfo> infos = new ArrayList<BasicFileInfo>();
         for (Long time : dateRegion) {
@@ -91,8 +104,7 @@ public class FileScanner {
                 // TODO the time is not YYYYMMDDHH
                 String dataTime = DateTransUtils.millSecConvertToTimeStr(time, cycleUnit);
                 BasicFileInfo info = new BasicFileInfo(file, dataTime);
-                logger.info("scan new task fileName {} ,dataTime {}", file,
-                        DateTransUtils.millSecConvertToTimeStr(time, cycleUnit));
+                logger.info("scan new task fileName {} ,dataTime {}", file, dataTime);
                 infos.add(info);
             }
         }
@@ -114,11 +126,9 @@ public class FileScanner {
             String fileName, long depth, int maxFileNum) {
         ArrayList<String> ret = new ArrayList<String>();
         ArrayList<File> readyFiles = new ArrayList<File>();
-
         if (!new File(firstDir).isDirectory()) {
             return ret;
         }
-
         for (File pathname : Files.find(firstDir).yieldFilesAndDirectories()
                 .recursive().withDepth((int) depth).withDirNameRegex(secondDir)
                 .withFileNameRegex(fileName)) {

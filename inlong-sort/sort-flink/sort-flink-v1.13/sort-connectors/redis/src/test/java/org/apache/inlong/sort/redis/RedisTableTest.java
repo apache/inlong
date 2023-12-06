@@ -29,8 +29,11 @@ import org.junit.Test;
 import redis.clients.jedis.Jedis;
 import redis.embedded.RedisServer;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -43,14 +46,14 @@ public class RedisTableTest {
     private static RedisServer redisServer;
 
     @BeforeClass
-    public static void setup() {
+    public static void setup() throws IOException {
         redisPort = NetUtils.getAvailablePort();
-        redisServer = RedisServer.builder().setting("maxmemory 128m").port(redisPort).build();
+        redisServer = RedisServer.newRedisServer().setting("maxmemory 128m").port(redisPort).build();
         redisServer.start();
     }
 
     @AfterClass
-    public static void cleanup() {
+    public static void cleanup() throws IOException {
         if (redisServer != null) {
             redisServer.stop();
         }
@@ -64,15 +67,13 @@ public class RedisTableTest {
     }
 
     @Test
-    public void testSinkWithPlain() throws Exception {
+    public void testSinkWithPlain() {
         StreamExecutionEnvironment executionEnv =
                 StreamExecutionEnvironment.getExecutionEnvironment();
         StreamTableEnvironment tableEnv =
                 StreamTableEnvironment.create(executionEnv);
 
         executionEnv.setParallelism(1);
-
-        String address = "localhost:" + redisPort;
 
         DataStream<Row> source =
                 executionEnv.fromCollection(
@@ -109,23 +110,22 @@ public class RedisTableTest {
         String query = "INSERT INTO sink SELECT * FROM source";
         tableEnv.executeSql(query);
 
-        Thread.sleep(4000);
+        await().atMost(20, TimeUnit.SECONDS).untilAsserted(() -> {
+            assertEquals("r12,1.2,1", jedis.get("1"));
+            assertEquals("r22,2.2,2", jedis.get("2"));
+            assertEquals("r32,3.2,3", jedis.get("3"));
+        });
 
-        assertEquals("r12,1.2,1", jedis.get("1"));
-        assertEquals("r22,2.2,2", jedis.get("2"));
-        assertEquals("r32,3.2,3", jedis.get("3"));
     }
 
     @Test
-    public void testSinkWithHashPrefixMatch() throws Exception {
+    public void testSinkWithHashPrefixMatch() {
         StreamExecutionEnvironment executionEnv =
                 StreamExecutionEnvironment.getExecutionEnvironment();
         StreamTableEnvironment tableEnv =
                 StreamTableEnvironment.create(executionEnv);
 
         executionEnv.setParallelism(1);
-
-        String address = "localhost:" + redisPort;
 
         DataStream<Row> source =
                 executionEnv.fromCollection(
@@ -162,23 +162,22 @@ public class RedisTableTest {
         String query = "INSERT INTO sink SELECT * FROM source";
         tableEnv.executeSql(query);
 
-        Thread.sleep(4000);
+        await().atMost(20, TimeUnit.SECONDS).untilAsserted(() -> {
+            assertEquals("1.2,1", jedis.hget("1", "r12"));
+            assertEquals("2.2,2", jedis.hget("2", "r22"));
+            assertEquals("3.2,3", jedis.hget("3", "r32"));
+        });
 
-        assertEquals("1.2,1", jedis.hget("1", "r12"));
-        assertEquals("2.2,2", jedis.hget("2", "r22"));
-        assertEquals("3.2,3", jedis.hget("3", "r32"));
     }
 
     @Test
-    public void testSinkWithHashKvPair() throws Exception {
+    public void testSinkWithHashKvPair() {
         StreamExecutionEnvironment executionEnv =
                 StreamExecutionEnvironment.getExecutionEnvironment();
         StreamTableEnvironment tableEnv =
                 StreamTableEnvironment.create(executionEnv);
 
         executionEnv.setParallelism(1);
-
-        String address = "localhost:" + redisPort;
 
         DataStream<Row> source =
                 executionEnv.fromCollection(
@@ -217,26 +216,25 @@ public class RedisTableTest {
         String query = "INSERT INTO sink SELECT aaa,bbb,cast(ccc as STRING),ddd, cast(eee as STRING) FROM source";
         tableEnv.executeSql(query);
 
-        Thread.sleep(4000);
+        await().atMost(20, TimeUnit.SECONDS).untilAsserted(() -> {
+            assertEquals("1.2", jedis.hget("1", "r12"));
+            assertEquals("2.2", jedis.hget("2", "r22"));
+            assertEquals("3.2", jedis.hget("3", "r32"));
+            assertEquals("1", jedis.hget("1", "r14"));
+            assertEquals("2", jedis.hget("2", "r24"));
+            assertEquals("3", jedis.hget("3", "r34"));
+        });
 
-        assertEquals("1.2", jedis.hget("1", "r12"));
-        assertEquals("2.2", jedis.hget("2", "r22"));
-        assertEquals("3.2", jedis.hget("3", "r32"));
-        assertEquals("1", jedis.hget("1", "r14"));
-        assertEquals("2", jedis.hget("2", "r24"));
-        assertEquals("3", jedis.hget("3", "r34"));
     }
 
     @Test
-    public void testSinkWithDynamic() throws Exception {
+    public void testSinkWithDynamic() {
         StreamExecutionEnvironment executionEnv =
                 StreamExecutionEnvironment.getExecutionEnvironment();
         StreamTableEnvironment tableEnv =
                 StreamTableEnvironment.create(executionEnv);
 
         executionEnv.setParallelism(1);
-
-        String address = "localhost:" + redisPort;
 
         DataStream<Row> source =
                 executionEnv.fromCollection(
@@ -276,14 +274,15 @@ public class RedisTableTest {
                 + "FROM source";
         tableEnv.executeSql(query);
 
-        Thread.sleep(4000);
+        await().atMost(20, TimeUnit.SECONDS).untilAsserted(() -> {
+            assertEquals("1.2", jedis.hget("1", "r12"));
+            assertEquals("2.2", jedis.hget("2", "r22"));
+            assertEquals("3.2", jedis.hget("3", "r32"));
+            assertEquals("1", jedis.hget("1", "r14"));
+            assertEquals("2", jedis.hget("2", "r24"));
+            assertEquals("3", jedis.hget("3", "r34"));
+        });
 
-        assertEquals("1.2", jedis.hget("1", "r12"));
-        assertEquals("2.2", jedis.hget("2", "r22"));
-        assertEquals("3.2", jedis.hget("3", "r32"));
-        assertEquals("1", jedis.hget("1", "r14"));
-        assertEquals("2", jedis.hget("2", "r24"));
-        assertEquals("3", jedis.hget("3", "r34"));
     }
 
     @Test
@@ -294,8 +293,6 @@ public class RedisTableTest {
                 StreamTableEnvironment.create(executionEnv);
 
         executionEnv.setParallelism(1);
-
-        String address = "localhost:" + redisPort;
 
         DataStream<Row> source =
                 executionEnv.fromCollection(
@@ -343,14 +340,15 @@ public class RedisTableTest {
 
         Thread.sleep(4000);
 
-        assertTrue(jedis.getbit("1", 2));
-        assertTrue(jedis.getbit("1", 4));
+        await().atMost(20, TimeUnit.SECONDS).untilAsserted(() -> {
+            assertTrue(jedis.getbit("1", 2));
+            assertTrue(jedis.getbit("1", 4));
+            assertFalse(jedis.getbit("2", 2));
+            assertFalse(jedis.getbit("2", 4));
+            assertFalse(jedis.getbit("3", 2));
+            assertFalse(jedis.getbit("3", 4));
+        });
 
-        assertFalse(jedis.getbit("2", 2));
-        assertFalse(jedis.getbit("2", 4));
-
-        assertFalse(jedis.getbit("3", 2));
-        assertFalse(jedis.getbit("3", 4));
     }
 
 }

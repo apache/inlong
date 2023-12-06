@@ -48,6 +48,8 @@ public class FileTask {
     // JSON string, the content format is List<Map<String, String>>
     private String metaFields;
 
+    private String dataContentStyle;
+
     private String dataSeparator;
 
     // JSON string, the content format is Map<String,string>

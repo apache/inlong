@@ -43,7 +43,7 @@ public class SenderMessage {
     private List<byte[]> dataList;
     private long dataTime;
     private Map<String, String> extraMap;
-    private PackageAckInfo ackInfo;
+    private List<OffsetAckInfo> offsetAckList;
 
     public InLongMsg getInLongMsg() {
         InLongMsg message = InLongMsg.newInLongMsg(true);

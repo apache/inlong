@@ -319,6 +319,9 @@ CREATE TABLE IF NOT EXISTS `operation_log`
 (
     `id`                  int(11)   NOT NULL AUTO_INCREMENT,
     `authentication_type` varchar(64)        DEFAULT NULL COMMENT 'Authentication type',
+    `inlong_group_id`     varchar(256)       DEFAULT NULL COMMENT 'Inlong group id',
+    `inlong_stream_id`    varchar(256)       DEFAULT NULL COMMENT 'Inlong stream id',
+    `operation_target`    varchar(256)       DEFAULT NULL COMMENT 'Operation target',
     `operation_type`      varchar(256)       DEFAULT NULL COMMENT 'Operation type',
     `http_method`         varchar(64)        DEFAULT NULL COMMENT 'Request method',
     `invoke_method`       varchar(256)       DEFAULT NULL COMMENT 'Invoke method',
@@ -332,8 +335,10 @@ CREATE TABLE IF NOT EXISTS `operation_log`
     `status`              int(4)             DEFAULT NULL COMMENT 'Operate status',
     `request_time`        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Request time',
     `err_msg`             mediumtext COMMENT 'Error message',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
+    PRIMARY KEY (`id`),
+    INDEX `operation_log_group_stream_index` (`inlong_group_id`, `inlong_stream_id`),
+    INDEX `operation_log_request_time_index` (`request_time`)
+    ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
 -- ----------------------------

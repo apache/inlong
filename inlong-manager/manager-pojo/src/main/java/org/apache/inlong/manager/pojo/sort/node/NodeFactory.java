@@ -103,6 +103,10 @@ public class NodeFactory {
                 sourceInfo.getSourceType());
         LoadNodeProvider loadNodeProvider = LoadNodeProviderFactory.getLoadNodeProvider(sinkInfo.getSinkType());
 
+        if (loadNodeProvider.isSinkMultiple(sinkInfo)) {
+            sourceInfo.setFieldList(loadNodeProvider.addStreamFieldsForSinkMultiple(sourceInfo.getFieldList()));
+            sinkInfo.setSinkFieldList(loadNodeProvider.addSinkFieldsForSinkMultiple(sinkInfo.getSinkFieldList()));
+        }
         if (FieldInfoUtils.compareFields(extractNodeProvider.getMetaFields(), loadNodeProvider.getMetaFields())) {
             extractNodeProvider.addStreamMetaFields(sourceInfo.getFieldList());
             if (CollectionUtils.isNotEmpty(transformResponses)) {

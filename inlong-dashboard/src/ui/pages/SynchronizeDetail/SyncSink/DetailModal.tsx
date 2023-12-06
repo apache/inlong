@@ -20,12 +20,15 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Spin, Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
-import { useRequest, useUpdateEffect } from '@/ui/hooks';
+import { useRequest, useSelector, useUpdateEffect } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import EditableTable from '@/ui/components/EditableTable';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import { useLoadMeta, SinkMetaType } from '@/plugins';
 import request from '@/core/utils/request';
+import { State } from '@/core/stores';
+import { useLocalStorage } from '@/core/utils/localStorage';
+import { dataToMap } from '../SyncT/helper';
 
 export interface DetailModalProps extends ModalProps {
   inlongGroupId: string;
@@ -51,6 +54,8 @@ const Comp: React.FC<DetailModalProps> = ({
   const [sinkType, setSinkType] = useState('');
 
   const { loading: pluginLoading, Entity } = useLoadMeta<SinkMetaType>('sink', sinkType);
+
+  const [getLocalStorage, setLocalStorage, removeLocalStorage] = useLocalStorage('createTableData');
 
   const { data: groupData, run: getGroupData } = useRequest(`/group/get/${inlongGroupId}`, {
     manual: true,
@@ -83,7 +88,7 @@ const Comp: React.FC<DetailModalProps> = ({
         getGroupData();
         getData(id);
       } else {
-        form.setFieldsValue({ inlongGroupId, sinkType: defaultType });
+        form.setFieldsValue({ inlongGroupId, inlongStreamId, sinkType: defaultType });
         setSinkType(defaultType);
       }
     } else {
@@ -108,6 +113,13 @@ const Comp: React.FC<DetailModalProps> = ({
     const values = await form.validateFields();
     const submitData = new Entity()?.stringify(values) || values;
     const isUpdate = Boolean(id);
+    const createData = getLocalStorage('createTableData');
+    if (submitData?.properties !== undefined && submitData?.properties.length !== 0) {
+      submitData.properties = dataToMap(submitData.properties);
+    } else {
+      submitData.properties = {};
+    }
+
     if (startProcess) {
       submitData.startProcess = true;
     }
@@ -115,16 +127,18 @@ const Comp: React.FC<DetailModalProps> = ({
       submitData.id = id;
       submitData.version = data?.version;
     }
+    const sinkData = Object.assign(submitData, createData);
     await request({
       url: isUpdate ? '/sink/update' : '/sink/save',
       method: 'POST',
       data: {
-        ...submitData,
+        ...sinkData,
         inlongGroupId,
         inlongStreamId,
       },
     });
-    modalProps?.onOk(submitData);
+    modalProps?.onOk(sinkData);
+    removeLocalStorage('createTableData');
     message.success(t('basic.OperatingSuccess'));
   };
 

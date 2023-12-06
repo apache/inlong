@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.controller;
 
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.validation.SaveValidation;
@@ -39,6 +40,7 @@ import org.apache.inlong.manager.service.operationlog.OperationLog;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -68,7 +70,7 @@ public class InlongGroupController {
     private InlongGroupProcessService groupProcessOperation;
 
     @RequestMapping(value = "/group/save", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.CREATE)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.GROUP)
     @ApiOperation(value = "Save inlong group")
     public Response<String> save(@Validated(SaveValidation.class) @RequestBody InlongGroupRequest groupRequest) {
         String operator = LoginUserUtils.getLoginUser().getName();
@@ -126,7 +128,7 @@ public class InlongGroupController {
     }
 
     @RequestMapping(value = "/group/update", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.GROUP)
     @ApiOperation(value = "Update inlong group")
     public Response<String> update(@Validated(UpdateValidation.class) @RequestBody InlongGroupRequest groupRequest) {
         String operator = LoginUserUtils.getLoginUser().getName();
@@ -135,7 +137,7 @@ public class InlongGroupController {
 
     @RequestMapping(value = "/group/delete/{groupId}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Delete inlong group info")
-    @OperationLog(operation = OperationType.DELETE)
+    @OperationLog(operation = OperationType.DELETE, operationTarget = OperationTarget.GROUP)
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
     public Response<Boolean> delete(@PathVariable String groupId) {
         String operator = LoginUserUtils.getLoginUser().getName();
@@ -144,7 +146,7 @@ public class InlongGroupController {
 
     @RequestMapping(value = "/group/deleteAsync/{groupId}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Delete inlong group info")
-    @OperationLog(operation = OperationType.DELETE)
+    @OperationLog(operation = OperationType.DELETE, operationTarget = OperationTarget.GROUP)
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
     public Response<String> deleteAsync(@PathVariable String groupId) {
         String operator = LoginUserUtils.getLoginUser().getName();
@@ -203,6 +205,23 @@ public class InlongGroupController {
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
     public Response<Map<String, Object>> detail(@PathVariable String groupId) {
         return Response.success(groupService.detail(groupId));
+    }
+
+    @RequestMapping(value = "/group/switch/start/{groupId}/{clusterTag}", method = RequestMethod.GET)
+    @ApiOperation(value = "start tag switch")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "clusterTag", value = "cluster tag", dataTypeClass = String.class, required = true)
+    })
+    public Response<Boolean> startTagSwitch(@PathVariable String groupId, @PathVariable String clusterTag) {
+        return Response.success(groupService.startTagSwitch(groupId, clusterTag));
+    }
+
+    @RequestMapping(value = "/group/switch/finish/{groupId}", method = RequestMethod.GET)
+    @ApiOperation(value = "finish tag switch")
+    @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
+    public Response<Boolean> finishTagSwitch(@PathVariable String groupId) {
+        return Response.success(groupService.finishTagSwitch(groupId));
     }
 
 }
