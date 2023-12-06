@@ -144,8 +144,7 @@ public class ProxyClientConfig {
     }
 
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp, int managerPort,
-            String inlongGroupId,
-            String netTag, String authSecretId, String authSecretKey) throws ProxysdkException {
+            String inlongGroupId, String authSecretId, String authSecretKey) throws ProxysdkException {
         this(localHost, isLocalVisit, managerIp, managerPort, inlongGroupId,  authSecretId, authSecretKey,
                 ConfigConstants.DEFAULT_LOAD_BALANCE, ConfigConstants.DEFAULT_VIRTUAL_NODE,
                 ConfigConstants.DEFAULT_RANDOM_MAX_RETRY);
