@@ -32,7 +32,7 @@ CREATE TABLE kafka_extract (
     name STRING,
     description STRING
 ) WITH (
-    'connector' = 'kafka',
+    'connector' = 'kafka-inlong',
     'topic' = 'test-topic',
     'properties.bootstrap.servers' = 'kafka:9092',
     'properties.group.id' = 'testGroup',
