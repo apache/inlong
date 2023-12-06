@@ -136,8 +136,8 @@ export const getTableColumns = [
     dataIndex: 'body',
     ellipsis: true,
     render: body => (
-      <Tooltip placement="topLeft" title={JSON.stringify(body)}>
-        {JSON.stringify(body)}
+      <Tooltip placement="topLeft" title={body}>
+        {body}
       </Tooltip>
     ),
   },
