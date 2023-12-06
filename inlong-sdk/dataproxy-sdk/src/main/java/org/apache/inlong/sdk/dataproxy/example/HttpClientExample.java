@@ -44,18 +44,17 @@ public class HttpClientExample {
         String inLongManagerAddr = "127.0.0.1";
         String inLongManagerPort = "8080";
         String localIP = "127.0.0.1";
-        String netTag = "";
         String messageBody = "inlong message body!";
 
         HttpProxySender sender = getMessageSender(localIP, inLongManagerAddr,
-                inLongManagerPort, netTag, inlongGroupId, false, false,
+                inLongManagerPort,  inlongGroupId, false, false,
                 configBasePath);
 
         sendHttpMessage(sender, inlongGroupId, inlongStreamId, messageBody);
     }
 
     public static HttpProxySender getMessageSender(String localIP, String inLongManagerAddr,
-            String inLongManagerPort, String netTag, String inlongGroupId,
+            String inLongManagerPort,  String inlongGroupId,
             boolean isLocalVisit, boolean isReadProxyIPFromLocal,
             String configBasePath) {
         ProxyClientConfig proxyConfig = null;
