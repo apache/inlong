@@ -26,6 +26,7 @@ import EditableTable from '@/ui/components/EditableTable';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import { useLoadMeta, SinkMetaType } from '@/plugins';
 import request from '@/core/utils/request';
+import { dataToForm, paramReplace } from './helper';
 import { State } from '@/core/stores';
 import { useLocalStorage } from '@/core/utils/localStorage';
 import { dataToMap } from '../SyncT/helper';
@@ -36,6 +37,7 @@ export interface DetailModalProps extends ModalProps {
   defaultType?: string;
   // (True operation, save and adjust interface) Need to upload when editing
   id?: string;
+  sinkMultipleEnable?: boolean;
   // others
   onOk?: (values) => void;
 }
@@ -45,6 +47,7 @@ const Comp: React.FC<DetailModalProps> = ({
   inlongStreamId,
   defaultType,
   id,
+  sinkMultipleEnable,
   ...modalProps
 }) => {
   const [form] = useForm();
@@ -76,7 +79,7 @@ const Comp: React.FC<DetailModalProps> = ({
       formatResult: result => new Entity()?.parse(result) || result,
       onSuccess: result => {
         setSinkType(result.sinkType);
-        form.setFieldsValue(result);
+        form.setFieldsValue(dataToForm(result.sinkType, result));
       },
     },
   );
@@ -99,7 +102,9 @@ const Comp: React.FC<DetailModalProps> = ({
 
   const formContent = useMemo(() => {
     if (Entity) {
-      const row = new Entity().renderSyncRow();
+      const row = sinkMultipleEnable
+        ? new Entity().renderSyncAllRow()
+        : new Entity().renderSyncRow();
       return row.map(item => ({
         ...item,
         col: item.name === 'sinkType' || item.type === EditableTable ? 24 : 12,
@@ -111,7 +116,10 @@ const Comp: React.FC<DetailModalProps> = ({
 
   const onOk = async (startProcess = false) => {
     const values = await form.validateFields();
-    const submitData = new Entity()?.stringify(values) || values;
+    const replaceValues = paramReplace(values.sinkType, values);
+    const submitData = sinkMultipleEnable
+      ? new Entity()?.stringify(replaceValues) || replaceValues
+      : new Entity()?.stringify(values) || values;
     const isUpdate = Boolean(id);
     const createData = getLocalStorage('createTableData');
     if (submitData?.properties !== undefined && submitData?.properties.length !== 0) {
@@ -163,7 +171,7 @@ const Comp: React.FC<DetailModalProps> = ({
     >
       <Spin spinning={loading || pluginLoading}>
         <FormGenerator
-          labelCol={{ flex: '0 0 200px' }}
+          labelCol={{ flex: '0 0 123px' }}
           wrapperCol={{ flex: '1' }}
           col={12}
           content={formContent}

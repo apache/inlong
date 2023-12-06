@@ -28,7 +28,7 @@ import NodeSelect from '@/ui/components/NodeSelect';
 import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
+const { FieldDecorator, SyncField, SyncMoveDbField, SyncCreateTableField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const icebergFieldTypes = [
@@ -111,6 +111,8 @@ export default class IcebergSink
   extends SinkInfo
   implements DataWithBackend, RenderRow, RenderList
 {
+  readonly id: number;
+
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
@@ -141,6 +143,73 @@ export default class IcebergSink
   @SyncField()
   @I18n('meta.Sinks.Iceberg.TableName')
   tableName: string;
+
+  @FieldDecorator({
+    type: 'radiobutton',
+    initialValue: '${database}',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110].includes(values?.status),
+      options: [
+        {
+          label: i18n.t('meta.Sinks.Iceberg.Options.DBSameName'),
+          value: '${database}',
+          disabled: Boolean(values.id),
+        },
+        {
+          label: i18n.t('meta.Sinks.Iceberg.Options.Customize'),
+          value: 'false',
+          disabled: Boolean(values.id),
+        },
+      ],
+    }),
+    suffix: {
+      type: 'input',
+      name: 'databasePattern',
+      visible: values =>
+        values.backupDatabase === 'false' ||
+        (values.id !== undefined && values.databasePattern !== '${database}'),
+      props: values => ({
+        disabled: [110].includes(values?.status),
+      }),
+    },
+  })
+  @SyncMoveDbField()
+  @I18n('meta.Sinks.Iceberg.DatabasePattern')
+  backupDatabase: string;
+
+  @FieldDecorator({
+    type: 'radiobutton',
+    initialValue: '${table}',
+    rules: [{ required: true }],
+    props: values => ({
+      options: [
+        {
+          label: i18n.t('meta.Sinks.Iceberg.Options.TableSameName'),
+          value: '${table}',
+          disabled: Boolean(values.id),
+        },
+        {
+          label: i18n.t('meta.Sinks.Iceberg.Options.Customize'),
+          value: 'false',
+          disabled: Boolean(values.id),
+        },
+      ],
+    }),
+    suffix: {
+      type: 'input',
+      name: 'tablePattern',
+      visible: values =>
+        values.backupTable === 'false' ||
+        (values.id !== undefined && values.tablePattern !== '${table}'),
+      props: values => ({
+        disabled: [110].includes(values?.status),
+      }),
+    },
+  })
+  @SyncMoveDbField()
+  @I18n('meta.Sinks.Iceberg.TablePattern')
+  backupTable: string;
 
   @FieldDecorator({
     type: 'radio',
@@ -174,6 +243,7 @@ export default class IcebergSink
   })
   @I18n('meta.Sinks.DataNodeName')
   @SyncField()
+  @SyncMoveDbField()
   dataNodeName: string;
 
   @FieldDecorator({

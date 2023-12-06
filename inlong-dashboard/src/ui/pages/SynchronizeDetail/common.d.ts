@@ -22,5 +22,6 @@ export interface CommonInterface {
   inlongStreamId: string;
   readonly?: boolean;
   isCreate?: boolean;
+  sinkMultipleEnable?: boolean;
   ref?: React.RefObject<unknown>;
 }

@@ -27,7 +27,15 @@ import { statusList, genStatusTag } from './status';
 import { sinks, defaultValue } from '..';
 
 const { I18nMap, I18n } = DataWithBackend;
-const { FieldList, FieldDecorator, SyncField, SyncFieldSet, SyncCreateTableFieldSet } = RenderRow;
+const {
+  FieldList,
+  FieldDecorator,
+  SyncField,
+  SyncFieldSet,
+  SyncMoveDbField,
+  SyncMoveDbFieldSet,
+  SyncCreateTableFieldSet,
+} = RenderRow;
 const { ColumnList, ColumnDecorator } = RenderList;
 
 export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
@@ -35,6 +43,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   static FieldList = FieldList;
   static ColumnList = ColumnList;
   static SyncFieldSet = SyncFieldSet;
+  static SyncMoveDbFieldSet = SyncMoveDbFieldSet;
   static SyncCreateTableFieldSet = SyncCreateTableFieldSet;
 
   readonly id: number;
@@ -45,6 +54,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     hidden: true,
   })
   @SyncField()
+  @SyncMoveDbField()
   @I18n('inlongGroupId')
   readonly inlongGroupId: string;
 
@@ -53,6 +63,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     hidden: true,
   })
   @SyncField()
+  @SyncMoveDbField()
   @I18n('inlongStreamId')
   readonly inlongStreamId: string;
 
@@ -78,6 +89,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     render: type => sinks.find(c => c.value === type)?.label || type,
   })
   @SyncField()
+  @SyncMoveDbField()
   @I18n('meta.Sinks.SinkType')
   sinkType: string;
 
@@ -98,6 +110,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   })
   @ColumnDecorator()
   @SyncField()
+  @SyncMoveDbField()
   @I18n('meta.Sinks.SinkName')
   sinkName: string;
 
@@ -110,6 +123,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     visible: values => Boolean(values.sinkType),
   })
   @SyncField()
+  @SyncMoveDbField()
   @I18n('meta.Sinks.Description')
   description: string;
 
@@ -126,6 +140,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     render: text => genStatusTag(text),
   })
   @SyncField()
+  @SyncMoveDbField()
   @I18n('basic.Status')
   readonly status: string;
 
@@ -157,7 +172,11 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   renderSyncRow() {
     const constructor = this.constructor as typeof SinkDefaultInfo;
     const { FieldList, SyncFieldSet } = constructor;
-    return FieldList.filter(item => SyncFieldSet.has(item.name as string));
+    return FieldList.filter(item => {
+      if (item.name !== 'backupTable' && item.name !== 'backupDatabase') {
+        return FieldList.filter(item => SyncFieldSet.has(item.name as string));
+      }
+    });
   }
 
   renderSyncCreateTableRow() {
@@ -166,17 +185,40 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     return FieldList.filter(item => SyncCreateTableFieldSet.has(item.name as string));
   }
 
+  renderSyncAllRow() {
+    const constructor = this.constructor as typeof SinkDefaultInfo;
+    const { FieldList, SyncMoveDbFieldSet } = constructor;
+    return FieldList.filter(item => {
+      if (item.name === 'sinkType') {
+        item.props = values => ({
+          disabled: Boolean(values.id),
+          dropdownMatchSelectWidth: false,
+          options: sinks
+            .filter(item => item.value === 'ICEBERG')
+            .map(item => ({
+              label: item.label,
+              value: item.value,
+              image: loadImage(item.label),
+            })),
+        });
+      }
+      return SyncMoveDbFieldSet.has(item.name as string);
+    });
+  }
+
   renderRow() {
     const constructor = this.constructor as typeof SinkDefaultInfo;
-    constructor.FieldList.filter(item => {
-      if (item.name === 'tableName' || item.name === 'primaryKey' || item.name === 'database') {
-        item.type = 'input';
-      }
-      if (item.name === 'createTableField') {
-        item.hidden = true;
+    return constructor.FieldList.filter(item => {
+      if (item.name !== 'backupTable' && item.name !== 'backupDatabase') {
+        if (item.name === 'tableName' || item.name === 'primaryKey' || item.name === 'database') {
+          item.type = 'input';
+        }
+        if (item.name === 'createTableField') {
+          item.hidden = true;
+        }
+        return constructor.FieldList;
       }
     });
-    return constructor.FieldList;
   }
 
   renderList() {
