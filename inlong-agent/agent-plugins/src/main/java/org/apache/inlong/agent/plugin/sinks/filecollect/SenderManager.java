@@ -207,7 +207,7 @@ public class SenderManager {
     private void createMessageSender(String tagName) throws Exception {
 
         ProxyClientConfig proxyClientConfig = new ProxyClientConfig(
-                localhost, isLocalVisit, managerHost, managerPort, tagName, netTag, authSecretId, authSecretKey);
+                localhost, isLocalVisit, managerHost, managerPort, tagName, authSecretId, authSecretKey);
         proxyClientConfig.setTotalAsyncCallbackSize(totalAsyncBufSize);
         proxyClientConfig.setFile(isFile);
         proxyClientConfig.setAliveConnections(aliveConnectionNum);
