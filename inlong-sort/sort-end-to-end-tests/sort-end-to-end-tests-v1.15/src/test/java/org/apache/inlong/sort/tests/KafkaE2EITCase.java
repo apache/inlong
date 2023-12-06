@@ -191,7 +191,7 @@ public class KafkaE2EITCase extends FlinkContainerTestEnv {
     }
 
     /**
-     * Test flink sql mysql cdc to hive
+     * Test flink sql mysql cdc to starrocks.
      *
      * @throws Exception The exception may throw when execute the case
      */
