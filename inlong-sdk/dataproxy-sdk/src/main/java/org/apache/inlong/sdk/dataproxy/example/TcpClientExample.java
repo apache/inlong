@@ -42,7 +42,6 @@ public class TcpClientExample {
 
         String inlongGroupId = "test_test";
         String inlongStreamId = "test_test";
-        String netTag = "";
 
         /*
          * 1. if isLocalVisit is true, will get dataproxy server info from local file in
@@ -66,14 +65,14 @@ public class TcpClientExample {
 
         TcpClientExample tcpClientExample = new TcpClientExample();
         DefaultMessageSender sender = tcpClientExample
-                .getMessageSender(localIP, inLongManagerAddr, inLongManagerPort, netTag,
+                .getMessageSender(localIP, inLongManagerAddr, inLongManagerPort,
                         inlongGroupId, false, false, configBasePath, msgType);
         tcpClientExample.sendTcpMessage(sender, inlongGroupId, inlongStreamId,
                 messageBody, System.currentTimeMillis());
     }
 
     public DefaultMessageSender getMessageSender(String localIP, String inLongManagerAddr, String inLongManagerPort,
-            String netTag, String inlongGroupId, boolean isLocalVisit, boolean isReadProxyIPFromLocal,
+             String inlongGroupId, boolean isLocalVisit, boolean isReadProxyIPFromLocal,
             String configBasePath, int msgType) {
         ProxyClientConfig dataProxyConfig = null;
         DefaultMessageSender messageSender = null;
