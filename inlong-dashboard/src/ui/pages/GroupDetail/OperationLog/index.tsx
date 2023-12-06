@@ -37,8 +37,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       url: '/operationLog/list',
       method: 'POST',
       data: {
-        inlongGroupId,
         ...options,
+        inlongGroupId,
       },
     },
     {
