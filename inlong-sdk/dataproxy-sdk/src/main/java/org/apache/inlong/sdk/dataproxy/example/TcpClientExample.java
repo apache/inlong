@@ -79,7 +79,7 @@ public class TcpClientExample {
         DefaultMessageSender messageSender = null;
         try {
             dataProxyConfig = new ProxyClientConfig(localIP, isLocalVisit, inLongManagerAddr,
-                    Integer.valueOf(inLongManagerPort), inlongGroupId, netTag, "test", "123456");
+                    Integer.valueOf(inLongManagerPort), inlongGroupId, "test", "123456");
             if (StringUtils.isNotEmpty(configBasePath)) {
                 dataProxyConfig.setConfStoreBasePath(configBasePath);
             }

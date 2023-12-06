@@ -63,7 +63,7 @@ public class HttpClientExample {
         try {
             proxyConfig = new ProxyClientConfig(localIP, isLocalVisit, inLongManagerAddr,
                     Integer.valueOf(inLongManagerPort),
-                    inlongGroupId, netTag, "test", "123456");
+                    inlongGroupId, "test", "123456");
             proxyConfig.setInlongGroupId(inlongGroupId);
             proxyConfig.setConfStoreBasePath(configBasePath);
             proxyConfig.setReadProxyIPFromLocal(isReadProxyIPFromLocal);
