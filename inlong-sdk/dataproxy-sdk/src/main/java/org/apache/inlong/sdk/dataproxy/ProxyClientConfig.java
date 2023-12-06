@@ -102,7 +102,7 @@ public class ProxyClientConfig {
 
     /* pay attention to the last url parameter ip */
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp,
-            int managerPort, String inlongGroupId,  String authSecretId, String authSecretKey,
+            int managerPort, String inlongGroupId, String authSecretId, String authSecretKey,
             LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
         if (Utils.isBlank(localHost)) {
             throw new ProxysdkException("localHost is blank!");
@@ -145,7 +145,7 @@ public class ProxyClientConfig {
 
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp, int managerPort,
             String inlongGroupId, String authSecretId, String authSecretKey) throws ProxysdkException {
-        this(localHost, isLocalVisit, managerIp, managerPort, inlongGroupId,  authSecretId, authSecretKey,
+        this(localHost, isLocalVisit, managerIp, managerPort, inlongGroupId, authSecretId, authSecretKey,
                 ConfigConstants.DEFAULT_LOAD_BALANCE, ConfigConstants.DEFAULT_VIRTUAL_NODE,
                 ConfigConstants.DEFAULT_RANDOM_MAX_RETRY);
     }
@@ -293,7 +293,6 @@ public class ProxyClientConfig {
     public void setRequestTimeoutMillis(long requestTimeoutMillis) {
         this.requestTimeoutMillis = requestTimeoutMillis;
     }
-
 
     public String getRsaPubKeyUrl() {
         return rsaPubKeyUrl;
