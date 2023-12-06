@@ -47,14 +47,14 @@ public class HttpClientExample {
         String messageBody = "inlong message body!";
 
         HttpProxySender sender = getMessageSender(localIP, inLongManagerAddr,
-                inLongManagerPort,  inlongGroupId, false, false,
+                inLongManagerPort, inlongGroupId, false, false,
                 configBasePath);
 
         sendHttpMessage(sender, inlongGroupId, inlongStreamId, messageBody);
     }
 
     public static HttpProxySender getMessageSender(String localIP, String inLongManagerAddr,
-            String inLongManagerPort,  String inlongGroupId,
+            String inLongManagerPort, String inlongGroupId,
             boolean isLocalVisit, boolean isReadProxyIPFromLocal,
             String configBasePath) {
         ProxyClientConfig proxyConfig = null;

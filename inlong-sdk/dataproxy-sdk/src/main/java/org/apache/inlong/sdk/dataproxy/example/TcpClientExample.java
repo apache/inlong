@@ -72,7 +72,7 @@ public class TcpClientExample {
     }
 
     public DefaultMessageSender getMessageSender(String localIP, String inLongManagerAddr, String inLongManagerPort,
-             String inlongGroupId, boolean isLocalVisit, boolean isReadProxyIPFromLocal,
+            String inlongGroupId, boolean isLocalVisit, boolean isReadProxyIPFromLocal,
             String configBasePath, int msgType) {
         ProxyClientConfig dataProxyConfig = null;
         DefaultMessageSender messageSender = null;
