@@ -28,7 +28,7 @@
 
     <artifactId>sort-connector-kafka-v1.15</artifactId>
     <packaging>jar</packaging>
-    <name>Apache InLong - Sort-connector-kafka-v1.15</name>
+    <name>Apache InLong - Sort-connector-kafka</name>
 
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
@@ -46,15 +46,13 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>audit-sdk</artifactId>
+            <artifactId>sort-common</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-common</artifactId>
+            <artifactId>audit-sdk</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 
@@ -75,16 +73,18 @@
                                 <includes>
                                     <include>org.apache.inlong:*</include>
                                     <include>org.apache.kafka:*</include>
-                                    <include>com.google.protobuf:*</include>
                                     <include>org.apache.flink:flink-connector-kafka</include>
                                     <include>org.apache.flink:flink-connector-base</include>
-                                    <include>com.amazonaws:*</include>
-                                    <include>com.fasterxml.jackson.core:*</include>
-                                    <include>commons-logging:commons-logging</include>
+                                    <!--  Include fixed version 18.0-13.0 of flink shaded guava  -->
+                                    <include>org.apache.flink:flink-shaded-guava</include>
                                     <include>org.apache.httpcomponents:*</include>
-                                    <include>software.amazon.ion:*</include>
-                                    <include>joda-time:*</include>
                                     <include>org.apache.commons:commons-lang3</include>
+                                    <include>com.google.protobuf:*</include>
+                                    <include>joda-time:*</include>
+                                    <include>com.fasterxml.jackson.core:*</include>
+                                    <include>com.amazonaws:*</include>
+                                    <include>software.amazon.ion:*</include>
+                                    <include>commons-logging:commons-logging</include>
                                 </includes>
                             </artifactSet>
                             <filters>
@@ -105,45 +105,52 @@
                                     <includes>
                                         <include>org/apache/inlong/**</include>
                                         <include>META-INF/services/org.apache.flink.table.factories.Factory</include>
+                                        <include>META-INF/services/org.apache.flink.table.factories.TableFactory</include>
                                     </includes>
                                 </filter>
                             </filters>
                             <relocations>
                                 <relocation>
-                                    <pattern>org.apache.inlong.sort.base</pattern>
-                                    <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.apache.inlong.sort.base</shadedPattern>
-                                </relocation>
-                                <relocation>
                                     <pattern>org.apache.kafka</pattern>
-                                    <shadedPattern>org.apache.flink.kafka.shaded.org.apache.kafka</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.amazonaws</pattern>
-                                    <shadedPattern>org.apache.inlong.sort.kafka.shaded.com.amazonaws</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.fasterxml.jackson.core</pattern>
-                                    <shadedPattern>org.apache.inlong.sort.kafka.shaded.com.fasterxml.jackson.core</shadedPattern>
+                                    <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.apache.kafka</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.commons.logging</pattern>
                                     <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.apache.commons.logging</shadedPattern>
                                 </relocation>
                                 <relocation>
+                                    <pattern>org.apache.commons.lang3</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.apache.commons.lang3</shadedPattern>
+                                </relocation>
+                                <relocation>
                                     <pattern>org.apache.http</pattern>
                                     <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.apache.http</shadedPattern>
+                                </relocation>
+
+                                <relocation>
+                                    <pattern>com.google</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.kafka.shaded.com.google</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.amazonaws</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.kafka.shaded.com.amazonaws</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>software.amazon.ion</pattern>
                                     <shadedPattern>org.apache.inlong.sort.kafka.shaded.software.amazon.ion</shadedPattern>
                                 </relocation>
                                 <relocation>
+                                    <pattern>com.fasterxml.jackson</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.kafka.shaded.com.fasterxml.jackson</shadedPattern>
+                                </relocation>
+                                <relocation>
                                     <pattern>org.joda.time</pattern>
                                     <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.joda.time</shadedPattern>
                                 </relocation>
+
                                 <relocation>
-                                    <pattern>org.apache.commons.lang3</pattern>
-                                    <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.apache.commons.lang3</shadedPattern>
+                                    <pattern>org.apache.inlong.sort.base</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.apache.inlong.sort.base</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.inlong.sort.configuration</pattern>
@@ -152,6 +159,10 @@
                                 <relocation>
                                     <pattern>org.apache.inlong.sort.protocol</pattern>
                                     <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.apache.inlong.sort.protocol</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.inlong.sort.schema</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.apache.inlong.sort.schema</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.inlong.sort.util</pattern>
