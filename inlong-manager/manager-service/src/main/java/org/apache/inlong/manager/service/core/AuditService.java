@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core;
 
+import org.apache.inlong.manager.pojo.audit.AuditBaseResponse;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditSourceRequest;
 import org.apache.inlong.manager.pojo.audit.AuditSourceResponse;
@@ -36,6 +37,8 @@ public interface AuditService {
      * @return The result of query
      */
     List<AuditVO> listByCondition(AuditRequest request) throws Exception;
+
+    List<AuditBaseResponse> getAuditBases();
 
     /**
      * Get audit id by type and isSent.
