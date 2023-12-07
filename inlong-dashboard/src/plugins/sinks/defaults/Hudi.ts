@@ -28,7 +28,7 @@ import NodeSelect from '@/ui/components/NodeSelect';
 import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const hudiFieldTypes = [
@@ -117,6 +117,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Hudi.DbName')
   dbName: string;
 
@@ -137,6 +138,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
   @ColumnDecorator()
   @I18n('meta.Sinks.Hudi.TableName')
   @SyncField()
+  @IngestionField()
   tableName: string;
 
   @FieldDecorator({
@@ -158,6 +160,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
       ],
     }),
   })
+  @IngestionField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
@@ -171,6 +174,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
   })
   @I18n('meta.Sinks.DataNodeName')
   @SyncField()
+  @IngestionField()
   dataNodeName: string;
 
   @FieldDecorator({
@@ -198,6 +202,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
   @ColumnDecorator()
   @I18n('meta.Sinks.Hudi.FileFormat')
   @SyncField()
+  @IngestionField()
   fileFormat: string;
 
   @FieldDecorator({
@@ -227,6 +232,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Hudi.ExtList')
   extList: string;
 
@@ -251,6 +257,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Hudi.DataConsistency')
   dataConsistency: string;
 
@@ -264,6 +271,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
       columns: getFieldListColumns(values),
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
 
   @FieldDecorator({
@@ -291,6 +299,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Hudi.PrimaryKey')
   primaryKey: string;
 
@@ -304,6 +313,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Hudi.PartitionKey')
   partitionKey: string;
 }

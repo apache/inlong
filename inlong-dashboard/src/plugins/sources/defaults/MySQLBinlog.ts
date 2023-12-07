@@ -24,7 +24,7 @@ import i18n from '@/i18n';
 import { SourceInfo } from '../common/SourceInfo';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncMoveDbField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 export default class TubeMqSource
@@ -40,6 +40,7 @@ export default class TubeMqSource
   })
   @SyncField()
   @ColumnDecorator()
+  @SyncMoveDbField()
   @I18n('meta.Sources.Db.Server')
   hostname: string;
 
@@ -55,6 +56,7 @@ export default class TubeMqSource
   })
   @SyncField()
   @ColumnDecorator()
+  @SyncMoveDbField()
   @I18n('meta.Sources.Db.Port')
   port: number;
 
@@ -66,6 +68,7 @@ export default class TubeMqSource
     }),
   })
   @SyncField()
+  @SyncMoveDbField()
   @I18n('meta.Sources.Db.User')
   user: string;
 
@@ -77,6 +80,7 @@ export default class TubeMqSource
     }),
   })
   @SyncField()
+  @SyncMoveDbField()
   @I18n('meta.Sources.Db.Password')
   password: string;
 
@@ -135,7 +139,6 @@ export default class TubeMqSource
       ],
     }),
   })
-  @SyncField()
   @I18n('meta.Sources.Db.AllMigration')
   allMigration: boolean;
 
@@ -158,6 +161,7 @@ export default class TubeMqSource
     }),
   })
   @SyncField()
+  @SyncMoveDbField()
   @I18n('meta.Sources.Db.ReadMode')
   onlyIncremental: boolean;
 
@@ -170,6 +174,7 @@ export default class TubeMqSource
     }),
   })
   @SyncField()
+  @SyncMoveDbField()
   @I18n('meta.Sources.Db.DatabaseWhiteList')
   databaseWhiteList: string;
 
@@ -180,9 +185,9 @@ export default class TubeMqSource
     props: values => ({
       disabled: values?.status === 101,
     }),
-    visible: values => !values?.allMigration,
   })
   @SyncField()
+  @SyncMoveDbField()
   @I18n('meta.Sources.Db.TableWhiteList')
   tableWhiteList: boolean;
 }

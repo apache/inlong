@@ -28,7 +28,8 @@ import NodeSelect from '@/ui/components/NodeSelect';
 import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
+const { FieldDecorator, SyncField, SyncMoveDbField, SyncCreateTableField, IngestionField } =
+  RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const icebergFieldTypes = [
@@ -111,6 +112,8 @@ export default class IcebergSink
   extends SinkInfo
   implements DataWithBackend, RenderRow, RenderList
 {
+  readonly id: number;
+
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
@@ -120,6 +123,7 @@ export default class IcebergSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Iceberg.DbName')
   dbName: string;
 
@@ -139,8 +143,80 @@ export default class IcebergSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Iceberg.TableName')
   tableName: string;
+
+  @FieldDecorator({
+    type: 'radiobutton',
+    initialValue: '${database}',
+    rules: [{ required: true }],
+    props: values => ({
+      size: 'middle',
+      disabled: [110].includes(values?.status),
+      options: [
+        {
+          label: i18n.t('meta.Sinks.Iceberg.Options.DBSameName'),
+          value: '${database}',
+          disabled: Boolean(values.id),
+        },
+        {
+          label: i18n.t('meta.Sinks.Iceberg.Options.Customize'),
+          value: 'false',
+          disabled: Boolean(values.id),
+        },
+      ],
+    }),
+    suffix: {
+      type: 'input',
+      name: 'databasePattern',
+      visible: values =>
+        values.backupDatabase === 'false' ||
+        (values.id !== undefined && values.databasePattern !== '${database}'),
+      props: values => ({
+        style: { width: 100 },
+        disabled: [110].includes(values?.status),
+      }),
+    },
+  })
+  @SyncMoveDbField()
+  @I18n('meta.Sinks.Iceberg.DatabasePattern')
+  backupDatabase: string;
+
+  @FieldDecorator({
+    type: 'radiobutton',
+    initialValue: '${table}',
+    rules: [{ required: true }],
+    props: values => ({
+      size: 'middle',
+      options: [
+        {
+          label: i18n.t('meta.Sinks.Iceberg.Options.TableSameName'),
+          value: '${table}',
+          disabled: Boolean(values.id),
+        },
+        {
+          label: i18n.t('meta.Sinks.Iceberg.Options.Customize'),
+          value: 'false',
+          disabled: Boolean(values.id),
+        },
+      ],
+    }),
+    suffix: {
+      type: 'input',
+      name: 'tablePattern',
+      visible: values =>
+        values.backupTable === 'false' ||
+        (values.id !== undefined && values.tablePattern !== '${table}'),
+      props: values => ({
+        style: { width: 100 },
+        disabled: [110].includes(values?.status),
+      }),
+    },
+  })
+  @SyncMoveDbField()
+  @I18n('meta.Sinks.Iceberg.TablePattern')
+  backupTable: string;
 
   @FieldDecorator({
     type: 'radio',
@@ -161,6 +237,7 @@ export default class IcebergSink
       ],
     }),
   })
+  @IngestionField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
@@ -174,6 +251,8 @@ export default class IcebergSink
   })
   @I18n('meta.Sinks.DataNodeName')
   @SyncField()
+  @IngestionField()
+  @SyncMoveDbField()
   dataNodeName: string;
 
   @FieldDecorator({
@@ -200,6 +279,7 @@ export default class IcebergSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Iceberg.FileFormat')
   fileFormat: string;
 
@@ -222,6 +302,7 @@ export default class IcebergSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Iceberg.AppendMode')
   appendMode: string;
 
@@ -250,6 +331,7 @@ export default class IcebergSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Iceberg.ExtList')
   extList: string;
 
@@ -274,6 +356,7 @@ export default class IcebergSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Iceberg.DataConsistency')
   dataConsistency: string;
 
@@ -287,6 +370,7 @@ export default class IcebergSink
       upsertByFieldKey: true,
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
 
   @FieldDecorator({

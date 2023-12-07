@@ -26,7 +26,7 @@ import NodeSelect from '@/ui/components/NodeSelect';
 import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const fieldTypesConf = {
@@ -75,6 +75,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   @ColumnDecorator()
   @I18n('meta.Sinks.MySQL.DatabaseName')
   @SyncField()
+  @IngestionField()
   databaseName: string;
 
   @FieldDecorator({
@@ -94,6 +95,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   @ColumnDecorator()
   @I18n('meta.Sinks.MySQL.TableName')
   @SyncField()
+  @IngestionField()
   tableName: string;
 
   @FieldDecorator({
@@ -106,6 +108,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   @ColumnDecorator()
   @I18n('meta.Sinks.MySQL.PrimaryKey')
   @SyncField()
+  @IngestionField()
   primaryKey: string;
 
   @FieldDecorator({
@@ -127,6 +130,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
       ],
     }),
   })
+  @IngestionField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
@@ -139,6 +143,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.DataNodeName')
   dataNodeName: string;
 
@@ -152,6 +157,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
       upsertByFieldKey: true,
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
 
   @FieldDecorator({

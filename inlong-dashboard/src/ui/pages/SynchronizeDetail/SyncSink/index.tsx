@@ -41,7 +41,7 @@ interface Props extends CommonInterface {
   inlongStreamId: string;
 }
 
-const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
+const Comp = ({ inlongGroupId, inlongStreamId, sinkMultipleEnable, readonly }: Props, ref) => {
   const [mode, setMode] = useState('list');
 
   const { defaultValue } = useDefaultMeta('sink');
@@ -138,7 +138,13 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
   }, [Entity]);
 
   const entityFields = useMemo(() => {
-    return Entity ? new Entity().renderSyncRow() : [];
+    return sinkMultipleEnable
+      ? Entity
+        ? new Entity().renderSyncAllRow()
+        : []
+      : Entity
+      ? new Entity().renderSyncRow()
+      : [];
   }, [Entity]);
 
   const getFilterFormContent = useCallback(
@@ -276,6 +282,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
         inlongGroupId={inlongGroupId}
         inlongStreamId={inlongStreamId}
         open={createModal.open as boolean}
+        sinkMultipleEnable={sinkMultipleEnable}
         onOk={async () => {
           await getList();
           setCreateModal({ open: false });

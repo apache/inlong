@@ -28,7 +28,7 @@ import NodeSelect from '@/ui/components/NodeSelect';
 import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const hiveFieldTypes = [
@@ -63,6 +63,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Hive.DbName')
   dbName: string;
 
@@ -82,6 +83,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Hive.TableName')
   tableName: string;
 
@@ -104,6 +106,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
       ],
     }),
   })
+  @IngestionField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
@@ -116,6 +119,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   })
   @I18n('meta.Sinks.Username')
   @SyncField()
+  @IngestionField()
   username: string;
 
   @FieldDecorator({
@@ -127,6 +131,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   })
   @I18n('meta.Sinks.Password')
   @SyncField()
+  @IngestionField()
   password: string;
 
   @FieldDecorator({
@@ -139,6 +144,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   })
   @I18n('meta.Sinks.DataNodeName')
   @SyncField()
+  @IngestionField()
   dataNodeName: string;
 
   @FieldDecorator({
@@ -177,6 +183,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   })
   @I18n('meta.Sinks.Hive.FileFormat')
   @SyncCreateTableField()
+  @IngestionField()
   fileFormat: string;
 
   @FieldDecorator({
@@ -199,6 +206,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   })
   @I18n('meta.Sinks.Hive.DataEncoding')
   @SyncCreateTableField()
+  @IngestionField()
   dataEncoding: string;
 
   @FieldDecorator({
@@ -252,6 +260,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   })
   @I18n('meta.Sinks.Hive.DataSeparator')
   @SyncCreateTableField()
+  @IngestionField()
   dataSeparator: string;
 
   @FieldDecorator({
@@ -264,6 +273,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
       upsertByFieldKey: true,
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
 
   @FieldDecorator({
@@ -325,6 +335,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   })
   @I18n('meta.Sinks.Hive.PartitionFieldList')
   @SyncField()
+  @IngestionField()
   partitionFieldList: Record<string, unknown>[];
 }
 

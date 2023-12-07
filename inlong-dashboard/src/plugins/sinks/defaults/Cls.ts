@@ -27,7 +27,7 @@ import { sourceFields } from '../common/sourceFields';
 import NodeSelect from '@/ui/components/NodeSelect';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const targetTypes = ['int', 'long', 'float', 'double', 'string', 'date', 'timestamp'].map(item => ({
@@ -46,6 +46,7 @@ export default class ClsSink extends SinkInfo implements DataWithBackend, Render
   @ColumnDecorator()
   @I18n('Topic Name')
   @SyncField()
+  @IngestionField()
   topicName: string;
 
   @FieldDecorator({
@@ -58,6 +59,7 @@ export default class ClsSink extends SinkInfo implements DataWithBackend, Render
   @ColumnDecorator()
   @I18n('meta.Sinks.Cls.Tag')
   @SyncField()
+  @IngestionField()
   tag: string;
 
   @FieldDecorator({
@@ -69,6 +71,7 @@ export default class ClsSink extends SinkInfo implements DataWithBackend, Render
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Cls.Tokenizer')
   tokenizer: string;
 
@@ -99,6 +102,7 @@ export default class ClsSink extends SinkInfo implements DataWithBackend, Render
   })
   @I18n('meta.Sinks.Cls.StorageDuration')
   @SyncField()
+  @IngestionField()
   storageDuration: number;
 
   @FieldDecorator({
@@ -111,6 +115,7 @@ export default class ClsSink extends SinkInfo implements DataWithBackend, Render
   })
   @I18n('meta.Sinks.DataNodeName')
   @SyncField()
+  @IngestionField()
   @ColumnDecorator()
   dataNodeName: string;
 

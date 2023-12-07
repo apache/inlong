@@ -24,6 +24,8 @@ export abstract class RenderRow {
   static FieldList: FieldItemType[] = [];
   static SyncFieldSet = new Set<string>();
   static SyncCreateTableFieldSet = new Set<string>();
+  static SyncMoveDbFieldSet = new Set<string>();
+  static IngestionFieldSet = new Set<string>();
 
   static FieldDecorator(config: FieldItemType): PropertyDecorator {
     return (target: any, propertyKey: string) => {
@@ -57,6 +59,18 @@ export abstract class RenderRow {
   static SyncCreateTableField(): PropertyDecorator {
     return (target: any, propertyKey: string) => {
       target.constructor.SyncCreateTableFieldSet.add(propertyKey);
+    };
+  }
+
+  static SyncMoveDbField(): PropertyDecorator {
+    return (target: any, propertyKey: string) => {
+      target.constructor.SyncMoveDbFieldSet.add(propertyKey);
+    };
+  }
+
+  static IngestionField(): PropertyDecorator {
+    return (target: any, propertyKey: string) => {
+      target.constructor.IngestionFieldSet.add(propertyKey);
     };
   }
 
