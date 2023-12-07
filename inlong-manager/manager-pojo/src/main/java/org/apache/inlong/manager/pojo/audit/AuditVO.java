@@ -30,6 +30,8 @@ public class AuditVO {
 
     @ApiModelProperty(value = "Audit id")
     private String auditId;
+    @ApiModelProperty(value = "Audit name")
+    private String auditName;
     @ApiModelProperty(value = "Audit set")
     private List<AuditInfo> auditSet;
     @ApiModelProperty(value = "Node type")
@@ -38,8 +40,9 @@ public class AuditVO {
     public AuditVO() {
     }
 
-    public AuditVO(String auditId, List<AuditInfo> auditSet, String nodeType) {
+    public AuditVO(String auditId, String auditName, List<AuditInfo> auditSet, String nodeType) {
         this.auditId = auditId;
+        this.auditName = auditName;
         this.auditSet = auditSet;
         this.nodeType = nodeType;
     }

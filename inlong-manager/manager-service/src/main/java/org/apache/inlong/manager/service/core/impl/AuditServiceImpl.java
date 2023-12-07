@@ -37,6 +37,7 @@ import org.apache.inlong.manager.dao.mapper.AuditSourceEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
+import org.apache.inlong.manager.pojo.audit.AuditBaseResponse;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditSourceRequest;
@@ -113,6 +114,8 @@ public class AuditServiceImpl implements AuditService {
 
     private final Map<String, AuditBaseEntity> auditReceivedItemMap = new ConcurrentHashMap<>();
 
+    private final Map<String, AuditBaseEntity> auditItemMap = new ConcurrentHashMap<>();
+
     // defaults to return all audit ids, can be overwritten in properties file
     // see audit id definitions: https://inlong.apache.org/docs/modules/audit/overview#audit-id
     @Value("#{'${audit.admin.ids:3,4,5,6}'.split(',')}")
@@ -156,6 +159,7 @@ public class AuditServiceImpl implements AuditService {
         try {
             List<AuditBaseEntity> auditBaseEntities = auditBaseMapper.selectAll();
             for (AuditBaseEntity auditBaseEntity : auditBaseEntities) {
+                auditItemMap.put(auditBaseEntity.getAuditId(), auditBaseEntity);
                 String type = auditBaseEntity.getType();
                 if (auditBaseEntity.getIsSent() == 1) {
                     auditSentItemMap.put(type, auditBaseEntity);
@@ -252,30 +256,39 @@ public class AuditServiceImpl implements AuditService {
         if (sinkEntity != null) {
             sinkNodeType = sinkEntity.getSinkType();
         }
-
-        InlongGroupEntity groupEntity = inlongGroupMapper.selectByGroupId(groupId);
-        List<StreamSourceEntity> sourceEntityList = sourceEntityMapper.selectByRelatedId(groupId, streamId, null);
-        if (CollectionUtils.isNotEmpty(sourceEntityList)) {
-            sourceNodeType = sourceEntityList.get(0).getSourceType();
-        }
-
         Map<String, String> auditIdMap = new HashMap<>();
-        auditIdMap.put(getAuditId(sinkNodeType, true), sinkNodeType);
 
-        if (CollectionUtils.isEmpty(request.getAuditIds())) {
-            // properly overwrite audit ids by role and stream config
-            if (InlongConstants.DATASYNC_MODE.equals(groupEntity.getInlongGroupMode())) {
-                auditIdMap.put(getAuditId(sourceNodeType, false), sourceNodeType);
-                request.setAuditIds(getAuditIds(groupId, streamId, sourceNodeType, sinkNodeType));
-            } else {
-                auditIdMap.put(getAuditId(sinkNodeType, false), sinkNodeType);
-                request.setAuditIds(getAuditIds(groupId, streamId, null, sinkNodeType));
+        if (StringUtils.isNotBlank(groupId)) {
+            InlongGroupEntity groupEntity = inlongGroupMapper.selectByGroupId(groupId);
+            List<StreamSourceEntity> sourceEntityList = sourceEntityMapper.selectByRelatedId(groupId, streamId, null);
+            if (CollectionUtils.isNotEmpty(sourceEntityList)) {
+                sourceNodeType = sourceEntityList.get(0).getSourceType();
             }
+
+            auditIdMap.put(getAuditId(sinkNodeType, true), sinkNodeType);
+
+            if (CollectionUtils.isEmpty(request.getAuditIds())) {
+                // properly overwrite audit ids by role and stream config
+                if (InlongConstants.DATASYNC_MODE.equals(groupEntity.getInlongGroupMode())) {
+                    auditIdMap.put(getAuditId(sourceNodeType, false), sourceNodeType);
+                    request.setAuditIds(getAuditIds(groupId, streamId, sourceNodeType, sinkNodeType));
+                } else {
+                    auditIdMap.put(getAuditId(sinkNodeType, false), sinkNodeType);
+                    request.setAuditIds(getAuditIds(groupId, streamId, null, sinkNodeType));
+                }
+            }
+        } else if (CollectionUtils.isEmpty(request.getAuditIds())) {
+            throw new BusinessException("audits id is empty");
         }
 
         List<AuditVO> result = new ArrayList<>();
         AuditQuerySource querySource = AuditQuerySource.valueOf(auditQuerySource);
         for (String auditId : request.getAuditIds()) {
+            AuditBaseEntity auditBaseEntity = auditItemMap.get(auditId);
+            String auditName = "";
+            if (auditBaseEntity != null) {
+                auditName = auditBaseEntity.getName();
+            }
             if (AuditQuerySource.MYSQL == querySource) {
                 String format = "%Y-%m-%d %H:%i:00";
                 // Support min agg at now
@@ -285,13 +298,15 @@ public class AuditServiceImpl implements AuditService {
                         groupId, streamId, auditId, request.getStartDate(), endDateStr, format);
                 List<AuditInfo> auditSet = sumList.stream().map(s -> {
                     AuditInfo vo = new AuditInfo();
+                    vo.setInlongGroupId((String) s.get("inlongGroupId"));
+                    vo.setInlongStreamId((String) s.get("inlongStreamId"));
                     vo.setLogTs((String) s.get("logTs"));
                     vo.setCount(((BigDecimal) s.get("total")).longValue());
                     vo.setDelay(((BigDecimal) s.get("totalDelay")).longValue());
                     vo.setSize(((BigDecimal) s.get("totalSize")).longValue());
                     return vo;
                 }).collect(Collectors.toList());
-                result.add(new AuditVO(auditId, auditSet, auditIdMap.getOrDefault(auditId, null)));
+                result.add(new AuditVO(auditId, auditName, auditSet, auditIdMap.getOrDefault(auditId, null)));
             } else if (AuditQuerySource.ELASTICSEARCH == querySource) {
                 String index = String.format("%s_%s", request.getStartDate().replaceAll("-", ""), auditId);
                 if (!elasticsearchApi.indexExists(index)) {
@@ -310,7 +325,7 @@ public class AuditServiceImpl implements AuditService {
                             vo.setDelay((long) ((ParsedSum) bucket.getAggregations().asList().get(1)).getValue());
                             return vo;
                         }).collect(Collectors.toList());
-                        result.add(new AuditVO(auditId, auditSet, auditIdMap.getOrDefault(auditId, null)));
+                        result.add(new AuditVO(auditId, auditName, auditSet, auditIdMap.getOrDefault(auditId, null)));
                     }
                 }
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
@@ -322,18 +337,26 @@ public class AuditServiceImpl implements AuditService {
                     List<AuditInfo> auditSet = new ArrayList<>();
                     while (resultSet.next()) {
                         AuditInfo vo = new AuditInfo();
+                        vo.setInlongGroupId(resultSet.getString("inlong_group_id"));
+                        vo.setInlongStreamId(resultSet.getString("inlong_stream_id"));
                         vo.setLogTs(resultSet.getString("log_ts"));
                         vo.setCount(resultSet.getLong("total"));
                         vo.setDelay(resultSet.getLong("total_delay"));
                         vo.setSize(resultSet.getLong("total_size"));
                         auditSet.add(vo);
                     }
-                    result.add(new AuditVO(auditId, auditSet, auditIdMap.getOrDefault(auditId, null)));
+                    result.add(new AuditVO(auditId, auditName, auditSet, auditIdMap.getOrDefault(auditId, null)));
                 }
             }
         }
         LOGGER.info("success to query audit list for request={}", request);
         return aggregateByTimeDim(result, request.getTimeStaticsDim());
+    }
+
+    @Override
+    public List<AuditBaseResponse> getAuditBases() {
+        List<AuditBaseEntity> auditBaseEntityList = auditBaseMapper.selectAll();
+        return CommonBeanUtils.copyListProperties(auditBaseEntityList, AuditBaseResponse::new);
     }
 
     private List<String> getAuditIds(String groupId, String streamId, String sourceNodeType, String sinkNodeType) {
@@ -420,9 +443,10 @@ public class AuditServiceImpl implements AuditService {
                 .toString();
 
         String sql = new SQL()
-                .SELECT("log_ts", "sum(count) as total", "sum(delay) as total_delay", "sum(size) as total_size")
+                .SELECT("inlong_group_id", "inlong_stream_id", "log_ts", "sum(count) as total",
+                        "sum(delay) as total_delay", "sum(size) as total_size")
                 .FROM("(" + subQuery + ") as sub")
-                .GROUP_BY("log_ts")
+                .GROUP_BY("log_ts", "inlong_group_id", "inlong_stream_id")
                 .ORDER_BY("log_ts")
                 .toString();
 
@@ -465,6 +489,7 @@ public class AuditServiceImpl implements AuditService {
             HashMap<String, AtomicLong> delayMap = new HashMap<>();
             HashMap<String, AtomicLong> sizeMap = new HashMap<>();
             statInfo.setAuditId(auditVO.getAuditId());
+            statInfo.setAuditName(auditVO.getAuditName());
             statInfo.setNodeType(auditVO.getNodeType());
             for (AuditInfo auditInfo : auditVO.getAuditSet()) {
                 String statKey = formatLogTime(auditInfo.getLogTs(), format);
