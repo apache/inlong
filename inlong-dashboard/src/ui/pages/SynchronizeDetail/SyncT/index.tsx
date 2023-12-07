@@ -27,6 +27,23 @@ const Comp = ({ inlongGroupId, readonly, mqType }) => {
   const [inlongStreamId, setInlongStreamId] = useState('');
   const [sinkMultipleEnable, setSinkMultipleEnable] = useState(false);
 
+  const { data, run: getList } = useRequest(
+    {
+      url: '/stream/list',
+      method: 'POST',
+      data: {
+        inlongGroupId,
+      },
+    },
+    {
+      manual: true,
+      onSuccess: result => {
+        const [item] = result?.list || [];
+        setInlongStreamId(item.inlongStreamId);
+      },
+    },
+  );
+
   const { data: streamDetail, run: getStreamDetail } = useRequest(
     streamId => ({
       url: `/stream/getBrief`,
@@ -45,6 +62,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }) => {
 
   useEffect(() => {
     if (inlongGroupId !== null) {
+      getList();
       getStreamDetail(inlongStreamId);
     }
   }, []);
