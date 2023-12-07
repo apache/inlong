@@ -103,6 +103,9 @@ public class MySQLBinlogSourceRequest extends SourceRequest {
     @ApiModelProperty("Need transfer total database")
     private boolean allMigration = false;
 
+    @ApiModelProperty("Only incremental")
+    private boolean onlyIncremental;
+
     @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
 

@@ -94,6 +94,9 @@ public class MySQLBinlogSource extends StreamSource {
     @ApiModelProperty("Need transfer total database")
     private boolean allMigration;
 
+    @ApiModelProperty("Only incremental")
+    private boolean onlyIncremental;
+
     @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
 
