@@ -23,7 +23,7 @@ import { useRequest } from '@/ui/hooks';
 import SourceSinkCard from './SourceSinkCard';
 import SyncDatabaseCard from './SyncDatabaseCard';
 
-const Comp = ({ inlongGroupId }) => {
+const Comp = ({ inlongGroupId, readonly, mqType }) => {
   const [inlongStreamId, setInlongStreamId] = useState('');
   const [sinkMultipleEnable, setSinkMultipleEnable] = useState(false);
 

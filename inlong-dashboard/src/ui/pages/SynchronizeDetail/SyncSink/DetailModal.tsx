@@ -171,7 +171,7 @@ const Comp: React.FC<DetailModalProps> = ({
     >
       <Spin spinning={loading || pluginLoading}>
         <FormGenerator
-          labelCol={{ flex: '0 0 123px' }}
+          labelCol={{ flex: '0 0 170px' }}
           wrapperCol={{ flex: '1' }}
           col={12}
           content={formContent}

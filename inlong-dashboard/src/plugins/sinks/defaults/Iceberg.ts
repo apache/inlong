@@ -149,6 +149,7 @@ export default class IcebergSink
     initialValue: '${database}',
     rules: [{ required: true }],
     props: values => ({
+      size: 'middle',
       disabled: [110].includes(values?.status),
       options: [
         {
@@ -170,6 +171,7 @@ export default class IcebergSink
         values.backupDatabase === 'false' ||
         (values.id !== undefined && values.databasePattern !== '${database}'),
       props: values => ({
+        style: { width: 100 },
         disabled: [110].includes(values?.status),
       }),
     },
@@ -183,6 +185,7 @@ export default class IcebergSink
     initialValue: '${table}',
     rules: [{ required: true }],
     props: values => ({
+      size: 'middle',
       options: [
         {
           label: i18n.t('meta.Sinks.Iceberg.Options.TableSameName'),
@@ -203,6 +206,7 @@ export default class IcebergSink
         values.backupTable === 'false' ||
         (values.id !== undefined && values.tablePattern !== '${table}'),
       props: values => ({
+        style: { width: 100 },
         disabled: [110].includes(values?.status),
       }),
     },
