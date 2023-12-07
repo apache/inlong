@@ -44,22 +44,13 @@ public class GroupTaskListenerFactoryTest extends ServiceBaseTest {
     public void testGetQueueOperateListener() {
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
         InlongPulsarInfo pulsarInfo = new InlongPulsarInfo();
-        // check pulsar listener
         pulsarInfo.setMqType(MQType.PULSAR);
         processForm.setGroupInfo(pulsarInfo);
         WorkflowContext context = new WorkflowContext();
         context.setProcessForm(processForm);
         List<QueueOperateListener> queueOperateListeners = groupTaskListenerFactory.getQueueResourceListener(context);
-        if (queueOperateListeners.size() == 0) {
-            return;
-        }
         Assertions.assertEquals(1, queueOperateListeners.size());
 
-        // check tubemq listener
-        InlongTubeMQInfo tubeInfo = new InlongTubeMQInfo();
-        tubeInfo.setMqType(MQType.TUBEMQ);
-        queueOperateListeners = groupTaskListenerFactory.getQueueResourceListener(context);
-        Assertions.assertEquals(2, queueOperateListeners.size());
     }
 
 }
