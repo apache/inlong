@@ -333,10 +333,10 @@ public class AuditServiceImpl implements AuditService {
                 }
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
                 try (Connection connection = config.getCkConnection();
-                        PreparedStatement statement = StringUtils.isNotBlank(request.getIp()) ? getAuditCkStatementByIp(
-                                connection, auditId, request.getIp(), request.getStartDate(), request.getEndDate())
-                                : getAuditCkStatement(connection, groupId, streamId, auditId, request.getStartDate(),
-                                        request.getEndDate());
+                        PreparedStatement statement = getAuditCkStatement(connection, groupId, streamId,
+                                request.getIp(), auditId,
+                                request.getStartDate(),
+                                request.getEndDate());
 
                         ResultSet resultSet = statement.executeQuery()) {
                     List<AuditInfo> auditSet = new ArrayList<>();
@@ -430,11 +430,13 @@ public class AuditServiceImpl implements AuditService {
      * @param endDate The en datetime of request
      * @return The clickhouse Statement
      */
-    private PreparedStatement getAuditCkStatement(Connection connection, String groupId, String streamId,
+    private PreparedStatement getAuditCkStatement(Connection connection, String groupId, String streamId, String ip,
             String auditId, String startDate, String endDate) throws SQLException {
         String start = DAY_DATE_FORMATTER.parseDateTime(startDate).toString(SECOND_FORMAT);
         String end = DAY_DATE_FORMATTER.parseDateTime(endDate).plusDays(1).toString(SECOND_FORMAT);
-
+        if (StringUtils.isNotBlank(ip)) {
+            return getAuditCkStatementByIp(connection, auditId, ip, startDate, endDate);
+        }
         // Query results are duplicated according to all fields.
         String subQuery = new SQL()
                 .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", "log_ts", "inlong_group_id",
