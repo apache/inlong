@@ -161,6 +161,7 @@ export default class TubeMqSource
     }),
   })
   @SyncField()
+  @SyncMoveDbField()
   @I18n('meta.Sources.Db.ReadMode')
   onlyIncremental: boolean;
 
