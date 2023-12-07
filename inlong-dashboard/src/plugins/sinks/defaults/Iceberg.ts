@@ -28,7 +28,8 @@ import NodeSelect from '@/ui/components/NodeSelect';
 import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField, SyncMoveDbField, SyncCreateTableField } = RenderRow;
+const { FieldDecorator, SyncField, SyncMoveDbField, SyncCreateTableField, IngestionField } =
+  RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const icebergFieldTypes = [
@@ -122,6 +123,7 @@ export default class IcebergSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Iceberg.DbName')
   dbName: string;
 
@@ -141,6 +143,7 @@ export default class IcebergSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Iceberg.TableName')
   tableName: string;
 
@@ -234,6 +237,7 @@ export default class IcebergSink
       ],
     }),
   })
+  @IngestionField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
@@ -247,6 +251,7 @@ export default class IcebergSink
   })
   @I18n('meta.Sinks.DataNodeName')
   @SyncField()
+  @IngestionField()
   @SyncMoveDbField()
   dataNodeName: string;
 
@@ -274,6 +279,7 @@ export default class IcebergSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Iceberg.FileFormat')
   fileFormat: string;
 
@@ -296,6 +302,7 @@ export default class IcebergSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Iceberg.AppendMode')
   appendMode: string;
 
@@ -324,6 +331,7 @@ export default class IcebergSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Iceberg.ExtList')
   extList: string;
 
@@ -348,6 +356,7 @@ export default class IcebergSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Iceberg.DataConsistency')
   dataConsistency: string;
 
@@ -361,6 +370,7 @@ export default class IcebergSink
       upsertByFieldKey: true,
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
 
   @FieldDecorator({

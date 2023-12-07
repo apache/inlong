@@ -24,7 +24,7 @@ import { SinkInfo } from '../common/SinkInfo';
 import NodeSelect from '@/ui/components/NodeSelect';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 export default class PulsarSink extends SinkInfo implements DataWithBackend, RenderRow, RenderList {
@@ -37,6 +37,7 @@ export default class PulsarSink extends SinkInfo implements DataWithBackend, Ren
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Pulsar.Tenant')
   pulsarTenant: string;
 
@@ -49,6 +50,7 @@ export default class PulsarSink extends SinkInfo implements DataWithBackend, Ren
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Pulsar.Namespace')
   namespace: string;
 
@@ -61,6 +63,7 @@ export default class PulsarSink extends SinkInfo implements DataWithBackend, Ren
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('Topic')
   topic: string;
 
@@ -77,6 +80,7 @@ export default class PulsarSink extends SinkInfo implements DataWithBackend, Ren
   })
   @I18n('meta.Sinks.Pulsar.PartitionNum')
   @ColumnDecorator()
+  @IngestionField()
   partitionNum: number;
 
   @FieldDecorator({
@@ -89,6 +93,7 @@ export default class PulsarSink extends SinkInfo implements DataWithBackend, Ren
   })
   @I18n('meta.Sinks.DataNodeName')
   @SyncField()
+  @IngestionField()
   @ColumnDecorator()
   dataNodeName: string;
 }

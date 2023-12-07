@@ -26,7 +26,7 @@ import NodeSelect from '@/ui/components/NodeSelect';
 import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const fieldTypesConf = {
@@ -71,6 +71,7 @@ export default class StarRocksSink
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.DataNodeName')
   dataNodeName: string;
 
@@ -83,6 +84,7 @@ export default class StarRocksSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.StarRocks.DatabaseName')
   databaseName: string;
 
@@ -102,6 +104,7 @@ export default class StarRocksSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.StarRocks.TableName')
   tableName: string;
 
@@ -113,6 +116,7 @@ export default class StarRocksSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.StarRocks.PrimaryKey')
   primaryKey: string;
 
@@ -126,6 +130,7 @@ export default class StarRocksSink
       upsertByFieldKey: true,
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
 
   @FieldDecorator({

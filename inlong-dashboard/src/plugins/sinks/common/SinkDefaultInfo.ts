@@ -35,6 +35,8 @@ const {
   SyncMoveDbField,
   SyncMoveDbFieldSet,
   SyncCreateTableFieldSet,
+  IngestionField,
+  IngestionFieldSet,
 } = RenderRow;
 const { ColumnList, ColumnDecorator } = RenderList;
 
@@ -45,6 +47,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   static SyncFieldSet = SyncFieldSet;
   static SyncMoveDbFieldSet = SyncMoveDbFieldSet;
   static SyncCreateTableFieldSet = SyncCreateTableFieldSet;
+  static IngestionFieldSet = IngestionFieldSet;
 
   readonly id: number;
 
@@ -55,6 +58,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   })
   @SyncField()
   @SyncMoveDbField()
+  @IngestionField()
   @I18n('inlongGroupId')
   readonly inlongGroupId: string;
 
@@ -64,6 +68,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   })
   @SyncField()
   @SyncMoveDbField()
+  @IngestionField()
   @I18n('inlongStreamId')
   readonly inlongStreamId: string;
 
@@ -90,6 +95,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   })
   @SyncField()
   @SyncMoveDbField()
+  @IngestionField()
   @I18n('meta.Sinks.SinkType')
   sinkType: string;
 
@@ -111,6 +117,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   @ColumnDecorator()
   @SyncField()
   @SyncMoveDbField()
+  @IngestionField()
   @I18n('meta.Sinks.SinkName')
   sinkName: string;
 
@@ -124,6 +131,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   })
   @SyncField()
   @SyncMoveDbField()
+  @IngestionField()
   @I18n('meta.Sinks.Description')
   description: string;
 
@@ -141,14 +149,17 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   })
   @SyncField()
   @SyncMoveDbField()
+  @IngestionField()
   @I18n('basic.Status')
   readonly status: string;
 
   @ColumnDecorator()
   @I18n('basic.Creator')
+  @IngestionField()
   readonly creator: string;
 
   @ColumnDecorator()
+  @IngestionField()
   @I18n('basic.Modifier')
   readonly modifier: string;
 
@@ -172,11 +183,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   renderSyncRow() {
     const constructor = this.constructor as typeof SinkDefaultInfo;
     const { FieldList, SyncFieldSet } = constructor;
-    return FieldList.filter(item => {
-      if (item.name !== 'backupTable' && item.name !== 'backupDatabase') {
-        return FieldList.filter(item => SyncFieldSet.has(item.name as string));
-      }
-    });
+    return FieldList.filter(item => SyncFieldSet.has(item.name as string));
   }
 
   renderSyncCreateTableRow() {
@@ -208,16 +215,12 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
 
   renderRow() {
     const constructor = this.constructor as typeof SinkDefaultInfo;
-    return constructor.FieldList.filter(item => {
-      if (item.name !== 'backupTable' && item.name !== 'backupDatabase') {
-        if (item.name === 'tableName' || item.name === 'primaryKey' || item.name === 'database') {
-          item.type = 'input';
-        }
-        if (item.name === 'createTableField') {
-          item.hidden = true;
-        }
-        return constructor.FieldList;
+    const { FieldList, IngestionFieldSet } = constructor;
+    return FieldList.filter(item => {
+      if (item.name === 'tableName' || item.name === 'primaryKey' || item.name === 'database') {
+        item.type = 'input';
       }
+      return IngestionFieldSet.has(item.name as string);
     });
   }
 

@@ -25,7 +25,7 @@ import { SinkInfo } from '../common/SinkInfo';
 import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const tdsqlPostgreSQLFieldTypes = [
@@ -71,6 +71,7 @@ export default class TDSQLPostgreSQLSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('JDBC URL')
   jdbcUrl: string;
 
@@ -83,6 +84,7 @@ export default class TDSQLPostgreSQLSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.TDSQLPostgreSQL.SchemaName')
   schemaName: string;
 
@@ -102,6 +104,7 @@ export default class TDSQLPostgreSQLSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.TDSQLPostgreSQL.TableName')
   tableName: string;
 
@@ -114,6 +117,7 @@ export default class TDSQLPostgreSQLSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.TDSQLPostgreSQL.PrimaryKey')
   primaryKey: string;
 
@@ -136,6 +140,7 @@ export default class TDSQLPostgreSQLSink
       ],
     }),
   })
+  @IngestionField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
@@ -147,6 +152,7 @@ export default class TDSQLPostgreSQLSink
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Username')
   username: string;
 
@@ -158,6 +164,7 @@ export default class TDSQLPostgreSQLSink
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Password')
   password: string;
 
@@ -171,6 +178,7 @@ export default class TDSQLPostgreSQLSink
       upsertByFieldKey: true,
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
 
   @FieldDecorator({
