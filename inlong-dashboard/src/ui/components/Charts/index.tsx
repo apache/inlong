@@ -81,7 +81,7 @@ const Charts: React.FC<Props> = ({
       }
     };
     // eslint-disable-next-line
-  }, []);
+  }, [option]);
 
   useEffect(() => {
     if (!chartIns) return;
