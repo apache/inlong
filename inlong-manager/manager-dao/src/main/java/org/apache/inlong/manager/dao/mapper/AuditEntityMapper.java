@@ -43,4 +43,20 @@ public interface AuditEntityMapper {
             @Param(value = "sDate") String sDate,
             @Param(value = "eDate") String eDate,
             @Param(value = "format") String format);
+
+    /**
+     * sumByLogTsAndIp
+     *
+     * @param ip ip
+     * @param auditId The auditId of inlong
+     * @param sDate The start date
+     * @param eDate The end date
+     * @param format The format such as '%Y-%m-%d %H:%i:00'
+     * @return The result of query
+     */
+    List<Map<String, Object>> sumByLogTsAndIp(@Param(value = "ip") String ip,
+            @Param(value = "auditId") String auditId,
+            @Param(value = "sDate") String sDate,
+            @Param(value = "eDate") String eDate,
+            @Param(value = "format") String format);
 }
