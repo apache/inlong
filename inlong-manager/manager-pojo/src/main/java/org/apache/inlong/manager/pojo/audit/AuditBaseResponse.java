@@ -21,36 +21,24 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * Audit info, including audit count, audit log timestamp.
+ * Audit base info
  */
 @Data
-public class AuditInfo {
-
-    @ApiModelProperty(value = "inlong group id")
-    private String inlongGroupId;
-
-    @ApiModelProperty(value = "inlong stream id")
-    private String inlongStreamId;
+public class AuditBaseResponse {
 
     @ApiModelProperty(value = "Audit log timestamp")
-    private String logTs;
+    private Integer id;
 
-    @ApiModelProperty(value = "Audit count")
-    private long count;
+    @ApiModelProperty(value = "Audit name")
+    private String name;
 
-    @ApiModelProperty(value = "Audit delay")
-    private long delay;
+    @ApiModelProperty(value = "Audit type")
+    private String type;
 
-    @ApiModelProperty(value = "Audit size")
-    private long size;
+    @ApiModelProperty(value = "is sent")
+    private Integer isSent;
 
-    public AuditInfo() {
-    }
+    @ApiModelProperty(value = "Audit id")
+    private String auditId;
 
-    public AuditInfo(String logTs, long count, long delay, long size) {
-        this.logTs = logTs;
-        this.count = count;
-        this.delay = delay;
-        this.size = size;
-    }
 }
