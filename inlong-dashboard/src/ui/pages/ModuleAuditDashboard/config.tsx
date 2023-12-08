@@ -71,7 +71,7 @@ export const toTableData = (source, sourceDataMap) => {
 export const getFormContent = (initialValues, onSearch) => [
   {
     type: 'inputsearch',
-    label: i18n.t('pages.ReconciliationDashboard.config.Ip'),
+    label: i18n.t('pages.ModuleAuditDashboard.config.Ip'),
     name: 'ip',
   },
   {
@@ -118,7 +118,7 @@ export const getFormContent = (initialValues, onSearch) => [
   },
   {
     type: 'select',
-    label: i18n.t('pages.ReconciliationDashboard.config.BenchmarkIndicator'),
+    label: i18n.t('pages.ModuleAuditDashboard.config.BenchmarkIndicator'),
     name: 'benchmark',
     props: {
       allowClear: true,
@@ -141,7 +141,7 @@ export const getFormContent = (initialValues, onSearch) => [
   },
   {
     type: 'select',
-    label: i18n.t('pages.ReconciliationDashboard.config.ComparativeIndicators'),
+    label: i18n.t('pages.ModuleAuditDashboard.config.ComparativeIndicators'),
     name: 'compared',
     props: {
       allowClear: true,

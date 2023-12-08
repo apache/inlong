@@ -99,7 +99,7 @@ const conf: MenuItemType[] = [
     children: [
       {
         path: '/system',
-        name: i18n.t('configs.menus.Reconciliation'),
+        name: i18n.t('configs.menus.ModuleAudit'),
       },
     ],
   },

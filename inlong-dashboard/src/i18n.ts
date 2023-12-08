@@ -37,7 +37,7 @@ const resources = {
       'configs.menus.DataSynchronize': 'Synchronization',
       'configs.menus.TenantManagement': 'Tenant Management',
       'configs.menus.SystemOperation': 'Operation',
-      'configs.menus.Reconciliation': 'Module reconciliation',
+      'configs.menus.ModuleAudit': 'Module audit',
     },
   },
   cn: {
@@ -54,7 +54,7 @@ const resources = {
       'configs.menus.DataSynchronize': '数据同步',
       'configs.menus.TenantManagement': '租户管理',
       'configs.menus.SystemOperation': '系统运维',
-      'configs.menus.Reconciliation': '模块对账',
+      'configs.menus.ModuleAudit': '模块审计',
     },
   },
 };
