@@ -835,5 +835,8 @@
   "pages.Tenant.config.Admin": "Tenant admin",
   "pages.Tenant.config.GeneralUser": "General user",
   "pages.Tenant.config.Creator": "Creator",
-  "pages.Tenant.config.CreateTime": "Create time"
+  "pages.Tenant.config.CreateTime": "Create time",
+  "pages.ReconciliationDashboard.config.Ip": "Machine ip",
+  "pages.ReconciliationDashboard.config.BenchmarkIndicator": "Benchmark indicator",
+  "pages.ReconciliationDashboard.config.ComparativeIndicators": "Comparative indicator"
 }
