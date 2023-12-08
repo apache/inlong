@@ -294,8 +294,11 @@ public class AuditServiceImpl implements AuditService {
                 // Support min agg at now
                 DateTime endDate = DAY_DATE_FORMATTER.parseDateTime(request.getEndDate());
                 String endDateStr = endDate.plusDays(1).toString(DAY_DATE_FORMATTER);
-                List<Map<String, Object>> sumList = auditEntityMapper.sumByLogTs(
-                        groupId, streamId, auditId, request.getStartDate(), endDateStr, format);
+                List<Map<String, Object>> sumList =
+                        StringUtils.isNotBlank(request.getIp()) ? auditEntityMapper.sumByLogTsAndIp(request.getIp(),
+                                auditId, request.getStartDate(), endDateStr, format)
+                                : auditEntityMapper.sumByLogTs(groupId, streamId, auditId, request.getStartDate(),
+                                        endDateStr, format);
                 List<AuditInfo> auditSet = sumList.stream().map(s -> {
                     AuditInfo vo = new AuditInfo();
                     vo.setInlongGroupId((String) s.get("inlongGroupId"));
@@ -330,8 +333,10 @@ public class AuditServiceImpl implements AuditService {
                 }
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
                 try (Connection connection = config.getCkConnection();
-                        PreparedStatement statement = getAuditCkStatement(connection, groupId, streamId, auditId,
-                                request.getStartDate(), request.getEndDate());
+                        PreparedStatement statement = getAuditCkStatement(connection, groupId, streamId,
+                                request.getIp(), auditId,
+                                request.getStartDate(),
+                                request.getEndDate());
 
                         ResultSet resultSet = statement.executeQuery()) {
                     List<AuditInfo> auditSet = new ArrayList<>();
@@ -425,11 +430,13 @@ public class AuditServiceImpl implements AuditService {
      * @param endDate The en datetime of request
      * @return The clickhouse Statement
      */
-    private PreparedStatement getAuditCkStatement(Connection connection, String groupId, String streamId,
+    private PreparedStatement getAuditCkStatement(Connection connection, String groupId, String streamId, String ip,
             String auditId, String startDate, String endDate) throws SQLException {
         String start = DAY_DATE_FORMATTER.parseDateTime(startDate).toString(SECOND_FORMAT);
         String end = DAY_DATE_FORMATTER.parseDateTime(endDate).plusDays(1).toString(SECOND_FORMAT);
-
+        if (StringUtils.isNotBlank(ip)) {
+            return getAuditCkStatementByIp(connection, auditId, ip, startDate, endDate);
+        }
         // Query results are duplicated according to all fields.
         String subQuery = new SQL()
                 .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", "log_ts", "inlong_group_id",
@@ -539,6 +546,36 @@ public class AuditServiceImpl implements AuditService {
             LOGGER.error("format lot time exception", e);
         }
         return formatDateString;
+    }
+
+    private PreparedStatement getAuditCkStatementByIp(Connection connection, String auditId, String ip,
+            String startDate, String endDate) throws SQLException {
+        String start = DAY_DATE_FORMATTER.parseDateTime(startDate).toString(SECOND_FORMAT);
+        String end = DAY_DATE_FORMATTER.parseDateTime(endDate).plusDays(1).toString(SECOND_FORMAT);
+        String subQuery = new SQL()
+                .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", "log_ts", "inlong_group_id",
+                        "inlong_stream_id", "audit_id", "count", "size", "delay")
+                .FROM("audit_data")
+                .WHERE("ip = ?")
+                .WHERE("audit_id = ?")
+                .WHERE("log_ts >= ?")
+                .WHERE("log_ts < ?")
+                .toString();
+
+        String sql = new SQL()
+                .SELECT("inlong_group_id", "inlong_stream_id", "log_ts", "sum(count) as total",
+                        "sum(delay) as total_delay", "sum(size) as total_size")
+                .FROM("(" + subQuery + ") as sub")
+                .GROUP_BY("log_ts", "inlong_group_id", "inlong_stream_id")
+                .ORDER_BY("log_ts")
+                .toString();
+
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, ip);
+        statement.setString(2, auditId);
+        statement.setString(3, start);
+        statement.setString(4, end);
+        return statement;
     }
 
 }
