@@ -28,7 +28,7 @@ import NodeSelect from '@/ui/components/NodeSelect';
 import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const esTypes = [
@@ -63,6 +63,7 @@ export default class ElasticsearchSink
   })
   @I18n('meta.Sinks.DataNodeName')
   @SyncField()
+  @IngestionField()
   dataNodeName: string;
 
   @FieldDecorator({
@@ -98,6 +99,7 @@ export default class ElasticsearchSink
     },
   })
   @I18n('meta.Sinks.ES.Index')
+  @IngestionField()
   index: string;
 
   @FieldDecorator({
@@ -109,6 +111,7 @@ export default class ElasticsearchSink
     }),
   })
   @I18n('meta.Sinks.ES.Index')
+  @IngestionField()
   indexNamePattern: string;
 
   @FieldDecorator({
@@ -121,6 +124,7 @@ export default class ElasticsearchSink
       upsertByFieldKey: true,
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
 }
 

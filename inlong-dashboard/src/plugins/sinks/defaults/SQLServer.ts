@@ -25,7 +25,7 @@ import { sourceFields } from '../common/sourceFields';
 import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const fieldTypesConf = {
@@ -78,6 +78,7 @@ export default class SqlServerSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('JDBC URL')
   jdbcUrl: string;
 
@@ -90,6 +91,7 @@ export default class SqlServerSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.SQLServer.SchemaName')
   schemaName: string;
 
@@ -103,6 +105,7 @@ export default class SqlServerSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.SQLServer.ServerTimezone')
   serverTimezone: string;
 
@@ -122,6 +125,7 @@ export default class SqlServerSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.SQLServer.TableName')
   tableName: string;
 
@@ -134,6 +138,7 @@ export default class SqlServerSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.SQLServer.PrimaryKey')
   primaryKey: string;
 
@@ -156,6 +161,7 @@ export default class SqlServerSink
       ],
     }),
   })
+  @IngestionField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
@@ -178,6 +184,7 @@ export default class SqlServerSink
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.SQLServer.AllMigration')
   allMigration: boolean;
 
@@ -189,6 +196,7 @@ export default class SqlServerSink
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Username')
   username: string;
 
@@ -200,6 +208,7 @@ export default class SqlServerSink
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Password')
   password: string;
 
@@ -213,6 +222,7 @@ export default class SqlServerSink
       upsertByFieldKey: true,
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
 
   @FieldDecorator({

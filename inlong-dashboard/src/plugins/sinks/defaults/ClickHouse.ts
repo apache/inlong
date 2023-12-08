@@ -28,7 +28,7 @@ import NodeSelect from '@/ui/components/NodeSelect';
 import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField, SyncCreateTableField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const clickHouseTargetTypes = [
@@ -59,6 +59,7 @@ export default class ClickHouseSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.ClickHouse.DbName')
   dbName: string;
 
@@ -78,6 +79,7 @@ export default class ClickHouseSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.ClickHouse.TableName')
   tableName: string;
 
@@ -100,6 +102,7 @@ export default class ClickHouseSink
       ],
     }),
   })
+  @IngestionField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
@@ -113,6 +116,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.DataNodeName')
   @SyncField()
+  @IngestionField()
   @ColumnDecorator()
   dataNodeName: string;
 
@@ -129,6 +133,7 @@ export default class ClickHouseSink
   @I18n('meta.Sinks.ClickHouse.FlushInterval')
   @SyncCreateTableField()
   @ColumnDecorator()
+  @IngestionField()
   flushInterval: number;
 
   @FieldDecorator({
@@ -143,6 +148,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.FlushRecord')
   @ColumnDecorator()
+  @IngestionField()
   @SyncCreateTableField()
   flushRecord: number;
 
@@ -158,6 +164,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.RetryTimes')
   @ColumnDecorator()
+  @IngestionField()
   @SyncCreateTableField()
   retryTimes: number;
 
@@ -181,6 +188,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.IsDistributed')
   @ColumnDecorator()
+  @IngestionField()
   @SyncCreateTableField()
   isDistributed: number;
 
@@ -209,6 +217,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.PartitionStrategy')
   @ColumnDecorator()
+  @IngestionField()
   @SyncCreateTableField()
   partitionStrategy: string;
 
@@ -222,6 +231,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.PartitionFields')
   @ColumnDecorator()
+  @IngestionField()
   @SyncCreateTableField()
   partitionFields: string;
 
@@ -249,6 +259,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.Engine')
   @ColumnDecorator()
+  @IngestionField()
   @SyncCreateTableField()
   engine: string;
 
@@ -260,6 +271,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.OrderBy')
   @SyncCreateTableField()
+  @IngestionField()
   orderBy: string;
 
   @FieldDecorator({
@@ -270,6 +282,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.PartitionBy')
   @ColumnDecorator()
+  @IngestionField()
   @SyncCreateTableField()
   partitionBy: string;
 
@@ -281,6 +294,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.PrimaryKey')
   @SyncField()
+  @IngestionField()
   primaryKey: string;
 
   @FieldDecorator({
@@ -292,6 +306,7 @@ export default class ClickHouseSink
   @I18n('meta.Sinks.ClickHouse.Cluster')
   @SyncCreateTableField()
   @ColumnDecorator()
+  @IngestionField()
   cluster: string;
 
   @FieldDecorator({
@@ -346,6 +361,7 @@ export default class ClickHouseSink
   })
   @I18n('Time To Live')
   @ColumnDecorator()
+  @IngestionField()
   @SyncCreateTableField()
   ttl: number;
 
@@ -359,6 +375,7 @@ export default class ClickHouseSink
       upsertByFieldKey: true,
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
 
   @FieldDecorator({

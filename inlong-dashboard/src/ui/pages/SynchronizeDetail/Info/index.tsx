@@ -72,6 +72,9 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
     }),
     {
       manual: true,
+      onSuccess: result => {
+        form.setFieldValue('sinkMultipleEnable', result.sinkMultipleEnable);
+      },
     },
   );
   const { data: streamData, run: getDataStream } = useRequest(
@@ -108,6 +111,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
       inlongStreamId: values.inlongStreamId,
       name: values.streamName,
       fieldList: streamDetail?.fieldList,
+      sinkMultipleEnable: values.sinkMultipleEnable,
     };
     if (streamData !== undefined) {
       submitDataStream['version'] = streamData?.list[0].version;

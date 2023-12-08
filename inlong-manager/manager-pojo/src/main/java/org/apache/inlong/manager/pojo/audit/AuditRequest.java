@@ -40,6 +40,9 @@ public class AuditRequest {
     @ApiModelProperty(value = "inlong stream id")
     private String inlongStreamId;
 
+    @ApiModelProperty(value = "ip for current node")
+    private String ip;
+
     @ApiModelProperty(value = "audit id list")
     private List<String> auditIds;
 

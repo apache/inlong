@@ -103,6 +103,26 @@ export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   inCharges: string;
 
   @FieldDecorator({
+    type: 'radio',
+    initialValue: false,
+    rules: [{ required: true }],
+    props: {
+      options: [
+        {
+          label: i18n.t('meta.Consume.Yes'),
+          value: true,
+        },
+        {
+          label: i18n.t('meta.Consume.No'),
+          value: false,
+        },
+      ],
+    },
+  })
+  @I18n('components.Synchronize.SinkMultipleEnable')
+  sinkMultipleEnable: boolean;
+
+  @FieldDecorator({
     type: 'textarea',
     props: {
       showCount: true,
