@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.resource.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -27,6 +28,7 @@ import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
+import org.apache.inlong.manager.service.sink.StreamSinkService;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
@@ -46,6 +48,8 @@ public abstract class AbstractStandaloneSinkResourceOperator implements SinkReso
     private StreamSinkEntityMapper sinkEntityMapper;
     @Autowired
     private InlongGroupEntityMapper groupEntityMapper;
+    @Autowired
+    private StreamSinkService sinkService;
 
     private static final String SORT_PREFIX = "SORT_";
 
@@ -54,6 +58,8 @@ public abstract class AbstractStandaloneSinkResourceOperator implements SinkReso
     @VisibleForTesting
     protected void assignCluster(SinkInfo sinkInfo) {
         if (StringUtils.isNotBlank(sinkInfo.getInlongClusterName())) {
+            String info = "success to create es resource";
+            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             return;
         }
 
@@ -65,6 +71,7 @@ public abstract class AbstractStandaloneSinkResourceOperator implements SinkReso
 
         StreamSinkEntity sink = sinkEntityMapper.selectByPrimaryKey(sinkInfo.getId());
         sink.setInlongClusterName(targetCluster);
+        sink.setStatus(SinkStatus.CONFIG_SUCCESSFUL.getCode());
         sinkEntityMapper.updateByIdSelective(sink);
     }
 
