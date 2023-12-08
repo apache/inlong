@@ -618,6 +618,7 @@
   "pages.GroupDetail.Audit.Receive": "接收成功",
   "pages.GroupDetail.Audit.Send": "发送成功",
   "pages.GroupDetail.Audit.TimeStaticsDim": "粒度",
+  "pages.GroupDetail.Audit.Item": "审计项",
   "pages.GroupDetail.Audit.Min": "分钟",
   "pages.GroupDetail.Audit.Hour": "小时",
   "pages.GroupDetail.Audit.Day": "天",
