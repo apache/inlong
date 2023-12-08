@@ -830,5 +830,8 @@
   "pages.Tenant.config.Admin": "租户管理员",
   "pages.Tenant.config.GeneralUser": "普通用户",
   "pages.Tenant.config.Creator": "创建人",
-  "pages.Tenant.config.CreateTime": "创建时间"
+  "pages.Tenant.config.CreateTime": "创建时间",
+  "pages.ModuleAuditDashboard.config.Ip": "机器 IP",
+  "pages.ModuleAuditDashboard.config.BenchmarkIndicator": "基准指标",
+  "pages.ModuleAuditDashboard.config.ComparativeIndicators": "对比指标"
 }

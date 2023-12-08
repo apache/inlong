@@ -27,6 +27,7 @@ import {
   SafetyOutlined,
   ShopOutlined,
   InteractionOutlined,
+  ProfileOutlined,
 } from '@ant-design/icons';
 import type { MenuItemType } from '.';
 
@@ -88,6 +89,17 @@ const conf: MenuItemType[] = [
         path: '/approval',
         isAdmin: true,
         name: i18n.t('configs.menus.ProcessManagement'),
+      },
+    ],
+  },
+  {
+    name: i18n.t('configs.menus.SystemOperation'),
+    icon: <ProfileOutlined />,
+    isAdmin: true,
+    children: [
+      {
+        path: '/system',
+        name: i18n.t('configs.menus.ModuleAudit'),
       },
     ],
   },
