@@ -81,7 +81,7 @@
 | [INLONG-9369](https://github.com/apache/inlong/issues/9369) | [Improve][Agent] Increase sending failure audit and real-time audit                                      |
 | [INLONG-9375](https://github.com/apache/inlong/issues/9375) | [Improve][Agent] Modify the agent's real-time audit id to prevent duplication                            |
 | [INLONG-9390](https://github.com/apache/inlong/issues/9390) | [Improve][Agent] Collect supplementary data in chronological order                                       |
-| [INLONG-9397](https://github.com/apache/inlong/issues/9397) | [Improve][Agent] Do not directly delete the instance records of the local db when stopping the instances |                                |
+| [INLONG-9397](https://github.com/apache/inlong/issues/9397) | [Improve][Agent] Do not directly delete the instance records of the local db when stopping the instances |                                
                                                                                                                                                                                                 
 ### Audit
 |                            ISSUE                            | Summary                                                                 |
@@ -109,7 +109,8 @@
 | [INLONG-9368](https://github.com/apache/inlong/issues/9368) | [Improve][Dashboard] Creation time or other time display in an easily readable format     |
 | [INLONG-9383](https://github.com/apache/inlong/issues/9383) | [Improve][Dashboard] Resource details display cluster label information                   |
 | [INLONG-9385](https://github.com/apache/inlong/issues/9385) | [Improve][Dashboard] Create a new cluster and remove the agent and dataproxy types        |
-                                                |
+| [INLONG-9427](https://github.com/apache/inlong/issues/9427) | [Improve][Dashboard] Data access supports viewing operation logs                          |
+                                                
 ### Manager
 |                            ISSUE                            | Summary                                                                                                                                       |
 |:-----------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------|
@@ -164,8 +165,11 @@
 | [INLONG-9358](https://github.com/apache/inlong/issues/9358) | [Bug][Manager] The creation time of the information in the database differs from the creation time in the returned information by eight hours |
 | [INLONG-9362](https://github.com/apache/inlong/issues/9362) | [Improve][Manager] Support the configuration of parameters related to the migration of the entire Iceberg database                            |
 | [INLONG-9373](https://github.com/apache/inlong/issues/9373) | [Bug][Manager] Failed to create namespace                                                                                                     |
-| [INLONG-9400](https://github.com/apache/inlong/issues/9400) | [Bug][Manager] Error obtaining sort task type                                                                                                 |                                                                                               |
-                                                         |
+| [INLONG-9400](https://github.com/apache/inlong/issues/9400) | [Bug][Manager] Error obtaining sort task type                                                                                                 |                                                                                               
+| [INLONG-9433](https://github.com/apache/inlong/issues/9433) | [Bug][Manager] NPE exception encountered while querying audit information                                                                     |
+| [INLONG-9444](https://github.com/apache/inlong/issues/9444) | [Bug][Manager] ES sink unsuccessful flow status configuration successful                                                                      |
+| [INLONG-9447](https://github.com/apache/inlong/issues/9447) | [Bug][Manager] Suspend group failed                                                                                                           |
+                                                         
 ### SDK
 |                            ISSUE                            | Summary                                                                                                  |
 |:-----------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------|
@@ -187,12 +191,13 @@
 | [INLONG-9228](https://github.com/apache/inlong/issues/9228) | [Improve][SDK] CPP SDK supports dynamic load balancing                                                   |
 | [INLONG-9277](https://github.com/apache/inlong/issues/9277) | [Feature][SDK] Optimize multi-region nearby access                                                       |
 | [INLONG-9293](https://github.com/apache/inlong/issues/9293) | [Improve][SDK] Optimize the problem that the more inlong grouids there are, the more memory is consumed. |
+| [INLONG-9307](https://github.com/apache/inlong/issues/9307) | [Improve][SDK] Improve DataProxy SDK code readability                                                    |
 | [INLONG-9320](https://github.com/apache/inlong/issues/9320) | [Improve][SDK] Support local disaster recovery manager configuration                                     |
 | [INLONG-9324](https://github.com/apache/inlong/issues/9324) | [Improve][SDK] Supports automatic creation of custom log directories                                     |
 | [INLONG-9341](https://github.com/apache/inlong/issues/9341) | [Improve][SDK] Optimize obtaining local IP information                                                   |
 | [INLONG-9345](https://github.com/apache/inlong/issues/9345) | [Bug][SDK] DataProxy SDK throws java.lang.NoClassDefFoundErrorException                                  |
 | [INLONG-9355](https://github.com/apache/inlong/issues/9355) | [Improve][SDK] Optimize resource isolation for CPP SDK                                                   |
-| [INLONG-9378](https://github.com/apache/inlong/issues/9378) | [Improve][SDK] Optimize proxy configuration update                                                       |                                                             |
+| [INLONG-9378](https://github.com/apache/inlong/issues/9378) | [Improve][SDK] Optimize proxy configuration update                                                       |                                                             
 
 ### Sort
 |                            ISSUE                            | Summary                                                                                       |
@@ -224,7 +229,8 @@
 | [INLONG-9380](https://github.com/apache/inlong/issues/9380) | [Bug][Sort] Audit lost when stop job immediately after checkpoint                             |
 | [INLONG-9388](https://github.com/apache/inlong/issues/9388) | [Improve][Sort] Updated version of embedded-redis in sort-connector-redis                     |
 | [INLONG-9392](https://github.com/apache/inlong/issues/9392) | [Bug][Sort] MySqlContainer class getJdbcUrl() method splicing querystring error               |
-| [INLONG-9394](https://github.com/apache/inlong/issues/9394) | [Improve][Sort] Incorrect use of maven plugin on integration test among sort-end-to-end-tests |                                                            |
+| [INLONG-9394](https://github.com/apache/inlong/issues/9394) | [Improve][Sort] Incorrect use of maven plugin on integration test among sort-end-to-end-tests |                                                            
+| [INLONG-9417](https://github.com/apache/inlong/issues/9417) | [Bug][Sort] Missing MySQL CDC connector for Flink 1.15                                        |
 
 ### Other
 |                            ISSUE                            | Summary                                                                                                           |
@@ -250,4 +256,4 @@
 | [INLONG-9296](https://github.com/apache/inlong/issues/9296) | [Bug] Cluster type 'DATAPROXY' not supported                                                                      |
 | [INLONG-9299](https://github.com/apache/inlong/issues/9299) | [Feature] Iceberg support all migrate and auto create table                                                       |
 | [INLONG-9359](https://github.com/apache/inlong/issues/9359) | [Bug] Fix iceberg all migrate connector stack overflow error                                                      |
-| [INLONG-9384](https://github.com/apache/inlong/issues/9384) | [Bug] Fix audi report loss in pulsar connector                                                                    |                                                                   |
+| [INLONG-9384](https://github.com/apache/inlong/issues/9384) | [Bug] Fix audi report loss in pulsar connector                                                                    |                                                                   
