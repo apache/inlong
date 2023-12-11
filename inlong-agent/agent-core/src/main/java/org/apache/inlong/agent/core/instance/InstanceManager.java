@@ -62,7 +62,8 @@ public class InstanceManager extends AbstractDaemon {
     public static final String DB_INSTANCE_EXPIRE_CYCLE_COUNT = "3";
     // instance in db
     private final InstanceDb instanceDb;
-    TaskProfileDb taskProfileDb;
+    private TaskProfileDb taskProfileDb;
+    private TaskProfile taskFromDb;
     // task in memory
     private final ConcurrentHashMap<String, Instance> instanceMap;
     // instance profile queue.
@@ -161,6 +162,10 @@ public class InstanceManager extends AbstractDaemon {
                     cleanDbInstance();
                     dealWithActionQueue(actionQueue);
                     keepPaceWithDb();
+                    String inlongGroupId = taskFromDb.getInlongGroupId();
+                    String inlongStreamId = taskFromDb.getInlongStreamId();
+                    AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_INSTANCE_MGR_HEARTBEAT, inlongGroupId, inlongStreamId,
+                            AgentUtils.getCurrentTime(), 1, 1);
                 } catch (Throwable ex) {
                     LOGGER.error("coreThread {}", ex);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
@@ -323,6 +328,7 @@ public class InstanceManager extends AbstractDaemon {
     }
 
     private void restoreFromDb() {
+        taskFromDb = taskProfileDb.getTask(taskId);
         List<InstanceProfile> profileList = instanceDb.getInstances(taskId);
         profileList.forEach((profile) -> {
             InstanceStateEnum state = profile.getState();

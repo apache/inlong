@@ -27,6 +27,7 @@ import org.apache.inlong.agent.core.instance.InstanceManager;
 import org.apache.inlong.agent.core.task.TaskAction;
 import org.apache.inlong.agent.core.task.file.TaskManager;
 import org.apache.inlong.agent.db.Db;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.file.Task;
 import org.apache.inlong.agent.plugin.task.filecollect.FileScanner.BasicFileInfo;
 import org.apache.inlong.agent.plugin.utils.file.FilePathUtil;
@@ -262,6 +263,10 @@ public class LogFileCollectTask extends Task {
             } else {
                 runForNormal();
             }
+            String inlongGroupId = taskProfile.getInlongGroupId();
+            String inlongStreamId = taskProfile.getInlongStreamId();
+            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_TASK_HEARTBEAT, inlongGroupId, inlongStreamId,
+                    AgentUtils.getCurrentTime(), 1, 1);
         }
         running = false;
     }

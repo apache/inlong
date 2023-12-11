@@ -23,6 +23,7 @@ import org.apache.inlong.agent.core.instance.ActionType;
 import org.apache.inlong.agent.core.instance.InstanceAction;
 import org.apache.inlong.agent.core.instance.InstanceManager;
 import org.apache.inlong.agent.core.task.OffsetManager;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Instance;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.file.Sink;
@@ -109,6 +110,10 @@ public class FileInstance extends Instance {
                     checkFinishCount = 0;
                 }
                 AgentUtils.silenceSleepInSeconds(CORE_THREAD_SLEEP_TIME);
+                String inlongGroupId = profile.getInlongGroupId();
+                String inlongStreamId = profile.getInlongStreamId();
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_INSTANCE_HEARTBEAT, inlongGroupId, inlongStreamId,
+                        AgentUtils.getCurrentTime(), 1, 1);
             } else {
                 sink.write(msg);
             }
