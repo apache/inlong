@@ -34,7 +34,20 @@ VALUES ('audit_sort_mysql_binlog_input', 'MYSQL_BINLOG', 0, '29'),
        ('audit_sort_pulsar_input', 'PULSAR', 0, '31'),
        ('audit_sort_pulsar_output', 'PULSAR', 1, '32'),
        ('audit_sort_tube_input', 'TUBEMQ', 0, '33'),
-       ('audit_sort_tube_output', 'TUBEMQ', 1, '34');
+       ('audit_sort_tube_output', 'TUBEMQ', 1, '34'),
+       ('audit_agent_sent_failed', 'AGENT', 2, '10004'),
+       ('audit_agent_read_realtime', 'AGENT', 3, '30001'),
+       ('audit_agent_send_realtime', 'AGENT', 4, '30002'),
+       ('audit_agent_add_instance_mem', 'AGENT', 5, '30003'),
+       ('audit_agent_del_instance_mem', 'AGENT', 6, '30004'),
+       ('audit_agent_add_instance_db', 'AGENT', 7, '30005'),
+       ('audit_agent_del_instance_db', 'AGENT', 8, '30006'),
+       ('audit_agent_task_mgr_heartbeat', 'AGENT', 9, '30007'),
+       ('audit_agent_task_heartbeat', 'AGENT', 10, '30008'),
+       ('audit_agent_instance_mgr_heartbeat', 'AGENT', 11, '30009'),
+       ('audit_agent_instance_heartbeat', 'AGENT', 12, '30010'),
+       ('audit_agent_sent_failed_realtime', 'AGENT', 13, '30011'),
+       ('audit_agent_del_instance_mem_unusual', 'AGENT', 14, '30014');
 
 ALTER TABLE `operation_log`
     ADD COLUMN  `inlong_group_id`  varchar(256) DEFAULT NULL COMMENT 'Inlong group id';
