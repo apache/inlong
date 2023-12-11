@@ -29,7 +29,6 @@
 
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
-        <embedded-redis.version>0.7.3</embedded-redis.version>
     </properties>
 
     <dependencies>
@@ -76,7 +75,7 @@
         <dependency>
             <groupId>it.ozimov</groupId>
             <artifactId>embedded-redis</artifactId>
-            <version>${embedded-redis.version}</version>
+            <version>${embedded.redis.version}</version>
             <scope>test</scope>
         </dependency>
 
