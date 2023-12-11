@@ -913,15 +913,7 @@ VALUES ('audit_sdk_collect', 'SDK', 0, '1'),
        ('audit_sort_pulsar_input', 'PULSAR', 0, '31'),
        ('audit_sort_pulsar_output', 'PULSAR', 1, '32'),
        ('audit_sort_tube_input', 'TUBEMQ', 0, '33'),
-       ('audit_sort_tube_output', 'TUBEMQ', 1, '34'),
-       ('audit_id_sort_inner_hive_input', 'INNER_HIVE', 0, '7'),
-       ('audit_id_sort_inner_hive_output', 'INNER_HIVE', 1, '8'),
-       ('audit_id_sort_inner_thive_input', 'INNER_THIVE', 0, '7'),
-       ('audit_id_sort_inner_thive_output', 'INNER_THIVE', 1, '8'),
-       ('audit_id_sort_inner_clickhouse_input', 'INNER_CK', 0, '9'),
-       ('audit_id_sort_inner_clickhouse_output', 'INNER_CK', 1, '10'),
-       ('audit_id_sort_inner_iceberg_input', 'INNER_ICEBERG', 0, '17'),
-       ('audit_id_sort_inner_iceberg_output', 'INNER_ICEBERG', 1, '18');
+       ('audit_sort_tube_output', 'TUBEMQ', 1, '34');
 
 -- ----------------------------
 -- Table structure for audit_source
