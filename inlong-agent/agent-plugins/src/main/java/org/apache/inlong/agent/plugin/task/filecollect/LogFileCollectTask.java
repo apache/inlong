@@ -409,7 +409,7 @@ public class LogFileCollectTask extends Task {
                 if (!isCurrentDataTime && instanceManager.isFull()) {
                     return;
                 }
-                while (!instanceManager.submitAction(action)) {
+                while (!isFinished() && !instanceManager.submitAction(action)) {
                     LOGGER.error("instance manager action queue is full: taskId {}", instanceManager.getTaskId());
                     AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
                 }
