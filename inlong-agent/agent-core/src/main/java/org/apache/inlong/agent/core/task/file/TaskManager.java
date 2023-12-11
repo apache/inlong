@@ -27,6 +27,7 @@ import org.apache.inlong.agent.core.task.TaskAction;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.RocksDbImp;
 import org.apache.inlong.agent.db.TaskProfileDb;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.file.Task;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
@@ -197,6 +198,8 @@ public class TaskManager extends AbstractDaemon {
                     printTaskDetail();
                     dealWithConfigQueue(configQueue);
                     dealWithActionQueue(actionQueue);
+                    AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_TASK_MGR_HEARTBEAT, "", "",
+                            AgentUtils.getCurrentTime(), 1, 1);
                 } catch (Throwable ex) {
                     LOGGER.error("exception caught", ex);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);

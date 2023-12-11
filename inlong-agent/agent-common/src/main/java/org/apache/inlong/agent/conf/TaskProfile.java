@@ -32,6 +32,10 @@ import org.slf4j.LoggerFactory;
 import java.text.ParseException;
 import java.util.TimeZone;
 
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_RETRY;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_STATE;
 
@@ -87,6 +91,14 @@ public class TaskProfile extends AbstractConfiguration {
 
     public void setTaskClass(String className) {
         set(TaskConstants.TASK_CLASS, className);
+    }
+
+    public String getInlongGroupId() {
+        return get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
+    }
+
+    public String getInlongStreamId() {
+        return get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
     }
 
     /**
