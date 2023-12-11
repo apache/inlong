@@ -28,8 +28,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
 import redis.embedded.RedisServer;
-
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
@@ -46,14 +44,14 @@ public class RedisTableTest {
     private static RedisServer redisServer;
 
     @BeforeClass
-    public static void setup() throws IOException {
+    public static void setup() {
         redisPort = NetUtils.getAvailablePort();
-        redisServer = RedisServer.newRedisServer().setting("maxmemory 128m").port(redisPort).build();
+        redisServer = new RedisServer(redisPort);
         redisServer.start();
     }
 
     @AfterClass
-    public static void cleanup() throws IOException {
+    public static void cleanup() {
         if (redisServer != null) {
             redisServer.stop();
         }
