@@ -495,16 +495,20 @@ public class LogFileSource extends AbstractSource {
     }
 
     private void putIntoQueue(SourceData sourceData) {
+        if (sourceData == null) {
+            return;
+        }
         try {
             boolean offerSuc = false;
-            while (offerSuc != true) {
+            while (isRunnable() && offerSuc != true) {
                 offerSuc = queue.offer(sourceData, 1, TimeUnit.SECONDS);
+            }
+            if (!offerSuc) {
+                MemoryManager.getInstance().release(AGENT_GLOBAL_READER_QUEUE_PERMIT, sourceData.data.length());
             }
             LOGGER.debug("Read {} from file {}", sourceData.getData(), fileName);
         } catch (InterruptedException e) {
-            if (sourceData != null) {
-                MemoryManager.getInstance().release(AGENT_GLOBAL_READER_QUEUE_PERMIT, sourceData.data.length());
-            }
+            MemoryManager.getInstance().release(AGENT_GLOBAL_READER_QUEUE_PERMIT, sourceData.data.length());
             LOGGER.error("fetchData offer failed {}", e.getMessage());
         }
     }
