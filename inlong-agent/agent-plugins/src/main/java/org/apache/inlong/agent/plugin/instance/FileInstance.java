@@ -118,7 +118,7 @@ public class FileInstance extends Instance {
 
     private void handleReadEnd() {
         InstanceAction action = new InstanceAction(ActionType.FINISH, profile);
-        while (!instanceManager.submitAction(action)) {
+        while (!isFinished() && !instanceManager.submitAction(action)) {
             LOGGER.error("instance manager action queue is full: taskId {}",
                     instanceManager.getTaskId());
             AgentUtils.silenceSleepInSeconds(CORE_THREAD_SLEEP_TIME);
@@ -130,7 +130,7 @@ public class FileInstance extends Instance {
         profile.setState(InstanceStateEnum.DELETE);
         profile.setModifyTime(AgentUtils.getCurrentTime());
         InstanceAction action = new InstanceAction(ActionType.DELETE, profile);
-        while (!instanceManager.submitAction(action)) {
+        while (!isFinished() && !instanceManager.submitAction(action)) {
             LOGGER.error("instance manager action queue is full: taskId {}",
                     instanceManager.getTaskId());
             AgentUtils.silenceSleepInSeconds(CORE_THREAD_SLEEP_TIME);
