@@ -193,9 +193,6 @@
                 <executions>
                     <execution>
                         <id>end-to-end-tests-v1.13</id>
-                        <goals>
-                            <goal>integration-test</goal>
-                        </goals>
                         <phase>integration-test</phase>
                         <configuration>
                             <includes>
