@@ -519,6 +519,7 @@ public class PulsarUtils {
                         response.getStatusCode(),
                         response.getBody());
             }
+            return response;
         }
         throw new Exception(String.format("examine message failed for topic partition=%s", topicPartition));
     }
