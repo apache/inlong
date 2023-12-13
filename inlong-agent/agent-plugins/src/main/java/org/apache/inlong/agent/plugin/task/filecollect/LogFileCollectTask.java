@@ -248,6 +248,15 @@ public class LogFileCollectTask extends Task {
     public void run() {
         Thread.currentThread().setName("directory-task-core-" + getTaskId());
         running = true;
+        try {
+            doRun();
+        } catch (Throwable e) {
+            LOGGER.error("do run error: ", e);
+        }
+        running = false;
+    }
+
+    private void doRun() {
         while (!isFinished()) {
             if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_TIME) {
                 LOGGER.info("log file task running! taskId {}", getTaskId());
@@ -268,7 +277,6 @@ public class LogFileCollectTask extends Task {
             AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_TASK_HEARTBEAT, inlongGroupId, inlongStreamId,
                     AgentUtils.getCurrentTime(), 1, 1);
         }
-        running = false;
     }
 
     private void runForRetry() {

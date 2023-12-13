@@ -56,7 +56,7 @@ public class FileInstance extends Instance {
     private volatile int checkFinishCount = 0;
 
     @Override
-    public void init(Object srcManager, InstanceProfile srcProfile) {
+    public boolean init(Object srcManager, InstanceProfile srcProfile) {
         try {
             instanceManager = (InstanceManager) srcManager;
             profile = srcProfile;
@@ -68,11 +68,13 @@ public class FileInstance extends Instance {
             sink = (Sink) Class.forName(profile.getSinkClass()).newInstance();
             sink.init(profile);
             inited = true;
-        } catch (Throwable ex) {
+            return true;
+        } catch (Throwable e) {
+            handleSourceDeleted();
             doChangeState(State.FATAL);
-            LOGGER.error("init instance {} for task {} failed", profile.getInstanceId(), profile.getInstanceId(),
-                    ex);
-            ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
+            LOGGER.error("init instance {} for task {} failed", profile.getInstanceId(), profile.getInstanceId(), e);
+            ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
+            return false;
         }
     }
 
@@ -93,6 +95,15 @@ public class FileInstance extends Instance {
     public void run() {
         Thread.currentThread().setName("file-instance-core-" + getTaskId() + "-" + getInstanceId());
         running = true;
+        try {
+            doRun();
+        } catch (Throwable e) {
+            LOGGER.error("do run error: ", e);
+        }
+        running = false;
+    }
+
+    private void doRun() {
         while (!isFinished()) {
             if (!source.sourceExist()) {
                 handleSourceDeleted();
@@ -118,7 +129,6 @@ public class FileInstance extends Instance {
                 sink.write(msg);
             }
         }
-        running = false;
     }
 
     private void handleReadEnd() {

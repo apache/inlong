@@ -32,7 +32,7 @@ public abstract class Instance extends AbstractStateWrapper {
      *
      * @throws IOException
      */
-    public abstract void init(Object instanceManager, InstanceProfile profile);
+    public abstract boolean init(Object instanceManager, InstanceProfile profile);
 
     /**
      * destroy instance.

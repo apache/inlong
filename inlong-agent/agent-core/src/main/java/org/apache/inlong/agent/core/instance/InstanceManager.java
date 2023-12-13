@@ -429,15 +429,22 @@ public class InstanceManager extends AbstractDaemon {
         try {
             Class<?> taskClass = Class.forName(instanceProfile.getInstanceClass());
             Instance instance = (Instance) taskClass.newInstance();
-            instance.init(this, instanceProfile);
-            instanceMap.put(instanceProfile.getInstanceId(), instance);
-            EXECUTOR_SERVICE.submit(instance);
-            LOGGER.info(
-                    "add instance to memory instanceId {} instanceMap size {}, runningPool instance total {}, runningPool instance active {}",
-                    instance.getInstanceId(), instanceMap.size(), EXECUTOR_SERVICE.getTaskCount(),
-                    EXECUTOR_SERVICE.getActiveCount());
-            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_ADD_INSTANCE_MEM, inlongGroupId, inlongStreamId,
-                    instanceProfile.getSinkDataTime(), 1, 1);
+            boolean initSuc = instance.init(this, instanceProfile);
+            if (initSuc) {
+                instanceMap.put(instanceProfile.getInstanceId(), instance);
+                EXECUTOR_SERVICE.submit(instance);
+                LOGGER.info(
+                        "add instance to memory instanceId {} instanceMap size {}, runningPool instance total {}, runningPool instance active {}",
+                        instance.getInstanceId(), instanceMap.size(), EXECUTOR_SERVICE.getTaskCount(),
+                        EXECUTOR_SERVICE.getActiveCount());
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_ADD_INSTANCE_MEM, inlongGroupId, inlongStreamId,
+                        instanceProfile.getSinkDataTime(), 1, 1);
+            } else {
+                LOGGER.error(
+                        "add instance to memory init failed instanceId {}", instance.getInstanceId());
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_ADD_INSTANCE_MEM_FAILED, inlongGroupId, inlongStreamId,
+                        instanceProfile.getSinkDataTime(), 1, 1);
+            }
         } catch (Throwable t) {
             LOGGER.error("add instance error {}", t.getMessage());
         }
