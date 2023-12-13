@@ -112,7 +112,7 @@ public class PulsarOperator {
         LOGGER.info("begin to create namespace={}", tenantNamespaceName);
         try {
             // Check whether the namespace exists, and create it if it does not exist
-            boolean isExists = this.namespaceExists(pulsarClusterInfo, tenant, namespace);
+            boolean isExists = this.namespaceExists(pulsarClusterInfo, tenant, tenantNamespaceName);
             if (isExists) {
                 LOGGER.warn("namespace={} already exists, skip to create", tenantNamespaceName);
                 return;

@@ -63,20 +63,19 @@ import java.util.Map.Entry;
 @Slf4j
 public class PulsarUtils {
 
-    private PulsarUtils() {
-    }
-
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(
-            ZoneId.systemDefault());
-
+    public static final String HTTP_PREFIX = "http://";
     public static final String QUERY_CLUSTERS_PATH = "/admin/v2/clusters";
     public static final String QUERY_BROKERS_PATH = "/admin/v2/brokers";
     public static final String QUERY_TENANTS_PATH = "/admin/v2/tenants";
     public static final String QUERY_NAMESPACE_PATH = "/admin/v2/namespaces";
     public static final String QUERY_PERSISTENT_PATH = "/admin/v2/persistent";
     public static final String LOOKUP_TOPIC_PATH = "/lookup/v2/topic";
-
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(
+            ZoneId.systemDefault());
     private static final Gson GSON = new GsonBuilder().create(); // thread safe
+
+    private PulsarUtils() {
+    }
 
     /**
      * Get http headers by token.
@@ -102,9 +101,23 @@ public class PulsarUtils {
      */
     public static List<String> getClusters(RestTemplate restTemplate, PulsarClusterInfo clusterInfo)
             throws Exception {
-        final String url = clusterInfo.getAdminUrl() + QUERY_CLUSTERS_PATH;
-        return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
-                ArrayList.class);
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            String url = HTTP_PREFIX + adminUrls[i] + QUERY_CLUSTERS_PATH;
+            try {
+                return HttpUtils.request(restTemplate, url, HttpMethod.GET, null,
+                        getHttpHeaders(clusterInfo.getToken()),
+                        ArrayList.class);
+            } catch (Exception e) {
+                log.error("get clusters for admin urls={}, error, begin retry", adminUrls, e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, get clusters for admin urls={} still error", adminUrls, e);
+                    throw e;
+                }
+            }
+        }
+        throw new Exception(String.format("get clusters failed for admin urls=%s", adminUrls));
     }
 
     /**
@@ -120,10 +133,23 @@ public class PulsarUtils {
         List<String> clusters = getClusters(restTemplate, clusterInfo);
         List<String> brokers = new ArrayList<>();
         for (String brokerName : clusters) {
-            String url = clusterInfo.getAdminUrl() + QUERY_BROKERS_PATH + "/" + brokerName;
-            brokers.addAll(
-                    HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
-                            ArrayList.class));
+            String adminUrl = clusterInfo.getAdminUrl();
+            String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+            for (int i = 0; i < adminUrls.length; i++) {
+                String url = HTTP_PREFIX + adminUrls[i] + QUERY_BROKERS_PATH + "/" + brokerName;
+                try {
+                    brokers.addAll(HttpUtils.request(restTemplate, url, HttpMethod.GET, null,
+                            getHttpHeaders(clusterInfo.getToken()), ArrayList.class));
+                    return brokers;
+                } catch (Exception e) {
+                    log.error("get brokers for admin urls={}, error, begin retry", adminUrls, e);
+                    if (i >= (adminUrls.length - 1)) {
+                        log.error("after retry, get brokers for admin urls={} still error", adminUrls, e);
+                        throw e;
+                    }
+                }
+
+            }
         }
         return brokers;
     }
@@ -138,9 +164,23 @@ public class PulsarUtils {
      */
     public static List<String> getTenants(RestTemplate restTemplate, PulsarClusterInfo clusterInfo)
             throws Exception {
-        final String url = clusterInfo.getAdminUrl() + QUERY_TENANTS_PATH;
-        return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
-                ArrayList.class);
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            String url = HTTP_PREFIX + adminUrls[i] + QUERY_TENANTS_PATH;
+            try {
+                return HttpUtils.request(restTemplate, url, HttpMethod.GET, null,
+                        getHttpHeaders(clusterInfo.getToken()),
+                        ArrayList.class);
+            } catch (Exception e) {
+                log.error("get tenant for admin urls={}, error, begin retry", adminUrls, e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, get tenant for admin urls={} still error", adminUrls, e);
+                    throw e;
+                }
+            }
+        }
+        throw new Exception(String.format("get tenant failed for admin urls=%s", adminUrls));
     }
 
     /**
@@ -154,9 +194,23 @@ public class PulsarUtils {
      */
     public static List<String> getNamespaces(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String tenant) throws Exception {
-        String url = clusterInfo.getAdminUrl() + QUERY_NAMESPACE_PATH + "/" + tenant;
-        return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
-                ArrayList.class);
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            try {
+                String url = HTTP_PREFIX + adminUrls[i] + QUERY_NAMESPACE_PATH + "/" + tenant;
+                return HttpUtils.request(restTemplate, url, HttpMethod.GET, null,
+                        getHttpHeaders(clusterInfo.getToken()),
+                        ArrayList.class);
+            } catch (Exception e) {
+                log.error("get namespace for tenant={}, error, begin retry", tenant, e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, get namespace for tenant={} still error", tenant, e);
+                    throw new Exception(e);
+                }
+            }
+        }
+        throw new Exception(String.format("get namespaces failed for tenant=%s", tenant));
     }
 
     /**
@@ -165,18 +219,31 @@ public class PulsarUtils {
      * @param restTemplate spring framework RestTemplate
      * @param clusterInfo pulsar cluster info
      * @param tenant pulsar tenant name
-     * @param tenantInfo  pulsar tenant info
+     * @param tenantInfo pulsar tenant info
      * @throws Exception any exception if occurred
      */
     public static void createTenant(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String tenant,
             PulsarTenantInfo tenantInfo) throws Exception {
-        final String url = clusterInfo.getAdminUrl() + QUERY_TENANTS_PATH + "/" + tenant;
-        HttpHeaders headers = getHttpHeaders(clusterInfo.getToken());
-        MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
-        headers.setContentType(type);
-        headers.add("Accept", MediaType.APPLICATION_JSON.toString());
-        String param = GSON.toJson(tenantInfo);
-        HttpUtils.request(restTemplate, url, HttpMethod.PUT, param, headers);
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            try {
+                String url = HTTP_PREFIX + adminUrls[i] + QUERY_TENANTS_PATH + "/" + tenant;
+                HttpHeaders headers = getHttpHeaders(clusterInfo.getToken());
+                MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+                headers.setContentType(type);
+                headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+                String param = GSON.toJson(tenantInfo);
+                HttpUtils.request(restTemplate, url, HttpMethod.PUT, param, headers);
+                return;
+            } catch (Exception e) {
+                log.error("create namespace for tenant={}, error, begin retry", tenant, e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, create namespace for tenant={} still error", tenant, e);
+                    throw e;
+                }
+            }
+        }
     }
 
     /**
@@ -191,16 +258,29 @@ public class PulsarUtils {
      */
     public static void createNamespace(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String tenant,
             String namespaceName, PulsarNamespacePolicies policies) throws Exception {
-        final String url = clusterInfo.getAdminUrl() + QUERY_NAMESPACE_PATH + InlongConstants.SLASH + tenant
-                + InlongConstants.SLASH + namespaceName;
-        HttpHeaders headers = getHttpHeaders(clusterInfo.getToken());
-        MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
-        headers.setContentType(type);
-        headers.add("Accept", MediaType.APPLICATION_JSON.toString());
-        String param = GSON.toJson(policies);
-        param = param.replaceAll("messageTtlInSeconds", "message_ttl_in_seconds")
-                .replaceAll("retentionPolicies", "retention_policies");
-        HttpUtils.request(restTemplate, url, HttpMethod.PUT, param, headers);
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            try {
+                String url = HTTP_PREFIX + adminUrls[i] + QUERY_NAMESPACE_PATH + InlongConstants.SLASH + tenant
+                        + InlongConstants.SLASH + namespaceName;
+                HttpHeaders headers = getHttpHeaders(clusterInfo.getToken());
+                MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+                headers.setContentType(type);
+                headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+                String param = GSON.toJson(policies);
+                param = param.replaceAll("messageTtlInSeconds", "message_ttl_in_seconds")
+                        .replaceAll("retentionPolicies", "retention_policies");
+                HttpUtils.request(restTemplate, url, HttpMethod.PUT, param, headers);
+                return;
+            } catch (Exception e) {
+                log.error("create namespace for tenant={}, error, begin retry", tenant, e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, create namespace for tenant={} still error", tenant, e);
+                    throw e;
+                }
+            }
+        }
     }
 
     /**
@@ -215,9 +295,23 @@ public class PulsarUtils {
      */
     public static List<String> getTopics(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String tenant,
             String namespace) throws Exception {
-        String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + tenant + "/" + namespace;
-        return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
-                ArrayList.class);
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            try {
+                String url = HTTP_PREFIX + adminUrls[i] + QUERY_PERSISTENT_PATH + "/" + tenant + "/" + namespace;
+                return HttpUtils.request(restTemplate, url, HttpMethod.GET, null,
+                        getHttpHeaders(clusterInfo.getToken()),
+                        ArrayList.class);
+            } catch (Exception e) {
+                log.error("get topics for tenant={}, namespace={}, error, begin retry", tenant, namespace, e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, get topics for tenant={}, namespace={} still error", tenant, namespace, e);
+                    throw e;
+                }
+            }
+        }
+        throw new Exception(String.format("get topics failed for tenant=%s, namespace=%s", tenant, namespace));
     }
 
     /**
@@ -232,10 +326,26 @@ public class PulsarUtils {
      */
     public static List<String> getPartitionedTopics(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String tenant, String namespace) throws Exception {
-        String url =
-                clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + tenant + "/" + namespace + "/partitioned";
-        return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
-                ArrayList.class);
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            try {
+                String url = HTTP_PREFIX + adminUrls[i] + QUERY_PERSISTENT_PATH + "/" + tenant + "/" + namespace
+                        + "/partitioned";
+                return HttpUtils.request(restTemplate, url, HttpMethod.GET, null,
+                        getHttpHeaders(clusterInfo.getToken()),
+                        ArrayList.class);
+            } catch (Exception e) {
+                log.error("get partitioned topics for tenant={}, namespace={}, error, begin retry", tenant, namespace,
+                        e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, get partitioned topics for tenant={}, namespace={} still error", tenant,
+                            namespace, e);
+                    throw e;
+                }
+            }
+        }
+        throw new Exception(String.format("get partitioned topics for tenant=%s, namespace=%s", tenant, namespace));
     }
 
     /**
@@ -248,8 +358,21 @@ public class PulsarUtils {
      */
     public static void createNonPartitionedTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath) throws Exception {
-        String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath;
-        HttpUtils.request(restTemplate, url, HttpMethod.PUT, null, getHttpHeaders(clusterInfo.getToken()));
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            String url = HTTP_PREFIX + adminUrls[i] + QUERY_PERSISTENT_PATH + "/" + topicPath;
+            try {
+                HttpUtils.request(restTemplate, url, HttpMethod.PUT, null, getHttpHeaders(clusterInfo.getToken()));
+                return;
+            } catch (Exception e) {
+                log.error("create non partitioned topic={} error, begin retry", topicPath, e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, create non partitioned topic={} still error", topicPath, e);
+                    throw e;
+                }
+            }
+        }
     }
 
     /**
@@ -262,9 +385,22 @@ public class PulsarUtils {
      */
     public static void createPartitionedTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath, Integer numPartitions) throws Exception {
-        String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/partitions";
-        HttpUtils.request(restTemplate, url, HttpMethod.PUT, numPartitions.toString(),
-                getHttpHeaders(clusterInfo.getToken()));
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            try {
+                String url = HTTP_PREFIX + adminUrls[i] + QUERY_PERSISTENT_PATH + "/" + topicPath + "/partitions";
+                HttpUtils.request(restTemplate, url, HttpMethod.PUT, numPartitions.toString(),
+                        getHttpHeaders(clusterInfo.getToken()));
+                return;
+            } catch (Exception e) {
+                log.error("create partitioned topic for topic path={} error, begin retry", topicPath, e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, create partitioned topic for topic path={} still error", topicPath, e);
+                    throw e;
+                }
+            }
+        }
     }
 
     /**
@@ -278,9 +414,25 @@ public class PulsarUtils {
      */
     public static JsonObject getInternalStatsPartitionedTopics(RestTemplate restTemplate,
             PulsarClusterInfo clusterInfo, String topicPath) throws Exception {
-        String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/partitioned-internalStats";
-        return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
-                JsonObject.class);
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            try {
+                String url = HTTP_PREFIX + adminUrls[i] + QUERY_PERSISTENT_PATH + "/" + topicPath
+                        + "/partitioned-internalStats";
+                return HttpUtils.request(restTemplate, url, HttpMethod.GET, null,
+                        getHttpHeaders(clusterInfo.getToken()),
+                        JsonObject.class);
+            } catch (Exception e) {
+                log.error("get internal stats partitioned topic for topic path={} error, begin retry", topicPath, e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, get internal stats partitioned topic for topic path={} still error",
+                            topicPath, e);
+                    throw e;
+                }
+            }
+        }
+        throw new Exception(String.format("get internal stats partitioned topic for topic path=%s", topicPath));
     }
 
     /**
@@ -294,9 +446,24 @@ public class PulsarUtils {
      */
     public static PulsarTopicMetadata getPartitionedTopicMetadata(RestTemplate restTemplate,
             PulsarClusterInfo clusterInfo, String topicPath) throws Exception {
-        String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/partitions";
-        return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
-                PulsarTopicMetadata.class);
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            try {
+                String url = HTTP_PREFIX + adminUrls[i] + QUERY_PERSISTENT_PATH + "/" + topicPath + "/partitions";
+                return HttpUtils.request(restTemplate, url, HttpMethod.GET, null,
+                        getHttpHeaders(clusterInfo.getToken()),
+                        PulsarTopicMetadata.class);
+            } catch (Exception e) {
+                log.error("get partitioned topic metadata for topic path={} error, begin retry", topicPath, e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, get partitioned topic metadata for topic path={} still error", topicPath,
+                            e);
+                    throw e;
+                }
+            }
+        }
+        throw new Exception(String.format("get partitioned topic metadata for topic path=%s", topicPath));
     }
 
     /**
@@ -309,8 +476,21 @@ public class PulsarUtils {
      */
     public static void deleteNonPartitionedTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath) throws Exception {
-        String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath;
-        HttpUtils.request(restTemplate, url, HttpMethod.DELETE, null, getHttpHeaders(clusterInfo.getToken()));
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            try {
+                String url = HTTP_PREFIX + adminUrls[i] + QUERY_PERSISTENT_PATH + "/" + topicPath;
+                HttpUtils.request(restTemplate, url, HttpMethod.DELETE, null, getHttpHeaders(clusterInfo.getToken()));
+                return;
+            } catch (Exception e) {
+                log.error("delete non partitioned topic for topic path={} error, begin retry", topicPath, e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, delete non partitioned topic for topic path={} still error", topicPath, e);
+                    throw e;
+                }
+            }
+        }
     }
 
     /**
@@ -323,10 +503,25 @@ public class PulsarUtils {
      */
     public static void forceDeleteNonPartitionedTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath) throws Exception {
-        String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath;
-        Map<String, Boolean> uriVariables = new HashMap<>();
-        uriVariables.put("force", true);
-        HttpUtils.request(restTemplate, url, HttpMethod.DELETE, uriVariables, getHttpHeaders(clusterInfo.getToken()));
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            try {
+                String url = HTTP_PREFIX + adminUrls[i] + QUERY_PERSISTENT_PATH + "/" + topicPath;
+                Map<String, Boolean> uriVariables = new HashMap<>();
+                uriVariables.put("force", true);
+                HttpUtils.request(restTemplate, url, HttpMethod.DELETE, uriVariables,
+                        getHttpHeaders(clusterInfo.getToken()));
+                return;
+            } catch (Exception e) {
+                log.error("force delete non partitioned topic for topic path={} error, begin retry", topicPath, e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, force delete non partitioned topic for topic path={} still error",
+                            topicPath, e);
+                    throw e;
+                }
+            }
+        }
     }
 
     /**
@@ -339,8 +534,21 @@ public class PulsarUtils {
      */
     public static void deletePartitionedTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath) throws Exception {
-        String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/partitions";
-        HttpUtils.request(restTemplate, url, HttpMethod.DELETE, null, getHttpHeaders(clusterInfo.getToken()));
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            try {
+                String url = HTTP_PREFIX + adminUrls[i] + QUERY_PERSISTENT_PATH + "/" + topicPath + "/partitions";
+                HttpUtils.request(restTemplate, url, HttpMethod.DELETE, null, getHttpHeaders(clusterInfo.getToken()));
+                return;
+            } catch (Exception e) {
+                log.error("delete partitioned topic for topic path={} error, begin retry", topicPath, e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, delete partitioned topic for topic path={} still error", topicPath, e);
+                    throw e;
+                }
+            }
+        }
     }
 
     /**
@@ -353,10 +561,25 @@ public class PulsarUtils {
      */
     public static void forceDeletePartitionedTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath) throws Exception {
-        String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/partitions";
-        Map<String, Boolean> uriVariables = new HashMap<>();
-        uriVariables.put("force", true);
-        HttpUtils.request(restTemplate, url, HttpMethod.DELETE, uriVariables, getHttpHeaders(clusterInfo.getToken()));
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            String url = HTTP_PREFIX + adminUrls[i] + QUERY_PERSISTENT_PATH + "/" + topicPath + "/partitions";
+            try {
+                Map<String, Boolean> uriVariables = new HashMap<>();
+                uriVariables.put("force", true);
+                HttpUtils.request(restTemplate, url, HttpMethod.DELETE, uriVariables,
+                        getHttpHeaders(clusterInfo.getToken()));
+                return;
+            } catch (Exception e) {
+                log.error("force delete the partitioned topic={} error, begin retry", topicPath, e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, force delete the partiotioned topic for topic path={} still error",
+                            topicPath, e);
+                    throw e;
+                }
+            }
+        }
     }
 
     /**
@@ -407,10 +630,23 @@ public class PulsarUtils {
      */
     public static String lookupTopic(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String topicPath)
             throws Exception {
-        String url = clusterInfo.getAdminUrl() + LOOKUP_TOPIC_PATH + "/persistent/" + topicPath;
-        PulsarLookupTopicInfo topicInfo = HttpUtils.request(restTemplate, url, HttpMethod.GET, null,
-                getHttpHeaders(clusterInfo.getToken()), PulsarLookupTopicInfo.class);
-        return topicInfo.getBrokerUrl();
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            String url = HTTP_PREFIX + adminUrls[i] + LOOKUP_TOPIC_PATH + "/persistent/" + topicPath;
+            try {
+                PulsarLookupTopicInfo topicInfo = HttpUtils.request(restTemplate, url, HttpMethod.GET, null,
+                        getHttpHeaders(clusterInfo.getToken()), PulsarLookupTopicInfo.class);
+                return topicInfo.getBrokerUrl();
+            } catch (Exception e) {
+                log.error("look up topic for topic path={} error, begin retry", topicPath, e);
+                if (i == (adminUrls.length - 1)) {
+                    log.error("after retry, look up topic for topic path={} still error", topicPath, e);
+                    throw e;
+                }
+            }
+        }
+        throw new Exception(String.format("look up topic for topic path=%s", topicPath));
     }
 
     /**
@@ -428,10 +664,25 @@ public class PulsarUtils {
         Map<String, String> map = new LinkedHashMap<>();
         for (int i = 0; i < metadata.getPartitions(); i++) {
             String partitionTopicName = topicPath + "-partition-" + i;
-            String partitionUrl = clusterInfo.getAdminUrl() + LOOKUP_TOPIC_PATH + "/persistent/" + partitionTopicName;
-            PulsarLookupTopicInfo topicInfo = HttpUtils.request(restTemplate, partitionUrl, HttpMethod.GET, null,
-                    getHttpHeaders(clusterInfo.getToken()), PulsarLookupTopicInfo.class);
-            map.put(partitionTopicName, topicInfo.getBrokerUrl());
+            String adminUrl = clusterInfo.getAdminUrl();
+            String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+            for (int j = 0; j < adminUrls.length; j++) {
+                try {
+                    String partitionUrl =
+                            HTTP_PREFIX + adminUrls[j] + LOOKUP_TOPIC_PATH + "/persistent/" + partitionTopicName;
+                    PulsarLookupTopicInfo topicInfo = HttpUtils.request(restTemplate, partitionUrl, HttpMethod.GET,
+                            null,
+                            getHttpHeaders(clusterInfo.getToken()), PulsarLookupTopicInfo.class);
+                    map.put(partitionTopicName, topicInfo.getBrokerUrl());
+                    break;
+                } catch (Exception e) {
+                    log.error("look partitioned topic for topic path={} error, begin retry", topicPath, e);
+                    if (j >= (adminUrls.length - 1)) {
+                        log.error("after retry, look partitioned topic for topic path={} still error", topicPath, e);
+                        throw e;
+                    }
+                }
+            }
         }
         return map;
     }
@@ -447,15 +698,29 @@ public class PulsarUtils {
      */
     public static List<String> getSubscriptions(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPath) throws Exception {
-        String url = clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/subscriptions";
-        return HttpUtils.request(restTemplate, url, HttpMethod.GET, null, getHttpHeaders(clusterInfo.getToken()),
-                ArrayList.class);
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            String url = HTTP_PREFIX + adminUrls[i] + QUERY_PERSISTENT_PATH + "/" + topicPath + "/subscriptions";
+            try {
+                return HttpUtils.request(restTemplate, url, HttpMethod.GET, null,
+                        getHttpHeaders(clusterInfo.getToken()),
+                        ArrayList.class);
+            } catch (Exception e) {
+                log.error("get subscription for topic path={} error, begin retry", topicPath, e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, get subscription for topic path={} still error", topicPath, e);
+                    throw e;
+                }
+            }
+        }
+        throw new Exception(String.format("get subscription for topic path=%s", topicPath));
     }
 
     /**
      * Create a subscription on the topic.
      *
-     * @param restTemplate  spring framework RestTemplate
+     * @param restTemplate spring framework RestTemplate
      * @param clusterInfo pulsar cluster info
      * @param topicPath pulsar topic path
      * @param subscription pulsar topic subscription info
@@ -463,17 +728,30 @@ public class PulsarUtils {
      */
     public static void createSubscription(RestTemplate restTemplate, PulsarClusterInfo clusterInfo, String topicPath,
             String subscription) throws Exception {
-        String url =
-                clusterInfo.getAdminUrl() + QUERY_PERSISTENT_PATH + "/" + topicPath + "/subscription/" + subscription;
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("entryId", Long.MAX_VALUE);
-        jsonObject.addProperty("ledgerId", Long.MAX_VALUE);
-        jsonObject.addProperty("partitionIndex", -1);
-        HttpHeaders headers = getHttpHeaders(clusterInfo.getToken());
-        MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
-        headers.setContentType(type);
-        headers.add("Accept", MediaType.APPLICATION_JSON.toString());
-        HttpUtils.request(restTemplate, url, HttpMethod.PUT, jsonObject.toString(), headers);
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            String url = HTTP_PREFIX + adminUrls[i] + QUERY_PERSISTENT_PATH + "/" + topicPath + "/subscription/"
+                    + subscription;
+            try {
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty("entryId", Long.MAX_VALUE);
+                jsonObject.addProperty("ledgerId", Long.MAX_VALUE);
+                jsonObject.addProperty("partitionIndex", -1);
+                HttpHeaders headers = getHttpHeaders(clusterInfo.getToken());
+                MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+                headers.setContentType(type);
+                headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+                HttpUtils.request(restTemplate, url, HttpMethod.PUT, jsonObject.toString(), headers);
+                return;
+            } catch (Exception e) {
+                log.error("create subscription={} error, begin retry", subscription, e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, create subscription={} still error", subscription, e);
+                    throw e;
+                }
+            }
+        }
     }
 
     /**
@@ -481,7 +759,7 @@ public class PulsarUtils {
      *
      * @param restTemplate spring framework RestTemplate
      * @param clusterInfo pulsar cluster info
-     * @param topicPartition  pulsar topic partition info
+     * @param topicPartition pulsar topic partition info
      * @param messageType pulsar message type info
      * @param messagePosition pulsar message position info
      * @return spring framework HttpEntity
@@ -489,22 +767,36 @@ public class PulsarUtils {
      */
     public static ResponseEntity<byte[]> examineMessage(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPartition, String messageType, int messagePosition) throws Exception {
-        StringBuilder urlBuilder = new StringBuilder().append(clusterInfo.getAdminUrl())
-                .append(QUERY_PERSISTENT_PATH)
-                .append("/")
-                .append(topicPartition)
-                .append("/examinemessage")
-                .append("?initialPosition=")
-                .append(messageType)
-                .append("&messagePosition=")
-                .append(messagePosition);
-        ResponseEntity<byte[]> response = restTemplate.exchange(urlBuilder.toString(), HttpMethod.GET,
-                new HttpEntity<>(getHttpHeaders(clusterInfo.getToken())), byte[].class);
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            log.error("request error for {}, status code {}, body {}", urlBuilder.toString(), response.getStatusCode(),
-                    response.getBody());
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
+            try {
+                StringBuilder urlBuilder = new StringBuilder().append(HTTP_PREFIX + adminUrls[i])
+                        .append(QUERY_PERSISTENT_PATH)
+                        .append("/")
+                        .append(topicPartition)
+                        .append("/examinemessage")
+                        .append("?initialPosition=")
+                        .append(messageType)
+                        .append("&messagePosition=")
+                        .append(messagePosition);
+                ResponseEntity<byte[]> response = restTemplate.exchange(urlBuilder.toString(), HttpMethod.GET,
+                        new HttpEntity<>(getHttpHeaders(clusterInfo.getToken())), byte[].class);
+                if (!response.getStatusCode().is2xxSuccessful()) {
+                    log.error("request error for {}, status code {}, body {}", urlBuilder.toString(),
+                            response.getStatusCode(),
+                            response.getBody());
+                }
+                return response;
+            } catch (Exception e) {
+                log.error("examine message for topic partition={} error, begin retry", topicPartition, e);
+                if (i >= (adminUrls.length - 1)) {
+                    log.error("after retry, examine message for topic partition={} still error", topicPartition, e);
+                    throw e;
+                }
+            }
         }
-        return response;
+        throw new Exception(String.format("examine message failed for topic partition=%s", topicPartition));
     }
 
     public static PulsarMessageInfo getMessageFromHttpResponse(ResponseEntity<byte[]> response, String topic)
@@ -518,7 +810,7 @@ public class PulsarUtils {
     }
 
     /**
-     *  Copy from getMessagesFromHttpResponse method of org.apache.pulsar.client.admin.internal.TopicsImpl class.
+     * Copy from getMessagesFromHttpResponse method of org.apache.pulsar.client.admin.internal.TopicsImpl class.
      *
      * @param response
      * @param topic
