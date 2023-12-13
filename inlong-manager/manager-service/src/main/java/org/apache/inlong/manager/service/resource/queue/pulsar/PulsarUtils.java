@@ -57,6 +57,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo.HTTP_PREFIX;
+
 /**
  * Pulsar connection utils
  */
@@ -500,28 +502,30 @@ public class PulsarUtils {
      */
     public static ResponseEntity<byte[]> examineMessage(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPartition, String messageType, int messagePosition) throws Exception {
-        StringBuilder urlBuilder = new StringBuilder().append(QUERY_PERSISTENT_PATH)
-                .append("/")
-                .append(topicPartition)
-                .append("/examinemessage")
-                .append("?initialPosition=")
-                .append(messageType)
-                .append("&messagePosition=")
-                .append(messagePosition);
-        String[] urls = clusterInfo.getAdminUrls(urlBuilder.toString());
-        for (int i = 0; i < urls.length; i++) {
+        String adminUrl = clusterInfo.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (int i = 0; i < adminUrls.length; i++) {
             try {
-                ResponseEntity<byte[]> response = restTemplate.exchange(urls[i], HttpMethod.GET,
+                StringBuilder urlBuilder = new StringBuilder().append(HTTP_PREFIX + adminUrls[i])
+                        .append(QUERY_PERSISTENT_PATH)
+                        .append("/")
+                        .append(topicPartition)
+                        .append("/examinemessage")
+                        .append("?initialPosition=")
+                        .append(messageType)
+                        .append("&messagePosition=")
+                        .append(messagePosition);
+                ResponseEntity<byte[]> response = restTemplate.exchange(urlBuilder.toString(), HttpMethod.GET,
                         new HttpEntity<>(getHttpHeaders(clusterInfo.getToken())), byte[].class);
                 if (!response.getStatusCode().is2xxSuccessful()) {
-                    log.error("request error for {}, status code {}, body {}", urls[i],
+                    log.error("request error for {}, status code {}, body {}", urlBuilder.toString(),
                             response.getStatusCode(),
                             response.getBody());
                 }
                 return response;
             } catch (Exception e) {
                 log.error("examine message for topic partition={} error, begin retry", topicPartition, e);
-                if (i >= (urls.length - 1)) {
+                if (i >= (adminUrls.length - 1)) {
                     log.error("after retry, examine message for topic partition={} still error", topicPartition, e);
                     throw e;
                 }
