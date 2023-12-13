@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.cluster.pulsar;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
@@ -40,6 +41,8 @@ import lombok.experimental.SuperBuilder;
 @ApiModel("Inlong cluster info for Pulsar")
 public class PulsarClusterInfo extends ClusterInfo {
 
+    public static final String HTTP_PREFIX = "http://";
+
     @ApiModelProperty(value = "Pulsar admin URL, such as: http://127.0.0.1:8080", notes = "Pulsar service URL is the 'url' field of the cluster")
     private String adminUrl;
 
@@ -53,6 +56,15 @@ public class PulsarClusterInfo extends ClusterInfo {
     @Override
     public PulsarClusterRequest genRequest() {
         return CommonBeanUtils.copyProperties(this, PulsarClusterRequest::new);
+    }
+
+    public String[] getAdminUrls(String urlSuffix) {
+        String adminUrl = this.getAdminUrl();
+        String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
+        for (String url : adminUrls) {
+            url = url + urlSuffix;
+        }
+        return adminUrls;
     }
 
 }
