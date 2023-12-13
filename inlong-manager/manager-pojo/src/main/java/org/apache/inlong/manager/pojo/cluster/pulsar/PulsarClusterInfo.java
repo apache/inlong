@@ -61,8 +61,8 @@ public class PulsarClusterInfo extends ClusterInfo {
     public String[] getAdminUrls(String urlSuffix) {
         String adminUrl = this.getAdminUrl();
         String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
-        for (String url : adminUrls) {
-            url = url + urlSuffix;
+        for (int i = 0; i < adminUrls.length; i++) {
+            adminUrls[i] = HTTP_PREFIX + adminUrls[i] + urlSuffix;
         }
         return adminUrls;
     }
