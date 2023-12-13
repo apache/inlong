@@ -500,8 +500,7 @@ public class PulsarUtils {
      */
     public static ResponseEntity<byte[]> examineMessage(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
             String topicPartition, String messageType, int messagePosition) throws Exception {
-        StringBuilder urlBuilder = new StringBuilder()
-                .append(QUERY_PERSISTENT_PATH)
+        StringBuilder urlBuilder = new StringBuilder().append(QUERY_PERSISTENT_PATH)
                 .append("/")
                 .append(topicPartition)
                 .append("/examinemessage")
@@ -509,17 +508,24 @@ public class PulsarUtils {
                 .append(messageType)
                 .append("&messagePosition=")
                 .append(messagePosition);
-
         String[] urls = clusterInfo.getAdminUrls(urlBuilder.toString());
         for (int i = 0; i < urls.length; i++) {
-            ResponseEntity<byte[]> response = restTemplate.exchange(urls[i], HttpMethod.GET,
-                    new HttpEntity<>(getHttpHeaders(clusterInfo.getToken())), byte[].class);
-            if (!response.getStatusCode().is2xxSuccessful()) {
-                log.error("request error for {}, status code {}, body {}", urls[i],
-                        response.getStatusCode(),
-                        response.getBody());
+            try {
+                ResponseEntity<byte[]> response = restTemplate.exchange(urls[i], HttpMethod.GET,
+                        new HttpEntity<>(getHttpHeaders(clusterInfo.getToken())), byte[].class);
+                if (!response.getStatusCode().is2xxSuccessful()) {
+                    log.error("request error for {}, status code {}, body {}", urls[i],
+                            response.getStatusCode(),
+                            response.getBody());
+                }
+                return response;
+            } catch (Exception e) {
+                log.error("examine message for topic partition={} error, begin retry", topicPartition, e);
+                if (i >= (urls.length - 1)) {
+                    log.error("after retry, examine message for topic partition={} still error", topicPartition, e);
+                    throw e;
+                }
             }
-            return response;
         }
         throw new Exception(String.format("examine message failed for topic partition=%s", topicPartition));
     }
