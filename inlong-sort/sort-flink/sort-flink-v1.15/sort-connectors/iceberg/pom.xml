@@ -95,7 +95,7 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-files</artifactId>
-            <version>${flink.version.v1.15}</version>
+            <version>${flink.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
