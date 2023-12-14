@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.function;
 
+import org.apache.inlong.sort.function.embedding.EmbeddingInput;
+import org.apache.inlong.sort.function.embedding.LanguageModel;
+
 import com.sun.net.httpserver.HttpServer;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -30,8 +33,6 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.CloseableIterator;
-import org.apache.inlong.sort.function.embedding.EmbeddingInput;
-import org.apache.inlong.sort.function.embedding.LanguageModel;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,8 +45,7 @@ import java.util.Locale;
 
 import static org.apache.inlong.sort.function.EmbeddingFunction.DEFAULT_EMBEDDING_FUNCTION_NAME;
 
-
-public class EmbeddingFunctionTest  extends AbstractTestBase {
+public class EmbeddingFunctionTest extends AbstractTestBase {
 
     @Test
     public void testMapper() throws Exception {
@@ -91,12 +91,11 @@ public class EmbeddingFunctionTest  extends AbstractTestBase {
         List<String> udfNames = Arrays.asList(tableEnv.listUserDefinedFunctions());
         Assert.assertTrue(udfNames.contains(DEFAULT_EMBEDDING_FUNCTION_NAME.toLowerCase(Locale.ROOT)));
 
-
         // step 2. Generate test data and convert to DataStream
         int numOfMessages = 100;
         List<String> sourceDateList = new ArrayList<>();
         String msgPrefix = "Data for embedding-";
-        for (int i = 0; i < numOfMessages; i ++) {
+        for (int i = 0; i < numOfMessages; i++) {
             sourceDateList.add(msgPrefix + i);
         }
 
@@ -109,7 +108,8 @@ public class EmbeddingFunctionTest  extends AbstractTestBase {
 
         // step 3. start a web server to mock embedding service
         String embeddingResult = "{\"result\": \"Result data for embedding\"}";
-        HttpServer httpServer = HttpServer.create(new InetSocketAddress(8899), 0); // or use InetSocketAddress(0) for ephemeral port
+        HttpServer httpServer = HttpServer.create(new InetSocketAddress(8899), 0); // or use InetSocketAddress(0) for
+                                                                                   // ephemeral port
         httpServer.createContext("/get_embedding", exchange -> {
             byte[] response = embeddingResult.getBytes(StandardCharsets.UTF_8);
             exchange.sendResponseHeaders(200, response.length);
@@ -117,7 +117,6 @@ public class EmbeddingFunctionTest  extends AbstractTestBase {
             exchange.close();
         });
         httpServer.start();
-
 
         // step 4. Convert from DataStream to Table and execute the Embedding function
         Table tempView = tableEnv.fromDataStream(dataStream).as("f1");
@@ -133,16 +132,16 @@ public class EmbeddingFunctionTest  extends AbstractTestBase {
         List<String> resultF0 = new ArrayList<>();
         List<String> resultF1 = new ArrayList<>();
         for (CloseableIterator<Row> it = resultSet.executeAndCollect(); it.hasNext();) {
-           Row row = it.next();
-           if (row != null) {
-               resultF0.add(row.getField(0).toString());
-               resultF1.add(row.getField(1).toString());
-           }
+            Row row = it.next();
+            if (row != null) {
+                resultF0.add(row.getField(0).toString());
+                resultF1.add(row.getField(1).toString());
+            }
         }
         Assert.assertEquals(resultF0.size(), numOfMessages);
         Assert.assertEquals(resultF1.size(), numOfMessages);
         Assert.assertEquals(resultF0, sourceDateList);
-        for (String res :resultF1) {
+        for (String res : resultF1) {
             Assert.assertEquals(res, embeddingResult);
         }
 

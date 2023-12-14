@@ -23,6 +23,7 @@ import java.io.Serializable;
  * Class representing the input of embedding function
  */
 public class EmbeddingInput implements Serializable {
+
     private String input;
     private String model;
 

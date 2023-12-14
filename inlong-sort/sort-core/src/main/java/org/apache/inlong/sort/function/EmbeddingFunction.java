@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.function;
 
+import org.apache.inlong.sort.function.embedding.EmbeddingInput;
+import org.apache.inlong.sort.function.embedding.LanguageModel;
+
 import com.google.common.base.Strings;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.functions.ScalarFunction;
@@ -29,15 +32,14 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.sort.function.embedding.EmbeddingInput;
-import org.apache.inlong.sort.function.embedding.LanguageModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Embedding function for LLM applications.
  * */
-public class EmbeddingFunction  extends ScalarFunction {
+public class EmbeddingFunction extends ScalarFunction {
+
     public static final Logger logger = LoggerFactory.getLogger(EmbeddingFunction.class);
     public static final String DEFAULT_EMBEDDING_FUNCTION_NAME = "EMBEDDING";
 
@@ -78,7 +80,7 @@ public class EmbeddingFunction  extends ScalarFunction {
                     .setConnectTimeout(DEFAULT_CONNECT_TIMEOUT)
                     .setSocketTimeout(DEFAULT_SOCKET_TIMEOUT)
                     .build();
-            httpClient =  HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build();
+            httpClient = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build();
         }
 
         try {

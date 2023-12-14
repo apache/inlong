@@ -23,6 +23,7 @@ import com.google.common.base.Strings;
  * Supported language model for embedding.
  */
 public enum LanguageModel {
+
     /**
      * Language model for BBAI zh, chinese
      * */
