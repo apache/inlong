@@ -141,7 +141,7 @@ public class HttpUtils {
         ResponseEntity<T> response = restTemplate.exchange(url, httpMethod, requestEntity, typeReference);
 
         log.debug("success request to {}, status code {}", url, response.getStatusCode());
-        Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(), "Request failed");
+        Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(), "Request failed: " + response.getBody());
         return response.getBody();
     }
 
@@ -155,7 +155,7 @@ public class HttpUtils {
         ResponseEntity<String> response = restTemplate.exchange(url, httpMethod, requestEntity, String.class);
 
         log.debug("success request to {}, status code {}", url, response.getStatusCode());
-        Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(), "Request failed");
+        Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(), "Request failed: " + response.getBody());
     }
 
     /**
@@ -172,7 +172,8 @@ public class HttpUtils {
                         String.class);
 
                 log.debug("success request to {}, status code {}", urls[i], response.getStatusCode());
-                Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(), "Request failed");
+                Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(),
+                        "Request failed: " + response.getBody());
                 return;
             } catch (Exception e) {
                 log.error("request for {}, error, begin retry", urls[i], e);
