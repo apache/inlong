@@ -181,7 +181,7 @@ public class LogFileSource extends AbstractSource {
             } catch (Exception ex) {
                 LOGGER.error("init metadata error", ex);
             }
-            EXECUTOR_SERVICE.execute(coreThread());
+            EXECUTOR_SERVICE.execute(run());
         } catch (Exception ex) {
             stopRunning();
             throw new FileException("error init stream for " + file.getPath(), ex);
@@ -435,63 +435,71 @@ public class LogFileSource extends AbstractSource {
         return false;
     }
 
-    public Runnable coreThread() {
+    private Runnable run() {
         return () -> {
             AgentThreadFactory.nameThread("log-file-source-" + taskId + "-" + file);
             running = true;
-            long lastPrintTime = 0;
-            while (isRunnable() && fileExist) {
-                if (isInodeChanged()) {
-                    fileExist = false;
-                    LOGGER.info("inode changed, instance will restart and offset will be clean, file {}",
-                            fileName);
-                    break;
-                }
-                if (file.length() < bytePosition) {
-                    fileExist = false;
-                    LOGGER.info("file rotate, instance will restart and offset will be clean, file {}",
-                            fileName);
-                    break;
-                }
-                boolean suc = waitForPermit(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
-                if (!suc) {
-                    break;
-                }
-                List<SourceData> lines = null;
-                try {
-                    lines = readFromPos(bytePosition);
-                } catch (FileNotFoundException e) {
-                    fileExist = false;
-                    LOGGER.error("readFromPos file deleted {}", e.getMessage());
-                } catch (IOException e) {
-                    LOGGER.error("readFromPos error {}", e.getMessage());
-                }
-                MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
-                if (lines.isEmpty()) {
-                    if (queue.isEmpty()) {
-                        emptyCount++;
-                    } else {
-                        emptyCount = 0;
-                    }
-                    AgentUtils.silenceSleepInSeconds(1);
-                    continue;
-                }
-                emptyCount = 0;
-                for (int i = 0; i < lines.size(); i++) {
-                    boolean suc4Queue = waitForPermit(AGENT_GLOBAL_READER_QUEUE_PERMIT, lines.get(i).data.length());
-                    if (!suc4Queue) {
-                        break;
-                    }
-                    putIntoQueue(lines.get(i));
-                }
-                if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_INTERVAL_MS) {
-                    lastPrintTime = AgentUtils.getCurrentTime();
-                    LOGGER.info("path is {}, linePosition {}, bytePosition is {} file len {}, reads lines size {}",
-                            file.getName(), linePosition, bytePosition, file.length(), lines.size());
-                }
+            try {
+                doRun();
+            } catch (Throwable e) {
+                LOGGER.error("do run error maybe file deleted: ", e);
             }
             running = false;
         };
+    }
+
+    private void doRun() {
+        long lastPrintTime = 0;
+        while (isRunnable() && fileExist) {
+            if (isInodeChanged()) {
+                fileExist = false;
+                LOGGER.info("inode changed, instance will restart and offset will be clean, file {}",
+                        fileName);
+                break;
+            }
+            if (file.length() < bytePosition) {
+                fileExist = false;
+                LOGGER.info("file rotate, instance will restart and offset will be clean, file {}",
+                        fileName);
+                break;
+            }
+            boolean suc = waitForPermit(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
+            if (!suc) {
+                break;
+            }
+            List<SourceData> lines = null;
+            try {
+                lines = readFromPos(bytePosition);
+            } catch (FileNotFoundException e) {
+                fileExist = false;
+                LOGGER.error("readFromPos file deleted error: ", e);
+            } catch (IOException e) {
+                LOGGER.error("readFromPos error: ", e);
+            }
+            MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
+            if (lines.isEmpty()) {
+                if (queue.isEmpty()) {
+                    emptyCount++;
+                } else {
+                    emptyCount = 0;
+                }
+                AgentUtils.silenceSleepInSeconds(1);
+                continue;
+            }
+            emptyCount = 0;
+            for (int i = 0; i < lines.size(); i++) {
+                boolean suc4Queue = waitForPermit(AGENT_GLOBAL_READER_QUEUE_PERMIT, lines.get(i).data.length());
+                if (!suc4Queue) {
+                    break;
+                }
+                putIntoQueue(lines.get(i));
+            }
+            if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_INTERVAL_MS) {
+                lastPrintTime = AgentUtils.getCurrentTime();
+                LOGGER.info("path is {}, linePosition {}, bytePosition is {} file len {}, reads lines size {}",
+                        file.getName(), linePosition, bytePosition, file.length(), lines.size());
+            }
+        }
     }
 
     private void putIntoQueue(SourceData sourceData) {

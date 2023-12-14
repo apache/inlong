@@ -55,6 +55,7 @@ public class AuditUtils {
     public static final int AUDIT_ID_AGENT_INSTANCE_HEARTBEAT = 30010;
     public static final int AUDIT_ID_AGENT_SEND_FAILED_REAL_TIME = 30011;
     public static final int AUDIT_ID_AGENT_DEL_INSTANCE_MEM_UNUSUAL = 30014;
+    public static final int AUDIT_ID_AGENT_ADD_INSTANCE_MEM_FAILED = 30015;
 
     private static boolean IS_AUDIT = true;
 
