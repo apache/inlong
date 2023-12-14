@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.parser.impl;
 
+import org.apache.inlong.sort.function.EmbeddingFunction;
 import org.apache.inlong.sort.function.EncryptFunction;
 import org.apache.inlong.sort.function.JsonGetterFunction;
 import org.apache.inlong.sort.function.RegexpReplaceFirstFunction;
@@ -33,6 +34,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import static org.apache.inlong.sort.function.EmbeddingFunction.DEFAULT_EMBEDDING_FUNCTION_NAME;
 
 /**
  * parse flink sql script file
@@ -70,6 +73,7 @@ public class NativeFlinkSqlParser implements Parser {
         tableEnv.createTemporarySystemFunction("REGEXP_REPLACE", RegexpReplaceFunction.class);
         tableEnv.createTemporarySystemFunction("ENCRYPT", EncryptFunction.class);
         tableEnv.createTemporarySystemFunction("JSON_GETTER", JsonGetterFunction.class);
+        tableEnv.createTemporarySystemFunction(DEFAULT_EMBEDDING_FUNCTION_NAME, EmbeddingFunction.class);
     }
 
     /**
