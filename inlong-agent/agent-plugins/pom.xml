@@ -168,7 +168,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka_${flink.scala.binary.version}</artifactId>
+            <artifactId>kafka_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.paho</groupId>
