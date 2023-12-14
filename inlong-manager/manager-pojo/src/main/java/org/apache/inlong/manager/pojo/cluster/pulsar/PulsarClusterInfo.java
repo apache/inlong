@@ -19,8 +19,10 @@ package org.apache.inlong.manager.pojo.cluster.pulsar;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 
 import io.swagger.annotations.ApiModel;
@@ -60,6 +62,7 @@ public class PulsarClusterInfo extends ClusterInfo {
 
     public String[] getAdminUrls(String urlSuffix) {
         String adminUrl = this.getAdminUrl();
+        Preconditions.expectNotBlank(adminUrl, ErrorCodeEnum.INVALID_PARAMETER, "admin url is blank");
         String[] adminUrls = adminUrl.replace(HTTP_PREFIX, InlongConstants.EMPTY).split(InlongConstants.COMMA);
         for (int i = 0; i < adminUrls.length; i++) {
             adminUrls[i] = HTTP_PREFIX + adminUrls[i] + urlSuffix;

@@ -20,6 +20,8 @@ package org.apache.inlong.manager.common.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -33,6 +35,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -101,6 +104,7 @@ public class HttpUtils {
     public static <T> T request(RestTemplate restTemplate, String[] urls, HttpMethod method,
             String param, HttpHeaders header, Class<T> cls) throws Exception {
         ResponseEntity<String> exchange;
+        Preconditions.expectNotNull(urls, ErrorCodeEnum.INVALID_PARAMETER, "url is blank");
         for (int i = 0; i < urls.length; i++) {
             try {
                 HttpEntity<String> request = new HttpEntity<>(param, header);
@@ -160,6 +164,7 @@ public class HttpUtils {
      */
     public static void request(RestTemplate restTemplate, String[] urls, HttpMethod httpMethod, Object requestBody,
             HttpHeaders header) {
+        Preconditions.expectNotNull(urls, ErrorCodeEnum.INVALID_PARAMETER, "url is blank");
         for (int i = 0; i < urls.length; i++) {
             try {
                 log.debug("begin request to {} by request body {}", urls[i], GSON.toJson(requestBody));
