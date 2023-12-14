@@ -169,6 +169,7 @@ public class HttpUtils {
 
                 log.debug("success request to {}, status code {}", urls[i], response.getStatusCode());
                 Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(), "Request failed");
+                return;
             } catch (Exception e) {
                 log.error("request for {}, error, begin retry", urls[i], e);
                 if (i >= (urls.length - 1)) {
