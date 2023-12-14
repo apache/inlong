@@ -69,8 +69,8 @@ public class EmbeddingFunction extends ScalarFunction {
         }
 
         if (!LanguageModel.isLanguageModelSupported(model)) {
-            logger.error("Failed to embedding, language model {} not supported(only {} is supported right now)",
-                    model, input);
+            logger.error("Failed to embedding, language model {} not supported(only {} are supported right now)",
+                    model, LanguageModel.getAllSupportedLanguageModels());
             return null;
         }
 
