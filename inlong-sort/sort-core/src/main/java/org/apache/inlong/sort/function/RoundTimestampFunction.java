@@ -35,6 +35,8 @@ public class RoundTimestampFunction extends ScalarFunction {
 
     public static final Logger LOG = LoggerFactory.getLogger(RoundTimestampFunction.class);
 
+    private transient DateTimeFormatter formatter;
+
     /**
      * Round timestamp and output formatted timestamp.
      * For example, if the input timestamp is 1702610371(s), the roundTime is 600(s), and the format is "yyyyMMddHHmm",
@@ -45,14 +47,15 @@ public class RoundTimestampFunction extends ScalarFunction {
      * @param format The format of the output timestamp.
      * @return The formatted timestamp.
      */
-    public static String eval(Long timestamp, Long roundTime, String format) {
+    public String eval(Long timestamp, Long roundTime, String format) {
         try {
             LocalDateTime dateTime = LocalDateTime.ofInstant(
                     Instant.ofEpochSecond(timestamp - timestamp % roundTime),
                     ZoneId.systemDefault());
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
-            String formattedDateTime = dateTime.format(formatter);
-            return formattedDateTime;
+            if (formatter == null) {
+                formatter = DateTimeFormatter.ofPattern(format);
+            }
+            return dateTime.format(formatter);
         } catch (Exception e) {
             LOG.error("get formatted timestamp error, timestamp: {}, roundTime: {},format: {}",
                     timestamp, roundTime, format, e);
