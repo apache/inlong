@@ -34,7 +34,7 @@ public class RoundTimestampFunction extends ScalarFunction {
     private static final long serialVersionUID = 1L;
 
     public static final Logger LOG = LoggerFactory.getLogger(RoundTimestampFunction.class);
-
+    public static final ZoneId DEFAULT_ZONE = ZoneId.systemDefault();
     private transient DateTimeFormatter formatter;
 
     /**
@@ -51,7 +51,7 @@ public class RoundTimestampFunction extends ScalarFunction {
         try {
             LocalDateTime dateTime = LocalDateTime.ofInstant(
                     Instant.ofEpochSecond(timestamp - timestamp % roundTime),
-                    ZoneId.systemDefault());
+                DEFAULT_ZONE);
             if (formatter == null) {
                 formatter = DateTimeFormatter.ofPattern(format);
             }
