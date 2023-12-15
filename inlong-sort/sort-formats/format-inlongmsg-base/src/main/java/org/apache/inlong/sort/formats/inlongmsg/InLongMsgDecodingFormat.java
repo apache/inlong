@@ -17,6 +17,13 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.formats.csv.CsvRowDataDeserializationSchema;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectReader;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.dataformat.csv.CsvParser;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgDeserializationSchema.MetadataConverter;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -31,6 +38,7 @@ import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,6 +48,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSchema<RowData>> {
 
     private final String innerFormatMetaPrefix;
@@ -50,14 +59,18 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
 
     private final boolean ignoreErrors;
 
+    private final boolean ignoreTrailingUnmappable;
+
     public InLongMsgDecodingFormat(
             DecodingFormat<DeserializationSchema<RowData>> innerDecodingFormat,
             String innerFormatMetaPrefix,
-            boolean ignoreErrors) {
+            boolean ignoreErrors,
+            boolean ignoreTrailingUnmappable) {
         this.innerDecodingFormat = innerDecodingFormat;
         this.innerFormatMetaPrefix = innerFormatMetaPrefix;
         this.metadataKeys = Collections.emptyList();
         this.ignoreErrors = ignoreErrors;
+        this.ignoreTrailingUnmappable = ignoreTrailingUnmappable;
     }
 
     @Override
@@ -83,8 +96,14 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
         final TypeInformation<RowData> producedTypeInfo =
                 context.createTypeInformation(producedDataType);
 
+        DeserializationSchema<RowData> innerSchema =
+                innerDecodingFormat.createRuntimeDecoder(context, physicalDataType);
+        if (innerSchema instanceof CsvRowDataDeserializationSchema && ignoreTrailingUnmappable) {
+            this.makeCsvInnerFormatIgnoreTrailingUnmappable(innerSchema);
+        }
+
         return new InLongMsgDeserializationSchema(
-                innerDecodingFormat.createRuntimeDecoder(context, physicalDataType),
+                innerSchema,
                 metadataConverters,
                 producedTypeInfo,
                 ignoreErrors);
@@ -188,6 +207,27 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
             this.key = key;
             this.dataType = dataType;
             this.converter = converter;
+        }
+    }
+
+
+    private void makeCsvInnerFormatIgnoreTrailingUnmappable(DeserializationSchema<RowData> innerSchema) {
+        try {
+            Field readerField = CsvRowDataDeserializationSchema.class.getDeclaredField("objectReader");
+            readerField.setAccessible(true);
+            ObjectReader oldReader = (ObjectReader) readerField.get(innerSchema);
+
+            Field schemaField = ObjectReader.class.getDeclaredField("_schema");
+            schemaField.setAccessible(true);
+            CsvSchema oldSchema = (CsvSchema) schemaField.get(oldReader);
+
+            ObjectReader newReader = new CsvMapper()
+                    .enable(CsvParser.Feature.IGNORE_TRAILING_UNMAPPABLE)
+                    .readerFor(JsonNode.class)
+                    .with(oldSchema);
+            readerField.set(innerSchema, newReader);
+        } catch (Throwable t) {
+            log.error("failed to make csv inner format to ignore trailing unmappable, ex is ", t);
         }
     }
 }

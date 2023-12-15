@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.IGNORE_PARSE_ERRORS;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.IGNORE_TRAILING_UNMAPPABLE;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.INNER_FORMAT;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.validateDecodingFormatOptions;
 
@@ -65,8 +66,8 @@ public final class InLongMsgFormatFactory
         DecodingFormat<DeserializationSchema<RowData>> innerFormat =
                 innerFactory.createDecodingFormat(context, new DelegatingConfiguration(allOptions, innerFormatPrefix));
         boolean ignoreErrors = formatOptions.get(IGNORE_PARSE_ERRORS);
-
-        return new InLongMsgDecodingFormat(innerFormat, innerFormatMetaPrefix, ignoreErrors);
+        boolean ignoreTrailingUnmappable = formatOptions.get(IGNORE_TRAILING_UNMAPPABLE);
+        return new InLongMsgDecodingFormat(innerFormat, innerFormatMetaPrefix, ignoreErrors, ignoreTrailingUnmappable);
     }
 
     @Override
