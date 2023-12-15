@@ -45,14 +45,14 @@ public class RoundTimestampFunction extends ScalarFunction {
      * @param format The format of the output timestamp.
      * @return The formatted timestamp.
      */
-    public static Long eval(Long timestamp, Long roundTime, String format) {
+    public static String eval(Long timestamp, Long roundTime, String format) {
         try {
             LocalDateTime dateTime = LocalDateTime.ofInstant(
                     Instant.ofEpochSecond(timestamp - timestamp % roundTime),
                     ZoneId.systemDefault());
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
             String formattedDateTime = dateTime.format(formatter);
-            return Long.parseLong(formattedDateTime);
+            return formattedDateTime;
         } catch (Exception e) {
             LOG.error("get formatted timestamp error, timestamp: {}, roundTime: {},format: {}",
                     timestamp, roundTime, format, e);
