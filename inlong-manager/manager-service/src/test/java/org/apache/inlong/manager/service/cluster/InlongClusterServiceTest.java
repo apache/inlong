@@ -332,6 +332,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
 
         ClusterInfo info = clusterService.get(id, GLOBAL_OPERATOR);
         Assertions.assertInstanceOf(SortClsClusterInfo.class, info);
+        this.deleteCluster(id);
     }
 
     @Test
