@@ -431,7 +431,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.eclipse.jetty:jetty-servlet:9.4.48.v20220622 - Jetty :: Servlet Handling (https://eclipse.org/jetty/jetty-servlet), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-util:9.4.48.v20220622 - Jetty :: Utilities (https://eclipse.org/jetty/jetty-util), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-util-ajax:9.4.48.v20220622 - Jetty :: Utilities :: Ajax(JSON) (https://eclipse.org/jetty/jetty-util-ajax), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.apache.kafka:kafka-clients:2.4.1 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.kafka:kafka-clients:2.7.2 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
   org.apache.thrift:libthrift:0.9.3 - Apache Thrift (http://thrift.apache.org), (The Apache Software License, Version 2.0)
   org.apache.logging.log4j:log4j-api:2.17.2 - Apache Log4j API (https://logging.apache.org/log4j/2.x/log4j-api/), (Apache License, Version 2.0)
   org.apache.logging.log4j:log4j-core:2.17.2 - Apache Log4j Core (https://logging.apache.org/log4j/2.x/log4j-core/), (Apache License, Version 2.0)
