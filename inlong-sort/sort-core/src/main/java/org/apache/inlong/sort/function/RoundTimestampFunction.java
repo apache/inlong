@@ -51,7 +51,7 @@ public class RoundTimestampFunction extends ScalarFunction {
         try {
             LocalDateTime dateTime = LocalDateTime.ofInstant(
                     Instant.ofEpochSecond(timestamp - timestamp % roundTime),
-                DEFAULT_ZONE);
+                    DEFAULT_ZONE);
             if (formatter == null) {
                 formatter = DateTimeFormatter.ofPattern(format);
             }
