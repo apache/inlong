@@ -48,9 +48,8 @@ public class RoundTimestampFunction extends ScalarFunction {
     public static Long eval(Long timestamp, Long roundTime, String format) {
         try {
             LocalDateTime dateTime = LocalDateTime.ofInstant(
-                Instant.ofEpochSecond(timestamp - timestamp % roundTime),
-                ZoneId.systemDefault()
-                );
+                    Instant.ofEpochSecond(timestamp - timestamp % roundTime),
+                    ZoneId.systemDefault());
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
             String formattedDateTime = dateTime.format(formatter);
             return Long.parseLong(formattedDateTime);
