@@ -17,24 +17,31 @@
 
 package org.apache.inlong.manager.service.source.binlog;
 
+import org.apache.inlong.manager.common.consts.DataNodeType;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.pojo.node.mysql.MySQLDataNodeInfo;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSourceDTO;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSourceRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
+import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Binlog source operator
@@ -42,6 +49,8 @@ import java.util.List;
 @Service
 public class BinlogSourceOperator extends AbstractSourceOperator {
 
+    @Autowired
+    protected DataNodeOperateHelper dataNodeHelper;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -53,6 +62,23 @@ public class BinlogSourceOperator extends AbstractSourceOperator {
     @Override
     protected String getSourceType() {
         return SourceType.MYSQL_BINLOG;
+    }
+
+    @Override
+    public String getExtParams(StreamSourceEntity sourceEntity) {
+        MySQLBinlogSourceDTO mySQLBinlogSourceDTO = JsonUtils.parseObject(sourceEntity.getExtParams(),
+                MySQLBinlogSourceDTO.class);
+        if (Objects.nonNull(mySQLBinlogSourceDTO) && StringUtils.isBlank(mySQLBinlogSourceDTO.getHostname())) {
+            MySQLDataNodeInfo dataNodeInfo = (MySQLDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+                    sourceEntity.getDataNodeName(), DataNodeType.MYSQL);
+            CommonBeanUtils.copyProperties(dataNodeInfo, mySQLBinlogSourceDTO, true);
+            mySQLBinlogSourceDTO.setUser(dataNodeInfo.getUsername());
+            mySQLBinlogSourceDTO.setPassword(dataNodeInfo.getToken());
+            mySQLBinlogSourceDTO.setHostname(dataNodeInfo.getUrl().split(InlongConstants.COLON)[0]);
+            mySQLBinlogSourceDTO.setPort(Integer.valueOf(dataNodeInfo.getUrl().split(InlongConstants.COLON)[1]));
+            return JsonUtils.toJsonString(mySQLBinlogSourceDTO);
+        }
+        return sourceEntity.getExtParams();
     }
 
     @Override
@@ -76,6 +102,19 @@ public class BinlogSourceOperator extends AbstractSourceOperator {
         }
 
         MySQLBinlogSourceDTO dto = MySQLBinlogSourceDTO.getFromJson(entity.getExtParams());
+        if (StringUtils.isBlank(dto.getHostname())) {
+            if (StringUtils.isBlank(entity.getDataNodeName())) {
+                throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                        "mysql url and data node is blank");
+            }
+            MySQLDataNodeInfo dataNodeInfo = (MySQLDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+                    entity.getDataNodeName(), DataNodeType.MYSQL);
+            CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
+            dto.setUser(dataNodeInfo.getUsername());
+            dto.setPassword(dataNodeInfo.getToken());
+            dto.setHostname(dataNodeInfo.getUrl().split(InlongConstants.COLON)[0]);
+            dto.setPort(Integer.valueOf(dataNodeInfo.getUrl().split(InlongConstants.COLON)[1]));
+        }
         CommonBeanUtils.copyProperties(entity, source, true);
         CommonBeanUtils.copyProperties(dto, source, true);
 

@@ -79,6 +79,11 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     protected abstract void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity);
 
     @Override
+    public String getExtParams(StreamSourceEntity sourceEntity) {
+        return sourceEntity.getExtParams();
+    }
+
+    @Override
     @Transactional(rollbackFor = Throwable.class)
     public Integer saveOpt(SourceRequest request, Integer groupStatus, String operator) {
         StreamSourceEntity entity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
