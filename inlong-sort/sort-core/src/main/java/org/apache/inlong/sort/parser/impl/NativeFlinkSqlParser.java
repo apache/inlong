@@ -44,7 +44,7 @@ import static org.apache.inlong.sort.function.EmbeddingFunction.DEFAULT_EMBEDDIN
  */
 public class NativeFlinkSqlParser implements Parser {
 
-    private static final Logger log = LoggerFactory.getLogger(FlinkSqlParser.class);
+    private static final Logger log = LoggerFactory.getLogger(NativeFlinkSqlParser.class);
 
     private final TableEnvironment tableEnv;
     private final String statements;
