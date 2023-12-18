@@ -236,6 +236,7 @@ class ClientFactoryTest {
                                                 .inlongGroupId("1")
                                                 .inlongStreamId("2")
                                                 .sourceType(SourceType.MYSQL_BINLOG)
+                                                .hostname("127.0.0.1")
                                                 .status(1)
                                                 .user("root")
                                                 .password("pwd")
@@ -560,6 +561,7 @@ class ClientFactoryTest {
                 MySQLBinlogSource.builder()
                         .id(2)
                         .sourceType(SourceType.MYSQL_BINLOG)
+                        .hostname("127.0.0.1")
                         .user("user")
                         .password("pwd")
                         .build(),
