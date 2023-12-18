@@ -17,8 +17,6 @@
 
 package org.apache.inlong.sort.function;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.flink.table.functions.ScalarFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +25,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Round timestamp and output formatted timestamp.

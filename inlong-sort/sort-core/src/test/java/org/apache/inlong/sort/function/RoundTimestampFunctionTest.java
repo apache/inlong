@@ -92,11 +92,10 @@ public class RoundTimestampFunctionTest extends AbstractTestBase {
         Assert.assertEquals(result.size(), 1);
         Assert.assertEquals(result.get(0), formattedTimestamp);
 
-
         // step 5. provide a different format and check the result
         Table outputTable2 = tableEnv.sqlQuery(
-            "SELECT ROUND_TIMESTAMP(f1, 600, 'yyyyMMddmmss') " +
-                "from temp_view");
+                "SELECT ROUND_TIMESTAMP(f1, 600, 'yyyyMMddmmss') " +
+                        "from temp_view");
 
         DataStream<Row> resultSet2 = tableEnv.toAppendStream(outputTable2, Row.class);
         List<String> result2 = new ArrayList<>();
