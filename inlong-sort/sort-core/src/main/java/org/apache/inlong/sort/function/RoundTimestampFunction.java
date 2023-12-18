@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.function;
 
+import org.apache.flink.table.functions.FunctionContext;
 import org.apache.flink.table.functions.ScalarFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,12 @@ public class RoundTimestampFunction extends ScalarFunction {
 
     public static final Logger LOG = LoggerFactory.getLogger(RoundTimestampFunction.class);
     public static final ZoneId DEFAULT_ZONE = ZoneId.systemDefault();
-    private static final Map<String, DateTimeFormatter> formatters = new HashMap<>();
+    private transient Map<String, DateTimeFormatter> formatters;
+
+    public void open(FunctionContext context) throws Exception {
+        super.open(context);
+        formatters = new HashMap<>();
+    }
 
     /**
      * Round timestamp and output formatted timestamp.
