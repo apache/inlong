@@ -22,6 +22,7 @@ import org.apache.inlong.sort.function.EncryptFunction;
 import org.apache.inlong.sort.function.JsonGetterFunction;
 import org.apache.inlong.sort.function.RegexpReplaceFirstFunction;
 import org.apache.inlong.sort.function.RegexpReplaceFunction;
+import org.apache.inlong.sort.function.RoundTimestampFunction;
 import org.apache.inlong.sort.parser.Parser;
 import org.apache.inlong.sort.parser.result.FlinkSqlParseResult;
 import org.apache.inlong.sort.parser.result.ParseResult;
@@ -74,6 +75,7 @@ public class NativeFlinkSqlParser implements Parser {
         tableEnv.createTemporarySystemFunction("ENCRYPT", EncryptFunction.class);
         tableEnv.createTemporarySystemFunction("JSON_GETTER", JsonGetterFunction.class);
         tableEnv.createTemporarySystemFunction(DEFAULT_EMBEDDING_FUNCTION_NAME, EmbeddingFunction.class);
+        tableEnv.createTemporarySystemFunction("ROUND_TIMESTAMP", RoundTimestampFunction.class);
     }
 
     /**

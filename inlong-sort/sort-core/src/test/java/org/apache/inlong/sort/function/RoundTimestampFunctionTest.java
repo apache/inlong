@@ -17,10 +17,6 @@
 
 package org.apache.inlong.sort.function;
 
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
-import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
-
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
@@ -39,17 +35,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Test for {@link JsonGetterFunction}
+ * Test for {@link RoundTimestampFunction}
  */
-public class JsonGetterFunctionTest extends AbstractTestBase {
+public class RoundTimestampFunctionTest extends AbstractTestBase {
+
+    public static final long TEST_TIMESTAMP = 1702610371L;
 
     /**
-     * Test for JsonGetter function
+     * Test for round timestamp function
      *
-     * @throws Exception The exception may throw when test JsonGetter function
+     * @throws Exception The exception may throw when test round timestamp function
      */
     @Test
-    public void testJsonGetterFunction() throws Exception {
+    public void testRoundTimestampFunction() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
                 .inStreamingMode()
@@ -58,42 +56,59 @@ public class JsonGetterFunctionTest extends AbstractTestBase {
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
-        // step 1. Register custom function of json getter
-        tableEnv.createTemporaryFunction("JSON_GETTER", JsonGetterFunction.class);
+
+        // step 1. Register custom function of ROUND_TIMESTAMP
+        tableEnv.createTemporaryFunction("ROUND_TIMESTAMP", RoundTimestampFunction.class);
+
         // step 2. Generate test data and convert to DataStream
+
         List<Row> data = new ArrayList<>();
-        data.add(Row.of("{\"name\":\"abc\"}"));
-        TypeInformation<?>[] types = {
-                BasicTypeInfo.STRING_TYPE_INFO};
-        String[] names = {"content"};
+        data.add(Row.of(TEST_TIMESTAMP));
+        TypeInformation<?>[] types = {BasicTypeInfo.LONG_TYPE_INFO};
+
+        String[] names = {"f1"};
         RowTypeInfo typeInfo = new RowTypeInfo(types, names);
         DataStream<Row> dataStream = env.fromCollection(data).returns(typeInfo);
 
-        // step 3. Convert from DataStream to Table and execute the json getter function
-        Table tempView = tableEnv.fromDataStream(dataStream).as("content");
+        String formattedTimestamp = "2023121510";
+
+        // step 3. Convert from DataStream to Table and execute the ROUND_TIMESTAMP function
+        Table tempView = tableEnv.fromDataStream(dataStream).as("f1");
         tableEnv.createTemporaryView("temp_view", tempView);
+        Table outputTable = tableEnv.sqlQuery(
+                "SELECT ROUND_TIMESTAMP(f1, 600, 'yyyyMMddmm') " +
+                        "from temp_view");
 
-        org.apache.inlong.sort.protocol.transformation.function.JsonGetterFunction jsonGetterFunction =
-                new org.apache.inlong.sort.protocol.transformation.function.JsonGetterFunction(
-                        new FieldInfo("content",
-                                new StringFormatInfo()),
-                        new StringConstantParam("name"));
-
-        String sqlQuery = String.format("SELECT %s as content FROM temp_view", jsonGetterFunction.format());
-        Table outputTable = tableEnv.sqlQuery(sqlQuery);
         // step 4. Get function execution result and parse it
         DataStream<Row> resultSet = tableEnv.toAppendStream(outputTable, Row.class);
         List<String> result = new ArrayList<>();
-
-        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect(); it
-                .hasNext();) {
-            String next = it.next();
-            result.add(next);
+        for (CloseableIterator<Row> it = resultSet.executeAndCollect(); it.hasNext();) {
+            Row row = it.next();
+            if (row != null) {
+                result.add(row.getField(0).toString());
+            }
         }
 
-        // step 5. Whether the comparison results are as expected
-        String expect = "abc";
-        Assert.assertEquals(expect, result.get(0));
+        Assert.assertEquals(result.size(), 1);
+        Assert.assertEquals(result.get(0), formattedTimestamp);
+
+        // step 5. provide a different format and check the result
+        Table outputTable2 = tableEnv.sqlQuery(
+                "SELECT ROUND_TIMESTAMP(f1, 600, 'yyyyMMddmmss') " +
+                        "from temp_view");
+
+        DataStream<Row> resultSet2 = tableEnv.toAppendStream(outputTable2, Row.class);
+        List<String> result2 = new ArrayList<>();
+        for (CloseableIterator<Row> it = resultSet2.executeAndCollect(); it.hasNext();) {
+            Row row = it.next();
+            if (row != null) {
+                result2.add(row.getField(0).toString());
+            }
+        }
+
+        Assert.assertEquals(result2.size(), 1);
+        Assert.assertEquals(result2.get(0), formattedTimestamp + "00");
+
     }
 
 }
