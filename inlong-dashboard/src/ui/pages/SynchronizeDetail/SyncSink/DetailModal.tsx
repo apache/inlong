@@ -153,7 +153,7 @@ const Comp: React.FC<DetailModalProps> = ({
   return (
     <Modal
       title={id ? t('pages.GroupDetail.Sink.Edit') : t('pages.GroupDetail.Sink.New')}
-      width={1200}
+      width={1260}
       {...modalProps}
       footer={[
         <Button key="cancel" onClick={e => modalProps.onCancel(e)}>
@@ -171,7 +171,7 @@ const Comp: React.FC<DetailModalProps> = ({
     >
       <Spin spinning={loading || pluginLoading}>
         <FormGenerator
-          labelCol={{ flex: '0 0 170px' }}
+          labelCol={{ flex: '0 0 180px' }}
           wrapperCol={{ flex: '1' }}
           col={12}
           content={formContent}
