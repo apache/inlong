@@ -73,9 +73,9 @@ const FormItem = ({ type: T, formItemProps, useSpace, props }) => {
   );
 };
 
-const Content = ({ useSpace, suffix, extra, children, label, required, style }) => {
+const Content = ({ useSpace, suffix, extra, children, label, required, style, formItemProps }) => {
   return useSpace ? (
-    <Form.Item label={label} required={required} style={style} extra={extra}>
+    <Form.Item label={label} required={required} style={style} extra={extra} {...formItemProps}>
       <Space>
         {children}
         {suffix}
@@ -129,6 +129,7 @@ const FormItemContent: React.FC<FormItemContentProps> = ({
             key={key.toString()}
             label={formItemProps.label}
             extra={formItemProps.extra}
+            formItemProps={formItemProps}
             required={formItemProps.rules?.some(item => (item as any).required)}
             suffix={(() => {
               if ((suffix as SuffixDefineType)?.type) {

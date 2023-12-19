@@ -42,6 +42,7 @@ export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
       maxLength: 100,
       disable: Boolean(values?.id),
     }),
+    tooltip: i18n.t('meta.Synchronize.GroupIdHelp'),
     rules: [
       { required: true },
       {
@@ -51,7 +52,7 @@ export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     ],
   })
   @ColumnDecorator()
-  @I18n('meta.Synchronize.TaskName')
+  @I18n('meta.Synchronize.GroupId')
   inlongGroupId: string;
 
   @FieldDecorator({
@@ -64,7 +65,7 @@ export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     },
   })
   @ColumnDecorator()
-  @I18n('meta.Group.InlongGroupOwners')
+  @I18n('meta.Synchronize.GroupOwners')
   inCharges: string;
 
   @FieldDecorator({
