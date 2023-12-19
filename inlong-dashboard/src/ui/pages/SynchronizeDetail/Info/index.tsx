@@ -108,8 +108,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
 
     const submitDataStream = {
       inlongGroupId: values.inlongGroupId,
-      inlongStreamId: values.inlongStreamId,
-      name: values.streamName,
+      inlongStreamId: values.inlongGroupId,
       fieldList: streamDetail?.fieldList,
       sinkMultipleEnable: values.sinkMultipleEnable,
     };
@@ -163,7 +162,6 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
 
   const onCancel = () => {
     form.setFieldsValue(data);
-    // form.setFieldsValue(dataStream);
     setFalse();
   };
 
@@ -182,7 +180,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
         initialValues={data}
         onValuesChange={(c, values) => setMqType(values.mqType)}
         useMaxWidth={1400}
-        col={12}
+        col={14}
       />
 
       {!isCreate && !readonly && (
