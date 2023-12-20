@@ -65,6 +65,11 @@ export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
     LoadEntity: () => import('./PostgreSQL'),
   },
   {
+    label: 'Pulsar',
+    value: 'PULSAR',
+    LoadEntity: () => import('./Pulsar'),
+  },
+  {
     label: 'Redis',
     value: 'REDIS',
     LoadEntity: () => import('./Redis'),
