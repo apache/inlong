@@ -43,6 +43,8 @@ public interface StreamSourceOperator {
      */
     Boolean accept(String sourceType);
 
+    String getExtParams(StreamSourceEntity sourceEntity);
+
     /**
      * Save the source info.
      *

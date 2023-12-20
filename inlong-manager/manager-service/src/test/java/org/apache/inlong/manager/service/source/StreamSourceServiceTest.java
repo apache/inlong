@@ -54,6 +54,7 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
         String sourceName = "stream_source_service_test";
         sourceInfo.setSourceName(sourceName);
         sourceInfo.setSourceType(SourceType.MYSQL_BINLOG);
+        sourceInfo.setHostname("127.0.0.1");
         Map<String, Object> properties = Maps.newLinkedHashMap();
         properties.put("append-mode", "true");
         sourceInfo.setProperties(properties);
