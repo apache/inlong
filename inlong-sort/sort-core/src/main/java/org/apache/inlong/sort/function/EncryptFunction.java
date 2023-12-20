@@ -59,10 +59,10 @@ public class EncryptFunction extends ScalarFunction {
             EncryptionType encryptionType = EncryptionType.getInstance(encrypt);
             switch (encryptionType) {
                 case AES:
-                    newValue = encrypt3DES(field, key);
+                    newValue = encryptAES(field, key);
                     break;
                 case DESEDE:
-                    newValue = encryptAES(field, key);
+                    newValue = encrypt3DES(field, key);
                     break;
                 default:
                     throw new UnsupportedOperationException(String.format("Unsupported %s encryption type", encrypt));
