@@ -150,6 +150,7 @@ export default class IcebergSink
   @FieldDecorator({
     type: 'radiobutton',
     initialValue: '${database}',
+    tooltip: i18n.t('meta.Sinks.Iceberg.PatternHelp'),
     rules: [{ required: true }],
     props: values => ({
       size: 'middle',
@@ -187,6 +188,7 @@ export default class IcebergSink
     type: 'radiobutton',
     initialValue: '${table}',
     rules: [{ required: true }],
+    tooltip: i18n.t('meta.Sinks.Iceberg.PatternHelp'),
     props: values => ({
       size: 'middle',
       options: [

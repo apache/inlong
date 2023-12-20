@@ -42,6 +42,7 @@ export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
       maxLength: 100,
       disable: Boolean(values?.id),
     }),
+    tooltip: i18n.t('meta.Synchronize.GroupIdHelp'),
     rules: [
       { required: true },
       {
@@ -51,47 +52,12 @@ export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     ],
   })
   @ColumnDecorator()
-  @I18n('meta.Group.InlongGroupId')
+  @I18n('meta.Synchronize.GroupId')
   inlongGroupId: string;
 
   @FieldDecorator({
-    type: 'input',
-    props: values => ({
-      maxLength: 100,
-      disable: Boolean(values?.id),
-    }),
-    rules: [
-      { required: true },
-      {
-        pattern: /^[a-z_0-9]+$/,
-        message: i18n.t('meta.Group.InlongGroupIdRules'),
-      },
-    ],
-  })
-  @I18n('StreamID')
-  inlongStreamId: string;
-
-  @FieldDecorator({
-    type: 'input',
-    props: {
-      maxLength: 32,
-    },
-  })
-  @I18n('meta.Group.InlongGroupName')
-  name: string;
-
-  @FieldDecorator({
-    type: 'input',
-    props: {
-      maxLength: 32,
-    },
-  })
-  @I18n('meta.Stream.StreamName')
-  streamName: string;
-
-  @FieldDecorator({
     type: UserSelect,
-    extra: i18n.t('meta.Group.InlongGroupOwnersExtra'),
+    extra: i18n.t('meta.Synchronize.InlongGroupOwnersExtra'),
     rules: [{ required: true }],
     props: {
       mode: 'multiple',
@@ -99,7 +65,7 @@ export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     },
   })
   @ColumnDecorator()
-  @I18n('meta.Group.InlongGroupOwners')
+  @I18n('meta.Synchronize.GroupOwners')
   inCharges: string;
 
   @FieldDecorator({
@@ -119,7 +85,7 @@ export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
       ],
     },
   })
-  @I18n('components.Synchronize.SinkMultipleEnable')
+  @I18n('meta.Synchronize.SinkMultipleEnable')
   sinkMultipleEnable: boolean;
 
   @FieldDecorator({
