@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.sort.util;
 
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.fieldtype.strategy.ClickHouseFieldTypeStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.IcebergFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.MongoDBFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.MySQLFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.OracleFieldTypeStrategy;
@@ -27,6 +28,7 @@ import org.apache.inlong.manager.common.fieldtype.strategy.SQLServerFieldTypeStr
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.sort.formats.common.ByteTypeInfo;
 import org.apache.inlong.sort.formats.common.IntTypeInfo;
+import org.apache.inlong.sort.formats.common.LocalZonedTimestampFormatInfo;
 import org.apache.inlong.sort.formats.common.LocalZonedTimestampTypeInfo;
 import org.apache.inlong.sort.formats.common.ShortTypeInfo;
 import org.apache.inlong.sort.formats.common.StringTypeInfo;
@@ -123,5 +125,18 @@ public class FieldInfoUtilsTest {
                 "nodeId", new ClickHouseFieldTypeStrategy());
         TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();
         Assertions.assertTrue(typeInfo instanceof ByteTypeInfo);
+    }
+
+    @Test
+    public void testIcebergFieldTypeInfo() {
+        StreamField streamField = new StreamField();
+        streamField.setIsMetaField(0);
+        streamField.setFieldName("time");
+        streamField.setFieldType("TIMESTAMPLOCALTZ");
+        streamField.setFieldValue("2022-03-01T09:00:00 America/New_York");
+        FieldInfo fieldInfo = FieldInfoUtils.parseStreamFieldInfo(streamField,
+                "nodeId", new IcebergFieldTypeStrategy());
+        TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();
+        Assertions.assertTrue(typeInfo instanceof LocalZonedTimestampTypeInfo);
     }
 }
