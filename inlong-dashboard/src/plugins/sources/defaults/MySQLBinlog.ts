@@ -24,7 +24,7 @@ import i18n from '@/i18n';
 import { SourceInfo } from '../common/SourceInfo';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField, SyncMoveDbField } = RenderRow;
+const { FieldDecorator, SyncField, SyncMoveDbField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 export default class TubeMqSource
@@ -39,6 +39,7 @@ export default class TubeMqSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @ColumnDecorator()
   @SyncMoveDbField()
   @I18n('meta.Sources.Db.Server')
@@ -55,6 +56,7 @@ export default class TubeMqSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @ColumnDecorator()
   @SyncMoveDbField()
   @I18n('meta.Sources.Db.Port')
@@ -68,6 +70,7 @@ export default class TubeMqSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @SyncMoveDbField()
   @I18n('meta.Sources.Db.User')
   user: string;
@@ -80,6 +83,7 @@ export default class TubeMqSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @SyncMoveDbField()
   @I18n('meta.Sources.Db.Password')
   password: string;
@@ -92,6 +96,7 @@ export default class TubeMqSource
       disabled: values?.status === 101,
     }),
   })
+  @IngestionField()
   @I18n('meta.Sources.Db.HistoryFilename')
   historyFilename: string;
 
@@ -104,6 +109,7 @@ export default class TubeMqSource
       disabled: values?.status === 101,
     }),
   })
+  @IngestionField()
   @I18n('meta.Sources.Db.ServerTimezone')
   serverTimezone: string;
 
@@ -118,6 +124,7 @@ export default class TubeMqSource
       max: 3600000,
     }),
   })
+  @IngestionField()
   @I18n('meta.Sources.Db.IntervalMs')
   intervalMs: number;
 
@@ -139,6 +146,7 @@ export default class TubeMqSource
       ],
     }),
   })
+  @IngestionField()
   @I18n('meta.Sources.Db.AllMigration')
   allMigration: boolean;
 
@@ -161,6 +169,7 @@ export default class TubeMqSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @SyncMoveDbField()
   @I18n('meta.Sources.Db.ReadMode')
   onlyIncremental: boolean;
@@ -174,6 +183,7 @@ export default class TubeMqSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @SyncMoveDbField()
   @I18n('meta.Sources.Db.DatabaseWhiteList')
   databaseWhiteList: string;
@@ -187,6 +197,7 @@ export default class TubeMqSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @SyncMoveDbField()
   @I18n('meta.Sources.Db.TableWhiteList')
   tableWhiteList: boolean;

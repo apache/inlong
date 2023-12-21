@@ -137,6 +137,7 @@
   "meta.Sources.Pulsar.DataSeparator": "数据分隔符",
   "meta.Sources.Pulsar.DataEscapeChar": "数据转义符",
   "meta.Sources.Pulsar.WrapType": "消息打包格式",
+  "meta.Sources.Pulsar.SerializationType": "数据格式",
   "meta.Sinks.SinkName": "名称",
   "meta.Sinks.SinkNameRule": "只能包含英文字母、数字、点号(.)、中划线(-)、下划线(_)",
   "meta.Sinks.SinkType": "类型",

@@ -25,7 +25,7 @@ import rulesPattern from '@/core/utils/pattern';
 import { SourceInfo } from '../common/SourceInfo';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator } = RenderRow;
+const { FieldDecorator, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 export default class PulsarSource
@@ -69,6 +69,7 @@ export default class PulsarSource
     }),
   })
   @ColumnDecorator()
+  @IngestionField()
   @I18n('meta.Sources.File.ClusterName')
   inlongClusterName: string;
 
@@ -77,6 +78,7 @@ export default class PulsarSource
     hidden: true,
   })
   @I18n('clusterId')
+  @IngestionField()
   clusterId: number;
 
   @FieldDecorator({
@@ -117,6 +119,7 @@ export default class PulsarSource
     }),
   })
   @ColumnDecorator()
+  @IngestionField()
   @I18n('meta.Sources.File.DataSourceIP')
   agentIp: string;
 
@@ -129,6 +132,7 @@ export default class PulsarSource
     }),
   })
   @ColumnDecorator()
+  @IngestionField()
   @I18n('meta.Sources.File.FilePath')
   pattern: string;
 
@@ -142,6 +146,7 @@ export default class PulsarSource
       disabled: Boolean(values.id),
     }),
   })
+  @IngestionField()
   @I18n('meta.Sources.File.MaxFileCount')
   maxFileCount: number;
 
@@ -163,6 +168,7 @@ export default class PulsarSource
       ],
     }),
   })
+  @IngestionField()
   @I18n('meta.Sources.File.DataContentStyle')
   dataContentStyle: string;
 
@@ -186,6 +192,7 @@ export default class PulsarSource
       ],
     }),
   })
+  @IngestionField()
   @I18n('meta.Sources.File.Cycle')
   cycleUnit: string;
 
@@ -202,6 +209,7 @@ export default class PulsarSource
       disabled: Boolean(values.id),
     }),
   })
+  @IngestionField()
   @I18n('meta.Sources.File.TimeOffset')
   timeOffset: string;
 
@@ -219,6 +227,7 @@ export default class PulsarSource
       })),
     }),
   })
+  @IngestionField()
   @I18n('meta.Sources.File.TimeZone')
   timeZone: string;
 }

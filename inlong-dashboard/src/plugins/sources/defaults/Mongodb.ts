@@ -23,7 +23,7 @@ import { RenderList } from '@/plugins/RenderList';
 import { SourceInfo } from '../common/SourceInfo';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 export default class MongodbSource
@@ -40,6 +40,7 @@ export default class MongodbSource
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Mongodb.Hosts')
   hosts: string;
 
@@ -52,6 +53,7 @@ export default class MongodbSource
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Mongodb.Username')
   username: string;
 
@@ -63,6 +65,7 @@ export default class MongodbSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Mongodb.Password')
   password: string;
 
@@ -74,6 +77,7 @@ export default class MongodbSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Mongodb.Database')
   database: string;
 
@@ -85,6 +89,7 @@ export default class MongodbSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Mongodb.Collection')
   collection: string;
 
@@ -95,6 +100,7 @@ export default class MongodbSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Mongodb.PrimaryKey')
   primaryKey: string;
 }
