@@ -327,14 +327,18 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         switch (clusterNode.getType()) {
             case ClusterType.AGENT:
                 AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
-                agentClusterNodeDTO = AgentClusterNodeDTO.getFromJson(clusterNode.getExtParams());
-                agentClusterNodeDTO.setAgentGroup(Joiner.on(InlongConstants.COMMA).join(groupSet));
+                if (StringUtils.isNotBlank(clusterNode.getExtParams())) {
+                    agentClusterNodeDTO = AgentClusterNodeDTO.getFromJson(clusterNode.getExtParams());
+                    agentClusterNodeDTO.setAgentGroup(Joiner.on(InlongConstants.COMMA).join(groupSet));
+                }
                 extParams = GSON.toJson(agentClusterNodeDTO);
                 break;
             case ClusterType.DATAPROXY:
                 DataProxyClusterNodeDTO dataProxyClusterNodeDTO = new DataProxyClusterNodeDTO();
-                dataProxyClusterNodeDTO = DataProxyClusterNodeDTO.getFromJson(clusterNode.getExtParams());
-                dataProxyClusterNodeDTO.setReportSourceType(heartbeat.getReportSourceType());
+                if (StringUtils.isNotBlank(clusterNode.getExtParams())) {
+                    dataProxyClusterNodeDTO = DataProxyClusterNodeDTO.getFromJson(clusterNode.getExtParams());
+                    dataProxyClusterNodeDTO.setReportSourceType(heartbeat.getReportSourceType());
+                }
                 extParams = GSON.toJson(dataProxyClusterNodeDTO);
                 break;
         }
