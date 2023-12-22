@@ -15,44 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.dataproxy;
+package org.apache.inlong.manager.pojo.cluster.dataproxy;
 
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import java.util.List;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
- * DataProxy node response, used for DataProxy SDK.
+ * Inlong cluster node request for Agent
  */
 @Data
-public class DataProxyNodeResponse {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(value = ClusterType.DATAPROXY)
+@ApiModel("Inlong cluster node request for dataproxy")
+public class DataProxyClusterNodeRequest extends ClusterNodeRequest {
 
-    /**
-     * DataProxy cluster id
-     */
-    @Deprecated
-    private Integer clusterId;
-
+    @ApiModelProperty("Report source type")
     private String reportSourceType;
-
-    /**
-     * Is the DataProxy cluster an intranet? 0: no, 1: yes
-     */
-    private Integer isIntranet;
-
-    /**
-     * Is the DataProxy cluster in a switch status? 0: no, 1: yes
-     */
-    private Integer isSwitch;
-
-    /**
-     * Load of the DataProxy cluster, default is 20
-     */
-    private Integer load = 20;
-
-    /**
-     * List of the cluster node
-     */
-    private List<DataProxyNodeInfo> nodeList;
 
 }
