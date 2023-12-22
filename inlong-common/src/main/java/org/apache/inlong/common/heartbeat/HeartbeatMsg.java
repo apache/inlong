@@ -50,6 +50,8 @@ public class HeartbeatMsg {
      */
     private String port;
 
+    private List<AddressInfo> addressInfos;
+
     /**
      * ProtocolType of component
      */
@@ -59,6 +61,11 @@ public class HeartbeatMsg {
      * Type of component
      */
     private String componentType;
+
+    /**
+     * Type of report source
+     */
+    private String reportSourceType;
 
     /**
      * Report time millis of component

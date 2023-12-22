@@ -59,6 +59,14 @@ public class DataProxyController {
         return Response.success(clusterService.getDataProxyNodes(inlongGroupId, protocolType));
     }
 
+    @PostMapping(value = "/dataproxy/getIpListByClusterName/{clusterName}")
+    @ApiOperation(value = "Get data proxy IP list by clusterName")
+    public Response<DataProxyNodeResponse> getIpListByClusterName(@PathVariable String clusterName,
+            @RequestParam(required = false) String protocolType,
+            @RequestParam(required = false) String reportSourceType) {
+        return Response.success(clusterService.getDataProxyNodesByCluster(clusterName, protocolType, reportSourceType));
+    }
+
     @PostMapping("/dataproxy/getConfig")
     @ApiOperation(value = "Get data proxy topic list")
     public Response<DataProxyConfig> getConfig(@RequestBody DataProxyConfigRequest request) {

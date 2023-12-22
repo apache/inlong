@@ -15,44 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.dataproxy;
-
-import lombok.Data;
-
-import java.util.List;
+package org.apache.inlong.common.heartbeat;
 
 /**
- * DataProxy node response, used for DataProxy SDK.
+ * Constants of reportResource
  */
-@Data
-public class DataProxyNodeResponse {
+public class ReportResourceType {
 
-    /**
-     * DataProxy cluster id
-     */
-    @Deprecated
-    private Integer clusterId;
-
-    private String reportSourceType;
-
-    /**
-     * Is the DataProxy cluster an intranet? 0: no, 1: yes
-     */
-    private Integer isIntranet;
-
-    /**
-     * Is the DataProxy cluster in a switch status? 0: no, 1: yes
-     */
-    private Integer isSwitch;
-
-    /**
-     * Load of the DataProxy cluster, default is 20
-     */
-    private Integer load = 20;
-
-    /**
-     * List of the cluster node
-     */
-    private List<DataProxyNodeInfo> nodeList;
+    public static final String INLONG = "INLONG";
 
 }
