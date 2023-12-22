@@ -195,7 +195,6 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             } else {
                 heartbeatMsg.setReportSourceType(heartbeat.getReportSourceType());
             }
-            heartbeatMsg.setReportSourceType(reportSourceTypes[i].trim());
             if (protocolTypes != null) {
                 heartbeatMsg.setProtocolType(protocolTypes[i]);
             } else {
