@@ -72,9 +72,10 @@ public class SimpleUdpSource extends BaseSource implements Configurable {
                     this.getCachedSrcName(), srcHost, srcPort, e);
             System.exit(-1);
         }
-        ConfigManager.getInstance().addSourceReportInfo(
-                srcHost, String.valueOf(srcPort), getProtocolName().toUpperCase());
-        logger.info("Source {} started at ({}:{})!", this.getCachedSrcName(), srcHost, srcPort);
+        ConfigManager.getInstance().addSourceReportInfo(srcHost,
+                String.valueOf(srcPort), rptSrcType, getProtocolName().toUpperCase());
+        logger.info("Source {} started at ({}:{}), rptSrcType={}!",
+                this.getCachedSrcName(), srcHost, srcPort, rptSrcType);
     }
 
     @Override

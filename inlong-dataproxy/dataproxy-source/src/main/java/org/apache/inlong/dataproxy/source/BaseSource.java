@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.source;
 
+import org.apache.inlong.common.heartbeat.ReportResourceType;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.admin.ProxyServiceMBean;
 import org.apache.inlong.dataproxy.channel.FailoverChannelProcessor;
@@ -86,6 +87,8 @@ public abstract class BaseSource
     // source serviced port
     protected int srcPort;
     protected String strPort;
+    // report source name
+    protected String rptSrcType;
     // message factory name
     protected String msgFactoryName;
     // message handler name
@@ -143,8 +146,14 @@ public abstract class BaseSource
         this.srcHost = getHostIp(context);
         this.srcPort = getHostPort(context);
         this.strPort = String.valueOf(this.srcPort);
+        // get source logic type
+        String tmpVal = context.getString(
+                SourceConstants.SRCCXT_LOGIC_TYPE_NAME, ReportResourceType.INLONG);
+        Preconditions.checkArgument(StringUtils.isNotBlank(tmpVal),
+                SourceConstants.SRCCXT_LOGIC_TYPE_NAME + " config is blank");
+        this.rptSrcType = tmpVal.trim().toUpperCase();
         // get message factory
-        String tmpVal = context.getString(SourceConstants.SRCCXT_MSG_FACTORY_NAME,
+        tmpVal = context.getString(SourceConstants.SRCCXT_MSG_FACTORY_NAME,
                 ServerMessageFactory.class.getName()).trim();
         Preconditions.checkArgument(StringUtils.isNotBlank(tmpVal),
                 SourceConstants.SRCCXT_MSG_FACTORY_NAME + " config is blank");
