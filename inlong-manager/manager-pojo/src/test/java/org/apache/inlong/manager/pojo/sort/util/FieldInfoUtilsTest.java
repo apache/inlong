@@ -28,7 +28,6 @@ import org.apache.inlong.manager.common.fieldtype.strategy.SQLServerFieldTypeStr
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.sort.formats.common.ByteTypeInfo;
 import org.apache.inlong.sort.formats.common.IntTypeInfo;
-import org.apache.inlong.sort.formats.common.LocalZonedTimestampFormatInfo;
 import org.apache.inlong.sort.formats.common.LocalZonedTimestampTypeInfo;
 import org.apache.inlong.sort.formats.common.ShortTypeInfo;
 import org.apache.inlong.sort.formats.common.StringTypeInfo;
