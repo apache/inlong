@@ -179,30 +179,4 @@ export default class PulsarSource
   @IngestionField()
   @I18n('meta.Sources.Pulsar.DataEscapeChar')
   dataEscapeChar: string;
-
-  @FieldDecorator({
-    type: 'radio',
-    initialValue: 'INLONG_MSG_V0',
-    props: values => ({
-      disabled: values?.status === 101,
-      options: [
-        {
-          label: 'InLongMsg V0',
-          value: 'INLONG_MSG_V0',
-        },
-        {
-          label: 'InLongMsg V1',
-          value: 'INLONG_MSG_V1',
-        },
-        {
-          label: 'Raw',
-          value: 'RAW',
-        },
-      ],
-    }),
-  })
-  @SyncField()
-  @IngestionField()
-  @I18n('meta.Sources.Pulsar.WrapType')
-  wrapType: string;
 }

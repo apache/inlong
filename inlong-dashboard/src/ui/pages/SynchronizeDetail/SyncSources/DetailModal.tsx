@@ -76,6 +76,9 @@ const Comp: React.FC<Props> = ({
       submitData.id = id;
       submitData.version = data?.version;
     }
+    if (values.sourceType === 'PULSAR') {
+      submitData.wrapType = 'RAW';
+    }
 
     if (sourceType !== undefined && sourceType !== submitData.sourceType) {
       message.warning(t('pages.SynchronizeDetail.Sources.SavePrompt'));
