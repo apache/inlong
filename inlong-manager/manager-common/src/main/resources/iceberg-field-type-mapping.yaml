@@ -56,6 +56,12 @@ source.type.to.target.type.converter:
   - source.type: TIMESTAMP WITH LOCAL TIME ZONE
     target.type: LOCAL_ZONE_TIMESTAMP
 
+  - source.type: TIMESTAMP WITH TIMEZONE
+    target.type: LOCAL_ZONE_TIMESTAMP
+
+  - source.type: TIMESTAMP WITHOUT TIMEZONE
+    target.type: LOCAL_ZONE_TIMESTAMP
+
   - source.type: STRING
     target.type: STRING
 
