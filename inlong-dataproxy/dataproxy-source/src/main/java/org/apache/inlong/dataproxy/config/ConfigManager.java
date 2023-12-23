@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.config;
 
+import org.apache.inlong.common.heartbeat.AddressInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigRequest;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
@@ -25,7 +26,6 @@ import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
 import org.apache.inlong.dataproxy.config.holder.GroupIdNumConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.MetaConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.SourceReportConfigHolder;
-import org.apache.inlong.dataproxy.config.holder.SourceReportInfo;
 import org.apache.inlong.dataproxy.config.holder.WeightConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.WhiteListConfigHolder;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -204,12 +205,13 @@ public class ConfigManager {
                 || whitelistConfigHolder.isIllegalIP(strRemoteIP);
     }
 
-    public void addSourceReportInfo(String sourceIp, String sourcePort, String protocolType) {
-        sourceReportConfigHolder.addSourceInfo(sourceIp, sourcePort, protocolType);
+    public void addSourceReportInfo(String sourceIp,
+            String sourcePort, String rptSrcType, String protocolType) {
+        sourceReportConfigHolder.addSourceInfo(sourceIp, sourcePort, rptSrcType, protocolType);
     }
 
-    public SourceReportInfo getSourceReportInfo() {
-        return sourceReportConfigHolder.getSourceReportInfo();
+    public Map<String, AddressInfo> getSrcAddressInfos() {
+        return sourceReportConfigHolder.getSrcAddressInfos();
     }
 
     public boolean isMqClusterReady() {

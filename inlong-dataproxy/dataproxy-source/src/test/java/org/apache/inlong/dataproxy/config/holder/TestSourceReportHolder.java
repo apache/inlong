@@ -17,10 +17,13 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
+import org.apache.inlong.common.heartbeat.AddressInfo;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Map;
 
 /**
  * Test for {@link SourceReportConfigHolder}
@@ -30,21 +33,20 @@ public class TestSourceReportHolder {
     @Test
     public void testCase() {
         // first get
-        SourceReportInfo reportInfo = ConfigManager.getInstance().getSourceReportInfo();
-        Assert.assertEquals(reportInfo.getIp(), "");
-        Assert.assertEquals(reportInfo.getPort(), "");
-        Assert.assertEquals(reportInfo.getProtocolType(), "");
+        Map<String, AddressInfo> srcAddressInfoMap = ConfigManager.getInstance().getSrcAddressInfos();
+        Assert.assertTrue(srcAddressInfoMap.isEmpty());
         // add
-        ConfigManager.getInstance().addSourceReportInfo("0.0.0.0", "46801", "UDP");
-        ConfigManager.getInstance().addSourceReportInfo("0.0.0.0", "46801", "TCP");
-        ConfigManager.getInstance().addSourceReportInfo("127.0.0.1", "46802", "TCP");
-        ConfigManager.getInstance().addSourceReportInfo("127.0.0.1", "46803", "HTTP");
-        ConfigManager.getInstance().addSourceReportInfo("0.0.0.0", "46801", "TCP");
-        ConfigManager.getInstance().addSourceReportInfo("127.0.0.1", "46803", "HTTP");
+        ConfigManager.getInstance().addSourceReportInfo("0.0.0.0", "46801", "INLONG", "UDP");
+        ConfigManager.getInstance().addSourceReportInfo("0.0.0.0", "46801", "INLONG", "TCP");
+        ConfigManager.getInstance().addSourceReportInfo("127.0.0.1", "46802", "TEST", "TCP");
+        ConfigManager.getInstance().addSourceReportInfo("127.0.0.1", "46803", "TEST", "HTTP");
+        ConfigManager.getInstance().addSourceReportInfo("0.0.0.0", "46801", "TEST", "TCP");
+        ConfigManager.getInstance().addSourceReportInfo("127.0.0.1", "46803", "TEST", "HTTP");
         // get and check
-        reportInfo = ConfigManager.getInstance().getSourceReportInfo();
-        Assert.assertEquals(reportInfo.getIp(), "0.0.0.0,0.0.0.0,127.0.0.1,127.0.0.1");
-        Assert.assertEquals(reportInfo.getPort(), "46801,46801,46802,46803");
-        Assert.assertEquals(reportInfo.getProtocolType(), "UDP,TCP,TCP,HTTP");
+        srcAddressInfoMap = ConfigManager.getInstance().getSrcAddressInfos();
+        Assert.assertEquals(srcAddressInfoMap.size(), 4);
+        String recordKey = "127.0.0.1" + "#" + "46803" + "#" + "HTTP";
+        AddressInfo addressInfo = srcAddressInfoMap.get(recordKey);
+        Assert.assertEquals(addressInfo.getReportSourceType(), "TEST");
     }
 }
