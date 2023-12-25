@@ -82,7 +82,7 @@
     "http-proxy-middleware": "^1.0.1",
     "husky": "^8.0.1",
     "lint-staged": "^12.3.8",
-    "postcss": "^8.4.16",
+    "postcss": "^8.4.32",
     "postcss-less": "^6.0.0",
     "prettier": "^2.6.2",
     "react-app-alias": "^2.2.2",
