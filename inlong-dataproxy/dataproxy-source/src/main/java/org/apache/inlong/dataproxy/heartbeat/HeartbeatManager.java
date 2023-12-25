@@ -20,12 +20,12 @@ package org.apache.inlong.dataproxy.heartbeat;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
+import org.apache.inlong.common.heartbeat.AddressInfo;
 import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.common.heartbeat.StreamHeartbeat;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.config.holder.SourceReportInfo;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.utils.HttpUtils;
 
@@ -43,6 +43,7 @@ import org.apache.http.util.EntityUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -132,16 +133,14 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     private HeartbeatMsg buildHeartbeat() {
         ConfigManager configManager = ConfigManager.getInstance();
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
-        SourceReportInfo reportInfo = configManager.getSourceReportInfo();
-        if (!validReportInfo(reportInfo)) {
+        Map<String, AddressInfo> reportInfoMap = configManager.getSrcAddressInfos();
+        if (reportInfoMap.isEmpty()) {
             return null;
         }
+        heartbeatMsg.setAddressInfos(new ArrayList<>(reportInfoMap.values()));
         heartbeatMsg.setNodeSrvStatus(ConfigManager.getInstance().isMqClusterReady()
                 ? NodeSrvStatus.OK
                 : NodeSrvStatus.SERVICE_UNREADY);
-        heartbeatMsg.setIp(reportInfo.getIp());
-        heartbeatMsg.setPort(reportInfo.getPort());
-        heartbeatMsg.setProtocolType(reportInfo.getProtocolType());
         heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getType());
         heartbeatMsg.setReportTime(System.currentTimeMillis());
         heartbeatMsg.setLoad(0xffff);
@@ -182,9 +181,5 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         }
         heartbeatMsg.setStreamHeartbeats(streamHeartbeats);
         return heartbeatMsg;
-    }
-
-    private boolean validReportInfo(SourceReportInfo reportInfo) {
-        return StringUtils.isNotBlank(reportInfo.getIp()) && StringUtils.isNotBlank(reportInfo.getPort());
     }
 }

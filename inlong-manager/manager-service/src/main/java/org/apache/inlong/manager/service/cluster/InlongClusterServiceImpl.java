@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.cluster;
 
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.heartbeat.ReportResourceType;
 import org.apache.inlong.common.pojo.audit.AuditConfig;
 import org.apache.inlong.common.pojo.audit.MQInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
@@ -60,6 +61,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.cluster.TenantClusterTagInfo;
 import org.apache.inlong.manager.pojo.cluster.TenantClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.cluster.TenantClusterTagRequest;
+import org.apache.inlong.manager.pojo.cluster.dataproxy.DataProxyClusterNodeDTO;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
@@ -1174,6 +1176,60 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("success to get dp nodes for groupId={}, protocol={}, result={}",
                     groupId, protocolType, response);
+        }
+        return response;
+    }
+
+    @Override
+    public DataProxyNodeResponse getDataProxyNodesByCluster(String clusterName, String protocolType,
+            String reportSourceType) {
+        LOGGER.debug("begin to get data proxy nodes for clusterName={}, protocol={}", clusterName, protocolType);
+        InlongClusterEntity clusterEntity = clusterMapper.selectByNameAndType(clusterName, ClusterType.DATAPROXY);
+        DataProxyNodeResponse response = new DataProxyNodeResponse();
+        if (clusterEntity == null) {
+            LOGGER.debug("not any dataproxy cluster for clusterName={}, protocol={}", clusterName, protocolType);
+            return response;
+        }
+        List<InlongClusterNodeEntity> nodeEntities =
+                clusterNodeMapper.selectByParentId(clusterEntity.getId(), protocolType);
+        if (CollectionUtils.isEmpty(nodeEntities)) {
+            LOGGER.debug("not any data proxy node for clusterName={}, protocol={}", clusterName, protocolType);
+            return response;
+        }
+        // all cluster nodes belong to the same clusterId
+        response.setClusterId(clusterEntity.getId());
+        // TODO consider the data proxy load and re-balance
+        List<DataProxyNodeInfo> nodeList = new ArrayList<>();
+        for (InlongClusterNodeEntity nodeEntity : nodeEntities) {
+            if (Objects.equals(nodeEntity.getStatus(), NodeStatus.HEARTBEAT_TIMEOUT.getStatus())) {
+                LOGGER.debug("dataproxy node was timeout, parentId={} ip={} port={}", nodeEntity.getParentId(),
+                        nodeEntity.getIp(), nodeEntity.getPort());
+                continue;
+            }
+            if (StringUtils.isNotBlank(nodeEntity.getExtParams())) {
+                DataProxyClusterNodeDTO dataProxyClusterNodeDTO = DataProxyClusterNodeDTO.getFromJson(
+                        nodeEntity.getExtParams());
+                if (StringUtils.isBlank(dataProxyClusterNodeDTO.getReportSourceType())) {
+                    dataProxyClusterNodeDTO.setReportSourceType(ReportResourceType.INLONG);
+                }
+                if (StringUtils.isNotBlank(reportSourceType) && !Objects.equals(
+                        dataProxyClusterNodeDTO.getReportSourceType(), reportSourceType)) {
+                    continue;
+                }
+            }
+            DataProxyNodeInfo nodeInfo = new DataProxyNodeInfo();
+            nodeInfo.setId(nodeEntity.getId());
+            nodeInfo.setIp(nodeEntity.getIp());
+            nodeInfo.setPort(nodeEntity.getPort());
+            nodeInfo.setProtocolType(nodeEntity.getProtocolType());
+            nodeInfo.setNodeLoad(nodeEntity.getNodeLoad());
+            nodeList.add(nodeInfo);
+        }
+        response.setNodeList(nodeList);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("success to get dp nodes for clusterName={}, protocol={}, result={}",
+                    clusterName, protocolType, response);
         }
         return response;
     }

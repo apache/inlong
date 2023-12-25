@@ -15,43 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.config.holder;
+package org.apache.inlong.manager.pojo.cluster.dataproxy;
 
-public class SourceReportInfo {
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 
-    private String ip;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-    private String port;
+/**
+ * Inlong cluster node request for Agent
+ */
+@Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(value = ClusterType.DATAPROXY)
+@ApiModel("Inlong cluster node request for dataproxy")
+public class DataProxyClusterNodeRequest extends ClusterNodeRequest {
 
-    private String protocolType;
+    @ApiModelProperty("Report source type")
+    private String reportSourceType;
 
-    public SourceReportInfo(String ip, String port, String protocolType) {
-        this.ip = ip;
-        this.port = port;
-        this.protocolType = protocolType;
-    }
-
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
-    public String getPort() {
-        return port;
-    }
-
-    public void setPort(String port) {
-        this.port = port;
-    }
-
-    public String getProtocolType() {
-        return protocolType;
-    }
-
-    public void setProtocolType(String protocolType) {
-        this.protocolType = protocolType;
-    }
 }

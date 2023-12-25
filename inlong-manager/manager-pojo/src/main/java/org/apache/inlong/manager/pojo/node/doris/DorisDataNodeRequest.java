@@ -15,44 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.dataproxy;
+package org.apache.inlong.manager.pojo.node.doris;
 
+import org.apache.inlong.manager.common.consts.DataNodeType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.node.DataNodeRequest;
+
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
-
-import java.util.List;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
- * DataProxy node response, used for DataProxy SDK.
+ * Doris data node request
  */
 @Data
-public class DataProxyNodeResponse {
-
-    /**
-     * DataProxy cluster id
-     */
-    @Deprecated
-    private Integer clusterId;
-
-    private String reportSourceType;
-
-    /**
-     * Is the DataProxy cluster an intranet? 0: no, 1: yes
-     */
-    private Integer isIntranet;
-
-    /**
-     * Is the DataProxy cluster in a switch status? 0: no, 1: yes
-     */
-    private Integer isSwitch;
-
-    /**
-     * Load of the DataProxy cluster, default is 20
-     */
-    private Integer load = 20;
-
-    /**
-     * List of the cluster node
-     */
-    private List<DataProxyNodeInfo> nodeList;
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(value = DataNodeType.DORIS)
+@ApiModel("Doris data node request")
+public class DorisDataNodeRequest extends DataNodeRequest {
 
 }

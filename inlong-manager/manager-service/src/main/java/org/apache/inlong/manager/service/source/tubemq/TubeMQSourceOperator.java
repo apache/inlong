@@ -23,7 +23,9 @@ import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -48,6 +50,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.apache.inlong.manager.service.resource.queue.tubemq.TubeMQQueueResourceOperator.TUBE_CONSUMER_GROUP;
+
 /**
  * TubeMQ source operator
  */
@@ -58,6 +62,8 @@ public class TubeMQSourceOperator extends AbstractSourceOperator {
     private ObjectMapper objectMapper;
     @Autowired
     private InlongClusterService clusterService;
+    @Autowired
+    private StreamSinkEntityMapper sinkMapper;
 
     @Override
     public Boolean accept(String sourceType) {
@@ -109,7 +115,16 @@ public class TubeMQSourceOperator extends AbstractSourceOperator {
             String streamId = streamInfo.getInlongStreamId();
             tubeMQSource.setSourceName(streamId);
             tubeMQSource.setTopic(groupInfo.getMqResource());
-            tubeMQSource.setConsumeGroup(streamId);
+            List<StreamSinkEntity> sinkEntityList = sinkMapper.selectByRelatedId(groupInfo.getInlongGroupId(),
+                    streamId);
+            // Issued pulsar subscriptions to sort only supports a stream with only one source and one sink
+            String consumeGroup = streamId;
+            if (sinkEntityList.size() == 1) {
+                // consumer naming rules: clusterTag_topicName_sinkId_consumer_group
+                consumeGroup = String.format(TUBE_CONSUMER_GROUP, groupInfo.getInlongClusterTag(),
+                        groupInfo.getMqResource(), sinkEntityList.get(0).getId());
+            }
+            tubeMQSource.setConsumeGroup(consumeGroup);
             tubeMQSource.setMasterRpc(masterRpc);
             tubeMQSource.setWrapType(streamInfo.getWrapType());
             tubeMQSource.setIgnoreParseError(streamInfo.getIgnoreParseError());

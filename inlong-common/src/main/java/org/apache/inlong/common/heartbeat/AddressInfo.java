@@ -15,44 +15,34 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.dataproxy;
+package org.apache.inlong.common.heartbeat;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-/**
- * DataProxy node response, used for DataProxy SDK.
- */
 @Data
-public class DataProxyNodeResponse {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class AddressInfo {
 
     /**
-     * DataProxy cluster id
+     * Ip of component
      */
-    @Deprecated
-    private Integer clusterId;
+    private String ip;
 
+    /**
+     * Port of component
+     */
+    private String port;
+
+    /**
+     * Report source type of component
+     */
     private String reportSourceType;
 
-    /**
-     * Is the DataProxy cluster an intranet? 0: no, 1: yes
-     */
-    private Integer isIntranet;
-
-    /**
-     * Is the DataProxy cluster in a switch status? 0: no, 1: yes
-     */
-    private Integer isSwitch;
-
-    /**
-     * Load of the DataProxy cluster, default is 20
-     */
-    private Integer load = 20;
-
-    /**
-     * List of the cluster node
-     */
-    private List<DataProxyNodeInfo> nodeList;
+    private String protocolType;
 
 }
