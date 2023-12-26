@@ -23,6 +23,8 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -138,6 +140,13 @@ public class TubeMQQueueResourceOperator implements QueueResourceOperator {
         String topicName = groupInfo.getMqResource();
 
         return tubeMQOperator.queryLastMessage(tubeCluster, topicName, messageCount, streamInfo);
+    }
+
+    @Override
+    public String getSortConsumeGroup(InlongGroupInfo groupInfo, InlongStreamEntity streamEntity,
+            StreamSinkEntity sinkEntity) {
+        String topicName = streamEntity.getMqResource();
+        return groupInfo.getInlongClusterTag() + "_" + topicName + "_consumer_group";
     }
 
 }
