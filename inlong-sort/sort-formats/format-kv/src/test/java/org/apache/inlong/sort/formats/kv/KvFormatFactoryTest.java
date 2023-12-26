@@ -24,7 +24,6 @@ import org.apache.inlong.sort.formats.base.TableFormatSerializer;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.DateFormatInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.FormatUtils;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
@@ -44,6 +43,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.apache.inlong.sort.formats.common.FormatUtils.marshall;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -85,7 +85,7 @@ public class KvFormatFactoryTest {
     public void testCreateTableFormatDeserializer() throws Exception {
         final Map<String, String> properties =
                 new Kv()
-                        .schema(FormatUtils.marshall(TEST_FORMAT_SCHEMA))
+                        .schema(marshall(TEST_FORMAT_SCHEMA))
                         .entryDelimiter('&')
                         .kvDelimiter('=')
                         .charset(StandardCharsets.ISO_8859_1)
@@ -143,7 +143,7 @@ public class KvFormatFactoryTest {
     public void testCreateTableFormatSerializer() throws Exception {
         final Map<String, String> properties =
                 new Kv()
-                        .schema(FormatUtils.marshall(TEST_FORMAT_SCHEMA))
+                        .schema(marshall(TEST_FORMAT_SCHEMA))
                         .entryDelimiter('&')
                         .kvDelimiter('=')
                         .charset(StandardCharsets.ISO_8859_1)
@@ -201,7 +201,7 @@ public class KvFormatFactoryTest {
     public void testCreateProjectedDeserializationSchema() throws IOException {
         final Map<String, String> properties =
                 new Kv()
-                        .schema(FormatUtils.marshall(TEST_KEYED_FORMAT_SCHEMA))
+                        .schema(marshall(TEST_KEYED_FORMAT_SCHEMA))
                         .entryDelimiter('&')
                         .kvDelimiter('=')
                         .charset(StandardCharsets.ISO_8859_1)
@@ -219,7 +219,8 @@ public class KvFormatFactoryTest {
                         '=',
                         '\\',
                         '\"',
-                        "null");
+                        "null",
+                        false);
 
         final DeserializationSchema<Row> actualDeser =
                 TableFormatUtils.getProjectedDeserializationSchema(
@@ -255,7 +256,7 @@ public class KvFormatFactoryTest {
     public void testCreateProjectedSerializationSchema() throws IOException {
         final Map<String, String> properties =
                 new Kv()
-                        .schema(FormatUtils.marshall(TEST_KEYED_FORMAT_SCHEMA))
+                        .schema(marshall(TEST_KEYED_FORMAT_SCHEMA))
                         .entryDelimiter('&')
                         .kvDelimiter('=')
                         .charset(StandardCharsets.ISO_8859_1)
@@ -273,7 +274,8 @@ public class KvFormatFactoryTest {
                         '=',
                         '\\',
                         '\"',
-                        "null");
+                        "null",
+                        false);
 
         final SerializationSchema<Row> actualSer =
                 TableFormatUtils.getProjectedSerializationSchema(

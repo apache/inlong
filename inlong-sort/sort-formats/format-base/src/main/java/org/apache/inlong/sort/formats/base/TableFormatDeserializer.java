@@ -17,13 +17,40 @@
 
 package org.apache.inlong.sort.formats.base;
 
-import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
+
+import java.util.Map;
 
 /**
  * The deserializer for a given format.
  */
-public interface TableFormatDeserializer extends FlatMapFunction<byte[], Row>, ResultTypeQueryable<Row> {
+public abstract class TableFormatDeserializer extends RichFlatMapFunction<byte[], Row>
+        implements
+            ResultTypeQueryable<Row> {
 
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Initialize the format deserializer.
+     *
+     * @param context the format context.
+     */
+    public void init(TableFormatContext context) {
+    }
+
+    @Override
+    public void open(Configuration parameters) throws Exception {
+
+    }
+
+    /**
+     * The context to create instance of {@link TableFormatDeserializer}.
+     */
+    public interface TableFormatContext {
+
+        Map<String, String> getFormatProperties();
+    }
 }

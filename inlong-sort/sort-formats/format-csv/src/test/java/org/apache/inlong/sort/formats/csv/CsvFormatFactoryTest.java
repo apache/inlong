@@ -24,7 +24,6 @@ import org.apache.inlong.sort.formats.base.TableFormatSerializer;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.DateFormatInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.FormatUtils;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
@@ -85,7 +84,7 @@ public class CsvFormatFactoryTest {
     public void testCreateTableFormatDeserializer() throws Exception {
         final Map<String, String> properties =
                 new Csv()
-                        .schema(FormatUtils.marshall(TEST_FORMAT_SCHEMA))
+                        .schema(TEST_FORMAT_SCHEMA)
                         .delimiter(';')
                         .charset(StandardCharsets.ISO_8859_1)
                         .escapeCharacter('\\')
@@ -101,7 +100,8 @@ public class CsvFormatFactoryTest {
                         ';',
                         '\\',
                         '\"',
-                        "null");
+                        "null",
+                        false);
 
         final DefaultTableFormatDeserializer expectedDeser =
                 new DefaultTableFormatDeserializer(deserializationSchema);
@@ -141,7 +141,7 @@ public class CsvFormatFactoryTest {
     public void testCreateTableFormatSerializer() throws Exception {
         final Map<String, String> properties =
                 new Csv()
-                        .schema(FormatUtils.marshall(TEST_FORMAT_SCHEMA))
+                        .schema(TEST_FORMAT_SCHEMA)
                         .delimiter(';')
                         .charset(StandardCharsets.ISO_8859_1)
                         .escapeCharacter('\\')
@@ -157,7 +157,8 @@ public class CsvFormatFactoryTest {
                         ';',
                         '\\',
                         '\"',
-                        "null");
+                        "null",
+                        false);
 
         final DefaultTableFormatSerializer expectedSer =
                 new DefaultTableFormatSerializer(serializationSchema);
@@ -197,7 +198,7 @@ public class CsvFormatFactoryTest {
     public void testCreateProjectedDeserializationSchema() throws IOException {
         final Map<String, String> properties =
                 new Csv()
-                        .schema(FormatUtils.marshall(TEST_KEYED_FORMAT_SCHEMA))
+                        .schema(TEST_KEYED_FORMAT_SCHEMA)
                         .delimiter(';')
                         .charset(StandardCharsets.ISO_8859_1)
                         .escapeCharacter('\\')
@@ -213,7 +214,8 @@ public class CsvFormatFactoryTest {
                         ';',
                         '\\',
                         '\"',
-                        "null");
+                        "null",
+                        false);
 
         final DeserializationSchema<Row> actualDeser =
                 TableFormatUtils.getProjectedDeserializationSchema(
@@ -249,7 +251,7 @@ public class CsvFormatFactoryTest {
     public void testCreateProjectedSerializationSchema() throws IOException {
         final Map<String, String> properties =
                 new Csv()
-                        .schema(FormatUtils.marshall(TEST_KEYED_FORMAT_SCHEMA))
+                        .schema(TEST_KEYED_FORMAT_SCHEMA)
                         .delimiter(';')
                         .charset(StandardCharsets.ISO_8859_1)
                         .escapeCharacter('\\')
@@ -265,7 +267,8 @@ public class CsvFormatFactoryTest {
                         ';',
                         '\\',
                         '\"',
-                        "null");
+                        "null",
+                        false);
 
         final SerializationSchema<Row> actualSer =
                 TableFormatUtils.getProjectedSerializationSchema(

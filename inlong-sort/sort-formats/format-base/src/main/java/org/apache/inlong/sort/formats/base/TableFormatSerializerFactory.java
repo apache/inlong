@@ -33,8 +33,19 @@ public interface TableFormatSerializerFactory extends TableFormatFactory<Row> {
      *
      * @param properties The normalized properties describing the format.
      * @return The configured serialization schema or null if the factory cannot
-     *         provide an instance of the class.
+     * 	provide an instance of the class.
      */
     TableFormatSerializer createFormatSerializer(
             final Map<String, String> properties);
+
+    /**
+     * Creates and configures a {@link TableFormatSerializer} using the given
+     * {@link TableFormatSerializer.TableFormatContext}.
+     *
+     * @param context The context to create the instance of {@link TableFormatSerializer}.
+     * @return The configured serialization schema or null if the factory cannot
+     * 	provide an instance of the class.
+     */
+    TableFormatSerializer createFormatSerializer(
+            final TableFormatSerializer.TableFormatContext context);
 }

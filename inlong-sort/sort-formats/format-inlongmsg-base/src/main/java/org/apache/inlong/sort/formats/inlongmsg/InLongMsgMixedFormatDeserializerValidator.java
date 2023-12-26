@@ -15,28 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.kv;
+package org.apache.inlong.sort.formats.inlongmsg;
 
-import org.apache.inlong.sort.formats.base.TextFormatDescriptorValidator;
+import org.apache.inlong.sort.formats.base.FormatDescriptorValidator;
 
 import org.apache.flink.table.descriptors.DescriptorProperties;
 
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_DELIMITER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ENTRY_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ESCAPE_CHARACTER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_IGNORE_ERRORS;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_KV_DELIMITER;
-import static org.apache.inlong.sort.formats.base.TableFormatUtils.validateSchema;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_QUOTE_CHARACTER;
 
 /**
- * Validator for {@link Kv}.
+ * Validator for mixed inLongMsg formats.
  */
-public class KvValidator extends TextFormatDescriptorValidator {
+public class InLongMsgMixedFormatDeserializerValidator extends FormatDescriptorValidator {
 
     @Override
     public void validate(DescriptorProperties properties) {
         super.validate(properties);
 
+        properties.validateString(FORMAT_DELIMITER, true, 1, 1);
         properties.validateString(FORMAT_ENTRY_DELIMITER, true, 1, 1);
         properties.validateString(FORMAT_KV_DELIMITER, true, 1, 1);
-
-        validateSchema(properties);
+        properties.validateString(FORMAT_ESCAPE_CHARACTER, true, 1, 1);
+        properties.validateString(FORMAT_QUOTE_CHARACTER, true, 1, 1);
+        properties.validateBoolean(FORMAT_IGNORE_ERRORS, true);
     }
 }

@@ -21,12 +21,10 @@ import org.apache.inlong.sort.formats.base.DefaultTableFormatDeserializer;
 import org.apache.inlong.sort.formats.base.DefaultTableFormatSerializer;
 import org.apache.inlong.sort.formats.base.ProjectedDeserializationSchemaFactory;
 import org.apache.inlong.sort.formats.base.ProjectedSerializationSchemaFactory;
-import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.base.TableFormatDeserializer;
 import org.apache.inlong.sort.formats.base.TableFormatDeserializerFactory;
 import org.apache.inlong.sort.formats.base.TableFormatSerializer;
 import org.apache.inlong.sort.formats.base.TableFormatSerializerFactory;
-import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.BasicFormatInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
@@ -44,6 +42,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_CHARSET;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ENTRY_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ESCAPE_CHARACTER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_IGNORE_ERRORS;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_KV_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_NULL_LITERAL;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_QUOTE_CHARACTER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_SCHEMA;
+import static org.apache.inlong.sort.formats.base.TableFormatUtils.getRowFormatInfo;
+import static org.apache.inlong.sort.formats.base.TableFormatUtils.projectRowFormatInfo;
+import static org.apache.inlong.sort.formats.kv.Kv.FORMAT_TYPE_VALUE;
+
 /**
  * Table format factory for kv formats.
  */
@@ -55,119 +65,98 @@ public final class KvFormatFactory
             SerializationSchemaFactory<Row>,
             ProjectedDeserializationSchemaFactory,
             ProjectedSerializationSchemaFactory,
-            TableFormatDeserializerFactory,
-            TableFormatSerializerFactory {
+            TableFormatSerializerFactory,
+            TableFormatDeserializerFactory {
 
     public KvFormatFactory() {
-        super(Kv.FORMAT_TYPE_VALUE, 1, true);
+        super(FORMAT_TYPE_VALUE, 1, true);
     }
 
     @Override
     public List<String> supportedFormatProperties() {
         final List<String> properties = new ArrayList<>();
-        properties.add(TableFormatConstants.FORMAT_ENTRY_DELIMITER);
-        properties.add(TableFormatConstants.FORMAT_KV_DELIMITER);
-        properties.add(TableFormatConstants.FORMAT_ESCAPE_CHARACTER);
-        properties.add(TableFormatConstants.FORMAT_QUOTE_CHARACTER);
-        properties.add(TableFormatConstants.FORMAT_NULL_LITERAL);
-        properties.add(TableFormatConstants.FORMAT_CHARSET);
-        properties.add(TableFormatConstants.FORMAT_IGNORE_ERRORS);
-        properties.add(TableFormatConstants.FORMAT_SCHEMA);
+        properties.add(FORMAT_ENTRY_DELIMITER);
+        properties.add(FORMAT_KV_DELIMITER);
+        properties.add(FORMAT_ESCAPE_CHARACTER);
+        properties.add(FORMAT_QUOTE_CHARACTER);
+        properties.add(FORMAT_NULL_LITERAL);
+        properties.add(FORMAT_CHARSET);
+        properties.add(FORMAT_IGNORE_ERRORS);
+        properties.add(FORMAT_SCHEMA);
         return properties;
     }
 
     @Override
     public KvDeserializationSchema createDeserializationSchema(
             Map<String, String> properties) {
-        final DescriptorProperties descriptorProperties =
-                getValidatedProperties(properties);
+        DescriptorProperties descriptorProperties = getValidatedProperties(properties);
+        RowFormatInfo rowFormatInfo = getValidatedRowFormatInfo(descriptorProperties);
 
-        final RowFormatInfo rowFormatInfo =
-                TableFormatUtils.getRowFormatInfo(descriptorProperties);
-
-        return buildDeserializationSchema(descriptorProperties, rowFormatInfo);
+        return buildDeserializationSchema(rowFormatInfo, descriptorProperties);
     }
 
     @Override
     public KvSerializationSchema createSerializationSchema(
             Map<String, String> properties) {
-        final DescriptorProperties descriptorProperties =
-                getValidatedProperties(properties);
+        DescriptorProperties descriptorProperties = getValidatedProperties(properties);
+        RowFormatInfo rowFormatInfo = getValidatedRowFormatInfo(descriptorProperties);
 
-        final RowFormatInfo rowFormatInfo =
-                TableFormatUtils.getRowFormatInfo(descriptorProperties);
-
-        return buildSerializationSchema(descriptorProperties, rowFormatInfo);
+        return buildSerializationSchema(rowFormatInfo, descriptorProperties);
     }
 
     @Override
     public DeserializationSchema<Row> createProjectedDeserializationSchema(
             Map<String, String> properties,
             int[] fields) {
-        final DescriptorProperties descriptorProperties =
-                getValidatedProperties(properties);
+        DescriptorProperties descriptorProperties = getValidatedProperties(properties);
+        RowFormatInfo rowFormatInfo = getValidatedRowFormatInfo(descriptorProperties);
 
-        final RowFormatInfo rowFormatInfo =
-                TableFormatUtils.getRowFormatInfo(descriptorProperties);
         final RowFormatInfo projectedRowFormatInfo =
-                TableFormatUtils.projectRowFormatInfo(rowFormatInfo, fields);
+                projectRowFormatInfo(rowFormatInfo, fields);
 
-        return buildDeserializationSchema(descriptorProperties, projectedRowFormatInfo);
+        return buildDeserializationSchema(projectedRowFormatInfo, descriptorProperties);
     }
 
     @Override
     public SerializationSchema<Row> createProjectedSerializationSchema(
             Map<String, String> properties,
             int[] fields) {
-        final DescriptorProperties descriptorProperties =
-                getValidatedProperties(properties);
+        DescriptorProperties descriptorProperties = getValidatedProperties(properties);
+        RowFormatInfo rowFormatInfo = getValidatedRowFormatInfo(descriptorProperties);
 
-        final RowFormatInfo rowFormatInfo =
-                TableFormatUtils.getRowFormatInfo(descriptorProperties);
         final RowFormatInfo projectedRowFormatInfo =
-                TableFormatUtils.projectRowFormatInfo(rowFormatInfo, fields);
+                projectRowFormatInfo(rowFormatInfo, fields);
 
-        return buildSerializationSchema(descriptorProperties, projectedRowFormatInfo);
+        return buildSerializationSchema(projectedRowFormatInfo, descriptorProperties);
     }
 
     @Override
-    public TableFormatDeserializer createFormatDeserializer(
-            Map<String, String> properties) {
-        final DescriptorProperties descriptorProperties =
-                getValidatedProperties(properties);
+    public TableFormatDeserializer createFormatDeserializer(Map<String, String> properties) {
+        DeserializationSchema<Row> deserializationSchema = createDeserializationSchema(properties);
+        return new DefaultTableFormatDeserializer(deserializationSchema);
+    }
 
-        final RowFormatInfo rowFormatInfo =
-                TableFormatUtils.getRowFormatInfo(descriptorProperties);
+    @Override
+    public TableFormatDeserializer createFormatDeserializer(TableFormatDeserializer.TableFormatContext context) {
+        TableFormatDeserializer deserializer =
+                createFormatDeserializer(context.getFormatProperties());
+        deserializer.init(context);
+        return deserializer;
+    }
 
-        final KvDeserializationSchema deserializationSchema =
-                buildDeserializationSchema(descriptorProperties, rowFormatInfo);
-
-        boolean ignoreErrors =
-                descriptorProperties
-                        .getOptionalBoolean(TableFormatConstants.FORMAT_IGNORE_ERRORS)
-                        .orElse(TableFormatConstants.DEFAULT_IGNORE_ERRORS);
-
-        return new DefaultTableFormatDeserializer(deserializationSchema, ignoreErrors);
+    @Override
+    public TableFormatSerializer createFormatSerializer(Map<String, String> properties) {
+        SerializationSchema<Row> serializationSchema = createSerializationSchema(properties);
+        return new DefaultTableFormatSerializer(serializationSchema);
     }
 
     @Override
     public TableFormatSerializer createFormatSerializer(
-            Map<String, String> properties) {
-        final DescriptorProperties descriptorProperties =
-                getValidatedProperties(properties);
-
-        final RowFormatInfo rowFormatInfo =
-                TableFormatUtils.getRowFormatInfo(descriptorProperties);
-
-        final KvSerializationSchema serializationSchema =
-                buildSerializationSchema(descriptorProperties, rowFormatInfo);
-
-        boolean ignoreErrors =
-                descriptorProperties
-                        .getOptionalBoolean(TableFormatConstants.FORMAT_IGNORE_ERRORS)
-                        .orElse(TableFormatConstants.DEFAULT_IGNORE_ERRORS);
-
-        return new DefaultTableFormatSerializer(serializationSchema, ignoreErrors);
+            TableFormatSerializer.TableFormatContext context) {
+        TableFormatSerializer serializer =
+                createFormatSerializer(context.getFormatProperties());
+        serializer.init(context);
+        return serializer;
     }
 
     private static DescriptorProperties getValidatedProperties(
@@ -182,68 +171,46 @@ public final class KvFormatFactory
         return descriptorProperties;
     }
 
-    private static KvDeserializationSchema buildDeserializationSchema(
-            DescriptorProperties descriptorProperties,
-            RowFormatInfo rowFormatInfo) {
-        for (FormatInfo formatInfo : rowFormatInfo.getFieldFormatInfos()) {
-            if (!(formatInfo instanceof BasicFormatInfo)) {
-                throw new ValidationException("Currently only basic formats " + "are supported in kv formats.");
+    private static RowFormatInfo getValidatedRowFormatInfo(
+            DescriptorProperties descriptorProperties) {
+        RowFormatInfo rowFormatInfo = getRowFormatInfo(descriptorProperties);
+
+        String[] fieldNames = rowFormatInfo.getFieldNames();
+        FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
+        for (int i = 0; i < fieldNames.length; ++i) {
+            String fieldName = fieldNames[i];
+            FormatInfo fieldFormatInfo = fieldFormatInfos[i];
+
+            if (!(fieldFormatInfo instanceof BasicFormatInfo)) {
+                throw new ValidationException("The format for field " + fieldName + " is " +
+                        fieldFormatInfo.getClass().getSimpleName() + ". Only basic formats are " +
+                        "supported in kv.");
             }
         }
 
+        return rowFormatInfo;
+    }
+
+    private static KvDeserializationSchema buildDeserializationSchema(
+            RowFormatInfo rowFormatInfo,
+            DescriptorProperties descriptorProperties) {
         KvDeserializationSchema.Builder builder =
                 new KvDeserializationSchema.Builder(rowFormatInfo);
 
-        descriptorProperties.getOptionalString(TableFormatConstants.FORMAT_CHARSET)
-                .ifPresent(builder::setCharset);
-
-        descriptorProperties.getOptionalCharacter(TableFormatConstants.FORMAT_ENTRY_DELIMITER)
-                .ifPresent(builder::setEntryDelimiter);
-
-        descriptorProperties.getOptionalCharacter(TableFormatConstants.FORMAT_KV_DELIMITER)
-                .ifPresent(builder::setKvDelimiter);
-
-        descriptorProperties.getOptionalCharacter(TableFormatConstants.FORMAT_ESCAPE_CHARACTER)
-                .ifPresent(builder::setEscapeCharacter);
-
-        descriptorProperties.getOptionalCharacter(TableFormatConstants.FORMAT_QUOTE_CHARACTER)
-                .ifPresent(builder::setQuoteCharacter);
-
-        descriptorProperties.getOptionalString(TableFormatConstants.FORMAT_NULL_LITERAL)
-                .ifPresent(builder::setNullLiteral);
+        builder.configure(descriptorProperties);
 
         return builder.build();
     }
 
     private static KvSerializationSchema buildSerializationSchema(
-            DescriptorProperties descriptorProperties,
-            RowFormatInfo rowFormatInfo) {
-        for (FormatInfo formatInfo : rowFormatInfo.getFieldFormatInfos()) {
-            if (!(formatInfo instanceof BasicFormatInfo)) {
-                throw new ValidationException("Currently only basic formats " + "are supported in kv formats.");
-            }
-        }
+            RowFormatInfo rowFormatInfo,
+            DescriptorProperties descriptorProperties
 
+    ) {
         KvSerializationSchema.Builder builder =
                 new KvSerializationSchema.Builder(rowFormatInfo);
 
-        descriptorProperties.getOptionalString(TableFormatConstants.FORMAT_CHARSET)
-                .ifPresent(builder::setCharset);
-
-        descriptorProperties.getOptionalCharacter(TableFormatConstants.FORMAT_ENTRY_DELIMITER)
-                .ifPresent(builder::setEntryDelimiter);
-
-        descriptorProperties.getOptionalCharacter(TableFormatConstants.FORMAT_KV_DELIMITER)
-                .ifPresent(builder::setKvDelimiter);
-
-        descriptorProperties.getOptionalCharacter(TableFormatConstants.FORMAT_ESCAPE_CHARACTER)
-                .ifPresent(builder::setEscapeCharacter);
-
-        descriptorProperties.getOptionalCharacter(TableFormatConstants.FORMAT_QUOTE_CHARACTER)
-                .ifPresent(builder::setQuoteCharacter);
-
-        descriptorProperties.getOptionalString(TableFormatConstants.FORMAT_NULL_LITERAL)
-                .ifPresent(builder::setNullLiteral);
+        builder.configure(descriptorProperties);
 
         return builder.build();
     }

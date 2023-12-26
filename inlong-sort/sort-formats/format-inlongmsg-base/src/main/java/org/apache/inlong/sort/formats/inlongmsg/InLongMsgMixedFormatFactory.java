@@ -17,8 +17,6 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
-import org.apache.inlong.sort.formats.base.TableFormatDeserializer;
-
 import java.util.Map;
 
 /**
@@ -27,24 +25,48 @@ import java.util.Map;
 public interface InLongMsgMixedFormatFactory {
 
     /**
-     * Creates and configures a {@link InLongMsgMixedFormatConverter} using the given
+     * Creates and configures a {@link AbstractInLongMsgMixedFormatConverter} using the given
      * properties.
      *
      * @param properties The normalized properties describing the format.
      * @return The configured serialization schema or null if the factory cannot
-     *         provide an instance of the class.
+     * 	provide an instance of the class.
      */
-    InLongMsgMixedFormatConverter createMixedFormatConverter(
+    AbstractInLongMsgMixedFormatConverter createMixedFormatConverter(
             final Map<String, String> properties);
 
     /**
-     * Creates and configures a {@link TableFormatDeserializer} using the given
+     * Creates and configures a {@link AbstractInLongMsgMixedFormatDeserializer} using the given
      * properties.
      *
      * @param properties The normalized properties describing the format.
      * @return The configured serialization schema or null if the factory cannot
-     *         provide an instance of the class.
+     * 	provide an instance of the class.
      */
     AbstractInLongMsgMixedFormatDeserializer createMixedFormatDeserializer(
             final Map<String, String> properties);
+
+    /**
+     * Creates and configures a {@link AbstractInLongMsgMixedFormatConverter} using the given {@link
+     * AbstractInLongMsgMixedFormatConverter.TableFormatContext}.
+     *
+     * @param context The context to create the instance of {@link
+     *    AbstractInLongMsgMixedFormatConverter}.
+     * @return The configured format converter, or null if the factory could not provide an
+     * 	instance of the class.
+     */
+    AbstractInLongMsgMixedFormatConverter createMixedFormatConverter(
+            final AbstractInLongMsgMixedFormatConverter.TableFormatContext context);
+
+    /**
+     * Creates and configures a {@link AbstractInLongMsgMixedFormatDeserializer} using the given {@link
+     * AbstractInLongMsgMixedFormatDeserializer.TableFormatContext}.
+     *
+     * @param context The context to create the instance of {@link
+     *    AbstractInLongMsgMixedFormatDeserializer}.
+     * @return The configured deserializer, or null if the factory could not provide an instance of
+     * 	the class.
+     */
+    AbstractInLongMsgMixedFormatDeserializer createMixedFormatDeserializer(
+            final AbstractInLongMsgFormatDeserializer.TableFormatContext context);
 }

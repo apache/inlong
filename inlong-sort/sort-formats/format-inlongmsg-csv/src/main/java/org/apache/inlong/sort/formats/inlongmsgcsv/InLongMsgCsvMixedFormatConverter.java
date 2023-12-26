@@ -18,18 +18,20 @@
 package org.apache.inlong.sort.formats.inlongmsgcsv;
 
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgMixedFormatConverter;
+import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgMixedFormatConverter;
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgMixedFormatConverterBuilder;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;
-import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,7 +39,7 @@ import java.util.Objects;
 /**
  * Converter used to deserialize a mixed row in inlongmsg-csv format.
  */
-public class InLongMsgCsvMixedFormatConverter implements InLongMsgMixedFormatConverter {
+public class InLongMsgCsvMixedFormatConverter extends AbstractInLongMsgMixedFormatConverter {
 
     private static final long serialVersionUID = 1L;
 
@@ -64,78 +66,97 @@ public class InLongMsgCsvMixedFormatConverter implements InLongMsgMixedFormatCon
     /**
      * The literal representing null values.
      */
+    @Nullable
     private final String nullLiteral;
-
-    /**
-     * True if ignore errors in the deserialization.
-     */
-    private final boolean ignoreErrors;
 
     public InLongMsgCsvMixedFormatConverter(
             @Nonnull RowFormatInfo rowFormatInfo,
             @Nonnull String timeFieldName,
             @Nonnull String attributesFieldName,
-            String nullLiteral,
+            @Nullable String nullLiteral,
             boolean ignoreErrors) {
+        super(ignoreErrors);
+
         this.rowFormatInfo = rowFormatInfo;
         this.timeFieldName = timeFieldName;
         this.attributesFieldName = attributesFieldName;
         this.nullLiteral = nullLiteral;
-        this.ignoreErrors = ignoreErrors;
     }
 
     @Override
     public TypeInformation<Row> getProducedType() {
-        return InLongMsgUtils.buildRowType(timeFieldName, attributesFieldName, rowFormatInfo);
+        return InLongMsgUtils.decorateRowTypeWithNeededHeadFields(timeFieldName, attributesFieldName, rowFormatInfo);
     }
 
     @Override
-    public void flatMap(Row mixedRow, Collector<Row> collector) {
+    public List<Row> convertRows(
+            Map<String, String> attributes,
+            byte[] data,
+            String tid,
+            Timestamp time,
+            List<String> predefinedFields,
+            List<String> fields,
+            Map<String, String> entries) {
+        Row dataRow =
+                InLongMsgCsvUtils.deserializeRow(
+                        rowFormatInfo,
+                        nullLiteral,
+                        predefinedFields,
+                        fields);
 
-        Row row;
+        Row row = InLongMsgUtils.decorateRowWithNeededHeadFields(
+                timeFieldName,
+                attributesFieldName,
+                time,
+                attributes,
+                dataRow);
 
-        try {
-            Timestamp time = InLongMsgUtils.getTimeFromMixedRow(mixedRow);
-            Map<String, String> attributes = InLongMsgUtils.getAttributesFromMixedRow(mixedRow);
-            List<String> predefinedFields = InLongMsgUtils.getPredefinedFieldsFromMixedRow(mixedRow);
-            List<String> fields = InLongMsgUtils.getFieldsFromMixedRow(mixedRow);
+        return Collections.singletonList(row);
+    }
 
-            row = InLongMsgCsvUtils.buildRow(rowFormatInfo, nullLiteral, time, attributes,
-                    predefinedFields, fields);
-        } catch (Exception e) {
-            if (ignoreErrors) {
-                LOG.warn("Cannot properly convert the mixed row {} to row.",
-                        mixedRow, e);
-                return;
-            } else {
-                throw e;
-            }
+    /**
+     * The builder for {@link InLongMsgCsvMixedFormatConverter}.
+     */
+    public static class Builder extends InLongMsgMixedFormatConverterBuilder {
+
+        public Builder(RowFormatInfo rowFormatInfo) {
+            super(rowFormatInfo);
         }
 
-        collector.collect(row);
+        public InLongMsgCsvMixedFormatConverter build() {
+            return new InLongMsgCsvMixedFormatConverter(
+                    rowFormatInfo,
+                    timeFieldName,
+                    attributesFieldName,
+                    nullLiteral,
+                    ignoreErrors);
+        }
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object object) {
+        if (this == object) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (object == null || getClass() != object.getClass()) {
             return false;
         }
 
-        InLongMsgCsvMixedFormatConverter that = (InLongMsgCsvMixedFormatConverter) o;
-        return ignoreErrors == that.ignoreErrors
-                && rowFormatInfo.equals(that.rowFormatInfo)
-                && timeFieldName.equals(that.timeFieldName)
-                && attributesFieldName.equals(that.attributesFieldName)
-                && Objects.equals(nullLiteral, that.nullLiteral);
+        if (!super.equals(object)) {
+            return false;
+        }
+
+        InLongMsgCsvMixedFormatConverter that = (InLongMsgCsvMixedFormatConverter) object;
+        return rowFormatInfo.equals(that.rowFormatInfo) &&
+                Objects.equals(timeFieldName, that.timeFieldName) &&
+                Objects.equals(attributesFieldName, that.attributesFieldName) &&
+                Objects.equals(nullLiteral, that.nullLiteral);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(rowFormatInfo, timeFieldName, attributesFieldName, nullLiteral,
-                ignoreErrors);
+        return Objects.hash(super.hashCode(), rowFormatInfo, timeFieldName, attributesFieldName,
+                nullLiteral);
     }
 }
