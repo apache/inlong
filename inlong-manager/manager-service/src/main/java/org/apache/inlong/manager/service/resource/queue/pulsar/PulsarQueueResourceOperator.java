@@ -25,6 +25,8 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
@@ -323,5 +325,43 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
         log.info("success to save inlong consume [{}] for subs={}, groupId={}, topic={}",
                 id, subs, groupId, topicName);
         return briefMQMessages;
+    }
+
+    /**
+     * Reset cursor for consumer group
+     */
+    public void resetCursor(InlongGroupInfo groupInfo, InlongStreamEntity streamEntity, StreamSinkEntity sinkEntity,
+            Long resetTime) throws Exception {
+        log.info("begin to reset cursor for sinkId={}", sinkEntity.getId());
+        InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
+        List<ClusterInfo> clusterInfos =
+                clusterService.listByTagAndType(pulsarInfo.getInlongClusterTag(), ClusterType.PULSAR);
+        for (ClusterInfo clusterInfo : clusterInfos) {
+            PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+            try {
+                String tenant = pulsarInfo.getPulsarTenant();
+                if (StringUtils.isBlank(tenant)) {
+                    tenant = pulsarCluster.getPulsarTenant();
+                }
+                String namespace = pulsarInfo.getMqResource();
+                String topicName = streamEntity.getMqResource();
+                String fullTopicName = tenant + "/" + namespace + "/" + topicName;
+                String subs = String.format(PULSAR_SUBSCRIPTION, groupInfo.getInlongClusterTag(), topicName,
+                        sinkEntity.getId());
+                pulsarOperator.resetCursor(pulsarCluster, fullTopicName, subs, resetTime);
+            } catch (Exception e) {
+                log.error("failed reset cursor consumer:", e);
+                throw new BusinessException("failed reset cursor consumer:" + e.getMessage());
+            }
+        }
+        log.info("success to reset cursor for sinkId={}", sinkEntity.getId());
+    }
+
+    @Override
+    public String getSortConsumeGroup(InlongGroupInfo groupInfo, InlongStreamEntity streamEntity,
+            StreamSinkEntity sinkEntity) {
+        String topicName = streamEntity.getMqResource();
+        return String.format(PULSAR_SUBSCRIPTION, groupInfo.getInlongClusterTag(), topicName,
+                sinkEntity.getId());
     }
 }

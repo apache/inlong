@@ -787,6 +787,15 @@ public class PulsarUtils {
         return ret;
     }
 
+    public static void resetCursor(RestTemplate restTemplate, PulsarClusterInfo clusterInfo,
+            String topicPath, String subscription, Long resetTime) throws Exception {
+        HttpUtils.request(restTemplate,
+                clusterInfo.getAdminUrls(QUERY_PERSISTENT_PATH + "/" + topicPath + "/subscription/"
+                        + subscription + "/resetcursor/" + resetTime),
+                HttpMethod.POST, null,
+                getHttpHeaders(clusterInfo.getToken()));
+    }
+
     /**
      * Copy from deSerializeSingleMessageInBatch method of org.apache.pulsar.common.protocol.Commands class.
      *

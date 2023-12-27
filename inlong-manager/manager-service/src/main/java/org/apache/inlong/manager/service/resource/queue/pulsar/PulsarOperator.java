@@ -468,6 +468,20 @@ public class PulsarOperator {
     }
 
     /**
+     * Reset cursor for consumer group.
+     */
+    public void resetCursor(PulsarClusterInfo pulsarClusterInfo, String topicFullName, String subName,
+            Long resetTime) {
+        try {
+            PulsarUtils.resetCursor(restTemplate, pulsarClusterInfo, topicFullName, subName,
+                    resetTime);
+        } catch (Exception e) {
+            LOGGER.error("failed reset cursor consumer:", e);
+            throw new BusinessException("failed reset cursor consumer:" + e.getMessage());
+        }
+    }
+
+    /**
      * Build topicName Of Partition
      */
     private String buildTopicNameOfPartition(String topicName, int partition, boolean serial) {
