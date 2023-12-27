@@ -50,7 +50,7 @@
         <fileSet>
             <directory>../bin</directory>
             <includes>
-                <include>*.*</include>
+                <include>**/*</include>
             </includes>
             <outputDirectory>bin</outputDirectory>
             <fileMode>0755</fileMode>
