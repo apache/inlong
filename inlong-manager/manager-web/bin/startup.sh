@@ -45,8 +45,8 @@ BIN_PATH=$(
 
 # Prepare common dependency
 ROOT_DIR=$BIN_PATH/../..
-if [ -e $ROOT_DIR/bin/prepare_module_dependencys.sh ]; then
-    $ROOT_DIR/bin/prepare_module_dependencys.sh ./inlong-manager/lib
+if [ -e $ROOT_DIR/bin/prepare_module_dependencies.sh ]; then
+    $ROOT_DIR/bin/prepare_module_dependencies.sh ./inlong-manager/lib
 fi
 
 # Enter the root directory path
