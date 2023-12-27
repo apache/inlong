@@ -159,8 +159,8 @@ public class HudiExtractNode extends ExtractNode implements Serializable {
         options.put(HUDI_OPTION_DEFAULT_PATH, path);
 
         // read options
-        options.put(READ_START_COMMIT, String.valueOf(readStreamingSkipCompaction));
-        options.put(READ_STREAMING_SKIP_COMPACT, readStartCommit);
+        options.put(READ_START_COMMIT, readStartCommit);
+        options.put(READ_STREAMING_SKIP_COMPACT, String.valueOf(readStreamingSkipCompaction));
 
         options.put(HUDI_OPTION_DATABASE_NAME, dbName);
         options.put(HUDI_OPTION_TABLE_NAME, tableName);
