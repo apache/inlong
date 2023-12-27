@@ -85,4 +85,10 @@ public interface InlongGroupApi {
 
     @GET("group/listTopics")
     Call<Response<List<InlongGroupTopicInfo>>> listTopics(@Body InlongGroupTopicRequest request);
+
+    @GET("/group/switch/start/{groupId}/{clusterTag}")
+    Call<Response<Boolean>> startTagSwitch(@Path("groupId") String groupId, @Path("clusterTag") String clusterTag);
+
+    @GET("/group/switch/finish/{groupId}")
+    Call<Response<Boolean>> finishTagSwitch(@Path("groupId") String groupId);
 }
