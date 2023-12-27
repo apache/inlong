@@ -17,11 +17,15 @@
 
 package org.apache.inlong.manager.service.source.postgresql;
 
+import org.apache.inlong.manager.common.consts.DataNodeType;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.pojo.node.postgresql.PostgreSQLDataNodeInfo;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.postgresql.PostgreSQLSource;
@@ -31,6 +35,7 @@ import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -56,6 +61,22 @@ public class PostgreSQLSourceOperator extends AbstractSourceOperator {
     }
 
     @Override
+    public String getExtParams(StreamSourceEntity sourceEntity) {
+        PostgreSQLSourceDTO postgreSQLSourceDTO = JsonUtils.parseObject(sourceEntity.getExtParams(),
+                PostgreSQLSourceDTO.class);
+        if (java.util.Objects.nonNull(postgreSQLSourceDTO) && StringUtils.isBlank(postgreSQLSourceDTO.getHostname())) {
+            PostgreSQLDataNodeInfo dataNodeInfo = (PostgreSQLDataNodeInfo) dataNodeService.get(
+                    sourceEntity.getDataNodeName(), DataNodeType.POSTGRESQL);
+            CommonBeanUtils.copyProperties(dataNodeInfo, postgreSQLSourceDTO, true);
+            postgreSQLSourceDTO.setHostname(dataNodeInfo.getUrl().split(InlongConstants.COLON)[0]);
+            postgreSQLSourceDTO.setPort(Integer.valueOf(dataNodeInfo.getUrl().split(InlongConstants.COLON)[1]));
+            postgreSQLSourceDTO.setPassword(dataNodeInfo.getToken());
+            return JsonUtils.toJsonString(postgreSQLSourceDTO);
+        }
+        return sourceEntity.getExtParams();
+    }
+
+    @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
         PostgreSQLSourceRequest sourceRequest = (PostgreSQLSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
@@ -76,6 +97,18 @@ public class PostgreSQLSourceOperator extends AbstractSourceOperator {
         }
 
         PostgreSQLSourceDTO dto = PostgreSQLSourceDTO.getFromJson(entity.getExtParams());
+        if (StringUtils.isBlank(dto.getHostname())) {
+            if (StringUtils.isBlank(entity.getDataNodeName())) {
+                throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                        "postgreSQl hostname unspecified and data node is blank");
+            }
+            PostgreSQLDataNodeInfo dataNodeInfo = (PostgreSQLDataNodeInfo) dataNodeService.get(
+                    entity.getDataNodeName(), DataNodeType.POSTGRESQL);
+            CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
+            dto.setHostname(dataNodeInfo.getUrl().split(InlongConstants.COLON)[0]);
+            dto.setPort(Integer.valueOf(dataNodeInfo.getUrl().split(InlongConstants.COLON)[1]));
+            dto.setPassword(dataNodeInfo.getToken());
+        }
         CommonBeanUtils.copyProperties(entity, source, true);
         CommonBeanUtils.copyProperties(dto, source, true);
 

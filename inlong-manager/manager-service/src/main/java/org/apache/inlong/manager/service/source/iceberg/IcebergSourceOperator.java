@@ -17,13 +17,16 @@
 
 package org.apache.inlong.manager.service.source.iceberg;
 
+import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.pojo.node.iceberg.IcebergDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergColumnInfo;
 import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
@@ -37,6 +40,7 @@ import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Iceberg stream source operator
@@ -69,6 +74,20 @@ public class IcebergSourceOperator extends AbstractSourceOperator {
     }
 
     @Override
+    public String getExtParams(StreamSourceEntity sourceEntity) {
+        IcebergSourceDTO icebergSourceDTO = JsonUtils.parseObject(sourceEntity.getExtParams(),
+                IcebergSourceDTO.class);
+        if (Objects.nonNull(icebergSourceDTO) && StringUtils.isBlank(icebergSourceDTO.getUri())) {
+            IcebergDataNodeInfo dataNodeInfo = (IcebergDataNodeInfo) dataNodeService.get(
+                    sourceEntity.getDataNodeName(), DataNodeType.ICEBERG);
+            CommonBeanUtils.copyProperties(dataNodeInfo, icebergSourceDTO, true);
+            icebergSourceDTO.setUri(dataNodeInfo.getUrl());
+            return JsonUtils.toJsonString(icebergSourceDTO);
+        }
+        return sourceEntity.getExtParams();
+    }
+
+    @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
         IcebergSourceRequest sourceRequest = (IcebergSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
@@ -89,6 +108,16 @@ public class IcebergSourceOperator extends AbstractSourceOperator {
         }
 
         IcebergSourceDTO dto = IcebergSourceDTO.getFromJson(entity.getExtParams());
+        if (StringUtils.isBlank(dto.getUri())) {
+            if (StringUtils.isBlank(entity.getDataNodeName())) {
+                throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                        "iceberg catalog uri unspecified and data node is blank");
+            }
+            IcebergDataNodeInfo dataNodeInfo = (IcebergDataNodeInfo) dataNodeService.get(
+                    entity.getDataNodeName(), DataNodeType.ICEBERG);
+            CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
+            dto.setUri(dataNodeInfo.getUrl());
+        }
         CommonBeanUtils.copyProperties(entity, source, true);
         CommonBeanUtils.copyProperties(dto, source, true);
 

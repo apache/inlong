@@ -32,7 +32,6 @@ import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSourceDTO;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSourceRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
-import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,8 +48,6 @@ import java.util.Objects;
 @Service
 public class BinlogSourceOperator extends AbstractSourceOperator {
 
-    @Autowired
-    protected DataNodeOperateHelper dataNodeHelper;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -69,7 +66,7 @@ public class BinlogSourceOperator extends AbstractSourceOperator {
         MySQLBinlogSourceDTO mySQLBinlogSourceDTO = JsonUtils.parseObject(sourceEntity.getExtParams(),
                 MySQLBinlogSourceDTO.class);
         if (Objects.nonNull(mySQLBinlogSourceDTO) && StringUtils.isBlank(mySQLBinlogSourceDTO.getHostname())) {
-            MySQLDataNodeInfo dataNodeInfo = (MySQLDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+            MySQLDataNodeInfo dataNodeInfo = (MySQLDataNodeInfo) dataNodeService.get(
                     sourceEntity.getDataNodeName(), DataNodeType.MYSQL);
             CommonBeanUtils.copyProperties(dataNodeInfo, mySQLBinlogSourceDTO, true);
             mySQLBinlogSourceDTO.setUser(dataNodeInfo.getUsername());
@@ -107,7 +104,7 @@ public class BinlogSourceOperator extends AbstractSourceOperator {
                 throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
                         "mysql url and data node is blank");
             }
-            MySQLDataNodeInfo dataNodeInfo = (MySQLDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+            MySQLDataNodeInfo dataNodeInfo = (MySQLDataNodeInfo) dataNodeService.get(
                     entity.getDataNodeName(), DataNodeType.MYSQL);
             CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
             dto.setUser(dataNodeInfo.getUsername());
