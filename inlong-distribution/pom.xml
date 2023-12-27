@@ -75,7 +75,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${exec.maven.version}</version>
                 <configuration>
-                    <executable>${basedir}/script/backup_module_dependencys.sh</executable>
+                    <executable>${basedir}/script/backup_module_dependencies.sh</executable>
                 </configuration>
                 <executions>
                     <execution>
