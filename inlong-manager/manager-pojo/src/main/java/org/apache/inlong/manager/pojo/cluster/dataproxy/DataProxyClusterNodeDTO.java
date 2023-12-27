@@ -44,12 +44,16 @@ public class DataProxyClusterNodeDTO {
     @ApiModelProperty("Report source type")
     private String reportSourceType = ReportResourceType.INLONG;
 
+    @ApiModelProperty("Enabled")
+    private Boolean enabledOnline = true;
+
     /**
      * Get the dto instance from the request
      */
     public static DataProxyClusterNodeDTO getFromRequest(DataProxyClusterNodeRequest request) {
         return DataProxyClusterNodeDTO.builder()
                 .reportSourceType(request.getReportSourceType())
+                .enabledOnline(request.getEnabledOnline())
                 .build();
     }
 

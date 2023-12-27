@@ -40,4 +40,7 @@ public class DataProxyClusterNodeRequest extends ClusterNodeRequest {
     @ApiModelProperty("Report source type")
     private String reportSourceType;
 
+    @ApiModelProperty("Enabled")
+    private Boolean enabledOnline;
+
 }

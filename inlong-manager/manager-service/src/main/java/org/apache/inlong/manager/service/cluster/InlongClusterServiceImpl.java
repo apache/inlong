@@ -1158,10 +1158,12 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         // TODO consider the data proxy load and re-balance
         List<DataProxyNodeInfo> nodeList = new ArrayList<>();
         for (InlongClusterNodeEntity nodeEntity : nodeEntities) {
-            if (Objects.equals(nodeEntity.getStatus(), NodeStatus.HEARTBEAT_TIMEOUT.getStatus())) {
-                LOGGER.debug("dataproxy node was timeout, parentId={} ip={} port={}", nodeEntity.getParentId(),
-                        nodeEntity.getIp(), nodeEntity.getPort());
-                continue;
+            if (StringUtils.isNotBlank(nodeEntity.getExtParams())) {
+                DataProxyClusterNodeDTO dataProxyClusterNodeDTO = DataProxyClusterNodeDTO.getFromJson(
+                        nodeEntity.getExtParams());
+                if (Objects.equals(dataProxyClusterNodeDTO.getEnabledOnline(), false)) {
+                    continue;
+                }
             }
             DataProxyNodeInfo nodeInfo = new DataProxyNodeInfo();
             nodeInfo.setId(nodeEntity.getId());
@@ -1214,6 +1216,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 }
                 if (StringUtils.isNotBlank(reportSourceType) && !Objects.equals(
                         dataProxyClusterNodeDTO.getReportSourceType(), reportSourceType)) {
+                    continue;
+                }
+                if (Objects.equals(dataProxyClusterNodeDTO.getEnabledOnline(), false)) {
                     continue;
                 }
             }
