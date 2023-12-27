@@ -92,7 +92,7 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
         PulsarSourceDTO pulsarSourceDTO = JsonUtils.parseObject(sourceEntity.getExtParams(),
                 PulsarSourceDTO.class);
         if (java.util.Objects.nonNull(pulsarSourceDTO) && StringUtils.isBlank(pulsarSourceDTO.getAdminUrl())) {
-            PulsarDataNodeInfo dataNodeInfo = (PulsarDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+            PulsarDataNodeInfo dataNodeInfo = (PulsarDataNodeInfo) dataNodeService.get(
                     sourceEntity.getDataNodeName(), DataNodeType.PULSAR);
             CommonBeanUtils.copyProperties(dataNodeInfo, pulsarSourceDTO, true);
             return JsonUtils.toJsonString(pulsarSourceDTO);
@@ -126,7 +126,7 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
                 throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
                         "pulsar admin url unspecified and data node is blank");
             }
-            PulsarDataNodeInfo dataNodeInfo = (PulsarDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+            PulsarDataNodeInfo dataNodeInfo = (PulsarDataNodeInfo) dataNodeService.get(
                     entity.getDataNodeName(), DataNodeType.PULSAR);
             CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
         }

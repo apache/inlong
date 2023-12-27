@@ -65,7 +65,7 @@ public class PostgreSQLSourceOperator extends AbstractSourceOperator {
         PostgreSQLSourceDTO postgreSQLSourceDTO = JsonUtils.parseObject(sourceEntity.getExtParams(),
                 PostgreSQLSourceDTO.class);
         if (java.util.Objects.nonNull(postgreSQLSourceDTO) && StringUtils.isBlank(postgreSQLSourceDTO.getHostname())) {
-            PostgreSQLDataNodeInfo dataNodeInfo = (PostgreSQLDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+            PostgreSQLDataNodeInfo dataNodeInfo = (PostgreSQLDataNodeInfo) dataNodeService.get(
                     sourceEntity.getDataNodeName(), DataNodeType.POSTGRESQL);
             CommonBeanUtils.copyProperties(dataNodeInfo, postgreSQLSourceDTO, true);
             postgreSQLSourceDTO.setHostname(dataNodeInfo.getUrl().split(InlongConstants.COLON)[0]);
@@ -102,7 +102,7 @@ public class PostgreSQLSourceOperator extends AbstractSourceOperator {
                 throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
                         "postgreSQl hostname unspecified and data node is blank");
             }
-            PostgreSQLDataNodeInfo dataNodeInfo = (PostgreSQLDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+            PostgreSQLDataNodeInfo dataNodeInfo = (PostgreSQLDataNodeInfo) dataNodeService.get(
                     entity.getDataNodeName(), DataNodeType.POSTGRESQL);
             CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
             dto.setHostname(dataNodeInfo.getUrl().split(InlongConstants.COLON)[0]);

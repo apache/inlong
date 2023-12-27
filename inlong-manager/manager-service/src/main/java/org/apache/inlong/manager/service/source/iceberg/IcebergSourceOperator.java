@@ -78,7 +78,7 @@ public class IcebergSourceOperator extends AbstractSourceOperator {
         IcebergSourceDTO icebergSourceDTO = JsonUtils.parseObject(sourceEntity.getExtParams(),
                 IcebergSourceDTO.class);
         if (Objects.nonNull(icebergSourceDTO) && StringUtils.isBlank(icebergSourceDTO.getUri())) {
-            IcebergDataNodeInfo dataNodeInfo = (IcebergDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+            IcebergDataNodeInfo dataNodeInfo = (IcebergDataNodeInfo) dataNodeService.get(
                     sourceEntity.getDataNodeName(), DataNodeType.ICEBERG);
             CommonBeanUtils.copyProperties(dataNodeInfo, icebergSourceDTO, true);
             icebergSourceDTO.setUri(dataNodeInfo.getUrl());
@@ -113,7 +113,7 @@ public class IcebergSourceOperator extends AbstractSourceOperator {
                 throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
                         "iceberg catalog uri unspecified and data node is blank");
             }
-            IcebergDataNodeInfo dataNodeInfo = (IcebergDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+            IcebergDataNodeInfo dataNodeInfo = (IcebergDataNodeInfo) dataNodeService.get(
                     entity.getDataNodeName(), DataNodeType.ICEBERG);
             CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
             dto.setUri(dataNodeInfo.getUrl());

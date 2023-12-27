@@ -66,7 +66,7 @@ public class BinlogSourceOperator extends AbstractSourceOperator {
         MySQLBinlogSourceDTO mySQLBinlogSourceDTO = JsonUtils.parseObject(sourceEntity.getExtParams(),
                 MySQLBinlogSourceDTO.class);
         if (Objects.nonNull(mySQLBinlogSourceDTO) && StringUtils.isBlank(mySQLBinlogSourceDTO.getHostname())) {
-            MySQLDataNodeInfo dataNodeInfo = (MySQLDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+            MySQLDataNodeInfo dataNodeInfo = (MySQLDataNodeInfo) dataNodeService.get(
                     sourceEntity.getDataNodeName(), DataNodeType.MYSQL);
             CommonBeanUtils.copyProperties(dataNodeInfo, mySQLBinlogSourceDTO, true);
             mySQLBinlogSourceDTO.setUser(dataNodeInfo.getUsername());
@@ -104,7 +104,7 @@ public class BinlogSourceOperator extends AbstractSourceOperator {
                 throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
                         "mysql url and data node is blank");
             }
-            MySQLDataNodeInfo dataNodeInfo = (MySQLDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+            MySQLDataNodeInfo dataNodeInfo = (MySQLDataNodeInfo) dataNodeService.get(
                     entity.getDataNodeName(), DataNodeType.MYSQL);
             CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
             dto.setUser(dataNodeInfo.getUsername());
