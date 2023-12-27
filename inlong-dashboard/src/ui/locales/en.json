@@ -137,6 +137,7 @@
   "meta.Sources.Pulsar.DataSeparator": "Data separator",
   "meta.Sources.Pulsar.DataEscapeChar": "Data escape char",
   "meta.Sources.Pulsar.WrapType": "Wrap type",
+  "meta.Sources.Pulsar.SerializationType": "Data type",
   "meta.Sinks.SinkName": "Name",
   "meta.Sinks.SinkNameRule": "Only English letters, numbers, dots(.), minus(-), and underscores(_)",
   "meta.Sinks.SinkType": "Type",

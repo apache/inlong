@@ -23,7 +23,7 @@ import { RenderList } from '@/plugins/RenderList';
 import { SourceInfo } from '../common/SourceInfo';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 export default class PulsarSource
@@ -39,6 +39,7 @@ export default class PulsarSource
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Pulsar.PulsarTenant')
   pulsarTenant: string;
 
@@ -50,6 +51,7 @@ export default class PulsarSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Pulsar.Namespace')
   namespace: string;
 
@@ -61,6 +63,7 @@ export default class PulsarSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('Admin url')
   adminUrl: string;
 
@@ -72,6 +75,7 @@ export default class PulsarSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('Service url')
   serviceUrl: string;
 
@@ -83,8 +87,39 @@ export default class PulsarSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('Pulsar topic')
   topic: string;
+
+  @FieldDecorator({
+    type: 'radio',
+    initialValue: 'CSV',
+    props: values => ({
+      disabled: [110].includes(values?.status),
+      options: [
+        {
+          label: 'CSV',
+          value: 'CSV',
+        },
+        {
+          label: 'Key-Value',
+          value: 'KV',
+        },
+        {
+          label: 'Avro',
+          value: 'AVRO',
+        },
+        {
+          label: 'JSON',
+          value: 'JSON',
+        },
+      ],
+    }),
+    rules: [{ required: true }],
+  })
+  @SyncField()
+  @I18n('meta.Sources.Pulsar.SerializationType')
+  serializationType: string;
 
   @FieldDecorator({
     type: 'input',
@@ -94,6 +129,7 @@ export default class PulsarSource
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Pulsar.PrimaryKey')
   primaryKey: string;
 
@@ -116,6 +152,7 @@ export default class PulsarSource
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Pulsar.DataEncoding')
   dataEncoding: string;
 
@@ -127,6 +164,7 @@ export default class PulsarSource
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Pulsar.DataSeparator')
   dataSeparator: string;
 
@@ -138,35 +176,7 @@ export default class PulsarSource
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Pulsar.DataEscapeChar')
   dataEscapeChar: string;
-
-  @FieldDecorator({
-    type: 'radio',
-    initialValue: 'INLONG_MSG_V0',
-    props: values => ({
-      disabled: values?.status === 101,
-      options: [
-        {
-          label: 'InLongMsg V0',
-          value: 'INLONG_MSG_V0',
-        },
-        {
-          label: 'InLongMsg V1',
-          value: 'INLONG_MSG_V1',
-        },
-        {
-          label: 'Raw',
-          value: 'RAW',
-        },
-        {
-          label: 'Etc',
-          value: 'etc',
-        },
-      ],
-    }),
-  })
-  @SyncField()
-  @I18n('meta.Sources.Pulsar.WrapType')
-  wrapType: string;
 }
