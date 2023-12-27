@@ -35,6 +35,7 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
+import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 
 import com.github.pagehelper.Page;
 import org.apache.commons.collections.CollectionUtils;
@@ -62,6 +63,8 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     protected StreamSourceFieldEntityMapper sourceFieldMapper;
     @Autowired
     protected InlongStreamFieldEntityMapper streamFieldMapper;
+    @Autowired
+    protected DataNodeOperateHelper dataNodeHelper;
 
     /**
      * Getting the source type.

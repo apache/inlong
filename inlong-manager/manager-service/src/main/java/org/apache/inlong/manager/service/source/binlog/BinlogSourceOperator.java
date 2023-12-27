@@ -32,7 +32,6 @@ import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSourceDTO;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSourceRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
-import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,8 +48,6 @@ import java.util.Objects;
 @Service
 public class BinlogSourceOperator extends AbstractSourceOperator {
 
-    @Autowired
-    protected DataNodeOperateHelper dataNodeHelper;
     @Autowired
     private ObjectMapper objectMapper;
 
