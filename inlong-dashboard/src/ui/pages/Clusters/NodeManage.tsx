@@ -127,6 +127,15 @@ const Comp: React.FC = () => {
         dataIndex: 'port',
       },
       {
+        title: i18n.t('pages.Clusters.Node.Online'),
+        dataIndex: 'enabledOnline',
+        render: text => (text !== undefined ? genStatusTag(text) : ''),
+      },
+      {
+        title: i18n.t('pages.Clusters.Node.ReportSourceType'),
+        dataIndex: 'reportSourceType',
+      },
+      {
         title: i18n.t('pages.Clusters.Node.ProtocolType'),
         dataIndex: 'protocolType',
       },
@@ -177,7 +186,13 @@ const Comp: React.FC = () => {
           </Button>
         }
         table={{
-          columns,
+          columns:
+            type === 'AGENT'
+              ? columns.filter(
+                  item =>
+                    item.dataIndex !== 'enabledOnline' && item.dataIndex !== 'reportSourceType',
+                )
+              : columns,
           rowKey: 'id',
           dataSource: data?.list,
           pagination,

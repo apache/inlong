@@ -741,6 +741,8 @@
   "pages.Clusters.Node.IpRule": "Please enter the IP address correctly",
   "pages.Clusters.Node.PortRule": "Please enter the port address correctly",
   "pages.Clusters.Node.ProtocolTypeRule": "Please enter the protocol type correctly",
+  "pages.Clusters.Node.Online": "Online",
+  "pages.Clusters.Node.ReportSourceType": "Report source type",
   "pages.Clusters.Pulsar.Tenant": "Default tenant",
   "pages.Clusters.Pulsar.TokenPlaceholder": "Required if the cluster is configured with Token",
   "pages.Clusters.Kafka.ClusterUrl": "Cluster url",
