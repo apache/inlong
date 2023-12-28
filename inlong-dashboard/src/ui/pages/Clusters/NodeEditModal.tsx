@@ -107,6 +107,26 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         },
       },
       {
+        type: 'radio',
+        label: i18n.t('pages.Clusters.Node.Online'),
+        name: 'enabledOnline',
+        initialValue: true,
+        hidden: type !== 'DATAPROXY',
+        rules: [{ required: true }],
+        props: {
+          options: [
+            {
+              label: i18n.t('basic.Yes'),
+              value: true,
+            },
+            {
+              label: i18n.t('basic.No'),
+              value: false,
+            },
+          ],
+        },
+      },
+      {
         type: 'select',
         label: i18n.t('pages.Clusters.Node.ProtocolType'),
         name: 'protocolType',
