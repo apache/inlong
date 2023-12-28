@@ -158,6 +158,14 @@ const Comp: React.FC<DetailModalProps> = ({
     if (startProcess) {
       submitData.startProcess = true;
     }
+    if (
+      submitData.sinkType === 'CLS' ||
+      submitData.sinkType === 'PULSAR' ||
+      submitData.sinkType === 'ES'
+    ) {
+      submitData.sortTaskName = submitData.dataNodeName;
+      submitData.sortConsumerGroup = submitData.dataNodeName;
+    }
     await request({
       url: isUpdate ? '/sink/update' : '/sink/save',
       method: 'POST',
