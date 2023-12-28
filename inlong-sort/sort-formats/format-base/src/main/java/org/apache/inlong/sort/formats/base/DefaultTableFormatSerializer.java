@@ -30,25 +30,23 @@ import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_I
 /**
  * The default implementation of {@link TableFormatSerializer}.
  */
-public class DefaultTableFormatSerializer implements TableFormatSerializer {
+public class DefaultTableFormatSerializer extends TableFormatSerializer {
 
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultTableFormatSerializer.class);
-
     /**
      * The delegated serialization schema for rows.
      */
     private final SerializationSchema<Row> serializationSchema;
 
     /**
-     * True if ignore errors in the serialization.
+     * True if ignore errors in the deserialization.
      */
     private final boolean ignoreErrors;
 
     public DefaultTableFormatSerializer(
-            SerializationSchema<Row> serializationSchema,
-            boolean ignoreErrors) {
+            SerializationSchema<Row> serializationSchema, boolean ignoreErrors) {
         this.serializationSchema = serializationSchema;
         this.ignoreErrors = ignoreErrors;
     }
@@ -75,7 +73,11 @@ public class DefaultTableFormatSerializer implements TableFormatSerializer {
             }
         }
 
-        collector.collect(bytes);
+        if (bytes != null) {
+            collector.collect(bytes);
+        } else {
+            LOG.warn("Data is Empty.");
+        }
     }
 
     @Override
@@ -89,20 +91,17 @@ public class DefaultTableFormatSerializer implements TableFormatSerializer {
         }
 
         DefaultTableFormatSerializer that = (DefaultTableFormatSerializer) o;
-        return ignoreErrors == that.ignoreErrors
-                && Objects.equals(serializationSchema, that.serializationSchema);
+        return Objects.equals(serializationSchema, that.serializationSchema);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(serializationSchema, ignoreErrors);
+        return Objects.hash(serializationSchema);
     }
 
     @Override
     public String toString() {
-        return "DefaultTableFormatSerializer{"
-                + "serializationSchema=" + serializationSchema
-                + ", ignoreErrors=" + ignoreErrors
-                + '}';
+        return "DefaultTableFormatSerializer{" +
+                "serializationSchema=" + serializationSchema + '}';
     }
 }

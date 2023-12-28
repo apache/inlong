@@ -17,12 +17,10 @@
 
 package org.apache.inlong.sort.formats.inlongmsgcsv;
 
-import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
-import org.apache.inlong.sort.formats.util.StringUtils;
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 
 import org.apache.flink.types.Row;
 import org.slf4j.Logger;
@@ -34,46 +32,104 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.apache.inlong.sort.formats.base.TableFormatUtils.deserializeBasicField;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_STREAM_ID;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TID;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_DT;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_T;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.getPredefinedFields;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseAttr;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseDateTime;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseEpochTime;
+import static org.apache.inlong.sort.formats.util.StringUtils.splitCsv;
 
 /**
  * Utilities for {@link InLongMsgCsv}.
  */
 public class InLongMsgCsvUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InLongMsgUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InLongMsgCsvUtils.class);
 
     public static final String FORMAT_DELETE_HEAD_DELIMITER = "format.delete-head-delimiter";
     public static final boolean DEFAULT_DELETE_HEAD_DELIMITER = true;
 
-    public static InLongMsgBody parseBody(
+    public static InLongMsgHead parseHead(String attr) {
+        Map<String, String> attributes = parseAttr(attr);
+
+        // Extracts interface from the attributes.
+        String tid;
+
+        if (attributes.containsKey(INLONGMSG_ATTR_STREAM_ID)) {
+            tid = attributes.get(INLONGMSG_ATTR_STREAM_ID);
+        } else if (attributes.containsKey(INLONGMSG_ATTR_TID)) {
+            tid = attributes.get(INLONGMSG_ATTR_TID);
+        } else {
+            throw new IllegalArgumentException(
+                    "Could not find " + INLONGMSG_ATTR_STREAM_ID
+                            + " or " + INLONGMSG_ATTR_TID
+                            + " in attributes!");
+        }
+
+        // Extracts time from the attributes
+        Timestamp time;
+
+        if (attributes.containsKey(INLONGMSG_ATTR_TIME_T)) {
+            String date = attributes.get(INLONGMSG_ATTR_TIME_T).trim();
+            time = parseDateTime(date);
+        } else if (attributes.containsKey(INLONGMSG_ATTR_TIME_DT)) {
+            String epoch = attributes.get(INLONGMSG_ATTR_TIME_DT).trim();
+            time = parseEpochTime(epoch);
+        } else {
+            throw new IllegalArgumentException(
+                    "Could not find " + INLONGMSG_ATTR_TIME_T
+                            + " or " + INLONGMSG_ATTR_TIME_DT + " in attributes!");
+        }
+
+        // Extracts predefined fields from the attributes
+        List<String> predefinedFields = getPredefinedFields(attributes);
+
+        return new InLongMsgHead(attributes, tid, time, predefinedFields);
+    }
+
+    public static List<InLongMsgBody> parseBodyList(
             byte[] bytes,
             String charset,
             char delimiter,
+            Character lineDelimiter,
             Character escapeChar,
             Character quoteChar,
             boolean deleteHeadDelimiter) {
+        String bodyStr = new String(bytes, Charset.forName(charset));
 
-        String bodyText;
-        if (bytes[0] == delimiter && deleteHeadDelimiter) {
-            bodyText = new String(bytes, 1, bytes.length - 1, Charset.forName(charset));
-        } else {
-            bodyText = new String(bytes, Charset.forName(charset));
-        }
+        String[][] split =
+                splitCsv(bodyStr, delimiter, escapeChar, quoteChar, lineDelimiter, deleteHeadDelimiter);
 
-        String[] fieldTexts = StringUtils.splitCsv(bodyText, delimiter, escapeChar, quoteChar);
-
-        return new InLongMsgBody(
-                bytes,
-                null,
-                Arrays.asList(fieldTexts),
-                Collections.emptyMap());
+        return Arrays.stream(split)
+                .map((line) -> {
+                    // Only parsed fields will be used by downstream, so it's safe to leave
+                    // the other parameters empty.
+                    return new InLongMsgBody(
+                            null,
+                            null,
+                            Arrays.asList(line),
+                            Collections.emptyMap());
+                }).collect(Collectors.toList());
     }
 
-    public static Row buildRow(
+    /**
+     * Deserializes the given fields into row.
+     *
+     * @param rowFormatInfo The format of the row.
+     * @param nullLiteral The literal for null values.
+     * @param predefinedFields The text of predefined fields.
+     * @param fields The texts of the fields.
+     * @return The row deserialized from the given field texts.
+     */
+    public static Row deserializeRow(
             RowFormatInfo rowFormatInfo,
             String nullLiteral,
-            Timestamp time,
-            Map<String, String> attributes,
             List<String> predefinedFields,
             List<String> fields) {
         String[] fieldNames = rowFormatInfo.getFieldNames();
@@ -81,13 +137,12 @@ public class InLongMsgCsvUtils {
 
         int actualNumFields = predefinedFields.size() + fields.size();
         if (actualNumFields != fieldNames.length) {
-            LOG.warn("The number of fields mismatches: " + fieldNames.length
-                    + " expected, but was " + actualNumFields + ".");
+            LOG.warn("The number of fields mismatches: expected={}, actual={}. "
+                    + "PredefinedFields=[{}], Fields=[{}]", fieldNames.length, actualNumFields,
+                    predefinedFields, fields);
         }
 
-        Row row = new Row(2 + fieldNames.length);
-        row.setField(0, time);
-        row.setField(1, attributes);
+        Row row = new Row(fieldNames.length);
 
         for (int i = 0; i < predefinedFields.size(); ++i) {
 
@@ -101,12 +156,12 @@ public class InLongMsgCsvUtils {
             String fieldText = predefinedFields.get(i);
 
             Object field =
-                    TableFormatUtils.deserializeBasicField(
+                    deserializeBasicField(
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
                             nullLiteral);
-            row.setField(i + 2, field);
+            row.setField(i, field);
         }
 
         for (int i = 0; i < fields.size(); ++i) {
@@ -121,18 +176,16 @@ public class InLongMsgCsvUtils {
             String fieldText = fields.get(i);
 
             Object field =
-                    TableFormatUtils.deserializeBasicField(
+                    deserializeBasicField(
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
                             nullLiteral);
-            row.setField(i + predefinedFields.size() + 2, field);
+            row.setField(i + predefinedFields.size(), field);
         }
-
         for (int i = predefinedFields.size() + fields.size(); i < fieldNames.length; ++i) {
-            row.setField(i + 2, null);
+            row.setField(i, null);
         }
-
         return row;
     }
 }

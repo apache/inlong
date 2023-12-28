@@ -26,7 +26,7 @@ import org.apache.flink.table.descriptors.DescriptorValidator;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,22 +37,22 @@ import java.util.Map;
 public class InLongMsgCsvTest extends DescriptorTestBase {
 
     private static final String TEST_SCHEMA =
-            "{"
-                    + "\"type\":\"row\","
-                    + "\"fieldFormats\":[{"
-                    + "\"name\":\"student_name\","
-                    + "\"format\":{\"type\":\"string\"}"
-                    + "},{"
-                    + "\"name\":\"score\","
-                    + "\"format\":{\"type\":\"int\"}"
-                    + "},{"
-                    + "\"name\":\"date\","
-                    + "\"format\":{"
-                    + "\"type\":\"date\","
-                    + "\"format\":\"yyyy-MM-dd\""
-                    + "}"
-                    + "}]"
-                    + "}";
+            "{" +
+                    "\"type\":\"row\"," +
+                    "\"fieldFormats\":[{" +
+                    "\"name\":\"student_name\"," +
+                    "\"format\":{\"type\":\"string\"}" +
+                    "},{" +
+                    "\"name\":\"score\"," +
+                    "\"format\":{\"type\":\"int\"}" +
+                    "},{" +
+                    "\"name\":\"date\"," +
+                    "\"format\":{" +
+                    "\"type\":\"date\"," +
+                    "\"format\":\"yyyy-MM-dd\"" +
+                    "}" +
+                    "}]" +
+                    "}";
 
     private static final Descriptor CUSTOM_DESCRIPTOR_WITH_SCHEMA =
             new InLongMsgCsv()
@@ -60,16 +60,13 @@ public class InLongMsgCsvTest extends DescriptorTestBase {
                     .timeFieldName("time")
                     .attributesFieldName("attributes")
                     .delimiter(';')
+                    .lineDelimiter('\n')
                     .charset(StandardCharsets.ISO_8859_1)
                     .escapeCharacter('\\')
                     .quoteCharacter('\"')
                     .nullLiteral("n/a")
                     .retainHeadDelimiter()
                     .ignoreErrors();
-
-    private static final Descriptor MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA =
-            new InLongMsgCsv()
-                    .deriveSchema();
 
     @Test(expected = ValidationException.class)
     public void testInvalidIgnoreParseErrors() {
@@ -81,26 +78,17 @@ public class InLongMsgCsvTest extends DescriptorTestBase {
         removePropertyAndVerify(CUSTOM_DESCRIPTOR_WITH_SCHEMA, "format.schema");
     }
 
-    @Test(expected = ValidationException.class)
-    public void testDuplicateSchema() {
-        // we add an additional schema
-        addPropertyAndVerify(
-                MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA,
-                "format.schema",
-                TEST_SCHEMA);
-    }
-
     // --------------------------------------------------------------------------------------------
 
     @Override
     public List<Descriptor> descriptors() {
-        return Arrays.asList(CUSTOM_DESCRIPTOR_WITH_SCHEMA, MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA);
+        return Collections.singletonList(CUSTOM_DESCRIPTOR_WITH_SCHEMA);
     }
 
     @Override
     public List<Map<String, String>> properties() {
         final Map<String, String> props1 = new HashMap<>();
-        props1.put("format.type", "inlongmsgcsv");
+        props1.put("format.type", "InLongMsg-CSV");
         props1.put("format.property-version", "1");
         props1.put("format.schema", TEST_SCHEMA);
         props1.put("format.time-field-name", "time");
@@ -112,13 +100,9 @@ public class InLongMsgCsvTest extends DescriptorTestBase {
         props1.put("format.null-literal", "n/a");
         props1.put("format.delete-head-delimiter", "false");
         props1.put("format.ignore-errors", "true");
+        props1.put("format.line-delimiter", "\n");
 
-        final Map<String, String> props2 = new HashMap<>();
-        props2.put("format.type", "inlongmsgcsv");
-        props2.put("format.property-version", "1");
-        props2.put("format.derive-schema", "true");
-
-        return Arrays.asList(props1, props2);
+        return Collections.singletonList(props1);
     }
 
     @Override

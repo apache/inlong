@@ -37,4 +37,15 @@ public interface TableFormatDeserializerFactory extends TableFormatFactory<Row> 
      */
     TableFormatDeserializer createFormatDeserializer(
             final Map<String, String> properties);
+
+    /**
+     * Creates and configures a {@link TableFormatDeserializer} using the given
+     * {@link TableFormatDeserializer.TableFormatContext}.
+     *
+     * @param context The context to create the instance of {@link TableFormatDeserializer}.
+     * @return The configured serialization schema or null if the factory cannot
+     *         provide an instance of the class.
+     */
+    TableFormatDeserializer createFormatDeserializer(
+            final TableFormatDeserializer.TableFormatContext context);
 }

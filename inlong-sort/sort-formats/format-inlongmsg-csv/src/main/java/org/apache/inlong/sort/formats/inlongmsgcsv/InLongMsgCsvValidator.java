@@ -15,28 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.kv;
+package org.apache.inlong.sort.formats.inlongmsgcsv;
 
 import org.apache.inlong.sort.formats.base.TextFormatDescriptorValidator;
 
 import org.apache.flink.table.descriptors.DescriptorProperties;
 
-import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ENTRY_DELIMITER;
-import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_KV_DELIMITER;
-import static org.apache.inlong.sort.formats.base.TableFormatUtils.validateSchema;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_LINE_DELIMITER;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.validateInLongMsgSchema;
+import static org.apache.inlong.sort.formats.inlongmsgcsv.InLongMsgCsvUtils.FORMAT_DELETE_HEAD_DELIMITER;
 
 /**
- * Validator for {@link Kv}.
+ * The validator for {@link InLongMsgCsv}.
  */
-public class KvValidator extends TextFormatDescriptorValidator {
+public class InLongMsgCsvValidator extends TextFormatDescriptorValidator {
 
     @Override
     public void validate(DescriptorProperties properties) {
         super.validate(properties);
 
-        properties.validateString(FORMAT_ENTRY_DELIMITER, true, 1, 1);
-        properties.validateString(FORMAT_KV_DELIMITER, true, 1, 1);
+        properties.validateString(FORMAT_DELIMITER, true, 1, 1);
+        properties.validateString(FORMAT_LINE_DELIMITER, true, 1, 1);
+        properties.validateBoolean(FORMAT_DELETE_HEAD_DELIMITER, true);
 
-        validateSchema(properties);
+        validateInLongMsgSchema(properties);
     }
 }

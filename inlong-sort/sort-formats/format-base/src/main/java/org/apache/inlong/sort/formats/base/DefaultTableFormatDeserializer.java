@@ -30,7 +30,7 @@ import java.util.Objects;
 /**
  * The default implementation of {@link TableFormatDeserializer}.
  */
-public class DefaultTableFormatDeserializer implements TableFormatDeserializer {
+public class DefaultTableFormatDeserializer extends TableFormatDeserializer {
 
     private static final long serialVersionUID = 1L;
 

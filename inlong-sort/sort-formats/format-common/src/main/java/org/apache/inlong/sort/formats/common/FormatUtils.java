@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.formats.common;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.DeserializationFeature;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.SerializationFeature;
@@ -35,12 +36,15 @@ public class FormatUtils {
      *
      * @param format The format to be marshalled.
      * @return The json representing the given format.
-     * @throws IOException Thrown when the format cannot be marshalled.
      */
     public static String marshall(
-            @Nonnull FormatInfo format) throws IOException {
+            @Nonnull FormatInfo format) {
         ObjectMapper objectMapper = getObjectMapper();
-        return objectMapper.writeValueAsString(format);
+        try {
+            return objectMapper.writeValueAsString(format);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Cannot serialize the format " + format + ".", e);
+        }
     }
 
     /**

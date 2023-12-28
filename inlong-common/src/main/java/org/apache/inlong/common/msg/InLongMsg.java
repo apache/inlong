@@ -98,9 +98,13 @@ public class InLongMsg {
     private boolean compress;
     private boolean isNumGroupId = false;
     private boolean ischeck = true;
-
+    private boolean isSupportLF = false;
     private final Version version;
     private long timeoffset = 0;
+
+    public int getVersion() {
+        return version.intValue();
+    }
 
     public void setTimeoffset(long offset) {
         this.timeoffset = offset;
@@ -304,6 +308,10 @@ public class InLongMsg {
 
     private boolean getBinNumFlag(ByteBuffer data) {
         return (data.getShort(BIN_MSG_EXTFIELD_OFFSET) & 0x4) == 0;
+    }
+
+    private boolean getBinisSupportLF(ByteBuffer data) {
+        return (data.getShort(BIN_MSG_EXTFIELD_OFFSET) & 0x20) == 0x20;
     }
 
     private boolean checkBinData(ByteBuffer data) {
@@ -644,6 +652,7 @@ public class InLongMsg {
             this.createtime = getBinCreatetime(parsedBinInput);
             this.msgcnt = getBinMsgCnt(parsedBinInput);
             this.isNumGroupId = getBinNumFlag(parsedBinInput);
+            this.isSupportLF = getBinisSupportLF(parsedBinInput);
         }
     }
 
@@ -800,7 +809,7 @@ public class InLongMsg {
         }
 
         boolean hasOtherAttr = ((extField & 0x1) == 0x1);
-        commonAttrMap.put(AttributeConstants.MESSAGE_COUNT, "1");
+        commonAttrMap.put(AttributeConstants.MESSAGE_COUNT, String.valueOf(this.msgcnt));
         // with private attributes,
         // need to splice private attributes + public attributes
         if (!hasOtherAttr) {
@@ -1116,5 +1125,9 @@ public class InLongMsg {
     public boolean isNumGroupId() {
         checkMode(false);
         return isNumGroupId;
+    }
+
+    public boolean isSupportLF() {
+        return isSupportLF;
     }
 }

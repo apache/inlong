@@ -94,7 +94,7 @@ public class KvTest extends DescriptorTestBase {
     @Override
     public List<Map<String, String>> properties() {
         final Map<String, String> props1 = new HashMap<>();
-        props1.put("format.type", "tdkv");
+        props1.put("format.type", "InLong-KV");
         props1.put("format.property-version", "1");
         props1.put("format.schema", TEST_SCHEMA);
         props1.put("format.entry-delimiter", "&");
@@ -106,7 +106,7 @@ public class KvTest extends DescriptorTestBase {
         props1.put("format.null-literal", "n/a");
 
         final Map<String, String> props2 = new HashMap<>();
-        props2.put("format.type", "tdkv");
+        props2.put("format.type", "InLong-KV");
         props2.put("format.property-version", "1");
         props2.put("format.derive-schema", "true");
 

@@ -36,11 +36,6 @@ public interface AttributeConstants {
     String STREAM_ID = "streamId";
 
     /**
-     * iname is like a streamId but used in file protocol(m=xxx)
-     */
-    String INAME = "iname";
-
-    /**
      * data time
      */
     String DATA_TIME = "dt";

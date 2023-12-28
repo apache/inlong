@@ -17,26 +17,34 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
-import org.apache.inlong.sort.formats.base.TableFormatConstants;
-import org.apache.inlong.sort.formats.base.TableFormatUtils;
+import org.apache.inlong.sort.formats.base.FormatDescriptorValidator;
 
 import org.apache.flink.table.descriptors.DescriptorProperties;
-import org.apache.flink.table.descriptors.DescriptorValidator;
+
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ENTRY_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ESCAPE_CHARACTER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_IGNORE_ERRORS;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_KV_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_QUOTE_CHARACTER;
+import static org.apache.inlong.sort.formats.base.TableFormatUtils.validateSchema;
 
 /**
  * Validator for mixed inlongmsg formats.
  */
-public class InLongMsgValidator implements DescriptorValidator {
+public class InLongMsgValidator extends FormatDescriptorValidator {
 
     @Override
     public void validate(DescriptorProperties properties) {
-        TableFormatUtils.getValidateProperties(properties);
-        properties.validateString(TableFormatConstants.FORMAT_DELIMITER, true, 1, 1);
-        properties.validateString(TableFormatConstants.FORMAT_ENTRY_DELIMITER, true, 1, 1);
-        properties.validateString(TableFormatConstants.FORMAT_KV_DELIMITER, true, 1, 1);
-        properties.validateString(TableFormatConstants.FORMAT_QUOTE_CHARACTER, true, 1, 1);
-        properties.validateBoolean(TableFormatConstants.FORMAT_IGNORE_ERRORS, true);
+        super.validate(properties);
 
-        TableFormatUtils.validateSchema(properties);
+        properties.validateString(FORMAT_DELIMITER, true, 1, 1);
+        properties.validateString(FORMAT_ENTRY_DELIMITER, true, 1, 1);
+        properties.validateString(FORMAT_KV_DELIMITER, true, 1, 1);
+        properties.validateString(FORMAT_ESCAPE_CHARACTER, true, 1, 1);
+        properties.validateString(FORMAT_QUOTE_CHARACTER, true, 1, 1);
+        properties.validateBoolean(FORMAT_IGNORE_ERRORS, true);
+
+        validateSchema(properties);
     }
 }
