@@ -17,11 +17,12 @@
 
 package org.apache.inlong.manager.common.fieldtype.strategy;
 
-import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
-
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.fieldtype.FieldTypeMappingReader;
+
+import org.apache.commons.lang3.StringUtils;
+
+import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
 
 /**
  * The iceberg field type mapping strategy

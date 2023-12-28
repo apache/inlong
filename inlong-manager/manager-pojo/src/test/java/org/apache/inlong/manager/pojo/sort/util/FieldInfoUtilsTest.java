@@ -28,7 +28,6 @@ import org.apache.inlong.manager.common.fieldtype.strategy.SQLServerFieldTypeStr
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.sort.formats.common.ByteTypeInfo;
 import org.apache.inlong.sort.formats.common.IntTypeInfo;
-import org.apache.inlong.sort.formats.common.LocalZonedTimestampFormatInfo;
 import org.apache.inlong.sort.formats.common.LocalZonedTimestampTypeInfo;
 import org.apache.inlong.sort.formats.common.ShortTypeInfo;
 import org.apache.inlong.sort.formats.common.StringTypeInfo;
@@ -132,7 +131,7 @@ public class FieldInfoUtilsTest {
         StreamField streamField = new StreamField();
         streamField.setIsMetaField(0);
         streamField.setFieldName("time");
-        streamField.setFieldType("TIMESTAMPLOCALTZ");
+        streamField.setFieldType("TIMESTAMP WITH TIMEZONE");
         streamField.setFieldValue("2022-03-01T09:00:00 America/New_York");
         FieldInfo fieldInfo = FieldInfoUtils.parseStreamFieldInfo(streamField,
                 "nodeId", new IcebergFieldTypeStrategy());
