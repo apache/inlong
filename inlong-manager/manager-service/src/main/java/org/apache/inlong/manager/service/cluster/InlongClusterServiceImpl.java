@@ -922,7 +922,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         Page<InlongClusterNodeEntity> entityPage =
                 (Page<InlongClusterNodeEntity>) clusterNodeMapper.selectByCondition(request);
         PageResult<ClusterNodeResponse> pageResult = PageResult.fromPage(entityPage)
-                .map(entity -> CommonBeanUtils.copyProperties(entity, ClusterNodeResponse::new));
+                .map(entity -> {
+                    InlongClusterNodeOperator instance = clusterNodeOperatorFactory.getInstance(entity.getType());
+                    return instance.getFromEntity(entity);
+                });
 
         LOGGER.debug("success to list inlong cluster node by {}", request);
         return pageResult;

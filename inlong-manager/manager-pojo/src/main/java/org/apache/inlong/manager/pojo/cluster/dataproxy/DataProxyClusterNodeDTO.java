@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.pojo.cluster.dataproxy;
 
-import org.apache.inlong.common.heartbeat.ReportResourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModel;
@@ -28,6 +28,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -42,7 +43,7 @@ import javax.validation.constraints.NotNull;
 public class DataProxyClusterNodeDTO {
 
     @ApiModelProperty("Report source type")
-    private String reportSourceType = ReportResourceType.INLONG;
+    private String reportSourceType = "INLONG";
 
     @ApiModelProperty("Enabled")
     private Boolean enabledOnline = true;
@@ -50,11 +51,11 @@ public class DataProxyClusterNodeDTO {
     /**
      * Get the dto instance from the request
      */
-    public static DataProxyClusterNodeDTO getFromRequest(DataProxyClusterNodeRequest request) {
-        return DataProxyClusterNodeDTO.builder()
-                .reportSourceType(request.getReportSourceType())
-                .enabledOnline(request.getEnabledOnline())
-                .build();
+    public static DataProxyClusterNodeDTO getFromRequest(DataProxyClusterNodeRequest request, String extParams) {
+        DataProxyClusterNodeDTO dto = StringUtils.isNotBlank(extParams)
+                ? DataProxyClusterNodeDTO.getFromJson(extParams)
+                : new DataProxyClusterNodeDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**
