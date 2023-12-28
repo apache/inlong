@@ -59,8 +59,8 @@
                  where inlong_group_id = #{groupId,jdbcType=VARCHAR}
                    and inlong_stream_id = #{streamId,jdbcType=VARCHAR}
                    and audit_id = #{auditId,jdbcType=VARCHAR}
-                   and log_ts &gt;= #{sDate, jdbcType=VARCHAR}
-                   and log_ts &lt; #{eDate, jdbcType=VARCHAR}
+                   and log_ts &gt;= #{startDate, jdbcType=VARCHAR}
+                   and log_ts &lt; #{endData, jdbcType=VARCHAR}
              ) as sub
         group by log_ts, inlong_group_id, inlong_stream_id
         order by log_ts
@@ -73,8 +73,8 @@
                  from apache_inlong_audit.audit_data
                  where ip = #{ip,jdbcType=VARCHAR}
                    and audit_id = #{auditId,jdbcType=VARCHAR}
-                   and log_ts &gt;= #{sDate, jdbcType=VARCHAR}
-                   and log_ts &lt; #{eDate, jdbcType=VARCHAR}
+                   and log_ts &gt;= #{startDate, jdbcType=VARCHAR}
+                   and log_ts &lt; #{endData, jdbcType=VARCHAR}
              ) as sub
         group by log_ts, inlong_group_id, inlong_stream_id
         order by log_ts
@@ -86,8 +86,8 @@
                  from apache_inlong_audit.audit_data
                  <where>
                      audit_id = #{auditId,jdbcType=VARCHAR}
-                     and log_ts &gt;= #{sDate, jdbcType=VARCHAR}
-                     and log_ts &lt; #{eDate, jdbcType=VARCHAR}
+                     and log_ts &gt;= #{startDate, jdbcType=VARCHAR}
+                     and log_ts &lt; #{endData, jdbcType=VARCHAR}
                      <if test="ip != null and ip != ''">
                          and ip = #{ip,jdbcType=VARCHAR}
                      </if>
