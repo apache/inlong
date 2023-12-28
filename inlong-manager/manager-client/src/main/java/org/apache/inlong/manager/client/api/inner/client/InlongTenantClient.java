@@ -96,6 +96,7 @@ public class InlongTenantClient {
      */
     public Boolean migrate(String inlongGroupId, String tenant) {
         Response<Boolean> migrateResult = ClientUtils.executeHttpCall(inlongTenantApi.migrate(inlongGroupId, tenant));
+        ClientUtils.assertRespSuccess(migrateResult);
         return migrateResult.getData();
     }
 }
