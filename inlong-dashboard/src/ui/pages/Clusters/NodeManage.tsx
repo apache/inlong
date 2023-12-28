@@ -191,12 +191,7 @@ const Comp: React.FC = () => {
         }
         table={{
           columns:
-            type === 'AGENT'
-              ? columns.filter(
-                  item =>
-                    item.dataIndex !== 'enabledOnline' && item.dataIndex !== 'reportSourceType',
-                )
-              : columns,
+            type === 'AGENT' ? columns.filter(item => item.dataIndex !== 'enabledOnline') : columns,
           rowKey: 'id',
           dataSource: data?.list,
           pagination,
