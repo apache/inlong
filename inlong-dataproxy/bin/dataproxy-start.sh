@@ -23,8 +23,8 @@ basedir="$(pwd)"
 
 # Prepare common dependency
 ROOT_DIR=$basedir/../..
-if [ -e $ROOT_DIR/bin/prepare_module_dependencys.sh ]; then
-    $ROOT_DIR/bin/prepare_module_dependencys.sh ./inlong-dataproxy/lib
+if [ -e $ROOT_DIR/bin/prepare_module_dependencies.sh ]; then
+    $ROOT_DIR/bin/prepare_module_dependencies.sh ./inlong-dataproxy/lib
 fi
 
 error() {
