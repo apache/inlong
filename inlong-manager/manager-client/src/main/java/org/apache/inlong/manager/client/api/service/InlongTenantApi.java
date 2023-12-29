@@ -43,7 +43,7 @@ public interface InlongTenantApi {
     @GET("tenant/get/{name}")
     Call<Response<InlongTenantInfo>> get(@Path("name") String name);
 
-    @GET("/tenant/migrate/{group}/{tenant}")
+    @GET("tenant/migrate/{group}/{tenant}")
     Call<Response<Boolean>> migrate(@Path("group") String group, @Path("tenant") String tenant);
 
 }
