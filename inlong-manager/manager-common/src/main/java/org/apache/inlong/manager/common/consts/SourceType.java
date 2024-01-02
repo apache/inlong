@@ -37,6 +37,8 @@ public class SourceType extends StreamType {
     public static final String REDIS = "REDIS";
     public static final String MQTT = "MQTT";
 
+    public static final String DAMENG = "DAMENG";
+
     public static final Map<String, TaskTypeEnum> SOURCE_TASK_MAP = new HashMap<String, TaskTypeEnum>() {
 
         {
@@ -55,6 +57,7 @@ public class SourceType extends StreamType {
             put(REDIS, TaskTypeEnum.REDIS);
             put(MQTT, TaskTypeEnum.MQTT);
             put(HUDI, TaskTypeEnum.HUDI);
+            put(DAMENG,TaskTypeEnum.DAMENG);
 
         }
     };

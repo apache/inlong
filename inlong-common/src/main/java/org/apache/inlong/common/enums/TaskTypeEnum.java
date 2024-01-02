@@ -36,6 +36,7 @@ public enum TaskTypeEnum {
     REDIS(11),
     MQTT(12),
     HUDI(13),
+    DAMENG(14),
 
     // only used for unit test
     MOCK(201)
