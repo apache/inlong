@@ -32,6 +32,9 @@ public interface AuditApi {
     @POST("audit/list")
     Call<Response<List<AuditVO>>> list(@Body AuditRequest auditRequest);
 
+    @POST("audit/listAll")
+    Call<Response<List<AuditVO>>> listAll(@Body AuditRequest auditRequest);
+
     @POST("audit/refreshCache")
     Call<Response<Boolean>> refreshCache();
 

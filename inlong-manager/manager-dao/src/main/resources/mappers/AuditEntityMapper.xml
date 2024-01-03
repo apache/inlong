@@ -41,20 +41,28 @@
         <result column="log_ts" property="logTs" jdbcType="VARCHAR"/>
         <result column="total" property="total" jdbcType="BIGINT"/>
         <result column="total_delay" property="totalDelay" jdbcType="BIGINT"/>
-        <result column="total_size" property="totalSize" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <resultMap id="SumGroupByIdResultMap" type="java.util.Map">
+        <result column="inlong_group_id" property="inlongGroupId" jdbcType="VARCHAR"/>
+        <result column="inlong_stream_id" property="inlongStreamId" jdbcType="VARCHAR"/>
+        <result column="log_ts" property="logTs" jdbcType="VARCHAR"/>
+        <result column="ip" property="ip" jdbcType="VARCHAR"/>
+        <result column="total" property="total" jdbcType="BIGINT"/>
+        <result column="total_delay" property="totalDelay" jdbcType="BIGINT"/>
     </resultMap>
 
     <select id="sumByLogTs" resultMap="SumByLogTsResultMap">
         select inlong_group_id, inlong_stream_id, date_format(log_ts, #{format, jdbcType=VARCHAR}) as log_ts, sum(`count`) as total, sum(`delay`) as total_delay, sum(`size`) as total_size
         from (
-            select distinct ip, docker_id, thread_id, sdk_ts, packet_id, log_ts, inlong_group_id, inlong_stream_id, audit_id, `count`, `size`, `delay`
-            from apache_inlong_audit.audit_data
-            where inlong_group_id = #{groupId,jdbcType=VARCHAR}
-              and inlong_stream_id = #{streamId,jdbcType=VARCHAR}
-              and audit_id = #{auditId,jdbcType=VARCHAR}
-              and log_ts &gt;= #{sDate, jdbcType=VARCHAR}
-              and log_ts &lt; #{eDate, jdbcType=VARCHAR}
-            ) as sub
+                 select distinct ip, docker_id, thread_id, sdk_ts, packet_id, log_ts, inlong_group_id, inlong_stream_id, audit_id, `count`, `size`, `delay`
+                 from apache_inlong_audit.audit_data
+                 where inlong_group_id = #{groupId,jdbcType=VARCHAR}
+                   and inlong_stream_id = #{streamId,jdbcType=VARCHAR}
+                   and audit_id = #{auditId,jdbcType=VARCHAR}
+                   and log_ts &gt;= #{startDate, jdbcType=VARCHAR}
+                   and log_ts &lt; #{endData, jdbcType=VARCHAR}
+             ) as sub
         group by log_ts, inlong_group_id, inlong_stream_id
         order by log_ts
     </select>
@@ -66,10 +74,30 @@
                  from apache_inlong_audit.audit_data
                  where ip = #{ip,jdbcType=VARCHAR}
                    and audit_id = #{auditId,jdbcType=VARCHAR}
-                   and log_ts &gt;= #{sDate, jdbcType=VARCHAR}
-                   and log_ts &lt; #{eDate, jdbcType=VARCHAR}
+                   and log_ts &gt;= #{startDate, jdbcType=VARCHAR}
+                   and log_ts &lt; #{endData, jdbcType=VARCHAR}
              ) as sub
         group by log_ts, inlong_group_id, inlong_stream_id
         order by log_ts
+    </select>
+    <select id="sumGroupByIp" resultMap="SumGroupByIdResultMap">
+        select inlong_group_id, inlong_stream_id, ip, sum(`count`) as total, sum(`delay`) as total_delay, sum(`size`) as total_size
+        from (
+                 select distinct ip, docker_id, thread_id, sdk_ts, packet_id, log_ts, inlong_group_id, inlong_stream_id, audit_id, `count`, `size`, `delay`
+                 from apache_inlong_audit.audit_data
+                 <where>
+                     audit_id = #{auditId,jdbcType=VARCHAR}
+                     and log_ts &gt;= #{startDate, jdbcType=VARCHAR}
+                     and log_ts &lt; #{endData, jdbcType=VARCHAR}
+                     <if test="ip != null and ip != ''">
+                         and ip = #{ip,jdbcType=VARCHAR}
+                     </if>
+                     <if test="ip == null or ip == ''">
+                         and inlong_group_id = #{groupId,jdbcType=VARCHAR}
+                         and inlong_stream_id = #{streamId,jdbcType=VARCHAR}
+                     </if>
+                 </where>
+             ) as sub
+        group by inlong_group_id, inlong_stream_id, ip
     </select>
 </mapper>

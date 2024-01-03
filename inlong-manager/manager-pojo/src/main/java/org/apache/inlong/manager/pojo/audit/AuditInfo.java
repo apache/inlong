@@ -32,6 +32,9 @@ public class AuditInfo {
     @ApiModelProperty(value = "inlong stream id")
     private String inlongStreamId;
 
+    @ApiModelProperty(value = "ip")
+    private String ip;
+
     @ApiModelProperty(value = "Audit log timestamp")
     private String logTs;
 

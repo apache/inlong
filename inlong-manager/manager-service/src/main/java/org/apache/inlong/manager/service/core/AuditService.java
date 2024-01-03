@@ -38,6 +38,14 @@ public interface AuditService {
      */
     List<AuditVO> listByCondition(AuditRequest request) throws Exception;
 
+    /**
+     * Query audit data for list by condition
+     *
+     * @param request The audit request of query condition
+     * @return The result of query
+     */
+    List<AuditVO> listAll(AuditRequest request) throws Exception;
+
     List<AuditBaseResponse> getAuditBases();
 
     /**
