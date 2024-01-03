@@ -713,7 +713,7 @@ public class ProxyConfigManager extends Thread {
             HttpConnectionParams.setConnectionTimeout(myParams, 10000);
             HttpConnectionParams.setSoTimeout(myParams, clientConfig.getManagerSocketTimeout());
             CloseableHttpClient httpClient = null;
-            if (this.clientConfig.isLocalVisit()) {
+            if (this.clientConfig.isUnsecuredConnection()) {
                 httpClient = new DefaultHttpClient(myParams);
             } else {
                 try {
@@ -751,13 +751,13 @@ public class ProxyConfigManager extends Thread {
                     return returnStr;
                 }
 
-                if (!clientConfig.isLocalVisit()) {
+                if (!clientConfig.isUnsecuredConnection()) {
                     return null;
                 }
             } catch (Throwable e) {
                 LOGGER.error("Connect Manager error, message: {}, url is {}", e.getMessage(), url);
 
-                if (!clientConfig.isLocalVisit()) {
+                if (!clientConfig.isUnsecuredConnection()) {
                     return null;
                 }
                 // get localManagerIps

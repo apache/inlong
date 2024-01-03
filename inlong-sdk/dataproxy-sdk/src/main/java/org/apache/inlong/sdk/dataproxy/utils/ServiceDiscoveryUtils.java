@@ -149,7 +149,8 @@ public class ServiceDiscoveryUtils {
      */
     public static String getManagerIpListByHttp(String managerIp, ProxyClientConfig proxyClientConfig) {
         String url =
-                (proxyClientConfig.isLocalVisit() ? "http://" : "https://") + managerIp + GET_MANAGER_IP_LIST_API;
+                (proxyClientConfig.isUnsecuredConnection() ? "http://" : "https://") + managerIp
+                        + GET_MANAGER_IP_LIST_API;
         ArrayList<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
         params.add(new BasicNameValuePair("operation", "query"));
         params.add(new BasicNameValuePair("username", proxyClientConfig.getUserName()));
@@ -159,7 +160,7 @@ public class ServiceDiscoveryUtils {
         HttpParams myParams = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(myParams, proxyClientConfig.getManagerConnectionTimeout());
         HttpConnectionParams.setSoTimeout(myParams, proxyClientConfig.getManagerSocketTimeout());
-        if (proxyClientConfig.isLocalVisit()) {
+        if (proxyClientConfig.isUnsecuredConnection()) {
             httpClient = new DefaultHttpClient(myParams);
         } else {
             try {
