@@ -17,12 +17,6 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
-import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD;
-import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD_OLD;
-
-import java.util.List;
-import lombok.SneakyThrows;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.InlongGroupApi;
 import org.apache.inlong.manager.client.api.service.InlongSortApi;
@@ -44,8 +38,16 @@ import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
 import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
 import org.apache.inlong.manager.pojo.sort.SortStatusRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
+
+import lombok.SneakyThrows;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import retrofit2.Call;
+
+import java.util.List;
+
+import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD;
+import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD_OLD;
 
 /**
  * Client for {@link InlongGroupApi}.
