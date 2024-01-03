@@ -26,14 +26,21 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLContext;
+
 import java.nio.charset.Charset;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_APPLICATION_JSON;
@@ -46,6 +53,8 @@ import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VI
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_ENABLE_HTTPS;
+import static org.apache.inlong.agent.constant.FetcherConstants.ENABLE_HTTPS;
 
 /**
  * Perform http operation
@@ -64,10 +73,17 @@ public class HttpManager {
     private final CloseableHttpClient httpClient;
     private final String secretId;
     private final String secretKey;
+    private static boolean enableHttps;
 
     public HttpManager(AgentConfiguration conf) {
-        httpClient = constructHttpClient(conf.getInt(AGENT_MANAGER_REQUEST_TIMEOUT,
-                DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT));
+        enableHttps = agentConf.getBoolean(ENABLE_HTTPS, DEFAULT_ENABLE_HTTPS);
+        int timeout = conf.getInt(AGENT_MANAGER_REQUEST_TIMEOUT,
+                DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT);
+        if (enableHttps) {
+            httpClient = constructHttpsClient(timeout);
+        } else {
+            httpClient = constructHttpClient(timeout);
+        }
         secretId = conf.get(AGENT_MANAGER_AUTH_SECRET_ID);
         secretKey = conf.get(AGENT_MANAGER_AUTH_SECRET_KEY);
     }
@@ -75,10 +91,17 @@ public class HttpManager {
     /**
      * build base url for manager according to config
      *
-     * example - http://127.0.0.1:8080/inlong/manager/openapi
+     * example(http)  - http://127.0.0.1:8080/inlong/manager/openapi
+     * example(https) - https://127.0.0.1:8080/inlong/manager/openapi
      */
     public static String buildBaseUrl() {
-        return "http://" + agentConf.get(AGENT_MANAGER_VIP_HTTP_HOST)
+        String urlHead;
+        if (enableHttps) {
+            urlHead = "https://";
+        } else {
+            urlHead = "http://";
+        }
+        return urlHead + agentConf.get(AGENT_MANAGER_VIP_HTTP_HOST)
                 + ":" + agentConf.get(AGENT_MANAGER_VIP_HTTP_PORT)
                 + agentConf.get(AGENT_MANAGER_VIP_HTTP_PREFIX_PATH, DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
     }
@@ -100,6 +123,31 @@ public class HttpManager {
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
         httpClientBuilder.setDefaultRequestConfig(requestConfig);
         return httpClientBuilder.build();
+    }
+
+    /**
+     * construct https client
+     *
+     * @param timeout timeout setting
+     * @return closeable timeout
+     */
+    private static CloseableHttpClient constructHttpsClient(int timeout) {
+        long timeoutInMs = TimeUnit.SECONDS.toMillis(timeout);
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout((int) timeoutInMs)
+                .setSocketTimeout((int) timeoutInMs).build();
+        SSLContext sslContext = null;
+        try {
+            sslContext = SSLContexts.custom().build();
+        } catch (NoSuchAlgorithmException e) {
+            LOGGER.error("constructHttpsClient error ", e);
+        } catch (KeyManagementException e) {
+            LOGGER.error("constructHttpsClient error ", e);
+        }
+        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext,
+                new String[]{"TLSv1.2"}, null,
+                SSLConnectionSocketFactory.getDefaultHostnameVerifier());
+
+        return HttpClients.custom().setDefaultRequestConfig(requestConfig).setSSLSocketFactory(sslsf).build();
     }
 
     /**

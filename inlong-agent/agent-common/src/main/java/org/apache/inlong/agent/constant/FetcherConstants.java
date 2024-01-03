@@ -31,6 +31,10 @@ public class FetcherConstants {
     // default is 30s
     public static final int DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT = 30;
 
+    // enable https
+    public static final String ENABLE_HTTPS = "enable.https";
+    public static final boolean DEFAULT_ENABLE_HTTPS = false;
+
     // required config
     public static final String AGENT_MANAGER_VIP_HTTP_HOST = "agent.manager.vip.http.host";
     public static final String AGENT_MANAGER_VIP_HTTP_PORT = "agent.manager.vip.http.port";
