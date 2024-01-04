@@ -73,7 +73,7 @@ public class ServiceDiscoveryUtils {
      * Get Inlong-Manager IP list from the given proxy client config
      */
     public static String getManagerIpList(ProxyClientConfig clientConfig) {
-        String managerAddress = clientConfig.getManagerIP() + ":" + clientConfig.getManagerPort();
+        String managerAddress = clientConfig.getManagerAddress();
         if (StringUtils.isBlank(managerAddress)) {
             log.error("ServiceDiscovery get managerIpList but managerAddress is blank, just return");
             return null;
@@ -148,8 +148,7 @@ public class ServiceDiscoveryUtils {
      * Get Inlong-Manager IP list from the given managerIp and proxy client config
      */
     public static String getManagerIpListByHttp(String managerIp, ProxyClientConfig proxyClientConfig) {
-        String url =
-                (proxyClientConfig.isLocalVisit() ? "http://" : "https://") + managerIp + GET_MANAGER_IP_LIST_API;
+        String url = managerIp + GET_MANAGER_IP_LIST_API;
         ArrayList<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
         params.add(new BasicNameValuePair("operation", "query"));
         params.add(new BasicNameValuePair("username", proxyClientConfig.getUserName()));
@@ -159,7 +158,7 @@ public class ServiceDiscoveryUtils {
         HttpParams myParams = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(myParams, proxyClientConfig.getManagerConnectionTimeout());
         HttpConnectionParams.setSoTimeout(myParams, proxyClientConfig.getManagerSocketTimeout());
-        if (proxyClientConfig.isLocalVisit()) {
+        if (proxyClientConfig.isRequestByHttp()) {
             httpClient = new DefaultHttpClient(myParams);
         } else {
             try {

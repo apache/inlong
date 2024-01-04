@@ -71,4 +71,7 @@ public class ConfigConstants {
     public static int DEFAULT_VIRTUAL_NODE = 1000;
     public static int DEFAULT_RANDOM_MAX_RETRY = 1000;
 
+    public static String HTTP = "http://";
+    public static String HTTPS = "https://";
+
 }
