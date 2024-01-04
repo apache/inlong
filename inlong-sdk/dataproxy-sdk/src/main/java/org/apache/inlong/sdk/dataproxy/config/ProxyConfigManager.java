@@ -205,7 +205,7 @@ public class ProxyConfigManager extends Thread {
 
     private ProxyConfigEntry requestProxyEntryQuietly() {
         try {
-            return requestProxyList(this.clientConfig.getProxyIPServiceURL());
+            return requestProxyList(this.clientConfig.getManagerUrl());
         } catch (Exception e) {
             LOGGER.warn("try to request proxy list by http, caught {}", e.getMessage());
         }
@@ -283,7 +283,7 @@ public class ProxyConfigManager extends Thread {
             /* We should exit if no local IP list and can't request it from manager. */
             if (localMd5 == null && proxyEntry == null) {
                 LOGGER.error("Can't connect manager at the start of proxy API {}",
-                        this.clientConfig.getProxyIPServiceURL());
+                        this.clientConfig.getManagerUrl());
                 proxyEntry = tryToReadCacheProxyEntry(configAddr);
             }
             if (localMd5 != null && proxyEntry == null && proxyInfoList != null) {
