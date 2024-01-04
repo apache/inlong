@@ -38,7 +38,7 @@ public class ProxyClientConfig {
     private int proxyUpdateMaxRetry;
     private String inlongGroupId;
     private boolean isFile = false;
-    private boolean unsecuredConnection = true;
+    private boolean requestByHttp = true;
     private boolean isNeedDataEncry = false;
     private boolean needAuthentication = false;
     private String userName = "";
@@ -100,7 +100,7 @@ public class ProxyClientConfig {
     private int maxRetry;
 
     /* pay attention to the last url parameter ip */
-    public ProxyClientConfig(String localHost, boolean unsecuredConnection, String managerIp,
+    public ProxyClientConfig(String localHost, boolean requestByHttp, String managerIp,
             int managerPort, String inlongGroupId, String authSecretId, String authSecretKey,
             LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
         if (Utils.isBlank(localHost)) {
@@ -113,9 +113,9 @@ public class ProxyClientConfig {
             throw new ProxysdkException("groupId is blank!");
         }
         this.proxyIPServiceURL =
-                getProxyIPServiceURL(managerIp, managerPort, inlongGroupId, unsecuredConnection);
+                getProxyIPServiceURL(managerIp, managerPort, inlongGroupId, requestByHttp);
         this.inlongGroupId = inlongGroupId;
-        this.unsecuredConnection = unsecuredConnection;
+        this.requestByHttp = requestByHttp;
         this.managerPort = managerPort;
         this.managerIP = managerIp;
         Utils.validLocalIp(localHost);
@@ -135,17 +135,17 @@ public class ProxyClientConfig {
     }
 
     private String getProxyIPServiceURL(String managerIp, int managerPort, String inlongGroupId,
-            boolean unsecuredConnection) {
+            boolean requestByHttp) {
         String protocolType = "https://";
-        if (unsecuredConnection) {
+        if (requestByHttp) {
             protocolType = "http://";
         }
         return protocolType + managerIp + ":" + managerPort + ConfigConstants.MANAGER_DATAPROXY_API + inlongGroupId;
     }
 
-    public ProxyClientConfig(String localHost, boolean unsecuredConnection, String managerIp, int managerPort,
+    public ProxyClientConfig(String localHost, boolean requestByHttp, String managerIp, int managerPort,
             String inlongGroupId, String authSecretId, String authSecretKey) throws ProxysdkException {
-        this(localHost, unsecuredConnection, managerIp, managerPort, inlongGroupId, authSecretId, authSecretKey,
+        this(localHost, requestByHttp, managerIp, managerPort, inlongGroupId, authSecretId, authSecretKey,
                 ConfigConstants.DEFAULT_LOAD_BALANCE, ConfigConstants.DEFAULT_VIRTUAL_NODE,
                 ConfigConstants.DEFAULT_RANDOM_MAX_RETRY);
     }
@@ -158,8 +158,8 @@ public class ProxyClientConfig {
         return tlsServerKey;
     }
 
-    public boolean isUnsecuredConnection() {
-        return unsecuredConnection;
+    public boolean isRequestByHttp() {
+        return requestByHttp;
     }
 
     public boolean isFile() {
