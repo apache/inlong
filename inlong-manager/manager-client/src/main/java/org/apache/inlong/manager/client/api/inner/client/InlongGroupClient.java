@@ -286,4 +286,17 @@ public class InlongGroupClient {
         }
         throw new RuntimeException(response.getErrMsg());
     }
+
+    public Boolean startTagSwitch(String groupId, String clusterTag) {
+        Response<Boolean> response = ClientUtils.executeHttpCall(inlongGroupApi.startTagSwitch(groupId, clusterTag));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    public Boolean finishTagSwitch(String groupId) {
+        Response<Boolean> response = ClientUtils.executeHttpCall(inlongGroupApi.finishTagSwitch(groupId));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
 }
