@@ -79,7 +79,7 @@ public class TestLogfileCollectTask {
         tempResourceName = LOADER.getResource("testScan/temp.txt").getPath();
         File f = new File(tempResourceName);
         String pattern = f.getParent() + "/YYYYMMDD_[0-9]+/test_[0-9]+.txt";
-        TaskProfile taskProfile = helper.getTaskProfile(1, pattern, true, 0L, 0L, TaskStateEnum.RUNNING);
+        TaskProfile taskProfile = helper.getTaskProfile(1, pattern, true, 0L, 0L, TaskStateEnum.RUNNING, "D");
         try {
             String startStr = "2023-09-20 00:00:00";
             String endStr = "2023-09-30 00:00:00";

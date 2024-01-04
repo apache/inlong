@@ -22,6 +22,7 @@ import org.apache.inlong.common.util.BasicAuth;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -45,16 +46,13 @@ import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_APPLICATION_JSON;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_SUCCESS_CODE;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_ADDR;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REQUEST_TIMEOUT;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_ENABLE_HTTPS;
-import static org.apache.inlong.agent.constant.FetcherConstants.ENABLE_HTTPS;
 
 /**
  * Perform http operation
@@ -76,7 +74,7 @@ public class HttpManager {
     private static boolean enableHttps;
 
     public HttpManager(AgentConfiguration conf) {
-        enableHttps = agentConf.getBoolean(ENABLE_HTTPS, DEFAULT_ENABLE_HTTPS);
+        enableHttps = StringUtils.startsWith(agentConf.get(AGENT_MANAGER_ADDR), "https");
         int timeout = conf.getInt(AGENT_MANAGER_REQUEST_TIMEOUT,
                 DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT);
         if (enableHttps) {
@@ -95,14 +93,7 @@ public class HttpManager {
      * example(https) - https://127.0.0.1:8080/inlong/manager/openapi
      */
     public static String buildBaseUrl() {
-        String urlHead;
-        if (enableHttps) {
-            urlHead = "https://";
-        } else {
-            urlHead = "http://";
-        }
-        return urlHead + agentConf.get(AGENT_MANAGER_VIP_HTTP_HOST)
-                + ":" + agentConf.get(AGENT_MANAGER_VIP_HTTP_PORT)
+        return agentConf.get(AGENT_MANAGER_ADDR)
                 + agentConf.get(AGENT_MANAGER_VIP_HTTP_PREFIX_PATH, DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
     }
 

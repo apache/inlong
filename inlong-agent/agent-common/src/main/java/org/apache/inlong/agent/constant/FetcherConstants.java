@@ -36,8 +36,7 @@ public class FetcherConstants {
     public static final boolean DEFAULT_ENABLE_HTTPS = false;
 
     // required config
-    public static final String AGENT_MANAGER_VIP_HTTP_HOST = "agent.manager.vip.http.host";
-    public static final String AGENT_MANAGER_VIP_HTTP_PORT = "agent.manager.vip.http.port";
+    public static final String AGENT_MANAGER_ADDR = "agent.manager.addr";
 
     public static final String AGENT_MANAGER_VIP_HTTP_PATH = "agent.manager.vip.http.managerIp.path";
     public static final String DEFAULT_AGENT_TDM_VIP_HTTP_PATH = "/agent/getManagerIpList";
