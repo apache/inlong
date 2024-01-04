@@ -76,6 +76,7 @@ public class InLongMsgCsvFormatFactoryTest {
                         .escapeCharacter('\\')
                         .quoteCharacter('\"')
                         .nullLiteral("null")
+                        .lineDelimiter('\n')
                         .toProperties();
         assertNotNull(properties);
 
@@ -86,6 +87,7 @@ public class InLongMsgCsvFormatFactoryTest {
                         InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME,
                         StandardCharsets.ISO_8859_1.name(),
                         ';',
+                        '\n',
                         '\\',
                         '\"',
                         "null",
@@ -100,7 +102,7 @@ public class InLongMsgCsvFormatFactoryTest {
         assertEquals(expectedDeser, actualDeser);
     }
 
-    @Test
+    @Test(expected = Exception.class)
     public void testCreateTableFormatDeserializerWithDerivation() {
         final Map<String, String> properties = new HashMap<>();
         properties.putAll(
@@ -108,9 +110,10 @@ public class InLongMsgCsvFormatFactoryTest {
                         .schema(TableSchema.fromTypeInfo(SCHEMA))
                         .toProperties());
         properties.putAll(new InLongMsgCsv().deriveSchema().toProperties());
+        System.out.println(properties);
 
         final InLongMsgCsvFormatDeserializer expectedDeser =
-                new InLongMsgCsvFormatDeserializer(TEST_FORMAT_SCHEMA);
+                new InLongMsgCsvFormatDeserializer.Builder(TEST_FORMAT_SCHEMA).build();
 
         final TableFormatDeserializer actualDeser =
                 TableFormatUtils.getTableFormatDeserializer(

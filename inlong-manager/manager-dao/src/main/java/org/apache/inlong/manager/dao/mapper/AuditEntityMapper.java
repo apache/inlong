@@ -32,16 +32,16 @@ public interface AuditEntityMapper {
      * @param groupId The groupId of inlong
      * @param streamId The streamId of inlong
      * @param auditId The auditId of inlong
-     * @param sDate The start date
-     * @param eDate The end date
+     * @param startDate The start date
+     * @param endData The end date
      * @param format The format such as '%Y-%m-%d %H:%i:00'
      * @return The result of query
      */
     List<Map<String, Object>> sumByLogTs(@Param(value = "groupId") String groupId,
             @Param(value = "streamId") String streamId,
             @Param(value = "auditId") String auditId,
-            @Param(value = "sDate") String sDate,
-            @Param(value = "eDate") String eDate,
+            @Param(value = "startDate") String startDate,
+            @Param(value = "endData") String endData,
             @Param(value = "format") String format);
 
     /**
@@ -49,14 +49,20 @@ public interface AuditEntityMapper {
      *
      * @param ip ip
      * @param auditId The auditId of inlong
-     * @param sDate The start date
-     * @param eDate The end date
+     * @param startDate The start date
+     * @param endData The end date
      * @param format The format such as '%Y-%m-%d %H:%i:00'
      * @return The result of query
      */
     List<Map<String, Object>> sumByLogTsAndIp(@Param(value = "ip") String ip,
             @Param(value = "auditId") String auditId,
-            @Param(value = "sDate") String sDate,
-            @Param(value = "eDate") String eDate,
+            @Param(value = "startDate") String startDate,
+            @Param(value = "endData") String endData,
             @Param(value = "format") String format);
+
+    List<Map<String, Object>> sumGroupByIp(@Param(value = "groupId") String groupId,
+            @Param(value = "streamId") String streamId,
+            @Param(value = "auditId") String auditId,
+            @Param(value = "startDate") String startDate,
+            @Param(value = "endData") String endData);
 }

@@ -26,23 +26,31 @@ import org.apache.inlong.sort.formats.util.StringUtils;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.descriptors.DescriptorProperties;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.Row;
 
+import javax.annotation.Nullable;
+
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static org.apache.flink.table.factories.TableFormatFactoryBase.deriveSchema;
+import static org.apache.inlong.sort.formats.base.TableFormatUtils.deserializeRowFormatInfo;
+import static org.apache.inlong.sort.formats.base.TableFormatUtils.validateSchema;
 
 /**
  * A utility class for parsing InLongMsg {@link InLongMsg}.
@@ -61,9 +69,11 @@ public class InLongMsgUtils {
 
     public static final String FORMAT_TIME_FIELD_NAME = "format.time-field-name";
     public static final String FORMAT_ATTRIBUTES_FIELD_NAME = "format.attributes-field-name";
+    public static final String FORMAT_RETAIN_PREDEFINED_FIELD = "format.retain-predefined-field";
 
     public static final String DEFAULT_TIME_FIELD_NAME = "inlongmsg_time";
     public static final String DEFAULT_ATTRIBUTES_FIELD_NAME = "inlongmsg_attributes";
+    public static final boolean DEFAULT_PREDEFINED_FIELD = true;
 
     public static final TypeInformation<Row> MIXED_ROW_TYPE =
             Types.ROW_NAMED(
@@ -87,7 +97,7 @@ public class InLongMsgUtils {
     public static RowFormatInfo getDataFormatInfo(
             DescriptorProperties descriptorProperties) {
         if (descriptorProperties.containsKey(TableFormatConstants.FORMAT_SCHEMA)) {
-            return TableFormatUtils.deserializeRowFormatInfo(descriptorProperties);
+            return deserializeRowFormatInfo(descriptorProperties);
         } else {
             TableSchema tableSchema =
                     deriveSchema(descriptorProperties.asMap());
@@ -106,6 +116,34 @@ public class InLongMsgUtils {
 
             return new RowFormatInfo(dataFieldNames, dataFieldFormatInfos);
         }
+    }
+
+    public static RowFormatInfo getDataRowFormatInfo(
+            DescriptorProperties descriptorProperties) {
+        RowFormatInfo rowFormatInfo = deserializeRowFormatInfo(descriptorProperties);
+
+        Set<String> fieldNames = new HashSet<>();
+        Collections.addAll(fieldNames, rowFormatInfo.getFieldNames());
+
+        String timeFieldName =
+                descriptorProperties
+                        .getOptionalString(FORMAT_TIME_FIELD_NAME)
+                        .orElse(DEFAULT_TIME_FIELD_NAME);
+        if (timeFieldName != null && fieldNames.contains(timeFieldName)) {
+            throw new ValidationException("The name of the time field " + timeFieldName +
+                    " conflicts with one of the data fields.");
+        }
+
+        String attributesFieldName =
+                descriptorProperties
+                        .getOptionalString(FORMAT_ATTRIBUTES_FIELD_NAME)
+                        .orElse(DEFAULT_ATTRIBUTES_FIELD_NAME);
+        if (attributesFieldName != null && fieldNames.contains(attributesFieldName)) {
+            throw new ValidationException("The name of the attributes field " +
+                    attributesFieldName + " conflicts with one of the data fields.");
+        }
+
+        return rowFormatInfo;
     }
 
     /**
@@ -286,6 +324,13 @@ public class InLongMsgUtils {
         }
     }
 
+    public static void validateInLongMsgSchema(DescriptorProperties descriptorProperties) {
+        validateSchema(descriptorProperties);
+
+        descriptorProperties.validateString(FORMAT_TIME_FIELD_NAME, true, 1);
+        descriptorProperties.validateString(FORMAT_ATTRIBUTES_FIELD_NAME, true, 1);
+    }
+
     /**
      * Creates the type information with given field names and data schema.
      *
@@ -315,5 +360,111 @@ public class InLongMsgUtils {
         }
 
         return Types.ROW_NAMED(fieldNames, fieldTypes);
+    }
+
+    public static FailureHandler getDefaultExceptionHandler(boolean ignoreErrors) {
+        if (ignoreErrors) {
+            return new IgnoreFailureHandler();
+        } else {
+            return new NoOpFailureHandler();
+        }
+    }
+
+    /**
+     * Creates the type information with given field names and data schema.
+     *
+     * @param timeFieldName The name of the time field. Null if the time field is not required.
+     * @param attributesFieldName The name of the attributes field. Null if the attributes field is
+     *                               not required.
+     * @param dataRowFormatInfo The schema of the data fields.
+     * @return The type information
+     */
+    public static TypeInformation<Row> decorateRowTypeWithNeededHeadFields(
+            @Nullable String timeFieldName,
+            @Nullable String attributesFieldName,
+            RowFormatInfo dataRowFormatInfo) {
+        RowTypeInfo rowTypeInfo = (RowTypeInfo) TableFormatUtils.getType(dataRowFormatInfo.getTypeInfo());
+
+        return InLongMsgUtils.decorateRowTypeWithNeededHeadFields(
+                timeFieldName,
+                attributesFieldName,
+                rowTypeInfo);
+    }
+
+    /**
+     * Creates the type information with given field names and data schema.
+     *
+     * @param timeFieldName The name of the time field. Null if the time field is not required.
+     * @param attributesFieldName The name of the attributes field. Null if the attributes field is
+     *                            not required.
+     * @param dataRowType The type of the data fields.
+     * @return The type information
+     */
+    public static TypeInformation<Row> decorateRowTypeWithNeededHeadFields(
+            @Nullable String timeFieldName,
+            @Nullable String attributesFieldName,
+            RowTypeInfo dataRowType) {
+        List<String> fieldNames = new ArrayList<>();
+        List<TypeInformation<?>> fieldTypes = new ArrayList<>();
+
+        if (timeFieldName != null) {
+            fieldNames.add(timeFieldName);
+            fieldTypes.add(Types.SQL_TIMESTAMP);
+        }
+
+        if (attributesFieldName != null) {
+            fieldNames.add(attributesFieldName);
+            fieldTypes.add(Types.MAP(Types.STRING, Types.STRING));
+        }
+
+        String[] dataFieldNames = dataRowType.getFieldNames();
+        TypeInformation<?>[] dataFieldTypes = dataRowType.getFieldTypes();
+
+        for (int i = 0; i < dataFieldNames.length; ++i) {
+            fieldNames.add(dataFieldNames[i]);
+            fieldTypes.add(dataFieldTypes[i]);
+        }
+
+        return Types.ROW_NAMED(
+                fieldNames.toArray(new String[0]),
+                fieldTypes.toArray(new TypeInformation[0]));
+    }
+
+    /**
+     * Creates the row with the given head fields and data row.
+     *
+     * @param timeFieldName The name of the time field. Null if the time field is not required.
+     * @param attributesFieldName The name of the attributes field. Null if the attributes field is
+     *                            not required.
+     * @param time The time of the InLongMsg.
+     * @param attributes The attributes of the InLongMsg.
+     * @param dataRow The data row.
+     * @return The row decorated with head fields.
+     */
+    public static Row decorateRowWithNeededHeadFields(
+            @Nullable String timeFieldName,
+            @Nullable String attributesFieldName,
+            Timestamp time,
+            Map<String, String> attributes,
+            Row dataRow) {
+        List<Object> headFields = new ArrayList<>(2);
+        if (timeFieldName != null) {
+            headFields.add(time);
+        }
+
+        if (attributesFieldName != null) {
+            headFields.add(attributes);
+        }
+
+        Row row = new Row(headFields.size() + dataRow.getArity());
+        for (int i = 0; i < headFields.size(); ++i) {
+            row.setField(i, headFields.get(i));
+        }
+
+        for (int i = 0; i < dataRow.getArity(); ++i) {
+            row.setField(i + headFields.size(), dataRow.getField(i));
+        }
+
+        return row;
     }
 }

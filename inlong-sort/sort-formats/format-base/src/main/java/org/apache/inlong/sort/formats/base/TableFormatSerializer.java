@@ -17,12 +17,37 @@
 
 package org.apache.inlong.sort.formats.base;
 
-import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
+
+import java.util.Map;
 
 /**
  * The serializer for a given format.
  */
-public interface TableFormatSerializer extends FlatMapFunction<Row, byte[]> {
+public abstract class TableFormatSerializer extends RichFlatMapFunction<Row, byte[]> {
 
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Initialize the format deserializer.
+     *
+     * @param context the format context.
+     */
+    public void init(TableFormatContext context) {
+    }
+
+    @Override
+    public void open(Configuration parameters) throws Exception {
+
+    }
+
+    /**
+     * The context to create instance of {@link TableFormatSerializer}.
+     */
+    public interface TableFormatContext {
+
+        Map<String, String> getFormatProperties();
+    }
 }

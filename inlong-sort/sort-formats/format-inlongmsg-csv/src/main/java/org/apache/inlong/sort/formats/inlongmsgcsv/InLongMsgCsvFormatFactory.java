@@ -17,14 +17,14 @@
 
 package org.apache.inlong.sort.formats.inlongmsgcsv;
 
-import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.base.TableFormatDeserializer;
 import org.apache.inlong.sort.formats.base.TableFormatDeserializerFactory;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
+import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgMixedFormatConverter;
+import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgMixedFormatDeserializer;
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgMixedFormatConverterValidator;
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgMixedFormatDeserializerValidator;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgMixedFormatFactory;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgMixedValidator;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgValidator;
 
 import org.apache.flink.table.descriptors.DescriptorProperties;
 import org.apache.flink.table.factories.TableFormatFactoryBase;
@@ -34,19 +34,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_CHARSET;
-import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_DELIMITER;
-import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_IGNORE_ERRORS;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_CHARSET;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_DELIMITER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ESCAPE_CHARACTER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_IGNORE_ERRORS;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_LINE_DELIMITER;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_NULL_LITERAL;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_QUOTE_CHARACTER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_SCHEMA;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.FORMAT_ATTRIBUTES_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.FORMAT_RETAIN_PREDEFINED_FIELD;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.FORMAT_TIME_FIELD_NAME;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.getDataFormatInfo;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.validateFieldNames;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.getDataRowFormatInfo;
+import static org.apache.inlong.sort.formats.inlongmsgcsv.InLongMsgCsv.FORMAT_TYPE_VALUE;
 import static org.apache.inlong.sort.formats.inlongmsgcsv.InLongMsgCsvUtils.FORMAT_DELETE_HEAD_DELIMITER;
 
 /**
@@ -61,22 +61,25 @@ public final class InLongMsgCsvFormatFactory
             InLongMsgMixedFormatFactory {
 
     public InLongMsgCsvFormatFactory() {
-        super(InLongMsgCsv.FORMAT_TYPE_VALUE, 1, true);
+        super(FORMAT_TYPE_VALUE, 1, false);
     }
 
     @Override
     public List<String> supportedFormatProperties() {
         final List<String> properties = new ArrayList<>();
+        properties.add(FORMAT_SCHEMA);
+        properties.add(FORMAT_TIME_FIELD_NAME);
+        properties.add(FORMAT_ATTRIBUTES_FIELD_NAME);
         properties.add(FORMAT_CHARSET);
         properties.add(FORMAT_DELIMITER);
+        properties.add(FORMAT_LINE_DELIMITER);
         properties.add(FORMAT_ESCAPE_CHARACTER);
         properties.add(FORMAT_QUOTE_CHARACTER);
         properties.add(FORMAT_NULL_LITERAL);
-        properties.add(FORMAT_DELETE_HEAD_DELIMITER);
-        properties.add(TableFormatConstants.FORMAT_SCHEMA);
-        properties.add(FORMAT_TIME_FIELD_NAME);
-        properties.add(FORMAT_ATTRIBUTES_FIELD_NAME);
         properties.add(FORMAT_IGNORE_ERRORS);
+        properties.add(FORMAT_DELETE_HEAD_DELIMITER);
+        properties.add(FORMAT_RETAIN_PREDEFINED_FIELD);
+
         return properties;
     }
 
@@ -87,62 +90,24 @@ public final class InLongMsgCsvFormatFactory
                 new DescriptorProperties(true);
         descriptorProperties.putProperties(properties);
 
-        final InLongMsgValidator validator = new InLongMsgValidator();
+        final InLongMsgCsvValidator validator = new InLongMsgCsvValidator();
         validator.validate(descriptorProperties);
 
-        RowFormatInfo rowFormatInfo = getDataFormatInfo(descriptorProperties);
+        RowFormatInfo rowFormatInfo = getDataRowFormatInfo(descriptorProperties);
 
-        String timeFieldName =
-                descriptorProperties
-                        .getOptionalString(FORMAT_TIME_FIELD_NAME)
-                        .orElse(InLongMsgUtils.DEFAULT_TIME_FIELD_NAME);
-        String attributesFieldName =
-                descriptorProperties
-                        .getOptionalString(FORMAT_ATTRIBUTES_FIELD_NAME)
-                        .orElse(InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME);
+        InLongMsgCsvFormatDeserializer.Builder builder =
+                new InLongMsgCsvFormatDeserializer.Builder(rowFormatInfo);
+        builder.configure(descriptorProperties);
 
-        validateFieldNames(timeFieldName, attributesFieldName, rowFormatInfo);
+        return builder.build();
+    }
 
-        String charset =
-                descriptorProperties
-                        .getOptionalString(FORMAT_CHARSET)
-                        .orElse(DEFAULT_CHARSET);
-        Character delimiter =
-                descriptorProperties
-                        .getOptionalCharacter(FORMAT_DELIMITER)
-                        .orElse(DEFAULT_DELIMITER);
-        Character escapeCharacter =
-                descriptorProperties
-                        .getOptionalCharacter(FORMAT_ESCAPE_CHARACTER)
-                        .orElse(null);
-        Character quoteCharacter =
-                descriptorProperties
-                        .getOptionalCharacter(FORMAT_QUOTE_CHARACTER)
-                        .orElse(null);
-        String nullLiteral =
-                descriptorProperties
-                        .getOptionalString(FORMAT_NULL_LITERAL)
-                        .orElse(null);
-        Boolean deleteHeadDelimiter =
-                descriptorProperties
-                        .getOptionalBoolean(FORMAT_DELETE_HEAD_DELIMITER)
-                        .orElse(InLongMsgCsvUtils.DEFAULT_DELETE_HEAD_DELIMITER);
-        boolean ignoreErrors =
-                descriptorProperties
-                        .getOptionalBoolean(FORMAT_IGNORE_ERRORS)
-                        .orElse(DEFAULT_IGNORE_ERRORS);
-
-        return new InLongMsgCsvFormatDeserializer(
-                rowFormatInfo,
-                timeFieldName,
-                attributesFieldName,
-                charset,
-                delimiter,
-                escapeCharacter,
-                quoteCharacter,
-                nullLiteral,
-                deleteHeadDelimiter,
-                ignoreErrors);
+    @Override
+    public TableFormatDeserializer createFormatDeserializer(TableFormatDeserializer.TableFormatContext context) {
+        TableFormatDeserializer deserializer =
+                createFormatDeserializer(context.getFormatProperties());
+        deserializer.init(context);
+        return deserializer;
     }
 
     @Override
@@ -152,41 +117,30 @@ public final class InLongMsgCsvFormatFactory
                 new DescriptorProperties(true);
         descriptorProperties.putProperties(properties);
 
-        final InLongMsgMixedValidator validator = new InLongMsgMixedValidator();
+        final InLongMsgMixedFormatDeserializerValidator validator =
+                new InLongMsgMixedFormatDeserializerValidator();
         validator.validate(descriptorProperties);
 
-        String charset =
-                descriptorProperties
-                        .getOptionalString(FORMAT_CHARSET)
-                        .orElse(DEFAULT_CHARSET);
-        Character delimiter =
-                descriptorProperties
-                        .getOptionalCharacter(FORMAT_DELIMITER)
-                        .orElse(DEFAULT_DELIMITER);
-        Character escapeCharacter =
-                descriptorProperties
-                        .getOptionalCharacter(FORMAT_ESCAPE_CHARACTER)
-                        .orElse(null);
-        Character quoteCharacter =
-                descriptorProperties
-                        .getOptionalCharacter(FORMAT_QUOTE_CHARACTER)
-                        .orElse(null);
-        Boolean deleteHeadDelimiter =
-                descriptorProperties
-                        .getOptionalBoolean(FORMAT_DELETE_HEAD_DELIMITER)
-                        .orElse(InLongMsgCsvUtils.DEFAULT_DELETE_HEAD_DELIMITER);
-        boolean ignoreErrors =
-                descriptorProperties
-                        .getOptionalBoolean(FORMAT_IGNORE_ERRORS)
-                        .orElse(DEFAULT_IGNORE_ERRORS);
+        final InLongMsgCsvMixedFormatDeserializer.Builder builder =
+                new InLongMsgCsvMixedFormatDeserializer.Builder();
+        builder.configure(descriptorProperties);
 
-        return new InLongMsgCsvMixedFormatDeserializer(
-                charset,
-                delimiter,
-                escapeCharacter,
-                quoteCharacter,
-                deleteHeadDelimiter,
-                ignoreErrors);
+        return builder.build();
+    }
+
+    @Override
+    public AbstractInLongMsgMixedFormatConverter createMixedFormatConverter(
+            AbstractInLongMsgMixedFormatConverter.TableFormatContext context) {
+        return createMixedFormatConverter(context.getFormatProperties());
+    }
+
+    @Override
+    public AbstractInLongMsgMixedFormatDeserializer createMixedFormatDeserializer(
+            TableFormatDeserializer.TableFormatContext context) {
+        InLongMsgCsvMixedFormatDeserializer deserializer =
+                createMixedFormatDeserializer(context.getFormatProperties());
+        deserializer.init(context);
+        return deserializer;
     }
 
     @Override
@@ -196,33 +150,16 @@ public final class InLongMsgCsvFormatFactory
                 new DescriptorProperties(true);
         descriptorProperties.putProperties(properties);
 
-        RowFormatInfo rowFormatInfo = getDataFormatInfo(descriptorProperties);
+        final InLongMsgMixedFormatConverterValidator validator =
+                new InLongMsgMixedFormatConverterValidator();
+        validator.validate(descriptorProperties);
 
-        String timeFieldName =
-                descriptorProperties
-                        .getOptionalString(FORMAT_TIME_FIELD_NAME)
-                        .orElse(InLongMsgUtils.DEFAULT_TIME_FIELD_NAME);
-        String attributesFieldName =
-                descriptorProperties
-                        .getOptionalString(FORMAT_ATTRIBUTES_FIELD_NAME)
-                        .orElse(InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME);
+        final RowFormatInfo rowFormatInfo = getDataRowFormatInfo(descriptorProperties);
 
-        validateFieldNames(timeFieldName, attributesFieldName, rowFormatInfo);
+        final InLongMsgCsvMixedFormatConverter.Builder builder =
+                new InLongMsgCsvMixedFormatConverter.Builder(rowFormatInfo);
+        builder.configure(descriptorProperties);
 
-        String nullLiteral =
-                descriptorProperties
-                        .getOptionalString(FORMAT_NULL_LITERAL)
-                        .orElse(null);
-        boolean ignoreErrors =
-                descriptorProperties
-                        .getOptionalBoolean(FORMAT_IGNORE_ERRORS)
-                        .orElse(DEFAULT_IGNORE_ERRORS);
-
-        return new InLongMsgCsvMixedFormatConverter(
-                rowFormatInfo,
-                timeFieldName,
-                attributesFieldName,
-                nullLiteral,
-                ignoreErrors);
+        return builder.build();
     }
 }

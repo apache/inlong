@@ -158,7 +158,7 @@ public class InLongMsgAttrBuilder {
                 throw new Exception("t is null");
             }
 
-            attrBuffer.append("&iname=").append(id);
+            attrBuffer.append("&streamId=").append(id);
 
             Date d = transData(this.tt, t);
             String tstr = null;
@@ -251,7 +251,7 @@ public class InLongMsgAttrBuilder {
         public String buildAttr() throws Exception {
             // #lizard forgives
             if (id != null) {
-                attrBuffer.append("&iname=").append(id);
+                attrBuffer.append("&streamId=").append(id);
             } else if (idp >= 0) {
                 attrBuffer.append("&idp=").append(idp);
             }

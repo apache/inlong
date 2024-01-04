@@ -31,21 +31,21 @@ public class ProxyClientConfig {
     private int asyncCallbackSize;
     private int managerPort = 8099;
     private String managerIP = "";
+    private String managerAddress;
 
     private String managerIpLocalPath = System.getProperty("user.dir") + "/.inlong/.managerIps";
-    private String proxyIPServiceURL = "";
+    private String managerUrl = "";
     private int proxyUpdateIntervalMinutes;
     private int proxyUpdateMaxRetry;
     private String inlongGroupId;
     private boolean isFile = false;
-    private boolean isLocalVisit = true;
+    private boolean requestByHttp = true;
     private boolean isNeedDataEncry = false;
     private boolean needAuthentication = false;
     private String userName = "";
     private String secretKey = "";
     private String rsaPubKeyUrl = "";
     private String confStoreBasePath = System.getProperty("user.dir") + "/.inlong/";
-    private boolean needVerServer = false;
     private String tlsServerCertFilePathAndName;
     private String tlsServerKey;
     private int maxTimeoutCnt = ConfigConstants.MAX_TIMEOUT_CNT;
@@ -53,7 +53,7 @@ public class ProxyClientConfig {
     private String authSecretKey;
     private String protocolType;
 
-    private boolean enableSaveManagerVIps = true;
+    private boolean enableSaveManagerVIps = false;
 
     private boolean enableSlaMetric = false;
 
@@ -101,7 +101,7 @@ public class ProxyClientConfig {
     private int maxRetry;
 
     /* pay attention to the last url parameter ip */
-    public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp,
+    public ProxyClientConfig(String localHost, boolean requestByHttp, String managerIp,
             int managerPort, String inlongGroupId, String authSecretId, String authSecretKey,
             LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
         if (Utils.isBlank(localHost)) {
@@ -113,12 +113,13 @@ public class ProxyClientConfig {
         if (Utils.isBlank(inlongGroupId)) {
             throw new ProxysdkException("groupId is blank!");
         }
-        this.proxyIPServiceURL =
-                getProxyIPServiceURL(managerIp, managerPort, inlongGroupId, isLocalVisit);
         this.inlongGroupId = inlongGroupId;
-        this.isLocalVisit = isLocalVisit;
+        this.requestByHttp = requestByHttp;
         this.managerPort = managerPort;
         this.managerIP = managerIp;
+        this.managerAddress = getManagerAddress(managerIp, managerPort, requestByHttp);
+        this.managerUrl =
+                getManagerUrl(managerAddress, inlongGroupId);
         Utils.validLocalIp(localHost);
         this.aliveConnections = ConfigConstants.ALIVE_CONNECTIONS;
         this.syncThreadPoolSize = ConfigConstants.SYNC_THREAD_POOL_SIZE;
@@ -135,17 +136,55 @@ public class ProxyClientConfig {
         this.maxRetry = maxRetry;
     }
 
-    private String getProxyIPServiceURL(String managerIp, int managerPort, String inlongGroupId, boolean isLocalVisit) {
-        String protocolType = "http://";
-        if (!isLocalVisit) {
-            protocolType = "https://";
+    /* pay attention to the last url parameter ip */
+    public ProxyClientConfig(String managerAddress, String inlongGroupId, String authSecretId, String authSecretKey,
+            LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
+        if (Utils.isBlank(managerAddress)) {
+            throw new ProxysdkException("managerAddress is blank!");
         }
-        return protocolType + managerIp + ":" + managerPort + ConfigConstants.MANAGER_DATAPROXY_API + inlongGroupId;
+        if (Utils.isBlank(inlongGroupId)) {
+            throw new ProxysdkException("groupId is blank!");
+        }
+        this.managerAddress = managerAddress;
+        this.managerUrl = getManagerUrl(managerAddress, inlongGroupId);
+        this.inlongGroupId = inlongGroupId;
+        this.aliveConnections = ConfigConstants.ALIVE_CONNECTIONS;
+        this.syncThreadPoolSize = ConfigConstants.SYNC_THREAD_POOL_SIZE;
+        this.asyncCallbackSize = ConfigConstants.ASYNC_CALLBACK_SIZE;
+        this.proxyUpdateIntervalMinutes = ConfigConstants.PROXY_UPDATE_INTERVAL_MINUTES;
+        this.proxyHttpUpdateIntervalMinutes = ConfigConstants.PROXY_HTTP_UPDATE_INTERVAL_MINUTES;
+        this.proxyUpdateMaxRetry = ConfigConstants.PROXY_UPDATE_MAX_RETRY;
+        this.connectTimeoutMillis = ConfigConstants.DEFAULT_CONNECT_TIMEOUT_MILLIS;
+        this.setRequestTimeoutMillis(ConfigConstants.DEFAULT_REQUEST_TIMEOUT_MILLIS);
+        this.authSecretId = authSecretId;
+        this.authSecretKey = authSecretKey;
+        this.loadBalance = loadBalance;
+        this.virtualNode = virtualNode;
+        this.maxRetry = maxRetry;
     }
 
-    public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp, int managerPort,
+    private String getManagerUrl(String managerAddress, String inlongGroupId) {
+        return managerAddress + ConfigConstants.MANAGER_DATAPROXY_API + inlongGroupId;
+    }
+
+    private String getManagerAddress(String managerIp, int managerPort, boolean requestByHttp) {
+        String protocolType = ConfigConstants.HTTPS;
+        if (requestByHttp) {
+            protocolType = ConfigConstants.HTTP;
+        }
+        return protocolType + managerIp + ":" + managerPort;
+    }
+
+    public ProxyClientConfig(String localHost, boolean requestByHttp, String managerIp, int managerPort,
             String inlongGroupId, String authSecretId, String authSecretKey) throws ProxysdkException {
-        this(localHost, isLocalVisit, managerIp, managerPort, inlongGroupId, authSecretId, authSecretKey,
+        this(localHost, requestByHttp, managerIp, managerPort, inlongGroupId, authSecretId, authSecretKey,
+                ConfigConstants.DEFAULT_LOAD_BALANCE, ConfigConstants.DEFAULT_VIRTUAL_NODE,
+                ConfigConstants.DEFAULT_RANDOM_MAX_RETRY);
+    }
+
+    public ProxyClientConfig(String managerAddress, String inlongGroupId, String authSecretId, String authSecretKey)
+            throws ProxysdkException {
+        this(managerAddress, inlongGroupId, authSecretId, authSecretKey,
                 ConfigConstants.DEFAULT_LOAD_BALANCE, ConfigConstants.DEFAULT_VIRTUAL_NODE,
                 ConfigConstants.DEFAULT_RANDOM_MAX_RETRY);
     }
@@ -158,8 +197,8 @@ public class ProxyClientConfig {
         return tlsServerKey;
     }
 
-    public boolean isLocalVisit() {
-        return isLocalVisit;
+    public boolean isRequestByHttp() {
+        return requestByHttp;
     }
 
     public boolean isFile() {
@@ -243,8 +282,8 @@ public class ProxyClientConfig {
         this.asyncCallbackSize = asyncCallbackSize;
     }
 
-    public String getProxyIPServiceURL() {
-        return proxyIPServiceURL;
+    public String getManagerUrl() {
+        return managerUrl;
     }
 
     public int getMaxTimeoutCnt() {
@@ -280,10 +319,6 @@ public class ProxyClientConfig {
 
     public void setConnectTimeoutMillis(long connectTimeoutMillis) {
         this.connectTimeoutMillis = connectTimeoutMillis;
-    }
-
-    public boolean isNeedVerServer() {
-        return needVerServer;
     }
 
     public long getRequestTimeoutMillis() {
@@ -329,7 +364,6 @@ public class ProxyClientConfig {
         if (Utils.isBlank(tlsServerKey)) {
             throw new IllegalArgumentException("tlsServerKey is Blank!");
         }
-        this.needVerServer = true;
         this.tlsServerKey = tlsServerKey;
         this.tlsServerCertFilePathAndName = tlsServerCertFilePathAndName;
     }

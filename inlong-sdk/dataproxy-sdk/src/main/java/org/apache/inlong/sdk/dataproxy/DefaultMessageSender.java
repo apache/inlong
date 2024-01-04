@@ -78,7 +78,7 @@ public class DefaultMessageSender implements MessageSender {
         indexCol.start();
 
         if (configure.isEnableSaveManagerVIps()
-                && configure.isLocalVisit()
+                && configure.isRequestByHttp()
                 && MANAGER_FETCHER_THREAD_STARTED.compareAndSet(false, true)) {
             managerFetcherThread = new ManagerFetcherThread(configure);
             managerFetcherThread.start();

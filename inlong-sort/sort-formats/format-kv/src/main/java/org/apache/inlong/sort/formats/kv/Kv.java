@@ -33,7 +33,7 @@ import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_DE
  */
 public class Kv implements Descriptor {
 
-    public static final String FORMAT_TYPE_VALUE = "tdkv";
+    public static final String FORMAT_TYPE_VALUE = "InLong-KV";
     private final String type;
     private final int version;
 

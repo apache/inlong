@@ -17,13 +17,12 @@
 
 package org.apache.inlong.sort.formats.csv;
 
-import org.apache.inlong.sort.formats.base.TableFormatConstants;
+import org.apache.inlong.sort.formats.base.DefaultDeserializationSchema;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
+import org.apache.inlong.sort.formats.base.util.LogCounter;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
-import org.apache.inlong.sort.formats.util.StringUtils;
 
-import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.types.Row;
 import org.slf4j.Logger;
@@ -35,10 +34,16 @@ import javax.annotation.Nullable;
 import java.nio.charset.Charset;
 import java.util.Objects;
 
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_CHARSET;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_IGNORE_ERRORS;
+import static org.apache.inlong.sort.formats.base.TableFormatUtils.deserializeBasicField;
+import static org.apache.inlong.sort.formats.util.StringUtils.splitCsv;
+
 /**
  * The deserializer for the records in csv format.
  */
-public final class CsvDeserializationSchema implements DeserializationSchema<Row> {
+public final class CsvDeserializationSchema extends DefaultDeserializationSchema<Row> {
 
     private static final long serialVersionUID = 1L;
 
@@ -80,13 +85,21 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
     @Nullable
     private final String nullLiteral;
 
+    private long failureCount = 0;
+
+    private LogCounter logCounter = new LogCounter(10, 1000, 60 * 1000);
+
     public CsvDeserializationSchema(
             @Nonnull RowFormatInfo rowFormatInfo,
             @Nonnull String charset,
             @Nonnull Character delimiter,
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
-            @Nullable String nullLiteral) {
+            @Nullable String nullLiteral,
+            boolean ignoreErrors
+
+    ) {
+        super(ignoreErrors);
         this.rowFormatInfo = rowFormatInfo;
         this.charset = charset;
         this.delimiter = delimiter;
@@ -99,11 +112,12 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
             @Nonnull RowFormatInfo rowFormatInfo) {
         this(
                 rowFormatInfo,
-                TableFormatConstants.DEFAULT_CHARSET,
-                TableFormatConstants.DEFAULT_DELIMITER,
+                DEFAULT_CHARSET,
+                DEFAULT_DELIMITER,
                 null,
                 null,
-                null);
+                null,
+                DEFAULT_IGNORE_ERRORS);
     }
 
     @SuppressWarnings("unchecked")
@@ -118,85 +132,54 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
     }
 
     @Override
-    public Row deserialize(byte[] bytes) {
+    protected Row deserializeInternal(byte[] bytes) {
         String text = new String(bytes, Charset.forName(charset));
 
-        String[] fieldNames = rowFormatInfo.getFieldNames();
-        FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
+        try {
+            String[] fieldNames = rowFormatInfo.getFieldNames();
+            FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
-        String[] fieldTexts =
-                StringUtils.splitCsv(text, delimiter, escapeChar, quoteChar);
-
-        if (fieldTexts.length != fieldNames.length) {
-            LOG.warn("The number of fields mismatches: " + fieldNames.length
-                    + " expected, but was " + fieldTexts.length + ".");
-        }
-
-        Row row = new Row(fieldNames.length);
-
-        for (int i = 0; i < fieldNames.length; ++i) {
-            if (i >= fieldTexts.length) {
-                row.setField(i, null);
-            } else {
-                Object field =
-                        TableFormatUtils.deserializeBasicField(
-                                fieldNames[i],
-                                fieldFormatInfos[i],
-                                fieldTexts[i],
-                                nullLiteral);
-
-                row.setField(i, field);
+            String[] fieldTexts = splitCsv(text, delimiter, escapeChar, quoteChar);
+            if (fieldTexts.length != fieldNames.length) {
+                failureCount = logCounter.increment();
+                if (logCounter.shouldPrint()) {
+                    LOG.warn("The number of fields mismatches: expected=[{}], actual=[{}]. " +
+                            "The total mismatched data has accumulated to [{}].",
+                            fieldNames.length, fieldTexts.length, failureCount);
+                }
             }
-        }
 
-        return row;
+            Row row = new Row(fieldNames.length);
+
+            for (int i = 0; i < fieldNames.length; ++i) {
+                if (i >= fieldTexts.length) {
+                    row.setField(i, null);
+                } else {
+                    Object field =
+                            deserializeBasicField(
+                                    fieldNames[i],
+                                    fieldFormatInfos[i],
+                                    fieldTexts[i],
+                                    nullLiteral);
+
+                    row.setField(i, field);
+                }
+            }
+
+            return row;
+        } catch (Throwable t) {
+            throw new RuntimeException(
+                    String.format("Could not properly deserialize csv. Text=[%s].", text), t);
+        }
     }
 
     /**
      * Builder for {@link CsvDeserializationSchema}.
      */
-    public static class Builder {
+    public static class Builder extends CsvFormatBuilder<Builder> {
 
-        private final RowFormatInfo rowFormatInfo;
-
-        private char delimiter = TableFormatConstants.DEFAULT_DELIMITER;
-        private String charset = TableFormatConstants.DEFAULT_CHARSET;
-        private Character escapeChar = null;
-        private Character quoteChar = null;
-        private String nullLiteral = null;
-
-        /**
-         * Creates a CSV deserialization schema for the given type information.
-         *
-         * @param rowFormatInfo Type information describing the result type.
-         */
         public Builder(RowFormatInfo rowFormatInfo) {
-            this.rowFormatInfo = rowFormatInfo;
-        }
-
-        public Builder setCharset(String charset) {
-            this.charset = charset;
-            return this;
-        }
-
-        public Builder setDelimiter(char delimiter) {
-            this.delimiter = delimiter;
-            return this;
-        }
-
-        public Builder setEscapeCharacter(char escapeChar) {
-            this.escapeChar = escapeChar;
-            return this;
-        }
-
-        public Builder setQuoteCharacter(char quoteChar) {
-            this.quoteChar = quoteChar;
-            return this;
-        }
-
-        public Builder setNullLiteral(String nullLiteral) {
-            this.nullLiteral = nullLiteral;
-            return this;
+            super(rowFormatInfo);
         }
 
         public CsvDeserializationSchema build() {
@@ -206,7 +189,8 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
                     delimiter,
                     escapeChar,
                     quoteChar,
-                    nullLiteral);
+                    nullLiteral,
+                    ignoreErrors);
         }
     }
 
@@ -221,17 +205,18 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
         }
 
         CsvDeserializationSchema that = (CsvDeserializationSchema) o;
-        return rowFormatInfo.equals(that.rowFormatInfo)
-                && Objects.equals(charset, that.charset)
-                && Objects.equals(delimiter, that.delimiter)
-                && Objects.equals(escapeChar, that.escapeChar)
-                && Objects.equals(quoteChar, that.quoteChar)
-                && Objects.equals(nullLiteral, that.nullLiteral);
+        return rowFormatInfo.equals(that.rowFormatInfo) &&
+                Objects.equals(charset, that.charset) &&
+                Objects.equals(delimiter, that.delimiter) &&
+                Objects.equals(escapeChar, that.escapeChar) &&
+                Objects.equals(quoteChar, that.quoteChar) &&
+                Objects.equals(nullLiteral, that.nullLiteral) &&
+                ignoreErrors == that.ignoreErrors;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(rowFormatInfo, charset, delimiter,
-                escapeChar, quoteChar, nullLiteral);
+                escapeChar, quoteChar, nullLiteral, ignoreErrors);
     }
 }

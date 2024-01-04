@@ -21,12 +21,10 @@ import org.apache.inlong.sort.formats.base.DefaultTableFormatDeserializer;
 import org.apache.inlong.sort.formats.base.DefaultTableFormatSerializer;
 import org.apache.inlong.sort.formats.base.ProjectedDeserializationSchemaFactory;
 import org.apache.inlong.sort.formats.base.ProjectedSerializationSchemaFactory;
-import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.base.TableFormatDeserializer;
 import org.apache.inlong.sort.formats.base.TableFormatDeserializerFactory;
 import org.apache.inlong.sort.formats.base.TableFormatSerializer;
 import org.apache.inlong.sort.formats.base.TableFormatSerializerFactory;
-import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.BasicFormatInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
@@ -44,6 +42,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_CHARSET;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ESCAPE_CHARACTER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_IGNORE_ERRORS;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_NULL_LITERAL;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_QUOTE_CHARACTER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_SCHEMA;
+import static org.apache.inlong.sort.formats.base.TableFormatUtils.getRowFormatInfo;
+import static org.apache.inlong.sort.formats.base.TableFormatUtils.projectRowFormatInfo;
+import static org.apache.inlong.sort.formats.csv.Csv.FORMAT_TYPE_VALUE;
+
 /**
  * Table format factory for providing configured instances of CSV-to-row
  * serializer and deserializer.
@@ -56,123 +65,103 @@ public final class CsvFormatFactory
             SerializationSchemaFactory<Row>,
             ProjectedDeserializationSchemaFactory,
             ProjectedSerializationSchemaFactory,
-            TableFormatDeserializerFactory,
-            TableFormatSerializerFactory {
+            TableFormatSerializerFactory,
+            TableFormatDeserializerFactory {
 
     public CsvFormatFactory() {
-        super(Csv.FORMAT_TYPE_VALUE, 1, true);
+        super(FORMAT_TYPE_VALUE, 1, true);
     }
 
     @Override
     public List<String> supportedFormatProperties() {
         final List<String> properties = new ArrayList<>();
-        properties.add(TableFormatConstants.FORMAT_SCHEMA);
-        properties.add(TableFormatConstants.FORMAT_CHARSET);
-        properties.add(TableFormatConstants.FORMAT_DELIMITER);
-        properties.add(TableFormatConstants.FORMAT_ESCAPE_CHARACTER);
-        properties.add(TableFormatConstants.FORMAT_QUOTE_CHARACTER);
-        properties.add(TableFormatConstants.FORMAT_NULL_LITERAL);
-        properties.add(TableFormatConstants.FORMAT_IGNORE_ERRORS);
+        properties.add(FORMAT_SCHEMA);
+        properties.add(FORMAT_CHARSET);
+        properties.add(FORMAT_DELIMITER);
+        properties.add(FORMAT_ESCAPE_CHARACTER);
+        properties.add(FORMAT_QUOTE_CHARACTER);
+        properties.add(FORMAT_NULL_LITERAL);
+        properties.add(FORMAT_IGNORE_ERRORS);
         return properties;
     }
 
     @Override
     public CsvDeserializationSchema createDeserializationSchema(
             Map<String, String> properties) {
-        final DescriptorProperties descriptorProperties =
-                getValidatedProperties(properties);
+        DescriptorProperties descriptorProperties = getValidatedProperties(properties);
+        RowFormatInfo rowFormatInfo = getValidatedRowFormatInfo(descriptorProperties);
 
-        final RowFormatInfo rowFormatInfo =
-                TableFormatUtils.getRowFormatInfo(descriptorProperties);
-
-        return buildDeserializationSchema(descriptorProperties, rowFormatInfo);
+        return buildDeserializationSchema(rowFormatInfo, descriptorProperties);
     }
 
     @Override
     public CsvSerializationSchema createSerializationSchema(
             Map<String, String> properties) {
-        final DescriptorProperties descriptorProperties =
-                getValidatedProperties(properties);
+        DescriptorProperties descriptorProperties = getValidatedProperties(properties);
+        RowFormatInfo rowFormatInfo = getValidatedRowFormatInfo(descriptorProperties);
 
-        final RowFormatInfo rowFormatInfo =
-                TableFormatUtils.getRowFormatInfo(descriptorProperties);
-
-        return buildSerializationSchema(descriptorProperties, rowFormatInfo);
+        return buildSerializationSchema(rowFormatInfo, descriptorProperties);
     }
 
     @Override
     public DeserializationSchema<Row> createProjectedDeserializationSchema(
             Map<String, String> properties,
             int[] fields) {
-        final DescriptorProperties descriptorProperties =
-                getValidatedProperties(properties);
+        DescriptorProperties descriptorProperties = getValidatedProperties(properties);
+        RowFormatInfo rowFormatInfo = getValidatedRowFormatInfo(descriptorProperties);
 
-        final RowFormatInfo rowFormatInfo =
-                TableFormatUtils.getRowFormatInfo(descriptorProperties);
         final RowFormatInfo projectedRowFormatInfo =
-                TableFormatUtils.projectRowFormatInfo(rowFormatInfo, fields);
+                projectRowFormatInfo(rowFormatInfo, fields);
 
-        return buildDeserializationSchema(descriptorProperties, projectedRowFormatInfo);
+        return buildDeserializationSchema(projectedRowFormatInfo, descriptorProperties);
     }
 
     @Override
     public SerializationSchema<Row> createProjectedSerializationSchema(
             Map<String, String> properties,
             int[] fields) {
-        final DescriptorProperties descriptorProperties =
-                getValidatedProperties(properties);
+        DescriptorProperties descriptorProperties = getValidatedProperties(properties);
+        RowFormatInfo rowFormatInfo = getValidatedRowFormatInfo(descriptorProperties);
 
-        final RowFormatInfo rowFormatInfo =
-                TableFormatUtils.getRowFormatInfo(descriptorProperties);
         final RowFormatInfo projectedRowFormatInfo =
-                TableFormatUtils.projectRowFormatInfo(rowFormatInfo, fields);
+                projectRowFormatInfo(rowFormatInfo, fields);
 
-        return buildSerializationSchema(descriptorProperties, projectedRowFormatInfo);
+        return buildSerializationSchema(projectedRowFormatInfo, descriptorProperties);
     }
 
     @Override
-    public TableFormatDeserializer createFormatDeserializer(
-            Map<String, String> properties) {
-        final DescriptorProperties descriptorProperties =
-                getValidatedProperties(properties);
+    public TableFormatDeserializer createFormatDeserializer(Map<String, String> properties) {
+        DeserializationSchema<Row> deserializationSchema = createDeserializationSchema(properties);
+        return new DefaultTableFormatDeserializer(deserializationSchema);
+    }
 
-        final RowFormatInfo rowFormatInfo =
-                TableFormatUtils.getRowFormatInfo(descriptorProperties);
+    @Override
+    public TableFormatDeserializer createFormatDeserializer(TableFormatDeserializer.TableFormatContext context) {
+        TableFormatDeserializer deserializer =
+                createFormatDeserializer(context.getFormatProperties());
+        deserializer.init(context);
+        return deserializer;
+    }
 
-        final CsvDeserializationSchema deserializationSchema =
-                buildDeserializationSchema(descriptorProperties, rowFormatInfo);
-
-        boolean ignoreErrors =
-                descriptorProperties
-                        .getOptionalBoolean(TableFormatConstants.FORMAT_IGNORE_ERRORS)
-                        .orElse(TableFormatConstants.DEFAULT_IGNORE_ERRORS);
-
-        return new DefaultTableFormatDeserializer(deserializationSchema, ignoreErrors);
+    @Override
+    public TableFormatSerializer createFormatSerializer(Map<String, String> properties) {
+        SerializationSchema<Row> serializationSchema = createSerializationSchema(properties);
+        return new DefaultTableFormatSerializer(serializationSchema);
     }
 
     @Override
     public TableFormatSerializer createFormatSerializer(
-            Map<String, String> properties) {
-        final DescriptorProperties descriptorProperties =
-                getValidatedProperties(properties);
-
-        final RowFormatInfo rowFormatInfo =
-                TableFormatUtils.getRowFormatInfo(descriptorProperties);
-
-        final CsvSerializationSchema serializationSchema =
-                buildSerializationSchema(descriptorProperties, rowFormatInfo);
-
-        boolean ignoreErrors =
-                descriptorProperties
-                        .getOptionalBoolean(TableFormatConstants.FORMAT_IGNORE_ERRORS)
-                        .orElse(TableFormatConstants.DEFAULT_IGNORE_ERRORS);
-
-        return new DefaultTableFormatSerializer(serializationSchema, ignoreErrors);
+            TableFormatSerializer.TableFormatContext context) {
+        TableFormatSerializer serializer =
+                createFormatSerializer(context.getFormatProperties());
+        serializer.init(context);
+        return serializer;
     }
 
-    public static DescriptorProperties getValidatedProperties(
+    private static DescriptorProperties getValidatedProperties(
             Map<String, String> properties) {
-        DescriptorProperties descriptorProperties = new DescriptorProperties(true);
+        DescriptorProperties descriptorProperties =
+                new DescriptorProperties(true);
         descriptorProperties.putProperties(properties);
 
         CsvValidator validator = new CsvValidator();
@@ -181,62 +170,42 @@ public final class CsvFormatFactory
         return descriptorProperties;
     }
 
-    private static CsvDeserializationSchema buildDeserializationSchema(
-            DescriptorProperties descriptorProperties,
-            RowFormatInfo rowFormatInfo) {
-        for (FormatInfo formatInfo : rowFormatInfo.getFieldFormatInfos()) {
-            if (!(formatInfo instanceof BasicFormatInfo)) {
-                throw new ValidationException("Currently only basic formats " + "are supported in csv formats.");
+    private static RowFormatInfo getValidatedRowFormatInfo(
+            DescriptorProperties descriptorProperties) {
+        RowFormatInfo rowFormatInfo = getRowFormatInfo(descriptorProperties);
+
+        String[] fieldNames = rowFormatInfo.getFieldNames();
+        FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
+        for (int i = 0; i < fieldNames.length; ++i) {
+            String fieldName = fieldNames[i];
+            FormatInfo fieldFormatInfo = fieldFormatInfos[i];
+
+            if (!(fieldFormatInfo instanceof BasicFormatInfo)) {
+                throw new ValidationException("The format for field " + fieldName + " is " +
+                        fieldFormatInfo.getClass().getSimpleName() + ". Only basic formats are " +
+                        "supported in csv.");
             }
         }
 
+        return rowFormatInfo;
+    }
+
+    private static CsvDeserializationSchema buildDeserializationSchema(
+            RowFormatInfo rowFormatInfo,
+            DescriptorProperties descriptorProperties) {
         CsvDeserializationSchema.Builder builder =
                 new CsvDeserializationSchema.Builder(rowFormatInfo);
-
-        descriptorProperties.getOptionalString(TableFormatConstants.FORMAT_CHARSET)
-                .ifPresent(builder::setCharset);
-
-        descriptorProperties.getOptionalCharacter(TableFormatConstants.FORMAT_DELIMITER)
-                .ifPresent(builder::setDelimiter);
-
-        descriptorProperties.getOptionalCharacter(TableFormatConstants.FORMAT_ESCAPE_CHARACTER)
-                .ifPresent(builder::setEscapeCharacter);
-
-        descriptorProperties.getOptionalCharacter(TableFormatConstants.FORMAT_QUOTE_CHARACTER)
-                .ifPresent(builder::setQuoteCharacter);
-
-        descriptorProperties.getOptionalString(TableFormatConstants.FORMAT_NULL_LITERAL)
-                .ifPresent(builder::setNullLiteral);
+        builder.configure(descriptorProperties);
 
         return builder.build();
     }
 
     private static CsvSerializationSchema buildSerializationSchema(
-            DescriptorProperties descriptorProperties,
-            RowFormatInfo rowFormatInfo) {
-        for (FormatInfo formatInfo : rowFormatInfo.getFieldFormatInfos()) {
-            if (!(formatInfo instanceof BasicFormatInfo)) {
-                throw new ValidationException("Currently only basic formats " + "are supported in csv formats.");
-            }
-        }
-
+            RowFormatInfo rowFormatInfo,
+            DescriptorProperties descriptorProperties) {
         CsvSerializationSchema.Builder builder =
                 new CsvSerializationSchema.Builder(rowFormatInfo);
-
-        descriptorProperties.getOptionalString(TableFormatConstants.FORMAT_CHARSET)
-                .ifPresent(builder::setCharset);
-
-        descriptorProperties.getOptionalCharacter(TableFormatConstants.FORMAT_DELIMITER)
-                .ifPresent(builder::setDelimiter);
-
-        descriptorProperties.getOptionalCharacter(TableFormatConstants.FORMAT_ESCAPE_CHARACTER)
-                .ifPresent(builder::setEscapeCharacter);
-
-        descriptorProperties.getOptionalCharacter(TableFormatConstants.FORMAT_QUOTE_CHARACTER)
-                .ifPresent(builder::setQuoteCharacter);
-
-        descriptorProperties.getOptionalString(TableFormatConstants.FORMAT_NULL_LITERAL)
-                .ifPresent(builder::setNullLiteral);
+        builder.configure(descriptorProperties);
 
         return builder.build();
     }

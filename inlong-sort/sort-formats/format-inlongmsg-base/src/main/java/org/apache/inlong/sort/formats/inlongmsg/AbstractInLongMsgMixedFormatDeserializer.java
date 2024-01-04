@@ -26,7 +26,12 @@ public abstract class AbstractInLongMsgMixedFormatDeserializer
         extends
             AbstractInLongMsgFormatDeserializer {
 
+    @Deprecated
     public AbstractInLongMsgMixedFormatDeserializer(@Nonnull Boolean ignoreErrors) {
-        super(ignoreErrors);
+        this(InLongMsgUtils.getDefaultExceptionHandler(ignoreErrors));
+    }
+
+    public AbstractInLongMsgMixedFormatDeserializer(@Nonnull FailureHandler failureHandler) {
+        super(failureHandler);
     }
 }

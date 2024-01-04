@@ -333,7 +333,7 @@ public class AuditServiceImpl implements AuditService {
                 }
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
                 try (Connection connection = config.getCkConnection();
-                        PreparedStatement statement = getAuditCkStatement(connection, groupId, streamId,
+                        PreparedStatement statement = getAuditCkStatementGroupByLogTs(connection, groupId, streamId,
                                 request.getIp(), auditId,
                                 request.getStartDate(),
                                 request.getEndDate());
@@ -356,6 +356,60 @@ public class AuditServiceImpl implements AuditService {
         }
         LOGGER.info("success to query audit list for request={}", request);
         return aggregateByTimeDim(result, request.getTimeStaticsDim());
+    }
+
+    @Override
+    public List<AuditVO> listAll(AuditRequest request) throws Exception {
+        List<AuditVO> result = new ArrayList<>();
+        AuditQuerySource querySource = AuditQuerySource.valueOf(auditQuerySource);
+        for (String auditId : request.getAuditIds()) {
+            AuditBaseEntity auditBaseEntity = auditItemMap.get(auditId);
+            String auditName = "";
+            if (auditBaseEntity != null) {
+                auditName = auditBaseEntity.getName();
+            }
+            if (AuditQuerySource.MYSQL == querySource) {
+                // Support min agg at now
+                DateTime endDate = DAY_DATE_FORMATTER.parseDateTime(request.getEndDate());
+                String endDateStr = endDate.plusDays(1).toString(DAY_DATE_FORMATTER);
+                List<Map<String, Object>> sumList = auditEntityMapper.sumGroupByIp(
+                        request.getInlongGroupId(), request.getInlongStreamId(), auditId, request.getStartDate(),
+                        endDateStr);
+                List<AuditInfo> auditSet = sumList.stream().map(s -> {
+                    AuditInfo vo = new AuditInfo();
+                    vo.setInlongGroupId((String) s.get("inlongGroupId"));
+                    vo.setInlongStreamId((String) s.get("inlongStreamId"));
+                    vo.setLogTs((String) s.get("logTs"));
+                    vo.setIp((String) s.get("ip"));
+                    vo.setCount(((BigDecimal) s.get("total")).longValue());
+                    vo.setDelay(((BigDecimal) s.get("totalDelay")).longValue());
+                    vo.setSize(((BigDecimal) s.get("totalSize")).longValue());
+                    return vo;
+                }).collect(Collectors.toList());
+                result.add(new AuditVO(auditId, auditName, auditSet, null));
+            } else if (AuditQuerySource.CLICKHOUSE == querySource) {
+                try (Connection connection = config.getCkConnection();
+                        PreparedStatement statement = getAuditCkStatementGroupByIp(connection,
+                                request.getInlongGroupId(), request.getInlongStreamId(), request.getIp(), auditId,
+                                request.getStartDate(), request.getEndDate());
+
+                        ResultSet resultSet = statement.executeQuery()) {
+                    List<AuditInfo> auditSet = new ArrayList<>();
+                    while (resultSet.next()) {
+                        AuditInfo vo = new AuditInfo();
+                        vo.setInlongGroupId(resultSet.getString("inlong_group_id"));
+                        vo.setInlongStreamId(resultSet.getString("inlong_stream_id"));
+                        vo.setIp(resultSet.getString("ip"));
+                        vo.setCount(resultSet.getLong("total"));
+                        vo.setDelay(resultSet.getLong("total_delay"));
+                        vo.setSize(resultSet.getLong("total_size"));
+                        auditSet.add(vo);
+                    }
+                    result.add(new AuditVO(auditId, auditName, auditSet, null));
+                }
+            }
+        }
+        return result;
     }
 
     @Override
@@ -430,7 +484,8 @@ public class AuditServiceImpl implements AuditService {
      * @param endDate The en datetime of request
      * @return The clickhouse Statement
      */
-    private PreparedStatement getAuditCkStatement(Connection connection, String groupId, String streamId, String ip,
+    private PreparedStatement getAuditCkStatementGroupByLogTs(Connection connection, String groupId, String streamId,
+            String ip,
             String auditId, String startDate, String endDate) throws SQLException {
         String start = DAY_DATE_FORMATTER.parseDateTime(startDate).toString(SECOND_FORMAT);
         String end = DAY_DATE_FORMATTER.parseDateTime(endDate).plusDays(1).toString(SECOND_FORMAT);
@@ -463,6 +518,39 @@ public class AuditServiceImpl implements AuditService {
         statement.setString(3, auditId);
         statement.setString(4, start);
         statement.setString(5, end);
+        return statement;
+    }
+
+    private PreparedStatement getAuditCkStatementGroupByIp(Connection connection, String groupId,
+            String streamId, String ip, String auditId, String startDate, String endDate) throws SQLException {
+
+        if (StringUtils.isNotBlank(ip)) {
+            return getAuditCkStatementByIpGroupByIp(connection, auditId, ip, startDate, endDate);
+        }
+        // Query results are duplicated according to all fields.
+        String subQuery = new SQL()
+                .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", "log_ts", "inlong_group_id",
+                        "inlong_stream_id", "audit_id", "count", "size", "delay")
+                .FROM("audit_data")
+                .WHERE("inlong_group_id = ?")
+                .WHERE("inlong_stream_id = ?")
+                .WHERE("audit_id = ?")
+                .WHERE("log_ts >= ?")
+                .WHERE("log_ts < ?")
+                .toString();
+
+        String sql = new SQL()
+                .SELECT("inlong_group_id", "inlong_stream_id", "sum(count) as total", "ip",
+                        "sum(delay) as total_delay", "sum(size) as total_size")
+                .FROM("(" + subQuery + ") as sub")
+                .GROUP_BY("inlong_group_id", "inlong_stream_id", "ip")
+                .toString();
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, groupId);
+        statement.setString(2, streamId);
+        statement.setString(3, auditId);
+        statement.setString(4, startDate);
+        statement.setString(5, endDate);
         return statement;
     }
 
@@ -575,6 +663,32 @@ public class AuditServiceImpl implements AuditService {
         statement.setString(2, auditId);
         statement.setString(3, start);
         statement.setString(4, end);
+        return statement;
+    }
+
+    private PreparedStatement getAuditCkStatementByIpGroupByIp(Connection connection, String auditId, String ip,
+            String startDate, String endDate) throws SQLException {
+        String subQuery = new SQL()
+                .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", "log_ts", "inlong_group_id",
+                        "inlong_stream_id", "audit_id", "count", "size", "delay")
+                .FROM("audit_data")
+                .WHERE("ip = ?")
+                .WHERE("audit_id = ?")
+                .WHERE("log_ts >= ?")
+                .WHERE("log_ts < ?")
+                .toString();
+
+        String sql = new SQL()
+                .SELECT("inlong_group_id", "inlong_stream_id", "ip", "sum(count) as total",
+                        "sum(delay) as total_delay", "sum(size) as total_size")
+                .FROM("(" + subQuery + ") as sub")
+                .GROUP_BY("inlong_group_id", "inlong_stream_id", "ip")
+                .toString();
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, ip);
+        statement.setString(2, auditId);
+        statement.setString(3, startDate);
+        statement.setString(4, endDate);
         return statement;
     }
 

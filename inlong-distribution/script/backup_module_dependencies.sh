@@ -58,13 +58,13 @@ mv $projectpath/inlong-tubemq-server/lib/*.jar $projectpath/lib/
 mv $projectpath/inlong-tubemq-manager/lib/*.jar $projectpath/lib/
 mv $projectpath/inlong-audit/lib/*.jar $projectpath/lib/
 
-# Copy the file "copy_module_dependencys.sh" to bin directory
-cp ./script/copy_module_dependencys.sh $projectpath/bin/
-chmod 755 $projectpath/bin/copy_module_dependencys.sh
+# Copy the file "copy_module_dependencies.sh" to bin directory
+cp ./script/copy_module_dependencies.sh $projectpath/bin/
+chmod 755 $projectpath/bin/copy_module_dependencies.sh
 
-# Copy the file "prepare_module_dependencys.sh" to bin directory
-cp ./script/prepare_module_dependencys.sh $projectpath/bin/
-chmod 755 $projectpath/bin/prepare_module_dependencys.sh
+# Copy the file "prepare_module_dependencies.sh" to bin directory
+cp ./script/prepare_module_dependencies.sh $projectpath/bin/
+chmod 755 $projectpath/bin/prepare_module_dependencies.sh
 
 # Package InLong version file
 lastname=$(basename "$projectpath")

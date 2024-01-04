@@ -22,19 +22,20 @@ import org.apache.inlong.sort.formats.base.TableFormatDeserializer;
 
 import org.apache.flink.types.Row;
 import org.apache.flink.util.Collector;
+import org.apache.flink.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 
-import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * The base for all inlongmsg format deserializers.
  */
-public abstract class AbstractInLongMsgFormatDeserializer implements TableFormatDeserializer {
+public abstract class AbstractInLongMsgFormatDeserializer extends TableFormatDeserializer {
 
     private static final long serialVersionUID = 1L;
 
@@ -44,10 +45,15 @@ public abstract class AbstractInLongMsgFormatDeserializer implements TableFormat
      * True if ignore errors in the deserialization.
      */
     @Nonnull
-    protected final Boolean ignoreErrors;
+    protected FailureHandler failureHandler;
 
+    @Deprecated
     public AbstractInLongMsgFormatDeserializer(@Nonnull Boolean ignoreErrors) {
-        this.ignoreErrors = ignoreErrors;
+        this(InLongMsgUtils.getDefaultExceptionHandler(ignoreErrors));
+    }
+
+    public AbstractInLongMsgFormatDeserializer(@Nonnull FailureHandler failureHandler) {
+        this.failureHandler = Preconditions.checkNotNull(failureHandler);
     }
 
     /**
@@ -56,14 +62,15 @@ public abstract class AbstractInLongMsgFormatDeserializer implements TableFormat
     protected abstract InLongMsgHead parseHead(String attr) throws Exception;
 
     /**
-     * Parses the body of the inlongmsg record.
+     * Parses the body of the list InLongMsg record.
      */
-    protected abstract InLongMsgBody parseBody(byte[] bytes) throws Exception;
+    protected abstract List<InLongMsgBody> parseBodyList(byte[] bytes) throws Exception;
 
     /**
-     * Converts the inlongmsg record into a row.
+     * Converts the InLongMsg record into row list.
      */
-    protected abstract Row convertRow(InLongMsgHead head, InLongMsgBody body) throws Exception;
+    protected abstract List<Row> convertRows(InLongMsgHead head,
+            InLongMsgBody body) throws Exception;
 
     @Override
     public void flatMap(
@@ -81,12 +88,8 @@ public abstract class AbstractInLongMsgFormatDeserializer implements TableFormat
             try {
                 head = parseHead(attr);
             } catch (Exception e) {
-                if (ignoreErrors) {
-                    LOG.warn("Cannot properly parse the head {}.", attr, e);
-                    continue;
-                } else {
-                    throw e;
-                }
+                failureHandler.onParsingHeadFailure(attr, e);
+                continue;
             }
 
             while (iterator.hasNext()) {
@@ -96,33 +99,28 @@ public abstract class AbstractInLongMsgFormatDeserializer implements TableFormat
                     continue;
                 }
 
-                InLongMsgBody body;
+                List<InLongMsgBody> bodyList;
                 try {
-                    body = parseBody(bodyBytes);
+                    bodyList = parseBodyList(bodyBytes);
                 } catch (Exception e) {
-                    if (ignoreErrors) {
-                        LOG.warn("Cannot properly parse the body {}.",
-                                Arrays.toString(bodyBytes), e);
-                        continue;
-                    } else {
-                        throw e;
-                    }
+                    failureHandler.onParsingBodyFailure(bodyBytes, e);
+                    continue;
                 }
 
-                Row row;
-                try {
-                    row = convertRow(head, body);
-                } catch (Exception e) {
-                    if (ignoreErrors) {
-                        LOG.warn("Cannot properly convert the inlongmsg ({}, {}) " + "to row.", head, body, e);
+                for (InLongMsgBody body : bodyList) {
+                    List<Row> rows;
+                    try {
+                        rows = convertRows(head, body);
+                    } catch (Exception e) {
+                        failureHandler.onConvertingRowFailure(head, body, e);
                         continue;
-                    } else {
-                        throw e;
                     }
-                }
 
-                if (row != null) {
-                    collector.collect(row);
+                    if (rows != null) {
+                        for (Row row : rows) {
+                            collector.collect(row);
+                        }
+                    }
                 }
             }
         }
@@ -133,17 +131,15 @@ public abstract class AbstractInLongMsgFormatDeserializer implements TableFormat
         if (this == o) {
             return true;
         }
-
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         AbstractInLongMsgFormatDeserializer that = (AbstractInLongMsgFormatDeserializer) o;
-        return ignoreErrors.equals(that.ignoreErrors);
+        return Objects.equals(failureHandler, that.failureHandler);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ignoreErrors);
+        return Objects.hash(failureHandler);
     }
 }

@@ -17,14 +17,13 @@
 
 package org.apache.inlong.sort.formats.csv;
 
-import org.apache.inlong.sort.formats.base.TableFormatConstants;
-import org.apache.inlong.sort.formats.base.TableFormatUtils;
+import org.apache.inlong.sort.formats.base.DefaultSerializationSchema;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
-import org.apache.inlong.sort.formats.util.StringUtils;
 
-import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.types.Row;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,12 +31,20 @@ import javax.annotation.Nullable;
 import java.nio.charset.Charset;
 import java.util.Objects;
 
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_CHARSET;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_IGNORE_ERRORS;
+import static org.apache.inlong.sort.formats.base.TableFormatUtils.serializeBasicField;
+import static org.apache.inlong.sort.formats.util.StringUtils.concatCsv;
+
 /**
  * The serializer for the records in csv format.
  */
-public class CsvSerializationSchema implements SerializationSchema<Row> {
+public class CsvSerializationSchema extends DefaultSerializationSchema<Row> {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(CsvSerializationSchema.class);
 
     /**
      * Format information describing the result type.
@@ -80,7 +87,9 @@ public class CsvSerializationSchema implements SerializationSchema<Row> {
             @Nonnull Character delimiter,
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
-            @Nullable String nullLiteral) {
+            @Nullable String nullLiteral,
+            boolean ignoreErrors) {
+        super(ignoreErrors);
         this.rowFormatInfo = rowFormatInfo;
         this.charset = charset;
         this.delimiter = delimiter;
@@ -93,91 +102,64 @@ public class CsvSerializationSchema implements SerializationSchema<Row> {
             @Nonnull RowFormatInfo rowFormatInfo) {
         this(
                 rowFormatInfo,
-                TableFormatConstants.DEFAULT_CHARSET,
-                TableFormatConstants.DEFAULT_DELIMITER,
+                DEFAULT_CHARSET,
+                DEFAULT_DELIMITER,
                 null,
                 null,
-                null);
+                null,
+                DEFAULT_IGNORE_ERRORS);
     }
 
     @Override
-    public byte[] serialize(Row row) {
+    protected byte[] serializeInternal(Row row) {
         if (row == null) {
             return null;
         }
 
-        String[] fieldNames = rowFormatInfo.getFieldNames();
-        FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
+        try {
+            String[] fieldNames = rowFormatInfo.getFieldNames();
+            FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
-        if (row.getArity() != fieldFormatInfos.length) {
-            throw new IllegalStateException("The number of fields " + "mismatches: "
-                    + fieldFormatInfos.length + " expected, " + "but was " + row.getArity() + ".");
+            if (row.getArity() != fieldFormatInfos.length) {
+                LOG.warn("The number of fields mismatches: expected=[{}], actual=[{}]. Row=[{}].",
+                        fieldNames.length, row.getArity(), row);
+            }
+
+            String[] fieldTexts = new String[fieldNames.length];
+
+            // The extra fields will be dropped.
+            for (int i = 0; i < fieldNames.length; ++i) {
+                if (i >= row.getArity()) {
+                    // The absent fields will be filled with null literal
+                    fieldTexts[i] = nullLiteral == null ? "" : nullLiteral;
+                } else {
+                    String fieldText =
+                            serializeBasicField(
+                                    fieldNames[i],
+                                    fieldFormatInfos[i],
+                                    row.getField(i),
+                                    nullLiteral);
+                    fieldTexts[i] = fieldText;
+                }
+            }
+
+            String result =
+                    concatCsv(fieldTexts, delimiter, escapeChar, quoteChar);
+
+            return result.getBytes(Charset.forName(charset));
+        } catch (Throwable t) {
+            throw new RuntimeException(
+                    String.format("Could not properly serialize csv. Row=[%s].", row), t);
         }
-
-        String[] fieldTexts = new String[row.getArity()];
-
-        for (int i = 0; i < row.getArity(); ++i) {
-
-            String fieldText =
-                    TableFormatUtils.serializeBasicField(
-                            fieldNames[i],
-                            fieldFormatInfos[i],
-                            row.getField(i),
-                            nullLiteral);
-            fieldTexts[i] = fieldText;
-        }
-
-        String result =
-                StringUtils.concatCsv(fieldTexts, delimiter, escapeChar, quoteChar);
-
-        return result.getBytes(Charset.forName(charset));
     }
 
     /**
      * Builder for {@link CsvSerializationSchema}.
      */
-    public static class Builder {
+    public static class Builder extends CsvFormatBuilder<Builder> {
 
-        private final RowFormatInfo rowFormatInfo;
-
-        private char delimiter = TableFormatConstants.DEFAULT_DELIMITER;
-        private String charset = TableFormatConstants.DEFAULT_CHARSET;
-        private Character escapeChar = null;
-        private Character quoteChar = null;
-        private String nullLiteral = null;
-
-        /**
-         * Creates a CSV serialization schema for the given type information.
-         *
-         * @param rowFormatInfo Type information describing the result type.
-         */
         public Builder(RowFormatInfo rowFormatInfo) {
-            this.rowFormatInfo = rowFormatInfo;
-        }
-
-        public Builder setDelimiter(char delimiter) {
-            this.delimiter = delimiter;
-            return this;
-        }
-
-        public Builder setCharset(String charset) {
-            this.charset = charset;
-            return this;
-        }
-
-        public Builder setEscapeCharacter(char escapeChar) {
-            this.escapeChar = escapeChar;
-            return this;
-        }
-
-        public Builder setQuoteCharacter(char quoteChar) {
-            this.quoteChar = quoteChar;
-            return this;
-        }
-
-        public Builder setNullLiteral(String nullLiteral) {
-            this.nullLiteral = nullLiteral;
-            return this;
+            super(rowFormatInfo);
         }
 
         public CsvSerializationSchema build() {
@@ -187,7 +169,8 @@ public class CsvSerializationSchema implements SerializationSchema<Row> {
                     delimiter,
                     escapeChar,
                     quoteChar,
-                    nullLiteral);
+                    nullLiteral,
+                    ignoreErrors);
         }
     }
 
@@ -202,12 +185,12 @@ public class CsvSerializationSchema implements SerializationSchema<Row> {
         }
 
         CsvSerializationSchema that = (CsvSerializationSchema) o;
-        return Objects.equals(rowFormatInfo, that.rowFormatInfo)
-                && Objects.equals(charset, that.charset)
-                && Objects.equals(delimiter, that.delimiter)
-                && Objects.equals(escapeChar, that.escapeChar)
-                && Objects.equals(quoteChar, that.quoteChar)
-                && Objects.equals(nullLiteral, that.nullLiteral);
+        return Objects.equals(rowFormatInfo, that.rowFormatInfo) &&
+                Objects.equals(charset, that.charset) &&
+                Objects.equals(delimiter, that.delimiter) &&
+                Objects.equals(escapeChar, that.escapeChar) &&
+                Objects.equals(quoteChar, that.quoteChar) &&
+                Objects.equals(nullLiteral, that.nullLiteral);
     }
 
     @Override

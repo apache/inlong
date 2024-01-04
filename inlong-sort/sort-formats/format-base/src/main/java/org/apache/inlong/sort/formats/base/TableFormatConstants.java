@@ -27,6 +27,7 @@ public class TableFormatConstants {
     public static final String FORMAT_DERIVE_SCHEMA = "format.derive-schema";
     public static final String FORMAT_ENTRY_DELIMITER = "format.entry-delimiter";
     public static final String FORMAT_KV_DELIMITER = "format.kv-delimiter";
+    public static final String FORMAT_LINE_DELIMITER = "format.line-delimiter";
     public static final String FORMAT_NULL_LITERAL = "format.null-literal";
     public static final String FORMAT_ESCAPE_CHARACTER = "format.escape-character";
     public static final String FORMAT_QUOTE_CHARACTER = "format.quote-character";
@@ -38,6 +39,10 @@ public class TableFormatConstants {
     public static final char DEFAULT_DELIMITER = ',';
     public static final char DEFAULT_ENTRY_DELIMITER = '&';
     public static final char DEFAULT_KV_DELIMITER = '=';
+    public static final Character DEFAULT_LINE_DELIMITER = null;
+    public static final Character DEFAULT_ESCAPE_CHARACTER = null;
+    public static final Character DEFAULT_QUOTE_CHARACTER = null;
+    public static final String DEFAULT_NULL_LITERAL = null;
     public static final boolean DEFAULT_IGNORE_ERRORS = false;
     public static final String DEFAULT_CHARSET = "UTF-8";
 }

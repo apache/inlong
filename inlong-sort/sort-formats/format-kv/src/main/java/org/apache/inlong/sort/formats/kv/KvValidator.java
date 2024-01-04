@@ -17,24 +17,26 @@
 
 package org.apache.inlong.sort.formats.kv;
 
-import org.apache.inlong.sort.formats.base.TableFormatConstants;
-import org.apache.inlong.sort.formats.base.TableFormatUtils;
+import org.apache.inlong.sort.formats.base.TextFormatDescriptorValidator;
 
 import org.apache.flink.table.descriptors.DescriptorProperties;
-import org.apache.flink.table.descriptors.DescriptorValidator;
+
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ENTRY_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_KV_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatUtils.validateSchema;
 
 /**
  * Validator for {@link Kv}.
  */
-public class KvValidator implements DescriptorValidator {
+public class KvValidator extends TextFormatDescriptorValidator {
 
     @Override
     public void validate(DescriptorProperties properties) {
-        TableFormatUtils.getValidateProperties(properties);
-        properties.validateString(TableFormatConstants.FORMAT_ENTRY_DELIMITER, true, 1, 1);
-        properties.validateString(TableFormatConstants.FORMAT_KV_DELIMITER, true, 1, 1);
-        properties.validateString(TableFormatConstants.FORMAT_QUOTE_CHARACTER, true, 1, 1);
+        super.validate(properties);
 
-        TableFormatUtils.validateSchema(properties);
+        properties.validateString(FORMAT_ENTRY_DELIMITER, true, 1, 1);
+        properties.validateString(FORMAT_KV_DELIMITER, true, 1, 1);
+
+        validateSchema(properties);
     }
 }
