@@ -51,10 +51,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_BATCH_FLUSH_INTERVAL;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_BATCH_FLUSH_INTERVAL;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_ADDR;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_PROXY_SEND;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_PROXY_SEND;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
@@ -79,11 +78,7 @@ public class SenderManager {
     // in case of thread abusing.
     private ThreadFactory SHARED_FACTORY;
     private static final AtomicLong METRIC_INDEX = new AtomicLong(0);
-    private final String managerHost;
-    private final int managerPort;
-    private final String netTag;
-    private final String localhost;
-    private final boolean isLocalVisit;
+    private final String managerAddr;
     private final int totalAsyncBufSize;
     private final int aliveConnectionNum;
     private final boolean isCompress;
@@ -109,13 +104,8 @@ public class SenderManager {
 
     public SenderManager(JobProfile jobConf, String inlongGroupId, String sourcePath) {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
-        managerHost = conf.get(AGENT_MANAGER_VIP_HTTP_HOST);
-        managerPort = conf.getInt(AGENT_MANAGER_VIP_HTTP_PORT);
+        managerAddr = conf.get(AGENT_MANAGER_ADDR);
         proxySend = jobConf.getBoolean(JOB_PROXY_SEND, DEFAULT_JOB_PROXY_SEND);
-        localhost = jobConf.get(CommonConstants.PROXY_LOCAL_HOST, CommonConstants.DEFAULT_PROXY_LOCALHOST);
-        netTag = jobConf.get(CommonConstants.PROXY_NET_TAG, CommonConstants.DEFAULT_PROXY_NET_TAG);
-        isLocalVisit = jobConf.getBoolean(
-                CommonConstants.PROXY_IS_LOCAL_VISIT, CommonConstants.DEFAULT_PROXY_IS_LOCAL_VISIT);
         totalAsyncBufSize = jobConf
                 .getInt(
                         CommonConstants.PROXY_TOTAL_ASYNC_PROXY_SIZE,
@@ -199,9 +189,8 @@ public class SenderManager {
      * @return DefaultMessageSender
      */
     private DefaultMessageSender createMessageSender(String tagName) throws Exception {
-
-        ProxyClientConfig proxyClientConfig = new ProxyClientConfig(
-                localhost, isLocalVisit, managerHost, managerPort, tagName, authSecretId, authSecretKey);
+        ProxyClientConfig proxyClientConfig = new ProxyClientConfig(managerAddr, inlongGroupId, authSecretId,
+                authSecretKey);
         proxyClientConfig.setTotalAsyncCallbackSize(totalAsyncBufSize);
         proxyClientConfig.setFile(isFile);
         proxyClientConfig.setAliveConnections(aliveConnectionNum);

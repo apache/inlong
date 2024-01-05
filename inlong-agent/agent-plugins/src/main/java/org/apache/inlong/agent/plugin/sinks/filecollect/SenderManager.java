@@ -52,10 +52,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_BATCH_FLUSH_INTERVAL;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_BATCH_FLUSH_INTERVAL;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_ADDR;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
 import static org.apache.inlong.agent.constant.TaskConstants.DEFAULT_JOB_PROXY_SEND;
 import static org.apache.inlong.agent.constant.TaskConstants.JOB_PROXY_SEND;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
@@ -81,11 +80,7 @@ public class SenderManager {
     // in case of thread abusing.
     private ThreadFactory SHARED_FACTORY;
     private static final AtomicLong METRIC_INDEX = new AtomicLong(0);
-    private final String managerHost;
-    private final int managerPort;
-    private final String netTag;
-    private final String localhost;
-    private final boolean isLocalVisit;
+    private final String managerAddr;
     private final int totalAsyncBufSize;
     private final int aliveConnectionNum;
     private final boolean isCompress;
@@ -110,17 +105,12 @@ public class SenderManager {
     protected InstanceProfile profile;
     private volatile boolean resendRunning = false;
     private volatile boolean started = false;
+    private static final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
 
     public SenderManager(InstanceProfile profile, String inlongGroupId, String sourcePath) {
-        AgentConfiguration conf = AgentConfiguration.getAgentConf();
         this.profile = profile;
-        managerHost = conf.get(AGENT_MANAGER_VIP_HTTP_HOST);
-        managerPort = conf.getInt(AGENT_MANAGER_VIP_HTTP_PORT);
+        managerAddr = agentConf.get(AGENT_MANAGER_ADDR);
         proxySend = profile.getBoolean(JOB_PROXY_SEND, DEFAULT_JOB_PROXY_SEND);
-        localhost = profile.get(CommonConstants.PROXY_LOCAL_HOST, CommonConstants.DEFAULT_PROXY_LOCALHOST);
-        netTag = profile.get(CommonConstants.PROXY_NET_TAG, CommonConstants.DEFAULT_PROXY_NET_TAG);
-        isLocalVisit = profile.getBoolean(
-                CommonConstants.PROXY_IS_LOCAL_VISIT, CommonConstants.DEFAULT_PROXY_IS_LOCAL_VISIT);
         totalAsyncBufSize = profile
                 .getInt(
                         CommonConstants.PROXY_TOTAL_ASYNC_PROXY_SIZE,
@@ -145,8 +135,8 @@ public class SenderManager {
         enableBusyWait = profile.getBoolean(CommonConstants.PROXY_CLIENT_ENABLE_BUSY_WAIT,
                 CommonConstants.DEFAULT_PROXY_CLIENT_ENABLE_BUSY_WAIT);
         batchFlushInterval = profile.getInt(PROXY_BATCH_FLUSH_INTERVAL, DEFAULT_PROXY_BATCH_FLUSH_INTERVAL);
-        authSecretId = conf.get(AGENT_MANAGER_AUTH_SECRET_ID);
-        authSecretKey = conf.get(AGENT_MANAGER_AUTH_SECRET_KEY);
+        authSecretId = agentConf.get(AGENT_MANAGER_AUTH_SECRET_ID);
+        authSecretKey = agentConf.get(AGENT_MANAGER_AUTH_SECRET_KEY);
 
         this.sourcePath = sourcePath;
         this.inlongGroupId = inlongGroupId;
@@ -205,9 +195,8 @@ public class SenderManager {
      * @param tagName we use group id as tag name
      */
     private void createMessageSender(String tagName) throws Exception {
-
-        ProxyClientConfig proxyClientConfig = new ProxyClientConfig(
-                localhost, isLocalVisit, managerHost, managerPort, tagName, authSecretId, authSecretKey);
+        ProxyClientConfig proxyClientConfig = new ProxyClientConfig(managerAddr, inlongGroupId, authSecretId,
+                authSecretKey);
         proxyClientConfig.setTotalAsyncCallbackSize(totalAsyncBufSize);
         proxyClientConfig.setFile(isFile);
         proxyClientConfig.setAliveConnections(aliveConnectionNum);

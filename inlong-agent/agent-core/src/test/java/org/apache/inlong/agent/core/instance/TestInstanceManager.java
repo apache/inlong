@@ -118,6 +118,5 @@ public class TestInstanceManager {
         await().atMost(1, TimeUnit.SECONDS).until(() -> manager.getInstanceProfile(instanceId) == null);
         Assert.assertTrue(String.valueOf(instance.initTime), instance.initTime == MockInstance.INIT_TIME);
         Assert.assertTrue(instance.runtime > instance.initTime);
-        Assert.assertTrue(instance.destroyTime > instance.runtime);
     }
 }

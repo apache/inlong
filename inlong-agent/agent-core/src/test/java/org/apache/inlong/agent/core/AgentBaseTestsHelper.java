@@ -20,6 +20,7 @@ package org.apache.inlong.agent.core;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.constant.FetcherConstants;
 import org.apache.inlong.agent.pojo.FileTask.FileTaskConfig;
 import org.apache.inlong.common.enums.TaskStateEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
@@ -55,6 +56,7 @@ public class AgentBaseTestsHelper {
         boolean result = testRootDir.toFile().mkdirs();
         LOGGER.info("try to create {}, result is {}", testRootDir, result);
         AgentConfiguration.getAgentConf().set(AgentConstants.AGENT_HOME, testRootDir.toString());
+        AgentConfiguration.getAgentConf().set(FetcherConstants.AGENT_MANAGER_ADDR, "");
         return this;
     }
 

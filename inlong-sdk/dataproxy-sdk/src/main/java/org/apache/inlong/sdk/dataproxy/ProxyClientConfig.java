@@ -139,11 +139,15 @@ public class ProxyClientConfig {
     /* pay attention to the last url parameter ip */
     public ProxyClientConfig(String managerAddress, String inlongGroupId, String authSecretId, String authSecretKey,
             LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
-        if (Utils.isBlank(managerAddress)) {
-            throw new ProxysdkException("managerAddress is blank!");
+        if (Utils.isBlank(managerAddress) || (!managerAddress.startsWith(ConfigConstants.HTTP)
+                && !managerAddress.startsWith(ConfigConstants.HTTPS))) {
+            throw new ProxysdkException("managerAddress is blank or missing http/https protocol ");
         }
         if (Utils.isBlank(inlongGroupId)) {
             throw new ProxysdkException("groupId is blank!");
+        }
+        if (managerAddress.startsWith(ConfigConstants.HTTPS)) {
+            this.requestByHttp = false;
         }
         this.managerAddress = managerAddress;
         this.managerUrl = getManagerUrl(managerAddress, inlongGroupId);

@@ -29,8 +29,7 @@ import com.google.gson.Gson;
 import lombok.Data;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_ADDR;
 import static org.apache.inlong.agent.constant.TaskConstants.SYNC_SEND_OPEN;
 import static org.apache.inlong.common.enums.DataReportTypeEnum.NORMAL_SEND_TO_DATAPROXY;
 
@@ -376,8 +375,7 @@ public class TaskProfileDto {
         Proxy proxy = new Proxy();
         Manager manager = new Manager();
         AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
-        manager.setHost(agentConf.get(AGENT_MANAGER_VIP_HTTP_HOST));
-        manager.setPort(agentConf.get(AGENT_MANAGER_VIP_HTTP_PORT));
+        manager.setAddr(agentConf.get(AGENT_MANAGER_ADDR));
         proxy.setInlongGroupId(dataConfigs.getInlongGroupId());
         proxy.setInlongStreamId(dataConfigs.getInlongStreamId());
         proxy.setManager(manager);
@@ -538,8 +536,7 @@ public class TaskProfileDto {
     @Data
     public static class Manager {
 
-        private String port;
-        private String host;
+        private String addr;
     }
 
     @Data
