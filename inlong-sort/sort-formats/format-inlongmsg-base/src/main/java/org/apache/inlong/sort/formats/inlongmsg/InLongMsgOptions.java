@@ -42,11 +42,23 @@ public class InLongMsgOptions {
                             + "fields are set to null in case of errors");
 
     public static final ConfigOption<Boolean> IGNORE_TRAILING_UNMAPPABLE =
-            ConfigOptions.key("ignore-trailing-unmappable")
+            ConfigOptions.key("csv.ignore-trailing-unmappable")
                     .booleanType()
-                    .defaultValue(true)
+                    .defaultValue(false)
                     .withDescription("Allows the case that real size exceeds the expected size.\n "
                             + "The extra column will be skipped");
+
+    public static final ConfigOption<Boolean> INSERT_NULLS_FOR_MISSING_COLUMNS =
+            ConfigOptions.key("csv.insert-nulls-for-missing-columns")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("For missing columns, insert null.");
+
+    public static final ConfigOption<Boolean> EMPTY_STRING_AS_NULL =
+            ConfigOptions.key("csv.empty-string-as-null")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("if the string value is empty, make it as null");
 
     public static void validateDecodingFormatOptions(ReadableConfig config) {
         String innerFormat = config.get(INNER_FORMAT);

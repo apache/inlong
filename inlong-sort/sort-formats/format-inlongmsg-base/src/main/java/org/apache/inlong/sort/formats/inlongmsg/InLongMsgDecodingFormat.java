@@ -19,9 +19,11 @@ package org.apache.inlong.sort.formats.inlongmsg;
 
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgDeserializationSchema.MetadataConverter;
 
+import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.formats.csv.CsvRowDataDeserializationSchema;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectReader;
@@ -48,6 +50,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.EMPTY_STRING_AS_NULL;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.IGNORE_PARSE_ERRORS;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.IGNORE_TRAILING_UNMAPPABLE;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.INSERT_NULLS_FOR_MISSING_COLUMNS;
+
 @Slf4j
 public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSchema<RowData>> {
 
@@ -61,16 +68,21 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
 
     private final boolean ignoreTrailingUnmappable;
 
+    private final boolean insertNullsForMissingColumns;
+
+    private final boolean emptyStringAsNull;
+
     public InLongMsgDecodingFormat(
             DecodingFormat<DeserializationSchema<RowData>> innerDecodingFormat,
             String innerFormatMetaPrefix,
-            boolean ignoreErrors,
-            boolean ignoreTrailingUnmappable) {
+            ReadableConfig formatOptions) {
         this.innerDecodingFormat = innerDecodingFormat;
         this.innerFormatMetaPrefix = innerFormatMetaPrefix;
         this.metadataKeys = Collections.emptyList();
-        this.ignoreErrors = ignoreErrors;
-        this.ignoreTrailingUnmappable = ignoreTrailingUnmappable;
+        this.ignoreErrors = formatOptions.get(IGNORE_PARSE_ERRORS);
+        this.ignoreTrailingUnmappable = formatOptions.get(IGNORE_TRAILING_UNMAPPABLE);
+        this.insertNullsForMissingColumns = formatOptions.get(INSERT_NULLS_FOR_MISSING_COLUMNS);
+        this.emptyStringAsNull = formatOptions.get(EMPTY_STRING_AS_NULL);
     }
 
     @Override
@@ -98,8 +110,9 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
 
         DeserializationSchema<RowData> innerSchema =
                 innerDecodingFormat.createRuntimeDecoder(context, physicalDataType);
-        if (innerSchema instanceof CsvRowDataDeserializationSchema && ignoreTrailingUnmappable) {
-            this.makeCsvInnerFormatIgnoreTrailingUnmappable(innerSchema);
+        if (innerSchema instanceof CsvRowDataDeserializationSchema) {
+            configCsvInnerFormat(innerSchema, ignoreTrailingUnmappable,
+                    insertNullsForMissingColumns, emptyStringAsNull);
         }
 
         return new InLongMsgDeserializationSchema(
@@ -210,7 +223,12 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
         }
     }
 
-    private void makeCsvInnerFormatIgnoreTrailingUnmappable(DeserializationSchema<RowData> innerSchema) {
+    @VisibleForTesting
+    static void configCsvInnerFormat(
+            DeserializationSchema<RowData> innerSchema,
+            boolean ignoreTrailingUnmappable,
+            boolean insertNullsForMissingColumns,
+            boolean emptyStringAsNull) {
         try {
             Field readerField = CsvRowDataDeserializationSchema.class.getDeclaredField("objectReader");
             readerField.setAccessible(true);
@@ -219,9 +237,10 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
             Field schemaField = ObjectReader.class.getDeclaredField("_schema");
             schemaField.setAccessible(true);
             CsvSchema oldSchema = (CsvSchema) schemaField.get(oldReader);
-
             ObjectReader newReader = new CsvMapper()
-                    .enable(CsvParser.Feature.IGNORE_TRAILING_UNMAPPABLE)
+                    .configure(CsvParser.Feature.IGNORE_TRAILING_UNMAPPABLE, ignoreTrailingUnmappable)
+                    .configure(CsvParser.Feature.INSERT_NULLS_FOR_MISSING_COLUMNS, insertNullsForMissingColumns)
+                    .configure(CsvParser.Feature.EMPTY_STRING_AS_NULL, emptyStringAsNull)
                     .readerFor(JsonNode.class)
                     .with(oldSchema);
             readerField.set(innerSchema, newReader);

@@ -34,9 +34,11 @@ import org.apache.flink.table.factories.SerializationFormatFactory;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.EMPTY_STRING_AS_NULL;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.IGNORE_PARSE_ERRORS;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.IGNORE_TRAILING_UNMAPPABLE;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.INNER_FORMAT;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.INSERT_NULLS_FOR_MISSING_COLUMNS;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.validateDecodingFormatOptions;
 
 /**
@@ -65,9 +67,7 @@ public final class InLongMsgFormatFactory
         String innerFormatPrefix = INLONG_PREFIX + innerFormatMetaPrefix;
         DecodingFormat<DeserializationSchema<RowData>> innerFormat =
                 innerFactory.createDecodingFormat(context, new DelegatingConfiguration(allOptions, innerFormatPrefix));
-        boolean ignoreErrors = formatOptions.get(IGNORE_PARSE_ERRORS);
-        boolean ignoreTrailingUnmappable = formatOptions.get(IGNORE_TRAILING_UNMAPPABLE);
-        return new InLongMsgDecodingFormat(innerFormat, innerFormatMetaPrefix, ignoreErrors, ignoreTrailingUnmappable);
+        return new InLongMsgDecodingFormat(innerFormat, innerFormatMetaPrefix, formatOptions);
     }
 
     @Override
@@ -92,6 +92,9 @@ public final class InLongMsgFormatFactory
     public Set<ConfigOption<?>> optionalOptions() {
         Set<ConfigOption<?>> options = new HashSet<>();
         options.add(IGNORE_PARSE_ERRORS);
+        options.add(IGNORE_TRAILING_UNMAPPABLE);
+        options.add(INSERT_NULLS_FOR_MISSING_COLUMNS);
+        options.add(EMPTY_STRING_AS_NULL);
         return options;
     }
 }
