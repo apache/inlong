@@ -152,6 +152,36 @@ public class InLongMsgRowDataSerDeTest {
     }
 
     @Test
+    public void testWrongTypeFieldAsNull() throws IOException {
+        // mock data
+        InLongMsg inLongMsg = InLongMsg.newInLongMsg();
+        inLongMsg.addMsg("streamId=HAHA&t=202201011112",
+                "adf,asdqw,zdf,2".getBytes(StandardCharsets.UTF_8));
+        byte[] input = inLongMsg.buildArray();
+        List<RowData> exceptedOutput = ImmutableList.of(
+                GenericRowData.of(null, BinaryStringData.fromString("asdqw"), BinaryStringData.fromString("zdf"), 2L));
+        final Map<String, String> tableOptions =
+                InLongMsgFormatFactoryTest.getModifiedOptions(opts -> {
+                    opts.put("inlong-msg.inner.format", "csv");
+                    opts.put("inlong-msg.csv.ignore-parse-errors", "true");
+                });
+        ResolvedSchema schema = ResolvedSchema.of(
+                Column.physical("id", DataTypes.BIGINT()),
+                Column.physical("f1", DataTypes.STRING()),
+                Column.physical("f2", DataTypes.STRING()),
+                Column.physical("f3", DataTypes.BIGINT()));
+
+        DeserializationSchema<RowData> inLongMsgDeserializationSchema =
+                InLongMsgFormatFactoryTest.createDeserializationSchema(tableOptions, schema);
+        List<RowData> deData = new ArrayList<>();
+        ListCollector<RowData> out = new ListCollector<>(deData);
+
+        inLongMsgDeserializationSchema.deserialize(input, out);
+
+        assertEquals(exceptedOutput, deData);
+    }
+
+    @Test
     public void testInserNullForMissingColumn() throws IOException {
         // mock data
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();

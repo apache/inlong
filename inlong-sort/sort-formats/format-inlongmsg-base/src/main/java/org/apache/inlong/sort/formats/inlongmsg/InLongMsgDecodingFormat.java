@@ -50,10 +50,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.EMPTY_STRING_AS_NULL;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.CSV_EMPTY_STRING_AS_NULL;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.IGNORE_PARSE_ERRORS;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.IGNORE_TRAILING_UNMAPPABLE;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.INSERT_NULLS_FOR_MISSING_COLUMNS;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.CSV_IGNORE_TRAILING_UNMAPPABLE;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.CSV_INSERT_NULLS_FOR_MISSING_COLUMNS;
 
 @Slf4j
 public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSchema<RowData>> {
@@ -80,9 +80,9 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
         this.innerFormatMetaPrefix = innerFormatMetaPrefix;
         this.metadataKeys = Collections.emptyList();
         this.ignoreErrors = formatOptions.get(IGNORE_PARSE_ERRORS);
-        this.ignoreTrailingUnmappable = formatOptions.get(IGNORE_TRAILING_UNMAPPABLE);
-        this.insertNullsForMissingColumns = formatOptions.get(INSERT_NULLS_FOR_MISSING_COLUMNS);
-        this.emptyStringAsNull = formatOptions.get(EMPTY_STRING_AS_NULL);
+        this.ignoreTrailingUnmappable = formatOptions.get(CSV_IGNORE_TRAILING_UNMAPPABLE);
+        this.insertNullsForMissingColumns = formatOptions.get(CSV_INSERT_NULLS_FOR_MISSING_COLUMNS);
+        this.emptyStringAsNull = formatOptions.get(CSV_EMPTY_STRING_AS_NULL);
     }
 
     @Override

@@ -34,11 +34,12 @@ import org.apache.flink.table.factories.SerializationFormatFactory;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.EMPTY_STRING_AS_NULL;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.CSV_EMPTY_STRING_AS_NULL;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.CSV_IGNORE_PARSE_ERRORS;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.IGNORE_PARSE_ERRORS;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.IGNORE_TRAILING_UNMAPPABLE;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.CSV_IGNORE_TRAILING_UNMAPPABLE;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.INNER_FORMAT;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.INSERT_NULLS_FOR_MISSING_COLUMNS;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.CSV_INSERT_NULLS_FOR_MISSING_COLUMNS;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.validateDecodingFormatOptions;
 
 /**
@@ -92,9 +93,10 @@ public final class InLongMsgFormatFactory
     public Set<ConfigOption<?>> optionalOptions() {
         Set<ConfigOption<?>> options = new HashSet<>();
         options.add(IGNORE_PARSE_ERRORS);
-        options.add(IGNORE_TRAILING_UNMAPPABLE);
-        options.add(INSERT_NULLS_FOR_MISSING_COLUMNS);
-        options.add(EMPTY_STRING_AS_NULL);
+        options.add(CSV_IGNORE_TRAILING_UNMAPPABLE);
+        options.add(CSV_INSERT_NULLS_FOR_MISSING_COLUMNS);
+        options.add(CSV_EMPTY_STRING_AS_NULL);
+        options.add(CSV_IGNORE_PARSE_ERRORS);
         return options;
     }
 }
