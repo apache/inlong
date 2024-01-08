@@ -844,5 +844,7 @@
   "pages.Tenant.config.CreateTime": "Create time",
   "pages.ModuleAuditDashboard.config.Ip": "Machine ip",
   "pages.ModuleAuditDashboard.config.BenchmarkIndicator": "Benchmark indicator",
-  "pages.ModuleAuditDashboard.config.ComparativeIndicators": "Comparative indicator"
+  "pages.ModuleAuditDashboard.config.ComparativeIndicators": "Comparative indicator",
+  "pages.ModuleAuditDashboard.config.InlongGroupId": "Inlong group id",
+  "pages.ModuleAuditDashboard.config.InlongStreamId": "Inlong stream id"
 }

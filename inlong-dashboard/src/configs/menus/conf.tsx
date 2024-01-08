@@ -101,6 +101,10 @@ const conf: MenuItemType[] = [
         path: '/system',
         name: i18n.t('configs.menus.ModuleAudit'),
       },
+      {
+        path: '/systemId',
+        name: i18n.t('configs.menus.ModuleAuditID'),
+      },
     ],
   },
 ];

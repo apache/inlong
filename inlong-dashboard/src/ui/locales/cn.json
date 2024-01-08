@@ -844,5 +844,8 @@
   "pages.Tenant.config.CreateTime": "创建时间",
   "pages.ModuleAuditDashboard.config.Ip": "机器 IP",
   "pages.ModuleAuditDashboard.config.BenchmarkIndicator": "基准指标",
-  "pages.ModuleAuditDashboard.config.ComparativeIndicators": "对比指标"
+  "pages.ModuleAuditDashboard.config.ComparativeIndicators": "对比指标",
+  "pages.ModuleAuditDashboard.config.InlongGroupId": "数据流组ID",
+  "pages.ModuleAuditDashboard.config.InlongStreamId": "数据流ID"
+
 }
