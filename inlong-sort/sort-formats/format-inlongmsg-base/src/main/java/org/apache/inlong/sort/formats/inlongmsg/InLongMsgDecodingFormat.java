@@ -19,8 +19,17 @@ package org.apache.inlong.sort.formats.inlongmsg;
 
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgDeserializationSchema.MetadataConverter;
 
+import com.google.common.annotations.VisibleForTesting;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.configuration.ReadableConfig;
+import org.apache.flink.formats.csv.CsvRowDataDeserializationSchema;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectReader;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.dataformat.csv.CsvParser;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.format.DecodingFormat;
@@ -31,6 +40,7 @@ import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,6 +50,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.CSV_EMPTY_STRING_AS_NULL;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.CSV_IGNORE_TRAILING_UNMAPPABLE;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.CSV_INSERT_NULLS_FOR_MISSING_COLUMNS;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.IGNORE_PARSE_ERRORS;
+
+@Slf4j
 public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSchema<RowData>> {
 
     private final String innerFormatMetaPrefix;
@@ -50,14 +66,23 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
 
     private final boolean ignoreErrors;
 
+    private final boolean ignoreTrailingUnmappable;
+
+    private final boolean insertNullsForMissingColumns;
+
+    private final boolean emptyStringAsNull;
+
     public InLongMsgDecodingFormat(
             DecodingFormat<DeserializationSchema<RowData>> innerDecodingFormat,
             String innerFormatMetaPrefix,
-            boolean ignoreErrors) {
+            ReadableConfig formatOptions) {
         this.innerDecodingFormat = innerDecodingFormat;
         this.innerFormatMetaPrefix = innerFormatMetaPrefix;
         this.metadataKeys = Collections.emptyList();
-        this.ignoreErrors = ignoreErrors;
+        this.ignoreErrors = formatOptions.get(IGNORE_PARSE_ERRORS);
+        this.ignoreTrailingUnmappable = formatOptions.get(CSV_IGNORE_TRAILING_UNMAPPABLE);
+        this.insertNullsForMissingColumns = formatOptions.get(CSV_INSERT_NULLS_FOR_MISSING_COLUMNS);
+        this.emptyStringAsNull = formatOptions.get(CSV_EMPTY_STRING_AS_NULL);
     }
 
     @Override
@@ -83,8 +108,15 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
         final TypeInformation<RowData> producedTypeInfo =
                 context.createTypeInformation(producedDataType);
 
+        DeserializationSchema<RowData> innerSchema =
+                innerDecodingFormat.createRuntimeDecoder(context, physicalDataType);
+        if (innerSchema instanceof CsvRowDataDeserializationSchema) {
+            configCsvInnerFormat(innerSchema, ignoreTrailingUnmappable,
+                    insertNullsForMissingColumns, emptyStringAsNull);
+        }
+
         return new InLongMsgDeserializationSchema(
-                innerDecodingFormat.createRuntimeDecoder(context, physicalDataType),
+                innerSchema,
                 metadataConverters,
                 producedTypeInfo,
                 ignoreErrors);
@@ -188,6 +220,32 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
             this.key = key;
             this.dataType = dataType;
             this.converter = converter;
+        }
+    }
+
+    @VisibleForTesting
+    static void configCsvInnerFormat(
+            DeserializationSchema<RowData> innerSchema,
+            boolean ignoreTrailingUnmappable,
+            boolean insertNullsForMissingColumns,
+            boolean emptyStringAsNull) {
+        try {
+            Field readerField = CsvRowDataDeserializationSchema.class.getDeclaredField("objectReader");
+            readerField.setAccessible(true);
+            ObjectReader oldReader = (ObjectReader) readerField.get(innerSchema);
+
+            Field schemaField = ObjectReader.class.getDeclaredField("_schema");
+            schemaField.setAccessible(true);
+            CsvSchema oldSchema = (CsvSchema) schemaField.get(oldReader);
+            ObjectReader newReader = new CsvMapper()
+                    .configure(CsvParser.Feature.IGNORE_TRAILING_UNMAPPABLE, ignoreTrailingUnmappable)
+                    .configure(CsvParser.Feature.INSERT_NULLS_FOR_MISSING_COLUMNS, insertNullsForMissingColumns)
+                    .configure(CsvParser.Feature.EMPTY_STRING_AS_NULL, emptyStringAsNull)
+                    .readerFor(JsonNode.class)
+                    .with(oldSchema);
+            readerField.set(innerSchema, newReader);
+        } catch (Throwable t) {
+            log.error("failed to make csv inner format to ignore trailing unmappable, ex is ", t);
         }
     }
 }

@@ -34,6 +34,10 @@ import org.apache.flink.table.factories.SerializationFormatFactory;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.CSV_EMPTY_STRING_AS_NULL;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.CSV_IGNORE_PARSE_ERRORS;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.CSV_IGNORE_TRAILING_UNMAPPABLE;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.CSV_INSERT_NULLS_FOR_MISSING_COLUMNS;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.IGNORE_PARSE_ERRORS;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.INNER_FORMAT;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.validateDecodingFormatOptions;
@@ -64,9 +68,7 @@ public final class InLongMsgFormatFactory
         String innerFormatPrefix = INLONG_PREFIX + innerFormatMetaPrefix;
         DecodingFormat<DeserializationSchema<RowData>> innerFormat =
                 innerFactory.createDecodingFormat(context, new DelegatingConfiguration(allOptions, innerFormatPrefix));
-        boolean ignoreErrors = formatOptions.get(IGNORE_PARSE_ERRORS);
-
-        return new InLongMsgDecodingFormat(innerFormat, innerFormatMetaPrefix, ignoreErrors);
+        return new InLongMsgDecodingFormat(innerFormat, innerFormatMetaPrefix, formatOptions);
     }
 
     @Override
@@ -91,6 +93,10 @@ public final class InLongMsgFormatFactory
     public Set<ConfigOption<?>> optionalOptions() {
         Set<ConfigOption<?>> options = new HashSet<>();
         options.add(IGNORE_PARSE_ERRORS);
+        options.add(CSV_IGNORE_TRAILING_UNMAPPABLE);
+        options.add(CSV_INSERT_NULLS_FOR_MISSING_COLUMNS);
+        options.add(CSV_EMPTY_STRING_AS_NULL);
+        options.add(CSV_IGNORE_PARSE_ERRORS);
         return options;
     }
 }

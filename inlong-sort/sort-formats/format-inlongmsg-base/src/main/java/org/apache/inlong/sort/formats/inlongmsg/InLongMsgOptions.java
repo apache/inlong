@@ -41,6 +41,32 @@ public class InLongMsgOptions {
                     .withDescription("Optional flag to skip fields and rows with parse errors instead of failing;\n"
                             + "fields are set to null in case of errors");
 
+    public static final ConfigOption<Boolean> CSV_IGNORE_PARSE_ERRORS =
+            ConfigOptions.key("csv.ignore-parse-errors")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Allows the case that real size exceeds the expected size.\n "
+                            + "The extra column will be skipped");
+
+    public static final ConfigOption<Boolean> CSV_IGNORE_TRAILING_UNMAPPABLE =
+            ConfigOptions.key("csv.ignore-trailing-unmappable")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Allows the case that real size exceeds the expected size.\n "
+                            + "The extra column will be skipped");
+
+    public static final ConfigOption<Boolean> CSV_INSERT_NULLS_FOR_MISSING_COLUMNS =
+            ConfigOptions.key("csv.insert-nulls-for-missing-columns")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("For missing columns, insert null.");
+
+    public static final ConfigOption<Boolean> CSV_EMPTY_STRING_AS_NULL =
+            ConfigOptions.key("csv.empty-string-as-null")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("if the string value is empty, make it as null");
+
     public static void validateDecodingFormatOptions(ReadableConfig config) {
         String innerFormat = config.get(INNER_FORMAT);
         if (innerFormat == null) {
