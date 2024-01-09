@@ -842,7 +842,11 @@
   "pages.Tenant.config.GeneralUser": "General user",
   "pages.Tenant.config.Creator": "Creator",
   "pages.Tenant.config.CreateTime": "Create time",
-  "pages.ModuleAuditDashboard.config.Ip": "Machine ip",
-  "pages.ModuleAuditDashboard.config.BenchmarkIndicator": "Benchmark indicator",
-  "pages.ModuleAuditDashboard.config.ComparativeIndicators": "Comparative indicator"
+  "pages.ModuleAudit.Ip": "Query by ip",
+  "pages.ModuleAudit.Id": "Query by id",
+  "pages.ModuleAudit.config.Ip": "Machine ip",
+  "pages.ModuleAudit.config.BenchmarkIndicator": "Benchmark indicator",
+  "pages.ModuleAudit.config.ComparativeIndicators": "Comparative indicator",
+  "pages.ModuleAudit.config.InlongGroupId": "Inlong group id",
+  "pages.ModuleAudit.config.InlongStreamId": "Inlong stream id"
 }

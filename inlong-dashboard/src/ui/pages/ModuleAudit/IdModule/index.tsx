@@ -18,25 +18,25 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import { useForm } from '@/ui/components/FormGenerator';
 import HighTable from '@/ui/components/HighTable';
 import { useRequest } from '@/ui/hooks';
 import { timestampFormat } from '@/core/utils';
-import { getFormContent, toTableData, getTableColumns, timeStaticsDimList } from './config';
+import { getFormContent, toTableData, getTableColumns } from './config';
+
+export const idModule = 'id';
 
 const Comp: React.FC = () => {
-  const [form] = useForm();
-
   const [query, setQuery] = useState({
     startDate: +new Date(),
     endDate: +new Date(),
     auditIds: ['3', '4'],
-    timeStaticsDim: timeStaticsDimList[0].value,
+    inlongGroupId: '',
+    inlongStreamId: '',
   });
 
   const { data: sourceData = [], run } = useRequest(
     {
-      url: '/audit/list',
+      url: '/audit/listAll',
       method: 'POST',
       data: {
         ...query,
@@ -51,39 +51,29 @@ const Comp: React.FC = () => {
   );
 
   const sourceDataMap = useMemo(() => {
-    const flatArr = sourceData
-      .reduce(
-        (acc, cur) =>
-          acc.concat(
-            cur.auditSet.map(item => ({
-              ...item,
-              auditId: cur.auditId,
-            })),
-          ),
-        [],
-      )
-      .sort((a, b) => {
-        const aT = +new Date(query.timeStaticsDim === 'HOUR' ? `${a.logTs}:00` : a.logTs);
-        const bT = +new Date(query.timeStaticsDim === 'HOUR' ? `${b.logTs}:00` : b.logTs);
-        return aT - bT;
-      });
+    const flatArr = sourceData.reduce(
+      (acc, cur) =>
+        acc.concat(
+          cur.auditSet.map(item => ({
+            ...item,
+            auditId: cur.auditId,
+          })),
+        ),
+      [],
+    );
     const output = flatArr.reduce((acc, cur) => {
-      if (!acc[cur.logTs]) {
-        acc[cur.logTs] = {};
+      if (!acc[cur.inlongStreamId]) {
+        acc[cur.inlongStreamId] = {};
       }
-      acc[cur.logTs] = {
-        ...acc[cur.logTs],
+      acc[cur.inlongStreamId] = {
+        ...acc[cur.inlongStreamId],
         [cur.auditId]: cur.count,
+        ip: cur.ip,
       };
       return acc;
     }, {});
     return output;
-  }, [sourceData, query.timeStaticsDim]);
-
-  const onSearch = async () => {
-    await form.validateFields();
-    run();
-  };
+  }, [sourceData]);
 
   const onFilter = keyword => {
     setQuery({
@@ -93,8 +83,10 @@ const Comp: React.FC = () => {
         keyword.benchmark !== undefined && keyword.compared !== undefined
           ? [keyword.benchmark, keyword.compared]
           : ['3', '4'],
+      inlongGroupId: keyword.inlongGroupId,
+      inlongStreamId: keyword.inlongStreamId,
       startDate: +keyword.startDate.$d,
-      endDate: +keyword.startDate.$d,
+      endDate: keyword.endDate === undefined ? +keyword.startDate.$d : +keyword.endDate.$d,
     });
   };
 
@@ -102,7 +94,7 @@ const Comp: React.FC = () => {
     <>
       <HighTable
         filterForm={{
-          content: getFormContent(query, onSearch),
+          content: getFormContent(query),
           onFilter,
         }}
         table={{

@@ -35,30 +35,6 @@ export const timeStaticsDimList = [
   },
 ];
 
-export const toChartData = (source, sourceDataMap) => {
-  const xAxisData = Object.keys(sourceDataMap);
-  return {
-    legend: {
-      data: source.map(item => item.auditName),
-    },
-    tooltip: {
-      trigger: 'axis',
-    },
-    xAxis: {
-      type: 'category',
-      data: xAxisData,
-    },
-    yAxis: {
-      type: 'value',
-    },
-    series: source.map(item => ({
-      name: item.auditName,
-      type: 'line',
-      data: xAxisData.map(logTs => sourceDataMap[logTs]?.[item.auditId] || 0),
-    })),
-  };
-};
-
 export const toTableData = (source, sourceDataMap) => {
   return Object.keys(sourceDataMap)
     .reverse()
@@ -68,11 +44,60 @@ export const toTableData = (source, sourceDataMap) => {
     }));
 };
 
-export const getFormContent = (initialValues, onSearch) => [
+export const getFormContent = initialValues => [
   {
-    type: 'inputsearch',
-    label: i18n.t('pages.ModuleAuditDashboard.config.Ip'),
-    name: 'ip',
+    type: 'select',
+    label: i18n.t('pages.ModuleAudit.config.InlongGroupId'),
+    name: 'inlongGroupId',
+    props: {
+      dropdownMatchSelectWidth: false,
+      options: {
+        requestAuto: true,
+        requestService: {
+          url: '/group/list',
+          method: 'POST',
+          data: {
+            pageNum: 1,
+            pageSize: 1000,
+            inlongGroupMode: 0,
+          },
+        },
+        requestParams: {
+          formatResult: result =>
+            result?.list.map(item => ({
+              label: item.inlongGroupId,
+              value: item.inlongGroupId,
+            })) || [],
+        },
+      },
+    },
+  },
+  {
+    type: 'select',
+    label: i18n.t('pages.ModuleAudit.config.InlongStreamId'),
+    name: 'inlongStreamId',
+    props: values => ({
+      dropdownMatchSelectWidth: false,
+      options: {
+        requestAuto: true,
+        requestService: {
+          url: '/stream/list',
+          method: 'POST',
+          data: {
+            pageNum: 1,
+            pageSize: 1000,
+            inlongGroupId: values.inlongGroupId,
+          },
+        },
+        requestParams: {
+          formatResult: result =>
+            result?.list.map(item => ({
+              label: item.inlongStreamId,
+              value: item.inlongStreamId,
+            })) || [],
+        },
+      },
+    }),
   },
   {
     type: 'datepicker',
@@ -81,7 +106,8 @@ export const getFormContent = (initialValues, onSearch) => [
     initialValue: dayjs(initialValues.startDate),
     props: {
       allowClear: false,
-      format: 'YYYY-MM-DD',
+      showTime: true,
+      format: 'YYYY-MM-DD HH:mm:ss',
     },
   },
   {
@@ -91,34 +117,13 @@ export const getFormContent = (initialValues, onSearch) => [
     initialValues: dayjs(initialValues.endDate),
     props: {
       allowClear: false,
-      format: 'YYYY-MM-DD',
-      disabledDate: current => {
-        const start = dayjs(initialValues.startDate);
-        const dim = initialValues.timeStaticsDim;
-        if (dim === 'HOUR' || dim === 'DAY') {
-          const tooLate = current && current <= start.endOf('day');
-          const tooEarly = start && current > start.add(7, 'd').endOf('day');
-          return tooLate || tooEarly;
-        }
-        const tooLate = current && current >= start.endOf('day');
-        const tooEarly = start && current < start.add(-1, 'd').endOf('day');
-        return tooLate || tooEarly;
-      },
+      showTime: true,
+      format: 'YYYY-MM-DD HH:mm:ss',
     },
   },
   {
     type: 'select',
-    label: i18n.t('pages.GroupDetail.Audit.TimeStaticsDim'),
-    name: 'timeStaticsDim',
-    initialValue: initialValues.timeStaticsDim,
-    props: {
-      dropdownMatchSelectWidth: false,
-      options: timeStaticsDimList,
-    },
-  },
-  {
-    type: 'select',
-    label: i18n.t('pages.ModuleAuditDashboard.config.BenchmarkIndicator'),
+    label: i18n.t('pages.ModuleAudit.config.BenchmarkIndicator'),
     name: 'benchmark',
     props: {
       allowClear: true,
@@ -141,7 +146,7 @@ export const getFormContent = (initialValues, onSearch) => [
   },
   {
     type: 'select',
-    label: i18n.t('pages.ModuleAuditDashboard.config.ComparativeIndicators'),
+    label: i18n.t('pages.ModuleAudit.config.ComparativeIndicators'),
     name: 'compared',
     props: {
       allowClear: true,
@@ -172,8 +177,8 @@ export const getTableColumns = source => {
   }));
   return [
     {
-      title: i18n.t('pages.GroupDetail.Audit.Time'),
-      dataIndex: 'logTs',
+      title: i18n.t('pages.ModuleAudit.config.Ip'),
+      dataIndex: 'ip',
     },
   ].concat(data);
 };
