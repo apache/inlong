@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.resource.sink;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkStatus;
+import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -55,26 +56,33 @@ public abstract class AbstractStandaloneSinkResourceOperator implements SinkReso
 
     @VisibleForTesting
     protected void assignCluster(SinkInfo sinkInfo) {
-        if (StringUtils.isBlank(sinkInfo.getSinkType())) {
-            throw new IllegalArgumentException(ErrorCodeEnum.SINK_TYPE_IS_NULL.getMessage());
+        try {
+            if (StringUtils.isBlank(sinkInfo.getSinkType())) {
+                throw new IllegalArgumentException(ErrorCodeEnum.SINK_TYPE_IS_NULL.getMessage());
+            }
+
+            if (StringUtils.isNotBlank(sinkInfo.getInlongClusterName())) {
+                String info = "no need to auto-assign cluster since the cluster has already assigned";
+                sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
+                return;
+            }
+
+            String targetCluster = assignOneCluster(sinkInfo);
+            Preconditions.expectNotBlank(targetCluster,
+                    String.format("find no proper cluster assign to group=%s, stream=%s, sink type=%s, data node=%s ",
+                            sinkInfo.getInlongGroupId(), sinkInfo.getInlongStreamId(), sinkInfo.getSinkType(),
+                            sinkInfo.getDataNodeName()));
+
+            StreamSinkEntity sink = sinkEntityMapper.selectByPrimaryKey(sinkInfo.getId());
+            sink.setInlongClusterName(targetCluster);
+            sink.setStatus(SinkStatus.CONFIG_SUCCESSFUL.getCode());
+            sinkEntityMapper.updateByIdSelective(sink);
+        } catch (Throwable e) {
+            String errMsg = "assign standalone cluster failed: " + e.getMessage();
+            log.error(errMsg, e);
+            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
+            throw new WorkflowException(errMsg);
         }
-
-        if (StringUtils.isNotBlank(sinkInfo.getInlongClusterName())) {
-            String info = "no need to auto-assign cluster since the cluster has already assigned";
-            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
-            return;
-        }
-
-        String targetCluster = assignOneCluster(sinkInfo);
-        Preconditions.expectNotBlank(targetCluster,
-                String.format("find no proper cluster assign to group=%s, stream=%s, sink type=%s, data node=%s ",
-                        sinkInfo.getInlongGroupId(), sinkInfo.getInlongStreamId(), sinkInfo.getSinkType(),
-                        sinkInfo.getDataNodeName()));
-
-        StreamSinkEntity sink = sinkEntityMapper.selectByPrimaryKey(sinkInfo.getId());
-        sink.setInlongClusterName(targetCluster);
-        sink.setStatus(SinkStatus.CONFIG_SUCCESSFUL.getCode());
-        sinkEntityMapper.updateByIdSelective(sink);
     }
 
     private String assignOneCluster(SinkInfo sinkInfo) {
