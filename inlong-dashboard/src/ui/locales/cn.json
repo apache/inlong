@@ -842,10 +842,11 @@
   "pages.Tenant.config.GeneralUser": "普通用户",
   "pages.Tenant.config.Creator": "创建人",
   "pages.Tenant.config.CreateTime": "创建时间",
-  "pages.ModuleAuditDashboard.config.Ip": "机器 IP",
-  "pages.ModuleAuditDashboard.config.BenchmarkIndicator": "基准指标",
-  "pages.ModuleAuditDashboard.config.ComparativeIndicators": "对比指标",
-  "pages.ModuleAuditDashboard.config.InlongGroupId": "数据流组ID",
-  "pages.ModuleAuditDashboard.config.InlongStreamId": "数据流ID"
-
+  "pages.ModuleAudit.Ip": "IP 查询",
+  "pages.ModuleAudit.Id": "ID 查询",
+  "pages.ModuleAudit.config.Ip": "机器 IP",
+  "pages.ModuleAudit.config.BenchmarkIndicator": "基准指标",
+  "pages.ModuleAudit.config.ComparativeIndicators": "对比指标",
+  "pages.ModuleAudit.config.InlongGroupId": "数据流组ID",
+  "pages.ModuleAudit.config.InlongStreamId": "数据流ID"
 }

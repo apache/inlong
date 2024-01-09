@@ -18,19 +18,20 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import { useForm } from '@/ui/components/FormGenerator';
 import HighTable from '@/ui/components/HighTable';
 import { useRequest } from '@/ui/hooks';
 import { timestampFormat } from '@/core/utils';
 import { getFormContent, toTableData, getTableColumns } from './config';
 
-const Comp: React.FC = () => {
-  const [form] = useForm();
+export const idModule = 'id';
 
+const Comp: React.FC = () => {
   const [query, setQuery] = useState({
     startDate: +new Date(),
     endDate: +new Date(),
     auditIds: ['3', '4'],
+    inlongGroupId: '',
+    inlongStreamId: '',
   });
 
   const { data: sourceData = [], run } = useRequest(
@@ -67,28 +68,23 @@ const Comp: React.FC = () => {
       acc[cur.inlongStreamId] = {
         ...acc[cur.inlongStreamId],
         [cur.auditId]: cur.count,
-        inlongGroupId: cur.inlongGroupId,
-        inlongStreamId: cur.inlongStreamId,
+        ip: cur.ip,
       };
       return acc;
     }, {});
     return output;
   }, [sourceData]);
 
-  const onSearch = async () => {
-    await form.validateFields();
-    run();
-  };
-
   const onFilter = keyword => {
     setQuery({
       ...query,
       ...keyword,
-      ip: keyword.ip,
       auditIds:
         keyword.benchmark !== undefined && keyword.compared !== undefined
           ? [keyword.benchmark, keyword.compared]
           : ['3', '4'],
+      inlongGroupId: keyword.inlongGroupId,
+      inlongStreamId: keyword.inlongStreamId,
       startDate: +keyword.startDate.$d,
       endDate: keyword.endDate === undefined ? +keyword.startDate.$d : +keyword.endDate.$d,
     });
@@ -98,7 +94,7 @@ const Comp: React.FC = () => {
     <>
       <HighTable
         filterForm={{
-          content: getFormContent(query, onSearch),
+          content: getFormContent(query),
           onFilter,
         }}
         table={{
