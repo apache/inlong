@@ -41,6 +41,7 @@
         <result column="log_ts" property="logTs" jdbcType="VARCHAR"/>
         <result column="total" property="total" jdbcType="BIGINT"/>
         <result column="total_delay" property="totalDelay" jdbcType="BIGINT"/>
+        <result column="total_size" property="totalSize" jdbcType="BIGINT"/>
     </resultMap>
 
     <resultMap id="SumGroupByIdResultMap" type="java.util.Map">
@@ -50,6 +51,7 @@
         <result column="ip" property="ip" jdbcType="VARCHAR"/>
         <result column="total" property="total" jdbcType="BIGINT"/>
         <result column="total_delay" property="totalDelay" jdbcType="BIGINT"/>
+        <result column="total_size" property="totalSize" jdbcType="BIGINT"/>
     </resultMap>
 
     <select id="sumByLogTs" resultMap="SumByLogTsResultMap">
