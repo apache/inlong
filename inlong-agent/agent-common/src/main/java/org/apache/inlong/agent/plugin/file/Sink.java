@@ -30,7 +30,7 @@ public interface Sink {
      *
      * @param message message
      */
-    void write(Message message);
+    boolean write(Message message);
 
     /**
      * set source file name where the message is generated

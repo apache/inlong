@@ -50,6 +50,7 @@ public class FileInstance extends Instance {
     public static final int CORE_THREAD_SLEEP_TIME = 1;
     private static final int DESTROY_LOOP_WAIT_TIME_MS = 10;
     private static final int CHECK_FINISH_AT_LEAST_COUNT = 5;
+    private final int WRITE_FAILED_WAIT_TIME_MS = 10;
     private InstanceManager instanceManager;
     private volatile boolean running = false;
     private volatile boolean inited = false;
@@ -126,7 +127,13 @@ public class FileInstance extends Instance {
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_INSTANCE_HEARTBEAT, inlongGroupId, inlongStreamId,
                         AgentUtils.getCurrentTime(), 1, 1);
             } else {
-                sink.write(msg);
+                boolean suc = false;
+                while (!isFinished() && !suc) {
+                    suc = sink.write(msg);
+                    if (!suc) {
+                        AgentUtils.silenceSleepInMs(WRITE_FAILED_WAIT_TIME_MS);
+                    }
+                }
             }
         }
     }
