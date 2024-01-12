@@ -56,7 +56,6 @@ import static org.apache.inlong.agent.constant.TaskConstants.INODE_INFO;
 public class ProxySink extends AbstractSink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxySink.class);
-    private final int WRITE_FAILED_WAIT_TIME_MS = 10;
     private final int DESTROY_LOOP_WAIT_TIME_MS = 10;
     public final int SAVE_OFFSET_INTERVAL_MS = 1000;
     private static final ThreadPoolExecutor EXECUTOR_SERVICE = new ThreadPoolExecutor(
@@ -76,18 +75,9 @@ public class ProxySink extends AbstractSink {
     private volatile boolean offsetRunning = false;
     private OffsetManager offsetManager;
 
-    public ProxySink() {
-    }
-
     @Override
-    public void write(Message message) {
-        boolean suc = false;
-        while (!shutdown && !suc) {
-            suc = putInCache(message);
-            if (!suc) {
-                AgentUtils.silenceSleepInMs(WRITE_FAILED_WAIT_TIME_MS);
-            }
-        }
+    public boolean write(Message message) {
+        return putInCache(message);
     }
 
     private boolean putInCache(Message message) {
