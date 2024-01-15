@@ -57,7 +57,7 @@ public class SourceType extends StreamType {
             put(REDIS, TaskTypeEnum.REDIS);
             put(MQTT, TaskTypeEnum.MQTT);
             put(HUDI, TaskTypeEnum.HUDI);
-            put(DAMENG,TaskTypeEnum.DAMENG);
+            put(DAMENG, TaskTypeEnum.DAMENG);
 
         }
     };

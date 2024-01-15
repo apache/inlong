@@ -17,30 +17,21 @@
 
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.SourceType;
-import org.apache.inlong.manager.common.consts.StreamType;
 import org.apache.inlong.manager.common.fieldtype.strategy.DamengFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
-import org.apache.inlong.manager.common.fieldtype.strategy.MySQLFieldTypeStrategy;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
-import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
 import org.apache.inlong.manager.pojo.source.dameng.DamengSource;
-import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSource;
-import org.apache.inlong.manager.pojo.source.oracle.OracleSource;
-import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.DMConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.DamengExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 
-import com.google.common.base.Splitter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * The Provider for creating MySQLBinlog extract nodes.

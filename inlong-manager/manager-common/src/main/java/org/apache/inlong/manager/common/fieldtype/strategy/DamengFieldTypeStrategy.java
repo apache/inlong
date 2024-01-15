@@ -15,16 +15,17 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.manager.common.fieldtype.strategy;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.fieldtype.FieldTypeMappingReader;
+
+import org.apache.commons.lang3.StringUtils;
 
 import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
 
 public class DamengFieldTypeStrategy implements FieldTypeMappingStrategy {
+
     private final FieldTypeMappingReader reader;
 
     public DamengFieldTypeStrategy() {

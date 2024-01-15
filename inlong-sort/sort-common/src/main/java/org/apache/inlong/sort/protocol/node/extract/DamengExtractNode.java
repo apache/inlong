@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.constant.DMConstant.ScanStartUpMode;
+import org.apache.inlong.sort.protocol.node.ExtractNode;
+import org.apache.inlong.sort.protocol.transformation.WatermarkField;
+
 import com.google.common.base.Preconditions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,14 +29,10 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
-import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.constant.DMConstant;
-import org.apache.inlong.sort.protocol.constant.DMConstant.ScanStartUpMode;
-import org.apache.inlong.sort.protocol.node.ExtractNode;
-import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +81,6 @@ public class DamengExtractNode extends ExtractNode implements Serializable {
     @JsonProperty(value = "port", defaultValue = "5132")
     private Integer port;
 
-
     @JsonCreator
     public DamengExtractNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
@@ -108,11 +108,10 @@ public class DamengExtractNode extends ExtractNode implements Serializable {
         this.scanStartupMode = scanStartupMode;
     }
 
-
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        //using oracle constants is ok, since dameng is essentially built upon oracle.
+        // using oracle constants is ok, since dameng is essentially built upon oracle.
         options.put(CONNECTOR, "dm-cdc");
         options.put(HOSTNAME, hostname);
         options.put(USERNAME, username);
