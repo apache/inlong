@@ -22,15 +22,15 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.inlong</groupId>
-        <artifactId>sort-formats</artifactId>
+        <artifactId>format-row</artifactId>
         <version>1.11.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-format-csv</artifactId>
-    <name>Apache InLong - Sort Format-csv</name>
+    <name>Apache InLong - Sort Format-CSV</name>
 
     <properties>
-        <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
+        <inlong.root.dir>${project.parent.parent.parent.parent.basedir}</inlong.root.dir>
     </properties>
 
     <dependencies>

@@ -22,23 +22,23 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.inlong</groupId>
-        <artifactId>sort-formats</artifactId>
+        <artifactId>format-row</artifactId>
         <version>1.11.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>sort-format-json-v1.13</artifactId>
-    <name>Apache InLong - Sort Format-json-v1.13</name>
+    <artifactId>sort-format-inlongmsg-base</artifactId>
+    <name>Apache InLong - Sort Format-InLongMsg-Base</name>
 
     <properties>
-        <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
-        <flink.version>1.13.5</flink.version>
+        <inlong.root.dir>${project.parent.parent.parent.parent.basedir}</inlong.root.dir>
     </properties>
 
     <dependencies>
+        <!-- core dependencies -->
         <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-json</artifactId>
-            <version>${flink.version}</version>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>inlong-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -49,8 +49,26 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-shaded-jackson</artifactId>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-format-base</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.xerial.snappy</groupId>
+            <artifactId>snappy-java</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -72,20 +90,12 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.debezium</groupId>
-            <artifactId>debezium-core</artifactId>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-csv</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
 
+    </dependencies>
 </project>
