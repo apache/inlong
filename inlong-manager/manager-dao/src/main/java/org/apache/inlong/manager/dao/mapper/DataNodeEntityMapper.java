@@ -56,6 +56,6 @@ public interface DataNodeEntityMapper {
             @Param("targetTenant") String targetTenant, @Param("newName") String newName);
 
     @MultiTenantQuery(with = false)
-    DataNodeEntity selectByIdSelective(DataNodeEntity record);
+    List<DataNodeEntity> selectByIdSelective(DataNodeEntity record);
 
 }
