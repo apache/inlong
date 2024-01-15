@@ -54,6 +54,7 @@
         <module>starrocks</module>
         <module>hudi</module>
         <module>kudu</module>
+        <module>dm-cdc</module>
     </modules>
 
     <properties>
