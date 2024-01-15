@@ -17,11 +17,6 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
-import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.constant.DMConstant.ScanStartUpMode;
-import org.apache.inlong.sort.protocol.node.ExtractNode;
-import org.apache.inlong.sort.protocol.transformation.WatermarkField;
-
 import com.google.common.base.Preconditions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -29,28 +24,29 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.inlong.common.enums.MetaField;
+import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.InlongMetric;
+import org.apache.inlong.sort.protocol.Metadata;
+import org.apache.inlong.sort.protocol.constant.DMConstant;
+import org.apache.inlong.sort.protocol.node.ExtractNode;
+import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import static org.apache.inlong.sort.protocol.constant.DMConstant.CONNECTOR;
-import static org.apache.inlong.sort.protocol.constant.DMConstant.DATABASE_NAME;
-import static org.apache.inlong.sort.protocol.constant.DMConstant.HOSTNAME;
-import static org.apache.inlong.sort.protocol.constant.DMConstant.PASSWORD;
-import static org.apache.inlong.sort.protocol.constant.DMConstant.PORT;
-import static org.apache.inlong.sort.protocol.constant.DMConstant.SCAN_STARTUP_MODE;
-import static org.apache.inlong.sort.protocol.constant.DMConstant.SCHEMA_NAME;
-import static org.apache.inlong.sort.protocol.constant.DMConstant.TABLE_NAME;
-import static org.apache.inlong.sort.protocol.constant.DMConstant.USERNAME;
-
+/**
+ * Dameng extract node for extract data from dameng(support dameng v8, other versions not tested yet)
+ */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("damengExtract")
 @Data
-public class DamengExtractNode extends ExtractNode implements Serializable {
+public class DamengExtractNode extends ExtractNode implements Serializable, Metadata, InlongMetric {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Nullable
@@ -76,7 +72,7 @@ public class DamengExtractNode extends ExtractNode implements Serializable {
     private String tableName;
     @Nonnull
     @JsonProperty("scanStartupMode")
-    private ScanStartUpMode scanStartupMode;
+    private DMConstant.ScanStartUpMode scanStartupMode;
     @Nullable
     @JsonProperty(value = "port", defaultValue = "5132")
     private Integer port;
@@ -94,8 +90,8 @@ public class DamengExtractNode extends ExtractNode implements Serializable {
             @JsonProperty("database") String database,
             @JsonProperty("schemaName") String schemaName,
             @JsonProperty("tableName") String tableName,
-            @JsonProperty(value = "port", defaultValue = "1521") Integer port,
-            @Nullable @JsonProperty("scanStartupMode") ScanStartUpMode scanStartupMode) {
+            @JsonProperty(value = "port", defaultValue = "5132") Integer port,
+            @Nullable @JsonProperty("scanStartupMode") DMConstant.ScanStartUpMode scanStartupMode) {
         super(id, name, fields, watermarkField, properties);
         this.primaryKey = primaryKey;
         this.hostname = Preconditions.checkNotNull(hostname, "hostname is null");
@@ -111,24 +107,57 @@ public class DamengExtractNode extends ExtractNode implements Serializable {
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        // using oracle constants is ok, since dameng is essentially built upon oracle.
-        options.put(CONNECTOR, "dm-cdc");
-        options.put(HOSTNAME, hostname);
-        options.put(USERNAME, username);
-        options.put(PASSWORD, password);
-        options.put(DATABASE_NAME, database);
-        options.put(SCHEMA_NAME, schemaName);
-        options.put(TABLE_NAME, tableName);
-        options.put(SCAN_STARTUP_MODE, scanStartupMode.getValue());
+        options.put(DMConstant.CONNECTOR, "dm-cdc");
+        options.put(DMConstant.HOSTNAME, hostname);
+        options.put(DMConstant.USERNAME, username);
+        options.put(DMConstant.PASSWORD, password);
+        options.put(DMConstant.DATABASE_NAME, database);
+        options.put(DMConstant.SCHEMA_NAME, schemaName);
+        options.put(DMConstant.TABLE_NAME, tableName);
+        options.put(DMConstant.SCAN_STARTUP_MODE, scanStartupMode.getValue());
         if (port != null) {
-            options.put(PORT, port.toString());
+            options.put(DMConstant.PORT, port.toString());
         }
         return options;
     }
 
     @Override
     public String genTableName() {
-        return String.format("table_%s", super.getId());
+        return String.format("node_%s", super.getId());
     }
 
+    @Override
+    public boolean isVirtual(MetaField metaField) {
+        return true;
+    }
+
+    @Override
+    public Set<MetaField> supportedMetaFields() {
+        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.DATABASE_NAME, MetaField.TABLE_NAME, MetaField.SCHEMA_NAME,
+                MetaField.DATA_CANAL, MetaField.OP_TYPE, MetaField.OP_TS, MetaField.IS_DDL,
+                MetaField.TS, MetaField.SQL_TYPE, MetaField.MYSQL_TYPE, MetaField.PK_NAMES,
+                MetaField.BATCH_ID, MetaField.UPDATE_BEFORE, MetaField.DATA_BYTES_DEBEZIUM,
+                MetaField.DATA_DEBEZIUM, MetaField.DATA_BYTES_CANAL,
+                MetaField.DATA, MetaField.DATA_BYTES, MetaField.INCREMENTAL);
+    }
+
+    @Override
+    public String getMetadataKey(MetaField metaField) {
+        String metadataKey;
+        switch (metaField) {
+            case TABLE_NAME:
+                metadataKey = "meta.table_name";
+                break;
+            case DATABASE_NAME:
+                metadataKey = "meta.database_name";
+                break;
+            case SCHEMA_NAME:
+                metadataKey = "meta.schema_name";
+                break;
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
+                        this.getClass().getSimpleName(), metaField));
+        }
+        return metadataKey;
+    }
 }
