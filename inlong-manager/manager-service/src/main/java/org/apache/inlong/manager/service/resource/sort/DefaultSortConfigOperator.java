@@ -149,7 +149,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         }
 
         for (StreamSource source : sources) {
-            source.setFieldList(inlongStreamInfo.getFieldList());
+            source.setFieldList(new ArrayList<>(inlongStreamInfo.getFieldList()));
         }
         List<NodeRelation> relations;
 
