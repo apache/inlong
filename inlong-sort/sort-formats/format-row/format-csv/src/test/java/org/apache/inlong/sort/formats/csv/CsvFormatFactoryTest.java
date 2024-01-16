@@ -20,8 +20,8 @@ package org.apache.inlong.sort.formats.csv;
 import org.apache.inlong.sort.formats.base.DefaultTableFormatDeserializer;
 import org.apache.inlong.sort.formats.base.DefaultTableFormatSerializer;
 import org.apache.inlong.sort.formats.base.TableFormatDeserializer;
+import org.apache.inlong.sort.formats.base.TableFormatForRowUtils;
 import org.apache.inlong.sort.formats.base.TableFormatSerializer;
-import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.DateFormatInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
@@ -107,7 +107,7 @@ public class CsvFormatFactoryTest {
                 new DefaultTableFormatDeserializer(deserializationSchema);
 
         final TableFormatDeserializer actualDeser =
-                TableFormatUtils.getTableFormatDeserializer(
+                TableFormatForRowUtils.getTableFormatDeserializer(
                         properties,
                         getClass().getClassLoader());
 
@@ -130,7 +130,7 @@ public class CsvFormatFactoryTest {
                 new DefaultTableFormatDeserializer(deserializationSchema);
 
         final TableFormatDeserializer actualDeser =
-                TableFormatUtils.getTableFormatDeserializer(
+                TableFormatForRowUtils.getTableFormatDeserializer(
                         properties,
                         getClass().getClassLoader());
 
@@ -164,7 +164,7 @@ public class CsvFormatFactoryTest {
                 new DefaultTableFormatSerializer(serializationSchema);
 
         final TableFormatSerializer actualSer =
-                TableFormatUtils.getTableFormatSerializer(
+                TableFormatForRowUtils.getTableFormatSerializer(
                         properties,
                         getClass().getClassLoader());
 
@@ -187,7 +187,7 @@ public class CsvFormatFactoryTest {
                 new DefaultTableFormatSerializer(serializationSchema);
 
         final TableFormatSerializer actualSer =
-                TableFormatUtils.getTableFormatSerializer(
+                TableFormatForRowUtils.getTableFormatSerializer(
                         properties,
                         getClass().getClassLoader());
 
@@ -218,7 +218,7 @@ public class CsvFormatFactoryTest {
                         false);
 
         final DeserializationSchema<Row> actualDeser =
-                TableFormatUtils.getProjectedDeserializationSchema(
+                TableFormatForRowUtils.getProjectedDeserializationSchema(
                         properties,
                         new int[]{1, 2, 3},
                         getClass().getClassLoader());
@@ -239,7 +239,7 @@ public class CsvFormatFactoryTest {
                 new CsvDeserializationSchema(TEST_FORMAT_SCHEMA);
 
         final DeserializationSchema<Row> actualDeser =
-                TableFormatUtils.getProjectedDeserializationSchema(
+                TableFormatForRowUtils.getProjectedDeserializationSchema(
                         properties,
                         new int[]{1, 2, 3},
                         getClass().getClassLoader());
@@ -271,7 +271,7 @@ public class CsvFormatFactoryTest {
                         false);
 
         final SerializationSchema<Row> actualSer =
-                TableFormatUtils.getProjectedSerializationSchema(
+                TableFormatForRowUtils.getProjectedSerializationSchema(
                         properties,
                         new int[]{1, 2, 3},
                         getClass().getClassLoader());
@@ -292,7 +292,7 @@ public class CsvFormatFactoryTest {
                 new CsvSerializationSchema(TEST_FORMAT_SCHEMA);
 
         final SerializationSchema<Row> actualSer =
-                TableFormatUtils.getProjectedSerializationSchema(
+                TableFormatForRowUtils.getProjectedSerializationSchema(
                         properties,
                         new int[]{1, 2, 3},
                         getClass().getClassLoader());

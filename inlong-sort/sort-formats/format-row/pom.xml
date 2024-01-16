@@ -36,6 +36,7 @@
         <module>format-csv</module>
         <module>format-kv</module>
         <module>format-inlongmsg-base</module>
+        <module>format-inlongmsg-binlog</module>
         <module>format-inlongmsg-csv</module>
         <module>format-inlongmsg-kv</module>
         <module>format-inlongmsg-pb</module>

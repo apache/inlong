@@ -18,7 +18,7 @@
 package org.apache.inlong.sort.formats.kv;
 
 import org.apache.inlong.sort.formats.base.DefaultDeserializationSchema;
-import org.apache.inlong.sort.formats.base.TableFormatUtils;
+import org.apache.inlong.sort.formats.base.TableFormatForRowUtils;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
 
@@ -128,7 +128,7 @@ public final class KvDeserializationSchema extends DefaultDeserializationSchema<
     @SuppressWarnings("unchecked")
     @Override
     public TypeInformation<Row> getProducedType() {
-        return (TypeInformation<Row>) TableFormatUtils.getType(rowFormatInfo.getTypeInfo());
+        return (TypeInformation<Row>) TableFormatForRowUtils.getType(rowFormatInfo.getTypeInfo());
     }
 
     @Override

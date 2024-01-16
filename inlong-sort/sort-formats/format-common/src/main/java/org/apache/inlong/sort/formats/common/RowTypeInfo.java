@@ -34,9 +34,12 @@ public class RowTypeInfo implements TypeInfo {
 
     private static final String FIELD_FIELD_NAMES = "fieldNames";
     private static final String FIELD_FIELD_TYPES = "fieldTypes";
+    private static final String FIELD_FIELD_DESCRIPTIONS = "fieldDescriptions";
 
-    public static final RowTypeInfo EMPTY =
-            new RowTypeInfo(new String[0], new TypeInfo[0]);
+    public static final RowTypeInfo EMPTY = new RowTypeInfo(
+            new String[0],
+            new TypeInfo[0],
+            new String[0]);
 
     @JsonProperty(FIELD_FIELD_NAMES)
     @Nonnull
@@ -46,34 +49,41 @@ public class RowTypeInfo implements TypeInfo {
     @Nonnull
     private final TypeInfo[] fieldTypeInfos;
 
+    @JsonProperty(FIELD_FIELD_DESCRIPTIONS)
+    @Nonnull
+    private final String[] fieldDescriptions;
+
     @JsonCreator
     public RowTypeInfo(
             @JsonProperty(FIELD_FIELD_NAMES) @Nonnull String[] fieldNames,
-            @JsonProperty(FIELD_FIELD_TYPES) @Nonnull TypeInfo[] fieldTypeInfos) {
-        checkArity(fieldNames, fieldTypeInfos);
+            @JsonProperty(FIELD_FIELD_TYPES) @Nonnull TypeInfo[] fieldTypeInfos,
+            @JsonProperty(FIELD_FIELD_DESCRIPTIONS) @Nonnull String[] fieldDescriptions) {
+        checkArity(fieldNames, fieldTypeInfos, fieldDescriptions);
         checkDuplicates(fieldNames);
 
         this.fieldNames = fieldNames;
         this.fieldTypeInfos = fieldTypeInfos;
+        this.fieldDescriptions = fieldDescriptions;
     }
 
     private static void checkArity(
             String[] fieldNames,
-            TypeInfo[] fieldTypeInfos) {
+            TypeInfo[] fieldTypeInfos,
+            String[] fieldDescriptions) {
         if (fieldNames.length != fieldTypeInfos.length) {
-            throw new IllegalArgumentException("The number of names and " + "formats is not equal.");
+            throw new IllegalArgumentException(String.format("The number of names and " +
+                    "types is not equal. FieldNames: %s, filedTypes: %s",
+                    Arrays.toString(fieldNames), Arrays.toString(fieldTypeInfos)));
         }
-    }
-
-    private static void checkDuplicates(String[] fieldNames) {
-        long numFieldNames = fieldNames.length;
-        long numDistinctFieldNames =
-                Arrays.stream(fieldNames)
-                        .collect(Collectors.toSet())
-                        .size();
-
-        if (numDistinctFieldNames != numFieldNames) {
-            throw new IllegalArgumentException("There exist duplicated " + "field names.");
+        if (fieldDescriptions.length != fieldTypeInfos.length) {
+            throw new IllegalArgumentException(String.format("The number of descriptions and " +
+                    "types is not equal. FieldDescriptions: %s, filedTypes: %s",
+                    Arrays.toString(fieldDescriptions), Arrays.toString(fieldTypeInfos)));
+        }
+        if (fieldDescriptions.length != fieldNames.length) {
+            throw new IllegalArgumentException(String.format("The number of descriptions and " +
+                    "names is not equal. FieldDescriptions: %s, filedNames: %s",
+                    Arrays.toString(fieldDescriptions), Arrays.toString(fieldNames)));
         }
     }
 
@@ -87,6 +97,11 @@ public class RowTypeInfo implements TypeInfo {
         return fieldTypeInfos;
     }
 
+    @Nonnull
+    public String[] getFieldDescriptions() {
+        return fieldDescriptions;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -98,7 +113,9 @@ public class RowTypeInfo implements TypeInfo {
         }
 
         RowTypeInfo that = (RowTypeInfo) o;
-        return Arrays.equals(fieldTypeInfos, that.fieldTypeInfos);
+        return Arrays.equals(fieldNames, that.fieldNames) &&
+                Arrays.equals(fieldTypeInfos, that.fieldTypeInfos) &&
+                Arrays.equals(fieldDescriptions, that.fieldDescriptions);
     }
 
     @Override
@@ -108,6 +125,22 @@ public class RowTypeInfo implements TypeInfo {
 
     @Override
     public String toString() {
-        return "RowTypeInfo{" + "fieldTypeInfos=" + Arrays.toString(fieldTypeInfos) + '}';
+        return "RowTypeInfo{" +
+                "fieldNames=" + Arrays.toString(fieldNames) +
+                "fieldTypeInfos=" + Arrays.toString(fieldTypeInfos) +
+                "fieldDescriptions=" + Arrays.toString(fieldDescriptions) +
+                '}';
+    }
+
+    private static void checkDuplicates(String[] fieldNames) {
+        long numFieldNames = fieldNames.length;
+        long numDistinctFieldNames =
+                Arrays.stream(fieldNames)
+                        .collect(Collectors.toSet())
+                        .size();
+
+        if (numDistinctFieldNames != numFieldNames) {
+            throw new IllegalArgumentException("There exist duplicated " + "field names.");
+        }
     }
 }
