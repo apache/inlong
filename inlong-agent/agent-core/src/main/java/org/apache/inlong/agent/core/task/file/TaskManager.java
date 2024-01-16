@@ -418,6 +418,7 @@ public class TaskManager extends AbstractDaemon {
     }
 
     private void restoreFromDb() {
+        LOGGER.info("restoreFromDb start");
         List<TaskProfile> taskProfileList = taskDb.getTasks();
         taskProfileList.forEach((profile) -> {
             if (profile.getState() == TaskStateEnum.RUNNING) {
@@ -425,6 +426,7 @@ public class TaskManager extends AbstractDaemon {
                 addToMemory(profile);
             }
         });
+        LOGGER.info("restoreFromDb end");
     }
 
     private void stopAllTasks() {
