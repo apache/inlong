@@ -18,7 +18,7 @@
 package org.apache.inlong.sort.formats.inlongmsgkv;
 
 import org.apache.inlong.sort.formats.base.TableFormatDeserializer;
-import org.apache.inlong.sort.formats.base.TableFormatUtils;
+import org.apache.inlong.sort.formats.base.TableFormatForRowUtils;
 import org.apache.inlong.sort.formats.common.DateFormatInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
@@ -94,7 +94,7 @@ public class InLongMsgKvFormatFactoryTest {
                         false);
 
         final TableFormatDeserializer actualDeser =
-                TableFormatUtils.getTableFormatDeserializer(
+                TableFormatForRowUtils.getTableFormatDeserializer(
                         properties,
                         getClass().getClassLoader());
 
@@ -114,7 +114,7 @@ public class InLongMsgKvFormatFactoryTest {
                 new InLongMsgKvFormatDeserializer.Builder(TEST_FORMAT_SCHEMA).build();
 
         final TableFormatDeserializer actualDeser =
-                TableFormatUtils.getTableFormatDeserializer(
+                TableFormatForRowUtils.getTableFormatDeserializer(
                         properties,
                         getClass().getClassLoader());
 

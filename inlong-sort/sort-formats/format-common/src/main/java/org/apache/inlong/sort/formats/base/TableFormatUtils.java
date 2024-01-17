@@ -63,6 +63,7 @@ import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.descriptors.DescriptorProperties;
@@ -92,9 +93,12 @@ import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.flink.types.Row;
 
+import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import static org.apache.flink.table.factories.TableFormatFactoryBase.deriveSchema;
 import static org.apache.flink.util.Preconditions.checkState;
@@ -149,95 +153,6 @@ public class TableFormatUtils {
                         classLoader);
 
         return serializationSchemaFactory.createSerializationSchema(properties);
-    }
-
-    /**
-     * Returns the {@link DeserializationSchema} described by the given
-     * properties.
-     *
-     * @param properties The properties describing the deserializer.
-     * @param fields The fields to project.
-     * @param classLoader The class loader for the deserializer.
-     * @param <T> The type of the data.
-     * @return The {@link DeserializationSchema} described by the properties.
-     */
-    public static <T> DeserializationSchema<Row> getProjectedDeserializationSchema(
-            final Map<String, String> properties,
-            final int[] fields,
-            final ClassLoader classLoader) {
-        final ProjectedDeserializationSchemaFactory deserializationSchemaFactory =
-                TableFactoryService.find(
-                        ProjectedDeserializationSchemaFactory.class,
-                        properties,
-                        classLoader);
-
-        return deserializationSchemaFactory
-                .createProjectedDeserializationSchema(properties, fields);
-    }
-
-    /**
-     * Returns the {@link SerializationSchema} described by the given
-     * properties.
-     *
-     * @param properties The properties describing the serializer.
-     * @param fields The fields to project.
-     * @param classLoader The class loader for the serializer.
-     * @return The {@link SerializationSchema} described by the properties.
-     */
-    public static SerializationSchema<Row> getProjectedSerializationSchema(
-            final Map<String, String> properties,
-            final int[] fields,
-            final ClassLoader classLoader) {
-        final ProjectedSerializationSchemaFactory serializationSchemaFactory =
-                TableFactoryService.find(
-                        ProjectedSerializationSchemaFactory.class,
-                        properties,
-                        classLoader);
-
-        return serializationSchemaFactory
-                .createProjectedSerializationSchema(properties, fields);
-    }
-
-    /**
-     * Returns the {@link TableFormatSerializer} described by the given
-     * properties.
-     *
-     * @param properties The properties describing the serializer.
-     * @param classLoader The class loader for the serializer.
-     * @return The {@link TableFormatSerializer} described by the properties.
-     */
-    public static TableFormatSerializer getTableFormatSerializer(
-            final Map<String, String> properties,
-            final ClassLoader classLoader) {
-        final TableFormatSerializerFactory tableFormatSerializerFactory =
-                TableFactoryService.find(
-                        TableFormatSerializerFactory.class,
-                        properties,
-                        classLoader);
-
-        return tableFormatSerializerFactory
-                .createFormatSerializer(properties);
-    }
-
-    /**
-     * Returns the {@link TableFormatDeserializer} described by the
-     * given properties.
-     *
-     * @param properties The properties describing the deserializer.
-     * @param classLoader The class loader for the deserializer.
-     * @return The {@link TableFormatDeserializer} described by the properties.
-     */
-    public static TableFormatDeserializer getTableFormatDeserializer(
-            final Map<String, String> properties,
-            final ClassLoader classLoader) {
-        final TableFormatDeserializerFactory tableFormatDeserializerFactory =
-                TableFactoryService.find(
-                        TableFormatDeserializerFactory.class,
-                        properties,
-                        classLoader);
-
-        return tableFormatDeserializerFactory
-                .createFormatDeserializer(properties);
     }
 
     /**
@@ -449,6 +364,73 @@ public class TableFormatUtils {
     }
 
     /**
+     * Returns the Flink SQL type represented by the given format.
+     * Please see {@link org.apache.flink.table.types.utils.TypeInfoDataTypeConverter} and
+     * {@link org.apache.flink.table.types.utils.LegacyTypeInfoDataTypeConverter}.
+     *
+     * @param typeInfo The type information of flink formats.
+     * @return The Flink SQL data type represented by the given format.
+     */
+    public static DataType getDataType(TypeInfo typeInfo) {
+        if (typeInfo instanceof StringTypeInfo) {
+            return DataTypes.STRING().bridgedTo(String.class);
+        } else if (typeInfo instanceof BooleanTypeInfo) {
+            return DataTypes.BOOLEAN().bridgedTo(Boolean.class);
+        } else if (typeInfo instanceof ByteTypeInfo) {
+            return DataTypes.TINYINT().bridgedTo(Byte.class);
+        } else if (typeInfo instanceof ShortTypeInfo) {
+            return DataTypes.SMALLINT().bridgedTo(Short.class);
+        } else if (typeInfo instanceof IntTypeInfo) {
+            return DataTypes.INT().bridgedTo(Integer.class);
+        } else if (typeInfo instanceof LongTypeInfo) {
+            return DataTypes.BIGINT().bridgedTo(Long.class);
+        } else if (typeInfo instanceof FloatTypeInfo) {
+            return DataTypes.FLOAT().bridgedTo(Float.class);
+        } else if (typeInfo instanceof DoubleTypeInfo) {
+            return DataTypes.DOUBLE().bridgedTo(Double.class);
+        } else if (typeInfo instanceof DecimalTypeInfo) {
+            return DataTypes.DECIMAL(38, 18).bridgedTo(BigDecimal.class);
+        } else if (typeInfo instanceof DateTypeInfo) {
+            return DataTypes.DATE().bridgedTo(java.sql.Date.class);
+        } else if (typeInfo instanceof TimeTypeInfo) {
+            return DataTypes.TIME(0).bridgedTo(java.sql.Time.class);
+        } else if (typeInfo instanceof TimestampTypeInfo) {
+            return DataTypes.TIMESTAMP(3).bridgedTo(java.sql.Timestamp.class);
+        } else if (typeInfo instanceof ArrayTypeInfo) {
+            ArrayTypeInfo arrayTypeInfo = (ArrayTypeInfo) typeInfo;
+            TypeInfo elementTypeInfo =
+                    arrayTypeInfo.getElementTypeInfo();
+            DataType elementType = getDataType(elementTypeInfo);
+            // copied from ObjectArrayTypeInfo#getInfoFor
+            Class<?> arrayClass = Array.newInstance(elementType.getConversionClass(), 0).getClass();
+            return DataTypes.ARRAY(elementType).bridgedTo(arrayClass);
+        } else if (typeInfo instanceof MapTypeInfo) {
+            MapTypeInfo mapTypeInfo = (MapTypeInfo) typeInfo;
+            TypeInfo keyTypeInfo = mapTypeInfo.getKeyTypeInfo();
+            TypeInfo valueTypeInfo = mapTypeInfo.getValueTypeInfo();
+
+            DataType keyType = getDataType(keyTypeInfo);
+            DataType valueType = getDataType(valueTypeInfo);
+
+            return DataTypes.MAP(keyType, valueType).bridgedTo(Map.class);
+        } else if (typeInfo instanceof RowTypeInfo) {
+            RowTypeInfo rowTypeInfo = (RowTypeInfo) typeInfo;
+            String[] fieldNames = rowTypeInfo.getFieldNames();
+            TypeInfo[] fieldTypeInfos = rowTypeInfo.getFieldTypeInfos();
+
+            DataTypes.Field[] fields = IntStream.range(0, fieldNames.length)
+                    .mapToObj(i -> {
+                        DataType fieldType = getDataType(fieldTypeInfos[i]);
+                        return DataTypes.FIELD(fieldNames[i], fieldType);
+                    }).toArray(DataTypes.Field[]::new);
+
+            return DataTypes.ROW(fields).bridgedTo(Row.class);
+        } else {
+            throw new IllegalStateException("Unexpected format.");
+        }
+    }
+
+    /**
      * Returns the format defined in the given property.
      *
      * @param descriptorProperties The properties of the descriptor.
@@ -610,6 +592,31 @@ public class TableFormatUtils {
         } catch (Exception e) {
             throw new RuntimeException("Could not properly serialize the "
                     + "value " + field + " for field " + fieldName + ".", e);
+        }
+    }
+
+    public static RowFormatInfo deriveRowFormatInfo(
+            RowType rowType) {
+        List<RowType.RowField> fields = rowType.getFields();
+        FormatInfo[] fieldFormatInfos = new FormatInfo[fields.size()];
+        for (int i = 0; i < fields.size(); ++i) {
+            LogicalType fieldType = fields.get(i).getType();
+            fieldFormatInfos[i] = TableFormatUtils.deriveFormatInfo(fieldType);
+        }
+
+        return new RowFormatInfo(rowType.getFieldNames().toArray(new String[1]), fieldFormatInfos);
+    }
+
+    public static RowFormatInfo deserializeRowFormatInfo(String rowFormatInfoStr) {
+        try {
+            FormatInfo formatInfo = FormatUtils.demarshall(rowFormatInfoStr);
+            if (!(formatInfo instanceof RowFormatInfo)) {
+                throw new IllegalStateException("Unexpected format type.");
+            }
+
+            return (RowFormatInfo) formatInfo;
+        } catch (Exception e) {
+            throw new ValidationException("The schema is invalid.", e);
         }
     }
 

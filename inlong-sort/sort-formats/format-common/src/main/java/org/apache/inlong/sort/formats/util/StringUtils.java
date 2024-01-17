@@ -39,21 +39,8 @@ public class StringUtils {
     private static final int STATE_QUOTING = 16;
 
     /**
-     * Splits the kv text.
-     *
-     * <p>Both escaping and quoting is supported. When the escape character is
-     * not '\0', then the next character to the escape character will be
-     * escaped. When the quote character is not '\0', then all characters
-     * between consecutive quote characters will be escaped.</p>
-     *
-     * @param text The text to be split.
-     * @param entryDelimiter The delimiter of entries.
-     * @param kvDelimiter The delimiter between key and value.
-     * @param escapeChar The escaping character. Only valid if not '\0'.
-     * @param quoteChar The quoting character.
-     * @return The fields split from the text.
+     * @see StringUtils#splitKv(String, Character, Character, Character,Character, Character)
      */
-    @SuppressWarnings("checkstyle:MissingSwitchDefault")
     public static Map<String, String> splitKv(
             @Nonnull String text,
             @Nonnull Character entryDelimiter,
@@ -241,9 +228,10 @@ public class StringUtils {
             @Nonnull Character kvDelimiter,
             @Nullable Character escapeChar,
             @Nullable Character quoteChar) {
-        if (fieldKeys.length != fieldValues.length) {
-            throw new IllegalArgumentException("The keys' number " + fieldKeys.length
-                    + " doesn't match values' number " + fieldValues.length);
+        if (fieldKeys.length < fieldValues.length) {
+            throw new IllegalArgumentException("The keys' number " +
+                    fieldKeys.length + " is less than values' number " +
+                    fieldValues.length);
         }
 
         Collection<Character> delimiters =
@@ -295,8 +283,9 @@ public class StringUtils {
                     stringBuilder.append(ch);
                     stringBuilder.append(quoteChar);
                 } else {
-                    throw new IllegalArgumentException("There is a delimiter in the text, "
-                            + "but neither escape nor quote character is specified.");
+                    throw new IllegalArgumentException("There is a delimiter " +
+                            "in the text, but neither escape nor quote character " +
+                            "is specified.");
                 }
             } else if (escapeChar != null && ch == escapeChar) {
                 stringBuilder.append(escapeChar);
@@ -306,8 +295,9 @@ public class StringUtils {
                     stringBuilder.append(escapeChar);
                     stringBuilder.append(ch);
                 } else {
-                    throw new IllegalArgumentException("There is a quote character in the text, "
-                            + "but escape character is not specified.");
+                    throw new IllegalArgumentException("There is a quote " +
+                            "character in the text, but escape character is not " +
+                            "specified.");
                 }
             } else {
                 stringBuilder.append(ch);
@@ -319,12 +309,6 @@ public class StringUtils {
      * Splits a single line of csv text.
      *
      * @see StringUtils#splitCsv(String, Character, Character, Character, Character, boolean)
-     *
-     * @param text The text to be split.
-     * @param delimiter The delimiter of fields.
-     * @param escapeChar The escaping character. Only valid if not '\0'.
-     * @param quoteChar The quoting character.
-     * @return The split array content.
      */
     public static String[] splitCsv(
             @Nonnull String text,
@@ -340,13 +324,6 @@ public class StringUtils {
 
     /**
      * @see StringUtils#splitCsv(String, Character, Character, Character, Character, boolean)
-     *
-     * @param text The text to be split.
-     * @param delimiter The delimiter of fields.
-     * @param escapeChar The escaping character. Only valid if not '\0'.
-     * @param quoteChar The quoting character.
-     * @param lineDelimiter The delimiter between lines, e.g. '\n'.
-     * @return The split value.
      */
     public static String[][] splitCsv(
             @Nonnull String text,
@@ -510,9 +487,9 @@ public class StringUtils {
             for (int i = 0; i < field.length(); ++i) {
                 char ch = field.charAt(i);
 
-                if (ch == delimiter
-                        || (escapeChar != null && ch == escapeChar)
-                        || (quoteChar != null && ch == quoteChar)) {
+                if (ch == delimiter ||
+                        (escapeChar != null && ch == escapeChar) ||
+                        (quoteChar != null && ch == quoteChar)) {
 
                     if (escapeChar != null) {
                         stringBuilder.append(escapeChar);
@@ -522,8 +499,10 @@ public class StringUtils {
                         stringBuilder.append(ch);
                         stringBuilder.append(quoteChar);
                     } else {
-                        throw new IllegalArgumentException("There exist special characters in the text, "
-                                + "but neither escape character nor quote character is configured.");
+                        throw new IllegalArgumentException("There exist " +
+                                "special characters in the text but neither " +
+                                "escape character nor quote character is " +
+                                "configured.");
                     }
                 } else {
                     stringBuilder.append(ch);

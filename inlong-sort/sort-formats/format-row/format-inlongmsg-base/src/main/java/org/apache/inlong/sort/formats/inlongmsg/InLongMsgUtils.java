@@ -19,7 +19,7 @@ package org.apache.inlong.sort.formats.inlongmsg;
 
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
-import org.apache.inlong.sort.formats.base.TableFormatUtils;
+import org.apache.inlong.sort.formats.base.TableFormatForRowUtils;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.util.StringUtils;
@@ -111,7 +111,7 @@ public class InLongMsgUtils {
             for (int i = 0; i < dataFieldNames.length; ++i) {
                 dataFieldNames[i] = fieldNames[i + 2];
                 dataFieldFormatInfos[i] =
-                        TableFormatUtils.deriveFormatInfo(fieldTypes[i + 2].getLogicalType());
+                        TableFormatForRowUtils.deriveFormatInfo(fieldTypes[i + 2].getLogicalType());
             }
 
             return new RowFormatInfo(dataFieldNames, dataFieldFormatInfos);
@@ -356,7 +356,7 @@ public class InLongMsgUtils {
         fieldTypes[1] = Types.MAP(Types.STRING, Types.STRING);
 
         for (int i = 0; i < dataFieldFormatInfos.length; ++i) {
-            fieldTypes[i + 2] = TableFormatUtils.getType(dataFieldFormatInfos[i].getTypeInfo());
+            fieldTypes[i + 2] = TableFormatForRowUtils.getType(dataFieldFormatInfos[i].getTypeInfo());
         }
 
         return Types.ROW_NAMED(fieldNames, fieldTypes);
@@ -383,7 +383,7 @@ public class InLongMsgUtils {
             @Nullable String timeFieldName,
             @Nullable String attributesFieldName,
             RowFormatInfo dataRowFormatInfo) {
-        RowTypeInfo rowTypeInfo = (RowTypeInfo) TableFormatUtils.getType(dataRowFormatInfo.getTypeInfo());
+        RowTypeInfo rowTypeInfo = (RowTypeInfo) TableFormatForRowUtils.getType(dataRowFormatInfo.getTypeInfo());
 
         return InLongMsgUtils.decorateRowTypeWithNeededHeadFields(
                 timeFieldName,

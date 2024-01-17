@@ -18,7 +18,7 @@
 package org.apache.inlong.sort.formats.inlongmsgcsv;
 
 import org.apache.inlong.sort.formats.base.TableFormatDeserializer;
-import org.apache.inlong.sort.formats.base.TableFormatUtils;
+import org.apache.inlong.sort.formats.base.TableFormatForRowUtils;
 import org.apache.inlong.sort.formats.common.DateFormatInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.FormatUtils;
@@ -95,7 +95,7 @@ public class InLongMsgCsvFormatFactoryTest {
                         false);
 
         final TableFormatDeserializer actualDeser =
-                TableFormatUtils.getTableFormatDeserializer(
+                TableFormatForRowUtils.getTableFormatDeserializer(
                         properties,
                         getClass().getClassLoader());
 
@@ -116,7 +116,7 @@ public class InLongMsgCsvFormatFactoryTest {
                 new InLongMsgCsvFormatDeserializer.Builder(TEST_FORMAT_SCHEMA).build();
 
         final TableFormatDeserializer actualDeser =
-                TableFormatUtils.getTableFormatDeserializer(
+                TableFormatForRowUtils.getTableFormatDeserializer(
                         properties,
                         getClass().getClassLoader());
 

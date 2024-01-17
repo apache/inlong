@@ -1317,6 +1317,9 @@
                 <version>${spotless.version}</version>
                 <configuration>
                     <java>
+                        <excludes>
+                            <exclude>src/main/java/**/InLongBinlog.java</exclude>
+                        </excludes>
                         <eclipse>
                             <file>${inlong.root.dir}/codestyle/spotless_inlong_formatter.xml</file>
                         </eclipse>
