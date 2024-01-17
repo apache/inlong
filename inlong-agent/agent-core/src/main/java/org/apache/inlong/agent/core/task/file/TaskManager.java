@@ -418,13 +418,15 @@ public class TaskManager extends AbstractDaemon {
     }
 
     private void restoreFromDb() {
+        LOGGER.info("restore from db start");
         List<TaskProfile> taskProfileList = taskDb.getTasks();
         taskProfileList.forEach((profile) -> {
             if (profile.getState() == TaskStateEnum.RUNNING) {
-                LOGGER.info("restoreFromDb taskId {}", profile.getTaskId());
+                LOGGER.info("restore from db taskId {}", profile.getTaskId());
                 addToMemory(profile);
             }
         });
+        LOGGER.info("restore from db end");
     }
 
     private void stopAllTasks() {
