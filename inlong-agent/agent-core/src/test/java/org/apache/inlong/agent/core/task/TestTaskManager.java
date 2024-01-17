@@ -65,7 +65,9 @@ public class TestTaskManager {
             }
             manager.start();
             for (int i = 1; i <= 10; i++) {
-                Assert.assertTrue(manager.getTask(String.valueOf(i)) != null);
+                String taskId = String.valueOf(i);
+                await().atMost(3, TimeUnit.SECONDS).until(() -> manager.getTask(taskId) != null);
+                Assert.assertTrue(manager.getTask(taskId) != null);
             }
         } catch (Exception e) {
             LOGGER.error("manager start error: ", e);
@@ -89,6 +91,8 @@ public class TestTaskManager {
         manager.submitTaskProfiles(taskProfiles1);
         await().atMost(3, TimeUnit.SECONDS).until(() -> manager.getTask(taskId1) == null);
         Assert.assertTrue(manager.getTaskProfile(taskId1).getState() == TaskStateEnum.FROZEN);
+
+        // test restore from froze
         taskProfile1.setState(TaskStateEnum.RUNNING);
         manager.submitTaskProfiles(taskProfiles1);
         await().atMost(3, TimeUnit.SECONDS).until(() -> manager.getTask(taskId1) != null);
