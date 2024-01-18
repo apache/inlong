@@ -20,7 +20,7 @@ package org.apache.inlong.agent.plugin.task;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.TaskConstants;
-import org.apache.inlong.agent.core.task.file.TaskManager;
+import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.task.filecollect.LogFileCollectTask;

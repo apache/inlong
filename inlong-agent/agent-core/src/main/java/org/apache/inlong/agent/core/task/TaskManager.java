@@ -15,15 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.core.task.file;
+package org.apache.inlong.agent.core.task;
 
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.core.task.OffsetManager;
-import org.apache.inlong.agent.core.task.TaskAction;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.RocksDbImp;
 import org.apache.inlong.agent.db.TaskProfileDb;

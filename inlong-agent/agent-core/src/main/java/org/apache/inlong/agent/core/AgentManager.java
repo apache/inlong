@@ -21,7 +21,7 @@ import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.ProfileFetcher;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.core.task.file.TaskManager;
+import org.apache.inlong.agent.core.task.TaskManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
