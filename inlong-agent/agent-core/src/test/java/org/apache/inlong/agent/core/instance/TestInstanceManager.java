@@ -23,6 +23,7 @@ import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.AgentBaseTestsHelper;
 import org.apache.inlong.agent.core.task.file.TaskManager;
 import org.apache.inlong.agent.db.Db;
+import org.apache.inlong.agent.db.InstanceDb;
 import org.apache.inlong.agent.db.TaskProfileDb;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.DateTransUtils;
@@ -57,9 +58,9 @@ public class TestInstanceManager {
         taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING, "GMT+6:00");
         Db taskBasicDb = TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_TASK);
         TaskProfileDb taskDb = new TaskProfileDb(taskBasicDb);
-        manager = new InstanceManager("1", 2, basicDb, taskDb);
+        taskDb.storeTask(taskProfile);
+        manager = new InstanceManager("1", 20, basicDb, taskDb);
         manager.CORE_THREAD_SLEEP_TIME_MS = 100;
-        manager.start();
     }
 
     @AfterClass
@@ -70,6 +71,19 @@ public class TestInstanceManager {
 
     @Test
     public void testInstanceManager() {
+        InstanceDb instanceDb = manager.getInstanceDb();
+        for (int i = 1; i <= 10; i++) {
+            InstanceProfile profile = taskProfile.createInstanceProfile(MockInstance.class.getCanonicalName(),
+                    String.valueOf(i), taskProfile.getCycleUnit(), "2023092710",
+                    AgentUtils.getCurrentTime());
+            instanceDb.storeInstance(profile);
+        }
+        manager.start();
+        for (int i = 1; i <= 10; i++) {
+            String instanceId = String.valueOf(i);
+            await().atMost(1, TimeUnit.SECONDS).until(() -> manager.getInstance(instanceId) != null);
+            Assert.assertTrue(manager.getInstanceProfile(instanceId).getState() == InstanceStateEnum.DEFAULT);
+        }
         long timeBefore = AgentUtils.getCurrentTime();
         InstanceProfile profile = taskProfile.createInstanceProfile(MockInstance.class.getCanonicalName(),
                 helper.getTestRootDir() + "/2023092710_1.txt", taskProfile.getCycleUnit(), "2023092710",

@@ -132,6 +132,10 @@ public class InstanceManager extends AbstractDaemon {
         return taskId;
     }
 
+    public InstanceDb getInstanceDb() {
+        return instanceDb;
+    }
+
     public Instance getInstance(String instanceId) {
         return instanceMap.get(instanceId);
     }
@@ -167,7 +171,7 @@ public class InstanceManager extends AbstractDaemon {
                     AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_INSTANCE_MGR_HEARTBEAT, inlongGroupId, inlongStreamId,
                             AgentUtils.getCurrentTime(), 1, 1);
                 } catch (Throwable ex) {
-                    LOGGER.error("coreThread {}", ex);
+                    LOGGER.error("coreThread error: ", ex);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
                 }
                 runAtLeastOneTime = true;
