@@ -389,6 +389,8 @@ public interface InlongClusterService {
      */
     Boolean deleteNode(Integer id, String operator);
 
+    Boolean unloadNode(Integer id, String operator);
+
     /**
      * Delete cluster node.
      *

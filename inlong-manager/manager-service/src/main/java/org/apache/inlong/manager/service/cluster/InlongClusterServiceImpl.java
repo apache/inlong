@@ -73,6 +73,8 @@ import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.service.cluster.node.InlongClusterNodeInstallOperator;
+import org.apache.inlong.manager.service.cluster.node.InlongClusterNodeInstallOperatorFactory;
 import org.apache.inlong.manager.service.cluster.node.InlongClusterNodeOperator;
 import org.apache.inlong.manager.service.cluster.node.InlongClusterNodeOperatorFactory;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
@@ -139,6 +141,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     private InlongRoleService inlongRoleService;
     @Autowired
     private TenantRoleService tenantRoleService;
+    @Autowired
+    private InlongClusterNodeInstallOperatorFactory clusterNodeInstallOperatorFactory;
 
     @Lazy
     @Autowired
@@ -866,7 +870,13 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             throw new BusinessException(errMsg);
         }
         InlongClusterNodeOperator instance = clusterNodeOperatorFactory.getInstance(request.getType());
-        return instance.saveOpt(request, operator);
+        Integer id = instance.saveOpt(request, operator);
+        if (request.getIsInstall()) {
+            InlongClusterNodeInstallOperator clusterNodeInstallOperator = clusterNodeInstallOperatorFactory.getInstance(
+                    request.getType());
+            clusterNodeInstallOperator.install(request, operator);
+        }
+        return id;
     }
 
     @Override
@@ -1068,6 +1078,11 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         // update record
         InlongClusterNodeOperator instance = clusterNodeOperatorFactory.getInstance(request.getType());
         instance.updateOpt(request, operator);
+        if (request.getIsInstall()) {
+            InlongClusterNodeInstallOperator clusterNodeInstallOperator = clusterNodeInstallOperatorFactory.getInstance(
+                    request.getType());
+            clusterNodeInstallOperator.install(request, operator);
+        }
         return true;
     }
 
@@ -1125,6 +1140,17 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
         LOGGER.info("success to delete inlong cluster node by id={}", id);
         return true;
+    }
+
+    @Override
+    public Boolean unloadNode(Integer id, String operator) {
+        LOGGER.info("begin to unload inlong cluster node={}, operator={}", id, operator);
+        InlongClusterNodeEntity clusterNodeEntity = clusterNodeMapper.selectById(id);
+        InlongClusterNodeInstallOperator clusterNodeInstallOperator = clusterNodeInstallOperatorFactory.getInstance(
+                clusterNodeEntity.getType());
+        boolean isSuccess = clusterNodeInstallOperator.unload(clusterNodeEntity, operator);
+        LOGGER.info("success to unload inlong cluster node={}, operator={}", id, operator);
+        return isSuccess;
     }
 
     @Override
