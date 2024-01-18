@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * Factory for {@link InlongClusterNodeOperator}.
+ * Factory for {@link InlongClusterNodeInstallOperator}.
  */
 @Service
 public class InlongClusterNodeInstallOperatorFactory {
