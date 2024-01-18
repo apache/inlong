@@ -158,7 +158,7 @@ public class InlongClusterController {
     @PostMapping(value = "/cluster/save")
     @ApiOperation(value = "Save cluster")
     @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.CLUSTER)
-    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
+    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
     public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody ClusterRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.save(request, currentUser));
@@ -281,6 +281,14 @@ public class InlongClusterController {
     @ApiImplicitParam(name = "id", value = "Cluster node ID", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> deleteNode(@PathVariable Integer id) {
         return Response.success(clusterService.deleteNode(id, LoginUserUtils.getLoginUser().getName()));
+    }
+
+    @RequestMapping(value = "/cluster/node/unload/{id}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Delete cluster node")
+    @OperationLog(operation = OperationType.DELETE, operationTarget = OperationTarget.CLUSTER)
+    @ApiImplicitParam(name = "id", value = "Cluster node ID", dataTypeClass = Integer.class, required = true)
+    public Response<Boolean> unloadNode(@PathVariable Integer id) {
+        return Response.success(clusterService.unloadNode(id, LoginUserUtils.getLoginUser().getName()));
     }
 
     @PostMapping("/cluster/testConnection")

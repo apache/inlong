@@ -77,4 +77,7 @@ public class ClusterNodeRequest {
     @NotNull(groups = UpdateValidation.class, message = "version cannot be null")
     private Integer version;
 
+    @ApiModelProperty(value = "Whether to proceed with installation")
+    private Boolean isInstall = false;
+
 }

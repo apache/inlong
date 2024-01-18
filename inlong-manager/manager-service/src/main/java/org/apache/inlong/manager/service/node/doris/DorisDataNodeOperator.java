@@ -46,7 +46,6 @@ public class DorisDataNodeOperator extends AbstractDataNodeOperator {
 
     @Override
     public Boolean accept(String dataNodeType) {
-        LOGGER.info("test data type {}, actual type={}", dataNodeType, getDataNodeType());
         return getDataNodeType().equals(dataNodeType);
     }
 
