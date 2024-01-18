@@ -858,7 +858,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public Integer saveNode(ClusterNodeRequest request, String operator) {
-        LOGGER.info("begin to insert inlong cluster node={}", request);
+        LOGGER.debug("begin to insert inlong cluster node={}", request);
         Preconditions.expectNotNull(request, "cluster node info cannot be empty");
 
         // check cluster node if exist
@@ -872,12 +872,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         InlongClusterNodeOperator instance = clusterNodeOperatorFactory.getInstance(request.getType());
         Integer id = instance.saveOpt(request, operator);
         if (request.getIsInstall()) {
-            LOGGER.info("begin to install inlong cluster node={}", request);
             InlongClusterNodeInstallOperator clusterNodeInstallOperator = clusterNodeInstallOperatorFactory.getInstance(
                     request.getType());
             clusterNodeInstallOperator.install(request, operator);
-            LOGGER.info("success to install inlong cluster node={}", request);
-
         }
         return id;
     }
@@ -1082,12 +1079,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         InlongClusterNodeOperator instance = clusterNodeOperatorFactory.getInstance(request.getType());
         instance.updateOpt(request, operator);
         if (request.getIsInstall()) {
-            LOGGER.info("begin to install inlong cluster node={}", request);
             InlongClusterNodeInstallOperator clusterNodeInstallOperator = clusterNodeInstallOperatorFactory.getInstance(
                     request.getType());
             clusterNodeInstallOperator.install(request, operator);
-            LOGGER.info("success to install inlong cluster node={}", request);
-
         }
         return true;
     }
@@ -1150,12 +1144,12 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public Boolean unloadNode(Integer id, String operator) {
-        LOGGER.info("begin to unload inlong cluster node={}", id);
+        LOGGER.info("begin to unload inlong cluster node={}, operator={}", id, operator);
         InlongClusterNodeEntity clusterNodeEntity = clusterNodeMapper.selectById(id);
         InlongClusterNodeInstallOperator clusterNodeInstallOperator = clusterNodeInstallOperatorFactory.getInstance(
                 clusterNodeEntity.getType());
         boolean isSuccess = clusterNodeInstallOperator.unload(clusterNodeEntity, operator);
-        LOGGER.info("success to unload inlong cluster node={}", id);
+        LOGGER.info("success to unload inlong cluster node={}, operator={}", id, operator);
         return isSuccess;
     }
 

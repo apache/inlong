@@ -31,8 +31,20 @@ public interface InlongClusterNodeInstallOperator {
 
     String getClusterNodeType();
 
+    /**
+     * Installing cluster nodes.
+     *
+     * @param clusterNodeRequest cluster request
+     * @param operator operator
+     */
     boolean install(ClusterNodeRequest clusterNodeRequest, String operator);
 
+    /**
+     * Uninstalling cluster nodes.
+     *
+     * @param clusterNodeEntity cluster entity
+     * @param operator operator
+     */
     boolean unload(InlongClusterNodeEntity clusterNodeEntity, String operator);
 
 }
