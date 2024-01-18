@@ -21,7 +21,6 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
-import org.apache.inlong.agent.core.task.PositionManager;
 import org.apache.inlong.agent.message.BatchProxyMessage;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
@@ -95,7 +94,6 @@ public class SenderManager {
     // metric
     private AgentMetricItemSet metricItemSet;
     private Map<String, String> dimensions;
-    private PositionManager positionManager;
     private int ioThreadNum;
     private boolean enableBusyWait;
     private String authSecretId;
@@ -125,7 +123,6 @@ public class SenderManager {
         retrySleepTime = jobConf.getLong(
                 CommonConstants.PROXY_RETRY_SLEEP, CommonConstants.DEFAULT_PROXY_RETRY_SLEEP);
         isFile = jobConf.getBoolean(CommonConstants.PROXY_IS_FILE, CommonConstants.DEFAULT_IS_FILE);
-        positionManager = PositionManager.getInstance();
         ioThreadNum = jobConf.getInt(CommonConstants.PROXY_CLIENT_IO_THREAD_NUM,
                 CommonConstants.DEFAULT_PROXY_CLIENT_IO_THREAD_NUM);
         enableBusyWait = jobConf.getBoolean(CommonConstants.PROXY_CLIENT_ENABLE_BUSY_WAIT,
@@ -307,8 +304,6 @@ public class SenderManager {
             long dataTime = batchMessage.getDataTime();
             if (result != null && result.equals(SendResult.OK)) {
                 getMetricItem(groupId, streamId).pluginSendSuccessCount.addAndGet(msgCnt);
-                PositionManager.getInstance()
-                        .updateSinkPosition(batchMessage.getJobId(), sourcePath, msgCnt, false);
             } else {
                 LOGGER.warn("send groupId {}, streamId {}, jobId {}, dataTime {} fail with times {}, "
                         + "error {}", groupId, streamId, jobId, dataTime, retry, result);
