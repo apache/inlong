@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.threadPool.VisiableThreadPoolTaskExecutor;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
@@ -56,7 +57,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 
@@ -73,7 +73,7 @@ public class InlongGroupProcessService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupProcessService.class);
 
-    private static final ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(
+    private static final ExecutorService EXECUTOR_SERVICE = new VisiableThreadPoolTaskExecutor(
             CORE_POOL_SIZE,
             MAX_POOL_SIZE,
             ALIVE_TIME_MS,
