@@ -34,7 +34,7 @@ public class IgnoreFailureHandler implements FailureHandler {
 
     @Override
     public void onParsingBodyFailure(byte[] body, Exception exception) {
-        LOG.warn("Cannot properly parse the body.", exception);
+        LOG.warn("Cannot properly parse the body: {}.", new String(body), exception);
     }
 
     @Override
