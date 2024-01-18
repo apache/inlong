@@ -21,7 +21,7 @@ import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.AgentBaseTestsHelper;
-import org.apache.inlong.agent.core.task.file.TaskManager;
+import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.InstanceDb;
 import org.apache.inlong.agent.db.TaskProfileDb;

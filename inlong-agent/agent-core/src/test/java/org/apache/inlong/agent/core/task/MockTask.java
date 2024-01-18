@@ -18,7 +18,6 @@
 package org.apache.inlong.agent.core.task;
 
 import org.apache.inlong.agent.conf.TaskProfile;
-import org.apache.inlong.agent.core.task.file.TaskManager;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.plugin.file.Task;
 
