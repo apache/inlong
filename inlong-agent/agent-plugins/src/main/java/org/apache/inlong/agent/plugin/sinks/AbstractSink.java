@@ -64,7 +64,7 @@ public abstract class AbstractSink implements Sink {
     protected String sourceName;
     protected String jobInstanceId;
     protected int batchFlushInterval;
-    // key is stream id, value is a batch of messages belong to the same stream id
+    // key is stream id, value is a batch of messages belongs to the same stream id
     protected ConcurrentHashMap<String, PackProxyMessage> cache;
 
     @Override
