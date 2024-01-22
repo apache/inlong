@@ -17,12 +17,11 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.message.PackProxyMessage;
+import org.apache.inlong.agent.conf.InstanceProfile;
+import org.apache.inlong.agent.message.filecollect.ProxyMessageCache;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
-import org.apache.inlong.agent.plugin.MessageFilter;
-import org.apache.inlong.agent.plugin.Sink;
+import org.apache.inlong.agent.plugin.file.Sink;
 import org.apache.inlong.common.metric.MetricRegister;
 
 import org.slf4j.Logger;
@@ -30,17 +29,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_BATCH_FLUSH_INTERVAL;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_BATCH_FLUSH_INTERVAL;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
@@ -60,25 +52,12 @@ public abstract class AbstractSink implements Sink {
     protected Map<String, String> dimensions;
     protected static final AtomicLong METRIC_INDEX = new AtomicLong(0);
 
-    protected JobProfile jobConf;
+    protected InstanceProfile profile;
     protected String sourceName;
     protected String jobInstanceId;
     protected int batchFlushInterval;
     // key is stream id, value is a batch of messages belong to the same stream id
-    protected ConcurrentHashMap<String, PackProxyMessage> cache;
-
-    @Override
-    public MessageFilter initMessageFilter(JobProfile jobConf) {
-        if (jobConf.hasKey(AGENT_MESSAGE_FILTER_CLASSNAME)) {
-            try {
-                return (MessageFilter) Class.forName(jobConf.get(AGENT_MESSAGE_FILTER_CLASSNAME))
-                        .getDeclaredConstructor().newInstance();
-            } catch (Exception e) {
-                LOGGER.error("init message filter error", e);
-            }
-        }
-        return null;
-    }
+    protected ProxyMessageCache cache;
 
     @Override
     public void setSourceName(String sourceFileName) {
@@ -86,13 +65,13 @@ public abstract class AbstractSink implements Sink {
     }
 
     @Override
-    public void init(JobProfile jobConf) {
-        this.jobConf = jobConf;
-        jobInstanceId = jobConf.get(JOB_INSTANCE_ID);
-        inlongGroupId = jobConf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
-        inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
-        cache = new ConcurrentHashMap<>(10);
-        batchFlushInterval = jobConf.getInt(PROXY_BATCH_FLUSH_INTERVAL, DEFAULT_PROXY_BATCH_FLUSH_INTERVAL);
+    public void init(InstanceProfile profile) {
+        this.profile = profile;
+        jobInstanceId = profile.getInstanceId();
+        inlongGroupId = profile.getInlongGroupId();
+        inlongStreamId = profile.getInlongStreamId();
+        cache = new ProxyMessageCache(this.profile, inlongGroupId, inlongStreamId);
+        batchFlushInterval = profile.getInt(PROXY_BATCH_FLUSH_INTERVAL, DEFAULT_PROXY_BATCH_FLUSH_INTERVAL);
 
         this.dimensions = new HashMap<>();
         dimensions.put(KEY_PLUGIN_ID, this.getClass().getSimpleName());
