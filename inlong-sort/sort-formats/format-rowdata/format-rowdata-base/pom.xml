@@ -22,26 +22,46 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.inlong</groupId>
-        <artifactId>sort-formats</artifactId>
+        <artifactId>format-rowdata</artifactId>
         <version>1.11.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>format-rowdata</artifactId>
-    <packaging>pom</packaging>
-
-    <name>Apache InLong - Sort Format-RowData</name>
-
-    <modules>
-        <module>format-rowdata-base</module>
-        <module>format-inlongmsg-rowdata-base</module>
-        <module>format-inlongmsg-rowdata-binlog</module>
-    </modules>
+    <artifactId>sort-format-rowdata-base</artifactId>
+    <name>Apache InLong - Sort Format-RowData-Base</name>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <flink.version>1.15.4</flink.version>
-        <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <inlong.root.dir>${project.parent.parent.parent.parent.basedir}</inlong.root.dir>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-format-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-runtime</artifactId>
+            <version>${flink.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-common</artifactId>
+            <version>${flink.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-shaded-jackson</artifactId>
+            <version>${flink.jackson.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>
