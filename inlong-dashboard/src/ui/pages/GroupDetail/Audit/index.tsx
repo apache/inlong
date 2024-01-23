@@ -121,7 +121,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
             })
           }
         />
-        <Charts height={400} option={toChartData(sourceData, sourceDataMap)} />
+        <Charts height={400} option={toChartData(sourceData, sourceDataMap)} forceUpdate={true} />
       </div>
 
       <HighTable

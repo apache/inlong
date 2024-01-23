@@ -64,6 +64,18 @@ export default class PulsarSource
   })
   @SyncField()
   @IngestionField()
+  @I18n('Pulsar topic')
+  topic: string;
+
+  @FieldDecorator({
+    type: 'input',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: values?.status === 101,
+    }),
+  })
+  @SyncField()
+  @IngestionField()
   @I18n('Admin url')
   adminUrl: string;
 
@@ -78,18 +90,6 @@ export default class PulsarSource
   @IngestionField()
   @I18n('Service url')
   serviceUrl: string;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: values?.status === 101,
-    }),
-  })
-  @SyncField()
-  @IngestionField()
-  @I18n('Pulsar topic')
-  topic: string;
 
   @FieldDecorator({
     type: 'radio',
