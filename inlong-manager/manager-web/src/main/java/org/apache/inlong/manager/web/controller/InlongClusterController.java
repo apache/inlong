@@ -47,6 +47,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -158,7 +159,7 @@ public class InlongClusterController {
     @PostMapping(value = "/cluster/save")
     @ApiOperation(value = "Save cluster")
     @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.CLUSTER)
-    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.INLONG_ADMIN, UserRoleCode.TENANT_ADMIN})
     public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody ClusterRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.save(request, currentUser));

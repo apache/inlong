@@ -33,7 +33,6 @@ import org.apache.inlong.manager.pojo.sink.cls.ClsSinkDTO;
 import org.apache.inlong.manager.service.resource.sink.AbstractStandaloneSinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 
-import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +92,7 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOG.info("update cls info status success for sinkId= {}, topicName = {}", sinkInfo.getSinkName(),
                     clsSinkDTO.getTopicName());
-        } catch (TencentCloudSDKException e) {
+        } catch (Exception e) {
             String errMsg = "Create cls topic failed: " + e.getMessage();
             LOG.error(errMsg, e);
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
@@ -102,7 +101,7 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
     }
 
     private String getTopicID(ClsDataNodeDTO clsDataNode, ClsSinkDTO clsSinkDTO)
-            throws TencentCloudSDKException {
+            throws Exception {
         String topicId = clsOperator.describeTopicIDByTopicName(clsSinkDTO.getTopicName(), clsDataNode.getLogSetId(),
                 clsDataNode.getManageSecretId(), clsDataNode.getManageSecretKey(),
                 clsDataNode.getRegion());
