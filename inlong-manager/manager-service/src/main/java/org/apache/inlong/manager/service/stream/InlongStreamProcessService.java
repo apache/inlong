@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.threadPool.VisiableThreadPoolTaskExecutor;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -41,7 +42,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 
@@ -57,7 +57,7 @@ import static org.apache.inlong.manager.common.consts.InlongConstants.QUEUE_SIZE
 @Service
 public class InlongStreamProcessService {
 
-    private static final ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(
+    private static final ExecutorService EXECUTOR_SERVICE = new VisiableThreadPoolTaskExecutor(
             CORE_POOL_SIZE,
             MAX_POOL_SIZE,
             ALIVE_TIME_MS,
