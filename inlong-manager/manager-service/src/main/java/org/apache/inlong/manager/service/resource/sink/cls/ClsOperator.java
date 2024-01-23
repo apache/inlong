@@ -134,7 +134,7 @@ public class ClsOperator {
                 return topics[0].getTopicId();
             }
             return null;
-        } catch (TencentCloudSDKException e) {
+        } catch (Exception e) {
             String errMsg = "describe cls topic failed: " + e.getMessage();
             LOG.error(errMsg, e);
             throw new BusinessException(errMsg);

@@ -93,7 +93,7 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOG.info("update cls info status success for sinkId= {}, topicName = {}", sinkInfo.getSinkName(),
                     clsSinkDTO.getTopicName());
-        } catch (TencentCloudSDKException e) {
+        } catch (Exception e) {
             String errMsg = "Create cls topic failed: " + e.getMessage();
             LOG.error(errMsg, e);
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
