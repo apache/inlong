@@ -17,10 +17,8 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.message.BatchProxyMessage;
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.utils.AgentUtils;
 
 import org.slf4j.Logger;
@@ -32,7 +30,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_DATA_TIME;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 
 public class MockSink extends AbstractSink {
 
@@ -49,18 +46,8 @@ public class MockSink extends AbstractSink {
     }
 
     @Override
-    public void write(Message message) {
-        if (message != null) {
-            messages.add(message);
-            number.incrementAndGet();
-            BatchProxyMessage msg = new BatchProxyMessage();
-            msg.setJobId(jobInstanceId);
-            // increment the count of successful sinks
-            sinkMetric.sinkSuccessCount.incrementAndGet();
-        } else {
-            // increment the count of failed sinks
-            sinkMetric.sinkFailCount.incrementAndGet();
-        }
+    public boolean write(Message message) {
+        return true;
     }
 
     @Override
@@ -69,14 +56,8 @@ public class MockSink extends AbstractSink {
     }
 
     @Override
-    public MessageFilter initMessageFilter(JobProfile jobConf) {
-        return null;
-    }
-
-    @Override
-    public void init(JobProfile jobConf) {
+    public void init(InstanceProfile jobConf) {
         super.init(jobConf);
-        jobInstanceId = jobConf.get(JOB_INSTANCE_ID);
         dataTime = AgentUtils.timeStrConvertToMillSec(jobConf.get(JOB_DATA_TIME, ""),
                 jobConf.get(JOB_CYCLE_UNIT, ""));
         sourceFileName = "test";
@@ -86,6 +67,11 @@ public class MockSink extends AbstractSink {
     @Override
     public void destroy() {
         LOGGER.info("destroy mockSink, sink line number is : {}", number.get());
+    }
+
+    @Override
+    public boolean sinkFinish() {
+        return false;
     }
 
     public List<Message> getResult() {

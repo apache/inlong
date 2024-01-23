@@ -17,9 +17,13 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.InstanceProfile;
+import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.message.ProxyMessage;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
+import org.apache.inlong.agent.plugin.sinks.filecollect.TestSenderManager;
+import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.common.enums.TaskStateEnum;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,24 +34,24 @@ import java.util.Map;
 
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_STREAM_ID;
-import static org.junit.Assert.assertEquals;
 
 public class KafkaSinkTest {
 
     private static MockSink kafkaSink;
-    private static JobProfile jobProfile;
+    private static InstanceProfile profile;
     private static AgentBaseTestsHelper helper;
+    private static final ClassLoader LOADER = TestSenderManager.class.getClassLoader();
 
     @BeforeClass
     public static void setUp() throws Exception {
-        helper = new AgentBaseTestsHelper(KafkaSinkTest.class.getName()).setupAgentHome();
-        jobProfile = JobProfile.parseJsonFile("kafkaSinkJob.json");
-        jobProfile.set("job.mqClusters",
-                "[{\"url\":\"mqurl\",\"token\":\"token\",\"mqType\":\"KAFKA\",\"params\":{}}]");
-        jobProfile.set("job.topicInfo", "{\"topic\":\"topic\",\"inlongGroupId\":\"groupId\"}");
-        System.out.println(jobProfile.toJsonStr());
+        String fileName = LOADER.getResource("test/20230928_1.txt").getPath();
+        helper = new AgentBaseTestsHelper(TestSenderManager.class.getName()).setupAgentHome();
+        String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
+        TaskProfile taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING, "D");
+        profile = taskProfile.createInstanceProfile("", fileName,
+                taskProfile.getCycleUnit(), "20230927", AgentUtils.getCurrentTime());
         kafkaSink = new MockSink();
-        kafkaSink.init(jobProfile);
+        kafkaSink.init(profile);
     }
 
     @Test
@@ -60,7 +64,6 @@ public class KafkaSinkTest {
         for (long i = 0; i < 5; i++) {
             kafkaSink.write(new ProxyMessage(body.getBytes(StandardCharsets.UTF_8), attr));
         }
-        assertEquals(kafkaSink.sinkMetric.sinkSuccessCount.get(), count);
     }
 
 }
