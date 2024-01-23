@@ -39,7 +39,6 @@ import com.tencentcloudapi.cls.v20201016.models.RuleInfo;
 import com.tencentcloudapi.cls.v20201016.models.Tag;
 import com.tencentcloudapi.cls.v20201016.models.TopicInfo;
 import com.tencentcloudapi.common.Credential;
-import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import com.tencentcloudapi.common.profile.ClientProfile;
 import com.tencentcloudapi.common.profile.HttpProfile;
 import org.apache.commons.lang3.ArrayUtils;
@@ -65,7 +64,7 @@ public class ClsOperator {
 
     public String createTopicReturnTopicId(String topicName, String logSetId, String tag, Integer storageDuration,
             String secretId, String secretKey, String region)
-            throws TencentCloudSDKException {
+            throws Exception {
         ClsClient client = getClsClient(secretId, secretKey, region);
         CreateTopicRequest req = getCreateTopicRequest(tag, logSetId, topicName, storageDuration);
         CreateTopicResponse resp = client.CreateTopic(req);
@@ -76,7 +75,7 @@ public class ClsOperator {
     }
 
     public void updateTopicTag(String topicId, String tag, String secretId, String secretKey, String region)
-            throws TencentCloudSDKException {
+            throws Exception {
         ClsClient client = getClsClient(secretId, secretKey, region);
         ModifyTopicRequest modifyTopicRequest = new ModifyTopicRequest();
         modifyTopicRequest.setTags(convertTags(tag.split(InlongConstants.CENTER_LINE)));
@@ -109,7 +108,7 @@ public class ClsOperator {
             CreateIndexResponse createIndexResponse = clsClient.CreateIndex(req);
             LOG.debug("create index success for topic = {}, tokenizer = {}, requestId = {}", topicId,
                     tokenizer, createIndexResponse.getRequestId());
-        } catch (TencentCloudSDKException e) {
+        } catch (Exception e) {
             String errMsg = "Create cls topic index failed: " + e.getMessage();
             LOG.error(errMsg, e);
             throw new BusinessException(errMsg);
@@ -165,7 +164,7 @@ public class ClsOperator {
         try {
             DescribeIndexResponse resp = clsClient.DescribeIndex(req);
             return resp.getRule() == null ? null : resp.getRule().getFullText();
-        } catch (TencentCloudSDKException e) {
+        } catch (Exception e) {
             String errMsg = "describe cls topic index failed: " + e.getMessage();
             LOG.error(errMsg, e);
             throw new BusinessException(errMsg);
@@ -186,7 +185,7 @@ public class ClsOperator {
             ModifyIndexResponse modifyIndexResponse = clsClient.ModifyIndex(req);
             LOG.debug("update index success for topicId = {}, tokenizer = {}, requestId = {}", topicId, tokenizer,
                     modifyIndexResponse.getRequestId());
-        } catch (TencentCloudSDKException e) {
+        } catch (Exception e) {
             String errMsg = "update cls topic index failed: " + e.getMessage();
             LOG.error(errMsg, e);
             throw new BusinessException(errMsg);

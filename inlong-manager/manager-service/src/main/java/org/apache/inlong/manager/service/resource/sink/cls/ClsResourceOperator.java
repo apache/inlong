@@ -33,7 +33,6 @@ import org.apache.inlong.manager.pojo.sink.cls.ClsSinkDTO;
 import org.apache.inlong.manager.service.resource.sink.AbstractStandaloneSinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 
-import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,7 +101,7 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
     }
 
     private String getTopicID(ClsDataNodeDTO clsDataNode, ClsSinkDTO clsSinkDTO)
-            throws TencentCloudSDKException {
+            throws Exception {
         String topicId = clsOperator.describeTopicIDByTopicName(clsSinkDTO.getTopicName(), clsDataNode.getLogSetId(),
                 clsDataNode.getManageSecretId(), clsDataNode.getManageSecretKey(),
                 clsDataNode.getRegion());
