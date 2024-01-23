@@ -52,7 +52,7 @@ export class ClusterDefaultInfo implements DataWithBackend, RenderRow, RenderLis
     props: values => ({
       disabled: Boolean(values.id),
       options: clusters
-        .filter(item => item.value !== 'AGENT' && item.value !== 'DATAPROXY')
+        .filter(item => item.value !== 'DATAPROXY')
         .map(item => ({
           label: item.label,
           value: item.value,
