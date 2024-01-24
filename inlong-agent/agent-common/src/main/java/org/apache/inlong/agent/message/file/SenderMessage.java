@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.message.filecollect;
+package org.apache.inlong.agent.message.file;
 
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.util.MessageUtils;
