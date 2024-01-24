@@ -15,25 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.task.filecollect;
+package org.apache.inlong.agent.message.file;
 
-public enum TaskType {
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-    READER(0),
-    TAILER(1),
-    UPLOADER(2),
-    STATE(3),
-    OTHER(4),
-    DB(5),
-    GAIAReader(6);
+@Data
+@AllArgsConstructor
+public class OffsetAckInfo {
 
-    private int type;
-
-    TaskType(int type) {
-        this.type = type;
-    }
-
-    public int getType() {
-        return type;
-    }
+    private Long offset;
+    private int len;
+    private Boolean hasAck;
 }

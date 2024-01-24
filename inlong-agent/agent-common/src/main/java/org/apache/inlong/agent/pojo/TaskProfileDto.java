@@ -36,12 +36,10 @@ import static org.apache.inlong.common.enums.DataReportTypeEnum.NORMAL_SEND_TO_D
 @Data
 public class TaskProfileDto {
 
-    public static final String DEFAULT_FILE_TASK = "org.apache.inlong.agent.plugin.task.filecollect.LogFileCollectTask";
+    public static final String DEFAULT_FILE_TASK = "org.apache.inlong.agent.plugin.task.file.LogFileTask";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
-    public static final String DEFAULT_DATAPROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
-    public static final String FILE_DATAPROXY_SINK =
-            "org.apache.inlong.agent.plugin.sinks.filecollect.ProxySink";
+    public static final String DEFAULT_DATA_PROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
     public static final String PULSAR_SINK = "org.apache.inlong.agent.plugin.sinks.PulsarSink";
     public static final String KAFKA_SINK = "org.apache.inlong.agent.plugin.sinks.KafkaSink";
 
@@ -416,10 +414,10 @@ public class TaskProfileDto {
 
         // set sink type
         if (dataConfig.getDataReportType() == NORMAL_SEND_TO_DATAPROXY.ordinal()) {
-            task.setSink(FILE_DATAPROXY_SINK);
+            task.setSink(DEFAULT_DATA_PROXY_SINK);
             task.setProxySend(false);
         } else if (dataConfig.getDataReportType() == 1) {
-            task.setSink(FILE_DATAPROXY_SINK);
+            task.setSink(DEFAULT_DATA_PROXY_SINK);
             task.setProxySend(true);
         } else {
             String mqType = dataConfig.getMqClusters().get(0).getMqType();

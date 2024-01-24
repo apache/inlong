@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.task.filecollect;
+package org.apache.inlong.agent.plugin.task.file;
 
 public class AgentErrMsg {
 

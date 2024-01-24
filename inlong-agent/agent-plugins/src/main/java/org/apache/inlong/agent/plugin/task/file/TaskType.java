@@ -15,13 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.task;
+package org.apache.inlong.agent.plugin.task.file;
 
-import org.apache.inlong.agent.plugin.task.filecollect.LogFileCollectTask;
+public enum TaskType {
 
-/**
- * Directory trigger with format date.
- */
-public class FormatDateLogFileCollectTask extends LogFileCollectTask {
+    READER(0),
+    TAILER(1),
+    UPLOADER(2),
+    STATE(3),
+    OTHER(4),
+    DB(5),
+    GAIAReader(6);
 
+    private int type;
+
+    TaskType(int type) {
+        this.type = type;
+    }
+
+    public int getType() {
+        return type;
+    }
 }

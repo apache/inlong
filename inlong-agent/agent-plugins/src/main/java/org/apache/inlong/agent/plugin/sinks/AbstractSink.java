@@ -18,7 +18,7 @@
 package org.apache.inlong.agent.plugin.sinks;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
-import org.apache.inlong.agent.message.filecollect.ProxyMessageCache;
+import org.apache.inlong.agent.message.file.ProxyMessageCache;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.agent.plugin.file.Sink;

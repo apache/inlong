@@ -15,16 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.message.filecollect;
+package org.apache.inlong.agent.plugin.task;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import org.apache.inlong.agent.plugin.task.file.LogFileTask;
 
-@Data
-@AllArgsConstructor
-public class OffsetAckInfo {
+/**
+ * Directory trigger with format date.
+ */
+public class FormatDateLogFileTask extends LogFileTask {
 
-    private Long offset;
-    private int len;
-    private Boolean hasAck;
 }

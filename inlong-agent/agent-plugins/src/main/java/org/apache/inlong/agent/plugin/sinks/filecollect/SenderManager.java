@@ -21,7 +21,7 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
-import org.apache.inlong.agent.message.filecollect.SenderMessage;
+import org.apache.inlong.agent.message.file.SenderMessage;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;

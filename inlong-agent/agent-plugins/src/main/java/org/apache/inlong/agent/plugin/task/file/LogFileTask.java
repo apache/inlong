@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.task.filecollect;
+package org.apache.inlong.agent.plugin.task.file;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
@@ -29,7 +29,7 @@ import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.file.Task;
-import org.apache.inlong.agent.plugin.task.filecollect.FileScanner.BasicFileInfo;
+import org.apache.inlong.agent.plugin.task.file.FileScanner.BasicFileInfo;
 import org.apache.inlong.agent.plugin.utils.file.FilePathUtil;
 import org.apache.inlong.agent.plugin.utils.file.NewDateUtils;
 import org.apache.inlong.agent.plugin.utils.file.PathDateExpression;
@@ -68,10 +68,10 @@ import java.util.stream.Stream;
 /**
  * Watch directory, if new valid files are created, create jobs correspondingly.
  */
-public class LogFileCollectTask extends Task {
+public class LogFileTask extends Task {
 
     public static final String DEFAULT_FILE_INSTANCE = "org.apache.inlong.agent.plugin.instance.FileInstance";
-    private static final Logger LOGGER = LoggerFactory.getLogger(LogFileCollectTask.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LogFileTask.class);
     public static final String SCAN_CYCLE_RANCE = "-2";
     private TaskProfile taskProfile;
     private Db basicDb;

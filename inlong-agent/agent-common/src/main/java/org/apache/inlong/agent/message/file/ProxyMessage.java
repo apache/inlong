@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.message.filecollect;
+package org.apache.inlong.agent.message.file;
 
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.plugin.Message;
