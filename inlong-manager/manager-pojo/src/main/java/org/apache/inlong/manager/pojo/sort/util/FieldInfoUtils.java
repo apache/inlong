@@ -291,13 +291,14 @@ public class FieldInfoUtils {
                 }
                 break;
             case TIME:
+            case TIMESTAMPTZ:
+            case TIMESTAMP:
                 if (StringUtils.isNotBlank(format)) {
                     formatInfo = new TimeFormatInfo(convertTimestampOrDataFormat(format));
                 } else {
                     formatInfo = new TimeFormatInfo();
                 }
                 break;
-            case TIMESTAMP:
             case DATETIME:
                 if (StringUtils.isNotBlank(format)) {
                     formatInfo = new TimestampFormatInfo(convertTimestampOrDataFormat(format));
