@@ -164,7 +164,7 @@ public class HttpUtils {
         } else {
             log.debug("success request to {}, status code {}", url, response.getStatusCode());
             Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(),
-                    "Request failed: " + response.getBody());
+                    "Request failed: " + response.getBody() + ", Status code: " + response.getStatusCode());
             return response.getBody();
         }
     }
@@ -184,7 +184,7 @@ public class HttpUtils {
         } else {
             log.debug("success request to {}, status code {}", url, response.getStatusCode());
             Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(),
-                    "Request failed: " + response.getBody());
+                    "Request failed: " + response.getBody() + ", Status code: " + response.getStatusCode());
         }
     }
 
@@ -208,7 +208,7 @@ public class HttpUtils {
                 } else {
                     log.debug("success request to {}, status code {}", urls[i], response.getStatusCode());
                     Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(),
-                            "Request failed: " + response.getBody() + "status code" + response.getStatusCode());
+                            "Request failed: " + response.getBody() + ", Status code: " + response.getStatusCode());
                 }
                 return;
             } catch (Exception e) {
