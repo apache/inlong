@@ -40,6 +40,7 @@
         <module>format-inlongmsg-csv</module>
         <module>format-inlongmsg-kv</module>
         <module>format-inlongmsg-pb</module>
+        <module>format-inlongmsg-tlogkv</module>
     </modules>
 
     <properties>
