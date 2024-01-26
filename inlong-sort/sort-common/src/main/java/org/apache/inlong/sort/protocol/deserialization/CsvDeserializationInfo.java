@@ -17,28 +17,82 @@
 
 package org.apache.inlong.sort.protocol.deserialization;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.annotation.Nullable;
+
+import java.util.Objects;
 
 /**
  * Csv deserialization info
  */
-public class CsvDeserializationInfo implements DeserializationInfo {
+public class CsvDeserializationInfo extends InLongMsgDeserializationInfo {
 
-    private static final long serialVersionUID = -5035426390567887081L;
+    private static final long serialVersionUID = 7424482369272150638L;
 
     private final char splitter;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Nullable
+    private final Character escapeChar;
+
+    private final String tid;
+
     // TODO: support mapping index to field
+    public CsvDeserializationInfo(
+            @JsonProperty("splitter") char splitter) {
+        this(TID_DEFAULT_VALUE, splitter, null);
+    }
+
+    public CsvDeserializationInfo(
+            @JsonProperty("splitter") char splitter,
+            @JsonProperty("escape_char") @Nullable Character escapeChar) {
+        this(TID_DEFAULT_VALUE, splitter, escapeChar);
+    }
 
     @JsonCreator
     public CsvDeserializationInfo(
-            @JsonProperty("splitter") char splitter) {
+            @JsonProperty("tid") String tid,
+            @JsonProperty("splitter") char splitter,
+            @JsonProperty("escape_char") @Nullable Character escapeChar) {
+        super(tid);
+        this.tid = (StringUtils.isEmpty(tid) ? TID_DEFAULT_VALUE : tid);
         this.splitter = splitter;
+        this.escapeChar = escapeChar;
     }
 
     @JsonProperty("splitter")
     public char getSplitter() {
         return splitter;
     }
+
+    @JsonProperty("escape_char")
+    @Nullable
+    public Character getEscapeChar() {
+        return escapeChar;
+    }
+
+    @JsonProperty("tid")
+    public String getTid() {
+        return tid;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        CsvDeserializationInfo other = (CsvDeserializationInfo) o;
+        return Objects.equals(tid, other.getTid()) && splitter == other.splitter
+                && Objects.equals(escapeChar, other.escapeChar);
+    }
+
 }

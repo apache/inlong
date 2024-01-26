@@ -41,7 +41,7 @@ import static org.apache.inlong.sort.formats.inlongmsgbinlog.InLongMsgBinlogUtil
  */
 public class InLongMsgBinlog extends FormatDescriptor {
 
-    public static final String FORMAT_TYPE_VALUE = "InLongMsg-Binlog";
+    public static final String FORMAT_TYPE_VALUE = "inlong-msg-binlog";
 
     private DescriptorProperties internalProperties = new DescriptorProperties(true);
 

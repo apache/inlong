@@ -44,7 +44,7 @@ import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.TIME_FIE
  */
 public final class InLongMsgBinlogFormatFactory implements DeserializationFormatFactory {
 
-    public static final String IDENTIFIER = "InLongMsg-Binlog";
+    public static final String IDENTIFIER = "inlong-msg-binlog";
 
     @Override
     public DecodingFormat<DeserializationSchema<RowData>> createDecodingFormat(

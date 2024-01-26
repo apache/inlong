@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Converter used to deserialize a mixed row in InLongMsg-kv format.
+ * Converter used to deserialize a mixed row in inlong-msg-kv format.
  */
 public class InLongMsgKvMixedFormatConverter extends AbstractInLongMsgMixedFormatConverter {
 

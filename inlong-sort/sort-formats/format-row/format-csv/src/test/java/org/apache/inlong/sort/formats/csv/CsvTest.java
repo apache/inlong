@@ -92,7 +92,7 @@ public class CsvTest extends DescriptorTestBase {
     @Override
     public List<Map<String, String>> properties() {
         final Map<String, String> props1 = new HashMap<>();
-        props1.put("format.type", "InLong-CSV");
+        props1.put("format.type", "inlong-csv");
         props1.put("format.property-version", "1");
         props1.put("format.schema", TEST_SCHEMA);
         props1.put("format.delimiter", ";");
@@ -102,7 +102,7 @@ public class CsvTest extends DescriptorTestBase {
         props1.put("format.null-literal", "n/a");
 
         final Map<String, String> props2 = new HashMap<>();
-        props2.put("format.type", "InLong-CSV");
+        props2.put("format.type", "inlong-csv");
         props2.put("format.property-version", "1");
         props2.put("format.derive-schema", "true");
 
