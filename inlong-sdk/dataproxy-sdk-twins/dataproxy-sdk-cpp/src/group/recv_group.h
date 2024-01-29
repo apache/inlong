@@ -24,10 +24,10 @@
 #include <thread>
 #include <unordered_map>
 
+#include "../config/sdk_conf.h"
 #include "../manager/send_manager.h"
 #include "../utils/atomic.h"
 #include "../utils/noncopyable.h"
-#include "sdk_conf.h"
 
 namespace inlong {
 class RecvGroup {

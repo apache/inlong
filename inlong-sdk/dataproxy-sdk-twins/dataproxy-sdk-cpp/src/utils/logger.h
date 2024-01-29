@@ -21,7 +21,7 @@
 #ifndef INLONG_SDK_LOGGER_H
 #define INLONG_SDK_LOGGER_H
 
-#include "sdk_conf.h"
+#include "../config/sdk_conf.h"
 #include <iostream>
 #include <log4cplus/fileappender.h>
 #include <log4cplus/helpers/loglog.h>
