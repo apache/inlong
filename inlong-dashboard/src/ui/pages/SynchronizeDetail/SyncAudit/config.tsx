@@ -99,17 +99,20 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
     name: 'inlongStreamId',
     props: {
       dropdownMatchSelectWidth: false,
+      showSearch: true,
       options: {
         requestAuto: true,
-        requestService: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
           url: '/stream/list',
           method: 'POST',
           data: {
+            keyword,
             pageNum: 1,
             pageSize: 1000,
             inlongGroupId,
           },
-        },
+        }),
         requestParams: {
           formatResult: result =>
             result?.list.map(item => ({
@@ -128,17 +131,20 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
     name: 'sinkId',
     props: values => ({
       dropdownMatchSelectWidth: false,
+      showSearch: true,
       options: {
-        requestService: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
           url: '/sink/list',
           method: 'POST',
           data: {
+            keyword,
             pageNum: 1,
             pageSize: 1000,
             inlongGroupId,
             inlongStreamId: values.inlongStreamId,
           },
-        },
+        }),
         requestParams: {
           formatResult: result =>
             result?.list.map(item => ({
