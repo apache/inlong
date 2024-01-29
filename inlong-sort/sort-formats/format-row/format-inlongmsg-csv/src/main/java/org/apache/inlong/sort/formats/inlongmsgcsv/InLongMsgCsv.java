@@ -36,7 +36,7 @@ import static org.apache.inlong.sort.formats.inlongmsgcsv.InLongMsgCsvUtils.FORM
  */
 public class InLongMsgCsv extends TextFormatDescriptor<InLongMsgCsv> {
 
-    public static final String FORMAT_TYPE_VALUE = "InLongMsg-CSV";
+    public static final String FORMAT_TYPE_VALUE = "inlong-msg-csv";
 
     public InLongMsgCsv() {
         super(FORMAT_TYPE_VALUE, 1);

@@ -29,7 +29,7 @@ import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_AT
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
 
 /**
- * Deserialization schema from InLongMsg-Binlog to Flink Table & SQL internal data structures.
+ * Deserialization schema from inlong-msg-binlog to Flink Table & SQL internal data structures.
  */
 public class InLongMsgBinlogRowDataDeserializationSchema extends AbstractInLongMsgDeserializationSchema {
 

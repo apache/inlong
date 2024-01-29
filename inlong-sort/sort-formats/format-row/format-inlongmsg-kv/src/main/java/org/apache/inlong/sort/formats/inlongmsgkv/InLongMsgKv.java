@@ -32,7 +32,7 @@ import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.FORMAT_TIM
  */
 public class InLongMsgKv extends TextFormatDescriptor<InLongMsgKv> {
 
-    public static final String FORMAT_TYPE_VALUE = "InLongMsg-KV";
+    public static final String FORMAT_TYPE_VALUE = "inlong-msg-kv";
 
     public InLongMsgKv() {
         super(FORMAT_TYPE_VALUE, 1);

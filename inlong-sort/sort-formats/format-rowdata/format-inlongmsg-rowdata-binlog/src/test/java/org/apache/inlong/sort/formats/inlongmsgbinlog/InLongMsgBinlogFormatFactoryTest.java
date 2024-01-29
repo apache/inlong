@@ -109,11 +109,11 @@ public class InLongMsgBinlogFormatFactoryTest {
         options.put("buffer-size", "1000");
 
         options.put("format", InLongMsgBinlogFormatFactory.IDENTIFIER);
-        options.put("InLongMsg-Binlog.row.format.info", FormatUtils.marshall(testFormatInfo));
-        options.put("InLongMsg-Binlog.format.time-field-name", "time");
-        options.put("InLongMsg-Binlog.format.attribute-field-name", "attributes");
-        options.put("InLongMsg-Binlog.format.ignore-errors", "true");
-        options.put("InLongMsg-Binlog.format.include-update-before", "false");
+        options.put("inlong-msg-binlog.row.format.info", FormatUtils.marshall(testFormatInfo));
+        options.put("inlong-msg-binlog.format.time-field-name", "time");
+        options.put("inlong-msg-binlog.format.attribute-field-name", "attributes");
+        options.put("inlong-msg-binlog.format.ignore-errors", "true");
+        options.put("inlong-msg-binlog.format.include-update-before", "false");
         return options;
     }
 }

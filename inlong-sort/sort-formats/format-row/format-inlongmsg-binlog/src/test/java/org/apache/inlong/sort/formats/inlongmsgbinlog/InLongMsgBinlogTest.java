@@ -76,7 +76,7 @@ public class InLongMsgBinlogTest extends DescriptorTestBase {
     @Override
     public List<Map<String, String>> properties() {
         final Map<String, String> props1 = new HashMap<>();
-        props1.put("format.type", "InLongMsg-Binlog");
+        props1.put("format.type", "inlong-msg-binlog");
         props1.put("format.property-version", "1");
         props1.put("format.schema", marshall(TEST_SCHEMA));
         props1.put("format.time-field-name", "time");

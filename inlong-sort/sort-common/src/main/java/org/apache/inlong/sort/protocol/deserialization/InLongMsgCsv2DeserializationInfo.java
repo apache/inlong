@@ -18,7 +18,12 @@
 package org.apache.inlong.sort.protocol.deserialization;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.annotation.Nullable;
+
+import java.util.Objects;
 
 /**
  * It represents CSV2 format of InLongMsg(m=9).
@@ -29,16 +34,51 @@ public class InLongMsgCsv2DeserializationInfo extends InLongMsgDeserializationIn
 
     private final char delimiter;
 
-    @JsonCreator
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Nullable
+    private final Character escapeChar;
+
     public InLongMsgCsv2DeserializationInfo(
             @JsonProperty("tid") String tid,
             @JsonProperty("delimiter") char delimiter) {
+        this(tid, delimiter, null);
+    }
+
+    @JsonCreator
+    public InLongMsgCsv2DeserializationInfo(
+            @JsonProperty("tid") String tid,
+            @JsonProperty("delimiter") char delimiter,
+            @JsonProperty("escape_char") @Nullable Character escapeChar) {
         super(tid);
         this.delimiter = delimiter;
+        this.escapeChar = escapeChar;
     }
 
     @JsonProperty("delimiter")
     public char getDelimiter() {
         return delimiter;
     }
+
+    @JsonProperty("escape_char")
+    @Nullable
+    public Character getEscapeChar() {
+        return escapeChar;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        InLongMsgCsv2DeserializationInfo other = (InLongMsgCsv2DeserializationInfo) o;
+        return super.equals(other)
+                && delimiter == other.delimiter
+                && Objects.equals(escapeChar, other.escapeChar);
+    }
+
 }

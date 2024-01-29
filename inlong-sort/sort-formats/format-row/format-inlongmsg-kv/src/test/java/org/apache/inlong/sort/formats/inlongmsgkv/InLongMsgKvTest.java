@@ -88,7 +88,7 @@ public class InLongMsgKvTest extends DescriptorTestBase {
     @Override
     public List<Map<String, String>> properties() {
         final Map<String, String> props1 = new HashMap<>();
-        props1.put("format.type", "InLongMsg-KV");
+        props1.put("format.type", "inlong-msg-kv");
         props1.put("format.property-version", "1");
         props1.put("format.schema", TEST_SCHEMA);
         props1.put("format.time-field-name", "time");

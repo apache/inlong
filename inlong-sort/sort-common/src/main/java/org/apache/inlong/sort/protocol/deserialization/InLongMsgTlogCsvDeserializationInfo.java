@@ -18,7 +18,13 @@
 package org.apache.inlong.sort.protocol.deserialization;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.annotation.Nullable;
+
+import java.util.Objects;
 
 /**
  * It represents TLog CSV format of InLongMsg(m=10).
@@ -29,16 +35,51 @@ public class InLongMsgTlogCsvDeserializationInfo extends InLongMsgDeserializatio
 
     private final char delimiter;
 
-    @JsonCreator
+    @JsonInclude(Include.NON_NULL)
+    @Nullable
+    private final Character escapeChar;
+
     public InLongMsgTlogCsvDeserializationInfo(
             @JsonProperty("tid") String tid,
             @JsonProperty("delimiter") char delimiter) {
+        this(tid, delimiter, null);
+    }
+
+    @JsonCreator
+    public InLongMsgTlogCsvDeserializationInfo(
+            @JsonProperty("tid") String tid,
+            @JsonProperty("delimiter") char delimiter,
+            @JsonProperty("escape_char") @Nullable Character escapeChar) {
         super(tid);
         this.delimiter = delimiter;
+        this.escapeChar = escapeChar;
     }
 
     @JsonProperty("delimiter")
     public char getDelimiter() {
         return delimiter;
     }
+
+    @JsonProperty("escape_char")
+    @Nullable
+    public Character getEscapeChar() {
+        return escapeChar;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        InLongMsgTlogCsvDeserializationInfo other = (InLongMsgTlogCsvDeserializationInfo) o;
+        return super.equals(other)
+                && delimiter == other.delimiter
+                && Objects.equals(escapeChar, other.escapeChar);
+    }
+
 }
