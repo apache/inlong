@@ -89,17 +89,18 @@ public class HttpUtils {
             if (!statusCode.is2xxSuccessful()) {
                 log.error("request error for {}, status code {}, body {}", url, statusCode, body);
             }
-            if (HttpStatus.TEMPORARY_REDIRECT.equals(exchange.getStatusCode())
-                    && StringUtils.isNotBlank(exchange.getHeaders().getFirst(HttpHeaders.LOCATION))) {
-                exchange = restTemplate.exchange(exchange.getHeaders().getFirst(HttpHeaders.LOCATION), method, request,
-                        String.class);
-                body = exchange.getBody();
-                statusCode = exchange.getStatusCode();
-                if (!statusCode.is2xxSuccessful()) {
-                    log.error("request error for {}, status code {}, body {}", url, statusCode, body);
+            if (HttpStatus.TEMPORARY_REDIRECT.equals(exchange.getStatusCode())) {
+                String redirectUrl = exchange.getHeaders().getFirst(HttpHeaders.LOCATION);
+                if (StringUtils.isNotBlank(redirectUrl)) {
+                    exchange = restTemplate.exchange(redirectUrl, method, request, String.class);
+                    body = exchange.getBody();
+                    statusCode = exchange.getStatusCode();
+                    if (!statusCode.is2xxSuccessful()) {
+                        log.error("request error for {}, status code {}, body {}", url, statusCode, body);
+                    }
+                    log.debug("response from {}, status code {}", url, statusCode);
+                    return GSON.fromJson(exchange.getBody(), cls);
                 }
-                log.debug("response from {}, status code {}", url, statusCode);
-                return GSON.fromJson(exchange.getBody(), cls);
             }
             log.debug("response from {}, status code {}", url, statusCode);
             return GSON.fromJson(exchange.getBody(), cls);
@@ -121,19 +122,21 @@ public class HttpUtils {
                 HttpEntity<String> request = new HttpEntity<>(param, header);
                 log.debug("send request to {}, param {}", urls[i], param);
                 exchange = restTemplate.exchange(urls[i], method, request, String.class);
-                if (HttpStatus.TEMPORARY_REDIRECT.equals(exchange.getStatusCode())
-                        && StringUtils.isNotBlank(exchange.getHeaders().getFirst(HttpHeaders.LOCATION))) {
-                    return request(restTemplate, exchange.getHeaders().getFirst(HttpHeaders.LOCATION), method, param,
-                            header, cls);
-                } else {
-                    String body = exchange.getBody();
-                    HttpStatus statusCode = exchange.getStatusCode();
-                    if (!statusCode.is2xxSuccessful()) {
-                        log.error("request error for {}, status code {}, body {}", urls[i], statusCode, body);
+                if (HttpStatus.TEMPORARY_REDIRECT.equals(exchange.getStatusCode())) {
+                    String redirectUrl = exchange.getHeaders().getFirst(HttpHeaders.LOCATION);
+                    if (StringUtils.isNotBlank(redirectUrl)) {
+                        return request(restTemplate, exchange.getHeaders().getFirst(HttpHeaders.LOCATION), method,
+                                param,
+                                header, cls);
                     }
-                    log.debug("response from {}, status code {}", urls[i], statusCode);
-                    return GSON.fromJson(exchange.getBody(), cls);
                 }
+                String body = exchange.getBody();
+                HttpStatus statusCode = exchange.getStatusCode();
+                if (!statusCode.is2xxSuccessful()) {
+                    log.error("request error for {}, status code {}, body {}", urls[i], statusCode, body);
+                }
+                log.debug("response from {}, status code {}", urls[i], statusCode);
+                return GSON.fromJson(exchange.getBody(), cls);
             } catch (RestClientException e) {
                 log.error("request for {}, error, begin retry", urls[i], e);
                 if (i >= (urls.length - 1)) {
@@ -157,16 +160,18 @@ public class HttpUtils {
         HttpEntity<Object> requestEntity = new HttpEntity<>(requestBody, header);
         ResponseEntity<T> response = restTemplate.exchange(url, httpMethod, requestEntity, typeReference);
 
-        if (HttpStatus.TEMPORARY_REDIRECT.equals(response.getStatusCode())
-                && StringUtils.isNotBlank(response.getHeaders().getFirst(HttpHeaders.LOCATION))) {
-            return request(restTemplate, response.getHeaders().getFirst(HttpHeaders.LOCATION), httpMethod, requestBody,
-                    header, typeReference);
-        } else {
-            log.debug("success request to {}, status code {}", url, response.getStatusCode());
-            Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(),
-                    "Request failed: " + response.getBody() + ", Status code: " + response.getStatusCode());
-            return response.getBody();
+        if (HttpStatus.TEMPORARY_REDIRECT.equals(response.getStatusCode())) {
+            String redirectUrl = response.getHeaders().getFirst(HttpHeaders.LOCATION);
+            if (StringUtils.isNotBlank(redirectUrl)) {
+                return request(restTemplate, response.getHeaders().getFirst(HttpHeaders.LOCATION), httpMethod,
+                        requestBody,
+                        header, typeReference);
+            }
         }
+        log.debug("success request to {}, status code {}", url, response.getStatusCode());
+        Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(),
+                "Request failed: " + response.getBody() + ", Status code: " + response.getStatusCode());
+        return response.getBody();
     }
 
     /**
@@ -177,15 +182,18 @@ public class HttpUtils {
         log.debug("begin request to {} by request body {}", url, GSON.toJson(requestBody));
         HttpEntity<Object> requestEntity = new HttpEntity<>(requestBody, header);
         ResponseEntity<String> response = restTemplate.exchange(url, httpMethod, requestEntity, String.class);
-        if (HttpStatus.TEMPORARY_REDIRECT.equals(response.getStatusCode())
-                && StringUtils.isNotBlank(response.getHeaders().getFirst(HttpHeaders.LOCATION))) {
-            request(restTemplate, response.getHeaders().getFirst(HttpHeaders.LOCATION), httpMethod, requestBody,
-                    header);
-        } else {
-            log.debug("success request to {}, status code {}", url, response.getStatusCode());
-            Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(),
-                    "Request failed: " + response.getBody() + ", Status code: " + response.getStatusCode());
+        if (HttpStatus.TEMPORARY_REDIRECT.equals(response.getStatusCode())) {
+            String redirectUrl = response.getHeaders().getFirst(HttpHeaders.LOCATION);
+            if (StringUtils.isNotBlank(redirectUrl)) {
+                request(restTemplate, response.getHeaders().getFirst(HttpHeaders.LOCATION), httpMethod, requestBody,
+                        header);
+                return;
+            }
+
         }
+        log.debug("success request to {}, status code {}", url, response.getStatusCode());
+        Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(),
+                "Request failed: " + response.getBody() + ", Status code: " + response.getStatusCode());
     }
 
     /**
@@ -201,15 +209,16 @@ public class HttpUtils {
                 ResponseEntity<String> response = restTemplate.exchange(urls[i], httpMethod, requestEntity,
                         String.class);
 
-                if (HttpStatus.TEMPORARY_REDIRECT.equals(response.getStatusCode())
-                        && StringUtils.isNotBlank(response.getHeaders().getFirst(HttpHeaders.LOCATION))) {
-                    request(restTemplate, response.getHeaders().getFirst(HttpHeaders.LOCATION), httpMethod, requestBody,
-                            header);
-                } else {
-                    log.debug("success request to {}, status code {}", urls[i], response.getStatusCode());
-                    Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(),
-                            "Request failed: " + response.getBody() + ", Status code: " + response.getStatusCode());
+                if (HttpStatus.TEMPORARY_REDIRECT.equals(response.getStatusCode())) {
+                    String redirectUrl = response.getHeaders().getFirst(HttpHeaders.LOCATION);
+                    if (StringUtils.isNotBlank(redirectUrl)) {
+                        request(restTemplate, redirectUrl, httpMethod, requestBody, header);
+                        return;
+                    }
                 }
+                log.debug("success request to {}, status code {}", urls[i], response.getStatusCode());
+                Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(),
+                        "Request failed: " + response.getBody() + ", Status code: " + response.getStatusCode());
                 return;
             } catch (Exception e) {
                 log.error("request for {}, error, begin retry", urls[i], e);
