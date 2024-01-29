@@ -22,7 +22,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -90,7 +90,7 @@ public class HttpUtils {
                 log.error("request error for {}, status code {}, body {}", url, statusCode, body);
             }
             if (HttpStatus.TEMPORARY_REDIRECT.equals(exchange.getStatusCode())
-                    && CollectionUtils.isNotEmpty(exchange.getHeaders().get(HttpHeaders.LOCATION))) {
+                    && StringUtils.isNotBlank(exchange.getHeaders().getFirst(HttpHeaders.LOCATION))) {
                 exchange = restTemplate.exchange(exchange.getHeaders().getFirst(HttpHeaders.LOCATION), method, request,
                         String.class);
                 body = exchange.getBody();
@@ -122,7 +122,7 @@ public class HttpUtils {
                 log.debug("send request to {}, param {}", urls[i], param);
                 exchange = restTemplate.exchange(urls[i], method, request, String.class);
                 if (HttpStatus.TEMPORARY_REDIRECT.equals(exchange.getStatusCode())
-                        && CollectionUtils.isNotEmpty(exchange.getHeaders().get(HttpHeaders.LOCATION))) {
+                        && StringUtils.isNotBlank(exchange.getHeaders().getFirst(HttpHeaders.LOCATION))) {
                     return request(restTemplate, exchange.getHeaders().getFirst(HttpHeaders.LOCATION), method, param,
                             header, cls);
                 } else {
@@ -158,7 +158,7 @@ public class HttpUtils {
         ResponseEntity<T> response = restTemplate.exchange(url, httpMethod, requestEntity, typeReference);
 
         if (HttpStatus.TEMPORARY_REDIRECT.equals(response.getStatusCode())
-                && CollectionUtils.isNotEmpty(response.getHeaders().get(HttpHeaders.LOCATION))) {
+                && StringUtils.isNotBlank(response.getHeaders().getFirst(HttpHeaders.LOCATION))) {
             return request(restTemplate, response.getHeaders().getFirst(HttpHeaders.LOCATION), httpMethod, requestBody,
                     header, typeReference);
         } else {
@@ -178,7 +178,7 @@ public class HttpUtils {
         HttpEntity<Object> requestEntity = new HttpEntity<>(requestBody, header);
         ResponseEntity<String> response = restTemplate.exchange(url, httpMethod, requestEntity, String.class);
         if (HttpStatus.TEMPORARY_REDIRECT.equals(response.getStatusCode())
-                && CollectionUtils.isNotEmpty(response.getHeaders().get(HttpHeaders.LOCATION))) {
+                && StringUtils.isNotBlank(response.getHeaders().getFirst(HttpHeaders.LOCATION))) {
             request(restTemplate, response.getHeaders().getFirst(HttpHeaders.LOCATION), httpMethod, requestBody,
                     header);
         } else {
@@ -202,7 +202,7 @@ public class HttpUtils {
                         String.class);
 
                 if (HttpStatus.TEMPORARY_REDIRECT.equals(response.getStatusCode())
-                        && CollectionUtils.isNotEmpty(response.getHeaders().get(HttpHeaders.LOCATION))) {
+                        && StringUtils.isNotBlank(response.getHeaders().getFirst(HttpHeaders.LOCATION))) {
                     request(restTemplate, response.getHeaders().getFirst(HttpHeaders.LOCATION), httpMethod, requestBody,
                             header);
                 } else {
