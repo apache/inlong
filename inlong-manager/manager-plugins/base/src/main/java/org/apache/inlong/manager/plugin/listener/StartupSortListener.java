@@ -102,7 +102,7 @@ public class StartupSortListener implements SortOperateListener {
             List<String> sinkTypes = sinkList.stream().map(StreamSink::getSinkType).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(sinkList) || !SinkType.containSortFlinkSink(sinkTypes)) {
                 log.warn("not any valid sink configured for groupId {} and streamId {}, reason: {},"
-                                + " skip launching sort job",
+                        + " skip launching sort job",
                         CollectionUtils.isEmpty(sinkList) ? "no sink configured" : "no sort flink sink configured",
                         groupId, streamInfo.getInlongStreamId());
                 continue;
