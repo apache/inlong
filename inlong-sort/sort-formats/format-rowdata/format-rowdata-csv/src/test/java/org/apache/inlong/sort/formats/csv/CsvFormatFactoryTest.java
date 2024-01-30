@@ -115,11 +115,11 @@ public class CsvFormatFactoryTest extends TestLogger {
         options.put("buffer-size", "1000");
 
         options.put("format", CsvFormatFactory.IDENTIFIER);
-        options.put("InLong-CSV.row.format.info", FormatUtils.marshall(testFormatInfo));
-        options.put("InLong-CSV.format.field-delimiter", ";");
-        options.put("InLong-CSV.format.quote-character", "'");
-        options.put("InLong-CSV.format.escape-character", "\\");
-        options.put("InLong-CSV.format.null-literal", "n/a");
+        options.put("inlong-csv.row.format.info", FormatUtils.marshall(testFormatInfo));
+        options.put("inlong-csv.format.field-delimiter", ";");
+        options.put("inlong-csv.format.quote-character", "'");
+        options.put("inlong-csv.format.escape-character", "\\");
+        options.put("inlong-csv.format.null-literal", "n/a");
         return options;
     }
 
