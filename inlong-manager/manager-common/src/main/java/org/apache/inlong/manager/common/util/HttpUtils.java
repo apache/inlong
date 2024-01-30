@@ -92,7 +92,7 @@ public class HttpUtils {
             }
             if (HttpStatus.TEMPORARY_REDIRECT.equals(exchange.getStatusCode())) {
                 String redirectUrl = exchange.getHeaders().getFirst(HttpHeaders.LOCATION);
-                if (StringUtils.isNotBlank(redirectUrl) && redirectUrl.startsWith(HTTP_PREFIX)) {
+                if (validUrl(redirectUrl)) {
                     exchange = restTemplate.exchange(redirectUrl, method, request, String.class);
                     body = exchange.getBody();
                     statusCode = exchange.getStatusCode();
@@ -125,10 +125,9 @@ public class HttpUtils {
                 exchange = restTemplate.exchange(urls[i], method, request, String.class);
                 if (HttpStatus.TEMPORARY_REDIRECT.equals(exchange.getStatusCode())) {
                     String redirectUrl = exchange.getHeaders().getFirst(HttpHeaders.LOCATION);
-                    if (StringUtils.isNotBlank(redirectUrl) && redirectUrl.startsWith(HTTP_PREFIX)) {
+                    if (validUrl(redirectUrl)) {
                         return request(restTemplate, exchange.getHeaders().getFirst(HttpHeaders.LOCATION), method,
-                                param,
-                                header, cls);
+                                param, header, cls);
                     }
                 }
                 String body = exchange.getBody();
@@ -163,7 +162,7 @@ public class HttpUtils {
 
         if (HttpStatus.TEMPORARY_REDIRECT.equals(response.getStatusCode())) {
             String redirectUrl = response.getHeaders().getFirst(HttpHeaders.LOCATION);
-            if (StringUtils.isNotBlank(redirectUrl) && redirectUrl.startsWith(HTTP_PREFIX)) {
+            if (validUrl(redirectUrl)) {
                 return request(restTemplate, response.getHeaders().getFirst(HttpHeaders.LOCATION), httpMethod,
                         requestBody,
                         header, typeReference);
@@ -185,7 +184,7 @@ public class HttpUtils {
         ResponseEntity<String> response = restTemplate.exchange(url, httpMethod, requestEntity, String.class);
         if (HttpStatus.TEMPORARY_REDIRECT.equals(response.getStatusCode())) {
             String redirectUrl = response.getHeaders().getFirst(HttpHeaders.LOCATION);
-            if (StringUtils.isNotBlank(redirectUrl) && redirectUrl.startsWith(HTTP_PREFIX)) {
+            if (validUrl(redirectUrl)) {
                 request(restTemplate, response.getHeaders().getFirst(HttpHeaders.LOCATION), httpMethod, requestBody,
                         header);
                 return;
@@ -212,7 +211,7 @@ public class HttpUtils {
 
                 if (HttpStatus.TEMPORARY_REDIRECT.equals(response.getStatusCode())) {
                     String redirectUrl = response.getHeaders().getFirst(HttpHeaders.LOCATION);
-                    if (StringUtils.isNotBlank(redirectUrl) && redirectUrl.startsWith(HTTP_PREFIX)) {
+                    if (validUrl(redirectUrl)) {
                         request(restTemplate, redirectUrl, httpMethod, requestBody, header);
                         return;
                     }
@@ -263,6 +262,10 @@ public class HttpUtils {
         params.entrySet().stream().filter(e -> e.getValue() != null)
                 .forEach(e -> builder.queryParam(e.getKey(), e.getValue()));
         return builder.build(false).toUriString();
+    }
+
+    private static Boolean validUrl(String url) {
+        return StringUtils.isNotBlank(url) && url.startsWith(HTTP_PREFIX);
     }
 
 }

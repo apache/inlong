@@ -101,7 +101,7 @@ public class StartupSortListener implements SortOperateListener {
             List<StreamSink> sinkList = streamInfo.getSinkList();
             List<String> sinkTypes = sinkList.stream().map(StreamSink::getSinkType).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(sinkList) || !SinkType.containSortFlinkSink(sinkTypes)) {
-                return ListenerResult.success();
+                continue;
             }
 
             List<InlongStreamExtInfo> extList = streamInfo.getExtList();
