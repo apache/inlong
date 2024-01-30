@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 public class HttpUtils {
 
     private static final Gson GSON = new GsonBuilder().create(); // thread safe
+    public static final String HTTP_PREFIX = "http://";
 
     /**
      * Check whether the host and port can connect
@@ -91,7 +92,7 @@ public class HttpUtils {
             }
             if (HttpStatus.TEMPORARY_REDIRECT.equals(exchange.getStatusCode())) {
                 String redirectUrl = exchange.getHeaders().getFirst(HttpHeaders.LOCATION);
-                if (StringUtils.isNotBlank(redirectUrl)) {
+                if (StringUtils.isNotBlank(redirectUrl) && redirectUrl.startsWith(HTTP_PREFIX)) {
                     exchange = restTemplate.exchange(redirectUrl, method, request, String.class);
                     body = exchange.getBody();
                     statusCode = exchange.getStatusCode();
@@ -124,7 +125,7 @@ public class HttpUtils {
                 exchange = restTemplate.exchange(urls[i], method, request, String.class);
                 if (HttpStatus.TEMPORARY_REDIRECT.equals(exchange.getStatusCode())) {
                     String redirectUrl = exchange.getHeaders().getFirst(HttpHeaders.LOCATION);
-                    if (StringUtils.isNotBlank(redirectUrl)) {
+                    if (StringUtils.isNotBlank(redirectUrl) && redirectUrl.startsWith(HTTP_PREFIX)) {
                         return request(restTemplate, exchange.getHeaders().getFirst(HttpHeaders.LOCATION), method,
                                 param,
                                 header, cls);
@@ -162,7 +163,7 @@ public class HttpUtils {
 
         if (HttpStatus.TEMPORARY_REDIRECT.equals(response.getStatusCode())) {
             String redirectUrl = response.getHeaders().getFirst(HttpHeaders.LOCATION);
-            if (StringUtils.isNotBlank(redirectUrl)) {
+            if (StringUtils.isNotBlank(redirectUrl) && redirectUrl.startsWith(HTTP_PREFIX)) {
                 return request(restTemplate, response.getHeaders().getFirst(HttpHeaders.LOCATION), httpMethod,
                         requestBody,
                         header, typeReference);
@@ -184,7 +185,7 @@ public class HttpUtils {
         ResponseEntity<String> response = restTemplate.exchange(url, httpMethod, requestEntity, String.class);
         if (HttpStatus.TEMPORARY_REDIRECT.equals(response.getStatusCode())) {
             String redirectUrl = response.getHeaders().getFirst(HttpHeaders.LOCATION);
-            if (StringUtils.isNotBlank(redirectUrl)) {
+            if (StringUtils.isNotBlank(redirectUrl) && redirectUrl.startsWith(HTTP_PREFIX)) {
                 request(restTemplate, response.getHeaders().getFirst(HttpHeaders.LOCATION), httpMethod, requestBody,
                         header);
                 return;
@@ -211,7 +212,7 @@ public class HttpUtils {
 
                 if (HttpStatus.TEMPORARY_REDIRECT.equals(response.getStatusCode())) {
                     String redirectUrl = response.getHeaders().getFirst(HttpHeaders.LOCATION);
-                    if (StringUtils.isNotBlank(redirectUrl)) {
+                    if (StringUtils.isNotBlank(redirectUrl) && redirectUrl.startsWith(HTTP_PREFIX)) {
                         request(restTemplate, redirectUrl, httpMethod, requestBody, header);
                         return;
                     }
