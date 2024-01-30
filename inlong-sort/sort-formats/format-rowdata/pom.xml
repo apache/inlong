@@ -33,6 +33,7 @@
 
     <modules>
         <module>format-rowdata-base</module>
+        <module>format-rowdata-json</module>
         <module>format-inlongmsg-rowdata-base</module>
         <module>format-inlongmsg-rowdata-binlog</module>
     </modules>
