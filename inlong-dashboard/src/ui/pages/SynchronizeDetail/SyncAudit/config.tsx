@@ -109,7 +109,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
           data: {
             keyword,
             pageNum: 1,
-            pageSize: 1000,
+            pageSize: 100,
             inlongGroupId,
           },
         }),
