@@ -40,7 +40,7 @@ public class InLongMsgHead implements Serializable {
     /**
      * The interface of the record.
      */
-    private final String tid;
+    private final String streamId;
 
     /**
      * The time of the record.
@@ -54,11 +54,11 @@ public class InLongMsgHead implements Serializable {
 
     public InLongMsgHead(
             Map<String, String> attributes,
-            String tid,
+            String streamId,
             Timestamp time,
             List<String> predefinedFields) {
         this.attributes = attributes;
-        this.tid = tid;
+        this.streamId = streamId;
         this.time = time;
         this.predefinedFields = predefinedFields;
     }
@@ -67,8 +67,8 @@ public class InLongMsgHead implements Serializable {
         return attributes;
     }
 
-    public String getTid() {
-        return tid;
+    public String getStreamId() {
+        return streamId;
     }
 
     public Timestamp getTime() {
@@ -91,21 +91,21 @@ public class InLongMsgHead implements Serializable {
 
         InLongMsgHead that = (InLongMsgHead) o;
         return Objects.equals(attributes, that.attributes)
-                && Objects.equals(tid, that.tid)
+                && Objects.equals(streamId, that.streamId)
                 && Objects.equals(time, that.time)
                 && Objects.equals(predefinedFields, that.predefinedFields);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(attributes, tid, time, predefinedFields);
+        return Objects.hash(attributes, streamId, time, predefinedFields);
     }
 
     @Override
     public String toString() {
         return "InLongMsgHead{"
                 + "attributes=" + attributes
-                + ", tid='" + tid + '\''
+                + ", streamId='" + streamId + '\''
                 + ", time=" + time
                 + ", predefinedFields=" + predefinedFields
                 + '}';

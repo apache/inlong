@@ -53,7 +53,7 @@ public class TubemqTest extends DescriptorTestBase {
                         .topic("test-topic-3")
                         .master("localhost:9001")
                         .group("test-group-3")
-                        .tids("test-tid-1,test-tid-2");
+                        .streamIds("test-streamId-1,test-streamId-2");
 
         return Arrays.asList(descriptor1, descriptor2, descriptor3);
     }
@@ -80,7 +80,7 @@ public class TubemqTest extends DescriptorTestBase {
         props3.put("connector.type", "tubemq");
         props3.put("connector.master", "localhost:9001");
         props3.put("connector.topic", "test-topic-3");
-        props3.put("connector.tids", "test-tid-1,test-tid-2");
+        props3.put("connector.stream-ids", "test-streamId-1,test-streamId-2");
         props3.put("connector.group", "test-group-3");
 
         return Arrays.asList(props1, props2, props3);

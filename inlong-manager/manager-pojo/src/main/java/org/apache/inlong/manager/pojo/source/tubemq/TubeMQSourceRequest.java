@@ -58,9 +58,9 @@ public class TubeMQSourceRequest extends SourceRequest {
     private String wrapType;
 
     /**
-     * The TubeMQ consumers use this tid set to filter records reading from server.
+     * The TubeMQ consumers use this streamId set to filter records reading from server.
      */
-    @ApiModelProperty("Tid of the TubeMQ")
+    @ApiModelProperty("streamId of the TubeMQ")
     private TreeSet<String> streamId;
 
     public TubeMQSourceRequest() {

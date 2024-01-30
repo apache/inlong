@@ -43,25 +43,25 @@ public class InLongMsgCsvDeserializationInfo extends InLongMsgDeserializationInf
     private final boolean deleteHeadDelimiter;
 
     public InLongMsgCsvDeserializationInfo(
-            @JsonProperty("tid") String tid,
+            @JsonProperty("streamId") String streamId,
             @JsonProperty("delimiter") char delimiter) {
-        this(tid, delimiter, null, false);
+        this(streamId, delimiter, null, false);
     }
 
     public InLongMsgCsvDeserializationInfo(
-            @JsonProperty("tid") String tid,
+            @JsonProperty("streamId") String streamId,
             @JsonProperty("delimiter") char delimiter,
             @JsonProperty("delete_head_delimiter") boolean deleteHeadDelimiter) {
-        this(tid, delimiter, null, deleteHeadDelimiter);
+        this(streamId, delimiter, null, deleteHeadDelimiter);
     }
 
     @JsonCreator
     public InLongMsgCsvDeserializationInfo(
-            @JsonProperty("tid") String tid,
+            @JsonProperty("streamId") String streamId,
             @JsonProperty("delimiter") char delimiter,
             @JsonProperty("escape_char") @Nullable Character escapeChar,
             @JsonProperty("delete_head_delimiter") boolean deleteHeadDelimiter) {
-        super(tid);
+        super(streamId);
         this.delimiter = delimiter;
         this.escapeChar = escapeChar;
         this.deleteHeadDelimiter = deleteHeadDelimiter;

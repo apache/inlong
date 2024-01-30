@@ -37,7 +37,7 @@ public class KvDeserializationInfo extends InLongMsgDeserializationInfo {
 
     private final char kvSplitter;
 
-    private final String tid;
+    private final String streamId;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Nullable
@@ -46,24 +46,24 @@ public class KvDeserializationInfo extends InLongMsgDeserializationInfo {
     public KvDeserializationInfo(
             @JsonProperty("entry_splitter") char entrySplitter,
             @JsonProperty("kv_splitter") char kvSplitter) {
-        this(TID_DEFAULT_VALUE, entrySplitter, kvSplitter, null);
+        this(STREAM_ID_DEFAULT_VALUE, entrySplitter, kvSplitter, null);
     }
 
     public KvDeserializationInfo(
             @JsonProperty("entry_splitter") char entrySplitter,
             @JsonProperty("kv_splitter") char kvSplitter,
             @JsonProperty("escape_char") @Nullable Character escapeChar) {
-        this(TID_DEFAULT_VALUE, entrySplitter, kvSplitter, escapeChar);
+        this(STREAM_ID_DEFAULT_VALUE, entrySplitter, kvSplitter, escapeChar);
     }
 
     @JsonCreator
     public KvDeserializationInfo(
-            @JsonProperty("tid") String tid,
+            @JsonProperty("streamId") String streamId,
             @JsonProperty("entry_splitter") char entrySplitter,
             @JsonProperty("kv_splitter") char kvSplitter,
             @JsonProperty("escape_char") @Nullable Character escapeChar) {
-        super(tid);
-        this.tid = (StringUtils.isEmpty(tid) ? TID_DEFAULT_VALUE : tid);
+        super(streamId);
+        this.streamId = (StringUtils.isEmpty(streamId) ? STREAM_ID_DEFAULT_VALUE : streamId);
         this.entrySplitter = entrySplitter;
         this.kvSplitter = kvSplitter;
         this.escapeChar = escapeChar;
@@ -85,9 +85,9 @@ public class KvDeserializationInfo extends InLongMsgDeserializationInfo {
         return escapeChar;
     }
 
-    @JsonProperty("tid")
-    public String getTid() {
-        return tid;
+    @JsonProperty("streamId")
+    public String getStreamId() {
+        return streamId;
     }
 
     @Override
@@ -101,7 +101,7 @@ public class KvDeserializationInfo extends InLongMsgDeserializationInfo {
         }
 
         KvDeserializationInfo other = (KvDeserializationInfo) o;
-        return Objects.equals(tid, other.getTid()) && entrySplitter == other.entrySplitter
+        return Objects.equals(streamId, other.getStreamId()) && entrySplitter == other.entrySplitter
                 && kvSplitter == other.kvSplitter
                 && Objects.equals(escapeChar, other.escapeChar);
     }

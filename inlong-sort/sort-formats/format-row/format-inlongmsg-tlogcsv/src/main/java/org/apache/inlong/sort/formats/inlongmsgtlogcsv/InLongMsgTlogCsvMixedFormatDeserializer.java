@@ -110,7 +110,7 @@ public final class InLongMsgTlogCsvMixedFormatDeserializer
 
     @Override
     protected List<Row> convertRows(InLongMsgHead head, InLongMsgBody body) throws Exception {
-        Row row = InLongMsgUtils.buildMixedRow(head, body, body.getTid());
+        Row row = InLongMsgUtils.buildMixedRow(head, body, body.getStreamId());
         return Collections.singletonList(row);
     }
 

@@ -92,7 +92,7 @@ public class InLongMsgCsvMixedFormatConverter extends AbstractInLongMsgMixedForm
     public List<Row> convertRows(
             Map<String, String> attributes,
             byte[] data,
-            String tid,
+            String streamId,
             Timestamp time,
             List<String> predefinedFields,
             List<String> fields,

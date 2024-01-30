@@ -39,17 +39,17 @@ public class InLongMsgCsv2DeserializationInfo extends InLongMsgDeserializationIn
     private final Character escapeChar;
 
     public InLongMsgCsv2DeserializationInfo(
-            @JsonProperty("tid") String tid,
+            @JsonProperty("streamId") String streamId,
             @JsonProperty("delimiter") char delimiter) {
-        this(tid, delimiter, null);
+        this(streamId, delimiter, null);
     }
 
     @JsonCreator
     public InLongMsgCsv2DeserializationInfo(
-            @JsonProperty("tid") String tid,
+            @JsonProperty("streamId") String streamId,
             @JsonProperty("delimiter") char delimiter,
             @JsonProperty("escape_char") @Nullable Character escapeChar) {
-        super(tid);
+        super(streamId);
         this.delimiter = delimiter;
         this.escapeChar = escapeChar;
     }
