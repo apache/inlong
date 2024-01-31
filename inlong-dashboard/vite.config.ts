@@ -21,7 +21,6 @@ import path from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tsConfigPaths from 'vite-tsconfig-paths';
-import vitePluginImp from 'vite-plugin-imp';
 import dynamicImport from 'vite-plugin-dynamic-import';
 import svgr from 'vite-plugin-svgr';
 import eslintPlugin from 'vite-plugin-eslint';
