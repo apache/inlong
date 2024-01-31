@@ -29,6 +29,7 @@ import org.apache.inlong.sort.standalone.utils.BufferQueue;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -145,6 +146,7 @@ public class EsSinkContext extends SinkContext {
             Map<String, EsIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
             List<Map<String, String>> idList = this.sortTaskConfig.getIdParams();
             ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             for (Map<String, String> idParam : idList) {
                 String inlongGroupId = idParam.get(Constants.INLONG_GROUP_ID);
                 String inlongStreamId = idParam.get(Constants.INLONG_STREAM_ID);

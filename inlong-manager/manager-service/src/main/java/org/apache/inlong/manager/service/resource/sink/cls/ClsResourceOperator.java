@@ -68,6 +68,7 @@ public class ClsResourceOperator extends AbstractStandaloneSinkResourceOperator 
             LOG.warn("create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
             return;
         }
+        this.checkTaskAndConsumerGroup(sinkInfo);
         this.createClsResource(sinkInfo);
         this.assignCluster(sinkInfo);
     }
