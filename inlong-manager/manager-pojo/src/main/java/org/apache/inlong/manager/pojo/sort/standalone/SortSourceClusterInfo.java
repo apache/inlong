@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.pojo.sort.standalone;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
+
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
@@ -24,7 +26,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
