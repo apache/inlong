@@ -297,6 +297,7 @@ public class FieldInfoUtils {
                     formatInfo = new TimeFormatInfo();
                 }
                 break;
+            case TIMESTAMPTZ:
             case TIMESTAMP:
             case DATETIME:
                 if (StringUtils.isNotBlank(format)) {
