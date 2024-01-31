@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.common.constant.ClusterSwitch;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.pojo.sdk.CacheZone;
@@ -197,10 +198,17 @@ public class SortSourceServiceImpl implements SortSourceService {
                 .collect(Collectors.toMap(SortSourceClusterInfo::getName, v -> v));
 
         // group mq clusters by cluster tag
-        mqClusters = allClusters.stream()
-                .filter(cluster -> SUPPORTED_MQ_TYPE.contains(cluster.getType()))
-                .filter(SortSourceClusterInfo::isConsumable)
-                .collect(Collectors.groupingBy(SortSourceClusterInfo::getClusterTags));
+        mqClusters = new HashMap<>();
+        allClusters.stream()
+            .filter(cluster -> SUPPORTED_MQ_TYPE.contains(cluster.getType()))
+            .filter(SortSourceClusterInfo::isConsumable)
+            .forEach(mq -> {
+                Set<String> tags = mq.getClusterTagsSet();
+                tags.forEach(tag -> {
+                    List<SortSourceClusterInfo> list = mqClusters.computeIfAbsent(tag, k -> new ArrayList<>());
+                    list.add(mq);
+                });
+            });
 
         // reload all stream sinks, to Map<clusterName, Map<taskName, List<groupId>>> format
         List<SortSourceStreamSinkInfo> allStreamSinks = configLoader.loadAllStreamSinks();
@@ -302,7 +310,7 @@ public class SortSourceServiceImpl implements SortSourceService {
             List<SortSourceStreamSinkInfo> sinkList) {
 
         Preconditions.expectNotNull(sortClusters.get(clusterName), "sort cluster should not be NULL");
-        String sortClusterTag = sortClusters.get(clusterName).getClusterTags();
+        Set<String> tags = sortClusters.get(clusterName).getClusterTagsSet();
 
         // get group infos
         List<SortSourceStreamSinkInfo> sinkInfoList = sinkList.stream()
@@ -315,10 +323,10 @@ public class SortSourceServiceImpl implements SortSourceService {
         Map<String, List<SortSourceStreamSinkInfo>> tag2SinkInfos = sinkInfoList.stream()
                 .filter(sink -> Objects.nonNull(groupInfos.get(sink.getGroupId())))
                 .filter(sink -> {
-                    if (StringUtils.isBlank(sortClusterTag)) {
+                    if (CollectionUtils.isEmpty(tags)) {
                         return true;
                     }
-                    return sortClusterTag.equals(groupInfos.get(sink.getGroupId()).getClusterTag());
+                    return tags.contains(groupInfos.get(sink.getGroupId()).getClusterTag());
                 })
                 .collect(Collectors.groupingBy(sink -> {
                     SortSourceGroupInfo groupInfo = groupInfos.get(sink.getGroupId());
@@ -329,10 +337,10 @@ public class SortSourceServiceImpl implements SortSourceService {
         Map<String, List<SortSourceStreamSinkInfo>> backupTag2SinkInfos = sinkInfoList.stream()
                 .filter(sink -> backupClusterTag.containsKey(sink.getGroupId()))
                 .filter(sink -> {
-                    if (StringUtils.isBlank(sortClusterTag)) {
+                    if (CollectionUtils.isEmpty(tags)) {
                         return true;
                     }
-                    return sortClusterTag.equals(backupClusterTag.get(sink.getGroupId()));
+                    return tags.contains(backupClusterTag.get(sink.getGroupId()));
                 })
                 .collect(Collectors.groupingBy(info -> backupClusterTag.get(info.getGroupId())));
 

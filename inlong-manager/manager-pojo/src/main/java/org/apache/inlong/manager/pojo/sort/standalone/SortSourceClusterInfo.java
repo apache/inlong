@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.pojo.sort.standalone;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -25,9 +26,12 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Data
@@ -46,8 +50,16 @@ public class SortSourceClusterInfo {
     String clusterTags;
     String extTag;
     String extParams;
+    Set<String> clusterTagsSet;
     Map<String, String> extTagMap = new ConcurrentHashMap<>();
     Map<String, String> extParamsMap = new ConcurrentHashMap<>();
+
+    public Set<String> getClusterTagsSet() {
+        if (CollectionUtils.isEmpty(clusterTagsSet)) {
+            clusterTagsSet = ImmutableSet.copyOf(clusterTags.split(","));
+        }
+        return clusterTagsSet;
+    }
 
     public Map<String, String> getExtParamsMap() {
         if (extParamsMap.isEmpty() && extParams != null) {
@@ -83,5 +95,19 @@ public class SortSourceClusterInfo {
     public boolean isConsumable() {
         String isConsumable = this.getExtTagMap().get(KEY_IS_CONSUMABLE);
         return isConsumable == null || "true".equalsIgnoreCase(isConsumable);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof SortSourceClusterInfo)) {
+            return false;
+        }
+        SortSourceClusterInfo other = (SortSourceClusterInfo) o;
+        return Objects.equals(this.name, other.name)
+                && Objects.equals(this.clusterTags, other.clusterTags)
+                && Objects.equals(this.type, other.type)
+                && Objects.equals(this.extParams, other.extParams)
+                && Objects.equals(this.extTag, other.extTag);
+
     }
 }
