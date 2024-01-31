@@ -85,6 +85,20 @@ public abstract class AbstractStandaloneSinkResourceOperator implements SinkReso
         }
     }
 
+    protected void checkTaskAndConsumerGroup(SinkInfo sinkInfo) {
+        if (!StringUtils.isAnyBlank(sinkInfo.getSortConsumerGroup(), sinkInfo.getSortTaskName())) {
+            return;
+        }
+        if (StringUtils.isBlank(sinkInfo.getSortConsumerGroup())) {
+            sinkInfo.setSortConsumerGroup(sinkInfo.getDataNodeName());
+        }
+        if (StringUtils.isBlank(sinkInfo.getSortTaskName())) {
+            sinkInfo.setSortTaskName(sinkInfo.getDataNodeName());
+        }
+        StreamSinkEntity sink = sinkEntityMapper.selectByPrimaryKey(sinkInfo.getId());
+        sinkEntityMapper.updateByIdSelective(sink);
+    }
+
     private String assignOneCluster(SinkInfo sinkInfo) {
         return StringUtils
                 .firstNonBlank(assignFromExist(sinkInfo.getDataNodeName()),

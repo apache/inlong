@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
@@ -145,6 +146,7 @@ public class EsSinkContext extends SinkContext {
             Map<String, EsIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
             List<Map<String, String>> idList = this.sortTaskConfig.getIdParams();
             ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             for (Map<String, String> idParam : idList) {
                 String inlongGroupId = idParam.get(Constants.INLONG_GROUP_ID);
                 String inlongStreamId = idParam.get(Constants.INLONG_STREAM_ID);
