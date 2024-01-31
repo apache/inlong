@@ -27,7 +27,6 @@ on:
       - 'inlong-common/**'
       - 'inlong-dashboard/**'
       - 'inlong-dataproxy/**'
-      - 'inlong-distribution/**'
       - 'inlong-manager/**'
       - 'inlong-sdk/**'
       - 'inlong-sort/**'
@@ -44,7 +43,6 @@ on:
       - 'inlong-common/**'
       - 'inlong-dashboard/**'
       - 'inlong-dataproxy/**'
-      - 'inlong-distribution/**'
       - 'inlong-manager/**'
       - 'inlong-sdk/**'
       - 'inlong-sort/**'
@@ -107,25 +105,3 @@ jobs:
         run: |
           version=`mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q`
           echo "VERSION=${version}" >> $GITHUB_ENV
-
-      - name: Upload binary package
-        if: ${{ success() }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: apache-inlong-${{ env.VERSION }}-bin.tar.gz
-          path: ./inlong-distribution/target/apache-inlong-${{ env.VERSION }}-bin.tar.gz
-
-      - name: Upload sort connectors package for flink v1.13
-        if: ${{ success() }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: apache-inlong-${{ env.VERSION }}-sort-connectors-flink-v1.13.tar.gz
-          path: ./inlong-distribution/target/apache-inlong-${{ env.VERSION }}-sort-connectors-flink-v1.13.tar.gz
-
-      - name: Upload sort connectors package for flink v1.15
-        if: ${{ success() }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: apache-inlong-${{ env.VERSION }}-sort-connectors-flink-v1.15.tar.gz
-          path: ./inlong-distribution/target/apache-inlong-${{ env.VERSION }}-sort-connectors-flink-v1.15.tar.gz
-
