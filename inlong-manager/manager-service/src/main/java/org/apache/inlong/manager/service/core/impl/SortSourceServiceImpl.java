@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.common.constant.ClusterSwitch;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.pojo.sdk.CacheZone;
@@ -38,6 +37,7 @@ import org.apache.inlong.manager.service.core.SortSourceService;
 
 import com.google.gson.Gson;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -200,15 +200,15 @@ public class SortSourceServiceImpl implements SortSourceService {
         // group mq clusters by cluster tag
         mqClusters = new HashMap<>();
         allClusters.stream()
-            .filter(cluster -> SUPPORTED_MQ_TYPE.contains(cluster.getType()))
-            .filter(SortSourceClusterInfo::isConsumable)
-            .forEach(mq -> {
-                Set<String> tags = mq.getClusterTagsSet();
-                tags.forEach(tag -> {
-                    List<SortSourceClusterInfo> list = mqClusters.computeIfAbsent(tag, k -> new ArrayList<>());
-                    list.add(mq);
+                .filter(cluster -> SUPPORTED_MQ_TYPE.contains(cluster.getType()))
+                .filter(SortSourceClusterInfo::isConsumable)
+                .forEach(mq -> {
+                    Set<String> tags = mq.getClusterTagsSet();
+                    tags.forEach(tag -> {
+                        List<SortSourceClusterInfo> list = mqClusters.computeIfAbsent(tag, k -> new ArrayList<>());
+                        list.add(mq);
+                    });
                 });
-            });
 
         // reload all stream sinks, to Map<clusterName, Map<taskName, List<groupId>>> format
         List<SortSourceStreamSinkInfo> allStreamSinks = configLoader.loadAllStreamSinks();
