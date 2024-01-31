@@ -24,6 +24,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -55,8 +56,8 @@ public class SortSourceClusterInfo {
     Map<String, String> extParamsMap = new ConcurrentHashMap<>();
 
     public Set<String> getClusterTagsSet() {
-        if (CollectionUtils.isEmpty(clusterTagsSet)) {
-            clusterTagsSet = ImmutableSet.copyOf(clusterTags.split(","));
+        if (CollectionUtils.isEmpty(clusterTagsSet) && StringUtils.isNotBlank(clusterTags)) {
+            clusterTagsSet = ImmutableSet.copyOf(clusterTags.split(InlongConstants.COMMA));
         }
         return clusterTagsSet;
     }
