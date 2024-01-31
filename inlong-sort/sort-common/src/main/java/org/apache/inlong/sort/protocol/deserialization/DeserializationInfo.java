@@ -41,5 +41,5 @@ import java.io.Serializable;
 })
 public interface DeserializationInfo extends Serializable {
 
-    String TID_DEFAULT_VALUE = "-";
+    String STREAM_ID_DEFAULT_VALUE = "-";
 }

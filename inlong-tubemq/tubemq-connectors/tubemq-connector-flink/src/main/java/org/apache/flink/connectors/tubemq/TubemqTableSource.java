@@ -90,9 +90,9 @@ public class TubemqTableSource
     private final String topic;
 
     /**
-     * The TubeMQ tid filter collection.
+     * The TubeMQ streamId filter collection.
      */
-    private final TreeSet<String> tidSet;
+    private final TreeSet<String> streamIdSet;
 
     /**
      * The TubeMQ consumer group name.
@@ -114,7 +114,7 @@ public class TubemqTableSource
      * @param fieldMapping        the field map information
      * @param masterAddress       the master address
      * @param topic               the topic name
-     * @param tidSet              the topic's filter condition items
+     * @param streamIdSet              the topic's filter condition items
      * @param consumerGroup       the consumer group
      * @param configuration       the configure
      */
@@ -126,7 +126,7 @@ public class TubemqTableSource
             Map<String, String> fieldMapping,
             String masterAddress,
             String topic,
-            TreeSet<String> tidSet,
+            TreeSet<String> streamIdSet,
             String consumerGroup,
             Configuration configuration) {
         checkNotNull(deserializationSchema,
@@ -139,8 +139,8 @@ public class TubemqTableSource
                 "The master address must not be null.");
         checkNotNull(topic,
                 "The topic must not be null.");
-        checkNotNull(tidSet,
-                "The tid set must not be null.");
+        checkNotNull(streamIdSet,
+                "The streamId set must not be null.");
         checkNotNull(consumerGroup,
                 "The consumer group must not be null.");
         checkNotNull(configuration,
@@ -151,7 +151,7 @@ public class TubemqTableSource
         this.fieldMapping = fieldMapping;
         this.masterAddress = masterAddress;
         this.topic = topic;
-        this.tidSet = tidSet;
+        this.streamIdSet = streamIdSet;
         this.consumerGroup = consumerGroup;
         this.configuration = configuration;
 
@@ -189,7 +189,7 @@ public class TubemqTableSource
                 new TubemqSourceFunction<>(
                         masterAddress,
                         topic,
-                        tidSet,
+                        streamIdSet,
                         consumerGroup,
                         deserializationSchema,
                         configuration);

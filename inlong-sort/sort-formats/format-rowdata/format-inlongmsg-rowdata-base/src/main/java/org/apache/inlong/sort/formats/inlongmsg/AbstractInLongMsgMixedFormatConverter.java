@@ -52,7 +52,7 @@ public abstract class AbstractInLongMsgMixedFormatConverter
     public abstract List<RowData> convertRowDatas(
             Map<String, String> attributes,
             byte[] data,
-            String tid,
+            String streamId,
             Timestamp time,
             List<String> predefinedFields,
             List<String> fields,
@@ -66,14 +66,14 @@ public abstract class AbstractInLongMsgMixedFormatConverter
         try {
             Map<String, String> attributes = InLongMsgUtils.getAttributesFromMixedRowData(rowData);
             byte[] data = InLongMsgUtils.getDataFromMixedRowData(rowData);
-            String tid = InLongMsgUtils.getTidFromMixedRowData(rowData);
+            String streamId = InLongMsgUtils.getTidFromMixedRowData(rowData);
             Timestamp time = InLongMsgUtils.getTimeFromMixedRowData(rowData);
             List<String> predefinedFields = InLongMsgUtils.getPredefinedFieldsFromMixedRowData(rowData);
             List<String> fields = InLongMsgUtils.getFieldsFromMixedRowData(rowData);
             Map<String, String> entries = InLongMsgUtils.getEntriesFromMixedRowData(rowData);
 
             convertedRowDatas =
-                    convertRowDatas(attributes, data, tid, time, predefinedFields, fields, entries);
+                    convertRowDatas(attributes, data, streamId, time, predefinedFields, fields, entries);
         } catch (Throwable t) {
             String errorMessage =
                     String.format("Could not properly convert the mixed row. Row=[%s].", rowData);

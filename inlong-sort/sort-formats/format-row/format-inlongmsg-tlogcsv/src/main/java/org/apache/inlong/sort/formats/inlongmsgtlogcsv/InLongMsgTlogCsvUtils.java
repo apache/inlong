@@ -89,11 +89,11 @@ public class InLongMsgTlogCsvUtils {
 
         String[] segments = splitCsv(text, delimiter, escapeChar, quoteChar);
 
-        String tid = segments[0];
+        String streamId = segments[0];
         List<String> fields =
                 Arrays.stream(segments, 1, segments.length).collect(Collectors.toList());
 
-        return new InLongMsgBody(bytes, tid, fields, Collections.emptyMap());
+        return new InLongMsgBody(bytes, streamId, fields, Collections.emptyMap());
     }
 
     /**

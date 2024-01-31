@@ -92,7 +92,7 @@ public class TubemqTableSourceSinkFactory
         properties.add(TubemqValidator.CONNECTOR_TOPIC);
         properties.add(TubemqValidator.CONNECTOR_MASTER);
         properties.add(TubemqValidator.CONNECTOR_GROUP);
-        properties.add(TubemqValidator.CONNECTOR_TIDS);
+        properties.add(TubemqValidator.CONNECTOR_STREAMIDS);
         properties.add(TubemqValidator.CONNECTOR_PROPERTIES + ".*");
 
         // schema
@@ -145,16 +145,16 @@ public class TubemqTableSourceSinkFactory
                 descriptorProperties.getString(TubemqValidator.CONNECTOR_MASTER);
         final String consumerGroup =
                 descriptorProperties.getString(TubemqValidator.CONNECTOR_GROUP);
-        final String tids =
+        final String streamIds =
                 descriptorProperties
-                        .getOptionalString(TubemqValidator.CONNECTOR_TIDS)
+                        .getOptionalString(TubemqValidator.CONNECTOR_STREAMIDS)
                         .orElse(null);
         final Configuration configuration =
                 getConfiguration(descriptorProperties);
 
-        TreeSet<String> tidSet = new TreeSet<>();
-        if (tids != null) {
-            tidSet.addAll(Arrays.asList(tids.split(SPLIT_COMMA)));
+        TreeSet<String> streamIdSet = new TreeSet<>();
+        if (streamIds != null) {
+            streamIdSet.addAll(Arrays.asList(streamIds.split(SPLIT_COMMA)));
         }
 
         return new TubemqTableSource(
@@ -165,7 +165,7 @@ public class TubemqTableSourceSinkFactory
                 fieldMapping,
                 masterAddress,
                 topic,
-                tidSet,
+                streamIdSet,
                 consumerGroup,
                 configuration);
     }

@@ -62,6 +62,8 @@ public class InLongMsgUtils {
 
     // keys in attributes
     public static final String INLONGMSG_ATTR_STREAM_ID = "streamId";
+
+    @Deprecated
     public static final String INLONGMSG_ATTR_TID = "tid";
     public static final String INLONGMSG_ATTR_TIME_T = "t";
     public static final String INLONGMSG_ATTR_TIME_DT = "dt";
@@ -80,7 +82,7 @@ public class InLongMsgUtils {
                     new String[]{
                             "attributes",
                             "data",
-                            "tid",
+                            "streamId",
                             "time",
                             "predefinedFields",
                             "fields",
@@ -254,11 +256,11 @@ public class InLongMsgUtils {
     public static Row buildMixedRow(
             InLongMsgHead head,
             InLongMsgBody body,
-            String tid) {
+            String streamId) {
         Row row = new Row(7);
         row.setField(0, head.getAttributes());
         row.setField(1, body.getData());
-        row.setField(2, tid);
+        row.setField(2, streamId);
         row.setField(3, head.getTime());
         row.setField(4, head.getPredefinedFields());
         row.setField(5, body.getFields());
@@ -276,7 +278,7 @@ public class InLongMsgUtils {
         return (byte[]) row.getField(1);
     }
 
-    public static String getTidFromMixedRow(Row row) {
+    public static String getStreamIdFromMixedRow(Row row) {
         return (String) row.getField(2);
     }
 

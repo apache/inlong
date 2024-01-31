@@ -152,7 +152,7 @@ public class TubeMQOptions {
                     .stringType()
                     .asList()
                     .noDefaultValue()
-                    .withDescription("The tid owned this topic.");
+                    .withDescription("The streamId owned this topic.");
 
     public static final ConfigOption<Integer> MAX_RETRIES =
             ConfigOptions.key("max.retries")

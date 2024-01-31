@@ -46,20 +46,20 @@ public class InLongMsgKvDeserializationInfo extends InLongMsgDeserializationInfo
     private final Character lineDelimiter;
 
     public InLongMsgKvDeserializationInfo(
-            @JsonProperty("tid") String tid,
+            @JsonProperty("streamId") String streamId,
             @JsonProperty("entry_delimiter") char entryDelimiter,
             @JsonProperty("kv_delimiter") char kvDelimiter) {
-        this(tid, entryDelimiter, kvDelimiter, null, null);
+        this(streamId, entryDelimiter, kvDelimiter, null, null);
     }
 
     @JsonCreator
     public InLongMsgKvDeserializationInfo(
-            @JsonProperty("tid") String tid,
+            @JsonProperty("streamId") String streamId,
             @JsonProperty("entry_delimiter") char entryDelimiter,
             @JsonProperty("kv_delimiter") char kvDelimiter,
             @JsonProperty("escape_char") @Nullable Character escapeChar,
             @JsonProperty("line_delimiter") @Nullable Character lineDelimiter) {
-        super(tid);
+        super(streamId);
         this.entryDelimiter = entryDelimiter;
         this.kvDelimiter = kvDelimiter;
         this.escapeChar = escapeChar;

@@ -51,7 +51,7 @@ import java.util.stream.Stream;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ATTRIBUTE_FIELD_NAME;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_TIME_FIELD_NAME;
 import static org.apache.inlong.sort.formats.base.TableFormatUtils.validateSchema;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgMetadata.ReadableMetadata.TID;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgMetadata.ReadableMetadata.STREAMID;
 import static org.apache.inlong.sort.formats.util.StringUtils.splitKv;
 
 /**
@@ -63,8 +63,11 @@ public class InLongMsgUtils {
     public static final char INLONGMSG_ATTR_KV_DELIMITER = '=';
 
     // keys in attributes
+    @Deprecated
     public static final String INLONGMSG_ATTR_INTERFACE_NAME = "iname";
+    @Deprecated
     public static final String INLONGMSG_ATTR_INTERFACE_ID = "id";
+    @Deprecated
     public static final String INLONGMSG_ATTR_INTERFACE_TID = "tid";
     public static final String INLONGMSG_ATTR_STREAMID = "streamId";
     public static final String INLONGMSG_ATTR_TIME_T = "t";
@@ -85,7 +88,7 @@ public class InLongMsgUtils {
         String[] fieldNames = new String[]{
                 "attributes",
                 "data",
-                "tid",
+                "streamId",
                 "time",
                 "predefinedFields",
                 "fields",
@@ -357,8 +360,8 @@ public class InLongMsgUtils {
         }
 
         for (int j = 0; j < metadataKeys.size(); j++) {
-            if (metadataKeys.get(j).equals(TID.getKey())) {
-                producedRow.setField(physicalArity + j, StringData.fromString(head.getTid()));
+            if (metadataKeys.get(j).equals(STREAMID.getKey())) {
+                producedRow.setField(physicalArity + j, StringData.fromString(head.getStreamId()));
             }
         }
 
