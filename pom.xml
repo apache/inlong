@@ -110,7 +110,7 @@
         <druid.version>1.2.6</druid.version>
         <elasticsearch6.version>6.8.17</elasticsearch6.version>
         <elasticsearch7.version>7.9.2</elasticsearch7.version>
-        <shiro.version>1.10.1</shiro.version>
+        <shiro.version>1.13.0</shiro.version>
 
         <snappy.version>1.1.10.4</snappy.version>
         <protobuf.version>3.19.6</protobuf.version>
