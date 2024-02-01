@@ -39,6 +39,7 @@
         <module>format-inlongmsg-rowdata-base</module>
         <module>format-inlongmsg-rowdata-binlog</module>
         <module>format-inlongmsg-rowdata-pb</module>
+        <module>format-inlongmsg-rowdata-csv</module>
     </modules>
 
     <properties>
