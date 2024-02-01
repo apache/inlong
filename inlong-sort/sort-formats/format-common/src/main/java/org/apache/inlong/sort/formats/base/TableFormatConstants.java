@@ -41,7 +41,7 @@ public class TableFormatConstants {
     public static final String FORMAT_PROPERTY_VERSION = "format.property-version";
     public static final String FORMAT_FIELD_DELIMITER = "format.field-delimiter";
     public static final String FORMAT_TIME_FIELD_NAME = "format.time-field-name";
-    public static final String FORMAT_KV_ENTRY_DELIMITER = "entry-delimiter";
+    public static final String FORMAT_KV_ENTRY_DELIMITER = "format.entry-delimiter";
     public static final String FORMAT_ATTRIBUTE_FIELD_NAME = "format.attribute-field-name";
     public static final String FORMAT_IS_MIXED = "format.is-mixed";
     public static final String FORMAT_DELETE_HEAD_DELIMITER = "format.delete-head-delimiter";

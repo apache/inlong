@@ -26,21 +26,18 @@
         <version>1.12.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>sort-format-rowdata-csv</artifactId>
+    <artifactId>sort-format-inlongmsg-rowdata-kv</artifactId>
     <packaging>jar</packaging>
-    <name>Apache InLong - Sort Format-RowData-CSV</name>
+    <name>Apache InLong - Sort Format-InLongMsg-RowData-KV</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
         <inlong.root.dir>${project.parent.parent.parent.parent.basedir}</inlong.root.dir>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-rowdata-base</artifactId>
+            <artifactId>sort-format-inlongmsg-rowdata-base</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -49,14 +46,8 @@
             <version>${flink.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-shaded-jackson</artifactId>
-            <version>${flink.jackson.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- test dependencies -->
 
+        <!-- test dependencies -->
         <!-- CSV table descriptor testing -->
         <dependency>
             <groupId>org.apache.flink</groupId>
