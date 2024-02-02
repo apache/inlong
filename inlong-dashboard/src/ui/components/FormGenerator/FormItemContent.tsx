@@ -75,7 +75,7 @@ const FormItem = ({ type: T, formItemProps, useSpace, props }) => {
 
 const Content = ({ useSpace, suffix, extra, children, label, required, style, formItemProps }) => {
   return useSpace ? (
-    <Form.Item label={label} required={required} style={style} extra={extra}>
+    <Form.Item label={label} required={required} style={style} extra={extra} {...formItemProps}>
       <Space>
         {children}
         {suffix}
