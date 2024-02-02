@@ -35,6 +35,7 @@
         <module>format-rowdata-base</module>
         <module>format-inlongmsg-rowdata-base</module>
         <module>format-inlongmsg-rowdata-binlog</module>
+        <module>format-inlongmsg-rowdata-pb</module>
     </modules>
 
     <properties>
