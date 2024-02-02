@@ -201,7 +201,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
           disabled: Boolean(values.id),
           dropdownMatchSelectWidth: false,
           options: sinks
-            .filter(item => item.value === 'ICEBERG')
+            .filter(item => item.value === 'ICEBERG' || item.value === 'DORIS')
             .map(item => ({
               label: item.label,
               value: item.value,
