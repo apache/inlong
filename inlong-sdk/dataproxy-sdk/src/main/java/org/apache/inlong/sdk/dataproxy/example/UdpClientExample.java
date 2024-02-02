@@ -206,7 +206,7 @@ public class UdpClientExample {
                     if (Utils.isNotBlank(endAttr)) {
                         endAttr = endAttr + "&";
                     }
-                    endAttr = (endAttr + "bid=" + object.getGroupId() + "&tid="
+                    endAttr = (endAttr + "groupId=" + object.getGroupId() + "&streamId="
                             + object.getStreamId());
                 }
                 if (Utils.isNotBlank(object.getMsgUUID())) {

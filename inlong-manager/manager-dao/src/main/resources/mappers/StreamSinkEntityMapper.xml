@@ -338,6 +338,8 @@
         sink.creator,
         sink.sink_name,
         sink.data_node_name,
+        sink.sort_task_name,
+        sink.sort_consumer_group,
         stream.mq_resource,
         stream.data_type,
         stream.data_separator as sourceSeparator,

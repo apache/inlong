@@ -71,6 +71,7 @@ public class PulsarResourceOperator extends AbstractStandaloneSinkResourceOperat
             LOG.warn("create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
             return;
         }
+        this.checkTaskAndConsumerGroup(sinkInfo);
         this.createTopic(sinkInfo);
         this.assignCluster(sinkInfo);
     }

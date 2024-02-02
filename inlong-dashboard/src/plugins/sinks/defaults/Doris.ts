@@ -24,9 +24,10 @@ import i18n from '@/i18n';
 import EditableTable from '@/ui/components/EditableTable';
 import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';
+import NodeSelect from '@/ui/components/NodeSelect';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField, IngestionField } = RenderRow;
+const { FieldDecorator, SyncField, IngestionField, SyncMoveDbField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const dorisTargetTypes = [
@@ -64,31 +65,95 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
   @I18n('meta.Sinks.Doris.HttpAddress')
   @SyncField()
   @IngestionField()
+  @SyncMoveDbField()
   feNodes: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: NodeSelect,
     rules: [{ required: true }],
     props: values => ({
       disabled: [110].includes(values?.status),
+      nodeType: 'DORIS',
     }),
   })
-  @I18n('meta.Sinks.Username')
+  @I18n('meta.Sinks.DataNodeName')
   @SyncField()
   @IngestionField()
-  username: string;
+  @SyncMoveDbField()
+  dataNodeName: string;
 
   @FieldDecorator({
-    type: 'password',
+    type: 'radiobutton',
+    initialValue: '${database}',
+    tooltip: i18n.t('meta.Sinks.Doris.PatternHelp'),
     rules: [{ required: true }],
     props: values => ({
+      size: 'middle',
       disabled: [110].includes(values?.status),
+      options: [
+        {
+          label: i18n.t('meta.Sinks.Doris.Options.DBSameName'),
+          value: '${database}',
+          disabled: Boolean(values.id),
+        },
+        {
+          label: i18n.t('meta.Sinks.Doris.Options.Customize'),
+          value: 'false',
+          disabled: Boolean(values.id),
+        },
+      ],
     }),
+    suffix: {
+      type: 'input',
+      name: 'databasePattern',
+      visible: values =>
+        values.backupDatabase === 'false' ||
+        (values.id !== undefined && values.databasePattern !== '${database}'),
+      props: values => ({
+        style: { width: 100 },
+        disabled: [110].includes(values?.status),
+      }),
+    },
   })
-  @I18n('meta.Sinks.Password')
-  @SyncField()
-  @IngestionField()
-  password: string;
+  @SyncMoveDbField()
+  @I18n('meta.Sinks.Doris.DatabaseNamePattern')
+  backupDatabase: string;
+
+  @FieldDecorator({
+    type: 'radiobutton',
+    initialValue: '${table}',
+    rules: [{ required: true }],
+    tooltip: i18n.t('meta.Sinks.Doris.PatternHelp'),
+    props: values => ({
+      size: 'middle',
+      options: [
+        {
+          label: i18n.t('meta.Sinks.Doris.Options.TableSameName'),
+          value: '${table}',
+          disabled: Boolean(values.id),
+        },
+        {
+          label: i18n.t('meta.Sinks.Doris.Options.Customize'),
+          value: 'false',
+          disabled: Boolean(values.id),
+        },
+      ],
+    }),
+    suffix: {
+      type: 'input',
+      name: 'tablePattern',
+      visible: values =>
+        values.backupTable === 'false' ||
+        (values.id !== undefined && values.tablePattern !== '${table}'),
+      props: values => ({
+        style: { width: 100 },
+        disabled: [110].includes(values?.status),
+      }),
+    },
+  })
+  @SyncMoveDbField()
+  @I18n('meta.Sinks.Doris.TableNamePattern')
+  backupTable: string;
 
   @FieldDecorator({
     type: 'input',

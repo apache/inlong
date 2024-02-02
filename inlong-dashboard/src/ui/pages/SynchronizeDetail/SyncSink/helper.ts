@@ -19,7 +19,7 @@
 
 export const paramReplace = (sinkType, values) => {
   const replaceValues = values;
-  if (sinkType === 'ICEBERG') {
+  if (sinkType === 'ICEBERG' || sinkType === 'DORIS') {
     if (values.backupDatabase === '${database}') {
       replaceValues.databasePattern = values.backupDatabase;
     }
@@ -35,7 +35,7 @@ export const paramReplace = (sinkType, values) => {
 
 export const dataToForm = (sinkType, data) => {
   const sinkData = data;
-  if (sinkType === 'ICEBERG') {
+  if (sinkType === 'ICEBERG' || sinkType === 'DORIS') {
     if (data.databasePattern !== '${database}') {
       sinkData.backupDatabase = 'false';
     }

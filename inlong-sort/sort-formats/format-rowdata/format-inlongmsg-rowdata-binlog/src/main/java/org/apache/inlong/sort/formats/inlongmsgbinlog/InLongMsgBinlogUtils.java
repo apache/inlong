@@ -72,13 +72,13 @@ public class InLongMsgBinlogUtils {
         Map<String, String> attributes = parseAttr(attr);
 
         // Extracts interface from the attributes.
-        String tid;
+        String streamId;
         if (attributes.containsKey(INLONGMSG_ATTR_INTERFACE_NAME)) {
-            tid = attributes.get(INLONGMSG_ATTR_INTERFACE_NAME);
+            streamId = attributes.get(INLONGMSG_ATTR_INTERFACE_NAME);
         } else if (attributes.containsKey(INLONGMSG_ATTR_INTERFACE_ID)) {
-            tid = attributes.get(INLONGMSG_ATTR_INTERFACE_ID);
+            streamId = attributes.get(INLONGMSG_ATTR_INTERFACE_ID);
         } else if (attributes.containsKey(INLONGMSG_ATTR_INTERFACE_TID)) {
-            tid = attributes.get(INLONGMSG_ATTR_INTERFACE_TID);
+            streamId = attributes.get(INLONGMSG_ATTR_INTERFACE_TID);
         } else {
             throw new IllegalArgumentException(
                     "Could not find " + INLONGMSG_ATTR_INTERFACE_NAME +
@@ -90,7 +90,7 @@ public class InLongMsgBinlogUtils {
         Timestamp time = parseEpochTime(Long.toString(System.currentTimeMillis()));
         List<String> predefinedFields = getPredefinedFields(attributes);
 
-        return new InLongMsgHead(attributes, tid, time, predefinedFields);
+        return new InLongMsgHead(attributes, streamId, time, predefinedFields);
     }
 
     public static InLongMsgBody parseBody(byte[] bytes) {

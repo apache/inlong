@@ -138,7 +138,7 @@ public final class InLongMsgCsvMixedFormatDeserializer extends AbstractInLongMsg
 
     @Override
     protected List<Row> convertRows(InLongMsgHead head, InLongMsgBody body) {
-        Row row = InLongMsgUtils.buildMixedRow(head, body, head.getTid());
+        Row row = InLongMsgUtils.buildMixedRow(head, body, head.getStreamId());
         return Collections.singletonList(row);
     }
 

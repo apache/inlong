@@ -39,6 +39,8 @@ public class SinkInfo {
     private String extParams;
     private Integer status;
     private String creator;
+    private String sortTaskName;
+    private String sortConsumerGroup;
 
     // Inlong stream info
     private String mqResource;

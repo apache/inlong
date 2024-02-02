@@ -59,12 +59,12 @@ public class InLongMsgCsvUtils {
         Map<String, String> attributes = parseAttr(attr);
 
         // Extracts interface from the attributes.
-        String tid;
+        String streamId;
 
         if (attributes.containsKey(INLONGMSG_ATTR_STREAM_ID)) {
-            tid = attributes.get(INLONGMSG_ATTR_STREAM_ID);
+            streamId = attributes.get(INLONGMSG_ATTR_STREAM_ID);
         } else if (attributes.containsKey(INLONGMSG_ATTR_TID)) {
-            tid = attributes.get(INLONGMSG_ATTR_TID);
+            streamId = attributes.get(INLONGMSG_ATTR_TID);
         } else {
             throw new IllegalArgumentException(
                     "Could not find " + INLONGMSG_ATTR_STREAM_ID
@@ -90,7 +90,7 @@ public class InLongMsgCsvUtils {
         // Extracts predefined fields from the attributes
         List<String> predefinedFields = getPredefinedFields(attributes);
 
-        return new InLongMsgHead(attributes, tid, time, predefinedFields);
+        return new InLongMsgHead(attributes, streamId, time, predefinedFields);
     }
 
     public static List<InLongMsgBody> parseBodyList(

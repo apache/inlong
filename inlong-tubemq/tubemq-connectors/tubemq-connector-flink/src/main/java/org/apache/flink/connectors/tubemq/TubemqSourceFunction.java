@@ -82,9 +82,9 @@ public class TubemqSourceFunction<T>
     private final String topic;
 
     /**
-     * The tubemq consumers use this tid set to filter records reading from server.
+     * The tubemq consumers use this streamId set to filter records reading from server.
      */
-    private final TreeSet<String> tidSet;
+    private final TreeSet<String> streamIdSet;
 
     /**
      * The consumer group name.
@@ -150,7 +150,7 @@ public class TubemqSourceFunction<T>
      *
      * @param masterAddress            the master address of TubeMQ
      * @param topic                    the topic name
-     * @param tidSet                   the  topic's filter condition items
+     * @param streamIdSet                   the  topic's filter condition items
      * @param consumerGroup            the consumer group name
      * @param deserializationSchema    the deserialize schema
      * @param configuration            the configure
@@ -158,7 +158,7 @@ public class TubemqSourceFunction<T>
     public TubemqSourceFunction(
             String masterAddress,
             String topic,
-            TreeSet<String> tidSet,
+            TreeSet<String> streamIdSet,
             String consumerGroup,
             DeserializationSchema<T> deserializationSchema,
             Configuration configuration) {
@@ -166,8 +166,8 @@ public class TubemqSourceFunction<T>
                 "The master address must not be null.");
         checkNotNull(topic,
                 "The topic must not be null.");
-        checkNotNull(tidSet,
-                "The tid set must not be null.");
+        checkNotNull(streamIdSet,
+                "The streamId set must not be null.");
         checkNotNull(consumerGroup,
                 "The consumer group must not be null.");
         checkNotNull(deserializationSchema,
@@ -177,7 +177,7 @@ public class TubemqSourceFunction<T>
 
         this.masterAddress = masterAddress;
         this.topic = topic;
-        this.tidSet = tidSet;
+        this.streamIdSet = streamIdSet;
         this.consumerGroup = consumerGroup;
         this.deserializationSchema = deserializationSchema;
 
@@ -235,7 +235,7 @@ public class TubemqSourceFunction<T>
         messagePullConsumer =
                 messageSessionFactory.createPullConsumer(consumerConfig);
         messagePullConsumer
-                .subscribe(topic, tidSet);
+                .subscribe(topic, streamIdSet);
         messagePullConsumer
                 .completeSubscribe(sessionKey, numTasks, true, currentOffsets);
 

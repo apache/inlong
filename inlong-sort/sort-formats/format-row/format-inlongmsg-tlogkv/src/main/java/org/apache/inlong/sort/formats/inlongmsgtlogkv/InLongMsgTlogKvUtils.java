@@ -85,7 +85,7 @@ public class InLongMsgTlogKvUtils {
 
         String[] segments = splitCsv(text, delimiter, escapeChar, quoteChar);
 
-        String tid = segments[0];
+        String streamId = segments[0];
 
         Map<String, String> entries;
         if (segments.length > 1) {
@@ -94,7 +94,7 @@ public class InLongMsgTlogKvUtils {
             entries = Collections.emptyMap();
         }
 
-        return new InLongMsgBody(bytes, tid, Collections.emptyList(), entries);
+        return new InLongMsgBody(bytes, streamId, Collections.emptyList(), entries);
     }
 
     /**

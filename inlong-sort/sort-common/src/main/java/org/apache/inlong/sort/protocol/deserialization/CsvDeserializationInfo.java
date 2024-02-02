@@ -39,27 +39,27 @@ public class CsvDeserializationInfo extends InLongMsgDeserializationInfo {
     @Nullable
     private final Character escapeChar;
 
-    private final String tid;
+    private final String streamId;
 
     // TODO: support mapping index to field
     public CsvDeserializationInfo(
             @JsonProperty("splitter") char splitter) {
-        this(TID_DEFAULT_VALUE, splitter, null);
+        this(STREAM_ID_DEFAULT_VALUE, splitter, null);
     }
 
     public CsvDeserializationInfo(
             @JsonProperty("splitter") char splitter,
             @JsonProperty("escape_char") @Nullable Character escapeChar) {
-        this(TID_DEFAULT_VALUE, splitter, escapeChar);
+        this(STREAM_ID_DEFAULT_VALUE, splitter, escapeChar);
     }
 
     @JsonCreator
     public CsvDeserializationInfo(
-            @JsonProperty("tid") String tid,
+            @JsonProperty("streamId") String streamId,
             @JsonProperty("splitter") char splitter,
             @JsonProperty("escape_char") @Nullable Character escapeChar) {
-        super(tid);
-        this.tid = (StringUtils.isEmpty(tid) ? TID_DEFAULT_VALUE : tid);
+        super(streamId);
+        this.streamId = (StringUtils.isEmpty(streamId) ? STREAM_ID_DEFAULT_VALUE : streamId);
         this.splitter = splitter;
         this.escapeChar = escapeChar;
     }
@@ -75,9 +75,9 @@ public class CsvDeserializationInfo extends InLongMsgDeserializationInfo {
         return escapeChar;
     }
 
-    @JsonProperty("tid")
-    public String getTid() {
-        return tid;
+    @JsonProperty("streamId")
+    public String getStreamId() {
+        return streamId;
     }
 
     @Override
@@ -91,7 +91,7 @@ public class CsvDeserializationInfo extends InLongMsgDeserializationInfo {
         }
 
         CsvDeserializationInfo other = (CsvDeserializationInfo) o;
-        return Objects.equals(tid, other.getTid()) && splitter == other.splitter
+        return Objects.equals(streamId, other.getStreamId()) && splitter == other.splitter
                 && Objects.equals(escapeChar, other.escapeChar);
     }
 

@@ -206,7 +206,7 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
 
                     @Override
                     public Object read(InLongMsgHead head) {
-                        return StringData.fromString(head.getTid());
+                        return StringData.fromString(head.getStreamId());
                     }
                 });
 

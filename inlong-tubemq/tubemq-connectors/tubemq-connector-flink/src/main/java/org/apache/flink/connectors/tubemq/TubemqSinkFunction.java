@@ -60,9 +60,9 @@ public class TubemqSinkFunction<T> extends RichSinkFunction<T> implements Checkp
     private final String topic;
 
     /**
-     * The tid of this topic
+     * The streamId of this topic
      */
-    private final String tid;
+    private final String streamId;
     /**
      * The serializer for the records sent to pulsar.
      */
@@ -99,7 +99,7 @@ public class TubemqSinkFunction<T> extends RichSinkFunction<T> implements Checkp
         this.topic = topic;
         this.masterAddress = masterAddress;
         this.serializationSchema = serializationSchema;
-        this.tid = configuration.getString(TubemqOptions.TID);
+        this.streamId = configuration.getString(TubemqOptions.STREAM_ID);
         this.maxRetries = configuration.getInteger(MAX_RETRIES);
     }
 
@@ -136,10 +136,10 @@ public class TubemqSinkFunction<T> extends RichSinkFunction<T> implements Checkp
             try {
                 byte[] body = serializationSchema.serialize(in);
                 Message message = new Message(topic, body);
-                if (StringUtils.isNotBlank(tid)) {
+                if (StringUtils.isNotBlank(streamId)) {
                     SimpleDateFormat sdf = new SimpleDateFormat(SYSTEM_HEADER_TIME_FORMAT);
                     long currTimeMillis = System.currentTimeMillis();
-                    message.putSystemHeader(tid, sdf.format(new Date(currTimeMillis)));
+                    message.putSystemHeader(streamId, sdf.format(new Date(currTimeMillis)));
                 }
 
                 MessageSentResult sendResult = producer.sendMessage(message);

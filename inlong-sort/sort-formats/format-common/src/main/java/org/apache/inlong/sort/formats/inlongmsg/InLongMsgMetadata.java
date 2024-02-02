@@ -30,7 +30,7 @@ public class InLongMsgMetadata {
      */
     public enum ReadableMetadata {
 
-        TID("metadata-tid", DataTypes.STRING());
+        STREAMID("metadata-streamId", DataTypes.STRING());
 
         final String key;
 

@@ -65,7 +65,7 @@ public class TubeMQSource extends StreamSource {
     /**
      * The TubeMQ consumers use this streamId set to filter records reading from server.
      */
-    @ApiModelProperty("Tid of the TubeMQ")
+    @ApiModelProperty("StreamId of the TubeMQ")
     private TreeSet<String> streamId;
 
     @ApiModelProperty(value = "The message body wrap  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")

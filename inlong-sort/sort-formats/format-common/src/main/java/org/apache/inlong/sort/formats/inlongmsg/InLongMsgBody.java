@@ -37,7 +37,7 @@ public class InLongMsgBody implements Serializable {
     /**
      * The interface of the record.
      */
-    private final String tid;
+    private final String streamId;
 
     /**
      * The fields extracted from the body.
@@ -51,11 +51,11 @@ public class InLongMsgBody implements Serializable {
 
     public InLongMsgBody(
             byte[] data,
-            String tid,
+            String streamId,
             List<String> fields,
             Map<String, String> entries) {
         this.data = data;
-        this.tid = tid;
+        this.streamId = streamId;
         this.fields = fields;
         this.entries = entries;
     }
@@ -64,8 +64,8 @@ public class InLongMsgBody implements Serializable {
         return data;
     }
 
-    public String getTid() {
-        return tid;
+    public String getStreamId() {
+        return streamId;
     }
 
     public List<String> getFields() {
@@ -97,7 +97,7 @@ public class InLongMsgBody implements Serializable {
 
     @Override
     public String toString() {
-        return "InLongMsgBody{" + "data=" + Arrays.toString(data) + ", tid='" + tid + '\''
+        return "InLongMsgBody{" + "data=" + Arrays.toString(data) + ", streamId='" + streamId + '\''
                 + ", fields=" + fields + ", entries=" + entries + '}';
     }
 }
