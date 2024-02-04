@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.jdbc.SQL;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.AuditQuerySource;
@@ -45,13 +48,10 @@ import org.apache.inlong.manager.pojo.audit.AuditSourceResponse;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
+import org.apache.inlong.manager.pojo.util.MySQLSensitiveUrlUtils;
 import org.apache.inlong.manager.service.core.AuditService;
 import org.apache.inlong.manager.service.resource.sink.ck.ClickHouseConfig;
 import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.jdbc.SQL;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -73,7 +73,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -108,6 +107,8 @@ public class AuditServiceImpl implements AuditService {
     private static final DateTimeFormatter SECOND_DATE_FORMATTER = DateTimeFormat.forPattern(SECOND_FORMAT);
     private static final DateTimeFormatter HOUR_DATE_FORMATTER = DateTimeFormat.forPattern(HOUR_FORMAT);
     private static final DateTimeFormatter DAY_DATE_FORMATTER = DateTimeFormat.forPattern(DAY_FORMAT);
+
+    private static final String MYSQL_JDBC_PREFIX = "jdbc:mysql://";
 
     // key: type of audit base item, value: entity of audit base item
     private final Map<String, AuditBaseEntity> auditSentItemMap = new ConcurrentHashMap<>();
@@ -178,6 +179,11 @@ public class AuditServiceImpl implements AuditService {
 
     @Override
     public Integer updateAuditSource(AuditSourceRequest request, String operator) {
+        String url = request.getUrl();
+        if (StringUtils.isNotBlank(url) && url.startsWith(MYSQL_JDBC_PREFIX)) {
+            request.setUrl(MySQLSensitiveUrlUtils.filterSensitive(url));
+        }
+
         String offlineUrl = request.getOfflineUrl();
         if (StringUtils.isNotBlank(offlineUrl)) {
             auditSourceMapper.offlineSourceByUrl(offlineUrl);
