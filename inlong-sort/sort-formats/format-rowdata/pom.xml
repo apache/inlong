@@ -33,6 +33,8 @@
 
     <modules>
         <module>format-rowdata-base</module>
+        <module>format-rowdata-csv</module>
+        <module>format-rowdata-kv</module>
         <module>format-rowdata-json</module>
         <module>format-inlongmsg-rowdata-base</module>
         <module>format-inlongmsg-rowdata-binlog</module>
