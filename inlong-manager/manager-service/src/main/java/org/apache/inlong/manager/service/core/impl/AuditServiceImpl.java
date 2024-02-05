@@ -45,7 +45,8 @@ import org.apache.inlong.manager.pojo.audit.AuditSourceResponse;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
-import org.apache.inlong.manager.pojo.util.MySQLSensitiveUrlUtils;
+import org.apache.inlong.manager.service.audit.InlongAuditSourceOperator;
+import org.apache.inlong.manager.service.audit.InlongAuditSourceOperatorFactory;
 import org.apache.inlong.manager.service.core.AuditService;
 import org.apache.inlong.manager.service.resource.sink.ck.ClickHouseConfig;
 import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi;
@@ -110,8 +111,6 @@ public class AuditServiceImpl implements AuditService {
     private static final DateTimeFormatter HOUR_DATE_FORMATTER = DateTimeFormat.forPattern(HOUR_FORMAT);
     private static final DateTimeFormatter DAY_DATE_FORMATTER = DateTimeFormat.forPattern(DAY_FORMAT);
 
-    private static final String MYSQL_JDBC_PREFIX = "jdbc:mysql://";
-
     // key: type of audit base item, value: entity of audit base item
     private final Map<String, AuditBaseEntity> auditSentItemMap = new ConcurrentHashMap<>();
 
@@ -145,6 +144,8 @@ public class AuditServiceImpl implements AuditService {
     private AuditSourceEntityMapper auditSourceMapper;
     @Autowired
     private InlongGroupEntityMapper inlongGroupMapper;
+    @Autowired
+    private InlongAuditSourceOperatorFactory auditSourceOperatorFactory;
 
     @PostConstruct
     public void initialize() {
@@ -182,9 +183,8 @@ public class AuditServiceImpl implements AuditService {
     @Override
     public Integer updateAuditSource(AuditSourceRequest request, String operator) {
         String url = request.getUrl();
-        if (StringUtils.isNotBlank(url) && url.startsWith(MYSQL_JDBC_PREFIX)) {
-            request.setUrl(MySQLSensitiveUrlUtils.filterSensitive(url));
-        }
+        InlongAuditSourceOperator auditSourceOperator = auditSourceOperatorFactory.getInstance(url);
+        request.setUrl(auditSourceOperator.convertTo(url));
 
         String offlineUrl = request.getOfflineUrl();
         if (StringUtils.isNotBlank(offlineUrl)) {

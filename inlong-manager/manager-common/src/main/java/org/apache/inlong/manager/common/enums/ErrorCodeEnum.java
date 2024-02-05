@@ -151,6 +151,8 @@ public enum ErrorCodeEnum {
 
     AUDIT_ID_TYPE_NOT_SUPPORTED(4001, "Audit id type '%s' not supported"),
 
+    AUDIT_SOURCE_URL_NOT_SUPPORTED(4002, "Audit Source Url '%s' not supported"),
+
     TENANT_NOT_EXIST(5001, "Tenant '%s' is not exist"),
     ;
 
