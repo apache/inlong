@@ -17,6 +17,10 @@
 
 package org.apache.inlong.manager.service.audit;
 
+import org.apache.inlong.manager.common.consts.AuditSourceType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -24,13 +28,18 @@ import org.springframework.stereotype.Service;
 public class AuditSourceElasticsearchOperator extends AbstractAuditSourceOperator {
 
     private static final String ES_HOST_PREFIX = "http";
+
     @Override
-    public Boolean accept(String url) {
-        return StringUtils.isNotBlank(url) && url.startsWith(ES_HOST_PREFIX);
+    public String getType() {
+        return AuditSourceType.ELASTICSEARCH.name();
     }
 
     @Override
     public String convertTo(String url) {
-        return url;
+        if (StringUtils.isNotBlank(url) && url.startsWith(ES_HOST_PREFIX)) {
+            return url;
+        }
+
+        throw new BusinessException(String.format(ErrorCodeEnum.AUDIT_SOURCE_URL_NOT_SUPPORTED.getMessage(), url));
     }
 }

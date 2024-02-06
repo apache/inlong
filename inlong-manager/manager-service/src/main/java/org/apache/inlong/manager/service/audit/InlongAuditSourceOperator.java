@@ -19,7 +19,9 @@ package org.apache.inlong.manager.service.audit;
 
 public interface InlongAuditSourceOperator {
 
-    Boolean accept(String url);
+    Boolean accept(String type);
+
+    String getType();
 
     String convertTo(String url);
 }

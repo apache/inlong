@@ -15,12 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.audit;
+package org.apache.inlong.manager.common.consts;
 
-public abstract class AbstractAuditSourceOperator implements InlongAuditSourceOperator {
-
-    @Override
-    public Boolean accept(String type) {
-        return getType().equals(type.toUpperCase());
-    }
+public enum AuditSourceType {
+    MYSQL, CLICKHOUSE, ELASTICSEARCH
 }

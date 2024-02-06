@@ -182,9 +182,8 @@ public class AuditServiceImpl implements AuditService {
 
     @Override
     public Integer updateAuditSource(AuditSourceRequest request, String operator) {
-        String url = request.getUrl();
-        InlongAuditSourceOperator auditSourceOperator = auditSourceOperatorFactory.getInstance(url);
-        request.setUrl(auditSourceOperator.convertTo(url));
+        InlongAuditSourceOperator auditSourceOperator = auditSourceOperatorFactory.getInstance(request.getType());
+        request.setUrl(auditSourceOperator.convertTo(request.getUrl()));
 
         String offlineUrl = request.getOfflineUrl();
         if (StringUtils.isNotBlank(offlineUrl)) {

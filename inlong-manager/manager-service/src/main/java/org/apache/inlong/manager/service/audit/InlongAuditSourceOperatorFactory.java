@@ -34,11 +34,11 @@ public class InlongAuditSourceOperatorFactory {
     /**
      * Get an inlong consume operator instance via the given mqType
      */
-    public InlongAuditSourceOperator getInstance(String url) {
+    public InlongAuditSourceOperator getInstance(String type) {
         return auditSourceOperatorList.stream()
-                .filter(inst -> inst.accept(url))
+                .filter(inst -> inst.accept(type))
                 .findFirst()
                 .orElseThrow(() -> new BusinessException(
-                        String.format(ErrorCodeEnum.AUDIT_SOURCE_URL_NOT_SUPPORTED.getMessage(), url)));
+                        String.format(ErrorCodeEnum.AUDIT_SOURCE_TYPE_NOT_SUPPORTED.getMessage(), type)));
     }
 }

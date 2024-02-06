@@ -17,6 +17,10 @@
 
 package org.apache.inlong.manager.service.audit;
 
+import org.apache.inlong.manager.common.consts.AuditSourceType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -26,12 +30,16 @@ public class AuditSourceClickhouseOperator extends AbstractAuditSourceOperator {
     private static final String CLICKHOUSE_URL_PREFIX = "jdbc:clickhouse://";
 
     @Override
-    public Boolean accept(String url) {
-        return StringUtils.isNotBlank(url) && url.startsWith(CLICKHOUSE_URL_PREFIX);
+    public String getType() {
+        return AuditSourceType.CLICKHOUSE.name();
     }
 
     @Override
     public String convertTo(String url) {
-        return url;
+        if (StringUtils.isNotBlank(url) && url.startsWith(CLICKHOUSE_URL_PREFIX)) {
+            return url;
+        }
+
+        throw new BusinessException(String.format(ErrorCodeEnum.AUDIT_SOURCE_URL_NOT_SUPPORTED.getMessage(), url));
     }
 }

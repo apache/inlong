@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.service.audit;
 
+import org.apache.inlong.manager.common.consts.AuditSourceType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.util.MySQLSensitiveUrlUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -28,12 +31,16 @@ public class AuditSourceMysqlOperator extends AbstractAuditSourceOperator {
     private static final String MYSQL_JDBC_PREFIX = "jdbc:mysql://";
 
     @Override
-    public Boolean accept(String url) {
-        return StringUtils.isNotBlank(url) && url.startsWith(MYSQL_JDBC_PREFIX);
+    public String getType() {
+        return AuditSourceType.MYSQL.name();
     }
 
     @Override
     public String convertTo(String url) {
-        return MySQLSensitiveUrlUtils.filterSensitive(url);
+        if (StringUtils.isNotBlank(url) && url.startsWith(MYSQL_JDBC_PREFIX)) {
+            return MySQLSensitiveUrlUtils.filterSensitive(url);
+        }
+
+        throw new BusinessException(String.format(ErrorCodeEnum.AUDIT_SOURCE_URL_NOT_SUPPORTED.getMessage(), url));
     }
 }
