@@ -24,6 +24,9 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+/**
+ * Audit source clickhouse operator.
+ */
 @Service
 public class AuditSourceClickhouseOperator extends AbstractAuditSourceOperator {
 

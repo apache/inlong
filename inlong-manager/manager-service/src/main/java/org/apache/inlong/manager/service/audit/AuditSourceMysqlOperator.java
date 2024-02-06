@@ -25,6 +25,9 @@ import org.apache.inlong.manager.pojo.util.MySQLSensitiveUrlUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+/**
+ * Audit source mysql operator.
+ */
 @Service
 public class AuditSourceMysqlOperator extends AbstractAuditSourceOperator {
 

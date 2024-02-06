@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.service.audit;
 
+/**
+ * Default of Audit Source Operator.
+ */
 public abstract class AbstractAuditSourceOperator implements InlongAuditSourceOperator {
 
     @Override

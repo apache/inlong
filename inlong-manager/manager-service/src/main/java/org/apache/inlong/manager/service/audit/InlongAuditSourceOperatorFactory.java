@@ -25,6 +25,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Factory for {@link InlongAuditSourceOperator}.
+ */
 @Service
 public class InlongAuditSourceOperatorFactory {
 
@@ -32,7 +35,7 @@ public class InlongAuditSourceOperatorFactory {
     private List<InlongAuditSourceOperator> auditSourceOperatorList;
 
     /**
-     * Get an inlong consume operator instance via the given mqType
+     * Get an inlong Audit Source operator instance via the given type
      */
     public InlongAuditSourceOperator getInstance(String type) {
         return auditSourceOperatorList.stream()

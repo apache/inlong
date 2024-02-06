@@ -17,11 +17,28 @@
 
 package org.apache.inlong.manager.service.audit;
 
+/**
+ * Interface of the inlong audit source operator.
+ */
 public interface InlongAuditSourceOperator {
 
+    /**
+     * Determines whether the current instance matches the specified type.
+     */
     Boolean accept(String type);
 
+    /**
+     * Get the Audit Source type.
+     *
+     * @return audit source type string
+     */
     String getType();
 
+    /**
+     * Convert the URL.
+     *
+     * @param url audit source url
+     * @return converted url string
+     */
     String convertTo(String url);
 }
