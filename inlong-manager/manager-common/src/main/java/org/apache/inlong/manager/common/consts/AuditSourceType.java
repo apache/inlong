@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.common.consts;
 
+/**
+ * Audit Source Type
+ */
 public enum AuditSourceType {
     MYSQL, CLICKHOUSE, ELASTICSEARCH
 }

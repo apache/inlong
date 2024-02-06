@@ -30,7 +30,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuditSourceElasticsearchOperator extends AbstractAuditSourceOperator {
 
-    private static final String ES_HOST_PREFIX = "http";
+    private static final String ES_HTTP_HOST_PREFIX = "http://";
+    private static final String ES_HTTPS_HOST_PREFIX = "https://";
 
     @Override
     public String getType() {
@@ -39,7 +40,8 @@ public class AuditSourceElasticsearchOperator extends AbstractAuditSourceOperato
 
     @Override
     public String convertTo(String url) {
-        if (StringUtils.isNotBlank(url) && url.startsWith(ES_HOST_PREFIX)) {
+        if (StringUtils.isNotBlank(url)
+                && (url.startsWith(ES_HTTP_HOST_PREFIX) || url.startsWith(ES_HTTPS_HOST_PREFIX))) {
             return url;
         }
 
