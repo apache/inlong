@@ -170,7 +170,6 @@
         <akka.version>2.5.21</akka.version>
         <antlr.verison>4.0.4</antlr.verison>
 
-        <logback.version>1.2.13</logback.version>
         <log4j2.version>2.17.2</log4j2.version>
         <log4j.version>1.2.17</log4j.version>
         <slf4j.version>1.7.36</slf4j.version>
