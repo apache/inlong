@@ -72,8 +72,10 @@ public class MySQLSensitiveUrlUtils {
             resultUrl = resultUrl.replaceAll(InlongConstants.REGEX_WHITESPACE, InlongConstants.EMPTY);
 
             for (String key : SENSITIVE_REPLACE_PARAM_MAP.keySet()) {
-                resultUrl = StringUtils.replaceIgnoreCase(resultUrl, key+InlongConstants.EQUAL +"true", InlongConstants.EMPTY);
-                resultUrl = StringUtils.replaceIgnoreCase(resultUrl, key+InlongConstants.EQUAL +"yes", InlongConstants.EMPTY);
+                resultUrl = StringUtils.replaceIgnoreCase(resultUrl, key + InlongConstants.EQUAL + "true",
+                        InlongConstants.EMPTY);
+                resultUrl = StringUtils.replaceIgnoreCase(resultUrl, key + InlongConstants.EQUAL + "yes",
+                        InlongConstants.EMPTY);
             }
             if (resultUrl.contains(InlongConstants.QUESTION_MARK)) {
                 StringBuilder builder = new StringBuilder();
