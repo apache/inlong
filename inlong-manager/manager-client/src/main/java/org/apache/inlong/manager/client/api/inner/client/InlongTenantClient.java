@@ -87,7 +87,6 @@ public class InlongTenantClient {
         return updateResult.getData();
     }
 
-
     /**
      * Delete inlong tenant by tenant name
      *
