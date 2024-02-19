@@ -452,9 +452,6 @@ Apache 2.0 licenses
 The following components are provided under the Apache License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  com.typesafe.akka:akka-actor_2.11:2.5.21 - akka-actor (https://github.com/akka/akka/tree/v2.5.21), (Apache License, Version 2.0)
-  com.typesafe.akka:akka-protobuf_2.11:2.5.21 - akka-protobuf (https://github.com/akka/akka/tree/v2.5.21), (Apache License, Version 2.0)
-  com.typesafe.akka:akka-stream_2.11:2.5.21 - akka-stream (https://github.com/akka/akka/tree/v2.5.21), (Apache License, Version 2.0)
   com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2 - Jackson datatype: JSR310 (https://github.com/FasterXML/jackson-modules-java8/tree/jackson-modules-java8-2.13.2), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.12.3 - Jackson-JAXRS-base (https://github.com/FasterXML/jackson-jaxrs-providers/tree/jackson-jaxrs-providers-2.12.3/base), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.12.3 - Jackson-JAXRS-JSON (https://github.com/FasterXML/jackson-jaxrs-providers/tree/jackson-jaxrs-providers-2.13.2/json), (The Apache Software License, Version 2.0)

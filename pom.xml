@@ -167,7 +167,6 @@
         <orc.core.version>1.6.7</orc.core.version>
         <parquet.version>1.12.2</parquet.version>
         <oro.version>2.0.8</oro.version>
-        <akka.version>2.5.21</akka.version>
         <antlr.verison>4.0.4</antlr.verison>
 
         <log4j2.version>2.17.2</log4j2.version>
@@ -922,13 +921,6 @@
                 <groupId>org.xerial.snappy</groupId>
                 <artifactId>snappy-java</artifactId>
                 <version>${snappy.version}</version>
-            </dependency>
-
-            <!-- format -->
-            <dependency>
-                <groupId>com.typesafe.akka</groupId>
-                <artifactId>akka-stream_2.11</artifactId>
-                <version>${akka.version}</version>
             </dependency>
 
             <!-- protobuf -->

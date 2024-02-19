@@ -599,10 +599,6 @@ Apache 2.0 License
 The following components are provided under the Apache License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  com.typesafe.akka:akka-actor_2.11:2.5.21 - akka-actor (https://github.com/akka/akka/tree/v2.5.21), (Apache License, Version 2.0)
-  com.typesafe.akka:akka-protobuf_2.11:2.5.21 - akka-protobuf (https://github.com/akka/akka/tree/v2.5.21), (Apache License, Version 2.0)
-  com.typesafe.akka:akka-slf4j_2.11:2.5.21 - akka-slf4j (https://github.com/akka/akka/tree/v2.5.21), (Apache License, Version 2.0)
-  com.typesafe.akka:akka-stream_2.11:2.5.21 - akka-stream (https://github.com/akka/akka/tree/v2.5.21), (Apache License, Version 2.0)
   org.apache.ant:ant:1.9.1 - Apache Ant Core (http://ant.apache.org/), (The Apache Software License, Version 2.0)
   org.apache.ant:ant-launcher:1.9.1 - Apache Ant Launcher (http://ant.apache.org/), (The Apache Software License, Version 2.0)
   net.bytebuddy:byte-buddy:1.12.9 - Byte Buddy (without dependencies) (https://github.com/raphw/byte-buddy/tree/byte-buddy-1.12.9), (Apache License, Version 2.0)
