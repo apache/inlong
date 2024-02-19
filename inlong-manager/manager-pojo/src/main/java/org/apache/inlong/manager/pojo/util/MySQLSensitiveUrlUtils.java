@@ -88,6 +88,9 @@ public class MySQLSensitiveUrlUtils {
                     queryString = StringUtils.substringBefore(queryString, InlongConstants.SHARP);
                 }
                 for (String param : queryString.split(InlongConstants.AMPERSAND)) {
+                    if (StringUtils.isBlank(param)) {
+                        continue;
+                    }
                     String key = StringUtils.substringBefore(param, InlongConstants.EQUAL);
                     String value = StringUtils.substringAfter(param, InlongConstants.EQUAL);
 
