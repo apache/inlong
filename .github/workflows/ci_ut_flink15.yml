@@ -79,3 +79,6 @@ jobs:
           name: failsafe-reports
           path: ./**/target/failsafe-reports/
           if-no-files-found: ignore
+
+      - name: Clean up build packages
+        run: mvn clean
