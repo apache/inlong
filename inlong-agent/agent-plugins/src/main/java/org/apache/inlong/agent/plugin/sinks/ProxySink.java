@@ -137,7 +137,7 @@ public class ProxySink extends AbstractSink {
         return () -> {
             AgentThreadFactory.nameThread(
                     "flushCache-" + profile.getTaskId() + "-" + profile.getInstanceId());
-            LOGGER.info("start flush cache {}:{}", inlongGroupId, sourceName);
+            LOGGER.info("start flush cache {}:{} flush interval {}", inlongGroupId, sourceName, batchFlushInterval);
             running = true;
             while (!shutdown) {
                 sendMessageFromCache();
@@ -249,14 +249,16 @@ public class ProxySink extends AbstractSink {
     private void doFlushOffset() {
         packageAckInfoLock.writeLock().lock();
         OffsetAckInfo info = null;
+        int lenToRelease = 0;
         for (int i = 0; i < ackInfoList.size();) {
             if (ackInfoList.get(i).getHasAck()) {
                 info = ackInfoList.remove(i);
-                MemoryManager.getInstance().release(AGENT_GLOBAL_WRITER_PERMIT, info.getLen());
+                lenToRelease += info.getLen();
             } else {
                 break;
             }
         }
+        MemoryManager.getInstance().release(AGENT_GLOBAL_WRITER_PERMIT, lenToRelease);
         if (info != null) {
             LOGGER.info("save offset {} taskId {} instanceId {}", info.getOffset(), profile.getTaskId(),
                     profile.getInstanceId());
