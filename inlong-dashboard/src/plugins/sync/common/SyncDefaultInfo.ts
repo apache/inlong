@@ -23,6 +23,7 @@ import { RenderList } from '@/plugins/RenderList';
 import i18n from '@/i18n';
 import UserSelect from '@/ui/components/UserSelect';
 import { genStatusTag, statusList } from './status';
+import { timestampFormat } from '@/core/utils';
 
 const { I18nMap, I18n } = DataWithBackend;
 const { FieldList, FieldDecorator } = RenderRow;
@@ -41,6 +42,7 @@ export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
       maxLength: 100,
       disable: Boolean(values?.id),
     }),
+    tooltip: i18n.t('meta.Synchronize.GroupIdHelp'),
     rules: [
       { required: true },
       {
@@ -50,47 +52,12 @@ export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     ],
   })
   @ColumnDecorator()
-  @I18n('meta.Group.InlongGroupId')
+  @I18n('meta.Synchronize.GroupId')
   inlongGroupId: string;
 
   @FieldDecorator({
-    type: 'input',
-    props: values => ({
-      maxLength: 100,
-      disable: Boolean(values?.id),
-    }),
-    rules: [
-      { required: true },
-      {
-        pattern: /^[a-z_0-9]+$/,
-        message: i18n.t('meta.Group.InlongGroupIdRules'),
-      },
-    ],
-  })
-  @I18n('StreamID')
-  inlongStreamId: string;
-
-  @FieldDecorator({
-    type: 'input',
-    props: {
-      maxLength: 32,
-    },
-  })
-  @I18n('meta.Group.InlongGroupName')
-  name: string;
-
-  @FieldDecorator({
-    type: 'input',
-    props: {
-      maxLength: 32,
-    },
-  })
-  @I18n('meta.Stream.StreamName')
-  streamName: string;
-
-  @FieldDecorator({
     type: UserSelect,
-    extra: i18n.t('meta.Group.InlongGroupOwnersExtra'),
+    extra: i18n.t('meta.Synchronize.InlongGroupOwnersExtra'),
     rules: [{ required: true }],
     props: {
       mode: 'multiple',
@@ -98,8 +65,28 @@ export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     },
   })
   @ColumnDecorator()
-  @I18n('meta.Group.InlongGroupOwners')
+  @I18n('meta.Synchronize.GroupOwners')
   inCharges: string;
+
+  @FieldDecorator({
+    type: 'radio',
+    initialValue: false,
+    rules: [{ required: true }],
+    props: {
+      options: [
+        {
+          label: i18n.t('meta.Consume.Yes'),
+          value: true,
+        },
+        {
+          label: i18n.t('meta.Consume.No'),
+          value: false,
+        },
+      ],
+    },
+  })
+  @I18n('meta.Synchronize.SinkMultipleEnable')
+  sinkMultipleEnable: boolean;
 
   @FieldDecorator({
     type: 'textarea',
@@ -134,7 +121,9 @@ export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   @I18n('basic.Status')
   readonly status: string;
 
-  @ColumnDecorator()
+  @ColumnDecorator({
+    render: text => timestampFormat(text),
+  })
   @I18n('basic.CreateTime')
   readonly createTime: string;
 

@@ -26,6 +26,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
+import org.apache.inlong.manager.pojo.cluster.TenantClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
@@ -51,6 +52,9 @@ public interface InlongClusterApi {
     @POST("cluster/tag/list")
     Call<Response<PageResult<ClusterTagResponse>>> listTag(@Body ClusterTagPageRequest request);
 
+    @POST("cluster/tag/listTagByTenantRole")
+    Call<Response<PageResult<ClusterTagResponse>>> listTagByTenantRole(@Body TenantClusterTagPageRequest request);
+
     @POST("cluster/tag/update")
     Call<Response<Boolean>> updateTag(@Body ClusterTagRequest request);
 
@@ -65,6 +69,9 @@ public interface InlongClusterApi {
 
     @POST("cluster/list")
     Call<Response<PageResult<ClusterInfo>>> list(@Body ClusterPageRequest request);
+
+    @POST("cluster/listByTenantRole")
+    Call<Response<PageResult<ClusterInfo>>> listByTenantRole(@Body ClusterPageRequest request);
 
     @POST("cluster/update")
     Call<Response<Boolean>> update(@Body ClusterRequest request);

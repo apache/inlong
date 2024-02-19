@@ -41,6 +41,9 @@ public class SortStatusInfo {
     @ApiModelProperty(value = "Inlong group id")
     private String inlongGroupId;
 
+    @ApiModelProperty(value = "Inlong stream id")
+    private String inlongStreamId;
+
     @ApiModelProperty(value = "Sort status info")
     private SortStatus sortStatus;
 

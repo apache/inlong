@@ -96,7 +96,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -237,6 +236,7 @@ class ClientFactoryTest {
                                                 .inlongGroupId("1")
                                                 .inlongStreamId("2")
                                                 .sourceType(SourceType.MYSQL_BINLOG)
+                                                .hostname("127.0.0.1")
                                                 .status(1)
                                                 .user("root")
                                                 .password("pwd")
@@ -263,8 +263,6 @@ class ClientFactoryTest {
                         .name("name")
                         .inCharges("admin")
                         .status(1)
-                        .createTime(new Date())
-                        .modifyTime(new Date())
                         .streamSources(
                                 Lists.newArrayList(
                                         FileSource.builder()
@@ -303,8 +301,6 @@ class ClientFactoryTest {
                                                 .sourceType(SourceType.KAFKA)
                                                 .dataNodeName("dataNodeName")
                                                 .version(1)
-                                                .createTime(new Date())
-                                                .modifyTime(new Date())
                                                 .topic("topic")
                                                 .groupId("111")
                                                 .bootstrapServers("bootstrapServers")
@@ -560,13 +556,12 @@ class ClientFactoryTest {
                         .inlongStreamId("11")
                         .inlongGroupId("11")
                         .sourceType(SourceType.AUTO_PUSH)
-                        .createTime(new Date())
-
                         .dataProxyGroup("111")
                         .build(),
                 MySQLBinlogSource.builder()
                         .id(2)
                         .sourceType(SourceType.MYSQL_BINLOG)
+                        .hostname("127.0.0.1")
                         .user("user")
                         .password("pwd")
                         .build(),

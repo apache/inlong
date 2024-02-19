@@ -225,7 +225,7 @@ public class PulsarProducerCluster implements LifecycleAware {
             try {
                 LOG.debug("try to new a producer for topic " + topic);
                 producer = baseBuilder.clone().topic(topic)
-                        .producerName(workerName + "-" + cacheClusterName + "-" + topic)
+                        .producerName(workerName + "-" + cacheClusterName + "-" + topic + System.nanoTime())
                         .create();
                 LOG.debug("create a new producer success:{}", producer.getProducerName());
                 Producer<byte[]> oldProducer = this.producerMap.putIfAbsent(topic, producer);

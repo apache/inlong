@@ -18,9 +18,9 @@
 #
 FROM rikorose/gcc-cmake:gcc-4
 RUN apt-get remove openssl -y
-RUN curl -LOk https://www.openssl.org/source/openssl-1.1.0f.tar.gz \
-    && tar -xzvf openssl-1.1.0f.tar.gz \
-    && rm openssl-1.1.0f.tar.gz && cd openssl-1.1.0f \
+RUN curl -LOk https://www.openssl.org/source/openssl-1.1.1w.tar.gz \
+    && tar -xzvf openssl-1.1.1w.tar.gz \
+    && rm openssl-1.1.1w.tar.gz && cd openssl-1.1.1w \
     && ./config && make && make install
 RUN curl -LOk https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protobuf-cpp-3.13.0.tar.gz \
     && tar -xzvf protobuf-cpp-3.13.0.tar.gz && rm protobuf-cpp-3.13.0.tar.gz \

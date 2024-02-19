@@ -17,28 +17,56 @@
 
 package org.apache.inlong.sort.protocol.deserialization;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import javax.annotation.Nullable;
+
+import java.util.Objects;
 
 /**
  * Kv deserialization info
  */
-public class KvDeserializationInfo implements DeserializationInfo {
+public class KvDeserializationInfo extends InLongMsgDeserializationInfo {
 
-    private static final long serialVersionUID = 1976031542480774581L;
+    private static final long serialVersionUID = -3182881360079888043L;
 
     private final char entrySplitter;
 
     private final char kvSplitter;
 
-    @JsonCreator
+    private final String streamId;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Nullable
+    private final Character escapeChar;
+
     public KvDeserializationInfo(
             @JsonProperty("entry_splitter") char entrySplitter,
             @JsonProperty("kv_splitter") char kvSplitter) {
-        this.entrySplitter = checkNotNull(entrySplitter);
-        this.kvSplitter = checkNotNull(kvSplitter);
+        this(STREAM_ID_DEFAULT_VALUE, entrySplitter, kvSplitter, null);
+    }
+
+    public KvDeserializationInfo(
+            @JsonProperty("entry_splitter") char entrySplitter,
+            @JsonProperty("kv_splitter") char kvSplitter,
+            @JsonProperty("escape_char") @Nullable Character escapeChar) {
+        this(STREAM_ID_DEFAULT_VALUE, entrySplitter, kvSplitter, escapeChar);
+    }
+
+    @JsonCreator
+    public KvDeserializationInfo(
+            @JsonProperty("streamId") String streamId,
+            @JsonProperty("entry_splitter") char entrySplitter,
+            @JsonProperty("kv_splitter") char kvSplitter,
+            @JsonProperty("escape_char") @Nullable Character escapeChar) {
+        super(streamId);
+        this.streamId = (StringUtils.isEmpty(streamId) ? STREAM_ID_DEFAULT_VALUE : streamId);
+        this.entrySplitter = entrySplitter;
+        this.kvSplitter = kvSplitter;
+        this.escapeChar = escapeChar;
     }
 
     @JsonProperty("entry_splitter")
@@ -49,5 +77,32 @@ public class KvDeserializationInfo implements DeserializationInfo {
     @JsonProperty("kv_splitter")
     public char getKvSplitter() {
         return kvSplitter;
+    }
+
+    @JsonProperty("escape_char")
+    @Nullable
+    public Character getEscapeChar() {
+        return escapeChar;
+    }
+
+    @JsonProperty("streamId")
+    public String getStreamId() {
+        return streamId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        KvDeserializationInfo other = (KvDeserializationInfo) o;
+        return Objects.equals(streamId, other.getStreamId()) && entrySplitter == other.entrySplitter
+                && kvSplitter == other.kvSplitter
+                && Objects.equals(escapeChar, other.escapeChar);
     }
 }

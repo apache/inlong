@@ -23,6 +23,7 @@ import org.apache.inlong.agent.core.instance.ActionType;
 import org.apache.inlong.agent.core.instance.InstanceAction;
 import org.apache.inlong.agent.core.instance.InstanceManager;
 import org.apache.inlong.agent.core.task.OffsetManager;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Instance;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.file.Sink;
@@ -49,13 +50,14 @@ public class FileInstance extends Instance {
     public static final int CORE_THREAD_SLEEP_TIME = 1;
     private static final int DESTROY_LOOP_WAIT_TIME_MS = 10;
     private static final int CHECK_FINISH_AT_LEAST_COUNT = 5;
+    private final int WRITE_FAILED_WAIT_TIME_MS = 10;
     private InstanceManager instanceManager;
     private volatile boolean running = false;
     private volatile boolean inited = false;
     private volatile int checkFinishCount = 0;
 
     @Override
-    public void init(Object srcManager, InstanceProfile srcProfile) {
+    public boolean init(Object srcManager, InstanceProfile srcProfile) {
         try {
             instanceManager = (InstanceManager) srcManager;
             profile = srcProfile;
@@ -67,11 +69,13 @@ public class FileInstance extends Instance {
             sink = (Sink) Class.forName(profile.getSinkClass()).newInstance();
             sink.init(profile);
             inited = true;
-        } catch (Throwable ex) {
+            return true;
+        } catch (Throwable e) {
+            handleSourceDeleted();
             doChangeState(State.FATAL);
-            LOGGER.error("init instance {} for task {} failed", profile.getInstanceId(), profile.getInstanceId(),
-                    ex);
-            ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
+            LOGGER.error("init instance {} for task {} failed", profile.getInstanceId(), profile.getInstanceId(), e);
+            ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
+            return false;
         }
     }
 
@@ -92,13 +96,17 @@ public class FileInstance extends Instance {
     public void run() {
         Thread.currentThread().setName("file-instance-core-" + getTaskId() + "-" + getInstanceId());
         running = true;
+        try {
+            doRun();
+        } catch (Throwable e) {
+            LOGGER.error("do run error: ", e);
+        }
+        running = false;
+    }
+
+    private void doRun() {
         while (!isFinished()) {
             if (!source.sourceExist()) {
-                if (profile.isRetry()) {
-                    handleReadEnd();
-                } else {
-                    handleSourceDeleted();
-                }
                 handleSourceDeleted();
                 break;
             }
@@ -114,16 +122,25 @@ public class FileInstance extends Instance {
                     checkFinishCount = 0;
                 }
                 AgentUtils.silenceSleepInSeconds(CORE_THREAD_SLEEP_TIME);
+                String inlongGroupId = profile.getInlongGroupId();
+                String inlongStreamId = profile.getInlongStreamId();
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_INSTANCE_HEARTBEAT, inlongGroupId, inlongStreamId,
+                        AgentUtils.getCurrentTime(), 1, 1);
             } else {
-                sink.write(msg);
+                boolean suc = false;
+                while (!isFinished() && !suc) {
+                    suc = sink.write(msg);
+                    if (!suc) {
+                        AgentUtils.silenceSleepInMs(WRITE_FAILED_WAIT_TIME_MS);
+                    }
+                }
             }
         }
-        running = false;
     }
 
     private void handleReadEnd() {
         InstanceAction action = new InstanceAction(ActionType.FINISH, profile);
-        while (!instanceManager.submitAction(action)) {
+        while (!isFinished() && !instanceManager.submitAction(action)) {
             LOGGER.error("instance manager action queue is full: taskId {}",
                     instanceManager.getTaskId());
             AgentUtils.silenceSleepInSeconds(CORE_THREAD_SLEEP_TIME);
@@ -131,11 +148,11 @@ public class FileInstance extends Instance {
     }
 
     private void handleSourceDeleted() {
-        OffsetManager.init().deleteOffset(getTaskId(), getInstanceId());
+        OffsetManager.getInstance().deleteOffset(getTaskId(), getInstanceId());
         profile.setState(InstanceStateEnum.DELETE);
         profile.setModifyTime(AgentUtils.getCurrentTime());
         InstanceAction action = new InstanceAction(ActionType.DELETE, profile);
-        while (!instanceManager.submitAction(action)) {
+        while (!isFinished() && !instanceManager.submitAction(action)) {
             LOGGER.error("instance manager action queue is full: taskId {}",
                     instanceManager.getTaskId());
             AgentUtils.silenceSleepInSeconds(CORE_THREAD_SLEEP_TIME);

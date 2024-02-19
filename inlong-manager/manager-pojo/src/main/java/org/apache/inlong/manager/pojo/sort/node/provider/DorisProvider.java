@@ -17,7 +17,9 @@
 
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.doris.DorisSink;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
 import org.apache.inlong.manager.pojo.stream.StreamField;
@@ -28,12 +30,17 @@ import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.load.DorisLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
  * The Provider for creating Doris load nodes.
  */
+@Slf4j
 public class DorisProvider implements LoadNodeProvider {
 
     @Override
@@ -48,6 +55,7 @@ public class DorisProvider implements LoadNodeProvider {
         List<FieldInfo> fieldInfos = parseSinkFieldInfos(dorisSink.getSinkFieldList(), dorisSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(dorisSink.getSinkFieldList(), constantFieldMap);
         Format format = parsingSinkMultipleFormat(dorisSink.getSinkMultipleEnable(), dorisSink.getSinkMultipleFormat());
+        log.info("Test sink doris pro username ={}", dorisSink);
 
         return new DorisLoadNode(
                 dorisSink.getSinkName(),
@@ -68,4 +76,32 @@ public class DorisProvider implements LoadNodeProvider {
                 dorisSink.getDatabasePattern(),
                 dorisSink.getTablePattern());
     }
+
+    @Override
+    public Boolean isSinkMultiple(StreamNode nodeInfo) {
+        DorisSink dorisSink = (DorisSink) nodeInfo;
+        return dorisSink.getSinkMultipleEnable();
+    }
+
+    @Override
+    public List<StreamField> addStreamFieldsForSinkMultiple(List<StreamField> streamFields) {
+        if (CollectionUtils.isEmpty(streamFields)) {
+            streamFields = new ArrayList<>();
+        }
+        streamFields.add(0,
+                new StreamField(0, "varbinary", MetaField.DATA_BYTES_CANAL.name(), "meta.data_canal", null, 1,
+                        MetaField.DATA_BYTES_CANAL.name()));
+        return streamFields;
+    }
+
+    @Override
+    public List<SinkField> addSinkFieldsForSinkMultiple(List<SinkField> sinkFields) {
+        if (CollectionUtils.isEmpty(sinkFields)) {
+            sinkFields = new ArrayList<>();
+        }
+        sinkFields.add(0, new SinkField(0, "varbinary", MetaField.DATA_BYTES_CANAL.name(), "meta.data_canal",
+                MetaField.DATA_BYTES_CANAL.name(), "varbinary", 0, MetaField.DATA_BYTES_CANAL.name(), null));
+        return sinkFields;
+    }
+
 }

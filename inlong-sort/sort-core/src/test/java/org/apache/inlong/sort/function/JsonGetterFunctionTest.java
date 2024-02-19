@@ -46,7 +46,7 @@ public class JsonGetterFunctionTest extends AbstractTestBase {
     /**
      * Test for JsonGetter function
      *
-     * @throws Exception The exception may throw when test Encrypt function
+     * @throws Exception The exception may throw when test JsonGetter function
      */
     @Test
     public void testJsonGetterFunction() throws Exception {

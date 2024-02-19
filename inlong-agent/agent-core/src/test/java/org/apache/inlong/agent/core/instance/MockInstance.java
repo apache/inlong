@@ -37,11 +37,12 @@ public class MockInstance extends Instance {
     private InstanceManager instanceManager;
 
     @Override
-    public void init(Object instanceManager, InstanceProfile profile) {
+    public boolean init(Object instanceManager, InstanceProfile profile) {
         this.instanceManager = (InstanceManager) instanceManager;
         this.profile = profile;
         LOGGER.info("init called " + index);
         initTime = index.getAndAdd(1);
+        return true;
     }
 
     @Override

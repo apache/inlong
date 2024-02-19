@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-sort</artifactId>
-        <version>1.10.0-SNAPSHOT</version>
+        <version>1.12.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-core</artifactId>
@@ -296,6 +296,12 @@
                 <dependency>
                     <groupId>org.apache.inlong</groupId>
                     <artifactId>sort-connector-iceberg-v1.15</artifactId>
+                    <version>${project.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.inlong</groupId>
+                    <artifactId>sort-connector-kafka-v1.15</artifactId>
                     <version>${project.version}</version>
                     <scope>test</scope>
                 </dependency>

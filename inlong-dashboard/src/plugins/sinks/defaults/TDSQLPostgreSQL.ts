@@ -22,35 +22,36 @@ import i18n from '@/i18n';
 import EditableTable from '@/ui/components/EditableTable';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
+import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const tdsqlPostgreSQLFieldTypes = [
-  'SMALLINT',
-  'SMALLSERIAL',
-  'INT2',
-  'SERIAL2',
-  'INTEGER',
-  'SERIAL',
-  'BIGINT',
-  'BIGSERIAL',
-  'REAL',
-  'FLOAT4',
-  'FLOAT8',
-  'DOUBLE',
-  'NUMERIC',
-  'DECIMAL',
-  'BOOLEAN',
-  'DATE',
-  'TIME',
-  'TIMESTAMP',
-  'CHAR',
-  'CHARACTER',
-  'VARCHAR',
-  'TEXT',
-  'BYTEA',
+  'smallint',
+  'smallserial',
+  'int2',
+  'serial2',
+  'integer',
+  'serial',
+  'bigint',
+  'bigserial',
+  'real',
+  'float4',
+  'float8',
+  'double',
+  'numeric',
+  'decimal',
+  'boolean',
+  'date',
+  'time',
+  'timestamp',
+  'char',
+  'character',
+  'varchar',
+  'text',
+  'bytea',
 ].map(item => ({
   label: item,
   value: item,
@@ -70,6 +71,7 @@ export default class TDSQLPostgreSQLSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('JDBC URL')
   jdbcUrl: string;
 
@@ -82,18 +84,27 @@ export default class TDSQLPostgreSQLSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.TDSQLPostgreSQL.SchemaName')
   schemaName: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: CreateTable,
     rules: [{ required: true }],
     props: values => ({
       disabled: [110].includes(values?.status),
+      sinkType: values.sinkType,
+      inlongGroupId: values.inlongGroupId,
+      inlongStreamId: values.inlongStreamId,
+      fieldName: 'tableName',
+      sinkObj: {
+        ...values,
+      },
     }),
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.TDSQLPostgreSQL.TableName')
   tableName: string;
 
@@ -106,6 +117,7 @@ export default class TDSQLPostgreSQLSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.TDSQLPostgreSQL.PrimaryKey')
   primaryKey: string;
 
@@ -128,7 +140,7 @@ export default class TDSQLPostgreSQLSink
       ],
     }),
   })
-  @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
@@ -140,6 +152,7 @@ export default class TDSQLPostgreSQLSink
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Username')
   username: string;
 
@@ -151,6 +164,7 @@ export default class TDSQLPostgreSQLSink
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Password')
   password: string;
 
@@ -164,21 +178,38 @@ export default class TDSQLPostgreSQLSink
       upsertByFieldKey: true,
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
+
+  @FieldDecorator({
+    type: EditableTable,
+    initialValue: [],
+    props: values => ({
+      size: 'small',
+      editing: ![110].includes(values?.status),
+      columns: getFieldListColumns(values).filter(
+        item => item.dataIndex !== 'sourceFieldName' && item.dataIndex !== 'sourceFieldType',
+      ),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
+    }),
+  })
+  @SyncCreateTableField()
+  createTableField: Record<string, unknown>[];
 }
 
 const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `TDSQLPOSTGRESQL${i18n.t('meta.Sinks.TDSQLPostgreSQL.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('meta.Sinks.TDSQLPostgreSQL.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -186,7 +217,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `TDSQLPOSTGRESQL${i18n.t('meta.Sinks.TDSQLPostgreSQL.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       initialValue: tdsqlPostgreSQLFieldTypes[0].value,
       type: 'select',
@@ -229,7 +260,7 @@ const getFieldListColumns = sinkValues => {
         ['BIGINT', 'DATE', 'TIMESTAMP'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('meta.Sinks.TDSQLPostgreSQL.FieldDescription'),
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },

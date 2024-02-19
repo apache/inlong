@@ -205,7 +205,7 @@ public class ProxyConfigManager extends Thread {
 
     private ProxyConfigEntry requestProxyEntryQuietly() {
         try {
-            return requestProxyList(this.clientConfig.getProxyIPServiceURL());
+            return requestProxyList(this.clientConfig.getManagerUrl());
         } catch (Exception e) {
             LOGGER.warn("try to request proxy list by http, caught {}", e.getMessage());
         }
@@ -283,7 +283,7 @@ public class ProxyConfigManager extends Thread {
             /* We should exit if no local IP list and can't request it from manager. */
             if (localMd5 == null && proxyEntry == null) {
                 LOGGER.error("Can't connect manager at the start of proxy API {}",
-                        this.clientConfig.getProxyIPServiceURL());
+                        this.clientConfig.getManagerUrl());
                 proxyEntry = tryToReadCacheProxyEntry(configAddr);
             }
             if (localMd5 != null && proxyEntry == null && proxyInfoList != null) {
@@ -591,7 +591,6 @@ public class ProxyConfigManager extends Thread {
 
     public ProxyConfigEntry requestProxyList(String url) {
         ArrayList<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
-        params.add(new BasicNameValuePair("extTag", clientConfig.getNetTag()));
         params.add(new BasicNameValuePair("ip", this.localIP));
         params.add(new BasicNameValuePair("protocolType", clientConfig.getProtocolType()));
         LOGGER.info("Begin to get configure from manager {}, param is {}", url, params);
@@ -714,7 +713,7 @@ public class ProxyConfigManager extends Thread {
             HttpConnectionParams.setConnectionTimeout(myParams, 10000);
             HttpConnectionParams.setSoTimeout(myParams, clientConfig.getManagerSocketTimeout());
             CloseableHttpClient httpClient = null;
-            if (this.clientConfig.isLocalVisit()) {
+            if (this.clientConfig.isRequestByHttp()) {
                 httpClient = new DefaultHttpClient(myParams);
             } else {
                 try {
@@ -752,13 +751,13 @@ public class ProxyConfigManager extends Thread {
                     return returnStr;
                 }
 
-                if (!clientConfig.isLocalVisit()) {
+                if (!clientConfig.isRequestByHttp()) {
                     return null;
                 }
             } catch (Throwable e) {
                 LOGGER.error("Connect Manager error, message: {}, url is {}", e.getMessage(), url);
 
-                if (!clientConfig.isLocalVisit()) {
+                if (!clientConfig.isRequestByHttp()) {
                     return null;
                 }
                 // get localManagerIps

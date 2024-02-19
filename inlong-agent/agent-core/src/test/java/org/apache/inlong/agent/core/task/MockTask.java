@@ -18,7 +18,6 @@
 package org.apache.inlong.agent.core.task;
 
 import org.apache.inlong.agent.conf.TaskProfile;
-import org.apache.inlong.agent.core.task.file.TaskManager;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.plugin.file.Task;
 
@@ -55,6 +54,11 @@ public class MockTask extends Task {
     @Override
     public String getTaskId() {
         return profile.getTaskId();
+    }
+
+    @Override
+    public boolean isProfileValid(TaskProfile profile) {
+        return true;
     }
 
     @Override

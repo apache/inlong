@@ -24,7 +24,7 @@ import i18n from '@/i18n';
 import { SourceInfo } from '../common/SourceInfo';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 export default class IcebergSource
@@ -39,6 +39,7 @@ export default class IcebergSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @ColumnDecorator()
   @I18n('meta.Sources.Iceberg.Database')
   database: number;
@@ -51,6 +52,7 @@ export default class IcebergSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Iceberg.TableName')
   tableName: string;
 
@@ -62,6 +64,7 @@ export default class IcebergSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Iceberg.PrimaryKey')
   primaryKey: string;
 
@@ -73,6 +76,7 @@ export default class IcebergSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @ColumnDecorator()
   @I18n('Catalog URI')
   uri: string;
@@ -84,6 +88,7 @@ export default class IcebergSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Iceberg.Warehouse')
   warehouse: string;
 }

@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
-        <version>1.10.0-SNAPSHOT</version>
+        <version>1.12.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>inlong-distribution</artifactId>
@@ -75,7 +75,11 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${exec.maven.version}</version>
                 <configuration>
-                    <executable>${basedir}/script/backup_module_dependencys.sh</executable>
+                    <executable>bash</executable>
+                    <arguments>
+                        <argument>+x</argument>
+                        <argument>${basedir}/script/backup_module_dependencies.sh</argument>
+                    </arguments>
                 </configuration>
                 <executions>
                     <execution>
@@ -86,14 +90,6 @@
                         <phase>install</phase>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>${plugin.deploy.version}</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
             </plugin>
         </plugins>
     </build>

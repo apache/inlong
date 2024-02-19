@@ -18,7 +18,6 @@
 package org.apache.inlong.agent.core.task;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.core.task.file.MemoryManager;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;

@@ -50,6 +50,8 @@ private:
   bool exit_flag_;
   std::thread update_conf_thread_;
   volatile bool inited_ = false;
+  std::unordered_map<std::string, std::string> cache_proxy_info_;
+  uint64_t last_update_time_;
 
   int32_t ParseAndGet(const std::string &key, const std::string &meta_data,
                       ProxyInfoVec &proxy_info_vec);
@@ -63,15 +65,28 @@ public:
   void DoUpdate();
   void Init();
   int32_t GetProxy(const std::string &groupid, ProxyInfoVec &proxy_info_vec);
-  int32_t GetProxyByGroupid(const std::string &inlong_group_id, ProxyInfoVec &proxy_info_vec);
+  int32_t GetProxyByGroupid(const std::string &inlong_group_id,
+                            ProxyInfoVec &proxy_info_vec);
   int32_t GetProxyByClusterId(const std::string &cluster_id,
                               ProxyInfoVec &proxy_info_vec);
   std::string GetGroupKey(const std::string &groupid);
-  bool HasProxy(const std::string &inlong_group_id);
+  bool HasProxy(const std::string &group_key);
   bool CheckGroupid(const std::string &groupid);
   bool CheckClusterId(const std::string &cluster_id);
   void UpdateClusterId2ProxyMap();
   void UpdateGroupid2ClusterIdMap();
+  void BuildLocalCache(std::ofstream &file, int32_t groupid_index,
+                       const std::string &groupid,
+                       const std::string &meta_data);
+  void ReadLocalCache();
+  void WriteLocalCache();
+  std::string RecoverFromLocalCache(const std::string &groupid);
+  std::string GetClusterID(const std::string &groupid);
+  void UpdateProxy(
+      std::unordered_map<std::string, std::string> &group_id_2_cluster_id);
+  std::unordered_map<std::string, std::string> BuildGroupId2ClusterId();
+  uint64_t GetGroupIdCount();
+  bool SkipUpdate(const std::string &group_id);
 };
 } // namespace inlong
 

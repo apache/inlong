@@ -25,9 +25,10 @@ import EditableTable from '@/ui/components/EditableTable';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
 import NodeSelect from '@/ui/components/NodeSelect';
+import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const redisTargetTypes = [
@@ -78,6 +79,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.DataNodeName')
   dataNodeName: string;
 
@@ -105,6 +107,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Redis.DataType')
   dataType: string;
 
@@ -118,6 +121,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Redis.SchemaMapMode')
   schemaMapMode: string;
 
@@ -149,6 +153,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     rules: [{ required: true }],
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Redis.FormatDataType')
   formatDataType: string;
 
@@ -172,6 +177,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Redis.FormatIgnoreParseError')
   formatIgnoreParseError: boolean;
 
@@ -195,6 +201,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     rules: [{ required: true }],
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Redis.FormatDataEncoding')
   formatDataEncoding: string;
 
@@ -248,20 +255,28 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     ],
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Redis.FormatDataSeparator')
   formatDataSeparator: string;
 
   @FieldDecorator({
-    type: 'inputnumber',
+    type: CreateTable,
     rules: [{ required: false }],
     props: values => ({
       disabled: [110].includes(values?.status),
-      min: 0,
-      placholder: '0',
+      sinkType: values.sinkType,
+      inlongGroupId: values.inlongGroupId,
+      inlongStreamId: values.inlongStreamId,
+      useNumber: true,
+      fieldName: 'database',
+      sinkObj: {
+        ...values,
+      },
     }),
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Redis.Database')
   database: number;
 
@@ -276,6 +291,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     suffix: i18n.t('meta.Sinks.Redis.TtlUnit'),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Redis.Ttl')
   ttl: number;
 
@@ -289,7 +305,24 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
       upsertByFieldKey: true,
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
+
+  @FieldDecorator({
+    type: EditableTable,
+    initialValue: [],
+    props: values => ({
+      size: 'small',
+      editing: ![110].includes(values?.status),
+      columns: getFieldListColumns(values).filter(
+        item => item.dataIndex !== 'sourceFieldName' && item.dataIndex !== 'sourceFieldType',
+      ),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
+    }),
+  })
+  @SyncCreateTableField()
+  createTableField: Record<string, unknown>[];
 
   @FieldDecorator({
     type: EditableTable,
@@ -316,6 +349,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Redis.ExtList')
   properties: string;
 
@@ -330,6 +364,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     suffix: i18n.t('meta.Sinks.Redis.TimeoutUnit'),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Redis.Timeout')
   timeout: number;
 
@@ -344,6 +379,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     suffix: i18n.t('meta.Sinks.Redis.SoTimeoutUnit'),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Redis.SoTimeout')
   soTimeout: number;
 
@@ -357,6 +393,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Redis.MaxTotal')
   maxTotal: number;
 
@@ -370,6 +407,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Redis.MaxIdle')
   maxIdle: number;
 
@@ -383,6 +421,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Redis.MinIdle')
   minIdle: number;
 
@@ -397,6 +436,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Redis.MaxRetries')
   maxRetries: number;
 }
@@ -405,14 +445,14 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `Redis${i18n.t('meta.Sinks.Redis.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('meta.Sinks.Redis.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -420,7 +460,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `Redis${i18n.t('meta.Sinks.Redis.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       initialValue: redisTargetTypes[0].value,
       type: 'select',
@@ -444,7 +484,7 @@ const getFieldListColumns = sinkValues => {
       visible: (text, record) => ['BIGINT', 'DATE'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('meta.Sinks.Redis.FieldDescription'),
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },

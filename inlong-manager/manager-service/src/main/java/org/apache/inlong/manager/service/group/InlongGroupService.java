@@ -207,4 +207,8 @@ public interface InlongGroupService {
      */
     Map<String, Object> detail(String groupId);
 
+    Boolean startTagSwitch(String groupId, String clusterTag);
+
+    Boolean finishTagSwitch(String groupId);
+
 }

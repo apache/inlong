@@ -57,7 +57,9 @@ import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.core.AgentService;
+import org.apache.inlong.manager.service.source.SourceOperatorFactory;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperator;
+import org.apache.inlong.manager.service.source.StreamSourceOperator;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
@@ -152,6 +154,8 @@ public class AgentServiceImpl implements AgentService {
     private InlongClusterEntityMapper clusterMapper;
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
+    @Autowired
+    private SourceOperatorFactory operatorFactory;
 
     /**
      * Start the update task
@@ -593,16 +597,17 @@ public class AgentServiceImpl implements AgentService {
 
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
-        String extParams = entity.getExtParams();
+        StreamSourceOperator sourceOperator = operatorFactory.getInstance(entity.getSourceType());
+        String extParams = sourceOperator.getExtParams(entity);
         if (groupEntity != null && streamEntity != null) {
             dataConfig.setState(
                     SourceStatus.NORMAL_STATUS_SET.contains(SourceStatus.forCode(entity.getStatus())) ? 1 : 0);
             dataConfig.setSyncSend(streamEntity.getSyncSend());
-            if (SourceType.FILE.equalsIgnoreCase(streamEntity.getDataType())) {
-                String dataSeparator = streamEntity.getDataSeparator();
-                extParams = (null != dataSeparator ? getExtParams(extParams, dataSeparator) : extParams);
+            if (SourceType.FILE.equalsIgnoreCase(entity.getSourceType())
+                    && StringUtils.isNotBlank(streamEntity.getDataSeparator())) {
+                String dataSeparator = String.valueOf((char) Integer.parseInt(streamEntity.getDataSeparator()));
+                extParams = getExtParams(extParams, dataSeparator);
             }
-
             InlongStreamInfo streamInfo = CommonBeanUtils.copyProperties(streamEntity, InlongStreamInfo::new);
             // Processing extParams
             unpackExtParams(streamEntity.getExtParams(), streamInfo);

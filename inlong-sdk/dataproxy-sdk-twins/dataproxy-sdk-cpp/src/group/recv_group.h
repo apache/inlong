@@ -24,10 +24,10 @@
 #include <thread>
 #include <unordered_map>
 
+#include "../config/sdk_conf.h"
 #include "../manager/send_manager.h"
 #include "../utils/atomic.h"
 #include "../utils/noncopyable.h"
-#include "sdk_conf.h"
 
 namespace inlong {
 class RecvGroup {
@@ -48,6 +48,7 @@ private:
 
   uint64_t max_recv_size_;
   std::string group_key_;
+  uint64_t log_stat_;
 
   int32_t DoDispatchMsg();
   void AddMsg(const std::string &msg, std::string client_ip,

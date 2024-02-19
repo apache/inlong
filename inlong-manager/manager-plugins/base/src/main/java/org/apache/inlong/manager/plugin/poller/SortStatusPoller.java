@@ -21,9 +21,9 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SortStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
-import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.workflow.plugin.sort.SortPoller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -66,22 +66,21 @@ public class SortStatusPoller implements SortPoller {
     }
 
     @Override
-    public List<SortStatusInfo> pollSortStatus(List<InlongGroupInfo> groupInfos, String credentials) {
-        log.debug("begin to poll sort status for inlong groups");
-        if (CollectionUtils.isEmpty(groupInfos)) {
-            log.debug("end to poll sort status, as the inlong groups is empty");
+    public List<SortStatusInfo> pollSortStatus(List<InlongStreamInfo> streamInfos, String credentials) {
+        log.debug("begin to poll sort status for stream");
+        if (CollectionUtils.isEmpty(streamInfos)) {
+            log.debug("end to poll sort status, as the stream list is empty");
             return Collections.emptyList();
         }
 
-        List<SortStatusInfo> statusInfos = new ArrayList<>(groupInfos.size());
-        for (InlongGroupInfo groupInfo : groupInfos) {
-            String groupId = groupInfo.getInlongGroupId();
+        List<SortStatusInfo> statusInfos = new ArrayList<>(streamInfos.size());
+        for (InlongStreamInfo streamInfo : streamInfos) {
             try {
-                List<InlongGroupExtInfo> extList = groupInfo.getExtList();
-                log.debug("inlong group {} ext info: {}", groupId, extList);
+                List<InlongStreamExtInfo> extList = streamInfo.getExtList();
+                log.debug("stream {} ext info: {}", streamInfo.getInlongStreamId(), extList);
 
                 Map<String, String> kvConf = new HashMap<>();
-                extList.forEach(groupExtInfo -> kvConf.put(groupExtInfo.getKeyName(), groupExtInfo.getKeyValue()));
+                extList.forEach(v -> kvConf.put(v.getKeyName(), v.getKeyValue()));
                 String sortExt = kvConf.get(InlongConstants.SORT_PROPERTIES);
                 if (StringUtils.isNotEmpty(sortExt)) {
                     Map<String, String> result = JsonUtils.OBJECT_MAPPER.convertValue(
@@ -91,7 +90,10 @@ public class SortStatusPoller implements SortPoller {
                 }
 
                 String jobId = kvConf.get(InlongConstants.SORT_JOB_ID);
-                SortStatusInfo statusInfo = SortStatusInfo.builder().inlongGroupId(groupId).build();
+                SortStatusInfo statusInfo = SortStatusInfo.builder()
+                        .inlongGroupId(streamInfo.getInlongGroupId())
+                        .inlongStreamId(streamInfo.getInlongStreamId())
+                        .build();
                 if (StringUtils.isBlank(jobId)) {
                     statusInfo.setSortStatus(SortStatus.NOT_EXISTS);
                     statusInfos.add(statusInfo);
@@ -104,7 +106,8 @@ public class SortStatusPoller implements SortPoller {
                         JOB_SORT_STATUS_MAP.getOrDefault(flinkService.getJobStatus(jobId), SortStatus.UNKNOWN));
                 statusInfos.add(statusInfo);
             } catch (Exception e) {
-                log.error("polling sort status failed for groupId=" + groupId, e);
+                log.error("polling sort status failed for groupId=" + streamInfo.getInlongGroupId() + " streamId="
+                        + streamInfo.getInlongStreamId(), e);
             }
         }
 

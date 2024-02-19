@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.resource.queue;
 
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -87,5 +89,19 @@ public interface QueueResourceOperator {
             Integer messageCount) throws Exception {
         return null;
     }
+
+    /**
+     * Reset cursor for consumer group
+     *
+     * @param groupInfo inlong group info
+     * @param streamEntity inlong stream entity
+     * @param sinkEntity sink entity
+     * @param resetTime timestamp for reset
+     */
+    default void resetCursor(InlongGroupInfo groupInfo, InlongStreamEntity streamEntity, StreamSinkEntity sinkEntity,
+            Long resetTime) throws Exception {
+    }
+
+    String getSortConsumeGroup(InlongGroupInfo groupInfo, InlongStreamEntity streamEntity, StreamSinkEntity sinkEntity);
 
 }

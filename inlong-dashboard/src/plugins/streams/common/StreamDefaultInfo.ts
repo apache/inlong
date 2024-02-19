@@ -24,6 +24,7 @@ import i18n from '@/i18n';
 import EditableTable from '@/ui/components/EditableTable';
 import { fieldTypes as sourceFieldsTypes } from '@/plugins/sinks/common/sourceFields';
 import { statusList, genStatusTag } from './status';
+import { timestampFormat } from '@/core/utils';
 
 const { I18nMap, I18n } = DataWithBackend;
 const { FieldList, FieldDecorator } = RenderRow;
@@ -79,7 +80,9 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
   @I18n('basic.Modifier')
   readonly modifier: string;
 
-  @ColumnDecorator()
+  @ColumnDecorator({
+    render: text => timestampFormat(text),
+  })
   @I18n('basic.CreateTime')
   readonly createTime: string;
 

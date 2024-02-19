@@ -57,6 +57,23 @@ public class AuditClient {
     }
 
     /**
+     * Query audit data for list by condition
+     *
+     * @param request The audit request of query condition
+     * @return The result of query
+     */
+    public List<AuditVO> listAll(AuditRequest request) {
+        Preconditions.expectNotNull(request, "request cannot be null");
+        Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.INVALID_PARAMETER,
+                "inlong group id cannot be empty");
+        Preconditions.expectNotBlank(request.getInlongStreamId(), ErrorCodeEnum.INVALID_PARAMETER,
+                "inlong stream id cannot be empty");
+        Response<List<AuditVO>> response = ClientUtils.executeHttpCall(auditApi.listAll(request));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
      * Refresh the base item of audit cache.
      *
      * @return true if not exception, or false if it has exception

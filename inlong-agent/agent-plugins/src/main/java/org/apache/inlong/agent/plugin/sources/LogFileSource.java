@@ -21,16 +21,18 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.OffsetProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
+import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.TaskConstants;
+import org.apache.inlong.agent.core.task.MemoryManager;
 import org.apache.inlong.agent.core.task.OffsetManager;
-import org.apache.inlong.agent.core.task.file.MemoryManager;
 import org.apache.inlong.agent.except.FileException;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.file.Reader;
 import org.apache.inlong.agent.plugin.sources.file.AbstractSource;
+import org.apache.inlong.agent.plugin.sources.file.extend.ExtendedHandler;
 import org.apache.inlong.agent.plugin.sources.reader.file.KubernetesMetadataProvider;
 import org.apache.inlong.agent.plugin.utils.file.FileDataUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
@@ -51,6 +53,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -68,6 +71,7 @@ import java.util.concurrent.TimeUnit;
 import static org.apache.inlong.agent.constant.CommonConstants.COMMA;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_PACKAGE_MAX_SIZE;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_SIZE;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_PARTITION_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_QUEUE_PERMIT;
@@ -79,6 +83,7 @@ import static org.apache.inlong.agent.constant.MetadataConstants.ENV_CVM;
 import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_FILE_NAME;
 import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_HOST_NAME;
 import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_SOURCE_IP;
+import static org.apache.inlong.agent.constant.TaskConstants.DEFAULT_FILE_SOURCE_EXTEND_CLASS;
 import static org.apache.inlong.agent.constant.TaskConstants.JOB_FILE_META_ENV_LIST;
 import static org.apache.inlong.agent.constant.TaskConstants.OFFSET;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_CYCLE_UNIT;
@@ -133,9 +138,10 @@ public class LogFileSource extends AbstractSource {
     private volatile boolean running = false;
     private long dataTime = 0;
     private volatile long emptyCount = 0;
+    private ExtendedHandler extendedHandler;
+    private boolean isRealTime = false;
 
     public LogFileSource() {
-        OffsetManager.init();
     }
 
     @Override
@@ -144,6 +150,11 @@ public class LogFileSource extends AbstractSource {
             LOGGER.info("LogFileSource init: {}", profile.toJsonStr());
             this.profile = profile;
             super.init(profile);
+            String cycleUnit = profile.get(TASK_CYCLE_UNIT);
+            if (cycleUnit.compareToIgnoreCase(CycleUnitType.REAL_TIME) == 0) {
+                isRealTime = true;
+                cycleUnit = CycleUnitType.HOUR;
+            }
             taskId = profile.getTaskId();
             instanceId = profile.getInstanceId();
             fileName = profile.getInstanceId();
@@ -156,14 +167,21 @@ public class LogFileSource extends AbstractSource {
             linePosition = getInitLineOffset(isIncrement, taskId, instanceId, inodeInfo);
             bytePosition = getBytePositionByLine(linePosition);
             queue = new LinkedBlockingQueue<>(CACHE_QUEUE_SIZE);
-            dataTime = DateTransUtils.timeStrConvertTomillSec(profile.getSourceDataTime(),
-                    profile.get(TASK_CYCLE_UNIT));
+            dataTime = DateTransUtils.timeStrConvertToMillSec(profile.getSourceDataTime(), cycleUnit);
+            if (DEFAULT_FILE_SOURCE_EXTEND_CLASS.compareTo(ExtendedHandler.class.getCanonicalName()) != 0) {
+                Constructor<?> constructor =
+                        Class.forName(
+                                profile.get(TaskConstants.FILE_SOURCE_EXTEND_CLASS, DEFAULT_FILE_SOURCE_EXTEND_CLASS))
+                                .getDeclaredConstructor(InstanceProfile.class);
+                constructor.setAccessible(true);
+                extendedHandler = (ExtendedHandler) constructor.newInstance(profile);
+            }
             try {
                 registerMeta(profile);
             } catch (Exception ex) {
                 LOGGER.error("init metadata error", ex);
             }
-            EXECUTOR_SERVICE.execute(coreThread());
+            EXECUTOR_SERVICE.execute(run());
         } catch (Exception ex) {
             stopRunning();
             throw new FileException("error init stream for " + file.getPath(), ex);
@@ -301,6 +319,8 @@ public class LogFileSource extends AbstractSource {
                         if (overLen) {
                             LOGGER.warn("readLines over len finally string len {}",
                                     new String(baos.toByteArray()).length());
+                            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS_REAL_TIME, inlongGroupId,
+                                    inlongStreamId, AgentUtils.getCurrentTime(), 1, maxPackSize);
                         }
                         baos.reset();
                         overLen = false;
@@ -348,12 +368,24 @@ public class LogFileSource extends AbstractSource {
 
     private Message createMessage(SourceData sourceData) {
         String msgWithMetaData = fillMetaData(sourceData.data);
-        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
-                dataTime, 1, msgWithMetaData.length());
         String proxyPartitionKey = profile.get(PROXY_SEND_PARTITION_KEY, DigestUtils.md5Hex(inlongGroupId));
         Map<String, String> header = new HashMap<>();
         header.put(PROXY_KEY_DATA, proxyPartitionKey);
         header.put(OFFSET, sourceData.offset.toString());
+        header.put(PROXY_KEY_STREAM_ID, inlongStreamId);
+        if (extendedHandler != null) {
+            extendedHandler.dealWithHeader(header, sourceData.getData().getBytes(StandardCharsets.UTF_8));
+        }
+        long auditTime = 0;
+        if (isRealTime) {
+            auditTime = AgentUtils.getCurrentTime();
+        } else {
+            auditTime = profile.getSinkDataTime();
+        }
+        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, header.get(PROXY_KEY_STREAM_ID),
+                auditTime, 1, msgWithMetaData.length());
+        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS_REAL_TIME, inlongGroupId, header.get(PROXY_KEY_STREAM_ID),
+                AgentUtils.getCurrentTime(), 1, msgWithMetaData.length());
         Message finalMsg = new DefaultMessage(msgWithMetaData.getBytes(StandardCharsets.UTF_8), header);
         // if the message size is greater than max pack size,should drop it.
         if (finalMsg.getBody().length > maxPackSize) {
@@ -403,76 +435,88 @@ public class LogFileSource extends AbstractSource {
         return false;
     }
 
-    public Runnable coreThread() {
+    private Runnable run() {
         return () -> {
             AgentThreadFactory.nameThread("log-file-source-" + taskId + "-" + file);
             running = true;
-            long lastPrintTime = 0;
-            while (isRunnable() && fileExist) {
-                if (isInodeChanged()) {
-                    fileExist = false;
-                    LOGGER.info("inode changed, instance will restart and offset will be clean, file {}",
-                            fileName);
-                    break;
-                }
-                if (file.length() < bytePosition) {
-                    fileExist = false;
-                    LOGGER.info("file rotate, instance will restart and offset will be clean, file {}",
-                            fileName);
-                    break;
-                }
-                boolean suc = waitForPermit(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
-                if (!suc) {
-                    break;
-                }
-                List<SourceData> lines = null;
-                try {
-                    lines = readFromPos(bytePosition);
-                } catch (FileNotFoundException e) {
-                    fileExist = false;
-                    LOGGER.error("readFromPos file deleted {}", e.getMessage());
-                } catch (IOException e) {
-                    LOGGER.error("readFromPos error {}", e.getMessage());
-                }
-                MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
-                if (lines.isEmpty()) {
-                    if (queue.isEmpty()) {
-                        emptyCount++;
-                    } else {
-                        emptyCount = 0;
-                    }
-                    AgentUtils.silenceSleepInSeconds(1);
-                    continue;
-                }
-                emptyCount = 0;
-                for (int i = 0; i < lines.size(); i++) {
-                    boolean suc4Queue = waitForPermit(AGENT_GLOBAL_READER_QUEUE_PERMIT, lines.get(i).data.length());
-                    if (!suc4Queue) {
-                        break;
-                    }
-                    putIntoQueue(lines.get(i));
-                }
-                if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_INTERVAL_MS) {
-                    lastPrintTime = AgentUtils.getCurrentTime();
-                    LOGGER.info("path is {}, linePosition {}, bytePosition is {} file len {}, reads lines size {}",
-                            file.getName(), linePosition, bytePosition, file.length(), lines.size());
-                }
+            try {
+                doRun();
+            } catch (Throwable e) {
+                LOGGER.error("do run error maybe file deleted: ", e);
             }
             running = false;
         };
     }
 
+    private void doRun() {
+        long lastPrintTime = 0;
+        while (isRunnable() && fileExist) {
+            if (isInodeChanged()) {
+                fileExist = false;
+                LOGGER.info("inode changed, instance will restart and offset will be clean, file {}",
+                        fileName);
+                break;
+            }
+            if (file.length() < bytePosition) {
+                fileExist = false;
+                LOGGER.info("file rotate, instance will restart and offset will be clean, file {}",
+                        fileName);
+                break;
+            }
+            boolean suc = waitForPermit(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
+            if (!suc) {
+                break;
+            }
+            List<SourceData> lines = null;
+            try {
+                lines = readFromPos(bytePosition);
+            } catch (FileNotFoundException e) {
+                fileExist = false;
+                LOGGER.error("readFromPos file deleted error: ", e);
+            } catch (IOException e) {
+                LOGGER.error("readFromPos error: ", e);
+            }
+            MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
+            if (lines.isEmpty()) {
+                if (queue.isEmpty()) {
+                    emptyCount++;
+                } else {
+                    emptyCount = 0;
+                }
+                AgentUtils.silenceSleepInSeconds(1);
+                continue;
+            }
+            emptyCount = 0;
+            for (int i = 0; i < lines.size(); i++) {
+                boolean suc4Queue = waitForPermit(AGENT_GLOBAL_READER_QUEUE_PERMIT, lines.get(i).data.length());
+                if (!suc4Queue) {
+                    break;
+                }
+                putIntoQueue(lines.get(i));
+            }
+            if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_INTERVAL_MS) {
+                lastPrintTime = AgentUtils.getCurrentTime();
+                LOGGER.info("path is {}, linePosition {}, bytePosition is {} file len {}, reads lines size {}",
+                        file.getName(), linePosition, bytePosition, file.length(), lines.size());
+            }
+        }
+    }
+
     private void putIntoQueue(SourceData sourceData) {
+        if (sourceData == null) {
+            return;
+        }
         try {
             boolean offerSuc = false;
-            while (offerSuc != true) {
+            while (isRunnable() && offerSuc != true) {
                 offerSuc = queue.offer(sourceData, 1, TimeUnit.SECONDS);
+            }
+            if (!offerSuc) {
+                MemoryManager.getInstance().release(AGENT_GLOBAL_READER_QUEUE_PERMIT, sourceData.data.length());
             }
             LOGGER.debug("Read {} from file {}", sourceData.getData(), fileName);
         } catch (InterruptedException e) {
-            if (sourceData != null) {
-                MemoryManager.getInstance().release(AGENT_GLOBAL_READER_QUEUE_PERMIT, sourceData.data.length());
-            }
+            MemoryManager.getInstance().release(AGENT_GLOBAL_READER_QUEUE_PERMIT, sourceData.data.length());
             LOGGER.error("fetchData offer failed {}", e.getMessage());
         }
     }
@@ -539,6 +583,9 @@ public class LogFileSource extends AbstractSource {
 
     @Override
     public boolean sourceFinish() {
+        if (isRealTime) {
+            return false;
+        }
         return emptyCount > EMPTY_CHECK_COUNT_AT_LEAST;
     }
 

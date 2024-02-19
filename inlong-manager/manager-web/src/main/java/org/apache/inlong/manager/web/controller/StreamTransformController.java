@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.controller;
 
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -52,7 +53,7 @@ public class StreamTransformController {
     protected StreamTransformService streamTransformService;
 
     @RequestMapping(value = "/transform/save", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.CREATE)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.TRANSFORM)
     @ApiOperation(value = "Save stream transform")
     public Response<Integer> save(@Validated @RequestBody TransformRequest request) {
         return Response.success(
@@ -73,7 +74,7 @@ public class StreamTransformController {
     }
 
     @RequestMapping(value = "/transform/update", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.TRANSFORM)
     @ApiOperation(value = "Update stream transform")
     public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody TransformRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
@@ -81,7 +82,7 @@ public class StreamTransformController {
     }
 
     @RequestMapping(value = "/transform/delete", method = RequestMethod.DELETE)
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.TRANSFORM)
     @ApiOperation(value = "Delete stream transform")
     public Response<Boolean> delete(@Validated DeleteTransformRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();

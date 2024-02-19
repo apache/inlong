@@ -21,22 +21,43 @@
 #ifndef INLONG_SDK_LOGGER_H
 #define INLONG_SDK_LOGGER_H
 
-#include "sdk_conf.h"
+#include "../config/sdk_conf.h"
+#include <iostream>
 #include <log4cplus/fileappender.h>
 #include <log4cplus/helpers/loglog.h>
 #include <log4cplus/initializer.h>
 #include <log4cplus/log4cplus.h>
 #include <log4cplus/logger.h>
 #include <log4cplus/loglevel.h>
+#include <sys/stat.h>
 using namespace log4cplus::helpers;
 
 namespace inlong {
+static const char kDefaultPath[] = "./";
+static const char kLogName[] = "/inlong-sdk.log";
+static bool CheckPath(const std::string &path) {
+  struct stat st_stat = {0};
+  int ret = stat(path.c_str(), &st_stat);
+  if (ret && errno != ENOENT) {
+    std::cout << "Check directory error:" << strerror(errno) << std::endl;
+    return false;
+  }
+
+  if ((ret && errno == ENOENT) || (!ret && !S_ISDIR(st_stat.st_mode))) {
+    if (mkdir(path.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH)) {
+      std::cout << "Crate directory error:" << strerror(errno) << std::endl;
+      return false;
+    }
+  }
+  return true;
+}
+
 static void initLog4cplus() {
   std::string log_path = SdkConfig::getInstance()->log_path_;
-  if (log_path.back() != '/') {
-    log_path = "./inlong-sdk-logs/";
+  if (!CheckPath(log_path)) {
+    log_path = kDefaultPath;
   }
-  std::string log_name = log_path + "/inlong-sdk.log";
+  std::string log_name = log_path + kLogName;
   log4cplus::SharedAppenderPtr the_append(new log4cplus::RollingFileAppender(
       log_name, SdkConfig::getInstance()->log_size_,
       SdkConfig::getInstance()->log_num_));

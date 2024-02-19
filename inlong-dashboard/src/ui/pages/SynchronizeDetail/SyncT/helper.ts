@@ -19,13 +19,13 @@
 
 // Convert form data into interface submission data format
 export const valuesToData = (values, inlongGroupId) => {
-  const { inlongStreamId, predefinedFields = [], rowTypeFields = [], version, ...rest } = values;
+  const { inlongStreamId, predefinedField = [], rowTypeFields = [], version, ...rest } = values;
 
-  const fieldList = predefinedFields.concat(rowTypeFields).map((item, idx) => ({
+  const fieldList = predefinedField.concat(rowTypeFields).map((item, idx) => ({
     ...item,
     inlongGroupId,
     inlongStreamId,
-    isPredefinedField: idx < predefinedFields.length ? 1 : 0,
+    isPredefinedField: idx < predefinedField.length ? 1 : 0,
   }));
 
   const output = {
@@ -44,11 +44,11 @@ export const valuesToData = (values, inlongGroupId) => {
 export const dataToValues = data => {
   const fieldList = data?.fieldList?.reduce(
     (acc, cur) => {
-      cur.isPredefinedField ? acc.predefinedFields.push(cur) : acc.rowTypeFields.push(cur);
+      cur.isPredefinedField ? acc.predefinedField.push(cur) : acc.rowTypeFields.push(cur);
       return acc;
     },
     {
-      predefinedFields: [],
+      predefinedField: [],
       rowTypeFields: [],
     },
   );
@@ -59,4 +59,11 @@ export const dataToValues = data => {
   };
 
   return output;
+};
+
+export const dataToMap = data => {
+  return data.reduce((amount, item) => {
+    amount[item.keyName] = item.keyValue;
+    return amount;
+  }, {});
 };

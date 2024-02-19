@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.controller;
 
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
@@ -61,7 +62,7 @@ public class InlongConsumeController {
     private InlongConsumeProcessService consumeProcessService;
 
     @RequestMapping(value = "/consume/save", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.CREATE)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.CONSUME)
     @ApiOperation(value = "Save inlong consume")
     public Response<Integer> save(@RequestBody InlongConsumeRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
@@ -91,14 +92,14 @@ public class InlongConsumeController {
     }
 
     @PostMapping("/consume/update")
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.CONSUME)
     @ApiOperation(value = "Update inlong consume")
     public Response<Integer> update(@Validated(UpdateValidation.class) @RequestBody InlongConsumeRequest request) {
         return Response.success(consumeService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @DeleteMapping("/consume/delete/{id}")
-    @OperationLog(operation = OperationType.DELETE)
+    @OperationLog(operation = OperationType.DELETE, operationTarget = OperationTarget.CONSUME)
     @ApiOperation(value = "Delete inlong consume by ID")
     @ApiImplicitParam(name = "id", value = "Inlong consume ID", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> delete(@PathVariable(name = "id") Integer id) {
@@ -106,7 +107,7 @@ public class InlongConsumeController {
     }
 
     @PostMapping("/consume/startProcess/{id}")
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.CONSUME)
     @ApiOperation(value = "Start inlong consume process")
     @ApiImplicitParam(name = "id", value = "Inlong consume ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> startProcess(@PathVariable(name = "id") Integer id) {

@@ -78,9 +78,6 @@ public class DateUtils {
                 ret = oneMatch;
             }
         }
-        if (ret.isEmpty()) {
-            throw new IllegalArgumentException("time pattern " + " not find in " + src);
-        }
         return ret;
     }
 
@@ -91,6 +88,9 @@ public class DateUtils {
         }
 
         String longestPattern = extractLongestTimeRegex(src);
+        if (longestPattern.isEmpty()) {
+            return new PathDateExpression(longestPattern, NonRegexPatternPosition.NONE);
+        }
         String regexSign = "\\^$*+?{(|[)]";
 
         String range = "+?*{";

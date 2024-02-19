@@ -33,6 +33,7 @@ export interface Props extends ModalProps {
   inlongStreamId: string;
   defaultType?: string;
   sourceType?: string;
+  sinkMultipleEnable?: boolean;
 }
 
 const Comp: React.FC<Props> = ({
@@ -41,6 +42,7 @@ const Comp: React.FC<Props> = ({
   inlongStreamId,
   defaultType,
   sourceType,
+  sinkMultipleEnable,
   ...modalProps
 }) => {
   const [form] = useForm();
@@ -74,11 +76,16 @@ const Comp: React.FC<Props> = ({
       submitData.id = id;
       submitData.version = data?.version;
     }
+    if (values.sourceType === 'PULSAR') {
+      submitData.wrapType = 'RAW';
+    }
 
     if (sourceType !== undefined && sourceType !== submitData.sourceType) {
       message.warning(t('pages.SynchronizeDetail.Sources.SavePrompt'));
       return;
     }
+
+    submitData.allMigration = sinkMultipleEnable;
 
     await request({
       url: `/source/${isUpdate ? 'update' : 'save'}`,
@@ -108,7 +115,13 @@ const Comp: React.FC<Props> = ({
   }, [modalProps.open]);
 
   const formContent = useMemo(() => {
-    return Entity ? new Entity().renderSyncRow() : [];
+    return sinkMultipleEnable
+      ? Entity
+        ? new Entity().renderSyncEnableRow()
+        : []
+      : Entity
+      ? new Entity().renderSyncRow()
+      : [];
   }, [Entity]);
 
   return (

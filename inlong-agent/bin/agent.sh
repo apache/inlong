@@ -20,8 +20,8 @@ BASE_DIR=$(dirname $0)/..
 
 # Prepare common dependency
 ROOT_DIR=$BASE_DIR/..
-if [ -e $ROOT_DIR/bin/prepare_module_dependencys.sh ]; then
-    $ROOT_DIR/bin/prepare_module_dependencys.sh ./inlong-agent/lib
+if [ -e $ROOT_DIR/bin/prepare_module_dependencies.sh ]; then
+    $ROOT_DIR/bin/prepare_module_dependencies.sh ./inlong-agent/lib
 fi
 
 source "${BASE_DIR}"/bin/agent-env.sh

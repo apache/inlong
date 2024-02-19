@@ -20,6 +20,7 @@ package org.apache.inlong.agent.core;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.constant.FetcherConstants;
 import org.apache.inlong.agent.pojo.FileTask.FileTaskConfig;
 import org.apache.inlong.common.enums.TaskStateEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
@@ -55,6 +56,7 @@ public class AgentBaseTestsHelper {
         boolean result = testRootDir.toFile().mkdirs();
         LOGGER.info("try to create {}, result is {}", testRootDir, result);
         AgentConfiguration.getAgentConf().set(AgentConstants.AGENT_HOME, testRootDir.toString());
+        AgentConfiguration.getAgentConf().set(FetcherConstants.AGENT_MANAGER_ADDR, "");
         return this;
     }
 
@@ -73,14 +75,14 @@ public class AgentBaseTestsHelper {
     }
 
     public TaskProfile getTaskProfile(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
-            TaskStateEnum state) {
-        DataConfig dataConfig = getDataConfig(taskId, pattern, retry, startTime, endTime, state);
+            TaskStateEnum state, String timeZone) {
+        DataConfig dataConfig = getDataConfig(taskId, pattern, retry, startTime, endTime, state, timeZone);
         TaskProfile profile = TaskProfile.convertToTaskProfile(dataConfig);
         return profile;
     }
 
     private DataConfig getDataConfig(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
-            TaskStateEnum state) {
+            TaskStateEnum state, String timeZone) {
         DataConfig dataConfig = new DataConfig();
         dataConfig.setInlongGroupId("testGroupId");
         dataConfig.setInlongStreamId("testStreamId");
@@ -90,9 +92,8 @@ public class AgentBaseTestsHelper {
         dataConfig.setState(state.ordinal());
         FileTaskConfig fileTaskConfig = new FileTaskConfig();
         fileTaskConfig.setPattern(pattern);
-        fileTaskConfig.setTimeOffset("0d");
-        // GMT-8:00 same with Asia/Shanghai
-        fileTaskConfig.setTimeZone("GMT-8:00");
+        fileTaskConfig.setTimeOffset("0h");
+        fileTaskConfig.setTimeZone(timeZone);
         fileTaskConfig.setMaxFileCount(100);
         fileTaskConfig.setCycleUnit("h");
         fileTaskConfig.setRetry(retry);

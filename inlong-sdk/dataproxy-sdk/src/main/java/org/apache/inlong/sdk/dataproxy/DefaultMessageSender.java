@@ -77,12 +77,6 @@ public class DefaultMessageSender implements MessageSender {
         indexCol = new IndexCollectThread(storeIndex);
         indexCol.start();
 
-        if (configure.isEnableSaveManagerVIps()
-                && configure.isLocalVisit()
-                && MANAGER_FETCHER_THREAD_STARTED.compareAndSet(false, true)) {
-            managerFetcherThread = new ManagerFetcherThread(configure);
-            managerFetcherThread.start();
-        }
     }
 
     /**
@@ -847,7 +841,6 @@ public class DefaultMessageSender implements MessageSender {
 
     private void shutdownInternalThreads() {
         indexCol.shutDown();
-        managerFetcherThread.shutdown();
         MANAGER_FETCHER_THREAD_STARTED.set(false);
     }
 

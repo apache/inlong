@@ -54,7 +54,7 @@ public class ElasticsearchResourceOperator extends AbstractStandaloneSinkResourc
             LOGGER.warn("create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
             return;
         }
-
+        this.checkTaskAndConsumerGroup(sinkInfo);
         this.assignCluster(sinkInfo);
     }
 

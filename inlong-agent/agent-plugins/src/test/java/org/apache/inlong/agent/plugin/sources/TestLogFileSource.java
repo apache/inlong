@@ -18,9 +18,14 @@
 package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
+import org.apache.inlong.agent.conf.OffsetProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
+import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.TaskConstants;
-import org.apache.inlong.agent.core.task.file.MemoryManager;
+import org.apache.inlong.agent.core.task.MemoryManager;
+import org.apache.inlong.agent.core.task.OffsetManager;
+import org.apache.inlong.agent.core.task.TaskManager;
+import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.utils.file.FileDataUtils;
@@ -41,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_QUEUE_PERMIT;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_GLOBAL_READER_QUEUE_PERMIT;
+import static org.apache.inlong.agent.constant.TaskConstants.INODE_INFO;
 import static org.awaitility.Awaitility.await;
 
 public class TestLogFileSource {
@@ -51,22 +57,28 @@ public class TestLogFileSource {
     private static final Gson GSON = new Gson();
     private static final String[] check = {"hello line-end-symbol aa", "world line-end-symbol",
             "agent line-end-symbol"};
-    private static InstanceProfile instanceProfile;
+    // instance basic db
+    private static Db instanceBasicDb;
+    // offset basic db
+    private static Db offsetBasicDb;
 
     @BeforeClass
     public static void setup() {
 
-        String fileName = LOADER.getResource("test/20230928_1.txt").getPath();
         helper = new AgentBaseTestsHelper(TestLogFileSource.class.getName()).setupAgentHome();
-        String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
-        TaskProfile taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING);
-        instanceProfile = taskProfile.createInstanceProfile("",
-                fileName, "20230928", AgentUtils.getCurrentTime());
-
+        instanceBasicDb = TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE);
+        offsetBasicDb =
+                TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET);
+        OffsetManager.init(offsetBasicDb, instanceBasicDb);
     }
 
-    private LogFileSource getSource() {
+    private LogFileSource getSource(int taskId, long offset) {
         try {
+            String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
+            TaskProfile taskProfile = helper.getTaskProfile(taskId, pattern, false, 0L, 0L, TaskStateEnum.RUNNING, "D");
+            String fileName = LOADER.getResource("test/20230928_1.txt").getPath();
+            InstanceProfile instanceProfile = taskProfile.createInstanceProfile("",
+                    fileName, taskProfile.getCycleUnit(), "20230928", AgentUtils.getCurrentTime());
             instanceProfile.set(TaskConstants.INODE_INFO, FileDataUtils.getInodeInfo(instanceProfile.getInstanceId()));
             LogFileSource source = new LogFileSource();
             Whitebox.setInternalState(source, "BATCH_READ_LINE_COUNT", 1);
@@ -75,6 +87,12 @@ public class TestLogFileSource {
             Whitebox.setInternalState(source, "SIZE_OF_BUFFER_TO_READ_FILE", 2);
             Whitebox.setInternalState(source, "EMPTY_CHECK_COUNT_AT_LEAST", 3);
             Whitebox.setInternalState(source, "READ_WAIT_TIMEOUT_MS", 10);
+            if (offset > 0) {
+                OffsetProfile offsetProfile = new OffsetProfile(instanceProfile.getTaskId(),
+                        instanceProfile.getInstanceId(),
+                        offset, instanceProfile.get(INODE_INFO));
+                OffsetManager.getInstance().setOffset(offsetProfile);
+            }
             source.init(instanceProfile);
             return source;
         } catch (Exception e) {
@@ -93,6 +111,7 @@ public class TestLogFileSource {
     public void testLogFileSource() {
         testFullRead();
         testCleanQueue();
+        testReadWithOffset();
     }
 
     private void testFullRead() {
@@ -100,7 +119,7 @@ public class TestLogFileSource {
         for (int i = 0; i < check.length; i++) {
             srcLen += check[i].getBytes(StandardCharsets.UTF_8).length;
         }
-        LogFileSource source = getSource();
+        LogFileSource source = getSource(1, 0);
         int cnt = 0;
         Message msg = source.read();
         int readLen = 0;
@@ -111,7 +130,7 @@ public class TestLogFileSource {
             msg = source.read();
             cnt++;
         }
-        await().atMost(6, TimeUnit.SECONDS).until(() -> source.sourceFinish());
+        await().atMost(30, TimeUnit.SECONDS).until(() -> source.sourceFinish());
         source.destroy();
         Assert.assertTrue(cnt == 3);
         Assert.assertTrue(srcLen == readLen);
@@ -120,12 +139,31 @@ public class TestLogFileSource {
     }
 
     private void testCleanQueue() {
-        LogFileSource source = getSource();
+        LogFileSource source = getSource(2, 0);
         for (int i = 0; i < 2; i++) {
             source.read();
         }
         Assert.assertTrue(!source.sourceFinish());
         source.destroy();
+        int leftAfterRead = MemoryManager.getInstance().getLeft(AGENT_GLOBAL_READER_QUEUE_PERMIT);
+        Assert.assertTrue(leftAfterRead == DEFAULT_AGENT_GLOBAL_READER_QUEUE_PERMIT);
+    }
+
+    private void testReadWithOffset() {
+        LogFileSource source = getSource(3, 1);
+        for (int i = 0; i < 2; i++) {
+            Message msg = source.read();
+            Assert.assertTrue(msg != null);
+        }
+        Message msg = source.read();
+        Assert.assertTrue(msg == null);
+        source.destroy();
+
+        source = getSource(4, 3);
+        msg = source.read();
+        Assert.assertTrue(msg == null);
+        source.destroy();
+
         int leftAfterRead = MemoryManager.getInstance().getLeft(AGENT_GLOBAL_READER_QUEUE_PERMIT);
         Assert.assertTrue(leftAfterRead == DEFAULT_AGENT_GLOBAL_READER_QUEUE_PERMIT);
     }

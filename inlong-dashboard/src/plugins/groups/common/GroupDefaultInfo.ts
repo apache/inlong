@@ -24,6 +24,7 @@ import i18n from '@/i18n';
 import UserSelect from '@/ui/components/UserSelect';
 import { statusList, genStatusTag } from './status';
 import { groups, defaultValue } from '..';
+import { timestampFormat } from '@/core/utils';
 
 const { I18nMap, I18n } = DataWithBackend;
 const { FieldList, FieldDecorator } = RenderRow;
@@ -120,7 +121,9 @@ export class GroupDefaultInfo implements DataWithBackend, RenderRow, RenderList 
   @I18n('basic.Status')
   readonly status: string;
 
-  @ColumnDecorator()
+  @ColumnDecorator({
+    render: text => timestampFormat(text),
+  })
   @I18n('basic.CreateTime')
   readonly createTime: string;
 

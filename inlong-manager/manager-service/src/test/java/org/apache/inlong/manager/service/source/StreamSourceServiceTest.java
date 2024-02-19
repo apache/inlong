@@ -25,11 +25,11 @@ import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSourceRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 
-import com.google.common.collect.Maps;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -54,7 +54,8 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
         String sourceName = "stream_source_service_test";
         sourceInfo.setSourceName(sourceName);
         sourceInfo.setSourceType(SourceType.MYSQL_BINLOG);
-        Map<String, Object> properties = Maps.newLinkedHashMap();
+        sourceInfo.setHostname("127.0.0.1");
+        Map<String, Object> properties = new HashMap<>();
         properties.put("append-mode", "true");
         sourceInfo.setProperties(properties);
         return sourceService.save(sourceInfo, GLOBAL_OPERATOR);

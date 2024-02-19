@@ -70,6 +70,9 @@ public class MySQLBinlogProvider implements ExtractNodeProvider {
             // Unique properties when migrate all tables in database
             properties.put("migrate-all", "true");
         }
+        if (binlogSource.isOnlyIncremental()) {
+            properties.put("scan.startup.mode", "latest-offset");
+        }
 
         return new MySqlExtractNode(binlogSource.getSourceName(),
                 binlogSource.getSourceName(),

@@ -17,7 +17,14 @@
 
 package org.apache.inlong.sort.protocol.deserialization;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.annotation.Nullable;
+
+import java.util.Objects;
 
 /**
  * It represents TLog KV format of InLongMsg(m=15).
@@ -32,15 +39,30 @@ public class InLongMsgTlogKvDeserializationInfo extends InLongMsgDeserialization
 
     private final char kvDelimiter;
 
+    @JsonInclude(Include.NON_NULL)
+    @Nullable
+    private final Character escapeChar;
+
     public InLongMsgTlogKvDeserializationInfo(
-            @JsonProperty("tid") String tid,
+            @JsonProperty("streamId") String streamId,
             @JsonProperty("delimiter") char delimiter,
             @JsonProperty("entry_delimiter") char entryDelimiter,
             @JsonProperty("kv_delimiter") char kvDelimiter) {
-        super(tid);
+        this(streamId, delimiter, entryDelimiter, kvDelimiter, null);
+    }
+
+    @JsonCreator
+    public InLongMsgTlogKvDeserializationInfo(
+            @JsonProperty("streamId") String streamId,
+            @JsonProperty("delimiter") char delimiter,
+            @JsonProperty("entry_delimiter") char entryDelimiter,
+            @JsonProperty("kv_delimiter") char kvDelimiter,
+            @JsonProperty("escape_char") @Nullable Character escapeChar) {
+        super(streamId);
         this.delimiter = delimiter;
         this.entryDelimiter = entryDelimiter;
         this.kvDelimiter = kvDelimiter;
+        this.escapeChar = escapeChar;
     }
 
     @JsonProperty("delimiter")
@@ -56,5 +78,29 @@ public class InLongMsgTlogKvDeserializationInfo extends InLongMsgDeserialization
     @JsonProperty("kv_delimiter")
     public char getKvDelimiter() {
         return kvDelimiter;
+    }
+
+    @JsonProperty("escape_char")
+    @Nullable
+    public Character getEscapeChar() {
+        return escapeChar;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        InLongMsgTlogKvDeserializationInfo other = (InLongMsgTlogKvDeserializationInfo) o;
+        return super.equals(other)
+                && delimiter == other.delimiter
+                && entryDelimiter == other.entryDelimiter
+                && kvDelimiter == other.kvDelimiter
+                && Objects.equals(escapeChar, other.escapeChar);
     }
 }

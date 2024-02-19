@@ -29,6 +29,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
+import org.apache.inlong.manager.pojo.cluster.dataproxy.DataProxyClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.dataproxy.DataProxyClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest;
@@ -151,6 +152,17 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
      */
     public Integer saveClusterNode(Integer parentId, String type, String ip, Integer port, String protocolType) {
         ClusterNodeRequest request = new ClusterNodeRequest();
+        request.setParentId(parentId);
+        request.setType(type);
+        request.setIp(ip);
+        request.setPort(port);
+        request.setProtocolType(protocolType);
+        return clusterService.saveNode(request, GLOBAL_OPERATOR);
+    }
+
+    public Integer saveDataProxyClusterNode(Integer parentId, String type, String ip, Integer port,
+            String protocolType) {
+        DataProxyClusterNodeRequest request = new DataProxyClusterNodeRequest();
         request.setParentId(parentId);
         request.setType(type);
         request.setIp(ip);
@@ -332,6 +344,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
 
         ClusterInfo info = clusterService.get(id, GLOBAL_OPERATOR);
         Assertions.assertInstanceOf(SortClsClusterInfo.class, info);
+        this.deleteCluster(id);
     }
 
     @Test
@@ -347,11 +360,11 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         // save cluster node
         String ip = "127.0.0.1";
         Integer port1 = 46800;
-        Integer nodeId1 = this.saveClusterNode(id, ClusterType.DATAPROXY, ip, port1, ProtocolType.TCP);
+        Integer nodeId1 = this.saveDataProxyClusterNode(id, ClusterType.DATAPROXY, ip, port1, ProtocolType.TCP);
         Assertions.assertNotNull(nodeId1);
 
         Integer port2 = 46801;
-        Integer nodeId2 = this.saveClusterNode(id, ClusterType.DATAPROXY, ip, port2, ProtocolType.TCP);
+        Integer nodeId2 = this.saveDataProxyClusterNode(id, ClusterType.DATAPROXY, ip, port2, ProtocolType.TCP);
         Assertions.assertNotNull(nodeId2);
 
         // create an inlong group which use the clusterTag

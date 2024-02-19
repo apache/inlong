@@ -90,3 +90,6 @@ jobs:
       # Perform CodeQL Analysis
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
+
+      - name: Clean up build packages
+        run: mvn clean

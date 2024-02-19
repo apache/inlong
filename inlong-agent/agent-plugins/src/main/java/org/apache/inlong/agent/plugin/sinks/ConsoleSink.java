@@ -17,11 +17,8 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
-import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.MessageFilter;
-
-import java.nio.charset.StandardCharsets;
 
 /**
  * message write to console
@@ -33,15 +30,8 @@ public class ConsoleSink extends AbstractSink {
     }
 
     @Override
-    public void write(Message message) {
-        if (message != null) {
-            System.out.println(new String(message.getBody(), StandardCharsets.UTF_8));
-            // increment the count of successful sinks
-            sinkMetric.sinkSuccessCount.incrementAndGet();
-        } else {
-            // increment the count of failed sinks
-            sinkMetric.sinkFailCount.incrementAndGet();
-        }
+    public boolean write(Message message) {
+        return true;
     }
 
     @Override
@@ -50,17 +40,17 @@ public class ConsoleSink extends AbstractSink {
     }
 
     @Override
-    public MessageFilter initMessageFilter(JobProfile jobConf) {
-        return null;
-    }
-
-    @Override
-    public void init(JobProfile jobConf) {
+    public void init(InstanceProfile jobConf) {
         super.init(jobConf);
     }
 
     @Override
     public void destroy() {
 
+    }
+
+    @Override
+    public boolean sinkFinish() {
+        return false;
     }
 }

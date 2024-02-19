@@ -28,14 +28,14 @@ public abstract class InLongMsgDeserializationInfo implements DeserializationInf
 
     private static final long serialVersionUID = 3707412713264864315L;
 
-    private final String tid;
+    private final String streamId;
 
-    public InLongMsgDeserializationInfo(@JsonProperty("tid") String tid) {
-        this.tid = checkNotNull(tid);
+    public InLongMsgDeserializationInfo(@JsonProperty("streamId") String streamId) {
+        this.streamId = checkNotNull(streamId);
     }
 
-    @JsonProperty("tid")
-    public String getTid() {
-        return tid;
+    @JsonProperty("streamId")
+    public String getStreamId() {
+        return streamId;
     }
 }

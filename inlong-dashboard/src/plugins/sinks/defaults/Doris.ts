@@ -24,29 +24,30 @@ import i18n from '@/i18n';
 import EditableTable from '@/ui/components/EditableTable';
 import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';
+import NodeSelect from '@/ui/components/NodeSelect';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, IngestionField, SyncMoveDbField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const dorisTargetTypes = [
-  'NULL_TYPE',
-  'BOOLEAN',
-  'TINYINT',
-  'SMALLINT',
-  'INT',
-  'BIGINT',
-  'FLOAT',
-  'DOUBLE',
-  'DATE',
-  'DATETIME',
-  'DECIMAL',
-  'CHAR',
-  'LARGEINT',
-  'VARCHAR',
-  'DECIMALV2',
-  'TIME',
-  'HLL',
+  'null_type',
+  'boolean',
+  'tinyint',
+  'smallint',
+  'int',
+  'bigint',
+  'float',
+  'double',
+  'date',
+  'datetime',
+  'decimal',
+  'char',
+  'largenint',
+  'varchar',
+  'decimalv2',
+  'time',
+  'hll',
 ].map(item => ({
   label: item,
   value: item,
@@ -63,29 +64,96 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
   @ColumnDecorator()
   @I18n('meta.Sinks.Doris.HttpAddress')
   @SyncField()
+  @IngestionField()
+  @SyncMoveDbField()
   feNodes: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: NodeSelect,
     rules: [{ required: true }],
     props: values => ({
       disabled: [110].includes(values?.status),
+      nodeType: 'DORIS',
     }),
   })
-  @I18n('meta.Sinks.Username')
+  @I18n('meta.Sinks.DataNodeName')
   @SyncField()
-  username: string;
+  @IngestionField()
+  @SyncMoveDbField()
+  dataNodeName: string;
 
   @FieldDecorator({
-    type: 'password',
+    type: 'radiobutton',
+    initialValue: '${database}',
+    tooltip: i18n.t('meta.Sinks.Doris.PatternHelp'),
     rules: [{ required: true }],
     props: values => ({
+      size: 'middle',
       disabled: [110].includes(values?.status),
+      options: [
+        {
+          label: i18n.t('meta.Sinks.Doris.Options.DBSameName'),
+          value: '${database}',
+          disabled: Boolean(values.id),
+        },
+        {
+          label: i18n.t('meta.Sinks.Doris.Options.Customize'),
+          value: 'false',
+          disabled: Boolean(values.id),
+        },
+      ],
     }),
+    suffix: {
+      type: 'input',
+      name: 'databasePattern',
+      visible: values =>
+        values.backupDatabase === 'false' ||
+        (values.id !== undefined && values.databasePattern !== '${database}'),
+      props: values => ({
+        style: { width: 100 },
+        disabled: [110].includes(values?.status),
+      }),
+    },
   })
-  @I18n('meta.Sinks.Password')
-  @SyncField()
-  password: string;
+  @SyncMoveDbField()
+  @I18n('meta.Sinks.Doris.DatabaseNamePattern')
+  backupDatabase: string;
+
+  @FieldDecorator({
+    type: 'radiobutton',
+    initialValue: '${table}',
+    rules: [{ required: true }],
+    tooltip: i18n.t('meta.Sinks.Doris.PatternHelp'),
+    props: values => ({
+      size: 'middle',
+      options: [
+        {
+          label: i18n.t('meta.Sinks.Doris.Options.TableSameName'),
+          value: '${table}',
+          disabled: Boolean(values.id),
+        },
+        {
+          label: i18n.t('meta.Sinks.Doris.Options.Customize'),
+          value: 'false',
+          disabled: Boolean(values.id),
+        },
+      ],
+    }),
+    suffix: {
+      type: 'input',
+      name: 'tablePattern',
+      visible: values =>
+        values.backupTable === 'false' ||
+        (values.id !== undefined && values.tablePattern !== '${table}'),
+      props: values => ({
+        style: { width: 100 },
+        disabled: [110].includes(values?.status),
+      }),
+    },
+  })
+  @SyncMoveDbField()
+  @I18n('meta.Sinks.Doris.TableNamePattern')
+  backupTable: string;
 
   @FieldDecorator({
     type: 'input',
@@ -97,6 +165,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
   @ColumnDecorator()
   @I18n('meta.Sinks.Doris.TableIdentifier')
   @SyncField()
+  @IngestionField()
   tableIdentifier: string;
 
   @FieldDecorator({
@@ -108,6 +177,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Doris.LabelPrefix')
   labelPrefix: string;
 
@@ -120,6 +190,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Doris.PrimaryKey')
   primaryKey: string;
 
@@ -143,6 +214,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
   })
   @I18n('meta.Sinks.Doris.SinkMultipleEnable')
   @SyncField()
+  @IngestionField()
   sinkMultipleEnable: boolean;
 
   @FieldDecorator({
@@ -155,6 +227,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
   @ColumnDecorator()
   @I18n('meta.Sinks.Doris.SinkMultipleFormat')
   @SyncField()
+  @IngestionField()
   sinkMultipleFormat: string;
 
   @FieldDecorator({
@@ -166,6 +239,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Doris.DatabasePattern')
   databasePattern: string;
 
@@ -178,6 +252,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Doris.TablePattern')
   tablePattern: string;
 
@@ -191,6 +266,7 @@ export default class DorisSink extends SinkInfo implements DataWithBackend, Rend
       upsertByFieldKey: true,
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
 }
 
@@ -198,14 +274,14 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `Doris${i18n.t('meta.Sinks.Doris.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('meta.Sinks.Doris.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -213,7 +289,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `Doris${i18n.t('meta.Sinks.Doris.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       initialValue: dorisTargetTypes[0].value,
       type: 'select',
@@ -255,7 +331,7 @@ const getFieldListColumns = sinkValues => {
       visible: (text, record) => ['BIGINT', 'DATE'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('meta.Sinks.Doris.FieldDescription'),
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },

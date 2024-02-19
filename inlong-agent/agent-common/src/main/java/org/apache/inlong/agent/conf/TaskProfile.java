@@ -32,6 +32,10 @@ import org.slf4j.LoggerFactory;
 import java.text.ParseException;
 import java.util.TimeZone;
 
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_RETRY;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_STATE;
 
@@ -62,7 +66,7 @@ public class TaskProfile extends AbstractConfiguration {
     }
 
     public String getTimeOffset() {
-        return get(TaskConstants.TASK_FILE_TIME_OFFSET);
+        return get(TaskConstants.TASK_FILE_TIME_OFFSET, "");
     }
 
     public String getTimeZone() {
@@ -89,6 +93,14 @@ public class TaskProfile extends AbstractConfiguration {
         set(TaskConstants.TASK_CLASS, className);
     }
 
+    public String getInlongGroupId() {
+        return get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
+    }
+
+    public String getInlongStreamId() {
+        return get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
+    }
+
     /**
      * parse json string to configuration instance.
      *
@@ -110,14 +122,16 @@ public class TaskProfile extends AbstractConfiguration {
         return hasKey(TaskConstants.TASK_ID) && hasKey(TaskConstants.TASK_SOURCE)
                 && hasKey(TaskConstants.TASK_SINK) && hasKey(TaskConstants.TASK_CHANNEL)
                 && hasKey(TaskConstants.TASK_GROUP_ID) && hasKey(TaskConstants.TASK_STREAM_ID)
-                && hasKey(TaskConstants.TASK_CYCLE_UNIT);
+                && hasKey(TaskConstants.TASK_CYCLE_UNIT)
+                && hasKey(TaskConstants.TASK_FILE_TIME_ZONE);
     }
 
     public String toJsonStr() {
         return GSON.toJson(getConfigStorage());
     }
 
-    public InstanceProfile createInstanceProfile(String instanceClass, String fileName, String dataTime,
+    public InstanceProfile createInstanceProfile(String instanceClass, String fileName, String cycleUnit,
+            String dataTime,
             long fileUpdateTime) {
         InstanceProfile instanceProfile = InstanceProfile.parseJsonStr(toJsonStr());
         instanceProfile.setInstanceClass(instanceClass);
@@ -125,10 +139,13 @@ public class TaskProfile extends AbstractConfiguration {
         instanceProfile.setSourceDataTime(dataTime);
         Long sinkDataTime = 0L;
         try {
-            sinkDataTime = DateTransUtils.timeStrConvertTomillSec(dataTime, getCycleUnit(),
+            sinkDataTime = DateTransUtils.timeStrConvertToMillSec(dataTime, cycleUnit,
                     TimeZone.getTimeZone(getTimeZone()));
         } catch (ParseException e) {
-            logger.error("createInstanceProfile error: ", e);
+            logger.error("createInstanceProfile ParseException error: ", e);
+            return null;
+        } catch (Exception e) {
+            logger.error("createInstanceProfile Exception error: ", e);
             return null;
         }
         instanceProfile.setSinkDataTime(sinkDataTime);

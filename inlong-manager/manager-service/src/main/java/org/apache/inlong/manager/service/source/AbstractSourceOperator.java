@@ -35,6 +35,7 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
+import org.apache.inlong.manager.service.node.DataNodeService;
 
 import com.github.pagehelper.Page;
 import org.apache.commons.collections.CollectionUtils;
@@ -62,6 +63,8 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     protected StreamSourceFieldEntityMapper sourceFieldMapper;
     @Autowired
     protected InlongStreamFieldEntityMapper streamFieldMapper;
+    @Autowired
+    protected DataNodeService dataNodeService;
 
     /**
      * Getting the source type.
@@ -77,6 +80,11 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
      * @param targetEntity entity object which will set the new parameters.
      */
     protected abstract void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity);
+
+    @Override
+    public String getExtParams(StreamSourceEntity sourceEntity) {
+        return sourceEntity.getExtParams();
+    }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)

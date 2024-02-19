@@ -29,20 +29,17 @@ import com.google.gson.Gson;
 import lombok.Data;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_ADDR;
 import static org.apache.inlong.agent.constant.TaskConstants.SYNC_SEND_OPEN;
 import static org.apache.inlong.common.enums.DataReportTypeEnum.NORMAL_SEND_TO_DATAPROXY;
 
 @Data
 public class TaskProfileDto {
 
-    public static final String DEFAULT_FILE_TASK = "org.apache.inlong.agent.plugin.task.filecollect.LogFileCollectTask";
+    public static final String DEFAULT_FILE_TASK = "org.apache.inlong.agent.plugin.task.file.LogFileTask";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
-    public static final String DEFAULT_DATAPROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
-    public static final String FILE_DATAPROXY_SINK =
-            "org.apache.inlong.agent.plugin.sinks.filecollect.ProxySink";
+    public static final String DEFAULT_DATA_PROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
     public static final String PULSAR_SINK = "org.apache.inlong.agent.plugin.sinks.PulsarSink";
     public static final String KAFKA_SINK = "org.apache.inlong.agent.plugin.sinks.KafkaSink";
 
@@ -138,6 +135,7 @@ public class TaskProfileDto {
         fileTask.setDir(dir);
         fileTask.setCollectType(taskConfig.getCollectType());
         fileTask.setContentCollectType(taskConfig.getContentCollectType());
+        fileTask.setDataContentStyle(taskConfig.getDataContentStyle());
         fileTask.setDataSeparator(taskConfig.getDataSeparator());
         fileTask.setMaxFileCount(taskConfig.getMaxFileCount());
         fileTask.setRetry(taskConfig.getRetry());
@@ -375,8 +373,7 @@ public class TaskProfileDto {
         Proxy proxy = new Proxy();
         Manager manager = new Manager();
         AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
-        manager.setHost(agentConf.get(AGENT_MANAGER_VIP_HTTP_HOST));
-        manager.setPort(agentConf.get(AGENT_MANAGER_VIP_HTTP_PORT));
+        manager.setAddr(agentConf.get(AGENT_MANAGER_ADDR));
         proxy.setInlongGroupId(dataConfigs.getInlongGroupId());
         proxy.setInlongStreamId(dataConfigs.getInlongStreamId());
         proxy.setManager(manager);
@@ -417,10 +414,10 @@ public class TaskProfileDto {
 
         // set sink type
         if (dataConfig.getDataReportType() == NORMAL_SEND_TO_DATAPROXY.ordinal()) {
-            task.setSink(FILE_DATAPROXY_SINK);
+            task.setSink(DEFAULT_DATA_PROXY_SINK);
             task.setProxySend(false);
         } else if (dataConfig.getDataReportType() == 1) {
-            task.setSink(FILE_DATAPROXY_SINK);
+            task.setSink(DEFAULT_DATA_PROXY_SINK);
             task.setProxySend(true);
         } else {
             String mqType = dataConfig.getMqClusters().get(0).getMqType();
@@ -537,8 +534,7 @@ public class TaskProfileDto {
     @Data
     public static class Manager {
 
-        private String port;
-        private String host;
+        private String addr;
     }
 
     @Data

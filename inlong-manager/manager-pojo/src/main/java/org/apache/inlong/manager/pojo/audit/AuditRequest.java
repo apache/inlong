@@ -24,8 +24,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.validation.constraints.NotBlank;
-
 import java.util.List;
 
 /**
@@ -36,15 +34,16 @@ import java.util.List;
 @ApiModel("Audit query request")
 public class AuditRequest {
 
-    @NotBlank(message = "inlongGroupId not be blank")
-    @ApiModelProperty(value = "inlong group id", required = true)
+    @ApiModelProperty(value = "inlong group id")
     private String inlongGroupId;
 
-    @NotBlank(message = "inlongStreamId not be blank")
-    @ApiModelProperty(value = "inlong stream id", required = true)
+    @ApiModelProperty(value = "inlong stream id")
     private String inlongStreamId;
 
-    @ApiModelProperty(value = "audit id list", required = true)
+    @ApiModelProperty(value = "ip for current node")
+    private String ip;
+
+    @ApiModelProperty(value = "audit id list")
     private List<String> auditIds;
 
     @ApiModelProperty(value = "sink id")

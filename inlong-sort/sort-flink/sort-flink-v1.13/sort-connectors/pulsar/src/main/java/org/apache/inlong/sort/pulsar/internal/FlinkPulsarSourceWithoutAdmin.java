@@ -436,9 +436,9 @@ public class FlinkPulsarSourceWithoutAdmin<T>
 
         if (this.deserializer != null) {
 
-            DynamicPulsarDeserializationSchema dynamicKafkaDeserializationSchema =
+            DynamicPulsarDeserializationSchema dynamicPulsarDeserializationSchema =
                     (DynamicPulsarDeserializationSchema) deserializer;
-            dynamicKafkaDeserializationSchema.setMetricData(sourceMetricData);
+            dynamicPulsarDeserializationSchema.setMetricData(sourceMetricData);
 
             this.deserializer.open(
                     RuntimeContextInitializationContextAdapters.deserializationAdapter(

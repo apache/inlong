@@ -18,11 +18,13 @@
 package org.apache.inlong.manager.service.source.pulsar;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
+import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
@@ -30,6 +32,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
+import org.apache.inlong.manager.pojo.node.pulsar.PulsarDataNodeInfo;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
@@ -85,6 +88,19 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
     }
 
     @Override
+    public String getExtParams(StreamSourceEntity sourceEntity) {
+        PulsarSourceDTO pulsarSourceDTO = JsonUtils.parseObject(sourceEntity.getExtParams(),
+                PulsarSourceDTO.class);
+        if (java.util.Objects.nonNull(pulsarSourceDTO) && StringUtils.isBlank(pulsarSourceDTO.getAdminUrl())) {
+            PulsarDataNodeInfo dataNodeInfo = (PulsarDataNodeInfo) dataNodeService.get(
+                    sourceEntity.getDataNodeName(), DataNodeType.PULSAR);
+            CommonBeanUtils.copyProperties(dataNodeInfo, pulsarSourceDTO, true);
+            return JsonUtils.toJsonString(pulsarSourceDTO);
+        }
+        return sourceEntity.getExtParams();
+    }
+
+    @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
         PulsarSourceRequest sourceRequest = (PulsarSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
@@ -105,6 +121,15 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
         }
 
         PulsarSourceDTO dto = PulsarSourceDTO.getFromJson(entity.getExtParams());
+        if (StringUtils.isBlank(dto.getAdminUrl())) {
+            if (StringUtils.isBlank(entity.getDataNodeName())) {
+                throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                        "pulsar admin url unspecified and data node is blank");
+            }
+            PulsarDataNodeInfo dataNodeInfo = (PulsarDataNodeInfo) dataNodeService.get(
+                    entity.getDataNodeName(), DataNodeType.PULSAR);
+            CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
+        }
         CommonBeanUtils.copyProperties(entity, source, true);
         CommonBeanUtils.copyProperties(dto, source, true);
 

@@ -74,7 +74,7 @@ public class RowFormatInfo implements FormatInfo {
             fieldTypeInfos[i] = fieldFormatInfos[i].getTypeInfo();
         }
 
-        return new RowTypeInfo(fieldNames, fieldTypeInfos);
+        return new RowTypeInfo(fieldNames, fieldTypeInfos, new String[fieldNames.length]);
     }
 
     private static void checkArity(

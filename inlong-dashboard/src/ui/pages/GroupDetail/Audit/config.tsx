@@ -71,7 +71,7 @@ export const toChartData = (source, sourceDataMap) => {
   const xAxisData = Object.keys(sourceDataMap);
   return {
     legend: {
-      data: source.map(item => getAuditLabel(item.auditId, item.nodeType)),
+      data: source.map(item => item.auditName),
     },
     tooltip: {
       trigger: 'axis',
@@ -84,7 +84,7 @@ export const toChartData = (source, sourceDataMap) => {
       type: 'value',
     },
     series: source.map(item => ({
-      name: getAuditLabel(item.auditId, item.nodeType),
+      name: item.auditName,
       type: 'line',
       data: xAxisData.map(logTs => sourceDataMap[logTs]?.[item.auditId] || 0),
     })),
@@ -107,17 +107,20 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
     name: 'inlongStreamId',
     props: {
       dropdownMatchSelectWidth: false,
+      showSearch: true,
       options: {
         requestAuto: true,
-        requestService: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
           url: '/stream/list',
           method: 'POST',
           data: {
+            keyword,
             pageNum: 1,
-            pageSize: 1000,
+            pageSize: 100,
             inlongGroupId,
           },
-        },
+        }),
         requestParams: {
           formatResult: result =>
             result?.list.map(item => ({
@@ -136,17 +139,20 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
     name: 'sinkId',
     props: values => ({
       dropdownMatchSelectWidth: false,
+      showSearch: true,
       options: {
-        requestService: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
           url: '/sink/list',
           method: 'POST',
           data: {
+            keyword,
             pageNum: 1,
-            pageSize: 1000,
+            pageSize: 100,
             inlongGroupId,
             inlongStreamId: values.inlongStreamId,
           },
-        },
+        }),
         requestParams: {
           formatResult: result =>
             result?.list.map(item => ({
@@ -200,6 +206,31 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
     },
   },
   {
+    type: 'select',
+    label: i18n.t('pages.GroupDetail.Audit.Item'),
+    name: 'auditIds',
+    props: {
+      mode: 'multiple',
+      maxTagCount: 3,
+      allowClear: true,
+      dropdownMatchSelectWidth: false,
+      options: {
+        requestAuto: true,
+        requestService: {
+          url: '/audit/getAuditBases',
+          method: 'GET',
+        },
+        requestParams: {
+          formatResult: result =>
+            result?.map(item => ({
+              label: item.name,
+              value: item.auditId,
+            })) || [],
+        },
+      },
+    },
+  },
+  {
     type: (
       <Button type="primary" onClick={onSearch}>
         {i18n.t('pages.GroupDetail.Audit.Search')}
@@ -210,7 +241,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
 
 export const getTableColumns = source => {
   const data = source.map(item => ({
-    title: getAuditLabel(item.auditId, item.nodeType),
+    title: item.auditName,
     dataIndex: item.auditId,
     render: text => text || 0,
   }));

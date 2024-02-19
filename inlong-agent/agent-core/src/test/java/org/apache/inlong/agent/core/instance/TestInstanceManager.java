@@ -19,10 +19,14 @@ package org.apache.inlong.agent.core.instance;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
+import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.AgentBaseTestsHelper;
-import org.apache.inlong.agent.core.task.file.TaskManager;
+import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.db.Db;
+import org.apache.inlong.agent.db.InstanceDb;
+import org.apache.inlong.agent.db.TaskProfileDb;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.common.enums.InstanceStateEnum;
 import org.apache.inlong.common.enums.TaskStateEnum;
 
@@ -33,6 +37,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.ParseException;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
@@ -49,10 +55,12 @@ public class TestInstanceManager {
         helper = new AgentBaseTestsHelper(TestInstanceManager.class.getName()).setupAgentHome();
         String pattern = helper.getTestRootDir() + "/YYYYMMDD_[0-9]+.txt";
         Db basicDb = TaskManager.initDb("/localdb");
-        taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING);
-        manager = new InstanceManager("1", 2, basicDb);
+        taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING, "GMT+6:00");
+        Db taskBasicDb = TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_TASK);
+        TaskProfileDb taskDb = new TaskProfileDb(taskBasicDb);
+        taskDb.storeTask(taskProfile);
+        manager = new InstanceManager("1", 20, basicDb, taskDb);
         manager.CORE_THREAD_SLEEP_TIME_MS = 100;
-        manager.start();
     }
 
     @AfterClass
@@ -63,9 +71,31 @@ public class TestInstanceManager {
 
     @Test
     public void testInstanceManager() {
+        InstanceDb instanceDb = manager.getInstanceDb();
+        for (int i = 1; i <= 10; i++) {
+            InstanceProfile profile = taskProfile.createInstanceProfile(MockInstance.class.getCanonicalName(),
+                    String.valueOf(i), taskProfile.getCycleUnit(), "2023092710",
+                    AgentUtils.getCurrentTime());
+            instanceDb.storeInstance(profile);
+        }
+        manager.start();
+        for (int i = 1; i <= 10; i++) {
+            String instanceId = String.valueOf(i);
+            await().atMost(1, TimeUnit.SECONDS).until(() -> manager.getInstance(instanceId) != null);
+            Assert.assertTrue(manager.getInstanceProfile(instanceId).getState() == InstanceStateEnum.DEFAULT);
+        }
         long timeBefore = AgentUtils.getCurrentTime();
         InstanceProfile profile = taskProfile.createInstanceProfile(MockInstance.class.getCanonicalName(),
-                helper.getTestRootDir() + "/2023092710_1.txt", "2023092710", AgentUtils.getCurrentTime());
+                helper.getTestRootDir() + "/2023092710_1.txt", taskProfile.getCycleUnit(), "2023092710",
+                AgentUtils.getCurrentTime());
+        String sinkDataTime = String.valueOf(profile.getSinkDataTime());
+        try {
+            String add2TimeZone = String.valueOf(
+                    DateTransUtils.timeStrConvertToMillSec("2023092712", "h", TimeZone.getTimeZone("GMT+8:00")));
+            Assert.assertTrue(sinkDataTime, sinkDataTime.equals(add2TimeZone));
+        } catch (ParseException e) {
+            LOGGER.error("testInstanceManager error: ", e);
+        }
         String instanceId = profile.getInstanceId();
         InstanceAction action = new InstanceAction();
         action.setActionType(ActionType.ADD);
@@ -87,7 +117,8 @@ public class TestInstanceManager {
 
         // test continue
         profile = taskProfile.createInstanceProfile(MockInstance.class.getCanonicalName(),
-                helper.getTestRootDir() + "/2023092710_1.txt", "2023092710", AgentUtils.getCurrentTime());
+                helper.getTestRootDir() + "/2023092710_1.txt", taskProfile.getCycleUnit(), "2023092710",
+                AgentUtils.getCurrentTime());
         action = new InstanceAction();
         action.setActionType(ActionType.ADD);
         action.setProfile(profile);
@@ -101,6 +132,5 @@ public class TestInstanceManager {
         await().atMost(1, TimeUnit.SECONDS).until(() -> manager.getInstanceProfile(instanceId) == null);
         Assert.assertTrue(String.valueOf(instance.initTime), instance.initTime == MockInstance.INIT_TIME);
         Assert.assertTrue(instance.runtime > instance.initTime);
-        Assert.assertTrue(instance.destroyTime > instance.runtime);
     }
 }

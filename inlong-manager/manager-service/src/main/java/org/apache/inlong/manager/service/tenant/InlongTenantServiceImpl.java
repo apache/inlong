@@ -293,9 +293,9 @@ public class InlongTenantServiceImpl implements InlongTenantService {
     public String copyDataNode(String name, String type, String from, String to) {
         DataNodeEntity oldDatanode = dataNodeEntityMapper.selectByUniqueKey(name, type);
         oldDatanode.setTenant(to);
-        DataNodeEntity newDatanode = dataNodeEntityMapper.selectByIdSelective(oldDatanode);
-        if (newDatanode != null) {
-            return newDatanode.getName();
+        List<DataNodeEntity> newDatanodeList = dataNodeEntityMapper.selectByIdSelective(oldDatanode);
+        if (CollectionUtils.isNotEmpty(newDatanodeList)) {
+            return newDatanodeList.get(0).getName();
         }
         String newName = UUID.randomUUID().toString();
         if (dataNodeEntityMapper.copy(name, type, from, to, newName) != InlongConstants.AFFECTED_ONE_ROW) {

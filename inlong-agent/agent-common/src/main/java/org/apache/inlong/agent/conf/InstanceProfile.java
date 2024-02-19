@@ -32,6 +32,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.TaskConstants.INSTANCE_STATE;
 import static org.apache.inlong.agent.constant.TaskConstants.JOB_MQ_ClUSTERS;
 import static org.apache.inlong.agent.constant.TaskConstants.JOB_MQ_TOPIC;
@@ -103,6 +107,14 @@ public class InstanceProfile extends AbstractConfiguration implements Comparable
 
     public String getPredefineFields() {
         return get(TaskConstants.PREDEFINE_FIELDS, "");
+    }
+
+    public String getInlongGroupId() {
+        return get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
+    }
+
+    public String getInlongStreamId() {
+        return get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
     }
 
     @Override

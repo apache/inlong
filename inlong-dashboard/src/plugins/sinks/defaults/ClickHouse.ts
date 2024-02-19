@@ -25,9 +25,10 @@ import EditableTable from '@/ui/components/EditableTable';
 import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';
 import NodeSelect from '@/ui/components/NodeSelect';
+import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const clickHouseTargetTypes = [
@@ -58,18 +59,27 @@ export default class ClickHouseSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.ClickHouse.DbName')
   dbName: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: CreateTable,
     rules: [{ required: true }],
     props: values => ({
       disabled: [110].includes(values?.status),
+      sinkType: values.sinkType,
+      inlongGroupId: values.inlongGroupId,
+      inlongStreamId: values.inlongStreamId,
+      fieldName: 'tableName',
+      sinkObj: {
+        ...values,
+      },
     }),
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.ClickHouse.TableName')
   tableName: string;
 
@@ -92,6 +102,7 @@ export default class ClickHouseSink
       ],
     }),
   })
+  @IngestionField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
@@ -105,6 +116,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.DataNodeName')
   @SyncField()
+  @IngestionField()
   @ColumnDecorator()
   dataNodeName: string;
 
@@ -119,7 +131,9 @@ export default class ClickHouseSink
     suffix: i18n.t('meta.Sinks.ClickHouse.FlushIntervalUnit'),
   })
   @I18n('meta.Sinks.ClickHouse.FlushInterval')
+  @SyncCreateTableField()
   @ColumnDecorator()
+  @IngestionField()
   flushInterval: number;
 
   @FieldDecorator({
@@ -134,6 +148,8 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.FlushRecord')
   @ColumnDecorator()
+  @IngestionField()
+  @SyncCreateTableField()
   flushRecord: number;
 
   @FieldDecorator({
@@ -148,7 +164,9 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.RetryTimes')
   @ColumnDecorator()
-  retryTime: number;
+  @IngestionField()
+  @SyncCreateTableField()
+  retryTimes: number;
 
   @FieldDecorator({
     type: 'radio',
@@ -170,6 +188,8 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.IsDistributed')
   @ColumnDecorator()
+  @IngestionField()
+  @SyncCreateTableField()
   isDistributed: number;
 
   @FieldDecorator({
@@ -197,6 +217,8 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.PartitionStrategy')
   @ColumnDecorator()
+  @IngestionField()
+  @SyncCreateTableField()
   partitionStrategy: string;
 
   @FieldDecorator({
@@ -209,6 +231,8 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.PartitionFields')
   @ColumnDecorator()
+  @IngestionField()
+  @SyncCreateTableField()
   partitionFields: string;
 
   @FieldDecorator({
@@ -235,6 +259,8 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.Engine')
   @ColumnDecorator()
+  @IngestionField()
+  @SyncCreateTableField()
   engine: string;
 
   @FieldDecorator({
@@ -244,6 +270,8 @@ export default class ClickHouseSink
     }),
   })
   @I18n('meta.Sinks.ClickHouse.OrderBy')
+  @SyncCreateTableField()
+  @IngestionField()
   orderBy: string;
 
   @FieldDecorator({
@@ -254,6 +282,8 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.PartitionBy')
   @ColumnDecorator()
+  @IngestionField()
+  @SyncCreateTableField()
   partitionBy: string;
 
   @FieldDecorator({
@@ -264,6 +294,7 @@ export default class ClickHouseSink
   })
   @I18n('meta.Sinks.ClickHouse.PrimaryKey')
   @SyncField()
+  @IngestionField()
   primaryKey: string;
 
   @FieldDecorator({
@@ -273,7 +304,9 @@ export default class ClickHouseSink
     }),
   })
   @I18n('meta.Sinks.ClickHouse.Cluster')
+  @SyncCreateTableField()
   @ColumnDecorator()
+  @IngestionField()
   cluster: string;
 
   @FieldDecorator({
@@ -328,6 +361,8 @@ export default class ClickHouseSink
   })
   @I18n('Time To Live')
   @ColumnDecorator()
+  @IngestionField()
+  @SyncCreateTableField()
   ttl: number;
 
   @FieldDecorator({
@@ -340,20 +375,37 @@ export default class ClickHouseSink
       upsertByFieldKey: true,
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
+
+  @FieldDecorator({
+    type: EditableTable,
+    initialValue: [],
+    props: values => ({
+      size: 'small',
+      editing: ![110].includes(values?.status),
+      columns: getFieldListColumns(values).filter(
+        item => item.dataIndex !== 'sourceFieldName' && item.dataIndex !== 'sourceFieldType',
+      ),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
+    }),
+  })
+  @SyncCreateTableField()
+  createTableField: Record<string, unknown>[];
 }
 
 const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `ClickHouse${i18n.t('meta.Sinks.ClickHouse.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       dataIndex: 'fieldName',
       rules: [
         { required: true },
         {
           pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-          message: i18n.t('meta.Sinks.ClickHouse.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -361,7 +413,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `ClickHouse${i18n.t('meta.Sinks.ClickHouse.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       initialValue: clickHouseTargetTypes[0].value,
       type: 'select',
@@ -372,7 +424,7 @@ const getFieldListColumns = sinkValues => {
       rules: [{ required: true, message: `${i18n.t('meta.Sinks.FieldTypeMessage')}` }],
     },
     {
-      title: 'DefaultType',
+      title: 'Default type',
       dataIndex: 'defaultType',
       type: 'autocomplete',
       props: (text, record, idx, isNew) => ({
@@ -384,7 +436,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: 'DefaultExpr',
+      title: 'Default expr',
       dataIndex: 'defaultExpr',
       type: 'input',
       props: (text, record, idx, isNew) => ({
@@ -408,7 +460,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `ClickHouse${i18n.t('meta.Sinks.ClickHouse.FieldDescription')}`,
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
       props: (text, record, idx, isNew) => ({
         disabled: [110].includes(sinkValues?.status as number) && !isNew,

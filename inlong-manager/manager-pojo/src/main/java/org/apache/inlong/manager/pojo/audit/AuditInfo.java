@@ -26,19 +26,34 @@ import lombok.Data;
 @Data
 public class AuditInfo {
 
+    @ApiModelProperty(value = "inlong group id")
+    private String inlongGroupId;
+
+    @ApiModelProperty(value = "inlong stream id")
+    private String inlongStreamId;
+
+    @ApiModelProperty(value = "ip")
+    private String ip;
+
     @ApiModelProperty(value = "Audit log timestamp")
     private String logTs;
+
     @ApiModelProperty(value = "Audit count")
     private long count;
+
     @ApiModelProperty(value = "Audit delay")
     private long delay;
+
+    @ApiModelProperty(value = "Audit size")
+    private long size;
 
     public AuditInfo() {
     }
 
-    public AuditInfo(String logTs, long count, long delay) {
+    public AuditInfo(String logTs, long count, long delay, long size) {
         this.logTs = logTs;
         this.count = count;
         this.delay = delay;
+        this.size = size;
     }
 }

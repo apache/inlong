@@ -33,7 +33,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tencentcloudapi.cls.v20201016.ClsClient;
 import com.tencentcloudapi.cls.v20201016.models.DescribeTopicsRequest;
 import com.tencentcloudapi.common.Credential;
-import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 import com.tencentcloudapi.common.profile.ClientProfile;
 import com.tencentcloudapi.common.profile.HttpProfile;
 import org.apache.commons.lang3.StringUtils;
@@ -99,7 +98,7 @@ public class ClsDataNodeOperator extends AbstractDataNodeOperator {
         DescribeTopicsRequest req = new DescribeTopicsRequest();
         try {
             client.DescribeTopics(req);
-        } catch (TencentCloudSDKException e) {
+        } catch (Exception e) {
             String errMsg = String.format("connect tencent cloud error endPoint = %s secretId = %s secretKey = %s",
                     dataNodeRequest.getEndpoint(), dataNodeRequest.getManageSecretId(),
                     dataNodeRequest.getManageSecretKey());

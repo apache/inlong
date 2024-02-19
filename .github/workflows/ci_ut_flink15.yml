@@ -60,7 +60,7 @@ jobs:
           CI: false
 
       - name: Unit test for Flink 1.15 with Maven
-        run: mvn --update-snapshots -e -V test -pl :sort-core,:sort-end-to-end-tests-v1.15 -am -Pv1.15
+        run: mvn --update-snapshots -e -V verify -pl :sort-core,:sort-end-to-end-tests-v1.15 -am -Pv1.15
         env:
           CI: false
 
@@ -79,3 +79,6 @@ jobs:
           name: failsafe-reports
           path: ./**/target/failsafe-reports/
           if-no-files-found: ignore
+
+      - name: Clean up build packages
+        run: mvn clean

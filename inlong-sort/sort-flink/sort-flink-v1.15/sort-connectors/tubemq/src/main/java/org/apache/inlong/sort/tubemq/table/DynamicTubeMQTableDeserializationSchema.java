@@ -110,6 +110,13 @@ public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDes
     }
 
     @Override
+    public void flushAudit() {
+        if (sourceMetricData != null) {
+            sourceMetricData.flushAuditData();
+        }
+    }
+
+    @Override
     public TypeInformation<RowData> getProducedType() {
         return producedTypeInfo;
     }

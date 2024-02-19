@@ -34,6 +34,7 @@ import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.format.RawFormat;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -75,6 +76,9 @@ public interface ExtractNodeProvider extends NodeProvider {
      */
     default List<FieldInfo> parseStreamFieldInfos(List<StreamField> streamFields, String nodeId,
             FieldTypeMappingStrategy fieldTypeMappingStrategy) {
+        if (CollectionUtils.isEmpty(streamFields)) {
+            return null;
+        }
         // Filter constant fields
         return streamFields.stream().filter(s -> Objects.isNull(s.getFieldValue()))
                 .map(streamFieldInfo -> FieldInfoUtils

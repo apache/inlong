@@ -113,29 +113,5 @@ public class ProxyUtils {
                 throw new IllegalArgumentException("Authentication require secretKey not Blank!");
             }
         }
-        if (!clientConfig.isLocalVisit()) {
-            // if(!clientConfig.isNeedDataEncry()) {
-            // throw new IllegalArgumentException("OutNetwork visit isNeedDataEncry must be true!");
-            // }
-            if (!clientConfig.isNeedAuthentication()) {
-                throw new IllegalArgumentException("OutNetwork visit isNeedAuthentication must be true!");
-            }
-            if (Utils.isBlank(clientConfig.getUserName())) {
-                throw new IllegalArgumentException("Authentication require userName not Blank!");
-            }
-            if (Utils.isBlank(clientConfig.getSecretKey())) {
-                throw new IllegalArgumentException("Authentication require secretKey not Blank!");
-            }
-            if (!clientConfig.isNeedVerServer()) {
-                throw new IllegalArgumentException("OutNetwork visit need https, please set https parameters!");
-            }
-            if (Utils.isBlank(clientConfig.getTlsServerCertFilePathAndName())) {
-                throw new IllegalArgumentException("OutNetwork visit need https, "
-                        + "TlsServerCertFilePathAndName is Blank!");
-            }
-            if (Utils.isBlank(clientConfig.getTlsServerKey())) {
-                throw new IllegalArgumentException("OutNetwork visit need https, tlsServerKey is Blank!");
-            }
-        }
     }
 }

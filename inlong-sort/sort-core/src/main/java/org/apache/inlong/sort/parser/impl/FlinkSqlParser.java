@@ -23,10 +23,12 @@ import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.MapFormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
+import org.apache.inlong.sort.function.EmbeddingFunction;
 import org.apache.inlong.sort.function.EncryptFunction;
 import org.apache.inlong.sort.function.JsonGetterFunction;
 import org.apache.inlong.sort.function.RegexpReplaceFirstFunction;
 import org.apache.inlong.sort.function.RegexpReplaceFunction;
+import org.apache.inlong.sort.function.RoundTimestampFunction;
 import org.apache.inlong.sort.parser.Parser;
 import org.apache.inlong.sort.parser.result.FlinkSqlParseResult;
 import org.apache.inlong.sort.parser.result.ParseResult;
@@ -73,6 +75,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.apache.inlong.common.util.MaskDataUtils.maskSensitiveMessage;
+import static org.apache.inlong.sort.function.EmbeddingFunction.DEFAULT_EMBEDDING_FUNCTION_NAME;
 
 /**
  * Flink sql parse handler
@@ -122,6 +125,8 @@ public class FlinkSqlParser implements Parser {
         tableEnv.createTemporarySystemFunction("REGEXP_REPLACE", RegexpReplaceFunction.class);
         tableEnv.createTemporarySystemFunction("ENCRYPT", EncryptFunction.class);
         tableEnv.createTemporarySystemFunction("JSON_GETTER", JsonGetterFunction.class);
+        tableEnv.createTemporarySystemFunction(DEFAULT_EMBEDDING_FUNCTION_NAME, EmbeddingFunction.class);
+        tableEnv.createTemporarySystemFunction("ROUND_TIMESTAMP", RoundTimestampFunction.class);
     }
 
     /**

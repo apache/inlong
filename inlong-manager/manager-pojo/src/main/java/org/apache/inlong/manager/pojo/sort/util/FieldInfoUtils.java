@@ -290,7 +290,6 @@ public class FieldInfoUtils {
                     formatInfo = new DateFormatInfo();
                 }
                 break;
-            case DATETIME:
             case TIME:
                 if (StringUtils.isNotBlank(format)) {
                     formatInfo = new TimeFormatInfo(convertTimestampOrDataFormat(format));
@@ -298,7 +297,9 @@ public class FieldInfoUtils {
                     formatInfo = new TimeFormatInfo();
                 }
                 break;
+            case TIMESTAMPTZ:
             case TIMESTAMP:
+            case DATETIME:
                 if (StringUtils.isNotBlank(format)) {
                     formatInfo = new TimestampFormatInfo(convertTimestampOrDataFormat(format));
                 } else {

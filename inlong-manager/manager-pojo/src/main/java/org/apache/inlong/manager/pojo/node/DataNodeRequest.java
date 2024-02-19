@@ -48,7 +48,7 @@ public abstract class DataNodeRequest {
     private Integer id;
 
     @ApiModelProperty(value = "Data node name")
-    @Pattern(regexp = "^[A-Za-z0-9_-]{1,128}$", message = "only supports letters, numbers, '-', or '_'")
+    @Pattern(regexp = "^[A-Za-z0-9._-]{1,128}$", message = "only supports letters, numbers, '.', '-', or '_'")
     private String name;
 
     @ApiModelProperty(value = "Data node display name, just for display")

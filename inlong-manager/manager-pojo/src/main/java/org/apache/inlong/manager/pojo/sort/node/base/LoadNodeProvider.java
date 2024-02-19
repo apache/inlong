@@ -40,6 +40,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -144,5 +145,17 @@ public interface LoadNodeProvider extends NodeProvider {
 
     default List<SinkField> addSinkMetaFields(List<SinkField> sinkFields) {
         return sinkFields;
+    }
+
+    default Boolean isSinkMultiple(StreamNode nodeInfo) {
+        return false;
+    }
+
+    default List<StreamField> addStreamFieldsForSinkMultiple(List<StreamField> streamFields) {
+        return new ArrayList<>();
+    }
+
+    default List<SinkField> addSinkFieldsForSinkMultiple(List<SinkField> sinkFields) {
+        return new ArrayList<>();
     }
 }

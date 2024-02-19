@@ -40,6 +40,6 @@ public class SourceInfo {
 
     @ParseStatus(clazz = SimpleSourceStatus.class)
     private String status;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
     private Date modifyTime;
 }

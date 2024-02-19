@@ -20,10 +20,10 @@ package org.apache.inlong.agent.plugin.task;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.TaskConstants;
-import org.apache.inlong.agent.core.task.file.TaskManager;
+import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
-import org.apache.inlong.agent.plugin.task.filecollect.LogFileCollectTask;
+import org.apache.inlong.agent.plugin.task.file.LogFileTask;
 import org.apache.inlong.common.enums.TaskStateEnum;
 
 import com.google.gson.Gson;
@@ -50,13 +50,13 @@ import java.util.concurrent.TimeUnit;
 import static org.awaitility.Awaitility.await;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(LogFileCollectTask.class)
+@PrepareForTest(LogFileTask.class)
 @PowerMockIgnore({"javax.management.*"})
 public class TestLogfileCollectTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestLogfileCollectTask.class);
     private static final ClassLoader LOADER = TestLogfileCollectTask.class.getClassLoader();
-    private static LogFileCollectTask task;
+    private static LogFileTask task;
     private static AgentBaseTestsHelper helper;
     private static final Gson GSON = new Gson();
     private static TaskManager manager;
@@ -79,7 +79,7 @@ public class TestLogfileCollectTask {
         tempResourceName = LOADER.getResource("testScan/temp.txt").getPath();
         File f = new File(tempResourceName);
         String pattern = f.getParent() + "/YYYYMMDD_[0-9]+/test_[0-9]+.txt";
-        TaskProfile taskProfile = helper.getTaskProfile(1, pattern, true, 0L, 0L, TaskStateEnum.RUNNING);
+        TaskProfile taskProfile = helper.getTaskProfile(1, pattern, true, 0L, 0L, TaskStateEnum.RUNNING, "D");
         try {
             String startStr = "2023-09-20 00:00:00";
             String endStr = "2023-09-30 00:00:00";
@@ -90,7 +90,7 @@ public class TestLogfileCollectTask {
             taskProfile.setLong(TaskConstants.TASK_START_TIME, start);
             taskProfile.setLong(TaskConstants.TASK_END_TIME, end);
             manager = new TaskManager();
-            task = PowerMockito.spy(new LogFileCollectTask());
+            task = PowerMockito.spy(new LogFileTask());
             PowerMockito.doAnswer(invocation -> {
                 fileName = invocation.getArgument(0);
                 dataTime = invocation.getArgument(1);

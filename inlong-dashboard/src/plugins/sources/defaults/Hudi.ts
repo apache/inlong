@@ -25,7 +25,7 @@ import i18n from '@/i18n';
 import EditableTable from '@/ui/components/EditableTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 export default class HudiSource
@@ -41,6 +41,7 @@ export default class HudiSource
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Hudi.DbName')
   dbName: string;
 
@@ -53,6 +54,7 @@ export default class HudiSource
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Hudi.TableName')
   tableName: string;
 
@@ -66,6 +68,7 @@ export default class HudiSource
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('Catalog URI')
   catalogUri: string;
 
@@ -79,6 +82,7 @@ export default class HudiSource
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Hudi.Warehouse')
   warehouse: string;
 
@@ -103,6 +107,7 @@ export default class HudiSource
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Hudi.ReadStreamingSkipCompaction')
   readStreamingSkipCompaction: boolean;
 
@@ -117,6 +122,7 @@ export default class HudiSource
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Hudi.ReadStartCommit')
   readStartCommit: string;
 
@@ -147,6 +153,7 @@ export default class HudiSource
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Hudi.ExtList')
   extList: string;
 }

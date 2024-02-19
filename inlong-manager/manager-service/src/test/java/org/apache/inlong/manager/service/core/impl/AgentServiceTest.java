@@ -105,6 +105,7 @@ class AgentServiceTest extends ServiceBaseTest {
         sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
         sourceInfo.setSourceType(SourceType.MYSQL_BINLOG);
         sourceInfo.setSourceName("binlog_source_in_agent_service_test");
+        sourceInfo.setHostname("127.0.0.1");
         return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
     }
 

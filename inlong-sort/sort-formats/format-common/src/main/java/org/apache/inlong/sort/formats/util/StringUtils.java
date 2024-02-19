@@ -39,6 +39,23 @@ public class StringUtils {
     private static final int STATE_QUOTING = 16;
 
     /**
+     * @see StringUtils#splitKv(String, Character, Character, Character,Character, Character)
+     */
+    public static Map<String, String> splitKv(
+            @Nonnull String text,
+            @Nonnull Character entryDelimiter,
+            @Nonnull Character kvDelimiter,
+            @Nullable Character escapeChar,
+            @Nullable Character quoteChar) {
+        List<Map<String, String>> lines =
+                splitKv(text, entryDelimiter, kvDelimiter, escapeChar, quoteChar, null);
+        if (lines.size() == 0) {
+            return new HashMap<>();
+        }
+        return lines.get(0);
+    }
+
+    /**
      * Splits the kv text.
      *
      * <p>Both escaping and quoting is supported. When the escape character is
@@ -51,16 +68,18 @@ public class StringUtils {
      * @param kvDelimiter The delimiter between key and value.
      * @param escapeChar The escaping character. Only valid if not '\0'.
      * @param quoteChar The quoting character.
+     * @param lineDelimiter The line delimiter character.
      * @return The fields split from the text.
      */
-    @SuppressWarnings("checkstyle:MissingSwitchDefault")
-    public static Map<String, String> splitKv(
+    public static List<Map<String, String>> splitKv(
             @Nonnull String text,
             @Nonnull Character entryDelimiter,
             @Nonnull Character kvDelimiter,
             @Nullable Character escapeChar,
-            @Nullable Character quoteChar) {
+            @Nullable Character quoteChar,
+            @Nullable Character lineDelimiter) {
         Map<String, String> fields = new HashMap<>();
+        List<Map<String, String>> lines = new ArrayList<>();
 
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -85,7 +104,8 @@ public class StringUtils {
                         state = STATE_VALUE;
                         break;
                     case STATE_VALUE:
-                        throw new IllegalArgumentException("Unexpected token " + ch + " at position " + i + ".");
+                        throw new IllegalArgumentException("Unexpected token " +
+                                ch + " at position " + i + ".");
                     case STATE_ESCAPING:
                         stringBuilder.append(ch);
                         state = kvState;
@@ -97,7 +117,8 @@ public class StringUtils {
             } else if (ch == entryDelimiter) {
                 switch (state) {
                     case STATE_KEY:
-                        throw new IllegalArgumentException("Unexpected token " + ch + " at position " + i + ".");
+                        throw new IllegalArgumentException("Unexpected token " +
+                                ch + " at position " + i + ".");
                     case STATE_VALUE:
                         value = stringBuilder.toString();
                         fields.put(key, value);
@@ -143,6 +164,26 @@ public class StringUtils {
                         state = kvState;
                         break;
                 }
+            } else if (lineDelimiter != null && ch == lineDelimiter) {
+                switch (state) {
+                    case STATE_VALUE:
+                        value = stringBuilder.toString();
+                        fields.put(key, value);
+                        Map<String, String> copyFields = new HashMap<>();
+                        copyFields.putAll(fields);
+                        lines.add(copyFields);
+                        stringBuilder.setLength(0);
+                        fields.clear();
+                        state = STATE_KEY;
+                        break;
+                    case STATE_ESCAPING:
+                        stringBuilder.append(ch);
+                        state = STATE_NORMAL;
+                        break;
+                    case STATE_QUOTING:
+                        stringBuilder.append(ch);
+                        break;
+                }
             } else {
                 stringBuilder.append(ch);
             }
@@ -154,7 +195,8 @@ public class StringUtils {
             case STATE_VALUE:
                 value = stringBuilder.toString();
                 fields.put(key, value);
-                return fields;
+                lines.add(fields);
+                return lines;
             case STATE_ESCAPING:
                 throw new IllegalArgumentException("Not closed escaping.");
             case STATE_QUOTING:
@@ -186,9 +228,10 @@ public class StringUtils {
             @Nonnull Character kvDelimiter,
             @Nullable Character escapeChar,
             @Nullable Character quoteChar) {
-        if (fieldKeys.length != fieldValues.length) {
-            throw new IllegalArgumentException("The keys' number " + fieldKeys.length
-                    + " doesn't match values' number " + fieldValues.length);
+        if (fieldKeys.length < fieldValues.length) {
+            throw new IllegalArgumentException("The keys' number " +
+                    fieldKeys.length + " is less than values' number " +
+                    fieldValues.length);
         }
 
         Collection<Character> delimiters =
@@ -240,8 +283,9 @@ public class StringUtils {
                     stringBuilder.append(ch);
                     stringBuilder.append(quoteChar);
                 } else {
-                    throw new IllegalArgumentException("There is a delimiter in the text, "
-                            + "but neither escape nor quote character is specified.");
+                    throw new IllegalArgumentException("There is a delimiter " +
+                            "in the text, but neither escape nor quote character " +
+                            "is specified.");
                 }
             } else if (escapeChar != null && ch == escapeChar) {
                 stringBuilder.append(escapeChar);
@@ -251,8 +295,9 @@ public class StringUtils {
                     stringBuilder.append(escapeChar);
                     stringBuilder.append(ch);
                 } else {
-                    throw new IllegalArgumentException("There is a quote character in the text, "
-                            + "but escape character is not specified.");
+                    throw new IllegalArgumentException("There is a quote " +
+                            "character in the text, but escape character is not " +
+                            "specified.");
                 }
             } else {
                 stringBuilder.append(ch);
@@ -261,7 +306,36 @@ public class StringUtils {
     }
 
     /**
-     * Splits the csv text.
+     * Splits a single line of csv text.
+     *
+     * @see StringUtils#splitCsv(String, Character, Character, Character, Character, boolean)
+     */
+    public static String[] splitCsv(
+            @Nonnull String text,
+            @Nonnull Character delimiter,
+            @Nullable Character escapeChar,
+            @Nullable Character quoteChar) {
+        String[][] splitResult = splitCsv(text, delimiter, escapeChar, quoteChar, null);
+        if (splitResult.length == 0) {
+            return new String[0];
+        }
+        return splitResult[0];
+    }
+
+    /**
+     * @see StringUtils#splitCsv(String, Character, Character, Character, Character, boolean)
+     */
+    public static String[][] splitCsv(
+            @Nonnull String text,
+            @Nonnull Character delimiter,
+            @Nullable Character escapeChar,
+            @Nullable Character quoteChar,
+            @Nullable Character lineDelimiter) {
+        return splitCsv(text, delimiter, escapeChar, quoteChar, lineDelimiter, false);
+    }
+
+    /**
+     * Splits the csv text, which may contains multiple lines of data.
      *
      * <p>Both escaping and quoting is supported. When the escape character is
      * not '\0', then the next character to the escape character will be
@@ -272,14 +346,20 @@ public class StringUtils {
      * @param delimiter The delimiter of fields.
      * @param escapeChar The escaping character. Only valid if not '\0'.
      * @param quoteChar The quoting character.
-     * @return The fields split from the text.
+     * @param lineDelimiter The delimiter between lines, e.g. '\n'.
+     * @param deleteHeadDelimiter If true and the leading character of a line
+     *                            is a delimiter, it will be ignored.
+     * @return A 2-D String array representing the parsed data, where the 1st
+     * dimension is row and the 2nd dimension is column.
      */
-    @SuppressWarnings("checkstyle:MissingSwitchDefault")
-    public static String[] splitCsv(
+    public static String[][] splitCsv(
             @Nonnull String text,
             @Nonnull Character delimiter,
             @Nullable Character escapeChar,
-            @Nullable Character quoteChar) {
+            @Nullable Character quoteChar,
+            @Nullable Character lineDelimiter,
+            boolean deleteHeadDelimiter) {
+        List<String[]> lines = new ArrayList<>();
         List<String> fields = new ArrayList<>();
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -291,6 +371,10 @@ public class StringUtils {
             if (ch == delimiter) {
                 switch (state) {
                     case STATE_NORMAL:
+                        if (deleteHeadDelimiter && fields.isEmpty() &&
+                                stringBuilder.length() == 0) {
+                            break;
+                        }
                         String field = stringBuilder.toString();
                         fields.add(field);
                         stringBuilder.setLength(0);
@@ -329,7 +413,28 @@ public class StringUtils {
                         state = STATE_NORMAL;
                         break;
                 }
+            } else if (lineDelimiter != null && ch == lineDelimiter) {
+                switch (state) {
+                    case STATE_NORMAL:
+                        String field = stringBuilder.toString();
+                        fields.add(field);
+                        lines.add(fields.toArray(new String[0]));
+
+                        stringBuilder.setLength(0);
+                        fields.clear();
+                        break;
+                    case STATE_ESCAPING:
+                        stringBuilder.append(ch);
+                        state = STATE_NORMAL;
+                        break;
+                    case STATE_QUOTING:
+                        stringBuilder.append(ch);
+                        break;
+                }
             } else {
+                if (state == STATE_ESCAPING) {
+                    state = STATE_NORMAL;
+                }
                 stringBuilder.append(ch);
             }
         }
@@ -338,13 +443,20 @@ public class StringUtils {
             case STATE_NORMAL:
                 String field = stringBuilder.toString();
                 fields.add(field);
-                return fields.toArray(new String[0]);
+                lines.add(fields.toArray(new String[0]));
+
+                String[][] result = new String[lines.size()][];
+                for (int i = 0; i < lines.size(); ++i) {
+                    result[i] = lines.get(i);
+                }
+                return result;
+
             case STATE_ESCAPING:
-                throw new IllegalArgumentException("Not closed escaping.");
+                throw new IllegalArgumentException(String.format("Not closed escaping. Text=[%s].", text));
             case STATE_QUOTING:
-                throw new IllegalArgumentException("Not closed quoting.");
+                throw new IllegalArgumentException(String.format("Not closed quoting. Text=[%s].", text));
             default:
-                throw new IllegalStateException();
+                throw new IllegalStateException(String.format("Text=[%s].", text));
         }
     }
 
@@ -375,9 +487,9 @@ public class StringUtils {
             for (int i = 0; i < field.length(); ++i) {
                 char ch = field.charAt(i);
 
-                if (ch == delimiter
-                        || (escapeChar != null && ch == escapeChar)
-                        || (quoteChar != null && ch == quoteChar)) {
+                if (ch == delimiter ||
+                        (escapeChar != null && ch == escapeChar) ||
+                        (quoteChar != null && ch == quoteChar)) {
 
                     if (escapeChar != null) {
                         stringBuilder.append(escapeChar);
@@ -387,8 +499,10 @@ public class StringUtils {
                         stringBuilder.append(ch);
                         stringBuilder.append(quoteChar);
                     } else {
-                        throw new IllegalArgumentException("There exist special characters in the text, "
-                                + "but neither escape character nor quote character is configured.");
+                        throw new IllegalArgumentException("There exist " +
+                                "special characters in the text but neither " +
+                                "escape character nor quote character is " +
+                                "configured.");
                     }
                 } else {
                     stringBuilder.append(ch);
