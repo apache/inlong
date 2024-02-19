@@ -81,6 +81,8 @@ public class InLongMsgBinlogDecodingFormat extends AbstractInLongMsgDecodingForm
                 .getOptional(INCLUDE_UPDATE_BEFORE)
                 .ifPresent(schemaBuilder::setIncludeUpdateBefore);
 
-        formatOptions.getOptional(IGNORE_ERRORS).ifPresent(schemaBuilder::setIgnoreErrors);
+        formatOptions
+                .getOptional(IGNORE_ERRORS)
+                .ifPresent(schemaBuilder::setIgnoreErrors);
     }
 }

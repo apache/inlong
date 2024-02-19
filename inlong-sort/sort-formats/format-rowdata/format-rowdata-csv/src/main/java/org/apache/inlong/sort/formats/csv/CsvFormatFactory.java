@@ -203,9 +203,13 @@ public class CsvFormatFactory implements DeserializationFormatFactory, Serializa
                 .map(escape -> escape.charAt(0))
                 .ifPresent(schemaBuilder::setEscapeCharacter);
 
-        formatOptions.getOptional(NULL_LITERAL).ifPresent(schemaBuilder::setNullLiteral);
+        formatOptions
+                .getOptional(NULL_LITERAL)
+                .ifPresent(schemaBuilder::setNullLiteral);
 
-        formatOptions.getOptional(IGNORE_ERRORS).ifPresent(schemaBuilder::setIgnoreErrors);
+        formatOptions
+                .getOptional(IGNORE_ERRORS)
+                .ifPresent(schemaBuilder::setIgnoreErrors);
     }
 
     private static void configureSerializationSchema(

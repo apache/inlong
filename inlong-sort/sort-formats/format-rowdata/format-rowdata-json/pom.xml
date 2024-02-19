@@ -31,9 +31,6 @@
     <name>Apache InLong - Sort Format-RowData-Json</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
         <flink.jackson.version>2.12.4-15.0</flink.jackson.version>
         <inlong.root.dir>${project.parent.parent.parent.parent.basedir}</inlong.root.dir>
     </properties>

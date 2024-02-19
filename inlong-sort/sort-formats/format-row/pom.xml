@@ -47,6 +47,7 @@
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
     </properties>
+
     <url>http://maven.apache.org</url>
 
     <profiles>
