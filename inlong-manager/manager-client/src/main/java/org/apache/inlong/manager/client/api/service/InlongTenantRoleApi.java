@@ -40,6 +40,9 @@ public interface InlongTenantRoleApi {
     @POST("role/tenant/update")
     Call<Response<Boolean>> update(@Body TenantRoleRequest request);
 
+    @GET("role/tenant/delete/{id}")
+    Call<Response<Boolean>> delete(@Path("id") int id);
+
     @POST("role/tenant/list")
     Call<Response<PageResult<TenantRoleInfo>>> listByCondition(@Body TenantRolePageRequest request);
 }

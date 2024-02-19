@@ -87,6 +87,19 @@ public class InlongTenantClient {
         return updateResult.getData();
     }
 
+
+    /**
+     * Delete inlong tenant by tenant name
+     *
+     * @param name tenant name
+     * @return true = delete success / false = delete fail
+     */
+    public Boolean deleteTenantByName(String name) {
+        Response<Boolean> deleteResponse = ClientUtils.executeHttpCall(inlongTenantApi.delete(name));
+        ClientUtils.assertRespSuccess(deleteResponse);
+        return deleteResponse.getData();
+    }
+
     /**
      * Migrate group to another tenant
      *
