@@ -48,6 +48,8 @@ public class InlongConstants {
 
     public static final String EMPTY = "";
 
+    public static final String SHARP = "#";
+
     public static final String SLASH = "/";
 
     public static final String COLON = ":";
