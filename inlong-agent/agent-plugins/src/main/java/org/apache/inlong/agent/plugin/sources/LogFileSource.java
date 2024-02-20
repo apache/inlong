@@ -113,7 +113,7 @@ public class LogFileSource extends AbstractSource {
     private final Integer CORE_THREAD_PRINT_INTERVAL_MS = 1000;
     private final Integer CACHE_QUEUE_SIZE = 10 * BATCH_READ_LINE_COUNT;
     private final Integer SIZE_OF_BUFFER_TO_READ_FILE = 64 * 1024;
-    private final Integer EMPTY_CHECK_COUNT_AT_LEAST = 30;
+    private final Integer EMPTY_CHECK_COUNT_AT_LEAST = 5 * 60;
     private final Long INODE_UPDATE_INTERVAL_MS = 1000L;
     private final Integer READ_WAIT_TIMEOUT_MS = 10;
     private final SimpleDateFormat RECORD_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
@@ -200,10 +200,10 @@ public class LogFileSource extends AbstractSource {
 
     private long getInitLineOffset(boolean isIncrement, String taskId, String instanceId, String inodeInfo) {
         OffsetProfile offsetProfile = OffsetManager.getInstance().getOffset(taskId, instanceId);
-        int fileLineCount = getRealLineCount(instanceId);
         long offset = 0;
         if (offsetProfile != null && offsetProfile.getInodeInfo().compareTo(inodeInfo) == 0) {
             offset = offsetProfile.getOffset();
+            int fileLineCount = getRealLineCount(instanceId);
             if (fileLineCount < offset) {
                 LOGGER.info("getInitLineOffset inode no change taskId {} file rotate, offset set to 0, file {}", taskId,
                         fileName);
