@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.AuditQuerySource;
@@ -63,10 +61,11 @@ import org.apache.inlong.manager.service.core.AuditService;
 import org.apache.inlong.manager.service.resource.sink.ck.ClickHouseConfig;
 import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -495,15 +494,15 @@ public class AuditServiceImpl implements AuditService {
      */
     public static JsonObject toAuditSearchRequestJson(String groupId, String streamId) {
         Map<String, ElasticsearchQueryTermValueInfo> groupIdMap = Maps.newHashMap();
-        groupIdMap.put(ES_INLONG_GROUP_ID,new ElasticsearchQueryTermValueInfo(groupId,ES_DEFAULT_BOOST));
+        groupIdMap.put(ES_INLONG_GROUP_ID, new ElasticsearchQueryTermValueInfo(groupId, ES_DEFAULT_BOOST));
         ElasticsearchQueryTermInfo groupIdTerm = ElasticsearchQueryTermInfo.builder().term(groupIdMap).build();
 
-        Map<String,ElasticsearchQueryTermValueInfo> streamIdMap = Maps.newHashMap();
-        streamIdMap.put(ES_INLONG_STREAM_ID,new ElasticsearchQueryTermValueInfo(streamId,ES_DEFAULT_BOOST));
+        Map<String, ElasticsearchQueryTermValueInfo> streamIdMap = Maps.newHashMap();
+        streamIdMap.put(ES_INLONG_STREAM_ID, new ElasticsearchQueryTermValueInfo(streamId, ES_DEFAULT_BOOST));
         ElasticsearchQueryTermInfo streamIdTerm = ElasticsearchQueryTermInfo.builder().term(streamIdMap).build();
 
         ElasticsearchQueryBoolInfo boolInfo = ElasticsearchQueryBoolInfo.builder()
-                .must(Lists.newArrayList(groupIdTerm,streamIdTerm))
+                .must(Lists.newArrayList(groupIdTerm, streamIdTerm))
                 .boost(ES_DEFAULT_BOOST)
                 .adjustPureNegative(ES_ADJUST_PURE_NEGATIVE)
                 .build();
@@ -511,28 +510,28 @@ public class AuditServiceImpl implements AuditService {
 
         Map<String, ElasticsearchQuerySortValueInfo> termValueInfoMap = Maps.newHashMap();
         termValueInfoMap.put(ES_TERM_FILED, new ElasticsearchQuerySortValueInfo(ES_SORT_ORDER));
-        List<Map<String,ElasticsearchQuerySortValueInfo>> list  = Lists.newArrayList(termValueInfoMap);
+        List<Map<String, ElasticsearchQuerySortValueInfo>> list = Lists.newArrayList(termValueInfoMap);
         ElasticsearchQuerySortInfo sortInfo = ElasticsearchQuerySortInfo.builder().sort(list).build();
 
         ElasticsearchAggregationsSumInfo countSum = ElasticsearchAggregationsSumInfo.builder()
                 .sum(new ElasticsearchQueryFieldInfo(ES_COUNT))
                 .build();
-        ElasticsearchAggregationsSumInfo delaySum =  ElasticsearchAggregationsSumInfo.builder()
+        ElasticsearchAggregationsSumInfo delaySum = ElasticsearchAggregationsSumInfo.builder()
                 .sum(new ElasticsearchQueryFieldInfo(ES_DELAY))
                 .build();
 
-        Map<String,ElasticsearchAggregationsSumInfo> aggregations = Maps.newHashMap();
-        aggregations.put(ES_COUNT,countSum);
-        aggregations.put(ES_DELAY,delaySum);
+        Map<String, ElasticsearchAggregationsSumInfo> aggregations = Maps.newHashMap();
+        aggregations.put(ES_COUNT, countSum);
+        aggregations.put(ES_DELAY, delaySum);
         ElasticsearchAggregationsTermsInfo termsInfo = ElasticsearchAggregationsTermsInfo.builder()
                 .field(ES_TERM_FILED)
                 .size(Integer.MAX_VALUE)
                 .aggregations(aggregations)
                 .build();
-        Map<String,ElasticsearchAggregationsTermsInfo> terms = Maps.newHashMap();
+        Map<String, ElasticsearchAggregationsTermsInfo> terms = Maps.newHashMap();
         terms.put(ES_TERMS, termsInfo);
-        Map<String,Map<String,ElasticsearchAggregationsTermsInfo>> logTs = Maps.newHashMap();
-        logTs.put(ES_TERM_FILED,terms);
+        Map<String, Map<String, ElasticsearchAggregationsTermsInfo>> logTs = Maps.newHashMap();
+        logTs.put(ES_TERM_FILED, terms);
         ElasticsearchRequest request = ElasticsearchRequest.builder()
                 .from(ES_QUERY_FROM)
                 .size(ES_QUERY_SIZE)
