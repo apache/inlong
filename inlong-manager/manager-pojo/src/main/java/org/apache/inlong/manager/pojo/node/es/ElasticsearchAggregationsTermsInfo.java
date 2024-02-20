@@ -32,5 +32,5 @@ public class ElasticsearchAggregationsTermsInfo {
 
     private String field;
     private int size;
-    private Map<String,ElasticsearchAggregationsSumInfo> aggregations;
+    private Map<String, ElasticsearchAggregationsSumInfo> aggregations;
 }

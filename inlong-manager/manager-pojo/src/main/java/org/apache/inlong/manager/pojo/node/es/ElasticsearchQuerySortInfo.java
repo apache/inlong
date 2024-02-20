@@ -31,5 +31,5 @@ import java.util.Map;
 @AllArgsConstructor
 public class ElasticsearchQuerySortInfo {
 
-    private List<Map<String,ElasticsearchQuerySortValueInfo>> sort;
+    private List<Map<String, ElasticsearchQuerySortValueInfo>> sort;
 }

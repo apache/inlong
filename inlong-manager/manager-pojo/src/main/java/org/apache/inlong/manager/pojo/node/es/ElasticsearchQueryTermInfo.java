@@ -30,5 +30,5 @@ import java.util.Map;
 @AllArgsConstructor
 public class ElasticsearchQueryTermInfo {
 
-    private Map<String,ElasticsearchQueryTermValueInfo> term;
+    private Map<String, ElasticsearchQueryTermValueInfo> term;
 }

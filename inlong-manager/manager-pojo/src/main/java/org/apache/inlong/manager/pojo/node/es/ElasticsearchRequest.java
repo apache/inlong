@@ -34,5 +34,5 @@ public class ElasticsearchRequest {
     private int size;
     private ElasticsearchQueryInfo query;
     private ElasticsearchQuerySortInfo sort;
-    private Map<String,Map<String,ElasticsearchAggregationsTermsInfo>> aggregations;
+    private Map<String, Map<String, ElasticsearchAggregationsTermsInfo>> aggregations;
 }
