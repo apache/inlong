@@ -71,25 +71,26 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, ...mod
     },
   );
 
-  const fieldTypes = ['int', 'long', 'float', 'double', 'string', 'date', 'timestamp'].map(
-    item => ({
-      label: item,
-      value: item,
-    }),
-  );
+  const fieldTypes = [
+    'int',
+    'long',
+    'float',
+    'double',
+    'string',
+    'date',
+    'timestamp',
+    'function',
+  ].map(item => ({
+    label: item,
+    value: item,
+  }));
 
   const sinkFieldList: ColumnsItemProps[] = [
     {
       title: i18n.t('meta.Sinks.SourceFieldName'),
       dataIndex: 'sourceFieldName',
       type: 'input',
-      rules: [
-        { required: true },
-        {
-          pattern: /^[a-zA-Z_][a-zA-Z0-9_]*$/,
-          message: i18n.t('meta.Stream.FieldNameRule'),
-        },
-      ],
+      rules: [{ required: true }],
     },
     {
       title: i18n.t('meta.Sinks.SourceFieldType'),
@@ -134,13 +135,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, ...mod
       title: i18n.t('meta.Stream.FieldName'),
       dataIndex: 'fieldName',
       type: 'input',
-      rules: [
-        { required: true },
-        {
-          pattern: /^[a-zA-Z_][a-zA-Z0-9_]*$/,
-          message: i18n.t('meta.Stream.FieldNameRule'),
-        },
-      ],
+      rules: [{ required: true }],
     },
     {
       title: i18n.t('meta.Stream.FieldType'),
@@ -253,6 +248,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, isSource, ...mod
             <EditableTable
               columns={isSource === true ? fieldList : sinkFieldList}
               dataSource={isSource === true ? data?.fieldList : sinkData?.list[0]?.sinkFieldList}
+              canBatchAdd={true}
+              upsetByFieldKey={true}
             ></EditableTable>
           </Form.Item>
         </Form>

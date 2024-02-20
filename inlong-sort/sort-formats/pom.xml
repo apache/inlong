@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-sort</artifactId>
-        <version>1.10.0-SNAPSHOT</version>
+        <version>1.12.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-formats</artifactId>
@@ -32,12 +32,8 @@
 
     <modules>
         <module>format-common</module>
-        <module>format-base</module>
-        <module>format-csv</module>
-        <module>format-kv</module>
-        <module>format-inlongmsg-base</module>
-        <module>format-inlongmsg-csv</module>
-        <module>format-inlongmsg-pb</module>
+        <module>format-row</module>
+        <module>format-rowdata</module>
     </modules>
 
     <properties>
@@ -45,6 +41,8 @@
         <flink.forkCount>1C</flink.forkCount>
         <flink.reuseForks>true</flink.reuseForks>
         <log4j.configurationfile>log4j2-test.properties</log4j.configurationfile>
+        <os.plugin.version>1.7.1</os.plugin.version>
+        <protobuf.plugin.version>0.6.1</protobuf.plugin.version>
     </properties>
 
     <!-- override these root dependencies as 'provided', so they don't end up
@@ -209,23 +207,5 @@
         <connection>git@git.code.oa.com:flink/flink-formats.git</connection>
         <url>https://git.code.oa.com/flink/flink-formats</url>
     </scm>
-
-    <profiles>
-        <profile>
-            <id>v1.13</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>format-json-v1.13</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>v1.15</id>
-            <modules>
-                <module>format-json-v1.15</module>
-            </modules>
-        </profile>
-    </profiles>
 
 </project>

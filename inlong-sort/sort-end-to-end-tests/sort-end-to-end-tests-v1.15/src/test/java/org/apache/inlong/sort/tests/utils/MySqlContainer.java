@@ -59,10 +59,6 @@ public class MySqlContainer extends JdbcDatabaseContainer {
 
     @Override
     protected void configure() {
-        // HERE is the difference, copy to /etc/mysql/, if copy to /etc/mysql/conf.d will be wrong
-        optionallyMapResourceParameterAsVolume(
-                MY_CNF_CONFIG_OVERRIDE_PARAM_NAME, "/etc/mysql/", "mysql-default-conf");
-
         if (parameters.containsKey(SETUP_SQL_PARAM_NAME)) {
             optionallyMapResourceParameterAsVolume(
                     SETUP_SQL_PARAM_NAME, "/docker-entrypoint-initdb.d/", "N/A");
@@ -79,6 +75,7 @@ public class MySqlContainer extends JdbcDatabaseContainer {
             throw new ContainerLaunchException(
                     "Empty password can be used only with the root user");
         }
+        withCommand("--default-authentication-plugin=mysql_native_password");
         setStartupAttempts(3);
     }
 
@@ -94,13 +91,18 @@ public class MySqlContainer extends JdbcDatabaseContainer {
 
     public String getJdbcUrl(String databaseName) {
         String additionalUrlParams = constructUrlParameters("?", "&");
-        return "jdbc:mysql://"
+        String queryString = "?useSSL=false&allowPublicKeyRetrieval=true";
+        String baseUrl = "jdbc:mysql://"
                 + getHost()
                 + ":"
                 + getDatabasePort()
                 + "/"
                 + databaseName
                 + additionalUrlParams;
+
+        return baseUrl.contains("?")
+                ? baseUrl + "&" + queryString.substring(1)
+                : baseUrl + queryString;
     }
 
     @Override

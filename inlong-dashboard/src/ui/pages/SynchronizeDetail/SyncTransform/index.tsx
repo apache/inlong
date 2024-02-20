@@ -94,7 +94,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
         },
       });
     },
-    [getList],
+    [getList, inlongGroupId, inlongStreamId],
   );
 
   const onChange = useCallback(({ current: pageNum, pageSize }) => {

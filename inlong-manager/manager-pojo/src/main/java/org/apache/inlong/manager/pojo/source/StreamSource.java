@@ -98,10 +98,10 @@ public abstract class StreamSource extends StreamNode {
     @ApiModelProperty("Modifier")
     private String modifier;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
     private Date createTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
     private Date modifyTime;
 
     @Builder.Default
@@ -114,8 +114,9 @@ public abstract class StreamSource extends StreamNode {
     @ApiModelProperty("Sub source information of existing agents")
     private List<SubSourceDTO> subSourceList;
 
+    @Builder.Default
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value, true as default")
-    private boolean ignoreParseError;
+    private boolean ignoreParseError = true;
 
     public SourceRequest genSourceRequest() {
         return null;

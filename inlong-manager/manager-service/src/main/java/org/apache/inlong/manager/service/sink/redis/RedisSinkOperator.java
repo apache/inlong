@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.pojo.node.redis.RedisDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -34,6 +35,7 @@ import org.apache.inlong.manager.pojo.sink.redis.RedisSinkRequest;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,22 +85,26 @@ public class RedisSinkOperator extends AbstractSinkOperator {
 
         RedisSinkRequest sinkRequest = (RedisSinkRequest) request;
 
-        String clusterMode = sinkRequest.getClusterMode();
-        RedisClusterMode redisClusterMode = RedisClusterMode.of(clusterMode);
+        if (StringUtils.isNotBlank(targetEntity.getDataNodeName())) {
+            RedisDataNodeInfo dataNodeInfo = (RedisDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+                    targetEntity.getDataNodeName(), targetEntity.getSinkType());
+
+            CommonBeanUtils.copyProperties(dataNodeInfo, sinkRequest, true);
+        }
+
+        RedisClusterMode redisClusterMode = RedisClusterMode.of(sinkRequest.getClusterMode());
 
         expectNotNull(redisClusterMode,
                 "Redis ClusterMode must in one of " + Arrays.toString(RedisClusterMode.values()) + " !");
 
         switch (redisClusterMode) {
             case CLUSTER:
-                String clusterNodes = sinkRequest.getClusterNodes();
-                checkClusterNodes(clusterNodes);
+                checkClusterNodes(sinkRequest.getClusterNodes());
                 break;
             case SENTINEL:
-                String sentinelMasterName = sinkRequest.getMasterName();
-                expectNotEmpty(sentinelMasterName, "Redis MasterName of Sentinel cluster must not null!");
-                String sentinelsInfo = sinkRequest.getSentinelsInfo();
-                expectNotEmpty(sentinelsInfo, "Redis sentinelsInfo of Sentinel cluster must not null!");
+                expectNotEmpty(sinkRequest.getMasterName(), "Redis MasterName of Sentinel cluster must not null!");
+                expectNotEmpty(sinkRequest.getSentinelsInfo(),
+                        "Redis sentinelsInfo of Sentinel cluster must not null!");
                 break;
             case STANDALONE:
                 String host = sinkRequest.getHost();
@@ -148,6 +154,29 @@ public class RedisSinkOperator extends AbstractSinkOperator {
         }
 
         RedisSinkDTO dto = RedisSinkDTO.getFromJson(entity.getExtParams());
+        if (StringUtils.isBlank(dto.getHost())) {
+            if (StringUtils.isBlank(entity.getDataNodeName())) {
+                throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT, "redis data node is blank");
+            }
+            RedisDataNodeInfo dataNodeInfo = (RedisDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+                    entity.getDataNodeName(), entity.getSinkType());
+            CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
+            String clusterMode = dataNodeInfo.getClusterMode();
+            dto.setClusterMode(clusterMode);
+            switch (RedisClusterMode.of(clusterMode)) {
+                case CLUSTER:
+                    dto.setClusterNodes(dataNodeInfo.getClusterNodes());
+                    break;
+                case SENTINEL:
+                    dto.setMasterName(dataNodeInfo.getMasterName());
+                    dto.setSentinelsInfo(dataNodeInfo.getSentinelsInfo());
+                    break;
+                case STANDALONE:
+                    dto.setHost(dataNodeInfo.getHost());
+                    dto.setPort(dataNodeInfo.getPort());
+                    break;
+            }
+        }
 
         CommonBeanUtils.copyProperties(entity, sink, true);
         CommonBeanUtils.copyProperties(dto, sink, true);

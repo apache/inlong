@@ -42,6 +42,20 @@ public class AuditUtils {
     public static final int AUDIT_DEFAULT_MAX_CACHE_ROWS = 2000000;
     public static final int AUDIT_ID_AGENT_READ_SUCCESS = 3;
     public static final int AUDIT_ID_AGENT_SEND_SUCCESS = 4;
+    public static final int AUDIT_ID_AGENT_SEND_FAILED = 10004;
+    public static final int AUDIT_ID_AGENT_READ_SUCCESS_REAL_TIME = 30001;
+    public static final int AUDIT_ID_AGENT_SEND_SUCCESS_REAL_TIME = 30002;
+    public static final int AUDIT_ID_AGENT_ADD_INSTANCE_MEM = 30003;
+    public static final int AUDIT_ID_AGENT_DEL_INSTANCE_MEM = 30004;
+    public static final int AUDIT_ID_AGENT_ADD_INSTANCE_DB = 30005;
+    public static final int AUDIT_ID_AGENT_DEL_INSTANCE_DB = 30006;
+    public static final int AUDIT_ID_AGENT_TASK_MGR_HEARTBEAT = 30007;
+    public static final int AUDIT_ID_AGENT_TASK_HEARTBEAT = 30008;
+    public static final int AUDIT_ID_AGENT_INSTANCE_MGR_HEARTBEAT = 30009;
+    public static final int AUDIT_ID_AGENT_INSTANCE_HEARTBEAT = 30010;
+    public static final int AUDIT_ID_AGENT_SEND_FAILED_REAL_TIME = 30011;
+    public static final int AUDIT_ID_AGENT_DEL_INSTANCE_MEM_UNUSUAL = 30014;
+    public static final int AUDIT_ID_AGENT_ADD_INSTANCE_MEM_FAILED = 30015;
 
     private static boolean IS_AUDIT = true;
 

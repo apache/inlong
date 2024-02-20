@@ -28,6 +28,7 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupUtils;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
@@ -37,8 +38,11 @@ import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * The listener of InlongGroup when created resources successfully.
@@ -86,6 +90,10 @@ public class InitGroupCompleteListener implements ProcessEventListener {
             InlongGroupRequest updateGroupRequest = groupInfo.genRequest();
             updateGroupRequest.setVersion(existGroup.getVersion());
             groupService.update(updateGroupRequest, operator);
+            List<InlongStreamInfo> streamInfos = form.getStreamInfos();
+            if (CollectionUtils.isNotEmpty(streamInfos)) {
+                streamInfos.forEach(streamInfo -> streamService.updateWithoutCheck(streamInfo.genRequest(), operator));
+            }
             streamService.updateStatus(groupId, null, StreamStatus.CONFIG_SUCCESSFUL.getCode(), operator);
 
             // update status of other related configs

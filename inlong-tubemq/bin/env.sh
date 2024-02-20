@@ -28,8 +28,8 @@ fi
 
 # Prepare common dependency
 ROOT_DIR=$BASE_DIR/..
-if [ -e $ROOT_DIR/bin/prepare_module_dependencys.sh ]; then
-    $ROOT_DIR/bin/prepare_module_dependencys.sh ./inlong-tubemq-server/lib
+if [ -e $ROOT_DIR/bin/prepare_module_dependencies.sh ]; then
+    $ROOT_DIR/bin/prepare_module_dependencies.sh ./inlong-tubemq-server/lib
 fi
 
 tubemq_home=$BASE_DIR

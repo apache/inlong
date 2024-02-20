@@ -25,6 +25,8 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
@@ -44,12 +46,9 @@ import com.google.common.base.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.pulsar.client.admin.PulsarAdmin;
-import org.apache.pulsar.client.api.PulsarClientException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -101,7 +100,7 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
         List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR);
         for (ClusterInfo clusterInfo : clusterInfos) {
             PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
-            try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
+            try {
                 // create pulsar tenant and namespace
                 if (StringUtils.isBlank(tenant)) {
                     tenant = pulsarCluster.getPulsarTenant();
@@ -109,9 +108,9 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
 
                 // if the group was not successful, need create tenant and namespace
                 if (!Objects.equal(GroupStatus.CONFIG_SUCCESSFUL.getCode(), groupInfo.getStatus())) {
-                    pulsarOperator.createTenant(pulsarAdmin, tenant);
+                    pulsarOperator.createTenant(pulsarCluster, tenant);
                     String namespace = groupInfo.getMqResource();
-                    pulsarOperator.createNamespace(pulsarAdmin, pulsarInfo, tenant, namespace);
+                    pulsarOperator.createNamespace(pulsarCluster, pulsarInfo, tenant, namespace);
 
                     log.info("success to create pulsar resource for groupId={}, tenant={}, namespace={}, cluster={}",
                             groupId, tenant, namespace, pulsarCluster);
@@ -223,21 +222,19 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
      */
     private void createTopic(InlongPulsarInfo pulsarInfo, PulsarClusterInfo pulsarCluster, String topicName)
             throws Exception {
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
-            String tenant = pulsarInfo.getPulsarTenant();
-            if (StringUtils.isBlank(tenant)) {
-                tenant = pulsarCluster.getPulsarTenant();
-            }
-            String namespace = pulsarInfo.getMqResource();
-            PulsarTopicInfo topicInfo = PulsarTopicInfo.builder()
-                    .pulsarTenant(tenant)
-                    .namespace(namespace)
-                    .topicName(topicName)
-                    .queueModule(pulsarInfo.getQueueModule())
-                    .numPartitions(pulsarInfo.getPartitionNum())
-                    .build();
-            pulsarOperator.createTopic(pulsarAdmin, topicInfo);
+        String tenant = pulsarInfo.getPulsarTenant();
+        if (StringUtils.isBlank(tenant)) {
+            tenant = pulsarCluster.getPulsarTenant();
         }
+        String namespace = pulsarInfo.getMqResource();
+        PulsarTopicInfo topicInfo = PulsarTopicInfo.builder()
+                .pulsarTenant(tenant)
+                .namespace(namespace)
+                .topicName(topicName)
+                .queueModule(pulsarInfo.getQueueModule())
+                .numPartitions(pulsarInfo.getPartitionNum())
+                .build();
+        pulsarOperator.createTopic(pulsarCluster, topicInfo);
     }
 
     /**
@@ -245,41 +242,39 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
      */
     private void createSubscription(InlongPulsarInfo pulsarInfo, PulsarClusterInfo pulsarCluster, String topicName,
             String streamId) throws Exception {
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
-            String tenant = pulsarInfo.getPulsarTenant();
-            if (StringUtils.isBlank(tenant)) {
-                tenant = pulsarCluster.getPulsarTenant();
-            }
-            String namespace = pulsarInfo.getMqResource();
-            String fullTopicName = tenant + "/" + namespace + "/" + topicName;
-            boolean exist = pulsarOperator.topicExists(pulsarAdmin, tenant, namespace, topicName,
-                    InlongConstants.PULSAR_QUEUE_TYPE_PARALLEL.equals(pulsarInfo.getQueueModule()));
-            if (!exist) {
-                String serviceUrl = pulsarCluster.getAdminUrl();
-                log.error("topic={} not exists in {}", fullTopicName, serviceUrl);
-                throw new WorkflowListenerException("topic=" + fullTopicName + " not exists in " + serviceUrl);
-            }
+        String tenant = pulsarInfo.getPulsarTenant();
+        if (StringUtils.isBlank(tenant)) {
+            tenant = pulsarCluster.getPulsarTenant();
+        }
+        String namespace = pulsarInfo.getMqResource();
+        String fullTopicName = tenant + "/" + namespace + "/" + topicName;
+        boolean exist = pulsarOperator.topicExists(pulsarCluster, tenant, namespace, topicName,
+                InlongConstants.PULSAR_QUEUE_TYPE_PARALLEL.equals(pulsarInfo.getQueueModule()));
+        if (!exist) {
+            String serviceUrl = pulsarCluster.getAdminUrl();
+            log.error("topic={} not exists in {}", fullTopicName, serviceUrl);
+            throw new WorkflowListenerException("topic=" + fullTopicName + " not exists in " + serviceUrl);
+        }
 
-            // create subscription for all sinks
-            String groupId = pulsarInfo.getInlongGroupId();
-            List<StreamSink> streamSinks = sinkService.listSink(groupId, streamId);
-            if (CollectionUtils.isEmpty(streamSinks)) {
-                log.warn("no need to create subs, as no sink exists for groupId={}, streamId={}", groupId, streamId);
-                return;
-            }
+        // create subscription for all sinks
+        String groupId = pulsarInfo.getInlongGroupId();
+        List<StreamSink> streamSinks = sinkService.listSink(groupId, streamId);
+        if (CollectionUtils.isEmpty(streamSinks)) {
+            log.warn("no need to create subs, as no sink exists for groupId={}, streamId={}", groupId, streamId);
+            return;
+        }
 
-            // subscription naming rules: clusterTag_topicName_sinkId_consumer_group
-            String clusterTag = pulsarInfo.getInlongClusterTag();
-            for (StreamSink sink : streamSinks) {
-                String subs = String.format(PULSAR_SUBSCRIPTION, clusterTag, topicName, sink.getId());
-                pulsarOperator.createSubscription(pulsarAdmin, fullTopicName, pulsarInfo.getQueueModule(), subs);
-                log.info("success to create subs={} for groupId={}, topic={}", subs, groupId, fullTopicName);
+        // subscription naming rules: clusterTag_topicName_sinkId_consumer_group
+        String clusterTag = pulsarInfo.getInlongClusterTag();
+        for (StreamSink sink : streamSinks) {
+            String subs = String.format(PULSAR_SUBSCRIPTION, clusterTag, topicName, sink.getId());
+            pulsarOperator.createSubscription(pulsarCluster, fullTopicName, pulsarInfo.getQueueModule(), subs);
+            log.info("success to create subs={} for groupId={}, topic={}", subs, groupId, fullTopicName);
 
-                // insert the consumer group info into the inlong_consume table
-                Integer id = consumeService.saveBySystem(pulsarInfo, topicName, subs);
-                log.info("success to save inlong consume [{}] for subs={}, groupId={}, topic={}",
-                        id, subs, groupId, topicName);
-            }
+            // insert the consumer group info into the inlong_consume table
+            Integer id = consumeService.saveBySystem(pulsarInfo, topicName, subs);
+            log.info("success to save inlong consume [{}] for subs={}, groupId={}, topic={}",
+                    id, subs, groupId, topicName);
         }
     }
 
@@ -289,54 +284,84 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
      */
     private void deletePulsarTopic(InlongPulsarInfo pulsarInfo, PulsarClusterInfo pulsarCluster, String topicName)
             throws Exception {
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
-            String tenant = pulsarInfo.getPulsarTenant();
-            if (StringUtils.isBlank(tenant)) {
-                tenant = pulsarCluster.getPulsarTenant();
-            }
-            String namespace = pulsarInfo.getMqResource();
-            PulsarTopicInfo topicInfo = PulsarTopicInfo.builder()
-                    .pulsarTenant(tenant)
-                    .namespace(namespace)
-                    .topicName(topicName)
-                    .build();
-            pulsarOperator.forceDeleteTopic(pulsarAdmin, topicInfo);
+        String tenant = pulsarInfo.getPulsarTenant();
+        if (StringUtils.isBlank(tenant)) {
+            tenant = pulsarCluster.getPulsarTenant();
         }
+        String namespace = pulsarInfo.getMqResource();
+        PulsarTopicInfo topicInfo = PulsarTopicInfo.builder()
+                .pulsarTenant(tenant)
+                .namespace(namespace)
+                .topicName(topicName)
+                .build();
+        pulsarOperator.forceDeleteTopic(pulsarCluster, topicInfo);
     }
 
     /**
      * Query latest message from pulsar
      */
     public List<BriefMQMessage> queryLatestMessages(InlongGroupInfo groupInfo,
-            InlongStreamInfo streamInfo, Integer messageCount) throws PulsarClientException {
+            InlongStreamInfo streamInfo, Integer messageCount) throws Exception {
         String groupId = streamInfo.getInlongGroupId();
         InlongPulsarInfo inlongPulsarInfo = ((InlongPulsarInfo) groupInfo);
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterService.getOne(groupInfo.getInlongClusterTag(),
                 null, ClusterType.PULSAR);
-        List<BriefMQMessage> briefMQMessages = new ArrayList<>();
-
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
-            String tenant = inlongPulsarInfo.getPulsarTenant();
-            if (StringUtils.isBlank(tenant)) {
-                tenant = pulsarCluster.getPulsarTenant();
-            }
-
-            String namespace = groupInfo.getMqResource();
-            String topicName = streamInfo.getMqResource();
-            String fullTopicName = tenant + "/" + namespace + "/" + topicName;
-            String clusterTag = inlongPulsarInfo.getInlongClusterTag();
-            String subs = String.format(PULSAR_SUBSCRIPTION_REALTIME_REVIEW, clusterTag, topicName);
-            boolean serial = InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(inlongPulsarInfo.getQueueModule());
-            briefMQMessages =
-                    pulsarOperator.queryLatestMessage(pulsarAdmin, fullTopicName, subs, messageCount, streamInfo,
-                            serial);
-
-            // insert the consumer group info into the inlong_consume table
-            Integer id = consumeService.saveBySystem(groupInfo, topicName, subs);
-            log.info("success to save inlong consume [{}] for subs={}, groupId={}, topic={}",
-                    id, subs, groupId, topicName);
+        String tenant = inlongPulsarInfo.getPulsarTenant();
+        if (StringUtils.isBlank(tenant)) {
+            tenant = pulsarCluster.getPulsarTenant();
         }
+
+        String namespace = groupInfo.getMqResource();
+        String topicName = streamInfo.getMqResource();
+        String fullTopicName = tenant + "/" + namespace + "/" + topicName;
+        String clusterTag = inlongPulsarInfo.getInlongClusterTag();
+        String subs = String.format(PULSAR_SUBSCRIPTION_REALTIME_REVIEW, clusterTag, topicName);
+        boolean serial = InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(inlongPulsarInfo.getQueueModule());
+        List<BriefMQMessage> briefMQMessages = pulsarOperator.queryLatestMessage(pulsarCluster, fullTopicName, subs,
+                messageCount, streamInfo, serial);
+
+        // insert the consumer group info into the inlong_consume table
+        Integer id = consumeService.saveBySystem(groupInfo, topicName, subs);
+        log.info("success to save inlong consume [{}] for subs={}, groupId={}, topic={}",
+                id, subs, groupId, topicName);
         return briefMQMessages;
     }
 
+    /**
+     * Reset cursor for consumer group
+     */
+    public void resetCursor(InlongGroupInfo groupInfo, InlongStreamEntity streamEntity, StreamSinkEntity sinkEntity,
+            Long resetTime) throws Exception {
+        log.info("begin to reset cursor for sinkId={}", sinkEntity.getId());
+        InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
+        List<ClusterInfo> clusterInfos =
+                clusterService.listByTagAndType(pulsarInfo.getInlongClusterTag(), ClusterType.PULSAR);
+        for (ClusterInfo clusterInfo : clusterInfos) {
+            PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+            try {
+                String tenant = pulsarInfo.getPulsarTenant();
+                if (StringUtils.isBlank(tenant)) {
+                    tenant = pulsarCluster.getPulsarTenant();
+                }
+                String namespace = pulsarInfo.getMqResource();
+                String topicName = streamEntity.getMqResource();
+                String fullTopicName = tenant + "/" + namespace + "/" + topicName;
+                String subs = String.format(PULSAR_SUBSCRIPTION, groupInfo.getInlongClusterTag(), topicName,
+                        sinkEntity.getId());
+                pulsarOperator.resetCursor(pulsarCluster, fullTopicName, subs, resetTime);
+            } catch (Exception e) {
+                log.error("failed reset cursor consumer:", e);
+                throw new BusinessException("failed reset cursor consumer:" + e.getMessage());
+            }
+        }
+        log.info("success to reset cursor for sinkId={}", sinkEntity.getId());
+    }
+
+    @Override
+    public String getSortConsumeGroup(InlongGroupInfo groupInfo, InlongStreamEntity streamEntity,
+            StreamSinkEntity sinkEntity) {
+        String topicName = streamEntity.getMqResource();
+        return String.format(PULSAR_SUBSCRIPTION, groupInfo.getInlongClusterTag(), topicName,
+                sinkEntity.getId());
+    }
 }

@@ -139,10 +139,10 @@ type Options struct {
 	URL                     string                // the Manager URL for discovering the DataProxy cluster
 	UpdateInterval          time.Duration         // interval to refresh the endpoint list, default: 5m
 	ConnTimeout             time.Duration         // connection timeout: default: 3000ms
-	WriteBufferSize         int                   // write buffer size in bytes, default: 16M
-	ReadBufferSize          int                   // read buffer size in bytes, default: 16M
-	SocketSendBufferSize    int                   // socket send buffer size in bytes, default: 16M
-	SocketRecvBufferSize    int                   // socket receive buffer size in bytes, default: 16M
+	WriteBufferSize         int                   // write buffer size in bytes, default: 8M
+	ReadBufferSize          int                   // read buffer size in bytes, default: 1M
+	SocketSendBufferSize    int                   // socket send buffer size in bytes, default: 8M
+	SocketRecvBufferSize    int                   // socket receive buffer size in bytes, default: 1M
 	BufferPool              bufferpool.BufferPool // encoding/decoding buffer pool, if not given, SDK will init a new one
 	BytePool                bufferpool.BytePool   // encoding/decoding byte pool, if not given, SDK will init a new one
 	BufferPoolSize          int                   // buffer pool size, default: 409600
@@ -154,10 +154,10 @@ type Options struct {
 	WorkerNum               int                   // worker number, default: 8
 	SendTimeout             time.Duration         // send timeout, default: 30000ms
 	MaxRetries              int                   // max retry count, default: 2
-	BatchingMaxPublishDelay time.Duration         // the time period within which the messages sent will be batched, default: 10ms
-	BatchingMaxMessages     int                   // the maximum number of messages permitted in a batch, default: 10
-	BatchingMaxSize         int                   // the maximum number of bytes permitted in a batch, default: 4K
-	MaxPendingMessages      int                   // the max size of the queue holding the messages pending to receive an acknowledgment from the broker, default: 409600
+	BatchingMaxPublishDelay time.Duration         // the time period within which the messages sent will be batched, default: 20ms
+	BatchingMaxMessages     int                   // the maximum number of messages permitted in a batch, default: 50
+	BatchingMaxSize         int                   // the maximum number of bytes permitted in a batch, default: 40K
+	MaxPendingMessages      int                   // the max size of the queue holding the messages pending to receive an acknowledgment from the broker, default: 204800
 	BlockIfQueueIsFull      bool                  // whether Send and SendAsync block if producer's message queue is full, default: false
 	AddColumns              map[string]string     // addition columns to add to the message, for example: __addcol1__worldid=xxx&__addcol2__ip=yyy, all the message will be added 2 more columns with worldid=xxx and ip=yyy
 	addColumnStr            string                // the string format of the AddColumns, just a cache, used internal

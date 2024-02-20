@@ -65,6 +65,14 @@ const Comp: React.FC<Props> = ({ id, defaultType, ...modalProps }) => {
       inCharges: values.inCharges?.join(','),
       clusterTags: values.clusterTags?.join(','),
     };
+    if (
+      values.type === 'AGENT' ||
+      values.type === 'SORT_CLS' ||
+      values.type === 'SORT_ES' ||
+      values.type === 'SORT_PULSAR'
+    ) {
+      submitData.name = values.displayName;
+    }
     if (isUpdate) {
       submitData.id = id;
       submitData.version = savedData?.version;

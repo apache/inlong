@@ -38,25 +38,23 @@ public class HttpClientExample {
          *
          * 2. if 'isLocalVisit' is false sdk will get config from manager auto.
          */
-        String dataProxyGroup = "test";
         String inlongGroupId = "test_group_id";
         String inlongStreamId = "test_stream_id";
         String configBasePath = "/data/inlong/dataproxy/conf";
         String inLongManagerAddr = "127.0.0.1";
         String inLongManagerPort = "8080";
         String localIP = "127.0.0.1";
-        String netTag = "";
         String messageBody = "inlong message body!";
 
         HttpProxySender sender = getMessageSender(localIP, inLongManagerAddr,
-                inLongManagerPort, netTag, dataProxyGroup, false, false,
+                inLongManagerPort, inlongGroupId, false, false,
                 configBasePath);
 
         sendHttpMessage(sender, inlongGroupId, inlongStreamId, messageBody);
     }
 
     public static HttpProxySender getMessageSender(String localIP, String inLongManagerAddr,
-            String inLongManagerPort, String netTag, String dataProxyGroup,
+            String inLongManagerPort, String inlongGroupId,
             boolean isLocalVisit, boolean isReadProxyIPFromLocal,
             String configBasePath) {
         ProxyClientConfig proxyConfig = null;
@@ -64,8 +62,8 @@ public class HttpClientExample {
         try {
             proxyConfig = new ProxyClientConfig(localIP, isLocalVisit, inLongManagerAddr,
                     Integer.valueOf(inLongManagerPort),
-                    dataProxyGroup, netTag, "test", "123456");
-            proxyConfig.setGroupId(dataProxyGroup);
+                    inlongGroupId, "test", "123456");
+            proxyConfig.setInlongGroupId(inlongGroupId);
             proxyConfig.setConfStoreBasePath(configBasePath);
             proxyConfig.setReadProxyIPFromLocal(isReadProxyIPFromLocal);
             proxyConfig.setDiscardOldMessage(true);

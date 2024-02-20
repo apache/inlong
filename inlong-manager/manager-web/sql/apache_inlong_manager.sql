@@ -319,6 +319,9 @@ CREATE TABLE IF NOT EXISTS `operation_log`
 (
     `id`                  int(11)   NOT NULL AUTO_INCREMENT,
     `authentication_type` varchar(64)        DEFAULT NULL COMMENT 'Authentication type',
+    `inlong_group_id`     varchar(256)       DEFAULT NULL COMMENT 'Inlong group id',
+    `inlong_stream_id`    varchar(256)       DEFAULT NULL COMMENT 'Inlong stream id',
+    `operation_target`    varchar(256)       DEFAULT NULL COMMENT 'Operation target',
     `operation_type`      varchar(256)       DEFAULT NULL COMMENT 'Operation type',
     `http_method`         varchar(64)        DEFAULT NULL COMMENT 'Request method',
     `invoke_method`       varchar(256)       DEFAULT NULL COMMENT 'Invoke method',
@@ -332,8 +335,10 @@ CREATE TABLE IF NOT EXISTS `operation_log`
     `status`              int(4)             DEFAULT NULL COMMENT 'Operate status',
     `request_time`        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Request time',
     `err_msg`             mediumtext COMMENT 'Error message',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
+    PRIMARY KEY (`id`),
+    INDEX `operation_log_group_stream_index` (`inlong_group_id`, `inlong_stream_id`),
+    INDEX `operation_log_request_time_index` (`request_time`)
+    ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
 -- ----------------------------
@@ -864,16 +869,29 @@ CREATE TABLE IF NOT EXISTS `audit_base`
 INSERT INTO `audit_base`(`name`, `type`, `is_sent`, `audit_id`)
 VALUES ('audit_sdk_collect', 'SDK', 0, '1'),
        ('audit_sdk_sent', 'SDK', 1, '2'),
-       ('audit_agent_collect', 'AGENT', 0, '3'),
+       ('audit_agent_read', 'AGENT', 0, '3'),
        ('audit_agent_sent', 'AGENT', 1, '4'),
+       ('audit_agent_sent_failed', 'AGENT', 2, '10004'),
+       ('audit_agent_read_realtime', 'AGENT', 3, '30001'),
+       ('audit_agent_send_realtime', 'AGENT', 4, '30002'),
+       ('audit_agent_add_instance_mem', 'AGENT', 5, '30003'),
+       ('audit_agent_del_instance_mem', 'AGENT', 6, '30004'),
+       ('audit_agent_add_instance_db', 'AGENT', 7, '30005'),
+       ('audit_agent_del_instance_db', 'AGENT', 8, '30006'),
+       ('audit_agent_task_mgr_heartbeat', 'AGENT', 9, '30007'),
+       ('audit_agent_task_heartbeat', 'AGENT', 10, '30008'),
+       ('audit_agent_instance_mgr_heartbeat', 'AGENT', 11, '30009'),
+       ('audit_agent_instance_heartbeat', 'AGENT', 12, '30010'),
+       ('audit_agent_sent_failed_realtime', 'AGENT', 13, '30011'),
+       ('audit_agent_del_instance_mem_unusual', 'AGENT', 14, '30014'),
        ('audit_dataproxy_received', 'DATAPROXY', 0, '5'),
        ('audit_dataproxy_sent', 'DATAPROXY', 1, '6'),
        ('audit_sort_hive_input', 'HIVE', 0, '7'),
        ('audit_sort_hive_output', 'HIVE', 1, '8'),
        ('audit_sort_clickhouse_input', 'CLICKHOUSE', 0, '9'),
        ('audit_sort_clickhouse_output', 'CLICKHOUSE', 1, '10'),
-       ('audit_sort_es_input', 'ELASTICSEARCH', 0, '11'),
-       ('audit_sort_es_output', 'ELASTICSEARCH', 1, '12'),
+       ('audit_sort_es_input', 'ES', 0, '11'),
+       ('audit_sort_es_output', 'ES', 1, '12'),
        ('audit_sort_starrocks_input', 'STARROCKS', 0, '13'),
        ('audit_sort_starrocks_output', 'STARROCKS', 1, '14'),
        ('audit_sort_hudi_input', 'HUDI', 0, '15'),
@@ -889,7 +907,13 @@ VALUES ('audit_sdk_collect', 'SDK', 0, '1'),
        ('audit_sort_kudu_input', 'KUDU', 0, '25'),
        ('audit_sort_kudu_output', 'KUDU', 1, '26'),
        ('audit_sort_postgres_input', 'POSTGRESQL', 0, '27'),
-       ('audit_sort_postgres_output', 'POSTGRESQL', 1, '28');
+       ('audit_sort_postgres_output', 'POSTGRESQL', 1, '28'),
+       ('audit_sort_mysql_binlog_input', 'MYSQL_BINLOG', 0, '29'),
+       ('audit_sort_mysql_binlog_output', 'MYSQL_BINLOG', 1, '30'),
+       ('audit_sort_pulsar_input', 'PULSAR', 0, '31'),
+       ('audit_sort_pulsar_output', 'PULSAR', 1, '32'),
+       ('audit_sort_tube_input', 'TUBEMQ', 0, '33'),
+       ('audit_sort_tube_output', 'TUBEMQ', 1, '34');
 
 -- ----------------------------
 -- Table structure for audit_source

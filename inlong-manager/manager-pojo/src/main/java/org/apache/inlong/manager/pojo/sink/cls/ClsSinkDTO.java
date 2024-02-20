@@ -46,14 +46,23 @@ public class ClsSinkDTO {
     @ApiModelProperty("Cloud log service topic name")
     private String topicName;
 
-    @ApiModelProperty("Cloud log service topic save time")
-    private Integer saveTime;
+    @ApiModelProperty("Cloud log service topic storage duration")
+    private Integer storageDuration;
 
     @ApiModelProperty("Cloud log service tag name")
     private String tag;
 
     @ApiModelProperty("Cloud log service index tokenizer")
     private String tokenizer;
+
+    @ApiModelProperty("contentOffset")
+    private Integer contentOffset = 0;
+
+    @ApiModelProperty("fieldOffset")
+    private Integer fieldOffset;
+
+    @ApiModelProperty("separator")
+    private String separator;
 
     /**
      * Get the dto instance from the request

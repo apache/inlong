@@ -41,6 +41,14 @@
         from tenant_cluster_tag
         where id = #{id,jdbcType=INTEGER}
     </select>
+    <select id="selectByUniqueKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from tenant_cluster_tag
+        where tenant = #{tenant,jdbcType=VARCHAR}
+        and cluster_tag = #{clusterTag,jdbcType=VARCHAR}
+        and is_deleted = 0
+    </select>
     <select id="selectByTag" parameterType="java.lang.String" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />

@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>sort-flink</artifactId>
-        <version>1.10.0-SNAPSHOT</version>
+        <version>1.12.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-flink-v1.15</artifactId>
@@ -53,7 +53,7 @@
         <sqlserver.jdbc.version>7.2.2.jre8</sqlserver.jdbc.version>
         <hudi.version>0.12.3</hudi.version>
         <thrift.version>0.9.3</thrift.version>
-        <kafka-clients.version>2.7.1</kafka-clients.version>
+        <kafka-clients.version>2.7.2</kafka-clients.version>
         <flink-connector-debezium.version>2.3.0</flink-connector-debezium.version>
     </properties>
 
@@ -130,7 +130,7 @@
             <!-- hudi -->
             <dependency>
                 <groupId>org.apache.hudi</groupId>
-                <artifactId>hudi-flink1.13-bundle</artifactId>
+                <artifactId>hudi-flink1.15-bundle</artifactId>
                 <version>${hudi.version}</version>
             </dependency>
             <dependency>
@@ -179,7 +179,7 @@
             <dependency>
                 <groupId>org.apache.thrift</groupId>
                 <artifactId>libfb303</artifactId>
-                <version>${thrift.version}</version>
+                <version>${libfb303.version}</version>
             </dependency>
 
             <dependency>

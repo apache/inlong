@@ -33,13 +33,9 @@ import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.pulsar.PulsarSinkDTO;
 import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarOperator;
-import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarUtils;
 import org.apache.inlong.manager.service.resource.sink.AbstractStandaloneSinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 
-import org.apache.pulsar.client.admin.PulsarAdmin;
-import org.apache.pulsar.client.admin.PulsarAdminException;
-import org.apache.pulsar.client.api.PulsarClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,6 +71,7 @@ public class PulsarResourceOperator extends AbstractStandaloneSinkResourceOperat
             LOG.warn("create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
             return;
         }
+        this.checkTaskAndConsumerGroup(sinkInfo);
         this.createTopic(sinkInfo);
         this.assignCluster(sinkInfo);
     }
@@ -86,12 +83,11 @@ public class PulsarResourceOperator extends AbstractStandaloneSinkResourceOperat
 
             PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder().adminUrl(pulsarDataNodeInfo.getAdminUrl())
                     .token(pulsarDataNodeInfo.getToken()).build();
-            PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo);
             // create pulsar tenant
-            pulsarOperator.createTenant(pulsarAdmin, pulsarSinkDTO.getPulsarTenant());
+            pulsarOperator.createTenant(pulsarClusterInfo, pulsarSinkDTO.getPulsarTenant());
             // use default config to create namespace
             InlongPulsarInfo pulsarInfo = new InlongPulsarInfo();
-            pulsarOperator.createNamespace(pulsarAdmin, pulsarInfo, pulsarSinkDTO.getPulsarTenant(),
+            pulsarOperator.createNamespace(pulsarClusterInfo, pulsarInfo, pulsarSinkDTO.getPulsarTenant(),
                     pulsarSinkDTO.getNamespace());
             String queueModel = pulsarSinkDTO.getPartitionNum() > 0 ? InlongConstants.PULSAR_QUEUE_TYPE_PARALLEL
                     : InlongConstants.PULSAR_QUEUE_TYPE_SERIAL;
@@ -102,15 +98,14 @@ public class PulsarResourceOperator extends AbstractStandaloneSinkResourceOperat
                     .queueModule(queueModel)
                     .build();
             // create topic
-            pulsarOperator.createTopic(pulsarAdmin, topicInfo);
+            pulsarOperator.createTopic(pulsarClusterInfo, topicInfo);
             final String info = "success to create Pulsar resource";
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOG.info(info + " for sinkInfo={}", sinkInfo);
-        } catch (PulsarClientException | PulsarAdminException e) {
+        } catch (Exception e) {
             LOG.error("init pulsar admin error", e);
             throw new BusinessException();
         }
-
     }
 
     private PulsarDataNodeDTO getPulsarDataNodeInfo(SinkInfo sinkInfo) {

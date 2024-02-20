@@ -51,4 +51,19 @@ export const allDefaultClusters: MetaExportWithBackendList<ClusterMetaType> = [
     value: 'TUBEMQ',
     LoadEntity: () => import('./TubeMq'),
   },
+  {
+    label: 'Sort CLS',
+    value: 'SORT_CLS',
+    LoadEntity: () => import('./SortCls'),
+  },
+  {
+    label: 'Sort ES',
+    value: 'SORT_ES',
+    LoadEntity: () => import('./SortEs'),
+  },
+  {
+    label: 'Sort Pulsar',
+    value: 'SORT_PULSAR',
+    LoadEntity: () => import('./SortPulsar'),
+  },
 ];

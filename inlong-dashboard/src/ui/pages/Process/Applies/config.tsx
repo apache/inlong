@@ -73,10 +73,25 @@ export const getColumns = activedName => [
     render: (text, record) => record.showInList?.inlongGroupId,
   },
   {
+    title: i18n.t('pages.Approvals.ConsumeName'),
+    dataIndex: 'consumerGroup',
+    width: 200,
+    render: (text, record) => record.showInList?.consumerGroup,
+  },
+  {
     title: i18n.t('pages.Approvals.GroupMode'),
     dataIndex: 'inlongGroupMode',
     width: 200,
     render: (text, record) => {
+      if (record.type === 'Apply Subscription') {
+        return (
+          <StatusTag
+            type={'warning'}
+            icon={<span />}
+            title={i18n.t('pages.Approvals.GroupMode.Subscription')}
+          />
+        );
+      }
       return record.showInList?.inlongGroupMode === 1 ? (
         <StatusTag
           type={'success'}

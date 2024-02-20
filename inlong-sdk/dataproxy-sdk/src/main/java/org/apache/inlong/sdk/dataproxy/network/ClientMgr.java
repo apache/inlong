@@ -112,16 +112,13 @@ public class ClientMgr {
         bootstrap.channel(EventLoopUtil.getClientSocketChannelClass(eventLoopGroup));
         bootstrap.option(ChannelOption.SO_RCVBUF, ConfigConstants.DEFAULT_RECEIVE_BUFFER_SIZE);
         bootstrap.option(ChannelOption.SO_SNDBUF, ConfigConstants.DEFAULT_SEND_BUFFER_SIZE);
-        if (configure.getNetTag().equals("bobcat")) {
-            bootstrap.option(ChannelOption.IP_TOS, 96);
-        }
         bootstrap.handler(new ClientPipelineFactory(this, sender));
         /* ready to Start the thread which refreshes the proxy list. */
         ipManager = new ProxyConfigManager(configure, Utils.getLocalIp(), this);
         ipManager.setName("proxyConfigManager");
-        if (configure.getGroupId() != null) {
-            ipManager.setGroupId(configure.getGroupId());
-            groupId = configure.getGroupId();
+        if (configure.getInlongGroupId() != null) {
+            ipManager.setInlongGroupId(configure.getInlongGroupId());
+            groupId = configure.getInlongGroupId();
         }
 
         /*
@@ -467,7 +464,7 @@ public class ClientMgr {
             int randomId = random.nextInt();
             client = clientList.get(randomId % currSize);
             if (client != null && client.isActive()) {
-                clientId = randomId;
+                clientId = randomId % currSize;
                 break;
             }
             maxRetry--;

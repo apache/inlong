@@ -33,11 +33,11 @@ import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -59,6 +59,9 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Override
     public Boolean accept(String clusterType) {
@@ -127,9 +130,10 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
      * @return
      */
     private Boolean testConnectAdminUrl(PulsarClusterInfo pulsarInfo) {
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarInfo)) {
+
+        try {
             // test connect for pulsar adminUrl
-            pulsarAdmin.tenants().getTenants();
+            PulsarUtils.getTenants(restTemplate, pulsarInfo);
             return true;
         } catch (Exception e) {
             String errMsg = String.format("Pulsar connection failed for AdminUrl=%s", pulsarInfo.getAdminUrl());

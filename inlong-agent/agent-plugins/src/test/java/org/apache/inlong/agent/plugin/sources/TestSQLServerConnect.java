@@ -17,8 +17,8 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constant.JobConstants;
+import org.apache.inlong.agent.conf.InstanceProfile;
+import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.reader.SQLServerReader;
 
@@ -44,14 +44,14 @@ public class TestSQLServerConnect {
 
     @Ignore
     public void testSqlServer() {
-        JobProfile jobProfile = new JobProfile();
+        InstanceProfile jobProfile = new InstanceProfile();
         jobProfile.set("job.sqlserverJob.hostname", "localhost");
         jobProfile.set("job.sqlserverJob.port", "1434");
         jobProfile.set("job.sqlserverJob.user", "sa");
         jobProfile.set("job.sqlserverJob.password", "123456");
         jobProfile.set("job.sqlserverJob.dbname", "inlong");
         jobProfile.set("job.sqlserverJob.serverName", "fullfillment");
-        jobProfile.set(JobConstants.JOB_INSTANCE_ID, UUID.randomUUID().toString());
+        jobProfile.set(TaskConstants.JOB_INSTANCE_ID, UUID.randomUUID().toString());
         jobProfile.set(PROXY_INLONG_GROUP_ID, UUID.randomUUID().toString());
         jobProfile.set(PROXY_INLONG_STREAM_ID, UUID.randomUUID().toString());
         SQLServerReader sqlServerReader = new SQLServerReader();

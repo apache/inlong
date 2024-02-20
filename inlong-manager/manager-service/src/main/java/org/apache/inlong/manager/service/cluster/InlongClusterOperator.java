@@ -36,7 +36,9 @@ public interface InlongClusterOperator {
      *
      * @return cluster type string
      */
-    String getClusterType();
+    default String getClusterType() {
+        return null;
+    }
 
     /**
      * Save the inlong cluster info.

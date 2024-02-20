@@ -31,6 +31,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
+import org.apache.inlong.manager.pojo.cluster.TenantClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
@@ -82,6 +83,19 @@ public class InlongClusterClient {
     public PageResult<ClusterTagResponse> listTag(ClusterTagPageRequest request) {
         Response<PageResult<ClusterTagResponse>> response = ClientUtils.executeHttpCall(
                 inlongClusterApi.listTag(request));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Paging query cluster tags according to conditions.
+     *
+     * @param request page request conditions
+     * @return cluster tag list
+     */
+    public PageResult<ClusterTagResponse> listTagByTenantRole(TenantClusterTagPageRequest request) {
+        Response<PageResult<ClusterTagResponse>> response = ClientUtils.executeHttpCall(
+                inlongClusterApi.listTagByTenantRole(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -150,6 +164,19 @@ public class InlongClusterClient {
      */
     public PageResult<ClusterInfo> list(ClusterPageRequest request) {
         Response<PageResult<ClusterInfo>> response = ClientUtils.executeHttpCall(inlongClusterApi.list(request));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Paging query clusters according to tenant role.
+     *
+     * @param request query conditions
+     * @return cluster list
+     */
+    public PageResult<ClusterInfo> listByTenantRole(ClusterPageRequest request) {
+        Response<PageResult<ClusterInfo>> response =
+                ClientUtils.executeHttpCall(inlongClusterApi.listByTenantRole(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

@@ -20,15 +20,18 @@ package org.apache.inlong.manager.pojo.stream;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * The base parameter class of InlongStream, support user extend their own business params.
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @ApiModel("Base info of inlong stream")
 public class BaseInlongStream {
 
     // you can add extend parameters in this class
+    private String predefinedFields;
 
 }

@@ -27,6 +27,8 @@ import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.TubeMQExtractNode;
+import org.apache.inlong.sort.protocol.node.format.CsvFormat;
+import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
@@ -58,8 +60,9 @@ public class TubeMQNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("salary", new FloatFormatInfo()));
 
+        Format format = new CsvFormat();
         return new TubeMQExtractNode(id, "tubeMQ_input", fields, null, null,
-                "127.0.0.1:8715", "inlong", "json", "test", null, null);
+                "127.0.0.1:8715", "inlong", format, "test", null, null);
     }
 
     /**

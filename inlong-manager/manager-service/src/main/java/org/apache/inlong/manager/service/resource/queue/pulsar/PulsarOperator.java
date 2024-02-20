@@ -23,9 +23,16 @@ import org.apache.inlong.manager.common.conversion.ConversionHandle;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
+import org.apache.inlong.manager.pojo.queue.pulsar.PulsarMessageInfo;
+import org.apache.inlong.manager.pojo.queue.pulsar.PulsarNamespacePolicies;
+import org.apache.inlong.manager.pojo.queue.pulsar.PulsarPersistencePolicies;
+import org.apache.inlong.manager.pojo.queue.pulsar.PulsarRetentionPolicies;
+import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTenantInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicInfo;
+import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicMetadata;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
 import org.apache.inlong.manager.service.message.DeserializeOperator;
@@ -33,19 +40,12 @@ import org.apache.inlong.manager.service.message.DeserializeOperatorFactory;
 
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.pulsar.client.admin.Namespaces;
-import org.apache.pulsar.client.admin.PulsarAdmin;
-import org.apache.pulsar.client.admin.PulsarAdminException;
-import org.apache.pulsar.client.api.Message;
-import org.apache.pulsar.client.api.MessageId;
-import org.apache.pulsar.common.partition.PartitionedTopicMetadata;
-import org.apache.pulsar.common.policies.data.PersistencePolicies;
-import org.apache.pulsar.common.policies.data.RetentionPolicies;
-import org.apache.pulsar.common.policies.data.TenantInfoImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,64 +65,64 @@ public class PulsarOperator {
     private static final int MAX_PARTITION = 1000;
     private static final int RETRY_TIMES = 3;
     private static final int DELAY_SECONDS = 5;
-    private static final String PARSE_ATTR_ERROR_STRING = "Could not find %s in attributes!";
     @Autowired
     public DeserializeOperatorFactory deserializeOperatorFactory;
     @Autowired
     private ConversionHandle conversionHandle;
+    @Autowired
+    private RestTemplate restTemplate;
 
     /**
      * Create Pulsar tenant
      */
-    public void createTenant(PulsarAdmin pulsarAdmin, String tenant) throws PulsarAdminException {
+    public void createTenant(PulsarClusterInfo pulsarClusterInfo, String tenant) throws Exception {
         LOGGER.info("begin to create pulsar tenant={}", tenant);
         Preconditions.expectNotBlank(tenant, ErrorCodeEnum.INVALID_PARAMETER, "Tenant cannot be empty");
 
         try {
-            List<String> clusters = PulsarUtils.getPulsarClusters(pulsarAdmin);
-            boolean exists = this.tenantIsExists(pulsarAdmin, tenant);
+            List<String> clusters = PulsarUtils.getClusters(restTemplate, pulsarClusterInfo);
+            boolean exists = this.tenantIsExists(pulsarClusterInfo, tenant);
             if (exists) {
                 LOGGER.warn("pulsar tenant={} already exists, skip to create", tenant);
                 return;
             }
-            TenantInfoImpl tenantInfo = new TenantInfoImpl();
+            PulsarTenantInfo tenantInfo = new PulsarTenantInfo();
             tenantInfo.setAllowedClusters(Sets.newHashSet(clusters));
             tenantInfo.setAdminRoles(Sets.newHashSet());
-            pulsarAdmin.tenants().createTenant(tenant, tenantInfo);
+            PulsarUtils.createTenant(restTemplate, pulsarClusterInfo, tenant, tenantInfo);
             LOGGER.info("success to create pulsar tenant={}", tenant);
-        } catch (PulsarAdminException e) {
+        } catch (Exception e) {
             LOGGER.error("failed to create pulsar tenant=" + tenant, e);
             throw e;
         }
     }
 
     /**
-     * Create Pulsar namespace
+     * Create Pulsar namespace.
      */
-    public void createNamespace(PulsarAdmin pulsarAdmin, InlongPulsarInfo pulsarInfo, String tenant, String namespace)
-            throws PulsarAdminException {
+    public void createNamespace(PulsarClusterInfo pulsarClusterInfo, InlongPulsarInfo pulsarInfo, String tenant,
+            String namespace)
+            throws Exception {
         Preconditions.expectNotBlank(tenant, ErrorCodeEnum.INVALID_PARAMETER,
                 "pulsar tenant cannot be empty during create namespace");
         Preconditions.expectNotBlank(namespace, ErrorCodeEnum.INVALID_PARAMETER,
                 "pulsar namespace cannot be empty during create namespace");
 
-        String namespaceName = tenant + "/" + namespace;
-        LOGGER.info("begin to create namespace={}", namespaceName);
+        String tenantNamespaceName = tenant + "/" + namespace;
+        LOGGER.info("begin to create namespace={}", tenantNamespaceName);
         try {
             // Check whether the namespace exists, and create it if it does not exist
-            boolean isExists = this.namespaceExists(pulsarAdmin, tenant, namespace);
+            boolean isExists = this.namespaceExists(pulsarClusterInfo, tenant, tenantNamespaceName);
             if (isExists) {
-                LOGGER.warn("namespace={} already exists, skip to create", namespaceName);
+                LOGGER.warn("namespace={} already exists, skip to create", tenantNamespaceName);
                 return;
             }
 
-            List<String> clusters = PulsarUtils.getPulsarClusters(pulsarAdmin);
-            Namespaces namespaces = pulsarAdmin.namespaces();
-            namespaces.createNamespace(namespaceName, Sets.newHashSet(clusters));
+            PulsarNamespacePolicies policies = new PulsarNamespacePolicies();
             // Configure message TTL
             Integer ttl = pulsarInfo.getTtl();
             if (ttl > 0) {
-                namespaces.setNamespaceMessageTTL(namespaceName, conversionHandle.handleConversion(ttl,
+                policies.setMessageTtlInSeconds(conversionHandle.handleConversion(ttl,
                         pulsarInfo.getTtlUnit().toLowerCase() + "_seconds"));
             }
 
@@ -139,16 +139,18 @@ public class PulsarOperator {
             }
 
             // Configure retention policies
-            RetentionPolicies retentionPolicies = new RetentionPolicies(retentionTime, retentionSize);
-            namespaces.setRetention(namespaceName, retentionPolicies);
+            PulsarRetentionPolicies retentionPolicies = new PulsarRetentionPolicies(retentionTime, retentionSize);
+            policies.setRetentionPolicies(retentionPolicies);
 
             // Configure persistence policies
-            PersistencePolicies persistencePolicies = new PersistencePolicies(pulsarInfo.getEnsemble(),
+            PulsarPersistencePolicies persistencePolicies = new PulsarPersistencePolicies(pulsarInfo.getEnsemble(),
                     pulsarInfo.getWriteQuorum(), pulsarInfo.getAckQuorum(), pulsarInfo.getMaxMarkDeleteRate());
-            namespaces.setPersistence(namespaceName, persistencePolicies);
-            LOGGER.info("success to create namespace={}", namespaceName);
-        } catch (PulsarAdminException e) {
-            LOGGER.error("failed to create namespace=" + namespaceName, e);
+            policies.setPersistence(persistencePolicies);
+
+            PulsarUtils.createNamespace(restTemplate, pulsarClusterInfo, tenant, namespace, policies);
+            LOGGER.info("success to create namespace={}", tenantNamespaceName);
+        } catch (Exception e) {
+            LOGGER.error("failed to create namespace=" + tenantNamespaceName, e);
             throw e;
         }
     }
@@ -156,7 +158,7 @@ public class PulsarOperator {
     /**
      * Create Pulsar topic
      */
-    public void createTopic(PulsarAdmin pulsarAdmin, PulsarTopicInfo topicInfo) throws PulsarAdminException {
+    public void createTopic(PulsarClusterInfo pulsarClusterInfo, PulsarTopicInfo topicInfo) throws Exception {
         Preconditions.expectNotNull(topicInfo, "pulsar topic info cannot be empty");
         String tenant = topicInfo.getPulsarTenant();
         String namespace = topicInfo.getNamespace();
@@ -164,33 +166,35 @@ public class PulsarOperator {
         String fullTopicName = tenant + "/" + namespace + "/" + topicName;
 
         // Topic will be returned if it exists, and created if it does not exist
-        if (topicExists(pulsarAdmin, tenant, namespace, topicName,
+        if (topicExists(pulsarClusterInfo, tenant, namespace, topicName,
                 InlongConstants.PULSAR_QUEUE_TYPE_PARALLEL.equals(topicInfo.getQueueModule()))) {
-            LOGGER.warn("pulsar topic={} already exists in {}", fullTopicName, pulsarAdmin.getServiceUrl());
+            LOGGER.warn("pulsar topic={} already exists in {}", fullTopicName, pulsarClusterInfo.getAdminUrl());
             return;
         }
 
         try {
             if (InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(topicInfo.getQueueModule())) {
-                pulsarAdmin.topics().createNonPartitionedTopic(fullTopicName);
-                String res = pulsarAdmin.lookups().lookupTopic(fullTopicName);
+                PulsarUtils.createNonPartitionedTopic(restTemplate, pulsarClusterInfo, fullTopicName);
+                String res = PulsarUtils.lookupTopic(restTemplate, pulsarClusterInfo, fullTopicName);
                 LOGGER.info("success to create topic={}, lookup result is {}", fullTopicName, res);
             } else {
                 // The number of brokers as the default value of topic partition
-                List<String> clusters = PulsarUtils.getPulsarClusters(pulsarAdmin);
+                List<String> clusters = PulsarUtils.getClusters(restTemplate, pulsarClusterInfo);
                 Integer numPartitions = topicInfo.getNumPartitions();
                 if (numPartitions < 0 || numPartitions >= MAX_PARTITION) {
-                    List<String> brokers = pulsarAdmin.brokers().getActiveBrokers(clusters.get(0));
+                    List<String> brokers = PulsarUtils.getBrokers(restTemplate, pulsarClusterInfo);
                     numPartitions = brokers.size();
                 }
-
-                pulsarAdmin.topics().createPartitionedTopic(fullTopicName, numPartitions);
-                Map<String, String> res = pulsarAdmin.lookups().lookupPartitionedTopic(fullTopicName);
+                PulsarUtils.createPartitionedTopic(restTemplate, pulsarClusterInfo, fullTopicName,
+                        numPartitions);
+                Map<String, String> res = PulsarUtils.lookupPartitionedTopic(restTemplate,
+                        pulsarClusterInfo, fullTopicName);
                 // if lookup failed (res.size not equals the partition number)
-                if (res.keySet().size() != numPartitions) {
+                if (res.size() != numPartitions) {
                     // look up partition failed, retry to get partition numbers
-                    for (int i = 0; (i < RETRY_TIMES && res.keySet().size() != numPartitions); i++) {
-                        res = pulsarAdmin.lookups().lookupPartitionedTopic(fullTopicName);
+                    for (int i = 0; (i < RETRY_TIMES && res.size() != numPartitions); i++) {
+                        res = PulsarUtils.lookupPartitionedTopic(restTemplate, pulsarClusterInfo,
+                                fullTopicName);
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException e) {
@@ -198,12 +202,12 @@ public class PulsarOperator {
                         }
                     }
                 }
-                if (numPartitions != res.keySet().size()) {
-                    throw new PulsarAdminException("The number of partitions not equal to lookupPartitionedTopic");
+                if (numPartitions != res.size()) {
+                    throw new Exception("The number of partitions not equal to lookupPartitionedTopic");
                 }
                 LOGGER.info("success to create topic={}", fullTopicName);
             }
-        } catch (PulsarAdminException e) {
+        } catch (Exception e) {
             LOGGER.error("failed to create topic=" + fullTopicName, e);
             throw e;
         }
@@ -212,25 +216,25 @@ public class PulsarOperator {
     /**
      * Force delete Pulsar topic
      */
-    public void forceDeleteTopic(PulsarAdmin pulsarAdmin, PulsarTopicInfo topicInfo) throws PulsarAdminException {
+    public void forceDeleteTopic(PulsarClusterInfo pulsarClusterInfo, PulsarTopicInfo topicInfo) throws Exception {
         Preconditions.expectNotNull(topicInfo, "pulsar topic info cannot be empty");
 
         String tenant = topicInfo.getPulsarTenant();
         String namespace = topicInfo.getNamespace();
         String topic = topicInfo.getTopicName();
         String fullTopicName = tenant + "/" + namespace + "/" + topic;
+        boolean isPartitioned = InlongConstants.PULSAR_QUEUE_TYPE_PARALLEL.equals(topicInfo.getQueueModule());
 
         // Topic will be returned if it not exists
-        if (topicExists(pulsarAdmin, tenant, namespace, topic,
-                InlongConstants.PULSAR_QUEUE_TYPE_PARALLEL.equals(topicInfo.getQueueModule()))) {
+        if (topicExists(pulsarClusterInfo, tenant, namespace, topic, isPartitioned)) {
             LOGGER.warn("pulsar topic={} already delete", fullTopicName);
             return;
         }
 
         try {
-            pulsarAdmin.topics().delete(fullTopicName, true);
+            PulsarUtils.forceDeleteTopic(restTemplate, pulsarClusterInfo, fullTopicName, isPartitioned);
             LOGGER.info("success to delete topic={}", fullTopicName);
-        } catch (PulsarAdminException e) {
+        } catch (Exception e) {
             LOGGER.error("failed to delete topic=" + fullTopicName, e);
             throw e;
         }
@@ -239,19 +243,20 @@ public class PulsarOperator {
     /**
      * Create a Pulsar subscription for the given topic
      */
-    public void createSubscription(PulsarAdmin pulsarAdmin, String fullTopicName, String queueModule,
-            String subscription) throws PulsarAdminException {
+    public void createSubscription(PulsarClusterInfo pulsarClusterInfo, String fullTopicName, String queueModule,
+            String subscription) throws Exception {
         LOGGER.info("begin to create pulsar subscription={} for topic={}", subscription, fullTopicName);
         try {
-            boolean isExists = this.subscriptionExists(pulsarAdmin, fullTopicName, subscription,
+            boolean isExists = this.subscriptionExists(pulsarClusterInfo, fullTopicName, subscription,
                     InlongConstants.PULSAR_QUEUE_TYPE_PARALLEL.equals(queueModule));
             if (isExists) {
                 LOGGER.warn("pulsar subscription={} already exists, skip to create", subscription);
                 return;
             }
-            pulsarAdmin.topics().createSubscription(fullTopicName, subscription, MessageId.latest);
+
+            PulsarUtils.createSubscription(restTemplate, pulsarClusterInfo, fullTopicName, subscription);
             LOGGER.info("success to create subscription={}", subscription);
-        } catch (PulsarAdminException e) {
+        } catch (Exception e) {
             LOGGER.error("failed to create pulsar subscription=" + subscription, e);
             throw e;
         }
@@ -260,31 +265,42 @@ public class PulsarOperator {
     /**
      * Create a Pulsar subscription for the specified topic list
      */
-    public void createSubscriptions(PulsarAdmin pulsarAdmin, String subscription, PulsarTopicInfo topicInfo,
-            List<String> topicList) throws PulsarAdminException {
+    public void createSubscriptions(PulsarClusterInfo pulsarClusterInfo, String subscription, PulsarTopicInfo topicInfo,
+            List<String> topicList) throws Exception {
         for (String topic : topicList) {
             topicInfo.setTopicName(topic);
             String fullTopicName = topicInfo.getPulsarTenant() + "/" + topicInfo.getNamespace() + "/" + topic;
-            this.createSubscription(pulsarAdmin, fullTopicName, topicInfo.getQueueModule(), subscription);
+            this.createSubscription(pulsarClusterInfo, fullTopicName, topicInfo.getQueueModule(), subscription);
         }
         LOGGER.info("success to create subscription={} for multiple topics={}", subscription, topicList);
     }
 
     /**
      * Check if Pulsar tenant exists
+     *
+     * @param pulsarClusterInfo pulsar cluster info
+     * @param tenant pulsar tenant info
+     * @return true or false
+     * @throws Exception any exception if occurred
      */
-    private boolean tenantIsExists(PulsarAdmin pulsarAdmin, String tenant) throws PulsarAdminException {
-        List<String> tenantList = pulsarAdmin.tenants().getTenants();
-        return tenantList.contains(tenant);
+    private boolean tenantIsExists(PulsarClusterInfo pulsarClusterInfo, String tenant) throws Exception {
+        List<String> tenants = PulsarUtils.getTenants(restTemplate, pulsarClusterInfo);
+        return tenants.contains(tenant);
     }
 
     /**
-     * Check whether the Pulsar namespace exists under the specified tenant
+     * Check whether the Pulsar namespace exists under the specified tenant.
+     *
+     * @param pulsarClusterInfo pulsar cluster info
+     * @param tenant pulsar tenant info
+     * @param namespace pulsar namespace info
+     * @return true or false
+     * @throws Exception any exception if occurred
      */
-    private boolean namespaceExists(PulsarAdmin pulsarAdmin, String tenant, String namespace)
-            throws PulsarAdminException {
-        List<String> namespaceList = pulsarAdmin.namespaces().getNamespaces(tenant);
-        return namespaceList.contains(tenant + "/" + namespace);
+    private boolean namespaceExists(PulsarClusterInfo pulsarClusterInfo, String tenant, String namespace)
+            throws Exception {
+        List<String> namespaces = PulsarUtils.getNamespaces(restTemplate, pulsarClusterInfo, tenant);
+        return namespaces.contains(namespace);
     }
 
     /**
@@ -293,22 +309,23 @@ public class PulsarOperator {
      * @apiNote cannot compare whether the string contains, otherwise it may be misjudged, such as:
      *         Topic "ab" does not exist, but if "abc" exists, "ab" will be mistakenly judged to exist
      */
-    public boolean topicExists(PulsarAdmin pulsarAdmin, String tenant, String namespace, String topicName,
+    public boolean topicExists(PulsarClusterInfo pulsarClusterInfo, String tenant, String namespace, String topicName,
             boolean isPartitioned) {
         if (StringUtils.isBlank(topicName)) {
             return true;
         }
 
         // persistent://tenant/namespace/topic
-        List<String> topicList;
+        List<String> topics;
         boolean topicExists = false;
         try {
             if (isPartitioned) {
-                topicList = pulsarAdmin.topics().getPartitionedTopicList(tenant + "/" + namespace);
+                topics = PulsarUtils.getPartitionedTopics(restTemplate, pulsarClusterInfo, tenant,
+                        namespace);
             } else {
-                topicList = pulsarAdmin.topics().getList(tenant + "/" + namespace);
+                topics = PulsarUtils.getTopics(restTemplate, pulsarClusterInfo, tenant, namespace);
             }
-            for (String t : topicList) {
+            for (String t : topics) {
                 t = t.substring(t.lastIndexOf("/") + 1); // not contains /
                 if (!isPartitioned) {
                     int suffixIndex = t.lastIndexOf("-partition-");
@@ -321,7 +338,7 @@ public class PulsarOperator {
                     break;
                 }
             }
-        } catch (PulsarAdminException pe) {
+        } catch (Exception pe) {
             LOGGER.error("check if the pulsar topic={} exists error, begin retry", topicName, pe);
             int count = 0;
             try {
@@ -329,8 +346,9 @@ public class PulsarOperator {
                     LOGGER.info("check whether the pulsar topic={} exists error, try count={}", topicName, count);
                     Thread.sleep(DELAY_SECONDS);
 
-                    topicList = pulsarAdmin.topics().getPartitionedTopicList(tenant + "/" + namespace);
-                    for (String t : topicList) {
+                    topics = PulsarUtils.getPartitionedTopics(restTemplate, pulsarClusterInfo,
+                            tenant, namespace);
+                    for (String t : topics) {
                         t = t.substring(t.lastIndexOf("/") + 1);
                         if (topicName.equals(t)) {
                             topicExists = true;
@@ -348,7 +366,7 @@ public class PulsarOperator {
     /**
      * Check whether the Pulsar topic exists.
      */
-    private boolean subscriptionExists(PulsarAdmin pulsarAdmin, String topic, String subscription,
+    private boolean subscriptionExists(PulsarClusterInfo pulsarClusterInfo, String topic, String subscription,
             boolean isPartitioned) {
         int count = 0;
         while (++count <= RETRY_TIMES) {
@@ -358,22 +376,24 @@ public class PulsarOperator {
 
                 // first lookup to load the topic, and then query whether the subscription exists
                 if (isPartitioned) {
-                    Map<String, String> topicMap = pulsarAdmin.lookups().lookupPartitionedTopic(topic);
+                    Map<String, String> topicMap = PulsarUtils.lookupPartitionedTopic(restTemplate,
+                            pulsarClusterInfo, topic);
                     if (topicMap.isEmpty()) {
                         LOGGER.error("result of lookups topic={} is empty, continue retry", topic);
                         continue;
                     }
                 } else {
-                    String lookupTopic = pulsarAdmin.lookups().lookupTopic(topic);
+                    String lookupTopic = PulsarUtils.lookupTopic(restTemplate, pulsarClusterInfo, topic);
                     if (StringUtils.isBlank(lookupTopic)) {
                         LOGGER.error("result of lookups topic={} is empty, continue retry", topic);
                         continue;
                     }
                 }
 
-                List<String> subscriptionList = pulsarAdmin.topics().getSubscriptions(topic);
+                List<String> subscriptionList = PulsarUtils.getSubscriptions(restTemplate,
+                        pulsarClusterInfo, topic);
                 return subscriptionList.contains(subscription);
-            } catch (PulsarAdminException | InterruptedException e) {
+            } catch (Exception e) {
                 LOGGER.error("check if the subscription exists for topic={} error, continue retry", topic, e);
                 if (count == RETRY_TIMES) {
                     LOGGER.error("after {} times retry, still check subscription exception for topic {}", count, topic);
@@ -387,16 +407,17 @@ public class PulsarOperator {
     /**
      * Query topic message for the given pulsar cluster.
      */
-    public List<BriefMQMessage> queryLatestMessage(PulsarAdmin pulsarAdmin, String topicFullName, String subName,
+    public List<BriefMQMessage> queryLatestMessage(PulsarClusterInfo pulsarClusterInfo, String topicFullName,
+            String subName,
             Integer messageCount, InlongStreamInfo streamInfo, boolean serial) {
         LOGGER.info("begin to query message for topic {}, subName={}", topicFullName, subName);
         List<BriefMQMessage> messageList = new ArrayList<>();
-        int partitionCount = getPartitionCount(pulsarAdmin, topicFullName);
+        int partitionCount = getPartitionCount(pulsarClusterInfo, topicFullName);
         for (int messageIndex = 0; messageIndex < messageCount; messageIndex++) {
             int currentPartitionNum = messageIndex % partitionCount;
             int messagePosition = messageIndex / partitionCount;
             String topicNameOfPartition = buildTopicNameOfPartition(topicFullName, currentPartitionNum, serial);
-            messageList.addAll(queryMessageFromPulsar(topicNameOfPartition, pulsarAdmin, messageIndex,
+            messageList.addAll(queryMessageFromPulsar(topicNameOfPartition, pulsarClusterInfo, messageIndex,
                     streamInfo, messagePosition));
         }
         LOGGER.info("success query message by subs={} for topic={}", subName, topicFullName);
@@ -404,36 +425,39 @@ public class PulsarOperator {
     }
 
     /**
-     * Use pulsar admin to get topic partition count
+     * Get topic partition count.
      */
-    private int getPartitionCount(PulsarAdmin pulsarAdmin, String topicFullName) {
-        PartitionedTopicMetadata partitionedTopicMetadata;
+    private int getPartitionCount(PulsarClusterInfo pulsarClusterInfo, String topicFullName) {
+        PulsarTopicMetadata pulsarTopicMetadata;
         try {
-            partitionedTopicMetadata = pulsarAdmin.topics()
-                    .getPartitionedTopicMetadata(topicFullName);
+            pulsarTopicMetadata = PulsarUtils.getPartitionedTopicMetadata(restTemplate,
+                    pulsarClusterInfo, topicFullName);
         } catch (Exception e) {
             String errMsg = "get pulsar partition error ";
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg + e.getMessage());
         }
-        return partitionedTopicMetadata.partitions > 0 ? partitionedTopicMetadata.partitions : 1;
+        return pulsarTopicMetadata.getPartitions() > 0 ? pulsarTopicMetadata.getPartitions() : 1;
     }
 
     /**
-     * Use pulsar admin to query message
+     * Query pulsar message.
      */
-    private List<BriefMQMessage> queryMessageFromPulsar(String topicPartition, PulsarAdmin pulsarAdmin, int index,
+    private List<BriefMQMessage> queryMessageFromPulsar(String topicPartition, PulsarClusterInfo pulsarClusterInfo,
+            int index,
             InlongStreamInfo streamInfo, int messagePosition) {
         List<BriefMQMessage> briefMQMessages = new ArrayList<>();
         try {
-            Message<byte[]> pulsarMessage =
-                    pulsarAdmin.topics().examineMessage(topicPartition, "latest", messagePosition);
-            Map<String, String> headers = pulsarMessage.getProperties();
+            ResponseEntity<byte[]> httpResponse =
+                    PulsarUtils.examineMessage(restTemplate, pulsarClusterInfo, topicPartition, "latest",
+                            messagePosition);
+            PulsarMessageInfo messageInfo = PulsarUtils.getMessageFromHttpResponse(httpResponse, topicPartition);
+            Map<String, String> headers = messageInfo.getProperties();
             int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
                     Integer.toString(MessageWrapType.INLONG_MSG_V0.getId())));
             DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
                     MessageWrapType.valueOf(wrapTypeId));
-            briefMQMessages.addAll(deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(),
+            briefMQMessages.addAll(deserializeOperator.decodeMsg(streamInfo, messageInfo.getBody(),
                     headers, index));
         } catch (Exception e) {
             LOGGER.warn("query message from pulsar error for groupId = {}, streamId = {}",
@@ -441,6 +465,20 @@ public class PulsarOperator {
                     streamInfo.getInlongStreamId(), e);
         }
         return briefMQMessages;
+    }
+
+    /**
+     * Reset cursor for consumer group.
+     */
+    public void resetCursor(PulsarClusterInfo pulsarClusterInfo, String topicFullName, String subName,
+            Long resetTime) {
+        try {
+            PulsarUtils.resetCursor(restTemplate, pulsarClusterInfo, topicFullName, subName,
+                    resetTime);
+        } catch (Exception e) {
+            LOGGER.error("failed reset cursor consumer:", e);
+            throw new BusinessException("failed reset cursor consumer:" + e.getMessage());
+        }
     }
 
     /**

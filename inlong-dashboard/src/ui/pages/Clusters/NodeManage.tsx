@@ -127,6 +127,11 @@ const Comp: React.FC = () => {
         dataIndex: 'port',
       },
       {
+        title: i18n.t('pages.Clusters.Node.Online'),
+        dataIndex: 'enabledOnline',
+        render: text => (text !== undefined ? text.toString() : ''),
+      },
+      {
         title: i18n.t('pages.Clusters.Node.ProtocolType'),
         dataIndex: 'protocolType',
       },
@@ -165,7 +170,15 @@ const Comp: React.FC = () => {
   }, [onDelete]);
 
   return (
-    <PageContainer breadcrumb={[{ name: `${type} ${i18n.t('pages.Clusters.Node.Name')}` }]}>
+    <PageContainer
+      breadcrumb={[
+        {
+          name: `${type === 'DATAPROXY' ? 'DataProxy' : 'Agent'} ${i18n.t(
+            'pages.Clusters.Node.Name',
+          )}`,
+        },
+      ]}
+    >
       <HighTable
         filterForm={{
           content: getFilterFormContent(options),
@@ -177,7 +190,8 @@ const Comp: React.FC = () => {
           </Button>
         }
         table={{
-          columns,
+          columns:
+            type === 'AGENT' ? columns.filter(item => item.dataIndex !== 'enabledOnline') : columns,
           rowKey: 'id',
           dataSource: data?.list,
           pagination,

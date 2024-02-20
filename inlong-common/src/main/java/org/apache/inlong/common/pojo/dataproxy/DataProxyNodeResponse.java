@@ -33,6 +33,8 @@ public class DataProxyNodeResponse {
     @Deprecated
     private Integer clusterId;
 
+    private String reportSourceType;
+
     /**
      * Is the DataProxy cluster an intranet? 0: no, 1: yes
      */

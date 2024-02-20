@@ -22,31 +22,32 @@ import i18n from '@/i18n';
 import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';
 import EditableTable from '@/ui/components/EditableTable';
+import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const fieldTypesConf = {
-  BINARY_FLOAT: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
-  BINARY_DOUBLE: (m, d) => (1 <= m && m <= 10 ? '' : '1 <= M <= 10'),
-  SMALLINT: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
-  FLOAT: (m, d) => (1 <= m && m <= 126 ? '' : '1 <= M <= 126'),
-  FLOAT4: () => '',
-  FLOAT8: () => '',
-  DOUBLE: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
-  REAL: () => '',
-  NUMBER: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
-  NUMERIC: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
-  DATE: () => '',
-  DECIMAL: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
-  BOOLEAN: () => '',
-  TIMESTAMP: () => '',
-  CHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
-  VARCHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
-  CLOB: () => '',
-  RAW: (m, d) => (1 <= m && m <= 2000 ? '' : ' 1 <= M <= 2000'),
-  BLOB: () => '',
+  binary_float: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
+  binary_double: (m, d) => (1 <= m && m <= 10 ? '' : '1 <= M <= 10'),
+  smallint: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
+  float: (m, d) => (1 <= m && m <= 126 ? '' : '1 <= M <= 126'),
+  float4: () => '',
+  float8: () => '',
+  double: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  real: () => '',
+  number: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  numeric: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  date: () => '',
+  decimal: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  boolean: () => '',
+  timestamp: () => '',
+  char: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
+  varchar: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
+  clob: () => '',
+  raw: (m, d) => (1 <= m && m <= 2000 ? '' : ' 1 <= M <= 2000'),
+  blob: () => '',
 };
 
 const oracleFieldTypes = Object.keys(fieldTypesConf).reduce(
@@ -70,17 +71,26 @@ export default class OracleSink extends SinkInfo implements DataWithBackend, Ren
   @ColumnDecorator()
   @I18n('JDBC URL')
   @SyncField()
+  @IngestionField()
   jdbcUrl: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: CreateTable,
     rules: [{ required: true }],
     props: values => ({
       disabled: [110].includes(values?.status),
+      sinkType: values.sinkType,
+      inlongGroupId: values.inlongGroupId,
+      inlongStreamId: values.inlongStreamId,
+      fieldName: 'tableName',
+      sinkObj: {
+        ...values,
+      },
     }),
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Oracle.TableName')
   tableName: string;
 
@@ -94,6 +104,7 @@ export default class OracleSink extends SinkInfo implements DataWithBackend, Ren
   @ColumnDecorator()
   @I18n('meta.Sinks.Oracle.PrimaryKey')
   @SyncField()
+  @IngestionField()
   primaryKey: string;
 
   @FieldDecorator({
@@ -115,8 +126,8 @@ export default class OracleSink extends SinkInfo implements DataWithBackend, Ren
       ],
     }),
   })
+  @IngestionField()
   @I18n('meta.Sinks.EnableCreateResource')
-  @SyncField()
   enableCreateResource: number;
 
   @FieldDecorator({
@@ -129,6 +140,7 @@ export default class OracleSink extends SinkInfo implements DataWithBackend, Ren
   @ColumnDecorator()
   @I18n('meta.Sinks.Username')
   @SyncField()
+  @IngestionField()
   username: string;
 
   @FieldDecorator({
@@ -140,6 +152,7 @@ export default class OracleSink extends SinkInfo implements DataWithBackend, Ren
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Password')
   password: string;
 
@@ -153,21 +166,38 @@ export default class OracleSink extends SinkInfo implements DataWithBackend, Ren
       upsertByFieldKey: true,
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
+
+  @FieldDecorator({
+    type: EditableTable,
+    initialValue: [],
+    props: values => ({
+      size: 'small',
+      editing: ![110].includes(values?.status),
+      columns: getFieldListColumns(values).filter(
+        item => item.dataIndex !== 'sourceFieldName' && item.dataIndex !== 'sourceFieldType',
+      ),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
+    }),
+  })
+  @SyncCreateTableField()
+  createTableField: Record<string, unknown>[];
 }
 
 const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `ORACLE${i18n.t('meta.Sinks.Oracle.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('meta.Sinks.Oracle.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -175,7 +205,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `ORACLE${i18n.t('meta.Sinks.Oracle.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       initialValue: oracleFieldTypes[0].value,
       type: 'autocomplete',
@@ -235,7 +265,7 @@ const getFieldListColumns = sinkValues => {
         ['BIGINT', 'DATE', 'TIMESTAMP'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('meta.Sinks.Oracle.FieldDescription'),
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },

@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.pojo.node.doris.DorisDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -87,12 +88,21 @@ public class DorisSinkOperator extends AbstractSinkOperator {
 
         DorisSinkDTO dto = DorisSinkDTO.getFromJson(entity.getExtParams());
         if (StringUtils.isBlank(dto.getFeNodes())) {
-            throw new BusinessException(ErrorCodeEnum.ILLEGAL_RECORD_FIELD_VALUE,
-                    "doris fe nodes is blank");
+            if (StringUtils.isBlank(entity.getDataNodeName())) {
+                throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                        "doris fe nodes unspecified and data node is blank");
+            }
+            DorisDataNodeInfo dataNodeInfo = (DorisDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+                    entity.getDataNodeName(), entity.getSinkType());
+            dto.setFeNodes(dataNodeInfo.getUrl());
+            dto.setUsername(dataNodeInfo.getUsername());
+            dto.setPassword(dataNodeInfo.getToken());
+            CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
         }
+
         CommonBeanUtils.copyProperties(entity, sink, true);
         CommonBeanUtils.copyProperties(dto, sink, true);
-        List<SinkField> sinkFields = super.getSinkFields(entity.getId());
+        List<SinkField> sinkFields = getSinkFields(entity.getId());
         sink.setSinkFieldList(sinkFields);
         return sink;
     }

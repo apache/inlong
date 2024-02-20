@@ -71,6 +71,12 @@ import java.util.Map;
 @NoArgsConstructor
 public abstract class ExtractNode implements Node {
 
+    public static final String INLONG_MSG = "inlong-msg";
+
+    public static final String INLONG_MSG_AUDIT_TIME = "value.data-time";
+
+    public static final String CONSUME_AUDIT_TIME = "consume_time";
+
     @JsonProperty("id")
     private String id;
     @JsonInclude(Include.NON_NULL)

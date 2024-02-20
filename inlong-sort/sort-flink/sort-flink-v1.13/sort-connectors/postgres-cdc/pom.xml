@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>sort-connectors-v1.13</artifactId>
-        <version>1.10.0-SNAPSHOT</version>
+        <version>1.12.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-connector-postgres-cdc</artifactId>
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.4.1</version>
+            <version>${postgresql.version}</version>
         </dependency>
         <dependency>
             <groupId>io.debezium</groupId>

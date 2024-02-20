@@ -40,6 +40,7 @@ import ClusterList from './ClusterList';
 import TagDetailModal from './TagDetailModal';
 import styles from './index.module.less';
 import { State } from '@/core/stores';
+import { timestampFormat } from '@/core/utils';
 
 const Comp: React.FC = () => {
   const [options, setOptions] = useState({
@@ -255,7 +256,7 @@ const Comp: React.FC = () => {
                 {currentTag.modifier}
               </Descriptions.Item>
               <Descriptions.Item label={i18n.t('pages.ClusterTags.ModifyTime')}>
-                {currentTag.modifyTime}
+                {timestampFormat(currentTag.modifyTime)}
               </Descriptions.Item>
             </Descriptions>
           </Card>

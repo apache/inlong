@@ -17,11 +17,10 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.conf.TriggerProfile;
+import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
-import org.apache.inlong.agent.constant.JobConstants;
-import org.apache.inlong.agent.plugin.trigger.PathPattern;
+import org.apache.inlong.agent.constant.TaskConstants;
+import org.apache.inlong.agent.plugin.task.PathPattern;
 import org.apache.inlong.agent.utils.AgentUtils;
 
 import io.fabric8.kubernetes.client.Config;
@@ -52,13 +51,12 @@ import static org.apache.inlong.agent.constant.CommonConstants.AGENT_NIX_OS;
 import static org.apache.inlong.agent.constant.CommonConstants.AGENT_NUX_OS;
 import static org.apache.inlong.agent.constant.CommonConstants.AGENT_OS_NAME;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FILE_MAX_NUM;
-import static org.apache.inlong.agent.constant.CommonConstants.FILE_MAX_NUM;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TIME_OFFSET;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_RETRY_TIME;
 import static org.apache.inlong.agent.constant.KubernetesConstants.HTTPS;
 import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES_SERVICE_HOST;
 import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES_SERVICE_PORT;
+import static org.apache.inlong.agent.constant.TaskConstants.FILE_DIR_FILTER_PATTERNS;
+import static org.apache.inlong.agent.constant.TaskConstants.JOB_RETRY_TIME;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_FILE_TIME_OFFSET;
 
 /**
  * Utils for plugin package.
@@ -90,15 +88,15 @@ public class PluginUtils {
     /**
      * scan and return files based on job dir conf
      */
-    public static Collection<File> findSuitFiles(JobProfile jobConf) {
+    public static Collection<File> findSuitFiles(TaskProfile jobConf) {
         Set<String> dirPatterns = Stream.of(
-                jobConf.get(JOB_DIR_FILTER_PATTERNS).split(",")).collect(Collectors.toSet());
+                jobConf.get(FILE_DIR_FILTER_PATTERNS).split(",")).collect(Collectors.toSet());
         LOGGER.info("start to find files with dir pattern {}", dirPatterns);
 
         Set<PathPattern> pathPatterns =
-                PathPattern.buildPathPattern(dirPatterns, jobConf.get(JOB_FILE_TIME_OFFSET, null));
+                PathPattern.buildPathPattern(dirPatterns, jobConf.get(TASK_FILE_TIME_OFFSET, null));
         updateRetryTime(jobConf, pathPatterns);
-        int maxFileNum = jobConf.getInt(FILE_MAX_NUM, DEFAULT_FILE_MAX_NUM);
+        int maxFileNum = DEFAULT_FILE_MAX_NUM;
         LOGGER.info("dir pattern {}, max file num {}", dirPatterns, maxFileNum);
         Collection<File> allFiles = new ArrayList<>();
         pathPatterns.forEach(pathPattern -> allFiles.addAll(pathPattern.walkSuitableFiles(maxFileNum)));
@@ -108,7 +106,7 @@ public class PluginUtils {
     /**
      * if the job is retry job, the date is determined
      */
-    public static void updateRetryTime(JobProfile jobConf, Collection<PathPattern> patterns) {
+    public static void updateRetryTime(TaskProfile jobConf, Collection<PathPattern> patterns) {
         if (jobConf.hasKey(JOB_RETRY_TIME)) {
             LOGGER.info("job {} is retry job with specific time, update file time to {}"
                     + "", jobConf.toJsonStr(), jobConf.get(JOB_RETRY_TIME));
@@ -119,12 +117,12 @@ public class PluginUtils {
     /**
      * convert a file of trigger dir to a subtask JobProfile of TriggerProfile
      */
-    public static JobProfile copyJobProfile(TriggerProfile triggerProfile, File pendingFile) {
-        JobProfile copiedProfile = TriggerProfile.parseJsonStr(triggerProfile.toJsonStr());
+    public static TaskProfile copyJobProfile(TaskProfile taskProfile, File pendingFile) {
+        TaskProfile copiedProfile = TaskProfile.parseJsonStr(taskProfile.toJsonStr());
         String md5 = AgentUtils.getFileMd5(pendingFile);
         copiedProfile.set(pendingFile.getAbsolutePath() + ".md5", md5);
-        copiedProfile.set(JobConstants.JOB_FILE_TRIGGER, null); // del trigger id
-        copiedProfile.set(JobConstants.JOB_DIR_FILTER_PATTERNS, pendingFile.getAbsolutePath());
+        copiedProfile.set(TaskConstants.JOB_FILE_TRIGGER, null); // del trigger id
+        copiedProfile.set(TaskConstants.FILE_DIR_FILTER_PATTERNS, pendingFile.getAbsolutePath());
         return copiedProfile;
     }
 

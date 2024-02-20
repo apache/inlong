@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.common.util;
 
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -96,21 +98,34 @@ public class HttpUtils {
     }
 
     /**
-     * Send HEAD request to the specified URL.
+     * Send an HTTP request by the given rest template.
      */
-    public static boolean headRequest(RestTemplate restTemplate, String url, Map<String, Object> params,
-            HttpHeaders header) {
+    public static <T> T request(RestTemplate restTemplate, String[] urls, HttpMethod method,
+            String param, HttpHeaders header, Class<T> cls) throws Exception {
         ResponseEntity<String> exchange;
-        boolean result = false;
-        HttpEntity<String> request = new HttpEntity(params, header);
-        log.debug("send request to {}, param {}", url, params);
-        exchange = restTemplate.exchange(url, HttpMethod.HEAD, request, String.class);
-        HttpStatus statusCode = exchange.getStatusCode();
-        if (statusCode.is2xxSuccessful()) {
-            result = statusCode.is2xxSuccessful();
+        Preconditions.expectNotNull(urls, ErrorCodeEnum.INVALID_PARAMETER, "url is blank");
+        for (int i = 0; i < urls.length; i++) {
+            try {
+                HttpEntity<String> request = new HttpEntity<>(param, header);
+                log.debug("send request to {}, param {}", urls[i], param);
+                exchange = restTemplate.exchange(urls[i], method, request, String.class);
+                String body = exchange.getBody();
+                HttpStatus statusCode = exchange.getStatusCode();
+                if (!statusCode.is2xxSuccessful()) {
+                    log.error("request error for {}, status code {}, body {}", urls[i], statusCode, body);
+                }
+
+                log.debug("response from {}, status code {}", urls[i], statusCode);
+                return GSON.fromJson(exchange.getBody(), cls);
+            } catch (RestClientException e) {
+                log.error("request for {}, error, begin retry", urls[i], e);
+                if (i >= (urls.length - 1)) {
+                    log.error("after retry, request for {} exception {} ", urls[i], e.getMessage());
+                    throw e;
+                }
+            }
         }
-        log.debug("success request to {},  status code {}, body {}", url, statusCode, exchange.getBody());
-        return result;
+        throw new Exception(String.format("send request to %s, params %s error", urls, param));
     }
 
     /**
@@ -126,8 +141,66 @@ public class HttpUtils {
         ResponseEntity<T> response = restTemplate.exchange(url, httpMethod, requestEntity, typeReference);
 
         log.debug("success request to {}, status code {}", url, response.getStatusCode());
-        Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(), "Request failed");
+        Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(), "Request failed: " + response.getBody());
         return response.getBody();
+    }
+
+    /**
+     * Send an void HTTP request
+     */
+    public static void request(RestTemplate restTemplate, String url, HttpMethod httpMethod, Object requestBody,
+            HttpHeaders header) {
+        log.debug("begin request to {} by request body {}", url, GSON.toJson(requestBody));
+        HttpEntity<Object> requestEntity = new HttpEntity<>(requestBody, header);
+        ResponseEntity<String> response = restTemplate.exchange(url, httpMethod, requestEntity, String.class);
+
+        log.debug("success request to {}, status code {}", url, response.getStatusCode());
+        Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(), "Request failed: " + response.getBody());
+    }
+
+    /**
+     * Send an void HTTP request
+     */
+    public static void request(RestTemplate restTemplate, String[] urls, HttpMethod httpMethod, Object requestBody,
+            HttpHeaders header) {
+        Preconditions.expectNotNull(urls, ErrorCodeEnum.INVALID_PARAMETER, "url is blank");
+        for (int i = 0; i < urls.length; i++) {
+            try {
+                log.debug("begin request to {} by request body {}", urls[i], GSON.toJson(requestBody));
+                HttpEntity<Object> requestEntity = new HttpEntity<>(requestBody, header);
+                ResponseEntity<String> response = restTemplate.exchange(urls[i], httpMethod, requestEntity,
+                        String.class);
+
+                log.debug("success request to {}, status code {}", urls[i], response.getStatusCode());
+                Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(),
+                        "Request failed: " + response.getBody());
+                return;
+            } catch (Exception e) {
+                log.error("request for {}, error, begin retry", urls[i], e);
+                if (i >= (urls.length - 1)) {
+                    log.error("after retry, request for {} exception {} ", urls[i], e.getMessage());
+                    throw e;
+                }
+            }
+        }
+    }
+
+    /**
+     * Send HEAD request to the specified URL.
+     */
+    public static boolean headRequest(RestTemplate restTemplate, String url, Map<String, Object> params,
+            HttpHeaders header) {
+        ResponseEntity<String> exchange;
+        boolean result = false;
+        HttpEntity<String> request = new HttpEntity(params, header);
+        log.debug("send request to {}, param {}", url, params);
+        exchange = restTemplate.exchange(url, HttpMethod.HEAD, request, String.class);
+        HttpStatus statusCode = exchange.getStatusCode();
+        if (statusCode.is2xxSuccessful()) {
+            result = statusCode.is2xxSuccessful();
+        }
+        log.debug("success request to {},  status code {}, body {}", url, statusCode, exchange.getBody());
+        return result;
     }
 
     /**

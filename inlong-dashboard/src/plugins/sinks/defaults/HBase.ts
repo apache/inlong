@@ -24,7 +24,7 @@ import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const hbaseFieldTypes = [
@@ -52,6 +52,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.HBase.Namespace')
   namespace: string;
 
@@ -64,6 +65,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.HBase.TableName')
   tableName: string;
 
@@ -76,6 +78,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.HBase.RowKey')
   rowKey: string;
 
@@ -89,6 +92,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.HBase.ZkQuorum')
   zkQuorum: string;
 
@@ -102,6 +106,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.HBase.ZkNodeParent')
   zkNodeParent: string;
 
@@ -116,6 +121,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.HBase.BufferFlushMaxSize')
   bufferFlushMaxSize: number;
 
@@ -130,6 +136,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.HBase.BufferFlushMaxRows')
   bufferFlushMaxRows: number;
 
@@ -145,6 +152,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.HBase.BufferFlushInterval')
   bufferFlushInterval: number;
 
@@ -158,6 +166,7 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
       upsertKey: 'fieldName',
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
 }
 
@@ -165,14 +174,14 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `HBASE${i18n.t('meta.Sinks.HBase.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('meta.Sinks.HBase.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -180,7 +189,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `HBASE${i18n.t('meta.Sinks.HBase.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       initialValue: hbaseFieldTypes[0].value,
       type: 'select',

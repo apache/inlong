@@ -25,6 +25,7 @@ import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -41,8 +42,9 @@ import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataS
 /**
  * A collection class for handling metrics
  */
-public class SinkMetricData implements MetricData {
+public class SinkMetricData implements MetricData, Serializable {
 
+    private static final long serialVersionUID = 1L;
     private final MetricGroup metricGroup;
     private final Map<String, String> labels;
     private final RegisteredMetric registeredMetric;
@@ -275,6 +277,16 @@ public class SinkMetricData implements MetricData {
     private void invoke(long rowCount, long rowSize, long dataTime) {
         outputDefaultMetrics(rowCount, rowSize);
         outputAuditMetrics(rowCount, rowSize, dataTime);
+    }
+
+    /**
+     * flush audit data
+     * usually call this method in close method or when checkpointing
+     */
+    public void flushAuditData() {
+        if (auditOperator != null) {
+            auditOperator.send();
+        }
     }
 
     private void outputAuditMetrics(long rowCount, long rowSize, long dataTime) {

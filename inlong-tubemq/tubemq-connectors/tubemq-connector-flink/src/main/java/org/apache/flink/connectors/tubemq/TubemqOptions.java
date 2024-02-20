@@ -30,10 +30,10 @@ public class TubemqOptions {
                     .noDefaultValue()
                     .withDescription("The session key for this consumer group at startup.");
 
-    public static final ConfigOption<String> TID =
-            ConfigOptions.key("topic.tid")
+    public static final ConfigOption<String> STREAM_ID =
+            ConfigOptions.key("topic.streamId")
                     .noDefaultValue()
-                    .withDescription("The tid owned this topic.");
+                    .withDescription("The streamId owned this topic.");
 
     public static final ConfigOption<Integer> MAX_RETRIES =
             ConfigOptions.key("max.retries")

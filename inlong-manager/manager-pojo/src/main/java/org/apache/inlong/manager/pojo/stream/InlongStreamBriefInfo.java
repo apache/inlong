@@ -88,6 +88,9 @@ public class InlongStreamBriefInfo {
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value")
     private Boolean ignoreParseError;
 
+    @ApiModelProperty("The multiple enable of sink")
+    private Boolean sinkMultipleEnable = false;
+
     @ApiModelProperty(value = "Status")
     private Integer status;
 
@@ -97,10 +100,10 @@ public class InlongStreamBriefInfo {
     @ApiModelProperty(value = "Name of modifier")
     private String modifier;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
     private Date createTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
     private Date modifyTime;
 
     @ApiModelProperty(value = "Version number")

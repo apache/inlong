@@ -18,7 +18,9 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.inlong.manager.dao.entity.OperationLogEntity;
+import org.apache.inlong.manager.pojo.operationLog.OperationLogRequest;
 
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -35,6 +37,8 @@ public interface OperationLogEntityMapper {
     int insertSelective(OperationLogEntity record);
 
     OperationLogEntity selectByPrimaryKey(Integer id);
+
+    List<OperationLogEntity> selectByCondition(@Param("request") OperationLogRequest operationLogRequest);
 
     int updateByPrimaryKeySelective(OperationLogEntity record);
 

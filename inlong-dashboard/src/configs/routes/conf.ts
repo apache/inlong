@@ -116,6 +116,15 @@ const conf: RouteProps[] = [
     component: () => import('@/ui/pages/TenantManagement'),
   },
   {
+    path: '/system',
+    childRoutes: [
+      {
+        path: '/:type?',
+        component: () => import('@/ui/pages/ModuleAudit'),
+      },
+    ],
+  },
+  {
     component: () => import('@/ui/pages/Error/404'),
   },
 ];

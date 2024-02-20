@@ -72,6 +72,9 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
     }),
     {
       manual: true,
+      onSuccess: result => {
+        form.setFieldValue('sinkMultipleEnable', result.sinkMultipleEnable);
+      },
     },
   );
   const { data: streamData, run: getDataStream } = useRequest(
@@ -105,9 +108,9 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
 
     const submitDataStream = {
       inlongGroupId: values.inlongGroupId,
-      inlongStreamId: values.inlongStreamId,
-      name: values.streamName,
+      inlongStreamId: values.inlongGroupId,
       fieldList: streamDetail?.fieldList,
+      sinkMultipleEnable: values.sinkMultipleEnable,
     };
     if (streamData !== undefined) {
       submitDataStream['version'] = streamData?.list[0].version;
@@ -159,7 +162,6 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
 
   const onCancel = () => {
     form.setFieldsValue(data);
-    // form.setFieldsValue(dataStream);
     setFalse();
   };
 
@@ -178,7 +180,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
         initialValues={data}
         onValuesChange={(c, values) => setMqType(values.mqType)}
         useMaxWidth={1400}
-        col={12}
+        col={14}
       />
 
       {!isCreate && !readonly && (

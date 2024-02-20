@@ -87,6 +87,13 @@ public class TubeMQOptions {
     // TubeMQ specific options
     // --------------------------------------------------------------------------------------------
 
+    public static final ConfigOption<String> INNER_FORMAT =
+            ConfigOptions.key("inlong-msg.inner.format")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "Inner format");
+
     public static final ConfigOption<String> TOPIC =
             ConfigOptions.key("topic")
                     .stringType()
@@ -109,8 +116,8 @@ public class TubeMQOptions {
                     .noDefaultValue()
                     .withDescription("Required TubeMQ master connection string");
 
-    public static final ConfigOption<String> GROUP_ID =
-            ConfigOptions.key("group.id")
+    public static final ConfigOption<String> CONSUME_GROUP =
+            ConfigOptions.key("consume.group")
                     .stringType()
                     .noDefaultValue()
                     .withDescription(
@@ -140,12 +147,12 @@ public class TubeMQOptions {
                     .defaultValue("default_session_key")
                     .withDescription("The session key for this consumer group at startup.");
 
-    public static final ConfigOption<List<String>> TID =
-            ConfigOptions.key("topic.tid")
+    public static final ConfigOption<List<String>> STREAMID =
+            ConfigOptions.key("stream.id")
                     .stringType()
                     .asList()
                     .noDefaultValue()
-                    .withDescription("The tid owned this topic.");
+                    .withDescription("The streamId owned this topic.");
 
     public static final ConfigOption<Integer> MAX_RETRIES =
             ConfigOptions.key("max.retries")
@@ -385,7 +392,7 @@ public class TubeMQOptions {
 
     public static TreeSet<String> getTiSet(ReadableConfig tableOptions) {
         TreeSet<String> set = new TreeSet<>();
-        tableOptions.getOptional(TID).ifPresent(new Consumer<List<String>>() {
+        tableOptions.getOptional(STREAMID).ifPresent(new Consumer<List<String>>() {
 
             @Override
             public void accept(List<String> strings) {
@@ -396,7 +403,7 @@ public class TubeMQOptions {
     }
 
     public static String getConsumerGroup(ReadableConfig tableOptions) {
-        return tableOptions.getOptional(GROUP_ID).orElse(null);
+        return tableOptions.getOptional(CONSUME_GROUP).orElse(null);
     }
 
     public static String getSessionKey(ReadableConfig tableOptions) {

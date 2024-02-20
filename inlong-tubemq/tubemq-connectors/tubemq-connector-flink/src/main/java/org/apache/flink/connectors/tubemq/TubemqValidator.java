@@ -46,9 +46,9 @@ public class TubemqValidator extends ConnectorDescriptorValidator {
     public static final String CONNECTOR_GROUP = "connector.group";
 
     /**
-     * The tubemq consumers use these tids to filter records reading from server.
+     * The tubemq consumers use these streamIds to filter records reading from server.
      */
-    public static final String CONNECTOR_TIDS = "connector.tids";
+    public static final String CONNECTOR_STREAMIDS = "connector.stream-ids";
 
     /**
      * The prefix of tubemq properties (optional).
@@ -71,7 +71,7 @@ public class TubemqValidator extends ConnectorDescriptorValidator {
         // Validate that the group name is set.
         properties.validateString(CONNECTOR_GROUP, false, 1, Integer.MAX_VALUE);
 
-        // Validate that the tids is set.
-        properties.validateString(CONNECTOR_TIDS, true, 1, Integer.MAX_VALUE);
+        // Validate that the streamIds is set.
+        properties.validateString(CONNECTOR_STREAMIDS, true, 1, Integer.MAX_VALUE);
     }
 }

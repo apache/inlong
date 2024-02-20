@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.pulsar.PulsarDataNodeDTO;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -44,6 +45,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.inlong.manager.common.consts.InlongConstants.PULSAR_TOPIC_FORMAT;
 
 /**
  * Pulsar sink operator
@@ -105,9 +108,10 @@ public class PulsarSinkOperator extends AbstractSinkOperator {
     }
 
     @Override
-    public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields) {
+    public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields,
+            DataNodeInfo dataNodeInfo) {
 
-        Map<String, String> params = super.parse2IdParams(streamSink, fields);
+        Map<String, String> params = super.parse2IdParams(streamSink, fields, dataNodeInfo);
         PulsarSinkDTO pulsarSinkDTO;
         try {
             pulsarSinkDTO = objectMapper.readValue(streamSink.getExtParams(), PulsarSinkDTO.class);
@@ -121,7 +125,9 @@ public class PulsarSinkOperator extends AbstractSinkOperator {
     }
 
     private String getFullTopicName(PulsarSinkDTO pulsarSinkDTO) {
-        return pulsarSinkDTO.getPulsarTenant() + "/" + pulsarSinkDTO.getNamespace() + "/" + pulsarSinkDTO.getTopic();
+        return String.format(PULSAR_TOPIC_FORMAT, pulsarSinkDTO.getPulsarTenant(), pulsarSinkDTO.getNamespace(),
+                pulsarSinkDTO.getTopic());
+
     }
 
 }

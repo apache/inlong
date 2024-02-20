@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.threadPool.VisiableThreadPoolTaskExecutor;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -41,7 +42,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 
@@ -57,7 +57,7 @@ import static org.apache.inlong.manager.common.consts.InlongConstants.QUEUE_SIZE
 @Service
 public class InlongStreamProcessService {
 
-    private static final ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(
+    private static final ExecutorService EXECUTOR_SERVICE = new VisiableThreadPoolTaskExecutor(
             CORE_POOL_SIZE,
             MAX_POOL_SIZE,
             ALIVE_TIME_MS,
@@ -82,7 +82,7 @@ public class InlongStreamProcessService {
         InlongGroupInfo groupInfo = groupService.get(groupId);
         Preconditions.expectNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
-        if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL && groupStatus != GroupStatus.RESTARTED) {
+        if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL) {
             throw new BusinessException(String.format("group status=%s not support start stream"
                     + " for groupId=%s", groupStatus, groupId));
         }
@@ -168,7 +168,7 @@ public class InlongStreamProcessService {
         InlongGroupInfo groupInfo = groupService.get(groupId);
         Preconditions.expectNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
-        if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL && groupStatus != GroupStatus.RESTARTED) {
+        if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL) {
             throw new BusinessException(
                     String.format("group status=%s not support restart stream for groupId=%s", groupStatus, groupId));
         }
@@ -214,7 +214,7 @@ public class InlongStreamProcessService {
         }
 
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
-        if (GroupStatus.notAllowedTransition(groupStatus, GroupStatus.DELETING)) {
+        if (GroupStatus.notAllowedTransition(groupStatus, GroupStatus.CONFIG_DELETING)) {
             throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_NOT_ALLOWED,
                     String.format("group status=%s not support delete stream for groupId=%s", groupStatus, groupId));
         }

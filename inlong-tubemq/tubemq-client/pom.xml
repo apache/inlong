@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-tubemq</artifactId>
-        <version>1.10.0-SNAPSHOT</version>
+        <version>1.12.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>tubemq-client</artifactId>
@@ -94,6 +94,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec.maven.version}</version>
                 <executions>
                     <execution>
                         <id>version</id>
@@ -114,6 +115,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${build.helper.maven.version}</version>
                 <executions>
                     <execution>
                         <goals>

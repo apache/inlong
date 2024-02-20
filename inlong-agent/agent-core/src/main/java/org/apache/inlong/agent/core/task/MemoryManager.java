@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.core.task;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.utils.AgentUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +26,9 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_CHANNEL_PERMIT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_QUEUE_PERMIT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_SOURCE_PERMIT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_WRITER_PERMIT;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_GLOBAL_CHANNEL_PERMIT;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_GLOBAL_READER_QUEUE_PERMIT;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_GLOBAL_READER_SOURCE_PERMIT;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_GLOBAL_WRITER_PERMIT;
@@ -43,6 +42,8 @@ public class MemoryManager {
     private static volatile MemoryManager memoryManager = null;
     private final AgentConfiguration conf;
     private ConcurrentHashMap<String, Semaphore> semaphoreMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Long> lastPrintTime = new ConcurrentHashMap<>();
+    private static final int PRINT_INTERVAL_MS = 1000;
 
     private MemoryManager() {
         this.conf = AgentConfiguration.getAgentConf();
@@ -50,18 +51,17 @@ public class MemoryManager {
         semaphore = new Semaphore(
                 conf.getInt(AGENT_GLOBAL_READER_SOURCE_PERMIT, DEFAULT_AGENT_GLOBAL_READER_SOURCE_PERMIT));
         semaphoreMap.put(AGENT_GLOBAL_READER_SOURCE_PERMIT, semaphore);
+        lastPrintTime.put(AGENT_GLOBAL_READER_SOURCE_PERMIT, 0L);
 
         semaphore = new Semaphore(
                 conf.getInt(AGENT_GLOBAL_READER_QUEUE_PERMIT, DEFAULT_AGENT_GLOBAL_READER_QUEUE_PERMIT));
         semaphoreMap.put(AGENT_GLOBAL_READER_QUEUE_PERMIT, semaphore);
-
-        semaphore = new Semaphore(
-                conf.getInt(AGENT_GLOBAL_CHANNEL_PERMIT, DEFAULT_AGENT_GLOBAL_CHANNEL_PERMIT));
-        semaphoreMap.put(AGENT_GLOBAL_CHANNEL_PERMIT, semaphore);
+        lastPrintTime.put(AGENT_GLOBAL_READER_QUEUE_PERMIT, 0L);
 
         semaphore = new Semaphore(
                 conf.getInt(AGENT_GLOBAL_WRITER_PERMIT, DEFAULT_AGENT_GLOBAL_WRITER_PERMIT));
         semaphoreMap.put(AGENT_GLOBAL_WRITER_PERMIT, semaphore);
+        lastPrintTime.put(AGENT_GLOBAL_WRITER_PERMIT, 0L);
     }
 
     /**
@@ -96,20 +96,32 @@ public class MemoryManager {
         semaphore.release(permit);
     }
 
-    public void printDetail(String semaphoreName) {
+    public int getLeft(String semaphoreName) {
         Semaphore semaphore = semaphoreMap.get(semaphoreName);
         if (semaphore == null) {
-            LOGGER.error("printDetail {} not exist");
+            LOGGER.error("getLeft {} not exist");
+            return -1;
+        }
+        return semaphore.availablePermits();
+    }
+
+    public void printDetail(String semaphoreName, String detail) {
+        Semaphore semaphore = semaphoreMap.get(semaphoreName);
+        if (semaphore == null) {
+            LOGGER.error("printDetail {} not exist", semaphoreName);
             return;
         }
-        LOGGER.info("permit left {} wait {} {}", semaphore.availablePermits(), semaphore.getQueueLength(),
-                semaphoreName);
+        if (AgentUtils.getCurrentTime() - lastPrintTime.get(semaphoreName) > PRINT_INTERVAL_MS) {
+            LOGGER.info("{} permit left {} wait {} {}", detail, semaphore.availablePermits(),
+                    semaphore.getQueueLength(),
+                    semaphoreName);
+            lastPrintTime.put(semaphoreName, AgentUtils.getCurrentTime());
+        }
     }
 
     public void printAll() {
-        printDetail(AGENT_GLOBAL_READER_SOURCE_PERMIT);
-        printDetail(AGENT_GLOBAL_READER_QUEUE_PERMIT);
-        printDetail(AGENT_GLOBAL_CHANNEL_PERMIT);
-        printDetail(AGENT_GLOBAL_WRITER_PERMIT);
+        printDetail(AGENT_GLOBAL_READER_SOURCE_PERMIT, "printAll");
+        printDetail(AGENT_GLOBAL_READER_QUEUE_PERMIT, "printAll");
+        printDetail(AGENT_GLOBAL_WRITER_PERMIT, "printAll");
     }
 }

@@ -27,6 +27,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import javax.validation.constraints.Pattern;
+
 /**
  * Iceberg sink request.
  */
@@ -63,5 +65,24 @@ public class IcebergSinkRequest extends SinkRequest {
 
     @ApiModelProperty("Primary key")
     private String primaryKey;
+
+    @ApiModelProperty("append mode, UPSERT or APPEND")
+    @Pattern(regexp = "(?i)(UPSERT|APPEND)", message = "Invalid append mode")
+    private String appendMode;
+
+    @ApiModelProperty("The multiple enable of sink")
+    private Boolean sinkMultipleEnable = false;
+
+    @ApiModelProperty("The multiple format of sink")
+    private String sinkMultipleFormat;
+
+    @ApiModelProperty("database pattern")
+    private String databasePattern;
+
+    @ApiModelProperty("table pattern")
+    private String tablePattern;
+
+    @ApiModelProperty("enable schema change")
+    private Boolean enableSchemaChange = false;
 
 }

@@ -17,9 +17,12 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
+import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.common.metric.MetricRegister;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
+import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +43,16 @@ public class TestUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestUtils.class);
     private static final String RECORD = "This is the test line for file\n";
+
+    @Test
+    public void testCalcOffset() {
+        Assert.assertTrue(DateTransUtils.calcOffset("-1h") == -3600 * 1000);
+        Assert.assertTrue(DateTransUtils.calcOffset("1D") == 24 * 3600 * 1000);
+        Assert.assertTrue(DateTransUtils.calcOffset("0") == 0);
+        Assert.assertTrue(DateTransUtils.calcOffset("1") == 0);
+        Assert.assertTrue(DateTransUtils.calcOffset("10") == 0);
+        Assert.assertTrue(DateTransUtils.calcOffset("") == 0);
+    }
 
     public static String getTestTriggerProfile() {
         return "{\n"

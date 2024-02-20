@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.controller;
 
+import org.apache.inlong.manager.pojo.audit.AuditBaseResponse;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditSourceRequest;
 import org.apache.inlong.manager.pojo.audit.AuditSourceResponse;
@@ -65,8 +66,14 @@ public class AuditController {
 
     @ApiOperation(value = "Update the audit source")
     @PostMapping(value = "/audit/updateSource")
-    public Response<Integer> updateAuditSource(@RequestBody AuditSourceRequest request) {
+    public Response<Integer> updateAuditSource(@Valid @RequestBody AuditSourceRequest request) {
         return Response.success(auditService.updateAuditSource(request, LoginUserUtils.getLoginUser().getName()));
+    }
+
+    @ApiOperation(value = "Get the audit base info")
+    @GetMapping("/audit/getAuditBases")
+    public Response<List<AuditBaseResponse>> getAuditBases() {
+        return Response.success(auditService.getAuditBases());
     }
 
     @ApiOperation(value = "Get the audit source")

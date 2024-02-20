@@ -57,7 +57,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     },
     {
       ready: Boolean(query.inlongStreamId),
-      formatResult: result => result,
+      formatResult: result => result.sort((a, b) => b.auditId - a.auditId),
     },
   );
 

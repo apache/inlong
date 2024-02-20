@@ -25,9 +25,11 @@ import EditableTable from '@/ui/components/EditableTable';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
 import NodeSelect from '@/ui/components/NodeSelect';
+import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncMoveDbField, SyncCreateTableField, IngestionField } =
+  RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const icebergFieldTypes = [
@@ -110,17 +112,7 @@ export default class IcebergSink
   extends SinkInfo
   implements DataWithBackend, RenderRow, RenderList
 {
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: [110].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @SyncField()
-  @I18n('meta.Sinks.Iceberg.DbName')
-  dbName: string;
+  readonly id: number;
 
   @FieldDecorator({
     type: 'input',
@@ -131,8 +123,102 @@ export default class IcebergSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
+  @I18n('meta.Sinks.Iceberg.DbName')
+  dbName: string;
+
+  @FieldDecorator({
+    type: CreateTable,
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110].includes(values?.status),
+      sinkType: values.sinkType,
+      inlongGroupId: values.inlongGroupId,
+      inlongStreamId: values.inlongStreamId,
+      fieldName: 'tableName',
+      sinkObj: {
+        ...values,
+      },
+    }),
+  })
+  @ColumnDecorator()
+  @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Iceberg.TableName')
   tableName: string;
+
+  @FieldDecorator({
+    type: 'radiobutton',
+    initialValue: '${database}',
+    tooltip: i18n.t('meta.Sinks.Iceberg.PatternHelp'),
+    rules: [{ required: true }],
+    props: values => ({
+      size: 'middle',
+      disabled: [110].includes(values?.status),
+      options: [
+        {
+          label: i18n.t('meta.Sinks.Iceberg.Options.DBSameName'),
+          value: '${database}',
+          disabled: Boolean(values.id),
+        },
+        {
+          label: i18n.t('meta.Sinks.Iceberg.Options.Customize'),
+          value: 'false',
+          disabled: Boolean(values.id),
+        },
+      ],
+    }),
+    suffix: {
+      type: 'input',
+      name: 'databasePattern',
+      visible: values =>
+        values.backupDatabase === 'false' ||
+        (values.id !== undefined && values.databasePattern !== '${database}'),
+      props: values => ({
+        style: { width: 100 },
+        disabled: [110].includes(values?.status),
+      }),
+    },
+  })
+  @SyncMoveDbField()
+  @I18n('meta.Sinks.Iceberg.DatabasePattern')
+  backupDatabase: string;
+
+  @FieldDecorator({
+    type: 'radiobutton',
+    initialValue: '${table}',
+    rules: [{ required: true }],
+    tooltip: i18n.t('meta.Sinks.Iceberg.PatternHelp'),
+    props: values => ({
+      size: 'middle',
+      options: [
+        {
+          label: i18n.t('meta.Sinks.Iceberg.Options.TableSameName'),
+          value: '${table}',
+          disabled: Boolean(values.id),
+        },
+        {
+          label: i18n.t('meta.Sinks.Iceberg.Options.Customize'),
+          value: 'false',
+          disabled: Boolean(values.id),
+        },
+      ],
+    }),
+    suffix: {
+      type: 'input',
+      name: 'tablePattern',
+      visible: values =>
+        values.backupTable === 'false' ||
+        (values.id !== undefined && values.tablePattern !== '${table}'),
+      props: values => ({
+        style: { width: 100 },
+        disabled: [110].includes(values?.status),
+      }),
+    },
+  })
+  @SyncMoveDbField()
+  @I18n('meta.Sinks.Iceberg.TablePattern')
+  backupTable: string;
 
   @FieldDecorator({
     type: 'radio',
@@ -153,8 +239,8 @@ export default class IcebergSink
       ],
     }),
   })
+  @IngestionField()
   @I18n('meta.Sinks.EnableCreateResource')
-  @SyncField()
   enableCreateResource: number;
 
   @FieldDecorator({
@@ -167,6 +253,8 @@ export default class IcebergSink
   })
   @I18n('meta.Sinks.DataNodeName')
   @SyncField()
+  @IngestionField()
+  @SyncMoveDbField()
   dataNodeName: string;
 
   @FieldDecorator({
@@ -193,8 +281,32 @@ export default class IcebergSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Iceberg.FileFormat')
   fileFormat: string;
+
+  @FieldDecorator({
+    type: 'radio',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110].includes(values?.status),
+      options: [
+        {
+          label: 'append',
+          value: 'APPEND',
+        },
+        {
+          label: 'upsert',
+          value: 'UPSERT',
+        },
+      ],
+    }),
+  })
+  @ColumnDecorator()
+  @SyncField()
+  @IngestionField()
+  @I18n('meta.Sinks.Iceberg.AppendMode')
+  appendMode: string;
 
   @FieldDecorator({
     type: EditableTable,
@@ -221,6 +333,7 @@ export default class IcebergSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Iceberg.ExtList')
   extList: string;
 
@@ -245,6 +358,7 @@ export default class IcebergSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Iceberg.DataConsistency')
   dataConsistency: string;
 
@@ -258,21 +372,38 @@ export default class IcebergSink
       upsertByFieldKey: true,
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
+
+  @FieldDecorator({
+    type: EditableTable,
+    initialValue: [],
+    props: values => ({
+      size: 'small',
+      editing: ![110].includes(values?.status),
+      columns: getFieldListColumns(values).filter(
+        item => item.dataIndex !== 'sourceFieldName' && item.dataIndex !== 'sourceFieldType',
+      ),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
+    }),
+  })
+  @SyncCreateTableField()
+  createTableField: Record<string, unknown>[];
 }
 
 const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `Iceberg ${i18n.t('meta.Sinks.Iceberg.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       width: 110,
       dataIndex: 'fieldName',
       rules: [
         { required: true },
         {
           pattern: /^[a-zA-Z_][a-zA-Z0-9_]*$/,
-          message: i18n.t('meta.Sinks.Iceberg.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -280,7 +411,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `Iceberg ${i18n.t('meta.Sinks.Iceberg.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       width: 130,
       initialValue: icebergFieldTypes[0].value,
@@ -343,7 +474,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: i18n.t('meta.Sinks.Iceberg.FieldDescription'),
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
     },
   ];

@@ -17,28 +17,82 @@
 
 package org.apache.inlong.sort.protocol.deserialization;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.annotation.Nullable;
+
+import java.util.Objects;
 
 /**
  * Csv deserialization info
  */
-public class CsvDeserializationInfo implements DeserializationInfo {
+public class CsvDeserializationInfo extends InLongMsgDeserializationInfo {
 
-    private static final long serialVersionUID = -5035426390567887081L;
+    private static final long serialVersionUID = 7424482369272150638L;
 
     private final char splitter;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Nullable
+    private final Character escapeChar;
+
+    private final String streamId;
+
     // TODO: support mapping index to field
+    public CsvDeserializationInfo(
+            @JsonProperty("splitter") char splitter) {
+        this(STREAM_ID_DEFAULT_VALUE, splitter, null);
+    }
+
+    public CsvDeserializationInfo(
+            @JsonProperty("splitter") char splitter,
+            @JsonProperty("escape_char") @Nullable Character escapeChar) {
+        this(STREAM_ID_DEFAULT_VALUE, splitter, escapeChar);
+    }
 
     @JsonCreator
     public CsvDeserializationInfo(
-            @JsonProperty("splitter") char splitter) {
+            @JsonProperty("streamId") String streamId,
+            @JsonProperty("splitter") char splitter,
+            @JsonProperty("escape_char") @Nullable Character escapeChar) {
+        super(streamId);
+        this.streamId = (StringUtils.isEmpty(streamId) ? STREAM_ID_DEFAULT_VALUE : streamId);
         this.splitter = splitter;
+        this.escapeChar = escapeChar;
     }
 
     @JsonProperty("splitter")
     public char getSplitter() {
         return splitter;
     }
+
+    @JsonProperty("escape_char")
+    @Nullable
+    public Character getEscapeChar() {
+        return escapeChar;
+    }
+
+    @JsonProperty("streamId")
+    public String getStreamId() {
+        return streamId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        CsvDeserializationInfo other = (CsvDeserializationInfo) o;
+        return Objects.equals(streamId, other.getStreamId()) && splitter == other.splitter
+                && Objects.equals(escapeChar, other.escapeChar);
+    }
+
 }

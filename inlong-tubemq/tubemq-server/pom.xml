@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-tubemq</artifactId>
-        <version>1.10.0-SNAPSHOT</version>
+        <version>1.12.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>tubemq-server</artifactId>
@@ -108,6 +108,11 @@
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ini4j</groupId>
@@ -232,6 +237,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec.maven.version}</version>
                 <executions>
                     <execution>
                         <id>version</id>

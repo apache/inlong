@@ -19,16 +19,11 @@ package org.apache.inlong.agent.plugin.sinks;
 
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.core.task.PositionManager;
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.message.BatchProxyMessage;
-import org.apache.inlong.agent.message.EndMessage;
-import org.apache.inlong.agent.message.PackProxyMessage;
-import org.apache.inlong.agent.message.ProxyMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.utils.AgentUtils;
-import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
 
 import com.google.common.base.Preconditions;
@@ -76,7 +71,6 @@ public class KafkaSink extends AbstractSink {
     private static final ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
             60L, TimeUnit.SECONDS, new SynchronousQueue<>(), new AgentThreadFactory("KafkaSink"));
     private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
-    private PositionManager taskPositionManager;
     private volatile boolean shutdown = false;
 
     private List<MQClusterInfo> mqClusterInfos;
@@ -90,9 +84,8 @@ public class KafkaSink extends AbstractSink {
     private boolean asyncSend;
 
     @Override
-    public void init(JobProfile jobConf) {
+    public void init(InstanceProfile jobConf) {
         super.init(jobConf);
-        taskPositionManager = PositionManager.getInstance();
         int sendQueueSize = agentConf.getInt(KAFKA_SINK_SEND_QUEUE_SIZE, DEFAULT_SEND_QUEUE_SIZE);
         kafkaSendQueue = new LinkedBlockingQueue<>(sendQueueSize);
         producerNum = agentConf.getInt(KAFKA_SINK_PRODUCER_NUM, DEFAULT_PRODUCER_NUM);
@@ -106,38 +99,11 @@ public class KafkaSink extends AbstractSink {
         kafkaSenders = new ArrayList<>();
         initKafkaSender();
         EXECUTOR_SERVICE.execute(sendDataThread());
-        EXECUTOR_SERVICE.execute(flushCache());
     }
 
     @Override
-    public void write(Message message) {
-        if (message == null || message instanceof EndMessage) {
-            return;
-        }
-
-        try {
-            ProxyMessage proxyMessage = new ProxyMessage(message);
-            // add proxy message to cache.
-            cache.compute(proxyMessage.getBatchKey(),
-                    (s, packProxyMessage) -> {
-                        if (packProxyMessage == null) {
-                            packProxyMessage =
-                                    new PackProxyMessage(jobInstanceId, jobConf, inlongGroupId, inlongStreamId);
-                            packProxyMessage.generateExtraMap(proxyMessage.getDataKey());
-                            packProxyMessage.addTopicAndDataTime(topic, System.currentTimeMillis());
-                        }
-                        // add message to package proxy
-                        packProxyMessage.addProxyMessage(proxyMessage);
-                        return packProxyMessage;
-                    });
-            // increment the count of successful sinks
-            sinkMetric.sinkSuccessCount.incrementAndGet();
-        } catch (Exception e) {
-            sinkMetric.sinkFailCount.incrementAndGet();
-            LOGGER.error("write job[{}] data to cache error", jobInstanceId, e);
-        } catch (Throwable t) {
-            ThreadUtils.threadThrowableHandler(Thread.currentThread(), t);
-        }
+    public boolean write(Message message) {
+        return true;
     }
 
     @Override
@@ -156,47 +122,8 @@ public class KafkaSink extends AbstractSink {
         }
     }
 
-    private boolean sinkFinish() {
-        return cache.values().stream().allMatch(PackProxyMessage::isEmpty) && kafkaSendQueue.isEmpty();
-    }
-
-    /**
-     * flush cache by batch
-     *
-     * @return thread runner
-     */
-    private Runnable flushCache() {
-        return () -> {
-            LOGGER.info("start kafka sink flush cache thread, job[{}], groupId[{}]", jobInstanceId, inlongGroupId);
-            while (!shutdown) {
-                try {
-                    cache.forEach((batchKey, packProxyMessage) -> {
-                        BatchProxyMessage batchProxyMessage = packProxyMessage.fetchBatch();
-                        if (batchProxyMessage == null) {
-                            return;
-                        }
-                        try {
-                            kafkaSendQueue.put(batchProxyMessage);
-                            if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug(
-                                        "send group id {}, message key {},with message size {}, the job id is {}, "
-                                                + "read source is {} sendTime is {}",
-                                        inlongGroupId, batchKey,
-                                        batchProxyMessage.getDataList().size(), jobInstanceId, sourceName,
-                                        batchProxyMessage.getDataTime());
-                            }
-                        } catch (Exception e) {
-                            LOGGER.error("flush job[{}] data to send queue exception", jobInstanceId, e);
-                        }
-                    });
-                    AgentUtils.silenceSleepInMs(batchFlushInterval);
-                } catch (Exception ex) {
-                    LOGGER.error("error caught", ex);
-                } catch (Throwable t) {
-                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), t);
-                }
-            }
-        };
+    public boolean sinkFinish() {
+        return true;
     }
 
     /**

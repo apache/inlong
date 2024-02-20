@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>sort-connectors-v1.13</artifactId>
-        <version>1.10.0-SNAPSHOT</version>
+        <version>1.12.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-connector-hudi</artifactId>
@@ -31,7 +31,6 @@
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
         <stax2-api.version>4.2.1</stax2-api.version>
-        <guava.version>31.0.1-jre</guava.version>
     </properties>
 
     <dependencies>

@@ -95,10 +95,10 @@ public class IcebergCatalogUtils {
         int id = 1;
         for (IcebergColumnInfo column : tableInfo.getColumns()) {
             if (column.isRequired()) {
-                nestedFields.add(Types.NestedField.required(id, column.getName(),
+                nestedFields.add(Types.NestedField.required(id, column.getFieldName(),
                         Types.fromPrimitiveString(icebergTypeDesc(column))));
             } else {
-                nestedFields.add(Types.NestedField.optional(id, column.getName(),
+                nestedFields.add(Types.NestedField.optional(id, column.getFieldName(),
                         Types.fromPrimitiveString(icebergTypeDesc(column))));
             }
             id += 1;
@@ -118,14 +118,14 @@ public class IcebergCatalogUtils {
      * Transform to iceberg recognizable type description
      */
     private static String icebergTypeDesc(IcebergColumnInfo column) {
-        switch (IcebergType.forType(column.getType())) {
+        switch (IcebergType.forType(column.getFieldType())) {
             case DECIMAL:
                 // note: the space is needed or iceberg won't recognize
                 return String.format("decimal(%d, %d)", column.getPrecision(), column.getScale());
             case FIXED:
                 return String.format("fixed(%d)", column.getLength());
             default:
-                return column.getType();
+                return column.getFieldType();
         }
     }
 
@@ -147,8 +147,9 @@ public class IcebergCatalogUtils {
         Schema schema = table.schema();
         for (NestedField column : schema.columns()) {
             IcebergColumnInfo info = new IcebergColumnInfo();
-            info.setName(column.name());
+            info.setFieldName(column.name());
             info.setRequired(column.isRequired());
+            info.setFieldType(column.type().toString());
             columnList.add(info);
         }
         return columnList;
@@ -166,11 +167,12 @@ public class IcebergCatalogUtils {
         UpdateSchema updateSchema = table.updateSchema();
         for (IcebergColumnInfo column : columns) {
             if (column.isRequired()) {
-                updateSchema.addRequiredColumn(column.getName(), Types.fromPrimitiveString(icebergTypeDesc(column)),
-                        column.getDesc());
+                updateSchema.addRequiredColumn(column.getFieldName(),
+                        Types.fromPrimitiveString(icebergTypeDesc(column)),
+                        column.getFieldComment());
             } else {
-                updateSchema.addColumn(column.getName(), Types.fromPrimitiveString(icebergTypeDesc(column)),
-                        column.getDesc());
+                updateSchema.addColumn(column.getFieldName(), Types.fromPrimitiveString(icebergTypeDesc(column)),
+                        column.getFieldComment());
             }
         }
 
@@ -201,25 +203,25 @@ public class IcebergCatalogUtils {
         }
         switch (IcebergPartition.forName(column.getPartitionStrategy())) {
             case IDENTITY:
-                builder.identity(column.getName());
+                builder.identity(column.getFieldName());
                 break;
             case BUCKET:
-                builder.bucket(column.getName(), column.getBucketNum());
+                builder.bucket(column.getFieldName(), column.getBucketNum());
                 break;
             case TRUNCATE:
-                builder.truncate(column.getName(), column.getWidth());
+                builder.truncate(column.getFieldName(), column.getWidth());
                 break;
             case YEAR:
-                builder.year(column.getName());
+                builder.year(column.getFieldName());
                 break;
             case MONTH:
-                builder.month(column.getName());
+                builder.month(column.getFieldName());
                 break;
             case DAY:
-                builder.day(column.getName());
+                builder.day(column.getFieldName());
                 break;
             case HOUR:
-                builder.hour(column.getName());
+                builder.hour(column.getFieldName());
                 break;
             case NONE:
                 break;
@@ -240,25 +242,25 @@ public class IcebergCatalogUtils {
         }
         switch (IcebergPartition.forName(column.getPartitionStrategy())) {
             case IDENTITY:
-                builder.addField(column.getName());
+                builder.addField(column.getFieldName());
                 break;
             case BUCKET:
-                builder.addField(Expressions.bucket(column.getName(), column.getBucketNum()));
+                builder.addField(Expressions.bucket(column.getFieldName(), column.getBucketNum()));
                 break;
             case TRUNCATE:
-                builder.addField(Expressions.truncate(column.getName(), column.getWidth()));
+                builder.addField(Expressions.truncate(column.getFieldName(), column.getWidth()));
                 break;
             case YEAR:
-                builder.addField(Expressions.year(column.getName()));
+                builder.addField(Expressions.year(column.getFieldName()));
                 break;
             case MONTH:
-                builder.addField(Expressions.month(column.getName()));
+                builder.addField(Expressions.month(column.getFieldName()));
                 break;
             case DAY:
-                builder.addField(Expressions.day(column.getName()));
+                builder.addField(Expressions.day(column.getFieldName()));
                 break;
             case HOUR:
-                builder.addField(Expressions.hour(column.getName()));
+                builder.addField(Expressions.hour(column.getFieldName()));
                 break;
             case NONE:
                 break;

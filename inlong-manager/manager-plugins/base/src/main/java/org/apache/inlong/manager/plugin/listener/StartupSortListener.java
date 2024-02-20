@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.plugin.listener;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -25,8 +26,8 @@ import org.apache.inlong.manager.plugin.flink.FlinkOperation;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.enums.Constants;
-import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
@@ -36,8 +37,11 @@ import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.api.common.JobStatus;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -70,7 +74,7 @@ public class StartupSortListener implements SortOperateListener {
         }
 
         log.info("add startup group listener for groupId [{}]", groupId);
-        return true;
+        return InlongConstants.DATASYNC_MODE.equals(groupProcessForm.getGroupInfo().getInlongGroupMode());
     }
 
     @Override
@@ -93,66 +97,81 @@ public class StartupSortListener implements SortOperateListener {
             return ListenerResult.success();
         }
 
-        InlongGroupInfo inlongGroupInfo = groupResourceForm.getGroupInfo();
-        List<InlongGroupExtInfo> extList = inlongGroupInfo.getExtList();
-        log.info("inlong group ext info: {}", extList);
+        for (InlongStreamInfo streamInfo : streamInfos) {
+            List<StreamSink> sinkList = streamInfo.getSinkList();
+            List<String> sinkTypes = sinkList.stream().map(StreamSink::getSinkType).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(sinkList) || !SinkType.containSortFlinkSink(sinkTypes)) {
+                log.warn("not any valid sink configured for groupId {} and streamId {}, reason: {},"
+                        + " skip launching sort job",
+                        CollectionUtils.isEmpty(sinkList) ? "no sink configured" : "no sort flink sink configured",
+                        groupId, streamInfo.getInlongStreamId());
+                continue;
+            }
 
-        Map<String, String> kvConf = extList.stream().filter(v -> StringUtils.isNotEmpty(v.getKeyName())
-                && StringUtils.isNotEmpty(v.getKeyValue())).collect(Collectors.toMap(
-                        InlongGroupExtInfo::getKeyName,
-                        InlongGroupExtInfo::getKeyValue));
-        String sortExt = kvConf.get(InlongConstants.SORT_PROPERTIES);
-        if (StringUtils.isNotEmpty(sortExt)) {
-            Map<String, String> result = JsonUtils.OBJECT_MAPPER.convertValue(
-                    JsonUtils.OBJECT_MAPPER.readTree(sortExt), new TypeReference<Map<String, String>>() {
-                    });
-            kvConf.putAll(result);
+            List<InlongStreamExtInfo> extList = streamInfo.getExtList();
+            log.info("stream ext info: {}", extList);
+            Map<String, String> kvConf = extList.stream().filter(v -> StringUtils.isNotEmpty(v.getKeyName())
+                    && StringUtils.isNotEmpty(v.getKeyValue())).collect(Collectors.toMap(
+                            InlongStreamExtInfo::getKeyName,
+                            InlongStreamExtInfo::getKeyValue));
+
+            String sortExt = kvConf.get(InlongConstants.SORT_PROPERTIES);
+            if (StringUtils.isNotEmpty(sortExt)) {
+                Map<String, String> result = JsonUtils.OBJECT_MAPPER.convertValue(
+                        JsonUtils.OBJECT_MAPPER.readTree(sortExt), new TypeReference<Map<String, String>>() {
+                        });
+                kvConf.putAll(result);
+            }
+
+            String dataflow = kvConf.get(InlongConstants.DATAFLOW);
+            if (StringUtils.isEmpty(dataflow)) {
+                String message = String.format("dataflow is empty for groupId [%s], streamId [%s]", groupId,
+                        streamInfo.getInlongStreamId());
+                log.error(message);
+                return ListenerResult.fail(message);
+            }
+
+            FlinkInfo flinkInfo = new FlinkInfo();
+
+            String jobName = Constants.SORT_JOB_NAME_GENERATOR.apply(processForm) + streamInfo.getInlongStreamId();
+            flinkInfo.setJobName(jobName);
+            String sortUrl = kvConf.get(InlongConstants.SORT_URL);
+            flinkInfo.setEndpoint(sortUrl);
+            flinkInfo.setInlongStreamInfoList(Collections.singletonList(streamInfo));
+
+            FlinkService flinkService = new FlinkService(flinkInfo.getEndpoint());
+            FlinkOperation flinkOperation = new FlinkOperation(flinkService);
+
+            try {
+                flinkOperation.genPath(flinkInfo, dataflow);
+                flinkOperation.start(flinkInfo);
+                log.info("job submit success for groupId = {}, streamId = {}, jobId = {}", groupId,
+                        streamInfo.getInlongStreamId(), flinkInfo.getJobId());
+            } catch (Exception e) {
+                flinkInfo.setException(true);
+                flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
+                flinkOperation.pollJobStatus(flinkInfo, JobStatus.RUNNING);
+
+                String message = String.format("startup sort failed for groupId [%s], streamId [%s]", groupId,
+                        streamInfo.getInlongStreamId());
+                log.error(message, e);
+                return ListenerResult.fail(message + e.getMessage());
+            }
+
+            saveInfo(streamInfo, InlongConstants.SORT_JOB_ID, flinkInfo.getJobId(), extList);
+            flinkOperation.pollJobStatus(flinkInfo, JobStatus.RUNNING);
         }
-
-        String dataflow = kvConf.get(InlongConstants.DATAFLOW);
-        if (StringUtils.isEmpty(dataflow)) {
-            String message = String.format("dataflow is empty for groupId [%s]", groupId);
-            log.error(message);
-            return ListenerResult.fail(message);
-        }
-
-        FlinkInfo flinkInfo = new FlinkInfo();
-
-        String jobName = Constants.SORT_JOB_NAME_GENERATOR.apply(processForm);
-        flinkInfo.setJobName(jobName);
-        String sortUrl = kvConf.get(InlongConstants.SORT_URL);
-        flinkInfo.setEndpoint(sortUrl);
-        flinkInfo.setInlongStreamInfoList(groupResourceForm.getStreamInfos());
-
-        FlinkService flinkService = new FlinkService(flinkInfo.getEndpoint());
-        FlinkOperation flinkOperation = new FlinkOperation(flinkService);
-
-        try {
-            flinkOperation.genPath(flinkInfo, dataflow);
-            flinkOperation.start(flinkInfo);
-            log.info("job submit success, jobId is [{}]", flinkInfo.getJobId());
-        } catch (Exception e) {
-            flinkOperation.pollJobStatus(flinkInfo);
-            flinkInfo.setException(true);
-            flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
-            flinkOperation.pollJobStatus(flinkInfo);
-
-            String message = String.format("startup sort failed for groupId [%s] ", groupId);
-            log.error(message, e);
-            return ListenerResult.fail(message + e.getMessage());
-        }
-
-        saveInfo(groupId, InlongConstants.SORT_JOB_ID, flinkInfo.getJobId(), extList);
-        flinkOperation.pollJobStatus(flinkInfo);
         return ListenerResult.success();
     }
 
     /**
-     * Save ext info into list.
+     * Save stream ext info into list.
      */
-    private void saveInfo(String inlongGroupId, String keyName, String keyValue, List<InlongGroupExtInfo> extInfoList) {
-        InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
-        extInfo.setInlongGroupId(inlongGroupId);
+    private void saveInfo(InlongStreamInfo streamInfo, String keyName, String keyValue,
+            List<InlongStreamExtInfo> extInfoList) {
+        InlongStreamExtInfo extInfo = new InlongStreamExtInfo();
+        extInfo.setInlongGroupId(streamInfo.getInlongGroupId());
+        extInfo.setInlongStreamId(streamInfo.getInlongStreamId());
         extInfo.setKeyName(keyName);
         extInfo.setKeyValue(keyValue);
         extInfoList.add(extInfo);

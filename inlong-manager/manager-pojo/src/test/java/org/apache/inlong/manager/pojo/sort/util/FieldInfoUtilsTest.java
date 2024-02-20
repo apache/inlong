@@ -17,7 +17,9 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
+import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.fieldtype.strategy.ClickHouseFieldTypeStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.IcebergFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.MongoDBFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.MySQLFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.OracleFieldTypeStrategy;
@@ -39,6 +41,18 @@ import org.junit.jupiter.api.Test;
  * Different data source field type conversion mapping test class.
  */
 public class FieldInfoUtilsTest {
+
+    @Test
+    public void testCreateFieldTypeInfo() {
+
+        StreamField streamField = new StreamField(0, FieldType.STRING.toString(), "name", null, null);
+
+        FieldInfo fieldInfo = FieldInfoUtils.parseStreamFieldInfo(streamField,
+                "nodeId", new MySQLFieldTypeStrategy());
+
+        TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();
+        Assertions.assertTrue(typeInfo instanceof StringTypeInfo);
+    }
 
     @Test
     public void testPostgreSQLFieldTypeInfo() {
@@ -110,5 +124,18 @@ public class FieldInfoUtilsTest {
                 "nodeId", new ClickHouseFieldTypeStrategy());
         TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();
         Assertions.assertTrue(typeInfo instanceof ByteTypeInfo);
+    }
+
+    @Test
+    public void testIcebergFieldTypeInfo() {
+        StreamField streamField = new StreamField();
+        streamField.setIsMetaField(0);
+        streamField.setFieldName("time");
+        streamField.setFieldType("TIMESTAMP WITH TIMEZONE");
+        streamField.setFieldValue("2022-03-01T09:00:00 America/New_York");
+        FieldInfo fieldInfo = FieldInfoUtils.parseStreamFieldInfo(streamField,
+                "nodeId", new IcebergFieldTypeStrategy());
+        TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();
+        Assertions.assertTrue(typeInfo instanceof LocalZonedTimestampTypeInfo);
     }
 }

@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>sort-connectors-v1.13</artifactId>
-        <version>1.10.0-SNAPSHOT</version>
+        <version>1.12.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sort-connector-elasticsearch7</artifactId>
@@ -253,6 +253,9 @@
                                 <relocation>
                                     <pattern>org.apache.inlong.sort.elasticsearch</pattern>
                                     <shadedPattern>org.apache.inlong.sort.elasticsearch7</shadedPattern>
+                                    <includes>
+                                        <include>org.apache.inlong.sort.elasticsearch.**</include>
+                                    </includes>
                                 </relocation>
                             </relocations>
                         </configuration>

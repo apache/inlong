@@ -134,6 +134,7 @@ public class StarRocksSinkOperator extends AbstractSinkOperator {
         Integer sinkId = request.getId();
         for (SinkField fieldInfo : fieldList) {
             this.checkFieldInfo(fieldInfo);
+            fieldInfo.setExtParams(null);
             StreamSinkFieldEntity fieldEntity = CommonBeanUtils.copyProperties(fieldInfo, StreamSinkFieldEntity::new);
             if (StringUtils.isEmpty(fieldEntity.getFieldComment())) {
                 fieldEntity.setFieldComment(fieldEntity.getFieldName());

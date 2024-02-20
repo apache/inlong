@@ -20,13 +20,24 @@
 import { DataWithBackend } from '@/plugins/DataWithBackend';
 import { RenderRow } from '@/plugins/RenderRow';
 import { RenderList } from '@/plugins/RenderList';
+import { loadImage } from '@/plugins/images';
 import i18n from '@/i18n';
 import CheckCard from '@/ui/components/CheckCard';
 import { statusList, genStatusTag } from './status';
 import { sinks, defaultValue } from '..';
 
 const { I18nMap, I18n } = DataWithBackend;
-const { FieldList, FieldDecorator, SyncField, SyncFieldSet } = RenderRow;
+const {
+  FieldList,
+  FieldDecorator,
+  SyncField,
+  SyncFieldSet,
+  SyncMoveDbField,
+  SyncMoveDbFieldSet,
+  SyncCreateTableFieldSet,
+  IngestionField,
+  IngestionFieldSet,
+} = RenderRow;
 const { ColumnList, ColumnDecorator } = RenderList;
 
 export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
@@ -34,6 +45,9 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   static FieldList = FieldList;
   static ColumnList = ColumnList;
   static SyncFieldSet = SyncFieldSet;
+  static SyncMoveDbFieldSet = SyncMoveDbFieldSet;
+  static SyncCreateTableFieldSet = SyncCreateTableFieldSet;
+  static IngestionFieldSet = IngestionFieldSet;
 
   readonly id: number;
 
@@ -43,6 +57,8 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     hidden: true,
   })
   @SyncField()
+  @SyncMoveDbField()
+  @IngestionField()
   @I18n('inlongGroupId')
   readonly inlongGroupId: string;
 
@@ -51,6 +67,8 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     hidden: true,
   })
   @SyncField()
+  @SyncMoveDbField()
+  @IngestionField()
   @I18n('inlongStreamId')
   readonly inlongStreamId: string;
 
@@ -68,6 +86,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
         .map(item => ({
           label: item.label,
           value: item.value,
+          image: loadImage(item.label),
         })),
     }),
   })
@@ -75,6 +94,8 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     render: type => sinks.find(c => c.value === type)?.label || type,
   })
   @SyncField()
+  @SyncMoveDbField()
+  @IngestionField()
   @I18n('meta.Sinks.SinkType')
   sinkType: string;
 
@@ -95,6 +116,8 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   })
   @ColumnDecorator()
   @SyncField()
+  @SyncMoveDbField()
+  @IngestionField()
   @I18n('meta.Sinks.SinkName')
   sinkName: string;
 
@@ -107,6 +130,8 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     visible: values => Boolean(values.sinkType),
   })
   @SyncField()
+  @SyncMoveDbField()
+  @IngestionField()
   @I18n('meta.Sinks.Description')
   description: string;
 
@@ -123,8 +148,20 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     render: text => genStatusTag(text),
   })
   @SyncField()
+  @SyncMoveDbField()
+  @IngestionField()
   @I18n('basic.Status')
   readonly status: string;
+
+  @ColumnDecorator()
+  @I18n('basic.Creator')
+  @IngestionField()
+  readonly creator: string;
+
+  @ColumnDecorator()
+  @IngestionField()
+  @I18n('basic.Modifier')
+  readonly modifier: string;
 
   parse(data) {
     return data;
@@ -149,9 +186,42 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     return FieldList.filter(item => SyncFieldSet.has(item.name as string));
   }
 
+  renderSyncCreateTableRow() {
+    const constructor = this.constructor as typeof SinkDefaultInfo;
+    const { FieldList, SyncCreateTableFieldSet } = constructor;
+    return FieldList.filter(item => SyncCreateTableFieldSet.has(item.name as string));
+  }
+
+  renderSyncAllRow() {
+    const constructor = this.constructor as typeof SinkDefaultInfo;
+    const { FieldList, SyncMoveDbFieldSet } = constructor;
+    return FieldList.filter(item => {
+      if (item.name === 'sinkType') {
+        item.props = values => ({
+          disabled: Boolean(values.id),
+          dropdownMatchSelectWidth: false,
+          options: sinks
+            .filter(item => item.value === 'ICEBERG' || item.value === 'DORIS')
+            .map(item => ({
+              label: item.label,
+              value: item.value,
+              image: loadImage(item.label),
+            })),
+        });
+      }
+      return SyncMoveDbFieldSet.has(item.name as string);
+    });
+  }
+
   renderRow() {
     const constructor = this.constructor as typeof SinkDefaultInfo;
-    return constructor.FieldList;
+    const { FieldList, IngestionFieldSet } = constructor;
+    return FieldList.filter(item => {
+      if (item.name === 'tableName' || item.name === 'primaryKey' || item.name === 'database') {
+        item.type = 'input';
+      }
+      return IngestionFieldSet.has(item.name as string);
+    });
   }
 
   renderList() {

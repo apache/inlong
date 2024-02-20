@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.service.resource.sink.mysql;
 
+import org.apache.inlong.manager.common.util.UrlVerificationUtils;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLTableInfo;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ import java.util.Objects;
  */
 public class MySQLJdbcUtils {
 
-    private static final String MYSQL_JDBC_PREFIX = "jdbc:mysql";
+    private static final String MYSQL_JDBC_PREFIX = "jdbc:mysql://";
     private static final String MYSQL_DRIVER_CLASS = "com.mysql.cj.jdbc.Driver";
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLJdbcUtils.class);
 
@@ -52,21 +52,29 @@ public class MySQLJdbcUtils {
      * @throws Exception on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
-        if (StringUtils.isBlank(url) || !url.startsWith(MYSQL_JDBC_PREFIX)) {
-            throw new Exception("MySQL JDBC URL was invalid, it should start with jdbc:mysql");
-        }
+        UrlVerificationUtils.extractHostAndValidatePortFromJdbcUrl(url, MYSQL_JDBC_PREFIX);
+        Connection conn = establishDatabaseConnection(url, user, password);
+        return conn;
+    }
 
+    /**
+     * Establishes a database connection using the provided URL, username, and password.
+     *
+     * @param url      The JDBC URL
+     * @param user     The username
+     * @param password The user's password
+     * @return A {@link Connection} object representing the database connection
+     * @throws Exception If an error occurs while obtaining the connection
+     */
+    private static Connection establishDatabaseConnection(String url, String user, String password) throws Exception {
         Connection conn;
         try {
             Class.forName(MYSQL_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            String errorMsg = "get MySQL connection error, please check MySQL JDBC url, username or password!";
+            String errorMsg = "Failed to get MySQL connection, please check MySQL JDBC URL, username, or password!";
             LOGGER.error(errorMsg, e);
-            throw new Exception(errorMsg + " other error msg: " + e.getMessage());
-        }
-        if (Objects.isNull(conn)) {
-            throw new Exception("get MySQL connection failed, please contact administrator.");
+            throw new Exception(errorMsg + " Other error message: " + e.getMessage());
         }
         LOGGER.info("get MySQL connection success for url={}", url);
         return conn;

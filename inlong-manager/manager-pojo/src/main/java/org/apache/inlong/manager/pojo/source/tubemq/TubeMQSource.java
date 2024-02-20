@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.source.tubemq;
 
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
@@ -26,6 +27,7 @@ import org.apache.inlong.manager.pojo.source.StreamSource;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -52,16 +54,23 @@ public class TubeMQSource extends StreamSource {
     private String topic;
 
     @ApiModelProperty("Group of the TubeMQ")
-    private String groupId;
+    private String consumeGroup;
 
     @ApiModelProperty("Session key of the TubeMQ")
     private String sessionKey;
 
+    @ApiModelProperty(value = "Data separator")
+    private String dataSeparator;
+
     /**
-     * The TubeMQ consumers use this tid set to filter records reading from server.
+     * The TubeMQ consumers use this streamId set to filter records reading from server.
      */
-    @ApiModelProperty("Tid of the TubeMQ")
-    private TreeSet<String> tid;
+    @ApiModelProperty("StreamId of the TubeMQ")
+    private TreeSet<String> streamId;
+
+    @ApiModelProperty(value = "The message body wrap  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
+    @Builder.Default
+    private String wrapType = MessageWrapType.INLONG_MSG_V0.getName();
 
     public TubeMQSource() {
         this.setSourceType(SourceType.TUBEMQ);

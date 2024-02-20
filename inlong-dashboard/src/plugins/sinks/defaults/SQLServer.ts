@@ -22,36 +22,37 @@ import i18n from '@/i18n';
 import EditableTable from '@/ui/components/EditableTable';
 import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';
+import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const fieldTypesConf = {
-  CHAR: (m, d) => (1 <= m && m <= 8000 ? '' : '1 <= M <= 8000'),
-  VARCHAR: (m, d) => (1 <= m && m <= 8000 ? '' : '1 <= M<= 8000'),
-  NCHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
-  NVARCHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
-  TEXT: () => '',
-  NTEXT: () => '',
-  XML: () => '',
-  BIGINT: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
-  BIGSERIAL: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
-  DECIMAL: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
-  MONEY: (m, d) => (1 <= m && m <= 15 && 1 <= d && d <= 4 ? '' : '1 <= M <= 15, 1 <= D <= 4'),
-  SMALLMONEY: (m, d) => (1 <= m && m <= 7 && 1 <= d && d <= 4 ? '' : '1 <= M <= 7, 1 <= D <= 4'),
-  NUMERIC: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D <= M'),
-  FLOAT: (m, d) => (1 <= m && m <= 24 ? '' : '1 <= M <= 24'),
-  REAL: (m, d) => (1 <= m && m <= 24 ? '' : '1 <= M <= 24'),
-  BIT: (m, d) => (1 <= m && m <= 64 ? '' : '1 <= M <= 64'),
-  INT: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
-  TINYINT: (m, d) => (1 <= m && m <= 4 ? '' : '1 <= M <= 4'),
-  SMALLINT: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
-  TIME: () => '',
-  DATETIME: () => '',
-  DATETIME2: () => '',
-  SMALLDATETIME: () => '',
-  DATETIMEOFFSET: () => '',
+  char: (m, d) => (1 <= m && m <= 8000 ? '' : '1 <= M <= 8000'),
+  varchar: (m, d) => (1 <= m && m <= 8000 ? '' : '1 <= M<= 8000'),
+  nchar: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
+  nvarchar: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
+  text: () => '',
+  ntext: () => '',
+  xml: () => '',
+  bigint: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
+  bigserial: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
+  decimal: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  money: (m, d) => (1 <= m && m <= 15 && 1 <= d && d <= 4 ? '' : '1 <= M <= 15, 1 <= D <= 4'),
+  smallmoney: (m, d) => (1 <= m && m <= 7 && 1 <= d && d <= 4 ? '' : '1 <= M <= 7, 1 <= D <= 4'),
+  numeric: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D <= M'),
+  float: (m, d) => (1 <= m && m <= 24 ? '' : '1 <= M <= 24'),
+  real: (m, d) => (1 <= m && m <= 24 ? '' : '1 <= M <= 24'),
+  bit: (m, d) => (1 <= m && m <= 64 ? '' : '1 <= M <= 64'),
+  int: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
+  tinyint: (m, d) => (1 <= m && m <= 4 ? '' : '1 <= M <= 4'),
+  smallint: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
+  time: () => '',
+  datetime: () => '',
+  datetime2: () => '',
+  smalldatetime: () => '',
+  datetimeoffset: () => '',
 };
 
 const sqlserverFieldTypes = Object.keys(fieldTypesConf).reduce(
@@ -77,6 +78,7 @@ export default class SqlServerSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('JDBC URL')
   jdbcUrl: string;
 
@@ -89,6 +91,7 @@ export default class SqlServerSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.SQLServer.SchemaName')
   schemaName: string;
 
@@ -102,32 +105,40 @@ export default class SqlServerSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.SQLServer.ServerTimezone')
   serverTimezone: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: CreateTable,
     rules: [{ required: true }],
-    initialValue: 'UTC',
     props: values => ({
       disabled: [110].includes(values?.status),
+      sinkType: values.sinkType,
+      inlongGroupId: values.inlongGroupId,
+      inlongStreamId: values.inlongStreamId,
+      fieldName: 'tableName',
+      sinkObj: {
+        ...values,
+      },
     }),
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.SQLServer.TableName')
   tableName: string;
 
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
-    initialValue: 'UTC',
     props: values => ({
       disabled: [110].includes(values?.status),
     }),
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.SQLServer.PrimaryKey')
   primaryKey: string;
 
@@ -150,7 +161,7 @@ export default class SqlServerSink
       ],
     }),
   })
-  @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
@@ -173,6 +184,7 @@ export default class SqlServerSink
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.SQLServer.AllMigration')
   allMigration: boolean;
 
@@ -184,6 +196,7 @@ export default class SqlServerSink
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Username')
   username: string;
 
@@ -195,6 +208,7 @@ export default class SqlServerSink
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.Password')
   password: string;
 
@@ -208,21 +222,38 @@ export default class SqlServerSink
       upsertByFieldKey: true,
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
+
+  @FieldDecorator({
+    type: EditableTable,
+    initialValue: [],
+    props: values => ({
+      size: 'small',
+      editing: ![110].includes(values?.status),
+      columns: getFieldListColumns(values).filter(
+        item => item.dataIndex !== 'sourceFieldName' && item.dataIndex !== 'sourceFieldType',
+      ),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
+    }),
+  })
+  @SyncCreateTableField()
+  createTableField: Record<string, unknown>[];
 }
 
 const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `SQLSERVER${i18n.t('meta.Sinks.SQLServer.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('meta.Sinks.SQLServer.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -230,7 +261,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `SQLSERVER${i18n.t('meta.Sinks.SQLServer.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       initialValue: sqlserverFieldTypes[0].value,
       type: 'autocomplete',
@@ -290,7 +321,7 @@ const getFieldListColumns = sinkValues => {
         ['BIGINT', 'DATE', 'TIMESTAMP'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('meta.Sinks.SQLServer.FieldDescription'),
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },

@@ -105,6 +105,7 @@ class AgentServiceTest extends ServiceBaseTest {
         sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
         sourceInfo.setSourceType(SourceType.MYSQL_BINLOG);
         sourceInfo.setSourceName("binlog_source_in_agent_service_test");
+        sourceInfo.setHostname("127.0.0.1");
         return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
     }
 
@@ -142,7 +143,7 @@ class AgentServiceTest extends ServiceBaseTest {
         sources.stream()
                 .filter(source -> source.getTemplateId() != null)
                 .forEach(source -> sourceService.stop(source.getId(), GLOBAL_OPERATOR));
-        groupMapper.updateStatus(groupId, GroupStatus.SUSPENDED.getCode(), GLOBAL_OPERATOR);
+        groupMapper.updateStatus(groupId, GroupStatus.CONFIGURATION_OFFLINE.getCode(), GLOBAL_OPERATOR);
         streamMapper.updateStatusByIdentifier(groupId, streamId, StreamStatus.SUSPENDED.getCode(), GLOBAL_OPERATOR);
     }
 
@@ -154,7 +155,7 @@ class AgentServiceTest extends ServiceBaseTest {
         sources.stream()
                 .filter(source -> source.getTemplateId() != null)
                 .forEach(source -> sourceService.restart(source.getId(), GLOBAL_OPERATOR));
-        groupMapper.updateStatus(groupId, GroupStatus.RESTARTED.getCode(), GLOBAL_OPERATOR);
+        groupMapper.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), GLOBAL_OPERATOR);
         streamMapper.updateStatusByIdentifier(groupId, streamId, StreamStatus.RESTARTED.getCode(), GLOBAL_OPERATOR);
     }
 

@@ -29,7 +29,7 @@ import java.util.Map;
 import static org.apache.flink.connectors.tubemq.TubemqValidator.CONNECTOR_GROUP;
 import static org.apache.flink.connectors.tubemq.TubemqValidator.CONNECTOR_MASTER;
 import static org.apache.flink.connectors.tubemq.TubemqValidator.CONNECTOR_PROPERTIES;
-import static org.apache.flink.connectors.tubemq.TubemqValidator.CONNECTOR_TIDS;
+import static org.apache.flink.connectors.tubemq.TubemqValidator.CONNECTOR_STREAMIDS;
 import static org.apache.flink.connectors.tubemq.TubemqValidator.CONNECTOR_TOPIC;
 import static org.apache.flink.connectors.tubemq.TubemqValidator.CONNECTOR_TYPE_VALUE_TUBEMQ;
 import static org.apache.flink.util.Preconditions.checkNotNull;
@@ -52,7 +52,7 @@ public class Tubemq extends ConnectorDescriptor {
     private String group;
 
     @Nullable
-    private String tids;
+    private String streamIds;
 
     @Nonnull
     private Map<String, String> properties;
@@ -110,13 +110,13 @@ public class Tubemq extends ConnectorDescriptor {
     }
 
     /**
-     * The tubemq consumers use these tids to filter records reading from server.
+     * The tubemq consumers use these streamIds to filter records reading from server.
      *
-     * @param tids The filter for consume record from server.
+     * @param streamIds The filter for consume record from server.
      */
-    public Tubemq tids(String tids) {
+    public Tubemq streamIds(String streamIds) {
 
-        this.tids = tids;
+        this.streamIds = streamIds;
         return this;
     }
 
@@ -150,8 +150,8 @@ public class Tubemq extends ConnectorDescriptor {
                 descriptorProperties.putString(CONNECTOR_GROUP, group);
             }
 
-            if (tids != null) {
-                descriptorProperties.putString(CONNECTOR_TIDS, tids);
+            if (streamIds != null) {
+                descriptorProperties.putString(CONNECTOR_STREAMIDS, streamIds);
             }
         }
 

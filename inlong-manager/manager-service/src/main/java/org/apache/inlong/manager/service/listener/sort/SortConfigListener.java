@@ -17,11 +17,13 @@
 
 package org.apache.inlong.manager.service.listener.sort;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
@@ -41,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Event listener of build the Sort config,
@@ -94,7 +97,7 @@ public class SortConfigListener implements SortOperateListener {
                 groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), context.getOperator());
                 break;
             case RESTART:
-                groupService.updateStatus(groupId, GroupStatus.RESTARTING.getCode(), context.getOperator());
+                groupService.updateStatus(groupId, GroupStatus.CONFIG_ONLINE_ING.getCode(), context.getOperator());
                 break;
         }
         InlongGroupInfo groupInfo = groupService.get(groupId);
@@ -121,8 +124,18 @@ public class SortConfigListener implements SortOperateListener {
         }
 
         try {
-            SortConfigOperator operator = operatorFactory.getInstance(groupInfo.getEnableZookeeper());
-            operator.buildConfig(groupInfo, streamInfos, false);
+            for (InlongStreamInfo streamInfo : streamInfos) {
+                List<StreamSink> sinkList = streamInfo.getSinkList();
+                if (CollectionUtils.isEmpty(sinkList)) {
+                    continue;
+                }
+                List<String> sinkTypeList = sinkList.stream().map(StreamSink::getSinkType).collect(Collectors.toList());
+                List<SortConfigOperator> operatorList = operatorFactory.getInstance(sinkTypeList);
+                for (SortConfigOperator operator : operatorList) {
+                    operator.buildConfig(groupInfo, streamInfo,
+                            InlongConstants.STANDARD_MODE.equals(groupInfo.getInlongGroupMode()));
+                }
+            }
         } catch (Exception e) {
             String msg = String.format("failed to build sort config for groupId=%s, ", groupId);
             LOGGER.error(msg + "streamInfos=" + streamInfos, e);

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.controller;
 
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -55,7 +56,7 @@ public class WorkflowApproverController {
     private WorkflowApproverService workflowApproverService;
 
     @PostMapping("/workflow/approver/save")
-    @OperationLog(operation = OperationType.CREATE)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.WORKFLOW)
     @ApiOperation(value = "Save approver info")
     @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<Integer> save(@RequestBody ApproverRequest config) {
@@ -79,7 +80,7 @@ public class WorkflowApproverController {
     }
 
     @PostMapping("/workflow/approver/update")
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.WORKFLOW)
     @ApiOperation(value = "Update approver info")
     @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<Integer> update(@RequestBody ApproverRequest request) {
@@ -87,7 +88,7 @@ public class WorkflowApproverController {
     }
 
     @DeleteMapping("/workflow/approver/delete/{id}")
-    @OperationLog(operation = OperationType.DELETE)
+    @OperationLog(operation = OperationType.DELETE, operationTarget = OperationTarget.WORKFLOW)
     @ApiOperation(value = "Delete approver by ID")
     @ApiImplicitParam(name = "id", value = "Workflow approver ID", dataTypeClass = Integer.class, required = true)
     @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})

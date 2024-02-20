@@ -37,37 +37,7 @@ import lombok.ToString;
 @JsonTypeDefine(value = SinkType.ELASTICSEARCH)
 public class ElasticsearchSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("Host of the Elasticsearch server")
-    private String hosts;
-
-    @ApiModelProperty("Username of the Elasticsearch server")
-    private String username;
-
-    @ApiModelProperty("User password of the Elasticsearch server")
-    private String password;
-
-    @ApiModelProperty("Elasticsearch index name")
-    private String indexName;
-
-    @ApiModelProperty("Flush interval, unit: second, default is 1s")
-    private Integer flushInterval;
-
-    @ApiModelProperty("Flush when record number reaches flushRecord")
-    private Integer flushRecord;
-
-    @ApiModelProperty("Write max retry times, default is 3")
-    private Integer retryTimes;
-
-    @ApiModelProperty("Key field names, separate with commas")
-    private String keyFieldNames;
-
-    @ApiModelProperty("Document Type")
-    private String documentType;
-
-    @ApiModelProperty("Primary Key")
-    private String primaryKey;
-
-    @ApiModelProperty("Elasticsearch version")
-    private Integer esVersion;
+    @ApiModelProperty("indexNamePattern")
+    private String indexNamePattern;
 
 }

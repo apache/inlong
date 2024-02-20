@@ -18,10 +18,10 @@
 #ifndef INLONG_SDK_API_IMP_H
 #define INLONG_SDK_API_IMP_H
 
+#include "../config/sdk_conf.h"
 #include "../manager/recv_manager.h"
 #include "../manager/send_manager.h"
 #include "../utils/atomic.h"
-#include "sdk_conf.h"
 #include <cstdint>
 #include <functional>
 

@@ -23,10 +23,17 @@ import org.apache.inlong.audit.service.InsertData;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.CreateTopicsResult;
+import org.apache.kafka.clients.admin.DescribeClusterResult;
+import org.apache.kafka.clients.admin.ListTopicsResult;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.KafkaFuture;
+import org.apache.kafka.common.Node;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
@@ -34,9 +41,12 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 public class KafkaConsume extends BaseConsume {
 
@@ -44,6 +54,9 @@ public class KafkaConsume extends BaseConsume {
     private KafkaConsumer<String, byte[]> consumer;
     private String serverUrl;
     private String topic;
+
+    private static final int DEFAULT_NUM_PARTITIONS = 3;
+    private static final int DEFAULT_REPLICATION_FACTOR = 2;
 
     /**
      * Constructor
@@ -67,6 +80,9 @@ public class KafkaConsume extends BaseConsume {
         Preconditions.checkArgument(StringUtils.isNotEmpty(mqConfig.getKafkaConsumerName()),
                 "no kafka consume name specified");
 
+        // create topic if need
+        createTopic();
+
         initConsumer(mqConfig);
 
         Thread thread = new Thread(new Fetcher(consumer, topic, isAutoCommit, mqConfig.getFetchWaitMs()),
@@ -74,9 +90,60 @@ public class KafkaConsume extends BaseConsume {
         thread.start();
     }
 
+    /**
+     * create topic if need
+     */
+    private void createTopic() {
+        int numPartitions = DEFAULT_NUM_PARTITIONS;
+        if (StringUtils.isNotEmpty(mqConfig.getNumPartitions())) {
+            numPartitions = Integer.parseInt(mqConfig.getNumPartitions());
+        }
+
+        int replicationFactor = DEFAULT_REPLICATION_FACTOR;
+        if (StringUtils.isNotEmpty(mqConfig.getReplicationFactor())) {
+            replicationFactor = Integer.parseInt(mqConfig.getReplicationFactor());
+        }
+
+        try (AdminClient adminClient = AdminClient.create(getProperties(mqConfig))) {
+            ListTopicsResult topicList = adminClient.listTopics();
+            KafkaFuture<Set<String>> kafkaFuture = topicList.names();
+            Set<String> topicSet = kafkaFuture.get();
+
+            if (topicSet.contains(topic)) {
+                // not need
+                LOG.info("The audit topic:{} already exists.", topic);
+                return;
+            }
+
+            DescribeClusterResult describeClusterResult = adminClient.describeCluster();
+            Collection<Node> nodes = describeClusterResult.nodes().get();
+            if (nodes.isEmpty()) {
+                throw new IllegalArgumentException("kafka server not find");
+            }
+
+            int partition = Math.min(numPartitions, nodes.size());
+            int factor = Math.min(replicationFactor, nodes.size());
+
+            NewTopic needCreateTopic = new NewTopic(topic, partition, (short) factor);
+
+            CreateTopicsResult createTopicsResult =
+                    adminClient.createTopics(Collections.singletonList(needCreateTopic));
+            createTopicsResult.all().get();
+
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(
+                    String.format("create audit topic:%s error with config:%s", topic, getProperties(mqConfig)), e);
+        }
+    }
+
     protected void initConsumer(MessageQueueConfig mqConfig) {
         LOG.info("init kafka consumer, topic:{}, serverUrl:{}", topic, serverUrl);
+        Properties properties = getProperties(mqConfig);
+        consumer = new KafkaConsumer<>(properties);
+        consumer.subscribe(Collections.singleton(topic));
+    }
 
+    private Properties getProperties(MessageQueueConfig mqConfig) {
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, serverUrl);
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, mqConfig.getKafkaGroupId());
@@ -85,8 +152,7 @@ public class KafkaConsume extends BaseConsume {
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, mqConfig.getAutoOffsetReset());
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
-        consumer = new KafkaConsumer<>(properties);
-        consumer.subscribe(Collections.singleton(topic));
+        return properties;
     }
 
     public class Fetcher implements Runnable {

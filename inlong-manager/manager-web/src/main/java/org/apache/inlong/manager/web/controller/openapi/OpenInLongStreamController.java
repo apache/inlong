@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.web.controller.openapi;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
@@ -96,7 +97,7 @@ public class OpenInLongStreamController {
     }
 
     @RequestMapping(value = "/stream/save", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.CREATE)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.STREAM)
     @ApiOperation(value = "Save inlong stream")
     public Response<Integer> save(@RequestBody InlongStreamRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
@@ -105,7 +106,7 @@ public class OpenInLongStreamController {
     }
 
     @RequestMapping(value = "/stream/update", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.UPDATE)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.STREAM)
     @ApiOperation(value = "Update inlong stream")
     public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody InlongStreamRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
@@ -114,7 +115,7 @@ public class OpenInLongStreamController {
     }
 
     @RequestMapping(value = "/stream/delete", method = RequestMethod.DELETE)
-    @OperationLog(operation = OperationType.DELETE)
+    @OperationLog(operation = OperationType.DELETE, operationTarget = OperationTarget.STREAM)
     @ApiOperation(value = "Delete inlong stream")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
@@ -134,7 +135,7 @@ public class OpenInLongStreamController {
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
     public Response<Boolean> startProcess(@PathVariable String groupId, @PathVariable String streamId,
-            @RequestParam boolean sync) {
+            @RequestParam(required = false, defaultValue = "false") boolean sync) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamProcessOperation.startProcess(groupId, streamId, operator, sync));
     }

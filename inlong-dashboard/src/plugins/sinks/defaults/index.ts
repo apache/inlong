@@ -43,7 +43,7 @@ export const allDefaultSinks: MetaExportWithBackendList<SinkMetaType> = [
   },
   {
     label: 'Elasticsearch',
-    value: 'ELASTICSEARCH',
+    value: 'ES',
     LoadEntity: () => import('./Elasticsearch'),
   },
   {

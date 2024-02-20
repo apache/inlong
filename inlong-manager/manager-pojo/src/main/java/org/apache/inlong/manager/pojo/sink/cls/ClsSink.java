@@ -25,18 +25,14 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 
 /**
  * Cloud log service sink info
  */
 @Data
-@SuperBuilder
-@AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Cloud log service sink info")
@@ -78,6 +74,9 @@ public class ClsSink extends StreamSink {
 
     @ApiModelProperty("Cloud log service index tokenizer")
     private String tokenizer;
+
+    @ApiModelProperty("Cloud log service topic storage duration")
+    private Integer storageDuration;
 
     public ClsSink() {
         this.setSinkType(SinkType.CLS);

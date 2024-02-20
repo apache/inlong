@@ -29,18 +29,18 @@ using namespace inlong;
 
 class SendManager : noncopyable {
 private:
-  read_write_mutex group_id_2_send_group_map_rwmutex_;
-  std::unordered_map<std::string, std::vector<SendGroupPtr>>
-      group_id_2_send_group_map_;
-  SendGroupPtr DoGetSendGroup(const std::string &group_id);
-  void DoAddSendGroup(const std::string &group_id);
+  read_write_mutex send_group_map_rwmutex_;
+  std::unordered_map<std::string, std::vector<SendGroupPtr>> send_group_map_;
+  SendGroupPtr DoGetSendGroup(const std::string &send_group_key);
+  void DoAddSendGroup(const std::string &send_group_key);
+  std::string GetSendKey(const std::string &send_group_key);
   volatile uint32_t send_group_idx_;
 
 public:
   SendManager();
   virtual ~SendManager(){};
   SendGroupPtr GetSendGroup(const std::string &group_id);
-  bool AddSendGroup(const std::string &inlong_group_id);
+  bool AddSendGroup(const std::string &send_group_key);
 };
 } // namespace inlong
 

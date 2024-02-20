@@ -19,7 +19,7 @@ package org.apache.inlong.sort.iceberg.source.reader;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
-import org.apache.inlong.sort.iceberg.source.utils.RecyclableJoinedRowData;
+import org.apache.inlong.sort.iceberg.utils.RecyclableJoinedRowData;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.metrics.MetricGroup;
@@ -76,5 +76,11 @@ public class InlongIcebergSourceReaderMetrics<T> extends IcebergSourceReaderMetr
             return physical.toString().getBytes(StandardCharsets.UTF_8).length;
         }
         return object.toString().getBytes(StandardCharsets.UTF_8).length;
+    }
+
+    void flushAudit() {
+        if (sourceMetricData != null) {
+            sourceMetricData.flushAuditData();
+        }
     }
 }

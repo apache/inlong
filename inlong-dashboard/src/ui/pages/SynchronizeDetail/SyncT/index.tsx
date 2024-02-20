@@ -19,28 +19,24 @@
 
 import React, { useState, forwardRef, useEffect } from 'react';
 import { defaultSize } from '@/configs/pagination';
-import { useRequest, useUpdateEffect } from '@/ui/hooks';
+import { useRequest } from '@/ui/hooks';
 import SourceSinkCard from './SourceSinkCard';
+import SyncDatabaseCard from './SyncDatabaseCard';
 
 const Comp = ({ inlongGroupId, readonly, mqType }) => {
-  const [options, setOptions] = useState({
-    pageSize: defaultSize,
-    pageNum: 1,
-  });
-
   const [inlongStreamId, setInlongStreamId] = useState('');
+  const [sinkMultipleEnable, setSinkMultipleEnable] = useState(false);
 
   const { data, run: getList } = useRequest(
     {
       url: '/stream/list',
       method: 'POST',
       data: {
-        ...options,
         inlongGroupId,
       },
     },
     {
-      refreshDeps: [options],
+      manual: true,
       onSuccess: result => {
         const [item] = result?.list || [];
         setInlongStreamId(item.inlongStreamId);
@@ -48,15 +44,40 @@ const Comp = ({ inlongGroupId, readonly, mqType }) => {
     },
   );
 
+  const { data: streamDetail, run: getStreamDetail } = useRequest(
+    streamId => ({
+      url: `/stream/getBrief`,
+      params: {
+        groupId: inlongGroupId,
+        streamId,
+      },
+    }),
+    {
+      manual: true,
+      onSuccess: result => {
+        setSinkMultipleEnable(result.sinkMultipleEnable);
+      },
+    },
+  );
+
   useEffect(() => {
     if (inlongGroupId !== null) {
       getList();
+      getStreamDetail(inlongStreamId);
     }
   }, []);
 
   return (
     <>
-      <SourceSinkCard inlongGroupId={inlongGroupId} inlongStreamId={inlongStreamId} />
+      {sinkMultipleEnable ? (
+        <SyncDatabaseCard
+          sinkMultipleEnable={sinkMultipleEnable}
+          inlongGroupId={inlongGroupId}
+          inlongStreamId={inlongStreamId}
+        />
+      ) : (
+        <SourceSinkCard inlongGroupId={inlongGroupId} inlongStreamId={inlongStreamId} />
+      )}
     </>
   );
 };

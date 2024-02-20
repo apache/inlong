@@ -23,29 +23,30 @@ import EditableTable from '@/ui/components/EditableTable';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
 import NodeSelect from '@/ui/components/NodeSelect';
+import CreateTable from '@/ui/components/CreateTable';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncCreateTableField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const fieldTypesConf = {
-  CHAR: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
-  VARCHAR: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
-  DATE: () => '',
-  TINYINT: (m, d) => (1 <= m && m <= 4 ? '' : '1<=M<=4'),
-  SMALLINT: (m, d) => (1 <= m && m <= 6 ? '' : '1<=M<=6'),
-  INT: (m, d) => (1 <= m && m <= 11 ? '' : '1<=M<=11'),
-  BIGINT: (m, d) => (1 <= m && m <= 20 ? '' : '1<=M<=20'),
-  LARGEINT: () => '',
-  STRING: () => '',
-  DATETIME: () => '',
-  FLOAT: (m, d) =>
+  char: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
+  varchar: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
+  date: () => '',
+  tinyint: (m, d) => (1 <= m && m <= 4 ? '' : '1<=M<=4'),
+  smallint: (m, d) => (1 <= m && m <= 6 ? '' : '1<=M<=6'),
+  int: (m, d) => (1 <= m && m <= 11 ? '' : '1<=M<=11'),
+  bigint: (m, d) => (1 <= m && m <= 20 ? '' : '1<=M<=20'),
+  largeint: () => '',
+  string: () => '',
+  datetime: () => '',
+  float: (m, d) =>
     1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
-  DOUBLE: (m, d) =>
+  double: (m, d) =>
     1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
-  DECIMAL: (m, d) =>
+  decimal: (m, d) =>
     1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
-  BOOLEAN: () => '',
+  boolean: () => '',
 };
 
 const fieldTypes = Object.keys(fieldTypesConf).reduce(
@@ -70,6 +71,7 @@ export default class StarRocksSink
     }),
   })
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.DataNodeName')
   dataNodeName: string;
 
@@ -82,18 +84,27 @@ export default class StarRocksSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.StarRocks.DatabaseName')
   databaseName: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: CreateTable,
     rules: [{ required: true }],
     props: values => ({
       disabled: [110].includes(values?.status),
+      sinkType: values.sinkType,
+      inlongGroupId: values.inlongGroupId,
+      inlongStreamId: values.inlongStreamId,
+      fieldName: 'tableName',
+      sinkObj: {
+        ...values,
+      },
     }),
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.StarRocks.TableName')
   tableName: string;
 
@@ -105,6 +116,7 @@ export default class StarRocksSink
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
   @I18n('meta.Sinks.StarRocks.PrimaryKey')
   primaryKey: string;
 
@@ -118,21 +130,38 @@ export default class StarRocksSink
       upsertByFieldKey: true,
     }),
   })
+  @IngestionField()
   sinkFieldList: Record<string, unknown>[];
+
+  @FieldDecorator({
+    type: EditableTable,
+    initialValue: [],
+    props: values => ({
+      size: 'small',
+      editing: ![110].includes(values?.status),
+      columns: getFieldListColumns(values).filter(
+        item => item.dataIndex !== 'sourceFieldName' && item.dataIndex !== 'sourceFieldType',
+      ),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
+    }),
+  })
+  @SyncCreateTableField()
+  createTableField: Record<string, unknown>[];
 }
 
 const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `StarRocks${i18n.t('meta.Sinks.StarRocks.FieldName')}`,
+      title: i18n.t('meta.Sinks.SinkFieldName'),
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('meta.Sinks.StarRocks.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -140,7 +169,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `StarRocks${i18n.t('meta.Sinks.StarRocks.FieldType')}`,
+      title: i18n.t('meta.Sinks.SinkFieldType'),
       dataIndex: 'fieldType',
       initialValue: fieldTypes[0].value,
       type: 'autocomplete',
@@ -201,7 +230,7 @@ const getFieldListColumns = sinkValues => {
         ['BIGINT', 'DATE', 'TIMESTAMP'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('meta.Sinks.StarRocks.FieldDescription'),
+      title: i18n.t('meta.Sinks.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },

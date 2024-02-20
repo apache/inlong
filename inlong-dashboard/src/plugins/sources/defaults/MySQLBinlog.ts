@@ -24,7 +24,7 @@ import i18n from '@/i18n';
 import { SourceInfo } from '../common/SourceInfo';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator, SyncField } = RenderRow;
+const { FieldDecorator, SyncField, SyncMoveDbField, IngestionField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 export default class TubeMqSource
@@ -39,7 +39,9 @@ export default class TubeMqSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @ColumnDecorator()
+  @SyncMoveDbField()
   @I18n('meta.Sources.Db.Server')
   hostname: string;
 
@@ -54,7 +56,9 @@ export default class TubeMqSource
     }),
   })
   @SyncField()
+  @IngestionField()
   @ColumnDecorator()
+  @SyncMoveDbField()
   @I18n('meta.Sources.Db.Port')
   port: number;
 
@@ -66,6 +70,8 @@ export default class TubeMqSource
     }),
   })
   @SyncField()
+  @IngestionField()
+  @SyncMoveDbField()
   @I18n('meta.Sources.Db.User')
   user: string;
 
@@ -77,6 +83,8 @@ export default class TubeMqSource
     }),
   })
   @SyncField()
+  @IngestionField()
+  @SyncMoveDbField()
   @I18n('meta.Sources.Db.Password')
   password: string;
 
@@ -88,6 +96,7 @@ export default class TubeMqSource
       disabled: values?.status === 101,
     }),
   })
+  @IngestionField()
   @I18n('meta.Sources.Db.HistoryFilename')
   historyFilename: string;
 
@@ -100,6 +109,7 @@ export default class TubeMqSource
       disabled: values?.status === 101,
     }),
   })
+  @IngestionField()
   @I18n('meta.Sources.Db.ServerTimezone')
   serverTimezone: string;
 
@@ -114,6 +124,7 @@ export default class TubeMqSource
       max: 3600000,
     }),
   })
+  @IngestionField()
   @I18n('meta.Sources.Db.IntervalMs')
   intervalMs: number;
 
@@ -135,9 +146,33 @@ export default class TubeMqSource
       ],
     }),
   })
-  @SyncField()
+  @IngestionField()
   @I18n('meta.Sources.Db.AllMigration')
   allMigration: boolean;
+
+  @FieldDecorator({
+    type: 'radio',
+    rules: [{ required: true }],
+    initialValue: true,
+    props: values => ({
+      disabled: values?.status === 101,
+      options: [
+        {
+          label: i18n.t('meta.Sources.Db.FullAmountAndIncremental'),
+          value: false,
+        },
+        {
+          label: i18n.t('meta.Sources.Db.Incremental'),
+          value: true,
+        },
+      ],
+    }),
+  })
+  @SyncField()
+  @IngestionField()
+  @SyncMoveDbField()
+  @I18n('meta.Sources.Db.ReadMode')
+  onlyIncremental: boolean;
 
   @FieldDecorator({
     type: 'input',
@@ -148,6 +183,8 @@ export default class TubeMqSource
     }),
   })
   @SyncField()
+  @IngestionField()
+  @SyncMoveDbField()
   @I18n('meta.Sources.Db.DatabaseWhiteList')
   databaseWhiteList: string;
 
@@ -158,9 +195,10 @@ export default class TubeMqSource
     props: values => ({
       disabled: values?.status === 101,
     }),
-    visible: values => !values?.allMigration,
   })
   @SyncField()
+  @IngestionField()
+  @SyncMoveDbField()
   @I18n('meta.Sources.Db.TableWhiteList')
   tableWhiteList: boolean;
 }

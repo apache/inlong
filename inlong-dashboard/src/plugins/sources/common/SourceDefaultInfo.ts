@@ -20,13 +20,23 @@
 import { DataWithBackend } from '@/plugins/DataWithBackend';
 import { RenderRow } from '@/plugins/RenderRow';
 import { RenderList } from '@/plugins/RenderList';
+import { loadImage } from '@/plugins/images';
 import CheckCard from '@/ui/components/CheckCard';
 import { statusList, genStatusTag } from './status';
 import { sources, defaultValue } from '..';
 import i18n from '@/i18n';
 
 const { I18nMap, I18n } = DataWithBackend;
-const { FieldList, FieldDecorator, SyncField, SyncFieldSet } = RenderRow;
+const {
+  FieldList,
+  FieldDecorator,
+  SyncField,
+  SyncFieldSet,
+  SyncMoveDbField,
+  SyncMoveDbFieldSet,
+  IngestionField,
+  IngestionFieldSet,
+} = RenderRow;
 const { ColumnList, ColumnDecorator } = RenderList;
 
 export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList {
@@ -34,6 +44,8 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
   static FieldList = FieldList;
   static ColumnList = ColumnList;
   static SyncFieldSet = SyncFieldSet;
+  static SyncMoveDbFieldSet = SyncMoveDbFieldSet;
+  static IngestionFieldSet = IngestionFieldSet;
 
   readonly id: number;
 
@@ -43,6 +55,8 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
     hidden: true,
   })
   @SyncField()
+  @IngestionField()
+  @SyncMoveDbField()
   @I18n('inlongGroupId')
   readonly inlongGroupId: string;
 
@@ -51,6 +65,8 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
     hidden: true,
   })
   @SyncField()
+  @IngestionField()
+  @SyncMoveDbField()
   @I18n('inlongStreamId')
   readonly inlongStreamId: string;
 
@@ -66,6 +82,7 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
         .map(item => ({
           label: item.label,
           value: item.value,
+          image: loadImage(item.label),
         })),
     }),
   })
@@ -73,6 +90,8 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
     render: type => sources.find(c => c.value === type)?.label || type,
   })
   @SyncField()
+  @IngestionField()
+  @SyncMoveDbField()
   @I18n('meta.Sources.Type')
   sourceType: string;
 
@@ -93,6 +112,8 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
   })
   @ColumnDecorator()
   @SyncField()
+  @IngestionField()
+  @SyncMoveDbField()
   @I18n('meta.Sources.Name')
   sourceName: string;
 
@@ -109,8 +130,20 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
     render: text => genStatusTag(text),
   })
   @SyncField()
+  @IngestionField()
+  @SyncMoveDbField()
   @I18n('basic.Status')
   readonly status: string;
+
+  @ColumnDecorator()
+  @IngestionField()
+  @I18n('basic.Creator')
+  readonly creator: string;
+
+  @ColumnDecorator()
+  @IngestionField()
+  @I18n('basic.Modifier')
+  readonly modifier: string;
 
   parse(data) {
     return data;
@@ -133,6 +166,7 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
             .map(item => ({
               label: item.label,
               value: item.value,
+              image: loadImage(item.label),
             })),
         });
       }
@@ -140,9 +174,31 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
     });
   }
 
+  renderSyncEnableRow() {
+    const constructor = this.constructor as typeof SourceDefaultInfo;
+    const { FieldList, SyncMoveDbFieldSet } = constructor;
+    return FieldList.filter(item => {
+      if (item.name === 'sourceType') {
+        item.props = values => ({
+          disabled: Boolean(values.id),
+          dropdownMatchSelectWidth: false,
+          options: sources
+            .filter(item => item.value === 'MYSQL_BINLOG')
+            .map(item => ({
+              label: item.label,
+              value: item.value,
+              image: loadImage(item.label),
+            })),
+        });
+      }
+      return SyncMoveDbFieldSet.has(item.name as string);
+    });
+  }
+
   renderRow() {
     const constructor = this.constructor as typeof SourceDefaultInfo;
-    constructor.FieldList.map(item => {
+    const { FieldList, IngestionFieldSet } = constructor;
+    return FieldList.filter(item => {
       if (item.name === 'sourceType') {
         item.props = values => ({
           disabled: Boolean(values.id),
@@ -152,11 +208,13 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
             .map(item => ({
               label: item.label,
               value: item.value,
+              image: loadImage(item.label),
             })),
         });
       }
+      return IngestionFieldSet.has(item.name as string);
     });
-    return constructor.FieldList;
+    // return constructor.FieldList;
   }
 
   renderList() {

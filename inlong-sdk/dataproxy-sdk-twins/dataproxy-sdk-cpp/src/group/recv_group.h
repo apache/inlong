@@ -24,10 +24,10 @@
 #include <thread>
 #include <unordered_map>
 
+#include "../config/sdk_conf.h"
 #include "../manager/send_manager.h"
 #include "../utils/atomic.h"
 #include "../utils/noncopyable.h"
-#include "sdk_conf.h"
 
 namespace inlong {
 class RecvGroup {
@@ -38,11 +38,8 @@ private:
   uint32_t cur_len_;
   AtomicInt pack_err_;
   uint64_t data_time_;
-  std::string inlong_group_id_;
-  std::string inlong_stream_id_;
   uint16_t groupId_num_;
   uint16_t streamId_num_;
-  std::string topic_desc_;
   uint32_t msg_type_;
   mutable std::mutex mutex_;
 
@@ -50,17 +47,18 @@ private:
   uint64_t last_pack_time_;
 
   uint64_t max_recv_size_;
+  std::string group_key_;
+  uint64_t log_stat_;
 
-  bool ShouldPack(int32_t msg_len);
   int32_t DoDispatchMsg();
   void AddMsg(const std::string &msg, std::string client_ip,
-              int64_t report_time, UserCallBack call_back);
+              int64_t report_time, UserCallBack call_back,const std::string &groupId,
+              const std::string &streamId);
   bool IsZipAndOperate(std::string &res, uint32_t real_cur_len);
   inline void ResetPackBuf() { memset(pack_buf_, 0x0, data_capacity_); }
 
 public:
-  RecvGroup(const std::string &groupId, const std::string &streamId,
-            std::shared_ptr<SendManager> send_manager);
+  RecvGroup(const std::string &group_key,std::shared_ptr<SendManager> send_manager);
   ~RecvGroup();
 
   int32_t SendData(const std::string &msg, const std::string &groupId,
@@ -71,8 +69,6 @@ public:
   void DispatchMsg(bool exit);
 
   char *data() const { return pack_buf_; }
-
-  std::string groupId() const { return inlong_group_id_; }
 
   std::shared_ptr<SendBuffer> BuildSendBuf(std::vector<SdkMsgPtr> &msgs);
   void CallbalkToUsr(std::vector<SdkMsgPtr> &msgs);

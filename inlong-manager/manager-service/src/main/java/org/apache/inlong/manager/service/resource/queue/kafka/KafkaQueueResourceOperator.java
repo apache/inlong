@@ -23,6 +23,8 @@ import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
@@ -204,5 +206,13 @@ public class KafkaQueueResourceOperator implements QueueResourceOperator {
                 String.format(KAFKA_CONSUMER_GROUP_REALTIME_REVIEW, groupInfo.getInlongClusterTag(), topicName);
         return kafkaOperator.queryLatestMessage((KafkaClusterInfo) clusterInfo, topicName, consumeGroup, messageCount,
                 streamInfo);
+    }
+
+    @Override
+    public String getSortConsumeGroup(InlongGroupInfo groupInfo, InlongStreamEntity streamEntity,
+            StreamSinkEntity sinkEntity) {
+        InlongKafkaInfo kafkaInfo = (InlongKafkaInfo) groupInfo;
+        String topicName = streamEntity.getMqResource();
+        return String.format(KAFKA_CONSUMER_GROUP, kafkaInfo.getInlongClusterTag(), topicName);
     }
 }

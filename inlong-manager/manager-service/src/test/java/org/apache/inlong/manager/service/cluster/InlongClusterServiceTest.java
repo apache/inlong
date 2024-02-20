@@ -29,11 +29,12 @@ import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
+import org.apache.inlong.manager.pojo.cluster.dataproxy.DataProxyClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.dataproxy.DataProxyClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest;
-import org.apache.inlong.manager.pojo.cluster.sortstandalone.SortStandaloneClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.sortstandalone.SortStandaloneClusterRequest;
+import org.apache.inlong.manager.pojo.cluster.sort.cls.SortClsClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.sort.cls.SortClsClusterRequest;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -45,9 +46,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Inlong cluster service test for {@link InlongClusterService}
@@ -59,11 +58,10 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     @Autowired
     private HeartbeatManager heartbeatManager;
 
-    public Integer saveStandaloneCluster(String clusterTag, String clusterName, Set<String> supportedSinkTypes) {
-        SortStandaloneClusterRequest request = new SortStandaloneClusterRequest();
+    public Integer saveStandaloneCluster(String clusterTag, String clusterName) {
+        SortClsClusterRequest request = new SortClsClusterRequest();
         request.setClusterTags(clusterTag);
         request.setName(clusterName);
-        request.setSupportedSinkTypes(supportedSinkTypes);
         request.setInCharges(GLOBAL_OPERATOR);
         return clusterService.save(request, GLOBAL_OPERATOR);
     }
@@ -154,6 +152,17 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
      */
     public Integer saveClusterNode(Integer parentId, String type, String ip, Integer port, String protocolType) {
         ClusterNodeRequest request = new ClusterNodeRequest();
+        request.setParentId(parentId);
+        request.setType(type);
+        request.setIp(ip);
+        request.setPort(port);
+        request.setProtocolType(protocolType);
+        return clusterService.saveNode(request, GLOBAL_OPERATOR);
+    }
+
+    public Integer saveDataProxyClusterNode(Integer parentId, String type, String ip, Integer port,
+            String protocolType) {
+        DataProxyClusterNodeRequest request = new DataProxyClusterNodeRequest();
         request.setParentId(parentId);
         request.setType(type);
         request.setIp(ip);
@@ -329,24 +338,13 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     public void testStandaloneCluster() {
         String clusterTag = "standalone_cluster";
         String clusterName = "test_standalone";
-        String type1 = "type1";
-        String type2 = "type2";
-        String type3 = "type3";
-        Set<String> supportedType = new HashSet<>();
-        supportedType.add(type1);
-        supportedType.add(type2);
-        supportedType.add(type3);
 
-        Integer id = this.saveStandaloneCluster(clusterTag, clusterName, supportedType);
+        Integer id = this.saveStandaloneCluster(clusterTag, clusterName);
         Assertions.assertNotNull(id);
 
         ClusterInfo info = clusterService.get(id, GLOBAL_OPERATOR);
-        Assertions.assertInstanceOf(SortStandaloneClusterInfo.class, info);
-
-        Set<String> types = ((SortStandaloneClusterInfo) info).getSupportedSinkTypes();
-        Assertions.assertTrue(types.contains(type1));
-        Assertions.assertTrue(types.contains(type2));
-        Assertions.assertTrue(types.contains(type3));
+        Assertions.assertInstanceOf(SortClsClusterInfo.class, info);
+        this.deleteCluster(id);
     }
 
     @Test
@@ -362,11 +360,11 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         // save cluster node
         String ip = "127.0.0.1";
         Integer port1 = 46800;
-        Integer nodeId1 = this.saveClusterNode(id, ClusterType.DATAPROXY, ip, port1, ProtocolType.TCP);
+        Integer nodeId1 = this.saveDataProxyClusterNode(id, ClusterType.DATAPROXY, ip, port1, ProtocolType.TCP);
         Assertions.assertNotNull(nodeId1);
 
         Integer port2 = 46801;
-        Integer nodeId2 = this.saveClusterNode(id, ClusterType.DATAPROXY, ip, port2, ProtocolType.TCP);
+        Integer nodeId2 = this.saveDataProxyClusterNode(id, ClusterType.DATAPROXY, ip, port2, ProtocolType.TCP);
         Assertions.assertNotNull(nodeId2);
 
         // create an inlong group which use the clusterTag

@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 public enum FieldType {
 
     INT,
+    INTEGER,
     TINYINT,
     SMALLINT,
     BIGINT,
@@ -35,6 +36,7 @@ public enum FieldType {
     FIXED,
     BYTE,
     BINARY,
+    CHAR,
     VARCHAR,
     VARBINARY,
     BOOLEAN,
@@ -44,16 +46,21 @@ public enum FieldType {
     INT16,
     INT32,
     INT64,
+    FLOAT4,
+    FLOAT8,
     FLOAT32,
     FLOAT64,
     DATETIME,
     TIMESTAMP,
+    TIMESTAMPTZ,
     LOCAL_ZONE_TIMESTAMP,
     ARRAY,
     MAP,
     STRUCT,
     FUNCTION,
-    KEYWORD;
+    KEYWORD,
+    LARGEINT,
+    JSON;
 
     public static FieldType forName(String name) {
         Preconditions.expectNotBlank(name, ErrorCodeEnum.INVALID_PARAMETER, "FieldType should not be null");

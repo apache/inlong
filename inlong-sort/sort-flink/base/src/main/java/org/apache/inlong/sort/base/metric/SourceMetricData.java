@@ -27,6 +27,7 @@ import org.apache.flink.metrics.SimpleCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -43,10 +44,11 @@ import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataS
 /**
  * A collection class for handling metrics
  */
-public class SourceMetricData implements MetricData {
+public class SourceMetricData implements MetricData, Serializable {
 
+    private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(SourceMetricData.class);
-    private final MetricGroup metricGroup;
+    private MetricGroup metricGroup;
     private final Map<String, String> labels;
     private Counter numRecordsIn;
     private Counter numBytesIn;
@@ -100,6 +102,16 @@ public class SourceMetricData implements MetricData {
                 registerMetricsForCurrentEmitEventTimeLag();
                 break;
         }
+
+        if (option.getIpPorts().isPresent()) {
+            AuditOperator.getInstance().setAuditProxy(option.getIpPortList());
+            this.auditOperator = AuditOperator.getInstance();
+            this.auditKeys = option.getInlongAuditKeys();
+        }
+    }
+
+    public SourceMetricData(MetricOption option) {
+        this.labels = option.getLabels();
 
         if (option.getIpPorts().isPresent()) {
             AuditOperator.getInstance().setAuditProxy(option.getIpPortList());
@@ -288,18 +300,21 @@ public class SourceMetricData implements MetricData {
 
     public void outputMetrics(long rowCountSize, long rowDataSize, long dataTime) {
         outputDefaultMetrics(rowCountSize, rowDataSize);
-
         if (auditOperator != null) {
             for (Integer key : auditKeys) {
                 auditOperator.add(
                         key,
                         getGroupId(),
                         getStreamId(),
-                        dataTime,
+                        getCurrentOrProvidedTime(dataTime),
                         rowCountSize,
                         rowDataSize);
             }
         }
+    }
+
+    private long getCurrentOrProvidedTime(long dataTime) {
+        return dataTime == 0 ? System.currentTimeMillis() : dataTime;
     }
 
     private void outputDefaultMetrics(long rowCountSize, long rowDataSize) {
@@ -317,6 +332,16 @@ public class SourceMetricData implements MetricData {
 
         if (numBytesInForMeter != null) {
             this.numBytesInForMeter.inc(rowDataSize);
+        }
+    }
+
+    /**
+     * flush audit data
+     * usually call this method in close method or when checkpointing
+     */
+    public void flushAuditData() {
+        if (auditOperator != null) {
+            auditOperator.send();
         }
     }
 
