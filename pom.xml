@@ -100,7 +100,7 @@
         <rocksdb.version>6.29.4.1</rocksdb.version>
         <redis-replicator.version>3.6.4</redis-replicator.version>
         <hadoop.version>2.10.2</hadoop.version>
-        <postgresql.version>42.4.3</postgresql.version>
+        <postgresql.version>42.4.4</postgresql.version>
         <oracle.jdbc.version>19.3.0.0</oracle.jdbc.version>
         <mysql.jdbc.version>8.0.28</mysql.jdbc.version>
         <mssql.jdbc.version>12.4.1.jre8</mssql.jdbc.version>
