@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
+import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.stream.StreamField;
@@ -35,6 +36,7 @@ import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.LogicOperator;
 import org.apache.inlong.sort.protocol.transformation.SingleValueCompareOperator;
+import org.apache.inlong.sort.protocol.transformation.function.CustomFunction;
 import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilterFunction;
 import org.apache.inlong.sort.protocol.transformation.operator.AndOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
@@ -145,8 +147,13 @@ public class FilterFunctionUtils {
         String fieldType = streamField.getFieldType();
         String fieldFormat = streamField.getFieldFormat();
         String fieldName = streamField.getFieldName();
-        FieldInfo sourceFieldInfo = new FieldInfo(fieldName, transformName,
-                FieldInfoUtils.convertFieldFormat(fieldType, fieldFormat));
+        FunctionParam sourceFieldInfo;
+        if (FieldType.FUNCTION.name().equalsIgnoreCase(streamField.getFieldType())) {
+            sourceFieldInfo = new CustomFunction(streamField.getFieldName());
+        } else {
+            sourceFieldInfo = new FieldInfo(fieldName, transformName,
+                    FieldInfoUtils.convertFieldFormat(fieldType, fieldFormat));
+        }
         OperationType operationType = filterRule.getOperationType();
         SingleValueCompareOperator compareOperator = parseCompareOperator(operationType);
         TargetValue targetValue = filterRule.getTargetValue();
@@ -183,8 +190,12 @@ public class FilterFunctionUtils {
             String fieldType = targetField.getFieldType();
             String fieldFormat = targetField.getFieldFormat();
             String fieldName = targetField.getFieldName();
-            return new FieldInfo(fieldName, transformName,
-                    FieldInfoUtils.convertFieldFormat(fieldType, fieldFormat));
+            if (FieldType.FUNCTION.name().equalsIgnoreCase(fieldType)) {
+                return new CustomFunction(fieldName);
+            } else {
+                return new FieldInfo(fieldName, transformName,
+                        FieldInfoUtils.convertFieldFormat(fieldType, fieldFormat));
+            }
         }
     }
 
