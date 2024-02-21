@@ -52,10 +52,10 @@ import static org.awaitility.Awaitility.await;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(LogFileTask.class)
 @PowerMockIgnore({"javax.management.*"})
-public class TestLogfileCollectTask {
+public class TestLogFileTask {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestLogfileCollectTask.class);
-    private static final ClassLoader LOADER = TestLogfileCollectTask.class.getClassLoader();
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestLogFileTask.class);
+    private static final ClassLoader LOADER = TestLogFileTask.class.getClassLoader();
     private static LogFileTask task;
     private static AgentBaseTestsHelper helper;
     private static final Gson GSON = new Gson();
@@ -73,7 +73,7 @@ public class TestLogfileCollectTask {
 
     @BeforeClass
     public static void setup() {
-        helper = new AgentBaseTestsHelper(TestLogfileCollectTask.class.getName()).setupAgentHome();
+        helper = new AgentBaseTestsHelper(TestLogFileTask.class.getName()).setupAgentHome();
         Db basicDb = TaskManager.initDb("/localdb");
         resourceName = LOADER.getResource("testScan/20230928_1/test_1.txt").getPath();
         tempResourceName = LOADER.getResource("testScan/temp.txt").getPath();
@@ -96,6 +96,7 @@ public class TestLogfileCollectTask {
                 dataTime = invocation.getArgument(1);
                 return null;
             }).when(task, "addToEvenMap", Mockito.anyString(), Mockito.anyString());
+            Assert.assertTrue(task.isProfileValid(taskProfile));
             task.init(manager, taskProfile, basicDb);
             EXECUTOR_SERVICE.submit(task);
         } catch (Exception e) {

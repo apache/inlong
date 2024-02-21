@@ -134,8 +134,17 @@ public class LogFileTask extends Task {
             LOGGER.error("task profile needs all required key");
             return false;
         }
+        if (!profile.hasKey(TaskConstants.FILE_TASK_CYCLE_UNIT)) {
+            LOGGER.error("task profile needs file cycle unit");
+            return false;
+        }
         if (!profile.hasKey(TaskConstants.TASK_CYCLE_UNIT)) {
             LOGGER.error("task profile needs cycle unit");
+            return false;
+        }
+        if (profile.get(TaskConstants.TASK_CYCLE_UNIT)
+                .compareTo(profile.get(TaskConstants.FILE_TASK_CYCLE_UNIT)) != 0) {
+            LOGGER.error("task profile cycle unit must be consistent");
             return false;
         }
         if (!profile.hasKey(TaskConstants.TASK_FILE_TIME_ZONE)) {
