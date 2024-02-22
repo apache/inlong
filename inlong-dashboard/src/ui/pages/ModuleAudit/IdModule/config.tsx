@@ -51,17 +51,20 @@ export const getFormContent = initialValues => [
     name: 'inlongGroupId',
     props: {
       dropdownMatchSelectWidth: false,
+      showSearch: true,
       options: {
         requestAuto: true,
-        requestService: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
           url: '/group/list',
           method: 'POST',
           data: {
+            keyword,
             pageNum: 1,
-            pageSize: 1000,
+            pageSize: 100,
             inlongGroupMode: 0,
           },
-        },
+        }),
         requestParams: {
           formatResult: result =>
             result?.list.map(item => ({
@@ -78,17 +81,20 @@ export const getFormContent = initialValues => [
     name: 'inlongStreamId',
     props: values => ({
       dropdownMatchSelectWidth: false,
+      showSearch: true,
       options: {
         requestAuto: true,
-        requestService: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
           url: '/stream/list',
           method: 'POST',
           data: {
+            keyword,
             pageNum: 1,
-            pageSize: 1000,
+            pageSize: 100,
             inlongGroupId: values.inlongGroupId,
           },
-        },
+        }),
         requestParams: {
           formatResult: result =>
             result?.list.map(item => ({
@@ -127,9 +133,11 @@ export const getFormContent = initialValues => [
     name: 'benchmark',
     props: {
       allowClear: true,
+      showSearch: true,
       dropdownMatchSelectWidth: false,
       options: {
         requestAuto: true,
+        filterOption: true,
         requestService: {
           url: '/audit/getAuditBases',
           method: 'GET',
@@ -150,9 +158,11 @@ export const getFormContent = initialValues => [
     name: 'compared',
     props: {
       allowClear: true,
+      showSearch: true,
       dropdownMatchSelectWidth: false,
       options: {
         requestAuto: true,
+        filterOption: true,
         requestService: {
           url: '/audit/getAuditBases',
           method: 'GET',
