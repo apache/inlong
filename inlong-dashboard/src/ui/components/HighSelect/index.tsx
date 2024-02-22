@@ -170,9 +170,9 @@ const HighSelect: React.FC<HighSelectProps> = ({
       onDropdownVisibleChange={onDropdownVisibleChange}
       onChange={onSelectChange}
       filterOption={
-        options.filterOption
+        options?.filterOption === true
           ? (input, option) => (option?.label ?? '').toString().includes(input)
-          : options.filterOption
+          : false
       }
       value={
         useInput && diyState
