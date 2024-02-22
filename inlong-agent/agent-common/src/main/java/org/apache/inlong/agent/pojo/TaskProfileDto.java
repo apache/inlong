@@ -19,6 +19,7 @@ package org.apache.inlong.agent.pojo;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
+import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.pojo.FileTask.FileTaskConfig;
 import org.apache.inlong.agent.pojo.FileTask.Line;
 import org.apache.inlong.common.constant.MQType;
@@ -411,6 +412,7 @@ public class TaskProfileDto {
         task.setVersion(dataConfig.getVersion());
         task.setState(dataConfig.getState());
         task.setPredefinedFields(dataConfig.getPredefinedFields());
+        task.setCycleUnit(CycleUnitType.REAL_TIME);
 
         // set sink type
         if (dataConfig.getDataReportType() == NORMAL_SEND_TO_DATAPROXY.ordinal()) {
@@ -443,6 +445,7 @@ public class TaskProfileDto {
             case FILE:
                 task.setTaskClass(DEFAULT_FILE_TASK);
                 FileTask fileTask = getFileJob(dataConfig);
+                task.setCycleUnit(fileTask.getCycleUnit());
                 task.setFileTask(fileTask);
                 task.setSource(DEFAULT_SOURCE);
                 profileDto.setTask(task);
@@ -519,6 +522,7 @@ public class TaskProfileDto {
         private String taskClass;
         private String predefinedFields;
         private Integer state;
+        private String cycleUnit;
 
         private FileTask fileTask;
         private BinlogJob binlogJob;
