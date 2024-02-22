@@ -87,9 +87,11 @@ export const getFormContent = (initialValues, onSearch) => [
     name: 'benchmark',
     props: {
       allowClear: true,
+      showSearch: true,
       dropdownMatchSelectWidth: false,
       options: {
         requestAuto: true,
+        filterOption: true,
         requestService: {
           url: '/audit/getAuditBases',
           method: 'GET',
@@ -110,9 +112,11 @@ export const getFormContent = (initialValues, onSearch) => [
     name: 'compared',
     props: {
       allowClear: true,
+      showSearch: true,
       dropdownMatchSelectWidth: false,
       options: {
         requestAuto: true,
+        filterOption: true,
         requestService: {
           url: '/audit/getAuditBases',
           method: 'GET',
