@@ -140,8 +140,8 @@ export const getFormContent = initialValues => [
         requestAuto: true,
         requestTrigger: ['onOpen', 'onSearch'],
         requestService: async keyword => {
-          const req = await request('/audit/getAuditBases');
-          return keyword === undefined ? req : req.filter(audit => audit.name.includes(keyword));
+          const res = await request('/audit/getAuditBases');
+          return keyword === undefined ? res : res.filter(audit => audit.name.includes(keyword));
         },
         requestParams: {
           formatResult: result =>
@@ -165,8 +165,8 @@ export const getFormContent = initialValues => [
         requestAuto: true,
         requestTrigger: ['onOpen', 'onSearch'],
         requestService: async keyword => {
-          const req = await request('/audit/getAuditBases');
-          return keyword === undefined ? req : req.filter(audit => audit.name.includes(keyword));
+          const res = await request('/audit/getAuditBases');
+          return keyword === undefined ? res : res.filter(audit => audit.name.includes(keyword));
         },
         requestParams: {
           formatResult: result =>
