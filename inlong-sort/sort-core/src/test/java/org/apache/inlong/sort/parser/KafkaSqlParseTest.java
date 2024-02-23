@@ -126,6 +126,16 @@ public class KafkaSqlParseTest extends AbstractTestBase {
                 null, "1665198979108");
     }
 
+    private KafkaExtractNode buildUpsertKafkaExtract() {
+        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
+                new FieldInfo("name", new StringFormatInfo()),
+                new FieldInfo("age", new IntFormatInfo()));
+        return new KafkaExtractNode("1", "upsert-kafka_input", fields, null,
+                null, "topic_input", "localhost:9092",
+                new JsonFormat(), null, "id", "groupId",
+                null, null);
+    }
+
     private Node buildMysqlLoadNodeForRawFormat() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("log", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays
@@ -154,6 +164,33 @@ public class KafkaSqlParseTest extends AbstractTestBase {
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildKafkaExtractTimestamp();
         Node outputNode = buildMysqlLoadNodeForRawFormat();
+        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
+                Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
+                        Collections.singletonList(outputNode))));
+        GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
+        FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
+        ParseResult result = parser.parse();
+        Assert.assertTrue(result.tryExecute());
+    }
+
+    /**
+     * Test flink sql task for extract is upsert-kafka {@link KafkaExtractNode} and load is mysql {@link MySqlLoadNode}
+     *
+     * @throws Exception The exception may be thrown when executing
+     */
+    @Test
+    public void testUpsertKafkaExtractNodeSqlParse() throws Exception {
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+        env.enableCheckpointing(10000);
+        env.disableOperatorChaining();
+        EnvironmentSettings settings = EnvironmentSettings
+                .newInstance()
+                .inStreamingMode()
+                .build();
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
+        Node inputNode = buildUpsertKafkaExtract();
+        Node outputNode = buildMysqlLoadNode();
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
                         Collections.singletonList(outputNode))));

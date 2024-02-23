@@ -31,9 +31,6 @@
     <name>Apache InLong - Sort Format-RowData-Json</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
         <flink.jackson.version>2.12.4-15.0</flink.jackson.version>
         <inlong.root.dir>${project.parent.parent.parent.parent.basedir}</inlong.root.dir>
     </properties>
@@ -114,52 +111,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <profiles>
-        <profile>
-            <id>japicmp-report</id>
-            <activation>
-                <property>
-                    <name>japicmp-report</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.github.siom79.japicmp</groupId>
-                        <artifactId>japicmp-maven-plugin</artifactId>
-                        <configuration>
-                            <parameter>
-                                <breakBuildOnBinaryIncompatibleModifications>false</breakBuildOnBinaryIncompatibleModifications>
-                                <breakBuildOnSourceIncompatibleModifications>false</breakBuildOnSourceIncompatibleModifications>
-                            </parameter>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>japicmp-check</id>
-            <activation>
-                <property>
-                    <name>!japicmp-report</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.github.siom79.japicmp</groupId>
-                        <artifactId>japicmp-maven-plugin</artifactId>
-                        <configuration>
-                            <parameter>
-                                <excludes>
-                                    <exclude>org.apache.inlong.sort.formats.json.JsonRowDataDeserializationSchema</exclude>
-                                    <exclude>org.apache.inlong.sort.formats.json.JsonRowDataSerializationSchema</exclude>
-                                </excludes>
-                            </parameter>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

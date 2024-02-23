@@ -66,7 +66,8 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_FILE_TIME_OFFSET = "task.fileTask.timeOffset";
     public static final String TASK_FILE_TIME_ZONE = "task.fileTask.timeZone";
     public static final String TASK_FILE_MAX_WAIT = "task.fileTask.file.max.wait";
-    public static final String TASK_CYCLE_UNIT = "task.fileTask.cycleUnit";
+    public static final String TASK_CYCLE_UNIT = "task.cycleUnit";
+    public static final String FILE_TASK_CYCLE_UNIT = "task.fileTask.cycleUnit";
     public static final String TASK_FILE_TRIGGER_TYPE = "task.fileTask.collectType";
     public static final String JOB_FILE_LINE_END_PATTERN = "job.fileTask.line.endPattern";
     public static final String JOB_FILE_CONTENT_COLLECT_TYPE = "job.fileTask.contentCollectType";

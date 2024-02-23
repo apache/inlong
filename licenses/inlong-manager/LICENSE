@@ -599,10 +599,6 @@ Apache 2.0 License
 The following components are provided under the Apache License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  com.typesafe.akka:akka-actor_2.11:2.5.21 - akka-actor (https://github.com/akka/akka/tree/v2.5.21), (Apache License, Version 2.0)
-  com.typesafe.akka:akka-protobuf_2.11:2.5.21 - akka-protobuf (https://github.com/akka/akka/tree/v2.5.21), (Apache License, Version 2.0)
-  com.typesafe.akka:akka-slf4j_2.11:2.5.21 - akka-slf4j (https://github.com/akka/akka/tree/v2.5.21), (Apache License, Version 2.0)
-  com.typesafe.akka:akka-stream_2.11:2.5.21 - akka-stream (https://github.com/akka/akka/tree/v2.5.21), (Apache License, Version 2.0)
   org.apache.ant:ant:1.9.1 - Apache Ant Core (http://ant.apache.org/), (The Apache Software License, Version 2.0)
   org.apache.ant:ant-launcher:1.9.1 - Apache Ant Launcher (http://ant.apache.org/), (The Apache Software License, Version 2.0)
   net.bytebuddy:byte-buddy:1.12.9 - Byte Buddy (without dependencies) (https://github.com/raphw/byte-buddy/tree/byte-buddy-1.12.9), (Apache License, Version 2.0)
@@ -702,7 +698,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   com.esotericsoftware.kryo:kryo:2.24.0 - Kryo (https://github.com/EsotericSoftware/kryo/tree/kryo-2.24.0), (New BSD License)
   org.fusesource.leveldbjni:leveldbjni-all:1.8 - leveldbjni-all (https://github.com/fusesource/leveldbjni/tree/leveldbjni-1.8), (The BSD 3-Clause License)
   com.esotericsoftware.minlog:minlog:1.2 - MinLog (https://github.com/EsotericSoftware/minlog/tree/1.2), (New BSD License)
-  org.postgresql:postgresql:42.4.3 - PostgreSQL JDBC Driver (https://jdbc.postgresql.org), (BSD-2-Clause)
+  org.postgresql:postgresql:42.4.4 - PostgreSQL JDBC Driver (https://jdbc.postgresql.org), (BSD-2-Clause)
   com.google.protobuf:protobuf-java:3.19.6 - Protocol Buffers [Core] (https://github.com/protocolbuffers/protobuf/tree/v3.19.6), (3-Clause BSD License)
   org.scala-lang:scala-compiler:2.11.12 - Scala Compiler (http://www.scala-lang.org/), (BSD 3-Clause)
   org.scala-lang.modules:scala-java8-compat_2.11:0.7.0 - scala-java8-compat (https://github.com/scala/scala-java8-compat/tree/v0.7.0), (BSD 3-clause)

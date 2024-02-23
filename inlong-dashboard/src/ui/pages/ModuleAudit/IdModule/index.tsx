@@ -40,8 +40,8 @@ const Comp: React.FC = () => {
       method: 'POST',
       data: {
         ...query,
-        startDate: timestampFormat(query.startDate, 'yyyy-MM-dd'),
-        endDate: timestampFormat(query.endDate, 'yyyy-MM-dd'),
+        startDate: timestampFormat(query.startDate, 'yyyy-MM-dd HH:mm:ss'),
+        endDate: timestampFormat(query.endDate, 'yyyy-MM-dd HH:mm:ss'),
       },
     },
     {

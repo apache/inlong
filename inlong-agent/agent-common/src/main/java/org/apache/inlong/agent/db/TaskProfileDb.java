@@ -19,7 +19,6 @@ package org.apache.inlong.agent.db;
 
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
-import org.apache.inlong.agent.constant.TaskConstants;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +62,7 @@ public class TaskProfileDb {
         if (task.allRequiredKeyExist()) {
             String keyName = getKeyByTaskId(task.getTaskId());
             KeyValueEntity entity = new KeyValueEntity(keyName,
-                    task.toJsonStr(), task.get(TaskConstants.FILE_DIR_FILTER_PATTERNS));
+                    task.toJsonStr(), "");
             db.put(entity);
         }
     }

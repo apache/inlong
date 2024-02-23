@@ -45,6 +45,8 @@ import org.apache.inlong.manager.pojo.audit.AuditSourceResponse;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
+import org.apache.inlong.manager.service.audit.InlongAuditSourceOperator;
+import org.apache.inlong.manager.service.audit.InlongAuditSourceOperatorFactory;
 import org.apache.inlong.manager.service.core.AuditService;
 import org.apache.inlong.manager.service.resource.sink.ck.ClickHouseConfig;
 import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi;
@@ -142,6 +144,8 @@ public class AuditServiceImpl implements AuditService {
     private AuditSourceEntityMapper auditSourceMapper;
     @Autowired
     private InlongGroupEntityMapper inlongGroupMapper;
+    @Autowired
+    private InlongAuditSourceOperatorFactory auditSourceOperatorFactory;
 
     @PostConstruct
     public void initialize() {
@@ -178,6 +182,9 @@ public class AuditServiceImpl implements AuditService {
 
     @Override
     public Integer updateAuditSource(AuditSourceRequest request, String operator) {
+        InlongAuditSourceOperator auditSourceOperator = auditSourceOperatorFactory.getInstance(request.getType());
+        request.setUrl(auditSourceOperator.convertTo(request.getUrl()));
+
         String offlineUrl = request.getOfflineUrl();
         if (StringUtils.isNotBlank(offlineUrl)) {
             auditSourceMapper.offlineSourceByUrl(offlineUrl);

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
+import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.message.file.ProxyMessageCache;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
@@ -58,6 +59,7 @@ public abstract class AbstractSink implements Sink {
     protected int batchFlushInterval;
     // key is stream id, value is a batch of messages belong to the same stream id
     protected ProxyMessageCache cache;
+    private static final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
 
     @Override
     public void setSourceName(String sourceFileName) {
@@ -71,7 +73,7 @@ public abstract class AbstractSink implements Sink {
         inlongGroupId = profile.getInlongGroupId();
         inlongStreamId = profile.getInlongStreamId();
         cache = new ProxyMessageCache(this.profile, inlongGroupId, inlongStreamId);
-        batchFlushInterval = profile.getInt(PROXY_BATCH_FLUSH_INTERVAL, DEFAULT_PROXY_BATCH_FLUSH_INTERVAL);
+        batchFlushInterval = agentConf.getInt(PROXY_BATCH_FLUSH_INTERVAL, DEFAULT_PROXY_BATCH_FLUSH_INTERVAL);
 
         this.dimensions = new HashMap<>();
         dimensions.put(KEY_PLUGIN_ID, this.getClass().getSimpleName());
