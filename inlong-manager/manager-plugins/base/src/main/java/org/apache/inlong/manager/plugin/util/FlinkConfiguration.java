@@ -26,6 +26,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.Properties;
 
 import static org.apache.inlong.common.constant.Constants.METRICS_AUDIT_PROXY_HOSTS_KEY;
@@ -81,6 +83,30 @@ public class FlinkConfiguration {
 
         LOGGER.info("after format, {} located in {}", DEFAULT_CONFIG_FILE, confPath);
         return confPath;
+    }
+
+    /**
+     * set flink config from Map k-v
+     */
+    public void setFlinkConfig(Map<String, String> flinkConfigMap) throws Exception {
+        Class<?> clazz = FlinkConfig.class;
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            String fieldName = field.getName();
+            String value = flinkConfigMap.get(fieldName);
+            if (value != null) {
+                if (field.getType() == Integer.class) {
+                    field.setAccessible(true);
+                    field.set(flinkConfig, Integer.valueOf(value));
+                } else if (field.getType() == String.class) {
+                    field.setAccessible(true);
+                    field.set(flinkConfig, value);
+                } else if (field.getType() == boolean.class) {
+                    field.setAccessible(true);
+                    field.set(flinkConfig, Boolean.parseBoolean(value));
+                }
+            }
+        }
     }
 
     /**
