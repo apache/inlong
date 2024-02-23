@@ -46,7 +46,6 @@ export interface HighSelectProps extends Omit<SelectProps<any>, 'options'> {
         requestParams?: unknown;
         requestAuto?: boolean;
         requestTrigger?: ('onOpen' | 'onSearch')[];
-        filterOption?: boolean;
       };
   asyncValueLabel?: string;
   useInput?: boolean;
@@ -169,11 +168,6 @@ const HighSelect: React.FC<HighSelectProps> = ({
       onSearch={options?.requestTrigger?.includes('onSearch') ? onSearch : rest.onSearch}
       onDropdownVisibleChange={onDropdownVisibleChange}
       onChange={onSelectChange}
-      filterOption={
-        options?.filterOption === true
-          ? (input, option) => (option?.label ?? '').toString().includes(input)
-          : false
-      }
       value={
         useInput && diyState
           ? '__DIYState'

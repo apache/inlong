@@ -19,6 +19,7 @@
 
 import dayjs from 'dayjs';
 import i18n from '@/i18n';
+import request from '@/core/utils/request';
 
 export const toChartData = (source, sourceDataMap) => {
   const xAxisData = Object.keys(sourceDataMap);
@@ -91,10 +92,10 @@ export const getFormContent = (initialValues, onSearch) => [
       dropdownMatchSelectWidth: false,
       options: {
         requestAuto: true,
-        filterOption: true,
-        requestService: {
-          url: '/audit/getAuditBases',
-          method: 'GET',
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: async keyword => {
+          const req = await request('/audit/getAuditBases');
+          return keyword === undefined ? req : req.filter(audit => audit.name.includes(keyword));
         },
         requestParams: {
           formatResult: result =>
@@ -116,10 +117,10 @@ export const getFormContent = (initialValues, onSearch) => [
       dropdownMatchSelectWidth: false,
       options: {
         requestAuto: true,
-        filterOption: true,
-        requestService: {
-          url: '/audit/getAuditBases',
-          method: 'GET',
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: async keyword => {
+          const req = await request('/audit/getAuditBases');
+          return keyword === undefined ? req : req.filter(audit => audit.name.includes(keyword));
         },
         requestParams: {
           formatResult: result =>

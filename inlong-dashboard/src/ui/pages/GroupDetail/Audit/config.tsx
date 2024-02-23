@@ -22,6 +22,7 @@ import { Button } from 'antd';
 import dayjs from 'dayjs';
 import i18n from '@/i18n';
 import { sinks } from '@/plugins/sinks';
+import request from '@/core/utils/request';
 
 export const timeStaticsDimList = [
   {
@@ -213,12 +214,14 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
       mode: 'multiple',
       maxTagCount: 3,
       allowClear: true,
+      showSearch: true,
       dropdownMatchSelectWidth: false,
       options: {
         requestAuto: true,
-        requestService: {
-          url: '/audit/getAuditBases',
-          method: 'GET',
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: async keyword => {
+          const req = await request('/audit/getAuditBases');
+          return keyword === undefined ? req : req.filter(audit => audit.name.includes(keyword));
         },
         requestParams: {
           formatResult: result =>
