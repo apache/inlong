@@ -83,6 +83,9 @@ public abstract class StreamSource extends StreamNode {
     @ApiModelProperty("Snapshot of this source task")
     private String snapshot;
 
+    @ApiModelProperty("Agent Time zone")
+    private String agentTimeZone;
+
     @ApiModelProperty("Version")
     private Integer version;
 

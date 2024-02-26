@@ -588,6 +588,7 @@ public class AgentServiceImpl implements AgentService {
         dataConfig.setTaskType(getTaskType(entity));
         dataConfig.setTaskName(entity.getSourceName());
         dataConfig.setSnapshot(entity.getSnapshot());
+        dataConfig.setTimeZone(entity.getAgentTimeZone());
         dataConfig.setVersion(entity.getVersion());
 
         String groupId = entity.getInlongGroupId();

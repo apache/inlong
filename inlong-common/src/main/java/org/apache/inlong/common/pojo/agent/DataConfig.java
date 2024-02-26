@@ -49,6 +49,7 @@ public class DataConfig {
     private String syncPartitionKey;
     private Integer state;
     private String predefinedFields;
+    private String timeZone;
     private String extParams;
     /**
      * The task version.
