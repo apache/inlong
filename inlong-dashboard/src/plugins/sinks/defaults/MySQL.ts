@@ -187,7 +187,7 @@ const getFieldListColumns = sinkValues => {
       rules: [
         { required: true },
         {
-          pattern: /^[a-z][0-9a-z_]*$/,
+          pattern: /^[a-zA-Z_][0-9a-z_]*$/,
           message: i18n.t('meta.Sinks.SinkFieldNameRule'),
         },
       ],
