@@ -25,6 +25,7 @@ import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -43,7 +44,7 @@ public interface InlongTenantApi {
     @GET("tenant/get/{name}")
     Call<Response<InlongTenantInfo>> get(@Path("name") String name);
 
-    @GET("tenant/delete/{name}")
+    @DELETE("tenant/delete/{name}")
     Call<Response<Boolean>> delete(@Path("name") String name);
 
     @GET("tenant/migrate/{group}/{tenant}")
