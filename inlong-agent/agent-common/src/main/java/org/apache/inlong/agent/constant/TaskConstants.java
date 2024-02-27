@@ -64,7 +64,7 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_DIR_FILTER_PATTERN = "task.fileTask.dir.pattern"; // deprecated
     public static final String FILE_DIR_FILTER_PATTERNS = "task.fileTask.dir.patterns";
     public static final String TASK_FILE_TIME_OFFSET = "task.fileTask.timeOffset";
-    public static final String TASK_FILE_TIME_ZONE = "task.fileTask.timeZone";
+    public static final String TASK_TIME_ZONE = "task.timeZone";
     public static final String TASK_FILE_MAX_WAIT = "task.fileTask.file.max.wait";
     public static final String TASK_CYCLE_UNIT = "task.cycleUnit";
     public static final String FILE_TASK_CYCLE_UNIT = "task.fileTask.cycleUnit";

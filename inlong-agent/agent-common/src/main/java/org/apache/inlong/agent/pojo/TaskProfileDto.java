@@ -147,9 +147,6 @@ public class TaskProfileDto {
         if (taskConfig.getTimeOffset() != null) {
             fileTask.setTimeOffset(taskConfig.getTimeOffset());
         }
-        if (taskConfig.getTimeZone() != null) {
-            fileTask.setTimeZone(taskConfig.getTimeZone());
-        }
 
         if (taskConfig.getAdditionalAttr() != null) {
             fileTask.setAddictiveString(taskConfig.getAdditionalAttr());
@@ -413,6 +410,7 @@ public class TaskProfileDto {
         task.setState(dataConfig.getState());
         task.setPredefinedFields(dataConfig.getPredefinedFields());
         task.setCycleUnit(CycleUnitType.REAL_TIME);
+        task.setTimeZone(dataConfig.getTimeZone());
 
         // set sink type
         if (dataConfig.getDataReportType() == NORMAL_SEND_TO_DATAPROXY.ordinal()) {
@@ -523,6 +521,7 @@ public class TaskProfileDto {
         private String predefinedFields;
         private Integer state;
         private String cycleUnit;
+        private String timeZone;
 
         private FileTask fileTask;
         private BinlogJob binlogJob;
