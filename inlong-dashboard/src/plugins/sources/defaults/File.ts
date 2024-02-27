@@ -207,5 +207,5 @@ export default class PulsarSource
   })
   @IngestionField()
   @I18n('meta.Sources.File.TimeZone')
-  agentTimeZone: string;
+  dataTimeZone: string;
 }
