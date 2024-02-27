@@ -377,8 +377,8 @@ public class AuditServiceImpl implements AuditService {
             }
             if (AuditQuerySource.MYSQL == querySource) {
                 // Support min agg at now
-                DateTime endDate = DAY_DATE_FORMATTER.parseDateTime(request.getEndDate());
-                String endDateStr = endDate.plusDays(1).toString(DAY_DATE_FORMATTER);
+                DateTime endDate = SECOND_DATE_FORMATTER.parseDateTime(request.getEndDate());
+                String endDateStr = endDate.plusDays(1).toString(SECOND_DATE_FORMATTER);
                 List<Map<String, Object>> sumList = auditEntityMapper.sumGroupByIp(
                         request.getInlongGroupId(), request.getInlongStreamId(), auditId, request.getStartDate(),
                         endDateStr);
