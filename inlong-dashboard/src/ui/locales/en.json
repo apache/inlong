@@ -35,7 +35,6 @@
   "meta.Sources.File.TimeOffsetHelp": "The file will be collected from a certain time,' 1m' means 1 minute later,' -1m' means 1 minute before, and m(minute), h(hour), d(day) are supported. If it is empty, the file will be collected from the current time",
   "meta.Sources.File.TimeOffsetRules": "Can only contain numbers and letters m, h, d",
   "meta.Sources.File.MaxFileCount": "Max file count",
-  "meta.Sources.File.DataContentStyle": "Data content style",
   "meta.Sources.File.Cycle": "Cycle",
   "meta.Sources.File.Cycle.Day": "Day",
   "meta.Sources.File.Cycle.Hour": "Hour",

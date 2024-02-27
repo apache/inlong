@@ -152,28 +152,6 @@ export default class PulsarSource
 
   @FieldDecorator({
     type: 'radio',
-    rules: [{ required: true }],
-    initialValue: 'default',
-    props: values => ({
-      disabled: Boolean(values.id),
-      options: [
-        {
-          label: 'Default',
-          value: 'default',
-        },
-        {
-          label: 'Mix',
-          value: 'mix',
-        },
-      ],
-    }),
-  })
-  @IngestionField()
-  @I18n('meta.Sources.File.DataContentStyle')
-  dataContentStyle: string;
-
-  @FieldDecorator({
-    type: 'radio',
     props: values => ({
       disabled: Boolean(values.id),
       options: [
@@ -229,5 +207,5 @@ export default class PulsarSource
   })
   @IngestionField()
   @I18n('meta.Sources.File.TimeZone')
-  timeZone: string;
+  agentTimeZone: string;
 }
