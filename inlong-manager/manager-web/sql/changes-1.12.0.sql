@@ -23,6 +23,6 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 USE `apache_inlong_manager`;
 
-ALTER TABLE `stream_source` ADD COLUMN  `agent_time_zone` varchar(256) DEFAULT NULL COMMENT 'Agent time zone';
+ALTER TABLE `stream_source` ADD COLUMN  `data_time_zone` varchar(256) DEFAULT NULL COMMENT 'Data time zone';
 
 
