@@ -35,6 +35,7 @@
         <result column="serialization_type" jdbcType="VARCHAR" property="serializationType"/>
         <result column="snapshot" jdbcType="LONGVARCHAR" property="snapshot"/>
         <result column="report_time" jdbcType="TIMESTAMP" property="reportTime"/>
+        <result column="data_time_zone" jdbcType="VARCHAR" property="dataTimeZone"/>
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
         <result column="version" jdbcType="INTEGER" property="version"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
@@ -48,7 +49,7 @@
     <sql id="Base_Column_List">
         id, inlong_group_id, inlong_stream_id, source_type, source_name, template_id, agent_ip, uuid,
         data_node_name, inlong_cluster_name, inlong_cluster_node_group, serialization_type, snapshot, report_time,
-        ext_params, version, status, previous_status, is_deleted, creator, modifier, create_time, modify_time
+        data_time_zone, ext_params, version, status, previous_status, is_deleted, creator, modifier, create_time, modify_time
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
@@ -56,15 +57,15 @@
         insert into stream_source (inlong_group_id, inlong_stream_id,
                                    source_type, source_name, template_id, agent_ip,
                                    uuid, data_node_name, inlong_cluster_name, inlong_cluster_node_group,
-                                   serialization_type, snapshot,
-                                   report_time, ext_params, status,
+                                   serialization_type, snapshot, report_time,
+                                   data_time_zone, ext_params, status,
                                    previous_status, creator, modifier)
         values (#{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{sourceType,jdbcType=VARCHAR}, #{sourceName,jdbcType=VARCHAR}, #{templateId,jdbcType=INTEGER},
                 #{agentIp,jdbcType=VARCHAR}, #{uuid,jdbcType=VARCHAR}, #{dataNodeName,jdbcType=VARCHAR},
                 #{inlongClusterName,jdbcType=VARCHAR}, #{inlongClusterNodeGroup,jdbcType=VARCHAR},
-                #{serializationType,jdbcType=VARCHAR}, #{snapshot,jdbcType=LONGVARCHAR},
-                #{modifyTime,jdbcType=TIMESTAMP}, #{extParams,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER},
+                #{serializationType,jdbcType=VARCHAR}, #{snapshot,jdbcType=LONGVARCHAR},#{modifyTime,jdbcType=TIMESTAMP},
+                #{dataTimeZone,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER},
                 #{previousStatus,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
     </insert>
 
@@ -400,6 +401,9 @@
             <if test="reportTime != null">
                 report_time = #{reportTime,jdbcType=TIMESTAMP},
             </if>
+            <if test="dataTimeZone != null">
+                data_time_zone = #{dataTimeZone,jdbcType=VARCHAR},
+            </if>
             <if test="extParams != null">
                 ext_params = #{extParams,jdbcType=LONGVARCHAR},
             </if>
@@ -437,6 +441,7 @@
             serialization_type  = #{serializationType,jdbcType=VARCHAR},
             snapshot            = #{snapshot,jdbcType=LONGVARCHAR},
             report_time         = #{reportTime,jdbcType=TIMESTAMP},
+            data_time_zone      = #{dataTimeZone,jdbcType=VARCHAR},
             ext_params          = #{extParams,jdbcType=LONGVARCHAR},
             version             = #{version,jdbcType=INTEGER} + 1,
             status              = #{status,jdbcType=INTEGER},

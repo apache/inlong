@@ -101,6 +101,9 @@ public class SourceRequest {
     @Length(min = 1, max = 163840, message = "length must be between 1 and 163840")
     private String snapshot;
 
+    @ApiModelProperty("Data Time zone")
+    private String dataTimeZone;
+
     @ApiModelProperty(value = "Whether to sync schema from source after saving or updating. Default is false")
     private Boolean enableSyncSchema = false;
 

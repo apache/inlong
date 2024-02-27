@@ -47,6 +47,7 @@ public class StreamSourceEntity implements Serializable {
     private String serializationType;
     private String snapshot;
     private Date reportTime;
+    private String dataTimeZone;
 
     // extParams saved filePath, fileRollingType, dbName, tableName, etc.
     private String extParams;
