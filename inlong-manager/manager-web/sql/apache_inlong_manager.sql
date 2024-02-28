@@ -355,6 +355,7 @@ CREATE TABLE IF NOT EXISTS `stream_source`
     `agent_ip`            varchar(40)           DEFAULT NULL COMMENT 'Ip of the agent running the task, NULL if this is a template task',
     `uuid`                varchar(30)           DEFAULT NULL COMMENT 'Mac uuid of the agent running the task',
     `data_node_name`      varchar(128)          DEFAULT NULL COMMENT 'Node name, which links to data_node table',
+    `data_time_zone`      varchar(256)          DEFAULT NULL COMMENT 'Data time zone',
     `inlong_cluster_name` varchar(128)          DEFAULT NULL COMMENT 'Cluster name of the agent running the task',
     `inlong_cluster_node_group` varchar(512)      DEFAULT NULL COMMENT 'Cluster node group',
     `serialization_type`  varchar(20)           DEFAULT NULL COMMENT 'Serialization type, support: csv, json, canal, avro, etc',
