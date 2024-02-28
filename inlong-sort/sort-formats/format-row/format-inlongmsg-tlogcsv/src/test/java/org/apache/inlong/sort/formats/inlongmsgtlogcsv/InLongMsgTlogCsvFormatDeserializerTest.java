@@ -272,7 +272,7 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
         }
 
         @Override
-        public void onParsingBodyFailure(byte[] body, Exception exception) throws Exception {
+        public void onParsingBodyFailure(InLongMsgHead head, byte[] body, Exception exception) throws Exception {
             bodyCount++;
         }
 

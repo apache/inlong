@@ -34,8 +34,8 @@ public class NoOpFailureHandler implements FailureHandler {
     }
 
     @Override
-    public void onParsingBodyFailure(byte[] body, Exception exception) throws Exception {
-        LOG.error("Cannot properly parse the body: {}.", new String(body), exception);
+    public void onParsingBodyFailure(InLongMsgHead head, byte[] body, Exception exception) throws Exception {
+        LOG.error("Cannot properly parse the head: {}, the body: {}.", head, new String(body), exception);
         throw exception;
     }
 
