@@ -31,7 +31,6 @@
     <name>Apache InLong - Sort Format-InLongMsg-RowData-Binlog</name>
 
     <properties>
-        <binlog.protobuf.version>2.5.0</binlog.protobuf.version>
         <inlong.root.dir>${project.parent.parent.parent.parent.basedir}</inlong.root.dir>
     </properties>
 
@@ -56,7 +55,7 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>${binlog.protobuf.version}</version>
+            <version>${protobuf.version}</version>
             <type>jar</type>
         </dependency>
 
