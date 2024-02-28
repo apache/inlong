@@ -40,7 +40,7 @@ public interface FailureHandler extends Serializable {
      * @param exception the thrown exception
      * @throws Exception the exception
      */
-    void onParsingBodyFailure(byte[] body, Exception exception) throws Exception;
+    void onParsingBodyFailure(InLongMsgHead head, byte[] body, Exception exception) throws Exception;
 
     /**
      * This method is called when there is a failure occurred while converting head and body to row.
