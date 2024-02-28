@@ -361,6 +361,7 @@ CREATE TABLE IF NOT EXISTS `stream_source`
     `snapshot`            mediumtext            DEFAULT NULL COMMENT 'Snapshot of this source task',
     `report_time`         timestamp    NULL COMMENT 'Snapshot time',
     `ext_params`          mediumtext            DEFAULT NULL COMMENT 'Another fields will be saved as JSON string, such as filePath, dbName, tableName, etc',
+    `data_time_zone`      varchar(256)          DEFAULT NULL COMMENT 'Data time zone',
     `version`             int(11)               DEFAULT '1' COMMENT 'Stream source version',
     `status`              int(4)                DEFAULT '110' COMMENT 'Stream source status',
     `previous_status`     int(4)                DEFAULT '110' COMMENT 'Previous status',
