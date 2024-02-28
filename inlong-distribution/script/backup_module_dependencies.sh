@@ -72,6 +72,3 @@ cd $projectpath/..
 tar cvf $lastname-bin.tar $lastname
 gzip $lastname-bin.tar
 mv $lastname-bin.tar.gz ../
-cd ..
-rm -fr $lastname-bin.tar.gz.asc
-gpg -ab $lastname-bin.tar.gz
