@@ -46,10 +46,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.agent.constant.TaskConstants.JOB_KAFKA_BYTE_SPEED_LIMIT;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_KAFKA_OFFSET;
 import static org.apache.inlong.agent.constant.TaskConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
 import static org.apache.inlong.agent.constant.TaskConstants.JOB_KAFKA_RECORD_SPEED_LIMIT;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_KAFKA_TOPIC;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_KAFKA_OFFSET;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_KAFKA_TOPIC;
 
 /**
  * read kafka data
@@ -99,7 +99,7 @@ public class KafkaReader<K, V> extends AbstractReader {
         this.byteSpeed = Long.parseLong(paraMap.getOrDefault(JOB_KAFKA_BYTE_SPEED_LIMIT, String.valueOf(1024 * 1024)));
         this.flowControlInterval = Long.parseLong(paraMap.getOrDefault(KAFKA_SOURCE_READ_MIN_INTERVAL, "1000"));
         this.lastTimestamp = System.currentTimeMillis();
-        this.topic = paraMap.get(JOB_KAFKA_TOPIC);
+        this.topic = paraMap.get(TASK_KAFKA_TOPIC);
 
         LOGGER.info("KAFKA_SOURCE_READ_RECORD_SPEED = {}", this.recordSpeed);
         LOGGER.info("KAFKA_SOURCE_READ_BYTE_SPEED = {}", this.byteSpeed);
@@ -174,7 +174,7 @@ public class KafkaReader<K, V> extends AbstractReader {
     public void init(InstanceProfile jobConf) {
         super.init(jobConf);
         // get offset from jobConf
-        snapshot = jobConf.get(JOB_KAFKA_OFFSET, null);
+        snapshot = jobConf.get(TASK_KAFKA_OFFSET, null);
         initReadTimeout(jobConf);
         // fetch data
         fetchData(5000);

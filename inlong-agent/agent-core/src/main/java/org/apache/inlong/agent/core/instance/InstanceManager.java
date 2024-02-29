@@ -47,6 +47,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.apache.inlong.agent.constant.TaskConstants.RESTORE_FROM_DB;
+
 /**
  * handle the instance created by task, including add, delete, update etc.
  * the instance info is store in both db and memory.
@@ -339,6 +341,7 @@ public class InstanceManager extends AbstractDaemon {
             if (state == InstanceStateEnum.DEFAULT) {
                 LOGGER.info("instance restoreFromDb addToMem state {} taskId {} instanceId {}", state, taskId,
                         profile.getInstanceId());
+                profile.setBoolean(RESTORE_FROM_DB, true);
                 addToMemory(profile);
             } else {
                 LOGGER.info("instance restoreFromDb ignore state {} taskId {} instanceId {}", state, taskId,

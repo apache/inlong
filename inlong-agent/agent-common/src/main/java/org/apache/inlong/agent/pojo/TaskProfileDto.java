@@ -38,6 +38,7 @@ import static org.apache.inlong.common.enums.DataReportTypeEnum.NORMAL_SEND_TO_D
 public class TaskProfileDto {
 
     public static final String DEFAULT_FILE_TASK = "org.apache.inlong.agent.plugin.task.file.LogFileTask";
+    public static final String DEFAULT_KAFKA_TASK = "org.apache.inlong.agent.plugin.task.KafkaTask";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
     public static final String DEFAULT_DATA_PROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
@@ -190,7 +191,7 @@ public class TaskProfileDto {
         bootstrap.setServers(kafkaJobTaskConfig.getBootstrapServers());
         kafkaJob.setBootstrap(bootstrap);
         KafkaJob.Partition partition = new KafkaJob.Partition();
-        partition.setOffset(dataConfigs.getSnapshot());
+        partition.setOffset(kafkaJobTaskConfig.getPartitionOffsets());
         kafkaJob.setPartition(partition);
         KafkaJob.Group group = new KafkaJob.Group();
         group.setId(kafkaJobTaskConfig.getGroupId());
@@ -449,6 +450,7 @@ public class TaskProfileDto {
                 profileDto.setTask(task);
                 break;
             case KAFKA:
+                task.setTaskClass(DEFAULT_KAFKA_TASK);
                 KafkaJob kafkaJob = getKafkaJob(dataConfig);
                 task.setKafkaJob(kafkaJob);
                 task.setSource(KAFKA_SOURCE);
