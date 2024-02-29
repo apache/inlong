@@ -59,7 +59,7 @@ public class AuditController {
     }
 
     @PostMapping(value = "/audit/listAll")
-    @ApiOperation(value = "Query audit list according to conditions")
+    @ApiOperation(value = "Query audit list all according to conditions")
     public Response<List<AuditVO>> listAll(@Valid @RequestBody AuditRequest request) throws Exception {
         return Response.success(auditService.listAll(request));
     }
