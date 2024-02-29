@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.plugin.instance;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
+import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.core.instance.ActionType;
 import org.apache.inlong.agent.core.instance.InstanceAction;
 import org.apache.inlong.agent.core.instance.InstanceManager;
@@ -61,6 +62,7 @@ public class KafkaInstance extends Instance {
         try {
             instanceManager = (InstanceManager) srcManager;
             profile = srcProfile;
+            profile.set(TaskConstants.INODE_INFO, "");
             LOGGER.info("task id: {} submit new instance {} profile detail {}.", profile.getTaskId(),
                     profile.getInstanceId(), profile.toJsonStr());
             source = (Source) Class.forName(profile.getSourceClass()).newInstance();

@@ -64,6 +64,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_STREAM_
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_SIZE;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_PARTITION_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_QUEUE_PERMIT;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_SOURCE_PERMIT;
 import static org.apache.inlong.agent.constant.TaskConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
 import static org.apache.inlong.agent.constant.TaskConstants.JOB_OFFSET_DELIMITER;
 import static org.apache.inlong.agent.constant.TaskConstants.OFFSET;
@@ -109,6 +110,7 @@ public class KafkaSource extends AbstractSource {
     private final Integer CACHE_QUEUE_SIZE = 100000;
     private final Integer READ_WAIT_TIMEOUT_MS = 10;
     private final Integer EMPTY_CHECK_COUNT_AT_LEAST = 5 * 60;
+    private final Integer BATCH_TOTAL_LEN = 1024 * 1024;
 
     private static final String KAFKA_DESERIALIZER_METHOD =
             "org.apache.kafka.common.serialization.ByteArrayDeserializer";
@@ -206,7 +208,12 @@ public class KafkaSource extends AbstractSource {
     private void doRun(KafkaConsumer<String, byte[]> kafkaConsumer) {
         long lastPrintTime = 0;
         while (isRunnable()) {
+            boolean suc = waitForPermit(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_TOTAL_LEN);
+            if (!suc) {
+                break;
+            }
             ConsumerRecords<String, byte[]> records = kafkaConsumer.poll(Duration.ofMillis(1000));
+            MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_TOTAL_LEN);
             if (records.isEmpty()) {
                 if (queue.isEmpty()) {
                     emptyCount.incrementAndGet();
@@ -221,6 +228,10 @@ public class KafkaSource extends AbstractSource {
             for (ConsumerRecord<String, byte[]> record : records) {
                 LOGGER.info("record: {}", record.value());
                 SourceData sourceData = new SourceData(record.value(), record.offset());
+                boolean suc4Queue = waitForPermit(AGENT_GLOBAL_READER_QUEUE_PERMIT, record.value().length);
+                if (!suc4Queue) {
+                    break;
+                }
                 putIntoQueue(sourceData);
                 offset = record.offset();
             }
@@ -231,6 +242,21 @@ public class KafkaSource extends AbstractSource {
                 LOGGER.info("kafka topic is {}, offset is {}", topic, offset);
             }
         }
+    }
+
+    private boolean waitForPermit(String permitName, int permitLen) {
+        boolean suc = false;
+        while (!suc) {
+            suc = MemoryManager.getInstance().tryAcquire(permitName, permitLen);
+            if (!suc) {
+                MemoryManager.getInstance().printDetail(permitName, "log file source");
+                if (!isRunnable()) {
+                    return false;
+                }
+                AgentUtils.silenceSleepInSeconds(1);
+            }
+        }
+        return true;
     }
 
     private void putIntoQueue(SourceData sourceData) {
