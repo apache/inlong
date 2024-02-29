@@ -97,4 +97,22 @@ export default class KafkaSource
   @ColumnDecorator()
   @I18n('meta.Sources.Kafka.partitionOffsets')
   partitionOffsets: string;
+
+  @FieldDecorator({
+    type: 'select',
+    initialValue: 'GMT+8:00',
+    props: values => ({
+      disabled: Boolean(values.id),
+      options: [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11,
+        -12,
+      ].map(item => ({
+        label: Math.sign(item) === 1 || Math.sign(item) === 0 ? `GMT+${item}:00` : `GMT${item}:00`,
+        value: Math.sign(item) === 1 || Math.sign(item) === 0 ? `GMT+${item}:00` : `GMT${item}:00`,
+      })),
+    }),
+  })
+  @IngestionField()
+  @I18n('meta.Sources.File.TimeZone')
+  dataTimeZone: string;
 }

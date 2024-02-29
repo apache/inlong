@@ -68,7 +68,7 @@ export const getFormContent = (initialValues, onSearch) => [
     props: {
       allowClear: false,
       showTime: true,
-      format: 'YYYY-MM-DD HH:MM:ss',
+      format: 'YYYY-MM-DD HH:mm:ss',
     },
   },
   {
@@ -79,7 +79,7 @@ export const getFormContent = (initialValues, onSearch) => [
     props: {
       allowClear: false,
       showTime: true,
-      format: 'YYYY-MM-DD HH:MM:ss',
+      format: 'YYYY-MM-DD HH:mm:ss',
     },
   },
   {
