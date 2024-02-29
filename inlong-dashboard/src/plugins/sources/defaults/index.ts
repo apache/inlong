@@ -40,6 +40,12 @@ export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
     LoadEntity: () => import('./File'),
   },
   {
+    label: 'Kafka',
+    value: 'KAFKA',
+    useSync: false,
+    LoadEntity: () => import('./Kafka'),
+  },
+  {
     label: 'MySQL',
     value: 'MYSQL_BINLOG',
     LoadEntity: () => import('./MySQLBinlog'),
