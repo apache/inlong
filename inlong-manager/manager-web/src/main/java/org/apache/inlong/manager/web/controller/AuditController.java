@@ -58,6 +58,12 @@ public class AuditController {
         return Response.success(auditService.listByCondition(request));
     }
 
+    @PostMapping(value = "/audit/listAll")
+    @ApiOperation(value = "Query audit list according to conditions")
+    public Response<List<AuditVO>> listAll(@Valid @RequestBody AuditRequest request) throws Exception {
+        return Response.success(auditService.listAll(request));
+    }
+
     @ApiOperation(value = "Refresh audit base item cache")
     @PostMapping("/audit/refreshCache")
     public Response<Boolean> refreshCache() {
