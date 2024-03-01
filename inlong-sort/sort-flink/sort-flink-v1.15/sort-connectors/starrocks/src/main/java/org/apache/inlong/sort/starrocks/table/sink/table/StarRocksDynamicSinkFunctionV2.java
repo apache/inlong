@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.starrocks.table.sink.table;
 
-import org.apache.flink.util.StringUtils;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.starrocks.table.sink.utils.SchemaUtils;
@@ -56,6 +55,7 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.binary.NestedRowData;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.InstantiationUtil;
+import org.apache.flink.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
