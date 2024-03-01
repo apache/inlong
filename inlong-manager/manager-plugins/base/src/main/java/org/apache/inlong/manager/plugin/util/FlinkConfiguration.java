@@ -95,7 +95,7 @@ public class FlinkConfiguration {
      */
     private FlinkConfig getFlinkConfigFromFile(String fileName) throws IOException {
         Properties properties = new Properties();
-        try(BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName))) {
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName))) {
             properties.load(bufferedReader);
         }
         FlinkConfig flinkConfig = new FlinkConfig();
