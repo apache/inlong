@@ -122,7 +122,8 @@ public class RestartSortListener implements SortOperateListener {
             }
 
             FlinkInfo flinkInfo = new FlinkInfo();
-            String jobName = Constants.SORT_JOB_NAME_GENERATOR.apply(processForm) + streamInfo.getInlongStreamId();
+            String jobName = Constants.SORT_JOB_NAME_GENERATOR.apply(processForm) + InlongConstants.HYPHEN
+                    + streamInfo.getInlongStreamId();
             flinkInfo.setJobName(jobName);
             String sortUrl = kvConf.get(InlongConstants.SORT_URL);
             flinkInfo.setEndpoint(sortUrl);
