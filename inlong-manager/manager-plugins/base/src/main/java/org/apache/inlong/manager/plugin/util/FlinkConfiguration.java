@@ -95,8 +95,9 @@ public class FlinkConfiguration {
      */
     private FlinkConfig getFlinkConfigFromFile(String fileName) throws IOException {
         Properties properties = new Properties();
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName));
-        properties.load(bufferedReader);
+        try(BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName))) {
+            properties.load(bufferedReader);
+        }
         FlinkConfig flinkConfig = new FlinkConfig();
         flinkConfig.setPort(Integer.valueOf(properties.getProperty(PORT)));
         flinkConfig.setAddress(properties.getProperty(ADDRESS));

@@ -66,8 +66,8 @@ public class MaintenanceToolsServiceImpl implements MaintenanceToolsService {
     public List<SortConsumerInfo> getSortConsumer(MultipartFile file) {
         LoginUserUtils.getLoginUser().getRoles().add(UserRoleCode.INLONG_SERVICE);
         List<SortConsumerInfo> sortConsumerInfoList = new ArrayList<>();
-        try (InputStreamReader read = new InputStreamReader((file.getInputStream()), StandardCharsets.UTF_8)) {
-            BufferedReader bufferedReader = new BufferedReader(read);
+        try (BufferedReader bufferedReader =
+                new BufferedReader(new InputStreamReader((file.getInputStream()), StandardCharsets.UTF_8))) {
             String readerStr = null;
             while ((readerStr = bufferedReader.readLine()) != null) {
                 String[] sinkIdList = readerStr.split(InlongConstants.COMMA);
@@ -91,7 +91,6 @@ public class MaintenanceToolsServiceImpl implements MaintenanceToolsService {
                     sortConsumerInfoList.add(sortConsumerInfo);
                 }
             }
-            read.close();
             LOGGER.info("success get sort consumer");
             return sortConsumerInfoList;
         } catch (IOException e) {
@@ -105,11 +104,11 @@ public class MaintenanceToolsServiceImpl implements MaintenanceToolsService {
     @Override
     public Boolean resetCursor(MultipartFile file, String resetTime) {
         LoginUserUtils.getLoginUser().getRoles().add(UserRoleCode.INLONG_SERVICE);
-        try (InputStreamReader read = new InputStreamReader((file.getInputStream()), StandardCharsets.UTF_8)) {
+        try (BufferedReader bufferedReader =
+                new BufferedReader(new InputStreamReader((file.getInputStream()), StandardCharsets.UTF_8))) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date date = sdf.parse(resetTime);
             long timeStamp = date.getTime();
-            BufferedReader bufferedReader = new BufferedReader(read);
             String readerStr = null;
             while ((readerStr = bufferedReader.readLine()) != null) {
                 String[] sinkIdList = readerStr.split(InlongConstants.COMMA);
@@ -124,7 +123,6 @@ public class MaintenanceToolsServiceImpl implements MaintenanceToolsService {
                     queueOperator.resetCursor(groupInfo, streamEntity, sinkEntity, timeStamp);
                 }
             }
-            read.close();
             LOGGER.info("success reset cursor consumer");
         } catch (Exception e) {
             LOGGER.error("reset cursor consumer failed:", e);
