@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.starrocks.table.sink.table;
 
+import org.apache.flink.util.StringUtils;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.starrocks.table.sink.utils.SchemaUtils;
@@ -96,6 +97,7 @@ public class StarRocksDynamicSinkFunctionV2<T> extends StarRocksDynamicSinkFunct
     private String auditHostAndPorts;
     private String auditKeys;
     private SchemaUtils schemaUtils;
+    private String stateKey;
 
     public StarRocksDynamicSinkFunctionV2(StarRocksSinkOptions sinkOptions,
             TableSchema schema,
@@ -118,6 +120,15 @@ public class StarRocksDynamicSinkFunctionV2<T> extends StarRocksDynamicSinkFunct
         rowTransformer.setTableSchema(schema);
         this.sinkManager = new StarRocksSinkManagerV2(sinkOptions.getProperties(),
                 sinkOptions.getSemantic() == StarRocksSinkSemantic.AT_LEAST_ONCE);
+    }
+
+    public StarRocksDynamicSinkFunctionV2(
+            StarRocksSinkOptions sinkOptions,
+            TableSchema schema,
+            StarRocksIRowTransformer<T> rowTransformer, String inlongMetric,
+            String auditHostAndPorts, String auditKeys, String stateKey) {
+        this(sinkOptions, schema, rowTransformer, inlongMetric, auditHostAndPorts, auditKeys);
+        this.stateKey = stateKey;
     }
 
     @Override
@@ -291,19 +302,23 @@ public class StarRocksDynamicSinkFunctionV2<T> extends StarRocksDynamicSinkFunct
             return;
         }
 
+        String transactionStateName = "starrocks-sink-transaction"
+                + (StringUtils.isNullOrWhitespaceOnly(stateKey) ? "" : "-" + stateKey);
         ListStateDescriptor<byte[]> descriptor =
                 new ListStateDescriptor<>(
-                        "starrocks-sink-transaction",
+                        transactionStateName,
                         TypeInformation.of(new TypeHint<byte[]>() {
                         }));
 
         ListState<byte[]> listState = functionInitializationContext.getOperatorStateStore().getListState(descriptor);
         snapshotStates = new SimpleVersionedListState<>(listState, new StarRocksVersionedSerializer());
 
+        String legacyStateName = "buffered-rows"
+                + (StringUtils.isNullOrWhitespaceOnly(stateKey) ? "" : "-" + stateKey);
         // old version
         ListStateDescriptor<Map<String, StarRocksSinkBufferEntity>> legacyDescriptor =
                 new ListStateDescriptor<>(
-                        "buffered-rows",
+                        legacyStateName,
                         TypeInformation.of(new TypeHint<Map<String, StarRocksSinkBufferEntity>>() {
                         }));
         legacyState = functionInitializationContext.getOperatorStateStore().getListState(legacyDescriptor);
