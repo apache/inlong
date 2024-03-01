@@ -47,6 +47,5 @@ public enum RedisDataType {
      * Since strings are binary safe blobs and their maximum length is 512 MB, <br/>
      * they are suitable to set up to 2^32 different bits.
      */
-    BITMAP,
-    ;
+    BITMAP
 }
