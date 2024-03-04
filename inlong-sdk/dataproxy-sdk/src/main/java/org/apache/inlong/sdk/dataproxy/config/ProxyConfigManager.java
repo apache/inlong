@@ -797,7 +797,7 @@ public class ProxyConfigManager extends Thread {
                 .setSocketTimeout(clientConfig.getManagerSocketTimeout()).build();
         SSLContext sslContext = SSLContexts.custom().build();
         SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext,
-                new String[]{"TLSv1"}, null,
+                new String[]{clientConfig.getTlsVersion()}, null,
                 SSLConnectionSocketFactory.getDefaultHostnameVerifier());
         httpClient = HttpClients.custom().setDefaultHeaders(headers).setDefaultRequestConfig(requestConfig)
                 .setSSLSocketFactory(sslsf).build();
