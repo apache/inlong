@@ -17,13 +17,12 @@
 
 package org.apache.inlong.audit.util;
 
+import io.netty.channel.Channel;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-
-import io.netty.channel.Channel;
 
 public class IpPort {
 
