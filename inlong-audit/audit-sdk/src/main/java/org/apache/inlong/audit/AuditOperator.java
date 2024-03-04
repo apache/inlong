@@ -31,6 +31,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -116,7 +117,9 @@ public class AuditOperator implements Serializable {
         try {
             List<String> ipPortList = loader.loadIpPortList();
             if (ipPortList != null && ipPortList.size() > 0) {
-                this.setAuditProxy(ipPortList);
+                HashSet<String> ipPortSet = new HashSet<>();
+                ipPortSet.addAll(ipPortList);
+                this.setAuditProxy(ipPortSet);
             }
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
@@ -156,7 +159,7 @@ public class AuditOperator implements Serializable {
     /**
      * Set AuditProxy from the ip
      */
-    public void setAuditProxy(List<String> ipPortList) {
+    public void setAuditProxy(HashSet<String> ipPortList) {
         try {
             GLOBAL_LOCK.lockInterruptibly();
             if (!initialized) {
@@ -197,8 +200,8 @@ public class AuditOperator implements Serializable {
         add(auditID, DEFAULT_AUDIT_TAG, inlongGroupID, inlongStreamID, logTime, count, size, delayTime);
     }
 
-    public void add(int auditID, String auditTag, String inlongGroupID, String inlongStreamID, Long logTime, 
-	        long count, long size, long delayTime) {
+    public void add(int auditID, String auditTag, String inlongGroupID, String inlongStreamID, Long logTime,
+            long count, long size, long delayTime) {
         String key = (logTime / PERIOD) + FIELD_SEPARATORS + inlongGroupID + FIELD_SEPARATORS
                 + inlongStreamID + FIELD_SEPARATORS + auditID + FIELD_SEPARATORS + auditTag;
         addByKey(key, count, size, delayTime);

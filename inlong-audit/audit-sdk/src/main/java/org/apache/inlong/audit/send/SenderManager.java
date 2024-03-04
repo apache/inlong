@@ -21,7 +21,6 @@ import org.apache.inlong.audit.protocol.AuditApi;
 import org.apache.inlong.audit.util.AuditConfig;
 import org.apache.inlong.audit.util.AuditData;
 import org.apache.inlong.audit.util.SenderResult;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +32,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -89,12 +89,14 @@ public class SenderManager {
     /**
      * update config
      */
-    public void setAuditProxy(List<String> ipPortList) {
+    public void setAuditProxy(HashSet<String> ipPortList) {
         if (ipPortList.equals(currentIpPorts) && !this.sender.isHasSendError()) {
             return;
         }
         this.sender.setHasSendError(false);
-        this.currentIpPorts = ipPortList;
+        List<String> newIpPorts = new ArrayList<>();
+        newIpPorts.addAll(ipPortList);
+        this.currentIpPorts = newIpPorts;
         int ipSize = ipPortList.size();
         int needNewSize;
         if (this.maxConnectChannels == ALL_CONNECT_CHANNEL || this.maxConnectChannels >= ipSize) {

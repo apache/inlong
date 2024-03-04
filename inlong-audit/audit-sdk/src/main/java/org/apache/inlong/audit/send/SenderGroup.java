@@ -19,7 +19,6 @@ package org.apache.inlong.audit.send;
 
 import org.apache.inlong.audit.util.IpPort;
 import org.apache.inlong.audit.util.SenderResult;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
