@@ -31,7 +31,6 @@
 
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
-        <binlog.protobuf.version>2.5.0</binlog.protobuf.version>
     </properties>
 
     <dependencies>
@@ -49,7 +48,7 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>${binlog.protobuf.version}</version>
+            <version>${protobuf.version}</version>
             <type>jar</type>
             <scope>provided</scope>
         </dependency>

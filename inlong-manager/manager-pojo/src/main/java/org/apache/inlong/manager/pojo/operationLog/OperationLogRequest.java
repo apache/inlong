@@ -47,6 +47,9 @@ public class OperationLogRequest extends PageRequest {
     @ApiModelProperty(value = "keyword")
     private String keyword;
 
+    @ApiModelProperty(value = "status")
+    private Boolean status;
+
     @ApiModelProperty(value = "query start date, format by 'yyyy-MM-dd'", required = false, example = "2022-01-01")
     private String startDate;
 

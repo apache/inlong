@@ -19,6 +19,7 @@
 
 import dayjs from 'dayjs';
 import i18n from '@/i18n';
+import request from '@/core/utils/request';
 
 export const toChartData = (source, sourceDataMap) => {
   const xAxisData = Object.keys(sourceDataMap);
@@ -67,7 +68,7 @@ export const getFormContent = (initialValues, onSearch) => [
     props: {
       allowClear: false,
       showTime: true,
-      format: 'YYYY-MM-DD HH:MM:ss',
+      format: 'YYYY-MM-DD HH:mm:ss',
     },
   },
   {
@@ -78,7 +79,7 @@ export const getFormContent = (initialValues, onSearch) => [
     props: {
       allowClear: false,
       showTime: true,
-      format: 'YYYY-MM-DD HH:MM:ss',
+      format: 'YYYY-MM-DD HH:mm:ss',
     },
   },
   {
@@ -87,12 +88,14 @@ export const getFormContent = (initialValues, onSearch) => [
     name: 'benchmark',
     props: {
       allowClear: true,
+      showSearch: true,
       dropdownMatchSelectWidth: false,
       options: {
         requestAuto: true,
-        requestService: {
-          url: '/audit/getAuditBases',
-          method: 'GET',
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: async keyword => {
+          const res = await request('/audit/getAuditBases');
+          return keyword === undefined ? res : res.filter(audit => audit.name.includes(keyword));
         },
         requestParams: {
           formatResult: result =>
@@ -110,12 +113,14 @@ export const getFormContent = (initialValues, onSearch) => [
     name: 'compared',
     props: {
       allowClear: true,
+      showSearch: true,
       dropdownMatchSelectWidth: false,
       options: {
         requestAuto: true,
-        requestService: {
-          url: '/audit/getAuditBases',
-          method: 'GET',
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: async keyword => {
+          const res = await request('/audit/getAuditBases');
+          return keyword === undefined ? res : res.filter(audit => audit.name.includes(keyword));
         },
         requestParams: {
           formatResult: result =>

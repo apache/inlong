@@ -84,7 +84,7 @@ public class InlongTenantController {
         return Response.success(tenantService.update(request));
     }
 
-    @RequestMapping(value = "/tenant/delete/{name}", method = RequestMethod.GET)
+    @RequestMapping(value = "/tenant/delete/{name}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Delete inlong tenant by name")
     @ApiImplicitParam(name = "name", dataTypeClass = String.class, required = true)
     @RequiresRoles(INLONG_ADMIN)

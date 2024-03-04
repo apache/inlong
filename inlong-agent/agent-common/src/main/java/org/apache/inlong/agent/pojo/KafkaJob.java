@@ -30,6 +30,7 @@ public class KafkaJob {
     private RecordSpeed recordSpeed;
     private ByteSpeed byteSpeed;
     private String autoOffsetReset;
+    private String partitionOffsets;
 
     @Data
     public static class Group {
@@ -70,5 +71,6 @@ public class KafkaJob {
         private String recordSpeedLimit;
         private String byteSpeedLimit;
         private String autoOffsetReset;
+        private String partitionOffsets;
     }
 }

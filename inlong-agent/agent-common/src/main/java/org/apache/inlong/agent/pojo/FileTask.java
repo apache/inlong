@@ -112,8 +112,6 @@ public class FileTask {
         // '1d' means one day after, '-1d' means one day before
         // Null means from current timestamp
         private String timeOffset;
-        // Asia/Shanghai
-        private String timeZone;
         // For example: a=b&c=b&e=f
         private String additionalAttr;
 

@@ -38,6 +38,7 @@ import static org.apache.inlong.common.enums.DataReportTypeEnum.NORMAL_SEND_TO_D
 public class TaskProfileDto {
 
     public static final String DEFAULT_FILE_TASK = "org.apache.inlong.agent.plugin.task.file.LogFileTask";
+    public static final String DEFAULT_KAFKA_TASK = "org.apache.inlong.agent.plugin.task.KafkaTask";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
     public static final String DEFAULT_DATA_PROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
@@ -147,9 +148,6 @@ public class TaskProfileDto {
         if (taskConfig.getTimeOffset() != null) {
             fileTask.setTimeOffset(taskConfig.getTimeOffset());
         }
-        if (taskConfig.getTimeZone() != null) {
-            fileTask.setTimeZone(taskConfig.getTimeZone());
-        }
 
         if (taskConfig.getAdditionalAttr() != null) {
             fileTask.setAddictiveString(taskConfig.getAdditionalAttr());
@@ -193,7 +191,7 @@ public class TaskProfileDto {
         bootstrap.setServers(kafkaJobTaskConfig.getBootstrapServers());
         kafkaJob.setBootstrap(bootstrap);
         KafkaJob.Partition partition = new KafkaJob.Partition();
-        partition.setOffset(dataConfigs.getSnapshot());
+        partition.setOffset(kafkaJobTaskConfig.getPartitionOffsets());
         kafkaJob.setPartition(partition);
         KafkaJob.Group group = new KafkaJob.Group();
         group.setId(kafkaJobTaskConfig.getGroupId());
@@ -413,6 +411,7 @@ public class TaskProfileDto {
         task.setState(dataConfig.getState());
         task.setPredefinedFields(dataConfig.getPredefinedFields());
         task.setCycleUnit(CycleUnitType.REAL_TIME);
+        task.setTimeZone(dataConfig.getTimeZone());
 
         // set sink type
         if (dataConfig.getDataReportType() == NORMAL_SEND_TO_DATAPROXY.ordinal()) {
@@ -451,6 +450,7 @@ public class TaskProfileDto {
                 profileDto.setTask(task);
                 break;
             case KAFKA:
+                task.setTaskClass(DEFAULT_KAFKA_TASK);
                 KafkaJob kafkaJob = getKafkaJob(dataConfig);
                 task.setKafkaJob(kafkaJob);
                 task.setSource(KAFKA_SOURCE);
@@ -523,6 +523,7 @@ public class TaskProfileDto {
         private String predefinedFields;
         private Integer state;
         private String cycleUnit;
+        private String timeZone;
 
         private FileTask fileTask;
         private BinlogJob binlogJob;

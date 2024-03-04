@@ -147,7 +147,7 @@ public class LogFileTask extends Task {
             LOGGER.error("task profile cycle unit must be consistent");
             return false;
         }
-        if (!profile.hasKey(TaskConstants.TASK_FILE_TIME_ZONE)) {
+        if (!profile.hasKey(TaskConstants.TASK_TIME_ZONE)) {
             LOGGER.error("task profile needs time zone");
             return false;
         }

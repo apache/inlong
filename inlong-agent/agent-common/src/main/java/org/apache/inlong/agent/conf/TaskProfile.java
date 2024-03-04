@@ -70,7 +70,7 @@ public class TaskProfile extends AbstractConfiguration {
     }
 
     public String getTimeZone() {
-        return get(TaskConstants.TASK_FILE_TIME_ZONE);
+        return get(TaskConstants.TASK_TIME_ZONE);
     }
 
     public TaskStateEnum getState() {

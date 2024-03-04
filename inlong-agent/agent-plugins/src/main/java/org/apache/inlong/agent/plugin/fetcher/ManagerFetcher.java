@@ -44,13 +44,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_UNIQ_ID;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_UNIQ_ID;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_FETCHER_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_ADDR;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_RETURN_PARAM_DATA;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_TASK_HTTP_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_FETCHER_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_CONFIG_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH;
 import static org.apache.inlong.agent.plugin.fetcher.ManagerResultFormatter.getResultData;
@@ -172,45 +175,19 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     private Runnable taskConfigFetchThread() {
         return () -> {
             Thread.currentThread().setName("ManagerFetcher");
-            int normalTaskId = 100;
-            int testState = 0;
-            int retryTaskId = 800;
-            long count = 1;
             while (isRunnable()) {
                 try {
-                    /*
-                     * int configSleepTime = conf.getInt(AGENT_FETCHER_INTERVAL, DEFAULT_AGENT_FETCHER_INTERVAL);
-                     * TimeUnit.SECONDS.sleep(AgentUtils.getRandomBySeed(configSleepTime));
-                     */
-                    // fetch task config from manager
-                    TaskResult taskresult;
-                    String testDir = conf.get("test.dir", "");
-                    LOGGER.info("test123 test.dir {}", testDir);
-                    if (testDir == "") {
-                        taskresult = getStaticConfig();
-                    } else {
-                        if (count % 10 == 0) {
-                            normalTaskId++;
-                            retryTaskId++;
-                        }
-                        if (testState == 1) {
-                            testState = 2;
-                        } else {
-                            testState = 1;
-                        }
-                        taskresult = getTestConfig(testDir, normalTaskId, retryTaskId, testState);
+                    int configSleepTime = conf.getInt(AGENT_FETCHER_INTERVAL, DEFAULT_AGENT_FETCHER_INTERVAL);
+                    TaskResult taskResult = getStaticConfig();
+                    if (taskResult != null) {
+                        List<TaskProfile> taskProfiles = new ArrayList<>();
+                        taskResult.getDataConfigs().forEach((config) -> {
+                            TaskProfile profile = TaskProfile.convertToTaskProfile(config);
+                            taskProfiles.add(profile);
+                        });
+                        agentManager.getTaskManager().submitTaskProfiles(taskProfiles);
                     }
-                    if (taskresult == null) {
-                        continue;
-                    }
-                    List<TaskProfile> taskProfiles = new ArrayList<>();
-                    taskresult.getDataConfigs().forEach((config) -> {
-                        TaskProfile profile = TaskProfile.convertToTaskProfile(config);
-                        taskProfiles.add(profile);
-                    });
-                    agentManager.getTaskManager().submitTaskProfiles(taskProfiles);
-                    count++;
-                    AgentUtils.silenceSleepInSeconds(60);
+                    TimeUnit.SECONDS.sleep(AgentUtils.getRandomBySeed(configSleepTime));
                 } catch (Throwable ex) {
                     LOGGER.warn("exception caught", ex);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
