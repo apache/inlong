@@ -17,18 +17,23 @@
 
 package org.apache.inlong.audit.util;
 
-import io.netty.channel.Channel;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 
+import io.netty.channel.Channel;
+
 public class IpPort {
+
+    public static final Logger LOG = LoggerFactory.getLogger(IpPort.class);
 
     public static final String SEPARATOR = ":";
     public final String ip;
     public final int port;
     public final String key;
-    public final InetSocketAddress addr;
+    public InetSocketAddress addr;
 
     /**
      * Constructor
@@ -40,7 +45,11 @@ public class IpPort {
         this.ip = ip;
         this.port = port;
         this.key = getIpPortKey(ip, port);
-        this.addr = new InetSocketAddress(ip, port);
+        try {
+            this.addr = new InetSocketAddress(ip, port);
+        } catch (Throwable t) {
+            LOG.error("ip:{},port:{},error:{}", ip, port, t.getMessage(), t);
+        }
     }
 
     /**

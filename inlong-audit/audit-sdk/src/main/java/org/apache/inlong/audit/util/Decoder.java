@@ -17,13 +17,17 @@
 
 package org.apache.inlong.audit.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 
-import java.util.List;
-
 public class Decoder extends MessageToMessageDecoder<ByteBuf> {
+    public static final Logger LOG = LoggerFactory.getLogger(Decoder.class);
 
     // Maximum return packet size
     private static final int MAX_RESPONSE_LENGTH = 8 * 1024 * 1024;

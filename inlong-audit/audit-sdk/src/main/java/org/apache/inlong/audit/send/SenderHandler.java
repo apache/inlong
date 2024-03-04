@@ -17,10 +17,14 @@
 
 package org.apache.inlong.audit.send;
 
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
+
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 
 public class SenderHandler extends SimpleChannelInboundHandler<byte[]> {
 
@@ -40,6 +44,7 @@ public class SenderHandler extends SimpleChannelInboundHandler<byte[]> {
     @Override
     public void channelRead0(io.netty.channel.ChannelHandlerContext ctx, byte[] e) {
         try {
+            manager.release(ctx.channel());
             manager.onMessageReceived(ctx, e);
         } catch (Throwable ex) {
             LOGGER.error("channelRead0 error: ", ex);
@@ -52,6 +57,7 @@ public class SenderHandler extends SimpleChannelInboundHandler<byte[]> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) {
         try {
+            manager.release(ctx.channel());
             manager.onExceptionCaught(ctx, e);
         } catch (Throwable ex) {
             LOGGER.error("caught exception: ", ex);
@@ -64,6 +70,7 @@ public class SenderHandler extends SimpleChannelInboundHandler<byte[]> {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         try {
+            manager.release(ctx.channel());
             super.channelInactive(ctx);
         } catch (Throwable ex) {
             LOGGER.error("channelInactive error: ", ex);
@@ -76,9 +83,29 @@ public class SenderHandler extends SimpleChannelInboundHandler<byte[]> {
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
         try {
+            manager.release(ctx.channel());
             super.channelUnregistered(ctx);
         } catch (Throwable ex) {
             LOGGER.error("channelUnregistered error: ", ex);
         }
+    }
+
+    /**
+     * parseInetSocketAddress
+     * 
+     * @param  channel
+     * @return
+     */
+    public static InetSocketAddress parseInetSocketAddress(Channel channel) {
+        InetSocketAddress destAddr = null;
+        if (channel.remoteAddress() instanceof InetSocketAddress) {
+            destAddr = (InetSocketAddress) channel.remoteAddress();
+        } else if (channel.remoteAddress() != null) {
+            String sendIp = channel.remoteAddress().toString();
+            destAddr = new InetSocketAddress(sendIp, 0);
+        } else {
+            destAddr = new InetSocketAddress("127.0.0.1", 0);
+        }
+        return destAddr;
     }
 }
