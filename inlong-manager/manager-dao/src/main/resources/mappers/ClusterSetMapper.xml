@@ -49,6 +49,7 @@
         select inlong_group_id,
                inlong_stream_id,
                data_type,
+               wrap_type,
                mq_resource as topic,
                ext_params
         from inlong_stream
