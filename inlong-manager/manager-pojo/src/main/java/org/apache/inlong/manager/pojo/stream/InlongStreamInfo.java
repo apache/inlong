@@ -133,6 +133,9 @@ public class InlongStreamInfo extends BaseInlongStream {
     @ApiModelProperty(value = "The message body wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
     private String wrapType;
 
+    @ApiModelProperty(value = "The compression type used for dataproxy and sort side data transmission to reduce the network IO overhead")
+    private String inlongCompressType;
+
     @ApiModelProperty(value = "If use extended fields")
     private Boolean useExtendedFields = false;
 

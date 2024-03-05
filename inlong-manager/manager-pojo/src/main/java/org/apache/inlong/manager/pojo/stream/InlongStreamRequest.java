@@ -121,6 +121,9 @@ public class InlongStreamRequest extends BaseInlongStream {
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value")
     private boolean ignoreParseError = true;
 
+    @ApiModelProperty(value = "The compression type used for dataproxy and sort side data transmission to reduce the network IO overhead")
+    private String inlongCompressType;
+
     @ApiModelProperty(value = "If use extended fields")
     private Boolean useExtendedFields = false;
 
