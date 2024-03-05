@@ -421,6 +421,15 @@ public class SortSourceServiceImpl implements SortSourceService {
                             }
                         }
                         String fullTopic = tenant.concat("/").concat(namespace).concat("/").concat(topic);
+
+                        Map<String, String> groupExt = groupInfo.getExtParamsMap();
+                        String groupTenant = Optional
+                                .ofNullable(groupExt.get(KEY_NEW_TENANT))
+                                .orElse(groupExt.get(KEY_OLD_TENANT));
+                        if (StringUtils.isNotBlank(groupTenant)) {
+                            fullTopic = groupTenant.concat("/").concat(namespace).concat("/").concat(topic);
+                        }
+
                         return Topic.builder()
                                 .topic(fullTopic)
                                 .topicProperties(sink.getExtParamsMap())
