@@ -19,9 +19,11 @@ package org.apache.inlong.manager.service.resource.sink.es;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.util.HttpUtils;
-import org.apache.inlong.manager.pojo.sink.es.ElasticsearchIndexMappingInfo;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchCreateIndexResponse;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
+import org.apache.inlong.manager.pojo.sink.es.ElasticsearchIndexMappingInfo;
+import org.apache.inlong.manager.pojo.sink.es.ElasticsearchIndexMappingInfo.IndexField;
+import org.apache.inlong.manager.pojo.sink.es.ElasticsearchIndexMappingInfo.IndexMappings;
 
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
@@ -30,8 +32,6 @@ import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.pojo.sink.es.ElasticsearchIndexMappingInfo.IndexField;
-import org.apache.inlong.manager.pojo.sink.es.ElasticsearchIndexMappingInfo.IndexMappings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,14 +149,14 @@ public class ElasticsearchApi {
      * Get mapping info.
      *
      * @param fieldsInfo The fields info of Elasticsearch
-     * @return String list of fields translation
+     * @return elasticsearch index mappings object {@link ElasticsearchIndexMappingInfo}
      * @throws IOException The exception may throws
      */
     private ElasticsearchIndexMappingInfo getMappingInfo(List<ElasticsearchFieldInfo> fieldsInfo) {
-        Map<String,IndexField> fields = Maps.newHashMap();
+        Map<String, IndexField> fields = Maps.newHashMap();
         for (ElasticsearchFieldInfo field : fieldsInfo) {
             IndexField indexField = new IndexField();
-            fields.put(field.getFieldName(),indexField);
+            fields.put(field.getFieldName(), indexField);
             indexField.setType(field.getFieldType());
             if (field.getFieldType().equals("text")) {
                 if (StringUtils.isNotEmpty(field.getAnalyzer())) {
