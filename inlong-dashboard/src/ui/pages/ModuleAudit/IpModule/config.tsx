@@ -142,10 +142,6 @@ export const getTableColumns = source => {
   }));
   return [
     {
-      title: i18n.t('pages.GroupDetail.Audit.Time'),
-      dataIndex: 'logTs',
-    },
-    {
       title: i18n.t('pages.ModuleAudit.config.InlongGroupId'),
       dataIndex: 'inlongGroupId',
     },
