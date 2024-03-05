@@ -40,10 +40,10 @@ public class IntegrationTaskRunner implements Runnable {
     private final FlinkInfo flinkInfo;
     private final Integer commitType;
 
-    public IntegrationTaskRunner(FlinkService flinkService, FlinkInfo flinkInfo, Integer commitType) {
-        this.flinkService = flinkService;
+    public IntegrationTaskRunner(FlinkInfo flinkInfo, Integer commitType) {
         this.flinkInfo = flinkInfo;
         this.commitType = commitType;
+        flinkService = FlinkService.getInstance();
     }
 
     @Override
@@ -84,12 +84,12 @@ public class IntegrationTaskRunner implements Runnable {
                     FlinkConfig flinkConfig = flinkService.getFlinkConfig();
                     stopWithSavepointRequest.setDrain(flinkConfig.isDrain());
                     stopWithSavepointRequest.setTargetDirectory(flinkConfig.getSavepointDirectory());
-                    String location = flinkService.stopJob(flinkInfo.getJobId(), stopWithSavepointRequest);
+                    String location = flinkService.stopJob(flinkInfo, stopWithSavepointRequest);
                     flinkInfo.setSavepointPath(location);
                     log.info("the jobId: {} savepoint: {} ", flinkInfo.getJobId(), location);
                     int times = 0;
                     while (times < TRY_MAX_TIMES) {
-                        JobStatus jobStatus = flinkService.getJobStatus(flinkInfo.getJobId());
+                        JobStatus jobStatus = flinkService.getJobStatus(flinkInfo);
                         // restore job
                         if (jobStatus == FINISHED) {
                             try {
@@ -123,7 +123,7 @@ public class IntegrationTaskRunner implements Runnable {
                     FlinkConfig flinkConfig = flinkService.getFlinkConfig();
                     stopWithSavepointRequest.setDrain(flinkConfig.isDrain());
                     stopWithSavepointRequest.setTargetDirectory(flinkConfig.getSavepointDirectory());
-                    String location = flinkService.stopJob(flinkInfo.getJobId(), stopWithSavepointRequest);
+                    String location = flinkService.stopJob(flinkInfo, stopWithSavepointRequest);
                     flinkInfo.setSavepointPath(location);
                     log.info("the jobId {} savepoint: {} ", flinkInfo.getJobId(), location);
                 } catch (Exception e) {
@@ -136,9 +136,9 @@ public class IntegrationTaskRunner implements Runnable {
                 break;
             case DELETE:
                 try {
-                    flinkService.cancelJob(flinkInfo.getJobId());
+                    flinkService.cancelJob(flinkInfo);
                     log.info("delete job {} success in backend", flinkInfo.getJobId());
-                    JobStatus jobStatus = flinkService.getJobStatus(flinkInfo.getJobId());
+                    JobStatus jobStatus = flinkService.getJobStatus(flinkInfo);
                     if (jobStatus.isTerminalState()) {
                         log.info("delete job {} success in backend", flinkInfo.getJobId());
                     } else {

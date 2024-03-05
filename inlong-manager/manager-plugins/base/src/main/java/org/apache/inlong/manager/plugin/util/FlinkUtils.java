@@ -17,24 +17,39 @@
 
 package org.apache.inlong.manager.plugin.util;
 
+import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
+import org.apache.inlong.manager.plugin.flink.enums.Constants;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.configuration.Configuration;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.apache.inlong.common.constant.Constants.METRICS_AUDIT_PROXY_HOSTS_KEY;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.ADDRESS;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.DRAIN;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.FLINK_VERSION;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.JOB_MANAGER_PORT;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.PARALLELISM;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.PORT;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.SAVEPOINT_DIRECTORY;
 
 /**
  * Util of flink.
@@ -43,27 +58,9 @@ import java.util.regex.Pattern;
 public class FlinkUtils {
 
     public static final String BASE_DIRECTORY = "config";
-
-    public static final List<String> FLINK_VERSION_COLLECTION = Collections.singletonList("Flink-1.13");
-
-    /**
-     * getLatestFlinkVersion
-     */
-    public static String getLatestFlinkVersion(String[] supportedFlink) {
-        if (Objects.isNull(supportedFlink)) {
-            return null;
-        }
-        Arrays.sort(supportedFlink, Collections.reverseOrder());
-        String latestFinkVersion = null;
-        for (String flinkVersion : supportedFlink) {
-            latestFinkVersion = FLINK_VERSION_COLLECTION.stream()
-                    .filter(v -> v.equals(flinkVersion)).findFirst().orElse(null);
-            if (Objects.nonNull(latestFinkVersion)) {
-                return latestFinkVersion;
-            }
-        }
-        return latestFinkVersion;
-    }
+    private static final String DEFAULT_PLUGINS = "plugins";
+    private static final String FILE_PREFIX = "file://";
+    private static final String DEFAULT_CONFIG_FILE = "flink-sort-plugin.properties";
 
     /**
      * print exception
@@ -128,13 +125,6 @@ public class FlinkUtils {
     }
 
     /**
-     * get value
-     */
-    public static String getValue(String key, String defaultValue) {
-        return StringUtils.isNotEmpty(key) ? key : defaultValue;
-    }
-
-    /**
      * getConfigDirectory
      *
      * @param name config file name
@@ -171,23 +161,46 @@ public class FlinkUtils {
         return true;
     }
 
-    /**
-     * Delete configuration file
-     *
-     * @param name file config info
-     * @return whether sucess
-     */
-    public static boolean deleteConfigFile(String name) {
-        String configDirectory = getConfigDirectory(name);
-        File file = new File(configDirectory);
-        if (file.exists()) {
-            try {
-                FileUtils.deleteDirectory(file);
-            } catch (IOException e) {
-                log.error("delete {} failed", configDirectory, e);
-                return false;
-            }
+    public static Object getFlinkClientService(Configuration configuration, FlinkConfig flinkConfig) {
+        log.info("Flink version {}", flinkConfig.getVersion());
+
+        Path pluginPath = Paths.get(DEFAULT_PLUGINS).toAbsolutePath();
+        String flinkJarName = String.format(Constants.FLINK_JAR_NAME, flinkConfig.getVersion());
+        String flinkClientPath = FILE_PREFIX + pluginPath + File.separator + flinkJarName;
+        log.info("Start to load Flink jar: {}", flinkClientPath);
+
+        try (URLClassLoader classLoader = new URLClassLoader(new URL[]{new URL(flinkClientPath)}, Thread.currentThread()
+                .getContextClassLoader())) {
+            Class<?> flinkClientService = classLoader.loadClass(Constants.FLINK_CLIENT_CLASS);
+            Object flinkService = flinkClientService.getDeclaredConstructor(Configuration.class)
+                    .newInstance(configuration);
+            log.info("Successfully loaded Flink service");
+            return flinkService;
+        } catch (Exception e) {
+            log.error("Failed to loaded Flink service, please check flink client jar path: {}", flinkClientPath);
+            throw new RuntimeException(e);
         }
-        return true;
+    }
+
+    public static FlinkConfig getFlinkConfigFromFile() throws Exception {
+        Path pluginPath = Paths.get(DEFAULT_PLUGINS).toAbsolutePath();
+        String defaultConfigFilePath = pluginPath + File.separator + DEFAULT_CONFIG_FILE;
+
+        log.info("Start to load Flink config from file: {}", defaultConfigFilePath);
+
+        Properties properties = new Properties();
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(defaultConfigFilePath))) {
+            properties.load(bufferedReader);
+        }
+        FlinkConfig flinkConfig = new FlinkConfig();
+        flinkConfig.setPort(Integer.valueOf(properties.getProperty(PORT)));
+        flinkConfig.setAddress(properties.getProperty(ADDRESS));
+        flinkConfig.setParallelism(Integer.valueOf(properties.getProperty(PARALLELISM)));
+        flinkConfig.setSavepointDirectory(properties.getProperty(SAVEPOINT_DIRECTORY));
+        flinkConfig.setJobManagerPort(Integer.valueOf(properties.getProperty(JOB_MANAGER_PORT)));
+        flinkConfig.setDrain(Boolean.parseBoolean(properties.getProperty(DRAIN)));
+        flinkConfig.setAuditProxyHosts(properties.getProperty(METRICS_AUDIT_PROXY_HOSTS_KEY));
+        flinkConfig.setVersion(properties.getProperty(FLINK_VERSION));
+        return flinkConfig;
     }
 }
