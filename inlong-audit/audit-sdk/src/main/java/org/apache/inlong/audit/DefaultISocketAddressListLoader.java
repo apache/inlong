@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * DefualtIpPortListLoader
+ * DefaultISocketAddressListLoader
  */
-public class DefaultIpPortListLoader implements IpPortListLoader {
+public class DefaultISocketAddressListLoader implements SocketAddressListLoader {
 
     public static final String KEY_AUDIT_PROXYS = "audit.proxys";
 
@@ -39,11 +39,11 @@ public class DefaultIpPortListLoader implements IpPortListLoader {
     }
 
     /**
-     * loadIpPortList
+     * loadSocketAddressList
      * @return
      */
     @Override
-    public List<String> loadIpPortList() {
+    public List<String> loadSocketAddressList() {
         List<String> ipPortList = new ArrayList<>();
         String strAuditProxys = commonProperties.get(KEY_AUDIT_PROXYS);
         if (strAuditProxys == null) {

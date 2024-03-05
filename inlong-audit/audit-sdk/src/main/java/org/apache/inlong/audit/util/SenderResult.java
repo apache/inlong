@@ -17,19 +17,21 @@
 
 package org.apache.inlong.audit.util;
 
+import java.net.InetSocketAddress;
+
 public class SenderResult {
 
-    public final IpPort ipPort;
+    public final InetSocketAddress addr;
     public boolean result;
 
     /**
      * Constructor
      *
-     * @param ipPort
+     * @param addr
      * @param result
      */
-    public SenderResult(IpPort ipPort, boolean result) {
-        this.ipPort = ipPort;
+    public SenderResult(InetSocketAddress addr, boolean result) {
+        this.addr = addr;
         this.result = result;
     }
 
@@ -41,7 +43,7 @@ public class SenderResult {
      * @param result
      */
     public SenderResult(String sendIp, int sendPort, boolean result) {
-        this.ipPort = new IpPort(sendIp, sendPort);
+        this.addr = new InetSocketAddress(sendIp, sendPort);
         this.result = result;
     }
 }

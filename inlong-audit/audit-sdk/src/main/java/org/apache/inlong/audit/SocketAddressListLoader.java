@@ -21,13 +21,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * IpPortListLoader
+ * SocketAddressListLoader
  */
-public interface IpPortListLoader {
+public interface SocketAddressListLoader {
 
-    String KEY_IPPORT_LOADER = "audit.ipport.loader";
+    String KEY_ADDRESS_LOADER = "audit.address.loader";
 
     void setCommonProperties(Map<String, String> commonProperties);
 
-    List<String> loadIpPortList();
+    List<String> loadSocketAddressList();
 }

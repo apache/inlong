@@ -30,11 +30,11 @@ import java.util.Map;
 /**
  * DnsIpPortListLoader
  */
-public class DnsIpPortListLoader implements IpPortListLoader {
+public class DnsSocketAddressListLoader implements SocketAddressListLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DnsIpPortListLoader.class);
-    public static final String KEY_IPPORT_DNS = "audit.ipport.dns";
-    public static final String KEY_IPPORT_DNS_PORT = "audit.ipport.dns.port";
+    private static final Logger LOG = LoggerFactory.getLogger(DnsSocketAddressListLoader.class);
+    public static final String KEY_DNS_ADDRESS = "audit.dns.address";
+    public static final String KEY_DNS_PORT = "audit.dns.port";
 
     private Map<String, String> commonProperties;
 
@@ -44,13 +44,13 @@ public class DnsIpPortListLoader implements IpPortListLoader {
     }
 
     @Override
-    public List<String> loadIpPortList() {
+    public List<String> loadSocketAddressList() {
         if (commonProperties == null) {
             return null;
         }
         List<String> ipPortList = new ArrayList<>();
-        String dns = commonProperties.get(KEY_IPPORT_DNS);
-        String dnsPort = commonProperties.get(KEY_IPPORT_DNS_PORT);
+        String dns = commonProperties.get(KEY_DNS_ADDRESS);
+        String dnsPort = commonProperties.get(KEY_DNS_PORT);
         if (!StringUtils.isEmpty(dns) && !StringUtils.isEmpty(dnsPort)) {
             try {
                 InetAddress[] addrs = InetAddress.getAllByName(dns);
@@ -65,4 +65,13 @@ public class DnsIpPortListLoader implements IpPortListLoader {
         return ipPortList;
     }
 
+    public static void main(String[] args) {
+
+        try {
+            InetAddress[] addrs = InetAddress.getAllByName("inlong.woa.com");
+            System.out.println(addrs);
+        } catch (Throwable t) {
+            LOG.error(t.getMessage(), t);
+        }
+    }
 }

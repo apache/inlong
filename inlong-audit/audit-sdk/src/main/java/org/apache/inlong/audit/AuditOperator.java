@@ -68,7 +68,7 @@ public class AuditOperator implements Serializable {
 
     private final ScheduledExecutorService timeoutExecutor = Executors.newSingleThreadScheduledExecutor();
     private AuditConfig auditConfig = null;
-    private IpPortListLoader loader = null;
+    private SocketAddressListLoader loader = null;
 
     /**
      * Not support create from outer.
@@ -116,7 +116,7 @@ public class AuditOperator implements Serializable {
             return;
         }
         try {
-            List<String> ipPortList = loader.loadIpPortList();
+            List<String> ipPortList = loader.loadSocketAddressList();
             if (ipPortList != null && ipPortList.size() > 0) {
                 HashSet<String> ipPortSet = new HashSet<>();
                 ipPortSet.addAll(ipPortList);
@@ -131,7 +131,7 @@ public class AuditOperator implements Serializable {
      * set loader
      * @param loader the loader to set
      */
-    public void setLoader(IpPortListLoader loader) {
+    public void setLoader(SocketAddressListLoader loader) {
         this.loader = loader;
     }
 
@@ -146,8 +146,8 @@ public class AuditOperator implements Serializable {
         try {
             Class<?> loaderClass = ClassUtils.getClass(loaderClassName);
             Object loaderObject = loaderClass.getDeclaredConstructor().newInstance();
-            if (loaderObject instanceof IpPortListLoader) {
-                IpPortListLoader loader = (IpPortListLoader) loaderObject;
+            if (loaderObject instanceof SocketAddressListLoader) {
+                SocketAddressListLoader loader = (SocketAddressListLoader) loaderObject;
                 this.loader = loader;
                 LOGGER.info("audit IpPortListLoader loaderClass:{}", loaderClassName);
             }

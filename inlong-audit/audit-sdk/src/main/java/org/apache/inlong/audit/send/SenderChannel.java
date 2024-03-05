@@ -18,7 +18,12 @@
 package org.apache.inlong.audit.send;
 
 import org.apache.inlong.audit.util.EventLoopUtil;
-import org.apache.inlong.audit.util.IpPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadFactory;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -27,11 +32,6 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.Attribute;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadFactory;
 
 public class SenderChannel {
 
@@ -41,7 +41,7 @@ public class SenderChannel {
     public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 16777216;
     public static final int DEFAULT_SEND_BUFFER_SIZE = 16777216;
 
-    private IpPort ipPort;
+    private InetSocketAddress addr;
     private Channel channel;
     private String channelKey;
     private Semaphore packToken;
@@ -51,10 +51,10 @@ public class SenderChannel {
     /**
      * Constructor
      *
-     * @param ipPort
+     * @param addr
      */
-    public SenderChannel(IpPort ipPort, int maxSynchRequest, SenderManager senderManager) {
-        this.ipPort = ipPort;
+    public SenderChannel(InetSocketAddress addr, int maxSynchRequest, SenderManager senderManager) {
+        this.addr = addr;
         this.packToken = new Semaphore(maxSynchRequest);
         this.senderManager = senderManager;
     }
@@ -94,25 +94,23 @@ public class SenderChannel {
      */
     @Override
     public String toString() {
-        return ipPort.key;
+        return addr.toString();
     }
 
     /**
-     * get ipPort
-     *
-     * @return the ipPort
+     * get addr
+     * @return the addr
      */
-    public IpPort getIpPort() {
-        return ipPort;
+    public InetSocketAddress getAddr() {
+        return addr;
     }
 
     /**
-     * set ipPort
-     *
-     * @param ipPort the ipPort to set
+     * set addr
+     * @param addr the addr to set
      */
-    public void setIpPort(IpPort ipPort) {
-        this.ipPort = ipPort;
+    public void setAddr(InetSocketAddress addr) {
+        this.addr = addr;
     }
 
     /**
@@ -183,13 +181,13 @@ public class SenderChannel {
             }
 
             synchronized (client) {
-                ChannelFuture future = client.connect(this.ipPort.addr).sync();
+                ChannelFuture future = client.connect(this.addr).sync();
                 this.channel = future.channel();
                 Attribute<String> attr = this.channel.attr(SenderGroup.CHANNEL_KEY);
                 attr.set(channelKey);
             }
         } catch (Throwable e) {
-            LOG.error("connect {} failed. {}", this.getIpPort(), e.getMessage());
+            LOG.error("connect {} failed. {}", this.getAddr(), e.getMessage());
             return false;
         }
         return true;

@@ -17,22 +17,23 @@
 
 package org.apache.inlong.audit.send;
 
-import org.apache.inlong.audit.util.IpPort;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.inlong.audit.util.SenderResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicLong;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class SenderGroup {
 
@@ -147,7 +148,7 @@ public class SenderGroup {
             } else {
                 dataBuf.release();
             }
-            return new SenderResult(channel.getIpPort().ip, channel.getIpPort().port, t.isSuccess());
+            return new SenderResult(channel.getAddr().getHostString(), channel.getAddr().getPort(), t.isSuccess());
         } catch (Throwable ex) {
             LOG.error(ex.getMessage(), ex);
             this.setHasSendError(true);
@@ -196,12 +197,12 @@ public class SenderGroup {
             waitingDeleteChannelKey.addAll(totalChannels.keySet());
             for (String ipPort : ipLists) {
                 try {
-                    IpPort ipPortObj = IpPort.parseIpPort(ipPort);
-                    if (ipPortObj == null) {
+                    InetSocketAddress addr = parseAddress(ipPort);
+                    if (addr == null) {
                         continue;
                     }
                     String key = String.valueOf(channelId.getAndIncrement());
-                    SenderChannel channel = new SenderChannel(ipPortObj, maxSynchRequest, senderManager);
+                    SenderChannel channel = new SenderChannel(addr, maxSynchRequest, senderManager);
                     channel.setChannelKey(key);
                     newChannels.add(channel);
                     totalChannels.put(key, channel);
@@ -215,6 +216,25 @@ public class SenderGroup {
         } catch (Throwable e) {
             LOG.error("Update Sender Ip Failed." + e.getMessage(), e);
         }
+    }
+
+    /**
+     * parseAddress
+     * 
+     * @param  InetSocketAddress
+     * @return
+     */
+    private static InetSocketAddress parseAddress(String ipPort) {
+        String[] splits = ipPort.split(":");
+        if (splits.length == 2) {
+            String strIp = splits[0];
+            String strPort = splits[1];
+            int port = NumberUtils.toInt(strPort, 0);
+            if (port > 0) {
+                return new InetSocketAddress(strIp, port);
+            }
+        }
+        return null;
     }
 
     /**
