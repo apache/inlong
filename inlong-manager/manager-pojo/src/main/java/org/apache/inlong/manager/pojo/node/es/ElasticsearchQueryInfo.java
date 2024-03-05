@@ -77,6 +77,7 @@ public class ElasticsearchQueryInfo {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class TermValue {
+
         /**
          * Term query value.
          */
