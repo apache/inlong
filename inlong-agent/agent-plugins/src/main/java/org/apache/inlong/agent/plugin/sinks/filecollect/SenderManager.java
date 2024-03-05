@@ -127,14 +127,14 @@ public class SenderManager {
                 CommonConstants.PROXY_SENDER_MAX_TIMEOUT, CommonConstants.DEFAULT_PROXY_SENDER_MAX_TIMEOUT);
         maxSenderRetry = profile.getInt(
                 CommonConstants.PROXY_SENDER_MAX_RETRY, CommonConstants.DEFAULT_PROXY_SENDER_MAX_RETRY);
-        retrySleepTime = profile.getLong(
+        retrySleepTime = agentConf.getLong(
                 CommonConstants.PROXY_RETRY_SLEEP, CommonConstants.DEFAULT_PROXY_RETRY_SLEEP);
         isFile = profile.getBoolean(CommonConstants.PROXY_IS_FILE, CommonConstants.DEFAULT_IS_FILE);
         ioThreadNum = profile.getInt(CommonConstants.PROXY_CLIENT_IO_THREAD_NUM,
                 CommonConstants.DEFAULT_PROXY_CLIENT_IO_THREAD_NUM);
         enableBusyWait = profile.getBoolean(CommonConstants.PROXY_CLIENT_ENABLE_BUSY_WAIT,
                 CommonConstants.DEFAULT_PROXY_CLIENT_ENABLE_BUSY_WAIT);
-        batchFlushInterval = profile.getInt(PROXY_BATCH_FLUSH_INTERVAL, DEFAULT_PROXY_BATCH_FLUSH_INTERVAL);
+        batchFlushInterval = agentConf.getInt(PROXY_BATCH_FLUSH_INTERVAL, DEFAULT_PROXY_BATCH_FLUSH_INTERVAL);
         authSecretId = agentConf.get(AGENT_MANAGER_AUTH_SECRET_ID);
         authSecretKey = agentConf.get(AGENT_MANAGER_AUTH_SECRET_KEY);
 
@@ -231,6 +231,12 @@ public class SenderManager {
         while (!suc) {
             try {
                 AgentSenderCallback cb = new AgentSenderCallback(message, retry);
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_TRY_SEND, message.getGroupId(),
+                        message.getStreamId(), message.getDataTime(), message.getMsgCnt(),
+                        message.getTotalSize());
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_TRY_SEND_REAL_TIME, message.getGroupId(),
+                        message.getStreamId(), AgentUtils.getCurrentTime(), message.getMsgCnt(),
+                        message.getTotalSize());
                 asyncSendByMessageSender(cb, message.getDataList(), message.getGroupId(),
                         message.getStreamId(), message.getDataTime(), SEQUENTIAL_ID.getNextUuid(),
                         maxSenderTimeout, TimeUnit.SECONDS, message.getExtraMap(), proxySend);
@@ -238,6 +244,12 @@ public class SenderManager {
                         message.getMsgCnt());
                 suc = true;
             } catch (Exception exception) {
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_EXCEPTION, message.getGroupId(),
+                        message.getStreamId(), message.getDataTime(), message.getMsgCnt(),
+                        message.getTotalSize());
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_EXCEPTION_REAL_TIME, message.getGroupId(),
+                        message.getStreamId(), AgentUtils.getCurrentTime(), message.getMsgCnt(),
+                        message.getTotalSize());
                 suc = false;
                 if (retry > maxSenderRetry) {
                     if (retry % 10 == 0) {
@@ -276,6 +288,13 @@ public class SenderManager {
                 try {
                     AgentSenderCallback callback = resendQueue.poll(1, TimeUnit.SECONDS);
                     if (callback != null) {
+                        SenderMessage message = callback.message;
+                        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_RESEND, message.getGroupId(),
+                                message.getStreamId(), message.getDataTime(), message.getMsgCnt(),
+                                message.getTotalSize());
+                        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_RESEND_REAL_TIME, message.getGroupId(),
+                                message.getStreamId(), AgentUtils.getCurrentTime(), message.getMsgCnt(),
+                                message.getTotalSize());
                         sendBatchWithRetryCount(callback.message, callback.retry + 1);
                     }
                 } catch (Exception ex) {
