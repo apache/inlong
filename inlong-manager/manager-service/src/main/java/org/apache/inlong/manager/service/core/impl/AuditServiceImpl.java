@@ -43,15 +43,13 @@ import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditSourceRequest;
 import org.apache.inlong.manager.pojo.audit.AuditSourceResponse;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
-import org.apache.inlong.manager.pojo.node.es.ElasticsearchAggregationsSumInfo;
 import org.apache.inlong.manager.pojo.node.es.ElasticsearchAggregationsTermsInfo;
-import org.apache.inlong.manager.pojo.node.es.ElasticsearchQueryBoolInfo;
-import org.apache.inlong.manager.pojo.node.es.ElasticsearchQueryFieldInfo;
+import org.apache.inlong.manager.pojo.node.es.ElasticsearchAggregationsTermsInfo.Field;
+import org.apache.inlong.manager.pojo.node.es.ElasticsearchAggregationsTermsInfo.Sum;
 import org.apache.inlong.manager.pojo.node.es.ElasticsearchQueryInfo;
+import org.apache.inlong.manager.pojo.node.es.ElasticsearchQueryInfo.QueryBool;
 import org.apache.inlong.manager.pojo.node.es.ElasticsearchQuerySortInfo;
-import org.apache.inlong.manager.pojo.node.es.ElasticsearchQuerySortValueInfo;
-import org.apache.inlong.manager.pojo.node.es.ElasticsearchQueryTermInfo;
-import org.apache.inlong.manager.pojo.node.es.ElasticsearchQueryTermValueInfo;
+import org.apache.inlong.manager.pojo.node.es.ElasticsearchQuerySortInfo.SortValue;
 import org.apache.inlong.manager.pojo.node.es.ElasticsearchRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
@@ -493,34 +491,33 @@ public class AuditServiceImpl implements AuditService {
      * @return The search request of elasticsearch json
      */
     public static JsonObject toAuditSearchRequestJson(String groupId, String streamId) {
-        Map<String, ElasticsearchQueryTermValueInfo> groupIdMap = Maps.newHashMap();
-        groupIdMap.put(ES_INLONG_GROUP_ID, new ElasticsearchQueryTermValueInfo(groupId, ES_DEFAULT_BOOST));
-        ElasticsearchQueryTermInfo groupIdTerm = ElasticsearchQueryTermInfo.builder().term(groupIdMap).build();
-
-        Map<String, ElasticsearchQueryTermValueInfo> streamIdMap = Maps.newHashMap();
-        streamIdMap.put(ES_INLONG_STREAM_ID, new ElasticsearchQueryTermValueInfo(streamId, ES_DEFAULT_BOOST));
-        ElasticsearchQueryTermInfo streamIdTerm = ElasticsearchQueryTermInfo.builder().term(streamIdMap).build();
-
-        ElasticsearchQueryBoolInfo boolInfo = ElasticsearchQueryBoolInfo.builder()
+        Map<String, ElasticsearchQueryInfo.TermValue> groupIdMap = Maps.newHashMap();
+        groupIdMap.put(ES_INLONG_GROUP_ID, new ElasticsearchQueryInfo.TermValue(groupId, ES_DEFAULT_BOOST));
+        ElasticsearchQueryInfo.QueryTerm groupIdTerm = ElasticsearchQueryInfo.QueryTerm.builder().term(groupIdMap)
+                .build();
+        Map<String, ElasticsearchQueryInfo.TermValue> streamIdMap = Maps.newHashMap();
+        streamIdMap.put(ES_INLONG_STREAM_ID, new ElasticsearchQueryInfo.TermValue(streamId, ES_DEFAULT_BOOST));
+        ElasticsearchQueryInfo.QueryTerm streamIdTerm = ElasticsearchQueryInfo.QueryTerm.builder().term(streamIdMap)
+                .build();
+        QueryBool boolInfo = QueryBool.builder()
                 .must(Lists.newArrayList(groupIdTerm, streamIdTerm))
                 .boost(ES_DEFAULT_BOOST)
                 .adjustPureNegative(ES_ADJUST_PURE_NEGATIVE)
                 .build();
         ElasticsearchQueryInfo queryInfo = ElasticsearchQueryInfo.builder().bool(boolInfo).build();
 
-        Map<String, ElasticsearchQuerySortValueInfo> termValueInfoMap = Maps.newHashMap();
-        termValueInfoMap.put(ES_TERM_FILED, new ElasticsearchQuerySortValueInfo(ES_SORT_ORDER));
-        List<Map<String, ElasticsearchQuerySortValueInfo>> list = Lists.newArrayList(termValueInfoMap);
+        Map<String, SortValue> termValueInfoMap = Maps.newHashMap();
+        termValueInfoMap.put(ES_TERM_FILED, new SortValue(ES_SORT_ORDER));
+        List<Map<String, SortValue>> list = Lists.newArrayList(termValueInfoMap);
         ElasticsearchQuerySortInfo sortInfo = ElasticsearchQuerySortInfo.builder().sort(list).build();
 
-        ElasticsearchAggregationsSumInfo countSum = ElasticsearchAggregationsSumInfo.builder()
-                .sum(new ElasticsearchQueryFieldInfo(ES_COUNT))
+        Sum countSum = Sum.builder()
+                .sum(new Field(ES_COUNT))
                 .build();
-        ElasticsearchAggregationsSumInfo delaySum = ElasticsearchAggregationsSumInfo.builder()
-                .sum(new ElasticsearchQueryFieldInfo(ES_DELAY))
+        Sum delaySum = Sum.builder()
+                .sum(new Field(ES_DELAY))
                 .build();
-
-        Map<String, ElasticsearchAggregationsSumInfo> aggregations = Maps.newHashMap();
+        Map<String, Sum> aggregations = Maps.newHashMap();
         aggregations.put(ES_COUNT, countSum);
         aggregations.put(ES_DELAY, delaySum);
         ElasticsearchAggregationsTermsInfo termsInfo = ElasticsearchAggregationsTermsInfo.builder()
@@ -532,6 +529,7 @@ public class AuditServiceImpl implements AuditService {
         terms.put(ES_TERMS, termsInfo);
         Map<String, Map<String, ElasticsearchAggregationsTermsInfo>> logTs = Maps.newHashMap();
         logTs.put(ES_TERM_FILED, terms);
+
         ElasticsearchRequest request = ElasticsearchRequest.builder()
                 .from(ES_QUERY_FROM)
                 .size(ES_QUERY_SIZE)

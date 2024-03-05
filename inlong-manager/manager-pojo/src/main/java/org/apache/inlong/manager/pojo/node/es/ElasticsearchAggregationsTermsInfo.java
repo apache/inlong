@@ -30,7 +30,42 @@ import java.util.Map;
 @AllArgsConstructor
 public class ElasticsearchAggregationsTermsInfo {
 
+    /**
+     *  Aggregations terms field.
+     */
     private String field;
+
+    /**
+     * Aggregations size.
+     */
     private int size;
-    private Map<String, ElasticsearchAggregationsSumInfo> aggregations;
+
+    /**
+     * Aggregations info.
+     */
+    private Map<String, Sum> aggregations;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Sum {
+
+        /**
+         * Aggregations sum field.
+         */
+        private Field sum;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Field {
+
+        /**
+         * Aggregations field value.
+         */
+        private String field;
+    }
 }

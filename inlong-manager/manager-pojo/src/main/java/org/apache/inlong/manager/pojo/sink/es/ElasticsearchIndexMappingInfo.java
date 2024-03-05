@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.node.es;
+package org.apache.inlong.manager.pojo.sink.es;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
@@ -23,68 +23,62 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 import java.util.Map;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ElasticsearchQueryInfo {
+public class ElasticsearchIndexMappingInfo {
 
     /**
-     *  Bool query value.
+     *  mapping.
      */
-    private QueryBool bool;
+    private IndexMappings mappings;
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class QueryBool {
+    public static class IndexMappings {
 
         /**
-         * Must query value.
+         * properties.
          */
-        private List<QueryTerm> must;
-
-        /**
-         *  Use the boost parameter to boost search results.
-         */
-        private double boost;
-
-        /**
-         * adjust pure negative.
-         */
-        @SerializedName("adjust_pure_negative")
-        private boolean adjustPureNegative;
+        private Map<String, IndexField> properties;
     }
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class QueryTerm {
+    public static class IndexField {
 
         /**
-         * Term query value.
+         *  Index field type.
          */
-        private Map<String, TermValue> term;
-    }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class TermValue {
-        /**
-         * Term query value.
-         */
-        private String value;
+        private String type;
 
         /**
-         *  Use the boost parameter to boost search results.
+         * Index text type field analyzer.
          */
-        private double boost;
+        private String analyzer;
+
+        /**
+         * Index text type field search analyzer.
+         */
+        @SerializedName("search_analyzer")
+        private String searchAnalyzer;
+
+        /**
+         * Index date type field search format.
+         */
+        private String format;
+
+        /**
+         * Index scaled_float type scaling factor.
+         */
+        @SerializedName("scaling_factor")
+        private String scalingFactor;
     }
 }

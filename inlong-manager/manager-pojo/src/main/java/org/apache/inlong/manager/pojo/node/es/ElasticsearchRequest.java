@@ -30,9 +30,28 @@ import java.util.Map;
 @AllArgsConstructor
 public class ElasticsearchRequest {
 
+    /**
+     * From index to start the search from. Defaults to 0.
+     */
     private int from;
+
+    /**
+     * The number of search hits to return. Defaults to 10.
+     */
     private int size;
+
+    /**
+     * Sets the search query for this request.
+     */
     private ElasticsearchQueryInfo query;
+
+    /**
+     * Adds a sort against the given field name and the sort ordering.
+     */
     private ElasticsearchQuerySortInfo sort;
+
+    /**
+     * Add an aggregation to perform as part of the search.
+     */
     private Map<String, Map<String, ElasticsearchAggregationsTermsInfo>> aggregations;
 }

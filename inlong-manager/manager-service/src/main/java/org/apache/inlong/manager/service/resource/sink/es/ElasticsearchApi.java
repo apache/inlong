@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.resource.sink.es;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.util.HttpUtils;
+import org.apache.inlong.manager.pojo.sink.es.ElasticsearchIndexMappingInfo;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchCreateIndexResponse;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
 
@@ -29,6 +30,8 @@ import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.pojo.sink.es.ElasticsearchIndexMappingInfo.IndexField;
+import org.apache.inlong.manager.pojo.sink.es.ElasticsearchIndexMappingInfo.IndexMappings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,36 +152,31 @@ public class ElasticsearchApi {
      * @return String list of fields translation
      * @throws IOException The exception may throws
      */
-    private List<String> getMappingInfo(List<ElasticsearchFieldInfo> fieldsInfo) {
-        List<String> fieldList = new ArrayList<>();
+    private ElasticsearchIndexMappingInfo getMappingInfo(List<ElasticsearchFieldInfo> fieldsInfo) {
+        Map<String,IndexField> fields = Maps.newHashMap();
         for (ElasticsearchFieldInfo field : fieldsInfo) {
-            StringBuilder fieldStr = new StringBuilder().append("        \"").append(field.getFieldName())
-                    .append("\" : {\n          \"type\" : \"")
-                    .append(field.getFieldType()).append("\"");
+            IndexField indexField = new IndexField();
+            fields.put(field.getFieldName(),indexField);
+            indexField.setType(field.getFieldType());
             if (field.getFieldType().equals("text")) {
                 if (StringUtils.isNotEmpty(field.getAnalyzer())) {
-                    fieldStr.append(",\n          \"analyzer\" : \"")
-                            .append(field.getAnalyzer()).append("\"");
+                    indexField.setAnalyzer(field.getAnalyzer());
                 }
                 if (StringUtils.isNotEmpty(field.getSearchAnalyzer())) {
-                    fieldStr.append(",\n          \"search_analyzer\" : \"")
-                            .append(field.getSearchAnalyzer()).append("\"");
+                    indexField.setSearchAnalyzer(field.getSearchAnalyzer());
                 }
             } else if (field.getFieldType().equals("date")) {
                 if (StringUtils.isNotEmpty(field.getFieldFormat())) {
-                    fieldStr.append(",\n          \"format\" : \"")
-                            .append(field.getFieldFormat()).append("\"");
+                    indexField.setFormat(field.getFieldFormat());
                 }
             } else if (field.getFieldType().equals("scaled_float")) {
                 if (StringUtils.isNotEmpty(field.getScalingFactor())) {
-                    fieldStr.append(",\n          \"scaling_factor\" : \"")
-                            .append(field.getScalingFactor()).append("\"");
+                    indexField.setScalingFactor(field.getScalingFactor());
                 }
             }
-            fieldStr.append("\n        }");
-            fieldList.add(fieldStr.toString());
         }
-        return fieldList;
+        return ElasticsearchIndexMappingInfo.builder().mappings(IndexMappings.builder()
+                .properties(fields).build()).build();
     }
 
     /**
@@ -189,12 +187,10 @@ public class ElasticsearchApi {
      * @throws Exception The exception may throws
      */
     public void createIndexAndMapping(String indexName, List<ElasticsearchFieldInfo> fieldInfos) throws Exception {
-        List<String> fieldList = getMappingInfo(fieldInfos);
-        StringBuilder mapping = new StringBuilder().append("\n{\"mappings\":\n{\n\"properties\":{\n")
-                .append(StringUtils.join(fieldList, ",\n")).append("\n}\n}\n}");
+        ElasticsearchIndexMappingInfo mappingInfo = getMappingInfo(fieldInfos);
         final String url = esConfig.getOneHttpUrl() + "/" + indexName;
         ElasticsearchCreateIndexResponse response = HttpUtils.request(esConfig.getRestClient(), url, HttpMethod.PUT,
-                mapping.toString(), getHttpHeaders(), ElasticsearchCreateIndexResponse.class);
+                GSON.toJsonTree(mappingInfo).getAsString(), getHttpHeaders(), ElasticsearchCreateIndexResponse.class);
         LOG.info("create {}:{}", indexName, response.getIndex());
     }
 
@@ -245,13 +241,11 @@ public class ElasticsearchApi {
      * @throws Exception any exception if occurred
      */
     public void addFields(String indexName, List<ElasticsearchFieldInfo> fieldInfos) throws Exception {
-        List<String> fieldList = getMappingInfo(fieldInfos);
-        if (!fieldList.isEmpty()) {
+        ElasticsearchIndexMappingInfo mappingInfo = getMappingInfo(fieldInfos);
+        if (ObjectUtils.isNotEmpty(mappingInfo) && !mappingInfo.getMappings().getProperties().isEmpty()) {
             String url = esConfig.getOneHttpUrl() + InlongConstants.SLASH + indexName + "/_mapping";
-            StringBuilder mapping = new StringBuilder().append("{\n\"properties\":{\n")
-                    .append(StringUtils.join(fieldList, ",\n")).append("\n}\n}");
             HttpUtils.request(esConfig.getRestClient(), url, HttpMethod.PUT,
-                    mapping.toString(), getHttpHeaders(), Object.class);
+                    GSON.toJsonTree(mappingInfo).getAsString(), getHttpHeaders(), Object.class);
         }
     }
 
