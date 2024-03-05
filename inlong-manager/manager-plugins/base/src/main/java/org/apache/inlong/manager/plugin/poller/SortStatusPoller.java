@@ -101,9 +101,9 @@ public class SortStatusPoller implements SortPoller {
                 }
 
                 String sortUrl = kvConf.get(InlongConstants.SORT_URL);
-                FlinkService flinkService = new FlinkService(sortUrl);
                 statusInfo.setSortStatus(
-                        JOB_SORT_STATUS_MAP.getOrDefault(flinkService.getJobStatus(jobId), SortStatus.UNKNOWN));
+                        JOB_SORT_STATUS_MAP.getOrDefault(FlinkService.getInstance().getJobStatus(sortUrl, jobId),
+                                SortStatus.UNKNOWN));
                 statusInfos.add(statusInfo);
             } catch (Exception e) {
                 log.error("polling sort status failed for groupId=" + streamInfo.getInlongGroupId() + " streamId="
