@@ -18,12 +18,6 @@
 package org.apache.inlong.audit.send;
 
 import org.apache.inlong.audit.util.EventLoopUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.InetSocketAddress;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadFactory;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -32,6 +26,12 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.Attribute;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadFactory;
 
 public class SenderChannel {
 
