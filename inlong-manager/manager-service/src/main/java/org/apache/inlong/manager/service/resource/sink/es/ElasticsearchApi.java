@@ -190,7 +190,8 @@ public class ElasticsearchApi {
         ElasticsearchIndexMappingInfo mappingInfo = getMappingInfo(fieldInfos);
         final String url = esConfig.getOneHttpUrl() + "/" + indexName;
         ElasticsearchCreateIndexResponse response = HttpUtils.request(esConfig.getRestClient(), url, HttpMethod.PUT,
-                GSON.toJsonTree(mappingInfo).getAsString(), getHttpHeaders(), ElasticsearchCreateIndexResponse.class);
+                GSON.toJsonTree(mappingInfo).getAsJsonObject().toString(), getHttpHeaders(),
+                ElasticsearchCreateIndexResponse.class);
         LOG.info("create {}:{}", indexName, response.getIndex());
     }
 
@@ -245,7 +246,8 @@ public class ElasticsearchApi {
         if (ObjectUtils.isNotEmpty(mappingInfo) && !mappingInfo.getMappings().getProperties().isEmpty()) {
             String url = esConfig.getOneHttpUrl() + InlongConstants.SLASH + indexName + "/_mapping";
             HttpUtils.request(esConfig.getRestClient(), url, HttpMethod.PUT,
-                    GSON.toJsonTree(mappingInfo).getAsString(), getHttpHeaders(), Object.class);
+                    GSON.toJsonTree(mappingInfo.getMappings()).getAsJsonObject().toString(), getHttpHeaders(),
+                    Object.class);
         }
     }
 
