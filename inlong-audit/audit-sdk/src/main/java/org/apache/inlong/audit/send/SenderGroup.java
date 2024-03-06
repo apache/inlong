@@ -81,6 +81,9 @@ public class SenderGroup {
      * @return
      */
     public SenderResult send(ByteBuf dataBuf) {
+        if (dataBuf == null) {
+            return new SenderResult("dataBuf is null", 0, false);
+        }
         LinkedBlockingQueue<SenderChannel> channels = channelGroups.get(mIndex);
         SenderChannel channel = null;
         boolean dataBufReleased = false;
@@ -163,7 +166,7 @@ public class SenderGroup {
                 channel.release();
                 channels.offer(channel);
             }
-            if (!dataBufReleased && dataBuf != null) {
+            if (!dataBufReleased) {
                 dataBuf.release();
             }
         }
