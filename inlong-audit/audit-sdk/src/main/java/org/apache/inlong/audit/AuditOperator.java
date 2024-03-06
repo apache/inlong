@@ -23,6 +23,8 @@ import org.apache.inlong.audit.util.AuditConfig;
 import org.apache.inlong.audit.util.Config;
 import org.apache.inlong.audit.util.StatInfo;
 
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +35,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static org.apache.inlong.audit.protocol.AuditApi.BaseCommand.Type.AUDIT_REQUEST;
@@ -58,24 +61,14 @@ public class AuditOperator implements Serializable {
     private final ConcurrentHashMap<String, StatInfo> deleteCountMap = new ConcurrentHashMap<>();
     private final List<String> deleteKeyList = new ArrayList<>();
     private final Config config = new Config();
-    private final Timer timer = new Timer();
     private int packageId = 1;
     private int dataId = 0;
     private boolean initialized = false;
     private SenderManager manager;
 
-    private final TimerTask timerTask = new TimerTask() {
-
-        @Override
-        public void run() {
-            try {
-                send();
-            } catch (Exception e) {
-                LOGGER.error(e.getMessage());
-            }
-        }
-    };
+    private final ScheduledExecutorService timeoutExecutor = Executors.newSingleThreadScheduledExecutor();
     private AuditConfig auditConfig = null;
+    private SocketAddressListLoader loader = null;
 
     /**
      * Not support create from outer.
@@ -99,11 +92,69 @@ public class AuditOperator implements Serializable {
             return;
         }
         config.init();
-        timer.schedule(timerTask, PERIOD, PERIOD);
+        timeoutExecutor.scheduleWithFixedDelay(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    loadIpPortList();
+                    send();
+                } catch (Exception e) {
+                    LOGGER.error(e.getMessage());
+                }
+            }
+
+        }, PERIOD, PERIOD, TimeUnit.MILLISECONDS);
         if (auditConfig == null) {
             auditConfig = new AuditConfig();
         }
         this.manager = new SenderManager(auditConfig);
+    }
+
+    private void loadIpPortList() {
+        if (loader == null) {
+            return;
+        }
+        try {
+            List<String> ipPortList = loader.loadSocketAddressList();
+            if (ipPortList != null && ipPortList.size() > 0) {
+                HashSet<String> ipPortSet = new HashSet<>();
+                ipPortSet.addAll(ipPortList);
+                this.setAuditProxy(ipPortSet);
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+    }
+
+    /**
+     * set loader
+     * @param loader the loader to set
+     */
+    public void setLoader(SocketAddressListLoader loader) {
+        this.loader = loader;
+    }
+
+    /**
+     * setLoaderClass
+     * @param loaderClassName
+     */
+    public void setLoaderClass(String loaderClassName) {
+        if (StringUtils.isEmpty(loaderClassName)) {
+            return;
+        }
+        try {
+            Class<?> loaderClass = ClassUtils.getClass(loaderClassName);
+            Object loaderObject = loaderClass.getDeclaredConstructor().newInstance();
+            if (loaderObject instanceof SocketAddressListLoader) {
+                SocketAddressListLoader loader = (SocketAddressListLoader) loaderObject;
+                this.loader = loader;
+                LOGGER.info("audit IpPortListLoader loaderClass:{}", loaderClassName);
+            }
+        } catch (Throwable t) {
+            LOGGER.error("Fail to init IpPortListLoader,loaderClass:{},error:{}",
+                    loaderClassName, t.getMessage(), t);
+        }
     }
 
     /**
@@ -142,6 +193,16 @@ public class AuditOperator implements Serializable {
     public void add(int auditID, String auditTag, String inlongGroupID, String inlongStreamID, Long logTime,
             long count, long size) {
         long delayTime = System.currentTimeMillis() - logTime;
+        add(auditID, auditTag, inlongGroupID, inlongStreamID, logTime, count, size, delayTime * count);
+    }
+
+    public void add(int auditID, String inlongGroupID, String inlongStreamID, Long logTime, long count, long size,
+            long delayTime) {
+        add(auditID, DEFAULT_AUDIT_TAG, inlongGroupID, inlongStreamID, logTime, count, size, delayTime);
+    }
+
+    public void add(int auditID, String auditTag, String inlongGroupID, String inlongStreamID, Long logTime,
+            long count, long size, long delayTime) {
         String key = (logTime / PERIOD) + FIELD_SEPARATORS + inlongGroupID + FIELD_SEPARATORS
                 + inlongStreamID + FIELD_SEPARATORS + auditID + FIELD_SEPARATORS + auditTag;
         addByKey(key, count, size, delayTime);
@@ -156,7 +217,7 @@ public class AuditOperator implements Serializable {
         }
         countMap.get(key).count.addAndGet(count);
         countMap.get(key).size.addAndGet(size);
-        countMap.get(key).delay.addAndGet(delayTime * count);
+        countMap.get(key).delay.addAndGet(delayTime);
     }
 
     /**
@@ -240,7 +301,7 @@ public class AuditOperator implements Serializable {
     private void sendByBaseCommand(AuditApi.AuditRequest auditRequest) {
         AuditApi.BaseCommand.Builder baseCommand = AuditApi.BaseCommand.newBuilder();
         baseCommand.setType(AUDIT_REQUEST).setAuditRequest(auditRequest).build();
-        manager.send(baseCommand.build());
+        manager.send(baseCommand.build(), auditRequest);
     }
 
     /**

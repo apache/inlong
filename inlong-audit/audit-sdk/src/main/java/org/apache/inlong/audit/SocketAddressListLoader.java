@@ -15,35 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.util;
+package org.apache.inlong.audit;
 
-import java.net.InetSocketAddress;
+import java.util.List;
+import java.util.Map;
 
-public class SenderResult {
+/**
+ * SocketAddressListLoader
+ */
+public interface SocketAddressListLoader {
 
-    public final InetSocketAddress addr;
-    public boolean result;
+    String KEY_ADDRESS_LOADER = "audit.address.loader";
 
-    /**
-     * Constructor
-     *
-     * @param addr
-     * @param result
-     */
-    public SenderResult(InetSocketAddress addr, boolean result) {
-        this.addr = addr;
-        this.result = result;
-    }
+    void setCommonProperties(Map<String, String> commonProperties);
 
-    /**
-     * Constructor
-     *
-     * @param sendIp
-     * @param sendPort
-     * @param result
-     */
-    public SenderResult(String sendIp, int sendPort, boolean result) {
-        this.addr = new InetSocketAddress(sendIp, sendPort);
-        this.result = result;
-    }
+    List<String> loadSocketAddressList();
 }
