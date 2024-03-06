@@ -42,6 +42,7 @@
         <module>format-inlongmsg-rowdata-kv</module>
         <module>format-inlongmsg-rowdata-csv</module>
         <module>format-inlongmsg-rowdata-tlogcsv</module>
+        <module>format-inlongmsg-rowdata-tlogkv</module>
     </modules>
 
     <properties>

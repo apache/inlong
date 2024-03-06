@@ -15,25 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.inlongmsgtlogcsv;
+package org.apache.inlong.sort.formats.inlongmsgtlogkv;
 
-import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
+import org.apache.inlong.sort.formats.base.FieldToRowDataConverters.FieldToRowDataConverter;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 
 import org.apache.flink.table.data.GenericRowData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.apache.inlong.sort.formats.base.TableFormatUtils.deserializeBasicField;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_DT;
@@ -43,20 +39,19 @@ import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseAttr;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseDateTime;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseEpochTime;
 import static org.apache.inlong.sort.formats.util.StringUtils.splitCsv;
+import static org.apache.inlong.sort.formats.util.StringUtils.splitKv;
 
 /**
- * Utilities for InLongMsgTlogCsv.
+ * Utilities for {@link InLongMsgTlogKv}.
  */
-public class InLongMsgTlogCsvUtils {
+public class InLongMsgTlogKvUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InLongMsgTlogCsvUtils.class);
+    public static final String DEFAULT_INLONGMSG_TLOGKV_CHARSET = "ISO_8859_1";
 
     public static InLongMsgHead parseHead(String attr) {
         Map<String, String> attributes = parseAttr(attr);
 
-        // Extracts time from the attributes
         Timestamp time;
-
         if (attributes.containsKey(INLONGMSG_ATTR_TIME_T)) {
             String date = attributes.get(INLONGMSG_ATTR_TIME_T).trim();
             time = parseDateTime(date);
@@ -69,7 +64,6 @@ public class InLongMsgTlogCsvUtils {
                             " or " + INLONGMSG_ATTR_TIME_DT + " in attributes!");
         }
 
-        // Extracts predefined fields from the attributes
         List<String> predefinedFields = getPredefinedFields(attributes);
 
         return new InLongMsgHead(attributes, null, time, predefinedFields);
@@ -79,6 +73,8 @@ public class InLongMsgTlogCsvUtils {
             byte[] bytes,
             String charset,
             char delimiter,
+            char entryDelimiter,
+            char kvDelimiter,
             Character escapeChar,
             Character quoteChar) {
         String text;
@@ -90,36 +86,35 @@ public class InLongMsgTlogCsvUtils {
 
         String[] segments = splitCsv(text, delimiter, escapeChar, quoteChar);
 
-        String tid = segments[0];
-        List<String> fields =
-                Arrays.stream(segments, 1, segments.length).collect(Collectors.toList());
+        String streamId = segments[0];
 
-        return new InLongMsgBody(bytes, tid, fields, Collections.emptyMap());
+        Map<String, String> entries;
+        if (segments.length > 1) {
+            entries = splitKv(segments[1], entryDelimiter, kvDelimiter, escapeChar, quoteChar);
+        } else {
+            entries = Collections.emptyMap();
+        }
+
+        return new InLongMsgBody(bytes, streamId, Collections.emptyList(), entries);
     }
 
     /**
-     * Deserializes the given fields into the row.
+     * Deserializes the row from the given entries.
      *
      * @param rowFormatInfo The format information of the row.
      * @param nullLiteral The literal for null values.
      * @param predefinedFields The predefined fields.
-     * @param fields The fields.
-     * @return The row deserialized from the row.
+     * @param entries The entries.
+     * @return The row deserialized from the given entries.
      */
     public static GenericRowData deserializeRowData(
             RowFormatInfo rowFormatInfo,
             String nullLiteral,
             List<String> predefinedFields,
-            List<String> fields,
-            FieldToRowDataConverters.FieldToRowDataConverter[] converters) {
+            Map<String, String> entries,
+            FieldToRowDataConverter[] converters) {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
-
-        int actualNumFields = predefinedFields.size() + fields.size();
-        if (actualNumFields != fieldNames.length) {
-            LOG.warn("The number of fields mismatches: " + fieldNames.length +
-                    " expected, but was " + actualNumFields + ".");
-        }
 
         GenericRowData rowData = new GenericRowData(fieldNames.length);
 
@@ -131,11 +126,10 @@ public class InLongMsgTlogCsvUtils {
 
             String fieldName = fieldNames[i];
             FormatInfo fieldFormatInfo = fieldFormatInfos[i];
-
             String fieldText = predefinedFields.get(i);
-
-            Object field =
-                    converters[i].convert(deserializeBasicField(
+            FieldToRowDataConverter converter = converters[i];
+            Object field = converter.convert(
+                    deserializeBasicField(
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
@@ -143,30 +137,20 @@ public class InLongMsgTlogCsvUtils {
             rowData.setField(i, field);
         }
 
-        for (int i = 0; i < fields.size(); ++i) {
-
-            if (i + predefinedFields.size() >= fieldNames.length) {
-                break;
-            }
-
-            String fieldName = fieldNames[i + predefinedFields.size()];
-            FormatInfo fieldFormatInfo = fieldFormatInfos[i + predefinedFields.size()];
-
-            String fieldText = fields.get(i);
-
-            Object field =
-                    converters[i + predefinedFields.size()].convert(deserializeBasicField(
-                            fieldName,
-                            fieldFormatInfo,
-                            fieldText,
-                            nullLiteral));
-            rowData.setField(i + predefinedFields.size(), field);
-        }
-
-        for (int i = predefinedFields.size() + fields.size(); i < fieldNames.length; ++i) {
-            rowData.setField(i, null);
+        for (int i = predefinedFields.size(); i < fieldNames.length; ++i) {
+            String fieldName = fieldNames[i];
+            FormatInfo fieldFormatInfo = fieldFormatInfos[i];
+            String fieldText = entries.get(fieldName);
+            FieldToRowDataConverter converter = converters[i];
+            Object field = converter.convert(deserializeBasicField(
+                    fieldName,
+                    fieldFormatInfo,
+                    fieldText,
+                    nullLiteral));
+            rowData.setField(i, field);
         }
 
         return rowData;
     }
+
 }
