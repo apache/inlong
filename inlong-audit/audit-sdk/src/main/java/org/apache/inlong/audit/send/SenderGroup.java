@@ -83,12 +83,12 @@ public class SenderGroup {
     public SenderResult send(ByteBuf dataBuf) {
         LinkedBlockingQueue<SenderChannel> channels = channelGroups.get(mIndex);
         SenderChannel channel = null;
-        boolean dataBufHasReleased = false;
+        boolean dataBuffReleased = false;
         try {
             if (channels.size() <= 0) {
                 LOG.error("channels is empty");
                 dataBuf.release();
-                dataBufHasReleased = true;
+                dataBuffReleased = true;
                 return new SenderResult("channels is empty", 0, false);
             }
             boolean isOk = false;
@@ -135,7 +135,7 @@ public class SenderGroup {
             if (channel == null) {
                 LOG.error("can not get a channel");
                 dataBuf.release();
-                dataBufHasReleased = true;
+                dataBuffReleased = true;
                 return new SenderResult("can not get a channel", 0, false);
             }
 
@@ -148,10 +148,10 @@ public class SenderGroup {
                     }
                     t = channel.getChannel().writeAndFlush(dataBuf).sync().await();
                 }
-                dataBufHasReleased = true;
+                dataBuffReleased = true;
             } else {
                 dataBuf.release();
-                dataBufHasReleased = true;
+                dataBuffReleased = true;
             }
             return new SenderResult(channel.getAddr().getHostString(), channel.getAddr().getPort(), t.isSuccess());
         } catch (Throwable ex) {
@@ -163,7 +163,7 @@ public class SenderGroup {
                 channel.release();
                 channels.offer(channel);
             }
-            if (!dataBufHasReleased && dataBuf != null) {
+            if (!dataBuffReleased && dataBuf != null) {
                 dataBuf.release();
             }
         }
