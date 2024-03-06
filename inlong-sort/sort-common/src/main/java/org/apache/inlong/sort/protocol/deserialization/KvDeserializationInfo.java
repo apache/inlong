@@ -18,7 +18,9 @@
 package org.apache.inlong.sort.protocol.deserialization;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonAlias;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -29,6 +31,7 @@ import java.util.Objects;
 /**
  * Kv deserialization info
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class KvDeserializationInfo extends InLongMsgDeserializationInfo {
 
     private static final long serialVersionUID = -3182881360079888043L;
@@ -58,7 +61,7 @@ public class KvDeserializationInfo extends InLongMsgDeserializationInfo {
 
     @JsonCreator
     public KvDeserializationInfo(
-            @JsonProperty("streamId") String streamId,
+            @JsonProperty("streamId") @JsonAlias(value = {"tid"}) String streamId,
             @JsonProperty("entry_splitter") char entrySplitter,
             @JsonProperty("kv_splitter") char kvSplitter,
             @JsonProperty("escape_char") @Nullable Character escapeChar) {

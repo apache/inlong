@@ -17,7 +17,9 @@
 
 package org.apache.inlong.sort.protocol.deserialization;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonAlias;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
@@ -29,6 +31,7 @@ import java.util.Objects;
 /**
  * It represents TLog KV format of InLongMsg(m=15).
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class InLongMsgTlogKvDeserializationInfo extends InLongMsgDeserializationInfo {
 
     private static final long serialVersionUID = 3299931901024581425L;
@@ -44,7 +47,7 @@ public class InLongMsgTlogKvDeserializationInfo extends InLongMsgDeserialization
     private final Character escapeChar;
 
     public InLongMsgTlogKvDeserializationInfo(
-            @JsonProperty("streamId") String streamId,
+            @JsonProperty("streamId") @JsonAlias(value = {"tid"}) String streamId,
             @JsonProperty("delimiter") char delimiter,
             @JsonProperty("entry_delimiter") char entryDelimiter,
             @JsonProperty("kv_delimiter") char kvDelimiter) {
@@ -53,7 +56,7 @@ public class InLongMsgTlogKvDeserializationInfo extends InLongMsgDeserialization
 
     @JsonCreator
     public InLongMsgTlogKvDeserializationInfo(
-            @JsonProperty("streamId") String streamId,
+            @JsonProperty("streamId") @JsonAlias(value = {"tid"}) String streamId,
             @JsonProperty("delimiter") char delimiter,
             @JsonProperty("entry_delimiter") char entryDelimiter,
             @JsonProperty("kv_delimiter") char kvDelimiter,
