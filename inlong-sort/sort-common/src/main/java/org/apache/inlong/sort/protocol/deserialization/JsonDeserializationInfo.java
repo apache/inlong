@@ -17,9 +17,12 @@
 
 package org.apache.inlong.sort.protocol.deserialization;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * Json deserialization info
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonDeserializationInfo implements DeserializationInfo {
 
     private static final long serialVersionUID = -5344203248610337314L;
