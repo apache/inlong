@@ -190,7 +190,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
         // if the group mode is DATASYNC, just get all related stream sources
         List<StreamSource> streamSources = this.listSource(groupId, null);
-        if (InlongConstants.DATASYNC_MODE.equals(groupInfo.getInlongGroupMode())) {
+        if (InlongConstants.DATASYNC_REALTIME_MODE.equals(groupInfo.getInlongGroupMode())) {
             result = streamSources.stream()
                     .collect(Collectors.groupingBy(StreamSource::getInlongStreamId, HashMap::new,
                             Collectors.toCollection(ArrayList::new)));
