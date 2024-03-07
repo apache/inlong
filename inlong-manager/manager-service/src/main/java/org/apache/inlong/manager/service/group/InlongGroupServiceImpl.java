@@ -698,7 +698,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         InlongGroupInfo groupInfo = this.get(groupId);
 
         // check if the group mode is data sync mode
-        if (InlongConstants.DATASYNC_MODE.equals(groupInfo.getInlongGroupMode())) {
+        if (InlongConstants.DATASYNC_REALTIME_MODE.equals(groupInfo.getInlongGroupMode())) {
             String errMSg = String.format("no need to switch sync mode group = {}", groupId);
             LOGGER.error(errMSg);
             throw new BusinessException(errMSg);
