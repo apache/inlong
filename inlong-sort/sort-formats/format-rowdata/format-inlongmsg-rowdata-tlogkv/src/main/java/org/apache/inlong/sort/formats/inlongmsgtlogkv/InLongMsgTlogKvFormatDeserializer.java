@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.inlongmsgtlogcsv;
+package org.apache.inlong.sort.formats.inlongmsgtlogkv;
 
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters.FieldToRowDataConverter;
@@ -31,6 +31,8 @@ import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.descriptors.DescriptorProperties;
+import org.apache.flink.table.types.logical.RowType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -41,13 +43,21 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_ENTRY_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_KV_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ATTRIBUTE_FIELD_NAME;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_ENTRY_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_KV_DELIMITER;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_TIME_FIELD_NAME;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsgtlogkv.InLongMsgTlogKvUtils.DEFAULT_INLONGMSG_TLOGKV_CHARSET;
 
 /**
- * The deserializer for the records in InLongMsgTlogCsv format.
+ * The deserializer for the records in InLongMsgTlogKV format.
  */
-public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgFormatDeserializer {
+public final class InLongMsgTlogKvFormatDeserializer extends AbstractInLongMsgFormatDeserializer {
 
     private static final long serialVersionUID = 1L;
 
@@ -72,6 +82,7 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
     /**
      * The charset of the text.
      */
+    @Nonnull
     private final String charset;
 
     /**
@@ -79,6 +90,18 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
      */
     @Nonnull
     private final Character delimiter;
+
+    /**
+     * The delimiter between entries.
+     */
+    @Nonnull
+    private final Character entryDelimiter;
+
+    /**
+     * The delimiter between key and value.
+     */
+    @Nonnull
+    private final Character kvDelimiter;
 
     /**
      * Escape character. Null if escaping is disabled.
@@ -98,20 +121,19 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
     @Nullable
     private final String nullLiteral;
 
-    private final List<String> metadataKeys;
-
     private final FieldToRowDataConverter[] converters;
 
-    public InLongMsgTlogCsvFormatDeserializer(
+    public InLongMsgTlogKvFormatDeserializer(
             @Nonnull RowFormatInfo rowFormatInfo,
             @Nullable String timeFieldName,
             @Nullable String attributesFieldName,
             @Nonnull String charset,
             @Nonnull Character delimiter,
+            @Nonnull Character entryDelimiter,
+            @Nonnull Character kvDelimiter,
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
             @Nullable String nullLiteral,
-            List<String> metadataKeys,
             @Nonnull Boolean ignoreErrors) {
         this(
                 rowFormatInfo,
@@ -119,23 +141,25 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
                 attributesFieldName,
                 charset,
                 delimiter,
+                entryDelimiter,
+                kvDelimiter,
                 escapeChar,
                 quoteChar,
                 nullLiteral,
-                metadataKeys,
                 InLongMsgUtils.getDefaultExceptionHandler(ignoreErrors));
     }
 
-    public InLongMsgTlogCsvFormatDeserializer(
+    public InLongMsgTlogKvFormatDeserializer(
             @Nonnull RowFormatInfo rowFormatInfo,
             @Nullable String timeFieldName,
             @Nullable String attributesFieldName,
             @Nonnull String charset,
             @Nonnull Character delimiter,
+            @Nonnull Character entryDelimiter,
+            @Nonnull Character kvDelimiter,
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
             @Nullable String nullLiteral,
-            List<String> metadataKeys,
             @Nonnull FailureHandler failureHandler) {
         super(failureHandler);
 
@@ -144,69 +168,76 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
         this.attributesFieldName = attributesFieldName;
         this.charset = charset;
         this.delimiter = delimiter;
+        this.entryDelimiter = entryDelimiter;
+        this.kvDelimiter = kvDelimiter;
         this.escapeChar = escapeChar;
         this.quoteChar = quoteChar;
         this.nullLiteral = nullLiteral;
-        this.metadataKeys = metadataKeys;
 
-        converters = Arrays.stream(rowFormatInfo.getFieldFormatInfos())
+        this.converters = Arrays.stream(rowFormatInfo.getFieldFormatInfos())
                 .map(formatInfo -> FieldToRowDataConverters.createConverter(
                         TableFormatUtils.deriveLogicalType(formatInfo)))
-                .toArray(FieldToRowDataConverter[]::new);
+                .toArray(FieldToRowDataConverters.FieldToRowDataConverter[]::new);
     }
 
     @Override
     public TypeInformation<RowData> getProducedType() {
-        return InLongMsgUtils.decorateRowTypeWithNeededHeadFieldsAndMetadata(
-                timeFieldName,
-                attributesFieldName,
-                rowFormatInfo,
-                metadataKeys);
+        return InLongMsgUtils.decorateRowDataTypeWithNeededHeadFields(timeFieldName,
+                attributesFieldName, (RowType) TableFormatUtils.deriveLogicalType(rowFormatInfo));
     }
 
     @Override
     protected InLongMsgHead parseHead(String attr) throws Exception {
-        return InLongMsgTlogCsvUtils.parseHead(attr);
+        return InLongMsgTlogKvUtils.parseHead(attr);
     }
 
     @Override
     protected List<InLongMsgBody> parseBodyList(byte[] bytes) throws Exception {
         return Collections.singletonList(
-                InLongMsgTlogCsvUtils.parseBody(bytes, charset, delimiter, escapeChar, quoteChar));
+                InLongMsgTlogKvUtils.parseBody(
+                        bytes,
+                        charset,
+                        delimiter,
+                        entryDelimiter,
+                        kvDelimiter,
+                        escapeChar,
+                        quoteChar));
     }
 
     @Override
     protected List<RowData> convertRowDataList(InLongMsgHead head, InLongMsgBody body) throws Exception {
-        GenericRowData dataRow =
-                InLongMsgTlogCsvUtils.deserializeRowData(
+        GenericRowData genericRowData =
+                InLongMsgTlogKvUtils.deserializeRowData(
                         rowFormatInfo,
                         nullLiteral,
                         head.getPredefinedFields(),
-                        body.getFields(),
-                        converters);
+                        body.getEntries(), converters);
 
-        GenericRowData genericRowData = (GenericRowData) InLongMsgUtils.decorateRowDataWithNeededHeadFields(
+        RowData rowData = InLongMsgUtils.decorateRowWithNeededHeadFields(
                 timeFieldName,
                 attributesFieldName,
                 head.getTime(),
                 head.getAttributes(),
-                dataRow);
+                genericRowData);
 
-        return Collections.singletonList(InLongMsgUtils.decorateRowWithMetaData(genericRowData, head, metadataKeys));
+        return Collections.singletonList(rowData);
     }
 
     /**
-     * The builder for {@link InLongMsgTlogCsvFormatDeserializer}.
+     * The builder for {@link InLongMsgTlogKvFormatDeserializer}.
      */
     public static class Builder extends TextFormatBuilder<Builder> {
 
         private String timeFieldName = DEFAULT_TIME_FIELD_NAME;
         private String attributesFieldName = DEFAULT_ATTRIBUTES_FIELD_NAME;
         private Character delimiter = DEFAULT_DELIMITER;
-        private List<String> metadataKeys = Collections.emptyList();
+        private Character entryDelimiter = DEFAULT_ENTRY_DELIMITER;
+        private Character kvDelimiter = DEFAULT_KV_DELIMITER;
 
         public Builder(RowFormatInfo rowFormatInfo) {
             super(rowFormatInfo);
+
+            this.charset = DEFAULT_INLONGMSG_TLOGKV_CHARSET;
         }
 
         public Builder setTimeFieldName(String timeFieldName) {
@@ -224,56 +255,80 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
             return this;
         }
 
-        public Builder setMetadataKeys(List<String> metadataKeys) {
-            this.metadataKeys = metadataKeys;
+        public Builder setEntryDelimiter(Character entryDelimiter) {
+            this.entryDelimiter = entryDelimiter;
             return this;
         }
 
-        public InLongMsgTlogCsvFormatDeserializer build() {
-            return new InLongMsgTlogCsvFormatDeserializer(
+        public Builder setKvDelimiter(Character kvDelimiter) {
+            this.kvDelimiter = kvDelimiter;
+            return this;
+        }
+
+        public Builder configure(DescriptorProperties descriptorProperties) {
+            super.configure(descriptorProperties);
+
+            descriptorProperties.getOptionalString(FORMAT_TIME_FIELD_NAME)
+                    .ifPresent(this::setTimeFieldName);
+            descriptorProperties.getOptionalString(FORMAT_ATTRIBUTE_FIELD_NAME)
+                    .ifPresent(this::setAttributesFieldName);
+            descriptorProperties.getOptionalCharacter(FORMAT_DELIMITER)
+                    .ifPresent(this::setDelimiter);
+            descriptorProperties.getOptionalCharacter(FORMAT_ENTRY_DELIMITER)
+                    .ifPresent(this::setEntryDelimiter);
+            descriptorProperties.getOptionalCharacter(FORMAT_KV_DELIMITER)
+                    .ifPresent(this::setKvDelimiter);
+
+            return this;
+        }
+
+        public InLongMsgTlogKvFormatDeserializer build() {
+            return new InLongMsgTlogKvFormatDeserializer(
                     rowFormatInfo,
                     timeFieldName,
                     attributesFieldName,
                     charset,
                     delimiter,
+                    entryDelimiter,
+                    kvDelimiter,
                     escapeChar,
                     quoteChar,
                     nullLiteral,
-                    metadataKeys,
                     ignoreErrors);
         }
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object object) {
+        if (this == object) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (object == null || getClass() != object.getClass()) {
             return false;
         }
 
-        if (!super.equals(o)) {
+        if (!super.equals(object)) {
             return false;
         }
 
-        InLongMsgTlogCsvFormatDeserializer that = (InLongMsgTlogCsvFormatDeserializer) o;
+        InLongMsgTlogKvFormatDeserializer that = (InLongMsgTlogKvFormatDeserializer) object;
         return rowFormatInfo.equals(that.rowFormatInfo) &&
                 Objects.equals(timeFieldName, that.timeFieldName) &&
                 Objects.equals(attributesFieldName, that.attributesFieldName) &&
-                Objects.equals(charset, that.charset) &&
+                charset.equals(that.charset) &&
                 delimiter.equals(that.delimiter) &&
+                entryDelimiter.equals(that.entryDelimiter) &&
+                kvDelimiter.equals(that.kvDelimiter) &&
                 Objects.equals(escapeChar, that.escapeChar) &&
                 Objects.equals(quoteChar, that.quoteChar) &&
-                Objects.equals(nullLiteral, that.nullLiteral) &&
-                Objects.equals(metadataKeys, that.metadataKeys);
+                Objects.equals(nullLiteral, that.nullLiteral);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), rowFormatInfo, timeFieldName,
-                attributesFieldName, charset, delimiter, escapeChar, quoteChar,
-                nullLiteral, metadataKeys);
+                attributesFieldName, charset, delimiter, entryDelimiter, kvDelimiter,
+                escapeChar, quoteChar, nullLiteral);
     }
 }

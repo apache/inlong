@@ -44,7 +44,6 @@ import org.junit.Test;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -147,9 +146,11 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
         expectRowData2.setField(5, StringData.fromString("field2"));
         expectRowData2.setField(6, StringData.fromString("field3"));
 
-        testRowDeserialization(
-                inLongMsg1.buildArray(),
-                Arrays.asList(expectRowData1, expectRowData2));
+        List expList = new ArrayList<>();
+        expList.add(expectRowData1);
+        expList.add(expectRowData2);
+
+        testRowDeserialization(inLongMsg1.buildArray(), expList);
     }
 
     @Test
@@ -174,9 +175,10 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
         expectRowData.setField(5, StringData.fromString("field2"));
         expectRowData.setField(6, StringData.fromString("field3"));
 
+        List expList = new ArrayList<>();
+        expList.add(expectRowData);
         testRowDeserialization(
-                inLongMsg1.buildArray(),
-                Collections.singletonList(expectRowData));
+                inLongMsg1.buildArray(), expList);
     }
 
     @Test
@@ -211,10 +213,11 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
         expectRowData2.setField(4, StringData.fromString("field1"));
         expectRowData2.setField(5, StringData.fromString("field2"));
         expectRowData2.setField(6, StringData.fromString("field3"));
-
+        List expList = new ArrayList<>();
+        expList.add(expectRowData1);
+        expList.add(expectRowData2);
         testRowDeserialization(
-                inLongMsg1.buildArray(),
-                Arrays.asList(expectRowData1, expectRowData2));
+                inLongMsg1.buildArray(), expList);
     }
 
     @Test
@@ -294,9 +297,7 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
 
         List<RowData> actualRows = new ArrayList<>();
         Collector<RowData> collector = new ListCollector<>(actualRows);
-
         deserializer.flatMap(bytes, collector);
-
         assertEquals(expectedRows, actualRows);
     }
 
