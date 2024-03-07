@@ -58,7 +58,8 @@ public class InlongGroupPageRequest extends PageRequest {
     @ApiModelProperty(value = "The inlong cluster tag list")
     private List<String> clusterTagList;
 
-    @ApiModelProperty(value = "Standard mode(include Data Ingestion and Synchronization): 0, DataSync mode(only Data Synchronization): 1")
+    @ApiModelProperty(value = "Standard mode(include Data Ingestion and Synchronization): 0, DataSync mode(only Data Synchronization, real-time data sync in stream way): 1,"
+            + " DataSync mode(only Data Synchronization, offline data sync in batch way): 2")
     private Integer inlongGroupMode;
 
     @ApiModelProperty(value = "Current user", hidden = true)
