@@ -138,7 +138,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
             updateFieldOpt(entity, request.getFieldList());
             return;
         }
-        boolean allowUpdate = InlongConstants.DATASYNC_MODE.equals(groupMode)
+        boolean allowUpdate = InlongConstants.DATASYNC_REALTIME_MODE.equals(groupMode)
                 || SourceStatus.ALLOWED_UPDATE.contains(entity.getStatus());
         if (!allowUpdate) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_OPT_NOT_ALLOWED,

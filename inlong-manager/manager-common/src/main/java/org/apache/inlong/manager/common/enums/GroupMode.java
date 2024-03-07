@@ -31,10 +31,18 @@ public enum GroupMode {
     STANDARD("standard"),
 
     /**
-     * DataSync mode(only Data Synchronization): group init only with sort in InLong Cluster
-     * StreamSource -> Sort -> StreamSink
+     * DataSync mode(only Data Synchronization): real-time data sync in stream way, group init only with
+     * sort in InLong Cluster.
+     * StreamSource -> Sort -> Sink
      */
-    DATASYNC("datasync");
+    DATASYNC("datasync"),
+
+    /**
+     * DataSync mode(only Data Synchronization): offline data sync in batch way, group init only with sort
+     * in InLong Cluster.
+     * BatchSource -> Sort -> Sink
+     */
+    DATASYNC_BATCH("datasync_offline");
 
     @Getter
     private final String mode;

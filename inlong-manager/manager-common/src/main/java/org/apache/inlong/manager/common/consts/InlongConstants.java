@@ -87,7 +87,8 @@ public class InlongConstants {
     public static final Integer DELETED_STATUS = 10;
 
     public static final Integer STANDARD_MODE = 0;
-    public static final Integer DATASYNC_MODE = 1;
+    public static final Integer DATASYNC_REALTIME_MODE = 1;
+    public static final Integer DATASYNC_OFFLINE_MODE = 2;
 
     public static final Integer DISABLE_ZK = 0;
     public static final Integer ENABLE_ZK = 1;
