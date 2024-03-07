@@ -86,6 +86,9 @@ public class StringUtils {
         String key = "";
         String value;
 
+        String lastKey = null;
+        String lastValue = null;
+
         int state = STATE_KEY;
 
         /*
@@ -93,9 +96,9 @@ public class StringUtils {
          */
         int kvState = STATE_KEY;
 
+        char lastCh = 0;
         for (int i = 0; i < text.length(); ++i) {
             char ch = text.charAt(i);
-
             if (ch == kvDelimiter) {
                 switch (state) {
                     case STATE_KEY:
@@ -104,8 +107,8 @@ public class StringUtils {
                         state = STATE_VALUE;
                         break;
                     case STATE_VALUE:
-                        throw new IllegalArgumentException("Unexpected token " +
-                                ch + " at position " + i + ".");
+                        stringBuilder.append(ch);
+                        break;
                     case STATE_ESCAPING:
                         stringBuilder.append(ch);
                         state = kvState;
@@ -117,12 +120,18 @@ public class StringUtils {
             } else if (ch == entryDelimiter) {
                 switch (state) {
                     case STATE_KEY:
-                        throw new IllegalArgumentException("Unexpected token " +
-                                ch + " at position " + i + ".");
+                        key = lastKey;
+                        value = lastValue + ch + stringBuilder.toString();
+                        fields.put(key, value);
+                        lastKey = key;
+                        lastValue = value;
+                        stringBuilder.setLength(0);
+                        break;
                     case STATE_VALUE:
                         value = stringBuilder.toString();
                         fields.put(key, value);
-
+                        lastKey = key;
+                        lastValue = value;
                         stringBuilder.setLength(0);
                         state = STATE_KEY;
                         break;
@@ -137,6 +146,10 @@ public class StringUtils {
             } else if (escapeChar != null && ch == escapeChar) {
                 switch (state) {
                     case STATE_KEY:
+                        stringBuilder.append(lastCh);
+                        kvState = state;
+                        state = STATE_ESCAPING;
+                        break;
                     case STATE_VALUE:
                         kvState = state;
                         state = STATE_ESCAPING;
@@ -152,6 +165,10 @@ public class StringUtils {
             } else if (quoteChar != null && ch == quoteChar) {
                 switch (state) {
                     case STATE_KEY:
+                        stringBuilder.append(lastCh);
+                        kvState = state;
+                        state = STATE_QUOTING;
+                        break;
                     case STATE_VALUE:
                         kvState = state;
                         state = STATE_QUOTING;
@@ -166,7 +183,18 @@ public class StringUtils {
                 }
             } else if (lineDelimiter != null && ch == lineDelimiter) {
                 switch (state) {
+                    case STATE_KEY:
+                        key = lastKey;
+                        stringBuilder.append(lastValue).append(lastCh);
+                        value = stringBuilder.toString();
+                        fields.put(key, value);
+                        lastKey = null;
+                        lastValue = null;
+                        stringBuilder.setLength(0);
+                        break;
                     case STATE_VALUE:
+                        lastKey = null;
+                        lastValue = null;
                         value = stringBuilder.toString();
                         fields.put(key, value);
                         Map<String, String> copyFields = new HashMap<>();
@@ -187,20 +215,29 @@ public class StringUtils {
             } else {
                 stringBuilder.append(ch);
             }
+            lastCh = ch;
         }
 
         switch (state) {
             case STATE_KEY:
-                throw new IllegalArgumentException("Dangling key.");
-            case STATE_VALUE:
-                value = stringBuilder.toString();
-                fields.put(key, value);
+                if (lastKey != null && lastValue != null && text != null) {
+                    fields.put(lastKey, lastValue + lastCh);
+                }
                 lines.add(fields);
                 return lines;
+            case STATE_VALUE:
             case STATE_ESCAPING:
-                throw new IllegalArgumentException("Not closed escaping.");
             case STATE_QUOTING:
-                throw new IllegalArgumentException("Not closed quoting.");
+                value = stringBuilder.toString();
+                String oldValue = fields.get(key);
+                if (value != null && !"".equals(value)
+                        && oldValue != null && !"".equals(oldValue)) {
+                    fields.put(key, oldValue + value);
+                } else if (value != null && !"".equals(value)) {
+                    fields.put(key, value);
+                }
+                lines.add(fields);
+                return lines;
             default:
                 throw new IllegalStateException();
         }
@@ -441,6 +478,8 @@ public class StringUtils {
 
         switch (state) {
             case STATE_NORMAL:
+            case STATE_ESCAPING:
+            case STATE_QUOTING:
                 String field = stringBuilder.toString();
                 fields.add(field);
                 lines.add(fields.toArray(new String[0]));
@@ -450,11 +489,11 @@ public class StringUtils {
                     result[i] = lines.get(i);
                 }
                 return result;
-
-            case STATE_ESCAPING:
-                throw new IllegalArgumentException(String.format("Not closed escaping. Text=[%s].", text));
-            case STATE_QUOTING:
-                throw new IllegalArgumentException(String.format("Not closed quoting. Text=[%s].", text));
+//
+//            case STATE_ESCAPING:
+//                throw new IllegalArgumentException(String.format("Not closed escaping. Text=[%s].", text));
+//            case STATE_QUOTING:
+//                throw new IllegalArgumentException(String.format("Not closed quoting. Text=[%s].", text));
             default:
                 throw new IllegalStateException(String.format("Text=[%s].", text));
         }
