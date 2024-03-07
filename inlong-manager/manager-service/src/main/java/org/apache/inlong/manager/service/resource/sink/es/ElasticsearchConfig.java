@@ -44,7 +44,7 @@ public class ElasticsearchConfig {
     @Autowired
     private RestTemplate restTemplate;
 
-    private static List<HttpHost> httpHosts;
+    private List<HttpHost> httpHosts;
     @Value("${es.index.search.hostname}")
     private String hosts;
     @Value("${es.auth.enable}")
