@@ -489,11 +489,6 @@ public class StringUtils {
                     result[i] = lines.get(i);
                 }
                 return result;
-//
-//            case STATE_ESCAPING:
-//                throw new IllegalArgumentException(String.format("Not closed escaping. Text=[%s].", text));
-//            case STATE_QUOTING:
-//                throw new IllegalArgumentException(String.format("Not closed quoting. Text=[%s].", text));
             default:
                 throw new IllegalStateException(String.format("Text=[%s].", text));
         }
