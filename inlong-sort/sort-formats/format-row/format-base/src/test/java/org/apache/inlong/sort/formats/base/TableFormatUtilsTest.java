@@ -27,7 +27,6 @@ import static org.apache.inlong.sort.formats.base.TableFormatUtils.deserializeBa
 import static org.apache.inlong.sort.formats.base.TableFormatUtils.serializeBasicField;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 /**
  * Tests for {@link TableFormatUtils}.
