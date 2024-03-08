@@ -121,7 +121,7 @@ public class StringUtils {
                 switch (state) {
                     case STATE_KEY:
                         key = lastKey;
-                        if (lastValue != null) {
+                        if (lastValue == null) {
                             value = ch + stringBuilder.toString();
                         } else {
                             value = lastValue + ch + stringBuilder.toString();
