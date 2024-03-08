@@ -25,6 +25,15 @@ import java.io.Serializable;
 public interface FailureHandler extends Serializable {
 
     /**
+     * This method is called when there is a failure occurred while parsing to check is
+     * or not parse failure.
+     *
+     */
+    default boolean isIgnoreFailure() {
+        return false;
+    };
+
+    /**
      * This method is called when there is a failure occurred while parsing not InLongMsg.
      *
      * @param msg the msg byte

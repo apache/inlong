@@ -52,6 +52,11 @@ public class NoOpFailureHandler implements FailureHandler {
     }
 
     @Override
+    public boolean isIgnoreFailure() {
+        return false;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

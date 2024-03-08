@@ -43,11 +43,6 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
     private static final Logger LOG = LoggerFactory.getLogger(DefaultDeserializationSchema.class);
 
     /**
-     * If true, the deserialization error will be ignored.
-     */
-    private final boolean ignoreErrors;
-
-    /**
      * If true, a parsing error is occurred.
      */
     private boolean errorOccurred = false;
@@ -60,7 +55,6 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
     protected transient FormatMetricGroup formatMetricGroup;
 
     public DefaultDeserializationSchema(boolean ignoreErrors) {
-        this.ignoreErrors = ignoreErrors;
         if (ignoreErrors) {
             failureHandler = new IgnoreFailureHandler();
         } else {
@@ -70,7 +64,6 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
 
     public DefaultDeserializationSchema(FailureHandler failureHandler) {
         this.failureHandler = failureHandler;
-        this.ignoreErrors = false;
     }
 
     @Override
@@ -104,7 +97,7 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
             if (formatMetricGroup != null) {
                 formatMetricGroup.getNumRecordsDeserializeError().inc(1L);
             }
-            if (ignoreErrors) {
+            if (failureHandler != null && failureHandler.isIgnoreFailure()) {
                 if (formatMetricGroup != null) {
                     formatMetricGroup.getNumRecordsDeserializeErrorIgnored().inc(1L);
                 }
@@ -122,7 +115,7 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
     }
 
     public boolean skipCurrentRecord(T element) {
-        return ignoreErrors && errorOccurred;
+        return (failureHandler != null && failureHandler.isIgnoreFailure()) && errorOccurred;
     }
 
     protected abstract T deserializeInternal(byte[] bytes) throws Exception;
@@ -136,11 +129,11 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
             return false;
         }
         DefaultDeserializationSchema<?> that = (DefaultDeserializationSchema<?>) object;
-        return Objects.equals(ignoreErrors, that.ignoreErrors);
+        return Objects.equals(failureHandler, that.failureHandler);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ignoreErrors);
+        return Objects.hash(failureHandler);
     }
 }

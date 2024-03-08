@@ -48,6 +48,11 @@ public class IgnoreFailureHandler implements FailureHandler {
     }
 
     @Override
+    public boolean isIgnoreFailure() {
+        return true;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
