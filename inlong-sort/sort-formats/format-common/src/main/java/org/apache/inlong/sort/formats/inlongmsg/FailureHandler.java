@@ -34,7 +34,7 @@ public interface FailureHandler extends Serializable {
     };
 
     /**
-     * This method is called when there is a failure occurred while parsing not InLongMsg.
+     * This method is called when there is a failure occurred while parsing non-InLong message.
      *
      * @param msg the msg byte
      * @param exception the thrown exception
