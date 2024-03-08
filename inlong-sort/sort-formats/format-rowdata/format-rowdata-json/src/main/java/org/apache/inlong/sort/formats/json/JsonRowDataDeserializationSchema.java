@@ -113,7 +113,7 @@ public class JsonRowDataDeserializationSchema extends DefaultDeserializationSche
         try {
             rowData = (RowData) runtimeConverter.convert(jsonStr);
         } catch (Throwable t) {
-            failureHandler.onParsingMsgFailure(message, new RuntimeException(
+            failureHandler.onParsingMsgFailure(jsonStr, new RuntimeException(
                     String.format("Could not properly deserialize json. Text=[%s].", jsonStr), t));
         }
         return rowData;
