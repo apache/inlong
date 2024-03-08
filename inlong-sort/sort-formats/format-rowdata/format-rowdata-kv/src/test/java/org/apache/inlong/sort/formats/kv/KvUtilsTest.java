@@ -209,7 +209,7 @@ public class KvUtilsTest {
         Assert.assertEquals("b", kvMap.get("f2"));
     }
 
-
+    @Test
     public void testSplitUnclosedQuoting() {
         Map<String, String> kvMap = splitKv("f1=a&f2=b\"", '&', '=',
                 '\\', '\"');
