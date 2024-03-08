@@ -171,7 +171,7 @@ public class StringUtils {
             } else if (quoteChar != null && ch == quoteChar) {
                 switch (state) {
                     case STATE_KEY:
-                        if(lastCh != 0) {
+                        if (lastCh != 0) {
                             stringBuilder.append(lastCh);
                         }
                         kvState = state;
