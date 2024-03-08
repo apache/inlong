@@ -30,7 +30,6 @@ import org.apache.flink.table.types.logical.RowType;
 
 import javax.annotation.Nullable;
 
-import java.io.IOException;
 import java.util.Objects;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
@@ -104,13 +103,20 @@ public class JsonRowDataDeserializationSchema extends DefaultDeserializationSche
     }
 
     @Override
-    public RowData deserializeInternal(@Nullable byte[] message) throws IOException {
+    public RowData deserializeInternal(@Nullable byte[] message) throws Exception {
         if (message == null) {
             return null;
         }
 
         String jsonStr = new String(message, charset);
-        return (RowData) runtimeConverter.convert(jsonStr);
+        RowData rowData = null;
+        try {
+            rowData = (RowData) runtimeConverter.convert(jsonStr);
+        } catch (Throwable t) {
+            failureHandler.onParsingMsgFailure(message, new RuntimeException(
+                    String.format("Could not properly deserialize json. Text=[%s].", jsonStr), t));
+        }
+        return rowData;
     }
 
     @Override

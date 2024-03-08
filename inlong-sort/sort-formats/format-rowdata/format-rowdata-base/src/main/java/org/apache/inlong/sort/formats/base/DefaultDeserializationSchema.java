@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.formats.base;
 
+import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
+import org.apache.inlong.sort.formats.inlongmsg.IgnoreFailureHandler;
+import org.apache.inlong.sort.formats.inlongmsg.NoOpFailureHandler;
 import org.apache.inlong.sort.formats.metrics.FormatMetricGroup;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -49,6 +52,8 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
      */
     private boolean errorOccurred = false;
 
+    protected FailureHandler failureHandler;
+
     /**
      * The format metric group.
      */
@@ -56,6 +61,16 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
 
     public DefaultDeserializationSchema(boolean ignoreErrors) {
         this.ignoreErrors = ignoreErrors;
+        if (ignoreErrors) {
+            failureHandler = new IgnoreFailureHandler();
+        } else {
+            failureHandler = new NoOpFailureHandler();
+        }
+    }
+
+    public DefaultDeserializationSchema(FailureHandler failureHandler) {
+        this.failureHandler = failureHandler;
+        this.ignoreErrors = false;
     }
 
     @Override
@@ -110,7 +125,7 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
         return ignoreErrors && errorOccurred;
     }
 
-    protected abstract T deserializeInternal(byte[] bytes) throws IOException;
+    protected abstract T deserializeInternal(byte[] bytes) throws Exception;
 
     @Override
     public boolean equals(Object object) {

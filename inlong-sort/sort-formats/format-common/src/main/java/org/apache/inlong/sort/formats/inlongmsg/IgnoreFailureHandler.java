@@ -28,6 +28,11 @@ public class IgnoreFailureHandler implements FailureHandler {
     private static final Logger LOG = LoggerFactory.getLogger(IgnoreFailureHandler.class);
 
     @Override
+    public void onParsingMsgFailure(Object msg, Exception exception) {
+        LOG.error("Could not properly serialize msg=[%s].", msg, exception);
+    };
+
+    @Override
     public void onParsingHeadFailure(String attribute, Exception exception) {
         LOG.warn("Cannot properly parse the head {}", attribute, exception);
     }

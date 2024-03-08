@@ -145,8 +145,9 @@ public class KvRowDataDeserializationSchema extends DefaultDeserializationSchema
     }
 
     @Override
-    public RowData deserializeInternal(byte[] bytes) throws IOException {
+    public RowData deserializeInternal(byte[] bytes) throws Exception {
         String text = new String(bytes, Charset.forName(charset));
+        GenericRowData rowData = null;
         try {
             Map<String, String> fieldTexts =
                     splitKv(text, entryDelimiter, kvDelimiter, escapeChar, quoteChar);
@@ -154,7 +155,7 @@ public class KvRowDataDeserializationSchema extends DefaultDeserializationSchema
             String[] fieldNames = rowFormatInfo.getFieldNames();
             FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
-            GenericRowData rowData = new GenericRowData(fieldFormatInfos.length);
+            rowData = new GenericRowData(fieldFormatInfos.length);
             for (int i = 0; i < fieldFormatInfos.length; i++) {
                 String fieldName = fieldNames[i];
                 FormatInfo fieldFormatInfo = fieldFormatInfos[i];
@@ -170,9 +171,10 @@ public class KvRowDataDeserializationSchema extends DefaultDeserializationSchema
             }
             return rowData;
         } catch (Throwable t) {
-            throw new IOException(
-                    String.format("Could not properly deserialize kv. Text=[%s].", text), t);
+            failureHandler.onParsingMsgFailure(bytes, new RuntimeException(
+                    String.format("Could not properly deserialize kv. Text=[%s].", text), t));
         }
+        return null;
     }
 
     @Override
