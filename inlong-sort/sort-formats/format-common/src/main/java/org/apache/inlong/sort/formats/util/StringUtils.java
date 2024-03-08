@@ -121,7 +121,11 @@ public class StringUtils {
                 switch (state) {
                     case STATE_KEY:
                         key = lastKey;
-                        value = lastValue + ch + stringBuilder.toString();
+                        if (lastValue != null) {
+                            value = ch + stringBuilder.toString();
+                        } else {
+                            value = lastValue + ch + stringBuilder.toString();
+                        }
                         fields.put(key, value);
                         lastKey = key;
                         lastValue = value;
@@ -146,7 +150,9 @@ public class StringUtils {
             } else if (escapeChar != null && ch == escapeChar) {
                 switch (state) {
                     case STATE_KEY:
-                        stringBuilder.append(lastCh);
+                        if (lastCh != 0) {
+                            stringBuilder.append(lastCh);
+                        }
                         kvState = state;
                         state = STATE_ESCAPING;
                         break;
@@ -165,7 +171,9 @@ public class StringUtils {
             } else if (quoteChar != null && ch == quoteChar) {
                 switch (state) {
                     case STATE_KEY:
-                        stringBuilder.append(lastCh);
+                        if(lastCh != 0) {
+                            stringBuilder.append(lastCh);
+                        }
                         kvState = state;
                         state = STATE_QUOTING;
                         break;
@@ -226,6 +234,10 @@ public class StringUtils {
                 lines.add(fields);
                 return lines;
             case STATE_VALUE:
+                value = stringBuilder.toString();
+                fields.put(key, value);
+                lines.add(fields);
+                return lines;
             case STATE_ESCAPING:
             case STATE_QUOTING:
                 value = stringBuilder.toString();
