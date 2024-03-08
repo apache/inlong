@@ -29,7 +29,7 @@ public class NoOpFailureHandler implements FailureHandler {
 
     @Override
     public void onParsingMsgFailure(Object msg, Exception t) throws Exception {
-        LOG.error("Could not properly serialize msg=[%s].", msg, t);
+        LOG.error("Could not properly serialize msg=[{}].", msg, t);
         throw t;
     }
 

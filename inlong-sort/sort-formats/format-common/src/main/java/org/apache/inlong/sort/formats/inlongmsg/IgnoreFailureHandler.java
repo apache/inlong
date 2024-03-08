@@ -29,7 +29,7 @@ public class IgnoreFailureHandler implements FailureHandler {
 
     @Override
     public void onParsingMsgFailure(Object msg, Exception exception) {
-        LOG.error("Could not properly serialize msg=[%s].", msg, exception);
+        LOG.error("Could not properly serialize msg=[{}].", msg, exception);
     };
 
     @Override

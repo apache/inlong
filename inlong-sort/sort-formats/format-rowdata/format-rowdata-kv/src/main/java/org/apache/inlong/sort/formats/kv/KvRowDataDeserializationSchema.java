@@ -172,7 +172,7 @@ public class KvRowDataDeserializationSchema extends DefaultDeserializationSchema
             return rowData;
         } catch (Throwable t) {
             failureHandler.onParsingMsgFailure(bytes, new RuntimeException(
-                    String.format("Could not properly deserialize kv. Text=[%s].", text), t));
+                    String.format("Could not properly deserialize kv. Text=[{}].", text), t));
         }
         return null;
     }

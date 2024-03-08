@@ -244,7 +244,7 @@ public final class CsvRowDataDeserializationSchema extends DefaultDeserializatio
             return rowData;
         } catch (Throwable t) {
             failureHandler.onParsingMsgFailure(message, new RuntimeException(
-                    String.format("Could not properly deserialize csv. Text=[%s].", text), t));
+                    String.format("Could not properly deserialize csv. Text=[{}].", text), t));
         }
         return null;
     }
