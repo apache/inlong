@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.formats.common;
 
 import org.apache.inlong.sort.formats.util.StringUtils;
+
 import org.junit.Test;
 
 import java.util.List;
