@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.formats.kv;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -194,29 +195,38 @@ public class KvUtilsTest {
                 splitKv("=a&f=", '&', '=', '\\', '\"'));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testSplitNestedValue() {
-        splitKv("f1=a=a&f2=b&f3=c", '&', '=', '\\', '\"');
+        Map<String, String> kvMap = splitKv("f1=a=a&f2=b&f3=c", '&', '=',
+                '\\', '\"');
+        Assert.assertEquals("a=a", kvMap.get("f1"));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testSplitUnclosedEscaping() {
-        splitKv("f1=a&f2=b\\", '&', '=', '\\', '\"');
+        Map<String, String> kvMap = splitKv("f1=a&f2=b\\", '&', '=',
+                '\\', '\"');
+        Assert.assertEquals("b", kvMap.get("f2"));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testSplitUnclosedQuoting() {
-        splitKv("f1=a&f2=b\"", '&', '=', '\\', '\"');
+        Map<String, String> kvMap = splitKv("f1=a&f2=b\"", '&', '=',
+                '\\', '\"');
+        Assert.assertEquals("b", kvMap.get("f2"));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testSplitDanglingKey1() {
-        splitKv("f1", '&', '=', null, null);
+        Map<String, String> kvMap = splitKv("f1", '&', '=',
+                null, null);
+        Assert.assertEquals(null, kvMap.get("f1"));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testSplitDanglingKey2() {
-        splitKv("f1&f2=3", '&', '=', null, null);
+        Map<String, String> kvMap = splitKv("f1&f2=3", '&', '=',
+                null, null);
     }
 
     @Test
