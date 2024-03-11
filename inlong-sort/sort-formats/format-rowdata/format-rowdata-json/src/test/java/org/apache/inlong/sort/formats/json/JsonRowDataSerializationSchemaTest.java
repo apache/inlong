@@ -25,6 +25,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 import static org.apache.inlong.sort.formats.base.TextFormatOptions.CHARSET;
 import static org.apache.inlong.sort.formats.base.TextFormatOptionsUtil.ISO_8601;
@@ -44,6 +46,11 @@ public class JsonRowDataSerializationSchemaTest extends JsonRowDataSerDeTestBase
 
     @Test
     public void testSerialize() throws IOException {
+        ZoneId zoneId = ZoneId.ofOffset("UTC", ZoneOffset.of("+8"));
+        System.out.println(zoneId);
+
+        ZoneId defaultZone = ZoneId.systemDefault();
+        System.out.println(defaultZone);
         JsonRowDataSerializationSchema.Builder serBuilder = JsonRowDataSerializationSchema.builder(rowType);
         JsonRowDataSerializationSchema serializationSchema = serBuilder.setCharset(CHARSET.defaultValue())
                 .setTimestampFormat(ISO_8601)

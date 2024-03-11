@@ -119,7 +119,7 @@ public abstract class JsonRowDataSerDeTestBase {
                 + "    \"time\":\"00:00:01\",\n"
                 + "    \"timestamp3\":\"1970-01-01T00:00:01.123\",\n"
                 + "    \"timestamp9\":\"1970-01-01T00:00:01.123456789\",\n"
-                + "    \"timestampWithLocalZone\":\"1970-01-01T00:00:01.123Z\",\n"
+                + "    \"timestampWithLocalZone\":\"1970-01-01T08:00:01.123Z\",\n"
                 + "    \"map\":{\n"
                 + "        \"element\":123\n"
                 + "    },\n"

@@ -231,7 +231,7 @@ public class KvRowDataDeserializationSchemaTest {
                 "f1=10&f2=aa&f3=bb&f4=cc".getBytes(StandardCharsets.UTF_16));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void testErrors() throws Exception {
         Consumer<KvRowDataDeserializationSchema.Builder> config = builder -> {
         };

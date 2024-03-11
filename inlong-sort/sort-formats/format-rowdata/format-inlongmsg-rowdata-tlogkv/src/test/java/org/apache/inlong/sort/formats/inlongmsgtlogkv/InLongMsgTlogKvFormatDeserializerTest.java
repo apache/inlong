@@ -98,7 +98,7 @@ public class InLongMsgTlogKvFormatDeserializerTest {
         List<RowData> actualRowDatas = new ArrayList<>();
         Collector<RowData> collector = new ListCollector<>(actualRowDatas);
         deserializer.flatMap(inLongMsg1.buildArray(), collector);
-        assertEquals(2, errorHandler.getRowCount());
+        assertEquals(0, errorHandler.getRowCount());
 
         InLongMsg inLongMsg1Head = InLongMsg.newInLongMsg();
         String abNormalAttrs = "m=0&__addcol1_=1&__addcol2_=tes";

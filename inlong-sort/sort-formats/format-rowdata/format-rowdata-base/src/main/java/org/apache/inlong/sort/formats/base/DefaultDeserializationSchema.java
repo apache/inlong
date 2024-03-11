@@ -42,11 +42,6 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultDeserializationSchema.class);
 
-    /**
-     * If true, a parsing error is occurred.
-     */
-    private boolean errorOccurred = false;
-
     protected FailureHandler failureHandler;
 
     /**
@@ -90,10 +85,8 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
         try {
             T result = deserializeInternal(bytes);
             // reset error state after deserialize success
-            errorOccurred = false;
             return result;
         } catch (Exception e) {
-            errorOccurred = true;
             if (formatMetricGroup != null) {
                 formatMetricGroup.getNumRecordsDeserializeError().inc(1L);
             }
@@ -112,10 +105,6 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
             throw new IOException("Failed to deserialize data " +
                     StringUtils.byteToHexString(bytes), e);
         }
-    }
-
-    public boolean skipCurrentRecord(T element) {
-        return (failureHandler != null && failureHandler.isIgnoreFailure()) && errorOccurred;
     }
 
     protected abstract T deserializeInternal(byte[] bytes) throws Exception;

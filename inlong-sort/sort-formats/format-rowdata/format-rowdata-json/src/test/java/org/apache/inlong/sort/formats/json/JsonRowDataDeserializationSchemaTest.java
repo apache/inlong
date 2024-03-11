@@ -35,7 +35,6 @@ import java.util.Objects;
 import static org.apache.inlong.sort.formats.base.TextFormatOptions.CHARSET;
 import static org.apache.inlong.sort.formats.base.TextFormatOptionsUtil.ISO_8601;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -65,7 +64,6 @@ public class JsonRowDataDeserializationSchemaTest extends JsonRowDataSerDeTestBa
 
         assertEquals(testRowData, rowData);
         assertNotNull(rowData);
-        assertFalse(deserializationSchema.skipCurrentRecord(rowData));
     }
 
     // @Test
@@ -128,10 +126,8 @@ public class JsonRowDataDeserializationSchemaTest extends JsonRowDataSerDeTestBa
                         .build();
         RowData rowData = deserializationSchema.deserialize(data);
         assertNull(rowData);
-        assertTrue(deserializationSchema.skipCurrentRecord(rowData));
 
         rowData = deserializationSchema.deserialize((testJson.getBytes(CHARSET.defaultValue())));
         assertNotNull(rowData);
-        assertFalse(deserializationSchema.skipCurrentRecord(rowData));
     }
 }
