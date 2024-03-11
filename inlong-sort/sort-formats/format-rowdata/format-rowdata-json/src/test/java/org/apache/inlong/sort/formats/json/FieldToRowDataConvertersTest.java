@@ -36,6 +36,7 @@ import java.sql.Timestamp;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.apache.flink.table.api.DataTypes.ARRAY;
@@ -126,10 +127,11 @@ public class FieldToRowDataConvertersTest {
 
     @Test
     public void testConvertToTimestampWithLocalZone() throws IOException {
+        TimeZone.setDefault(TimeZone.getDefault().getTimeZone("GMT+0"));
         FieldToRowDataConverter converter =
                 converters.createConverter(TIMESTAMP_WITH_LOCAL_TIME_ZONE().getLogicalType());
         TimestampData expected = TimestampData.fromTimestamp(new Timestamp(0));
-        assertEquals(expected, converter.convert("1970-01-01 08:00:00Z"));
+        assertEquals(expected, converter.convert("1970-01-01 00:00:00Z"));
     }
 
     @Test

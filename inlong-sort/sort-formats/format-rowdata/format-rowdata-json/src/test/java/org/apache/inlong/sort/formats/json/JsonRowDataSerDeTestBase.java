@@ -35,6 +35,7 @@ import java.sql.Timestamp;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.apache.flink.table.api.DataTypes.ARRAY;
@@ -68,6 +69,7 @@ public abstract class JsonRowDataSerDeTestBase {
 
     @Before
     public void init() {
+        TimeZone.setDefault(TimeZone.getDefault().getTimeZone("GMT+0"));
         byte[] bytes = new byte[10];
         ThreadLocalRandom.current().nextBytes(bytes);
         String base64Str = Base64.getEncoder().encodeToString(bytes);
@@ -119,7 +121,7 @@ public abstract class JsonRowDataSerDeTestBase {
                 + "    \"time\":\"00:00:01\",\n"
                 + "    \"timestamp3\":\"1970-01-01T00:00:01.123\",\n"
                 + "    \"timestamp9\":\"1970-01-01T00:00:01.123456789\",\n"
-                + "    \"timestampWithLocalZone\":\"1970-01-01T08:00:01.123Z\",\n"
+                + "    \"timestampWithLocalZone\":\"1970-01-01T00:00:01.123Z\",\n"
                 + "    \"map\":{\n"
                 + "        \"element\":123\n"
                 + "    },\n"
