@@ -32,6 +32,7 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.QueryMap;
 
 import java.util.Map;
 
@@ -61,9 +62,9 @@ public interface WorkflowApi {
     Call<Response<ProcessDetailResponse>> detail(@Path("processId") Integer processId, @Query("taskId") Integer taskId);
 
     @GET("workflow/listProcess")
-    Call<Response<PageResult<ProcessResponse>>> listProcess(@Query("query") Map<String, Object> query);
+    Call<Response<PageResult<ProcessResponse>>> listProcess(@QueryMap Map<String, Object> query);
 
     @GET("workflow/listTask")
-    Call<Response<PageResult<TaskResponse>>> listTask(@Query("query") Map<String, Object> query);
+    Call<Response<PageResult<TaskResponse>>> listTask(@QueryMap Map<String, Object> query);
 
 }

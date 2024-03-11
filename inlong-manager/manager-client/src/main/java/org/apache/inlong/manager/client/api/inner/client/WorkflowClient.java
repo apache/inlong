@@ -39,6 +39,7 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Client for {@link WorkflowApi}.
@@ -185,6 +186,7 @@ public class WorkflowClient {
         Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
                 new TypeReference<Map<String, Object>>() {
                 });
+        requestMap.entrySet().removeIf(entry -> Objects.isNull(entry.getValue()));
         Response<PageResult<ProcessResponse>> response = ClientUtils.executeHttpCall(
                 workflowApi.listProcess(requestMap));
         ClientUtils.assertRespSuccess(response);
@@ -203,6 +205,7 @@ public class WorkflowClient {
         Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
                 new TypeReference<Map<String, Object>>() {
                 });
+        requestMap.entrySet().removeIf(entry -> Objects.isNull(entry.getValue()));
         Response<PageResult<TaskResponse>> response = ClientUtils.executeHttpCall(workflowApi.listTask(requestMap));
         ClientUtils.assertRespSuccess(response);
         return response.getData();

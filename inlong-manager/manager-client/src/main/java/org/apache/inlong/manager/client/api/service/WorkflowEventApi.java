@@ -28,6 +28,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.QueryMap;
 
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public interface WorkflowEventApi {
      * Get event list by paginating
      */
     @GET("workflow/event/list")
-    Call<Response<PageResult<EventLogResponse>>> list(@Query("map") Map<String, Object> map);
+    Call<Response<PageResult<EventLogResponse>>> list(@QueryMap Map<String, Object> map);
 
     /**
      * Execute the listener based on the event log ID
