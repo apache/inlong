@@ -33,14 +33,14 @@ import java.lang.reflect.Constructor;
  * communicates
  * with outside system.
  */
-public class InstallerManager extends AbstractDaemon {
+public class Manager extends AbstractDaemon {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InstallerManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Manager.class);
     private final TaskManager taskManager;
     private final ProfileFetcher fetcher;
     private final InstallerConfiguration conf;
 
-    public InstallerManager() {
+    public Manager() {
         conf = InstallerConfiguration.getInstallerConf();
         taskManager = new TaskManager();
         fetcher = initFetcher(this);
@@ -49,11 +49,11 @@ public class InstallerManager extends AbstractDaemon {
     /**
      * init fetch by class name
      */
-    private ProfileFetcher initFetcher(InstallerManager manager) {
+    private ProfileFetcher initFetcher(Manager manager) {
         try {
             Constructor<?> constructor =
                     Class.forName(conf.get(AgentConstants.AGENT_FETCHER_CLASSNAME))
-                            .getDeclaredConstructor(InstallerManager.class);
+                            .getDeclaredConstructor(Manager.class);
             constructor.setAccessible(true);
             return (ProfileFetcher) constructor.newInstance(manager);
         } catch (Exception ex) {

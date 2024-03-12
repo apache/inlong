@@ -33,11 +33,11 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 
 /**
- * Agent entrance class
+ * Agent installer entrance class
  */
-public class InstallerMain {
+public class Main {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InstallerMain.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
     /**
      * Print help information
@@ -90,7 +90,7 @@ public class InstallerMain {
      *
      * @param manager installer manager
      */
-    private static void stopInstallerIfKilled(InstallerManager manager) {
+    private static void stopInstallerIfKilled(Manager manager) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 LOGGER.info("stopping installer gracefully");
@@ -111,7 +111,7 @@ public class InstallerMain {
         assert cl != null;
         initAgentConf(cl);
         AuditUtils.initAudit();
-        InstallerManager manager = new InstallerManager();
+        Manager manager = new Manager();
         try {
             manager.start();
             stopInstallerIfKilled(manager);
