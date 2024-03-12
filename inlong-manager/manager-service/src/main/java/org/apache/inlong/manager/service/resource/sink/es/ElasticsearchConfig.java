@@ -129,9 +129,9 @@ public class ElasticsearchConfig {
     public String[] getHttpUrls(String urlSuffix) throws Exception {
         getHttpHosts();
         if (!httpHosts.isEmpty() && httpHosts.size() > 0) {
-            String[] urls = httpHosts.toArray(new String[0]);
+            String[] urls = new String[httpHosts.size()];
             for (int i = 0; i < urls.length; i++) {
-                urls[i] = urls[i] + urlSuffix;
+                urls[i] = httpHosts.get(i) + urlSuffix;
             }
             return urls;
         } else {
