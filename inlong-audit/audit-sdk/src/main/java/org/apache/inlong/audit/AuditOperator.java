@@ -271,7 +271,7 @@ public class AuditOperator implements Serializable {
 
         // process the stat info for all threads
         for (Map.Entry<String, StatInfo> entry : threadCountMap.entrySet()) {
-            // StringJoiner: logTime inlongGroupID inlongStreamID auditID auditTag auditVersion
+            // Entry key order: logTime inlongGroupID inlongStreamID auditID auditTag auditVersion
             String[] keyArray = entry.getKey().split(FIELD_SEPARATORS);
             long logTime = Long.parseLong(keyArray[0]) * PERIOD;
             String inlongGroupID = keyArray[1];
