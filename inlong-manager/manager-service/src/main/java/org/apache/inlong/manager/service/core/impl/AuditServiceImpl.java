@@ -114,23 +114,23 @@ public class AuditServiceImpl implements AuditService {
     private static final DateTimeFormatter HOUR_DATE_FORMATTER = DateTimeFormat.forPattern(HOUR_FORMAT);
     private static final DateTimeFormatter DAY_DATE_FORMATTER = DateTimeFormat.forPattern(DAY_FORMAT);
 
-    private static final double ES_DEFAULT_BOOST = 1.0;
-    private static final boolean ES_ADJUST_PURE_NEGATIVE = true;
-    private static final int ES_QUERY_FROM = 0;
-    private static final int ES_QUERY_SIZE = 0;
-    private static final String ES_SORT_ORDER = "ASC";
-    private static final String ES_TERM_FILED = "log_ts";
-    private static final String ES_AGGREGATIONS_COUNT = "count";
-    private static final String ES_AGGREGATIONS_DELAY = "delay";
-    private static final String ES_AGGREGATIONS = "aggregations";
-    private static final String ES_BUCKETS = "buckets";
-    private static final String ES_KEY = "key";
-    private static final String ES_VALUE = "value";
-    private static final String ES_INLONG_GROUP_ID = "inlong_group_id";
-    private static final String ES_INLONG_STREAM_ID = "inlong_stream_id";
-    private static final String ES_COUNT = "count";
-    private static final String ES_DELAY = "delay";
-    private static final String ES_TERMS = "terms";
+    private static final double DEFAULT_BOOST = 1.0;
+    private static final boolean ADJUST_PURE_NEGATIVE = true;
+    private static final int QUERY_FROM = 0;
+    private static final int QUERY_SIZE = 0;
+    private static final String SORT_ORDER = "ASC";
+    private static final String TERM_FILED = "log_ts";
+    private static final String AGGREGATIONS_COUNT = "count";
+    private static final String AGGREGATIONS_DELAY = "delay";
+    private static final String AGGREGATIONS = "aggregations";
+    private static final String BUCKETS = "buckets";
+    private static final String KEY = "key";
+    private static final String VALUE = "value";
+    private static final String INLONG_GROUP_ID = "inlong_group_id";
+    private static final String INLONG_STREAM_ID = "inlong_stream_id";
+    private static final String COUNT = "count";
+    private static final String DELAY = "delay";
+    private static final String TERMS = "terms";
 
     // key: type of audit base item, value: entity of audit base item
     private final Map<String, AuditBaseEntity> auditSentItemMap = new ConcurrentHashMap<>();
@@ -345,19 +345,19 @@ public class AuditServiceImpl implements AuditService {
                     continue;
                 }
                 JsonObject response = elasticsearchApi.search(index, toAuditSearchRequestJson(groupId, streamId));
-                JsonObject aggregations = response.getAsJsonObject(ES_AGGREGATIONS).getAsJsonObject(ES_TERM_FILED);
+                JsonObject aggregations = response.getAsJsonObject(AGGREGATIONS).getAsJsonObject(TERM_FILED);
                 if (!aggregations.isJsonNull()) {
-                    JsonObject logTs = aggregations.getAsJsonObject(ES_TERM_FILED);
+                    JsonObject logTs = aggregations.getAsJsonObject(TERM_FILED);
                     if (!logTs.isJsonNull()) {
-                        JsonArray buckets = logTs.getAsJsonArray(ES_BUCKETS);
+                        JsonArray buckets = logTs.getAsJsonArray(BUCKETS);
                         List<AuditInfo> auditSet = new ArrayList<>();
                         for (int i = 0; i < buckets.size(); i++) {
                             JsonObject bucket = buckets.get(i).getAsJsonObject();
                             AuditInfo vo = new AuditInfo();
-                            vo.setLogTs(bucket.get(ES_KEY).getAsString());
-                            vo.setCount((long) bucket.get(ES_AGGREGATIONS_COUNT).getAsJsonObject().get(ES_VALUE)
+                            vo.setLogTs(bucket.get(KEY).getAsString());
+                            vo.setCount((long) bucket.get(AGGREGATIONS_COUNT).getAsJsonObject().get(VALUE)
                                     .getAsLong());
-                            vo.setDelay((long) bucket.get(ES_AGGREGATIONS_DELAY).getAsJsonObject().get(ES_VALUE)
+                            vo.setDelay((long) bucket.get(AGGREGATIONS_DELAY).getAsJsonObject().get(VALUE)
                                     .getAsLong());
                             auditSet.add(vo);
                         }
@@ -492,47 +492,47 @@ public class AuditServiceImpl implements AuditService {
      */
     public static JsonObject toAuditSearchRequestJson(String groupId, String streamId) {
         Map<String, ElasticsearchQueryInfo.TermValue> groupIdMap = Maps.newHashMap();
-        groupIdMap.put(ES_INLONG_GROUP_ID, new ElasticsearchQueryInfo.TermValue(groupId, ES_DEFAULT_BOOST));
+        groupIdMap.put(INLONG_GROUP_ID, new ElasticsearchQueryInfo.TermValue(groupId, DEFAULT_BOOST));
         ElasticsearchQueryInfo.QueryTerm groupIdTerm = ElasticsearchQueryInfo.QueryTerm.builder().term(groupIdMap)
                 .build();
         Map<String, ElasticsearchQueryInfo.TermValue> streamIdMap = Maps.newHashMap();
-        streamIdMap.put(ES_INLONG_STREAM_ID, new ElasticsearchQueryInfo.TermValue(streamId, ES_DEFAULT_BOOST));
+        streamIdMap.put(INLONG_STREAM_ID, new ElasticsearchQueryInfo.TermValue(streamId, DEFAULT_BOOST));
         ElasticsearchQueryInfo.QueryTerm streamIdTerm = ElasticsearchQueryInfo.QueryTerm.builder().term(streamIdMap)
                 .build();
         QueryBool boolInfo = QueryBool.builder()
                 .must(Lists.newArrayList(groupIdTerm, streamIdTerm))
-                .boost(ES_DEFAULT_BOOST)
-                .adjustPureNegative(ES_ADJUST_PURE_NEGATIVE)
+                .boost(DEFAULT_BOOST)
+                .adjustPureNegative(ADJUST_PURE_NEGATIVE)
                 .build();
         ElasticsearchQueryInfo queryInfo = ElasticsearchQueryInfo.builder().bool(boolInfo).build();
 
         Map<String, SortValue> termValueInfoMap = Maps.newHashMap();
-        termValueInfoMap.put(ES_TERM_FILED, new SortValue(ES_SORT_ORDER));
+        termValueInfoMap.put(TERM_FILED, new SortValue(SORT_ORDER));
         List<Map<String, SortValue>> list = Lists.newArrayList(termValueInfoMap);
         ElasticsearchQuerySortInfo sortInfo = ElasticsearchQuerySortInfo.builder().sort(list).build();
 
         Sum countSum = Sum.builder()
-                .sum(new Field(ES_COUNT))
+                .sum(new Field(COUNT))
                 .build();
         Sum delaySum = Sum.builder()
-                .sum(new Field(ES_DELAY))
+                .sum(new Field(DELAY))
                 .build();
         Map<String, Sum> aggregations = Maps.newHashMap();
-        aggregations.put(ES_COUNT, countSum);
-        aggregations.put(ES_DELAY, delaySum);
+        aggregations.put(COUNT, countSum);
+        aggregations.put(DELAY, delaySum);
         ElasticsearchAggregationsTermsInfo termsInfo = ElasticsearchAggregationsTermsInfo.builder()
-                .field(ES_TERM_FILED)
+                .field(TERM_FILED)
                 .size(Integer.MAX_VALUE)
                 .aggregations(aggregations)
                 .build();
         Map<String, ElasticsearchAggregationsTermsInfo> terms = Maps.newHashMap();
-        terms.put(ES_TERMS, termsInfo);
+        terms.put(TERMS, termsInfo);
         Map<String, Map<String, ElasticsearchAggregationsTermsInfo>> logTs = Maps.newHashMap();
-        logTs.put(ES_TERM_FILED, terms);
+        logTs.put(TERM_FILED, terms);
 
         ElasticsearchRequest request = ElasticsearchRequest.builder()
-                .from(ES_QUERY_FROM)
-                .size(ES_QUERY_SIZE)
+                .from(QUERY_FROM)
+                .size(QUERY_SIZE)
                 .query(queryInfo)
                 .sort(sortInfo)
                 .aggregations(logTs)

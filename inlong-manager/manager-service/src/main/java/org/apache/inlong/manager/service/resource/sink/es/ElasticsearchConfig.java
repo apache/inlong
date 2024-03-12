@@ -31,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Elasticsearch config information, including host, port, etc.
@@ -40,6 +41,8 @@ import java.util.List;
 public class ElasticsearchConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConfig.class);
+
+    private final Random rand = new Random();
 
     @Autowired
     private RestTemplate restTemplate;
@@ -110,7 +113,27 @@ public class ElasticsearchConfig {
     public String getOneHttpUrl() throws Exception {
         getHttpHosts();
         if (!httpHosts.isEmpty() && httpHosts.size() > 0) {
-            return httpHosts.get(0).toString();
+            return httpHosts.get(rand.nextInt(httpHosts.size())).toString();
+        } else {
+            throw new Exception("http hosts is empty! please check hosts!");
+        }
+    }
+
+    /**
+     * Get all http url.
+     *
+     * @param urlSuffix
+     * @return http url array
+     * @throws Exception
+     */
+    public String[] getHttpUrls(String urlSuffix) throws Exception {
+        getHttpHosts();
+        if (!httpHosts.isEmpty() && httpHosts.size() > 0) {
+            String[] urls = httpHosts.toArray(new String[0]);
+            for (int i = 0; i < urls.length; i++) {
+                urls[i] = urls[i] + urlSuffix;
+            }
+            return urls;
         } else {
             throw new Exception("http hosts is empty! please check hosts!");
         }

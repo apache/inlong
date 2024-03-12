@@ -128,8 +128,12 @@ public class ElasticsearchApi {
      * @return true or false
      */
     public boolean ping() throws Exception {
-        final String url = esConfig.getOneHttpUrl() + InlongConstants.SLASH;
-        return HttpUtils.headRequest(esConfig.getRestClient(), url, null, getHttpHeaders());
+        final String[] urls = esConfig.getHttpUrls(InlongConstants.SLASH);
+        boolean result = true;
+        for(String url : urls) {
+            result &= HttpUtils.headRequest(esConfig.getRestClient(), url, null, getHttpHeaders());
+        }
+        return result;
     }
 
     /**
