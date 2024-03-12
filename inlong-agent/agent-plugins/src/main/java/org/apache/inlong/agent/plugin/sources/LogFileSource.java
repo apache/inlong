@@ -171,7 +171,7 @@ public class LogFileSource extends AbstractSource {
             if (DEFAULT_FILE_SOURCE_EXTEND_CLASS.compareTo(ExtendedHandler.class.getCanonicalName()) != 0) {
                 Constructor<?> constructor =
                         Class.forName(
-                                        profile.get(TaskConstants.FILE_SOURCE_EXTEND_CLASS, DEFAULT_FILE_SOURCE_EXTEND_CLASS))
+                                profile.get(TaskConstants.FILE_SOURCE_EXTEND_CLASS, DEFAULT_FILE_SOURCE_EXTEND_CLASS))
                                 .getDeclaredConstructor(InstanceProfile.class);
                 constructor.setAccessible(true);
                 extendedHandler = (ExtendedHandler) constructor.newInstance(profile);
