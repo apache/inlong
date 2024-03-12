@@ -172,6 +172,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             auditData.setInlongGroupId(auditMessageBody.getInlongGroupId());
             auditData.setInlongStreamId(auditMessageBody.getInlongStreamId());
             auditData.setSize(auditMessageBody.getSize());
+            auditData.setAuditVersion(auditMessageBody.getAuditVersion());
 
             try {
                 byte[] body = GSON.toJson(auditData).getBytes(StandardCharsets.UTF_8);

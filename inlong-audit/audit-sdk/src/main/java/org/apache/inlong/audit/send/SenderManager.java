@@ -284,7 +284,8 @@ public class SenderManager {
             Long requestId = baseCommand.getAuditReply().getRequestId();
             AuditData data = this.dataMap.get(requestId);
             if (data == null) {
-                LOG.error("can not find the request id onMessageReceived: " + requestId);
+                LOG.error("can not find the request id onMessageReceived {},message: {}",
+                        requestId, baseCommand.getAuditReply().getMessage());
                 return;
             }
             // check resp

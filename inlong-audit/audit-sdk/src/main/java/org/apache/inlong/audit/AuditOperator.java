@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.util.StringJoiner;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -52,6 +53,7 @@ public class AuditOperator implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditOperator.class);
     private static final String FIELD_SEPARATORS = ":";
     private static final String DEFAULT_AUDIT_TAG = "-1";
+    private static final long DEFAULT_AUDIT_VERSION = -1;
     private static final int BATCH_NUM = 100;
     private static final AuditOperator AUDIT_OPERATOR = new AuditOperator();
     private static final ReentrantLock GLOBAL_LOCK = new ReentrantLock();
@@ -129,6 +131,7 @@ public class AuditOperator implements Serializable {
 
     /**
      * set loader
+     *
      * @param loader the loader to set
      */
     public void setLoader(SocketAddressListLoader loader) {
@@ -137,6 +140,7 @@ public class AuditOperator implements Serializable {
 
     /**
      * setLoaderClass
+     *
      * @param loaderClassName
      */
     public void setLoaderClass(String loaderClassName) {
@@ -191,21 +195,28 @@ public class AuditOperator implements Serializable {
     }
 
     public void add(int auditID, String auditTag, String inlongGroupID, String inlongStreamID, Long logTime,
-            long count, long size) {
+                    long count, long size) {
         long delayTime = System.currentTimeMillis() - logTime;
-        add(auditID, auditTag, inlongGroupID, inlongStreamID, logTime, count, size, delayTime * count);
+        add(auditID, auditTag, inlongGroupID, inlongStreamID, logTime, count, size,
+                delayTime * count, DEFAULT_AUDIT_VERSION);
     }
 
     public void add(int auditID, String inlongGroupID, String inlongStreamID, Long logTime, long count, long size,
-            long delayTime) {
-        add(auditID, DEFAULT_AUDIT_TAG, inlongGroupID, inlongStreamID, logTime, count, size, delayTime);
+                    long delayTime) {
+        add(auditID, DEFAULT_AUDIT_TAG, inlongGroupID, inlongStreamID, logTime, count, size,
+                delayTime, DEFAULT_AUDIT_VERSION);
     }
 
     public void add(int auditID, String auditTag, String inlongGroupID, String inlongStreamID, Long logTime,
-            long count, long size, long delayTime) {
-        String key = (logTime / PERIOD) + FIELD_SEPARATORS + inlongGroupID + FIELD_SEPARATORS
-                + inlongStreamID + FIELD_SEPARATORS + auditID + FIELD_SEPARATORS + auditTag;
-        addByKey(key, count, size, delayTime);
+                    long count, long size, long delayTime, long auditVersion) {
+        StringJoiner keyJoiner = new StringJoiner(FIELD_SEPARATORS);
+        keyJoiner.add(String.valueOf(logTime / PERIOD));
+        keyJoiner.add(inlongGroupID);
+        keyJoiner.add(inlongStreamID);
+        keyJoiner.add(String.valueOf(auditID));
+        keyJoiner.add(auditTag);
+        keyJoiner.add(String.valueOf(auditVersion));
+        addByKey(keyJoiner.toString(), count, size, delayTime);
     }
 
     /**
@@ -260,12 +271,14 @@ public class AuditOperator implements Serializable {
 
         // process the stat info for all threads
         for (Map.Entry<String, StatInfo> entry : threadCountMap.entrySet()) {
+            // StringJoiner: logTime inlongGroupID inlongStreamID auditID auditTag auditVersion
             String[] keyArray = entry.getKey().split(FIELD_SEPARATORS);
             long logTime = Long.parseLong(keyArray[0]) * PERIOD;
             String inlongGroupID = keyArray[1];
             String inlongStreamID = keyArray[2];
             String auditID = keyArray[3];
             String auditTag = keyArray[4];
+            long auditVersion = Long.parseLong(keyArray[5]);
             StatInfo value = entry.getValue();
             AuditApi.AuditMessageBody msgBody = AuditApi.AuditMessageBody.newBuilder()
                     .setLogTs(logTime)
@@ -276,6 +289,7 @@ public class AuditOperator implements Serializable {
                     .setCount(value.count.get())
                     .setSize(value.size.get())
                     .setDelay(value.delay.get())
+                    .setAuditVersion(auditVersion)
                     .build();
             requestBuild.addMsgBody(msgBody);
 
