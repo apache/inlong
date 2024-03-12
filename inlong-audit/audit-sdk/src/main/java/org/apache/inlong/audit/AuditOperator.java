@@ -29,13 +29,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.StringJoiner;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -195,20 +195,20 @@ public class AuditOperator implements Serializable {
     }
 
     public void add(int auditID, String auditTag, String inlongGroupID, String inlongStreamID, Long logTime,
-                    long count, long size) {
+            long count, long size) {
         long delayTime = System.currentTimeMillis() - logTime;
         add(auditID, auditTag, inlongGroupID, inlongStreamID, logTime, count, size,
                 delayTime * count, DEFAULT_AUDIT_VERSION);
     }
 
     public void add(int auditID, String inlongGroupID, String inlongStreamID, Long logTime, long count, long size,
-                    long delayTime) {
+            long delayTime) {
         add(auditID, DEFAULT_AUDIT_TAG, inlongGroupID, inlongStreamID, logTime, count, size,
                 delayTime, DEFAULT_AUDIT_VERSION);
     }
 
     public void add(int auditID, String auditTag, String inlongGroupID, String inlongStreamID, Long logTime,
-                    long count, long size, long delayTime, long auditVersion) {
+            long count, long size, long delayTime, long auditVersion) {
         StringJoiner keyJoiner = new StringJoiner(FIELD_SEPARATORS);
         keyJoiner.add(String.valueOf(logTime / PERIOD));
         keyJoiner.add(inlongGroupID);
