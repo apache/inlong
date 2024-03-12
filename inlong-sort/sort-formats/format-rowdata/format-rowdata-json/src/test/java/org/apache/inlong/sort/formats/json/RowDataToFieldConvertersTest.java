@@ -130,8 +130,7 @@ public class RowDataToFieldConvertersTest {
         RowDataToFieldConverter converter =
                 converters.createConverter(TIMESTAMP_WITH_LOCAL_TIME_ZONE().getLogicalType());
         TimestampData testTimestampData = TimestampData.fromTimestamp(new Timestamp(0));
-        // assertEquals("1970-01-01 00:00:00Z", converter.convert(testTimestampData));
-        assertTrue("1970-01-01 00:00:00Z".equals(converter.convert(testTimestampData)));
+        assertEquals("1970-01-01 00:00:00Z", converter.convert(testTimestampData));
     }
 
     @Test
