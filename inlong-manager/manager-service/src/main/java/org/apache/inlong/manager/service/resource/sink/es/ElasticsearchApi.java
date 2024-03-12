@@ -130,7 +130,7 @@ public class ElasticsearchApi {
     public boolean ping() throws Exception {
         final String[] urls = esConfig.getHttpUrls(InlongConstants.SLASH);
         boolean result = true;
-        for(String url : urls) {
+        for (String url : urls) {
             result &= HttpUtils.headRequest(esConfig.getRestClient(), url, null, getHttpHeaders());
         }
         return result;
