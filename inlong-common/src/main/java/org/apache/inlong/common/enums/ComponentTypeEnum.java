@@ -27,6 +27,7 @@ public enum ComponentTypeEnum {
     Cache("CACHE"),
     Sort("SORT"),
     SDK("SDK"),
+    AgentInstaller("AGENTINSTALLER"),
 
     ;
 
