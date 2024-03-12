@@ -476,6 +476,7 @@ public class LogFileSource extends AbstractSource {
             } catch (IOException e) {
                 LOGGER.error("readFromPos error: ", e);
             }
+
             MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
             if (lines.isEmpty()) {
                 if (queue.isEmpty()) {

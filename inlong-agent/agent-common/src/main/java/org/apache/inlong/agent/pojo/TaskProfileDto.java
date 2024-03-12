@@ -39,6 +39,7 @@ public class TaskProfileDto {
 
     public static final String DEFAULT_FILE_TASK = "org.apache.inlong.agent.plugin.task.file.LogFileTask";
     public static final String DEFAULT_KAFKA_TASK = "org.apache.inlong.agent.plugin.task.KafkaTask";
+    public static final String DEFAULT_PULSAR_TASK = "org.apache.inlong.agent.plugin.task.PulsarTask";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
     public static final String DEFAULT_DATA_PROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
@@ -57,6 +58,8 @@ public class TaskProfileDto {
      * kafka source
      */
     public static final String KAFKA_SOURCE = "org.apache.inlong.agent.plugin.sources.KafkaSource";
+    // pulsar source
+    public static final String PULSAR_SOURCE = "org.apache.inlong.agent.plugin.sources.PulsarSource";
     /**
      * PostgreSQL source
      */
@@ -207,6 +210,21 @@ public class TaskProfileDto {
         kafkaJob.setTopic(kafkaJobTaskConfig.getTopic());
 
         return kafkaJob;
+    }
+
+    private static PulsarTask getPulsarJob(DataConfig dataConfig) {
+        PulsarTask.PulsarJobTaskConfig pulsarJobTaskConfig = GSON.fromJson(dataConfig.getExtParams(),
+                PulsarTask.PulsarJobTaskConfig.class);
+        PulsarTask pulsarTask = new PulsarTask();
+
+        pulsarTask.setTenant(pulsarJobTaskConfig.getPulsarTenant());
+        pulsarTask.setNamespace(pulsarJobTaskConfig.getNamespace());
+        pulsarTask.setTopic(pulsarJobTaskConfig.getTopic());
+        pulsarTask.setServiceUrl(pulsarJobTaskConfig.getServiceUrl());
+        pulsarTask.setScanStartupMode(pulsarJobTaskConfig.getScanStartupMode());
+        pulsarTask.setResetTime(pulsarJobTaskConfig.getResetTime());
+
+        return pulsarTask;
     }
 
     private static PostgreSQLJob getPostgresJob(DataConfig dataConfigs) {
@@ -456,6 +474,13 @@ public class TaskProfileDto {
                 task.setSource(KAFKA_SOURCE);
                 profileDto.setTask(task);
                 break;
+            case PULSAR:
+                task.setTaskClass(DEFAULT_PULSAR_TASK);
+                PulsarTask pulsarTask = getPulsarJob(dataConfig);
+                task.setPulsarTask(pulsarTask);
+                task.setSource(PULSAR_SOURCE);
+                profileDto.setTask(task);
+                break;
             case POSTGRES:
                 PostgreSQLJob postgreSQLJob = getPostgresJob(dataConfig);
                 task.setPostgreSQLJob(postgreSQLJob);
@@ -528,6 +553,7 @@ public class TaskProfileDto {
         private FileTask fileTask;
         private BinlogJob binlogJob;
         private KafkaJob kafkaJob;
+        private PulsarTask pulsarTask;
         private PostgreSQLJob postgreSQLJob;
         private OracleJob oracleJob;
         private MongoJob mongoJob;
