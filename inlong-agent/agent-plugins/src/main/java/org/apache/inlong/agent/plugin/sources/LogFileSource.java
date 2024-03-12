@@ -171,7 +171,7 @@ public class LogFileSource extends AbstractSource {
             if (DEFAULT_FILE_SOURCE_EXTEND_CLASS.compareTo(ExtendedHandler.class.getCanonicalName()) != 0) {
                 Constructor<?> constructor =
                         Class.forName(
-                                profile.get(TaskConstants.FILE_SOURCE_EXTEND_CLASS, DEFAULT_FILE_SOURCE_EXTEND_CLASS))
+                                        profile.get(TaskConstants.FILE_SOURCE_EXTEND_CLASS, DEFAULT_FILE_SOURCE_EXTEND_CLASS))
                                 .getDeclaredConstructor(InstanceProfile.class);
                 constructor.setAccessible(true);
                 extendedHandler = (ExtendedHandler) constructor.newInstance(profile);
@@ -476,7 +476,6 @@ public class LogFileSource extends AbstractSource {
             } catch (IOException e) {
                 LOGGER.error("readFromPos error: ", e);
             }
-
             MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
             if (lines.isEmpty()) {
                 if (queue.isEmpty()) {

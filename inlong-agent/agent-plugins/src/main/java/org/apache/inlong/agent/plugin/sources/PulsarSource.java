@@ -187,7 +187,6 @@ public class PulsarSource extends AbstractSource {
             }
             emptyCount.set(0);
             long offset = 0L;
-            LOGGER.info("message: {}", message.getValue());
             SourceData sourceData = new SourceData(message.getValue(), 0L);
             boolean suc4Queue = waitForPermit(AGENT_GLOBAL_READER_QUEUE_PERMIT, message.getValue().length);
             if (!suc4Queue) {
@@ -237,7 +236,7 @@ public class PulsarSource extends AbstractSource {
             if (!offerSuc) {
                 MemoryManager.getInstance().release(AGENT_GLOBAL_READER_QUEUE_PERMIT, sourceData.data.length);
             }
-            LOGGER.debug("Read {} from kafka topic {}", sourceData.getData(), topic);
+            LOGGER.debug("Read {} from pulsar topic {}", sourceData.getData(), topic);
         } catch (InterruptedException e) {
             MemoryManager.getInstance().release(AGENT_GLOBAL_READER_QUEUE_PERMIT, sourceData.data.length);
             LOGGER.error("fetchData offer failed {}", e.getMessage());
