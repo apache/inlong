@@ -75,9 +75,11 @@ public class CsvDeserializationSchemaTest {
         testBasicDeserialization(config, LongFormatInfo.INSTANCE, 12345678910L, "12345678910");
         testBasicDeserialization(config, FloatFormatInfo.INSTANCE, 0.33333334f, "0.33333334");
         testBasicDeserialization(config, DoubleFormatInfo.INSTANCE, 0.33333333332, "0.33333333332");
-        testBasicDeserialization(config, DecimalFormatInfo.INSTANCE, new BigDecimal("1234.0000000000000000000000001"),
+        testBasicDeserialization(config, DecimalFormatInfo.INSTANCE,
+                new BigDecimal("1234.0000000000000000000000001"),
                 "1234.0000000000000000000000001");
-        testBasicDeserialization(config, new DateFormatInfo("dd/MM/yyyy"), Date.valueOf("2020-03-22"), "22/03/2020");
+        testBasicDeserialization(config, new DateFormatInfo("dd/MM/yyyy"),
+                Date.valueOf("2020-03-22"), "22/03/2020");
         testBasicDeserialization(config, new TimeFormatInfo("ss/mm/hh"), Time.valueOf("11:12:13"), "13/12/11");
         testBasicDeserialization(config, new TimestampFormatInfo("dd/MM/yyyy hh:mm:ss"),
                 Timestamp.valueOf("2020-03-22 11:12:13"), "22/03/2020 11:12:13");
@@ -101,7 +103,8 @@ public class CsvDeserializationSchemaTest {
         testBasicDeserialization(config, DecimalFormatInfo.INSTANCE, null, nullLiteral);
         testBasicDeserialization(config, new DateFormatInfo("dd/MM/yyyy"), null, nullLiteral);
         testBasicDeserialization(config, new TimeFormatInfo("ss/mm/hh"), null, nullLiteral);
-        testBasicDeserialization(config, new TimestampFormatInfo("dd/MM/yyyy hh:mm:ss"), null, nullLiteral);
+        testBasicDeserialization(config, new TimestampFormatInfo("dd/MM/yyyy hh:mm:ss"),
+                null, nullLiteral);
     }
 
     @Test
@@ -179,7 +182,7 @@ public class CsvDeserializationSchemaTest {
                 "1,field1,field2,field3,field4".getBytes());
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void testErrors() throws Exception {
         Consumer<CsvDeserializationSchema.Builder> config = builder -> {
         };

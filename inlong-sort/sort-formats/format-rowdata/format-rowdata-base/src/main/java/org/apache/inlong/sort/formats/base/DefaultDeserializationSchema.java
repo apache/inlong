@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.formats.base;
 
+import org.apache.inlong.sort.formats.inlongmsg.FailureHandler;
+import org.apache.inlong.sort.formats.inlongmsg.IgnoreFailureHandler;
+import org.apache.inlong.sort.formats.inlongmsg.NoOpFailureHandler;
 import org.apache.inlong.sort.formats.metrics.FormatMetricGroup;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -39,15 +42,7 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultDeserializationSchema.class);
 
-    /**
-     * If true, the deserialization error will be ignored.
-     */
-    private final boolean ignoreErrors;
-
-    /**
-     * If true, a parsing error is occurred.
-     */
-    private boolean errorOccurred = false;
+    protected FailureHandler failureHandler;
 
     /**
      * The format metric group.
@@ -55,7 +50,15 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
     protected transient FormatMetricGroup formatMetricGroup;
 
     public DefaultDeserializationSchema(boolean ignoreErrors) {
-        this.ignoreErrors = ignoreErrors;
+        if (ignoreErrors) {
+            failureHandler = new IgnoreFailureHandler();
+        } else {
+            failureHandler = new NoOpFailureHandler();
+        }
+    }
+
+    public DefaultDeserializationSchema(FailureHandler failureHandler) {
+        this.failureHandler = failureHandler;
     }
 
     @Override
@@ -82,14 +85,12 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
         try {
             T result = deserializeInternal(bytes);
             // reset error state after deserialize success
-            errorOccurred = false;
             return result;
         } catch (Exception e) {
-            errorOccurred = true;
             if (formatMetricGroup != null) {
                 formatMetricGroup.getNumRecordsDeserializeError().inc(1L);
             }
-            if (ignoreErrors) {
+            if (failureHandler != null && failureHandler.isIgnoreFailure()) {
                 if (formatMetricGroup != null) {
                     formatMetricGroup.getNumRecordsDeserializeErrorIgnored().inc(1L);
                 }
@@ -106,11 +107,7 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
         }
     }
 
-    public boolean skipCurrentRecord(T element) {
-        return ignoreErrors && errorOccurred;
-    }
-
-    protected abstract T deserializeInternal(byte[] bytes) throws IOException;
+    protected abstract T deserializeInternal(byte[] bytes) throws Exception;
 
     @Override
     public boolean equals(Object object) {
@@ -121,11 +118,11 @@ public abstract class DefaultDeserializationSchema<T> implements Deserialization
             return false;
         }
         DefaultDeserializationSchema<?> that = (DefaultDeserializationSchema<?>) object;
-        return Objects.equals(ignoreErrors, that.ignoreErrors);
+        return Objects.equals(failureHandler, that.failureHandler);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ignoreErrors);
+        return Objects.hash(failureHandler);
     }
 }

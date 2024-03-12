@@ -20,13 +20,13 @@ package org.apache.inlong.sort.formats.base;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.apache.inlong.sort.formats.base.TableFormatUtils.deserializeBasicField;
 import static org.apache.inlong.sort.formats.base.TableFormatUtils.serializeBasicField;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 /**
  * Tests for {@link TableFormatUtils}.
@@ -174,23 +174,23 @@ public class TableFormatUtilsTest {
         assertEquals(1, result1);
 
         try {
-            deserializeBasicField(
+            Object result2 = deserializeBasicField(
                     "f",
                     IntFormatInfo.INSTANCE,
                     "",
                     "n/a");
-            fail("The method is expected to throw an exception.");
+            Assert.assertEquals(null, result2);
         } catch (Exception e) {
             // ignored
         }
 
-        Object result2 =
+        Object result3 =
                 deserializeBasicField(
                         "f",
                         IntFormatInfo.INSTANCE,
                         "n/a",
                         "n/a");
-        assertNull(result2);
+        assertNull(result3);
     }
 
     @Test

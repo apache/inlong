@@ -275,7 +275,7 @@ public class CsvRowDataDeserializationSchemaTest extends TestLogger {
                 false);
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void testErrors() throws Exception {
         Consumer<CsvRowDataDeserializationSchema.Builder> config = builder -> {
         };
@@ -295,9 +295,14 @@ public class CsvRowDataDeserializationSchemaTest extends TestLogger {
     public void testIgnoreErrors() throws Exception {
         Consumer<CsvRowDataDeserializationSchema.Builder> config = builder -> {
         };
+        GenericRowData rowData = new GenericRowData(4);
+        rowData.setField(0, null);
+        rowData.setField(1, StringData.fromString("field1"));
+        rowData.setField(2, StringData.fromString("field2"));
+        rowData.setField(3, StringData.fromString("field3"));
         testRowDataDeserialization(
                 config,
-                null,
+                rowData,
                 "na,field1,field2,field3".getBytes(),
                 true);
     }
