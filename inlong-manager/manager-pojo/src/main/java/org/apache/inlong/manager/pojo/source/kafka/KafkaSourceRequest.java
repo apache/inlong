@@ -71,7 +71,7 @@ public class KafkaSourceRequest extends SourceRequest {
     private String tablePattern;
 
     @ApiModelProperty("ignore parse errors, true: ignore parse error; false: not ignore parse error; default true")
-    private boolean ignoreParseErrors = true;
+    private Boolean ignoreParseErrors;
 
     @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
     private String timestampFormatStandard = "SQL";
