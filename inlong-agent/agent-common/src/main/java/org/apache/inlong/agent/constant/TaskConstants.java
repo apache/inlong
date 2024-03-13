@@ -117,13 +117,13 @@ public class TaskConstants extends CommonConstants {
     public static final String JOB_KAFKA_READ_TIMEOUT = "job.kafkaJob.read.timeout";
     public static final String TASK_KAFKA_AUTO_COMMIT_OFFSET_RESET = "task.kafkaJob.autoOffsetReset";
 
-    // Pulsar task
-    public static final String TASK_PULSAR_TENANT = "task.pulsarTask.tenant";
-    public static final String TASK_PULSAR_NAMESPACE = "task.pulsarTask.namespace";
-    public static final String TASK_PULSAR_TOPIC = "task.pulsarTask.topic";
-    public static final String TASK_PULSAR_SERVICE_URL = "task.pulsarTask.serviceUrl";
-    public static final String TASK_PULSAR_SCAN_STARTUP_MODE = "task.pulsarTask.scanStartupMode";
-    public static final String TASK_PULSAR_RESET_TIME = "task.pulsarTask.resetTime";
+    // Pulsar job
+    public static final String TASK_PULSAR_TENANT = "task.pulsarJob.tenant";
+    public static final String TASK_PULSAR_NAMESPACE = "task.pulsarJob.namespace";
+    public static final String TASK_PULSAR_TOPIC = "task.pulsarJob.topic";
+    public static final String TASK_PULSAR_SERVICE_URL = "task.pulsarJob.serviceUrl";
+    public static final String TASK_PULSAR_SCAN_STARTUP_MODE = "task.pulsarJob.scanStartupMode";
+    public static final String TASK_PULSAR_RESET_TIME = "task.pulsarJob.resetTime";
 
     public static final String JOB_MONGO_HOSTS = "job.mongoJob.hosts";
     public static final String JOB_MONGO_USER = "job.mongoJob.user";
