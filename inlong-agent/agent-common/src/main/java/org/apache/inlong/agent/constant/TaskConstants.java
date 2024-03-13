@@ -117,7 +117,7 @@ public class TaskConstants extends CommonConstants {
     public static final String JOB_KAFKA_READ_TIMEOUT = "job.kafkaJob.read.timeout";
     public static final String TASK_KAFKA_AUTO_COMMIT_OFFSET_RESET = "task.kafkaJob.autoOffsetReset";
 
-    // Pulsar job
+    // Pulsar task
     public static final String TASK_PULSAR_TENANT = "task.pulsarTask.tenant";
     public static final String TASK_PULSAR_NAMESPACE = "task.pulsarTask.namespace";
     public static final String TASK_PULSAR_TOPIC = "task.pulsarTask.topic";
