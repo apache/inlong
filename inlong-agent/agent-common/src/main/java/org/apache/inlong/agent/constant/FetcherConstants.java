@@ -31,15 +31,8 @@ public class FetcherConstants {
     // default is 30s
     public static final int DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT = 30;
 
-    // enable https
-    public static final String ENABLE_HTTPS = "enable.https";
-    public static final boolean DEFAULT_ENABLE_HTTPS = false;
-
     // required config
     public static final String AGENT_MANAGER_ADDR = "agent.manager.addr";
-
-    public static final String AGENT_MANAGER_VIP_HTTP_PATH = "agent.manager.vip.http.managerIp.path";
-    public static final String DEFAULT_AGENT_TDM_VIP_HTTP_PATH = "/agent/getManagerIpList";
 
     public static final String AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "agent.manager.vip.http.prefix.path";
     public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "/inlong/manager/openapi";
@@ -48,16 +41,7 @@ public class FetcherConstants {
     public static final String DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH = "/agent/reportAndGetTask";
     public static final String DEFAULT_AGENT_MANAGER_CONFIG_HTTP_PATH = "/agent/getExistTaskConfig";
 
-    public static final String AGENT_MANAGER_IP_CHECK_HTTP_PATH = "agent.manager.vip.http.checkIP.path";
-    public static final String DEFAULT_AGENT_TDM_IP_CHECK_HTTP_PATH = "/fileAgent/confirmAgentIp";
-
-    public static final String AGENT_MANAGER_DBCOLLECT_GETTASK_HTTP_PATH = "agent.manager.dbcollect.gettask.http.path";
-    public static final String DEFAULT_AGENT_MANAGER_DBCOLLECTOR_GETTASK_HTTP_PATH = "/dbCollector/getTask";
-
-    public static final String AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH = "agent.manager.reportsnapshot.http.path";
-    public static final String DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH = "/agent/reportSnapshot";
-
-    public static final String AGENT_MANAGER_HEARTBEAT_HTTP_PATH = "agent.manager.heartbeat.http.path";
+    public static final String AGENT_MANAGER_HEARTBEAT_HTTP_PATH = "heartbeat.http.path";
     public static final String DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH = "/heartbeat/report";
 
     public static final String AGENT_HTTP_APPLICATION_JSON = "application/json";
@@ -66,8 +50,6 @@ public class FetcherConstants {
 
     public static final String AGENT_MANAGER_RETURN_PARAM_IP = "ip";
     public static final String AGENT_MANAGER_RETURN_PARAM_DATA = "data";
-
-    public static final String VERSION = "1.0";
 
     public static final String AGENT_MANAGER_AUTH_SECRET_ID = "agent.manager.auth.secretId";
     public static final String AGENT_MANAGER_AUTH_SECRET_KEY = "agent.manager.auth.secretKey";

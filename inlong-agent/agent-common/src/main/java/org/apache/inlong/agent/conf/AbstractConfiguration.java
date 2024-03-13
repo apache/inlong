@@ -116,7 +116,7 @@ public abstract class AbstractConfiguration {
         loadResource(fileName, true);
     }
 
-    void loadPropertiesResource(String fileName) {
+    public void loadPropertiesResource(String fileName) {
         loadResource(fileName, false);
     }
 
