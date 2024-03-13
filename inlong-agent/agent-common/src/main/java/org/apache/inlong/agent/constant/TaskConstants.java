@@ -121,8 +121,10 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_PULSAR_TENANT = "task.pulsarTask.tenant";
     public static final String TASK_PULSAR_NAMESPACE = "task.pulsarTask.namespace";
     public static final String TASK_PULSAR_TOPIC = "task.pulsarTask.topic";
+    public static final String TASK_PULSAR_SUBSCRIPTION = "task.pulsarTask.subscription";
+    public static final String TASK_PULSAR_SUBSCRIPTION_TYPE = "task.pulsarTask.subscriptionType";
     public static final String TASK_PULSAR_SERVICE_URL = "task.pulsarTask.serviceUrl";
-    public static final String TASK_PULSAR_SCAN_STARTUP_MODE = "task.pulsarTask.scanStartupMode";
+    public static final String TASK_PULSAR_SUBSCRIPTION_POSITION = "task.pulsarTask.subscriptionPosition";
     public static final String TASK_PULSAR_RESET_TIME = "task.pulsarTask.resetTime";
 
     public static final String JOB_MONGO_HOSTS = "job.mongoJob.hosts";

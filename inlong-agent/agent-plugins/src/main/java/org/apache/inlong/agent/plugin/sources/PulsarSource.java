@@ -62,10 +62,13 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_PARTIT
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_QUEUE_PERMIT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_SOURCE_PERMIT;
 import static org.apache.inlong.agent.constant.TaskConstants.OFFSET;
+import static org.apache.inlong.agent.constant.TaskConstants.RESTORE_FROM_DB;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_CYCLE_UNIT;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_PULSAR_RESET_TIME;
-import static org.apache.inlong.agent.constant.TaskConstants.TASK_PULSAR_SCAN_STARTUP_MODE;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_PULSAR_SERVICE_URL;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_PULSAR_SUBSCRIPTION;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_PULSAR_SUBSCRIPTION_POSITION;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_PULSAR_SUBSCRIPTION_TYPE;
 
 public class PulsarSource extends AbstractSource {
 
@@ -87,14 +90,16 @@ public class PulsarSource extends AbstractSource {
     private BlockingQueue<SourceData> queue;
     public InstanceProfile profile;
     private int maxPackSize;
+    private String inlongStreamId;
     private String taskId;
     private String instanceId;
     private String topic;
     private String serviceUrl;
-    private String scanStartupMode;
+    private String subscription;
+    private String subscriptionType;
+    private String subscriptionPosition;
     private PulsarClient pulsarClient;
     private Long timestamp;
-    Map<Integer, Long> partitionOffsets = new HashMap<>();
     private volatile boolean running = false;
     private volatile boolean runnable = true;
     private volatile AtomicLong emptyCount = new AtomicLong(0);
@@ -124,13 +129,18 @@ public class PulsarSource extends AbstractSource {
             }
             queue = new LinkedBlockingQueue<>(CACHE_QUEUE_SIZE);
             maxPackSize = profile.getInt(PROXY_PACKAGE_MAX_SIZE, DEFAULT_PROXY_PACKAGE_MAX_SIZE);
+            inlongStreamId = profile.getInlongStreamId();
             taskId = profile.getTaskId();
             instanceId = profile.getInstanceId();
             topic = profile.getInstanceId();
             serviceUrl = profile.get(TASK_PULSAR_SERVICE_URL);
-            scanStartupMode = profile.get(TASK_PULSAR_SCAN_STARTUP_MODE);
+            subscription = profile.get(TASK_PULSAR_SUBSCRIPTION, "inlong-agent-" + inlongStreamId);
+            subscriptionPosition = profile.get(TASK_PULSAR_SUBSCRIPTION_POSITION,
+                    SubscriptionInitialPosition.Latest.name());
+            subscriptionType = profile.get(TASK_PULSAR_SUBSCRIPTION_TYPE, SubscriptionType.Shared.name());
             timestamp = profile.getLong(TASK_PULSAR_RESET_TIME, 0);
             pulsarClient = PulsarClient.builder().serviceUrl(serviceUrl).build();
+            isRestoreFromDB = profile.getBoolean(RESTORE_FROM_DB, false);
 
             EXECUTOR_SERVICE.execute(run());
         } catch (Exception ex) {
@@ -146,9 +156,9 @@ public class PulsarSource extends AbstractSource {
             try {
                 try (Consumer<byte[]> consumer = pulsarClient.newConsumer(Schema.BYTES)
                         .topic(topic)
-                        .subscriptionName("inlong-agent-" + taskId)
-                        .subscriptionInitialPosition(SubscriptionInitialPosition.valueOf(scanStartupMode))
-                        .subscriptionType(SubscriptionType.Exclusive)
+                        .subscriptionName(subscription)
+                        .subscriptionInitialPosition(SubscriptionInitialPosition.valueOf(subscriptionPosition))
+                        .subscriptionType(SubscriptionType.valueOf(subscriptionType))
                         .subscribe()) {
 
                     if (!isRestoreFromDB && timestamp != 0L) {

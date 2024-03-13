@@ -25,8 +25,10 @@ public class PulsarTask {
     private String tenant;
     private String namespace;
     private String topic;
+    private String subscription;
+    private String subscriptionType;
     private String serviceUrl;
-    private String scanStartupMode;
+    private String subscriptionPosition;
     private String resetTime;
 
     @Data
@@ -35,8 +37,10 @@ public class PulsarTask {
         private String pulsarTenant;
         private String namespace;
         private String topic;
+        private String subscription;
+        private String subscriptionType;
         private String serviceUrl;
-        private String scanStartupMode;
+        private String subscriptionPosition;
         private String resetTime;
     }
 }
