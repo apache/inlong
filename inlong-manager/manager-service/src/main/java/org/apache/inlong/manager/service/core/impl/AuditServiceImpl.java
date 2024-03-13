@@ -297,7 +297,8 @@ public class AuditServiceImpl implements AuditService {
 
             if (CollectionUtils.isEmpty(request.getAuditIds())) {
                 // properly overwrite audit ids by role and stream config
-                if (InlongConstants.DATASYNC_REALTIME_MODE.equals(groupEntity.getInlongGroupMode())) {
+                if (InlongConstants.DATASYNC_REALTIME_MODE.equals(groupEntity.getInlongGroupMode())
+                        || InlongConstants.DATASYNC_OFFLINE_MODE.equals(groupEntity.getInlongGroupMode())) {
                     auditIdMap.put(getAuditId(sourceNodeType, false), sourceNodeType);
                     request.setAuditIds(getAuditIds(groupId, streamId, sourceNodeType, sinkNodeType));
                 } else {
@@ -462,7 +463,8 @@ public class AuditServiceImpl implements AuditService {
         } else {
             auditSet.add(getAuditId(sinkNodeType, true));
             InlongGroupEntity inlongGroup = inlongGroupMapper.selectByGroupId(groupId);
-            if (InlongConstants.DATASYNC_REALTIME_MODE.equals(inlongGroup.getInlongGroupMode())) {
+            if (InlongConstants.DATASYNC_REALTIME_MODE.equals(inlongGroup.getInlongGroupMode())
+                    || InlongConstants.DATASYNC_OFFLINE_MODE.equals(inlongGroup.getInlongGroupMode())) {
                 auditSet.add(getAuditId(sourceNodeType, false));
             } else {
                 auditSet.add(getAuditId(sinkNodeType, false));
