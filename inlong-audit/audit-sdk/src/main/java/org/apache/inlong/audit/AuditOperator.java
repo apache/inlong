@@ -19,6 +19,7 @@ package org.apache.inlong.audit;
 
 /**
  * Audit operator, which is singleton.
+ * Creating objects through deserialization is not supported.
  */
 public final class AuditOperator extends AuditReporterImpl {
 
