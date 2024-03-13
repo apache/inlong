@@ -173,6 +173,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             auditData.setInlongGroupId(auditMessageBody.getInlongGroupId());
             auditData.setInlongStreamId(auditMessageBody.getInlongStreamId());
             auditData.setSize(auditMessageBody.getSize());
+            auditData.setAuditVersion(auditMessageBody.getAuditVersion());
             LOGGER.debug("Receive message info: {} {} {} {} {} {} {}",
                     auditData.getIp(),
                     auditData.getAuditId(),
