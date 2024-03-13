@@ -30,8 +30,7 @@ import java.lang.reflect.Constructor;
 
 /**
  * Installer Manager, the bridge for job manager, task manager, db e.t.c it manages agent level operations and
- * communicates
- * with outside system.
+ * communicates with outside system.
  */
 public class Manager extends AbstractDaemon {
 
