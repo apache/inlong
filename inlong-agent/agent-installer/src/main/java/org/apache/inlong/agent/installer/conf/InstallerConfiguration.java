@@ -36,7 +36,7 @@ public class InstallerConfiguration extends AbstractConfiguration {
     }
 
     /**
-     * load config from file.
+     * Load config from file.
      */
     private InstallerConfiguration() {
         for (String fileName : LOCAL_RESOURCES) {
