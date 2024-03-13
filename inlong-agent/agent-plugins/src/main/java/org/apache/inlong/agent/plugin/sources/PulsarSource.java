@@ -108,8 +108,8 @@ public class PulsarSource extends AbstractSource {
     private final Integer READ_WAIT_TIMEOUT_MS = 10;
     private final Integer EMPTY_CHECK_COUNT_AT_LEAST = 5 * 60;
     private final Integer BATCH_TOTAL_LEN = 1024 * 1024;
-
     private final Integer CORE_THREAD_PRINT_INTERVAL_MS = 1000;
+    private final static String INLONG_AGENT = "inlong-agent-";
     private boolean isRealTime = false;
     private boolean isRestoreFromDB = false;
 
@@ -134,7 +134,7 @@ public class PulsarSource extends AbstractSource {
             instanceId = profile.getInstanceId();
             topic = profile.getInstanceId();
             serviceUrl = profile.get(TASK_PULSAR_SERVICE_URL);
-            subscription = profile.get(TASK_PULSAR_SUBSCRIPTION, "inlong-agent-" + inlongStreamId);
+            subscription = profile.get(TASK_PULSAR_SUBSCRIPTION, INLONG_AGENT + inlongStreamId);
             subscriptionPosition = profile.get(TASK_PULSAR_SUBSCRIPTION_POSITION,
                     SubscriptionInitialPosition.Latest.name());
             subscriptionType = profile.get(TASK_PULSAR_SUBSCRIPTION_TYPE, SubscriptionType.Shared.name());
