@@ -20,7 +20,7 @@ package org.apache.inlong.agent.pojo;
 import lombok.Data;
 
 @Data
-public class PulsarJob {
+public class PulsarTask {
 
     private String tenant;
     private String namespace;
