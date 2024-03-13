@@ -213,7 +213,7 @@ public class TaskProfileDto {
         return kafkaJob;
     }
 
-    private static PulsarTask getPulsarJob(DataConfig dataConfig) {
+    private static PulsarTask getPulsarTask(DataConfig dataConfig) {
         PulsarTaskConfig pulsarTaskConfig = GSON.fromJson(dataConfig.getExtParams(),
                 PulsarTaskConfig.class);
         PulsarTask pulsarTask = new PulsarTask();
@@ -477,7 +477,7 @@ public class TaskProfileDto {
                 break;
             case PULSAR:
                 task.setTaskClass(DEFAULT_PULSAR_TASK);
-                PulsarTask pulsarTask = getPulsarJob(dataConfig);
+                PulsarTask pulsarTask = getPulsarTask(dataConfig);
                 task.setPulsarTask(pulsarTask);
                 task.setSource(PULSAR_SOURCE);
                 profileDto.setTask(task);
