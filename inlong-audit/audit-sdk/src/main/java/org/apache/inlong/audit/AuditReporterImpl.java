@@ -69,7 +69,7 @@ public class AuditReporterImpl implements Serializable {
     private SocketAddressListLoader loader = null;
 
     /**
-     * init
+     * Init
      */
     private void init() {
         if (initialized) {
@@ -112,7 +112,7 @@ public class AuditReporterImpl implements Serializable {
     }
 
     /**
-     * set loader
+     * Set loader
      *
      * @param loader the loader to set
      */
@@ -121,7 +121,7 @@ public class AuditReporterImpl implements Serializable {
     }
 
     /**
-     * setLoaderClass
+     * SetLoaderClass
      *
      * @param loaderClassName
      */
@@ -162,7 +162,7 @@ public class AuditReporterImpl implements Serializable {
     }
 
     /**
-     * set audit config
+     * Set audit config
      */
     public void setAuditConfig(AuditConfig config) {
         auditConfig = config;
