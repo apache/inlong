@@ -22,7 +22,7 @@ import org.apache.inlong.agent.conf.AbstractConfiguration;
 import java.util.ArrayList;
 
 /**
- * installer configuration. Only one instance in the process.
+ * Installer configuration. Only one instance in the process.
  * Basically it use properties file to store configurations.
  */
 public class InstallerConfiguration extends AbstractConfiguration {
