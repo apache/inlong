@@ -284,23 +284,24 @@ public class SenderManager {
             Long requestId = baseCommand.getAuditReply().getRequestId();
             AuditData data = this.dataMap.get(requestId);
             if (data == null) {
-                LOG.error("can not find the request id onMessageReceived: " + requestId);
+                LOG.error("Can not find the request id onMessageReceived {},message: {}",
+                        requestId, baseCommand.getAuditReply().getMessage());
                 return;
             }
             // check resp
-            LOG.debug("audit-proxy response code: {}", baseCommand.getAuditReply().getRspCode());
+            LOG.debug("Audit-proxy response code: {}", baseCommand.getAuditReply().getRspCode());
             if (AuditApi.AuditReply.RSP_CODE.SUCCESS.equals(baseCommand.getAuditReply().getRspCode())) {
                 this.dataMap.remove(requestId);
                 return;
             }
-            LOG.error("audit-proxy response code: {}", baseCommand.getAuditReply().getRspCode());
+            LOG.error("Audit-proxy response code: {}", baseCommand.getAuditReply().getRspCode());
 
             int resendTimes = data.increaseResendTimes();
             if (resendTimes < SenderGroup.MAX_SEND_TIMES) {
                 this.sendData(data.getDataByte());
             }
         } catch (Throwable ex) {
-            LOG.error("onMessageReceived exception:{}", ex.getMessage(), ex);
+            LOG.error("Receive Message exception:{}", ex.getMessage(), ex);
             this.sender.setHasSendError(true);
         }
     }
@@ -341,6 +342,7 @@ public class SenderManager {
 
     /**
      * get dataMap
+     *
      * @return the dataMap
      */
     public ConcurrentHashMap<Long, AuditData> getDataMap() {
