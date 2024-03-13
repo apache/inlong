@@ -46,7 +46,7 @@ public class Manager extends AbstractDaemon {
     }
 
     /**
-     * init fetch by class name
+     * Init fetch by class name
      */
     private ProfileFetcher initFetcher(Manager manager) {
         try {
