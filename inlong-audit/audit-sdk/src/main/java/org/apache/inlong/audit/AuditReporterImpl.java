@@ -251,7 +251,7 @@ public class AuditReporterImpl implements Serializable {
         AuditApi.AuditRequest.Builder requestBuild = AuditApi.AuditRequest.newBuilder();
         requestBuild.setMsgHeader(msgHeader).setRequestId(manager.nextRequestId());
 
-        // process the stat info for all threads
+        // Process the stat info for all threads
         for (Map.Entry<String, StatInfo> entry : threadCountMap.entrySet()) {
             // Entry key order: logTime inlongGroupID inlongStreamID auditID auditTag auditVersion
             String[] keyArray = entry.getKey().split(FIELD_SEPARATORS);
