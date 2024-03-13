@@ -69,7 +69,6 @@ public class ApproveApplyProcessListener implements ProcessEventListener {
         InlongGroupInfo groupInfo = groupService.get(groupId);
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
         processForm.setGroupInfo(groupInfo);
-        String username = context.getOperator();
         List<InlongStreamInfo> streamList = streamService.list(groupId);
         processForm.setStreamInfos(streamList);
 

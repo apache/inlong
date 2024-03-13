@@ -73,7 +73,8 @@ public class StartupSortListener implements SortOperateListener {
         }
 
         log.info("add startup group listener for groupId [{}]", groupId);
-        return InlongConstants.DATASYNC_REALTIME_MODE.equals(groupProcessForm.getGroupInfo().getInlongGroupMode());
+        return (InlongConstants.DATASYNC_REALTIME_MODE.equals(groupProcessForm.getGroupInfo().getInlongGroupMode())
+                || InlongConstants.DATASYNC_OFFLINE_MODE.equals(groupProcessForm.getGroupInfo().getInlongGroupMode()));
     }
 
     @Override
@@ -141,9 +142,13 @@ public class StartupSortListener implements SortOperateListener {
             FlinkOperation flinkOperation = FlinkOperation.getInstance();
             try {
                 flinkOperation.genPath(flinkInfo, dataflow);
-                flinkOperation.start(flinkInfo);
-                log.info("job submit success for groupId = {}, streamId = {}, jobId = {}", groupId,
-                        streamInfo.getInlongStreamId(), flinkInfo.getJobId());
+                // only start job for real-time mode
+                if (InlongConstants.DATASYNC_REALTIME_MODE
+                        .equals(groupResourceForm.getGroupInfo().getInlongGroupMode())) {
+                    flinkOperation.start(flinkInfo);
+                    log.info("job submit success for groupId = {}, streamId = {}, jobId = {}", groupId,
+                            streamInfo.getInlongStreamId(), flinkInfo.getJobId());
+                }
             } catch (Exception e) {
                 flinkInfo.setException(true);
                 flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
