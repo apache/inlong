@@ -15,26 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit;
+package org.apache.inlong.audit.loader;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 /**
- * DnsIpPortListLoader
+ * DefaultISocketAddressListLoader
  */
-public class DnsSocketAddressListLoader implements SocketAddressListLoader {
+public class DefaultISocketAddressListLoader implements SocketAddressListLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DnsSocketAddressListLoader.class);
-    public static final String KEY_DNS_ADDRESS = "audit.dns.address";
-    public static final String KEY_DNS_PORT = "audit.dns.port";
+    public static final String KEY_AUDIT_PROXYS = "audit.proxys";
 
     private Map<String, String> commonProperties;
 
@@ -43,35 +38,26 @@ public class DnsSocketAddressListLoader implements SocketAddressListLoader {
         this.commonProperties = commonProperties;
     }
 
+    /**
+     * loadSocketAddressList
+     * @return
+     */
     @Override
     public List<String> loadSocketAddressList() {
-        if (commonProperties == null) {
-            return null;
-        }
         List<String> ipPortList = new ArrayList<>();
-        String dns = commonProperties.get(KEY_DNS_ADDRESS);
-        String dnsPort = commonProperties.get(KEY_DNS_PORT);
-        if (!StringUtils.isEmpty(dns) && !StringUtils.isEmpty(dnsPort)) {
-            try {
-                InetAddress[] addrs = InetAddress.getAllByName(dns);
-                for (InetAddress addr : addrs) {
-                    ipPortList.add(addr.getHostAddress() + ":" + dnsPort);
-                }
-            } catch (Throwable t) {
-                LOG.error(t.getMessage(), t);
+        String strAuditProxys = commonProperties.get(KEY_AUDIT_PROXYS);
+        if (strAuditProxys == null) {
+            return ipPortList;
+        }
+        String[] ipPorts = strAuditProxys.split("\\s+");
+        for (String tmpIPPort : ipPorts) {
+            if (StringUtils.isBlank(tmpIPPort)) {
+                continue;
             }
+            ipPortList.add(tmpIPPort.trim());
         }
         Collections.sort(ipPortList);
         return ipPortList;
     }
 
-    public static void main(String[] args) {
-
-        try {
-            InetAddress[] addrs = InetAddress.getAllByName("inlong.woa.com");
-            System.out.println(addrs);
-        } catch (Throwable t) {
-            LOG.error(t.getMessage(), t);
-        }
-    }
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit;
+package org.apache.inlong.audit.loader;
 
 import java.util.List;
 import java.util.Map;
