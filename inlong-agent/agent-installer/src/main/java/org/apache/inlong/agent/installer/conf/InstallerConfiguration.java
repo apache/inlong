@@ -45,7 +45,7 @@ public class InstallerConfiguration extends AbstractConfiguration {
     }
 
     /**
-     * singleton for agent configuration.
+     * Singleton for agent configuration.
      *
      * @return static instance of InstallerConfiguration
      */
