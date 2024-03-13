@@ -288,7 +288,7 @@ public class AuditReporterImpl implements Serializable {
         }
         threadCountMap.clear();
 
-        LOGGER.info("finish report audit data");
+        LOGGER.info("Finish report audit data");
     }
 
     /**
