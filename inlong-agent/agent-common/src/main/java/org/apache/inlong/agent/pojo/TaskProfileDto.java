@@ -22,6 +22,7 @@ import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.pojo.FileTask.FileTaskConfig;
 import org.apache.inlong.agent.pojo.FileTask.Line;
+import org.apache.inlong.agent.pojo.PulsarTask.PulsarTaskConfig;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
@@ -213,16 +214,16 @@ public class TaskProfileDto {
     }
 
     private static PulsarTask getPulsarJob(DataConfig dataConfig) {
-        PulsarTask.PulsarJobTaskConfig pulsarJobTaskConfig = GSON.fromJson(dataConfig.getExtParams(),
-                PulsarTask.PulsarJobTaskConfig.class);
+        PulsarTaskConfig pulsarTaskConfig = GSON.fromJson(dataConfig.getExtParams(),
+                PulsarTaskConfig.class);
         PulsarTask pulsarTask = new PulsarTask();
 
-        pulsarTask.setTenant(pulsarJobTaskConfig.getPulsarTenant());
-        pulsarTask.setNamespace(pulsarJobTaskConfig.getNamespace());
-        pulsarTask.setTopic(pulsarJobTaskConfig.getTopic());
-        pulsarTask.setServiceUrl(pulsarJobTaskConfig.getServiceUrl());
-        pulsarTask.setScanStartupMode(pulsarJobTaskConfig.getScanStartupMode());
-        pulsarTask.setResetTime(pulsarJobTaskConfig.getResetTime());
+        pulsarTask.setTenant(pulsarTaskConfig.getPulsarTenant());
+        pulsarTask.setNamespace(pulsarTaskConfig.getNamespace());
+        pulsarTask.setTopic(pulsarTaskConfig.getTopic());
+        pulsarTask.setServiceUrl(pulsarTaskConfig.getServiceUrl());
+        pulsarTask.setScanStartupMode(pulsarTaskConfig.getScanStartupMode());
+        pulsarTask.setResetTime(pulsarTaskConfig.getResetTime());
 
         return pulsarTask;
     }

@@ -30,7 +30,7 @@ public class PulsarTask {
     private String resetTime;
 
     @Data
-    public static class PulsarJobTaskConfig {
+    public static class PulsarTaskConfig {
 
         private String pulsarTenant;
         private String namespace;
