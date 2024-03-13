@@ -52,7 +52,7 @@ public class TubeMqProvider implements ExtractNodeProvider {
                 source.getSerializationType(),
                 source.getWrapType(),
                 source.getDataSeparator(),
-                source.isIgnoreParseError());
+                source.getIgnoreParseError());
         Map<String, String> properties = parseProperties(source.getProperties());
 
         return new TubeMQExtractNode(

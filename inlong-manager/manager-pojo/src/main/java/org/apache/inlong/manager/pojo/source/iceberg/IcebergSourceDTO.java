@@ -31,6 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
+import java.util.Map;
+
 /**
  * Iceberg source info
  */
@@ -54,6 +56,9 @@ public class IcebergSourceDTO {
 
     @ApiModelProperty("PrimaryKey")
     private String primaryKey;
+
+    @ApiModelProperty("Properties for iceberg")
+    private Map<String, Object> properties;
 
     /**
      * Get the dto instance from the request

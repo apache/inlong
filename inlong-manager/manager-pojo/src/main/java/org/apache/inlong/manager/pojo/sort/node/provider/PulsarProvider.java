@@ -58,7 +58,7 @@ public class PulsarProvider implements ExtractNodeProvider {
         Format format = parsingFormat(pulsarSource.getSerializationType(),
                 pulsarSource.getWrapType(),
                 pulsarSource.getDataSeparator(),
-                pulsarSource.isIgnoreParseError());
+                pulsarSource.getIgnoreParseError());
 
         PulsarScanStartupMode startupMode = PulsarScanStartupMode.forName(pulsarSource.getScanStartupMode());
         final String primaryKey = pulsarSource.getPrimaryKey();

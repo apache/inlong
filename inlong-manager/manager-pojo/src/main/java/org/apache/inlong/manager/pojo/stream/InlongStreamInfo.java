@@ -146,7 +146,7 @@ public class InlongStreamInfo extends BaseInlongStream {
     private Boolean sinkMultipleEnable;
 
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value")
-    private Boolean ignoreParseError = true;
+    private Boolean ignoreParseError;
 
     public InlongStreamRequest genRequest() {
         return CommonBeanUtils.copyProperties(this, InlongStreamRequest::new);
