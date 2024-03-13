@@ -118,7 +118,7 @@ public class QueueResourceListener implements QueueOperateListener {
         if (InlongConstants.DATASYNC_REALTIME_MODE.equals(groupInfo.getInlongGroupMode())
                 || InlongConstants.DATASYNC_OFFLINE_MODE.equals(groupInfo.getInlongGroupMode())) {
             log.warn("skip to execute QueueResourceListener as sync mode {} (1 for realtime sync, 2 for offline sync) "
-                            + "for groupId={}", groupInfo.getInlongGroupMode(), groupId);
+                    + "for groupId={}", groupInfo.getInlongGroupMode(), groupId);
             if (GroupOperateType.INIT.equals(operateType)) {
                 this.createQueueForStreams(groupInfo, groupProcessForm.getStreamInfos(), operator);
             }
