@@ -33,12 +33,30 @@ public class ModuleConfig {
 
     private Integer id;
     private String name;
+    /**
+     * The md5 of the module config
+     */
     private String md5;
     private String version;
-    private Integer procCount;
+    /**
+     * Number of processes in one node
+     */
+    private Integer processesNum;
+    /**
+     * The command to start the module
+     */
     private String startCommand;
+    /**
+     * The command to stop the module
+     */
     private String stopCommand;
+    /**
+     * The command to check the processes num of the module
+     */
     private String checkCommand;
+    /**
+     * The command to uninstall the module
+     */
     private String uninstallCommand;
     private PackageConfig packageConfig;
 }

@@ -25,7 +25,16 @@ import lombok.Data;
 @Data
 public class PackageConfig {
 
+    /**
+     * The md5 of the package config
+     */
     private String md5;
+    /**
+     * The file name saved after downloading the installation package
+     */
     private String fileName;
+    /**
+     * The download url of the installation package
+     */
     private String downloadUrl;
 }

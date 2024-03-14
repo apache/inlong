@@ -33,8 +33,20 @@ import java.util.List;
 @AllArgsConstructor
 public class ConfigResult {
 
+    /**
+     * The md5 of the config result
+     */
     private String md5;
-    private Integer moduleCount;
+    /**
+     * Number of module
+     */
+    private Integer moduleNum;
+    /**
+     * The list of module config list
+     */
     private List<ModuleConfig> moduleList;
+    /**
+     * Download storage path
+     */
     private String downloadPath;
 }
