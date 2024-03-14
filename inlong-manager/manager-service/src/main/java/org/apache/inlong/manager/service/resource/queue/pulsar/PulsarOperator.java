@@ -453,10 +453,14 @@ public class PulsarOperator {
                             messagePosition);
             PulsarMessageInfo messageInfo = PulsarUtils.getMessageFromHttpResponse(httpResponse, topicPartition);
             Map<String, String> headers = messageInfo.getProperties();
+            MessageWrapType messageWrapType = MessageWrapType.forType(streamInfo.getWrapType());
+            if (headers.get(InlongConstants.MSG_ENCODE_VER) != null) {
+                messageWrapType =
+                        MessageWrapType.valueOf(Integer.parseInt(headers.get(InlongConstants.MSG_ENCODE_VER)));
+            }
             int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
                     Integer.toString(MessageWrapType.INLONG_MSG_V0.getId())));
-            DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
-                    MessageWrapType.valueOf(wrapTypeId));
+            DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(messageWrapType);
             briefMQMessages.addAll(deserializeOperator.decodeMsg(streamInfo, messageInfo.getBody(),
                     headers, index));
         } catch (Exception e) {
