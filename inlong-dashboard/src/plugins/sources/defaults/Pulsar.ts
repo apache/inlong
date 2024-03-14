@@ -21,6 +21,8 @@ import { DataWithBackend } from '@/plugins/DataWithBackend';
 import { RenderRow } from '@/plugins/RenderRow';
 import { RenderList } from '@/plugins/RenderList';
 import { SourceInfo } from '../common/SourceInfo';
+import dayjs from 'dayjs';
+import i18n from '@/i18n';
 
 const { I18n } = DataWithBackend;
 const { FieldDecorator, SyncField, IngestionField } = RenderRow;
@@ -123,13 +125,87 @@ export default class PulsarSource
 
   @FieldDecorator({
     type: 'input',
+    tooltip: i18n.t('meta.Sources.Pulsar.SubscriptionHelp'),
+    props: values => ({
+      disabled: values?.status === 101,
+    }),
+  })
+  @ColumnDecorator()
+  @IngestionField()
+  @I18n('meta.Sources.Pulsar.Subscription')
+  subscription: string;
+
+  @FieldDecorator({
+    type: 'select',
+    initialValue: 'Latest',
+    props: values => ({
+      disabled: values?.status === 101,
+      options: [
+        {
+          label: 'Earliest',
+          value: 'Earliest',
+        },
+        {
+          label: 'Latest',
+          value: 'Latest',
+        },
+      ],
+    }),
+  })
+  @ColumnDecorator()
+  @IngestionField()
+  @I18n('meta.Sources.Pulsar.SubscriptionPosition')
+  scanStartupMode: string;
+
+  @FieldDecorator({
+    type: 'select',
+    initialValue: 'Shared',
+    tooltip: i18n.t('meta.Sources.Pulsar.SubscriptionTypeHelp'),
+    props: values => ({
+      disabled: values?.status === 101,
+      options: [
+        {
+          label: 'Exclusive',
+          value: 'Exclusive',
+        },
+        {
+          label: 'Shared',
+          value: 'Shared',
+        },
+        {
+          label: 'Failover',
+          value: 'Failover',
+        },
+      ],
+    }),
+  })
+  @ColumnDecorator()
+  @IngestionField()
+  @I18n('meta.Sources.Pulsar.SubscriptionType')
+  subscriptionType: string;
+
+  @FieldDecorator({
+    type: 'datepicker',
+    tooltip: i18n.t('meta.Sources.Pulsar.ResetTimeHelp'),
+    props: values => ({
+      disabled: values?.status === 101,
+      format: 'YYYY-MM-DD HH:mm:ss',
+      showTime: true,
+    }),
+  })
+  @ColumnDecorator()
+  @IngestionField()
+  @I18n('meta.Sources.Pulsar.ResetTime')
+  resetTime: string;
+
+  @FieldDecorator({
+    type: 'input',
     props: values => ({
       disabled: values?.status === 101,
     }),
   })
   @ColumnDecorator()
   @SyncField()
-  @IngestionField()
   @I18n('meta.Sources.Pulsar.PrimaryKey')
   primaryKey: string;
 
@@ -152,7 +228,6 @@ export default class PulsarSource
   })
   @ColumnDecorator()
   @SyncField()
-  @IngestionField()
   @I18n('meta.Sources.Pulsar.DataEncoding')
   dataEncoding: string;
 
@@ -164,7 +239,6 @@ export default class PulsarSource
   })
   @ColumnDecorator()
   @SyncField()
-  @IngestionField()
   @I18n('meta.Sources.Pulsar.DataSeparator')
   dataSeparator: string;
 
@@ -176,7 +250,24 @@ export default class PulsarSource
   })
   @ColumnDecorator()
   @SyncField()
-  @IngestionField()
   @I18n('meta.Sources.Pulsar.DataEscapeChar')
   dataEscapeChar: string;
+
+  @FieldDecorator({
+    type: 'select',
+    initialValue: 'GMT+8:00',
+    props: values => ({
+      disabled: Boolean(values.id),
+      options: [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11,
+        -12,
+      ].map(item => ({
+        label: Math.sign(item) === 1 || Math.sign(item) === 0 ? `GMT+${item}:00` : `GMT${item}:00`,
+        value: Math.sign(item) === 1 || Math.sign(item) === 0 ? `GMT+${item}:00` : `GMT${item}:00`,
+      })),
+    }),
+  })
+  @IngestionField()
+  @I18n('meta.Sources.File.TimeZone')
+  dataTimeZone: string;
 }

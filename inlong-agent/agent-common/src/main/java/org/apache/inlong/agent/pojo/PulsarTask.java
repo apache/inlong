@@ -29,7 +29,7 @@ public class PulsarTask {
     private String subscriptionType;
     private String serviceUrl;
     private String subscriptionPosition;
-    private String resetTime;
+    private Long resetTime;
 
     @Data
     public static class PulsarTaskConfig {
@@ -40,7 +40,7 @@ public class PulsarTask {
         private String subscription;
         private String subscriptionType;
         private String serviceUrl;
-        private String subscriptionPosition;
-        private String resetTime;
+        private String scanStartupMode;
+        private Long resetTime;
     }
 }

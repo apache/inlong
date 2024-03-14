@@ -76,6 +76,12 @@ public class PulsarSourceRequest extends SourceRequest {
             + " Available options are earliest, latest, external-subscription, and specific-offsets.")
     private String scanStartupMode = "earliest";
 
+    @ApiModelProperty("Configure the Pulsar subscription mode. Available options are Exclusive, Shared, and Failover.")
+    private String subscriptionType = "Shared";
+
+    @ApiModelProperty("Reset consumption time")
+    private String resetTime;
+
     public PulsarSourceRequest() {
         this.setSourceType(SourceType.PULSAR);
     }
