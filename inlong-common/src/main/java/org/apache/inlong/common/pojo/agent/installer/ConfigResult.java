@@ -46,7 +46,7 @@ public class ConfigResult {
      */
     private List<ModuleConfig> moduleList;
     /**
-     * Download storage path
+     * Installation package storage path
      */
-    private String downloadPath;
+    private String storagePath;
 }
