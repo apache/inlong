@@ -52,4 +52,6 @@ public class FlinkInfo {
     private boolean isException = false;
 
     private String exceptionMsg;
+
+    private String runtimeExecutionMode;
 }

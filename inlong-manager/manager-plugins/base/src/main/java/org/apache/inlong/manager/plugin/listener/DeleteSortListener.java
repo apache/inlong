@@ -119,6 +119,7 @@ public class DeleteSortListener implements SortOperateListener {
             FlinkOperation flinkOperation = FlinkOperation.getInstance();
             try {
                 flinkOperation.delete(flinkInfo);
+                // TODO if the job is OFFLINE, should delete the scheduler information
                 log.info("job delete success for jobId={}", jobId);
             } catch (Exception e) {
                 flinkInfo.setException(true);
