@@ -258,6 +258,8 @@ public class FlinkService {
         list.add(flinkInfo.getLocalConfPath());
         list.add("-checkpoint.interval");
         list.add("60000");
+        list.add("-runtime.execution.mode");
+        list.add(flinkInfo.getRuntimeExecutionMode());
         return list.toArray(new String[0]);
     }
 
