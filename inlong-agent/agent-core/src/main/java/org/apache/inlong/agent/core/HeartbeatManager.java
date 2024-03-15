@@ -67,14 +67,14 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         this.conf = AgentConfiguration.getAgentConf();
         taskManager = agentManager.getTaskManager();
         httpManager = new HttpManager(conf);
-        baseManagerUrl = HttpManager.buildBaseUrl();
+        baseManagerUrl = httpManager.getBaseUrl();
         reportHeartbeatUrl = buildReportHeartbeatUrl(baseManagerUrl);
     }
 
     private HeartbeatManager() {
         conf = AgentConfiguration.getAgentConf();
         httpManager = new HttpManager(conf);
-        baseManagerUrl = HttpManager.buildBaseUrl();
+        baseManagerUrl = httpManager.getBaseUrl();
         reportHeartbeatUrl = buildReportHeartbeatUrl(baseManagerUrl);
 
         taskManager = null;

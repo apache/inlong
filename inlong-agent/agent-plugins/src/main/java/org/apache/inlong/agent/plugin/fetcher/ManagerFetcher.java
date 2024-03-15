@@ -85,7 +85,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         this.conf = AgentConfiguration.getAgentConf();
         if (requiredKeys(conf)) {
             httpManager = new HttpManager(conf);
-            baseManagerUrl = HttpManager.buildBaseUrl();
+            baseManagerUrl = httpManager.getBaseUrl();
             taskConfigUrl = buildTaskConfigUrl(baseManagerUrl);
             staticConfigUrl = buildStaticConfigUrl(baseManagerUrl);
             uniqId = conf.get(AGENT_UNIQ_ID, DEFAULT_AGENT_UNIQ_ID);
@@ -141,12 +141,12 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     public TaskResult getStaticConfig() {
         LOGGER.info("getStaticConfig start");
         String resultStr = httpManager.doSentPost(staticConfigUrl, getFetchRequest(null));
-        LOGGER.info("test123 staticConfigUrl {}", staticConfigUrl);
+        LOGGER.info("staticConfigUrl {}", staticConfigUrl);
         JsonObject resultData = getResultData(resultStr);
         JsonElement element = resultData.get(AGENT_MANAGER_RETURN_PARAM_DATA);
         LOGGER.info("getStaticConfig end");
         if (element != null) {
-            LOGGER.info("test123 getStaticConfig not null {}", resultData);
+            LOGGER.info("getStaticConfig not null {}", resultData);
             return GSON.fromJson(element.getAsJsonObject(), TaskResult.class);
         } else {
             LOGGER.info("getStaticConfig nothing to do");
