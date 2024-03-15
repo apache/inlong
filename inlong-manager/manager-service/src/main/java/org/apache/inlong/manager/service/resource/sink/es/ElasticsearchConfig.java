@@ -114,9 +114,9 @@ public class ElasticsearchConfig {
         getHttpHosts();
         if (!httpHosts.isEmpty() && httpHosts.size() > 0) {
             return httpHosts.get(rand.nextInt(httpHosts.size())).toString();
-        } else {
-            throw new Exception("http hosts is empty! please check hosts!");
         }
+        throw new Exception("http hosts is empty! please check hosts!");
+        
     }
 
     /**
