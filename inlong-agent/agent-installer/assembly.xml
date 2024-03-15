@@ -52,7 +52,7 @@
     <!-- for sub-module dependencies -->
     <dependencySets>
         <dependencySet>
-            <useProjectArtifact>false</useProjectArtifact>
+            <useProjectArtifact>true</useProjectArtifact>
             <useTransitiveDependencies>true</useTransitiveDependencies>
             <outputDirectory>lib</outputDirectory>
         </dependencySet>
