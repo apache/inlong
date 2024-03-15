@@ -86,7 +86,13 @@ public class RestartSortListener implements SortOperateListener {
         }
 
         GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
-
+        if (InlongConstants.DATASYNC_OFFLINE_MODE.equals(
+                groupResourceProcessForm.getGroupInfo().getInlongGroupMode())) {
+            String message = String.format("offline data sync job should be scheduled by the "
+                    + "scheduler system only for groupId [%s]", groupId);
+            log.error(message);
+            return ListenerResult.fail(message);
+        }
         List<InlongStreamInfo> streamInfos = groupResourceProcessForm.getStreamInfos();
         for (InlongStreamInfo streamInfo : streamInfos) {
             List<StreamSink> sinkList = streamInfo.getSinkList();

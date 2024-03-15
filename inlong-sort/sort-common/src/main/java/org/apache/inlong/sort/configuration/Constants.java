@@ -291,6 +291,15 @@ public class Constants {
     public static final ConfigOption<Integer> CHECKPOINT_TIMEOUT_MS =
             key("checkpoint.timeout.ms").defaultValue(600000);
 
+
+    // ------------------------------------------------------------------------
+    // Flink runtime execution mode, including stream and batch, default is stream
+    // ------------------------------------------------------------------------
+
+    public static final ConfigOption<String> RUNTIME_EXECUTION_MODE = key("runtime.execution.mode")
+            .defaultValue("stream")
+            .withDescription("The runtime execution mode of Flink, including stream and batch, default is stream");
+
     // ------------------------------------------------------------------------
     // Metrics related
     // ------------------------------------------------------------------------

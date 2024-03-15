@@ -90,6 +90,9 @@ public class InlongConstants {
     public static final Integer DATASYNC_REALTIME_MODE = 1;
     public static final Integer DATASYNC_OFFLINE_MODE = 2;
 
+    public static final String RUNTIME_EXECUTION_MODE_STREAMING = "streaming";
+    public static final String RUNTIME_EXECUTION_MODE_BATCH = "batch";
+
     public static final Integer DISABLE_ZK = 0;
     public static final Integer ENABLE_ZK = 1;
 
