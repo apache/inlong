@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort;
 
-import org.apache.flink.api.common.RuntimeExecutionMode;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.parser.Parser;
