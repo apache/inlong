@@ -34,9 +34,11 @@ import java.util.concurrent.CompletableFuture;
 public class FlinkClientService {
 
     private final Configuration configuration;
+    private final RestClusterClient<StandaloneClusterId> flinkClient;
 
-    public FlinkClientService(Configuration configuration) {
+    public FlinkClientService(Configuration configuration) throws Exception {
         this.configuration = configuration;
+        this.flinkClient = getFlinkClient();
     }
 
     /**
@@ -56,9 +58,8 @@ public class FlinkClientService {
      */
     public JobStatus getJobStatus(String jobId) throws Exception {
         try {
-            RestClusterClient<StandaloneClusterId> client = getFlinkClient();
             JobID jobID = JobID.fromHexString(jobId);
-            CompletableFuture<JobStatus> jobStatus = client.getJobStatus(jobID);
+            CompletableFuture<JobStatus> jobStatus = flinkClient.getJobStatus(jobID);
             return jobStatus.get();
         } catch (Exception e) {
             log.error("get job status by jobId={} failed: ", jobId, e);
@@ -71,9 +72,8 @@ public class FlinkClientService {
      */
     public JobDetailsInfo getJobDetail(String jobId) throws Exception {
         try {
-            RestClusterClient<StandaloneClusterId> client = getFlinkClient();
             JobID jobID = JobID.fromHexString(jobId);
-            CompletableFuture<JobDetailsInfo> jobDetails = client.getJobDetails(jobID);
+            CompletableFuture<JobDetailsInfo> jobDetails = flinkClient.getJobDetails(jobID);
             return jobDetails.get();
         } catch (Exception e) {
             log.error("get job detail by jobId={} failed: ", jobId, e);
@@ -86,9 +86,8 @@ public class FlinkClientService {
      */
     public String stopJob(String jobId, boolean isDrain, String savepointDirectory) throws Exception {
         try {
-            RestClusterClient<StandaloneClusterId> client = getFlinkClient();
             JobID jobID = JobID.fromHexString(jobId);
-            CompletableFuture<String> stopResult = client.stopWithSavepoint(jobID, isDrain, savepointDirectory);
+            CompletableFuture<String> stopResult = flinkClient.stopWithSavepoint(jobID, isDrain, savepointDirectory);
             return stopResult.get();
         } catch (Exception e) {
             log.error("stop job {} failed and savepoint directory is {} : ", jobId, savepointDirectory, e);
@@ -101,9 +100,8 @@ public class FlinkClientService {
      */
     public void cancelJob(String jobId) throws Exception {
         try {
-            RestClusterClient<StandaloneClusterId> client = getFlinkClient();
             JobID jobID = JobID.fromHexString(jobId);
-            client.cancel(jobID);
+            flinkClient.cancel(jobID);
         } catch (Exception e) {
             log.error("cancel job {} failed: ", jobId, e);
             throw new Exception("cancel job " + jobId + " failed: " + e.getMessage());
