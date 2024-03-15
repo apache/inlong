@@ -25,6 +25,7 @@ import CheckCard from '@/ui/components/CheckCard';
 import { statusList, genStatusTag } from './status';
 import { sources, defaultValue } from '..';
 import i18n from '@/i18n';
+import dayjs from 'dayjs';
 
 const { I18nMap, I18n } = DataWithBackend;
 const {
@@ -150,6 +151,9 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
   }
 
   stringify(data) {
+    if (data.resetTime !== undefined) {
+      data.resetTime = dayjs(data.resetTime).unix();
+    }
     return data;
   }
 

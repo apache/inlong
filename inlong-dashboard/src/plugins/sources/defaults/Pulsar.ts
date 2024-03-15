@@ -149,6 +149,10 @@ export default class PulsarSource
           label: 'Latest',
           value: 'Latest',
         },
+        {
+          label: 'Custom',
+          value: 'Custom',
+        },
       ],
     }),
   })
@@ -158,45 +162,25 @@ export default class PulsarSource
   scanStartupMode: string;
 
   @FieldDecorator({
-    type: 'select',
-    initialValue: 'Shared',
-    tooltip: i18n.t('meta.Sources.Pulsar.SubscriptionTypeHelp'),
-    props: values => ({
-      disabled: values?.status === 101,
-      options: [
-        {
-          label: 'Exclusive',
-          value: 'Exclusive',
-        },
-        {
-          label: 'Shared',
-          value: 'Shared',
-        },
-        {
-          label: 'Failover',
-          value: 'Failover',
-        },
-      ],
-    }),
-  })
-  @ColumnDecorator()
-  @IngestionField()
-  @I18n('meta.Sources.Pulsar.SubscriptionType')
-  subscriptionType: string;
-
-  @FieldDecorator({
     type: 'datepicker',
     tooltip: i18n.t('meta.Sources.Pulsar.ResetTimeHelp'),
+    visible: values => values.scanStartupMode === 'Custom',
     props: values => ({
       disabled: values?.status === 101,
       format: 'YYYY-MM-DD HH:mm:ss',
       showTime: true,
+      onOk: date => {
+        console.log(dayjs(date).unix());
+        return {
+          resetTime: dayjs(date).unix(),
+        };
+      },
     }),
   })
   @ColumnDecorator()
   @IngestionField()
   @I18n('meta.Sources.Pulsar.ResetTime')
-  resetTime: string;
+  resetTime: number;
 
   @FieldDecorator({
     type: 'input',

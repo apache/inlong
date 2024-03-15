@@ -134,8 +134,6 @@
   "meta.Sources.Pulsar.Subscription": "Subscription",
   "meta.Sources.Pulsar.SubscriptionHelp": "If not specified, the default is: inlong-agent-{inlongStreamId}",
   "meta.Sources.Pulsar.SubscriptionPosition": "Subscription Position",
-  "meta.Sources.Pulsar.SubscriptionType": "Subscription Type",
-  "meta.Sources.Pulsar.SubscriptionTypeHelp": "The default subscription type is Shared",
   "meta.Sources.Pulsar.ResetTime": "Reset consumption time",
   "meta.Sources.Pulsar.ResetTimeHelp": "Reset the subscription associated with this consumer to a specific message publish time.",
   "meta.Sources.Pulsar.PrimaryKey": "Primary key",
