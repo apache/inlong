@@ -116,7 +116,6 @@ public class ElasticsearchConfig {
             return httpHosts.get(rand.nextInt(httpHosts.size())).toString();
         }
         throw new Exception("http hosts is empty! please check hosts!");
-        
     }
 
     /**
@@ -136,6 +135,5 @@ public class ElasticsearchConfig {
             return urls;
         }
         throw new Exception("http hosts is empty! please check hosts!");
-        
     }
 }
