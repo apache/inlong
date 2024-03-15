@@ -134,8 +134,8 @@ public class ElasticsearchConfig {
                 urls[i] = httpHosts.get(i) + urlSuffix;
             }
             return urls;
-        } else {
-            throw new Exception("http hosts is empty! please check hosts!");
         }
+        throw new Exception("http hosts is empty! please check hosts!");
+        
     }
 }
