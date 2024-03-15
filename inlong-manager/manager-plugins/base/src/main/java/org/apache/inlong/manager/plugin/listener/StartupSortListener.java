@@ -131,20 +131,26 @@ public class StartupSortListener implements SortOperateListener {
                 return ListenerResult.fail(message);
             }
 
+            boolean isRealTimeSync = InlongConstants.DATASYNC_REALTIME_MODE
+                    .equals(groupResourceForm.getGroupInfo().getInlongGroupMode());
+
             FlinkInfo flinkInfo = new FlinkInfo();
 
             String jobName = Constants.SORT_JOB_NAME_GENERATOR.apply(processForm) + InlongConstants.HYPHEN
                     + streamInfo.getInlongStreamId();
             flinkInfo.setJobName(jobName);
-            String sortUrl = kvConf.get(InlongConstants.SORT_URL);
-            flinkInfo.setEndpoint(sortUrl);
+            flinkInfo.setEndpoint(kvConf.get(InlongConstants.SORT_URL));
             flinkInfo.setInlongStreamInfoList(Collections.singletonList(streamInfo));
+            if (isRealTimeSync) {
+                flinkInfo.setRuntimeExecutionMode(InlongConstants.RUNTIME_EXECUTION_MODE_STREAMING);
+            } else {
+                flinkInfo.setRuntimeExecutionMode(InlongConstants.RUNTIME_EXECUTION_MODE_BATCH);
+            }
             FlinkOperation flinkOperation = FlinkOperation.getInstance();
             try {
                 flinkOperation.genPath(flinkInfo, dataflow);
                 // only start job for real-time mode
-                if (InlongConstants.DATASYNC_REALTIME_MODE
-                        .equals(groupResourceForm.getGroupInfo().getInlongGroupMode())) {
+                if (isRealTimeSync) {
                     flinkOperation.start(flinkInfo);
                     log.info("job submit success for groupId = {}, streamId = {}, jobId = {}", groupId,
                             streamInfo.getInlongStreamId(), flinkInfo.getJobId());
