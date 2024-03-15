@@ -30,13 +30,10 @@
     <fileSets>
         <!-- for bin -->
         <fileSet>
-            <directory>../bin</directory>
+            <directory>bin</directory>
             <includes>
                 <include>*.*</include>
             </includes>
-            <excludes>
-                <exclude>*rock*</exclude>
-            </excludes>
             <fileMode>0755</fileMode>
             <outputDirectory>bin</outputDirectory>
             <lineEnding>unix</lineEnding>
