@@ -169,12 +169,6 @@ export default class PulsarSource
       disabled: values?.status === 101,
       format: 'YYYY-MM-DD HH:mm:ss',
       showTime: true,
-      onOk: date => {
-        console.log(dayjs(date).unix());
-        return {
-          resetTime: dayjs(date).unix(),
-        };
-      },
     }),
   })
   @ColumnDecorator()
