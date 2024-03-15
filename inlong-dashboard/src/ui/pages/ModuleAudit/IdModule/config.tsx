@@ -19,6 +19,7 @@
 
 import dayjs from 'dayjs';
 import i18n from '@/i18n';
+import request from '@/core/utils/request';
 
 export const timeStaticsDimList = [
   {
@@ -51,17 +52,20 @@ export const getFormContent = initialValues => [
     name: 'inlongGroupId',
     props: {
       dropdownMatchSelectWidth: false,
+      showSearch: true,
       options: {
         requestAuto: true,
-        requestService: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
           url: '/group/list',
           method: 'POST',
           data: {
+            keyword,
             pageNum: 1,
-            pageSize: 1000,
+            pageSize: 100,
             inlongGroupMode: 0,
           },
-        },
+        }),
         requestParams: {
           formatResult: result =>
             result?.list.map(item => ({
@@ -78,17 +82,20 @@ export const getFormContent = initialValues => [
     name: 'inlongStreamId',
     props: values => ({
       dropdownMatchSelectWidth: false,
+      showSearch: true,
       options: {
         requestAuto: true,
-        requestService: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
           url: '/stream/list',
           method: 'POST',
           data: {
+            keyword,
             pageNum: 1,
-            pageSize: 1000,
+            pageSize: 100,
             inlongGroupId: values.inlongGroupId,
           },
-        },
+        }),
         requestParams: {
           formatResult: result =>
             result?.list.map(item => ({
@@ -127,12 +134,14 @@ export const getFormContent = initialValues => [
     name: 'benchmark',
     props: {
       allowClear: true,
+      showSearch: true,
       dropdownMatchSelectWidth: false,
       options: {
         requestAuto: true,
-        requestService: {
-          url: '/audit/getAuditBases',
-          method: 'GET',
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: async keyword => {
+          const res = await request('/audit/getAuditBases');
+          return keyword === undefined ? res : res.filter(audit => audit.name.includes(keyword));
         },
         requestParams: {
           formatResult: result =>
@@ -150,12 +159,14 @@ export const getFormContent = initialValues => [
     name: 'compared',
     props: {
       allowClear: true,
+      showSearch: true,
       dropdownMatchSelectWidth: false,
       options: {
         requestAuto: true,
-        requestService: {
-          url: '/audit/getAuditBases',
-          method: 'GET',
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: async keyword => {
+          const res = await request('/audit/getAuditBases');
+          return keyword === undefined ? res : res.filter(audit => audit.name.includes(keyword));
         },
         requestParams: {
           formatResult: result =>

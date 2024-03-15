@@ -66,7 +66,7 @@ public class KafkaProvider implements ExtractNodeProvider, LoadNodeProvider {
                 kafkaSource.getSerializationType(),
                 kafkaSource.getWrapType(),
                 kafkaSource.getDataSeparator(),
-                kafkaSource.isIgnoreParseErrors());
+                kafkaSource.getIgnoreParseError());
 
         KafkaScanStartupMode startupMode = parseStartupMode(kafkaSource.getAutoOffsetReset());
         String topic = kafkaSource.getTopic();

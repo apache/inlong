@@ -89,11 +89,11 @@ public class AgentBaseTestsHelper {
         dataConfig.setDataReportType(1);
         dataConfig.setTaskType(3);
         dataConfig.setTaskId(taskId);
+        dataConfig.setTimeZone(timeZone);
         dataConfig.setState(state.ordinal());
         FileTaskConfig fileTaskConfig = new FileTaskConfig();
         fileTaskConfig.setPattern(pattern);
         fileTaskConfig.setTimeOffset("0h");
-        fileTaskConfig.setTimeZone(timeZone);
         fileTaskConfig.setMaxFileCount(100);
         fileTaskConfig.setCycleUnit("h");
         fileTaskConfig.setRetry(retry);

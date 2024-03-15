@@ -87,7 +87,7 @@ public class InLongMsgKvFormatDeserializerTest {
         List<Row> actualRows = new ArrayList<>();
         Collector<Row> collector = new ListCollector<>(actualRows);
         deserializer.flatMap(inLongMsg.buildArray(), collector);
-        assertEquals(1, errorHandler.getRowCount());
+        assertEquals(0, errorHandler.getRowCount());
 
         InLongMsg InLongMsgHead = InLongMsg.newInLongMsg();
         String abNormalAttrs = "m=0&streamId=testInterfaceId&__addcol1__=1&__addcol2__=2";
@@ -319,7 +319,7 @@ public class InLongMsgKvFormatDeserializerTest {
         }
 
         @Override
-        public void onParsingBodyFailure(byte[] body, Exception exception) throws Exception {
+        public void onParsingBodyFailure(InLongMsgHead head, byte[] body, Exception exception) throws Exception {
             bodyCount++;
         }
 

@@ -43,10 +43,13 @@ import java.io.Serializable;
 public class InlongStreamExtParam implements Serializable {
 
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value")
-    private boolean ignoreParseError;
+    private Boolean ignoreParseError;
 
     @ApiModelProperty(value = "If use extended fields")
     private Boolean useExtendedFields = false;
+
+    @ApiModelProperty(value = "The compression type used for dataproxy and sort side data transmission to reduce the network IO overhead")
+    private String inlongCompressType = "NONE";
 
     @ApiModelProperty(value = "Predefined fields")
     private String predefinedFields;

@@ -45,6 +45,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_NUMBER_LIMIT;
 import static org.apache.inlong.agent.constant.AgentConstants.JOB_NUMBER_LIMIT;
+import static org.apache.inlong.agent.constant.TaskConstants.RESTORE_FROM_DB;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_STATE;
 
 /**
@@ -421,6 +422,7 @@ public class TaskManager extends AbstractDaemon {
         taskProfileList.forEach((profile) -> {
             if (profile.getState() == TaskStateEnum.RUNNING) {
                 LOGGER.info("restore from db taskId {}", profile.getTaskId());
+                profile.setBoolean(RESTORE_FROM_DB, true);
                 addToMemory(profile);
             }
         });

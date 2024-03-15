@@ -17,25 +17,28 @@
 
 package org.apache.inlong.audit.send;
 
-import org.apache.inlong.audit.util.IpPort;
 import org.apache.inlong.audit.util.SenderResult;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
+import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class SenderGroup {
 
-    private static final Logger logger = LoggerFactory.getLogger(SenderGroup.class);
+    public static final Logger LOG = LoggerFactory.getLogger(SenderGroup.class);
+    public static final AttributeKey<String> CHANNEL_KEY = AttributeKey.newInstance("channelKey");
     // maximum number of sending
     public static final int MAX_SEND_TIMES = 3;
     public static final int DEFAULT_WAIT_TIMES = 10000;
@@ -54,6 +57,8 @@ public class SenderGroup {
     private boolean hasSendError = false;
 
     private SenderManager senderManager;
+
+    private AtomicLong channelId = new AtomicLong(0);
 
     /**
      * constructor
@@ -76,22 +81,26 @@ public class SenderGroup {
      * @return
      */
     public SenderResult send(ByteBuf dataBuf) {
+        if (dataBuf == null) {
+            return new SenderResult("dataBuf is null", 0, false);
+        }
         LinkedBlockingQueue<SenderChannel> channels = channelGroups.get(mIndex);
         SenderChannel channel = null;
+        boolean dataBufReleased = false;
         try {
             if (channels.size() <= 0) {
-                logger.error("channels is empty");
+                LOG.error("channels is empty");
                 dataBuf.release();
+                dataBufReleased = true;
                 return new SenderResult("channels is empty", 0, false);
             }
             boolean isOk = false;
+            // tryAcquire
             for (int tryIndex = 0; tryIndex < MAX_SEND_TIMES; tryIndex++) {
-                int random = RANDOM_MIN + (int) (Math.random() * (channels.size() - RANDOM_MIN));
-                channels = channelGroups.get(mIndex);
                 for (int i = 0; i < channels.size(); i++) {
                     channel = channels.poll();
                     if (channel.tryAcquire()) {
-                        if (random == i && channel.connect()) {
+                        if (channel.connect()) {
                             isOk = true;
                             break;
                         }
@@ -108,12 +117,28 @@ public class SenderGroup {
                 try {
                     Thread.sleep(waitChannelIntervalMs);
                 } catch (Throwable e) {
-                    logger.error(e.getMessage());
+                    LOG.error(e.getMessage());
                 }
             }
+            // acquire
             if (channel == null) {
-                logger.error("can not get a channel");
+                for (int i = 0; i < channels.size(); i++) {
+                    channel = channels.poll();
+                    if (!channel.connect()) {
+                        channels.offer(channel);
+                        channel = null;
+                        continue;
+                    }
+                    if (channel.acquire()) {
+                        break;
+                    }
+                }
+            }
+            // error
+            if (channel == null) {
+                LOG.error("can not get a channel");
                 dataBuf.release();
+                dataBufReleased = true;
                 return new SenderResult("can not get a channel", 0, false);
             }
 
@@ -126,42 +151,36 @@ public class SenderGroup {
                     }
                     t = channel.getChannel().writeAndFlush(dataBuf).sync().await();
                 }
+                dataBufReleased = true;
             } else {
                 dataBuf.release();
+                dataBufReleased = true;
             }
-            return new SenderResult(channel.getIpPort().ip, channel.getIpPort().port, t.isSuccess());
+            return new SenderResult(channel.getAddr().getHostString(), channel.getAddr().getPort(), t.isSuccess());
         } catch (Throwable ex) {
-            logger.error(ex.getMessage());
+            LOG.error(ex.getMessage(), ex);
             this.setHasSendError(true);
-            return new SenderResult(ex.getMessage(), 0, false);
+            return new SenderResult("127.0.0.1", 0, false);
         } finally {
             if (channel != null) {
                 channel.release();
                 channels.offer(channel);
             }
+            if (!dataBufReleased) {
+                dataBuf.release();
+            }
         }
     }
 
-    /**
-     * release channel
-     */
-    public void release(String ipPort) {
-        SenderChannel channel = this.totalChannels.get(ipPort);
-        if (channel != null) {
-            channel.release();
+    public void release(Channel channel) {
+        Attribute<String> attr = channel.attr(CHANNEL_KEY);
+        String key = attr.get();
+        if (key == null) {
+            return;
         }
-    }
-
-    /**
-     * release channel
-     */
-    public void release(InetSocketAddress addr) {
-        String destIp = addr.getHostName();
-        int destPort = addr.getPort();
-        String ipPort = IpPort.getIpPortKey(destIp, destPort);
-        SenderChannel channel = this.totalChannels.get(ipPort);
-        if (channel != null) {
-            channel.release();
+        SenderChannel senderChannel = this.totalChannels.get(key);
+        if (senderChannel != null) {
+            senderChannel.release();
         }
     }
 
@@ -170,47 +189,64 @@ public class SenderGroup {
      *
      * @param ipLists
      */
-    public void updateConfig(Set<String> ipLists) {
+    public void updateConfig(List<String> ipLists) {
         try {
             for (SenderChannel dc : deleteChannels) {
-                dc.getChannel().disconnect();
-                dc.getChannel().close();
+                if (dc.getChannel() != null) {
+                    try {
+                        dc.getChannel().disconnect();
+                        dc.getChannel().close();
+                    } catch (Exception e) {
+                        LOG.error(e.getMessage(), e);
+                    }
+                }
             }
             deleteChannels.clear();
             int newIndex = mIndex ^ 0x01;
             LinkedBlockingQueue<SenderChannel> newChannels = this.channelGroups.get(newIndex);
             newChannels.clear();
+            List<String> waitingDeleteChannelKey = new ArrayList<>(totalChannels.size());
+            waitingDeleteChannelKey.addAll(totalChannels.keySet());
             for (String ipPort : ipLists) {
-                SenderChannel channel = totalChannels.get(ipPort);
-                if (channel != null) {
-                    newChannels.add(channel);
-                    continue;
-                }
                 try {
-                    IpPort ipPortObj = IpPort.parseIpPort(ipPort);
-                    if (ipPortObj == null) {
+                    InetSocketAddress addr = parseAddress(ipPort);
+                    if (addr == null) {
                         continue;
                     }
-                    channel = new SenderChannel(ipPortObj, maxSynchRequest, senderManager);
+                    String key = String.valueOf(channelId.getAndIncrement());
+                    SenderChannel channel = new SenderChannel(addr, maxSynchRequest, senderManager);
+                    channel.setChannelKey(key);
                     newChannels.add(channel);
-                    totalChannels.put(ipPort, channel);
+                    totalChannels.put(key, channel);
                 } catch (Exception e) {
-                    logger.error(e.getMessage());
+                    LOG.error(e.getMessage(), e);
                 }
             }
 
-            for (Entry<String, SenderChannel> entry : totalChannels.entrySet()) {
-                if (!ipLists.contains(entry.getKey())) {
-                    deleteChannels.add(entry.getValue());
-                }
-            }
-            for (SenderChannel dc : deleteChannels) {
-                totalChannels.remove(dc.getIpPort().key);
-            }
+            waitingDeleteChannelKey.forEach(v -> deleteChannels.add(totalChannels.remove(v)));
             this.mIndex = newIndex;
         } catch (Throwable e) {
-            logger.error("Update Sender Ip Failed." + e.getMessage());
+            LOG.error("Update Sender Ip Failed." + e.getMessage(), e);
         }
+    }
+
+    /**
+     * parseAddress
+     * 
+     * @param  InetSocketAddress
+     * @return
+     */
+    private static InetSocketAddress parseAddress(String ipPort) {
+        String[] splits = ipPort.split(":");
+        if (splits.length == 2) {
+            String strIp = splits[0];
+            String strPort = splits[1];
+            int port = NumberUtils.toInt(strPort, 0);
+            if (port > 0) {
+                return new InetSocketAddress(strIp, port);
+            }
+        }
+        return null;
     }
 
     /**

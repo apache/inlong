@@ -23,6 +23,7 @@ import org.apache.inlong.common.pojo.sdk.CacheZone;
 import org.apache.inlong.common.pojo.sdk.CacheZoneConfig;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.common.pojo.sdk.Topic;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -420,7 +421,16 @@ public class SortSourceServiceImpl implements SortSourceService {
                                 topic = backupStreamMqResource.get(groupId).get(streamId);
                             }
                         }
-                        String fullTopic = tenant.concat("/").concat(namespace).concat("/").concat(topic);
+                        String fullTopic = tenant + InlongConstants.SLASH + namespace + InlongConstants.SLASH + topic;
+
+                        Map<String, String> groupExt = groupInfo.getExtParamsMap();
+                        String groupTenant = Optional
+                                .ofNullable(groupExt.get(KEY_NEW_TENANT))
+                                .orElse(groupExt.get(KEY_OLD_TENANT));
+                        if (StringUtils.isNotBlank(groupTenant)) {
+                            fullTopic = groupTenant + InlongConstants.SLASH + namespace + InlongConstants.SLASH + topic;
+                        }
+
                         return Topic.builder()
                                 .topic(fullTopic)
                                 .topicProperties(sink.getExtParamsMap())

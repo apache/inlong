@@ -22,7 +22,6 @@ import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.plugin.flink.FlinkOperation;
-import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
@@ -116,9 +115,7 @@ public class SuspendSortListener implements SortOperateListener {
             flinkInfo.setJobId(jobId);
             String sortUrl = kvConf.get(InlongConstants.SORT_URL);
             flinkInfo.setEndpoint(sortUrl);
-
-            FlinkService flinkService = new FlinkService(flinkInfo.getEndpoint());
-            FlinkOperation flinkOperation = new FlinkOperation(flinkService);
+            FlinkOperation flinkOperation = FlinkOperation.getInstance();
             try {
                 // todo Currently, savepoint is not being used to stop, but will be improved in the future
                 flinkOperation.delete(flinkInfo);

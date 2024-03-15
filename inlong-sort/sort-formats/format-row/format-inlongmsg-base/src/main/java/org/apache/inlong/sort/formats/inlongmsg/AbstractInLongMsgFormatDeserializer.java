@@ -103,7 +103,7 @@ public abstract class AbstractInLongMsgFormatDeserializer extends TableFormatDes
                 try {
                     bodyList = parseBodyList(bodyBytes);
                 } catch (Exception e) {
-                    failureHandler.onParsingBodyFailure(bodyBytes, e);
+                    failureHandler.onParsingBodyFailure(head, bodyBytes, e);
                     continue;
                 }
 

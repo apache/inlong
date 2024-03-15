@@ -28,7 +28,7 @@ public class AuditDataTest {
 
     @Test
     public void increaseResendTimes() {
-        AuditData test = new AuditData(null);
+        AuditData test = new AuditData(null, null);
         int resendTimes = test.increaseResendTimes();
         assertEquals(1, resendTimes);
         resendTimes = test.increaseResendTimes();
@@ -56,7 +56,7 @@ public class AuditDataTest {
         AuditApi.AuditRequest request = AuditApi.AuditRequest.newBuilder().setMsgHeader(headerBuilder.build())
                 .addMsgBody(bodyBuilder.build()).build();
         AuditApi.BaseCommand baseCommand = AuditApi.BaseCommand.newBuilder().setAuditRequest(request).build();
-        AuditData test = new AuditData(baseCommand);
+        AuditData test = new AuditData(baseCommand, request);
         byte[] data = test.getDataByte();
         assertTrue(data.length > 0);
     }

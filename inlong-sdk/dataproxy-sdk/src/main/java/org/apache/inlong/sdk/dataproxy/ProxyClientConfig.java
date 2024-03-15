@@ -48,6 +48,7 @@ public class ProxyClientConfig {
     private String confStoreBasePath = System.getProperty("user.dir") + "/.inlong/";
     private String tlsServerCertFilePathAndName;
     private String tlsServerKey;
+    private String tlsVersion = "TLSv1.2";
     private int maxTimeoutCnt = ConfigConstants.MAX_TIMEOUT_CNT;
     private String authSecretId;
     private String authSecretKey;
@@ -370,6 +371,14 @@ public class ProxyClientConfig {
         }
         this.tlsServerKey = tlsServerKey;
         this.tlsServerCertFilePathAndName = tlsServerCertFilePathAndName;
+    }
+
+    public String getTlsVersion() {
+        return tlsVersion;
+    }
+
+    public void setTlsVersion(String tlsVersion) {
+        this.tlsVersion = tlsVersion;
     }
 
     public String getUserName() {

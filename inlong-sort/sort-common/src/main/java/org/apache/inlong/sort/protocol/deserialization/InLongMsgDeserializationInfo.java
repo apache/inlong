@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.protocol.deserialization;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonAlias;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -24,18 +26,24 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * InLongMsgDeserializationInfo.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class InLongMsgDeserializationInfo implements DeserializationInfo {
 
     private static final long serialVersionUID = 3707412713264864315L;
 
     private final String streamId;
 
-    public InLongMsgDeserializationInfo(@JsonProperty("streamId") String streamId) {
+    public InLongMsgDeserializationInfo(@JsonProperty("streamId") @JsonAlias(value = {"tid"}) String streamId) {
         this.streamId = checkNotNull(streamId);
     }
 
     @JsonProperty("streamId")
+    @JsonAlias(value = {"tid"})
     public String getStreamId() {
+        return streamId;
+    }
+
+    public String getTid() {
         return streamId;
     }
 }

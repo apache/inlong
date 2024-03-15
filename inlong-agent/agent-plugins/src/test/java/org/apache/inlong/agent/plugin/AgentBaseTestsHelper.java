@@ -95,12 +95,12 @@ public class AgentBaseTestsHelper {
         dataConfig.setDataReportType(1);
         dataConfig.setTaskType(3);
         dataConfig.setTaskId(taskId);
+        dataConfig.setTimeZone("GMT-8:00");
         dataConfig.setState(state.ordinal());
         FileTaskConfig fileTaskConfig = new FileTaskConfig();
         fileTaskConfig.setPattern(pattern);
         fileTaskConfig.setTimeOffset("0d");
         // GMT-8:00 same with Asia/Shanghai
-        fileTaskConfig.setTimeZone("GMT-8:00");
         fileTaskConfig.setMaxFileCount(100);
         fileTaskConfig.setCycleUnit(cycleUnit);
         fileTaskConfig.setRetry(retry);

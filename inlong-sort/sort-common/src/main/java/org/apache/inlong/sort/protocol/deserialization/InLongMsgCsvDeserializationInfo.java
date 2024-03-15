@@ -17,7 +17,9 @@
 
 package org.apache.inlong.sort.protocol.deserialization;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonAlias;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
@@ -29,6 +31,7 @@ import java.util.Objects;
 /**
  * It represents CSV format of InLongMsg(m=0).
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class InLongMsgCsvDeserializationInfo extends InLongMsgDeserializationInfo {
 
     private static final long serialVersionUID = 1499370571949888870L;
@@ -43,13 +46,13 @@ public class InLongMsgCsvDeserializationInfo extends InLongMsgDeserializationInf
     private final boolean deleteHeadDelimiter;
 
     public InLongMsgCsvDeserializationInfo(
-            @JsonProperty("streamId") String streamId,
+            @JsonProperty("streamId") @JsonAlias(value = {"tid"}) String streamId,
             @JsonProperty("delimiter") char delimiter) {
         this(streamId, delimiter, null, false);
     }
 
     public InLongMsgCsvDeserializationInfo(
-            @JsonProperty("streamId") String streamId,
+            @JsonProperty("streamId") @JsonAlias(value = {"tid"}) String streamId,
             @JsonProperty("delimiter") char delimiter,
             @JsonProperty("delete_head_delimiter") boolean deleteHeadDelimiter) {
         this(streamId, delimiter, null, deleteHeadDelimiter);
@@ -57,7 +60,7 @@ public class InLongMsgCsvDeserializationInfo extends InLongMsgDeserializationInf
 
     @JsonCreator
     public InLongMsgCsvDeserializationInfo(
-            @JsonProperty("streamId") String streamId,
+            @JsonProperty("streamId") @JsonAlias(value = {"tid"}) String streamId,
             @JsonProperty("delimiter") char delimiter,
             @JsonProperty("escape_char") @Nullable Character escapeChar,
             @JsonProperty("delete_head_delimiter") boolean deleteHeadDelimiter) {

@@ -70,7 +70,7 @@ public class TaskProfile extends AbstractConfiguration {
     }
 
     public String getTimeZone() {
-        return get(TaskConstants.TASK_FILE_TIME_ZONE);
+        return get(TaskConstants.TASK_TIME_ZONE);
     }
 
     public TaskStateEnum getState() {
@@ -121,9 +121,7 @@ public class TaskProfile extends AbstractConfiguration {
     public boolean allRequiredKeyExist() {
         return hasKey(TaskConstants.TASK_ID) && hasKey(TaskConstants.TASK_SOURCE)
                 && hasKey(TaskConstants.TASK_SINK) && hasKey(TaskConstants.TASK_CHANNEL)
-                && hasKey(TaskConstants.TASK_GROUP_ID) && hasKey(TaskConstants.TASK_STREAM_ID)
-                && hasKey(TaskConstants.TASK_CYCLE_UNIT)
-                && hasKey(TaskConstants.TASK_FILE_TIME_ZONE);
+                && hasKey(TaskConstants.TASK_GROUP_ID) && hasKey(TaskConstants.TASK_STREAM_ID);
     }
 
     public String toJsonStr() {

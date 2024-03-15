@@ -25,15 +25,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class AuditData implements Serializable {
 
+    /**
+     * serialVersionUID long
+     */
+    private static final long serialVersionUID = 769061966948427460L;
     public static int HEAD_LENGTH = 4;
     private final AuditApi.BaseCommand content;
     private final AtomicInteger resendTimes = new AtomicInteger(0);
+    private String channelKey;
+    private long sendTime = System.currentTimeMillis();
+    private AuditApi.AuditRequest auditRequest;
 
     /**
      * Constructor
      */
-    public AuditData(AuditApi.BaseCommand content) {
+    public AuditData(AuditApi.BaseCommand content, AuditApi.AuditRequest auditRequest) {
         this.content = content;
+        this.auditRequest = auditRequest;
     }
 
     /**
@@ -62,4 +70,45 @@ public class AuditData implements Serializable {
         System.arraycopy(data2, 0, data3, data1.length, data2.length);
         return data3;
     }
+
+    /**
+     * get channelKey
+     * @return the channelKey
+     */
+    public String getChannelKey() {
+        return channelKey;
+    }
+
+    /**
+     * set channelKey
+     * @param channelKey the channelKey to set
+     */
+    public void setChannelKey(String channelKey) {
+        this.channelKey = channelKey;
+    }
+
+    /**
+     * get sendTime
+     * @return the sendTime
+     */
+    public long getSendTime() {
+        return sendTime;
+    }
+
+    /**
+     * set sendTime
+     * @param sendTime the sendTime to set
+     */
+    public void setSendTime(long sendTime) {
+        this.sendTime = sendTime;
+    }
+
+    /**
+     * get auditRequest
+     * @return the auditRequest
+     */
+    public AuditApi.AuditRequest getAuditRequest() {
+        return auditRequest;
+    }
+
 }

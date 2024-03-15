@@ -75,7 +75,7 @@ public class CommonConstants {
 
     public static final String PROXY_SENDER_MAX_TIMEOUT = "proxy.sender.maxTimeout";
     // max timeout in seconds.
-    public static final int DEFAULT_PROXY_SENDER_MAX_TIMEOUT = 20;
+    public static final int DEFAULT_PROXY_SENDER_MAX_TIMEOUT = 60;
 
     public static final String PROXY_SENDER_MAX_RETRY = "proxy.sender.maxRetry";
     public static final int DEFAULT_PROXY_SENDER_MAX_RETRY = 5;

@@ -92,6 +92,7 @@ public class DataProxyConfigRepository implements IRepository {
     public static final String KEY_NEW_TENANT_KEY = "pulsarTenant";
     public static final String KEY_OLD_TENANT_KEY = "tenant";
     public static final String KEY_DATA_TYPE = "dataType";
+    public static final String KEY_WRAP_TYPE = "wrapType";
     public static final String KEY_BACKUP_CLUSTER_TAG = "backup_cluster_tag";
     public static final String KEY_BACKUP_TOPIC = "backup_topic";
     public static final String KEY_SORT_TASK_NAME = "defaultSortTaskName";
@@ -376,6 +377,7 @@ public class DataProxyConfigRepository implements IRepository {
         streamIdMap.forEach((k, v) -> {
             Map<String, String> params = fromJsonToMap(v.getExtParams());
             params.computeIfAbsent(KEY_DATA_TYPE, type -> v.getDataType());
+            params.computeIfAbsent(KEY_WRAP_TYPE, type -> v.getWrapType());
             streamParams.put(k, params);
         });
         // reload inlong stream ext

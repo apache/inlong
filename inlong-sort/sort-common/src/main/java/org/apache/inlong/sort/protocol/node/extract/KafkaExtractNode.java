@@ -118,7 +118,7 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
         this.topic = Preconditions.checkNotNull(topic, "kafka topic is empty");
         this.bootstrapServers = Preconditions.checkNotNull(bootstrapServers, "kafka bootstrapServers is empty");
         this.format = Preconditions.checkNotNull(format, "kafka format is empty");
-        this.kafkaScanStartupMode = Preconditions.checkNotNull(kafkaScanStartupMode, "kafka scanStartupMode is empty");
+        this.kafkaScanStartupMode = kafkaScanStartupMode;
         this.primaryKey = primaryKey;
         this.groupId = groupId;
         if (kafkaScanStartupMode == KafkaScanStartupMode.SPECIFIC_OFFSETS) {
@@ -154,19 +154,19 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
         Map<String, String> options = super.tableOptions();
         options.put(KafkaConstant.TOPIC, topic);
         options.put(KafkaConstant.PROPERTIES_BOOTSTRAP_SERVERS, bootstrapServers);
-        options.put(KafkaConstant.SCAN_STARTUP_MODE, kafkaScanStartupMode.getValue());
         if (isUpsertKafkaConnector(format, !StringUtils.isEmpty(this.primaryKey))) {
             options.put(KafkaConstant.CONNECTOR, KafkaConstant.UPSERT_KAFKA);
             options.putAll(format.generateOptions(true));
         } else {
             options.put(KafkaConstant.CONNECTOR, KafkaConstant.KAFKA);
             options.putAll(format.generateOptions(false));
-        }
-        if (StringUtils.isNotEmpty(scanSpecificOffsets)) {
-            options.put(KafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, scanSpecificOffsets);
-        }
-        if (StringUtils.isNotBlank(scanTimestampMillis)) {
-            options.put(KafkaConstant.SCAN_STARTUP_TIMESTAMP_MILLIS, scanTimestampMillis);
+            options.put(KafkaConstant.SCAN_STARTUP_MODE, kafkaScanStartupMode.getValue());
+            if (StringUtils.isNotEmpty(scanSpecificOffsets)) {
+                options.put(KafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, scanSpecificOffsets);
+            }
+            if (StringUtils.isNotBlank(scanTimestampMillis)) {
+                options.put(KafkaConstant.SCAN_STARTUP_TIMESTAMP_MILLIS, scanTimestampMillis);
+            }
         }
         if (StringUtils.isNotEmpty(groupId)) {
             options.put(KafkaConstant.PROPERTIES_GROUP_ID, groupId);

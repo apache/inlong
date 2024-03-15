@@ -111,7 +111,7 @@ public abstract class AbstractInLongMsgFormatDeserializer implements ResultTypeQ
                     bodyList = parseBodyList(bodyBytes);
                 } catch (Exception e) {
                     reportDeSerializeErrorMetrics();
-                    failureHandler.onParsingBodyFailure(bodyBytes, e);
+                    failureHandler.onParsingBodyFailure(head, bodyBytes, e);
                     continue;
                 }
 

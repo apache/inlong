@@ -19,8 +19,10 @@ package org.apache.inlong.agent.pojo;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
+import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.pojo.FileTask.FileTaskConfig;
 import org.apache.inlong.agent.pojo.FileTask.Line;
+import org.apache.inlong.agent.pojo.PulsarTask.PulsarTaskConfig;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
@@ -37,6 +39,8 @@ import static org.apache.inlong.common.enums.DataReportTypeEnum.NORMAL_SEND_TO_D
 public class TaskProfileDto {
 
     public static final String DEFAULT_FILE_TASK = "org.apache.inlong.agent.plugin.task.file.LogFileTask";
+    public static final String DEFAULT_KAFKA_TASK = "org.apache.inlong.agent.plugin.task.KafkaTask";
+    public static final String DEFAULT_PULSAR_TASK = "org.apache.inlong.agent.plugin.task.PulsarTask";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
     public static final String DEFAULT_DATA_PROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
@@ -55,6 +59,8 @@ public class TaskProfileDto {
      * kafka source
      */
     public static final String KAFKA_SOURCE = "org.apache.inlong.agent.plugin.sources.KafkaSource";
+    // pulsar source
+    public static final String PULSAR_SOURCE = "org.apache.inlong.agent.plugin.sources.PulsarSource";
     /**
      * PostgreSQL source
      */
@@ -146,9 +152,6 @@ public class TaskProfileDto {
         if (taskConfig.getTimeOffset() != null) {
             fileTask.setTimeOffset(taskConfig.getTimeOffset());
         }
-        if (taskConfig.getTimeZone() != null) {
-            fileTask.setTimeZone(taskConfig.getTimeZone());
-        }
 
         if (taskConfig.getAdditionalAttr() != null) {
             fileTask.setAddictiveString(taskConfig.getAdditionalAttr());
@@ -192,7 +195,7 @@ public class TaskProfileDto {
         bootstrap.setServers(kafkaJobTaskConfig.getBootstrapServers());
         kafkaJob.setBootstrap(bootstrap);
         KafkaJob.Partition partition = new KafkaJob.Partition();
-        partition.setOffset(dataConfigs.getSnapshot());
+        partition.setOffset(kafkaJobTaskConfig.getPartitionOffsets());
         kafkaJob.setPartition(partition);
         KafkaJob.Group group = new KafkaJob.Group();
         group.setId(kafkaJobTaskConfig.getGroupId());
@@ -208,6 +211,23 @@ public class TaskProfileDto {
         kafkaJob.setTopic(kafkaJobTaskConfig.getTopic());
 
         return kafkaJob;
+    }
+
+    private static PulsarTask getPulsarTask(DataConfig dataConfig) {
+        PulsarTaskConfig pulsarTaskConfig = GSON.fromJson(dataConfig.getExtParams(),
+                PulsarTaskConfig.class);
+        PulsarTask pulsarTask = new PulsarTask();
+
+        pulsarTask.setTenant(pulsarTaskConfig.getPulsarTenant());
+        pulsarTask.setNamespace(pulsarTaskConfig.getNamespace());
+        pulsarTask.setTopic(pulsarTaskConfig.getTopic());
+        pulsarTask.setSubscription(pulsarTaskConfig.getSubscription());
+        pulsarTask.setSubscriptionType(pulsarTaskConfig.getSubscriptionType());
+        pulsarTask.setServiceUrl(pulsarTaskConfig.getServiceUrl());
+        pulsarTask.setSubscriptionPosition(pulsarTaskConfig.getSubscriptionPosition());
+        pulsarTask.setResetTime(pulsarTaskConfig.getResetTime());
+
+        return pulsarTask;
     }
 
     private static PostgreSQLJob getPostgresJob(DataConfig dataConfigs) {
@@ -411,6 +431,8 @@ public class TaskProfileDto {
         task.setVersion(dataConfig.getVersion());
         task.setState(dataConfig.getState());
         task.setPredefinedFields(dataConfig.getPredefinedFields());
+        task.setCycleUnit(CycleUnitType.REAL_TIME);
+        task.setTimeZone(dataConfig.getTimeZone());
 
         // set sink type
         if (dataConfig.getDataReportType() == NORMAL_SEND_TO_DATAPROXY.ordinal()) {
@@ -443,14 +465,23 @@ public class TaskProfileDto {
             case FILE:
                 task.setTaskClass(DEFAULT_FILE_TASK);
                 FileTask fileTask = getFileJob(dataConfig);
+                task.setCycleUnit(fileTask.getCycleUnit());
                 task.setFileTask(fileTask);
                 task.setSource(DEFAULT_SOURCE);
                 profileDto.setTask(task);
                 break;
             case KAFKA:
+                task.setTaskClass(DEFAULT_KAFKA_TASK);
                 KafkaJob kafkaJob = getKafkaJob(dataConfig);
                 task.setKafkaJob(kafkaJob);
                 task.setSource(KAFKA_SOURCE);
+                profileDto.setTask(task);
+                break;
+            case PULSAR:
+                task.setTaskClass(DEFAULT_PULSAR_TASK);
+                PulsarTask pulsarTask = getPulsarTask(dataConfig);
+                task.setPulsarTask(pulsarTask);
+                task.setSource(PULSAR_SOURCE);
                 profileDto.setTask(task);
                 break;
             case POSTGRES:
@@ -519,10 +550,13 @@ public class TaskProfileDto {
         private String taskClass;
         private String predefinedFields;
         private Integer state;
+        private String cycleUnit;
+        private String timeZone;
 
         private FileTask fileTask;
         private BinlogJob binlogJob;
         private KafkaJob kafkaJob;
+        private PulsarTask pulsarTask;
         private PostgreSQLJob postgreSQLJob;
         private OracleJob oracleJob;
         private MongoJob mongoJob;

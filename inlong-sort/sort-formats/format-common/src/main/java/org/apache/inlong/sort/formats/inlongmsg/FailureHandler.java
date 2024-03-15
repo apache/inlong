@@ -25,6 +25,25 @@ import java.io.Serializable;
 public interface FailureHandler extends Serializable {
 
     /**
+     * This method is called when there is a failure occurred while parsing to check is
+     * or not parse failure.
+     *
+     */
+    default boolean isIgnoreFailure() {
+        return false;
+    };
+
+    /**
+     * This method is called when there is a failure occurred while parsing non-InLong message.
+     *
+     * @param msg the msg byte
+     * @param exception the thrown exception
+     * @throws Exception the exception
+     */
+    default void onParsingMsgFailure(Object msg, Exception exception) throws Exception {
+    };
+
+    /**
      * This method is called when there is a failure occurred while parsing InLongMsg head.
      *
      * @param attribute the attribute which head is parsed from
@@ -40,7 +59,7 @@ public interface FailureHandler extends Serializable {
      * @param exception the thrown exception
      * @throws Exception the exception
      */
-    void onParsingBodyFailure(byte[] body, Exception exception) throws Exception;
+    void onParsingBodyFailure(InLongMsgHead head, byte[] body, Exception exception) throws Exception;
 
     /**
      * This method is called when there is a failure occurred while converting head and body to row.
@@ -51,4 +70,5 @@ public interface FailureHandler extends Serializable {
      * @throws Exception the exception
      */
     void onConvertingRowFailure(InLongMsgHead head, InLongMsgBody body, Exception exception) throws Exception;
+
 }

@@ -286,7 +286,7 @@ public class InLongMsgCsvFormatDeserializerTest {
         List<RowData> actualRows = new ArrayList<>();
         Collector<RowData> collector = new ListCollector<>(actualRows);
         deserializer.flatMap(inLongMsg.buildArray(), collector);
-        assertEquals(1, errorHandler.getRowCount());
+        assertEquals(0, errorHandler.getRowCount());
 
         InLongMsg inLongMsg1Head = InLongMsg.newInLongMsg();
         String abNormalAttrs = "m=0&streamId=testInterfaceId&__addcol1__=1&__addcol2__=2";
@@ -545,20 +545,33 @@ public class InLongMsgCsvFormatDeserializerTest {
         expectedAttributes.put("__addcol1__", "1");
         expectedAttributes.put("__addcol2__", "2");
 
-        GenericRowData expectRowData = new GenericRowData(8);
-        expectRowData.setField(0, TimestampData.fromTimestamp(Timestamp.valueOf("2020-03-22 00:00:00")));
-        expectRowData.setField(1, mapConvert.convert(expectedAttributes));
-        expectRowData.setField(2, 1);
-        expectRowData.setField(3, 2);
-        expectRowData.setField(4, 123);
-        expectRowData.setField(5, StringData.fromString("field21"));
-        expectRowData.setField(6, StringData.fromString("field22"));
-        expectRowData.setField(7, StringData.fromString("field23"));
+        GenericRowData expectRowData1 = new GenericRowData(8);
+        expectRowData1.setField(0, TimestampData.fromTimestamp(Timestamp.valueOf("2020-03-22 00:00:00")));
+        expectRowData1.setField(1, mapConvert.convert(expectedAttributes));
+        expectRowData1.setField(2, 1);
+        expectRowData1.setField(3, 2);
+        expectRowData1.setField(4, null);
+        expectRowData1.setField(5, StringData.fromString("field11"));
+        expectRowData1.setField(6, StringData.fromString("field12"));
+        expectRowData1.setField(7, StringData.fromString("field13"));
 
+        GenericRowData expectRowData2 = new GenericRowData(8);
+        expectRowData2.setField(0, TimestampData.fromTimestamp(Timestamp.valueOf("2020-03-22 00:00:00")));
+        expectRowData2.setField(1, mapConvert.convert(expectedAttributes));
+        expectRowData2.setField(2, 1);
+        expectRowData2.setField(3, 2);
+        expectRowData2.setField(4, 123);
+        expectRowData2.setField(5, StringData.fromString("field21"));
+        expectRowData2.setField(6, StringData.fromString("field22"));
+        expectRowData2.setField(7, StringData.fromString("field23"));
+
+        List expectList = new ArrayList();
+        expectList.add(expectRowData1);
+        expectList.add(expectRowData2);
         testRowDeserialization(
                 deserializer,
                 inLongMsg.buildArray(),
-                Collections.singletonList(expectRowData));
+                expectList);
     }
 
     @Test
@@ -848,7 +861,7 @@ public class InLongMsgCsvFormatDeserializerTest {
         }
 
         @Override
-        public void onParsingBodyFailure(byte[] body, Exception exception) throws Exception {
+        public void onParsingBodyFailure(InLongMsgHead head, byte[] body, Exception exception) throws Exception {
             bodyCount++;
         }
 

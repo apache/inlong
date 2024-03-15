@@ -210,7 +210,7 @@ public final class CsvRowDataDeserializationSchema extends DefaultDeserializatio
     }
 
     @Override
-    public RowData deserializeInternal(@Nullable byte[] message) {
+    public RowData deserializeInternal(@Nullable byte[] message) throws Exception {
         if (message == null) {
             return null;
         }
@@ -241,12 +241,12 @@ public final class CsvRowDataDeserializationSchema extends DefaultDeserializatio
                     rowData.setField(i, converters[i].convert(field));
                 }
             }
-
             return rowData;
         } catch (Throwable t) {
-            throw new RuntimeException(
-                    String.format("Could not properly deserialize csv. Text=[%s].", text), t);
+            failureHandler.onParsingMsgFailure(text, new RuntimeException(
+                    String.format("Could not properly deserialize csv. Text=[{}].", text), t));
         }
+        return null;
     }
 
     @Override

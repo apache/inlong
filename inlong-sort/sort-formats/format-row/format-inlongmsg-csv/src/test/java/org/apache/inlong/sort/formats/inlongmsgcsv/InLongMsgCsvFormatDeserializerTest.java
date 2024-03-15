@@ -203,7 +203,7 @@ public class InLongMsgCsvFormatDeserializerTest {
         List<Row> actualRows = new ArrayList<>();
         Collector<Row> collector = new ListCollector<>(actualRows);
         deserializer.flatMap(inLongMsg.buildArray(), collector);
-        assertEquals(1, errorHandler.getRowCount());
+        assertEquals(0, errorHandler.getRowCount());
 
         InLongMsg inLongMsg2 = InLongMsg.newInLongMsg();
         String abNormalAttrs = "m=0&streamId=testInterfaceId&__addcol1__=1&__addcol2__=2";
@@ -461,6 +461,16 @@ public class InLongMsgCsvFormatDeserializerTest {
         expectedAttributes.put("__addcol1__", "1");
         expectedAttributes.put("__addcol2__", "2");
 
+        Row expectedRow1 = Row.of(
+                Timestamp.valueOf("2020-03-22 00:00:00"),
+                expectedAttributes,
+                1,
+                2,
+                null,
+                "field11",
+                "field12",
+                "field13");
+
         Row expectedRow2 = Row.of(
                 Timestamp.valueOf("2020-03-22 00:00:00"),
                 expectedAttributes,
@@ -471,10 +481,10 @@ public class InLongMsgCsvFormatDeserializerTest {
                 "field22",
                 "field23");
 
-        testRowDeserialization(
-                deserializer,
-                inLongMsg1.buildArray(),
-                Collections.singletonList(expectedRow2));
+        List list = new ArrayList();
+        list.add(expectedRow1);
+        list.add(expectedRow2);
+        testRowDeserialization(deserializer, inLongMsg1.buildArray(), list);
     }
 
     @Test
@@ -725,7 +735,7 @@ public class InLongMsgCsvFormatDeserializerTest {
         }
 
         @Override
-        public void onParsingBodyFailure(byte[] body, Exception exception) throws Exception {
+        public void onParsingBodyFailure(InLongMsgHead head, byte[] body, Exception exception) throws Exception {
             bodyCount++;
         }
 

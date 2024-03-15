@@ -34,6 +34,7 @@ public class TaskConstants extends CommonConstants {
     public static final String JOB_UUID = "job.uuid";
     public static final String TASK_GROUP_ID = "task.groupId";
     public static final String TASK_STREAM_ID = "task.streamId";
+    public static final String RESTORE_FROM_DB = "task.restoreFromDB";
 
     public static final String TASK_SOURCE = "task.source";
     public static final String JOB_SOURCE_TYPE = "job.sourceType";
@@ -64,9 +65,10 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_DIR_FILTER_PATTERN = "task.fileTask.dir.pattern"; // deprecated
     public static final String FILE_DIR_FILTER_PATTERNS = "task.fileTask.dir.patterns";
     public static final String TASK_FILE_TIME_OFFSET = "task.fileTask.timeOffset";
-    public static final String TASK_FILE_TIME_ZONE = "task.fileTask.timeZone";
+    public static final String TASK_TIME_ZONE = "task.timeZone";
     public static final String TASK_FILE_MAX_WAIT = "task.fileTask.file.max.wait";
-    public static final String TASK_CYCLE_UNIT = "task.fileTask.cycleUnit";
+    public static final String TASK_CYCLE_UNIT = "task.cycleUnit";
+    public static final String FILE_TASK_CYCLE_UNIT = "task.fileTask.cycleUnit";
     public static final String TASK_FILE_TRIGGER_TYPE = "task.fileTask.collectType";
     public static final String JOB_FILE_LINE_END_PATTERN = "job.fileTask.line.endPattern";
     public static final String JOB_FILE_CONTENT_COLLECT_TYPE = "job.fileTask.contentCollectType";
@@ -106,14 +108,24 @@ public class TaskConstants extends CommonConstants {
     public static final String JOB_DATABASE_PORT = "job.binlogJob.port";
 
     // Kafka job
-    public static final String JOB_KAFKA_TOPIC = "job.kafkaJob.topic";
-    public static final String JOB_KAFKA_BOOTSTRAP_SERVERS = "job.kafkaJob.bootstrap.servers";
-    public static final String JOB_KAFKA_GROUP_ID = "job.kafkaJob.group.id";
+    public static final String TASK_KAFKA_TOPIC = "task.kafkaJob.topic";
+    public static final String TASK_KAFKA_BOOTSTRAP_SERVERS = "task.kafkaJob.bootstrap.servers";
+    public static final String TASK_KAFKA_GROUP_ID = "task.kafkaJob.group.id";
     public static final String JOB_KAFKA_RECORD_SPEED_LIMIT = "job.kafkaJob.recordSpeed.limit";
     public static final String JOB_KAFKA_BYTE_SPEED_LIMIT = "job.kafkaJob.byteSpeed.limit";
-    public static final String JOB_KAFKA_OFFSET = "job.kafkaJob.partition.offset";
+    public static final String TASK_KAFKA_OFFSET = "task.kafkaJob.partition.offset";
     public static final String JOB_KAFKA_READ_TIMEOUT = "job.kafkaJob.read.timeout";
-    public static final String JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET = "job.kafkaJob.autoOffsetReset";
+    public static final String TASK_KAFKA_AUTO_COMMIT_OFFSET_RESET = "task.kafkaJob.autoOffsetReset";
+
+    // Pulsar task
+    public static final String TASK_PULSAR_TENANT = "task.pulsarTask.tenant";
+    public static final String TASK_PULSAR_NAMESPACE = "task.pulsarTask.namespace";
+    public static final String TASK_PULSAR_TOPIC = "task.pulsarTask.topic";
+    public static final String TASK_PULSAR_SUBSCRIPTION = "task.pulsarTask.subscription";
+    public static final String TASK_PULSAR_SUBSCRIPTION_TYPE = "task.pulsarTask.subscriptionType";
+    public static final String TASK_PULSAR_SERVICE_URL = "task.pulsarTask.serviceUrl";
+    public static final String TASK_PULSAR_SUBSCRIPTION_POSITION = "task.pulsarTask.subscriptionPosition";
+    public static final String TASK_PULSAR_RESET_TIME = "task.pulsarTask.resetTime";
 
     public static final String JOB_MONGO_HOSTS = "job.mongoJob.hosts";
     public static final String JOB_MONGO_USER = "job.mongoJob.user";

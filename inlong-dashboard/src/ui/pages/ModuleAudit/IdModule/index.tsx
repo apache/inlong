@@ -40,8 +40,8 @@ const Comp: React.FC = () => {
       method: 'POST',
       data: {
         ...query,
-        startDate: timestampFormat(query.startDate, 'yyyy-MM-dd'),
-        endDate: timestampFormat(query.endDate, 'yyyy-MM-dd'),
+        startDate: timestampFormat(query.startDate, 'yyyy-MM-dd HH:mm:ss'),
+        endDate: timestampFormat(query.endDate, 'yyyy-MM-dd HH:mm:ss'),
       },
     },
     {
@@ -62,11 +62,11 @@ const Comp: React.FC = () => {
       [],
     );
     const output = flatArr.reduce((acc, cur) => {
-      if (!acc[cur.inlongStreamId]) {
-        acc[cur.inlongStreamId] = {};
+      if (!acc[cur.ip]) {
+        acc[cur.ip] = {};
       }
-      acc[cur.inlongStreamId] = {
-        ...acc[cur.inlongStreamId],
+      acc[cur.ip] = {
+        ...acc[cur.ip],
         [cur.auditId]: cur.count,
         ip: cur.ip,
       };

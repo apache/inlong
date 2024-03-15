@@ -83,6 +83,9 @@ public abstract class StreamSource extends StreamNode {
     @ApiModelProperty("Snapshot of this source task")
     private String snapshot;
 
+    @ApiModelProperty("Data Time zone")
+    private String dataTimeZone;
+
     @ApiModelProperty("Version")
     private Integer version;
 
@@ -114,9 +117,8 @@ public abstract class StreamSource extends StreamNode {
     @ApiModelProperty("Sub source information of existing agents")
     private List<SubSourceDTO> subSourceList;
 
-    @Builder.Default
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value, true as default")
-    private boolean ignoreParseError = true;
+    private Boolean ignoreParseError;
 
     public SourceRequest genSourceRequest() {
         return null;

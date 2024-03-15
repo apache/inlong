@@ -83,4 +83,16 @@ public class InlongTenantRoleClient {
         return tenantRoleInfoResponse.getData();
     }
 
+    /**
+     * Delete tenant role by id
+     *
+     * @param id tenantRole id
+     * @return true = delete success / false = delete fail
+     */
+    public Boolean delete(int id) {
+        Response<Boolean> tenantRoleInfoResponse = ClientUtils.executeHttpCall(inlongTenantRoleApi.delete(id));
+        ClientUtils.assertRespSuccess(tenantRoleInfoResponse);
+        return tenantRoleInfoResponse.getData();
+    }
+
 }

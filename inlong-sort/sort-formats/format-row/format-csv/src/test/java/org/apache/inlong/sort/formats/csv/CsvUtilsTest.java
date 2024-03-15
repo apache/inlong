@@ -67,14 +67,16 @@ public class CsvUtilsTest {
                 StringUtils.splitCsv("a|\\\"b|c\\\"|d", '|', '\\', '\"'));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSplitUnclosedEscaping() {
-        StringUtils.splitCsv("a|b\\", '|', '\\', '\"');
+        String[] csvStr = StringUtils.splitCsv("a|b\\", '|', '\\', '\"');
+        Assert.assertEquals("b", csvStr[1]);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSplitUnclosedQuoting() {
-        StringUtils.splitCsv("a|b\"", '|', '\\', '\"');
+        String[] csvStr = StringUtils.splitCsv("a|b\"", '|', '\\', '\"');
+        Assert.assertEquals("b", csvStr[1]);
     }
 
     @Test
