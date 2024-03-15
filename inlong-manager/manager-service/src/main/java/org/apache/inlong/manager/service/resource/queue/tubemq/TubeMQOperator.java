@@ -65,7 +65,6 @@ public class TubeMQOperator {
      * TubeMQ const for HTTP URL format
      */
     private static final String TOPIC_NAME = "&topicName=";
-    private static final String CONSUME_GROUP = "&consumeGroup=";
     private static final String GROUP_NAME = "&groupName=";
     private static final String BROKER_ID = "&brokerId=";
     private static final String CREATE_USER = "&createUser=";
@@ -156,15 +155,17 @@ public class TubeMQOperator {
      */
     public boolean isConsumerGroupExist(String masterUrl, String topicName, String consumerGroup) {
         LOGGER.info("begin to check if the consumer group {} exists on topic {}", consumerGroup, topicName);
-        String url = masterUrl + QUERY_CONSUMER_PATH + TOPIC_NAME + topicName + CONSUME_GROUP + consumerGroup;
+        String url = masterUrl + QUERY_CONSUMER_PATH + TOPIC_NAME + topicName + GROUP_NAME + consumerGroup;
         try {
             ConsumerGroupResponse response = HttpUtils.request(restTemplate, url, HttpMethod.GET,
                     null, new HttpHeaders(), ConsumerGroupResponse.class);
             if (CollectionUtils.isEmpty(response.getData())) {
-                LOGGER.warn("tubemq consumer group {} not exists for topic {} in {}", consumerGroup, topicName, url);
+                LOGGER.warn("tubemq consumer group {} not exists for topic {} in {}, response={}", consumerGroup,
+                        topicName, url, response);
                 return false;
             }
-            LOGGER.info("tubemq consumer group {} exists for topic {} in {}", consumerGroup, topicName, url);
+            LOGGER.info("tubemq consumer group {} exists for topic {} in {}, response={}", consumerGroup, topicName,
+                    url, response);
             return true;
         } catch (Exception e) {
             String msg = String.format("failed to check if the consumer group %s for topic %s exist in ",
