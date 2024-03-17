@@ -19,10 +19,9 @@
 #project directory
 BASE_DIR=$(cd "$(dirname "$0")"/../;pwd)
 
-AS_USER=`whoami`
 export LOG_DIR="$BASE_DIR/logs"
-
 mkdir -p $LOG_DIR
+AS_USER=`whoami`
 chown -R $AS_USER $LOG_DIR
 
 # find java home
@@ -35,7 +34,7 @@ else
 fi
 
 if [ -z "$AGENT_JVM_HEAP_OPTS" ]; then
-  HEAP_OPTS="-Xmx512m -Xss512k"
+  HEAP_OPTS="-Xmx512m -Xss256m"
 else
   HEAP_OPTS="$AGENT_JVM_HEAP_OPTS"
 fi
