@@ -42,7 +42,7 @@ public class ManagerResultFormatter {
         JsonObject object = GSON.fromJson(jsonStr, JsonObject.class);
         if (object == null || !object.has(RESULT_CODE) || !object.has(RESULT_DATA)
                 || !SUCCESS_CODE.equals(object.get(RESULT_CODE).getAsString())) {
-            LOGGER.error("cannot get result data, please check manager status, return str is {}", jsonStr);
+            LOGGER.warn("cannot get result data, please check manager status, return str is {}", jsonStr);
         }
         return object;
     }

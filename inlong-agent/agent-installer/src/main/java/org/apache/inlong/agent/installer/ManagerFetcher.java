@@ -101,7 +101,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
-     * build config url for manager according to config
+     * Build config url for manager according to config
      *
      * example - http://127.0.0.1:8080/inlong/manager/openapi/installer/getConfig
      */
@@ -110,7 +110,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
-     * request manager to get commands, make sure it is not throwing exceptions
+     * Request manager to get commands, make sure it is not throwing exceptions
      */
     public ConfigResult getConfig() {
         LOGGER.info("getConfig start");
@@ -129,7 +129,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
-     * form file command fetch request
+     * Form file command fetch request
      */
     public TaskRequest getFetchRequest(List<CommandEntity> unackedCommands) {
         TaskRequest request = new TaskRequest();
@@ -142,7 +142,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
-     * thread for config fetcher.
+     * Thread for config fetcher.
      *
      * @return runnable profile.
      */
