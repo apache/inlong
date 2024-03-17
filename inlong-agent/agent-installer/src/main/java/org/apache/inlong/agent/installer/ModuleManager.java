@@ -53,9 +53,7 @@ public class ModuleManager extends AbstractDaemon {
         if (config == null) {
             return;
         }
-        while (configQueue.size() != 0) {
-            configQueue.poll();
-        }
+         configQueue.clear();
         for (int i = 0; i < config.getModuleList().size(); i++) {
             LOGGER.info("submitModules index {} total {} {}", i, config.getModuleList().size(),
                     config.getModuleList().get(i));
