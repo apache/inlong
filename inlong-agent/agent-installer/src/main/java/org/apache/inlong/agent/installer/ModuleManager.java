@@ -23,10 +23,12 @@ import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.pojo.agent.installer.ConfigResult;
+import org.apache.inlong.common.pojo.agent.installer.ModuleConfig;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -53,7 +55,7 @@ public class ModuleManager extends AbstractDaemon {
         if (config == null) {
             return;
         }
-         configQueue.clear();
+        configQueue.clear();
         for (int i = 0; i < config.getModuleList().size(); i++) {
             LOGGER.info("submitModules index {} total {} {}", i, config.getModuleList().size(),
                     config.getModuleList().get(i));
@@ -84,12 +86,24 @@ public class ModuleManager extends AbstractDaemon {
     }
 
     private void dealWithConfigQueue(BlockingQueue<ConfigResult> queue) {
-        LOGGER.info("starting dealWithConfigQueue");
         ConfigResult config = queue.poll();
         if (config == null) {
             return;
         }
+        LOGGER.info("Deal with config {}", config);
+        if (curMd5.compareTo(config.getMd5()) == 0) {
+            LOGGER.info("md5 no change {}, skip update", curMd5);
+            return;
+        }
+        if (updateModules(config.getModuleList())) {
+            curMd5 = config.getMd5();
+        } else {
+            LOGGER.error("Update modules failed!");
+        }
+    }
 
+    private boolean updateModules(List<ModuleConfig> modules) {
+        return true;
     }
 
     @Override
