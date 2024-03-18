@@ -224,7 +224,7 @@ public class TaskProfileDto {
         pulsarTask.setSubscription(pulsarTaskConfig.getSubscription());
         pulsarTask.setSubscriptionType(pulsarTaskConfig.getSubscriptionType());
         pulsarTask.setServiceUrl(pulsarTaskConfig.getServiceUrl());
-        pulsarTask.setSubscriptionPosition(pulsarTaskConfig.getSubscriptionPosition());
+        pulsarTask.setSubscriptionPosition(pulsarTaskConfig.getScanStartupMode());
         pulsarTask.setResetTime(pulsarTaskConfig.getResetTime());
 
         return pulsarTask;
