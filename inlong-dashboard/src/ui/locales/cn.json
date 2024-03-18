@@ -135,7 +135,7 @@
   "meta.Sources.Pulsar.SubscriptionHelp": "若不指定则默认为：inlong-agent-{inlongStreamId}",
   "meta.Sources.Pulsar.SubscriptionPosition": "订阅位点",
   "meta.Sources.Pulsar.ResetTime": "重置消费时间",
-  "meta.Sources.Pulsar.ResetTimeHelp": "从当前时间开始消费，若不指定则从 pulsar 已提交的位点消费",
+  "meta.Sources.Pulsar.ResetTimeHelp": "从指定时间开始消费",
   "meta.Sources.Pulsar.PrimaryKey": "主键",
   "meta.Sources.Pulsar.DataEncoding": "数据编码",
   "meta.Sources.Pulsar.DataSeparator": "数据分隔符",
