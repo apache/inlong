@@ -23,7 +23,12 @@ import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisSenti
 import org.apache.inlong.sort.redis.common.config.RedisOptions;
 import org.apache.inlong.sort.redis.common.handler.InlongJedisConfigHandler;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import static org.apache.flink.streaming.connectors.redis.descriptor.RedisValidator.REDIS_MODE;
 import static org.apache.flink.streaming.connectors.redis.descriptor.RedisValidator.REDIS_SENTINEL;

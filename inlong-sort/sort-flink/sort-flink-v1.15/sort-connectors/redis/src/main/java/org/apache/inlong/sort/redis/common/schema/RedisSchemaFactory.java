@@ -20,7 +20,12 @@ package org.apache.inlong.sort.redis.common.schema;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.inlong.sort.redis.common.config.RedisDataType;
 import org.apache.inlong.sort.redis.common.config.SchemaMappingMode;
-import org.apache.inlong.sort.redis.common.schema.impl.*;
+import org.apache.inlong.sort.redis.common.schema.impl.BitmapStaticKvPairSchema;
+import org.apache.inlong.sort.redis.common.schema.impl.HashDynamicSchema;
+import org.apache.inlong.sort.redis.common.schema.impl.HashStaticKvPairSchema;
+import org.apache.inlong.sort.redis.common.schema.impl.HashStaticPrefixMatchSchema;
+import org.apache.inlong.sort.redis.common.schema.impl.PlainPrefixMatchSchema;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
