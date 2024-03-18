@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-#project directory
+# project base directory
 BASE_DIR=$(cd "$(dirname "$0")"/../;pwd)
 
 export LOG_DIR="$BASE_DIR/logs"
