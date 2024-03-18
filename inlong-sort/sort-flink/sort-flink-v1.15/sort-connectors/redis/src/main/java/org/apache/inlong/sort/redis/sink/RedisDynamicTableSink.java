@@ -157,32 +157,6 @@ public class RedisDynamicTableSink implements DynamicTableSink {
         return SinkFunctionProvider.of(redisSinkFunction);
     }
 
-    private int getValueStartIndexInSchema(
-            RedisDataType dataType,
-            SchemaMappingMode mappingMode) {
-        switch (dataType) {
-            case PLAIN:
-                return 1;
-            case HASH:
-                if (mappingMode == STATIC_PREFIX_MATCH) {
-                    return 2;
-                } else if (mappingMode == STATIC_KV_PAIR) {
-                    // Serialize data without using schema
-                    return 0;
-                } else {
-                    return 1;
-                }
-            case BITMAP:
-                if (mappingMode == STATIC_KV_PAIR) {
-                    // Serialize data without using schema
-                    return 0;
-                }
-                return 0;
-            default:
-                throw new UnsupportedOperationException("The dataType '" + dataType + "' is not supported.");
-        }
-    }
-
     @Override
     public DynamicTableSink copy() {
         return new RedisDynamicTableSink(
