@@ -100,17 +100,17 @@ public abstract class AbstractStandaloneSinkResourceOperator implements SinkReso
     }
 
     private String assignOneCluster(SinkInfo sinkInfo) {
+        InlongGroupEntity group = groupEntityMapper.selectByGroupId(sinkInfo.getInlongGroupId());
         return StringUtils
-                .firstNonBlank(assignFromExist(sinkInfo.getDataNodeName()),
-                        assignFromRelated(sinkInfo.getSinkType(), sinkInfo.getInlongGroupId()));
+                .firstNonBlank(assignFromExist(sinkInfo.getDataNodeName(), group.getInlongClusterTag()),
+                        assignFromRelated(sinkInfo.getSinkType(), group));
     }
 
-    private String assignFromExist(String dataNodeName) {
-        return sinkEntityMapper.selectAssignedCluster(dataNodeName);
+    private String assignFromExist(String dataNodeName, String clusterTag) {
+        return sinkEntityMapper.selectAssignedCluster(dataNodeName, clusterTag);
     }
 
-    private String assignFromRelated(String sinkType, String groupId) {
-        InlongGroupEntity group = groupEntityMapper.selectByGroupId(groupId);
+    private String assignFromRelated(String sinkType, InlongGroupEntity group) {
         String sortClusterType = SinkType.relatedSortClusterType(sinkType);
         if (StringUtils.isBlank(sortClusterType)) {
             log.error("find no relate sort cluster type for sink type={}", sinkType);

@@ -394,10 +394,16 @@
     </select>
     <select id="selectAssignedCluster" resultType="java.lang.String">
         select inlong_cluster_name
-        from stream_sink
+        from stream_sink s
+        left join inlong_cluster c
+        on s.inlong_cluster_name = c.name
         <where>
-            data_node_name = #{dataNodeName, jdbcType=VARCHAR}
-            and is_deleted = 0
+            s.data_node_name = #{dataNodeName, jdbcType=VARCHAR}
+            <if test="clusterTag != null and clusterTag != ''">
+                and find_in_set(#{clusterTag, jdbcType=VARCHAR}, c.cluster_tags)
+            </if>
+            and s.is_deleted = 0
+            and c.is_deleted = 0
         </where>
         group by inlong_cluster_name
         order by count(*) asc
