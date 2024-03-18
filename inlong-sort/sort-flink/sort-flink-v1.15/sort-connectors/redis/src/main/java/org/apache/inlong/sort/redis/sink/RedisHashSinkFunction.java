@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.redis.sink;
 
+import org.apache.inlong.sort.redis.common.schema.StateEncoder;
+
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -24,7 +26,6 @@ import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
 import org.apache.flink.table.data.RowData;
-import org.apache.inlong.sort.redis.common.schema.StateEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -17,8 +17,9 @@
 
 package org.apache.inlong.sort.redis.common.handler;
 
-import org.apache.flink.streaming.connectors.redis.common.hanlder.RedisHandler;
 import org.apache.inlong.sort.redis.common.mapper.RedisMapper;
+
+import org.apache.flink.streaming.connectors.redis.common.hanlder.RedisHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

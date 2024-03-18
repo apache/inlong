@@ -17,11 +17,12 @@
 
 package org.apache.inlong.sort.redis.common.mapper.row;
 
-import org.apache.flink.table.data.RowData;
 import org.apache.inlong.sort.redis.common.handler.RedisMapperHandler;
 import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
 import org.apache.inlong.sort.redis.common.mapper.RedisCommandDescription;
 import org.apache.inlong.sort.redis.common.mapper.RedisMapper;
+
+import org.apache.flink.table.data.RowData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

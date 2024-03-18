@@ -17,6 +17,15 @@
 
 package org.apache.inlong.sort.redis.table;
 
+import org.apache.inlong.sort.redis.common.config.RedisDataType;
+import org.apache.inlong.sort.redis.common.config.RedisLookupOptions;
+import org.apache.inlong.sort.redis.common.config.RedisOptions;
+import org.apache.inlong.sort.redis.common.config.SchemaMappingMode;
+import org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator;
+import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
+import org.apache.inlong.sort.redis.sink.RedisDynamicTableSink;
+import org.apache.inlong.sort.redis.source.RedisDynamicTableSource;
+
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
@@ -30,18 +39,13 @@ import org.apache.flink.table.factories.DynamicTableSinkFactory;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.SerializationFormatFactory;
-import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.StringUtils;
-import org.apache.inlong.sort.redis.common.config.RedisDataType;
-import org.apache.inlong.sort.redis.common.config.RedisLookupOptions;
-import org.apache.inlong.sort.redis.common.config.RedisOptions;
-import org.apache.inlong.sort.redis.common.config.SchemaMappingMode;
-import org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator;
-import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
-import org.apache.inlong.sort.redis.sink.RedisDynamicTableSink;
-import org.apache.inlong.sort.redis.source.RedisDynamicTableSource;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.apache.flink.util.Preconditions.checkState;

@@ -163,9 +163,7 @@
                                     <includes>
                                         <include>org/apache/inlong/**</include>
                                         <include>META-INF/services/org.apache.flink.table.factories.Factory</include>
-                                        <include>
-                                            META-INF/services/org.apache.flink.streaming.connectors.redis.common.hanlder.RedisHandler
-                                        </include>
+                                        <include>META-INF/services/org.apache.flink.streaming.connectors.redis.common.hanlder.RedisHandler</include>
                                     </includes>
                                 </filter>
                             </filters>

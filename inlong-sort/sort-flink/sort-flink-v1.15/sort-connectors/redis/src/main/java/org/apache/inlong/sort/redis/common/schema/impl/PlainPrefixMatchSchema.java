@@ -17,11 +17,12 @@
 
 package org.apache.inlong.sort.redis.common.schema.impl;
 
+import org.apache.inlong.sort.redis.common.schema.StateEncoder;
+
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.StringData;
-import org.apache.inlong.sort.redis.common.schema.StateEncoder;
 
 import java.util.Collections;
 

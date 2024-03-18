@@ -19,10 +19,8 @@ package org.apache.inlong.sort.redis;
 
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
-import org.apache.flink.util.CloseableIterator;
 import org.apache.flink.util.NetUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -32,8 +30,6 @@ import redis.clients.jedis.Jedis;
 import redis.embedded.RedisServer;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
@@ -48,7 +44,7 @@ public class RedisTableTest {
     @BeforeClass
     public static void setup() {
         redisPort = NetUtils.getAvailablePort().getPort();
-//        redisPort = 6379;
+        // redisPort = 6379;
         redisServer = new RedisServer(redisPort);
         redisServer.start();
     }
@@ -67,7 +63,7 @@ public class RedisTableTest {
         jedis.flushAll();
     }
     @Test
-    public void testSourceWithGet(){
+    public void testSourceWithGet() {
         StreamExecutionEnvironment executionEnv =
                 StreamExecutionEnvironment.getExecutionEnvironment();
         StreamTableEnvironment tableEnv =
@@ -78,11 +74,11 @@ public class RedisTableTest {
         jedis.set("2", "value_2");
 
         String dim = "CREATE TABLE dim (" +
-                "    aaa varchar, bbb varchar"+
-//                "    PRIMARY KEY (`key`) NOT ENFORCED" +
+                "    aaa varchar, bbb varchar" +
+                // " PRIMARY KEY (`key`) NOT ENFORCED" +
                 ") WITH (" +
                 "  'connector' = 'redis-inlong'," +
-                "  'command' = 'get',"+
+                "  'command' = 'get'," +
                 "  'host' = 'localhost'," +
                 "  'port' = '" + redisPort + "'," +
                 "  'maxIdle' = '8'," +
@@ -128,28 +124,28 @@ public class RedisTableTest {
             assertEquals("value_1_1", jedis.get("1_1"));
             assertEquals("value_2_2", jedis.get("2_2"));
         });
-//
+        //
     }
 
     /**
      * hget only support get data from the given one key
      */
     @Test
-    public void testSourceWithHget(){
+    public void testSourceWithHget() {
         StreamExecutionEnvironment executionEnv =
                 StreamExecutionEnvironment.getExecutionEnvironment();
         StreamTableEnvironment tableEnv =
                 StreamTableEnvironment.create(executionEnv);
         Jedis jedis = new Jedis("127.0.0.1", redisPort);
 
-        jedis.hset("1", "1","value_1");
-        jedis.hset("1","2", "value_2");
+        jedis.hset("1", "1", "value_1");
+        jedis.hset("1", "2", "value_2");
 
         String dim = "CREATE TABLE dim (" +
-                "    aaa varchar, bbb varchar"+
+                "    aaa varchar, bbb varchar" +
                 ") WITH (" +
                 "  'connector' = 'redis-inlong'," +
-                "  'command' = 'hget',"+
+                "  'command' = 'hget'," +
                 "  'host' = 'localhost'," +
                 "  'port' = '" + redisPort + "'," +
                 "  'maxIdle' = '8'," +
@@ -201,24 +197,24 @@ public class RedisTableTest {
         });
     }
     @Test
-    public void testSourceWithZrevRank(){
+    public void testSourceWithZrevRank() {
         StreamExecutionEnvironment executionEnv =
                 StreamExecutionEnvironment.getExecutionEnvironment();
         StreamTableEnvironment tableEnv =
                 StreamTableEnvironment.create(executionEnv);
         Jedis jedis = new Jedis("127.0.0.1", redisPort);
 
-        jedis.zadd("rank",  10, "1");
-        jedis.zadd("rank",  20, "2");
-        jedis.zadd("rank",  30, "3");
+        jedis.zadd("rank", 10, "1");
+        jedis.zadd("rank", 20, "2");
+        jedis.zadd("rank", 30, "3");
 
         String dim = "CREATE TABLE dim (" +
-                "    member_test varchar,"+
-                "    member_rank bigint"+
-//                "    PRIMARY KEY (`bbb`) NOT ENFORCED" +
+                "    member_test varchar," +
+                "    member_rank bigint" +
+                // " PRIMARY KEY (`bbb`) NOT ENFORCED" +
                 ") WITH (" +
                 "  'connector' = 'redis-inlong'," +
-                "  'command' = 'zrevrank',"+
+                "  'command' = 'zrevrank'," +
                 "  'host' = 'localhost'," +
                 "  'port' = '" + redisPort + "'," +
                 "  'maxIdle' = '8'," +
@@ -270,22 +266,22 @@ public class RedisTableTest {
         });
     }
     @Test
-    public void testSourceWithZscore(){
+    public void testSourceWithZscore() {
         StreamExecutionEnvironment executionEnv =
                 StreamExecutionEnvironment.getExecutionEnvironment();
         StreamTableEnvironment tableEnv =
                 StreamTableEnvironment.create(executionEnv);
         Jedis jedis = new Jedis("127.0.0.1", redisPort);
 
-        jedis.zadd("rank_score",  10, "1");
-        jedis.zadd("rank_score",  20, "2");
-        jedis.zadd("rank_score",  30, "3");
+        jedis.zadd("rank_score", 10, "1");
+        jedis.zadd("rank_score", 20, "2");
+        jedis.zadd("rank_score", 30, "3");
 
         String dim = "CREATE TABLE dim (" +
-                "    member_test varchar, score double"+
+                "    member_test varchar, score double" +
                 ") WITH (" +
                 "  'connector' = 'redis-inlong'," +
-                "  'command' = 'zscore',"+
+                "  'command' = 'zscore'," +
                 "  'host' = 'localhost'," +
                 "  'port' = '" + redisPort + "'," +
                 "  'maxIdle' = '8'," +
@@ -338,8 +334,6 @@ public class RedisTableTest {
         });
     }
 
-
-
     @Test
     public void testSinkWithPlain() {
         StreamExecutionEnvironment executionEnv =
@@ -377,9 +371,9 @@ public class RedisTableTest {
                 "  'timeout' = '2000'" +
                 ")");
         Jedis jedis = new Jedis("127.0.0.1", redisPort);
-//        assertNull(jedis.get("1"));
-//        assertNull(jedis.get("2"));
-//        assertNull(jedis.get("3"));
+        // assertNull(jedis.get("1"));
+        // assertNull(jedis.get("2"));
+        // assertNull(jedis.get("3"));
 
         String query = "INSERT INTO sink SELECT * FROM source";
         tableEnv.executeSql(query);

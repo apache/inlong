@@ -17,6 +17,14 @@
 
 package org.apache.inlong.sort.redis.sink;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.redis.common.container.InlongRedisCommandsContainer;
+import org.apache.inlong.sort.redis.common.container.RedisCommandsContainerBuilder;
+import org.apache.inlong.sort.redis.common.schema.StateEncoder;
+
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.state.ListState;
@@ -30,17 +38,11 @@ import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
 import org.apache.flink.table.data.RowData;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
-import org.apache.inlong.sort.base.util.MetricStateUtils;
-import org.apache.inlong.sort.redis.common.container.InlongRedisCommandsContainer;
-import org.apache.inlong.sort.redis.common.container.RedisCommandsContainerBuilder;
-import org.apache.inlong.sort.redis.common.schema.StateEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.concurrent.GuardedBy;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;

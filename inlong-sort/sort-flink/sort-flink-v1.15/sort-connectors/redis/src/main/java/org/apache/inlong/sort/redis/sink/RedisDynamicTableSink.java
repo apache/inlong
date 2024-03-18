@@ -17,6 +17,13 @@
 
 package org.apache.inlong.sort.redis.sink;
 
+import org.apache.inlong.sort.redis.common.config.RedisDataType;
+import org.apache.inlong.sort.redis.common.config.SchemaMappingMode;
+import org.apache.inlong.sort.redis.common.handler.InlongJedisConfigHandler;
+import org.apache.inlong.sort.redis.common.schema.RedisSchema;
+import org.apache.inlong.sort.redis.common.schema.RedisSchemaFactory;
+import org.apache.inlong.sort.redis.common.schema.StateEncoder;
+
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
@@ -29,12 +36,6 @@ import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.redis.common.config.RedisDataType;
-import org.apache.inlong.sort.redis.common.config.SchemaMappingMode;
-import org.apache.inlong.sort.redis.common.handler.InlongJedisConfigHandler;
-import org.apache.inlong.sort.redis.common.schema.RedisSchema;
-import org.apache.inlong.sort.redis.common.schema.RedisSchemaFactory;
-import org.apache.inlong.sort.redis.common.schema.StateEncoder;
 
 import java.time.Duration;
 import java.util.Map;

@@ -17,6 +17,12 @@
 
 package org.apache.inlong.sort.redis;
 
+import org.apache.inlong.sort.redis.sink.RedisBitmapSinkFunction;
+import org.apache.inlong.sort.redis.sink.RedisDynamicTableSink;
+import org.apache.inlong.sort.redis.sink.RedisHashSinkFunction;
+import org.apache.inlong.sort.redis.sink.RedisPlainSinkFunction;
+import org.apache.inlong.sort.redis.source.RedisDynamicTableSource;
+
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.catalog.Column;
@@ -24,15 +30,8 @@ import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.table.connector.source.DynamicTableSource;
-import org.apache.flink.table.connector.source.LookupTableSource;
-import org.apache.flink.table.connector.source.SourceProvider;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.runtime.connector.sink.SinkRuntimeProviderContext;
-import org.apache.inlong.sort.redis.sink.RedisBitmapSinkFunction;
-import org.apache.inlong.sort.redis.sink.RedisDynamicTableSink;
-import org.apache.inlong.sort.redis.sink.RedisHashSinkFunction;
-import org.apache.inlong.sort.redis.sink.RedisPlainSinkFunction;
-import org.apache.inlong.sort.redis.source.RedisDynamicTableSource;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -89,7 +88,7 @@ public class RedisDynamicTableFactoryTest {
         return properties;
     }
 
-    private Map<String, String> getPropertiesSource(){
+    private Map<String, String> getPropertiesSource() {
         Map<String, String> properties = new HashMap<>();
         properties.put("connector", "redis-inlong");
         properties.put("command", "get");
@@ -105,7 +104,7 @@ public class RedisDynamicTableFactoryTest {
         return properties;
     }
     @Test
-    public void testCreateTableSource(){
+    public void testCreateTableSource() {
         Map<String, String> properties = getPropertiesSource();
 
         DynamicTableSource tableSource = createTableSource(TEST_SCHEMA_SOURCE, properties);
