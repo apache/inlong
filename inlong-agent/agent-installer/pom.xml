@@ -35,7 +35,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.inlong</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>agent-common</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
@@ -47,7 +47,7 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.inlong</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>agent-core</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
