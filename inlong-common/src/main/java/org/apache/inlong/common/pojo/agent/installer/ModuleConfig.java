@@ -55,6 +55,10 @@ public class ModuleConfig {
      */
     private String checkCommand;
     /**
+     * The command to install the module
+     */
+    private String installCommand;
+    /**
      * The command to uninstall the module
      */
     private String uninstallCommand;

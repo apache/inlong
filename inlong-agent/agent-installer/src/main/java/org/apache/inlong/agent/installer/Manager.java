@@ -19,14 +19,10 @@ package org.apache.inlong.agent.installer;
 
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.ProfileFetcher;
-import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.installer.conf.InstallerConfiguration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Constructor;
 
 /**
  * Installer Manager, the bridge for job manager, task manager, db e.t.c it manages agent level operations and
@@ -35,13 +31,13 @@ import java.lang.reflect.Constructor;
 public class Manager extends AbstractDaemon {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Manager.class);
-    private final TaskManager taskManager;
+    private final ModuleManager moduleManager;
     private final ProfileFetcher fetcher;
     private final InstallerConfiguration conf;
 
     public Manager() {
         conf = InstallerConfiguration.getInstallerConf();
-        taskManager = new TaskManager();
+        moduleManager = new ModuleManager();
         fetcher = initFetcher(this);
     }
 
@@ -50,11 +46,7 @@ public class Manager extends AbstractDaemon {
      */
     private ProfileFetcher initFetcher(Manager manager) {
         try {
-            Constructor<?> constructor =
-                    Class.forName(conf.get(AgentConstants.AGENT_FETCHER_CLASSNAME))
-                            .getDeclaredConstructor(Manager.class);
-            constructor.setAccessible(true);
-            return (ProfileFetcher) constructor.newInstance(manager);
+            return new ManagerFetcher(manager);
         } catch (Exception ex) {
             LOGGER.warn("cannot find fetcher: ", ex);
         }
@@ -65,25 +57,26 @@ public class Manager extends AbstractDaemon {
         return fetcher;
     }
 
-    public TaskManager getTaskManager() {
-        return taskManager;
+    public ModuleManager getModuleManager() {
+        return moduleManager;
     }
 
     @Override
     public void join() {
         super.join();
-        taskManager.join();
+        moduleManager.join();
     }
 
     @Override
     public void start() throws Exception {
-        LOGGER.info("starting installer manager");
-        taskManager.start();
-        LOGGER.info("starting fetcher");
+        LOGGER.info("Start installer manager");
+        moduleManager.start();
+        LOGGER.info("Start installer manager end");
+        LOGGER.info("Start fetcher");
         if (fetcher != null) {
             fetcher.start();
         }
-        LOGGER.info("starting agent manager end");
+        LOGGER.info("Start fetcher end");
     }
 
     /**
@@ -97,7 +90,7 @@ public class Manager extends AbstractDaemon {
             fetcher.stop();
         }
         // TODO: change job state which is in running state.
-        LOGGER.info("stopping installer manager");
-        taskManager.stop();
+        LOGGER.info("Stopping installer manager");
+        moduleManager.stop();
     }
 }
