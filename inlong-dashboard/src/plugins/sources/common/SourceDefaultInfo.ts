@@ -147,16 +147,10 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
   readonly modifier: string;
 
   parse(data) {
-    if (data.resetTime !== undefined) {
-      data.resetTime = dayjs(data.resetTime).format('YYYY-MM-DD HH:mm:ss');
-    }
     return data;
   }
 
   stringify(data) {
-    if (data.resetTime !== undefined) {
-      data.resetTime = dayjs(data.resetTime).unix();
-    }
     return data;
   }
 

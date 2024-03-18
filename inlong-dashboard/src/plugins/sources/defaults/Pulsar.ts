@@ -248,4 +248,18 @@ export default class PulsarSource
   @IngestionField()
   @I18n('meta.Sources.File.TimeZone')
   dataTimeZone: string;
+
+  parse(data) {
+    if (data.resetTime !== undefined) {
+      data.resetTime = dayjs(data.resetTime).format('YYYY-MM-DD HH:mm:ss');
+    }
+    return data;
+  }
+
+  stringify(data) {
+    if (data.resetTime !== undefined) {
+      data.resetTime = dayjs(data.resetTime).unix();
+    }
+    return data;
+  }
 }
