@@ -69,13 +69,14 @@ public class Manager extends AbstractDaemon {
 
     @Override
     public void start() throws Exception {
-        LOGGER.info("starting installer manager");
+        LOGGER.info("Start installer manager");
         moduleManager.start();
-        LOGGER.info("starting fetcher");
+        LOGGER.info("Start installer manager end");
+        LOGGER.info("Start fetcher");
         if (fetcher != null) {
             fetcher.start();
         }
-        LOGGER.info("starting agent manager end");
+        LOGGER.info("Start fetcher end");
     }
 
     /**
@@ -89,7 +90,7 @@ public class Manager extends AbstractDaemon {
             fetcher.stop();
         }
         // TODO: change job state which is in running state.
-        LOGGER.info("stopping installer manager");
+        LOGGER.info("Stopping installer manager");
         moduleManager.stop();
     }
 }

@@ -44,7 +44,7 @@ public class ModuleManager extends AbstractDaemon {
     private final InstallerConfiguration conf;
     private final BlockingQueue<ConfigResult> configQueue;
 
-    private String curMd5;
+    private String currentMd5;
 
     public ModuleManager() {
         conf = InstallerConfiguration.getInstallerConf();
@@ -91,12 +91,12 @@ public class ModuleManager extends AbstractDaemon {
             return;
         }
         LOGGER.info("Deal with config {}", config);
-        if (curMd5.compareTo(config.getMd5()) == 0) {
-            LOGGER.info("md5 no change {}, skip update", curMd5);
+        if (currentMd5.compareTo(config.getMd5()) == 0) {
+            LOGGER.info("md5 no change {}, skip update", currentMd5);
             return;
         }
         if (updateModules(config.getModuleList())) {
-            curMd5 = config.getMd5();
+            currentMd5 = config.getMd5();
         } else {
             LOGGER.error("Update modules failed!");
         }
@@ -108,9 +108,7 @@ public class ModuleManager extends AbstractDaemon {
 
     @Override
     public void start() throws Exception {
-        LOGGER.info("starting installer manager");
         submitWorker(coreThread());
-        LOGGER.info("starting agent manager end");
     }
 
     @Override
