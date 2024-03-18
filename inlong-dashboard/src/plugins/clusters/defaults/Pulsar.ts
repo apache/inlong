@@ -57,8 +57,8 @@ export default class PulsarCluster
     rules: [{ required: true }],
     initialValue: 'public',
   })
-  @I18n('pages.Clusters.Pulsar.Tenant')
-  tenant: string;
+  @I18n('pages.Clusters.Pulsar.PulsarTenant')
+  pulsarTenant: string;
 
   @FieldDecorator({
     type: 'input',
