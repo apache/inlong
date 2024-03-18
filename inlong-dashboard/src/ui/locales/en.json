@@ -135,7 +135,7 @@
   "meta.Sources.Pulsar.SubscriptionHelp": "If not specified, the default is: inlong-agent-{inlongStreamId}",
   "meta.Sources.Pulsar.SubscriptionPosition": "Subscription Position",
   "meta.Sources.Pulsar.ResetTime": "Reset subscription time",
-  "meta.Sources.Pulsar.ResetTimeHelp": "Reset the subscription time.",
+  "meta.Sources.Pulsar.ResetTimeHelp": "Reset the subscription time",
   "meta.Sources.Pulsar.PrimaryKey": "Primary key",
   "meta.Sources.Pulsar.DataEncoding": "Data encoding",
   "meta.Sources.Pulsar.DataSeparator": "Data separator",
