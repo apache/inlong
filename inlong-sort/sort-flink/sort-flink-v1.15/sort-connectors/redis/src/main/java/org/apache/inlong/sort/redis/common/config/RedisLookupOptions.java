@@ -63,10 +63,6 @@ public class RedisLookupOptions implements Serializable {
         return maxRetryTimes;
     }
 
-    public boolean getLookupAsync() {
-        return lookupAsync;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o instanceof RedisLookupOptions) {
@@ -111,14 +107,6 @@ public class RedisLookupOptions implements Serializable {
          */
         public Builder setMaxRetryTimes(int maxRetryTimes) {
             this.maxRetryTimes = maxRetryTimes;
-            return this;
-        }
-
-        /**
-         * optional, whether to set async lookup.
-         */
-        public Builder setLookupAsync(boolean lookupAsync) {
-            this.lookupAsync = lookupAsync;
             return this;
         }
 

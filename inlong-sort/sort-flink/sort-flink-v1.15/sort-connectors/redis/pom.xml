@@ -37,14 +37,14 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-shaded-jackson</artifactId>
-            <version>2.12.4-15.0</version>
+            <version>${flink.shaded.jackson}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-table-api-java-bridge -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-api-java-bridge</artifactId>
-            <version>1.15.4</version>
+            <version>${flink.version}</version>
             <scope>provided</scope>
         </dependency>
 

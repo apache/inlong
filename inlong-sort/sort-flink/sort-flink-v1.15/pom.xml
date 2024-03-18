@@ -50,6 +50,7 @@
         <flink.scala.binary.version>2.12</flink.scala.binary.version>
         <flink.jackson.version>2.12.1-13.0</flink.jackson.version>
         <flink.protobuf.version>2.7.6</flink.protobuf.version>
+        <flink.shaded.jackson>2.12.4-15.0</flink.shaded.jackson>
         <sqlserver.jdbc.version>7.2.2.jre8</sqlserver.jdbc.version>
         <hudi.version>0.12.3</hudi.version>
         <thrift.version>0.9.3</thrift.version>

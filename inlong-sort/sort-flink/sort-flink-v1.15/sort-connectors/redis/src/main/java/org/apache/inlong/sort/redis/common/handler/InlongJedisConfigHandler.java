@@ -27,7 +27,7 @@ import org.apache.flink.streaming.connectors.redis.common.hanlder.RedisHandler;
 public interface InlongJedisConfigHandler extends RedisHandler {
 
     /**
-     * create flink jedis config use sepecified properties.
+     * create flink jedis config use specified properties.
      *
      * @param config The config
      * @return flink jedis config
