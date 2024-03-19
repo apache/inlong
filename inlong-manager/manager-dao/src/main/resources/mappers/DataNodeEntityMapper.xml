@@ -65,11 +65,11 @@
         <include refid="Base_Column_List"/>
         from data_node
         <where>
+            id = #{id, jdbcType=INTEGER}
             <if test="_isInlongService == false">
-                tenant = #{tenant,jdbcType=VARCHAR}
+                and tenant = #{tenant,jdbcType=VARCHAR}
             </if>
             and is_deleted = 0
-            and id = #{id, jdbcType=INTEGER}
         </where>
     </select>
     <select id="selectByUniqueKey" resultType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
@@ -78,12 +78,12 @@
         <include refid="Base_Column_List"/>
         from data_node
         <where>
-            <if test="_isInlongService == false">
-                tenant = #{tenant,jdbcType=VARCHAR}
-            </if>
-            and is_deleted = 0
-            and name = #{name, jdbcType=VARCHAR}
+            name = #{name, jdbcType=VARCHAR}
             and type = #{type, jdbcType=VARCHAR}
+            and is_deleted = 0
+            <if test="_isInlongService == false">
+                and tenant = #{tenant,jdbcType=VARCHAR}
+            </if>
         </where>
     </select>
     <select id="selectByCondition"
@@ -94,10 +94,6 @@
         <include refid="Base_Column_List"/>
         from data_node
         <where>
-            <if test="_isInlongService == false">
-                tenant = #{tenant,jdbcType=VARCHAR}
-            </if>
-            and is_deleted = 0
             <if test="name != null and name != ''">
                 and name = #{name, jdbcType=VARCHAR}
             </if>
@@ -115,6 +111,10 @@
             <if test="status != null and status != ''">
                 and status = #{status, jdbcType=INTEGER}
             </if>
+            <if test="_isInlongService == false">
+                and tenant = #{tenant,jdbcType=VARCHAR}
+            </if>
+            and is_deleted = 0
         </where>
         order by modify_time desc
     </select>
