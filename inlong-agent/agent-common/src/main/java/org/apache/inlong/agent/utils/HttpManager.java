@@ -231,7 +231,7 @@ public class HttpManager {
         try {
             header.put(BasicAuth.BASIC_AUTH_HEADER, BasicAuth.genBasicAuthCredential(secretId, secretKey));
         } catch (Exception e) {
-            LOGGER.error("getAuthHeader error", e);
+            LOGGER.error("Get auth header error", e);
         }
         return header;
     }
