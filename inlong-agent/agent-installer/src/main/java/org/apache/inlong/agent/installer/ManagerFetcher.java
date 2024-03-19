@@ -23,9 +23,7 @@ import org.apache.inlong.agent.installer.conf.InstallerConfiguration;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.HttpManager;
 import org.apache.inlong.agent.utils.ThreadUtils;
-import org.apache.inlong.common.db.CommandEntity;
-import org.apache.inlong.common.enums.PullJobTypeEnum;
-import org.apache.inlong.common.pojo.agent.TaskRequest;
+import org.apache.inlong.common.pojo.agent.installer.ConfigRequest;
 import org.apache.inlong.common.pojo.agent.installer.ConfigResult;
 import org.apache.inlong.common.pojo.agent.installer.ModuleConfig;
 import org.apache.inlong.common.pojo.agent.installer.PackageConfig;
@@ -74,6 +72,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     private final Manager manager;
     private String localIp;
     private String uuid;
+    private String clusterTag;
     private String clusterName;
 
     public ManagerFetcher(Manager manager) {
@@ -90,6 +89,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             httpManager = new HttpManager(managerAddr, managerHttpPrefixPath, timeout, secretId, secretKey);
             baseManagerUrl = httpManager.getBaseUrl();
             staticConfigUrl = buildStaticConfigUrl(baseManagerUrl);
+            clusterTag = conf.get(CLUSTER_TAG);
             clusterName = conf.get(CLUSTER_NAME);
         } else {
             throw new RuntimeException("init manager error, cannot find required key");
@@ -114,7 +114,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      */
     public ConfigResult getConfig() {
         LOGGER.info("getConfig start");
-        String resultStr = httpManager.doSentPost(staticConfigUrl, getFetchRequest(null));
+        String resultStr = httpManager.doSentPost(staticConfigUrl, getFetchRequest());
         LOGGER.info("ConfigUrl {}", staticConfigUrl);
         JsonObject resultData = getResultData(resultStr);
         JsonElement dataElement = resultData.get(AGENT_MANAGER_RETURN_PARAM_DATA);
@@ -131,13 +131,12 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * Form file command fetch request
      */
-    public TaskRequest getFetchRequest(List<CommandEntity> unackedCommands) {
-        TaskRequest request = new TaskRequest();
-        request.setAgentIp(localIp);
-        request.setUuid(uuid);
+    public ConfigRequest getFetchRequest() {
+        ConfigRequest request = new ConfigRequest();
+        request.setClusterTag(clusterTag);
         request.setClusterName(clusterName);
-        request.setPullJobType(PullJobTypeEnum.NEW.getType());
-        request.setCommandInfo(unackedCommands);
+        request.setLocalIp(localIp);
+        request.setMd5(manager.getModuleManager().getCurrentMd5());
         return request;
     }
 

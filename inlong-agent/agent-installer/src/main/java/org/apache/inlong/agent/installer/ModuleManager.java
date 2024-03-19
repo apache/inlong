@@ -63,6 +63,10 @@ public class ModuleManager extends AbstractDaemon {
         configQueue.add(config);
     }
 
+    public String getCurrentMd5() {
+        return currentMd5;
+    }
+
     /**
      * thread for core thread.
      *
