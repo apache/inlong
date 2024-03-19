@@ -24,6 +24,7 @@ import { useRequest } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import { CommonInterface } from '../common';
 import { clusters } from '@/plugins/clusters';
+import HighTable from '@/ui/components/HighTable';
 
 type Props = CommonInterface;
 
@@ -91,6 +92,40 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
     }
     return info;
   };
+
+  const [current, setCurrent] = useState(1);
+  const [options, setOptions] = useState({
+    streamId: '',
+  });
+
+  const pagination = {
+    pageSize: 5,
+    current: current,
+    total:
+      options.streamId !== ''
+        ? data?.SortInfo.filter(item => item.inlongStreamId.includes(options.streamId)).length
+        : data?.SortInfo?.length,
+  };
+  const onChange = ({ current: pageNum, pageSize }) => {
+    setCurrent(pageNum);
+  };
+
+  const onFilter = allValues => {
+    setOptions({
+      streamId: allValues.streamId,
+    });
+  };
+
+  const content = defaultValues => [
+    {
+      type: 'inputsearch',
+      label: 'Stream Id',
+      name: 'streamId',
+      props: {
+        allowClear: true,
+      },
+    },
+  ];
 
   return (
     <div style={{ position: 'relative' }}>
@@ -162,19 +197,28 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
           <Divider orientation="left" style={{ marginTop: 60 }}>
             Sort {t('pages.GroupDetail.Resource.Info')}
           </Divider>
-          <Table
-            size="small"
-            columns={[
-              { title: 'inlongStreamId', dataIndex: 'inlongStreamId' },
-              { title: 'dataflowId', dataIndex: 'id' },
-              { title: 'sinkName', dataIndex: 'sinkName' },
-              { title: 'topoName', dataIndex: 'inlongClusterName' },
-            ]}
-            style={{ marginTop: 20 }}
-            dataSource={data?.SortInfo}
-            pagination={false}
-            rowKey="name"
-          ></Table>
+          <HighTable
+            filterForm={{
+              content: content(options),
+              onFilter,
+            }}
+            table={{
+              columns: [
+                { title: 'inlongStreamId', dataIndex: 'inlongStreamId' },
+                { title: 'dataflowId', dataIndex: 'id' },
+                { title: 'sinkName', dataIndex: 'sinkName' },
+                { title: 'topoName', dataIndex: 'inlongClusterName' },
+              ],
+              style: { marginTop: 20 },
+              dataSource:
+                options.streamId !== ''
+                  ? data?.SortInfo.filter(item => item.inlongStreamId.includes(options.streamId))
+                  : data?.SortInfo,
+              pagination,
+              rowKey: 'name',
+              onChange,
+            }}
+          />
         </>
       )}
     </div>
