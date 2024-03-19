@@ -186,9 +186,7 @@ public class RedisTableTest {
                         + " select '1_1',d.aaa, d.bbb from source s"
                         + "  left join dim for system_time as of s.proctime as d "
                         + " on d.aaa = s.aaa and d.bbb = s.bbb";
-        String testSql = " select concat_ws('_', s.aaa, s.aaa),d.bbb from source s"
-                + "  left join dim for system_time as of s.proctime as d "
-                + " on d.aaa = s.aaa and d.bbb = s.bbb";
+
         tableEnv.executeSql(sql);
 
         await().atMost(20, TimeUnit.SECONDS).untilAsserted(() -> {
@@ -211,7 +209,6 @@ public class RedisTableTest {
         String dim = "CREATE TABLE dim (" +
                 "    member_test varchar," +
                 "    member_rank bigint" +
-                // " PRIMARY KEY (`bbb`) NOT ENFORCED" +
                 ") WITH (" +
                 "  'connector' = 'redis-inlong'," +
                 "  'command' = 'zrevrank'," +
@@ -322,9 +319,7 @@ public class RedisTableTest {
                         + " select 'rank_score_test',d.member_test, d.score from source s"
                         + "  left join dim for system_time as of s.proctime as d "
                         + " on d.member_test = s.member_test";
-        String testSql = " select concat_ws('_', s.aaa, s.aaa),d.bbb from source s"
-                + "  left join dim for system_time as of s.proctime as d "
-                + " on d.aaa = s.aaa and d.bbb = s.bbb";
+
         tableEnv.executeSql(sql);
 
         await().atMost(20, TimeUnit.SECONDS).untilAsserted(() -> {
@@ -371,9 +366,6 @@ public class RedisTableTest {
                 "  'timeout' = '2000'" +
                 ")");
         Jedis jedis = new Jedis("127.0.0.1", redisPort);
-        // assertNull(jedis.get("1"));
-        // assertNull(jedis.get("2"));
-        // assertNull(jedis.get("3"));
 
         String query = "INSERT INTO sink SELECT * FROM source";
         tableEnv.executeSql(query);
