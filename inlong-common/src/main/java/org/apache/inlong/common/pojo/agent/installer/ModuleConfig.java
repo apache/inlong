@@ -62,11 +62,12 @@ public class ModuleConfig {
      * The command to uninstall the module
      */
     private String uninstallCommand;
-
-    private PackageConfig packageConfig;
-
     /**
-     * The state of the module
+     * Installation package config
+     */
+    private PackageConfig packageConfig;
+    /**
+     * The state of the module，identify that the module is in a state of addition, download, installation, etc
      */
     private ModuleStateEnum state;
 }
