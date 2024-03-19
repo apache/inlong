@@ -44,7 +44,6 @@ public class RedisTableTest {
     @BeforeClass
     public static void setup() {
         redisPort = NetUtils.getAvailablePort().getPort();
-        // redisPort = 6379;
         redisServer = new RedisServer(redisPort);
         redisServer.start();
     }
@@ -75,7 +74,6 @@ public class RedisTableTest {
 
         String dim = "CREATE TABLE dim (" +
                 "    aaa varchar, bbb varchar" +
-                // " PRIMARY KEY (`key`) NOT ENFORCED" +
                 ") WITH (" +
                 "  'connector' = 'redis-inlong'," +
                 "  'command' = 'get'," +
