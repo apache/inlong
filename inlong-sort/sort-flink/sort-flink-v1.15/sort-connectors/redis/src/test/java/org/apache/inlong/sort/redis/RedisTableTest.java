@@ -21,7 +21,6 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
-import org.apache.flink.util.NetUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -29,6 +28,8 @@ import org.junit.Test;
 import redis.clients.jedis.Jedis;
 import redis.embedded.RedisServer;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
@@ -43,8 +44,7 @@ public class RedisTableTest {
 
     @BeforeClass
     public static void setup() {
-        redisPort = NetUtils.getAvailablePort().getPort();
-        //Start a redis server to test
+        redisPort = getAvailablePort();
         redisServer = new RedisServer(redisPort);
         redisServer.start();
     }
@@ -62,6 +62,20 @@ public class RedisTableTest {
         // Deletes all keys from all databases.
         jedis.flushAll();
     }
+
+    public static int getAvailablePort() {
+        for (int i = 0; i < 50; i++) {
+            try (ServerSocket serverSocket = new ServerSocket(0)) {
+                int port = serverSocket.getLocalPort();
+                if (port != 0) {
+                    return port;
+                }
+            } catch (IOException ignored) {
+            }
+        }
+        throw new RuntimeException("Could not find a free permitted port on the machine.");
+    }
+
     @Test
     public void testSourceWithGet() {
         StreamExecutionEnvironment executionEnv =
