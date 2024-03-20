@@ -230,7 +230,15 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND,
                     String.format("inlong cluster tag not found by id=%s", id));
         }
-        return CommonBeanUtils.copyProperties(entity, ClusterTagResponse::new);
+        ClusterTagResponse response = CommonBeanUtils.copyProperties(entity, ClusterTagResponse::new);
+        List<String> tenantList = tenantClusterTagMapper
+                .selectByTag(entity.getClusterTag()).stream()
+                .map(TenantClusterTagEntity::getTenant)
+                .collect(Collectors.toList());
+        response.setTenantList(tenantList);
+
+        LOGGER.debug("success to get cluster tag info by id={}", id);
+        return response;
     }
 
     @Override
@@ -239,7 +247,15 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         Page<InlongClusterTagEntity> entityPage = (Page<InlongClusterTagEntity>) clusterTagMapper
                 .selectByCondition(request);
         PageResult<ClusterTagResponse> pageResult = PageResult.fromPage(entityPage)
-                .map(entity -> CommonBeanUtils.copyProperties(entity, ClusterTagResponse::new));
+                .map(entity -> {
+                    ClusterTagResponse response = CommonBeanUtils.copyProperties(entity, ClusterTagResponse::new);
+                    List<String> tenantList = tenantClusterTagMapper
+                            .selectByTag(entity.getClusterTag()).stream()
+                            .map(TenantClusterTagEntity::getTenant)
+                            .collect(Collectors.toList());
+                    response.setTenantList(tenantList);
+                    return response;
+                });
 
         LOGGER.debug("success to list cluster tag by {}", request);
         return pageResult;
