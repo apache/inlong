@@ -40,12 +40,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_FETCHER_INTERVAL;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REQUEST_TIMEOUT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_RETURN_PARAM_DATA;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_FETCHER_INTERVAL;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_INSTALLER_MANAGER_CONFIG_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.INSTALLER_MANAGER_CONFIG_HTTP_PATH;
 import static org.apache.inlong.agent.installer.ManagerResultFormatter.getResultData;
@@ -57,9 +53,6 @@ import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalUuid;
  */
 public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
-    public static final String MANAGER_ADDR = "manager.addr";
-    public static final String MANAGER_AUTH_SECRET_ID = "manager.auth.secretId";
-    public static final String MANAGER_AUTH_SECRET_KEY = "manager.auth.secretKey";
     public static final String CLUSTER_NAME = "cluster.name";
     public static final String CLUSTER_TAG = "cluster.tag";
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagerFetcher.class);
@@ -78,26 +71,11 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     public ManagerFetcher(Manager manager) {
         this.manager = manager;
         this.conf = InstallerConfiguration.getInstallerConf();
-        if (requiredKeys(conf)) {
-            String managerAddr = conf.get(MANAGER_ADDR);
-            String managerHttpPrefixPath = conf.get(AGENT_MANAGER_VIP_HTTP_PREFIX_PATH,
-                    DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
-            int timeout = conf.getInt(AGENT_MANAGER_REQUEST_TIMEOUT,
-                    DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT);
-            String secretId = conf.get(MANAGER_AUTH_SECRET_ID);
-            String secretKey = conf.get(MANAGER_AUTH_SECRET_KEY);
-            httpManager = new HttpManager(managerAddr, managerHttpPrefixPath, timeout, secretId, secretKey);
-            baseManagerUrl = httpManager.getBaseUrl();
-            staticConfigUrl = buildStaticConfigUrl(baseManagerUrl);
-            clusterTag = conf.get(CLUSTER_TAG);
-            clusterName = conf.get(CLUSTER_NAME);
-        } else {
-            throw new RuntimeException("init manager error, cannot find required key");
-        }
-    }
-
-    private boolean requiredKeys(InstallerConfiguration conf) {
-        return conf.hasKey(MANAGER_ADDR);
+        httpManager = manager.getModuleManager().getHttpManager(conf);
+        baseManagerUrl = httpManager.getBaseUrl();
+        staticConfigUrl = buildStaticConfigUrl(baseManagerUrl);
+        clusterTag = conf.get(CLUSTER_TAG);
+        clusterName = conf.get(CLUSTER_NAME);
     }
 
     /**
