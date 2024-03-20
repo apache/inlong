@@ -37,4 +37,8 @@ public class PackageConfig {
      * The download url of the installation package
      */
     private String downloadUrl;
+    /**
+     * Installation package storage path
+     */
+    private String storagePath;
 }
