@@ -45,8 +45,4 @@ public class ConfigResult {
      * The list of module config list
      */
     private List<ModuleConfig> moduleList;
-    /**
-     * Installation package storage path
-     */
-    private String storagePath;
 }
