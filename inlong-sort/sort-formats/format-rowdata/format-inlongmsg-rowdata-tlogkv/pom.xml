@@ -28,7 +28,7 @@ under the License.
         <version>1.12.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>format-inlongmsg-rowdata-tlogkv</artifactId>
+    <artifactId>sort-format-inlongmsg-rowdata-tlogkv</artifactId>
 
     <packaging>jar</packaging>
     <name>Apache InLong - Sort Format-InLongMsg-Rowdata-TLogKV</name>
