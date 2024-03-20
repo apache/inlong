@@ -42,6 +42,8 @@ import javax.net.ssl.SSLContext;
 import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_APPLICATION_JSON;
@@ -158,7 +160,10 @@ public class HttpManager {
     public String doSentPost(String url, Object dto) {
         try {
             HttpPost post = getHttpPost(url);
-            post.addHeader(BasicAuth.BASIC_AUTH_HEADER, BasicAuth.genBasicAuthCredential(secretId, secretKey));
+            Map<String, String> authHeader = getAuthHeader();
+            authHeader.forEach((k, v) -> {
+                post.addHeader(k, v);
+            });
             StringEntity stringEntity = new StringEntity(toJsonStr(dto), Charset.forName("UTF-8"));
             stringEntity.setContentType(AGENT_HTTP_APPLICATION_JSON);
             post.setEntity(stringEntity);
@@ -190,7 +195,10 @@ public class HttpManager {
     public String doSendPost(String url) {
         try {
             HttpPost post = getHttpPost(url);
-            post.addHeader(BasicAuth.BASIC_AUTH_HEADER, BasicAuth.genBasicAuthCredential(secretId, secretKey));
+            Map<String, String> authHeader = getAuthHeader();
+            authHeader.forEach((k, v) -> {
+                post.addHeader(k, v);
+            });
             CloseableHttpResponse response = httpClient.execute(post);
             String returnStr = EntityUtils.toString(response.getEntity());
             if (returnStr != null && !returnStr.isEmpty()
@@ -218,4 +226,13 @@ public class HttpManager {
         return new HttpGet(url);
     }
 
+    public Map<String, String> getAuthHeader() {
+        Map<String, String> header = new HashMap<>();
+        try {
+            header.put(BasicAuth.BASIC_AUTH_HEADER, BasicAuth.genBasicAuthCredential(secretId, secretKey));
+        } catch (Exception e) {
+            LOGGER.error("Get auth header error", e);
+        }
+        return header;
+    }
 }
