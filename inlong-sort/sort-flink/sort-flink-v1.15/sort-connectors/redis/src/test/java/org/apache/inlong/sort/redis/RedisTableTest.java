@@ -44,6 +44,7 @@ public class RedisTableTest {
     @BeforeClass
     public static void setup() {
         redisPort = NetUtils.getAvailablePort().getPort();
+        //Start a redis server to test
         redisServer = new RedisServer(redisPort);
         redisServer.start();
     }
