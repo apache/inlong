@@ -17,11 +17,16 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.manager.pojo.stream.StreamPipeline;
 import org.apache.inlong.manager.pojo.stream.StreamTransform;
@@ -152,6 +157,24 @@ public class StreamParseUtils {
         Preconditions.expectNotBlank(tempView, ErrorCodeEnum.INVALID_PARAMETER,
                 String.format(" should not be null for streamId=%s", inlongStreamId));
         return GSON.fromJson(tempView, StreamPipeline.class);
+    }
+
+    public static String getStreamExtProperty(String key, InlongStreamInfo streamInfo) {
+        if (StringUtils.isEmpty(key)
+                || streamInfo == null || streamInfo.getExtList() == null || streamInfo.getExtList().isEmpty()) {
+            return null;
+        }
+        for (InlongStreamExtInfo ext : streamInfo.getExtList()) {
+            if (key.equalsIgnoreCase(ext.getKeyName())) {
+                return ext.getKeyValue();
+            }
+        }
+        return null;
+    }
+
+    public static boolean isStreamConfigSuccess(InlongStreamInfo streamInfo) {
+        return StreamStatus.CONFIG_SUCCESSFUL.getDescription()
+                .equalsIgnoreCase(getStreamExtProperty(InlongConstants.STREAM_CONFIG_STATUS, streamInfo));
     }
 
 }

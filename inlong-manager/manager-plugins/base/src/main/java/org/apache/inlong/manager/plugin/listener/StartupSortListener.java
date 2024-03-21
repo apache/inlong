@@ -27,6 +27,7 @@ import org.apache.inlong.manager.plugin.flink.FlinkOperation;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.enums.Constants;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sort.util.StreamParseUtils;
 import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
@@ -99,10 +100,10 @@ public class StartupSortListener implements SortOperateListener {
         }
 
         for (InlongStreamInfo streamInfo : streamInfos) {
-            boolean isRealTimeSync = InlongConstants.DATASYNC_REALTIME_MODE
+            boolean isOfflineSync = InlongConstants.DATASYNC_OFFLINE_MODE
                     .equals(groupResourceForm.getGroupInfo().getInlongGroupMode());
             // do not submit flink job if the group mode is offline and the stream is not config successfully
-            if (isRealTimeSync && !StreamStatus.CONFIG_SUCCESSFUL.getCode().equals(streamInfo.getStatus())) {
+            if (isOfflineSync && !StreamParseUtils.isStreamConfigSuccess(streamInfo)) {
                 log.info("no need to submit flink job for groupId={} streamId={} as the mode is offline "
                         + "and the stream is not config successfully yet", groupId, streamInfo.getInlongStreamId());
                 continue;
@@ -147,10 +148,10 @@ public class StartupSortListener implements SortOperateListener {
             flinkInfo.setJobName(jobName);
             flinkInfo.setEndpoint(kvConf.get(InlongConstants.SORT_URL));
             flinkInfo.setInlongStreamInfoList(Collections.singletonList(streamInfo));
-            if (isRealTimeSync) {
-                flinkInfo.setRuntimeExecutionMode(InlongConstants.RUNTIME_EXECUTION_MODE_STREAMING);
-            } else {
+            if (isOfflineSync) {
                 flinkInfo.setRuntimeExecutionMode(InlongConstants.RUNTIME_EXECUTION_MODE_BATCH);
+            } else {
+                flinkInfo.setRuntimeExecutionMode(InlongConstants.RUNTIME_EXECUTION_MODE_STREAMING);
             }
             FlinkOperation flinkOperation = FlinkOperation.getInstance();
             try {

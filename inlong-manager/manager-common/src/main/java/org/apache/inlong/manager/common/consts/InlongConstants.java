@@ -141,6 +141,8 @@ public class InlongConstants {
      */
     public static final String DATAFLOW = "dataflow";
 
+    public static final String STREAM_CONFIG_STATUS = "stream.config.status";
+
     public static final String STREAMS = "streams";
 
     public static final String RELATIONS = "relations";

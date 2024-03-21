@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.source.StreamSourceService;
@@ -65,6 +66,13 @@ public class InitStreamCompleteListener implements ProcessEventListener {
         try {
             // Update status of other related configs
             streamService.updateStatus(groupId, streamId, StreamStatus.CONFIG_SUCCESSFUL.getCode(), operator);
+            // add status to stream extension info
+            InlongStreamExtInfo extInfo = new InlongStreamExtInfo();
+            extInfo.setInlongGroupId(groupId);
+            extInfo.setInlongStreamId(streamId);
+            extInfo.setKeyName(InlongConstants.STREAM_CONFIG_STATUS);
+            extInfo.setKeyValue(StreamStatus.CONFIG_SUCCESSFUL.getDescription());
+            streamInfo.getExtList().add(extInfo);
             streamService.updateWithoutCheck(streamInfo.genRequest(), operator);
             if (InlongConstants.DATASYNC_REALTIME_MODE.equals(form.getGroupInfo().getInlongGroupMode())
                     || InlongConstants.DATASYNC_OFFLINE_MODE.equals(form.getGroupInfo().getInlongGroupMode())) {
