@@ -20,6 +20,7 @@ package org.apache.inlong.manager.plugin.listener;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
+import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.plugin.flink.FlinkOperation;
@@ -98,6 +99,14 @@ public class StartupSortListener implements SortOperateListener {
         }
 
         for (InlongStreamInfo streamInfo : streamInfos) {
+            boolean isRealTimeSync = InlongConstants.DATASYNC_REALTIME_MODE
+                    .equals(groupResourceForm.getGroupInfo().getInlongGroupMode());
+            // do not submit flink job if the group mode is offline and the stream is not config successfully
+            if (isRealTimeSync && !StreamStatus.CONFIG_SUCCESSFUL.getCode().equals(streamInfo.getStatus())) {
+                log.info("no need to submit flink job for groupId={} streamId={} as the mode is offline "
+                        + "and the stream is not config successfully yet", groupId, streamInfo.getInlongStreamId());
+                continue;
+            }
             List<StreamSink> sinkList = streamInfo.getSinkList();
             List<String> sinkTypes = sinkList.stream().map(StreamSink::getSinkType).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(sinkList) || !SinkType.containSortFlinkSink(sinkTypes)) {
@@ -131,9 +140,6 @@ public class StartupSortListener implements SortOperateListener {
                 return ListenerResult.fail(message);
             }
 
-            boolean isRealTimeSync = InlongConstants.DATASYNC_REALTIME_MODE
-                    .equals(groupResourceForm.getGroupInfo().getInlongGroupMode());
-
             FlinkInfo flinkInfo = new FlinkInfo();
 
             String jobName = Constants.SORT_JOB_NAME_GENERATOR.apply(processForm) + InlongConstants.HYPHEN
@@ -149,12 +155,9 @@ public class StartupSortListener implements SortOperateListener {
             FlinkOperation flinkOperation = FlinkOperation.getInstance();
             try {
                 flinkOperation.genPath(flinkInfo, dataflow);
-                // only start job for real-time mode
-                if (isRealTimeSync) {
-                    flinkOperation.start(flinkInfo);
-                    log.info("job submit success for groupId = {}, streamId = {}, jobId = {}", groupId,
-                            streamInfo.getInlongStreamId(), flinkInfo.getJobId());
-                }
+                flinkOperation.start(flinkInfo);
+                log.info("job submit success for groupId = {}, streamId = {}, jobId = {}", groupId,
+                        streamInfo.getInlongStreamId(), flinkInfo.getJobId());
             } catch (Exception e) {
                 flinkInfo.setException(true);
                 flinkInfo.setExceptionMsg(getExceptionStackMsg(e));

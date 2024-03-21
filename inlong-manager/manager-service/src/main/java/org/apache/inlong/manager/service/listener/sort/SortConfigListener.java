@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.listener.sort;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -125,6 +126,13 @@ public class SortConfigListener implements SortOperateListener {
 
         try {
             for (InlongStreamInfo streamInfo : streamInfos) {
+                // do not build sort config if the group mode is offline and the stream is not config successfully
+                if (InlongConstants.DATASYNC_OFFLINE_MODE.equals(groupInfo.getInlongGroupMode())
+                        && !StreamStatus.CONFIG_SUCCESSFUL.getCode().equals(streamInfo.getStatus())) {
+                    LOGGER.info("no need to build sort config for groupId={} streamId={} as the mode is offline "
+                            + "and the stream is not config successfully yet", groupId, streamInfo.getInlongStreamId());
+                    continue;
+                }
                 List<StreamSink> sinkList = streamInfo.getSinkList();
                 if (CollectionUtils.isEmpty(sinkList)) {
                     continue;
