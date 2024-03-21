@@ -321,25 +321,19 @@
         </where>
     </select>
     <select id="selectNeedUpdateIdsByClusterAndDataNode" resultType="java.lang.Integer">
-        select source.id
-        from stream_source source, inlong_stream stream, inlong_group inlong_group
+        select id
+        from stream_source
         <where>
-            source.is_deleted = 0
-            and inlong_group.inlong_group_id = source.inlong_group_id
-            and inlong_group.is_deleted = 0
-            and inlong_group.status in (120, 130)
-            and stream.inlong_group_id = source.inlong_group_id
-            and stream.is_deleted = 0
-            and stream.status in (120, 130)
-            and source.status not in (99, 110)
+            status not in (99, 110)
+            and is_deleted = 0
             <if test="clusterName != null">
-                and source.inlong_cluster_name = #{clusterName, jdbcType=VARCHAR}
+                and inlong_cluster_name = #{clusterName, jdbcType=VARCHAR}
             </if>
             <if test="nodeName != null">
-                and source.data_node_name = #{nodeName, jdbcType=VARCHAR}
+                and data_node_name = #{nodeName, jdbcType=VARCHAR}
             </if>
             <if test="sourceType != null">
-                and source.source_type = #{sourceType, jdbcType=VARCHAR}
+                and source_type = #{sourceType, jdbcType=VARCHAR}
             </if>
         </where>
     </select>
