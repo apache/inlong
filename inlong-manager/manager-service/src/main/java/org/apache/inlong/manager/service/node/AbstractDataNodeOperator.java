@@ -115,7 +115,7 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
     }
 
     @Override
-    public void updateRelatedStreamSource(DataNodeRequest request, DataNodeEntity oldEntity, String operator) {
+    public void updateRelatedStreamSource(DataNodeRequest request, DataNodeEntity dataNodeEntity, String operator) {
         LOGGER.info("do nothing for the data node type ={}", request.getType());
     }
 
