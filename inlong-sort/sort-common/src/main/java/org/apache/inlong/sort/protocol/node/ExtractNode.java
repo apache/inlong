@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.protocol.node;
 
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.node.extract.DamengExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.DorisExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.FileSystemExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.HudiExtractNode;
@@ -66,6 +67,7 @@ import java.util.Map;
         @JsonSubTypes.Type(value = DorisExtractNode.class, name = "dorisExtract"),
         @JsonSubTypes.Type(value = HudiExtractNode.class, name = "hudiExtract"),
         @JsonSubTypes.Type(value = IcebergExtractNode.class, name = "icebergExtract"),
+        @JsonSubTypes.Type(value = DamengExtractNode.class, name = "damengExtract"),
 })
 @Data
 @NoArgsConstructor

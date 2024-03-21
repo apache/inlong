@@ -44,4 +44,6 @@ public class DataNodeType {
      */
     public static final String CLS = "CLS";
     public static final String PULSAR = "PULSAR";
+
+    public static final String DAMENG = "DAMENG";
 }
