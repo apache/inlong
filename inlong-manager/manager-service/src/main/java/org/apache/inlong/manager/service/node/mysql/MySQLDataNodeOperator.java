@@ -110,15 +110,15 @@ public class MySQLDataNodeOperator extends AbstractDataNodeOperator {
     }
 
     @Override
-    public void updateRelatedStreamSource(DataNodeRequest request, DataNodeEntity oldEntity, String operator) {
+    public void updateRelatedStreamSource(DataNodeRequest request, DataNodeEntity dataNodeEntity, String operator) {
         MySQLDataNodeRequest nodeRequest = (MySQLDataNodeRequest) request;
-        MySQLDataNodeInfo nodeInfo = (MySQLDataNodeInfo) this.getFromEntity(oldEntity);
+        MySQLDataNodeInfo nodeInfo = (MySQLDataNodeInfo) this.getFromEntity(dataNodeEntity);
         boolean changed = !Objects.equals(nodeRequest.getUrl(), nodeInfo.getUrl())
                 || !Objects.equals(nodeRequest.getBackupUrl(), nodeInfo.getBackupUrl())
                 || !Objects.equals(nodeRequest.getUsername(), nodeInfo.getUsername())
                 || !Objects.equals(nodeRequest.getToken(), nodeInfo.getToken());
         if (changed) {
-            retryStreamSourceByDataNodeNameAndType(request.getName(), SourceType.MYSQL_SQL, operator);
+            retryStreamSourceByDataNodeNameAndType(dataNodeEntity.getName(), SourceType.MYSQL_SQL, operator);
         }
     }
 

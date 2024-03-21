@@ -22,6 +22,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
 import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.pojo.workflow.TaskResponse;
+import org.apache.inlong.manager.pojo.workflow.WorkflowExecuteLog;
 import org.apache.inlong.manager.pojo.workflow.WorkflowOperationRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 
@@ -66,5 +67,8 @@ public interface WorkflowApi {
 
     @GET("workflow/listTask")
     Call<Response<PageResult<TaskResponse>>> listTask(@QueryMap Map<String, Object> query);
+
+    @GET("workflow/listTaskLogs")
+    Call<Response<PageResult<WorkflowExecuteLog>>> listTaskLogs(@QueryMap Map<String, Object> query);
 
 }
