@@ -57,7 +57,6 @@ public class StreamParseUtils {
     public static final String SINK_NAME = "sinkName";
     public static final String TRANSFORM_TYPE = "transformType";
     public static final String TRANSFORM_NAME = "transformName";
-    public static final String TRUE = "true";
 
     private static final Gson GSON = new Gson();
 
