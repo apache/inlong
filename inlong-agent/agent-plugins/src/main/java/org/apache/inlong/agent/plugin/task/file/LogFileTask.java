@@ -299,9 +299,9 @@ public class LogFileTask extends Task {
     private void runForRetry() {
         if (!runAtLeastOneTime) {
             scanExistingFile();
-            dealWithEventMap();
             runAtLeastOneTime = true;
         }
+        dealWithEventMap();
         if (instanceManager.allInstanceFinished()) {
             LOGGER.info("retry task finished, send action to task manager, taskId {}", getTaskId());
             TaskAction action = new TaskAction(org.apache.inlong.agent.core.task.ActionType.FINISH, taskProfile);
