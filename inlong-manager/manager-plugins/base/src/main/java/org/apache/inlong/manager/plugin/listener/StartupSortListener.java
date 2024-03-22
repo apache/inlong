@@ -156,7 +156,8 @@ public class StartupSortListener implements SortOperateListener {
             try {
                 flinkOperation.genPath(flinkInfo, dataflow);
                 flinkOperation.start(flinkInfo);
-                log.info("job submit success for groupId = {}, streamId = {}, jobId = {}", groupId,
+                log.info("job submit success for groupId = {}, mode = {}, streamId = {}, jobId = {}",
+                        groupId, groupResourceForm.getGroupInfo().getInlongGroupMode(),
                         streamInfo.getInlongStreamId(), flinkInfo.getJobId());
             } catch (Exception e) {
                 flinkInfo.setException(true);
