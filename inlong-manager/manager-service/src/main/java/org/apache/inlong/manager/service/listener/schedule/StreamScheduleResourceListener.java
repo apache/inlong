@@ -28,13 +28,15 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.ScheduleOperateListener;
 
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
 public class StreamScheduleResourceListener implements ScheduleOperateListener {
+
     @Override
     public TaskEvent event() {
         return TaskEvent.COMPLETE;

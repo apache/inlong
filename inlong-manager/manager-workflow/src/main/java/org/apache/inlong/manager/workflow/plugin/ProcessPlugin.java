@@ -43,7 +43,6 @@ public interface ProcessPlugin extends Plugin {
         return null;
     }
 
-
     default List<QueueOperateListener> createQueueOperateListeners() {
         return null;
     }

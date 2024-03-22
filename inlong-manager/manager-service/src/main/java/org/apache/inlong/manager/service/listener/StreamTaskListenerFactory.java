@@ -75,7 +75,7 @@ public class StreamTaskListenerFactory implements PluginBinder, TaskListenerFact
         sortOperateListeners.add(streamSortConfigListener);
         sinkOperateListeners = new LinkedList<>();
         sinkOperateListeners.add(sinkResourceListener);
-        scheduleOperateListeners= new LinkedList<>();
+        scheduleOperateListeners = new LinkedList<>();
         scheduleOperateListeners.add(scheduleResourceListener);
     }
 

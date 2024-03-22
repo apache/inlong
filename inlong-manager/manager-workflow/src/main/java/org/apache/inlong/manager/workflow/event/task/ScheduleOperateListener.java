@@ -24,6 +24,7 @@ import org.apache.inlong.manager.workflow.event.ListenerResult;
 public interface ScheduleOperateListener extends TaskEventListener {
 
     ScheduleOperateListener DEFAULT_SCHEDULE_OPERATE_LISTENER = new ScheduleOperateListener() {
+
         @Override
         public TaskEvent event() {
             return TaskEvent.COMPLETE;
