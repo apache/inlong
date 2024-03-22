@@ -19,6 +19,7 @@ package org.apache.inlong.manager.workflow.plugin;
 
 import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
+import org.apache.inlong.manager.workflow.event.task.ScheduleOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
@@ -35,6 +36,10 @@ public interface ProcessPlugin extends Plugin {
     }
 
     default List<SinkOperateListener> createSinkOperateListeners() {
+        return null;
+    }
+
+    default List<ScheduleOperateListener> createScheduleOperateListeners() {
         return null;
     }
 

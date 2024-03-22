@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sort.util.StreamParseUtils;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
@@ -125,6 +126,13 @@ public class SortConfigListener implements SortOperateListener {
 
         try {
             for (InlongStreamInfo streamInfo : streamInfos) {
+                // do not build sort config if the group mode is offline and the stream is not config successfully
+                if (InlongConstants.DATASYNC_OFFLINE_MODE.equals(groupInfo.getInlongGroupMode())
+                        && !StreamParseUtils.isRegisterScheduleSuccess(streamInfo)) {
+                    LOGGER.info("no need to build sort config for groupId={} streamId={} as the mode is offline "
+                            + "and the stream is not config successfully yet", groupId, streamInfo.getInlongStreamId());
+                    continue;
+                }
                 List<StreamSink> sinkList = streamInfo.getSinkList();
                 if (CollectionUtils.isEmpty(sinkList)) {
                     continue;

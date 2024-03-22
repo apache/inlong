@@ -143,6 +143,10 @@ public class InlongConstants {
      */
     public static final String DATAFLOW = "dataflow";
 
+    public static final String REGISTER_SCHEDULE_STATUS = "register.schedule.status";
+
+    public static final String REGISTERED = "registered";
+
     public static final String STREAMS = "streams";
 
     public static final String RELATIONS = "relations";
