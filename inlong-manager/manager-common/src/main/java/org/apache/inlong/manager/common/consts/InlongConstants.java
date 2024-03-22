@@ -141,7 +141,9 @@ public class InlongConstants {
      */
     public static final String DATAFLOW = "dataflow";
 
-    public static final String STREAM_CONFIG_STATUS = "stream.config.status";
+    public static final String REGISTER_SCHEDULE_SUCCESS = "register.schedule.success";
+
+    public static final String TRUE = "true";
 
     public static final String STREAMS = "streams";
 

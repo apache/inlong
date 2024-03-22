@@ -102,7 +102,7 @@ public class StartupSortListener implements SortOperateListener {
             boolean isOfflineSync = InlongConstants.DATASYNC_OFFLINE_MODE
                     .equals(groupResourceForm.getGroupInfo().getInlongGroupMode());
             // do not submit flink job if the group mode is offline and the stream is not config successfully
-            if (isOfflineSync && !StreamParseUtils.isStreamConfigSuccess(streamInfo)) {
+            if (isOfflineSync && !StreamParseUtils.isRegisterScheduleSuccess(streamInfo)) {
                 log.info("no need to submit flink job for groupId={} streamId={} as the mode is offline "
                         + "and the stream is not config successfully yet", groupId, streamInfo.getInlongStreamId());
                 continue;

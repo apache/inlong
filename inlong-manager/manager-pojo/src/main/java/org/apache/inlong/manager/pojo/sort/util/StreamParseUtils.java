@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -57,6 +57,7 @@ public class StreamParseUtils {
     public static final String SINK_NAME = "sinkName";
     public static final String TRANSFORM_TYPE = "transformType";
     public static final String TRANSFORM_NAME = "transformName";
+    public static final String TRUE = "true";
 
     private static final Gson GSON = new Gson();
 
@@ -160,21 +161,19 @@ public class StreamParseUtils {
     }
 
     public static String getStreamExtProperty(String key, InlongStreamInfo streamInfo) {
-        if (StringUtils.isEmpty(key)
-                || streamInfo == null || streamInfo.getExtList() == null || streamInfo.getExtList().isEmpty()) {
-            return null;
-        }
-        for (InlongStreamExtInfo ext : streamInfo.getExtList()) {
-            if (key.equalsIgnoreCase(ext.getKeyName())) {
-                return ext.getKeyValue();
+        if (StringUtils.isNotBlank(key) && streamInfo != null && CollectionUtils.isNotEmpty(streamInfo.getExtList())) {
+            for (InlongStreamExtInfo ext : streamInfo.getExtList()) {
+                if (key.equalsIgnoreCase(ext.getKeyName())) {
+                    return ext.getKeyValue();
+                }
             }
         }
         return null;
     }
 
-    public static boolean isStreamConfigSuccess(InlongStreamInfo streamInfo) {
-        return StreamStatus.CONFIG_SUCCESSFUL.getDescription()
-                .equalsIgnoreCase(getStreamExtProperty(InlongConstants.STREAM_CONFIG_STATUS, streamInfo));
+    public static boolean isRegisterScheduleSuccess(InlongStreamInfo streamInfo) {
+        return InlongConstants.TRUE
+                .equalsIgnoreCase(getStreamExtProperty(InlongConstants.REGISTER_SCHEDULE_SUCCESS, streamInfo));
     }
 
 }

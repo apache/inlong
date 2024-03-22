@@ -128,7 +128,7 @@ public class SortConfigListener implements SortOperateListener {
             for (InlongStreamInfo streamInfo : streamInfos) {
                 // do not build sort config if the group mode is offline and the stream is not config successfully
                 if (InlongConstants.DATASYNC_OFFLINE_MODE.equals(groupInfo.getInlongGroupMode())
-                        && !StreamParseUtils.isStreamConfigSuccess(streamInfo)) {
+                        && !StreamParseUtils.isRegisterScheduleSuccess(streamInfo)) {
                     LOGGER.info("no need to build sort config for groupId={} streamId={} as the mode is offline "
                             + "and the stream is not config successfully yet", groupId, streamInfo.getInlongStreamId());
                     continue;

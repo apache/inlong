@@ -15,31 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.definition;
+package org.apache.inlong.manager.workflow.event.task;
 
-import java.util.Locale;
+import org.apache.inlong.manager.common.enums.TaskEvent;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
 
-public enum ServiceTaskType {
+public interface ScheduleOperateListener extends TaskEventListener {
 
-    INIT_SOURCE,
-    INIT_MQ,
-    INIT_SORT,
-    INIT_SINK,
-    INIT_SCHEDULE,
+    ScheduleOperateListener DEFAULT_SCHEDULE_OPERATE_LISTENER = new ScheduleOperateListener() {
+        @Override
+        public TaskEvent event() {
+            return TaskEvent.COMPLETE;
+        }
 
-    STOP_SOURCE,
-    STOP_SORT,
-
-    RESTART_SOURCE,
-    RESTART_SORT,
-
-    DELETE_SOURCE,
-    DELETE_MQ,
-    DELETE_SORT;
-
-    @Override
-    public String toString() {
-        return name().toLowerCase(Locale.ROOT);
-    }
-
+        @Override
+        public ListenerResult listen(WorkflowContext context) {
+            return ListenerResult.success();
+        }
+    };
 }

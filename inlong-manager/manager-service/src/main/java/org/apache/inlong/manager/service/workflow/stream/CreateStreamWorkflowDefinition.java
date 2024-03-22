@@ -102,17 +102,26 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         initSourceTask.setListenerFactory(streamTaskListenerFactory);
         process.addTask(initSourceTask);
 
+        // Init Schedule info
+        ServiceTask initScheduleTask = new ServiceTask();
+        initScheduleTask.setName("InitSchedule");
+        initScheduleTask.setDisplayName("Stream-InitSchedule");
+        initScheduleTask.setServiceTaskType(ServiceTaskType.INIT_SCHEDULE);
+        initScheduleTask.setListenerFactory(streamTaskListenerFactory);
+        process.addTask(initScheduleTask);
+
         // End node
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
-        // Task dependency order: 1.MQ -> 2.Sink -> 3.Sort -> 4.Source
+        // Task dependency order: 1.MQ -> 2.Sink -> 3.Sort -> 4.Source -> 5.Schedule
         // To ensure that after some tasks fail, data will not start to be collected by source or consumed by sort
         startEvent.addNext(initMQTask);
         initMQTask.addNext(initSinkTask);
         initSinkTask.addNext(initSortTask);
         initSortTask.addNext(initSourceTask);
-        initSourceTask.addNext(endEvent);
+        initSourceTask.addNext(initScheduleTask);
+        initScheduleTask.addNext(endEvent);
 
         return process;
     }

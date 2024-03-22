@@ -66,13 +66,6 @@ public class InitStreamCompleteListener implements ProcessEventListener {
         try {
             // Update status of other related configs
             streamService.updateStatus(groupId, streamId, StreamStatus.CONFIG_SUCCESSFUL.getCode(), operator);
-            // add status to stream extension info
-            InlongStreamExtInfo extInfo = new InlongStreamExtInfo();
-            extInfo.setInlongGroupId(groupId);
-            extInfo.setInlongStreamId(streamId);
-            extInfo.setKeyName(InlongConstants.STREAM_CONFIG_STATUS);
-            extInfo.setKeyValue(StreamStatus.CONFIG_SUCCESSFUL.getDescription());
-            streamInfo.getExtList().add(extInfo);
             streamService.updateWithoutCheck(streamInfo.genRequest(), operator);
             if (InlongConstants.DATASYNC_REALTIME_MODE.equals(form.getGroupInfo().getInlongGroupMode())
                     || InlongConstants.DATASYNC_OFFLINE_MODE.equals(form.getGroupInfo().getInlongGroupMode())) {
