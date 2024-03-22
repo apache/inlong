@@ -171,8 +171,8 @@ public class StreamParseUtils {
     }
 
     public static boolean isRegisterScheduleSuccess(InlongStreamInfo streamInfo) {
-        return InlongConstants.TRUE
-                .equalsIgnoreCase(getStreamExtProperty(InlongConstants.REGISTER_SCHEDULE_SUCCESS, streamInfo));
+        return InlongConstants.REGISTERED
+                .equalsIgnoreCase(getStreamExtProperty(InlongConstants.REGISTER_SCHEDULE_STATUS, streamInfo));
     }
 
 }

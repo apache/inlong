@@ -74,7 +74,8 @@ public class StreamScheduleResourceListener implements ScheduleOperateListener {
         // todo: register schedule info to schedule service
 
         // after register schedule info successfully, add ext property to stream info
-        saveInfo(streamInfo, InlongConstants.REGISTER_SCHEDULE_SUCCESS, InlongConstants.TRUE, streamInfo.getExtList());
+        saveInfo(streamInfo, InlongConstants.REGISTER_SCHEDULE_STATUS,
+                InlongConstants.REGISTERED, streamInfo.getExtList());
         log.info("success to register schedule info for group [" + groupId + "] and stream [" + streamId + "]");
         return ListenerResult.success();
     }
