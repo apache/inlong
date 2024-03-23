@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Stream sink entity, including sink type, sink name, etc.
+ * Sort config entity, including sink type, sink id, etc.
  */
 @Data
 public class SortConfigEntity implements Serializable {
