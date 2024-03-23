@@ -87,6 +87,8 @@ public class SortClusterServiceImpl implements SortClusterService {
 
     // key : sort cluster name, value : md5
     private Map<String, String> sortClusterMd5Map = new ConcurrentHashMap<>();
+    private Map<String, String> sortClusterMd5MapV2 = new ConcurrentHashMap<>();
+
     // key : sort cluster name, value : cluster config
     private Map<String, SortClusterConfig> sortClusterConfigMap = new ConcurrentHashMap<>();
     private Map<String, SortClusterConfig> sortClusterConfigMapV2 = new ConcurrentHashMap<>();
@@ -161,14 +163,14 @@ public class SortClusterServiceImpl implements SortClusterService {
                     .build();
         }
 
-        // // if the same md5
-        // if (sortClusterMd5Map.get(clusterName).equals(md5)) {
-        // return SortClusterResponse.builder()
-        // .msg("No update")
-        // .code(RESPONSE_CODE_NO_UPDATE)
-        // .md5(md5)
-        // .build();
-        // }
+        // if the same md5
+        if (sortClusterMd5Map.get(clusterName).equals(md5)) {
+            return SortClusterResponse.builder()
+                    .msg("No update")
+                    .code(RESPONSE_CODE_NO_UPDATE)
+                    .md5(md5)
+                    .build();
+        }
 
         return SortClusterResponse.builder()
                 .msg("Success")
@@ -189,7 +191,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                     .code(RESPONSE_CODE_REQ_PARAMS_ERROR)
                     .build();
         }
-        LOGGER.info("test get map {}", sortClusterConfigMapV2);
+
         // if there is an error
         if (sortClusterErrorLogMap.get(clusterName) != null) {
             return SortClusterResponse.builder()
@@ -209,7 +211,7 @@ public class SortClusterServiceImpl implements SortClusterService {
         }
 
         // if the same md5
-        if (sortClusterMd5Map.get(clusterName).equals(md5)) {
+        if (sortClusterMd5MapV2.get(clusterName).equals(md5)) {
             return SortClusterResponse.builder()
                     .msg("No update")
                     .code(RESPONSE_CODE_NO_UPDATE)
@@ -221,7 +223,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                 .msg("Success")
                 .code(RESPONSE_CODE_SUCCESS)
                 .data(sortClusterConfigMapV2.get(clusterName))
-                .md5(sortClusterMd5Map.get(clusterName))
+                .md5(sortClusterMd5MapV2.get(clusterName))
                 .build();
     }
 
@@ -389,7 +391,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                     return operator.getFromEntity(entity);
                 })
                 .collect(Collectors.toMap(DataNodeInfo::getName, info -> info));
-
+        Map<String, String> newMd5Map = new ConcurrentHashMap<>();
         Map<String, SortClusterConfig> newConfigMap = new ConcurrentHashMap<>();
         List<SortConfigEntity> sortConfigEntityList = sortConfigLoader.loadAllSortConfigEntity();
         Map<String, Map<String, Map<String, List<SortConfigEntity>>>> cluster2SinkMap = sortConfigEntityList.stream()
@@ -424,8 +426,13 @@ public class SortClusterServiceImpl implements SortClusterService {
                         LOGGER.error("fail to parse sort task config of cluster={}", sortClusterName, e);
                     }
                 }
+                String jsonStr = GSON.toJson(sortClusterConfig);
+                String md5 = DigestUtils.md5Hex(jsonStr);
+                newMd5Map.put(sortClusterName, md5);
             }
             sortClusterConfigMapV2 = newConfigMap;
+            sortClusterMd5MapV2 = newMd5Map;
+
         }
     }
 }

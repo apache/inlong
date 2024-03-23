@@ -896,6 +896,9 @@ CREATE TABLE IF NOT EXISTS `tenant_cluster_tag`
     UNIQUE KEY `unique_tenant_inlong_cluster_tag` (`tenant`, `cluster_tag`, `is_deleted`)
 );
 
+-- ----------------------------
+-- Table structure for sort_config
+-- ----------------------------
 CREATE TABLE IF NOT EXISTS `sort_config`
 (
     `id`                  int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
@@ -915,7 +918,7 @@ CREATE TABLE IF NOT EXISTS `sort_config`
     `version`             int(11)       NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_sort_config_sink_id` (`sink_id`, `is_deleted`)
-)
+);
 
 -- ----------------------------
 
