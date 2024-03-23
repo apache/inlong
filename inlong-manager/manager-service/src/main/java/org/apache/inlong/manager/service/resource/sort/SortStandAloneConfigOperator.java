@@ -127,20 +127,20 @@ public class SortStandAloneConfigOperator implements SortConfigOperator {
         sortGroupInfo.setGroupId(groupInfo.getInlongGroupId());
         sortGroupInfo.setClusterTag(groupInfo.getInlongClusterTag());
         for (StreamSink sink : streamInfo.getSinkList()) {
-            SortSourceStreamSinkInfo sortSink = CommonBeanUtils.copyProperties(sink, SortSourceStreamSinkInfo::new);
+            StreamSinkEntity sinkEntity = sinkEntityMapper.selectByPrimaryKey(sink.getId());
+            SortSourceStreamSinkInfo sortSink = CommonBeanUtils.copyProperties(sinkEntity, SortSourceStreamSinkInfo::new);
             sortSink.setSortClusterName(sink.getInlongClusterName());
             if (SinkType.SORT_STANDALONE_SINK.contains(sink.getSinkType())) {
                 InlongStreamEntity streamEntity = streamEntityMapper.selectByIdentifier(sink.getInlongGroupId(),
                         sink.getInlongStreamId());
                 Topic topic = saveTopic(sortGroupInfo, streamEntity, sortSink);
-                saveSortCluster(groupInfo, sink, topic);
+                saveSortCluster(groupInfo, sinkEntity, topic);
             }
         }
 
     }
 
-    private void saveSortCluster(InlongGroupInfo groupInfo, StreamSink sink, Topic topic) {
-        StreamSinkEntity sinkEntity = sinkEntityMapper.selectByPrimaryKey(sink.getId());
+    private void saveSortCluster(InlongGroupInfo groupInfo, StreamSinkEntity sinkEntity, Topic topic) {
         DataNodeEntity dataNodeEntity = dataNodeMapper.selectByUniqueKey(sinkEntity.getDataNodeName(),
                 sinkEntity.getSinkType());
         DataNodeOperator nodeOperator = dataNodeOperatorFactory.getInstance(dataNodeEntity.getType());
