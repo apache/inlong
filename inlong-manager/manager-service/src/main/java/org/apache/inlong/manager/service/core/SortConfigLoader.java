@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.core;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
+import org.apache.inlong.manager.dao.entity.SortConfigEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.sort.standalone.SortFieldInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo;
@@ -107,4 +108,12 @@ public interface SortConfigLoader {
      * @return List of fields info
      */
     List<SortFieldInfo> loadAllFields();
+
+    /**
+     * Load all Sink config info
+     *
+     * @return List of fields info
+     */
+    List<SortConfigEntity> loadAllSortConfigEntity();
+
 }
