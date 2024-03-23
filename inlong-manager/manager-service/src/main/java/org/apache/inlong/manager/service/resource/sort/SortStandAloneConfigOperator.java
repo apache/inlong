@@ -128,7 +128,8 @@ public class SortStandAloneConfigOperator implements SortConfigOperator {
         sortGroupInfo.setClusterTag(groupInfo.getInlongClusterTag());
         for (StreamSink sink : streamInfo.getSinkList()) {
             StreamSinkEntity sinkEntity = sinkEntityMapper.selectByPrimaryKey(sink.getId());
-            SortSourceStreamSinkInfo sortSink = CommonBeanUtils.copyProperties(sinkEntity, SortSourceStreamSinkInfo::new);
+            SortSourceStreamSinkInfo sortSink =
+                    CommonBeanUtils.copyProperties(sinkEntity, SortSourceStreamSinkInfo::new);
             sortSink.setSortClusterName(sink.getInlongClusterName());
             if (SinkType.SORT_STANDALONE_SINK.contains(sink.getSinkType())) {
                 InlongStreamEntity streamEntity = streamEntityMapper.selectByIdentifier(sink.getInlongGroupId(),
