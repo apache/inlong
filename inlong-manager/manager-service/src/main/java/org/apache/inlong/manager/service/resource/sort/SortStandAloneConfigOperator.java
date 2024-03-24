@@ -160,6 +160,9 @@ public class SortStandAloneConfigOperator implements SortConfigOperator {
                 sortConfigEntity.setInlongClusterTag(groupInfo.getInlongClusterTag());
                 sortConfigEntityMapper.insert(sortConfigEntity);
             } else {
+                sortConfigEntity.setInlongClusterName(sinkEntity.getInlongClusterName());
+                sortConfigEntity.setSortTaskName(sinkEntity.getSortTaskName());
+                sortConfigEntity.setDataNodeName(sinkEntity.getDataNodeName());
                 sortConfigEntity.setSourceParams(objectMapper.writeValueAsString(topic));
                 sortConfigEntity.setClusterParams(objectMapper.writeValueAsString(params));
                 sortConfigEntity.setInlongClusterTag(groupInfo.getInlongClusterTag());
