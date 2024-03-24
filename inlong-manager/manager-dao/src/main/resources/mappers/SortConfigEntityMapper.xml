@@ -114,7 +114,7 @@
         and version = #{version,jdbcType=INTEGER}
     </update>
     <update id="logicDeleteBySinkId" parameterType="java.lang.Integer">
-        update sink_config
+        update sort_config
         set is_deleted = id
         where sink_id = #{sinkId,jdbcType=INTEGER}
           and is_deleted = 0
