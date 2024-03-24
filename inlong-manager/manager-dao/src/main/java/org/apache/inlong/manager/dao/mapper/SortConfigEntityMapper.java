@@ -41,4 +41,6 @@ public interface SortConfigEntityMapper {
     @Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = Integer.MIN_VALUE)
     Cursor<SortConfigEntity> selectAllSortConfigs();
 
+    boolean logicDeleteBySinkId(@Param("sinkId") Integer sinkId);
+
 }

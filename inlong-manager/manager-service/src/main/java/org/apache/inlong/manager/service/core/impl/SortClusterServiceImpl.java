@@ -95,6 +95,7 @@ public class SortClusterServiceImpl implements SortClusterService {
 
     // key : sort cluster name, value : error log
     private Map<String, String> sortClusterErrorLogMap = new ConcurrentHashMap<>();
+    private Map<String, String> sortClusterErrorLogMapV2 = new ConcurrentHashMap<>();
     // key: group id ,value: {key: stream id, value: stream info}
     private Map<String, Map<String, SortSourceStreamInfo>> allStreams;
 
@@ -392,6 +393,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                 })
                 .collect(Collectors.toMap(DataNodeInfo::getName, info -> info));
         Map<String, String> newMd5Map = new ConcurrentHashMap<>();
+        Map<String, String> newErrorLogMap = new ConcurrentHashMap<>();
         Map<String, SortClusterConfig> newConfigMap = new ConcurrentHashMap<>();
         List<SortConfigEntity> sortConfigEntityList = sortConfigLoader.loadAllSortConfigEntity();
         Map<String, Map<String, Map<String, List<SortConfigEntity>>>> cluster2SinkMap = sortConfigEntityList.stream()
@@ -399,40 +401,48 @@ public class SortClusterServiceImpl implements SortClusterService {
                         Collectors.groupingBy(SortConfigEntity::getSortTaskName,
                                 Collectors.groupingBy(SortConfigEntity::getDataNodeName))));
         for (String sortClusterName : cluster2SinkMap.keySet()) {
-            SortClusterConfig sortClusterConfig = newConfigMap.computeIfAbsent(sortClusterName,
-                    k -> SortClusterConfig.builder()
-                            .clusterName(sortClusterName)
-                            .sortTasks(new ArrayList<>())
-                            .build());
-            Map<String, Map<String, List<SortConfigEntity>>> sortTask2SinkMap = cluster2SinkMap.get(sortClusterName);
-            for (String sortTaskName : sortTask2SinkMap.keySet()) {
-                Map<String, List<SortConfigEntity>> dataNode2SinkMap = sortTask2SinkMap.get(sortTaskName);
-                for (String dataNodeName : dataNode2SinkMap.keySet()) {
-                    List<SortConfigEntity> sortConfigList = dataNode2SinkMap.get(dataNodeName);
-                    if (CollectionUtils.isEmpty(sortConfigList)) {
-                        continue;
-                    }
-                    try {
-                        String type = sortConfigList.get(0).getSinkType();
-                        DataNodeInfo nodeInfo = task2DataNodeMap.get(dataNodeName);
-                        SortTaskConfig sortTaskConfig = SortTaskConfig.builder()
-                                .name(sortTaskName)
-                                .type(type)
-                                .idParams(this.getIdParams(sortConfigList, nodeInfo))
-                                .sinkParams(this.parseSinkParams(nodeInfo))
-                                .build();
-                        sortClusterConfig.getSortTasks().add(sortTaskConfig);
-                    } catch (Exception e) {
-                        LOGGER.error("fail to parse sort task config of cluster={}", sortClusterName, e);
+            try {
+                SortClusterConfig sortClusterConfig = newConfigMap.computeIfAbsent(sortClusterName,
+                        k -> SortClusterConfig.builder()
+                                .clusterName(sortClusterName)
+                                .sortTasks(new ArrayList<>())
+                                .build());
+                Map<String, Map<String, List<SortConfigEntity>>> sortTask2SinkMap =
+                        cluster2SinkMap.get(sortClusterName);
+                for (String sortTaskName : sortTask2SinkMap.keySet()) {
+                    Map<String, List<SortConfigEntity>> dataNode2SinkMap = sortTask2SinkMap.get(sortTaskName);
+                    for (String dataNodeName : dataNode2SinkMap.keySet()) {
+                        List<SortConfigEntity> sortConfigList = dataNode2SinkMap.get(dataNodeName);
+                        if (CollectionUtils.isEmpty(sortConfigList)) {
+                            continue;
+                        }
+                        try {
+                            String type = sortConfigList.get(0).getSinkType();
+                            DataNodeInfo nodeInfo = task2DataNodeMap.get(dataNodeName);
+                            SortTaskConfig sortTaskConfig = SortTaskConfig.builder()
+                                    .name(sortTaskName)
+                                    .type(type)
+                                    .idParams(this.getIdParams(sortConfigList, nodeInfo))
+                                    .sinkParams(this.parseSinkParams(nodeInfo))
+                                    .build();
+                            sortClusterConfig.getSortTasks().add(sortTaskConfig);
+                        } catch (Exception e) {
+                            LOGGER.error("fail to parse sort task config of cluster={}", sortClusterName, e);
+                        }
                     }
                 }
                 String jsonStr = GSON.toJson(sortClusterConfig);
                 String md5 = DigestUtils.md5Hex(jsonStr);
                 newMd5Map.put(sortClusterName, md5);
+            } catch (Exception e) {
+                // if get config failed, update the err log.
+                String errMsg = Optional.ofNullable(e.getMessage()).orElse("Unknown error, please check logs");
+                newErrorLogMap.put(sortClusterName, errMsg);
+                LOGGER.error("Failed to update cluster config={}", sortClusterName, e);
             }
-            sortClusterConfigMapV2 = newConfigMap;
-            sortClusterMd5MapV2 = newMd5Map;
-
         }
+        sortClusterConfigMapV2 = newConfigMap;
+        sortClusterMd5MapV2 = newMd5Map;
+        sortClusterErrorLogMapV2 = newErrorLogMap;
     }
 }
