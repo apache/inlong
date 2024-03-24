@@ -152,6 +152,11 @@
             <artifactId>clickhouse-jdbc</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -230,6 +235,14 @@
                             <artifactId>sort-connector-kafka-v1.15</artifactId>
                             <version>${project.version}</version>
                             <destFileName>sort-connector-kafka.jar</destFileName>
+                            <type>jar</type>
+                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
+                        </artifactItem>
+                        <artifactItem>
+                            <groupId>org.apache.inlong</groupId>
+                            <artifactId>sort-connector-redis-v1.15</artifactId>
+                            <version>${project.version}</version>
+                            <destFileName>sort-connector-redis.jar</destFileName>
                             <type>jar</type>
                             <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
                         </artifactItem>

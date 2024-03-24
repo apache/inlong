@@ -27,32 +27,13 @@
     </parent>
 
     <artifactId>sort-connector-redis-v1.15</artifactId>
+    <packaging>jar</packaging>
     <name>Apache InLong - Sort-connector-redis</name>
 
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
     </properties>
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-shaded-jackson -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-shaded-jackson</artifactId>
-            <version>${flink.shaded.jackson}</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-table-api-java-bridge -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-api-java-bridge</artifactId>
-            <version>${flink.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-streaming-java</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.bahir</groupId>
             <artifactId>flink-connector-redis_${flink.scala.binary.version}</artifactId>
@@ -68,6 +49,18 @@
             <version>${project.version}</version>
         </dependency>
         <!--        test utils     -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-shaded-jackson</artifactId>
+            <version>${flink.shaded.jackson}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-api-java-bridge</artifactId>
+            <version>${flink.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-test-utils</artifactId>
@@ -99,7 +92,6 @@
             <version>${embedded.redis.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-planner_${flink.scala.binary.version}</artifactId>
@@ -114,16 +106,9 @@
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-planner_${flink.scala.binary.version}</artifactId>
+            <artifactId>flink-streaming-scala_${flink.scala.binary.version}</artifactId>
             <version>${flink.version}</version>
-            <type>test-jar</type>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.hbase</groupId>
-                    <artifactId>hbase-common</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -131,7 +116,6 @@
             <version>${flink.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-clients</artifactId>
@@ -149,6 +133,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+                <version>${plugin.shade.version}</version>
                 <executions>
                     <execution>
                         <id>shade-flink</id>
@@ -157,6 +142,22 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>org.apache.inlong:*</include>
+                                    <include>io.streamnative.connectors:flink-protobuf</include>
+                                    <include>org.apache.flink:flink-connector-base</include>
+                                    <include>org.apache.flink:flink-shaded-guava</include>
+                                    <include>org.apache.bahir:flink-connector-redis_${flink.scala.binary.version}</include>
+                                    <include>org.apache.commons:commons-lang3</include>
+                                    <include>org.apache.commons:commons-pool2</include>
+                                    <include>com.google.protobuf:*</include>
+                                    <include>javax.*:*</include>
+                                    <include>org.lz4*:*</include>
+                                    <include>org.slf4j:jul-to-slf4j</include>
+                                    <include>redis.clients:jedis</include>
+                                </includes>
+                            </artifactSet>
                             <filters>
                                 <filter>
                                     <artifact>org.apache.inlong:sort-connector-*</artifact>
@@ -167,6 +168,28 @@
                                     </includes>
                                 </filter>
                             </filters>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.apache.commons.pool2</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.redis.shaded.org.apache.commons.pool2</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons.logging</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.redis.shaded.org.apache.commons.logging</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons.lang3</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.redis.shaded.org.apache.commons.lang3</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.inlong.sort.base</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.redis.shaded.org.apache.inlong.sort.base</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.redis.shaded.com.google</shadedPattern>
+                                </relocation>
+                            </relocations>
                         </configuration>
                     </execution>
                 </executions>
