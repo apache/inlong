@@ -17,12 +17,14 @@
 
 package org.apache.inlong.manager.service.resource.sort;
 
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.pojo.sdk.Topic;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -123,6 +125,7 @@ public class SortStandAloneConfigOperator implements SortConfigOperator {
             return;
         }
         InlongGroupEntity groupEntity = groupEntityMapper.selectByGroupId(groupInfo.getInlongGroupId());
+        Preconditions.expectTrue(MQType.PULSAR.equals(groupEntity.getMqType()), "Standalone only support pulsar");
         SortSourceGroupInfo sortGroupInfo = CommonBeanUtils.copyProperties(groupEntity, SortSourceGroupInfo::new);
         sortGroupInfo.setGroupId(groupInfo.getInlongGroupId());
         sortGroupInfo.setClusterTag(groupInfo.getInlongClusterTag());
