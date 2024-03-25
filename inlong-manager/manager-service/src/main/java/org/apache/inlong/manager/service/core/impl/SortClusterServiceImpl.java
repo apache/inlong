@@ -194,9 +194,9 @@ public class SortClusterServiceImpl implements SortClusterService {
         }
 
         // if there is an error
-        if (sortClusterErrorLogMap.get(clusterName) != null) {
+        if (sortClusterErrorLogMapV2.get(clusterName) != null) {
             return SortClusterResponse.builder()
-                    .msg(sortClusterErrorLogMap.get(clusterName))
+                    .msg(sortClusterErrorLogMapV2.get(clusterName))
                     .code(RESPONSE_CODE_FAIL)
                     .build();
         }

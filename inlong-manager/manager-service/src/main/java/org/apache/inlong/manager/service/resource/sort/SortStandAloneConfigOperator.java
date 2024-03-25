@@ -175,7 +175,7 @@ public class SortStandAloneConfigOperator implements SortConfigOperator {
             LOGGER.error("fail to parse id params of groupId={}, streamId={} name={}, type={}",
                     sinkEntity.getInlongGroupId(), sinkEntity.getInlongStreamId(),
                     sinkEntity.getSinkName(), sinkEntity.getSinkType(), e);
-            throw new BusinessException("faild to save sort config for sinkId" + sinkEntity.getId());
+            throw new BusinessException("failed to save sort config for sinkId" + sinkEntity.getId());
 
         }
     }
@@ -188,17 +188,14 @@ public class SortStandAloneConfigOperator implements SortConfigOperator {
             SortSourceClusterInfo cluster =
                     CommonBeanUtils.copyProperties(clusterEntityList.get(0), SortSourceClusterInfo::new);
             Map<String, String> param = cluster.getExtParamsMap();
-            String tenant = Optional.ofNullable(param.get(KEY_NEW_TENANT)).orElse(param.get(KEY_OLD_TENANT));
             String namespace = sortGroupInfo.getMqResource();
             String topic = streamEntity.getMqResource();
-            String fullTopic = tenant + InlongConstants.SLASH + namespace + InlongConstants.SLASH + topic;
             Map<String, String> groupExt = sortGroupInfo.getExtParamsMap();
-            String groupTenant = Optional
-                    .ofNullable(groupExt.get(KEY_NEW_TENANT))
-                    .orElse(groupExt.get(KEY_OLD_TENANT));
-            if (StringUtils.isNotBlank(groupTenant)) {
-                fullTopic = groupTenant + InlongConstants.SLASH + namespace + InlongConstants.SLASH + topic;
-            }
+            String groupTenant = Optional.ofNullable(groupExt.get(KEY_NEW_TENANT)).orElse(groupExt.get(KEY_OLD_TENANT));
+            String tenant = StringUtils.isNotBlank(groupTenant)
+                    ? groupTenant
+                    : Optional.ofNullable(param.get(KEY_NEW_TENANT)).orElse(param.get(KEY_OLD_TENANT));
+            String fullTopic = tenant + InlongConstants.SLASH + namespace + InlongConstants.SLASH + topic;
 
             return Topic.builder()
                     .topic(fullTopic)
