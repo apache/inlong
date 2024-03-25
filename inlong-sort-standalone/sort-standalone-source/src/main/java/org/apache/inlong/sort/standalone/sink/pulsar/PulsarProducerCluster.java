@@ -55,7 +55,7 @@ public class PulsarProducerCluster implements LifecycleAware {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(PulsarProducerCluster.class);
 
-    private static final String DEFAULT_COMPRESS_TYPE = "SNAPPY";
+    private static final String DEFAULT_COMPRESS_TYPE = "ZLIB";
     public static final String KEY_SERVICE_URL = "serviceUrl";
     public static final String KEY_AUTHENTICATION = "authentication";
     public static final String KEY_STATS_INTERVAL_SECONDS = "statsIntervalSeconds";
