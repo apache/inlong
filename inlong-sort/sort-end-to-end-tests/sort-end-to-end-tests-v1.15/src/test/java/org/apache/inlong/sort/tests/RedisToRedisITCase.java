@@ -42,7 +42,7 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 public class RedisToRedisITCase extends FlinkContainerTestEnv {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RedisToRedisITCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RedisContainer.class);
     private static final Path redisJar = TestUtils.getResource("sort-connector-redis.jar");
     private static final String sqlFile;
     private static Jedis jedisSource;
