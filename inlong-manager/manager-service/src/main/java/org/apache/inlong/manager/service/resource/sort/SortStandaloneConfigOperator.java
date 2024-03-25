@@ -65,9 +65,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class SortStandAloneConfigOperator implements SortConfigOperator {
+public class SortStandaloneConfigOperator implements SortConfigOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SortStandAloneConfigOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SortStandaloneConfigOperator.class);
     private static final String KEY_OLD_TENANT = "tenant";
     private static final String KEY_NEW_TENANT = "pulsarTenant";
 
