@@ -40,6 +40,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.SubSourceRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.user.UserInfo;
@@ -628,5 +629,13 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         request.setInlongGroupId(entity.getInlongGroupId());
         request.setInlongStreamId(entity.getInlongStreamId());
         request.setSourceName(entity.getSourceName());
+    }
+
+    @Override
+    public Integer addSub(SubSourceRequest request, String operator) {
+        StreamSourceEntity entity = sourceMapper.selectById(request.getSourceId());
+        StreamSourceOperator sourceOperator = operatorFactory.getInstance(entity.getSourceType());
+        int id = sourceOperator.addSubSource(request, operator);
+        return id;
     }
 }

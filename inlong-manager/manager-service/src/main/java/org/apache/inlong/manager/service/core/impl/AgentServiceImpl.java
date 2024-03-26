@@ -140,6 +140,13 @@ public class AgentServiceImpl implements AgentService {
     private Boolean sourceCleanEnabled;
     @Value("${source.cleansing.interval:600}")
     private Integer cleanInterval;
+    @Value("${subSource.cleansing.enabled:false}")
+    private Boolean subSourceCleanEnabled;
+    @Value("${subSource.cleansing.interval:10}")
+    private Integer subSourceCleanInterval;
+    @Value("${subSource.delete.days:7}")
+    private Integer beforeDays;
+
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
@@ -201,6 +208,22 @@ public class AgentServiceImpl implements AgentService {
                 }
             }, 0, cleanInterval, TimeUnit.SECONDS);
             LOGGER.info("clean task started successfully");
+        }
+        if (subSourceCleanEnabled) {
+            ThreadFactory factory = new ThreadFactoryBuilder()
+                    .setNameFormat("scheduled-subSource-deleted-%d")
+                    .setDaemon(true)
+                    .build();
+            ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(factory);
+            executor.scheduleWithFixedDelay(() -> {
+                try {
+                    sourceMapper.logicalDeleteByTimeout(beforeDays);
+                    LOGGER.info("clean sub task successfully");
+                } catch (Throwable t) {
+                    LOGGER.error("clean sub task error", t);
+                }
+            }, 0, subSourceCleanInterval, TimeUnit.SECONDS);
+            LOGGER.info("clean sub task started successfully");
         }
     }
 

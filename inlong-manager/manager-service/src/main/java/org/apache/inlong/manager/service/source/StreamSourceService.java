@@ -22,6 +22,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.SubSourceRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
@@ -228,5 +229,14 @@ public interface StreamSourceService {
     default Boolean updateAfterApprove(String operator) {
         return true;
     }
+
+    /**
+     * Save the sub source information
+     *
+     * @param request Source request.
+     * @param operator Operator's name.
+     * @return source id after saving.
+     */
+    Integer addSub(SubSourceRequest request, String operator);
 
 }

@@ -190,6 +190,11 @@ public interface StreamSourceEntityMapper {
      */
     void updateStatusByDeleted();
 
+    /**
+     * Logic delete the sub source by modifiy time
+     */
+    void logicalDeleteByTimeout(@Param("beforeDay") Integer beforeDays);
+
     int logicalDeleteByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("status") Integer status);
 

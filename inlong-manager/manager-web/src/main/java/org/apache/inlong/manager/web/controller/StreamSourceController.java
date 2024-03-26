@@ -26,6 +26,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.SubSourceRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.source.StreamSourceService;
@@ -116,6 +117,12 @@ public class StreamSourceController {
     public Response<Boolean> forceDelete(@RequestParam String inlongGroupId, @RequestParam String inlongStreamId) {
         return Response.success(
                 sourceService.forceDelete(inlongGroupId, inlongStreamId, LoginUserUtils.getLoginUser().getName()));
+    }
+
+    @RequestMapping(value = "/source/addSub", method = RequestMethod.POST)
+    @ApiOperation(value = "Add supplementary recording task for stream source")
+    public Response<Integer> addSub(@RequestBody SubSourceRequest request) {
+        return Response.success(sourceService.addSub(request, LoginUserUtils.getLoginUser().getName()));
     }
 
 }

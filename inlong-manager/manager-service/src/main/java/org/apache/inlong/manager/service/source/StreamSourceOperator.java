@@ -22,6 +22,7 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.SubSourceRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 
@@ -125,5 +126,14 @@ public interface StreamSourceOperator {
      * @param operator operator
      */
     void syncSourceFieldInfo(SourceRequest request, String operator);
+
+    /**
+     * Save the sub source info.
+     *
+     * @param request request of sub source
+     * @param operator name of operator
+     * @return source id after saving
+     */
+    Integer addSubSource(SubSourceRequest request, String operator);
 
 }

@@ -34,6 +34,7 @@ import org.apache.inlong.manager.dao.mapper.StreamSourceFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.SubSourceRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.node.DataNodeService;
 
@@ -337,5 +338,11 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public void syncSourceFieldInfo(SourceRequest request, String operator) {
         LOGGER.info("not support sync source field info for type ={}", request.getSourceType());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
+    public Integer addSubSource(SubSourceRequest request, String operator) {
+        throw new BusinessException(String.format("not support add sub source for type =%s", request.getSourceType()));
     }
 }

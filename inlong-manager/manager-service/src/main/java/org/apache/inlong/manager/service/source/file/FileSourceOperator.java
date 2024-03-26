@@ -26,15 +26,22 @@ import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.SubSourceDTO;
+import org.apache.inlong.manager.pojo.source.SubSourceRequest;
 import org.apache.inlong.manager.pojo.source.file.FileSource;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceRequest;
+import org.apache.inlong.manager.pojo.source.file.FileSubSourceRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,6 +51,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class FileSourceOperator extends AbstractSourceOperator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileSourceOperator.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -96,6 +105,31 @@ public class FileSourceOperator extends AbstractSourceOperator {
                 .status(subEntity.getStatus()).build())
                 .collect(Collectors.toList()));
         return source;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
+    public Integer addSubSource(SubSourceRequest request, String operator) {
+        FileSubSourceRequest sourceRequest = (FileSubSourceRequest) request;
+        StreamSourceEntity sourceEntity = sourceMapper.selectById(request.getSourceId());
+        try {
+            List<StreamSourceEntity> subSourceList = sourceMapper.selectByTemplateId(sourceEntity.getId());
+            int subSourceSize = CollectionUtils.isNotEmpty(subSourceList) ? subSourceList.size() : 0;
+            FileSourceDTO dto = FileSourceDTO.getFromJson(sourceEntity.getExtParams());
+            dto.setStartTime(sourceRequest.getStartTime());
+            dto.setEndTime(sourceRequest.getEndTime());
+            dto.setRetry(true);
+            StreamSourceEntity subSourceEntity = CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
+            subSourceEntity.setId(null);
+            subSourceEntity.setSourceName(sourceEntity.getSourceName() + "-" + (subSourceSize + 1));
+            subSourceEntity.setExtParams(objectMapper.writeValueAsString(dto));
+            subSourceEntity.setTemplateId(sourceEntity.getId());
+            return sourceMapper.insert(subSourceEntity);
+        } catch (Exception e) {
+            LOGGER.error("serialize extParams of File SourceDTO failure: ", e);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("serialize extParams of File SourceDTO failure: %s", e.getMessage()));
+        }
     }
 
 }

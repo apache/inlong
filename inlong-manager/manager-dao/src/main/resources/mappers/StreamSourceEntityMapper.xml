@@ -549,7 +549,18 @@
             and status not in (99, 201, 301)
         </where>
     </update>
-
+    <update id="logicalDeleteByTimeout">
+        update stream_source
+        <set>
+            is_deleted = id,
+            status = 99
+        </set>
+        <where>
+            is_deleted = 0
+            and template_id is not null
+            and modify_time &lt;= DATE_ADD(NOW(), INTERVAL -#{beforeSeconds, jdbcType=INTEGER} DAY)
+        </where>
+    </update>
     <update id="logicalDeleteByRelatedId">
         update stream_source
         <set>
