@@ -142,7 +142,7 @@ public class AgentServiceImpl implements AgentService {
     private Integer cleanInterval;
     @Value("${dataAddTask.clean.enabled:false}")
     private Boolean dataAddTaskCleanEnabled;
-    @Value("${dataAddTask.clean.interval:10}")
+    @Value("${dataAddTask.clean.secondsInterval:10}")
     private Integer dataAddTaskCleanInterval;
     @Value("${dataAddTask.retention.days:7}")
     private Integer retentionDays;

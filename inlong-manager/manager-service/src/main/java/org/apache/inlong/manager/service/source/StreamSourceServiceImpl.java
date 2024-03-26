@@ -633,9 +633,11 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
     @Override
     public Integer addDataAddTask(DataAddTaskRequest request, String operator) {
+        LOGGER.info("begin to add data add task info: {}", request);
         StreamSourceEntity entity = sourceMapper.selectById(request.getSourceId());
         StreamSourceOperator sourceOperator = operatorFactory.getInstance(entity.getSourceType());
         int id = sourceOperator.addDataAddTask(request, operator);
+        LOGGER.info("success to add data add task info: {}", request);
         return id;
     }
 }
