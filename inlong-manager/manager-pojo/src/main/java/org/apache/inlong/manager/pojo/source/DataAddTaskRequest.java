@@ -31,7 +31,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 @ApiModel("Stream sub source request")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sourceType")
-public class SubSourceRequest {
+public class DataAddTaskRequest {
 
     @ApiModelProperty(value = "Source ID")
     private Integer sourceId;

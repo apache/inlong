@@ -19,7 +19,7 @@ package org.apache.inlong.manager.pojo.source.file;
 
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.source.SubSourceRequest;
+import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -32,7 +32,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = SourceType.FILE)
 @ApiModel(value = "File sub source request")
-public class FileSubSourceRequest extends SubSourceRequest {
+public class FileDataAddTaskRequest extends DataAddTaskRequest {
 
     @ApiModelProperty("Start time")
     private Long startTime;

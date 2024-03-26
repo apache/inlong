@@ -43,13 +43,13 @@ public interface StreamSourceEntityMapper {
     StreamSourceEntity selectForAgentTask(Integer id);
 
     /**
-     * Select one sub source by template id and agent ip.
+     * Select one sub source by task map id and agent ip.
      *
-     * @param templateId template id
+     * @param taskMapId template id
      * @param agentIp agent ip
      * @return stream source info
      */
-    StreamSourceEntity selectOneByTemplatedIdAndAgentIp(@Param("templateId") Integer templateId,
+    StreamSourceEntity selectOneByTaskMapIdAndAgentIp(@Param("taskMapId") Integer taskMapId,
             @Param("agentIp") String agentIp);
 
     /**
@@ -113,7 +113,7 @@ public interface StreamSourceEntityMapper {
     /**
      * Select all sub sources by template id
      */
-    List<StreamSourceEntity> selectByTemplateId(@Param("templateId") Integer templateId);
+    List<StreamSourceEntity> selectByTaskMapId(@Param("taskMapId") Integer taskMapId);
 
     /**
      * Get the distinct source type from the given groupId and streamId
@@ -193,7 +193,7 @@ public interface StreamSourceEntityMapper {
     /**
      * Logic delete the sub source by modifiy time
      */
-    void logicalDeleteByTimeout(@Param("beforeDay") Integer beforeDays);
+    void logicalDeleteByTimeout(@Param("retentionDays") Integer retentionDays);
 
     int logicalDeleteByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("status") Integer status);

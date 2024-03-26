@@ -112,10 +112,10 @@ public abstract class StreamSource extends StreamNode {
     private Map<String, Object> properties = new LinkedHashMap<>();
 
     @ApiModelProperty("Null if not a sub source")
-    private Integer templateId;
+    private Integer taskMapId;
 
     @ApiModelProperty("Sub source information of existing agents")
-    private List<SubSourceDTO> subSourceList;
+    private List<DataAddTaskTaskDTO> dataAddTaskList;
 
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value, true as default")
     private Boolean ignoreParseError;

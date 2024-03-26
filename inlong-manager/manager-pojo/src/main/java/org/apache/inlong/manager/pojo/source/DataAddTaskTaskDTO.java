@@ -36,13 +36,13 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class SubSourceDTO {
+public class DataAddTaskTaskDTO {
 
     @ApiModelProperty("stream source id")
     private Integer id;
 
-    @ApiModelProperty("Template source id this sub source belongs to")
-    private Integer templateId;
+    @ApiModelProperty("Main source id this sub source belongs to")
+    private Integer taskMapId;
 
     @ApiModelProperty("Agent ip of sub source")
     private String agentIp;
@@ -50,9 +50,9 @@ public class SubSourceDTO {
     @ApiModelProperty("Status of sub source")
     private Integer status;
 
-    public static SubSourceDTO getFromJson(@NotNull String extParams) {
+    public static DataAddTaskTaskDTO getFromJson(@NotNull String extParams) {
         try {
-            return JsonUtils.parseObject(extParams, SubSourceDTO.class);
+            return JsonUtils.parseObject(extParams, DataAddTaskTaskDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }

@@ -23,14 +23,14 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
+import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
+import org.apache.inlong.manager.pojo.source.DataAddTaskTaskDTO;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
-import org.apache.inlong.manager.pojo.source.SubSourceDTO;
-import org.apache.inlong.manager.pojo.source.SubSourceRequest;
+import org.apache.inlong.manager.pojo.source.file.FileDataAddTaskRequest;
 import org.apache.inlong.manager.pojo.source.file.FileSource;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceRequest;
-import org.apache.inlong.manager.pojo.source.file.FileSubSourceRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 
@@ -97,10 +97,10 @@ public class FileSourceOperator extends AbstractSourceOperator {
         List<StreamField> sourceFields = super.getSourceFields(entity.getId());
         source.setFieldList(sourceFields);
 
-        List<StreamSourceEntity> subSourceList = sourceMapper.selectByTemplateId(entity.getId());
-        source.setSubSourceList(subSourceList.stream().map(subEntity -> SubSourceDTO.builder()
+        List<StreamSourceEntity> dataAddTaskList = sourceMapper.selectByTaskMapId(entity.getId());
+        source.setDataAddTaskList(dataAddTaskList.stream().map(subEntity -> DataAddTaskTaskDTO.builder()
                 .id(subEntity.getId())
-                .templateId(entity.getId())
+                .taskMapId(entity.getId())
                 .agentIp(subEntity.getAgentIp())
                 .status(subEntity.getStatus()).build())
                 .collect(Collectors.toList()));
@@ -109,22 +109,23 @@ public class FileSourceOperator extends AbstractSourceOperator {
 
     @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
-    public Integer addSubSource(SubSourceRequest request, String operator) {
-        FileSubSourceRequest sourceRequest = (FileSubSourceRequest) request;
+    public Integer addDataAddTask(DataAddTaskRequest request, String operator) {
+        FileDataAddTaskRequest sourceRequest = (FileDataAddTaskRequest) request;
         StreamSourceEntity sourceEntity = sourceMapper.selectById(request.getSourceId());
         try {
-            List<StreamSourceEntity> subSourceList = sourceMapper.selectByTemplateId(sourceEntity.getId());
-            int subSourceSize = CollectionUtils.isNotEmpty(subSourceList) ? subSourceList.size() : 0;
+            List<StreamSourceEntity> dataAddTaskList = sourceMapper.selectByTaskMapId(sourceEntity.getId());
+            int dataAddTaskSize = CollectionUtils.isNotEmpty(dataAddTaskList) ? dataAddTaskList.size() : 0;
             FileSourceDTO dto = FileSourceDTO.getFromJson(sourceEntity.getExtParams());
             dto.setStartTime(sourceRequest.getStartTime());
             dto.setEndTime(sourceRequest.getEndTime());
             dto.setRetry(true);
-            StreamSourceEntity subSourceEntity = CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
-            subSourceEntity.setId(null);
-            subSourceEntity.setSourceName(sourceEntity.getSourceName() + "-" + (subSourceSize + 1));
-            subSourceEntity.setExtParams(objectMapper.writeValueAsString(dto));
-            subSourceEntity.setTemplateId(sourceEntity.getId());
-            return sourceMapper.insert(subSourceEntity);
+            StreamSourceEntity dataAddTaskEntity =
+                    CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
+            dataAddTaskEntity.setId(null);
+            dataAddTaskEntity.setSourceName(sourceEntity.getSourceName() + "-" + (dataAddTaskSize + 1));
+            dataAddTaskEntity.setExtParams(objectMapper.writeValueAsString(dto));
+            dataAddTaskEntity.setTaskMapId(sourceEntity.getId());
+            return sourceMapper.insert(dataAddTaskEntity);
         } catch (Exception e) {
             LOGGER.error("serialize extParams of File SourceDTO failure: ", e);
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,

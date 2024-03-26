@@ -140,12 +140,12 @@ public class AgentServiceImpl implements AgentService {
     private Boolean sourceCleanEnabled;
     @Value("${source.cleansing.interval:600}")
     private Integer cleanInterval;
-    @Value("${subSource.cleansing.enabled:false}")
-    private Boolean subSourceCleanEnabled;
-    @Value("${subSource.cleansing.interval:10}")
-    private Integer subSourceCleanInterval;
-    @Value("${subSource.delete.days:7}")
-    private Integer beforeDays;
+    @Value("${dataAddTask.clean.enabled:false}")
+    private Boolean dataAddTaskCleanEnabled;
+    @Value("${dataAddTask.clean.interval:10}")
+    private Integer dataAddTaskCleanInterval;
+    @Value("${dataAddTask.retention.days:7}")
+    private Integer retentionDays;
 
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
@@ -209,7 +209,7 @@ public class AgentServiceImpl implements AgentService {
             }, 0, cleanInterval, TimeUnit.SECONDS);
             LOGGER.info("clean task started successfully");
         }
-        if (subSourceCleanEnabled) {
+        if (dataAddTaskCleanEnabled) {
             ThreadFactory factory = new ThreadFactoryBuilder()
                     .setNameFormat("scheduled-subSource-deleted-%d")
                     .setDaemon(true)
@@ -217,12 +217,12 @@ public class AgentServiceImpl implements AgentService {
             ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(factory);
             executor.scheduleWithFixedDelay(() -> {
                 try {
-                    sourceMapper.logicalDeleteByTimeout(beforeDays);
+                    sourceMapper.logicalDeleteByTimeout(retentionDays);
                     LOGGER.info("clean sub task successfully");
                 } catch (Throwable t) {
                     LOGGER.error("clean sub task error", t);
                 }
-            }, 0, subSourceCleanInterval, TimeUnit.SECONDS);
+            }, 0, dataAddTaskCleanInterval, TimeUnit.SECONDS);
             LOGGER.info("clean sub task started successfully");
         }
     }
@@ -464,7 +464,7 @@ public class AgentServiceImpl implements AgentService {
 
     /**
      * Add subtasks to template tasks.
-     * (Template task are agent_ip is null and template_id is null)
+     * (Template task are agent_ip is null and task_map_id is null)
      */
     private void preProcessTemplateFileTask(TaskRequest taskRequest) {
         List<Integer> needCopiedStatusList = Arrays.asList(SourceStatus.TO_BE_ISSUED_ADD.getCode(),
@@ -486,7 +486,7 @@ public class AgentServiceImpl implements AgentService {
                     if (groupEntity != null && noNeedAddTask.contains(GroupStatus.forCode(groupEntity.getStatus()))) {
                         return;
                     }
-                    StreamSourceEntity subSource = sourceMapper.selectOneByTemplatedIdAndAgentIp(sourceEntity.getId(),
+                    StreamSourceEntity subSource = sourceMapper.selectOneByTaskMapIdAndAgentIp(sourceEntity.getId(),
                             agentIp);
                     if (subSource == null) {
                         InlongClusterNodeEntity clusterNodeEntity = selectByIpAndCluster(agentClusterName, agentIp);
@@ -497,7 +497,7 @@ public class AgentServiceImpl implements AgentService {
                                     CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
                             fileEntity.setSourceName(fileEntity.getSourceName() + "-"
                                     + RandomStringUtils.randomAlphanumeric(10).toLowerCase(Locale.ROOT));
-                            fileEntity.setTemplateId(sourceEntity.getId());
+                            fileEntity.setTaskMapId(sourceEntity.getId());
                             fileEntity.setAgentIp(agentIp);
                             fileEntity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
                             // create new sub source task

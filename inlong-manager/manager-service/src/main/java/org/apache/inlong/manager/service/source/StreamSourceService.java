@@ -19,10 +19,10 @@ package org.apache.inlong.manager.service.source;
 
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
 import org.apache.inlong.manager.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
-import org.apache.inlong.manager.pojo.source.SubSourceRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
@@ -237,6 +237,6 @@ public interface StreamSourceService {
      * @param operator Operator's name.
      * @return source id after saving.
      */
-    Integer addSub(SubSourceRequest request, String operator);
+    Integer addDataAddTask(DataAddTaskRequest request, String operator);
 
 }

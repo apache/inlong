@@ -32,9 +32,9 @@ import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
-import org.apache.inlong.manager.pojo.source.SubSourceRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.node.DataNodeService;
 
@@ -342,7 +342,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
 
     @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
-    public Integer addSubSource(SubSourceRequest request, String operator) {
+    public Integer addDataAddTask(DataAddTaskRequest request, String operator) {
         throw new BusinessException(String.format("not support add sub source for type =%s", request.getSourceType()));
     }
 }
