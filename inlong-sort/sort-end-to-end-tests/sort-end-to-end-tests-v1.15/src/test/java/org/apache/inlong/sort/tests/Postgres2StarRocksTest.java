@@ -52,9 +52,9 @@ import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStar
  * End-to-end tests for sort-connector-postgres-cdc-v1.15 uber jar.
  * Test flink sql Postgres cdc to StarRocks
  */
-public class PostgresToStarRocksITCase extends FlinkContainerTestEnv {
+public class Postgres2StarRocksTest extends FlinkContainerTestEnv {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PostgresToStarRocksITCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Postgres2StarRocksTest.class);
 
     private static final Path postgresJar = TestUtils.getResource("sort-connector-postgres-cdc.jar");
     private static final Path jdbcJar = TestUtils.getResource("sort-connector-starrocks.jar");
@@ -63,7 +63,7 @@ public class PostgresToStarRocksITCase extends FlinkContainerTestEnv {
 
     static {
         try {
-            sqlFile = Paths.get(PostgresToStarRocksITCase.class.getResource("/flinkSql/postgres_test.sql").toURI())
+            sqlFile = Paths.get(Postgres2StarRocksTest.class.getResource("/flinkSql/postgres_test.sql").toURI())
                     .toString();
             buildStarRocksImage();
         } catch (URISyntaxException e) {

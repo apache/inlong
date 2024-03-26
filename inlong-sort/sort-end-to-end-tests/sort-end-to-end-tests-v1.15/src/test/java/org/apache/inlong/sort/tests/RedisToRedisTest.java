@@ -40,9 +40,9 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertEquals;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
-public class RedisToRedisITCase extends FlinkContainerTestEnv {
+public class RedisToRedisTest extends FlinkContainerTestEnv {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RedisContainer.class);
+     private static final Logger LOG = LoggerFactory.getLogger(RedisContainer.class);
     private static final Path redisJar = TestUtils.getResource("sort-connector-redis.jar");
     private static final String sqlFile;
     private static Jedis jedisSource;
@@ -50,7 +50,7 @@ public class RedisToRedisITCase extends FlinkContainerTestEnv {
 
     static {
         try {
-            sqlFile = Paths.get(RedisToRedisITCase.class.getResource("/flinkSql/redis_test.sql").toURI())
+            sqlFile = Paths.get(RedisToRedisTest.class.getResource("/flinkSql/redis_test.sql").toURI())
                     .toString();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -64,6 +64,7 @@ public class RedisToRedisITCase extends FlinkContainerTestEnv {
                     .withNetwork(NETWORK)
                     .withNetworkAliases("redis_source")
                     .withLogConsumer(new Slf4jLogConsumer(LOG));
+    ;
 
     @ClassRule
     public static final RedisContainer REDIS_CONTAINER_SINK = new RedisContainer(
@@ -72,7 +73,6 @@ public class RedisToRedisITCase extends FlinkContainerTestEnv {
                     .withNetwork(NETWORK)
                     .withNetworkAliases("redis_sink")
                     .withLogConsumer(new Slf4jLogConsumer(LOG));
-
     @Before
     public void setup() {
         waitUntilJobRunning(Duration.ofSeconds(30));

@@ -63,9 +63,9 @@ import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStar
 /**
  * End-to-end tests for sort-connector-kafka uber jar.
  */
-public class KafkaE2EITCase extends FlinkContainerTestEnv {
+public class Kafka2StarRocksTest extends FlinkContainerTestEnv {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KafkaE2EITCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Kafka2StarRocksTest.class);
 
     public static final Logger MYSQL_LOG = LoggerFactory.getLogger(MySqlContainer.class);
 
@@ -81,7 +81,7 @@ public class KafkaE2EITCase extends FlinkContainerTestEnv {
     static {
         try {
             URI kafkaSqlFile =
-                    Objects.requireNonNull(KafkaE2EITCase.class.getResource("/flinkSql/kafka_test.sql")).toURI();
+                    Objects.requireNonNull(Kafka2StarRocksTest.class.getResource("/flinkSql/kafka_test.sql")).toURI();
             sqlFile = Paths.get(kafkaSqlFile).toString();
             buildStarRocksImage();
         } catch (URISyntaxException e) {
@@ -178,7 +178,7 @@ public class KafkaE2EITCase extends FlinkContainerTestEnv {
     }
 
     private String getCreateStatement(String fileName, Map<String, Object> properties) {
-        URL url = Objects.requireNonNull(KafkaE2EITCase.class.getResource("/env/" + fileName));
+        URL url = Objects.requireNonNull(Kafka2StarRocksTest.class.getResource("/env/" + fileName));
 
         try {
             Path file = Paths.get(url.toURI());
