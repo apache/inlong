@@ -42,7 +42,7 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 public class RedisToRedisTest extends FlinkContainerTestEnv {
 
-     private static final Logger LOG = LoggerFactory.getLogger(RedisContainer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RedisContainer.class);
     private static final Path redisJar = TestUtils.getResource("sort-connector-redis.jar");
     private static final String sqlFile;
     private static Jedis jedisSource;
@@ -64,8 +64,6 @@ public class RedisToRedisTest extends FlinkContainerTestEnv {
                     .withNetwork(NETWORK)
                     .withNetworkAliases("redis_source")
                     .withLogConsumer(new Slf4jLogConsumer(LOG));
-    ;
-
     @ClassRule
     public static final RedisContainer REDIS_CONTAINER_SINK = new RedisContainer(
             DockerImageName.parse("redis:6.2.14"))
