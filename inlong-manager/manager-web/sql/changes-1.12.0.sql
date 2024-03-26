@@ -24,5 +24,8 @@ SET FOREIGN_KEY_CHECKS = 0;
 USE `apache_inlong_manager`;
 
 ALTER TABLE `stream_source` ADD COLUMN  `data_time_zone` varchar(256) DEFAULT NULL COMMENT 'Data time zone';
+DROP INDEX `source_template_id_index` ON `stream_source`;
+CREATE INDEX source_task_map_id_index ON `stream_source` (`task_map_id`);
 
+ALTER TABLE `stream_source` CHANGE template_id task_map_id int(11) DEFAULT NULL COMMENT 'Id of the task this agent belongs to';
 
