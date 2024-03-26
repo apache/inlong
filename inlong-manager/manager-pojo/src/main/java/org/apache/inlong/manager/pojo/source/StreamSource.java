@@ -115,7 +115,7 @@ public abstract class StreamSource extends StreamNode {
     private Integer taskMapId;
 
     @ApiModelProperty("Sub source information of existing agents")
-    private List<DataAddTaskTaskDTO> dataAddTaskList;
+    private List<DataAddTaskDTO> dataAddTaskList;
 
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value, true as default")
     private Boolean ignoreParseError;

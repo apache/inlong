@@ -36,7 +36,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class DataAddTaskTaskDTO {
+public class DataAddTaskDTO {
 
     @ApiModelProperty("stream source id")
     private Integer id;
@@ -50,9 +50,9 @@ public class DataAddTaskTaskDTO {
     @ApiModelProperty("Status of sub source")
     private Integer status;
 
-    public static DataAddTaskTaskDTO getFromJson(@NotNull String extParams) {
+    public static DataAddTaskDTO getFromJson(@NotNull String extParams) {
         try {
-            return JsonUtils.parseObject(extParams, DataAddTaskTaskDTO.class);
+            return JsonUtils.parseObject(extParams, DataAddTaskDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }

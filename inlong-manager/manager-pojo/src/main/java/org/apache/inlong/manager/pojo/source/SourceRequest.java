@@ -119,6 +119,6 @@ public class SourceRequest {
 
     @JsonIgnore
     @ApiModelProperty("Sub source information of existing agents")
-    private List<DataAddTaskTaskDTO> dataAddTaskList;
+    private List<DataAddTaskDTO> dataAddTaskList;
 
 }

@@ -24,7 +24,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
-import org.apache.inlong.manager.pojo.source.DataAddTaskTaskDTO;
+import org.apache.inlong.manager.pojo.source.DataAddTaskDTO;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.file.FileDataAddTaskRequest;
@@ -98,7 +98,7 @@ public class FileSourceOperator extends AbstractSourceOperator {
         source.setFieldList(sourceFields);
 
         List<StreamSourceEntity> dataAddTaskList = sourceMapper.selectByTaskMapId(entity.getId());
-        source.setDataAddTaskList(dataAddTaskList.stream().map(subEntity -> DataAddTaskTaskDTO.builder()
+        source.setDataAddTaskList(dataAddTaskList.stream().map(subEntity -> DataAddTaskDTO.builder()
                 .id(subEntity.getId())
                 .taskMapId(entity.getId())
                 .agentIp(subEntity.getAgentIp())
