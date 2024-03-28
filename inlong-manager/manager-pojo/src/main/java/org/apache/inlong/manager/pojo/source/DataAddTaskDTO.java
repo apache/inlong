@@ -30,7 +30,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotNull;
 
 /**
- * Sub source information data per agent
+ * Data add task information
  */
 @Builder
 @AllArgsConstructor

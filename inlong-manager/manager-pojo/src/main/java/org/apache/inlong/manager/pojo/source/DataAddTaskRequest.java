@@ -26,10 +26,10 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.NotBlank;
 
 /**
- * Stream sub source request
+ * Data add task information
  */
 @Data
-@ApiModel("Stream sub source request")
+@ApiModel("Data add task request")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sourceType")
 public class DataAddTaskRequest {
 

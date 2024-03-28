@@ -118,7 +118,7 @@ public class SourceRequest {
     private Map<String, Object> properties = new LinkedHashMap<>();
 
     @JsonIgnore
-    @ApiModelProperty("Sub source information of existing agents")
+    @ApiModelProperty("Data add task information of existing agents")
     private List<DataAddTaskDTO> dataAddTaskList;
 
 }
