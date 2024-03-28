@@ -130,7 +130,8 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
                     LOGGER.warn("exception caught", ex);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
                 } finally {
-                    AgentUtils.silenceSleepInSeconds(conf.getInt(AGENT_FETCHER_INTERVAL, DEFAULT_AGENT_FETCHER_INTERVAL));
+                    AgentUtils
+                            .silenceSleepInSeconds(conf.getInt(AGENT_FETCHER_INTERVAL, DEFAULT_AGENT_FETCHER_INTERVAL));
                 }
             }
         };
