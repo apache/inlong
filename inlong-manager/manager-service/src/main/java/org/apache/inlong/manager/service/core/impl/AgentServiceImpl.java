@@ -136,15 +136,15 @@ public class AgentServiceImpl implements AgentService {
     private Integer beforeSeconds;
     @Value("${source.update.interval:60}")
     private Integer updateTaskInterval;
-    @Value("${source.cleansing.enabled:false}")
+    @Value("${source.clean.enabled:false}")
     private Boolean sourceCleanEnabled;
-    @Value("${source.cleansing.interval:600}")
+    @Value("${source.clean.interval.seconds:600}")
     private Integer cleanInterval;
-    @Value("${dataAddTask.clean.enabled:false}")
+    @Value("${add.task.clean.enabled:false}")
     private Boolean dataAddTaskCleanEnabled;
-    @Value("${dataAddTask.clean.interval:10}")
+    @Value("${add.task.clean.interval.seconds:10}")
     private Integer dataAddTaskCleanInterval;
-    @Value("${dataAddTask.retention.days:7}")
+    @Value("${add.task.retention.days:7}")
     private Integer retentionDays;
 
     @Autowired

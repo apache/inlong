@@ -56,7 +56,7 @@ public class DeleteStreamSourceTask extends TimerTask implements InitializingBea
 
     @Value("${group.deleted.enabled:false}")
     private Boolean enabled;
-    @Value("${group.deleted.batchSize:100}")
+    @Value("${group.deleted.batch.size:100}")
     private Integer batchSize;
     @Value("${group.deleted.latest.hours:10}")
     private Integer latestHours;
