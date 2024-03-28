@@ -343,6 +343,6 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public Integer addDataAddTask(DataAddTaskRequest request, String operator) {
-        throw new BusinessException(String.format("not support add data add task for type =%s", request.getSourceType()));
+        throw new BusinessException(String.format("not support data add task for type =%s", request.getSourceType()));
     }
 }
