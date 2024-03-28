@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 import static org.apache.inlong.sort.formats.base.TableFormatUtils.deserializeBasicField;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_INTERFACE_NAME;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_INTERFACE_TID;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_STREAMID;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_STREAM_ID;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_DT;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_T;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.getPredefinedFields;
@@ -53,18 +53,17 @@ public class InLongMsgKvUtils {
         Map<String, String> attributes = parseAttr(attr);
 
         String streamId;
-        if (attributes.containsKey(INLONGMSG_ATTR_STREAMID)) {
-            streamId = attributes.get(INLONGMSG_ATTR_STREAMID);
-        }
-        if (attributes.containsKey(INLONGMSG_ATTR_INTERFACE_NAME)) {
-            streamId = attributes.get(INLONGMSG_ATTR_INTERFACE_NAME);
+        if (attributes.containsKey(INLONGMSG_ATTR_STREAM_ID)) {
+            streamId = attributes.get(INLONGMSG_ATTR_STREAM_ID);
         } else if (attributes.containsKey(INLONGMSG_ATTR_INTERFACE_TID)) {
             streamId = attributes.get(INLONGMSG_ATTR_INTERFACE_TID);
+        } else if (attributes.containsKey(INLONGMSG_ATTR_INTERFACE_NAME)) {
+            streamId = attributes.get(INLONGMSG_ATTR_INTERFACE_NAME);
         } else {
             throw new IllegalArgumentException(
-                    "Could not find " + INLONGMSG_ATTR_STREAMID
-                            + " or " + INLONGMSG_ATTR_INTERFACE_NAME
-                            + " or " + INLONGMSG_ATTR_INTERFACE_TID + " in attributes!");
+                    "Could not find " + INLONGMSG_ATTR_STREAM_ID
+                            + " or " + INLONGMSG_ATTR_INTERFACE_TID
+                            + " or " + INLONGMSG_ATTR_INTERFACE_NAME + " in attributes!");
         }
 
         Timestamp time;

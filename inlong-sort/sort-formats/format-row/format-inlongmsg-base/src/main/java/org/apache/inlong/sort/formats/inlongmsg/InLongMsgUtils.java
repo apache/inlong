@@ -64,6 +64,8 @@ public class InLongMsgUtils {
     public static final String INLONGMSG_ATTR_STREAM_ID = "streamId";
 
     @Deprecated
+    public static final String INLONGMSG_ATTR_INTERFACE_NAME = "iname";
+    @Deprecated
     public static final String INLONGMSG_ATTR_TID = "tid";
     public static final String INLONGMSG_ATTR_TIME_T = "t";
     public static final String INLONGMSG_ATTR_TIME_DT = "dt";
