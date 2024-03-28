@@ -246,13 +246,12 @@ public class InLongMsg {
             return false;
         }
 
-        DataBuffer outputBuffer = attr2MsgBuffer.get(attr);
-        if (outputBuffer == null) {
-            outputBuffer = new DataBuffer();
-            attr2MsgBuffer.put(attr, outputBuffer);
+        DataBuffer outputBuffer = attr2MsgBuffer.computeIfAbsent(attr, key -> {
+            DataBuffer newBuffer = new DataBuffer();
             // attrlen + utflen + meglen + compress
-            this.datalen += attr.length() + 2 + 4 + 1;
-        }
+            this.datalen += key.length() + 2 + 4 + 1;
+            return newBuffer;
+        });
 
         int len = data.remaining();
         try {
@@ -394,9 +393,10 @@ public class InLongMsg {
             out.writeInt(attr2MsgBuffer.size());
 
             if (compress) {
-                for (String attr : attr2MsgBuffer.keySet()) {
+                for (Map.Entry<String,DataBuffer> entry : attr2MsgBuffer.entrySet()) {
+                    String attr = entry.getKey();
+                    DataBuffer data = entry.getValue();
                     out.writeUTF(attr);
-                    DataBuffer data = attr2MsgBuffer.get(attr);
                     if (version.intValue() == Version.v2.intValue()) {
                         out.writeInt(data.cnt);
                     }
@@ -410,9 +410,10 @@ public class InLongMsg {
                     out.write(tmpData, 0, len);
                 }
             } else {
-                for (String attr : attr2MsgBuffer.keySet()) {
+                for (Map.Entry<String,DataBuffer> entry : attr2MsgBuffer.entrySet()) {
+                    String attr = entry.getKey();
+                    DataBuffer data = entry.getValue();
                     out.writeUTF(attr);
-                    DataBuffer data = attr2MsgBuffer.get(attr);
                     if (version.intValue() == Version.v2.intValue()) {
                         out.writeInt(data.cnt);
                     }
