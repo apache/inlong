@@ -25,8 +25,6 @@ import org.apache.inlong.agent.utils.HttpManager;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.pojo.agent.installer.ConfigRequest;
 import org.apache.inlong.common.pojo.agent.installer.ConfigResult;
-import org.apache.inlong.common.pojo.agent.installer.ModuleConfig;
-import org.apache.inlong.common.pojo.agent.installer.PackageConfig;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -34,10 +32,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_FETCHER_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_RETURN_PARAM_DATA;
@@ -128,61 +122,19 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             Thread.currentThread().setName("ManagerFetcher");
             while (isRunnable()) {
                 try {
-                    int configSleepTime = conf.getInt(AGENT_FETCHER_INTERVAL, DEFAULT_AGENT_FETCHER_INTERVAL);
-                    ConfigResult config = getTestConfig();
+                    ConfigResult config = getConfig();
                     if (config != null) {
                         manager.getModuleManager().submitConfig(config);
                     }
-                    TimeUnit.SECONDS.sleep(AgentUtils.getRandomBySeed(configSleepTime));
                 } catch (Throwable ex) {
                     LOGGER.warn("exception caught", ex);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
+                } finally {
+                    int configSleepTime = conf.getInt(AGENT_FETCHER_INTERVAL, DEFAULT_AGENT_FETCHER_INTERVAL);
+                    AgentUtils.silenceSleepInSeconds(configSleepTime);
                 }
             }
         };
-    }
-
-    private ConfigResult getTestConfig() {
-        List<ModuleConfig> configs = new ArrayList<>();
-        configs.add(getTestModuleConfig(1, "inlong-agent", "inlong-agent-md5-185454", "1.0", 1,
-                "cd ~/inlong-agent/bin;sh agent.sh start", "cd ~/inlong-agent/bin;sh agent.sh stop",
-                "ps aux | grep core.AgentMain | grep java | grep -v grep | awk '{print $2}'",
-                "cd ~/inlong-agent/bin;sh agent.sh stop;rm -rf ~/inlong-agent/;mkdir ~/inlong-agent;cd /tmp;tar -xzvf agent-release-1.12.0-SNAPSHOT-bin.tar.gz -C ~/inlong-agent;cd ~/inlong-agent/bin;sh agent.sh start",
-                "echo empty uninstall cmd", "agent-release-1.12.0-SNAPSHOT-bin.tar.gz",
-                "https://inlong-anager.data.qq.com:8099/api/download?file=agent-release-1.12.0-SNAPSHOT-bin.tar.gz",
-                "package-md5-190300"));
-        configs.add(getTestModuleConfig(2, "inlong-agent-installer", "inlong-agent-installer-md5-190353", "1.0", 1,
-                "ps aux | grep installer | grep -v grep | awk '{print $2}' | xargs kill -9 ;sleep 3;cd ~/inlong-agent-installer/;sh ./bin/monitor.sh",
-                "",
-                "ps aux | grep installer.Main | grep java | grep -v grep | awk '{print $2}'",
-                "tar -xzvf installer-release-1.12.0-SNAPSHOT-bin.tar.gz -C ~/inlong-agent-installer;",
-                "echo empty uninstall cmd", "installer-release-1.12.0-SNAPSHOT-bin.tar.gz",
-                "https://inlong-anager.data.qq.com:8099/api/download?file=installer-release-1.12.0-SNAPSHOT-bin.tar.gz",
-                "package-md5-191132"));
-        return ConfigResult.builder().moduleList(configs).moduleNum(2).md5("config-result-md5-193603").build();
-    }
-
-    private ModuleConfig getTestModuleConfig(int id, String name, String md5, String version, Integer procNum,
-            String startCmd, String stopCmd, String checkCmd, String installCmd, String uninstallCmd, String fileName,
-            String downloadUrl,
-            String packageMd5) {
-        ModuleConfig moduleConfig = new ModuleConfig();
-        moduleConfig.setId(id);
-        moduleConfig.setName(name);
-        moduleConfig.setVersion(version);
-        moduleConfig.setMd5(md5);
-        moduleConfig.setProcessesNum(procNum);
-        moduleConfig.setStartCommand(startCmd);
-        moduleConfig.setStopCommand(stopCmd);
-        moduleConfig.setCheckCommand(checkCmd);
-        moduleConfig.setInstallCommand(installCmd);
-        moduleConfig.setUninstallCommand(uninstallCmd);
-        PackageConfig packageConfig = new PackageConfig();
-        packageConfig.setFileName(fileName);
-        packageConfig.setDownloadUrl(downloadUrl);
-        packageConfig.setMd5(packageMd5);
-        moduleConfig.setPackageConfig(packageConfig);
-        return moduleConfig;
     }
 
     @Override
