@@ -49,9 +49,9 @@ import static org.apache.inlong.sort.tests.utils.StarRocksManager.buildStarRocks
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.getNewStarRocksImageName;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStarRocksTable;
 
-public class SqlserverToStarRocksITCase extends FlinkContainerTestEnv {
+public class Sqlserver2StarRocksTest extends FlinkContainerTestEnv {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SqlserverToStarRocksITCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Sqlserver2StarRocksTest.class);
 
     private static final Path sqlserverJar = TestUtils.getResource("sort-connector-sqlserver-cdc.jar");
     private static final Path jdbcJar = TestUtils.getResource("sort-connector-starrocks.jar");
@@ -62,7 +62,7 @@ public class SqlserverToStarRocksITCase extends FlinkContainerTestEnv {
 
     static {
         try {
-            sqlFile = Paths.get(SqlserverToStarRocksITCase.class.getResource("/flinkSql/sqlserver_test.sql").toURI())
+            sqlFile = Paths.get(Sqlserver2StarRocksTest.class.getResource("/flinkSql/sqlserver_test.sql").toURI())
                     .toString();
             buildStarRocksImage();
         } catch (URISyntaxException e) {

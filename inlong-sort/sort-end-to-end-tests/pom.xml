@@ -45,6 +45,9 @@
         </profile>
         <profile>
             <id>v1.15</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <modules>
                 <module>sort-end-to-end-tests-v1.15</module>
             </modules>

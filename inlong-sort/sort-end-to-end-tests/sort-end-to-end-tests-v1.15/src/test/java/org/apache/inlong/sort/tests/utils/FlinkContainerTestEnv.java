@@ -177,9 +177,6 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
      * <p>This method lazily initializes the REST client on-demand.
      */
     public RestClusterClient<StandaloneClusterId> getRestClusterClient() {
-        if (restClusterClient != null) {
-            return restClusterClient;
-        }
         checkState(
                 jobManager.isRunning(),
                 "Cluster client should only be retrieved for a running cluster");
