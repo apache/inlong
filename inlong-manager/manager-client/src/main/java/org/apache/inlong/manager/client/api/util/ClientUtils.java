@@ -118,6 +118,6 @@ public class ClientUtils {
      * @param response response
      */
     public static void assertRespSuccess(Response<?> response) {
-        Preconditions.expectTrue(response.isSuccess(), String.format(REQUEST_FAILED_MSG, response.getErrMsg(), null));
+        Preconditions.expectTrue(response.isSuccess(), String.format(REQUEST_FAILED_MSG, "", response.getErrMsg()));
     }
 }
