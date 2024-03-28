@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.source;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -125,5 +126,14 @@ public interface StreamSourceOperator {
      * @param operator operator
      */
     void syncSourceFieldInfo(SourceRequest request, String operator);
+
+    /**
+     * Save the data add task info.
+     *
+     * @param request request of data add task
+     * @param operator name of operator
+     * @return source id after saving
+     */
+    Integer addDataAddTask(DataAddTaskRequest request, String operator);
 
 }

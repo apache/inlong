@@ -80,6 +80,9 @@ public class PulsarSourceDTO {
     @ApiModelProperty(value = "The message body wrap  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
     private String wrapType;
 
+    @ApiModelProperty("Reset subscription time")
+    private Long resetTime;
+
     @ApiModelProperty("Properties for Pulsar")
     private Map<String, Object> properties;
 

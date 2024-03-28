@@ -351,7 +351,7 @@ CREATE TABLE IF NOT EXISTS `stream_source`
     `inlong_stream_id`    varchar(256) NOT NULL COMMENT 'Inlong stream id',
     `source_name`         varchar(128) NOT NULL DEFAULT '' COMMENT 'source_name',
     `source_type`         varchar(20)           DEFAULT '0' COMMENT 'Source type, including: FILE, DB, etc',
-    `template_id`         int(11)               DEFAULT NULL COMMENT 'Id of the template task this agent belongs to',
+    `task_map_id`         int(11)               DEFAULT NULL COMMENT 'Id of the task this agent belongs to',
     `agent_ip`            varchar(40)           DEFAULT NULL COMMENT 'Ip of the agent running the task, NULL if this is a template task',
     `uuid`                varchar(30)           DEFAULT NULL COMMENT 'Mac uuid of the agent running the task',
     `data_node_name`      varchar(128)          DEFAULT NULL COMMENT 'Node name, which links to data_node table',
@@ -374,7 +374,7 @@ CREATE TABLE IF NOT EXISTS `stream_source`
     UNIQUE KEY `unique_source_name` (`inlong_group_id`, `inlong_stream_id`, `source_name`, `is_deleted`),
     INDEX `source_status_index` (`status`, `is_deleted`),
     INDEX `source_agent_ip_index` (`agent_ip`, `is_deleted`),
-    INDEX `source_template_id_index` (`template_id`)
+    INDEX `source_task_map_id_index` (`task_map_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream source table';
 

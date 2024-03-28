@@ -15,17 +15,29 @@
  * limitations under the License.
  */
 
--- This is the SQL change file from version 1.9.0 to the current version 1.10.0.
--- When upgrading to version 1.10.0, please execute those SQLs in the DB (such as MySQL) used by the Manager module.
+package org.apache.inlong.manager.pojo.source.file;
 
-SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
+import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
 
-USE `apache_inlong_manager`;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-ALTER TABLE `stream_source` ADD COLUMN  `data_time_zone` varchar(256) DEFAULT NULL COMMENT 'Data time zone';
-DROP INDEX `source_template_id_index` ON `stream_source`;
-CREATE INDEX source_task_map_id_index ON `stream_source` (`task_map_id`);
+@Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(value = SourceType.FILE)
+@ApiModel(value = "File data add task request")
+public class FileDataAddTaskRequest extends DataAddTaskRequest {
 
-ALTER TABLE `stream_source` CHANGE template_id task_map_id int(11) DEFAULT NULL COMMENT 'Id of the task this agent belongs to';
+    @ApiModelProperty("Start time")
+    private Long startTime;
 
+    @ApiModelProperty("End time")
+    private Long endTime;
+
+}

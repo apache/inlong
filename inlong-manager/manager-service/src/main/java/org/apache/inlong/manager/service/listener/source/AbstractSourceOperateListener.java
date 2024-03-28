@@ -106,7 +106,7 @@ public abstract class AbstractSourceOperateListener implements SourceOperateList
             // template sources are filtered and processed in corresponding subclass listeners
             if (sourceStatus == SourceStatus.SOURCE_NORMAL || sourceStatus == SourceStatus.SOURCE_STOP
                     || sourceStatus == SourceStatus.HEARTBEAT_TIMEOUT
-                    || CollectionUtils.isNotEmpty(streamSource.getSubSourceList())) {
+                    || CollectionUtils.isNotEmpty(streamSource.getDataAddTaskList())) {
                 return true;
             } else if (sourceStatus == SourceStatus.SOURCE_FAILED || sourceStatus == SourceStatus.SOURCE_DISABLE) {
                 return false;

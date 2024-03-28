@@ -30,29 +30,29 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotNull;
 
 /**
- * Sub source information data per agent
+ * Data add task information
  */
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class SubSourceDTO {
+public class DataAddTaskDTO {
 
     @ApiModelProperty("stream source id")
     private Integer id;
 
-    @ApiModelProperty("Template source id this sub source belongs to")
-    private Integer templateId;
+    @ApiModelProperty("Main source id this data add task belongs to")
+    private Integer taskMapId;
 
-    @ApiModelProperty("Agent ip of sub source")
+    @ApiModelProperty("Agent ip of data add task")
     private String agentIp;
 
-    @ApiModelProperty("Status of sub source")
+    @ApiModelProperty("Status of data add task")
     private Integer status;
 
-    public static SubSourceDTO getFromJson(@NotNull String extParams) {
+    public static DataAddTaskDTO getFromJson(@NotNull String extParams) {
         try {
-            return JsonUtils.parseObject(extParams, SubSourceDTO.class);
+            return JsonUtils.parseObject(extParams, DataAddTaskDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }

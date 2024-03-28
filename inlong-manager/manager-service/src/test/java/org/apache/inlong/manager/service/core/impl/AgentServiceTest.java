@@ -141,7 +141,7 @@ class AgentServiceTest extends ServiceBaseTest {
     public void suspendSource(String groupId, String streamId) {
         List<StreamSource> sources = sourceService.listSource(groupId, streamId);
         sources.stream()
-                .filter(source -> source.getTemplateId() != null)
+                .filter(source -> source.getTaskMapId() != null)
                 .forEach(source -> sourceService.stop(source.getId(), GLOBAL_OPERATOR));
         groupMapper.updateStatus(groupId, GroupStatus.CONFIGURATION_OFFLINE.getCode(), GLOBAL_OPERATOR);
         streamMapper.updateStatusByIdentifier(groupId, streamId, StreamStatus.SUSPENDED.getCode(), GLOBAL_OPERATOR);
@@ -153,7 +153,7 @@ class AgentServiceTest extends ServiceBaseTest {
     public void restartSource(String groupId, String streamId) {
         List<StreamSource> sources = sourceService.listSource(groupId, streamId);
         sources.stream()
-                .filter(source -> source.getTemplateId() != null)
+                .filter(source -> source.getTaskMapId() != null)
                 .forEach(source -> sourceService.restart(source.getId(), GLOBAL_OPERATOR));
         groupMapper.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), GLOBAL_OPERATOR);
         streamMapper.updateStatusByIdentifier(groupId, streamId, StreamStatus.RESTARTED.getCode(), GLOBAL_OPERATOR);
@@ -230,7 +230,7 @@ class AgentServiceTest extends ServiceBaseTest {
         agent.pullTask(); // report last success status
 
         final int sourceId = sourceService.listSource(groupStream.getLeft(), groupStream.getRight()).stream()
-                .filter(source -> source.getTemplateId() != null)
+                .filter(source -> source.getTaskMapId() != null)
                 .findAny()
                 .get()
                 .getId();
@@ -256,7 +256,7 @@ class AgentServiceTest extends ServiceBaseTest {
 
         // update group to config success
         final String groupId = sourceService.listSource(groupStream.getLeft(), groupStream.getRight()).stream()
-                .filter(source -> source.getTemplateId() != null)
+                .filter(source -> source.getTaskMapId() != null)
                 .findAny()
                 .get()
                 .getInlongGroupId();
