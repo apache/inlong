@@ -46,6 +46,7 @@ import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_AT
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.FORMAT_ATTRIBUTES_FIELD_NAME;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.FORMAT_TIME_FIELD_NAME;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_INTERFACE_NAME;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_STREAM_ID;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TID;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.getPredefinedFields;
@@ -117,10 +118,14 @@ public class InLongMsgBinlogUtils {
             streamId = attributes.get(INLONGMSG_ATTR_STREAM_ID);
         } else if (attributes.containsKey(INLONGMSG_ATTR_TID)) {
             streamId = attributes.get(INLONGMSG_ATTR_TID);
+        } else if (attributes.containsKey(INLONGMSG_ATTR_INTERFACE_NAME)) {
+            streamId = attributes.get(INLONGMSG_ATTR_INTERFACE_NAME);
         } else {
             throw new IllegalArgumentException(
                     "Could not find " + INLONGMSG_ATTR_STREAM_ID
-                            + " or " + INLONGMSG_ATTR_TID + " in attributes!");
+                            + " or " + INLONGMSG_ATTR_TID
+                            + " or " + INLONGMSG_ATTR_INTERFACE_NAME
+                            + " in attributes!");
         }
 
         // Extracts time from the attributes

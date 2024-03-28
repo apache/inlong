@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.sort.formats.base.TableFormatUtils.deserializeBasicField;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_INTERFACE_NAME;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_STREAM_ID;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TID;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_DT;
@@ -55,6 +56,8 @@ public class InLongMsgKvUtils {
         String streamId;
         if (attributes.containsKey(INLONGMSG_ATTR_STREAM_ID)) {
             streamId = attributes.get(INLONGMSG_ATTR_STREAM_ID);
+        } else if (attributes.containsKey(INLONGMSG_ATTR_INTERFACE_NAME)) {
+            streamId = attributes.get(INLONGMSG_ATTR_INTERFACE_NAME);
         } else if (attributes.containsKey(INLONGMSG_ATTR_TID)) {
             streamId = attributes.get(INLONGMSG_ATTR_TID);
         } else {

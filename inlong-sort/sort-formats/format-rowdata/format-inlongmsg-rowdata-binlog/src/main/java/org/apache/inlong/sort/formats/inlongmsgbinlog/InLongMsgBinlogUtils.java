@@ -46,6 +46,7 @@ import static org.apache.inlong.sort.formats.base.TableFormatUtils.deserializeBa
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_INTERFACE_ID;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_INTERFACE_NAME;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_INTERFACE_TID;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_STREAM_ID;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.getPredefinedFields;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseAttr;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseEpochTime;
@@ -73,17 +74,20 @@ public class InLongMsgBinlogUtils {
 
         // Extracts interface from the attributes.
         String streamId;
-        if (attributes.containsKey(INLONGMSG_ATTR_INTERFACE_NAME)) {
+        if (attributes.containsKey(INLONGMSG_ATTR_STREAM_ID)) {
+            streamId = attributes.get(INLONGMSG_ATTR_STREAM_ID);
+        } else if (attributes.containsKey(INLONGMSG_ATTR_INTERFACE_TID)) {
+            streamId = attributes.get(INLONGMSG_ATTR_INTERFACE_TID);
+        } else if (attributes.containsKey(INLONGMSG_ATTR_INTERFACE_NAME)) {
             streamId = attributes.get(INLONGMSG_ATTR_INTERFACE_NAME);
         } else if (attributes.containsKey(INLONGMSG_ATTR_INTERFACE_ID)) {
             streamId = attributes.get(INLONGMSG_ATTR_INTERFACE_ID);
-        } else if (attributes.containsKey(INLONGMSG_ATTR_INTERFACE_TID)) {
-            streamId = attributes.get(INLONGMSG_ATTR_INTERFACE_TID);
         } else {
             throw new IllegalArgumentException(
-                    "Could not find " + INLONGMSG_ATTR_INTERFACE_NAME +
-                            " or " + INLONGMSG_ATTR_INTERFACE_ID +
-                            " or " + INLONGMSG_ATTR_INTERFACE_TID + " in attributes!");
+                    "Could not find " + INLONGMSG_ATTR_STREAM_ID
+                            + " or " + INLONGMSG_ATTR_INTERFACE_TID
+                            + " or " + INLONGMSG_ATTR_INTERFACE_NAME
+                            + " or " + INLONGMSG_ATTR_INTERFACE_ID + " in attributes!");
         }
 
         // Extracts time from the attributes
