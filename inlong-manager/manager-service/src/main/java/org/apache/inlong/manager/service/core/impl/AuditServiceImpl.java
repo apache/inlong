@@ -131,6 +131,7 @@ public class AuditServiceImpl implements AuditService {
     private static final String COUNT = "count";
     private static final String DELAY = "delay";
     private static final String TERMS = "terms";
+    private static final String TOTAL = "total";
 
     // key: type of audit base item, value: entity of audit base item
     private final Map<String, AuditBaseEntity> auditSentItemMap = new ConcurrentHashMap<>();
@@ -332,7 +333,7 @@ public class AuditServiceImpl implements AuditService {
                     vo.setInlongGroupId((String) s.get("inlongGroupId"));
                     vo.setInlongStreamId((String) s.get("inlongStreamId"));
                     vo.setLogTs((String) s.get("logTs"));
-                    vo.setCount(((BigDecimal) s.get("total")).longValue());
+                    vo.setCount(((BigDecimal) s.get(TOTAL)).longValue());
                     vo.setDelay(((BigDecimal) s.get("totalDelay")).longValue());
                     vo.setSize(((BigDecimal) s.get("totalSize")).longValue());
                     return vo;
@@ -375,10 +376,10 @@ public class AuditServiceImpl implements AuditService {
                     List<AuditInfo> auditSet = new ArrayList<>();
                     while (resultSet.next()) {
                         AuditInfo vo = new AuditInfo();
-                        vo.setInlongGroupId(resultSet.getString("inlong_group_id"));
-                        vo.setInlongStreamId(resultSet.getString("inlong_stream_id"));
-                        vo.setLogTs(resultSet.getString("log_ts"));
-                        vo.setCount(resultSet.getLong("total"));
+                        vo.setInlongGroupId(resultSet.getString(INLONG_GROUP_ID));
+                        vo.setInlongStreamId(resultSet.getString(INLONG_STREAM_ID));
+                        vo.setLogTs(resultSet.getString(TERM_FILED));
+                        vo.setCount(resultSet.getLong(TOTAL));
                         vo.setDelay(resultSet.getLong("total_delay"));
                         vo.setSize(resultSet.getLong("total_size"));
                         auditSet.add(vo);
@@ -414,7 +415,7 @@ public class AuditServiceImpl implements AuditService {
                     vo.setInlongStreamId((String) s.get("inlongStreamId"));
                     vo.setLogTs((String) s.get("logTs"));
                     vo.setIp((String) s.get("ip"));
-                    vo.setCount(((BigDecimal) s.get("total")).longValue());
+                    vo.setCount(((BigDecimal) s.get(TOTAL)).longValue());
                     vo.setDelay(((BigDecimal) s.get("totalDelay")).longValue());
                     vo.setSize(((BigDecimal) s.get("totalSize")).longValue());
                     return vo;
@@ -430,10 +431,10 @@ public class AuditServiceImpl implements AuditService {
                     List<AuditInfo> auditSet = new ArrayList<>();
                     while (resultSet.next()) {
                         AuditInfo vo = new AuditInfo();
-                        vo.setInlongGroupId(resultSet.getString("inlong_group_id"));
-                        vo.setInlongStreamId(resultSet.getString("inlong_stream_id"));
+                        vo.setInlongGroupId(resultSet.getString(INLONG_GROUP_ID));
+                        vo.setInlongStreamId(resultSet.getString(INLONG_STREAM_ID));
                         vo.setIp(resultSet.getString("ip"));
-                        vo.setCount(resultSet.getLong("total"));
+                        vo.setCount(resultSet.getLong(TOTAL));
                         vo.setDelay(resultSet.getLong("total_delay"));
                         vo.setSize(resultSet.getLong("total_size"));
                         auditSet.add(vo);
@@ -561,8 +562,8 @@ public class AuditServiceImpl implements AuditService {
         }
         // Query results are duplicated according to all fields.
         String subQuery = new SQL()
-                .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", "log_ts", "inlong_group_id",
-                        "inlong_stream_id", "audit_id", "count", "size", "delay")
+                .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", TERM_FILED, INLONG_GROUP_ID,
+                        INLONG_STREAM_ID, "audit_id", "count", "size", "delay")
                 .FROM("audit_data")
                 .WHERE("inlong_group_id = ?")
                 .WHERE("inlong_stream_id = ?")
@@ -572,11 +573,11 @@ public class AuditServiceImpl implements AuditService {
                 .toString();
 
         String sql = new SQL()
-                .SELECT("inlong_group_id", "inlong_stream_id", "log_ts", "sum(count) as total",
+                .SELECT(INLONG_GROUP_ID, INLONG_STREAM_ID, TERM_FILED, "sum(count) as total",
                         "sum(delay) as total_delay", "sum(size) as total_size")
                 .FROM("(" + subQuery + ") as sub")
-                .GROUP_BY("log_ts", "inlong_group_id", "inlong_stream_id")
-                .ORDER_BY("log_ts")
+                .GROUP_BY(TERM_FILED, INLONG_GROUP_ID, INLONG_STREAM_ID)
+                .ORDER_BY(TERM_FILED)
                 .toString();
 
         PreparedStatement statement = connection.prepareStatement(sql);
@@ -596,8 +597,8 @@ public class AuditServiceImpl implements AuditService {
         }
         // Query results are duplicated according to all fields.
         String subQuery = new SQL()
-                .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", "log_ts", "inlong_group_id",
-                        "inlong_stream_id", "audit_id", "count", "size", "delay")
+                .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", TERM_FILED, INLONG_GROUP_ID,
+                        INLONG_STREAM_ID, "audit_id", "count", "size", "delay")
                 .FROM("audit_data")
                 .WHERE("inlong_group_id = ?")
                 .WHERE("inlong_stream_id = ?")
@@ -607,10 +608,10 @@ public class AuditServiceImpl implements AuditService {
                 .toString();
 
         String sql = new SQL()
-                .SELECT("inlong_group_id", "inlong_stream_id", "sum(count) as total", "ip",
+                .SELECT(INLONG_GROUP_ID, INLONG_STREAM_ID, "sum(count) as total", "ip",
                         "sum(delay) as total_delay", "sum(size) as total_size")
                 .FROM("(" + subQuery + ") as sub")
-                .GROUP_BY("inlong_group_id", "inlong_stream_id", "ip")
+                .GROUP_BY(INLONG_GROUP_ID, INLONG_STREAM_ID, "ip")
                 .toString();
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setString(1, groupId);
@@ -708,8 +709,8 @@ public class AuditServiceImpl implements AuditService {
         String start = DAY_DATE_FORMATTER.parseDateTime(startDate).toString(SECOND_FORMAT);
         String end = DAY_DATE_FORMATTER.parseDateTime(endDate).plusDays(1).toString(SECOND_FORMAT);
         String subQuery = new SQL()
-                .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", "log_ts", "inlong_group_id",
-                        "inlong_stream_id", "audit_id", "count", "size", "delay")
+                .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", TERM_FILED, INLONG_GROUP_ID,
+                        INLONG_STREAM_ID, "audit_id", "count", "size", "delay")
                 .FROM("audit_data")
                 .WHERE("ip = ?")
                 .WHERE("audit_id = ?")
@@ -718,11 +719,11 @@ public class AuditServiceImpl implements AuditService {
                 .toString();
 
         String sql = new SQL()
-                .SELECT("inlong_group_id", "inlong_stream_id", "log_ts", "sum(count) as total",
+                .SELECT(INLONG_GROUP_ID, INLONG_STREAM_ID, TERM_FILED, "sum(count) as total",
                         "sum(delay) as total_delay", "sum(size) as total_size")
                 .FROM("(" + subQuery + ") as sub")
-                .GROUP_BY("log_ts", "inlong_group_id", "inlong_stream_id")
-                .ORDER_BY("log_ts")
+                .GROUP_BY(TERM_FILED, INLONG_GROUP_ID, INLONG_STREAM_ID)
+                .ORDER_BY(TERM_FILED)
                 .toString();
 
         PreparedStatement statement = connection.prepareStatement(sql);
@@ -736,8 +737,8 @@ public class AuditServiceImpl implements AuditService {
     private PreparedStatement getAuditCkStatementByIpGroupByIp(Connection connection, String auditId, String ip,
             String startDate, String endDate) throws SQLException {
         String subQuery = new SQL()
-                .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", "log_ts", "inlong_group_id",
-                        "inlong_stream_id", "audit_id", "count", "size", "delay")
+                .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", TERM_FILED, INLONG_GROUP_ID,
+                        INLONG_STREAM_ID, "audit_id", "count", "size", "delay")
                 .FROM("audit_data")
                 .WHERE("ip = ?")
                 .WHERE("audit_id = ?")
@@ -746,10 +747,10 @@ public class AuditServiceImpl implements AuditService {
                 .toString();
 
         String sql = new SQL()
-                .SELECT("inlong_group_id", "inlong_stream_id", "ip", "sum(count) as total",
+                .SELECT(INLONG_GROUP_ID, INLONG_STREAM_ID, "ip", "sum(count) as total",
                         "sum(delay) as total_delay", "sum(size) as total_size")
                 .FROM("(" + subQuery + ") as sub")
-                .GROUP_BY("inlong_group_id", "inlong_stream_id", "ip")
+                .GROUP_BY(INLONG_GROUP_ID, INLONG_STREAM_ID, "ip")
                 .toString();
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setString(1, ip);
