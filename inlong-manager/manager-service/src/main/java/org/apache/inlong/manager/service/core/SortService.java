@@ -46,6 +46,22 @@ public interface SortService {
     SortClusterResponse getClusterConfig(String clusterName, String md5);
 
     /**
+     * Get sort cluster config V@.
+     *
+     * <p>For a specific sort cluster, there are a series of tasks that defined how dataflow into and
+     * out from sort.</p>
+     *
+     * <p>The param of md5 represents the md5 value of last update response.
+     * if the md5 is same with the newest one, which means all configs are not updated,
+     * the detailed config in response will be <b>NULL</b>.</p>
+     *
+     * @param clusterName Name of sort cluster.
+     * @param md5 Last update md5.
+     * @return Response of sort cluster config {@link SortClusterResponse}
+     */
+    SortClusterResponse getClusterConfigV2(String clusterName, String md5);
+
+    /**
      * Get sort source config.
      *
      * <p>Interface that acquires the config source SDK for a specific task.
@@ -60,6 +76,22 @@ public interface SortService {
      * @return Response of sort cluster config
      */
     SortSourceConfigResponse getSourceConfig(String clusterName, String sortTaskId, String md5);
+
+    /**
+     * Get sort source config V2.
+     *
+     * <p>Interface that acquires the config source SDK for a specific task.
+     *
+     * <p>The param of md5 represents the md5 value of last update response. * if the md5 is same
+     * with the newest one, which means all configs are not updated, * the detailed config in
+     * response will be <b>NULL</b>.
+     *
+     * @param clusterName Name of sort cluster.
+     * @param sortTaskId Task id.
+     * @param md5 Last update md5.
+     * @return Response of sort cluster config
+     */
+    SortSourceConfigResponse getSourceConfigV2(String clusterName, String sortTaskId, String md5);
 
     /**
      * List Sort job status.
