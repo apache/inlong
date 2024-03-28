@@ -41,13 +41,13 @@ public class DataAddTaskDTO {
     @ApiModelProperty("stream source id")
     private Integer id;
 
-    @ApiModelProperty("Main source id this sub source belongs to")
+    @ApiModelProperty("Main source id this data add task belongs to")
     private Integer taskMapId;
 
-    @ApiModelProperty("Agent ip of sub source")
+    @ApiModelProperty("Agent ip of data add task")
     private String agentIp;
 
-    @ApiModelProperty("Status of sub source")
+    @ApiModelProperty("Status of data add task")
     private Integer status;
 
     public static DataAddTaskDTO getFromJson(@NotNull String extParams) {

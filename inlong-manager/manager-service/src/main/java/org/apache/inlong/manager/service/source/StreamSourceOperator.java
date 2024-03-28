@@ -130,7 +130,7 @@ public interface StreamSourceOperator {
     /**
      * Save the data add task info.
      *
-     * @param request request of sub source
+     * @param request request of data add task
      * @param operator name of operator
      * @return source id after saving
      */

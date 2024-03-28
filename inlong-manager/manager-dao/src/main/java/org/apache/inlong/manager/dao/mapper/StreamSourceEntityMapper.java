@@ -43,7 +43,7 @@ public interface StreamSourceEntityMapper {
     StreamSourceEntity selectForAgentTask(Integer id);
 
     /**
-     * Select one sub source by task map id and agent ip.
+     * Select one data add task by task map id and agent ip.
      *
      * @param taskMapId template id
      * @param agentIp agent ip
@@ -111,7 +111,7 @@ public interface StreamSourceEntityMapper {
     List<StreamSourceEntity> selectByGroupIds(@Param("groupIdList") List<String> groupIdList);
 
     /**
-     * Select all sub sources by template id
+     * Select all data add task by task map id
      */
     List<StreamSourceEntity> selectByTaskMapId(@Param("taskMapId") Integer taskMapId);
 
@@ -191,7 +191,7 @@ public interface StreamSourceEntityMapper {
     void updateStatusByDeleted();
 
     /**
-     * Logic delete the sub source by modifiy time
+     * Logic delete the data add task by modifiy time
      */
     void logicalDeleteByTimeout(@Param("retentionDays") Integer retentionDays);
 

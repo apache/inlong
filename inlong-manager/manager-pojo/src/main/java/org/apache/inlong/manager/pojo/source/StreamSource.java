@@ -111,7 +111,7 @@ public abstract class StreamSource extends StreamNode {
     @ApiModelProperty("Properties for source")
     private Map<String, Object> properties = new LinkedHashMap<>();
 
-    @ApiModelProperty("Null if not a sub source")
+    @ApiModelProperty("Null if not a data add task")
     private Integer taskMapId;
 
     @ApiModelProperty("Data add task information of existing agents")

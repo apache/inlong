@@ -31,7 +31,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = SourceType.FILE)
-@ApiModel(value = "File sub source request")
+@ApiModel(value = "File data add task request")
 public class FileDataAddTaskRequest extends DataAddTaskRequest {
 
     @ApiModelProperty("Start time")
