@@ -59,9 +59,7 @@ public class CounterGroup {
     }
 
     public synchronized AtomicLong getCounter(String name) {
-        if (!this.counters.containsKey(name)) {
-            this.counters.put(name, new AtomicLong());
-        }
+        this.counters.computeIfAbsent(name, k -> new AtomicLong());
 
         return (AtomicLong) this.counters.get(name);
     }

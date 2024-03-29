@@ -259,10 +259,8 @@ public class InLongMsgAttrBuilder {
             }
             if (t != null) {
                 String tstr = null;
-                if (tt != null && tt == TimeType.NORMAL) {
-                    if (makeSureTimeNormal(t)) {
-                        tstr = t;
-                    }
+                if (tt != null && tt == TimeType.NORMAL && makeSureTimeNormal(t)) {
+                    tstr = t;
                 } else {
                     if (this.p == null) {
                         this.p = PartitionUnit.HOUR;
