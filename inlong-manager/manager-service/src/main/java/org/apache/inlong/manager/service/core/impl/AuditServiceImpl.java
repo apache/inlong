@@ -313,10 +313,8 @@ public class AuditServiceImpl implements AuditService {
         AuditQuerySource querySource = AuditQuerySource.valueOf(auditQuerySource);
         for (String auditId : request.getAuditIds()) {
             AuditBaseEntity auditBaseEntity = auditItemMap.get(auditId);
-            String auditName = "";
-            if (auditBaseEntity != null) {
-                auditName = auditBaseEntity.getName();
-            }
+            String auditName = auditBaseEntity != null ? auditBaseEntity.getName() : "";
+
             if (AuditQuerySource.MYSQL == querySource) {
                 String format = "%Y-%m-%d %H:%i:00";
                 // Support min agg at now
@@ -658,18 +656,9 @@ public class AuditServiceImpl implements AuditService {
                 if (statKey == null) {
                     continue;
                 }
-                if (countMap.get(statKey) == null) {
-                    countMap.put(statKey, new AtomicLong(0));
-                }
-                if (delayMap.get(statKey) == null) {
-                    delayMap.put(statKey, new AtomicLong(0));
-                }
-                if (sizeMap.get(statKey) == null) {
-                    sizeMap.put(statKey, new AtomicLong(0));
-                }
-                countMap.get(statKey).addAndGet(auditInfo.getCount());
-                delayMap.get(statKey).addAndGet(auditInfo.getDelay());
-                sizeMap.get(statKey).addAndGet(auditInfo.getSize());
+                countMap.computeIfAbsent(statKey, k -> new AtomicLong(0)).addAndGet(auditInfo.getCount());
+                delayMap.computeIfAbsent(statKey, k -> new AtomicLong(0)).addAndGet(auditInfo.getDelay());
+                sizeMap.computeIfAbsent(statKey, k -> new AtomicLong(0)).addAndGet(auditInfo.getSize());
             }
 
             List<AuditInfo> auditInfoList = new LinkedList<>();
