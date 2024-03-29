@@ -139,24 +139,7 @@ public class SenderManager {
         // cache first
         Long requestId = baseCommand.getAuditRequest().getRequestId();
         this.dataMap.putIfAbsent(requestId, data);
-        // requestIdQueue.offer(requestId);
         this.sendData(data.getDataByte());
-        // resend
-        // long newTime = System.currentTimeMillis() - 10000;
-        // if (newTime > lastCheckTime) {
-        // for (int i = 0; i < requestIdQueue.size(); i++) {
-        // Long current = requestIdQueue.poll();
-        // AuditData auditData = this.dataMap.get(current);
-        // if (auditData == null) {
-        // continue;
-        // } else {
-        // requestIdQueue.offer(current);
-        // if (newTime > auditData.getSendTime()) {
-        // this.sendData(auditData.getDataByte());
-        // }
-        // }
-        // }
-        // }
     }
 
     /**
