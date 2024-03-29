@@ -40,7 +40,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
@@ -150,30 +149,23 @@ public class ModuleManager extends AbstractDaemon {
 
     public void restoreFromLocalFile(String confPath) {
         LOGGER.info("restore modules from local file");
-        Reader reader = null;
-        try {
-            InputStream inputStream = new FileInputStream(confPath + LOCAL_CONFIG_FILE);
-            if (inputStream != null) {
-                reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-                JsonElement tmpElement = JsonParser.parseReader(reader).getAsJsonObject();
-                ConfigResult curConfig = GSON.fromJson(tmpElement.getAsJsonObject(), ConfigResult.class);
-                if (curConfig.getMd5() != null && curConfig.getModuleList() != null) {
-                    currentMd5 = curConfig.getMd5();
-                    curConfig.getModuleList().forEach((module) -> {
-                        currentModules.put(module.getId(), module);
-                    });
-                } else {
-                    LOGGER.info("modules in local file invalid");
-                }
+        String localModuleConfigPath = confPath + LOCAL_CONFIG_FILE;
+        try (Reader reader = new InputStreamReader(
+                new FileInputStream(localModuleConfigPath), StandardCharsets.UTF_8)) {
+            JsonElement tmpElement = JsonParser.parseReader(reader).getAsJsonObject();
+            ConfigResult curConfig = GSON.fromJson(tmpElement.getAsJsonObject(), ConfigResult.class);
+            if (curConfig.getMd5() != null && curConfig.getModuleList() != null) {
+                currentMd5 = curConfig.getMd5();
+                curConfig.getModuleList().forEach((module) -> {
+                    currentModules.put(module.getId(), module);
+                });
             } else {
-                LOGGER.info("local module json file new FileInputStream failed");
+                LOGGER.info("modules in local file invalid");
             }
         } catch (FileNotFoundException e) {
-            LOGGER.info("local module json file not found");
+            LOGGER.info("local module json file {} not found", localModuleConfigPath);
         } catch (Exception ioe) {
-            LOGGER.error("error restoredFromLocalFile {}", LOCAL_CONFIG_FILE, ioe);
-        } finally {
-            AgentUtils.finallyClose(reader);
+            LOGGER.error("error restoredFromLocalFile {}", localModuleConfigPath, ioe);
         }
     }
 
