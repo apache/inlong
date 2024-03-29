@@ -249,7 +249,7 @@ public class InLongMsg {
         DataBuffer outputBuffer = attr2MsgBuffer.computeIfAbsent(attr, key -> {
             DataBuffer newBuffer = new DataBuffer();
             // attrlen + utflen + meglen + compress
-            this.datalen += key.length() + 2 + 4 + 1;
+            this.datalen += attr.length() + 2 + 4 + 1;
             return newBuffer;
         });
 
