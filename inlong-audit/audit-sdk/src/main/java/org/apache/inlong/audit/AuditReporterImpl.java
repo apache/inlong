@@ -262,7 +262,7 @@ public class AuditReporterImpl implements Serializable {
      * Flush audit data
      */
     public synchronized void flush(long isolateKey) {
-        if (flushTime.putIfAbsent(isolateKey, Calendar.getInstance().getTimeInMillis()) != null
+        if (flushTime.putIfAbsent(isolateKey, System.currentTimeMillis()) != null
                 || flushStat.addAndGet(1) > flushStatThreshold) {
             return;
         }

@@ -269,8 +269,10 @@ public class SenderManager {
             if (data == null) {
                 LOG.error("Can not find the request id onMessageReceived {},message: {}",
                         requestId, baseCommand.getAuditReply().getMessage());
-                for (Map.Entry<Long, AuditData> entry : this.dataMap.entrySet()) {
-                    LOG.debug("Data map key:{},request id:{}", entry.getKey(), requestId);
+                if (LOG.isDebugEnabled()) {
+                    for (Map.Entry<Long, AuditData> entry : this.dataMap.entrySet()) {
+                        LOG.debug("Data map key:{},request id:{}", entry.getKey(), requestId);
+                    }
                 }
                 return;
             }
