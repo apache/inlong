@@ -220,9 +220,8 @@ public class ModuleManager extends AbstractDaemon {
     }
 
     private boolean downloadModule(ModuleConfig module) {
-        LOGGER.info("download module {} begin", module.getId());
+        LOGGER.info("download module {} begin with url {}", module.getId(), module.getPackageConfig().getDownloadUrl());
         try {
-            LOGGER.info("download url {}", module.getPackageConfig().getDownloadUrl());
             URL url = new URL(module.getPackageConfig().getDownloadUrl());
             URLConnection conn = url.openConnection();
             Map<String, String> authHeader = httpManager.getAuthHeader();
