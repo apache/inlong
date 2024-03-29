@@ -283,25 +283,25 @@ public class InLongMsgAttrBuilder {
                                         (int) ((d.getTime() % (60L * 60 * 1000)) / (30L * 60 * 1000));
                                 tstr = f.format(d) + "n" + idx;
                             }
-                            break;
+                                break;
                             case QUARTER: {
                                 int idx =
                                         (int) ((d.getTime() % (60L * 60 * 1000)) / (15L * 60 * 1000));
                                 tstr = f.format(d) + "q" + idx;
                             }
-                            break;
+                                break;
                             case TENMINS: {
                                 int idx =
                                         (int) ((d.getTime() % (60L * 60 * 1000)) / (10L * 60 * 1000));
                                 tstr = f.format(d) + "t" + idx;
                             }
-                            break;
+                                break;
                             case FIVEMINS: {
                                 int idx =
                                         (int) ((d.getTime() % (60L * 60 * 1000)) / (5L * 60 * 1000));
                                 tstr = f.format(d) + "f" + idx;
                             }
-                            break;
+                                break;
                         }
                     }
                 }
