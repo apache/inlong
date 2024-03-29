@@ -78,16 +78,13 @@ public class AuditReporterImpl implements Serializable {
     private SocketAddressListLoader loader = null;
     private static final long DEFAULT_ISOLATE_KEY = 0;
     private int flushStatThreshold = 100;
-
+    private boolean autoFlush = true;
     public void setFlushStatThreshold(int flushStatThreshold) {
         this.flushStatThreshold = flushStatThreshold;
     }
-
     public void setAutoFlush(boolean autoFlush) {
         this.autoFlush = autoFlush;
     }
-
-    private boolean autoFlush = true;
 
     /**
      * Init
