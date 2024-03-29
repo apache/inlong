@@ -19,6 +19,7 @@ package org.apache.inlong.sort.tests;
 
 import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
 import org.apache.inlong.sort.tests.utils.RedisContainer;
+import org.apache.inlong.sort.tests.utils.StarRocksContainer;
 import org.apache.inlong.sort.tests.utils.TestUtils;
 
 import org.junit.AfterClass;
@@ -37,6 +38,8 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.inlong.sort.tests.utils.StarRocksManager.*;
+import static org.apache.inlong.sort.tests.utils.StarRocksManager.STAR_ROCKS_LOG;
 import static org.junit.Assert.assertEquals;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
@@ -52,10 +55,20 @@ public class RedisToRedisTest extends FlinkContainerTestEnv {
         try {
             sqlFile = Paths.get(RedisToRedisTest.class.getResource("/flinkSql/redis_test.sql").toURI())
                     .toString();
+            buildStarRocksImage();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
+
+    @ClassRule
+    public static StarRocksContainer STAR_ROCKS =
+            (StarRocksContainer) new StarRocksContainer(getNewStarRocksImageName())
+                    .withExposedPorts(9030, 8030, 8040)
+                    .withNetwork(NETWORK)
+                    .withAccessToHost(true)
+                    .withNetworkAliases(INTER_CONTAINER_STAR_ROCKS_ALIAS)
+                    .withLogConsumer(new Slf4jLogConsumer(STAR_ROCKS_LOG));
 
     @ClassRule
     public static final RedisContainer REDIS_CONTAINER_SOURCE = new RedisContainer(
