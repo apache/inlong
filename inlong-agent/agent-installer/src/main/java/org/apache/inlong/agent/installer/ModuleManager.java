@@ -95,8 +95,8 @@ public class ModuleManager extends AbstractDaemon {
                 DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
         int timeout = conf.getInt(AGENT_MANAGER_REQUEST_TIMEOUT,
                 DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT);
-        String secretId = conf.get(MANAGER_AUTH_SECRET_ID, "");
-        String secretKey = conf.get(MANAGER_AUTH_SECRET_KEY, "");
+        String secretId = conf.get(MANAGER_AUTH_SECRET_ID);
+        String secretKey = conf.get(MANAGER_AUTH_SECRET_KEY);
         return new HttpManager(managerAddr, managerHttpPrefixPath, timeout, secretId, secretKey);
     }
 
