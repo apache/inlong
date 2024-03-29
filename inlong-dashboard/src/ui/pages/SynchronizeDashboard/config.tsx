@@ -86,7 +86,7 @@ export const useColumns = ({ onDelete, openModal, onRestart, onStop }) => {
             <Button type="link" onClick={() => onDelete(record)}>
               {i18n.t('basic.Delete')}
             </Button>
-            {record?.status && record?.status === 140 && (
+            {record?.status && (record?.status === 140 || record?.status === 120) && (
               <Button type="link" onClick={() => onRestart(record)}>
                 {i18n.t('pages.SynchronizeDashboard.config.Restart')}
               </Button>
