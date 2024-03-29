@@ -228,14 +228,15 @@ public class ModuleManager extends AbstractDaemon {
             authHeader.forEach((k, v) -> {
                 conn.setRequestProperty(k, v);
             });
-            InputStream inStream = conn.getInputStream();
             String path = module.getPackageConfig().getStoragePath() + "/" + module.getPackageConfig().getFileName();
-            FileOutputStream fs = new FileOutputStream(path);
-            LOGGER.info("save path {}", path);
-            int byteRead;
-            byte[] buffer = new byte[DOWNLOAD_PACKAGE_READ_BUFF_SIZE];
-            while ((byteRead = inStream.read(buffer)) != -1) {
-                fs.write(buffer, 0, byteRead);
+            try (InputStream inputStream = conn.getInputStream();
+                    FileOutputStream outputStream = new FileOutputStream(path)) {
+                LOGGER.info("save path {}", path);
+                int byteRead;
+                byte[] buffer = new byte[DOWNLOAD_PACKAGE_READ_BUFF_SIZE];
+                while ((byteRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, byteRead);
+                }
             }
             if (isPackageDownloaded(module)) {
                 return true;
@@ -284,16 +285,13 @@ public class ModuleManager extends AbstractDaemon {
 
     private static String calcFileMd5(String path) {
         BigInteger bi = null;
-        try {
-            byte[] buffer = new byte[DOWNLOAD_PACKAGE_READ_BUFF_SIZE];
-            int len = 0;
+        byte[] buffer = new byte[DOWNLOAD_PACKAGE_READ_BUFF_SIZE];
+        int len = 0;
+        try (FileInputStream fileInputStream = new FileInputStream(path)) {
             MessageDigest md = MessageDigest.getInstance("MD5");
-            File f = new File(path);
-            FileInputStream fis = new FileInputStream(f);
-            while ((len = fis.read(buffer)) != -1) {
+            while ((len = fileInputStream.read(buffer)) != -1) {
                 md.update(buffer, 0, len);
             }
-            fis.close();
             byte[] b = md.digest();
             bi = new BigInteger(1, b);
         } catch (NoSuchAlgorithmException e) {
