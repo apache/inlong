@@ -393,7 +393,7 @@ public class InLongMsg {
             out.writeInt(attr2MsgBuffer.size());
 
             if (compress) {
-                for (Map.Entry<String,DataBuffer> entry : attr2MsgBuffer.entrySet()) {
+                for (Map.Entry<String, DataBuffer> entry : attr2MsgBuffer.entrySet()) {
                     String attr = entry.getKey();
                     DataBuffer data = entry.getValue();
                     out.writeUTF(attr);
@@ -410,7 +410,7 @@ public class InLongMsg {
                     out.write(tmpData, 0, len);
                 }
             } else {
-                for (Map.Entry<String,DataBuffer> entry : attr2MsgBuffer.entrySet()) {
+                for (Map.Entry<String, DataBuffer> entry : attr2MsgBuffer.entrySet()) {
                     String attr = entry.getKey();
                     DataBuffer data = entry.getValue();
                     out.writeUTF(attr);
