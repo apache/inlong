@@ -123,6 +123,6 @@ public class AuditUtils {
      * Send audit data
      */
     public static void send() {
-        AuditOperator.getInstance().send();
+        AuditOperator.getInstance().flush();
     }
 }

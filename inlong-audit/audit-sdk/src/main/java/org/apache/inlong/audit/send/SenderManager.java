@@ -139,24 +139,24 @@ public class SenderManager {
         // cache first
         Long requestId = baseCommand.getAuditRequest().getRequestId();
         this.dataMap.putIfAbsent(requestId, data);
-        requestIdQueue.offer(requestId);
+        // requestIdQueue.offer(requestId);
         this.sendData(data.getDataByte());
         // resend
-        long newTime = System.currentTimeMillis() - 10000;
-        if (newTime > lastCheckTime) {
-            for (int i = 0; i < requestIdQueue.size(); i++) {
-                Long current = requestIdQueue.poll();
-                AuditData auditData = this.dataMap.get(current);
-                if (auditData == null) {
-                    continue;
-                } else {
-                    requestIdQueue.offer(current);
-                    if (newTime > auditData.getSendTime()) {
-                        this.sendData(auditData.getDataByte());
-                    }
-                }
-            }
-        }
+        // long newTime = System.currentTimeMillis() - 10000;
+        // if (newTime > lastCheckTime) {
+        // for (int i = 0; i < requestIdQueue.size(); i++) {
+        // Long current = requestIdQueue.poll();
+        // AuditData auditData = this.dataMap.get(current);
+        // if (auditData == null) {
+        // continue;
+        // } else {
+        // requestIdQueue.offer(current);
+        // if (newTime > auditData.getSendTime()) {
+        // this.sendData(auditData.getDataByte());
+        // }
+        // }
+        // }
+        // }
     }
 
     /**
@@ -179,7 +179,7 @@ public class SenderManager {
      * Clean up the backlog of unsent message packets
      */
     public void clearBuffer() {
-        LOG.info("audit failed cache size: {}", this.dataMap.size());
+        LOG.info("Audit failed cache size: {}", this.dataMap.size());
         for (AuditData data : this.dataMap.values()) {
             this.sendData(data.getDataByte());
             this.sleep();
@@ -286,6 +286,9 @@ public class SenderManager {
             if (data == null) {
                 LOG.error("Can not find the request id onMessageReceived {},message: {}",
                         requestId, baseCommand.getAuditReply().getMessage());
+                for (Map.Entry<Long, AuditData> entry : this.dataMap.entrySet()) {
+                    LOG.debug("Data map key:{},request id:{}", entry.getKey(), requestId);
+                }
                 return;
             }
             // check resp
