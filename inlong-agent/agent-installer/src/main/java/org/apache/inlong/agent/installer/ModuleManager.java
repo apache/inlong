@@ -40,10 +40,16 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.math.BigInteger;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -213,6 +219,49 @@ public class ModuleManager extends AbstractDaemon {
         return true;
     }
 
+    private boolean downloadModule(ModuleConfig module) {
+        LOGGER.info("download module {} begin", module.getId());
+        try {
+            LOGGER.info("download url {}", module.getPackageConfig().getDownloadUrl());
+            URL url = new URL(module.getPackageConfig().getDownloadUrl());
+            URLConnection conn = url.openConnection();
+            Map<String, String> authHeader = httpManager.getAuthHeader();
+            authHeader.forEach((k, v) -> {
+                conn.setRequestProperty(k, v);
+            });
+            InputStream inStream = conn.getInputStream();
+            String path = module.getPackageConfig().getStoragePath() + "/" + module.getPackageConfig().getFileName();
+            FileOutputStream fs = new FileOutputStream(path);
+            LOGGER.info("save path {}", path);
+            int byteRead;
+            byte[] buffer = new byte[DOWNLOAD_PACKAGE_READ_BUFF_SIZE];
+            while ((byteRead = inStream.read(buffer)) != -1) {
+                fs.write(buffer, 0, byteRead);
+            }
+            if (isPackageDownloaded(module)) {
+                return true;
+            } else {
+                LOGGER.error("download package md5 not match!");
+                return false;
+            }
+        } catch (FileNotFoundException e) {
+            LOGGER.error("download module err", e);
+        } catch (IOException e) {
+            LOGGER.error("download module err", e);
+        }
+        LOGGER.info("download module {} end", module.getId());
+        return false;
+    }
+
+    private boolean isPackageDownloaded(ModuleConfig module) {
+        String path = module.getPackageConfig().getStoragePath() + "/" + module.getPackageConfig().getFileName();
+        if (calcFileMd5(path).equals(module.getPackageConfig().getMd5())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     @Override
     public void start() throws Exception {
         httpManager = getHttpManager(conf);
@@ -232,5 +281,29 @@ public class ModuleManager extends AbstractDaemon {
     @Override
     public void stop() throws Exception {
         waitForTerminate();
+    }
+
+    private static String calcFileMd5(String path) {
+        BigInteger bi = null;
+        try {
+            byte[] buffer = new byte[DOWNLOAD_PACKAGE_READ_BUFF_SIZE];
+            int len = 0;
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            File f = new File(path);
+            FileInputStream fis = new FileInputStream(f);
+            while ((len = fis.read(buffer)) != -1) {
+                md.update(buffer, 0, len);
+            }
+            fis.close();
+            byte[] b = md.digest();
+            bi = new BigInteger(1, b);
+        } catch (NoSuchAlgorithmException e) {
+            LOGGER.error("calc file md5 NoSuchAlgorithmException", e);
+            return "";
+        } catch (IOException e) {
+            LOGGER.error("calc file md5 IOException", e);
+            return "";
+        }
+        return bi.toString(16);
     }
 }
