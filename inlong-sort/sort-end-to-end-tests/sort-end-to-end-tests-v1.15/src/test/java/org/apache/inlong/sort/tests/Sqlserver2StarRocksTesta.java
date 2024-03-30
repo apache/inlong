@@ -73,7 +73,6 @@ public class Sqlserver2StarRocksTesta extends FlinkContainerTestEnv {
             (StarRocksContainer) new StarRocksContainer(getNewStarRocksImageName())
                     .withExposedPorts(9030, 8030, 8040)
                     .withNetwork(NETWORK)
-                    .withAccessToHost(true)
                     .withNetworkAliases(INTER_CONTAINER_STAR_ROCKS_ALIAS)
                     .withLogConsumer(new Slf4jLogConsumer(STAR_ROCKS_LOG));
 

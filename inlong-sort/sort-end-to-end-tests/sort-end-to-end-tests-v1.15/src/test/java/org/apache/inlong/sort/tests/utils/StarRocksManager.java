@@ -56,22 +56,6 @@ public class StarRocksManager {
                 .withTag(NEW_STARROCKS_TAG).exec();
         oldStarRocks.stop();
     }
-    public static void buildStarRocksImage() {
-        GenericContainer oldStarRocks = new GenericContainer(STAR_ROCKS_IMAGE_NAME);
-        Startables.deepStart(Stream.of(oldStarRocks)).join();
-        oldStarRocks.copyFileToContainer(MountableFile.forClasspathResource("/docker/starrocks/start_fe_be.sh"),
-                "/data/deploy/");
-        try {
-            oldStarRocks.execInContainer("chmod", "+x", "/data/deploy/start_fe_be.sh");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        oldStarRocks.getDockerClient()
-                .commitCmd(oldStarRocks.getContainerId())
-                .withRepository(NEW_STARROCKS_REPOSITORY)
-                .withTag(NEW_STARROCKS_TAG).exec();
-        oldStarRocks.stop();
-    }
 
     public static String getNewStarRocksImageName() {
         return NEW_STARROCKS_REPOSITORY + ":" + NEW_STARROCKS_TAG;

@@ -43,10 +43,8 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.apache.inlong.sort.tests.utils.StarRocksManager.INTER_CONTAINER_STAR_ROCKS_ALIAS;
-import static org.apache.inlong.sort.tests.utils.StarRocksManager.STAR_ROCKS_LOG;
-import static org.apache.inlong.sort.tests.utils.StarRocksManager.getNewStarRocksImageName;
-import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStarRocksTable;
+import static org.apache.inlong.sort.tests.utils.StarRocksManager.*;
+
 /**
  * End-to-end tests for sort-connector-postgres-cdc-v1.15 uber jar.
  * Test flink sql Postgres cdc to StarRocks
@@ -54,7 +52,6 @@ import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStar
 public class Postgres2StarRocksTest extends FlinkContainerTestEnv {
 
     private static final Logger LOG = LoggerFactory.getLogger(Postgres2StarRocksTest.class);
-
     private static final Path postgresJar = TestUtils.getResource("sort-connector-postgres-cdc.jar");
     private static final Path jdbcJar = TestUtils.getResource("sort-connector-starrocks.jar");
     private static final Path mysqlJdbcJar = TestUtils.getResource("mysql-driver.jar");
@@ -68,16 +65,6 @@ public class Postgres2StarRocksTest extends FlinkContainerTestEnv {
             throw new RuntimeException(e);
         }
     }
-
-    @ClassRule
-    public static StarRocksContainer STAR_ROCKS =
-            (StarRocksContainer) new StarRocksContainer(getNewStarRocksImageName())
-                    .withExposedPorts(9030, 8030, 8040)
-                    .withNetwork(NETWORK)
-                    .withAccessToHost(true)
-                    .withNetworkAliases(INTER_CONTAINER_STAR_ROCKS_ALIAS)
-                    .withLogConsumer(new Slf4jLogConsumer(STAR_ROCKS_LOG));
-
     @ClassRule
     public static final PostgreSQLContainer POSTGRES_CONTAINER = (PostgreSQLContainer) new PostgreSQLContainer(
             DockerImageName.parse("debezium/postgres:13").asCompatibleSubstituteFor("postgres"))
@@ -87,6 +74,13 @@ public class Postgres2StarRocksTest extends FlinkContainerTestEnv {
                     .withNetwork(NETWORK)
                     .withNetworkAliases("postgres")
                     .withLogConsumer(new Slf4jLogConsumer(LOG));
+    @ClassRule
+    public static final StarRocksContainer STAR_ROCKS =
+            (StarRocksContainer) new StarRocksContainer(getNewStarRocksImageName())
+                    .withExposedPorts(9030, 8030, 8040)
+                    .withNetwork(NETWORK)
+                    .withNetworkAliases(INTER_CONTAINER_STAR_ROCKS_ALIAS)
+                    .withLogConsumer(new Slf4jLogConsumer(STAR_ROCKS_LOG));
 
     @Before
     public void setup() {
