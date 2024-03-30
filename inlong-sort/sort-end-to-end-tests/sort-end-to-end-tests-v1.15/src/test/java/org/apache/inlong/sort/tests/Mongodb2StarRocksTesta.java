@@ -82,9 +82,8 @@ public class Mongodb2StarRocksTesta extends FlinkContainerTestEnv {
 
     static {
         try {
-            sqlFile = Paths.get(Postgres2StarRocksTesta.class.getResource("/flinkSql/mongodb_test.sql").toURI())
+            sqlFile = Paths.get(Postgres2StarRocksTest.class.getResource("/flinkSql/mongodb_test.sql").toURI())
                     .toString();
-            buildStarRocksImage();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

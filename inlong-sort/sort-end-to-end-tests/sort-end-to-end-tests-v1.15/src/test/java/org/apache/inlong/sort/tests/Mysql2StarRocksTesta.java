@@ -44,7 +44,6 @@ import java.util.List;
 
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.INTER_CONTAINER_STAR_ROCKS_ALIAS;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.STAR_ROCKS_LOG;
-import static org.apache.inlong.sort.tests.utils.StarRocksManager.buildStarRocksImage;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.getNewStarRocksImageName;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStarRocksTable;
 
@@ -65,7 +64,6 @@ public class Mysql2StarRocksTesta extends FlinkContainerTestEnv {
         try {
             sqlFile =
                     Paths.get(Mysql2StarRocksTesta.class.getResource("/flinkSql/mysql_test.sql").toURI()).toString();
-            buildStarRocksImage();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

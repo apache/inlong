@@ -45,16 +45,15 @@ import java.util.List;
 
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.INTER_CONTAINER_STAR_ROCKS_ALIAS;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.STAR_ROCKS_LOG;
-import static org.apache.inlong.sort.tests.utils.StarRocksManager.buildStarRocksImage;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.getNewStarRocksImageName;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStarRocksTable;
 /**
  * End-to-end tests for sort-connector-postgres-cdc-v1.15 uber jar.
  * Test flink sql Postgres cdc to StarRocks
  */
-public class Postgres2StarRocksTesta extends FlinkContainerTestEnv {
+public class Postgres2StarRocksTest extends FlinkContainerTestEnv {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Postgres2StarRocksTesta.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Postgres2StarRocksTest.class);
 
     private static final Path postgresJar = TestUtils.getResource("sort-connector-postgres-cdc.jar");
     private static final Path jdbcJar = TestUtils.getResource("sort-connector-starrocks.jar");
@@ -63,9 +62,8 @@ public class Postgres2StarRocksTesta extends FlinkContainerTestEnv {
 
     static {
         try {
-            sqlFile = Paths.get(Postgres2StarRocksTesta.class.getResource("/flinkSql/postgres_test.sql").toURI())
+            sqlFile = Paths.get(Postgres2StarRocksTest.class.getResource("/flinkSql/postgres_test.sql").toURI())
                     .toString();
-            buildStarRocksImage();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

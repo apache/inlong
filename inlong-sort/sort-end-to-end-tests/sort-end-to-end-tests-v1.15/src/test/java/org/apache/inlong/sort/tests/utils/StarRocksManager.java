@@ -39,6 +39,23 @@ public class StarRocksManager {
     private static final String NEW_STARROCKS_TAG = "latest";
     private static final String STAR_ROCKS_IMAGE_NAME = "starrocks/allin1-ubi:3.0.4";
     public static final Logger STAR_ROCKS_LOG = LoggerFactory.getLogger(StarRocksContainer.class);
+
+    static {
+        GenericContainer oldStarRocks = new GenericContainer(STAR_ROCKS_IMAGE_NAME);
+        Startables.deepStart(Stream.of(oldStarRocks)).join();
+        oldStarRocks.copyFileToContainer(MountableFile.forClasspathResource("/docker/starrocks/start_fe_be.sh"),
+                "/data/deploy/");
+        try {
+            oldStarRocks.execInContainer("chmod", "+x", "/data/deploy/start_fe_be.sh");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        oldStarRocks.getDockerClient()
+                .commitCmd(oldStarRocks.getContainerId())
+                .withRepository(NEW_STARROCKS_REPOSITORY)
+                .withTag(NEW_STARROCKS_TAG).exec();
+        oldStarRocks.stop();
+    }
     public static void buildStarRocksImage() {
         GenericContainer oldStarRocks = new GenericContainer(STAR_ROCKS_IMAGE_NAME);
         Startables.deepStart(Stream.of(oldStarRocks)).join();

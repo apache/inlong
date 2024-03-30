@@ -56,7 +56,6 @@ import java.util.Objects;
 
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.INTER_CONTAINER_STAR_ROCKS_ALIAS;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.STAR_ROCKS_LOG;
-import static org.apache.inlong.sort.tests.utils.StarRocksManager.buildStarRocksImage;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.getNewStarRocksImageName;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStarRocksTable;
 
@@ -83,7 +82,6 @@ public class Kafka2StarRocksTesta extends FlinkContainerTestEnv {
             URI kafkaSqlFile =
                     Objects.requireNonNull(Kafka2StarRocksTesta.class.getResource("/flinkSql/kafka_test.sql")).toURI();
             sqlFile = Paths.get(kafkaSqlFile).toString();
-            buildStarRocksImage();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
