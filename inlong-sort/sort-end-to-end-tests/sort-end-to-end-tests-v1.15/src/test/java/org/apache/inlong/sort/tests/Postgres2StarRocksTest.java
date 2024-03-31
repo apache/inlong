@@ -51,6 +51,7 @@ import static org.apache.inlong.sort.tests.utils.StarRocksManager.*;
  */
 public class Postgres2StarRocksTest extends FlinkContainerTestEnv {
 
+    private static final Logger PG_LOG = LoggerFactory.getLogger(PostgreSQLContainer.class);
     private static final Logger LOG = LoggerFactory.getLogger(Postgres2StarRocksTest.class);
     private static final Path postgresJar = TestUtils.getResource("sort-connector-postgres-cdc.jar");
     private static final Path jdbcJar = TestUtils.getResource("sort-connector-starrocks.jar");
@@ -73,7 +74,7 @@ public class Postgres2StarRocksTest extends FlinkContainerTestEnv {
                     .withDatabaseName("test")
                     .withNetwork(NETWORK)
                     .withNetworkAliases("postgres")
-                    .withLogConsumer(new Slf4jLogConsumer(LOG));
+                    .withLogConsumer(new Slf4jLogConsumer(PG_LOG));
     @ClassRule
     public static final StarRocksContainer STAR_ROCKS =
             (StarRocksContainer) new StarRocksContainer(getNewStarRocksImageName())
