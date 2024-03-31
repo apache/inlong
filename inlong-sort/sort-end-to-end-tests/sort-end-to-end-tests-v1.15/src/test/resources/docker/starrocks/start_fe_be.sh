@@ -63,7 +63,7 @@ log_stdin "init starrocks db end!"
 
 # health check the entire stack end-to-end and exit on failure.
 while sleep 10; do
-  PROCESS_STATUS=`mysql -uroot -h127.0.0.1 -P 9030 -e "show backends\G" |grep "Alive: true"`
+  PROCESS_STATUS=`mysql -uroot -h${MYFQDN} -P 9030 -e "show backends\G" |grep "Alive: true"`
   if [ -z "$PROCESS_STATUS" ]; then
         log_stdin "service has exited"
         exit 1;
