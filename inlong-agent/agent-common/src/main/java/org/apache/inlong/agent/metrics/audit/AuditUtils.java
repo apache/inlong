@@ -107,6 +107,6 @@ public class AuditUtils {
         if (!IS_AUDIT) {
             return;
         }
-        AuditOperator.getInstance().send();
+        AuditOperator.getInstance().flush();
     }
 }

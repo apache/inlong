@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS `audit_data`
     `inlong_stream_id` varchar(100) NOT NULL DEFAULT '' COMMENT 'The target inlong stream id',
     `audit_id`         varchar(100) NOT NULL DEFAULT '' COMMENT 'Audit id',
     `audit_tag`        varchar(100) DEFAULT '' COMMENT 'Audit tag',
+    `audit_version`    BIGINT       DEFAULT -1  COMMENT 'Audit version',
     `count`            BIGINT       NOT NULL DEFAULT '0' COMMENT 'Message count',
     `size`             BIGINT       NOT NULL DEFAULT '0' COMMENT 'Message size',
     `delay`            BIGINT       NOT NULL DEFAULT '0' COMMENT 'Message delay count',

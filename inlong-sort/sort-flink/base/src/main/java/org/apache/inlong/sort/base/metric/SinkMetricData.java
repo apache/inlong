@@ -285,7 +285,7 @@ public class SinkMetricData implements MetricData, Serializable {
      */
     public void flushAuditData() {
         if (auditOperator != null) {
-            auditOperator.send();
+            auditOperator.flush();
         }
     }
 
