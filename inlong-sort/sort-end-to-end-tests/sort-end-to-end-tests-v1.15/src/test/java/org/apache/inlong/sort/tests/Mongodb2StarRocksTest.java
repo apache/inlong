@@ -60,9 +60,9 @@ import static com.mongodb.client.model.Updates.*;
  * End-to-end tests for sort-connector-mongodb-cdc-v1.15 uber jar.
  * Test flink sql Mongodb cdc to StarRocks
  */
-public class Mongodb2StarRocksTesta extends FlinkContainerTestEnv {
+public class Mongodb2StarRocksTest extends FlinkContainerTestEnv {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Mongodb2StarRocksTesta.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Mongodb2StarRocksTest.class);
 
     private static final Path mongodbJar = TestUtils.getResource("sort-connector-mongodb-cdc.jar");
     private static final Path jdbcJar = TestUtils.getResource("sort-connector-starrocks.jar");

@@ -66,7 +66,6 @@ public class StarRocksManager {
                 DriverManager.getConnection(STAR_ROCKS.getJdbcUrl(), STAR_ROCKS.getUsername(),
                         STAR_ROCKS.getPassword());
                 Statement stat = conn.createStatement()) {
-            System.out.println("-------------------"+STAR_ROCKS.getJdbcUrl()+"-------"+STAR_ROCKS.getUsername()+"--------"+STAR_ROCKS.getPassword());
             stat.execute("CREATE TABLE IF NOT EXISTS test_output1 (\n"
                     + "       id INT NOT NULL,\n"
                     + "       name VARCHAR(255) NOT NULL DEFAULT 'flink',\n"
