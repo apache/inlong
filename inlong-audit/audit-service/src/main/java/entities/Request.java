@@ -26,6 +26,6 @@ public class Request {
     String endTime;
     String auditId;
     String auditTag;
-    String inLongGroupId;
-    String inLongStreamId;
+    String inlongGroupId;
+    String inlongStreamId;
 }

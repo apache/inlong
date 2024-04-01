@@ -22,13 +22,13 @@ import lombok.Data;
 @Data
 public class SourceEntities {
 
-    AuditCycle auditCycle;
-    String sourceTable;
-    int stepCount;
+    private AuditCycle auditCycle;
+    private String sourceTable;
+    private int beforeTimes;
 
-    public SourceEntities(AuditCycle auditCycle, String sourceTable, int stepCount) {
+    public SourceEntities(AuditCycle auditCycle, String sourceTable, int beforeTimes) {
         this.auditCycle = auditCycle;
         this.sourceTable = sourceTable;
-        this.stepCount = stepCount;
+        this.beforeTimes = beforeTimes;
     }
 }
