@@ -21,5 +21,16 @@ package entities;
  * Audit cycle
  */
 public enum AuditCycle {
-    MINUTE_10, MINUTE_30, HOUR, DAY;
+
+    MINUTE_5(5), MINUTE_10(10), MINUTE_30(30), HOUR(60), DAY(1440);
+
+    private final int cycle;
+
+    AuditCycle(int cycle) {
+        this.cycle = cycle;
+    }
+
+    public int getValue() {
+        return cycle;
+    }
 }
