@@ -143,6 +143,7 @@ public class ModuleManager extends AbstractDaemon {
             while (isRunnable()) {
                 try {
                     dealWithConfigQueue(configQueue);
+                    checkModules();
                     AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_TASK_MGR_HEARTBEAT, "", "",
                             AgentUtils.getCurrentTime(), 1, 1);
                     AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
@@ -211,6 +212,44 @@ public class ModuleManager extends AbstractDaemon {
         } else {
             LOGGER.error("update modules failed!");
         }
+    }
+
+    private void checkModules() {
+        LOGGER.info("check modules start");
+        currentModules.values().forEach((module) -> {
+            LOGGER.info("check module current state {} {}", module.getName(), module.getState());
+            switch (module.getState()) {
+                case NEW:
+                    if (downloadModule(module)) {
+                        saveModuleState(module.getId(), ModuleStateEnum.DOWNLOADED);
+                    } else {
+                        LOGGER.error("download module {} failed, keep state in new", module.getName());
+                    }
+                    break;
+                case DOWNLOADED:
+                    if (isPackageDownloaded(module)) {
+                        installModule(module);
+                        saveModuleState(module.getId(), ModuleStateEnum.INSTALLED);
+                    } else {
+                        LOGGER.info("check module {} package failed, change stated to new, will download package again",
+                                module.getName());
+                        saveModuleState(module.getId(), ModuleStateEnum.NEW);
+                    }
+                    break;
+                case INSTALLED:
+                    if (!isProcessAllStarted(module)) {
+                        LOGGER.info("module {} process not all started try to start", module.getName());
+                        if (!startModule(module)) {
+                            LOGGER.info("start module {} failed, change state to downloaded", module.getState());
+                            saveModuleState(module.getId(), ModuleStateEnum.DOWNLOADED);
+                        }
+                    }
+                    break;
+                default:
+                    LOGGER.error("module {} invalid state {}", module.getName(), module.getState());
+            }
+        });
+        LOGGER.info("check modules end");
     }
 
     private boolean updateModules(List<ModuleConfig> managerModuleList) {
