@@ -313,9 +313,9 @@ public class ModuleManager extends AbstractDaemon {
             LOGGER.error("should not happen! module {} not found!", moduleId);
             return false;
         }
-        LOGGER.info("save module state to {} {}", moduleId, state);
         module.setState(state);
         saveToLocalFile(confPath);
+        LOGGER.info("save module state to {} {}", moduleId, state);
         return true;
     }
 
