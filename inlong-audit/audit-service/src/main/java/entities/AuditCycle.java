@@ -17,6 +17,9 @@
 
 package entities;
 
+/**
+ * Audit cycle
+ */
 public enum AuditCycle {
-    HOUR, DAY;
+    MINUTE_10, MINUTE_30, HOUR, DAY;
 }
