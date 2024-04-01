@@ -101,7 +101,7 @@ jobs:
           CI: false
 
       - name: Unit test with Maven
-        run: mvn --batch-mode --update-snapshots -e -V test -pl !:sort-end-to-end-tests-v1.15,!:sort-end-to-end-tests-v1.13 -DskipTests
+        run: mvn --batch-mode --update-snapshots -e -V test -pl !:sort-end-to-end-tests-v1.15,!:sort-end-to-end-tests-v1.13
         env:
           CI: false
 
