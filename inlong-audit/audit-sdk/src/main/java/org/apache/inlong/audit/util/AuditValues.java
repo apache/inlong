@@ -17,6 +17,9 @@
 
 package org.apache.inlong.audit.util;
 
+/**
+ * Audit values
+ */
 public class AuditValues {
 
     private long count;

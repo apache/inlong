@@ -76,12 +76,27 @@ public class AuditReporterImpl implements Serializable {
     private final ScheduledExecutorService timeoutExecutor = Executors.newSingleThreadScheduledExecutor();
     private AuditConfig auditConfig = null;
     private SocketAddressListLoader loader = null;
+
+    // Resource isolation key is used in checkpoint and other scenarios.DEFAULT 0.
     private static final long DEFAULT_ISOLATE_KEY = 0;
     private int flushStatThreshold = 100;
     private boolean autoFlush = true;
+
+    /**
+     * Set stat threshold
+     *
+     * @param flushStatThreshold
+     */
     public void setFlushStatThreshold(int flushStatThreshold) {
         this.flushStatThreshold = flushStatThreshold;
     }
+
+    /**
+     * When the caller needs to isolate resources, please call this method and pass the parameter true.
+     * For example, in scenarios such as flink checkpoint
+     *
+     * @param autoFlush
+     */
     public void setAutoFlush(boolean autoFlush) {
         this.autoFlush = autoFlush;
     }
@@ -222,6 +237,13 @@ public class AuditReporterImpl implements Serializable {
         addByKey(DEFAULT_ISOLATE_KEY, keyJoiner.toString(), count, size, delayTime);
     }
 
+    /**
+     * When the caller needs to isolate resources, please call this method.
+     * For example, in scenarios such as flink checkpoint
+     *
+     * @param dimensions
+     * @param values
+     */
     public void add(AuditDimensions dimensions, AuditValues values) {
         StringJoiner keyJoiner = new StringJoiner(FIELD_SEPARATORS);
         keyJoiner.add(String.valueOf(dimensions.getLogTime() / PERIOD));

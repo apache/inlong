@@ -17,6 +17,9 @@
 
 package org.apache.inlong.audit.util;
 
+/**
+ * Audit dimensions
+ */
 public class AuditDimensions {
 
     private int auditID;
