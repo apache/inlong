@@ -20,9 +20,15 @@ package entities;
 import lombok.Data;
 
 @Data
-public class StartEndTime {
+public class SourceEntities {
 
-    String startTime;
-    String endTime;
-    long endTimeStamp;
+    AuditCycle auditCycle;
+    String sourceTable;
+    int stepCount;
+
+    public SourceEntities(AuditCycle auditCycle, String sourceTable, int stepCount) {
+        this.auditCycle = auditCycle;
+        this.sourceTable = sourceTable;
+        this.stepCount = stepCount;
+    }
 }
