@@ -26,5 +26,5 @@ public interface SourceStat extends Runnable {
 
     public void aggregate(String auditId);
 
-    public void doAggregate(String startTime, String endTime, String auditId);
+    public void query(String startTime, String endTime, String auditId);
 }
