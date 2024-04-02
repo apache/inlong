@@ -163,9 +163,9 @@ Assert.assertEquals(manager.getModule(1).getPackageConfig().getMd5(), OLD_MD5);
         }
         await().atMost(3, TimeUnit.SECONDS).until(() -> manager.getModule(1) != null);
         await().atMost(10, TimeUnit.SECONDS).until(() -> realActionList.size() == expectedActionList.size());
-        for (Integer i = 0; i < expectedActionList.size(); i++) {
+        for (int i = 0; i < expectedActionList.size(); i++) {
             LOGGER.info("{} {}", realActionList.get(i), expectedActionList.get(i));
-            Assert.assertTrue(i.toString(), realActionList.get(i).equals(expectedActionList.get(i)));
+            Assert.assertEquals(Integer.toString(i), realActionList.get(i), expectedActionList.get(i));
         }
     }
 
