@@ -135,6 +135,11 @@ public class TestModuleManager {
                 return true;
             }).when(manager, "stopModule", Mockito.any());
 
+            PowerMockito.doAnswer(invocation -> {
+                ModuleConfig module = invocation.getArgument(0);
+                return true;
+            }).when(manager, "isProcessAllStarted", Mockito.any());
+
             PowerMockito.doReturn(null).when(manager, "getHttpManager", Mockito.any());
         } catch (Exception e) {
             LOGGER.error("mock downloadModule error", e);
