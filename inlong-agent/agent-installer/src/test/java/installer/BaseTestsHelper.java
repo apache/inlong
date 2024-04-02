@@ -77,8 +77,7 @@ public class BaseTestsHelper {
     public TaskProfile getTaskProfile(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
             TaskStateEnum state, String timeZone) {
         DataConfig dataConfig = getDataConfig(taskId, pattern, retry, startTime, endTime, state, timeZone);
-        TaskProfile profile = TaskProfile.convertToTaskProfile(dataConfig);
-        return profile;
+        return TaskProfile.convertToTaskProfile(dataConfig);
     }
 
     private DataConfig getDataConfig(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
