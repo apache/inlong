@@ -159,7 +159,7 @@ Assert.assertEquals(manager.getModule(1).getPackageConfig().getMd5(), OLD_MD5);
             manager.start();
         } catch (Exception e) {
             LOGGER.error("start module manager error", e);
-            Assert.assertTrue("start module manager error", false);
+            Assert.fail("start module manager error");
         }
         await().atMost(3, TimeUnit.SECONDS).until(() -> manager.getModule(1) != null);
         await().atMost(10, TimeUnit.SECONDS).until(() -> realActionList.size() == expectedActionList.size());
