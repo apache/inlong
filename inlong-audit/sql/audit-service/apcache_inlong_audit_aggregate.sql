@@ -28,7 +28,9 @@ CREATE DATABASE IF NOT EXISTS apache_inlong_audit;
 USE apache_inlong_audit;
 
 -- ----------------------------
--- Table structure for audit_data
+-- Table structure for audit_data_temp
+-- You can create daily partitions or hourly partitions through the log_ts field.
+-- The specific partition type is determined based on the actual data volume.
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `audit_data_temp`
 (
@@ -45,6 +47,11 @@ CREATE TABLE IF NOT EXISTS `audit_data_temp`
 ) ENGINE = InnoDB
 DEFAULT CHARSET = utf8 COMMENT ='Inlong audit data temp table';
 
+-- ----------------------------
+-- Table structure for audit_data_day
+-- You can create daily partitions through the log_ts field.
+-- The specific partition type is determined based on the actual data volume.
+-- ----------------------------
 CREATE TABLE IF NOT EXISTS `audit_data_day`
 (
     `log_ts`           date NOT NULL DEFAULT '0000-00-00' COMMENT 'log timestamp',
