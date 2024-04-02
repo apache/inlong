@@ -318,10 +318,10 @@ public class ModuleManager extends AbstractDaemon {
     private void updateModule(ModuleConfig localModule, ModuleConfig managerModule) {
         LOGGER.info("update module {} start", localModule.getId());
         if (localModule.getPackageConfig().getMd5().equals(managerModule.getPackageConfig().getMd5())) {
-            LOGGER.info("package md5 no change, will restart {}", localModule.getId());
+            LOGGER.info("module {} package md5 no change, will restart", localModule.getId());
             restartModule(localModule, managerModule);
         } else {
-            LOGGER.info("package md5 changed, will reinstall", localModule.getId());
+            LOGGER.info("module {} package md5 changed, will reinstall", localModule.getId());
             deleteModule(localModule);
             addModule(managerModule);
         }

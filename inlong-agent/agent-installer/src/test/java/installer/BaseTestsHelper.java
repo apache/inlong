@@ -17,13 +17,9 @@
 
 package installer;
 
-import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.FetcherConstants;
 import org.apache.inlong.agent.installer.conf.InstallerConfiguration;
-import org.apache.inlong.agent.pojo.FileTask.FileTaskConfig;
-import org.apache.inlong.common.enums.TaskStateEnum;
-import org.apache.inlong.common.pojo.agent.DataConfig;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -40,7 +36,7 @@ import java.nio.file.Paths;
 public class BaseTestsHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseTestsHelper.class);
-      private static final Gson GSON = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+    private static final Gson GSON = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
     private final String className;
     private Path testRootDir;
 
@@ -59,10 +55,6 @@ public class BaseTestsHelper {
         return this;
     }
 
-    public Path getTestRootDir() {
-        return testRootDir;
-    }
-
     public void teardownAgentHome() {
         if (testRootDir != null) {
             try {
@@ -71,33 +63,5 @@ public class BaseTestsHelper {
                 LOGGER.warn("deleteDirectory error ", ignored);
             }
         }
-    }
-
-    public TaskProfile getTaskProfile(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
-            TaskStateEnum state, String timeZone) {
-        DataConfig dataConfig = getDataConfig(taskId, pattern, retry, startTime, endTime, state, timeZone);
-        return TaskProfile.convertToTaskProfile(dataConfig);
-    }
-
-    private DataConfig getDataConfig(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
-            TaskStateEnum state, String timeZone) {
-        DataConfig dataConfig = new DataConfig();
-        dataConfig.setInlongGroupId("testGroupId");
-        dataConfig.setInlongStreamId("testStreamId");
-        dataConfig.setDataReportType(1);
-        dataConfig.setTaskType(3);
-        dataConfig.setTaskId(taskId);
-        dataConfig.setTimeZone(timeZone);
-        dataConfig.setState(state.ordinal());
-        FileTaskConfig fileTaskConfig = new FileTaskConfig();
-        fileTaskConfig.setPattern(pattern);
-        fileTaskConfig.setTimeOffset("0h");
-        fileTaskConfig.setMaxFileCount(100);
-        fileTaskConfig.setCycleUnit("h");
-        fileTaskConfig.setRetry(retry);
-        fileTaskConfig.setStartTime(startTime);
-        fileTaskConfig.setEndTime(endTime);
-        dataConfig.setExtParams(GSON.toJson(fileTaskConfig));
-        return dataConfig;
     }
 }
