@@ -42,12 +42,8 @@ public class DataQueue {
      *
      * @param statDataPo
      */
-    public void push(StatData statDataPo) {
-        try {
-            queue.put(statDataPo);
-        } catch (InterruptedException ex) {
-            LOG.error(ex.getMessage());
-        }
+    public void push(StatData statDataPo) throws InterruptedException {
+        queue.put(statDataPo);
     }
 
     /**
