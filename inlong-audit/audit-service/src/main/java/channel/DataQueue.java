@@ -38,30 +38,33 @@ public class DataQueue {
     }
 
     /**
-     *  Push data
+     * Push data
+     *
      * @param statDataPo
      */
     public void push(StatData statDataPo) {
         try {
             queue.put(statDataPo);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        } catch (InterruptedException ex) {
+            LOG.error(ex.getMessage());
         }
     }
 
     /**
      * Pull data
+     *
      * @param timeout
      * @param unit
      * @return
      */
     public StatData pull(long timeout, TimeUnit unit) {
+        StatData message = null;
         try {
-            StatData message = queue.poll(timeout, unit);
-            return message;
+            message = queue.poll(timeout, unit);
         } catch (InterruptedException ex) {
-            throw new IllegalStateException(ex);
+            LOG.error(ex.getMessage());
         }
+        return message;
     }
 
     /**
