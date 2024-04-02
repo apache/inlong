@@ -40,8 +40,7 @@ import java.nio.file.Paths;
 public class BaseTestsHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseTestsHelper.class);
-    private static final GsonBuilder gsonBuilder = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss");
-    private static final Gson GSON = gsonBuilder.create();
+      private static final Gson GSON = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
     private final String className;
     private Path testRootDir;
 
