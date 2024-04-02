@@ -143,8 +143,7 @@ public class TestModuleManager {
             PowerMockito.doReturn(null).when(manager, "getHttpManager", Mockito.any());
         } catch (Exception e) {
             LOGGER.error("mock downloadModule error", e);
-            Assert.assertTrue(false);
-            return;
+            Assert.fail();
         }
     }
 
