@@ -40,7 +40,6 @@
     <loggers>
         <root level="${output_log_level}">
             <appender-ref ref="Console"/>
-            <appender-ref ref="DebugFile"/>
         </root>
     </loggers>
 </configuration>
