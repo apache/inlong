@@ -154,7 +154,7 @@ public class TestModuleManager {
         mockFunctions();
         String confPath = LOADER.getResource("conf/").getPath();
         manager.restoreFromLocalFile(confPath);
-        Assert.assertTrue(manager.getModule(1).getPackageConfig().getMd5().equals(OLD_MD5));
+Assert.assertEquals(manager.getModule(1).getPackageConfig().getMd5(), OLD_MD5);
         manager.submitConfig(getConfig());
         try {
             manager.start();
