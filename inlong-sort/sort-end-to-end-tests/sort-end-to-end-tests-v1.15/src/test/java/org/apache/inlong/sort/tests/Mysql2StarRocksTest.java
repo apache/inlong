@@ -20,7 +20,6 @@ package org.apache.inlong.sort.tests;
 import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
 import org.apache.inlong.sort.tests.utils.JdbcProxy;
 import org.apache.inlong.sort.tests.utils.MySqlContainer;
-import org.apache.inlong.sort.tests.utils.PlaceholderResolver;
 import org.apache.inlong.sort.tests.utils.StarRocksContainer;
 import org.apache.inlong.sort.tests.utils.TestUtils;
 
@@ -30,17 +29,9 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.Container.ExecResult;
-import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.utility.DockerImageName;
 
-import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -48,61 +39,41 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.INTER_CONTAINER_STAR_ROCKS_ALIAS;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.STAR_ROCKS_LOG;
-import static org.apache.inlong.sort.tests.utils.StarRocksManager.buildStarRocksImage;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.getNewStarRocksImageName;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStarRocksTable;
 
 /**
- * End-to-end tests for sort-connector-kafka uber jar.
+ * End-to-end tests for sort-connector-postgres-cdc-v1.15 uber jar.
+ * Test flink sql Mysql cdc to StarRocks
  */
-public class KafkaE2EITCase extends FlinkContainerTestEnv {
+public class Mysql2StarRocksTest extends FlinkContainerTestEnv {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KafkaE2EITCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Mysql2StarRocksTest.class);
 
-    public static final Logger MYSQL_LOG = LoggerFactory.getLogger(MySqlContainer.class);
-
-    public static final Logger KAFKA_LOG = LoggerFactory.getLogger(KafkaContainer.class);
-
-    private static final Path kafkaJar = TestUtils.getResource("sort-connector-kafka.jar");
     private static final Path mysqlJar = TestUtils.getResource("sort-connector-mysql-cdc.jar");
-    private static final Path starrocksJar = TestUtils.getResource("sort-connector-starrocks.jar");
+    private static final Path jdbcJar = TestUtils.getResource("sort-connector-starrocks.jar");
     private static final Path mysqlJdbcJar = TestUtils.getResource("mysql-driver.jar");
-
     private static final String sqlFile;
 
     static {
         try {
-            URI kafkaSqlFile =
-                    Objects.requireNonNull(KafkaE2EITCase.class.getResource("/flinkSql/kafka_test.sql")).toURI();
-            sqlFile = Paths.get(kafkaSqlFile).toString();
-            buildStarRocksImage();
+            sqlFile =
+                    Paths.get(Mysql2StarRocksTest.class.getResource("/flinkSql/mysql_test.sql").toURI()).toString();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
 
     @ClassRule
-    public static final KafkaContainer KAFKA =
-            new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"))
-                    .withNetwork(NETWORK)
-                    .withNetworkAliases("kafka")
-                    .withEmbeddedZookeeper()
-                    .withLogConsumer(new Slf4jLogConsumer(KAFKA_LOG));
-
-    @ClassRule
-    public static StarRocksContainer STAR_ROCKS =
+    public static final StarRocksContainer STAR_ROCKS =
             (StarRocksContainer) new StarRocksContainer(getNewStarRocksImageName())
                     .withExposedPorts(9030, 8030, 8040)
                     .withNetwork(NETWORK)
-                    .withAccessToHost(true)
                     .withNetworkAliases(INTER_CONTAINER_STAR_ROCKS_ALIAS)
                     .withLogConsumer(new Slf4jLogConsumer(STAR_ROCKS_LOG));
 
@@ -112,7 +83,7 @@ public class KafkaE2EITCase extends FlinkContainerTestEnv {
                     .withDatabaseName("test")
                     .withNetwork(NETWORK)
                     .withNetworkAliases("mysql")
-                    .withLogConsumer(new Slf4jLogConsumer(MYSQL_LOG));
+                    .withLogConsumer(new Slf4jLogConsumer(LOG));
 
     @Before
     public void setup() {
@@ -129,7 +100,7 @@ public class KafkaE2EITCase extends FlinkContainerTestEnv {
                             MYSQL_CONTAINER.getPassword());
             Statement stat = conn.createStatement();
             stat.execute(
-                    "CREATE TABLE test_input (\n"
+                    "CREATE TABLE test_input1 (\n"
                             + "  id SERIAL,\n"
                             + "  name VARCHAR(255) NOT NULL DEFAULT 'flink',\n"
                             + "  description VARCHAR(512),\n"
@@ -144,71 +115,38 @@ public class KafkaE2EITCase extends FlinkContainerTestEnv {
 
     @AfterClass
     public static void teardown() {
-        if (KAFKA != null) {
-            KAFKA.stop();
-        }
-
         if (MYSQL_CONTAINER != null) {
             MYSQL_CONTAINER.stop();
         }
-
         if (STAR_ROCKS != null) {
             STAR_ROCKS.stop();
         }
     }
 
-    private void initializeKafkaTable(String topic) {
-        String fileName = "kafka_test_kafka_init.txt";
-        int port = KafkaContainer.ZOOKEEPER_PORT;
-
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("TOPIC", topic);
-        properties.put("ZOOKEEPER_PORT", port);
-
-        try {
-            String createKafkaStatement = getCreateStatement(fileName, properties);
-            ExecResult result = KAFKA.execInContainer("bash", "-c", createKafkaStatement);
-            LOG.info("Create kafka topic: {}, std: {}", createKafkaStatement, result.getStdout());
-            if (result.getExitCode() != 0) {
-                throw new RuntimeException("Init kafka topic failed. Exit code:" + result.getExitCode());
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String getCreateStatement(String fileName, Map<String, Object> properties) {
-        URL url = Objects.requireNonNull(KafkaE2EITCase.class.getResource("/env/" + fileName));
-
-        try {
-            Path file = Paths.get(url.toURI());
-            return PlaceholderResolver.getDefaultResolver().resolveByMap(
-                    new String(Files.readAllBytes(file), StandardCharsets.UTF_8),
-                    properties);
-        } catch (IOException | URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
-     * Test flink sql mysql cdc to starrocks.
+     * Test flink sql postgresql cdc to StarRocks
      *
-     * @throws Exception The exception may throw when execute the case
+     * @throws Exception The exception may throws when execute the case
      */
     @Test
-    public void testKafkaWithSqlFile() throws Exception {
-        final String topic = "test-topic";
-        initializeKafkaTable(topic);
-
-        submitSQLJob(sqlFile, kafkaJar, starrocksJar, mysqlJar, mysqlJdbcJar);
+    public void testMysqlUpdateAndDelete() throws Exception {
+        submitSQLJob(sqlFile, jdbcJar, mysqlJar, mysqlJdbcJar);
         waitUntilJobRunning(Duration.ofSeconds(10));
 
         // generate input
-        try (Connection conn = DriverManager.getConnection(MYSQL_CONTAINER.getJdbcUrl(),
-                MYSQL_CONTAINER.getUsername(), MYSQL_CONTAINER.getPassword());
+        try (Connection conn =
+                DriverManager.getConnection(MYSQL_CONTAINER.getJdbcUrl(), MYSQL_CONTAINER.getUsername(),
+                        MYSQL_CONTAINER.getPassword());
                 Statement stat = conn.createStatement()) {
-            stat.execute("INSERT INTO test_input VALUES (1,'jacket','water resistant white wind breaker');");
-            stat.execute("INSERT INTO test_input VALUES (2,'scooter','Big 2-wheel scooter ');");
+            stat.execute(
+                    "INSERT INTO test_input1 "
+                            + "VALUES (1,'jacket','water resistent white wind breaker');");
+            stat.execute(
+                    "INSERT INTO test_input1 VALUES (2,'scooter','Big 2-wheel scooter ');");
+            stat.execute(
+                    "update test_input1 set name = 'tom' where id = 2;");
+            stat.execute(
+                    "delete from test_input1 where id = 1;");
         } catch (SQLException e) {
             LOG.error("Update table for CDC failed.", e);
             throw e;
@@ -218,9 +156,7 @@ public class KafkaE2EITCase extends FlinkContainerTestEnv {
                 STAR_ROCKS.getPassword(),
                 STAR_ROCKS.getDriverClassName());
 
-        List<String> expectResult = Arrays.asList(
-                "1,jacket,water resistant white wind breaker",
-                "2,scooter,Big 2-wheel scooter ");
+        List<String> expectResult = Collections.singletonList("2,tom,Big 2-wheel scooter ");
         proxy.checkResultWithTimeout(
                 expectResult,
                 "test_output1",

@@ -60,9 +60,9 @@ import static com.mongodb.client.model.Updates.*;
  * End-to-end tests for sort-connector-mongodb-cdc-v1.15 uber jar.
  * Test flink sql Mongodb cdc to StarRocks
  */
-public class MongodbToStarRocksITCase extends FlinkContainerTestEnv {
+public class Mongodb2StarRocksTest extends FlinkContainerTestEnv {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MongodbToStarRocksITCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Mongodb2StarRocksTest.class);
 
     private static final Path mongodbJar = TestUtils.getResource("sort-connector-mongodb-cdc.jar");
     private static final Path jdbcJar = TestUtils.getResource("sort-connector-starrocks.jar");
@@ -82,9 +82,8 @@ public class MongodbToStarRocksITCase extends FlinkContainerTestEnv {
 
     static {
         try {
-            sqlFile = Paths.get(PostgresToStarRocksITCase.class.getResource("/flinkSql/mongodb_test.sql").toURI())
+            sqlFile = Paths.get(Postgres2StarRocksTest.class.getResource("/flinkSql/mongodb_test.sql").toURI())
                     .toString();
-            buildStarRocksImage();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
@@ -116,7 +115,6 @@ public class MongodbToStarRocksITCase extends FlinkContainerTestEnv {
             (StarRocksContainer) new StarRocksContainer(getNewStarRocksImageName())
                     .withExposedPorts(9030, 8030, 8040)
                     .withNetwork(NETWORK)
-                    .withAccessToHost(true)
                     .withNetworkAliases(INTER_CONTAINER_STAR_ROCKS_ALIAS)
                     .withLogConsumer(new Slf4jLogConsumer(STAR_ROCKS_LOG));
 
