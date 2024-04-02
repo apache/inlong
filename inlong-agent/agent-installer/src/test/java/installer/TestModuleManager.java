@@ -158,7 +158,7 @@ public class TestModuleManager {
             Assert.assertTrue("start module manager error", false);
         }
         await().atMost(3, TimeUnit.SECONDS).until(() -> manager.getModule(1) != null);
-        Assert.assertTrue(realActionList.size() == expectedActionList.size());
+        await().atMost(10, TimeUnit.SECONDS).until(() -> realActionList.size() == expectedActionList.size());
         for (Integer i = 0; i < expectedActionList.size(); i++) {
             LOGGER.info("{} {}", realActionList.get(i), expectedActionList.get(i));
             Assert.assertTrue(i.toString(), realActionList.get(i).equals(expectedActionList.get(i)));
