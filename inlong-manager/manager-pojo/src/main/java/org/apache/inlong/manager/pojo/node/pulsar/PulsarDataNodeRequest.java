@@ -43,6 +43,9 @@ public class PulsarDataNodeRequest extends DataNodeRequest {
     @ApiModelProperty("Pulsar admin url")
     private String adminUrl;
 
+    @ApiModelProperty("Produce pulsar cluster use compression type")
+    private String compressionType;
+
     public PulsarDataNodeRequest() {
         this.setType(DataNodeType.PULSAR);
     }

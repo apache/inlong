@@ -51,6 +51,9 @@ public class PulsarDataNodeDTO {
     @ApiModelProperty(value = "Pulsar token")
     private String token;
 
+    @ApiModelProperty("Produce pulsar cluster use compression type")
+    private String compressionType;
+
     /**
      * Get the dto instance from the request
      */
