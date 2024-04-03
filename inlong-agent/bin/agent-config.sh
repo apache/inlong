@@ -22,7 +22,6 @@ managerAddr=$(cat $installerConfigFile|grep -i 'manager.addr'|awk -F = '{print $
 localIp=$(cat $installerConfigFile|grep -i 'local.ip'|awk -F = '{print $2}')
 clusterTag=$(cat $installerConfigFile|grep -i 'agent.cluster.tag'|awk -F = '{print $2}')
 clusterName=$(cat $installerConfigFile|grep -i 'agent.cluster.name'|awk -F = '{print $2}')
-tdwSecurityUrl=$(cat $installerConfigFile|grep -i 'tdw.security.url'|awk -F = '{print $2}')
 
 if [ ${#managerAddr} -gt 0 ]; then
   sed -i "/manager.addr/s#default#$managerAddr#g" $agentConfigFile
