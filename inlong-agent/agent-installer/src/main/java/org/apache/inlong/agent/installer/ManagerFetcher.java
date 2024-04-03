@@ -33,13 +33,15 @@ import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_FETCHER_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_RETURN_PARAM_DATA;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_FETCHER_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_INSTALLER_MANAGER_CONFIG_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.INSTALLER_MANAGER_CONFIG_HTTP_PATH;
 import static org.apache.inlong.agent.installer.ManagerResultFormatter.getResultData;
-import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalIp;
 import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalUuid;
 
 /**
@@ -47,8 +49,6 @@ import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalUuid;
  */
 public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
-    public static final String CLUSTER_NAME = "cluster.name";
-    public static final String CLUSTER_TAG = "cluster.tag";
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagerFetcher.class);
     private static final GsonBuilder gsonBuilder = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final Gson GSON = gsonBuilder.create();
@@ -68,8 +68,8 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         httpManager = manager.getModuleManager().getHttpManager(conf);
         baseManagerUrl = httpManager.getBaseUrl();
         staticConfigUrl = buildStaticConfigUrl(baseManagerUrl);
-        clusterTag = conf.get(CLUSTER_TAG);
-        clusterName = conf.get(CLUSTER_NAME);
+        clusterTag = conf.get(AGENT_CLUSTER_TAG);
+        clusterName = conf.get(AGENT_CLUSTER_NAME);
     }
 
     /**
@@ -140,7 +140,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     @Override
     public void start() throws Exception {
         // when agent start, check local ip and fetch manager ip list;
-        localIp = fetchLocalIp();
+        localIp = conf.get(AGENT_LOCAL_IP);
         uuid = fetchLocalUuid();
         submitWorker(configFetchThread());
     }

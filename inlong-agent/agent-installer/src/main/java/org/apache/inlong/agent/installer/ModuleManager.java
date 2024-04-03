@@ -59,6 +59,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_ADDR;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REQUEST_TIMEOUT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT;
@@ -70,9 +73,6 @@ import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MA
  */
 public class ModuleManager extends AbstractDaemon {
 
-    public static final String MANAGER_ADDR = "manager.addr";
-    public static final String MANAGER_AUTH_SECRET_ID = "manager.auth.secretId";
-    public static final String MANAGER_AUTH_SECRET_KEY = "manager.auth.secretKey";
     public static final int CONFIG_QUEUE_CAPACITY = 1;
     public static final int CORE_THREAD_SLEEP_TIME = 10000;
     public static final int DOWNLOAD_PACKAGE_READ_BUFF_SIZE = 1024 * 1024;
@@ -97,18 +97,18 @@ public class ModuleManager extends AbstractDaemon {
     }
 
     public HttpManager getHttpManager(InstallerConfiguration conf) {
-        String managerAddr = conf.get(MANAGER_ADDR);
+        String managerAddr = conf.get(AGENT_MANAGER_ADDR);
         String managerHttpPrefixPath = conf.get(AGENT_MANAGER_VIP_HTTP_PREFIX_PATH,
                 DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
         int timeout = conf.getInt(AGENT_MANAGER_REQUEST_TIMEOUT,
                 DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT);
-        String secretId = conf.get(MANAGER_AUTH_SECRET_ID);
-        String secretKey = conf.get(MANAGER_AUTH_SECRET_KEY);
+        String secretId = conf.get(AGENT_MANAGER_AUTH_SECRET_ID);
+        String secretKey = conf.get(AGENT_MANAGER_AUTH_SECRET_KEY);
         return new HttpManager(managerAddr, managerHttpPrefixPath, timeout, secretId, secretKey);
     }
 
     private boolean requiredKeys(InstallerConfiguration conf) {
-        return conf.hasKey(MANAGER_ADDR);
+        return conf.hasKey(AGENT_MANAGER_ADDR);
     }
 
     public void submitConfig(ConfigResult config) {
@@ -318,12 +318,12 @@ public class ModuleManager extends AbstractDaemon {
     private void updateModule(ModuleConfig localModule, ModuleConfig managerModule) {
         LOGGER.info("update module {} start", localModule.getId());
         if (localModule.getPackageConfig().getMd5().equals(managerModule.getPackageConfig().getMd5())) {
-            LOGGER.info("package md5 changed, will reinstall", localModule.getId());
+            LOGGER.info("module {} package md5 no change, will restart", localModule.getId());
+            restartModule(localModule, managerModule);
+        } else {
+            LOGGER.info("module {} package md5 changed, will reinstall", localModule.getId());
             deleteModule(localModule);
             addModule(managerModule);
-        } else {
-            LOGGER.info("package md5 no chang, will restart", localModule.getId());
-            restartModule(localModule, managerModule);
         }
         LOGGER.info("update module {} end", localModule.getId());
     }
