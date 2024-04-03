@@ -35,7 +35,7 @@ public class MySqlContainer extends JdbcDatabaseContainer {
     public static final String IMAGE = "mysql";
     public static final Integer MYSQL_PORT = 3306;
 
-    private static final String MY_CNF_CONFIG_OVERRIDE_PARAM_NAME = "MY_CNF";
+    private static final String MY_CNF_CONFIG_OVERRIDE_PARAM_NAME = "TC_MY_CNF";
     private static final String SETUP_SQL_PARAM_NAME = "SETUP_SQL";
     private static final String MYSQL_ROOT_USER = "root";
 
@@ -62,6 +62,11 @@ public class MySqlContainer extends JdbcDatabaseContainer {
         if (parameters.containsKey(SETUP_SQL_PARAM_NAME)) {
             optionallyMapResourceParameterAsVolume(
                     SETUP_SQL_PARAM_NAME, "/docker-entrypoint-initdb.d/", "N/A");
+        }
+        if (parameters.containsKey(SETUP_SQL_PARAM_NAME)) {
+            optionallyMapResourceParameterAsVolume(
+                    MY_CNF_CONFIG_OVERRIDE_PARAM_NAME, "/etc/mysql/conf.d",
+                    "docker/mysql");
         }
 
         addEnv("MYSQL_DATABASE", databaseName);

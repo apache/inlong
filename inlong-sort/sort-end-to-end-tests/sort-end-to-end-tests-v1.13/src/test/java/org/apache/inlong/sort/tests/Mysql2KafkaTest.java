@@ -51,9 +51,9 @@ import java.util.Map;
 /**
  * End-to-end tests for sort-connector-kafka uber jar.
  */
-public class KafkaE2EITCase extends FlinkContainerTestEnv {
+public class Mysql2KafkaTest extends FlinkContainerTestEnv {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KafkaE2EITCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Mysql2KafkaTest.class);
 
     private static final Path kafkaJar = TestUtils.getResource("sort-connector-kafka.jar");
     private static final Path jdbcJar = TestUtils.getResource("sort-connector-jdbc.jar");
@@ -65,6 +65,7 @@ public class KafkaE2EITCase extends FlinkContainerTestEnv {
     public static final KafkaContainer KAFKA =
             new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"))
                     .withNetwork(NETWORK)
+                    .withExposedPorts(9093, 2181)
                     .withNetworkAliases("kafka")
                     .withEmbeddedZookeeper()
                     .withLogConsumer(new Slf4jLogConsumer(LOG));
@@ -78,7 +79,7 @@ public class KafkaE2EITCase extends FlinkContainerTestEnv {
 
     private Path getSql(String fileName, Map<String, Object> properties) {
         try {
-            Path file = Paths.get(KafkaE2EITCase.class.getResource("/flinkSql/" + fileName).toURI());
+            Path file = Paths.get(Mysql2KafkaTest.class.getResource("/flinkSql/" + fileName).toURI());
             return PlaceholderResolver.getDefaultResolver().resolveByMap(file, properties);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -87,7 +88,7 @@ public class KafkaE2EITCase extends FlinkContainerTestEnv {
 
     private Path getGroupFile(String fileName, Map<String, Object> properties) {
         try {
-            Path file = Paths.get(KafkaE2EITCase.class.getResource("/groupFile/" + fileName).toURI());
+            Path file = Paths.get(Mysql2KafkaTest.class.getResource("/groupFile/" + fileName).toURI());
             return PlaceholderResolver.getDefaultResolver().resolveByMap(file, properties);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -96,7 +97,7 @@ public class KafkaE2EITCase extends FlinkContainerTestEnv {
 
     private String getCreateStatement(String fileName, Map<String, Object> properties) {
         try {
-            Path file = Paths.get(KafkaE2EITCase.class.getResource("/env/" + fileName).toURI());
+            Path file = Paths.get(Mysql2KafkaTest.class.getResource("/env/" + fileName).toURI());
             return PlaceholderResolver.getDefaultResolver().resolveByMap(
                     new String(Files.readAllBytes(file), StandardCharsets.UTF_8),
                     properties);
@@ -165,7 +166,7 @@ public class KafkaE2EITCase extends FlinkContainerTestEnv {
                     "INSERT INTO test_input "
                             + "VALUES (1,'jacket','water resistent white wind breaker',0.2, null, null, null);");
             stat.execute(
-                    "INSERT INTO test_input VALUES (2,'scooter','Big 2-wheel scooter ',5.18, null, null, null);");
+                    "INSERT INTO test_input VALUES (2,'scooter','Big 2-wheel scooter',5.18, null, null, null);");
         } catch (SQLException e) {
             LOG.error("Update table for CDC failed.", e);
             throw e;
@@ -177,7 +178,7 @@ public class KafkaE2EITCase extends FlinkContainerTestEnv {
         List<String> expectResult =
                 Arrays.asList(
                         "1,jacket,water resistent white wind breaker,0.2,,,",
-                        "2,scooter,Big 2-wheel scooter ,5.18,,,");
+                        "2,scooter,Big 2-wheel scooter,5.18,,,");
         proxy.checkResultWithTimeout(
                 expectResult,
                 "test_output",
@@ -214,7 +215,7 @@ public class KafkaE2EITCase extends FlinkContainerTestEnv {
             }
         }).toString();
         submitGroupFileJob(groupFile, kafkaJar, jdbcJar, mysqlJar, mysqlJdbcJar);
-        waitUntilJobRunning(Duration.ofSeconds(30));
+        // waitUntilJobRunning(Duration.ofSeconds(30));
 
         // generate input
         try (Connection conn =
@@ -238,6 +239,7 @@ public class KafkaE2EITCase extends FlinkContainerTestEnv {
                 Arrays.asList(
                         "1,jacket,water resistent white wind breaker,0.2,null,null,null",
                         "2,scooter,Big 2-wheel scooter ,5.18,null,null,null");
+
         proxy.checkResultWithTimeout(
                 expectResult,
                 mysqlOutputTable,

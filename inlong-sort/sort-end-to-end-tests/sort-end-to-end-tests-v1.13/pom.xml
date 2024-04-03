@@ -182,7 +182,7 @@
                         <goals>
                             <goal>copy</goal>
                         </goals>
-                        <phase>pre-integration-test</phase>
+                        <phase>validate</phase>
                     </execution>
                 </executions>
             </plugin>

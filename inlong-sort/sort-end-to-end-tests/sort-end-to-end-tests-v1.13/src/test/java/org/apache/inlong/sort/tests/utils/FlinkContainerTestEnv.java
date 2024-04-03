@@ -115,7 +115,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
     @ClassRule
     public static final MySqlContainer MYSQL =
             (MySqlContainer) new MySqlContainer()
-                    .withConfigurationOverride("docker/mysql/my.cnf")
+                    .withConfigurationOverride("docker/mysql")
                     .withSetupSQL("docker/mysql/setup.sql")
                     .withDatabaseName("test")
                     .withUsername("flinkuser")

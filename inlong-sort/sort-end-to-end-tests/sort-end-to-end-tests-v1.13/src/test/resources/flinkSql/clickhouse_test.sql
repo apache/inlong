@@ -9,7 +9,7 @@ CREATE TABLE test_input1 (
     'username' = 'inlong',
     'password' = 'inlong',
     'database-name' = 'test',
-    'table-name' = 'test_input1',
+    'table-name' = 'test.test_input1',
     'scan.incremental.snapshot.chunk.size' = '4',
     'scan.incremental.snapshot.enabled' = 'false'
 );
@@ -26,7 +26,25 @@ CREATE TABLE test_output1 (
     'password' = '',
     'dialect-impl' = 'org.apache.inlong.sort.jdbc.dialect.ClickHouseDialect'
 );
+create table test_source(
+    id int,
+    name varchar,
+    description varchar
+) with (
+    'connector' = 'datagen', 'rows-per-second' = '1',
+    'fields.id.kind' = 'sequence', 'fields.aaa.start' = '1', 'fields.aaa.end' = '2',
+    'fields.name.kind' = 'sequence', 'fields.name.start' = '1', 'fields.name.end' = '2',
+    'fields.description.kind' = 'sequence', 'fields.description.start' = '1', 'fields.description.end' = '2'
+);
 
+-- CREATE TABLE print_table (
+--     id INT,
+--     name varchar,
+--     description STRING
+-- ) WITH (
+--     'connector' = 'print'
+-- );
+-- INSERT INTO print_table select * from test_input1;
 INSERT INTO test_output1 select * from test_input1;
 
 
