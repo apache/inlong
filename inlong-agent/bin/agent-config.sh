@@ -15,32 +15,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+installerConfigFile=~/inlong/agent-installer/conf/installer.properties
+agentConfigFile=~/inlong/inlong-agent/conf/agent.properties
 
-managerAddr=$(cat ~/inlong/agent-installer/conf/installer.properties|grep -i 'manager.addr'|awk -F = '{print $2}')
-localIp=$(cat ~/inlong/agent-installer/conf/installer.properties|grep -i 'local.ip'|awk -F = '{print $2}')
-clusterTag=$(cat ~/inlong/agent-installer/conf/installer.properties|grep -i 'agent.cluster.tag'|awk -F = '{print $2}')
-clusterName=$(cat ~/inlong/agent-installer/conf/installer.properties|grep -i 'agent.cluster.name'|awk -F = '{print $2}')
+managerAddr=$(cat $installerConfigFile|grep -i 'manager.addr'|awk -F = '{print $2}')
+localIp=$(cat $installerConfigFile|grep -i 'local.ip'|awk -F = '{print $2}')
+clusterTag=$(cat $installerConfigFile|grep -i 'agent.cluster.tag'|awk -F = '{print $2}')
+clusterName=$(cat $installerConfigFile|grep -i 'agent.cluster.name'|awk -F = '{print $2}')
+tdwSecurityUrl=$(cat $installerConfigFile|grep -i 'tdw.security.url'|awk -F = '{print $2}')
 
 if [ ${#managerAddr} -gt 0 ]; then
-  sed -i "/manager.addr/s#default#$managerAddr#g" ~/inlong/inlong-agent/conf/agent.properties
+  sed -i "/manager.addr/s#default#$managerAddr#g" $agentConfigFile
 else
   echo "manager addr empty"
 fi
 
 if [ ${#localIp} -gt 0 ]; then
-  sed -i "/local.ip/s#default#$localIp#g" ~/inlong/inlong-agent/conf/agent.properties
+  sed -i "/local.ip/s#default#$localIp#g" $agentConfigFile
 else
   echo "local ip empty"
 fi
 
 if [ ${#clusterTag} -gt 0 ]; then
-   sed -i "/agent.cluster.tag/s#default#$clusterTag#g" ~/inlong/inlong-agent/conf/agent.properties
+   sed -i "/agent.cluster.tag/s#default#$clusterTag#g" $agentConfigFile
 else
   echo "cluster tag empty"
 fi
 
 if [ ${#clusterName} -gt 0 ]; then
-   sed -i "/agent.cluster.name/s#default#$clusterName#g" ~/inlong/inlong-agent/conf/agent.properties
+   sed -i "/agent.cluster.name/s#default#$clusterName#g" $agentConfigFile
 else
    echo "cluster name empty"
+fi
+
+if [ ${#tdwSecurityUrl} -gt 0 ]; then
+  sed -i "/export OTEL_EXPORTER_OTLP_ENDPOINT=/a export TDW_SECURITY_URL=$tdwSecurityUrl" ~/inlong/inlong-agent/bin/agent-env.sh
+else
+  echo "tdw security url empty"
 fi
