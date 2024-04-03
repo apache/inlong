@@ -37,14 +37,6 @@ create table test_source(
     'fields.description.kind' = 'sequence', 'fields.description.start' = '1', 'fields.description.end' = '2'
 );
 
--- CREATE TABLE print_table (
---     id INT,
---     name varchar,
---     description STRING
--- ) WITH (
---     'connector' = 'print'
--- );
--- INSERT INTO print_table select * from test_input1;
 INSERT INTO test_output1 select * from test_input1;
 
 
