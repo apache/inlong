@@ -215,7 +215,7 @@ public class Mysql2KafkaTest extends FlinkContainerTestEnv {
             }
         }).toString();
         submitGroupFileJob(groupFile, kafkaJar, jdbcJar, mysqlJar, mysqlJdbcJar);
-         waitUntilJobRunning(Duration.ofSeconds(30));
+        waitUntilJobRunning(Duration.ofSeconds(30));
 
         // generate input
         try (Connection conn =
