@@ -26,16 +26,6 @@ CREATE TABLE test_output1 (
     'password' = '',
     'dialect-impl' = 'org.apache.inlong.sort.jdbc.dialect.ClickHouseDialect'
 );
-create table test_source(
-    id int,
-    name varchar,
-    description varchar
-) with (
-    'connector' = 'datagen', 'rows-per-second' = '1',
-    'fields.id.kind' = 'sequence', 'fields.aaa.start' = '1', 'fields.aaa.end' = '2',
-    'fields.name.kind' = 'sequence', 'fields.name.start' = '1', 'fields.name.end' = '2',
-    'fields.description.kind' = 'sequence', 'fields.description.start' = '1', 'fields.description.end' = '2'
-);
 
 INSERT INTO test_output1 select * from test_input1;
 
