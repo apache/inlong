@@ -34,7 +34,7 @@ public abstract class Selector {
 
     public abstract String getLeader(String paramString);
 
-    public abstract void canElector(boolean paramBoolean);
+    public abstract void canSelect(boolean paramBoolean);
 
     public abstract boolean reBuildElectorDBSource();
 
