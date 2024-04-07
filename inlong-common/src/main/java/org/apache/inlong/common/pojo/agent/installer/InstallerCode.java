@@ -46,10 +46,6 @@ public enum InstallerCode {
         return id;
     }
 
-    public String getStrId() {
-        return String.valueOf(id);
-    }
-
     public String getName() {
         return name;
     }
