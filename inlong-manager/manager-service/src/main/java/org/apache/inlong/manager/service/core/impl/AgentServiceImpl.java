@@ -202,7 +202,7 @@ public class AgentServiceImpl implements AgentService {
         try {
             moduleConfigCache = Caffeine.newBuilder()
                     .expireAfterWrite(expireTime * 2L, TimeUnit.SECONDS)
-                    .build(this::reloadModuleConfigs);
+                    .build(this::loadModuleConfigs);
         } catch (Throwable t) {
             LOGGER.error("fail to reload all config for installer ", t);
         }
@@ -825,10 +825,10 @@ public class AgentServiceImpl implements AgentService {
         return taskLists;
     }
 
-    private ConfigResult reloadModuleConfigs(ConfigRequest request) {
+    private ConfigResult loadModuleConfigs(ConfigRequest request) {
         final String clusterName = request.getClusterName();
         final String ip = request.getLocalIp();
-        LOGGER.debug("begin to reload config for installer = {}", request);
+        LOGGER.debug("begin to load config for installer = {}", request);
         Preconditions.expectTrue(StringUtils.isNotBlank(clusterName), "cluster name is blank");
         InlongClusterEntity clusterEntity = clusterMapper.selectByNameAndType(clusterName, ClusterType.AGENT);
         List<InlongClusterNodeEntity> clusterNodeEntityList =
@@ -871,7 +871,7 @@ public class AgentServiceImpl implements AgentService {
                 .md5(configMd5)
                 .code(InstallerCode.SUCCESS)
                 .build();
-        LOGGER.info("success reload module config, size = {}", configResult.getModuleList().size());
+        LOGGER.info("success load module config, size = {}", configResult.getModuleList().size());
         return configResult;
     }
 }
