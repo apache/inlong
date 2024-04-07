@@ -41,4 +41,7 @@ public class PackagePageRequest extends PageRequest {
     @ApiModelProperty(value = "Keywords, used for fuzzy query")
     private String keyword;
 
+    @ApiModelProperty("Package type ")
+    private String type;
+
 }

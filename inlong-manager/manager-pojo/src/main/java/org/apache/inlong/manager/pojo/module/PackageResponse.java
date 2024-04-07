@@ -48,6 +48,9 @@ public class PackageResponse {
     @ApiModelProperty(value = "Md5")
     private String md5;
 
+    @ApiModelProperty("Package type ")
+    private String type;
+
     @ApiModelProperty(value = "File name")
     private String fileName;
 

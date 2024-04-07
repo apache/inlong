@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.dao.entity;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -32,6 +33,7 @@ public class PackageConfigEntity implements Serializable {
     private Integer id;
     private String fileName;
     private String md5;
+    private String type;
     private String downloadUrl;
     private String storagePath;
     private Integer isDeleted;

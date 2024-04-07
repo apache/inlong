@@ -986,6 +986,7 @@ CREATE TABLE IF NOT EXISTS `package_config` (
     `id`           int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `md5`          varchar(256) NOT NULL COMMENT 'Md5 of package',
     `file_name`    varchar(256) NOT NULL COMMENT 'File name',
+    `type`         varchar(255) DEFAULT NULL COMMENT 'Package type',
     `download_url` varchar(256) NOT NULL COMMENT 'Download url for package',
     `storage_path` varchar(256) NOT NULL COMMENT 'Storage path for package',
     `is_deleted`   int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',

@@ -24,6 +24,7 @@
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="file_name" jdbcType="VARCHAR" property="fileName"/>
         <result column="md5" jdbcType="VARCHAR" property="md5"/>
+        <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="download_url" jdbcType="VARCHAR" property="downloadUrl"/>
         <result column="storage_path" jdbcType="VARCHAR" property="storagePath"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
@@ -34,16 +35,16 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id , file_name, md5, download_url, storage_path, is_deleted, creator, modifier, create_time, modify_time
+        id , file_name, md5, type, download_url, storage_path, is_deleted, creator, modifier, create_time, modify_time
     </sql>
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.PackageConfigEntity">
         insert into package_config (id, file_name, md5,
-                                   download_url, storage_path, creator,
-                                   modifier)
+                                    type, download_url, storage_path,
+                                    creator, modifier)
         values (#{id, jdbcType=INTEGER}, #{fileName, jdbcType=VARCHAR}, #{md5, jdbcType=VARCHAR},
-                #{downloadUrl, jdbcType=VARCHAR}, #{storagePath, jdbcType=VARCHAR}, #{creator, jdbcType=VARCHAR},
-                #{modifier, jdbcType=VARCHAR})
+                #{type, jdbcType=VARCHAR}, #{downloadUrl, jdbcType=VARCHAR}, #{storagePath, jdbcType=VARCHAR},
+                #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
     </insert>
 
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -61,6 +62,9 @@
             </if>
             <if test="md5 != null">
                 md5 = #{md5, jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                type = #{type, jdbcType=VARCHAR},
             </if>
             <if test="downloadUrl !=null">
                 download_url = #{downloadUrl, jdbcType=VARCHAR},
@@ -91,6 +95,9 @@
                 and (
                 file_name like CONCAT('%', #{request.keyword}, '%')
                 )
+            </if>
+            <if test="request.type != null">
+                and type = #{request.type, jdbcType=VARCHAR}
             </if>
         </where>
     </select>
