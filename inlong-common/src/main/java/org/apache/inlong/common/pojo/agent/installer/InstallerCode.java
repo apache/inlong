@@ -17,8 +17,6 @@
 
 package org.apache.inlong.common.pojo.agent.installer;
 
-import java.util.Objects;
-
 public enum InstallerCode {
 
     SUCCESS(0, "SUCCESS", "Get module config success"),
