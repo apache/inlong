@@ -15,20 +15,16 @@
  * limitations under the License.
  */
 
-package entities;
+package source;
 
-import lombok.Data;
+/**
+ * Source stat interface.
+ */
+public interface SourceStat extends Runnable {
 
-@Data
-public class SourceEntities {
+    public void statByStep();
 
-    private AuditCycle auditCycle;
-    private String sourceTable;
-    private int beforeTimes;
+    public void aggregate(String auditId);
 
-    public SourceEntities(AuditCycle auditCycle, String sourceTable, int beforeTimes) {
-        this.auditCycle = auditCycle;
-        this.sourceTable = sourceTable;
-        this.beforeTimes = beforeTimes;
-    }
+    public void query(String startTime, String endTime, String auditId);
 }
