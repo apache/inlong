@@ -30,13 +30,13 @@ public abstract class Selector {
 
     public abstract void releaseLeader() throws Exception;
 
-    public abstract void replaceLeader(String paramString) throws Exception;
+    public abstract void replaceLeader(String newLeaderId) throws Exception;
 
-    public abstract String getLeader(String paramString);
+    public abstract String getLeader(String serviceId);
 
-    public abstract void canSelect(boolean paramBoolean);
+    public abstract void canSelect(boolean canSelect);
 
-    public abstract boolean reBuildElectorDBSource();
+    public abstract boolean rebuildSelectorDBSource();
 
     public abstract boolean close();
 }
