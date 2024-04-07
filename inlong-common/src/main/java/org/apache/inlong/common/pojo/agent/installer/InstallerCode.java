@@ -20,7 +20,7 @@ package org.apache.inlong.common.pojo.agent.installer;
 public enum InstallerCode {
 
     SUCCESS(0, "SUCCESS", "Get module config success"),
-    NO_UPDATE(1, "NO_UPDATE", "no update"),
+    NO_UPDATE(1, "NO_UPDATE", "No update"),
     UNKNOWN_ERROR(Integer.MAX_VALUE, "UNKNOWN", "Unknown error");
 
     private final int id;

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
