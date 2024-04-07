@@ -849,10 +849,10 @@ public class AgentServiceImpl implements AgentService {
                     ModuleDTO moduleDTO = JsonUtils.parseObject(moduleConfigEntity.getExtParams(), ModuleDTO.class);
                     moduleConfig = CommonBeanUtils.copyProperties(moduleDTO, moduleConfig, true);
                     Integer restartTime = 0;
-                    if (Objects.equals(moduleConfigEntity.getType(), ModuleType.AGENT)) {
+                    if (Objects.equals(moduleConfigEntity.getType(), ModuleType.AGENT.name())) {
                         restartTime = dto.getAgentRestartTime();
                     }
-                    if (Objects.equals(moduleConfigEntity.getType(), ModuleType.INSTALLER)) {
+                    if (Objects.equals(moduleConfigEntity.getType(), ModuleType.INSTALLER.name())) {
                         restartTime = dto.getInstallRestartTime();
                     }
                     moduleConfig.setRestartTime(restartTime);

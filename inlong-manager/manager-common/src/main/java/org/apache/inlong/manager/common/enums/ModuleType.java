@@ -20,9 +20,9 @@ package org.apache.inlong.manager.common.enums;
 /**
  * Constant of module type.
  */
-public class ModuleType {
+public enum ModuleType {
 
-    public static final String AGENT = "AGENT";
-    public static final String INSTALLER = "INSTALLER";
+    AGENT,
+    INSTALLER,
 
 }
