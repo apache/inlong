@@ -19,51 +19,52 @@ BASE_DIR=$(cd "$(dirname "$0")"/../../;pwd)
 installerConfigFile=$BASE_DIR/agent-installer/conf/installer.properties
 agentConfigFile=$BASE_DIR/inlong-agent/conf/agent.properties
 
-managerAddr=$(cat $installerConfigFile|grep -i 'manager.addr'|awk -F = '{print $2}')
-localIp=$(cat $installerConfigFile|grep -i 'local.ip'|awk -F = '{print $2}')
+managerAddr=$(cat $installerConfigFile|grep -i 'agent.manager.addr'|awk -F = '{print $2}')
+localIp=$(cat $installerConfigFile|grep -i 'agent.local.ip'|awk -F = '{print $2}')
 clusterTag=$(cat $installerConfigFile|grep -i 'agent.cluster.tag'|awk -F = '{print $2}')
 clusterName=$(cat $installerConfigFile|grep -i 'agent.cluster.name'|awk -F = '{print $2}')
+tdwSecurityUrl=$(cat $installerConfigFile|grep -i 'tdw.security.url'|awk -F = '{print $2}')
 auditFlag=$(cat $installerConfigFile|grep -i 'audit.enable'|awk -F = '{print $2}')
 auditProxy=$(cat $installerConfigFile|grep -i 'audit.proxys'|awk -F = '{print $2}')
 
 if [ ${#managerAddr} -gt 0 ]; then
-  sed -i "/manager.addr/s#default#$managerAddr#g" $agentConfigFile
+  sed -i "/agent.manager.addr=*/c\agent.manager.addr=$managerAddr" $agentConfigFile
 else
   echo "manager addr empty"
 fi
 
 if [ ${#localIp} -gt 0 ]; then
-  sed -i "/local.ip/s#default#$localIp#g" $agentConfigFile
+  sed -i "/agent.local.ip=*/c\agent.local.ip=$localIp" $agentConfigFile
 else
-  echo "local ip empty"
+  echo "agent local ip empty"
 fi
 
 if [ ${#clusterTag} -gt 0 ]; then
-   sed -i "/agent.cluster.tag/s#default#$clusterTag#g" $agentConfigFile
+   sed -i "/agent.cluster.tag=*/c\agent.cluster.tag=$clusterTag" $agentConfigFile
 else
   echo "cluster tag empty"
 fi
 
 if [ ${#clusterName} -gt 0 ]; then
-   sed -i "/agent.cluster.name/s#default#$clusterName#g" $agentConfigFile
+   sed -i "/agent.cluster.name=*/c\agent.cluster.name=$clusterName" $agentConfigFile
 else
    echo "cluster name empty"
 fi
 
 if [ ${#tdwSecurityUrl} -gt 0 ]; then
-  sed -i "/export OTEL_EXPORTER_OTLP_ENDPOINT=/a export TDW_SECURITY_URL=$tdwSecurityUrl" ~/inlong/inlong-agent/bin/agent-env.sh
+  sed -i "/tdw.security.url=*/c\tdw.security.url=$tdwSecurityUrl" $BASE_DIR/inlong-agent/bin/agent-env.sh
 else
   echo "tdw security url empty"
 fi
 
 if [ ${#auditFlag} -gt 0 ]; then
-  sed -i "/audit.enable/s#default#$auditFlag#g" $agentConfigFile
+  sed -i "/audit.enable=*/c\audit.enable=$auditFlag" $agentConfigFile
 else
   echo "audit flag empty"
 fi
 
 if [ ${#auditProxy} -gt 0 ]; then
-  sed -i "/audit.proxys/s#default#$auditProxy#g" $agentConfigFile
+  sed -i "/audit.proxys=*/c\audit.proxys=$auditProxy" $agentConfigFile
 else
   echo "audit proxy empty"
 fi
