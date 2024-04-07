@@ -55,10 +55,6 @@ public class DBMonitorTask implements Runnable {
             } else {
                 dbClosedTimes = 0;
             }
-
-            if (dbClosedTimes >= 3) {
-                logger.warn("DB monitor task : fail  begin use default leader continue fail times:{}", dbClosedTimes);
-            }
         } catch (Exception e) {
             logger.error("DB monitor task has exception {}", e.getMessage());
         }
