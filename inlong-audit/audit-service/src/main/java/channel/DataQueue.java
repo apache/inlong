@@ -53,14 +53,8 @@ public class DataQueue {
      * @param unit
      * @return
      */
-    public StatData pull(long timeout, TimeUnit unit) {
-        StatData message = null;
-        try {
-            message = queue.poll(timeout, unit);
-        } catch (InterruptedException ex) {
-            LOG.error(ex.getMessage());
-        }
-        return message;
+    public StatData pull(long timeout, TimeUnit unit) throws InterruptedException {
+        return queue.poll(timeout, unit);
     }
 
     /**
