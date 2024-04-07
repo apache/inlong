@@ -36,18 +36,9 @@ public enum InstallerCode {
     }
 
     public static InstallerCode valueOf(int value) {
-        for (InstallerCode msgCompressType : InstallerCode.values()) {
-            if (msgCompressType.getId() == value) {
-                return msgCompressType;
-            }
-        }
-        return UNKNOWN_ERROR;
-    }
-
-    public static InstallerCode forType(String type) {
-        for (InstallerCode msgCompressType : InstallerCode.values()) {
-            if (Objects.equals(msgCompressType.getName(), type)) {
-                return msgCompressType;
+        for (InstallerCode installerCode : InstallerCode.values()) {
+            if (installerCode.getId() == value) {
+                return installerCode;
             }
         }
         return UNKNOWN_ERROR;
