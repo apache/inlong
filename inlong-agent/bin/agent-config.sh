@@ -15,13 +15,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-installerConfigFile=~/inlong/agent-installer/conf/installer.properties
-agentConfigFile=~/inlong/inlong-agent/conf/agent.properties
+BASE_DIR=$(cd "$(dirname "$0")"/../../;pwd)
+installerConfigFile=$BASE_DIR/agent-installer/conf/installer.properties
+agentConfigFile=$BASE_DIR/inlong-agent/conf/agent.properties
 
 managerAddr=$(cat $installerConfigFile|grep -i 'manager.addr'|awk -F = '{print $2}')
 localIp=$(cat $installerConfigFile|grep -i 'local.ip'|awk -F = '{print $2}')
 clusterTag=$(cat $installerConfigFile|grep -i 'agent.cluster.tag'|awk -F = '{print $2}')
 clusterName=$(cat $installerConfigFile|grep -i 'agent.cluster.name'|awk -F = '{print $2}')
+auditFlag=$(cat $installerConfigFile|grep -i 'audit.enable'|awk -F = '{print $2}')
+auditProxy=$(cat $installerConfigFile|grep -i 'audit.proxys'|awk -F = '{print $2}')
 
 if [ ${#managerAddr} -gt 0 ]; then
   sed -i "/manager.addr/s#default#$managerAddr#g" $agentConfigFile
@@ -51,4 +54,16 @@ if [ ${#tdwSecurityUrl} -gt 0 ]; then
   sed -i "/export OTEL_EXPORTER_OTLP_ENDPOINT=/a export TDW_SECURITY_URL=$tdwSecurityUrl" ~/inlong/inlong-agent/bin/agent-env.sh
 else
   echo "tdw security url empty"
+fi
+
+if [ ${#auditFlag} -gt 0 ]; then
+  sed -i "/audit.enable/s#default#$auditFlag#g" $agentConfigFile
+else
+  echo "audit flag empty"
+fi
+
+if [ ${#auditProxy} -gt 0 ]; then
+  sed -i "/audit.proxys/s#default#$auditProxy#g" $agentConfigFile
+else
+  echo "audit proxy empty"
 fi
