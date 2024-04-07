@@ -162,7 +162,7 @@ public class AgentServiceImpl implements AgentService {
     @Value("${add.task.retention.days:7}")
     private Integer retentionDays;
 
-    @Value("#{${inlong.module.nameIdMap:{'test':15}}}")
+    @Value("#{${module.name.map:{'agent':1}}}")
     private Map<String, Integer> moduleNameIdMap = new HashMap<>();
 
     @Autowired
