@@ -63,7 +63,7 @@
           ],
           "primaryKey": "id",
           "tableNames": [
-            "${MYSQL_INPUT_TABLE}"
+            "test.${MYSQL_INPUT_TABLE}"
           ],
           "hostname": "mysql",
           "username": "inlong",

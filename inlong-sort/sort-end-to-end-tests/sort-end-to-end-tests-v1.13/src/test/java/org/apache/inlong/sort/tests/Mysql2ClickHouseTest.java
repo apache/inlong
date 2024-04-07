@@ -45,19 +45,20 @@ import java.util.List;
  * End-to-end tests
  * Test flink sql mysql cdc to clickHouse
  */
-public class ClickHouseITCase extends FlinkContainerTestEnv {
+public class Mysql2ClickHouseTest extends FlinkContainerTestEnv {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClickHouseITCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Mysql2ClickHouseTest.class);
 
     private static final Path jdbcJar = TestUtils.getResource("sort-connector-jdbc.jar");
     private static final Path mysqlJar = TestUtils.getResource("sort-connector-mysql-cdc.jar");
-    private static final Path mysqlJdbcJar = TestUtils.getResource("mysql-driver.jar");
+    private static final Path mysqlDriverJar = TestUtils.getResource("mysql-driver.jar");
     // Can't use getResource("xxx").getPath(), windows will don't know that path
     private static final String sqlFile;
 
     static {
         try {
-            sqlFile = Paths.get(ClickHouseITCase.class.getResource("/flinkSql/clickhouse_test.sql").toURI()).toString();
+            sqlFile = Paths.get(Mysql2ClickHouseTest.class.getResource("/flinkSql/clickhouse_test.sql").toURI())
+                    .toString();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
@@ -125,7 +126,7 @@ public class ClickHouseITCase extends FlinkContainerTestEnv {
      */
     @Test
     public void testClickHouseUpdateAndDelete() throws Exception {
-        submitSQLJob(sqlFile, jdbcJar, mysqlJar, mysqlJdbcJar);
+        submitSQLJob(sqlFile, jdbcJar, mysqlJar, mysqlDriverJar);
         waitUntilJobRunning(Duration.ofSeconds(30));
 
         // generate input
@@ -152,6 +153,7 @@ public class ClickHouseITCase extends FlinkContainerTestEnv {
                         CLICK_HOUSE_CONTAINER.getDriverClassName());
         List<String> expectResult =
                 Arrays.asList("2,tom,Big 2-wheel scooter ");
+
         proxy.checkResultWithTimeout(
                 expectResult,
                 "test_output1",

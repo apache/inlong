@@ -9,7 +9,7 @@ CREATE TABLE test_input1 (
     'username' = 'inlong',
     'password' = 'inlong',
     'database-name' = 'test',
-    'table-name' = 'test_input1',
+    'table-name' = 'test.test_input1',
     'scan.incremental.snapshot.chunk.size' = '4',
     'scan.incremental.snapshot.enabled' = 'false'
 );
