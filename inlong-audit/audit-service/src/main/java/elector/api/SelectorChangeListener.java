@@ -18,28 +18,9 @@
 package elector.api;
 
 /**
- * Elector
+ * Selector change listener
  */
-public abstract class Elector {
+public abstract interface SelectorChangeListener {
 
-    protected boolean isLeader;
-
-    public abstract void init()
-            throws Exception;
-
-    public abstract boolean isLeader();
-
-    public abstract void releaseLeader()
-            throws Exception;
-
-    public abstract void replaceLeader(String paramString)
-            throws Exception;
-
-    public abstract String getLeader(String paramString);
-
-    public abstract void canElector(boolean paramBoolean);
-
-    public abstract boolean reBuildElectorDBSource();
-
-    public abstract boolean close();
+    public abstract void leaderChanged(boolean paramBoolean);
 }

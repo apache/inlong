@@ -17,22 +17,25 @@
 
 package elector.task;
 
-import elector.api.ElectorConfig;
+import elector.api.SelectorConfig;
 import elector.impl.DBDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * DB monitor task
+ */
 public class DBMonitorTask implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(DBMonitorTask.class);
-    private ElectorConfig electorConfig;
+    private SelectorConfig electorConfig;
     private DBDataSource dbDataSource;
     private int dbClosedTimes = 0;
     private boolean replaced = true;
 
-    public DBMonitorTask(ElectorConfig electorConfig, DBDataSource dbDataSource) {
+    public DBMonitorTask(SelectorConfig electorConfig, DBDataSource dbDataSource) {
         this.electorConfig = electorConfig;
         this.dbDataSource = dbDataSource;
     }
@@ -40,7 +43,7 @@ public class DBMonitorTask implements Runnable {
     public void run() {
         try {
             while (true) {
-                logger.info("## DBMonitorTask run once");
+                logger.info("DB monitor task run once");
                 TimeUnit.SECONDS.sleep(electorConfig.getDbMonitorRunInterval());
 
                 if (!(electorConfig.isUseDefaultLeader()))
@@ -48,16 +51,16 @@ public class DBMonitorTask implements Runnable {
             }
             if (dbDataSource.isDBDataSourceClosed()) {
                 dbClosedTimes += 1;
-                logger.info("## db closed true :" + dbClosedTimes);
+                logger.info("DB closed times :{}", dbClosedTimes);
             } else {
                 dbClosedTimes = 0;
             }
 
             if (dbClosedTimes >= 3) {
-                logger.warn("DBMonitorTask : fail  begin use default leader continue fail times:" + dbClosedTimes);
+                logger.warn("DB monitor task : fail  begin use default leader continue fail times:{}", dbClosedTimes);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("DB monitor task has exception {}", e.getMessage());
         }
     }
 }

@@ -19,15 +19,19 @@ package elector.api;
 
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
+import java.util.Objects;
 
 /**
- * Elector config
+ * Selector config
  */
 @Data
-public class ElectorConfig {
+public class SelectorConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(SelectorConfig.class);
     public static final String MONITOR_COMMON_NAME = "audit";
     private final String serviceId;
     private final String leaderId;
@@ -50,16 +54,24 @@ public class ElectorConfig {
     private int prepStmtCacheSqlLimit = 2048;
     private String monitorName = "elector_leader_state";
     private String ip;
-    private ElectorChangeListener electorChangeListener;
+    private SelectorChangeListener selectorChangeListener;
 
-    public ElectorConfig(String serviceId, String leaderId, String dbUrl, String dbUser, String dbPasswd,
+    public SelectorConfig(String serviceId, String leaderId, String dbUrl, String dbUser, String dbPasswd,
             String dbDriver) {
+        assert (Objects.nonNull(serviceId)
+                && Objects.nonNull(leaderId)
+                && Objects.nonNull(dbUrl)
+                && Objects.nonNull(dbUser)
+                && Objects.nonNull(dbPasswd)
+                && Objects.nonNull(dbDriver));
+
         this.serviceId = serviceId;
         this.leaderId = leaderId;
         this.dbUrl = dbUrl;
         this.dbUser = dbUser;
         this.dbPasswd = dbPasswd;
         this.dbDriver = dbDriver;
+
     }
 
     public String getIp() {
@@ -67,10 +79,9 @@ public class ElectorConfig {
             try {
                 ip = InetAddress.getLocalHost().getHostAddress();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Get local ip has exception:{}", e.getMessage());
                 ip = "N/A";
             }
-
         return ip;
     }
 
