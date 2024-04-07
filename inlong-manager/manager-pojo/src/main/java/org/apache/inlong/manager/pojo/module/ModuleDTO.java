@@ -52,19 +52,19 @@ public class ModuleDTO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ModuleDTO.class);
 
-    @ApiModelProperty("startCommand")
+    @ApiModelProperty("Start command")
     private String startCommand;
 
-    @ApiModelProperty("stopCommand")
+    @ApiModelProperty("Stop command")
     private String stopCommand;
 
-    @ApiModelProperty("checkCommand")
+    @ApiModelProperty("Check command")
     private String checkCommand;
 
-    @ApiModelProperty("installCommand")
+    @ApiModelProperty("Install command")
     private String installCommand;
 
-    @ApiModelProperty("uninstallCommand")
+    @ApiModelProperty("Uninstall command")
     private String uninstallCommand;
 
     @ApiModelProperty("History list of package")

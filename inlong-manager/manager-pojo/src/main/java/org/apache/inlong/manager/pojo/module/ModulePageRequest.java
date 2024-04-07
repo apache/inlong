@@ -41,7 +41,7 @@ public class ModulePageRequest extends PageRequest {
     @ApiModelProperty(value = "Keywords, used for fuzzy query")
     private String keyword;
 
-    @ApiModelProperty("Module type ")
+    @ApiModelProperty("Module type")
     private String type;
 
 }

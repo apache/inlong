@@ -45,34 +45,34 @@ public class ModuleResponse {
     @NotNull(groups = UpdateValidation.class)
     private Integer id;
 
-    @ApiModelProperty("Module name ")
+    @ApiModelProperty("Module name")
     private String name;
 
-    @ApiModelProperty("Module type ")
+    @ApiModelProperty("Module type")
     private String type;
 
     @ApiModelProperty("Module version")
     private String version;
 
-    @ApiModelProperty("startCommand")
+    @ApiModelProperty("Start command")
     private String startCommand;
 
-    @ApiModelProperty("stopCommand")
+    @ApiModelProperty("Stop command")
     private String stopCommand;
 
-    @ApiModelProperty("checkCommand")
+    @ApiModelProperty("Check command")
     private String checkCommand;
 
-    @ApiModelProperty("installCommand")
+    @ApiModelProperty("Install command")
     private String installCommand;
 
-    @ApiModelProperty("uninstallCommand")
+    @ApiModelProperty("Uninstall command")
     private String uninstallCommand;
 
     @ApiModelProperty("Package id")
     private Integer packageId;
 
-    @ApiModelProperty("Ext params")
+    @ApiModelProperty("Extended params")
     private String extParams;
 
     @ApiModelProperty(value = "Name of in creator")
