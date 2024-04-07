@@ -70,4 +70,10 @@ public class ModuleConfig {
      * The state of the module，identify that the module is in a state of addition, download, installation, etc
      */
     private ModuleStateEnum state;
+
+    /**
+     * The restart time of the module
+     */
+    private Integer restartTime;
+
 }

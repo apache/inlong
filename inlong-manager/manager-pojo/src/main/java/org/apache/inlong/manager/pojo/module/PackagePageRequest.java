@@ -15,39 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent.installer;
+package org.apache.inlong.manager.pojo.module;
 
+import org.apache.inlong.manager.pojo.common.PageRequest;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 /**
- * The config result pulled by the agent from the manager.
+ * Package paging query conditions
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ConfigResult {
+@ApiModel("Package paging query request")
+public class PackagePageRequest extends PageRequest {
 
-    /**
-     * The code of the config result
-     */
-    InstallerCode code;
+    @ApiModelProperty(value = "Keywords, used for fuzzy query")
+    private String keyword;
 
-    /**
-     * The md5 of the config result
-     */
-    private String md5;
-    /**
-     * Number of module
-     */
-    private Integer moduleNum;
-    /**
-     * The list of module config list
-     */
-    private List<ModuleConfig> moduleList;
 }

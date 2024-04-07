@@ -156,6 +156,13 @@ public enum ErrorCodeEnum {
     AUDIT_SOURCE_URL_NOT_SUPPORTED(4003, "Audit Source URL '%s' not supported"),
 
     TENANT_NOT_EXIST(5001, "Tenant '%s' is not exist"),
+
+    MODULE_NOT_FOUND(6001, "Module does not exist/no operation authority"),
+    MODULE_INFO_INCORRECT(6002, "Module info was incorrect"),
+
+    PACKAGE_NOT_FOUND(7001, "Package does not exist/no operation authority"),
+    PACKAGE_INFO_INCORRECT(7002, "Package info was incorrect"),
+
     ;
 
     private final int code;

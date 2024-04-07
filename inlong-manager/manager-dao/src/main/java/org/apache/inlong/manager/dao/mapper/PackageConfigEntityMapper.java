@@ -15,39 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent.installer;
+package org.apache.inlong.manager.dao.mapper;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.dao.entity.PackageConfigEntity;
+import org.apache.inlong.manager.pojo.module.PackagePageRequest;
+
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-/**
- * The config result pulled by the agent from the manager.
- */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ConfigResult {
+@Repository
+public interface PackageConfigEntityMapper {
 
-    /**
-     * The code of the config result
-     */
-    InstallerCode code;
+    int insert(PackageConfigEntity record);
 
-    /**
-     * The md5 of the config result
-     */
-    private String md5;
-    /**
-     * Number of module
-     */
-    private Integer moduleNum;
-    /**
-     * The list of module config list
-     */
-    private List<ModuleConfig> moduleList;
+    PackageConfigEntity selectByPrimaryKey(Integer id);
+
+    int updateByIdSelective(PackageConfigEntity record);
+
+    List<PackageConfigEntity> selectByCondition(@Param("request") PackagePageRequest request);
+
 }

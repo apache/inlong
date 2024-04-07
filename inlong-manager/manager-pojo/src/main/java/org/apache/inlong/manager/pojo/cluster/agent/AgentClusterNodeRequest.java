@@ -20,12 +20,15 @@ package org.apache.inlong.manager.pojo.cluster.agent;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
+import org.apache.inlong.manager.pojo.module.ModuleHistory;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+
+import java.util.List;
 
 /**
  * Inlong cluster node request for Agent
@@ -39,6 +42,18 @@ public class AgentClusterNodeRequest extends ClusterNodeRequest {
 
     @ApiModelProperty(value = "Agent group name")
     private String agentGroup;
+
+    @ApiModelProperty(value = "Agent restart time")
+    private Integer agentRestartTime = 0;
+
+    @ApiModelProperty(value = "Install restart time")
+    private Integer installRestartTime = 0;
+
+    @ApiModelProperty(value = "Module id list")
+    private List<Integer> moduleIdList;
+
+    @ApiModelProperty("History list of module")
+    private List<ModuleHistory> moduleHistoryList;
 
     public AgentClusterNodeRequest() {
         this.setType(ClusterType.AGENT);

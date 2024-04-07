@@ -20,6 +20,8 @@ package org.apache.inlong.manager.service.core;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
+import org.apache.inlong.common.pojo.agent.installer.ConfigRequest;
+import org.apache.inlong.common.pojo.agent.installer.ConfigResult;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeBindGroupRequest;
 
 /**
@@ -59,4 +61,7 @@ public interface AgentService {
      * @return Whether succeed.
      */
     Boolean bindGroup(AgentClusterNodeBindGroupRequest request);
+
+    ConfigResult getConfig(ConfigRequest request);
+
 }

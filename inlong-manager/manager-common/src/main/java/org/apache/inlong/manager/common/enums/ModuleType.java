@@ -15,39 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent.installer;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.List;
+package org.apache.inlong.manager.common.enums;
 
 /**
- * The config result pulled by the agent from the manager.
+ * Constant of module type.
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ConfigResult {
+public class ModuleType {
 
-    /**
-     * The code of the config result
-     */
-    InstallerCode code;
+    public static final String AGENT = "AGENT";
+    public static final String INSTALLER = "INSTALLER";
 
-    /**
-     * The md5 of the config result
-     */
-    private String md5;
-    /**
-     * Number of module
-     */
-    private Integer moduleNum;
-    /**
-     * The list of module config list
-     */
-    private List<ModuleConfig> moduleList;
 }
