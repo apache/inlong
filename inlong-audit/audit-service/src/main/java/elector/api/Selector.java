@@ -38,5 +38,5 @@ public abstract class Selector {
 
     public abstract boolean rebuildSelectorDBSource();
 
-    public abstract void close();
+    public abstract boolean close();
 }
