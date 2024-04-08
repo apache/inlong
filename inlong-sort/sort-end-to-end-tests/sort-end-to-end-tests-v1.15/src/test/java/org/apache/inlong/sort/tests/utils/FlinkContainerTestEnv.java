@@ -111,7 +111,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
     public static void before() {
         LOG.info("Starting containers...");
         jobManager =
-                new GenericContainer<>("flink:1.15.4-scala_2.12")
+                new GenericContainer<>("flink:1.15.4-scala_2.12-java8")
                         .withCommand("jobmanager")
                         .withNetwork(NETWORK)
                         .withNetworkAliases(INTER_CONTAINER_JM_ALIAS)
@@ -120,7 +120,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
                         .withExposedPorts(JOB_MANAGER_REST_PORT)
                         .withLogConsumer(new Slf4jLogConsumer(JM_LOG));
         taskManager =
-                new GenericContainer<>("flink:1.15.4-scala_2.12")
+                new GenericContainer<>("flink:1.15.4-scala_2.12-java8")
                         .withCommand("taskmanager")
                         .withNetwork(NETWORK)
                         .withNetworkAliases(INTER_CONTAINER_TM_ALIAS)
