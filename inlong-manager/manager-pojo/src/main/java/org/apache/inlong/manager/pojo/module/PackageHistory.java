@@ -15,39 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent.installer;
+package org.apache.inlong.manager.pojo.module;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Date;
 
 /**
- * The config result pulled by the agent from the manager.
+ * Module history
  */
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class ConfigResult {
+@NoArgsConstructor
+public class PackageHistory {
 
-    /**
-     * The code of the config result
-     */
-    InstallerCode code;
+    private Integer packageId;
+    private String modifier;
 
-    /**
-     * The md5 of the config result
-     */
-    private String md5;
-    /**
-     * Number of module
-     */
-    private Integer moduleNum;
-    /**
-     * The list of module config list
-     */
-    private List<ModuleConfig> moduleList;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
+    private Date modifyTime;
 }

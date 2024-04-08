@@ -15,39 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent.installer;
+package org.apache.inlong.manager.dao.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
- * The config result pulled by the agent from the manager.
+ * Package config entity, including file name, md5, etc.
  */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ConfigResult {
+public class PackageConfigEntity implements Serializable {
 
-    /**
-     * The code of the config result
-     */
-    InstallerCode code;
-
-    /**
-     * The md5 of the config result
-     */
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String fileName;
     private String md5;
-    /**
-     * Number of module
-     */
-    private Integer moduleNum;
-    /**
-     * The list of module config list
-     */
-    private List<ModuleConfig> moduleList;
+    private String type;
+    private String downloadUrl;
+    private String storagePath;
+    private Integer isDeleted;
+    private String creator;
+    private String modifier;
+    private Date createTime;
+    private Date modifyTime;
+
 }

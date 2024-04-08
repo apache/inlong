@@ -15,39 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent.installer;
+package org.apache.inlong.manager.pojo.module;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.util.List;
+import javax.validation.constraints.NotNull;
 
 /**
- * The config result pulled by the agent from the manager.
+ * Package request.
  */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ConfigResult {
+@ApiModel("Package request")
+public class PackageRequest {
 
-    /**
-     * The code of the config result
-     */
-    InstallerCode code;
+    @ApiModelProperty(value = "Primary key")
+    @NotNull(groups = UpdateValidation.class)
+    private Integer id;
 
-    /**
-     * The md5 of the config result
-     */
+    @ApiModelProperty(value = "Md5")
     private String md5;
-    /**
-     * Number of module
-     */
-    private Integer moduleNum;
-    /**
-     * The list of module config list
-     */
-    private List<ModuleConfig> moduleList;
+
+    @ApiModelProperty("Package type ")
+    private String type;
+
+    @ApiModelProperty(value = "File name")
+    private String fileName;
+
+    @ApiModelProperty(value = "Download url")
+    private String downloadUrl;
+
+    @ApiModelProperty(value = "Storage path")
+    private String storagePath;
+
 }

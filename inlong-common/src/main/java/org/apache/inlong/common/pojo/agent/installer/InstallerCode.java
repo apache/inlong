@@ -17,37 +17,40 @@
 
 package org.apache.inlong.common.pojo.agent.installer;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public enum InstallerCode {
 
-import java.util.List;
+    SUCCESS(0, "SUCCESS", "Get module config success"),
+    NO_UPDATE(1, "NO_UPDATE", "No update"),
+    UNKNOWN_ERROR(Integer.MAX_VALUE, "UNKNOWN", "Unknown error");
 
-/**
- * The config result pulled by the agent from the manager.
- */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ConfigResult {
+    private final int id;
+    private final String name;
+    private final String desc;
 
-    /**
-     * The code of the config result
-     */
-    InstallerCode code;
+    InstallerCode(int id, String name, String desc) {
+        this.id = id;
+        this.name = name;
+        this.desc = desc;
+    }
 
-    /**
-     * The md5 of the config result
-     */
-    private String md5;
-    /**
-     * Number of module
-     */
-    private Integer moduleNum;
-    /**
-     * The list of module config list
-     */
-    private List<ModuleConfig> moduleList;
+    public static InstallerCode valueOf(int value) {
+        for (InstallerCode installerCode : InstallerCode.values()) {
+            if (installerCode.getId() == value) {
+                return installerCode;
+            }
+        }
+        return UNKNOWN_ERROR;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
 }

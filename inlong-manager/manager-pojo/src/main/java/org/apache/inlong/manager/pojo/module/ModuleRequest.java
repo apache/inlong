@@ -15,65 +15,58 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent.installer;
+package org.apache.inlong.manager.pojo.module;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.NotNull;
 
 /**
- * The Module config for installer.
+ * Module request.
  */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ModuleConfig {
+@ApiModel("Module request")
+public class ModuleRequest {
 
+    @ApiModelProperty(value = "Primary key")
+    @NotNull(groups = UpdateValidation.class)
     private Integer id;
-    private String name;
-    /**
-     * The md5 of the module config
-     */
-    private String md5;
-    private String version;
-    /**
-     * Number of processes in one node
-     */
-    private Integer processesNum;
-    /**
-     * The command to start the module
-     */
-    private String startCommand;
-    /**
-     * The command to stop the module
-     */
-    private String stopCommand;
-    /**
-     * The command to check the processes num of the module
-     */
-    private String checkCommand;
-    /**
-     * The command to install the module
-     */
-    private String installCommand;
-    /**
-     * The command to uninstall the module
-     */
-    private String uninstallCommand;
-    /**
-     * Installation package config
-     */
-    private PackageConfig packageConfig;
-    /**
-     * The state of the module，identify that the module is in a state of addition, download, installation, etc
-     */
-    private ModuleStateEnum state;
 
-    /**
-     * The restart time of the module
-     */
-    private Integer restartTime;
+    @ApiModelProperty("Module name")
+    private String name;
+
+    @ApiModelProperty("Module type")
+    private String type;
+
+    @ApiModelProperty("Module version")
+    private String version;
+
+    @ApiModelProperty("Start command")
+    private String startCommand;
+
+    @ApiModelProperty("Stop command")
+    private String stopCommand;
+
+    @ApiModelProperty("Check command")
+    private String checkCommand;
+
+    @ApiModelProperty("Install command")
+    private String installCommand;
+
+    @ApiModelProperty("Uninstall command")
+    private String uninstallCommand;
+
+    @ApiModelProperty("Package id")
+    private Integer packageId;
+
+    @ApiModelProperty("Extended params")
+    private String extParams;
+
+    @ApiModelProperty(value = "Current user", hidden = true)
+    private String currentUser;
 
 }

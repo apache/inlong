@@ -15,13 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.cluster.agent;
+package org.apache.inlong.manager.pojo.module;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.pojo.module.ModuleHistory;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -30,7 +29,6 @@ import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,58 +38,59 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * Agent cluster node info
+ * Module request.
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Agent cluster node info")
-public class AgentClusterNodeDTO {
+@ApiModel("Module info")
+public class ModuleDTO {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgentClusterNodeDTO.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModuleDTO.class);
 
-    @ApiModelProperty(value = "Agent group name")
-    private String agentGroup;
+    @ApiModelProperty("Start command")
+    private String startCommand;
 
-    @ApiModelProperty(value = "Module id list")
+    @ApiModelProperty("Stop command")
+    private String stopCommand;
+
+    @ApiModelProperty("Check command")
+    private String checkCommand;
+
+    @ApiModelProperty("Install command")
+    private String installCommand;
+
+    @ApiModelProperty("Uninstall command")
+    private String uninstallCommand;
+
+    @ApiModelProperty("History list of package")
     @Default
-    private List<Integer> moduleIdList = new ArrayList<>();
-
-    @ApiModelProperty(value = "Agent restart time")
-    private Integer agentRestartTime = 0;
-
-    @ApiModelProperty(value = "Install restart time")
-    private Integer installRestartTime = 0;
-
-    @ApiModelProperty("History list of module")
-    @Default
-    private List<ModuleHistory> moduleHistoryList = new ArrayList<>();
+    private List<PackageHistory> packageHistoryList = new ArrayList<>();
 
     /**
      * Get the dto instance from the request
      */
-    public static AgentClusterNodeDTO getFromRequest(AgentClusterNodeRequest request, String extParams) {
-        AgentClusterNodeDTO dto;
+    public static ModuleDTO getFromRequest(ModuleRequest request, String extParams, Integer packageId) {
         if (!StringUtils.isNotBlank(extParams)) {
-            return CommonBeanUtils.copyProperties(request, AgentClusterNodeDTO::new, true);
+            return CommonBeanUtils.copyProperties(request, ModuleDTO::new, true);
         }
-        dto = AgentClusterNodeDTO.getFromJson(extParams);
-        if (!CollectionUtils.isEqualCollection(request.getModuleIdList(), dto.getModuleIdList())) {
-            request.setModuleHistoryList(dto.getModuleHistoryList());
-            List<ModuleHistory> moduleHistoryList = request.getModuleHistoryList();
-            if (moduleHistoryList.size() > 10) {
-                moduleHistoryList.remove(moduleHistoryList.size() - 1);
+        ModuleDTO dto = ModuleDTO.getFromJson(extParams);
+        if (!Objects.equals(request.getPackageId(), packageId)) {
+            List<PackageHistory> packageHistoryList = dto.getPackageHistoryList();
+            if (packageHistoryList.size() > 10) {
+                packageHistoryList.remove(packageHistoryList.size() - 1);
             }
-            ModuleHistory moduleHistory = ModuleHistory.builder()
-                    .moduleIdList(dto.getModuleIdList())
+            PackageHistory packageHistory = PackageHistory.builder()
+                    .packageId(packageId)
                     .modifier(request.getCurrentUser())
                     .modifyTime(new Date())
                     .build();
-            moduleHistoryList.add(0, moduleHistory);
-            dto.setModuleHistoryList(moduleHistoryList);
+            packageHistoryList.add(0, packageHistory);
+            dto.setPackageHistoryList(packageHistoryList);
         }
         return CommonBeanUtils.copyProperties(request, dto, true);
     }
@@ -99,12 +98,13 @@ public class AgentClusterNodeDTO {
     /**
      * Get the dto instance from the JSON string.
      */
-    public static AgentClusterNodeDTO getFromJson(@NotNull String extParams) {
+    public static ModuleDTO getFromJson(@NotNull String extParams) {
         try {
-            return JsonUtils.parseObject(extParams, AgentClusterNodeDTO.class);
+            return JsonUtils.parseObject(extParams, ModuleDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
                     ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
+
 }

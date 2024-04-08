@@ -237,6 +237,7 @@ public class InlongClusterController {
     @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.CLUSTER)
     public Response<Integer> saveNode(@Validated @RequestBody ClusterNodeRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
+        request.setCurrentUser(currentUser);
         return Response.success(clusterService.saveNode(request, currentUser));
     }
 
@@ -273,6 +274,7 @@ public class InlongClusterController {
     @ApiOperation(value = "Update cluster node")
     public Response<Boolean> updateNode(@Validated(UpdateValidation.class) @RequestBody ClusterNodeRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
+        request.setCurrentUser(username);
         return Response.success(clusterService.updateNode(request, username));
     }
 
