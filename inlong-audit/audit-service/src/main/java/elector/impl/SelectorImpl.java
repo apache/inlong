@@ -173,32 +173,33 @@ public class SelectorImpl extends Selector {
 
         public void run() {
             while (running) {
-                try {
-                    if (canElector) {
-                        dbDataSource.leaderSelector();
-                    }
+                if (canElector) {
+                    dbDataSource.leaderSelector();
+                }
 
-                    String leaderId = dbDataSource.getCurrentLeader();
-                    if (StringUtils.isNotEmpty(leaderId)) {
-                        if (selectorConfig.getLeaderId().equals(leaderId)) {
-                            if (!isLeader
-                                    && selectorConfig.getSelectorChangeListener() != null) {
-                                selectorConfig.getSelectorChangeListener().leaderChanged(true);
-                            }
-
-                            isLeader = true;
-                            sleepTime = selectorConfig.getTryToBeLeaderInterval();
-                        } else {
-                            if (isLeader
-                                    && selectorConfig.getSelectorChangeListener() != null) {
-                                selectorConfig.getSelectorChangeListener().leaderChanged(false);
-                            }
-
-                            isLeader = false;
-                            sleepTime = selectorConfig.getTryToBeLeaderInterval()
-                                    + random.nextInt(RANDOM_BOUND);
+                String leaderId = dbDataSource.getCurrentLeader();
+                if (StringUtils.isNotEmpty(leaderId)) {
+                    if (selectorConfig.getLeaderId().equals(leaderId)) {
+                        if (!isLeader
+                                && selectorConfig.getSelectorChangeListener() != null) {
+                            selectorConfig.getSelectorChangeListener().leaderChanged(true);
                         }
+
+                        isLeader = true;
+                        sleepTime = selectorConfig.getTryToBeLeaderInterval();
+                    } else {
+                        if (isLeader
+                                && selectorConfig.getSelectorChangeListener() != null) {
+                            selectorConfig.getSelectorChangeListener().leaderChanged(false);
+                        }
+
+                        isLeader = false;
+                        sleepTime = selectorConfig.getTryToBeLeaderInterval()
+                                + random.nextInt(RANDOM_BOUND);
                     }
+                }
+
+                try {
                     TimeUnit.SECONDS.sleep(sleepTime);
                 } catch (Exception exception) {
                     logger.error("Exception :{}", exception.getMessage());
