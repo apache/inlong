@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.tests;
 
-import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
+import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnvJRE11;
 import org.apache.inlong.sort.tests.utils.JdbcProxy;
 import org.apache.inlong.sort.tests.utils.StarRocksContainer;
 import org.apache.inlong.sort.tests.utils.TestUtils;
@@ -49,7 +49,7 @@ import static org.apache.inlong.sort.tests.utils.StarRocksManager.*;
  * End-to-end tests for sort-connector-postgres-cdc-v1.15 uber jar.
  * Test flink sql Postgres cdc to StarRocks
  */
-public class Postgres2StarRocksTest extends FlinkContainerTestEnv {
+public class Postgres2StarRocksTest extends FlinkContainerTestEnvJRE11 {
 
     private static final Logger PG_LOG = LoggerFactory.getLogger(PostgreSQLContainer.class);
     private static final Logger LOG = LoggerFactory.getLogger(Postgres2StarRocksTest.class);

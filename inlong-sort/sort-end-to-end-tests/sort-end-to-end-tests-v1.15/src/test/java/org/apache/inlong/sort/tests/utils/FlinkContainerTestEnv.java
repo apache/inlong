@@ -30,7 +30,6 @@ import org.apache.flink.runtime.taskexecutor.TaskExecutor;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.util.TestLogger;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -39,9 +38,7 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.Container.ExecResult;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.images.builder.Transferable;
-import org.testcontainers.lifecycle.Startables;
 
 import javax.annotation.Nullable;
 
@@ -62,7 +59,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
-import java.util.stream.Stream;
 
 import static org.apache.flink.util.Preconditions.checkState;
 
@@ -72,20 +68,20 @@ import static org.apache.flink.util.Preconditions.checkState;
  */
 public abstract class FlinkContainerTestEnv extends TestLogger {
 
-    private static final Logger JM_LOG = LoggerFactory.getLogger(JobMaster.class);
-    private static final Logger TM_LOG = LoggerFactory.getLogger(TaskExecutor.class);
-    private static final Logger LOG = LoggerFactory.getLogger(FlinkContainerTestEnv.class);
+    static final Logger JM_LOG = LoggerFactory.getLogger(JobMaster.class);
+    static final Logger TM_LOG = LoggerFactory.getLogger(TaskExecutor.class);
+    static final Logger LOG = LoggerFactory.getLogger(FlinkContainerTestEnv.class);
 
     private static final Path SORT_DIST_JAR = TestUtils.getResource("sort-dist.jar");
     // ------------------------------------------------------------------------------------------
     // Flink Variables
     // ------------------------------------------------------------------------------------------
-    private static final int JOB_MANAGER_REST_PORT = 8081;
-    private static final int DEBUG_PORT = 20000;
-    private static final String FLINK_BIN = "bin";
-    private static final String INTER_CONTAINER_JM_ALIAS = "jobmanager";
-    private static final String INTER_CONTAINER_TM_ALIAS = "taskmanager";
-    private static final String FLINK_PROPERTIES = String.join("\n", Arrays.asList(
+    static final int JOB_MANAGER_REST_PORT = 8081;
+    static final int DEBUG_PORT = 20000;
+    static final String FLINK_BIN = "bin";
+    static final String INTER_CONTAINER_JM_ALIAS = "jobmanager";
+    static final String INTER_CONTAINER_TM_ALIAS = "taskmanager";
+    static final String FLINK_PROPERTIES = String.join("\n", Arrays.asList(
             "jobmanager.rpc.address: jobmanager",
             "taskmanager.numberOfTaskSlots: 10",
             "parallelism.default: 4",
@@ -104,35 +100,8 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
     @Nullable
     private static RestClusterClient<StandaloneClusterId> restClusterClient;
 
-    private static GenericContainer<?> jobManager;
-    private static GenericContainer<?> taskManager;
-
-    @BeforeClass
-    public static void before() {
-        LOG.info("Starting containers...");
-        jobManager =
-                new GenericContainer<>("flink:1.15.4-scala_2.12-java8")
-                        .withCommand("jobmanager")
-                        .withNetwork(NETWORK)
-                        .withNetworkAliases(INTER_CONTAINER_JM_ALIAS)
-                        .withExposedPorts(JOB_MANAGER_REST_PORT, DEBUG_PORT)
-                        .withEnv("FLINK_PROPERTIES", FLINK_PROPERTIES)
-                        .withExposedPorts(JOB_MANAGER_REST_PORT)
-                        .withLogConsumer(new Slf4jLogConsumer(JM_LOG));
-        taskManager =
-                new GenericContainer<>("flink:1.15.4-scala_2.12-java8")
-                        .withCommand("taskmanager")
-                        .withNetwork(NETWORK)
-                        .withNetworkAliases(INTER_CONTAINER_TM_ALIAS)
-                        .withExposedPorts(DEBUG_PORT)
-                        .withEnv("FLINK_PROPERTIES", FLINK_PROPERTIES)
-                        .dependsOn(jobManager)
-                        .withLogConsumer(new Slf4jLogConsumer(TM_LOG));
-
-        Startables.deepStart(Stream.of(jobManager)).join();
-        Startables.deepStart(Stream.of(taskManager)).join();
-        LOG.info("Containers are started.");
-    }
+    static GenericContainer<?> jobManager;
+    static GenericContainer<?> taskManager;
 
     @AfterClass
     public static void after() {

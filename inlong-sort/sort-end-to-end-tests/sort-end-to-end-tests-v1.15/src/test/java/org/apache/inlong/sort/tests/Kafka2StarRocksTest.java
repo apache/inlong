@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.tests;
 
-import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
+import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnvJRE8;
 import org.apache.inlong.sort.tests.utils.JdbcProxy;
 import org.apache.inlong.sort.tests.utils.MySqlContainer;
 import org.apache.inlong.sort.tests.utils.PlaceholderResolver;
@@ -62,7 +62,7 @@ import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStar
 /**
  * End-to-end tests for sort-connector-kafka uber jar.
  */
-public class Kafka2StarRocksTest extends FlinkContainerTestEnv {
+public class Kafka2StarRocksTest extends FlinkContainerTestEnvJRE8 {
 
     private static final Logger LOG = LoggerFactory.getLogger(Kafka2StarRocksTest.class);
 
