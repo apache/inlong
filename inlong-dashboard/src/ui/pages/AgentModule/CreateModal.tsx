@@ -1,0 +1,189 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import React, { useMemo } from 'react';
+import { Button, message, Modal } from 'antd';
+import i18n from '@/i18n';
+import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
+import { useRequest, useUpdateEffect } from '@/ui/hooks';
+import request from '@/core/utils/request';
+import { ModalProps } from 'antd/es/modal';
+
+export interface Props extends ModalProps {
+  id?: string;
+  type?: string;
+}
+
+const Comp: React.FC<Props> = ({ id, type, ...modalProps }) => {
+  const [form] = useForm();
+
+  const content = useMemo(() => {
+    return [
+      {
+        type: 'input',
+        label: i18n.t('pages.ModuleAgent.Config.Name'),
+        name: 'name',
+        rules: [{ required: true }],
+      },
+      {
+        type: 'input',
+        label: i18n.t('pages.ModuleAgent.Config.Version'),
+        name: 'version',
+        rules: [{ required: true }],
+      },
+      {
+        type: 'select',
+        label: i18n.t('pages.ModuleAgent.Config.Package'),
+        name: 'packageId',
+        rules: [{ required: true }],
+        props: {
+          showSearch: true,
+          allowClear: true,
+          filterOption: false,
+          options: {
+            requestAuto: true,
+            requestTrigger: ['onOpen', 'onSearch'],
+            requestService: keyword => ({
+              url: '/package/list',
+              method: 'POST',
+              data: {
+                keyword,
+                pageNum: 1,
+                pageSize: 9999,
+                type: type,
+              },
+            }),
+            requestParams: {
+              formatResult: result =>
+                result?.list?.map(item => ({
+                  ...item,
+                  label: item.fileName,
+                  value: item.id,
+                })),
+            },
+          },
+        },
+      },
+      {
+        type: 'textarea',
+        label: i18n.t('pages.ModuleAgent.Config.CheckCommand'),
+        name: 'checkCommand',
+        props: {
+          showCount: true,
+          maxLength: 1000,
+        },
+      },
+      {
+        type: 'textarea',
+        label: i18n.t('pages.ModuleAgent.Config.InstallCommand'),
+        name: 'installCommand',
+        props: {
+          showCount: true,
+          maxLength: 1000,
+        },
+      },
+      {
+        type: 'textarea',
+        label: i18n.t('pages.ModuleAgent.Config.StartCommand'),
+        name: 'startCommand',
+        props: {
+          showCount: true,
+          maxLength: 1000,
+        },
+      },
+      {
+        type: 'textarea',
+        label: i18n.t('pages.ModuleAgent.Config.StopCommand'),
+        name: 'stopCommand',
+        props: {
+          showCount: true,
+          maxLength: 1000,
+        },
+      },
+      {
+        type: 'textarea',
+        label: i18n.t('pages.ModuleAgent.Config.UninstallCommand'),
+        name: 'uninstallCommand',
+        props: {
+          showCount: true,
+          maxLength: 1000,
+        },
+      },
+    ];
+  }, [type]);
+
+  const { data, run: getData } = useRequest(
+    id => ({
+      url: `/module/get/${id}`,
+    }),
+    {
+      manual: true,
+      onSuccess: result => {
+        form.setFieldsValue(result);
+      },
+    },
+  );
+
+  const onOk = async () => {
+    const values = await form.validateFields();
+    const isUpdate = Boolean(id);
+    if (isUpdate) {
+      values.id = id;
+    } else {
+      values.type = type;
+    }
+    await request({
+      url: isUpdate ? '/module/update' : '/module/save',
+      method: 'POST',
+      data: { ...values },
+    });
+    await modalProps?.onOk(values);
+    message.success(i18n.t('basic.OperatingSuccess'));
+  };
+
+  useUpdateEffect(() => {
+    if (modalProps.open) {
+      if (id) {
+        getData(id);
+      }
+    } else {
+      form.resetFields();
+    }
+  }, [modalProps.open]);
+
+  return (
+    <Modal
+      {...modalProps}
+      width={800}
+      title={id ? i18n.t('basic.Edit') : i18n.t('basic.Create')}
+      footer={[
+        <Button key="cancel" onClick={e => modalProps.onCancel(e)}>
+          {i18n.t('basic.Cancel')}
+        </Button>,
+        <Button key="save" type="primary" onClick={onOk}>
+          {i18n.t('basic.Save')}
+        </Button>,
+      ]}
+    >
+      <FormGenerator content={content} form={form} initialValues={id ? data : {}} useMaxWidth />
+    </Modal>
+  );
+};
+
+export default Comp;

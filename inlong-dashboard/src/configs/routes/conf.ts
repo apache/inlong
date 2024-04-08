@@ -125,6 +125,14 @@ const conf: RouteProps[] = [
     ],
   },
   {
+    path: '/agentModule',
+    component: () => import('@/ui/pages/AgentModule'),
+  },
+  {
+    path: '/agentPackage',
+    component: () => import('@/ui/pages/AgentPackage'),
+  },
+  {
     component: () => import('@/ui/pages/Error/404'),
   },
 ];
