@@ -21,13 +21,9 @@ import org.apache.inlong.manager.common.validation.UpdateValidation;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Builder.Default;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Module request.
