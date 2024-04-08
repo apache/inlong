@@ -50,8 +50,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -311,7 +311,7 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
             InlongStreamInfo streamInfo, Integer messageCount) throws Exception {
         List<ClusterInfo> pulsarClusterList = clusterService.listByTagAndType(groupInfo.getInlongClusterTag(),
                 ClusterType.PULSAR);
-        List<BriefMQMessage> briefMQMessages = new CopyOnWriteArrayList<>();
+        List<BriefMQMessage> briefMQMessages = Collections.synchronizedList(new ArrayList<>());
         QueryCountDownLatch queryLatch = new QueryCountDownLatch(messageCount, pulsarClusterList.size());
         InlongPulsarInfo inlongPulsarInfo = ((InlongPulsarInfo) groupInfo);
         for (ClusterInfo clusterInfo : pulsarClusterList) {
