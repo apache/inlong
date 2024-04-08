@@ -87,28 +87,4 @@ public class ModuleResponse {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
     private Date modifyTime;
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Commands {
-
-        private String startCommand;
-        /**
-         * The command to stop the module
-         */
-        private String stopCommand;
-        /**
-         * The command to check the processes num of the module
-         */
-        private String checkCommand;
-        /**
-         * The command to install the module
-         */
-        private String installCommand;
-        /**
-         * The command to uninstall the module
-         */
-        private String uninstallCommand;
-    }
-
 }
