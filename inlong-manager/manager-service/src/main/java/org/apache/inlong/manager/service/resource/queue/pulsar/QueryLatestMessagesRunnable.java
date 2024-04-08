@@ -17,13 +17,13 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -32,8 +32,6 @@ import java.util.concurrent.CountDownLatch;
  * QueryLatestMessagesRunnable
  */
 public class QueryLatestMessagesRunnable implements Runnable {
-
-    public static final String PULSAR_SUBSCRIPTION = "%s_%s_%s_consumer_group";
 
     public static final String PULSAR_SUBSCRIPTION_REALTIME_REVIEW = "%s_%s_consumer_group_realtime_review";
 
@@ -76,7 +74,7 @@ public class QueryLatestMessagesRunnable implements Runnable {
         boolean serial = InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(inlongPulsarInfo.getQueueModule());
         List<BriefMQMessage> messages = pulsarOperator.queryLatestMessage(clusterInfo, fullTopicName, subs,
                 messageCount, streamInfo, serial);
-        if (messages != null) {
+        if (CollectionUtils.isNotEmpty(messages)) {
             briefMQMessages.addAll(messages);
             messages.forEach(v -> this.latch.countDown());
         }
