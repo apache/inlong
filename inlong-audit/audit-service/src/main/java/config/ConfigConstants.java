@@ -101,4 +101,17 @@ public class ConfigConstants {
     public static final String KEY_DAILY_SUMMARY_BEFORE_TIMES = "daily.summary.before.times";
     public static final int DEFAULT_DAILY_SUMMARY_BEFORE_TIMES = 2;
 
+    // HA selector config
+    public static final String KEY_RELEASE_LEADER_INTERVAL = "release.leader.interval";
+    public static final int DEFAULT_RELEASE_LEADER_INTERVAL = 40;
+    public static final String KEY_SELECTOR_THREAD_POOL_SIZE = "selector.thread.pool.size";
+    public static final int DEFAULT_SELECTOR_THREAD_POOL_SIZE = 3;
+
+    // HikariConfig
+    public static final String CACHE_PREP_STMTS = "cachePrepStmts";
+    public static final String PREP_STMT_CACHE_SIZE = "prepStmtCacheSize";
+    public static final String PREP_STMT_CACHE_SQL_LIMIT = "prepStmtCacheSqlLimit";
+
+    public static final int MAX_INIT_COUNT = 2;
+    public static final int RANDOM_BOUND = 10;
 }
