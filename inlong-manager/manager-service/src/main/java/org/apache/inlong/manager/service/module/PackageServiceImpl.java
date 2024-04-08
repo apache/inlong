@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.module;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.PackageConfigEntity;
 import org.apache.inlong.manager.dao.mapper.PackageConfigEntityMapper;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
@@ -102,5 +103,18 @@ public class PackageServiceImpl implements PackageService {
                 entityPage.getPageNum(), entityPage.getPageSize());
         LOGGER.debug("success to list package page, result size {}", pageResult.getList().size());
         return pageResult;
+    }
+
+    @Override
+    public Boolean delete(Integer id, String operator) {
+        LOGGER.info("begin to delete packeage by id={}", id);
+        Preconditions.expectNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
+        PackageConfigEntity entity = packageConfigEntityMapper.selectByPrimaryKey(id);
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.PACKAGE_NOT_FOUND.getMessage());
+        entity.setModifier(operator);
+        entity.setIsDeleted(entity.getId());
+        packageConfigEntityMapper.updateByIdSelective(entity);
+        LOGGER.info("success to delete package by id: {}", entity);
+        return true;
     }
 }

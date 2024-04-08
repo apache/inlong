@@ -24,12 +24,15 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Module response
@@ -74,6 +77,10 @@ public class ModuleResponse {
 
     @ApiModelProperty("Extended params")
     private String extParams;
+
+    @ApiModelProperty("History list of package")
+    @Default
+    private List<PackageHistory> packageHistoryList = new ArrayList<>();
 
     @ApiModelProperty(value = "Name of in creator")
     private String creator;

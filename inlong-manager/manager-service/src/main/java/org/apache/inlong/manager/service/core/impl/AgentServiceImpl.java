@@ -836,33 +836,7 @@ public class AgentServiceImpl implements AgentService {
         List<ModuleConfig> configs = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(clusterNodeEntityList)) {
             AgentClusterNodeDTO dto = AgentClusterNodeDTO.getFromJson(clusterNodeEntityList.get(0).getExtParams());
-            List<Integer> moduleList = dto.getModuleIdList();
-            if (CollectionUtils.isNotEmpty(moduleList)) {
-                for (Integer mdId : moduleList) {
-                    ModuleConfigEntity moduleConfigEntity = moduleConfigEntityMapper.selectByPrimaryKey(mdId);
-                    ModuleConfig moduleConfig = CommonBeanUtils.copyProperties(moduleConfigEntity, ModuleConfig::new);
-                    moduleConfig.setId(moduleNameIdMap.getOrDefault(moduleConfigEntity.getName(), 1));
-                    PackageConfigEntity packageConfigEntity =
-                            packageConfigEntityMapper.selectByPrimaryKey(moduleConfigEntity.getPackageId());
-                    moduleConfig
-                            .setPackageConfig(CommonBeanUtils.copyProperties(packageConfigEntity, PackageConfig::new));
-                    ModuleDTO moduleDTO = JsonUtils.parseObject(moduleConfigEntity.getExtParams(), ModuleDTO.class);
-                    moduleConfig = CommonBeanUtils.copyProperties(moduleDTO, moduleConfig, true);
-                    Integer restartTime = 0;
-                    if (Objects.equals(moduleConfigEntity.getType(), ModuleType.AGENT.name())) {
-                        restartTime = dto.getAgentRestartTime();
-                    }
-                    if (Objects.equals(moduleConfigEntity.getType(), ModuleType.INSTALLER.name())) {
-                        restartTime = dto.getInstallRestartTime();
-                    }
-                    moduleConfig.setRestartTime(restartTime);
-                    String moduleStr = GSON.toJson(moduleConfig);
-                    String moduleMd5 = DigestUtils.md5Hex(moduleStr);
-                    moduleConfig.setMd5(moduleMd5);
-                    moduleConfig.setProcessesNum(1);
-                    configs.add(moduleConfig);
-                }
-            }
+            configs = getModuleConfigs(dto);
         }
         String jsonStr = GSON.toJson(configs);
         String configMd5 = DigestUtils.md5Hex(jsonStr);
@@ -873,5 +847,38 @@ public class AgentServiceImpl implements AgentService {
                 .build();
         LOGGER.info("success load module config, size = {}", configResult.getModuleList().size());
         return configResult;
+    }
+
+    private List<ModuleConfig> getModuleConfigs(AgentClusterNodeDTO dto) {
+        List<Integer> moduleIdList = dto.getModuleIdList();
+        List<ModuleConfig> configs = new ArrayList<>();
+        if (CollectionUtils.isEmpty(moduleIdList)) {
+            return configs;
+        }
+        for (Integer moduleId : moduleIdList) {
+            ModuleConfigEntity moduleConfigEntity = moduleConfigEntityMapper.selectByPrimaryKey(moduleId);
+            ModuleConfig moduleConfig = CommonBeanUtils.copyProperties(moduleConfigEntity, ModuleConfig::new);
+            moduleConfig.setId(moduleNameIdMap.getOrDefault(moduleConfigEntity.getName(), 1));
+            PackageConfigEntity packageConfigEntity =
+                    packageConfigEntityMapper.selectByPrimaryKey(moduleConfigEntity.getPackageId());
+            moduleConfig
+                    .setPackageConfig(CommonBeanUtils.copyProperties(packageConfigEntity, PackageConfig::new));
+            ModuleDTO moduleDTO = JsonUtils.parseObject(moduleConfigEntity.getExtParams(), ModuleDTO.class);
+            moduleConfig = CommonBeanUtils.copyProperties(moduleDTO, moduleConfig, true);
+            Integer restartTime = 0;
+            if (Objects.equals(moduleConfigEntity.getType(), ModuleType.AGENT.name())) {
+                restartTime = dto.getAgentRestartTime();
+            }
+            if (Objects.equals(moduleConfigEntity.getType(), ModuleType.INSTALLER.name())) {
+                restartTime = dto.getInstallRestartTime();
+            }
+            moduleConfig.setRestartTime(restartTime);
+            String moduleStr = GSON.toJson(moduleConfig);
+            String moduleMd5 = DigestUtils.md5Hex(moduleStr);
+            moduleConfig.setMd5(moduleMd5);
+            moduleConfig.setProcessesNum(1);
+            configs.add(moduleConfig);
+        }
+        return configs;
     }
 }

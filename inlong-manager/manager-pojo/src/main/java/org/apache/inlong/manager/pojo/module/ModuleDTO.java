@@ -26,9 +26,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,34 +68,29 @@ public class ModuleDTO {
     private String uninstallCommand;
 
     @ApiModelProperty("History list of package")
-    private List<PackageHistory> packageHistoryList;
+    @Default
+    private List<PackageHistory> packageHistoryList = new ArrayList<>();
 
     /**
      * Get the dto instance from the request
      */
     public static ModuleDTO getFromRequest(ModuleRequest request, String extParams, Integer packageId) {
-        ModuleDTO dto = new ModuleDTO();
-        if (StringUtils.isNotBlank(extParams)) {
-            dto = ModuleDTO.getFromJson(extParams);
-            if (!Objects.equals(request.getPackageId(), packageId)) {
-                List<PackageHistory> packageHistoryList = dto.getPackageHistoryList();
-                if (CollectionUtils.isEmpty(packageHistoryList)) {
-                    packageHistoryList = new ArrayList<>();
-                } else if (packageHistoryList.size() > 10) {
-                    packageHistoryList.remove(packageHistoryList.size() - 1);
-                }
-                if (packageId != null) {
-                    PackageHistory packageHistory = PackageHistory.builder()
-                            .packageId(packageId)
-                            .modifier(request.getCurrentUser())
-                            .modifyTime(new Date())
-                            .build();
-                    packageHistoryList.add(0, packageHistory);
-                }
-                dto.setPackageHistoryList(packageHistoryList);
+        if (!StringUtils.isNotBlank(extParams)) {
+            return CommonBeanUtils.copyProperties(request, ModuleDTO::new, true);
+        }
+        ModuleDTO dto = ModuleDTO.getFromJson(extParams);
+        if (!Objects.equals(request.getPackageId(), packageId)) {
+            List<PackageHistory> packageHistoryList = dto.getPackageHistoryList();
+            if (packageHistoryList.size() > 10) {
+                packageHistoryList.remove(packageHistoryList.size() - 1);
             }
-        } else {
-            dto.setPackageHistoryList(new ArrayList<>());
+            PackageHistory packageHistory = PackageHistory.builder()
+                    .packageId(packageId)
+                    .modifier(request.getCurrentUser())
+                    .modifyTime(new Date())
+                    .build();
+            packageHistoryList.add(0, packageHistory);
+            dto.setPackageHistoryList(packageHistoryList);
         }
         return CommonBeanUtils.copyProperties(request, dto, true);
     }

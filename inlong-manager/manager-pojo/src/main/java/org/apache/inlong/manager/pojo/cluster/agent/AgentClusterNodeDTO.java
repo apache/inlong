@@ -27,6 +27,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
@@ -56,7 +57,8 @@ public class AgentClusterNodeDTO {
     private String agentGroup;
 
     @ApiModelProperty(value = "Module id list")
-    private List<Integer> moduleIdList;
+    @Default
+    private List<Integer> moduleIdList = new ArrayList<>();
 
     @ApiModelProperty(value = "Agent restart time")
     private Integer agentRestartTime = 0;
@@ -65,41 +67,31 @@ public class AgentClusterNodeDTO {
     private Integer installRestartTime = 0;
 
     @ApiModelProperty("History list of module")
-    private List<ModuleHistory> moduleHistoryList;
+    @Default
+    private List<ModuleHistory> moduleHistoryList = new ArrayList<>();
 
     /**
      * Get the dto instance from the request
      */
     public static AgentClusterNodeDTO getFromRequest(AgentClusterNodeRequest request, String extParams) {
         AgentClusterNodeDTO dto;
-        if (StringUtils.isNotBlank(extParams)) {
-            dto = AgentClusterNodeDTO.getFromJson(extParams);
-            if (CollectionUtils.isEmpty(dto.getModuleIdList())) {
-                dto.setModuleIdList(new ArrayList<>());
+        if (!StringUtils.isNotBlank(extParams)) {
+            return CommonBeanUtils.copyProperties(request, AgentClusterNodeDTO::new, true);
+        }
+        dto = AgentClusterNodeDTO.getFromJson(extParams);
+        if (!CollectionUtils.isEqualCollection(request.getModuleIdList(), dto.getModuleIdList())) {
+            request.setModuleHistoryList(dto.getModuleHistoryList());
+            List<ModuleHistory> moduleHistoryList = request.getModuleHistoryList();
+            if (moduleHistoryList.size() > 10) {
+                moduleHistoryList.remove(moduleHistoryList.size() - 1);
             }
-            if (CollectionUtils.isEmpty(request.getModuleIdList())) {
-                request.setModuleIdList(new ArrayList<>());
-            }
-            if (!CollectionUtils.isEqualCollection(request.getModuleIdList(), dto.getModuleIdList())) {
-                request.setModuleHistoryList(dto.getModuleHistoryList());
-                List<ModuleHistory> moduleHistoryList = request.getModuleHistoryList();
-                if (CollectionUtils.isEmpty(moduleHistoryList)) {
-                    moduleHistoryList = new ArrayList<>();
-                } else if (moduleHistoryList.size() > 10) {
-                    moduleHistoryList.remove(moduleHistoryList.size() - 1);
-                }
-                if (CollectionUtils.isNotEmpty(dto.getModuleIdList())) {
-                    ModuleHistory moduleHistory = ModuleHistory.builder()
-                            .moduleIdList(dto.getModuleIdList())
-                            .modifier(request.getCurrentUser())
-                            .modifyTime(new Date())
-                            .build();
-                    moduleHistoryList.add(0, moduleHistory);
-                }
-                dto.setModuleHistoryList(moduleHistoryList);
-            }
-        } else {
-            dto = new AgentClusterNodeDTO();
+            ModuleHistory moduleHistory = ModuleHistory.builder()
+                    .moduleIdList(dto.getModuleIdList())
+                    .modifier(request.getCurrentUser())
+                    .modifyTime(new Date())
+                    .build();
+            moduleHistoryList.add(0, moduleHistory);
+            dto.setModuleHistoryList(moduleHistoryList);
         }
         return CommonBeanUtils.copyProperties(request, dto, true);
     }

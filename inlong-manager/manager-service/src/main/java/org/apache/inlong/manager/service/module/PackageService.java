@@ -60,4 +60,13 @@ public interface PackageService {
      */
     PageResult<PackageResponse> listByCondition(PackagePageRequest request);
 
+    /**
+     * Delete the package config by the given id.
+     *
+     * @param id The primary key of the package.
+     * @param operator Operator's name
+     * @return Whether succeed
+     */
+    Boolean delete(Integer id, String operator);
+
 }

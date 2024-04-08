@@ -74,4 +74,11 @@ public class ModuleController {
     public Response<PageResult<ModuleResponse>> listByCondition(@RequestBody ModulePageRequest request) {
         return Response.success(moduleService.listByCondition(request));
     }
+
+    @RequestMapping(value = "/module/delete/{id}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Delete module config")
+    public Response<Boolean> delete(@PathVariable Integer id) {
+        return Response.success(moduleService.delete(id, LoginUserUtils.getLoginUser().getName()));
+    }
+
 }

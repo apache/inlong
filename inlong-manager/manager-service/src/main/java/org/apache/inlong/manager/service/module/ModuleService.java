@@ -60,4 +60,13 @@ public interface ModuleService {
      */
     PageResult<ModuleResponse> listByCondition(ModulePageRequest request);
 
+    /**
+     * Delete the module config by the given id.
+     *
+     * @param id The primary key of the module.
+     * @param operator Operator's name
+     * @return Whether succeed
+     */
+    Boolean delete(Integer id, String operator);
+
 }

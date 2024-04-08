@@ -161,7 +161,7 @@ public enum ErrorCodeEnum {
     MODULE_INFO_INCORRECT(6002, "Module info was incorrect"),
 
     PACKAGE_NOT_FOUND(7001, "Package does not exist/no operation authority"),
-    PACKAGE_INFO_INCORRECT(7002, "Package info was incorrect"),
+    PACKAGE_INFO_INCORRECT(7002, "Package info was incorrect")
 
     ;
 

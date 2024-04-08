@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.module;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.ModuleConfigEntity;
 import org.apache.inlong.manager.dao.mapper.ModuleConfigEntityMapper;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
@@ -129,6 +130,19 @@ public class ModuleServiceImpl implements ModuleService {
                 });
         LOGGER.debug("success to list source page, result size {}", pageResult.getList().size());
         return pageResult;
+    }
+
+    @Override
+    public Boolean delete(Integer id, String operator) {
+        LOGGER.info("begin to delete module config by id={}", id);
+        Preconditions.expectNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
+        ModuleConfigEntity entity = moduleConfigEntityMapper.selectByPrimaryKey(id);
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.MODULE_NOT_FOUND.getMessage());
+        entity.setModifier(operator);
+        entity.setIsDeleted(entity.getId());
+        moduleConfigEntityMapper.updateByIdSelective(entity);
+        LOGGER.info("success to delete module config by id: {}", entity);
+        return true;
     }
 
 }

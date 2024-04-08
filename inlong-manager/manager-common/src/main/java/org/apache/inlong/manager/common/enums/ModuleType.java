@@ -23,6 +23,6 @@ package org.apache.inlong.manager.common.enums;
 public enum ModuleType {
 
     AGENT,
-    INSTALLER,
+    INSTALLER
 
 }

@@ -21,11 +21,13 @@ import org.apache.inlong.manager.common.validation.UpdateValidation;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
+import lombok.Builder.Default;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Module request.
@@ -67,6 +69,10 @@ public class ModuleRequest {
 
     @ApiModelProperty("Extended params")
     private String extParams;
+
+    @ApiModelProperty("History list of package")
+    @Default
+    private List<PackageHistory> packageHistoryList = new ArrayList<>();
 
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;

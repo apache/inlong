@@ -74,4 +74,11 @@ public class PackageController {
     public Response<PageResult<PackageResponse>> listByCondition(@RequestBody PackagePageRequest request) {
         return Response.success(packageService.listByCondition(request));
     }
+
+    @RequestMapping(value = "/package/delete/{id}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Delete package config")
+    public Response<Boolean> delete(@PathVariable Integer id) {
+        return Response.success(packageService.delete(id, LoginUserUtils.getLoginUser().getName()));
+    }
+
 }

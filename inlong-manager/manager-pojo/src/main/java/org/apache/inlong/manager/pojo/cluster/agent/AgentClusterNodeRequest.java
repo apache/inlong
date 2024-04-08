@@ -24,10 +24,12 @@ import org.apache.inlong.manager.pojo.module.ModuleHistory;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,10 +52,12 @@ public class AgentClusterNodeRequest extends ClusterNodeRequest {
     private Integer installRestartTime = 0;
 
     @ApiModelProperty(value = "Module id list")
-    private List<Integer> moduleIdList;
+    @Default
+    private List<Integer> moduleIdList = new ArrayList<>();
 
     @ApiModelProperty("History list of module")
-    private List<ModuleHistory> moduleHistoryList;
+    @Default
+    private List<ModuleHistory> moduleHistoryList = new ArrayList<>();
 
     public AgentClusterNodeRequest() {
         this.setType(ClusterType.AGENT);
