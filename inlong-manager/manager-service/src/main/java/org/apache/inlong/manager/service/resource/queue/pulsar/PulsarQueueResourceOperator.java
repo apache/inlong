@@ -49,8 +49,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Operator for create Pulsar Tenant, Namespace, Topic and Subscription
@@ -76,6 +80,8 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
     private InlongConsumeService consumeService;
     @Autowired
     private PulsarOperator pulsarOperator;
+
+    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
 
     @Override
     public boolean accept(String mqType) {
@@ -303,32 +309,24 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
      */
     public List<BriefMQMessage> queryLatestMessages(InlongGroupInfo groupInfo,
             InlongStreamInfo streamInfo, Integer messageCount) throws Exception {
-        String groupId = streamInfo.getInlongGroupId();
+        List<ClusterInfo> pulsarClusterList = clusterService.listByTagAndType(groupInfo.getInlongClusterTag(),
+                ClusterType.PULSAR);
+        List<BriefMQMessage> briefMQMessages = new CopyOnWriteArrayList<>();
+        CountDownLatch latch = new CountDownLatch(messageCount);
         InlongPulsarInfo inlongPulsarInfo = ((InlongPulsarInfo) groupInfo);
-        List<ClusterInfo> pulsarClusterList =
-                clusterService.listByTagAndType(groupInfo.getInlongClusterTag(), ClusterType.PULSAR);
-        String tenant = inlongPulsarInfo.getPulsarTenant();
-        if (StringUtils.isBlank(tenant) && CollectionUtils.isNotEmpty(pulsarClusterList)) {
-            tenant = ((PulsarClusterInfo) pulsarClusterList.get(0)).getPulsarTenant();
-        }
-
-        String namespace = groupInfo.getMqResource();
-        String topicName = streamInfo.getMqResource();
-        String fullTopicName = tenant + "/" + namespace + "/" + topicName;
-        String clusterTag = inlongPulsarInfo.getInlongClusterTag();
-        String subs = String.format(PULSAR_SUBSCRIPTION_REALTIME_REVIEW, clusterTag, topicName);
-        boolean serial = InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(inlongPulsarInfo.getQueueModule());
-        List<BriefMQMessage> briefMQMessages = new ArrayList<>();
         for (ClusterInfo clusterInfo : pulsarClusterList) {
-            briefMQMessages = pulsarOperator.queryLatestMessage((PulsarClusterInfo) clusterInfo, fullTopicName, subs,
-                    messageCount, streamInfo, serial);
-            if (CollectionUtils.isNotEmpty(briefMQMessages)) {
-                break;
-            }
+            QueryLatestMessagesRunnable task = new QueryLatestMessagesRunnable(inlongPulsarInfo, streamInfo,
+                    (PulsarClusterInfo) clusterInfo, pulsarOperator, messageCount, briefMQMessages, latch);
+            this.executor.execute(task);
         }
+        latch.await(30, TimeUnit.SECONDS);
 
         // insert the consumer group info into the inlong_consume table
+        String topicName = streamInfo.getMqResource();
+        String clusterTag = inlongPulsarInfo.getInlongClusterTag();
+        String subs = String.format(PULSAR_SUBSCRIPTION_REALTIME_REVIEW, clusterTag, topicName);
         Integer id = consumeService.saveBySystem(groupInfo, topicName, subs);
+        String groupId = streamInfo.getInlongGroupId();
         log.info("success to save inlong consume [{}] for subs={}, groupId={}, topic={}",
                 id, subs, groupId, topicName);
         return briefMQMessages;
@@ -341,8 +339,8 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
             Long resetTime) throws Exception {
         log.info("begin to reset cursor for sinkId={}", sinkEntity.getId());
         InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
-        List<ClusterInfo> clusterInfos =
-                clusterService.listByTagAndType(pulsarInfo.getInlongClusterTag(), ClusterType.PULSAR);
+        List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(pulsarInfo.getInlongClusterTag(),
+                ClusterType.PULSAR);
         for (ClusterInfo clusterInfo : clusterInfos) {
             PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
             try {
