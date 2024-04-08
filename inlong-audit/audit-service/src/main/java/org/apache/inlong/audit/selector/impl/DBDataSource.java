@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.elector.impl;
+package org.apache.inlong.audit.selector.impl;
 
 import org.apache.inlong.audit.config.ConfigConstants;
 import org.apache.inlong.audit.config.SqlConstants;
-import org.apache.inlong.audit.elector.api.SelectorConfig;
+import org.apache.inlong.audit.selector.api.SelectorConfig;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

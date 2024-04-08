@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.elector.task;
+package org.apache.inlong.audit.selector.task;
 
-import org.apache.inlong.audit.elector.api.SelectorConfig;
-import org.apache.inlong.audit.elector.impl.DBDataSource;
+import org.apache.inlong.audit.selector.api.SelectorConfig;
+import org.apache.inlong.audit.selector.impl.DBDataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
