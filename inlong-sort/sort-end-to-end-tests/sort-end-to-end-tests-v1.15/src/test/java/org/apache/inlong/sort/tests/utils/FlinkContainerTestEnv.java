@@ -165,8 +165,8 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
         ExecResult execResult =
                 jobManager.execInContainer("bash", "-c", String.join(" ", commands));
         LOG.info(execResult.getStdout());
-        LOG.error(execResult.getStderr());
         if (execResult.getExitCode() != 0) {
+            LOG.error(execResult.getStderr());
             throw new AssertionError("Failed when submitting the SQL job.");
         }
     }
