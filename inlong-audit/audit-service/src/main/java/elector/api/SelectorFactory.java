@@ -17,26 +17,14 @@
 
 package elector.api;
 
+import elector.impl.SelectorImpl;
+
 /**
- * Selector
+ * Selector factory
  */
-public abstract class Selector {
+public class SelectorFactory {
 
-    protected boolean isLeader;
-
-    public abstract void init() throws Exception;
-
-    public abstract boolean isLeader();
-
-    public abstract void releaseLeader() throws Exception;
-
-    public abstract void replaceLeader(String newLeaderId) throws Exception;
-
-    public abstract String getLeader(String serviceId);
-
-    public abstract void canSelect(boolean canSelect);
-
-    public abstract boolean rebuildSelectorDBSource();
-
-    public abstract void close();
+    public static Selector getNewElector(SelectorConfig electorConfig) {
+        return new SelectorImpl(electorConfig);
+    }
 }
