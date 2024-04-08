@@ -15,14 +15,22 @@
  * limitations under the License.
  */
 
-package entities;
+package org.apache.inlong.audit.entities;
 
 import lombok.Data;
 
-@Data
-public class StartEndTime {
+import java.sql.Timestamp;
 
-    String startTime;
-    String endTime;
-    long endTimeStamp;
+@Data
+public class StatData {
+
+    private String logTs;
+    private String inlongGroupId;
+    private String inlongStreamId;
+    private String auditId;
+    private String auditTag;
+    private Long count;
+    private Long size;
+    private Long delay;
+    private Timestamp updateTime;
 }

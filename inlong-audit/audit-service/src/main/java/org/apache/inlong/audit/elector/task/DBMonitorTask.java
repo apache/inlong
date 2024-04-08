@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package elector.task;
+package org.apache.inlong.audit.elector.task;
 
-import elector.api.SelectorConfig;
-import elector.impl.DBDataSource;
+import org.apache.inlong.audit.elector.api.SelectorConfig;
+import org.apache.inlong.audit.elector.impl.DBDataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

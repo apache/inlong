@@ -15,22 +15,28 @@
  * limitations under the License.
  */
 
-package entities;
+package org.apache.inlong.audit.elector.api;
 
 /**
- * Audit cycle
+ * Selector
  */
-public enum AuditCycle {
+public abstract class Selector {
 
-    MINUTE_5(5), MINUTE_10(10), MINUTE_30(30), HOUR(60), DAY(1440);
+    protected boolean isLeader;
 
-    private final int cycle;
+    public abstract void init() throws Exception;
 
-    AuditCycle(int cycle) {
-        this.cycle = cycle;
-    }
+    public abstract boolean isLeader();
 
-    public int getValue() {
-        return cycle;
-    }
+    public abstract void releaseLeader() throws Exception;
+
+    public abstract void replaceLeader(String newLeaderId) throws Exception;
+
+    public abstract String getLeader(String serviceId);
+
+    public abstract void canSelect(boolean canSelect);
+
+    public abstract boolean rebuildSelectorDBSource();
+
+    public abstract void close();
 }

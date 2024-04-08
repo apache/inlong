@@ -15,20 +15,12 @@
  * limitations under the License.
  */
 
-package elector;
-
-import elector.api.SelectorChangeListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package org.apache.inlong.audit.elector.api;
 
 /**
- * Elector change listener impl
+ * Selector change listener
  */
-public class ElectorChangeListenerImpl implements SelectorChangeListener {
+public abstract interface SelectorChangeListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElectorChangeListenerImpl.class);
-
-    public void leaderChanged(boolean currentNodeIsLeader) {
-        logger.info("LeaderChanged {}:", currentNodeIsLeader);
-    }
+    public abstract void leaderChanged(boolean paramBoolean);
 }

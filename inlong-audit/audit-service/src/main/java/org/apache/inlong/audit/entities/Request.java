@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package entities;
+package org.apache.inlong.audit.entities;
 
 import lombok.Data;
 

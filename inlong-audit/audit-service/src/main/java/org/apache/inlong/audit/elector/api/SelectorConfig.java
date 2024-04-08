@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package elector.api;
+package org.apache.inlong.audit.elector.api;
 
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;

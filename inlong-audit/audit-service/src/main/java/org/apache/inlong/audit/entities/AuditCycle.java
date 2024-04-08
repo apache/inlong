@@ -15,16 +15,22 @@
  * limitations under the License.
  */
 
-package elector.api;
-
-import elector.impl.SelectorImpl;
+package org.apache.inlong.audit.entities;
 
 /**
- * Selector factory
+ * Audit cycle
  */
-public class SelectorFactory {
+public enum AuditCycle {
 
-    public static Selector getNewElector(SelectorConfig electorConfig) {
-        return new SelectorImpl(electorConfig);
+    MINUTE_5(5), MINUTE_10(10), MINUTE_30(30), HOUR(60), DAY(1440);
+
+    private final int cycle;
+
+    AuditCycle(int cycle) {
+        this.cycle = cycle;
+    }
+
+    public int getValue() {
+        return cycle;
     }
 }

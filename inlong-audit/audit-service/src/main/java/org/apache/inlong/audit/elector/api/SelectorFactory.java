@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-package source;
+package org.apache.inlong.audit.elector.api;
+
+import org.apache.inlong.audit.elector.impl.SelectorImpl;
 
 /**
- * Source stat interface.
+ * Selector factory
  */
-public interface SourceStat extends Runnable {
+public class SelectorFactory {
 
-    public void statByStep();
-
-    public void aggregate(String auditId);
-
-    public void query(String startTime, String endTime, String auditId);
+    public static Selector getNewElector(SelectorConfig electorConfig) {
+        return new SelectorImpl(electorConfig);
+    }
 }

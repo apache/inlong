@@ -15,11 +15,14 @@
  * limitations under the License.
  */
 
-package elector.impl;
+package org.apache.inlong.audit.elector.impl;
+
+import org.apache.inlong.audit.config.ConfigConstants;
+import org.apache.inlong.audit.config.SqlConstants;
+import org.apache.inlong.audit.elector.api.SelectorConfig;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import elector.api.SelectorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,28 +32,17 @@ import java.sql.ResultSet;
 import java.text.MessageFormat;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static config.ConfigConstants.CACHE_PREP_STMTS;
-import static config.ConfigConstants.MAX_INIT_COUNT;
-import static config.ConfigConstants.PREP_STMT_CACHE_SIZE;
-import static config.ConfigConstants.PREP_STMT_CACHE_SQL_LIMIT;
-import static config.SqlConstants.IS_LEADER_SQL;
-import static config.SqlConstants.RELEASE_SQL;
-import static config.SqlConstants.REPLACE_LEADER_SQL;
-import static config.SqlConstants.SEARCH_CURRENT_LEADER_SQL;
-import static config.SqlConstants.SELECTOR_SQL;
-import static config.SqlConstants.SELECT_TEST_SQL;
-
 /**
  * DB data source
  */
 public class DBDataSource {
 
     private static final Logger logger = LoggerFactory.getLogger(DBDataSource.class);
-    private String selectorSql = SELECTOR_SQL;
-    private String replaceLeaderSql = REPLACE_LEADER_SQL;
-    private String reLeaseSql = RELEASE_SQL;
-    private String isLeaderSql = IS_LEADER_SQL;
-    private String searchCurrentLeaderSql = SEARCH_CURRENT_LEADER_SQL;
+    private String selectorSql = SqlConstants.SELECTOR_SQL;
+    private String replaceLeaderSql = SqlConstants.REPLACE_LEADER_SQL;
+    private String reLeaseSql = SqlConstants.RELEASE_SQL;
+    private String isLeaderSql = SqlConstants.IS_LEADER_SQL;
+    private String searchCurrentLeaderSql = SqlConstants.SEARCH_CURRENT_LEADER_SQL;
     private final SelectorConfig selectorConfig;
     private HikariDataSource datasource;
     public AtomicInteger getConnectionFailTimes;
@@ -90,7 +82,7 @@ public class DBDataSource {
         boolean initSucc = false;
         int initCount = 0;
 
-        while (!initSucc && initCount < MAX_INIT_COUNT) {
+        while (!initSucc && initCount < ConfigConstants.MAX_INIT_COUNT) {
             try {
                 ++initCount;
                 if (datasource == null || datasource.isClosed()) {
@@ -104,11 +96,12 @@ public class DBDataSource {
                     config.setAutoCommit(true);
                     config.setConnectionTimeout((long) selectorConfig.getConnectionTimeout());
                     config.setMaxLifetime((long) selectorConfig.getMaxLifetime());
-                    config.addDataSourceProperty(CACHE_PREP_STMTS, selectorConfig.getCachePrepStmts());
-                    config.addDataSourceProperty(PREP_STMT_CACHE_SIZE, selectorConfig.getPrepStmtCacheSize());
-                    config.addDataSourceProperty(PREP_STMT_CACHE_SQL_LIMIT,
+                    config.addDataSourceProperty(ConfigConstants.CACHE_PREP_STMTS, selectorConfig.getCachePrepStmts());
+                    config.addDataSourceProperty(ConfigConstants.PREP_STMT_CACHE_SIZE,
+                            selectorConfig.getPrepStmtCacheSize());
+                    config.addDataSourceProperty(ConfigConstants.PREP_STMT_CACHE_SQL_LIMIT,
                             selectorConfig.getPrepStmtCacheSqlLimit());
-                    config.setConnectionTestQuery(SELECT_TEST_SQL);
+                    config.setConnectionTestQuery(SqlConstants.SELECT_TEST_SQL);
                     datasource = new HikariDataSource(config);
                 }
 

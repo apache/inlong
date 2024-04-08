@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package config;
+package org.apache.inlong.audit.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +70,11 @@ public class Configuration {
     public String get(String key, String defaultValue) {
         Object value = properties.get(key);
         return value == null ? defaultValue : value.toString();
+    }
+
+    public boolean get(String key, boolean defaultValue) {
+        Object value = properties.get(key);
+        return value == null ? defaultValue : (Boolean) value;
     }
 
     /**

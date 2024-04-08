@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
-package elector.api;
+package org.apache.inlong.audit.entities;
 
-/**
- * Selector change listener
- */
-public abstract interface SelectorChangeListener {
+import lombok.Data;
 
-    public abstract void leaderChanged(boolean paramBoolean);
+@Data
+public class StartEndTime {
+
+    String startTime;
+    String endTime;
+    long endTimeStamp;
 }
