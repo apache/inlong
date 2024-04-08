@@ -17,18 +17,18 @@
 
 package elector;
 
-import elector.api.ElectorChangeListener;
+import elector.api.SelectorChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Elector change listener impl
  */
-public class ElectorChangeListenerImpl implements ElectorChangeListener {
+public class ElectorChangeListenerImpl implements SelectorChangeListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ElectorChangeListenerImpl.class);
 
     public void leaderChanged(boolean currentNodeIsLeader) {
-        logger.info("leaderChanged {}:", currentNodeIsLeader);
+        logger.info("LeaderChanged {}:", currentNodeIsLeader);
     }
 }

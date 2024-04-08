@@ -19,7 +19,7 @@ package elector.impl;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import elector.api.ElectorConfig;
+import elector.api.SelectorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,43 +29,51 @@ import java.sql.ResultSet;
 import java.text.MessageFormat;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static config.ConfigConstants.CACHE_PREP_STMTS;
+import static config.ConfigConstants.MAX_INIT_COUNT;
+import static config.ConfigConstants.PREP_STMT_CACHE_SIZE;
+import static config.ConfigConstants.PREP_STMT_CACHE_SQL_LIMIT;
+import static config.SqlConstants.IS_LEADER_SQL;
+import static config.SqlConstants.RELEASE_SQL;
+import static config.SqlConstants.REPLACE_LEADER_SQL;
+import static config.SqlConstants.SEARCH_CURRENT_LEADER_SQL;
+import static config.SqlConstants.SELECTOR_SQL;
+import static config.SqlConstants.SELECT_TEST_SQL;
+
 /**
  * DB data source
  */
 public class DBDataSource {
 
     private static final Logger logger = LoggerFactory.getLogger(DBDataSource.class);
-    private String electorSql =
-            "insert ignore into {0} (service_id, leader_id, last_seen_active) values (''{1}'', ''{2}'', now()) on duplicate key update leader_id = if(last_seen_active < now() - interval # second, values(leader_id), leader_id),last_seen_active = if(leader_id = values(leader_id), values(last_seen_active), last_seen_active)";
-    private String replaceLeaderSql =
-            "replace into {0} (\n   service_id, leader_id, last_seen_active )\nvalues (''{1}'', ''#'', now())";
-    private String reLeaseSql = "delete from {0} where service_id=''{1}'' and leader_id= ''{2}''";
-    private String isLeaderSql = "select count(*) as is_leader from {0} where service_id=''{1}'' and leader_id=''{2}''";
-    private String searchCurrentLeaderSql = "select leader_id as leader from {0} where service_id=''{1}''";
-    private ElectorConfig electorConfig;
+    private String selectorSql = SELECTOR_SQL;
+    private String replaceLeaderSql = REPLACE_LEADER_SQL;
+    private String reLeaseSql = RELEASE_SQL;
+    private String isLeaderSql = IS_LEADER_SQL;
+    private String searchCurrentLeaderSql = SEARCH_CURRENT_LEADER_SQL;
+    private final SelectorConfig selectorConfig;
     private HikariDataSource datasource;
     public AtomicInteger getConnectionFailTimes;
 
-    public DBDataSource(ElectorConfig electorConfig) {
-        this.electorConfig = electorConfig;
+    public DBDataSource(SelectorConfig selectorConfig) {
+        this.selectorConfig = selectorConfig;
         this.getConnectionFailTimes = new AtomicInteger(0);
     }
 
     /**
      * init
      *
-     * @param reBuildDataSource
+     * @param needFormatSql
      * @throws Exception
      */
-    public void init(boolean reBuildDataSource) throws Exception {
+    public void init(boolean needFormatSql) throws Exception {
         try {
-            if (!electorConfig.isUseDefaultLeader()) {
+            if (!selectorConfig.isUseDefaultLeader()) {
                 initDataSource();
-                if (!reBuildDataSource) {
-                    formatSql(electorConfig.getElectorDbName(), electorConfig.getServiceId(),
-                            electorConfig.getLeaderId());
+                if (needFormatSql) {
+                    formatSql(selectorConfig.getElectorDbName(), selectorConfig.getServiceId(),
+                            selectorConfig.getLeaderId());
                 }
-
             }
         } catch (Exception exception) {
             logger.error(exception.getMessage());
@@ -82,31 +90,35 @@ public class DBDataSource {
         boolean initSucc = false;
         int initCount = 0;
 
-        while (!initSucc && initCount < 2) {
+        while (!initSucc && initCount < MAX_INIT_COUNT) {
             try {
                 ++initCount;
                 if (datasource == null || datasource.isClosed()) {
                     HikariConfig config = new HikariConfig();
-                    config.setDriverClassName(electorConfig.getDbDriver());
-                    logger.info("## init dataSource:" + electorConfig.getDbUrl());
-                    config.setJdbcUrl(electorConfig.getDbUrl());
-                    config.setUsername(electorConfig.getDbUser());
-                    config.setPassword(electorConfig.getDbPasswd());
-                    config.setMaximumPoolSize(electorConfig.getMaximumPoolSize());
+                    config.setDriverClassName(selectorConfig.getDbDriver());
+                    logger.info("Init dataSource:{}", selectorConfig.getDbUrl());
+                    config.setJdbcUrl(selectorConfig.getDbUrl());
+                    config.setUsername(selectorConfig.getDbUser());
+                    config.setPassword(selectorConfig.getDbPasswd());
+                    config.setMaximumPoolSize(selectorConfig.getMaximumPoolSize());
                     config.setAutoCommit(true);
-                    config.setConnectionTimeout((long) electorConfig.getConnectionTimeout());
-                    config.setMaxLifetime((long) electorConfig.getMaxLifetime());
-                    config.addDataSourceProperty("cachePrepStmts", electorConfig.getCachePrepStmts());
-                    config.addDataSourceProperty("prepStmtCacheSize", electorConfig.getPrepStmtCacheSize());
-                    config.addDataSourceProperty("prepStmtCacheSqlLimit",
-                            electorConfig.getPrepStmtCacheSqlLimit());
-                    config.setConnectionTestQuery("SELECT 1");
+                    config.setConnectionTimeout((long) selectorConfig.getConnectionTimeout());
+                    config.setMaxLifetime((long) selectorConfig.getMaxLifetime());
+                    config.addDataSourceProperty(CACHE_PREP_STMTS, selectorConfig.getCachePrepStmts());
+                    config.addDataSourceProperty(PREP_STMT_CACHE_SIZE, selectorConfig.getPrepStmtCacheSize());
+                    config.addDataSourceProperty(PREP_STMT_CACHE_SQL_LIMIT,
+                            selectorConfig.getPrepStmtCacheSqlLimit());
+                    config.setConnectionTestQuery(SELECT_TEST_SQL);
                     datasource = new HikariDataSource(config);
                 }
 
                 initSucc = true;
             } catch (Exception exception) {
-                logger.error(exception.getMessage());
+                logger.error("DB url:{},user name:{},password:{},exception:{}",
+                        selectorConfig.getDbUrl(),
+                        selectorConfig.getDbUser(),
+                        selectorConfig.getDbPasswd(),
+                        exception.getMessage());
             }
         }
 
@@ -135,29 +147,19 @@ public class DBDataSource {
                 initDataSource();
             }
 
-            Connection connection = datasource.getConnection();
-            try {
-                PreparedStatement pstmt = connection.prepareStatement(sql);
-                try {
+            try (Connection connection = datasource.getConnection()) {
+                try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
                     result = pstmt.executeUpdate();
                 } catch (Exception executeUpdatEexception) {
                     logger.error("Exception :{}", executeUpdatEexception.getMessage());
-                } finally {
-                    if (pstmt != null) {
-                        pstmt.close();
-                    }
                 }
             } catch (Exception pstmtEexception) {
                 logger.error("Exception :{}", pstmtEexception.getMessage());
-            } finally {
-                if (connection != null) {
-                    connection.close();
-                }
             }
             getConnectionFailTimes.set(0);
-        } catch (Exception e) {
+        } catch (Exception exception) {
             getConnectionFailTimes.addAndGet(1);
-            logger.warn("## get Connection fail ...");
+            logger.warn("Get Connection fail. {}", exception.getMessage());
         }
         return result;
     }
@@ -166,16 +168,16 @@ public class DBDataSource {
      * Leader selector
      */
     public void leaderSelector() {
-        if (!electorConfig.isUseDefaultLeader()) {
+        if (!selectorConfig.isUseDefaultLeader()) {
             try {
-                int result = executeUpdate(electorSql);
+                int result = executeUpdate(selectorSql);
                 if (result == 2) {
-                    logger.info(electorConfig.getLeaderId() + " get the leader");
+                    logger.info("{} get the leader", selectorConfig.getLeaderId());
                 } else if (result == 1) {
-                    logger.info(electorConfig.getLeaderId() + " do not get the leader");
+                    logger.info("{} do not get the leader", selectorConfig.getLeaderId());
                 }
-            } catch (Exception wxception) {
-                logger.error("Exception: {} ,sql:{}", wxception.getMessage(), electorSql);
+            } catch (Exception exception) {
+                logger.error("Exception: {} ,sql:{}", exception.getMessage(), selectorSql);
             }
 
         }
@@ -192,9 +194,9 @@ public class DBDataSource {
         try {
             int result = executeUpdate(replaceLeaderSql);
             if (result > 0) {
-                logger.info("## replace leader succ sql:" + replaceLeaderSql);
+                logger.info("Replace leader success.sql:{}", replaceLeaderSql);
             } else {
-                logger.warn("## replace leader fail sql:" + replaceLeaderSql);
+                logger.warn("Replace leader failed. sql:" + replaceLeaderSql);
             }
 
         } catch (Exception exception) {
@@ -208,12 +210,12 @@ public class DBDataSource {
     public void releaseLeader() {
         try {
             int result = executeUpdate(reLeaseSql);
-            logger.info("ReleaseLeader sql:" + reLeaseSql);
+            logger.info("ReleaseLeader sql:{}", reLeaseSql);
             if (result == 1) {
-                logger.info(electorConfig.getLeaderId() + " release the leader success");
+                logger.info("{} release the leader success", selectorConfig.getLeaderId());
             }
         } catch (Exception exception) {
-            logger.error("Exception {}:,sql:{}", exception.getMessage(), reLeaseSql);
+            logger.error("ReLease sql:{},exception {}:,", reLeaseSql, exception.getMessage());
         }
 
     }
@@ -224,37 +226,27 @@ public class DBDataSource {
      * @return
      */
     public String getCurrentLeader() {
-        if (electorConfig.isUseDefaultLeader()) {
-            return electorConfig.getDefaultLeaderId();
+        if (selectorConfig.isUseDefaultLeader()) {
+            return selectorConfig.getDefaultLeaderId();
         } else {
             String leaderId = "";
 
             try {
                 if (null == datasource || datasource.isClosed()) {
-                    logger.warn("## dataSource is closed init is again");
+                    logger.warn("DataSource is closed init is again");
                     initDataSource();
                 }
-                Connection connection = datasource.getConnection();
-                try {
-                    PreparedStatement pstmt = connection.prepareStatement(searchCurrentLeaderSql);
-                    try {
+                try (Connection connection = datasource.getConnection()) {
+                    try (PreparedStatement pstmt = connection.prepareStatement(searchCurrentLeaderSql)) {
                         ResultSet resultSet = pstmt.executeQuery();
                         if (resultSet.next()) {
                             leaderId = resultSet.getString("leader");
                         }
                     } catch (Exception exception) {
                         logger.error("Exception {}", exception.getMessage());
-                    } finally {
-                        if (pstmt != null) {
-                            pstmt.close();
-                        }
                     }
                 } catch (Throwable connectionException) {
                     logger.error("Exception {}", connectionException.getMessage());
-                } finally {
-                    if (connection != null) {
-                        connection.close();
-                    }
                 }
             } catch (Exception datasourceException) {
                 logger.error("Exception {}", datasourceException.getMessage());
@@ -281,9 +273,8 @@ public class DBDataSource {
                 logger.error("Exception {}", exception.getMessage());
                 return true;
             }
-        } else {
-            return true;
         }
+        return true;
     }
 
     /**
@@ -292,9 +283,9 @@ public class DBDataSource {
      * @param params
      */
     public void formatSql(String... params) {
-        electorSql = MessageFormat.format(electorSql, params);
-        electorSql = electorSql.replaceAll("#", electorConfig.getLeaderTimeout() + "");
-        logger.info(electorSql);
+        selectorSql = MessageFormat.format(selectorSql, params);
+        selectorSql = selectorSql.replaceAll("#", selectorConfig.getLeaderTimeout() + "");
+        logger.info(selectorSql);
         replaceLeaderSql = MessageFormat.format(replaceLeaderSql, params);
         logger.info(replaceLeaderSql);
         reLeaseSql = MessageFormat.format(reLeaseSql, params);

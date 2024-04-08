@@ -17,8 +17,9 @@
 
 package elector.impl;
 
-import elector.api.Elector;
-import elector.api.ElectorConfig;
+import config.Configuration;
+import elector.api.Selector;
+import elector.api.SelectorConfig;
 import elector.task.DBMonitorTask;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -29,21 +30,31 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static config.ConfigConstants.DEFAULT_RELEASE_LEADER_INTERVAL;
+import static config.ConfigConstants.DEFAULT_SELECTOR_THREAD_POOL_SIZE;
+import static config.ConfigConstants.KEY_RELEASE_LEADER_INTERVAL;
+import static config.ConfigConstants.KEY_SELECTOR_THREAD_POOL_SIZE;
+import static config.ConfigConstants.RANDOM_BOUND;
+
 /**
  * Elector Impl
  */
-public class ElectorImpl extends Elector {
+public class SelectorImpl extends Selector {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElectorImpl.class);
-    private final ElectorConfig electorConfig;
-    private ExecutorService fixedThreadPool = Executors.newFixedThreadPool(3);
+    private static final Logger logger = LoggerFactory.getLogger(SelectorImpl.class);
+    private final SelectorConfig selectorConfig;
+    private final ExecutorService fixedThreadPool;
     private boolean canElector = true;
-    private DBDataSource dbDataSource;
+    private final DBDataSource dbDataSource;
     private long sleepTime = 0L;
+    private boolean running = true;
 
-    public ElectorImpl(ElectorConfig electorConfig) {
-        this.electorConfig = electorConfig;
-        this.dbDataSource = new DBDataSource(electorConfig);
+    public SelectorImpl(SelectorConfig selectorConfig) {
+        this.selectorConfig = selectorConfig;
+        this.dbDataSource = new DBDataSource(selectorConfig);
+        fixedThreadPool = Executors.newFixedThreadPool(Configuration.getInstance().get(
+                KEY_SELECTOR_THREAD_POOL_SIZE,
+                DEFAULT_SELECTOR_THREAD_POOL_SIZE));
     }
 
     /**
@@ -53,17 +64,15 @@ public class ElectorImpl extends Elector {
      */
     public void init() throws Exception {
         try {
-            logger.info("Init elector impl...");
+            logger.info("Init selector impl...");
 
-            dbDataSource.init(false);
+            dbDataSource.init(true);
 
-            ElectorWorkerThread electorWorkerThread = new ElectorWorkerThread();
-            fixedThreadPool.execute(electorWorkerThread);
+            fixedThreadPool.execute(new ElectorWorkerThread());
 
-            DBMonitorTask dbMonitorTask = new DBMonitorTask(electorConfig, dbDataSource);
-            fixedThreadPool.execute(dbMonitorTask);
+            fixedThreadPool.execute(new DBMonitorTask(selectorConfig, dbDataSource));
         } catch (Exception exception) {
-            logger.error("Exception :{}", exception.getMessage());
+            logger.error("Failed to init selector", exception);
         }
     }
 
@@ -88,7 +97,8 @@ public class ElectorImpl extends Elector {
             }
 
         try {
-            TimeUnit.SECONDS.sleep(40L);
+            TimeUnit.SECONDS.sleep(Configuration.getInstance().get(KEY_RELEASE_LEADER_INTERVAL,
+                    DEFAULT_RELEASE_LEADER_INTERVAL));
         } catch (Exception exception) {
             logger.error("Exception :{}", exception.getMessage());
         }
@@ -100,7 +110,7 @@ public class ElectorImpl extends Elector {
      * @param newLeaderId
      */
     public void replaceLeader(String newLeaderId) {
-        sleepTime = (electorConfig.getTryToBeLeaderInterval() * 2);
+        sleepTime = (selectorConfig.getTryToBeLeaderInterval() * 2L);
         dbDataSource.replaceLeader(newLeaderId);
     }
 
@@ -119,7 +129,7 @@ public class ElectorImpl extends Elector {
      *
      * @param canElector
      */
-    public void canElector(boolean canElector) {
+    public void canSelect(boolean canElector) {
         this.canElector = canElector;
     }
 
@@ -128,13 +138,13 @@ public class ElectorImpl extends Elector {
      *
      * @return
      */
-    public boolean reBuildElectorDBSource() {
-        canElector(false);
+    public boolean rebuildSelectorDBSource() {
+        canSelect(false);
         try {
             releaseLeader();
             dbDataSource.close();
-            dbDataSource.init(true);
-            canElector(true);
+            dbDataSource.init(false);
+            canSelect(true);
         } catch (Exception exception) {
             logger.error("Exception :{}", exception.getMessage());
             return false;
@@ -147,8 +157,10 @@ public class ElectorImpl extends Elector {
      *
      * @return
      */
-    public boolean close() {
-        return false;
+    public void close() {
+        running = false;
+        dbDataSource.close();
+        fixedThreadPool.shutdown();
     }
 
     class ElectorWorkerThread implements Runnable {
@@ -160,30 +172,30 @@ public class ElectorImpl extends Elector {
         }
 
         public void run() {
-            while (true) {
+            while (running) {
                 if (canElector) {
                     dbDataSource.leaderSelector();
                 }
 
                 String leaderId = dbDataSource.getCurrentLeader();
-                if (!StringUtils.isEmpty(leaderId)) {
-                    if (electorConfig.getLeaderId().equals(leaderId)) {
+                if (StringUtils.isNotEmpty(leaderId)) {
+                    if (selectorConfig.getLeaderId().equals(leaderId)) {
                         if (!isLeader
-                                && electorConfig.getElectorChangeListener() != null) {
-                            electorConfig.getElectorChangeListener().leaderChanged(true);
+                                && selectorConfig.getSelectorChangeListener() != null) {
+                            selectorConfig.getSelectorChangeListener().leaderChanged(true);
                         }
 
                         isLeader = true;
-                        sleepTime = (long) electorConfig.getTryToBeLeaderInterval();
+                        sleepTime = selectorConfig.getTryToBeLeaderInterval();
                     } else {
                         if (isLeader
-                                && electorConfig.getElectorChangeListener() != null) {
-                            electorConfig.getElectorChangeListener().leaderChanged(false);
+                                && selectorConfig.getSelectorChangeListener() != null) {
+                            selectorConfig.getSelectorChangeListener().leaderChanged(false);
                         }
 
                         isLeader = false;
-                        sleepTime = (electorConfig.getTryToBeLeaderInterval() * 2L
-                                + random.nextInt(5));
+                        sleepTime = selectorConfig.getTryToBeLeaderInterval()
+                                + random.nextInt(RANDOM_BOUND);
                     }
                 }
 
