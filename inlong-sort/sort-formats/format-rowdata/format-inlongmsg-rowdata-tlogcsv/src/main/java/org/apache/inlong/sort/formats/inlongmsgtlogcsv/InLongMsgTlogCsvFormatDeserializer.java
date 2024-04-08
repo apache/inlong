@@ -31,7 +31,6 @@ import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
-import org.apache.flink.types.Row;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -178,20 +177,20 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
 
     @Override
     protected List<RowData> convertRowDataList(InLongMsgHead head, InLongMsgBody body) throws Exception {
-        Row dataRow =
-                InLongMsgTlogCsvUtils.deserializeRow(
+        GenericRowData dataRow =
+                InLongMsgTlogCsvUtils.deserializeRowData(
                         rowFormatInfo,
                         nullLiteral,
                         head.getPredefinedFields(),
-                        body.getFields());
+                        body.getFields(),
+                        converters);
 
-        GenericRowData genericRowData = (GenericRowData) InLongMsgUtils.decorateRowWithNeededHeadFields(
+        GenericRowData genericRowData = (GenericRowData) InLongMsgUtils.decorateRowDataWithNeededHeadFields(
                 timeFieldName,
                 attributesFieldName,
                 head.getTime(),
                 head.getAttributes(),
-                dataRow,
-                converters);
+                dataRow);
 
         return Collections.singletonList(InLongMsgUtils.decorateRowWithMetaData(genericRowData, head, metadataKeys));
     }

@@ -92,6 +92,8 @@ import org.apache.flink.table.types.logical.TinyIntType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.flink.types.Row;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -110,6 +112,8 @@ import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_SC
  * A utility class for table formats.
  */
 public class TableFormatUtils {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TableFormatUtils.class);
 
     /**
      * Returns the {@link DeserializationSchema} described by the given
@@ -567,9 +571,10 @@ public class TableFormatUtils {
         try {
             return ((BasicFormatInfo<?>) fieldFormatInfo).deserialize(fieldText);
         } catch (Exception e) {
-            throw new RuntimeException("Could not properly deserialize the "
-                    + "text " + fieldText + " for field " + fieldName + ".", e);
+            LOG.warn("Could not properly deserialize the " + "text "
+                    + fieldText + " for field " + fieldName + ".", e);
         }
+        return null;
     }
 
     /**

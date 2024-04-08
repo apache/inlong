@@ -28,6 +28,7 @@ import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,8 @@ public class ClassResourceQueryConsumeConfig implements QueryConsumeConfig {
 
     public static final Logger LOG = LoggerFactory.getLogger(ClassResourceQueryConsumeConfig.class);
 
+    public static final String REGEXP = "/\\*((?!\\*/).|[\\r\\n])*?\\*/";
+
     /**
      * queryCurrentConsumeConfig
      *
@@ -57,6 +60,7 @@ public class ClassResourceQueryConsumeConfig implements QueryConsumeConfig {
         try {
             String confString = IOUtils.toString(getClass().getClassLoader().getResource(fileName),
                     Charset.defaultCharset());
+            confString = confString.replaceAll(REGEXP, StringUtils.EMPTY);
             ObjectMapper objectMapper = new ObjectMapper();
             CacheZoneConfig cacheZoneConfig = objectMapper.readValue(confString, CacheZoneConfig.class);
             //
@@ -73,6 +77,7 @@ public class ClassResourceQueryConsumeConfig implements QueryConsumeConfig {
                     topic.setInLongCluster(cacheZoneCluster);
                     topic.setTopic(topicInfo.getTopic());
                     topic.setTopicType(cacheZone.getZoneType());
+                    topic.setProperties(topicInfo.getTopicProperties());
                     topics.add(topic);
                 }
             }

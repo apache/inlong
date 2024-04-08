@@ -51,7 +51,7 @@ public class SourceStopListener extends AbstractSourceOperateListener {
     public void operateStreamSource(SourceRequest sourceRequest, String operator) {
         // if a source has sub-sources, it is considered a template source.
         // template sources do not need to be stopped, its sub-sources will be processed in this method later.
-        if (CollectionUtils.isNotEmpty(sourceRequest.getSubSourceList())) {
+        if (CollectionUtils.isNotEmpty(sourceRequest.getDataAddTaskList())) {
             return;
         }
         streamSourceService.stop(sourceRequest.getId(), operator);

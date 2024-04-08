@@ -59,13 +59,13 @@ public class DataCleansingTask extends TimerTask implements InitializingBean {
      */
     private static final int INITIAL_DELAY = 60;
 
-    @Value("${data.cleansing.enabled:false}")
+    @Value("${data.clean.enabled:false}")
     private Boolean enabled;
-    @Value("${data.cleansing.interval.seconds:1800}")
+    @Value("${data.clean.interval.seconds:1800}")
     private Integer interval;
-    @Value("${data.cleansing.before.days:10}")
+    @Value("${data.clean.before.days:10}")
     private Integer before;
-    @Value("${data.cleansing.batchSize:100}")
+    @Value("${data.clean.batchSize:100}")
     private Integer batchSize;
 
     @Autowired

@@ -33,7 +33,6 @@ import org.apache.flink.table.types.logical.MapType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.logical.TimestampType;
 import org.apache.flink.table.types.logical.VarCharType;
-import org.apache.flink.types.Row;
 
 import javax.annotation.Nullable;
 
@@ -69,7 +68,7 @@ public class InLongMsgUtils {
     public static final String INLONGMSG_ATTR_INTERFACE_ID = "id";
     @Deprecated
     public static final String INLONGMSG_ATTR_INTERFACE_TID = "tid";
-    public static final String INLONGMSG_ATTR_STREAMID = "streamId";
+    public static final String INLONGMSG_ATTR_STREAM_ID = "streamId";
     public static final String INLONGMSG_ATTR_TIME_T = "t";
     public static final String INLONGMSG_ATTR_TIME_DT = "dt";
     public static final String INLONGMSG_ATTR_ADD_COLUMN_PREFIX = "__addcol";
@@ -229,6 +228,35 @@ public class InLongMsgUtils {
         return InternalTypeInfo.of(rowType);
     }
 
+    public static TypeInformation<RowData> decorateRowDataTypeWithNeededHeadFields(@Nullable String timeFieldName,
+            @Nullable String attributesFieldName,
+            RowType dataRowType) {
+        List<String> fieldNames = new ArrayList<>();
+        List<LogicalType> fieldTypes = new ArrayList<>();
+
+        // Timestamp and attribute field
+        if (timeFieldName != null) {
+            fieldNames.add(timeFieldName);
+            fieldTypes.add(new TimestampType());
+        }
+
+        if (attributesFieldName != null) {
+            fieldNames.add(attributesFieldName);
+            fieldTypes.add(new MapType(new VarCharType(), new VarCharType()));
+        }
+
+        // Physical fields
+        List<RowType.RowField> fields = dataRowType.getFields();
+        for (RowType.RowField field : fields) {
+            fieldNames.add(field.getName());
+            fieldTypes.add(field.getType());
+        }
+
+        RowType rowType = RowType.of(fieldTypes.toArray(new LogicalType[0]), fieldNames.toArray(new String[0]));
+
+        return InternalTypeInfo.of(rowType);
+    }
+
     /**
      * Creates the type information with given field names and data schema.
      *
@@ -323,8 +351,7 @@ public class InLongMsgUtils {
             @Nullable String attributesFieldName,
             Timestamp time,
             Map<String, String> attributes,
-            Row dataRow,
-            FieldToRowDataConverters.FieldToRowDataConverter[] converters) {
+            GenericRowData dataRow) {
         List<Object> headFields = new ArrayList<>();
         if (timeFieldName != null) {
             headFields.add(TIME_FIELD_CONVERTER.convert(time));
@@ -340,7 +367,7 @@ public class InLongMsgUtils {
         }
 
         for (int i = 0; i < dataRow.getArity(); ++i) {
-            rowData.setField(i + headFields.size(), converters[i].convert(dataRow.getField(i)));
+            rowData.setField(i + headFields.size(), dataRow.getField(i));
         }
 
         return rowData;

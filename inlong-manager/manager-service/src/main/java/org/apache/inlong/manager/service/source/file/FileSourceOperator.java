@@ -23,9 +23,11 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
+import org.apache.inlong.manager.pojo.source.DataAddTaskDTO;
+import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
-import org.apache.inlong.manager.pojo.source.SubSourceDTO;
+import org.apache.inlong.manager.pojo.source.file.FileDataAddTaskRequest;
 import org.apache.inlong.manager.pojo.source.file.FileSource;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceRequest;
@@ -33,8 +35,13 @@ import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,6 +51,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class FileSourceOperator extends AbstractSourceOperator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileSourceOperator.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -88,14 +97,40 @@ public class FileSourceOperator extends AbstractSourceOperator {
         List<StreamField> sourceFields = super.getSourceFields(entity.getId());
         source.setFieldList(sourceFields);
 
-        List<StreamSourceEntity> subSourceList = sourceMapper.selectByTemplateId(entity.getId());
-        source.setSubSourceList(subSourceList.stream().map(subEntity -> SubSourceDTO.builder()
+        List<StreamSourceEntity> dataAddTaskList = sourceMapper.selectByTaskMapId(entity.getId());
+        source.setDataAddTaskList(dataAddTaskList.stream().map(subEntity -> DataAddTaskDTO.builder()
                 .id(subEntity.getId())
-                .templateId(entity.getId())
+                .taskMapId(entity.getId())
                 .agentIp(subEntity.getAgentIp())
                 .status(subEntity.getStatus()).build())
                 .collect(Collectors.toList()));
         return source;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
+    public Integer addDataAddTask(DataAddTaskRequest request, String operator) {
+        FileDataAddTaskRequest sourceRequest = (FileDataAddTaskRequest) request;
+        StreamSourceEntity sourceEntity = sourceMapper.selectById(request.getSourceId());
+        try {
+            List<StreamSourceEntity> dataAddTaskList = sourceMapper.selectByTaskMapId(sourceEntity.getId());
+            int dataAddTaskSize = CollectionUtils.isNotEmpty(dataAddTaskList) ? dataAddTaskList.size() : 0;
+            FileSourceDTO dto = FileSourceDTO.getFromJson(sourceEntity.getExtParams());
+            dto.setStartTime(sourceRequest.getStartTime());
+            dto.setEndTime(sourceRequest.getEndTime());
+            dto.setRetry(true);
+            StreamSourceEntity dataAddTaskEntity =
+                    CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
+            dataAddTaskEntity.setId(null);
+            dataAddTaskEntity.setSourceName(sourceEntity.getSourceName() + "-" + (dataAddTaskSize + 1));
+            dataAddTaskEntity.setExtParams(objectMapper.writeValueAsString(dto));
+            dataAddTaskEntity.setTaskMapId(sourceEntity.getId());
+            return sourceMapper.insert(dataAddTaskEntity);
+        } catch (Exception e) {
+            LOGGER.error("serialize extParams of File SourceDTO failure: ", e);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("serialize extParams of File SourceDTO failure: %s", e.getMessage()));
+        }
     }
 
 }

@@ -99,7 +99,7 @@ public interface ExtractNodeProvider extends NodeProvider {
             String serializationType,
             String wrapType,
             String separatorStr,
-            boolean ignoreParseErrors) {
+            Boolean ignoreParseErrors) {
         Format format;
         DataTypeEnum dataType = DataTypeEnum.forType(serializationType);
         switch (dataType) {

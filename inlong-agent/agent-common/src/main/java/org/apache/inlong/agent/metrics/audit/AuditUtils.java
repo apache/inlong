@@ -54,8 +54,14 @@ public class AuditUtils {
     public static final int AUDIT_ID_AGENT_INSTANCE_MGR_HEARTBEAT = 30009;
     public static final int AUDIT_ID_AGENT_INSTANCE_HEARTBEAT = 30010;
     public static final int AUDIT_ID_AGENT_SEND_FAILED_REAL_TIME = 30011;
+    public static final int AUDIT_ID_AGENT_ADD_INSTANCE_MEM_FAILED = 30013;
     public static final int AUDIT_ID_AGENT_DEL_INSTANCE_MEM_UNUSUAL = 30014;
-    public static final int AUDIT_ID_AGENT_ADD_INSTANCE_MEM_FAILED = 30015;
+    public static final int AUDIT_ID_AGENT_TRY_SEND = 30020;
+    public static final int AUDIT_ID_AGENT_TRY_SEND_REAL_TIME = 30021;
+    public static final int AUDIT_ID_AGENT_SEND_EXCEPTION = 30022;
+    public static final int AUDIT_ID_AGENT_SEND_EXCEPTION_REAL_TIME = 30023;
+    public static final int AUDIT_ID_AGENT_RESEND = 30024;
+    public static final int AUDIT_ID_AGENT_RESEND_REAL_TIME = 30025;
 
     private static boolean IS_AUDIT = true;
 
@@ -101,6 +107,6 @@ public class AuditUtils {
         if (!IS_AUDIT) {
             return;
         }
-        AuditOperator.getInstance().send();
+        AuditOperator.getInstance().flush();
     }
 }

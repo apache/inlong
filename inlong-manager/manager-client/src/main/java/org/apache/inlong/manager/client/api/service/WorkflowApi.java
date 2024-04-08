@@ -22,6 +22,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
 import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.pojo.workflow.TaskResponse;
+import org.apache.inlong.manager.pojo.workflow.WorkflowExecuteLog;
 import org.apache.inlong.manager.pojo.workflow.WorkflowOperationRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 
@@ -32,6 +33,7 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.QueryMap;
 
 import java.util.Map;
 
@@ -61,9 +63,12 @@ public interface WorkflowApi {
     Call<Response<ProcessDetailResponse>> detail(@Path("processId") Integer processId, @Query("taskId") Integer taskId);
 
     @GET("workflow/listProcess")
-    Call<Response<PageResult<ProcessResponse>>> listProcess(@Query("query") Map<String, Object> query);
+    Call<Response<PageResult<ProcessResponse>>> listProcess(@QueryMap Map<String, Object> query);
 
     @GET("workflow/listTask")
-    Call<Response<PageResult<TaskResponse>>> listTask(@Query("query") Map<String, Object> query);
+    Call<Response<PageResult<TaskResponse>>> listTask(@QueryMap Map<String, Object> query);
+
+    @GET("workflow/listTaskLogs")
+    Call<Response<PageResult<WorkflowExecuteLog>>> listTaskLogs(@QueryMap Map<String, Object> query);
 
 }

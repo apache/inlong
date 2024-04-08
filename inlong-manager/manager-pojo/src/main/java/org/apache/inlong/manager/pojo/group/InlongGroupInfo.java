@@ -133,6 +133,9 @@ public abstract class InlongGroupInfo extends BaseInlongGroup {
     @ApiModelProperty(value = "Version number")
     private Integer version;
 
+    @ApiModelProperty(value = "Inlong tenant")
+    private String tenant;
+
     public abstract InlongGroupRequest genRequest();
 
 }

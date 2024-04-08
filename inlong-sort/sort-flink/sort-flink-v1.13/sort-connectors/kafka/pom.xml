@@ -75,7 +75,8 @@
                                     <include>org.apache.inlong:*</include>
                                     <include>org.apache.kafka:*</include>
                                     <include>com.google.protobuf:*</include>
-                                    <include>org.apache.flink:flink-connector-kafka_${scala.binary.version}</include>
+                                    <include>org.apache.flink:flink-connector-kafka_${flink.scala.binary.version}</include>
+                                    <include>org.apache.flink:flink-connector-base</include>
                                     <include>com.amazonaws:*</include>
                                     <include>com.fasterxml.jackson.core:*</include>
                                     <include>commons-logging:commons-logging</include>

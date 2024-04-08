@@ -226,7 +226,6 @@ public class KafkaSource extends AbstractSource {
             emptyCount.set(0);
             long offset = 0L;
             for (ConsumerRecord<String, byte[]> record : records) {
-                LOGGER.info("record: {}", record.value());
                 SourceData sourceData = new SourceData(record.value(), record.offset());
                 boolean suc4Queue = waitForPermit(AGENT_GLOBAL_READER_QUEUE_PERMIT, record.value().length);
                 if (!suc4Queue) {

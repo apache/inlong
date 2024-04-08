@@ -88,6 +88,9 @@ public class PulsarSource extends StreamSource {
     @Builder.Default
     private String wrapType = MessageWrapType.INLONG_MSG_V0.getName();
 
+    @ApiModelProperty("Reset subscription time")
+    private Long resetTime;
+
     public PulsarSource() {
         this.setSourceType(SourceType.PULSAR);
     }

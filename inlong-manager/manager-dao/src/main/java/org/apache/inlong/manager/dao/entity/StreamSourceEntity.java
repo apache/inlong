@@ -37,7 +37,7 @@ public class StreamSourceEntity implements Serializable {
     private String inlongStreamId;
     private String sourceType;
     private String sourceName;
-    private Integer templateId;
+    private Integer taskMapId;
     private String agentIp;
     private String uuid;
 
@@ -74,7 +74,7 @@ public class StreamSourceEntity implements Serializable {
                 + ", inlongStreamId='" + inlongStreamId + '\''
                 + ", sourceType='" + sourceType + '\''
                 + ", sourceName='" + sourceName + '\''
-                + ", templateId=" + templateId
+                + ", templateId=" + taskMapId
                 + ", agentIp='" + agentIp + '\''
                 + ", uuid='" + uuid + '\''
                 + ", dataNodeName='" + dataNodeName + '\''

@@ -13,7 +13,7 @@ CREATE TABLE test_input (
     'username' = 'inlong',
     'password' = 'inlong',
     'database-name' = 'test',
-    'table-name' = 'test_input',
+    'table-name' = 'test.test_input',
     'append-mode' = 'true',
     'scan.incremental.snapshot.chunk.size' = '4',
     'scan.incremental.snapshot.enabled' = 'false'
@@ -66,7 +66,6 @@ CREATE TABLE test_output (
     'username' = 'inlong',
     'password' = 'inlong'
 );
-
 INSERT INTO kafka_load select * from test_input;
 INSERT INTO test_output select * from kafka_extract;
 

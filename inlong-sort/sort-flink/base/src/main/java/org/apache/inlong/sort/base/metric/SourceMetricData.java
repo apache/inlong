@@ -341,7 +341,7 @@ public class SourceMetricData implements MetricData, Serializable {
      */
     public void flushAuditData() {
         if (auditOperator != null) {
-            auditOperator.send();
+            auditOperator.flush();
         }
     }
 

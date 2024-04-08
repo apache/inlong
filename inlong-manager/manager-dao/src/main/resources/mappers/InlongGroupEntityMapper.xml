@@ -241,10 +241,10 @@
         from inlong_group
         <where>
             inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            and is_deleted = 0
             <if test="_isInlongService == false">
                 and tenant = #{tenant,jdbcType=VARCHAR}
             </if>
-            and is_deleted = 0
         </where>
     </select>
     <select id="selectByGroupIdForUpdate" resultMap="BaseResultMap">
@@ -254,10 +254,10 @@
         from inlong_group
         <where>
             inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            and is_deleted = 0
             <if test="_isInlongService == false">
                 and tenant = #{tenant,jdbcType=VARCHAR}
             </if>
-            and is_deleted = 0
         </where>
          for update
     </select>

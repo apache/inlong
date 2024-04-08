@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.source;
 
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
 import org.apache.inlong.manager.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
@@ -228,5 +229,14 @@ public interface StreamSourceService {
     default Boolean updateAfterApprove(String operator) {
         return true;
     }
+
+    /**
+     * Save the data add task information
+     *
+     * @param request Source request.
+     * @param operator Operator's name.
+     * @return source id after saving.
+     */
+    Integer addDataAddTask(DataAddTaskRequest request, String operator);
 
 }

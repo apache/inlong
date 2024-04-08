@@ -75,11 +75,7 @@ public class CounterGroupExt {
     }
 
     public synchronized AtomicLong getCounter(String name) {
-        if (!this.counters.containsKey(name)) {
-            this.counters.put(name, new AtomicLong());
-        }
-
-        return (AtomicLong) this.counters.get(name);
+        return this.counters.computeIfAbsent(name, k -> new AtomicLong());
     }
 
     public synchronized void del(String name) {

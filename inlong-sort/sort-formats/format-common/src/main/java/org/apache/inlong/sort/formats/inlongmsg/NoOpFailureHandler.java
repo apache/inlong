@@ -28,6 +28,12 @@ public class NoOpFailureHandler implements FailureHandler {
     private static final Logger LOG = LoggerFactory.getLogger(NoOpFailureHandler.class);
 
     @Override
+    public void onParsingMsgFailure(Object msg, Exception t) throws Exception {
+        LOG.error("Could not properly serialize msg=[{}].", msg, t);
+        throw t;
+    }
+
+    @Override
     public void onParsingHeadFailure(String attribute, Exception exception) throws Exception {
         LOG.error("Cannot properly parse the head {}", attribute, exception);
         throw exception;
@@ -43,6 +49,11 @@ public class NoOpFailureHandler implements FailureHandler {
     public void onConvertingRowFailure(InLongMsgHead head, InLongMsgBody body, Exception exception) throws Exception {
         LOG.error("Cannot properly convert the InLongMsg ({}, {})", head, body, exception);
         throw exception;
+    }
+
+    @Override
+    public boolean isIgnoreFailure() {
+        return false;
     }
 
     @Override

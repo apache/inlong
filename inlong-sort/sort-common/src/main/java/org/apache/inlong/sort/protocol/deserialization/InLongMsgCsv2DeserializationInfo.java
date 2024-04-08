@@ -17,7 +17,9 @@
 
 package org.apache.inlong.sort.protocol.deserialization;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonAlias;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -28,6 +30,7 @@ import java.util.Objects;
 /**
  * It represents CSV2 format of InLongMsg(m=9).
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class InLongMsgCsv2DeserializationInfo extends InLongMsgDeserializationInfo {
 
     private static final long serialVersionUID = 2188769102604850019L;
@@ -39,14 +42,14 @@ public class InLongMsgCsv2DeserializationInfo extends InLongMsgDeserializationIn
     private final Character escapeChar;
 
     public InLongMsgCsv2DeserializationInfo(
-            @JsonProperty("streamId") String streamId,
+            @JsonProperty("streamId") @JsonAlias(value = {"tid"}) String streamId,
             @JsonProperty("delimiter") char delimiter) {
         this(streamId, delimiter, null);
     }
 
     @JsonCreator
     public InLongMsgCsv2DeserializationInfo(
-            @JsonProperty("streamId") String streamId,
+            @JsonProperty("streamId") @JsonAlias(value = {"tid"}) String streamId,
             @JsonProperty("delimiter") char delimiter,
             @JsonProperty("escape_char") @Nullable Character escapeChar) {
         super(streamId);

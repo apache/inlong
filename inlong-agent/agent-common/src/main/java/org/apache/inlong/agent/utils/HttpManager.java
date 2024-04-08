@@ -42,6 +42,8 @@ import javax.net.ssl.SSLContext;
 import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_APPLICATION_JSON;
@@ -61,7 +63,6 @@ public class HttpManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpManager.class);
     private static final Gson gson;
-    private static final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
 
     static {
         final GsonBuilder gsonBuilder = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -69,21 +70,31 @@ public class HttpManager {
     }
 
     private final CloseableHttpClient httpClient;
+    private final String baseUrl;
     private final String secretId;
     private final String secretKey;
     private static boolean enableHttps;
 
     public HttpManager(AgentConfiguration conf) {
-        enableHttps = StringUtils.startsWith(agentConf.get(AGENT_MANAGER_ADDR), "https");
-        int timeout = conf.getInt(AGENT_MANAGER_REQUEST_TIMEOUT,
-                DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT);
+        this(conf.get(AGENT_MANAGER_ADDR),
+                conf.get(AGENT_MANAGER_VIP_HTTP_PREFIX_PATH, DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH),
+                conf.getInt(AGENT_MANAGER_REQUEST_TIMEOUT,
+                        DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT),
+                conf.get(AGENT_MANAGER_AUTH_SECRET_ID),
+                conf.get(AGENT_MANAGER_AUTH_SECRET_KEY));
+    }
+
+    public HttpManager(String managerAddr, String managerHttpPrefixPath, int timeout, String secretId,
+            String secretKey) {
+        baseUrl = managerAddr + managerHttpPrefixPath;
+        enableHttps = StringUtils.startsWith(managerAddr, "https");
         if (enableHttps) {
             httpClient = constructHttpsClient(timeout);
         } else {
             httpClient = constructHttpClient(timeout);
         }
-        secretId = conf.get(AGENT_MANAGER_AUTH_SECRET_ID);
-        secretKey = conf.get(AGENT_MANAGER_AUTH_SECRET_KEY);
+        this.secretId = secretId;
+        this.secretKey = secretKey;
     }
 
     /**
@@ -92,9 +103,8 @@ public class HttpManager {
      * example(http)  - http://127.0.0.1:8080/inlong/manager/openapi
      * example(https) - https://127.0.0.1:8080/inlong/manager/openapi
      */
-    public static String buildBaseUrl() {
-        return agentConf.get(AGENT_MANAGER_ADDR)
-                + agentConf.get(AGENT_MANAGER_VIP_HTTP_PREFIX_PATH, DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
+    public String getBaseUrl() {
+        return baseUrl;
     }
 
     /**
@@ -150,7 +160,10 @@ public class HttpManager {
     public String doSentPost(String url, Object dto) {
         try {
             HttpPost post = getHttpPost(url);
-            post.addHeader(BasicAuth.BASIC_AUTH_HEADER, BasicAuth.genBasicAuthCredential(secretId, secretKey));
+            Map<String, String> authHeader = getAuthHeader();
+            authHeader.forEach((k, v) -> {
+                post.addHeader(k, v);
+            });
             StringEntity stringEntity = new StringEntity(toJsonStr(dto), Charset.forName("UTF-8"));
             stringEntity.setContentType(AGENT_HTTP_APPLICATION_JSON);
             post.setEntity(stringEntity);
@@ -182,7 +195,10 @@ public class HttpManager {
     public String doSendPost(String url) {
         try {
             HttpPost post = getHttpPost(url);
-            post.addHeader(BasicAuth.BASIC_AUTH_HEADER, BasicAuth.genBasicAuthCredential(secretId, secretKey));
+            Map<String, String> authHeader = getAuthHeader();
+            authHeader.forEach((k, v) -> {
+                post.addHeader(k, v);
+            });
             CloseableHttpResponse response = httpClient.execute(post);
             String returnStr = EntityUtils.toString(response.getEntity());
             if (returnStr != null && !returnStr.isEmpty()
@@ -210,4 +226,13 @@ public class HttpManager {
         return new HttpGet(url);
     }
 
+    public Map<String, String> getAuthHeader() {
+        Map<String, String> header = new HashMap<>();
+        try {
+            header.put(BasicAuth.BASIC_AUTH_HEADER, BasicAuth.genBasicAuthCredential(secretId, secretKey));
+        } catch (Exception e) {
+            LOGGER.error("Get auth header error", e);
+        }
+        return header;
+    }
 }

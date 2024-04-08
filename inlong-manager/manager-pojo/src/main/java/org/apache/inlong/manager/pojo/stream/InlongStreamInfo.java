@@ -133,6 +133,9 @@ public class InlongStreamInfo extends BaseInlongStream {
     @ApiModelProperty(value = "The message body wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
     private String wrapType;
 
+    @ApiModelProperty(value = "The compression type used for dataproxy and sort side data transmission to reduce the network IO overhead")
+    private String inlongCompressType;
+
     @ApiModelProperty(value = "If use extended fields")
     private Boolean useExtendedFields = false;
 
@@ -143,7 +146,7 @@ public class InlongStreamInfo extends BaseInlongStream {
     private Boolean sinkMultipleEnable;
 
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value")
-    private Boolean ignoreParseError = true;
+    private Boolean ignoreParseError;
 
     public InlongStreamRequest genRequest() {
         return CommonBeanUtils.copyProperties(this, InlongStreamRequest::new);

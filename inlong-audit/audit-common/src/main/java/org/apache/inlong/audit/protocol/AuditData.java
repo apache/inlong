@@ -32,6 +32,15 @@ public class AuditData {
     private long count;
     private long size;
     private long delay;
+    private long auditVersion;
+
+    public long getAuditVersion() {
+        return auditVersion;
+    }
+
+    public void setAuditVersion(long auditVersion) {
+        this.auditVersion = auditVersion;
+    }
 
     public String getIp() {
         return ip;

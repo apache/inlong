@@ -150,6 +150,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 .build();
         List<AuditMessageBody> bodyList = auditRequest.getMsgBodyList();
         int errorMsgBody = 0;
+        LOGGER.debug("Receive message count: {}", auditRequest.getMsgBodyCount());
         for (AuditMessageBody auditMessageBody : bodyList) {
             long msgDays = messageDays(auditMessageBody.getLogTs());
             if (msgDays >= this.msgValidThresholdDays) {
@@ -172,6 +173,15 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             auditData.setInlongGroupId(auditMessageBody.getInlongGroupId());
             auditData.setInlongStreamId(auditMessageBody.getInlongStreamId());
             auditData.setSize(auditMessageBody.getSize());
+            auditData.setAuditVersion(auditMessageBody.getAuditVersion());
+            LOGGER.debug("Receive message info: {} {} {} {} {} {} {}",
+                    auditData.getIp(),
+                    auditData.getAuditId(),
+                    auditData.getInlongGroupId(),
+                    auditData.getInlongStreamId(),
+                    auditData.getLogTs(),
+                    auditData.getSdkTs(),
+                    auditData.getCount());
 
             try {
                 byte[] body = GSON.toJson(auditData).getBytes(StandardCharsets.UTF_8);

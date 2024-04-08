@@ -43,6 +43,14 @@ import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditSourceRequest;
 import org.apache.inlong.manager.pojo.audit.AuditSourceResponse;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
+import org.apache.inlong.manager.pojo.node.es.ElasticsearchAggregationsTermsInfo;
+import org.apache.inlong.manager.pojo.node.es.ElasticsearchAggregationsTermsInfo.Field;
+import org.apache.inlong.manager.pojo.node.es.ElasticsearchAggregationsTermsInfo.Sum;
+import org.apache.inlong.manager.pojo.node.es.ElasticsearchQueryInfo;
+import org.apache.inlong.manager.pojo.node.es.ElasticsearchQueryInfo.QueryBool;
+import org.apache.inlong.manager.pojo.node.es.ElasticsearchQuerySortInfo;
+import org.apache.inlong.manager.pojo.node.es.ElasticsearchQuerySortInfo.SortValue;
+import org.apache.inlong.manager.pojo.node.es.ElasticsearchRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.audit.InlongAuditSourceOperator;
@@ -51,19 +59,15 @@ import org.apache.inlong.manager.service.core.AuditService;
 import org.apache.inlong.manager.service.resource.sink.ck.ClickHouseConfig;
 import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.jdbc.SQL;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.ParsedTerms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.sum.ParsedSum;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -94,8 +98,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
 /**
  * Audit service layer implementation
  */
@@ -104,12 +106,31 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 public class AuditServiceImpl implements AuditService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditServiceImpl.class);
+    private static final Gson GSON = new GsonBuilder().create();
     private static final String SECOND_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String HOUR_FORMAT = "yyyy-MM-dd HH";
     private static final String DAY_FORMAT = "yyyy-MM-dd";
     private static final DateTimeFormatter SECOND_DATE_FORMATTER = DateTimeFormat.forPattern(SECOND_FORMAT);
     private static final DateTimeFormatter HOUR_DATE_FORMATTER = DateTimeFormat.forPattern(HOUR_FORMAT);
     private static final DateTimeFormatter DAY_DATE_FORMATTER = DateTimeFormat.forPattern(DAY_FORMAT);
+
+    private static final double DEFAULT_BOOST = 1.0;
+    private static final boolean ADJUST_PURE_NEGATIVE = true;
+    private static final int QUERY_FROM = 0;
+    private static final int QUERY_SIZE = 0;
+    private static final String SORT_ORDER = "ASC";
+    private static final String TERM_FILED = "log_ts";
+    private static final String AGGREGATIONS_COUNT = "count";
+    private static final String AGGREGATIONS_DELAY = "delay";
+    private static final String AGGREGATIONS = "aggregations";
+    private static final String BUCKETS = "buckets";
+    private static final String KEY = "key";
+    private static final String VALUE = "value";
+    private static final String INLONG_GROUP_ID = "inlong_group_id";
+    private static final String INLONG_STREAM_ID = "inlong_stream_id";
+    private static final String COUNT = "count";
+    private static final String DELAY = "delay";
+    private static final String TERMS = "terms";
 
     // key: type of audit base item, value: entity of audit base item
     private final Map<String, AuditBaseEntity> auditSentItemMap = new ConcurrentHashMap<>();
@@ -292,10 +313,8 @@ public class AuditServiceImpl implements AuditService {
         AuditQuerySource querySource = AuditQuerySource.valueOf(auditQuerySource);
         for (String auditId : request.getAuditIds()) {
             AuditBaseEntity auditBaseEntity = auditItemMap.get(auditId);
-            String auditName = "";
-            if (auditBaseEntity != null) {
-                auditName = auditBaseEntity.getName();
-            }
+            String auditName = auditBaseEntity != null ? auditBaseEntity.getName() : "";
+
             if (AuditQuerySource.MYSQL == querySource) {
                 String format = "%Y-%m-%d %H:%i:00";
                 // Support min agg at now
@@ -323,18 +342,23 @@ public class AuditServiceImpl implements AuditService {
                     LOGGER.warn("elasticsearch index={} not exists", index);
                     continue;
                 }
-                SearchResponse response = elasticsearchApi.search(toAuditSearchRequest(index, groupId, streamId));
-                final List<Aggregation> aggregations = response.getAggregations().asList();
-                if (CollectionUtils.isNotEmpty(aggregations)) {
-                    ParsedTerms terms = (ParsedTerms) aggregations.get(0);
-                    if (CollectionUtils.isNotEmpty(terms.getBuckets())) {
-                        List<AuditInfo> auditSet = terms.getBuckets().stream().map(bucket -> {
+                JsonObject response = elasticsearchApi.search(index, toAuditSearchRequestJson(groupId, streamId));
+                JsonObject aggregations = response.getAsJsonObject(AGGREGATIONS).getAsJsonObject(TERM_FILED);
+                if (!aggregations.isJsonNull()) {
+                    JsonObject logTs = aggregations.getAsJsonObject(TERM_FILED);
+                    if (!logTs.isJsonNull()) {
+                        JsonArray buckets = logTs.getAsJsonArray(BUCKETS);
+                        List<AuditInfo> auditSet = new ArrayList<>();
+                        for (int i = 0; i < buckets.size(); i++) {
+                            JsonObject bucket = buckets.get(i).getAsJsonObject();
                             AuditInfo vo = new AuditInfo();
-                            vo.setLogTs(bucket.getKeyAsString());
-                            vo.setCount((long) ((ParsedSum) bucket.getAggregations().asList().get(0)).getValue());
-                            vo.setDelay((long) ((ParsedSum) bucket.getAggregations().asList().get(1)).getValue());
-                            return vo;
-                        }).collect(Collectors.toList());
+                            vo.setLogTs(bucket.get(KEY).getAsString());
+                            vo.setCount((long) bucket.get(AGGREGATIONS_COUNT).getAsJsonObject().get(VALUE)
+                                    .getAsLong());
+                            vo.setDelay((long) bucket.get(AGGREGATIONS_DELAY).getAsJsonObject().get(VALUE)
+                                    .getAsLong());
+                            auditSet.add(vo);
+                        }
                         result.add(new AuditVO(auditId, auditName, auditSet, auditIdMap.getOrDefault(auditId, null)));
                     }
                 }
@@ -458,27 +482,61 @@ public class AuditServiceImpl implements AuditService {
     }
 
     /**
-     * Convert to elasticsearch search request
+     * Convert to elasticsearch search request json
      *
-     * @param index The index of elasticsearch
      * @param groupId The groupId of inlong
      * @param streamId The streamId of inlong
-     * @return The search request of elasticsearch
+     * @return The search request of elasticsearch json
      */
-    private SearchRequest toAuditSearchRequest(String index, String groupId, String streamId) {
-        TermsAggregationBuilder builder = AggregationBuilders.terms("log_ts").field("log_ts")
-                .size(Integer.MAX_VALUE).subAggregation(AggregationBuilders.sum("count").field("count"))
-                .subAggregation(AggregationBuilders.sum("delay").field("delay"));
-        BoolQueryBuilder filterBuilder = new BoolQueryBuilder();
-        filterBuilder.must(termQuery("inlong_group_id", groupId));
-        filterBuilder.must(termQuery("inlong_stream_id", streamId));
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.aggregation(builder);
-        sourceBuilder.query(filterBuilder);
-        sourceBuilder.from(0);
-        sourceBuilder.size(0);
-        sourceBuilder.sort("log_ts", SortOrder.ASC);
-        return new SearchRequest(new String[]{index}, sourceBuilder);
+    public static JsonObject toAuditSearchRequestJson(String groupId, String streamId) {
+        Map<String, ElasticsearchQueryInfo.TermValue> groupIdMap = Maps.newHashMap();
+        groupIdMap.put(INLONG_GROUP_ID, new ElasticsearchQueryInfo.TermValue(groupId, DEFAULT_BOOST));
+        ElasticsearchQueryInfo.QueryTerm groupIdTerm = ElasticsearchQueryInfo.QueryTerm.builder().term(groupIdMap)
+                .build();
+        Map<String, ElasticsearchQueryInfo.TermValue> streamIdMap = Maps.newHashMap();
+        streamIdMap.put(INLONG_STREAM_ID, new ElasticsearchQueryInfo.TermValue(streamId, DEFAULT_BOOST));
+        ElasticsearchQueryInfo.QueryTerm streamIdTerm = ElasticsearchQueryInfo.QueryTerm.builder().term(streamIdMap)
+                .build();
+        QueryBool boolInfo = QueryBool.builder()
+                .must(Lists.newArrayList(groupIdTerm, streamIdTerm))
+                .boost(DEFAULT_BOOST)
+                .adjustPureNegative(ADJUST_PURE_NEGATIVE)
+                .build();
+        ElasticsearchQueryInfo queryInfo = ElasticsearchQueryInfo.builder().bool(boolInfo).build();
+
+        Map<String, SortValue> termValueInfoMap = Maps.newHashMap();
+        termValueInfoMap.put(TERM_FILED, new SortValue(SORT_ORDER));
+        List<Map<String, SortValue>> list = Lists.newArrayList(termValueInfoMap);
+        ElasticsearchQuerySortInfo sortInfo = ElasticsearchQuerySortInfo.builder().sort(list).build();
+
+        Sum countSum = Sum.builder()
+                .sum(new Field(COUNT))
+                .build();
+        Sum delaySum = Sum.builder()
+                .sum(new Field(DELAY))
+                .build();
+        Map<String, Sum> aggregations = Maps.newHashMap();
+        aggregations.put(COUNT, countSum);
+        aggregations.put(DELAY, delaySum);
+        ElasticsearchAggregationsTermsInfo termsInfo = ElasticsearchAggregationsTermsInfo.builder()
+                .field(TERM_FILED)
+                .size(Integer.MAX_VALUE)
+                .aggregations(aggregations)
+                .build();
+        Map<String, ElasticsearchAggregationsTermsInfo> terms = Maps.newHashMap();
+        terms.put(TERMS, termsInfo);
+        Map<String, Map<String, ElasticsearchAggregationsTermsInfo>> logTs = Maps.newHashMap();
+        logTs.put(TERM_FILED, terms);
+
+        ElasticsearchRequest request = ElasticsearchRequest.builder()
+                .from(QUERY_FROM)
+                .size(QUERY_SIZE)
+                .query(queryInfo)
+                .sort(sortInfo)
+                .aggregations(logTs)
+                .build();
+
+        return GSON.toJsonTree(request).getAsJsonObject();
     }
 
     /**
@@ -598,18 +656,9 @@ public class AuditServiceImpl implements AuditService {
                 if (statKey == null) {
                     continue;
                 }
-                if (countMap.get(statKey) == null) {
-                    countMap.put(statKey, new AtomicLong(0));
-                }
-                if (delayMap.get(statKey) == null) {
-                    delayMap.put(statKey, new AtomicLong(0));
-                }
-                if (sizeMap.get(statKey) == null) {
-                    sizeMap.put(statKey, new AtomicLong(0));
-                }
-                countMap.get(statKey).addAndGet(auditInfo.getCount());
-                delayMap.get(statKey).addAndGet(auditInfo.getDelay());
-                sizeMap.get(statKey).addAndGet(auditInfo.getSize());
+                countMap.computeIfAbsent(statKey, k -> new AtomicLong(0)).addAndGet(auditInfo.getCount());
+                delayMap.computeIfAbsent(statKey, k -> new AtomicLong(0)).addAndGet(auditInfo.getDelay());
+                sizeMap.computeIfAbsent(statKey, k -> new AtomicLong(0)).addAndGet(auditInfo.getSize());
             }
 
             List<AuditInfo> auditInfoList = new LinkedList<>();

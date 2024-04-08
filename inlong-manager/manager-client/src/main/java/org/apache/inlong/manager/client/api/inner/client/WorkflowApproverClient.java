@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Client for {@link org.apache.inlong.manager.client.api.service.WorkflowApproverApi}.
@@ -95,6 +96,7 @@ public class WorkflowApproverClient {
         Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
                 new TypeReference<Map<String, Object>>() {
                 });
+        requestMap.entrySet().removeIf(entry -> Objects.isNull(entry.getValue()));
         Response<PageResult<ApproverResponse>> response = ClientUtils.executeHttpCall(
                 workflowApproverApi.listByCondition(requestMap));
         ClientUtils.assertRespSuccess(response);

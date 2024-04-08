@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.formats.inlongmsgtlogcsv;
 
+import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 
-import org.apache.flink.types.Row;
+import org.apache.flink.table.data.GenericRowData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,11 +106,12 @@ public class InLongMsgTlogCsvUtils {
      * @param fields The fields.
      * @return The row deserialized from the row.
      */
-    public static Row deserializeRow(
+    public static GenericRowData deserializeRowData(
             RowFormatInfo rowFormatInfo,
             String nullLiteral,
             List<String> predefinedFields,
-            List<String> fields) {
+            List<String> fields,
+            FieldToRowDataConverters.FieldToRowDataConverter[] converters) {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
@@ -119,7 +121,7 @@ public class InLongMsgTlogCsvUtils {
                     " expected, but was " + actualNumFields + ".");
         }
 
-        Row row = new Row(fieldNames.length);
+        GenericRowData rowData = new GenericRowData(fieldNames.length);
 
         for (int i = 0; i < predefinedFields.size(); ++i) {
 
@@ -133,12 +135,12 @@ public class InLongMsgTlogCsvUtils {
             String fieldText = predefinedFields.get(i);
 
             Object field =
-                    deserializeBasicField(
+                    converters[i].convert(deserializeBasicField(
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
-                            nullLiteral);
-            row.setField(i, field);
+                            nullLiteral));
+            rowData.setField(i, field);
         }
 
         for (int i = 0; i < fields.size(); ++i) {
@@ -153,18 +155,18 @@ public class InLongMsgTlogCsvUtils {
             String fieldText = fields.get(i);
 
             Object field =
-                    deserializeBasicField(
+                    converters[i + predefinedFields.size()].convert(deserializeBasicField(
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
-                            nullLiteral);
-            row.setField(i + predefinedFields.size(), field);
+                            nullLiteral));
+            rowData.setField(i + predefinedFields.size(), field);
         }
 
         for (int i = predefinedFields.size() + fields.size(); i < fieldNames.length; ++i) {
-            row.setField(i, null);
+            rowData.setField(i, null);
         }
 
-        return row;
+        return rowData;
     }
 }

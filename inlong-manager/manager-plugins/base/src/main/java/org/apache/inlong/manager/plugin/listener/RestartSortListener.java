@@ -22,7 +22,6 @@ import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.plugin.flink.FlinkOperation;
-import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.enums.Constants;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -127,9 +126,7 @@ public class RestartSortListener implements SortOperateListener {
             flinkInfo.setJobName(jobName);
             String sortUrl = kvConf.get(InlongConstants.SORT_URL);
             flinkInfo.setEndpoint(sortUrl);
-
-            FlinkService flinkService = new FlinkService(flinkInfo.getEndpoint());
-            FlinkOperation flinkOperation = new FlinkOperation(flinkService);
+            FlinkOperation flinkOperation = FlinkOperation.getInstance();
             try {
                 flinkOperation.genPath(flinkInfo, dataflow);
                 // todo Currently, savepoint is not being used to restart, but will be improved in the future

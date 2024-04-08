@@ -218,7 +218,7 @@ public class RedisProvider implements ExtractNodeProvider, LoadNodeProvider {
             String formatName,
             boolean wrapWithInlongMsg,
             String separatorStr,
-            boolean ignoreParseErrors) {
+            Boolean ignoreParseErrors) {
         Format format;
         DataTypeEnum dataType = DataTypeEnum.forType(formatName);
         switch (dataType) {

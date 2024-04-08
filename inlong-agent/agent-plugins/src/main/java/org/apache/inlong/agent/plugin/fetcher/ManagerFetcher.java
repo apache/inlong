@@ -85,7 +85,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         this.conf = AgentConfiguration.getAgentConf();
         if (requiredKeys(conf)) {
             httpManager = new HttpManager(conf);
-            baseManagerUrl = HttpManager.buildBaseUrl();
+            baseManagerUrl = httpManager.getBaseUrl();
             taskConfigUrl = buildTaskConfigUrl(baseManagerUrl);
             staticConfigUrl = buildStaticConfigUrl(baseManagerUrl);
             uniqId = conf.get(AGENT_UNIQ_ID, DEFAULT_AGENT_UNIQ_ID);
@@ -100,7 +100,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
-     * build task config url for manager according to config
+     * Build task config url for manager according to config
      *
      * example - http://127.0.0.1:8080/inlong/manager/openapi/fileAgent/getTaskConf
      */
@@ -109,7 +109,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
-     * build task config url for manager according to config
+     * Build task config url for manager according to config
      *
      * example - http://127.0.0.1:8080/inlong/manager/openapi/fileAgent/getTaskConf
      */
@@ -118,7 +118,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
-     * request manager to get commands, make sure it is not throwing exceptions
+     * Request manager to get commands, make sure it is not throwing exceptions
      */
     public TaskResult fetchTaskConfig() {
         LOGGER.info("fetchTaskConfig start");
@@ -136,26 +136,26 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
-     * request manager to get commands, make sure it is not throwing exceptions
+     * Request manager to get commands, make sure it is not throwing exceptions
      */
     public TaskResult getStaticConfig() {
-        LOGGER.info("getStaticConfig start");
+        LOGGER.info("Get static config start");
         String resultStr = httpManager.doSentPost(staticConfigUrl, getFetchRequest(null));
-        LOGGER.info("test123 staticConfigUrl {}", staticConfigUrl);
+        LOGGER.info("Url to get static config staticConfigUrl {}", staticConfigUrl);
         JsonObject resultData = getResultData(resultStr);
         JsonElement element = resultData.get(AGENT_MANAGER_RETURN_PARAM_DATA);
-        LOGGER.info("getStaticConfig end");
+        LOGGER.info("Get static config  end");
         if (element != null) {
-            LOGGER.info("test123 getStaticConfig not null {}", resultData);
+            LOGGER.info("Get static config  not null {}", resultData);
             return GSON.fromJson(element.getAsJsonObject(), TaskResult.class);
         } else {
-            LOGGER.info("getStaticConfig nothing to do");
+            LOGGER.info("Get static config  nothing to do");
             return null;
         }
     }
 
     /**
-     * form file command fetch request
+     * Form file command fetch request
      */
     public TaskRequest getFetchRequest(List<CommandEntity> unackedCommands) {
         TaskRequest request = new TaskRequest();
@@ -168,7 +168,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
-     * thread for profile fetcher.
+     * Thread for profile fetcher.
      *
      * @return runnable profile.
      */

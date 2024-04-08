@@ -37,6 +37,7 @@ import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
 import org.apache.inlong.manager.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
@@ -384,7 +385,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
         Preconditions.expectNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND,
                 ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
-        boolean isTemplateSource = CollectionUtils.isNotEmpty(sourceMapper.selectByTemplateId(id));
+        boolean isTemplateSource = CollectionUtils.isNotEmpty(sourceMapper.selectByTaskMapId(id));
 
         // Check if it can be delete
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(entity.getInlongGroupId());
@@ -436,7 +437,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
                     String.format("InlongGroup does not exist with InlongGroupId=%s", entity.getInlongGroupId()));
         }
         // check record status
-        boolean isTemplateSource = CollectionUtils.isNotEmpty(sourceMapper.selectByTemplateId(id));
+        boolean isTemplateSource = CollectionUtils.isNotEmpty(sourceMapper.selectByTaskMapId(id));
         SourceStatus curStatus = SourceStatus.forCode(entity.getStatus());
         SourceStatus nextStatus = SourceStatus.TO_BE_ISSUED_DELETE;
         // if source is frozen|failed|new, or if it is a template source or auto push source, delete directly
@@ -628,5 +629,15 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         request.setInlongGroupId(entity.getInlongGroupId());
         request.setInlongStreamId(entity.getInlongStreamId());
         request.setSourceName(entity.getSourceName());
+    }
+
+    @Override
+    public Integer addDataAddTask(DataAddTaskRequest request, String operator) {
+        LOGGER.info("begin to add data add task info: {}", request);
+        StreamSourceEntity entity = sourceMapper.selectById(request.getSourceId());
+        StreamSourceOperator sourceOperator = operatorFactory.getInstance(entity.getSourceType());
+        int id = sourceOperator.addDataAddTask(request, operator);
+        LOGGER.info("success to add data add task info: {}", request);
+        return id;
     }
 }

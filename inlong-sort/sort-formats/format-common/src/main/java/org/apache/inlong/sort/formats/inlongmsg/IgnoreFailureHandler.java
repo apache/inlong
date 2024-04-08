@@ -28,6 +28,11 @@ public class IgnoreFailureHandler implements FailureHandler {
     private static final Logger LOG = LoggerFactory.getLogger(IgnoreFailureHandler.class);
 
     @Override
+    public void onParsingMsgFailure(Object msg, Exception exception) {
+        LOG.error("Could not properly deserialize msg=[{}].", msg, exception);
+    };
+
+    @Override
     public void onParsingHeadFailure(String attribute, Exception exception) {
         LOG.warn("Cannot properly parse the head {}", attribute, exception);
     }
@@ -40,6 +45,11 @@ public class IgnoreFailureHandler implements FailureHandler {
     @Override
     public void onConvertingRowFailure(InLongMsgHead head, InLongMsgBody body, Exception exception) {
         LOG.warn("Cannot properly convert the InLongMsg ({}, {})", head, body, exception);
+    }
+
+    @Override
+    public boolean isIgnoreFailure() {
+        return true;
     }
 
     @Override

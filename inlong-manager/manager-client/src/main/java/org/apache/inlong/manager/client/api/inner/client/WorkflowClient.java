@@ -27,8 +27,10 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
 import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
+import org.apache.inlong.manager.pojo.workflow.TaskLogRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskResponse;
+import org.apache.inlong.manager.pojo.workflow.WorkflowExecuteLog;
 import org.apache.inlong.manager.pojo.workflow.WorkflowOperationRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
@@ -39,6 +41,7 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Client for {@link WorkflowApi}.
@@ -185,6 +188,7 @@ public class WorkflowClient {
         Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
                 new TypeReference<Map<String, Object>>() {
                 });
+        requestMap.entrySet().removeIf(entry -> Objects.isNull(entry.getValue()));
         Response<PageResult<ProcessResponse>> response = ClientUtils.executeHttpCall(
                 workflowApi.listProcess(requestMap));
         ClientUtils.assertRespSuccess(response);
@@ -203,7 +207,27 @@ public class WorkflowClient {
         Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
                 new TypeReference<Map<String, Object>>() {
                 });
+        requestMap.entrySet().removeIf(entry -> Objects.isNull(entry.getValue()));
         Response<PageResult<TaskResponse>> response = ClientUtils.executeHttpCall(workflowApi.listTask(requestMap));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Get workflow execute log list
+     *
+     * @param request workflow log query request
+     * @return workflow execute log response list
+     */
+    public PageResult<WorkflowExecuteLog> listTaskLogs(TaskLogRequest request) {
+        Preconditions.expectNotNull(request, "task request cannot be null");
+
+        Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
+                new TypeReference<Map<String, Object>>() {
+                });
+        requestMap.entrySet().removeIf(entry -> Objects.isNull(entry.getValue()));
+        Response<PageResult<WorkflowExecuteLog>> response =
+                ClientUtils.executeHttpCall(workflowApi.listTaskLogs(requestMap));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
