@@ -70,10 +70,6 @@ public class ModuleRequest {
     @ApiModelProperty("Extended params")
     private String extParams;
 
-    @ApiModelProperty("History list of package")
-    @Default
-    private List<PackageHistory> packageHistoryList = new ArrayList<>();
-
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
 
