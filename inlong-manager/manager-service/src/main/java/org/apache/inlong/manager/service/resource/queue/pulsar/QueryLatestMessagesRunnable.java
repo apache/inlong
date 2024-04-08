@@ -27,7 +27,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * QueryLatestMessagesRunnable
@@ -42,7 +41,7 @@ public class QueryLatestMessagesRunnable implements Runnable {
     private PulsarOperator pulsarOperator;
     private Integer messageCount;
     private List<BriefMQMessage> briefMQMessages;
-    private CountDownLatch latch;
+    private QueryCountDownLatch latch;
 
     public QueryLatestMessagesRunnable(InlongPulsarInfo inlongPulsarInfo,
             InlongStreamInfo streamInfo,
@@ -50,7 +49,7 @@ public class QueryLatestMessagesRunnable implements Runnable {
             PulsarOperator pulsarOperator,
             Integer messageCount,
             List<BriefMQMessage> briefMQMessages,
-            CountDownLatch latch) {
+            QueryCountDownLatch latch) {
         this.inlongPulsarInfo = inlongPulsarInfo;
         this.streamInfo = streamInfo;
         this.clusterInfo = clusterInfo;
@@ -77,7 +76,7 @@ public class QueryLatestMessagesRunnable implements Runnable {
                 messageCount, streamInfo, serial);
         if (CollectionUtils.isNotEmpty(messages)) {
             briefMQMessages.addAll(messages);
-            messages.forEach(v -> this.latch.countDown());
+            this.latch.countDown(messages.size());
         }
     }
 }

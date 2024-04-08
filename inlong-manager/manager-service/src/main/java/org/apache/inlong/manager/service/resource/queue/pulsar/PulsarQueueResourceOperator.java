@@ -49,9 +49,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -312,14 +312,14 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
         List<ClusterInfo> pulsarClusterList = clusterService.listByTagAndType(groupInfo.getInlongClusterTag(),
                 ClusterType.PULSAR);
         List<BriefMQMessage> briefMQMessages = new CopyOnWriteArrayList<>();
-        CountDownLatch latch = new CountDownLatch(messageCount);
+        QueryCountDownLatch queryLatch = new QueryCountDownLatch(messageCount, pulsarClusterList.size());
         InlongPulsarInfo inlongPulsarInfo = ((InlongPulsarInfo) groupInfo);
         for (ClusterInfo clusterInfo : pulsarClusterList) {
             QueryLatestMessagesRunnable task = new QueryLatestMessagesRunnable(inlongPulsarInfo, streamInfo,
-                    (PulsarClusterInfo) clusterInfo, pulsarOperator, messageCount, briefMQMessages, latch);
+                    (PulsarClusterInfo) clusterInfo, pulsarOperator, messageCount, briefMQMessages, queryLatch);
             this.executor.execute(task);
         }
-        latch.await(30, TimeUnit.SECONDS);
+        queryLatch.await(30, TimeUnit.SECONDS);
 
         // insert the consumer group info into the inlong_consume table
         String topicName = streamInfo.getMqResource();
@@ -329,7 +329,14 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
         String groupId = streamInfo.getInlongGroupId();
         log.info("success to save inlong consume [{}] for subs={}, groupId={}, topic={}",
                 id, subs, groupId, topicName);
-        return briefMQMessages;
+
+        // cut
+        int finalMsgCount = Math.min(messageCount, briefMQMessages.size());
+        if (finalMsgCount > 0) {
+            return briefMQMessages.subList(0, finalMsgCount);
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     /**
