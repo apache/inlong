@@ -150,11 +150,9 @@ public abstract class CommonInstance extends Instance {
     }
 
     private void heartbeatStatic() {
-        String inlongGroupId = profile.getInlongGroupId();
-        String inlongStreamId = profile.getInlongStreamId();
         if (AgentUtils.getCurrentTime() - heartBeatStartTime > TimeUnit.SECONDS.toMillis(1)) {
-            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_INSTANCE_HEARTBEAT, inlongGroupId, inlongStreamId,
-                    AgentUtils.getCurrentTime(), 1, 1);
+            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_INSTANCE_HEARTBEAT, profile.getInlongGroupId(),
+                    profile.getInlongStreamId(), AgentUtils.getCurrentTime(), 1, 1);
             heartbeatcheckCount = 0;
             heartBeatStartTime = AgentUtils.getCurrentTime();
         }
