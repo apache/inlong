@@ -17,12 +17,14 @@
 
 package org.apache.inlong.audit.entities;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
  * Source config
  */
 @Data
+@AllArgsConstructor
 public class SinkConfig {
 
     private String insertSql;
@@ -31,15 +33,4 @@ public class SinkConfig {
     private final String username;
     private final String password;
 
-    public SinkConfig(String insertSql,
-            String driverClassName,
-            String jdbcUrl,
-            String username,
-            String password) {
-        this.insertSql = insertSql;
-        this.driverClassName = driverClassName;
-        this.jdbcUrl = jdbcUrl;
-        this.username = username;
-        this.password = password;
-    }
 }
