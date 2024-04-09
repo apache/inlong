@@ -525,7 +525,7 @@ public class AgentServiceImpl implements AgentService {
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectTemplateSourceByCluster(needCopiedStatusList,
                 Lists.newArrayList(SourceType.FILE), agentClusterName);
         Set<GroupStatus> noNeedAddTask = Sets.newHashSet(
-                GroupStatus.CONFIGURATION_OFFLINE, GroupStatus.CONFIG_OFFLINE_ING, GroupStatus.CONFIG_DELETING,
+                GroupStatus.CONFIG_OFFLINE_SUCCESSFUL, GroupStatus.CONFIG_OFFLINE_ING, GroupStatus.CONFIG_DELETING,
                 GroupStatus.CONFIG_DELETED);
         sourceEntities.stream()
                 .forEach(sourceEntity -> {

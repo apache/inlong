@@ -103,7 +103,7 @@ public class StreamSourceListenerTest extends ServiceBaseTest {
     private void testRestartSource(Integer sourceId) {
         groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_OFFLINE_ING.getCode(), GLOBAL_OPERATOR);
         groupService.update(groupInfo.genRequest(), GLOBAL_OPERATOR);
-        groupService.updateStatus(GROUP_ID, GroupStatus.CONFIGURATION_OFFLINE.getCode(), GLOBAL_OPERATOR);
+        groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_OFFLINE_SUCCESSFUL.getCode(), GLOBAL_OPERATOR);
         groupService.update(groupInfo.genRequest(), GLOBAL_OPERATOR);
 
         sourceService.updateStatus(GROUP_ID, null, SourceStatus.SOURCE_NORMAL.getCode(), GLOBAL_OPERATOR);

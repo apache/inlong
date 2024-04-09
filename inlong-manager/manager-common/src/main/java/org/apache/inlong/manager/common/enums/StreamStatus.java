@@ -27,11 +27,10 @@ public enum StreamStatus {
     CONFIG_FAILED(120, "configuration failed"),
     CONFIG_SUCCESSFUL(130, "configuration successful"),
 
-    SUSPENDING(141, "suspending"),
-    SUSPENDED(140, "suspended"),
+    CONFIG_OFFLINE_ING(141, "configuration is going offline"),
+    CONFIG_OFFLINE_SUCCESSFUL(140, "configuration offline successful"),
 
-    RESTARTING(151, "restarting"),
-    RESTARTED(150, "restarted"),
+    CONFIG_ONLINE_ING(151, "configuration is going online"),
 
     DELETING(41, "deleting"),
     DELETED(40, "deleted");
@@ -48,8 +47,8 @@ public enum StreamStatus {
      * Checks whether the given status allows updating operate.
      */
     public static boolean notAllowedUpdate(StreamStatus status) {
-        return status == StreamStatus.CONFIG_ING || status == StreamStatus.SUSPENDING
-                || status == StreamStatus.RESTARTING || status == StreamStatus.DELETING;
+        return status == StreamStatus.CONFIG_ING || status == StreamStatus.CONFIG_OFFLINE_ING
+                || status == StreamStatus.CONFIG_ONLINE_ING || status == StreamStatus.DELETING;
     }
 
     /**
@@ -57,8 +56,8 @@ public enum StreamStatus {
      */
     public static boolean notAllowedDelete(StreamStatus status) {
         return status == StreamStatus.CONFIG_ING
-                || status == StreamStatus.RESTARTING
-                || status == StreamStatus.SUSPENDING;
+                || status == StreamStatus.CONFIG_ONLINE_ING
+                || status == StreamStatus.CONFIG_OFFLINE_ING;
     }
 
     public static StreamStatus forCode(int code) {

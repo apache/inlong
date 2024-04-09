@@ -143,8 +143,9 @@ class AgentServiceTest extends ServiceBaseTest {
         sources.stream()
                 .filter(source -> source.getTaskMapId() != null)
                 .forEach(source -> sourceService.stop(source.getId(), GLOBAL_OPERATOR));
-        groupMapper.updateStatus(groupId, GroupStatus.CONFIGURATION_OFFLINE.getCode(), GLOBAL_OPERATOR);
-        streamMapper.updateStatusByIdentifier(groupId, streamId, StreamStatus.SUSPENDED.getCode(), GLOBAL_OPERATOR);
+        groupMapper.updateStatus(groupId, GroupStatus.CONFIG_OFFLINE_SUCCESSFUL.getCode(), GLOBAL_OPERATOR);
+        streamMapper.updateStatusByIdentifier(groupId, streamId, StreamStatus.CONFIG_OFFLINE_SUCCESSFUL.getCode(),
+                GLOBAL_OPERATOR);
     }
 
     /**
@@ -156,7 +157,8 @@ class AgentServiceTest extends ServiceBaseTest {
                 .filter(source -> source.getTaskMapId() != null)
                 .forEach(source -> sourceService.restart(source.getId(), GLOBAL_OPERATOR));
         groupMapper.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), GLOBAL_OPERATOR);
-        streamMapper.updateStatusByIdentifier(groupId, streamId, StreamStatus.RESTARTED.getCode(), GLOBAL_OPERATOR);
+        streamMapper.updateStatusByIdentifier(groupId, streamId, StreamStatus.CONFIG_SUCCESSFUL.getCode(),
+                GLOBAL_OPERATOR);
     }
 
     public void deleteSource(String groupId, String streamId) {

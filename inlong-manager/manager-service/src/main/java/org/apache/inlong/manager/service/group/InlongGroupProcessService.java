@@ -336,7 +336,7 @@ public class InlongGroupProcessService {
             case CONFIG_ONLINE_ING:
                 return GroupStatus.CONFIG_SUCCESSFUL;
             case CONFIG_OFFLINE_ING:
-                return GroupStatus.CONFIGURATION_OFFLINE;
+                return GroupStatus.CONFIG_OFFLINE_SUCCESSFUL;
             default:
                 return GroupStatus.CONFIG_DELETED;
         }

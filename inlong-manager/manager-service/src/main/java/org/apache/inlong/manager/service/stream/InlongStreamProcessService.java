@@ -134,12 +134,12 @@ public class InlongStreamProcessService {
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
         Preconditions.expectNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
         StreamStatus status = StreamStatus.forCode(streamInfo.getStatus());
-        if (status == StreamStatus.SUSPENDED || status == StreamStatus.SUSPENDING) {
+        if (status == StreamStatus.CONFIG_OFFLINE_SUCCESSFUL || status == StreamStatus.CONFIG_OFFLINE_ING) {
             log.warn("groupId={}, streamId={} is already in {}", groupId, streamId, status);
             return true;
         }
 
-        if (status != StreamStatus.CONFIG_SUCCESSFUL && status != StreamStatus.RESTARTED) {
+        if (status != StreamStatus.CONFIG_SUCCESSFUL) {
             throw new BusinessException(String.format("stream status=%s not support suspend stream"
                     + " for groupId=%s streamId=%s", status, groupId, streamId));
         }
@@ -176,12 +176,12 @@ public class InlongStreamProcessService {
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
         Preconditions.expectNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
         StreamStatus status = StreamStatus.forCode(streamInfo.getStatus());
-        if (status == StreamStatus.RESTARTED || status == StreamStatus.RESTARTING) {
+        if (status == StreamStatus.CONFIG_ONLINE_ING) {
             log.warn("inlong stream was already in {} for groupId={}, streamId={}", status, groupId, streamId);
             return true;
         }
 
-        if (status != StreamStatus.SUSPENDED) {
+        if (status != StreamStatus.CONFIG_OFFLINE_SUCCESSFUL) {
             throw new BusinessException(String.format("stream status=%s not support restart stream"
                     + " for groupId=%s streamId=%s", status, groupId, streamId));
         }
