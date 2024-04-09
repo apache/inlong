@@ -159,8 +159,7 @@ public abstract class CommonInstance extends Instance {
     }
 
     private void handleReadEnd() {
-        InstanceAction action = new InstanceAction(ActionType.FINISH, profile);
-        while (!isFinished() && !instanceManager.submitAction(action)) {
+        while (!isFinished() && !instanceManager.submitAction(new InstanceAction(ActionType.FINISH, profile))) {
             LOGGER.error("instance manager action queue is full: taskId {}",
                     instanceManager.getTaskId());
             AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
