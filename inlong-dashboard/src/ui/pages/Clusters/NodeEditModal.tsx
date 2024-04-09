@@ -146,6 +146,71 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         },
       },
       {
+        type: 'select',
+        label: i18n.t('pages.Clusters.Node.Agent'),
+        name: 'moduleIdList',
+        rules: [{ required: false }],
+        hidden: type !== 'AGENT',
+        props: {
+          options: {
+            requestAuto: true,
+            requestTrigger: ['onOpen'],
+            requestService: keyword => ({
+              url: '/module/list',
+              method: 'POST',
+              data: {
+                keyword,
+                pageNum: 1,
+                pageSize: 9999,
+              },
+            }),
+            requestParams: {
+              formatResult: result =>
+                result?.list
+                  ?.filter(item => item.type === 'AGENT')
+                  .map(item => ({
+                    ...item,
+                    label: `${item.name} ${item.version}`,
+                    value: item.id,
+                  })),
+            },
+          },
+        },
+      },
+      {
+        type: 'select',
+        label: i18n.t('pages.Clusters.Node.AgentInstaller'),
+        name: 'installer',
+        rules: [{ required: false }],
+        hidden: type !== 'AGENT',
+        props: {
+          mode: 'multiple',
+          options: {
+            requestAuto: true,
+            requestTrigger: ['onOpen'],
+            requestService: keyword => ({
+              url: '/module/list',
+              method: 'POST',
+              data: {
+                keyword,
+                pageNum: 1,
+                pageSize: 9999,
+              },
+            }),
+            requestParams: {
+              formatResult: result =>
+                result?.list
+                  ?.filter(item => item.type === 'INSTALLER')
+                  .map(item => ({
+                    ...item,
+                    label: `${item.name} ${item.version}`,
+                    value: item.id,
+                  })),
+            },
+          },
+        },
+      },
+      {
         type: 'textarea',
         label: i18n.t('pages.Clusters.Description'),
         name: 'description',

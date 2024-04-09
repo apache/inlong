@@ -751,6 +751,8 @@
   "pages.Clusters.Node.Name": "节点",
   "pages.Clusters.Node.Port": "端口",
   "pages.Clusters.Node.ProtocolType": "协议类型",
+  "pages.Clusters.Node.Agent": "Agent",
+  "pages.Clusters.Node.AgentInstaller": "Installer",
   "pages.Clusters.Node.Status": "状态",
   "pages.Clusters.Node.Status.Normal": "正常",
   "pages.Clusters.Node.Status.Timeout": "心跳超时",
