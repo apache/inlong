@@ -77,4 +77,14 @@ public class SqlConstants {
                     "AND audit_id = ? \n" +
                     "GROUP BY inlong_group_id, inlong_stream_id, audit_id, audit_tag";
 
+    // Mysql insert sql
+    public static final String KEY_MYSQL_SINK_INSERT_DAY_SQL = "mysql.sink.insert.day.sql";
+    public static final String DEFAULT_MYSQL_SINK_INSERT_DAY_SQL =
+            "replace into audit_data_day (log_ts,inlong_group_id, inlong_stream_id, audit_id,audit_tag,count, size, delay) "
+                    + " values (?,?,?,?,?,?,?,?)";
+    public static final String KEY_MYSQL_SINK_INSERT_TEMP_SQL = "mysql.sink.insert.temp.sql";
+    public static final String DEFAULT_MYSQL_SINK_INSERT_TEMP_SQL =
+            "replace into audit_data_temp (log_ts,inlong_group_id, inlong_stream_id, audit_id,audit_tag,count, size, delay) "
+                    + " values (?,?,?,?,?,?,?,?)";
+
 }

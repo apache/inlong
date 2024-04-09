@@ -25,14 +25,14 @@ public class ConfigConstants {
     // Source config
     public static final String KEY_CLICKHOUSE_DRIVER = "clickhouse.driver";
     public static final String DEFAULT_CLICKHOUSE_DRIVER = "ru.yandex.clickhouse.ClickHouseDriver";
-    public static final String KEY_CLICKHOUSE_URL = "clickhouse.url";
+    public static final String KEY_CLICKHOUSE_JDBC_URL = "clickhouse.jdbc.url";
     public static final String KEY_CLICKHOUSE_USERNAME = "clickhouse.username";
     public static final String KEY_CLICKHOUSE_PASSWORD = "clickhouse.password";
 
     // DB config
     public static final String KEY_MYSQL_DRIVER = "mysql.driver";
     public static final String KEY_DEFAULT_MYSQL_DRIVER = "com.mysql.cj.jdbc.Driver";
-    public static final String KEY_MYSQL_URL = "mysql.url";
+    public static final String KEY_MYSQL_JDBC_URL = "mysql.jdbc.url";
     public static final String KEY_MYSQL_USERNAME = "mysql.username";
     public static final String KEY_MYSQL_PASSWORD = "mysql.password";
 
@@ -91,15 +91,15 @@ public class ConfigConstants {
     public static final String DEFAULT_REALTIME_SUMMARY_SOURCE_TABLE = "audit_data";
     public static final String KEY_REALTIME_SUMMARY_SINK_TABLE = "realtime.summary.sink.table";
     public static final String DEFAULT_REALTIME_SUMMARY_SINK_TABLE = "audit_data_temp";
-    public static final String KEY_REALTIME_SUMMARY_BEFORE_TIMES = "realtime.summary.before.times";
-    public static final int DEFAULT_REALTIME_SUMMARY_BEFORE_TIMES = 6;
+    public static final String KEY_REALTIME_SUMMARY_STAT_BACK_TIMES = "realtime.summary.stat.back.times";
+    public static final int DEFAULT_REALTIME_SUMMARY_STAT_BACK_TIMES = 6;
 
     public static final String KEY_DAILY_SUMMARY_SOURCE_TABLE = "daily.summary.source.table";
     public static final String DEFAULT_DAILY_SUMMARY_SOURCE_TABLE = "audit_data_temp";
     public static final String KEY_DAILY_SUMMARY_SINK_TABLE = "daily.summary.sink.table";
     public static final String DEFAULT_DAILY_SUMMARY_SINK_TABLE = "audit_data_day";
-    public static final String KEY_DAILY_SUMMARY_BEFORE_TIMES = "daily.summary.before.times";
-    public static final int DEFAULT_DAILY_SUMMARY_BEFORE_TIMES = 2;
+    public static final String KEY_DAILY_SUMMARY_STAT_BACK_TIMES = "daily.summary.stat.back.times";
+    public static final int DEFAULT_DAILY_SUMMARY_STAT_BACK_TIMES = 2;
 
     // HA selector config
     public static final String KEY_RELEASE_LEADER_INTERVAL = "release.leader.interval";
