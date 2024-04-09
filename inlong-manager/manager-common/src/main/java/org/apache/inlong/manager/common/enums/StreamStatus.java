@@ -28,7 +28,7 @@ public enum StreamStatus {
     CONFIG_SUCCESSFUL(130, "configuration successful"),
 
     CONFIG_OFFLINE_ING(141, "in configure offline"),
-    CONFIGURATION_OFFLINE(140, "configure offline successful"),
+    CONFIG_OFFLINE(140, "configure offline successful"),
 
     CONFIG_ONLINE_ING(151, "restarting"),
 

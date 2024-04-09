@@ -60,7 +60,7 @@ public class UpdateStreamCompleteListener implements ProcessEventListener {
                 status = StreamStatus.CONFIG_SUCCESSFUL;
                 break;
             case SUSPEND:
-                status = StreamStatus.CONFIGURATION_OFFLINE;
+                status = StreamStatus.CONFIG_OFFLINE;
                 break;
             case DELETE:
                 status = StreamStatus.DELETED;

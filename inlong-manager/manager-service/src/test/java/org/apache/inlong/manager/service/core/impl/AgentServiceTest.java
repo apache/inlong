@@ -144,7 +144,7 @@ class AgentServiceTest extends ServiceBaseTest {
                 .filter(source -> source.getTaskMapId() != null)
                 .forEach(source -> sourceService.stop(source.getId(), GLOBAL_OPERATOR));
         groupMapper.updateStatus(groupId, GroupStatus.CONFIGURATION_OFFLINE.getCode(), GLOBAL_OPERATOR);
-        streamMapper.updateStatusByIdentifier(groupId, streamId, StreamStatus.CONFIGURATION_OFFLINE.getCode(),
+        streamMapper.updateStatusByIdentifier(groupId, streamId, StreamStatus.CONFIG_OFFLINE.getCode(),
                 GLOBAL_OPERATOR);
     }
 
