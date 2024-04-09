@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package config;
+package org.apache.inlong.audit.config;
 
 /**
  * Config constants
@@ -111,6 +111,15 @@ public class ConfigConstants {
     public static final String CACHE_PREP_STMTS = "cachePrepStmts";
     public static final String PREP_STMT_CACHE_SIZE = "prepStmtCacheSize";
     public static final String PREP_STMT_CACHE_SQL_LIMIT = "prepStmtCacheSqlLimit";
+
+    public static final String KEY_CACHE_PREP_STMTS = "cache.prep.stmts";
+    public static final boolean DEFAULT_CACHE_PREP_STMTS = true;
+
+    public static final String KEY_PREP_STMT_CACHE_SIZE = "prep.stmt.cache.size";
+    public static final int DEFAULT_PREP_STMT_CACHE_SIZE = 250;
+
+    public static final String KEY_PREP_STMT_CACHE_SQL_LIMIT = "prep.stmt.cache.sql.limit";
+    public static final int DEFAULT_PREP_STMT_CACHE_SQL_LIMIT = 2048;
 
     public static final int MAX_INIT_COUNT = 2;
     public static final int RANDOM_BOUND = 10;

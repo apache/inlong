@@ -15,16 +15,28 @@
  * limitations under the License.
  */
 
-package source;
+package org.apache.inlong.audit.selector.api;
 
 /**
- * Source stat interface.
+ * Selector
  */
-public interface SourceStat extends Runnable {
+public abstract class Selector {
 
-    public void statByStep();
+    protected boolean isLeader;
 
-    public void aggregate(String auditId);
+    public abstract void init() throws Exception;
 
-    public void query(String startTime, String endTime, String auditId);
+    public abstract boolean isLeader();
+
+    public abstract void releaseLeader() throws Exception;
+
+    public abstract void replaceLeader(String newLeaderId) throws Exception;
+
+    public abstract String getLeader(String serviceId);
+
+    public abstract void canSelect(boolean canSelect);
+
+    public abstract boolean rebuildSelectorDBSource();
+
+    public abstract void close();
 }

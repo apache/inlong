@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package channel;
+package org.apache.inlong.audit.channel;
 
-import entities.StatData;
+import org.apache.inlong.audit.entities.StatData;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

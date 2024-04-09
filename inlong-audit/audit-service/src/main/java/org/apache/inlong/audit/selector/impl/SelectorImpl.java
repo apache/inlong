@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
-package elector.impl;
+package org.apache.inlong.audit.selector.impl;
 
-import config.Configuration;
-import elector.api.Selector;
-import elector.api.SelectorConfig;
-import elector.task.DBMonitorTask;
+import org.apache.inlong.audit.config.ConfigConstants;
+import org.apache.inlong.audit.config.Configuration;
+import org.apache.inlong.audit.selector.api.Selector;
+import org.apache.inlong.audit.selector.api.SelectorConfig;
+import org.apache.inlong.audit.selector.task.DBMonitorTask;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +31,6 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import static config.ConfigConstants.DEFAULT_RELEASE_LEADER_INTERVAL;
-import static config.ConfigConstants.DEFAULT_SELECTOR_THREAD_POOL_SIZE;
-import static config.ConfigConstants.KEY_RELEASE_LEADER_INTERVAL;
-import static config.ConfigConstants.KEY_SELECTOR_THREAD_POOL_SIZE;
-import static config.ConfigConstants.RANDOM_BOUND;
 
 /**
  * Elector Impl
@@ -53,8 +49,8 @@ public class SelectorImpl extends Selector {
         this.selectorConfig = selectorConfig;
         this.dbDataSource = new DBDataSource(selectorConfig);
         fixedThreadPool = Executors.newFixedThreadPool(Configuration.getInstance().get(
-                KEY_SELECTOR_THREAD_POOL_SIZE,
-                DEFAULT_SELECTOR_THREAD_POOL_SIZE));
+                ConfigConstants.KEY_SELECTOR_THREAD_POOL_SIZE,
+                ConfigConstants.DEFAULT_SELECTOR_THREAD_POOL_SIZE));
     }
 
     /**
@@ -97,8 +93,8 @@ public class SelectorImpl extends Selector {
             }
 
         try {
-            TimeUnit.SECONDS.sleep(Configuration.getInstance().get(KEY_RELEASE_LEADER_INTERVAL,
-                    DEFAULT_RELEASE_LEADER_INTERVAL));
+            TimeUnit.SECONDS.sleep(Configuration.getInstance().get(ConfigConstants.KEY_RELEASE_LEADER_INTERVAL,
+                    ConfigConstants.DEFAULT_RELEASE_LEADER_INTERVAL));
         } catch (Exception exception) {
             logger.error("Exception :{}", exception.getMessage());
         }
@@ -195,7 +191,7 @@ public class SelectorImpl extends Selector {
 
                         isLeader = false;
                         sleepTime = selectorConfig.getTryToBeLeaderInterval()
-                                + random.nextInt(RANDOM_BOUND);
+                                + random.nextInt(ConfigConstants.RANDOM_BOUND);
                     }
                 }
 

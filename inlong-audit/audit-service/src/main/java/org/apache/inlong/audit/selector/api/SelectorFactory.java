@@ -15,14 +15,16 @@
  * limitations under the License.
  */
 
-package entities;
+package org.apache.inlong.audit.selector.api;
 
-import lombok.Data;
+import org.apache.inlong.audit.selector.impl.SelectorImpl;
 
-@Data
-public class StartEndTime {
+/**
+ * Selector factory
+ */
+public class SelectorFactory {
 
-    String startTime;
-    String endTime;
-    long endTimeStamp;
+    public static Selector getNewElector(SelectorConfig electorConfig) {
+        return new SelectorImpl(electorConfig);
+    }
 }

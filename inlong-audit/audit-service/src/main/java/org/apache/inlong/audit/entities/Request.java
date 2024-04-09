@@ -15,22 +15,17 @@
  * limitations under the License.
  */
 
-package entities;
+package org.apache.inlong.audit.entities;
 
-/**
- * Audit cycle
- */
-public enum AuditCycle {
+import lombok.Data;
 
-    MINUTE_5(5), MINUTE_10(10), MINUTE_30(30), HOUR(60), DAY(1440);
+@Data
+public class Request {
 
-    private final int cycle;
-
-    AuditCycle(int cycle) {
-        this.cycle = cycle;
-    }
-
-    public int getValue() {
-        return cycle;
-    }
+    String startTime;
+    String endTime;
+    String auditId;
+    String auditTag;
+    String inlongGroupId;
+    String inlongStreamId;
 }

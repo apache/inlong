@@ -15,16 +15,22 @@
  * limitations under the License.
  */
 
-package elector.api;
+package org.apache.inlong.audit.entities;
 
-import elector.impl.SelectorImpl;
+import lombok.Data;
 
-/**
- * Selector factory
- */
-public class SelectorFactory {
+import java.sql.Timestamp;
 
-    public static Selector getNewElector(SelectorConfig electorConfig) {
-        return new SelectorImpl(electorConfig);
-    }
+@Data
+public class StatData {
+
+    private String logTs;
+    private String inlongGroupId;
+    private String inlongStreamId;
+    private String auditId;
+    private String auditTag;
+    private Long count;
+    private Long size;
+    private Long delay;
+    private Timestamp updateTime;
 }

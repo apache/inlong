@@ -15,28 +15,21 @@
  * limitations under the License.
  */
 
-package elector.api;
+package org.apache.inlong.audit.selector;
+
+import org.apache.inlong.audit.selector.api.SelectorChangeListener;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Selector
+ * Elector change listener impl
  */
-public abstract class Selector {
+public class ElectorChangeListenerImpl implements SelectorChangeListener {
 
-    protected boolean isLeader;
+    private static final Logger logger = LoggerFactory.getLogger(ElectorChangeListenerImpl.class);
 
-    public abstract void init() throws Exception;
-
-    public abstract boolean isLeader();
-
-    public abstract void releaseLeader() throws Exception;
-
-    public abstract void replaceLeader(String newLeaderId) throws Exception;
-
-    public abstract String getLeader(String serviceId);
-
-    public abstract void canSelect(boolean canSelect);
-
-    public abstract boolean rebuildSelectorDBSource();
-
-    public abstract void close();
+    public void leaderChanged(boolean currentNodeIsLeader) {
+        logger.info("LeaderChanged {}:", currentNodeIsLeader);
+    }
 }

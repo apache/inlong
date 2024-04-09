@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package elector.api;
+package org.apache.inlong.audit.selector.api;
 
 /**
  * Selector change listener

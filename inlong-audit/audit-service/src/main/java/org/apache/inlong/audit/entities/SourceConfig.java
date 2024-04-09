@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package entities;
+package org.apache.inlong.audit.entities;
 
 import lombok.Data;
 
@@ -26,12 +26,26 @@ import lombok.Data;
 public class SourceConfig {
 
     private AuditCycle auditCycle;
-    private String sourceTable;
-    private int beforeTimes;
+    private String querySql;
+    private int statBackTimes;
+    private final String driverClassName;
+    private final String jdbcUrl;
+    private final String username;
+    private final String password;
 
-    public SourceConfig(AuditCycle auditCycle, String sourceTable, int beforeTimes) {
+    public SourceConfig(AuditCycle auditCycle,
+            String querySql,
+            int statBackTimes,
+            String driverClassName,
+            String jdbcUrl,
+            String username,
+            String password) {
         this.auditCycle = auditCycle;
-        this.sourceTable = sourceTable;
-        this.beforeTimes = beforeTimes;
+        this.querySql = querySql;
+        this.statBackTimes = statBackTimes;
+        this.driverClassName = driverClassName;
+        this.jdbcUrl = jdbcUrl;
+        this.username = username;
+        this.password = password;
     }
 }
