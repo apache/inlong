@@ -52,7 +52,7 @@ public enum SimpleGroupStatus {
                 return FAILED;
             case CONFIG_SUCCESSFUL:
                 return STARTED;
-            case CONFIGURATION_OFFLINE:
+            case CONFIG_OFFLINE_SUCCESSFUL:
                 return STOPPED;
             case FINISH:
                 return FINISHED;
@@ -101,7 +101,7 @@ public enum SimpleGroupStatus {
                 statusList.add(GroupStatus.CONFIG_SUCCESSFUL.getCode());
                 return statusList;
             case STOPPED:
-                statusList.add(GroupStatus.CONFIGURATION_OFFLINE.getCode());
+                statusList.add(GroupStatus.CONFIG_OFFLINE_SUCCESSFUL.getCode());
                 return statusList;
             case FINISHED:
                 statusList.add(GroupStatus.FINISH.getCode());

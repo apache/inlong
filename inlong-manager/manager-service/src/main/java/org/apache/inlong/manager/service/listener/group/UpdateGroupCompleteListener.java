@@ -77,8 +77,8 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
         }
         switch (operateType) {
             case SUSPEND:
-                streamService.updateStatus(groupId, null, StreamStatus.CONFIG_OFFLINE.getCode(), operator);
-                groupService.updateStatus(groupId, GroupStatus.CONFIGURATION_OFFLINE.getCode(), operator);
+                streamService.updateStatus(groupId, null, StreamStatus.CONFIG_OFFLINE_SUCCESSFUL.getCode(), operator);
+                groupService.updateStatus(groupId, GroupStatus.CONFIG_OFFLINE_SUCCESSFUL.getCode(), operator);
                 groupService.update(groupRequest, operator);
                 break;
             case RESTART:

@@ -134,7 +134,7 @@ public class InlongStreamProcessService {
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
         Preconditions.expectNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
         StreamStatus status = StreamStatus.forCode(streamInfo.getStatus());
-        if (status == StreamStatus.CONFIG_OFFLINE || status == StreamStatus.CONFIG_OFFLINE_ING) {
+        if (status == StreamStatus.CONFIG_OFFLINE_SUCCESSFUL || status == StreamStatus.CONFIG_OFFLINE_ING) {
             log.warn("groupId={}, streamId={} is already in {}", groupId, streamId, status);
             return true;
         }
@@ -181,7 +181,7 @@ public class InlongStreamProcessService {
             return true;
         }
 
-        if (status != StreamStatus.CONFIG_OFFLINE) {
+        if (status != StreamStatus.CONFIG_OFFLINE_SUCCESSFUL) {
             throw new BusinessException(String.format("stream status=%s not support restart stream"
                     + " for groupId=%s streamId=%s", status, groupId, streamId));
         }

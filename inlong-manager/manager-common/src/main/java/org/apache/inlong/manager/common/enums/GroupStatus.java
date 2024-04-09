@@ -41,13 +41,13 @@ public enum GroupStatus {
     CONFIG_FAILED(120, "configuration failed"),
     CONFIG_SUCCESSFUL(130, "configuration successful"),
 
-    CONFIG_OFFLINE_ING(141, "in configure offline"),
-    CONFIGURATION_OFFLINE(140, "configure offline successful"),
+    CONFIG_OFFLINE_ING(141, "configuration is going offline"),
+    CONFIG_OFFLINE_SUCCESSFUL(140, "configuration offline successful"),
 
-    CONFIG_ONLINE_ING(151, "in configure online"),
+    CONFIG_ONLINE_ING(151, "configuration is going online"),
 
-    CONFIG_DELETING(41, "configure deleting"),
-    CONFIG_DELETED(40, "configure deleted"),
+    CONFIG_DELETING(41, "configuration deleting"),
+    CONFIG_DELETED(40, "configuration deleted"),
 
     // FINISH is used for batch task.
     FINISH(131, "finish");
@@ -71,8 +71,9 @@ public enum GroupStatus {
                 Sets.newHashSet(CONFIG_SUCCESSFUL, TO_BE_APPROVAL, CONFIG_ING, CONFIG_OFFLINE_ING, CONFIG_DELETING));
 
         GROUP_STATE_AUTOMATON.put(
-                CONFIG_OFFLINE_ING, Sets.newHashSet(CONFIG_OFFLINE_ING, CONFIGURATION_OFFLINE, CONFIG_FAILED));
-        GROUP_STATE_AUTOMATON.put(CONFIGURATION_OFFLINE, Sets.newHashSet(CONFIGURATION_OFFLINE, CONFIG_ONLINE_ING,
+                CONFIG_OFFLINE_ING, Sets.newHashSet(CONFIG_OFFLINE_ING, CONFIG_OFFLINE_SUCCESSFUL, CONFIG_FAILED));
+        GROUP_STATE_AUTOMATON.put(
+                CONFIG_OFFLINE_SUCCESSFUL, Sets.newHashSet(CONFIG_OFFLINE_SUCCESSFUL, CONFIG_ONLINE_ING,
                 CONFIG_DELETING));
 
         GROUP_STATE_AUTOMATON.put(CONFIG_ONLINE_ING,
@@ -143,7 +144,7 @@ public enum GroupStatus {
         return status == GroupStatus.APPROVE_PASSED
                 || status == GroupStatus.CONFIG_FAILED
                 || status == GroupStatus.CONFIG_SUCCESSFUL
-                || status == GroupStatus.CONFIGURATION_OFFLINE
+                || status == GroupStatus.CONFIG_OFFLINE_SUCCESSFUL
                 || status == GroupStatus.FINISH;
     }
 
@@ -163,7 +164,7 @@ public enum GroupStatus {
      */
     public static boolean allowedSuspend(GroupStatus status) {
         return status == GroupStatus.CONFIG_SUCCESSFUL
-                || status == GroupStatus.CONFIGURATION_OFFLINE
+                || status == GroupStatus.CONFIG_OFFLINE_SUCCESSFUL
                 || status == GroupStatus.FINISH;
     }
 
