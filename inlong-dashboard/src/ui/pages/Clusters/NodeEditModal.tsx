@@ -42,6 +42,11 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
     {
       manual: true,
       onSuccess: result => {
+        if (type === 'AGENT') {
+          // Only keep the first element and give the rest to the 'installer'
+          result.installer = result?.moduleIdList.slice(1);
+          result.moduleIdList = result?.moduleIdList.slice(0, 1);
+        }
         form.setFieldsValue(result);
       },
     },
@@ -58,6 +63,14 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
     if (isUpdate) {
       submitData.id = id;
       submitData.version = savedData?.version;
+    }
+    if (type === 'AGENT') {
+      if (submitData.installer !== undefined) {
+        submitData.moduleIdList = submitData.moduleIdList.concat(submitData.installer);
+      }
+      if (isUpdate === undefined) {
+        submitData.isInstall = true;
+      }
     }
     await request({
       url: `/cluster/node/${isUpdate ? 'update' : 'save'}`,
