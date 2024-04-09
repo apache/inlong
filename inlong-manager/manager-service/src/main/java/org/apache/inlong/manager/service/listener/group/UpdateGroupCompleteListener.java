@@ -22,18 +22,24 @@ import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.common.enums.SourceStatus;
+import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * The listener of InlongGroup when update operates successfully.
@@ -46,6 +52,8 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
     private InlongGroupService groupService;
     @Autowired
     private StreamSourceService sourceService;
+    @Autowired
+    private InlongStreamService streamService;
 
     @Override
     public ProcessEvent event() {
@@ -63,12 +71,18 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
         InlongGroupInfo groupInfo = form.getGroupInfo();
         InlongGroupRequest groupRequest = groupInfo.genRequest();
         String operator = context.getOperator();
+        List<InlongStreamInfo> streamInfos = form.getStreamInfos();
+        if (CollectionUtils.isNotEmpty(streamInfos)) {
+            streamInfos.forEach(streamInfo -> streamService.updateWithoutCheck(streamInfo.genRequest(), operator));
+        }
         switch (operateType) {
             case SUSPEND:
+                streamService.updateStatus(groupId, null, StreamStatus.CONFIGURATION_OFFLINE.getCode(), operator);
                 groupService.updateStatus(groupId, GroupStatus.CONFIGURATION_OFFLINE.getCode(), operator);
                 groupService.update(groupRequest, operator);
                 break;
             case RESTART:
+                streamService.updateStatus(groupId, null, StreamStatus.CONFIG_SUCCESSFUL.getCode(), operator);
                 groupService.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), operator);
                 groupService.update(groupRequest, operator);
                 break;

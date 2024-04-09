@@ -54,10 +54,10 @@ public class UpdateStreamListener implements ProcessEventListener {
         final String streamId = streamInfo.getInlongStreamId();
         switch (operateType) {
             case SUSPEND:
-                streamService.updateStatus(groupId, streamId, StreamStatus.SUSPENDING.getCode(), operator);
+                streamService.updateStatus(groupId, streamId, StreamStatus.CONFIG_OFFLINE_ING.getCode(), operator);
                 break;
             case RESTART:
-                streamService.updateStatus(groupId, streamId, StreamStatus.RESTARTING.getCode(), operator);
+                streamService.updateStatus(groupId, streamId, StreamStatus.CONFIG_ONLINE_ING.getCode(), operator);
                 break;
             case DELETE:
                 streamService.updateStatus(groupId, streamId, StreamStatus.DELETING.getCode(), operator);
