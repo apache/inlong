@@ -44,7 +44,7 @@ public class PulsarDataNodeInfo extends DataNodeInfo {
     @ApiModelProperty("Pulsar admin url")
     private String adminUrl;
 
-    @ApiModelProperty("Produce pulsar cluster use compression type")
+    @ApiModelProperty("The compression format used for pulsar producer")
     private String compressionType;
 
     public PulsarDataNodeInfo() {
