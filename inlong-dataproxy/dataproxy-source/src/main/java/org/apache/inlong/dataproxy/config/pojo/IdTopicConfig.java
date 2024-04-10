@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.config.pojo;
 
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.sdk.commons.protocol.InlongId;
 
 import org.apache.commons.lang.StringUtils;
@@ -37,7 +38,7 @@ public class IdTopicConfig {
     private String topicName;
     private String tenant;
     private String nameSpace;
-    private DataType dataType = DataType.TEXT;
+    private DataTypeEnum dataType = DataTypeEnum.TEXT;
     private String fieldDelimiter = "|";
     private String fileDelimiter = "\n";
     private Boolean useExtendedFields = false;
@@ -142,7 +143,7 @@ public class IdTopicConfig {
      * get dataType
      * @return the dataType
      */
-    public DataType getDataType() {
+    public DataTypeEnum getDataType() {
         return dataType;
     }
 
@@ -150,7 +151,7 @@ public class IdTopicConfig {
      * set dataType
      * @param dataType the dataType to set
      */
-    public void setDataType(DataType dataType) {
+    public void setDataType(DataTypeEnum dataType) {
         this.dataType = dataType;
     }
 

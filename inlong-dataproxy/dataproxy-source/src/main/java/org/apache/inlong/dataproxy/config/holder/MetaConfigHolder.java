@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.config.holder;
 
 import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.common.pojo.dataproxy.CacheClusterObject;
 import org.apache.inlong.common.pojo.dataproxy.CacheClusterSetObject;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
@@ -29,7 +30,6 @@ import org.apache.inlong.dataproxy.config.ConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.CacheType;
-import org.apache.inlong.dataproxy.config.pojo.DataType;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.sdk.commons.protocol.InlongId;
@@ -407,8 +407,8 @@ public class MetaConfigHolder extends ConfigHolder {
             tmpConfig.setTenantAndNameSpace(tenant, nameSpace);
             tmpConfig.setTopicName(topicName);
             tmpConfig.setParams(idObject.getParams());
-            tmpConfig.setDataType(DataType.convert(
-                    idObject.getParams().getOrDefault("dataType", DataType.TEXT.value())));
+            tmpConfig.setDataType(DataTypeEnum.convert(
+                    idObject.getParams().getOrDefault("dataType", DataTypeEnum.TEXT.getType())));
             tmpConfig.setFieldDelimiter(idObject.getParams().getOrDefault("fieldDelimiter", "|"));
             tmpConfig.setFileDelimiter(idObject.getParams().getOrDefault("fileDelimiter", "\n"));
             tmpConfig.setUseExtendedFields(Boolean.valueOf(

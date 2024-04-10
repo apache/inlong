@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sort.standalone.sink.kafka;
 
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
-import org.apache.inlong.sort.standalone.config.pojo.type.DataType;
 import org.apache.inlong.sort.standalone.utils.Constants;
 
 import java.util.Map;
@@ -38,7 +38,7 @@ public class KafkaIdConfig {
     private String uid;
     private String separator = "|";
     private String topic;
-    private DataType dataType = DataType.TEXT;
+    private DataTypeEnum dataType = DataTypeEnum.TEXT;
 
     /**
      * Constructor
@@ -58,8 +58,8 @@ public class KafkaIdConfig {
         this.uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
         this.separator = idParam.getOrDefault(KafkaIdConfig.KEY_SEPARATOR, KafkaIdConfig.DEFAULT_SEPARATOR);
         this.topic = idParam.getOrDefault(Constants.TOPIC, uid);
-        this.dataType = DataType
-                .convert(idParam.getOrDefault(KafkaIdConfig.KEY_DATA_TYPE, DataType.TEXT.value()));
+        this.dataType = DataTypeEnum
+                .convert(idParam.getOrDefault(KafkaIdConfig.KEY_DATA_TYPE, DataTypeEnum.TEXT.getType()));
     }
 
     /**
@@ -157,7 +157,7 @@ public class KafkaIdConfig {
      * 
      * @return the dataType
      */
-    public DataType getDataType() {
+    public DataTypeEnum getDataType() {
         return dataType;
     }
 
@@ -166,7 +166,7 @@ public class KafkaIdConfig {
      * 
      * @param dataType the dataType to set
      */
-    public void setDataType(DataType dataType) {
+    public void setDataType(DataTypeEnum dataType) {
         this.dataType = dataType;
     }
 
