@@ -117,7 +117,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
             setQuery({
               ...allValues,
               startDate: +allValues.startDate.$d,
-              endDate: +allValues.startDate.$d,
+              endDate: +allValues.endDate.$d,
             })
           }
         />
