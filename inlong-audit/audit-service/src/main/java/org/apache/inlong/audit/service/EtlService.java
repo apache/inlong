@@ -17,13 +17,20 @@
 
 package org.apache.inlong.audit.service;
 
+import org.apache.inlong.audit.cache.CacheOfHour;
+import org.apache.inlong.audit.cache.CacheOfMinute10;
+import org.apache.inlong.audit.cache.CacheOfMinute30;
 import org.apache.inlong.audit.channel.DataQueue;
 import org.apache.inlong.audit.config.Configuration;
 import org.apache.inlong.audit.entities.AuditCycle;
 import org.apache.inlong.audit.entities.SinkConfig;
 import org.apache.inlong.audit.entities.SourceConfig;
+import org.apache.inlong.audit.sink.CacheSink;
 import org.apache.inlong.audit.sink.JdbcSink;
 import org.apache.inlong.audit.source.JdbcSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -57,15 +64,25 @@ import static org.apache.inlong.audit.config.SqlConstants.KEY_MYSQL_SOURCE_QUERY
  */
 public class EtlService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(JdbcSource.class);
     private JdbcSource mysqlSourceOfTemp;
+    private JdbcSource mysqlSourceOfCacheMinute10;
+    private JdbcSource mysqlSourceOfCacheMinute30;
+    private JdbcSource mysqlSourceOfCacheHour;
     private JdbcSink mysqlSinkOfDay;
     private JdbcSource clickhouseSource;
     private JdbcSink mysqlSinkOfTemp;
+    private CacheSink cacheSinkOfMinute10;
+    private CacheSink cacheSinkOfMinute30;
+    private CacheSink cacheSinkOfHour;
     private final int queueSize;
+    private final int statBackTimes;
 
     public EtlService() {
         queueSize = Configuration.getInstance().get(KEY_DATA_QUEUE_SIZE,
                 DEFAULT_DATA_QUEUE_SIZE);
+        statBackTimes = Configuration.getInstance().get(KEY_REALTIME_SUMMARY_STAT_BACK_TIMES,
+                DEFAULT_REALTIME_SUMMARY_STAT_BACK_TIMES);
     }
 
     /**
@@ -74,6 +91,9 @@ public class EtlService {
     public void start() {
         clickhouseToMysql();
         mysqlToMysqlOfDay();
+        mysqlToCacheOfMinute10();
+        mysqlToCacheOfMinute30();
+        mysqlToCacheOfHour();
     }
 
     /**
@@ -83,13 +103,53 @@ public class EtlService {
     private void mysqlToMysqlOfDay() {
         DataQueue dataQueue = new DataQueue(queueSize);
 
-        mysqlSourceOfTemp = new JdbcSource(dataQueue, buildMysqlSourceConfig());
+        mysqlSourceOfTemp = new JdbcSource(dataQueue, buildMysqlSourceConfig(AuditCycle.DAY,
+                Configuration.getInstance().get(KEY_DAILY_SUMMARY_STAT_BACK_TIMES,
+                        DEFAULT_DAILY_SUMMARY_STAT_BACK_TIMES)));
         mysqlSourceOfTemp.start();
 
         SinkConfig sinkConfig = buildMysqlSinkConfig(Configuration.getInstance().get(KEY_MYSQL_SINK_INSERT_DAY_SQL,
                 DEFAULT_MYSQL_SINK_INSERT_DAY_SQL));
         mysqlSinkOfDay = new JdbcSink(dataQueue, sinkConfig);
         mysqlSinkOfDay.start();
+    }
+
+    /**
+     * Aggregate data from mysql data source and store in local cache for openapi.
+     */
+    private void mysqlToCacheOfMinute10() {
+        DataQueue dataQueue = new DataQueue(queueSize);
+        mysqlSourceOfCacheMinute10 =
+                new JdbcSource(dataQueue, buildMysqlSourceConfig(AuditCycle.MINUTE_10, statBackTimes));
+        mysqlSourceOfCacheMinute10.start();
+
+        cacheSinkOfMinute10 = new CacheSink(dataQueue, CacheOfMinute10.getInstance().getCache());
+        cacheSinkOfMinute10.start();
+    }
+
+    /**
+     * Aggregate data from mysql data source and store in local cache for openapi.
+     */
+    private void mysqlToCacheOfMinute30() {
+        DataQueue dataQueue = new DataQueue(queueSize);
+        mysqlSourceOfCacheMinute30 =
+                new JdbcSource(dataQueue, buildMysqlSourceConfig(AuditCycle.MINUTE_30, statBackTimes));
+        mysqlSourceOfCacheMinute30.start();
+
+        cacheSinkOfMinute30 = new CacheSink(dataQueue, CacheOfMinute30.getInstance().getCache());
+        cacheSinkOfMinute30.start();
+    }
+
+    /**
+     * Aggregate data from mysql data source and store in local cache for openapi.
+     */
+    private void mysqlToCacheOfHour() {
+        DataQueue dataQueue = new DataQueue(queueSize);
+        mysqlSourceOfCacheHour = new JdbcSource(dataQueue, buildMysqlSourceConfig(AuditCycle.HOUR, statBackTimes));
+        mysqlSourceOfCacheHour.start();
+
+        cacheSinkOfHour = new CacheSink(dataQueue, CacheOfHour.getInstance().getCache());
+        cacheSinkOfHour.start();
     }
 
     /**
@@ -137,7 +197,7 @@ public class EtlService {
      *
      * @return
      */
-    private SourceConfig buildMysqlSourceConfig() {
+    private SourceConfig buildMysqlSourceConfig(AuditCycle auditCycle, int statBackTimes) {
         String driver = Configuration.getInstance().get(KEY_MYSQL_DRIVER, KEY_DEFAULT_MYSQL_DRIVER);
         String jdbcUrl = Configuration.getInstance().get(KEY_MYSQL_JDBC_URL);
         String userName = Configuration.getInstance().get(KEY_MYSQL_USERNAME);
@@ -146,11 +206,10 @@ public class EtlService {
                 && Objects.nonNull(jdbcUrl)
                 && Objects.nonNull(userName));
 
-        return new SourceConfig(AuditCycle.DAY,
+        return new SourceConfig(auditCycle,
                 Configuration.getInstance().get(KEY_MYSQL_SOURCE_QUERY_TEMP_SQL,
                         DEFAULT_MYSQL_SOURCE_QUERY_TEMP_SQL),
-                Configuration.getInstance().get(KEY_DAILY_SUMMARY_STAT_BACK_TIMES,
-                        DEFAULT_DAILY_SUMMARY_STAT_BACK_TIMES),
+                statBackTimes,
                 driver,
                 jdbcUrl,
                 userName,
@@ -192,5 +251,13 @@ public class EtlService {
 
         clickhouseSource.destroy();
         mysqlSinkOfTemp.destroy();
+
+        mysqlSourceOfCacheMinute10.destroy();
+        mysqlSourceOfCacheMinute30.destroy();
+        mysqlSourceOfCacheHour.destroy();
+
+        cacheSinkOfMinute10.destroy();
+        cacheSinkOfMinute30.destroy();
+        cacheSinkOfHour.destroy();
     }
 }
