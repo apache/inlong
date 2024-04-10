@@ -476,13 +476,13 @@ public class LogFileSource extends AbstractSource {
             } catch (IOException e) {
                 LOGGER.error("readFromPos error: ", e);
             }
-            MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
             if (lines.isEmpty()) {
                 if (queue.isEmpty()) {
                     emptyCount++;
                 } else {
                     emptyCount = 0;
                 }
+                MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
                 AgentUtils.silenceSleepInSeconds(1);
                 continue;
             }
@@ -494,6 +494,7 @@ public class LogFileSource extends AbstractSource {
                 }
                 putIntoQueue(lines.get(i));
             }
+            MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_READ_LINE_TOTAL_LEN);
             if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_INTERVAL_MS) {
                 lastPrintTime = AgentUtils.getCurrentTime();
                 LOGGER.info("path is {}, linePosition {}, bytePosition is {} file len {}, reads lines size {}",

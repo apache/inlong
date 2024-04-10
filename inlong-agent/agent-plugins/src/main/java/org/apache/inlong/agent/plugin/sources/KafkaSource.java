@@ -94,7 +94,7 @@ public class KafkaSource extends AbstractSource {
             1L, TimeUnit.SECONDS,
             new SynchronousQueue<>(),
             new AgentThreadFactory("kafka-source"));
-    private BlockingQueue<KafkaSource.SourceData> queue;
+    private BlockingQueue<SourceData> queue;
     public InstanceProfile profile;
     private int maxPackSize;
     private String taskId;
@@ -213,13 +213,13 @@ public class KafkaSource extends AbstractSource {
                 break;
             }
             ConsumerRecords<String, byte[]> records = kafkaConsumer.poll(Duration.ofMillis(1000));
-            MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_TOTAL_LEN);
             if (records.isEmpty()) {
                 if (queue.isEmpty()) {
                     emptyCount.incrementAndGet();
                 } else {
                     emptyCount.set(0);
                 }
+                MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_TOTAL_LEN);
                 AgentUtils.silenceSleepInSeconds(1);
                 continue;
             }
@@ -234,6 +234,7 @@ public class KafkaSource extends AbstractSource {
                 putIntoQueue(sourceData);
                 offset = record.offset();
             }
+            MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_TOTAL_LEN);
             kafkaConsumer.commitSync();
 
             if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_INTERVAL_MS) {
@@ -298,7 +299,7 @@ public class KafkaSource extends AbstractSource {
 
     @Override
     public Message read() {
-        KafkaSource.SourceData sourceData = null;
+        SourceData sourceData = null;
         try {
             sourceData = queue.poll(READ_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
