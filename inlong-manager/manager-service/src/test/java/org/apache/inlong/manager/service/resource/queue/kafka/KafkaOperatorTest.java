@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.resource.queue.kafka;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -95,6 +96,7 @@ public class KafkaOperatorTest extends ServiceBaseTest {
     public void setUp() {
         streamInfo.setDataEncoding("UTF-8");
         streamInfo.setDataType(DataTypeEnum.CSV.getType());
+        streamInfo.setWrapType(MessageWrapType.INLONG_MSG_V0.getName());
 
         List<TopicPartition> topicPartitions = IntStream.range(0, PARTITION_NUM)
                 .mapToObj(i -> new TopicPartition(TOPIC_NAME, i)).collect(Collectors.toList());
