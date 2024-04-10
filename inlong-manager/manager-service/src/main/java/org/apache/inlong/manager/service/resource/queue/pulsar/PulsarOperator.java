@@ -48,6 +48,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -453,6 +454,9 @@ public class PulsarOperator {
                             messagePosition);
             PulsarMessageInfo messageInfo = PulsarUtils.getMessageFromHttpResponse(httpResponse, topicPartition);
             Map<String, String> headers = messageInfo.getProperties();
+            if (headers == null) {
+                headers = new HashMap<>();
+            }
             MessageWrapType messageWrapType = MessageWrapType.forType(streamInfo.getWrapType());
             if (headers.get(InlongConstants.MSG_ENCODE_VER) != null) {
                 messageWrapType =
