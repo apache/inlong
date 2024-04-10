@@ -123,4 +123,12 @@ public class ConfigConstants {
 
     public static final int MAX_INIT_COUNT = 2;
     public static final int RANDOM_BOUND = 10;
+
+    // Cache config
+    public static final String KEY_API_CACHE_MAX_SIZE = "api.cache.max.size";
+    public static final int DEFAULT_API_CACHE_MAX_SIZE = 50000000;
+
+    public static final String KEY_API_CACHE_EXPIRED_HOURS = "api.cache.expired.hours";
+    public static final int DEFAULT_API_CACHE_EXPIRED_HOURS = 12;
+
 }

@@ -77,6 +77,11 @@ public class SqlConstants {
                     "AND audit_id = ? \n" +
                     "GROUP BY inlong_group_id, inlong_stream_id, audit_id, audit_tag";
 
+    public static final String KEY_MYSQL_SOURCE_QUERY_DAY_SQL = "mysql.query.day.sql";
+    public static final String DEFAULT_MYSQL_SOURCE_QUERY_DAY_SQL =
+            "select log_ts,inlong_group_id,inlong_stream_id,audit_id,audit_tag,count,size,delay " +
+                    "from audit_data_day where log_ts between ? and ? and inlong_group_id=? and inlong_stream_id=? and audit_id =? ";
+
     // Mysql insert sql
     public static final String KEY_MYSQL_SINK_INSERT_DAY_SQL = "mysql.sink.insert.day.sql";
     public static final String DEFAULT_MYSQL_SINK_INSERT_DAY_SQL =

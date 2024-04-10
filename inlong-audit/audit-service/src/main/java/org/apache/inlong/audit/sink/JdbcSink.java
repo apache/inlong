@@ -102,7 +102,7 @@ public class JdbcSink implements AutoCloseable {
                 createDataSource();
             }
             int counter = 0;
-            StatData data = dataQueue.pull(pullTimeOut, TimeUnit.MICROSECONDS);
+            StatData data = dataQueue.pull(pullTimeOut, TimeUnit.MILLISECONDS);
             while (data != null) {
                 preparedStatement.setString(1, data.getLogTs());
                 preparedStatement.setString(2, data.getInlongGroupId());
@@ -119,7 +119,7 @@ public class JdbcSink implements AutoCloseable {
                     preparedStatement.clearBatch();
                     counter = 0;
                 }
-                data = dataQueue.pull(pullTimeOut, TimeUnit.MICROSECONDS);
+                data = dataQueue.pull(pullTimeOut, TimeUnit.MILLISECONDS);
             }
             if (counter > 0) {
                 preparedStatement.executeBatch();
