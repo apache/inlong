@@ -356,33 +356,34 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     @Override
     public synchronized void flush() throws IOException {
         checkFlushException();
-
-        for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
-            try {
-                attemptFlush();
-                batchCount = 0;
-                break;
-            } catch (SQLException e) {
-                LOG.error("JDBC executeBatch error, retry times = {}", i, e);
-                if (i >= executionOptions.getMaxRetries()) {
-                    throw new IOException(e);
-                }
+        if (batchCount > 0) {
+            for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
                 try {
-                    if (!connectionProvider.isConnectionValid()) {
-                        updateExecutor(true);
+                    attemptFlush();
+                    batchCount = 0;
+                    break;
+                } catch (SQLException e) {
+                    LOG.error("JDBC executeBatch error, retry times = {}", i, e);
+                    if (i >= executionOptions.getMaxRetries()) {
+                        throw new IOException(e);
                     }
-                } catch (Exception exception) {
-                    LOG.error(
-                            "JDBC connection is not valid, and reestablish connection failed.",
-                            exception);
-                    throw new IOException("Reestablish JDBC connection failed", exception);
-                }
-                try {
-                    Thread.sleep(1000 * i);
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                    throw new IOException(
-                            "unable to flush; interrupted while doing another attempt", e);
+                    try {
+                        if (!connectionProvider.isConnectionValid()) {
+                            updateExecutor(true);
+                        }
+                    } catch (Exception exception) {
+                        LOG.error(
+                                "JDBC connection is not valid, and reestablish connection failed.",
+                                exception);
+                        throw new IOException("Reestablish JDBC connection failed", exception);
+                    }
+                    try {
+                        Thread.sleep(1000 * i);
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                        throw new IOException(
+                                "unable to flush; interrupted while doing another attempt", e);
+                    }
                 }
             }
         }
