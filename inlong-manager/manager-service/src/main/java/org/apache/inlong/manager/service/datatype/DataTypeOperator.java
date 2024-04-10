@@ -15,56 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.config.pojo;
+package org.apache.inlong.manager.service.datatype;
+
+import org.apache.inlong.common.enums.DataTypeEnum;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.StreamField;
+
+import java.util.List;
 
 /**
- * data content type
+ * Data type operator
  */
-public enum DataType {
-
-    TEXT("text"), PB("pb"), JCE("jce"), N("n"), CSV("csv"), KV("kv");
-
-    private final String value;
+public interface DataTypeOperator {
 
     /**
-     * 
-     * Constructor
-     * 
-     * @param value
+     * Determines whether the current instance matches the specified type.
      */
-    private DataType(String value) {
-        this.value = value;
-    }
+    boolean accept(DataTypeEnum type);
 
     /**
-     * value
+     * Parse fields from message
      *
-     * @return
+     * @param streamInfo inlong stream info
+     * @return list of field info
      */
-    public String value() {
-        return this.value;
+    default List<StreamField> parseFields(String message, InlongStreamInfo streamInfo) throws Exception {
+        return streamInfo.getFieldList();
     }
 
-    /**
-     * toString
-     */
-    @Override
-    public String toString() {
-        return this.name() + ":" + this.value;
-    }
-
-    /**
-     * convert
-     *
-     * @param  value
-     * @return
-     */
-    public static DataType convert(String value) {
-        for (DataType v : values()) {
-            if (v.value().equals(value)) {
-                return v;
-            }
-        }
-        return N;
-    }
 }

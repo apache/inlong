@@ -17,12 +17,17 @@
 
 package org.apache.inlong.manager.pojo.consume;
 
+import org.apache.inlong.manager.pojo.stream.StreamField;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Brief Message info for MQ
@@ -49,7 +54,13 @@ public class BriefMQMessage {
     @ApiModelProperty(value = "Client ip")
     private String clientIp;
 
+    @ApiModelProperty(value = "Message header")
+    private Map<String, String> headers;
+
     @ApiModelProperty(value = "Message body")
     private String body;
+
+    @ApiModelProperty(value = "List of field info")
+    private List<StreamField> fieldList;
 
 }
