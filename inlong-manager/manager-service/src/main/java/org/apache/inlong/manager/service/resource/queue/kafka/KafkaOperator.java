@@ -156,10 +156,12 @@ public class KafkaOperator {
                     headers.put(header.key(), new String(header.value(), StandardCharsets.UTF_8));
                 }
 
-                int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
-                        Integer.toString(MessageWrapType.INLONG_MSG_V0.getId())));
-                DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
-                        MessageWrapType.valueOf(wrapTypeId));
+                MessageWrapType messageWrapType = MessageWrapType.forType(streamInfo.getWrapType());
+                if (headers.get(InlongConstants.MSG_ENCODE_VER) != null) {
+                    messageWrapType =
+                            MessageWrapType.valueOf(Integer.parseInt(headers.get(InlongConstants.MSG_ENCODE_VER)));
+                }
+                DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(messageWrapType);
                 messageList.addAll(deserializeOperator.decodeMsg(streamInfo, record.value(), headers, index));
                 if (messageList.size() >= messageCount) {
                     break;
