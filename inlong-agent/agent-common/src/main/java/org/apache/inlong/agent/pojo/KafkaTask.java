@@ -20,7 +20,7 @@ package org.apache.inlong.agent.pojo;
 import lombok.Data;
 
 @Data
-public class KafkaJob {
+public class KafkaTask {
 
     private String topic;
     private String bootstrapServers;
@@ -63,7 +63,7 @@ public class KafkaJob {
     }
 
     @Data
-    public static class KafkaJobTaskConfig {
+    public static class KafkaTaskConfig {
 
         private String topic;
         private String bootstrapServers;

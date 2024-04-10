@@ -17,16 +17,15 @@
 
 package org.apache.inlong.agent.conf;
 
+import com.google.common.collect.ComparisonChain;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.utils.file.FileUtils;
 import org.apache.inlong.common.enums.InstanceStateEnum;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
-
-import com.google.common.collect.ComparisonChain;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +36,8 @@ import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INL
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.TaskConstants.INSTANCE_STATE;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MQ_ClUSTERS;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MQ_TOPIC;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MQ_CLUSTERS;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MQ_TOPIC;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_RETRY;
 
 /**
@@ -127,7 +126,7 @@ public class InstanceProfile extends AbstractConfiguration implements Comparable
      */
     public List<MQClusterInfo> getMqClusters() {
         List<MQClusterInfo> result = null;
-        String mqClusterStr = get(JOB_MQ_ClUSTERS);
+        String mqClusterStr = get(TASK_MQ_CLUSTERS);
         if (StringUtils.isNotBlank(mqClusterStr)) {
             result = GSON.fromJson(mqClusterStr, new TypeToken<List<MQClusterInfo>>() {
             }.getType());
@@ -140,7 +139,7 @@ public class InstanceProfile extends AbstractConfiguration implements Comparable
      */
     public DataProxyTopicInfo getMqTopic() {
         DataProxyTopicInfo result = null;
-        String topicStr = get(JOB_MQ_TOPIC);
+        String topicStr = get(TASK_MQ_TOPIC);
         if (StringUtils.isNotBlank(topicStr)) {
             result = GSON.fromJson(topicStr, DataProxyTopicInfo.class);
         }

@@ -20,7 +20,7 @@ package org.apache.inlong.agent.pojo;
 import lombok.Data;
 
 @Data
-public class OracleJob {
+public class OracleTask {
 
     private String hostname;
     private String user;
@@ -29,9 +29,9 @@ public class OracleJob {
     private String serverName;
     private String dbname;
 
-    private OracleJob.Snapshot snapshot;
-    private OracleJob.Offset offset;
-    private OracleJob.History history;
+    private OracleTask.Snapshot snapshot;
+    private OracleTask.Offset offset;
+    private OracleTask.History history;
 
     @Data
     public static class Offset {
@@ -55,7 +55,7 @@ public class OracleJob {
     }
 
     @Data
-    public static class OracleJobConfig {
+    public static class OracleTaskConfig {
 
         private String hostname;
         private String user;

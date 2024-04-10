@@ -37,8 +37,8 @@ import static org.apache.inlong.agent.constant.KubernetesConstants.CONTAINER_ID;
 import static org.apache.inlong.agent.constant.KubernetesConstants.CONTAINER_NAME;
 import static org.apache.inlong.agent.constant.KubernetesConstants.NAMESPACE;
 import static org.apache.inlong.agent.constant.KubernetesConstants.POD_NAME;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_FILE_META_FILTER_BY_LABELS;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_FILE_PROPERTIES;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_FILE_META_FILTER_BY_LABELS;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_FILE_PROPERTIES;
 
 /**
  * Metadata utils
@@ -90,20 +90,20 @@ public class MetaDataUtils {
      * get labels of pod
      */
     public static Map<String, String> getPodLabels(AbstractConfiguration taskProfile) {
-        if (Objects.isNull(taskProfile) || !taskProfile.hasKey(JOB_FILE_META_FILTER_BY_LABELS)) {
+        if (Objects.isNull(taskProfile) || !taskProfile.hasKey(TASK_FILE_META_FILTER_BY_LABELS)) {
             return new HashMap<>();
         }
-        String labels = taskProfile.get(JOB_FILE_META_FILTER_BY_LABELS);
+        String labels = taskProfile.get(TASK_FILE_META_FILTER_BY_LABELS);
         Type type = new TypeToken<HashMap<String, String>>() {
         }.getType();
         return GSON.fromJson(labels, type);
     }
 
     public static List<String> getNamespace(AbstractConfiguration taskProfile) {
-        if (Objects.isNull(taskProfile) || !taskProfile.hasKey(JOB_FILE_PROPERTIES)) {
+        if (Objects.isNull(taskProfile) || !taskProfile.hasKey(TASK_FILE_PROPERTIES)) {
             return null;
         }
-        String property = taskProfile.get(JOB_FILE_PROPERTIES);
+        String property = taskProfile.get(TASK_FILE_PROPERTIES);
         Type type = new TypeToken<HashMap<Integer, String>>() {
         }.getType();
         Map<String, String> properties = GSON.fromJson(property, type);
@@ -121,10 +121,10 @@ public class MetaDataUtils {
      * get name of pod
      */
     public static String getPodName(AbstractConfiguration taskProfile) {
-        if (Objects.isNull(taskProfile) || !taskProfile.hasKey(JOB_FILE_PROPERTIES)) {
+        if (Objects.isNull(taskProfile) || !taskProfile.hasKey(TASK_FILE_PROPERTIES)) {
             return null;
         }
-        String property = taskProfile.get(JOB_FILE_PROPERTIES);
+        String property = taskProfile.get(TASK_FILE_PROPERTIES);
         Type type = new TypeToken<HashMap<Integer, String>>() {
         }.getType();
         Map<String, String> properties = GSON.fromJson(property, type);

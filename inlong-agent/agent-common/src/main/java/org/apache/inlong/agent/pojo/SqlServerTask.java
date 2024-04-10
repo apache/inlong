@@ -20,22 +20,18 @@ package org.apache.inlong.agent.pojo;
 import lombok.Data;
 
 @Data
-public class BinlogJob {
+public class SqlServerTask {
 
+    private String hostname;
     private String user;
     private String password;
-    private String hostname;
-    private String tableWhiteList;
-    private String databaseWhiteList;
-    private String ddl;
     private String port;
-    private String schema;
-    private String serverTimezone;
-    private String offsets;
+    private String serverName;
+    private String dbname;
 
-    private Snapshot snapshot;
-    private Offset offset;
-    private History history;
+    private SqlServerTask.Snapshot snapshot;
+    private SqlServerTask.Offset offset;
+    private SqlServerTask.History history;
 
     @Data
     public static class Offset {
@@ -56,26 +52,23 @@ public class BinlogJob {
     public static class History {
 
         private String filename;
-
     }
 
     @Data
-    public static class BinlogJobTaskConfig {
+    public static class SqlserverTaskConfig {
 
-        private String user;
-        private String password;
         private String hostname;
+        private String username;
+        private String password;
         private String port;
-        private String includeSchema;
+        private String database;
+        private String schemaName;
 
-        private String databaseWhiteList;
-        private String tableWhiteList;
-        private String serverTimezone;
+        private String snapshotMode;
         private String intervalMs;
         private String offsetFilename;
         private String historyFilename;
-        private String snapshotMode;
-        private String monitoredDdl;
+
         private String specificOffsetFile;
         private String specificOffsetPos;
     }

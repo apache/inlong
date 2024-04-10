@@ -19,40 +19,28 @@ package org.apache.inlong.agent.pojo;
 
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * PostgreSQL Job info
- */
 @Data
-public class PostgreSQLJob {
+public class RedisTask {
 
-    private String user;
-    private String password;
+    private String authUser;
+    private String authPassword;
     private String hostname;
     private String port;
-    private String dbname;
-    private String schema;
-    private String servername;
-    private String pluginname;
-    private List<String> tableNameList;
-    private String serverTimeZone;
-    private String scanStartupMode;
-    private String primaryKey;
+    private Boolean ssl;
+    private String readTimeout;
+    private String queueSize;
+    private String replId;
 
     @Data
-    public static class PostgreSQLJobConfig {
+    public static class RedisTaskConfig {
 
         private String username;
         private String password;
         private String hostname;
         private String port;
-        private String database;
-        private String schema;
-        private String decodingPluginName;
-        private List<String> tableNameList;
-        private String serverTimeZone;
-        private String scanStartupMode;
-        private String primaryKey;
+        private Boolean ssl;
+        private String timeout;
+        private String queueSize;
+        private String replId;
     }
 }

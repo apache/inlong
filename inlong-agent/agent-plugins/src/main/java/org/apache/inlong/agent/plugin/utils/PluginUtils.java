@@ -55,7 +55,7 @@ import static org.apache.inlong.agent.constant.KubernetesConstants.HTTPS;
 import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES_SERVICE_HOST;
 import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES_SERVICE_PORT;
 import static org.apache.inlong.agent.constant.TaskConstants.FILE_DIR_FILTER_PATTERNS;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_RETRY_TIME;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_RETRY_TIME;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_FILE_TIME_OFFSET;
 
 /**
@@ -107,10 +107,10 @@ public class PluginUtils {
      * if the job is retry job, the date is determined
      */
     public static void updateRetryTime(TaskProfile jobConf, Collection<PathPattern> patterns) {
-        if (jobConf.hasKey(JOB_RETRY_TIME)) {
+        if (jobConf.hasKey(TASK_RETRY_TIME)) {
             LOGGER.info("job {} is retry job with specific time, update file time to {}"
-                    + "", jobConf.toJsonStr(), jobConf.get(JOB_RETRY_TIME));
-            patterns.forEach(pattern -> pattern.updateDateFormatRegex(jobConf.get(JOB_RETRY_TIME)));
+                    + "", jobConf.toJsonStr(), jobConf.get(TASK_RETRY_TIME));
+            patterns.forEach(pattern -> pattern.updateDateFormatRegex(jobConf.get(TASK_RETRY_TIME)));
         }
     }
 
@@ -121,7 +121,7 @@ public class PluginUtils {
         TaskProfile copiedProfile = TaskProfile.parseJsonStr(taskProfile.toJsonStr());
         String md5 = AgentUtils.getFileMd5(pendingFile);
         copiedProfile.set(pendingFile.getAbsolutePath() + ".md5", md5);
-        copiedProfile.set(TaskConstants.JOB_FILE_TRIGGER, null); // del trigger id
+        copiedProfile.set(TaskConstants.TASK_FILE_TRIGGER, null); // del trigger id
         copiedProfile.set(TaskConstants.FILE_DIR_FILTER_PATTERNS, pendingFile.getAbsolutePath());
         return copiedProfile;
     }
