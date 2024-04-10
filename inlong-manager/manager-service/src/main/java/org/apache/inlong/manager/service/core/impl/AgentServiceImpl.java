@@ -21,6 +21,7 @@ import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.db.CommandEntity;
 import org.apache.inlong.common.enums.PullJobTypeEnum;
+import org.apache.inlong.common.enums.TaskStateEnum;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.CmdConfig;
 import org.apache.inlong.common.pojo.agent.DataConfig;
@@ -672,7 +673,9 @@ public class AgentServiceImpl implements AgentService {
         String extParams = sourceOperator.getExtParams(entity);
         if (groupEntity != null && streamEntity != null) {
             dataConfig.setState(
-                    SourceStatus.NORMAL_STATUS_SET.contains(SourceStatus.forCode(entity.getStatus())) ? 1 : 0);
+                    SourceStatus.NORMAL_STATUS_SET.contains(SourceStatus.forCode(entity.getStatus()))
+                            ? TaskStateEnum.RUNNING.getType()
+                            : TaskStateEnum.FROZEN.getType());
             dataConfig.setSyncSend(streamEntity.getSyncSend());
             if (SourceType.FILE.equalsIgnoreCase(entity.getSourceType())
                     && StringUtils.isNotBlank(streamEntity.getDataSeparator())) {
