@@ -24,11 +24,8 @@ import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.RocksDbImp;
 import org.apache.inlong.agent.db.TaskProfileDb;
-import org.apache.inlong.agent.utils.AgentUtils;
 
 import java.util.List;
-
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_ID_PREFIX;
 
 public class RocksDBUtils {
 
@@ -48,9 +45,6 @@ public class RocksDBUtils {
                         triggerProfile.get(TaskConstants.TASK_DIR_FILTER_PATTERN));
                 triggerProfile.set(TaskConstants.TASK_DIR_FILTER_PATTERN, null);
             }
-
-            triggerProfile.set(TaskConstants.JOB_INSTANCE_ID,
-                    AgentUtils.getSingleJobId(JOB_ID_PREFIX, triggerProfile.getTaskId()));
 
             triggerProfileDb.storeTask(triggerProfile);
         });

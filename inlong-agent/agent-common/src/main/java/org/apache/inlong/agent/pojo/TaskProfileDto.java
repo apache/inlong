@@ -20,9 +20,17 @@ package org.apache.inlong.agent.pojo;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CycleUnitType;
+import org.apache.inlong.agent.pojo.BinlogTask.BinlogTaskConfig;
 import org.apache.inlong.agent.pojo.FileTask.FileTaskConfig;
 import org.apache.inlong.agent.pojo.FileTask.Line;
+import org.apache.inlong.agent.pojo.KafkaTask.KafkaTaskConfig;
+import org.apache.inlong.agent.pojo.MongoTask.MongoTaskConfig;
+import org.apache.inlong.agent.pojo.MqttTask.MqttConfig;
+import org.apache.inlong.agent.pojo.OracleTask.OracleTaskConfig;
+import org.apache.inlong.agent.pojo.PostgreSQLTask.PostgreSQLTaskConfig;
 import org.apache.inlong.agent.pojo.PulsarTask.PulsarTaskConfig;
+import org.apache.inlong.agent.pojo.RedisTask.RedisTaskConfig;
+import org.apache.inlong.agent.pojo.SqlServerTask.SqlserverTaskConfig;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
@@ -91,44 +99,44 @@ public class TaskProfileDto {
     private Task task;
     private Proxy proxy;
 
-    private static BinlogJob getBinlogJob(DataConfig dataConfigs) {
-        BinlogJob.BinlogJobTaskConfig binlogJobTaskConfig = GSON.fromJson(dataConfigs.getExtParams(),
-                BinlogJob.BinlogJobTaskConfig.class);
+    private static BinlogTask getBinlogTask(DataConfig dataConfigs) {
+        BinlogTaskConfig binlogTaskConfig = GSON.fromJson(dataConfigs.getExtParams(),
+                BinlogTaskConfig.class);
 
-        BinlogJob binlogJob = new BinlogJob();
-        binlogJob.setHostname(binlogJobTaskConfig.getHostname());
-        binlogJob.setPassword(binlogJobTaskConfig.getPassword());
-        binlogJob.setUser(binlogJobTaskConfig.getUser());
-        binlogJob.setTableWhiteList(binlogJobTaskConfig.getTableWhiteList());
-        binlogJob.setDatabaseWhiteList(binlogJobTaskConfig.getDatabaseWhiteList());
-        binlogJob.setSchema(binlogJobTaskConfig.getIncludeSchema());
-        binlogJob.setPort(binlogJobTaskConfig.getPort());
-        binlogJob.setOffsets(dataConfigs.getSnapshot());
-        binlogJob.setDdl(binlogJobTaskConfig.getMonitoredDdl());
-        binlogJob.setServerTimezone(binlogJobTaskConfig.getServerTimezone());
+        BinlogTask binlogTask = new BinlogTask();
+        binlogTask.setHostname(binlogTaskConfig.getHostname());
+        binlogTask.setPassword(binlogTaskConfig.getPassword());
+        binlogTask.setUser(binlogTaskConfig.getUser());
+        binlogTask.setTableWhiteList(binlogTaskConfig.getTableWhiteList());
+        binlogTask.setDatabaseWhiteList(binlogTaskConfig.getDatabaseWhiteList());
+        binlogTask.setSchema(binlogTaskConfig.getIncludeSchema());
+        binlogTask.setPort(binlogTaskConfig.getPort());
+        binlogTask.setOffsets(dataConfigs.getSnapshot());
+        binlogTask.setDdl(binlogTaskConfig.getMonitoredDdl());
+        binlogTask.setServerTimezone(binlogTaskConfig.getServerTimezone());
 
-        BinlogJob.Offset offset = new BinlogJob.Offset();
-        offset.setIntervalMs(binlogJobTaskConfig.getIntervalMs());
-        offset.setFilename(binlogJobTaskConfig.getOffsetFilename());
-        offset.setSpecificOffsetFile(binlogJobTaskConfig.getSpecificOffsetFile());
-        offset.setSpecificOffsetPos(binlogJobTaskConfig.getSpecificOffsetPos());
+        BinlogTask.Offset offset = new BinlogTask.Offset();
+        offset.setIntervalMs(binlogTaskConfig.getIntervalMs());
+        offset.setFilename(binlogTaskConfig.getOffsetFilename());
+        offset.setSpecificOffsetFile(binlogTaskConfig.getSpecificOffsetFile());
+        offset.setSpecificOffsetPos(binlogTaskConfig.getSpecificOffsetPos());
 
-        binlogJob.setOffset(offset);
+        binlogTask.setOffset(offset);
 
-        BinlogJob.Snapshot snapshot = new BinlogJob.Snapshot();
-        snapshot.setMode(binlogJobTaskConfig.getSnapshotMode());
+        BinlogTask.Snapshot snapshot = new BinlogTask.Snapshot();
+        snapshot.setMode(binlogTaskConfig.getSnapshotMode());
 
-        binlogJob.setSnapshot(snapshot);
+        binlogTask.setSnapshot(snapshot);
 
-        BinlogJob.History history = new BinlogJob.History();
-        history.setFilename(binlogJobTaskConfig.getHistoryFilename());
+        BinlogTask.History history = new BinlogTask.History();
+        history.setFilename(binlogTaskConfig.getHistoryFilename());
 
-        binlogJob.setHistory(history);
+        binlogTask.setHistory(history);
 
-        return binlogJob;
+        return binlogTask;
     }
 
-    private static FileTask getFileJob(DataConfig dataConfig) {
+    private static FileTask getFileTask(DataConfig dataConfig) {
         FileTask fileTask = new FileTask();
         fileTask.setId(dataConfig.getTaskId());
 
@@ -185,32 +193,32 @@ public class TaskProfileDto {
         return fileTask;
     }
 
-    private static KafkaJob getKafkaJob(DataConfig dataConfigs) {
+    private static KafkaTask getKafkaTask(DataConfig dataConfigs) {
 
-        KafkaJob.KafkaJobTaskConfig kafkaJobTaskConfig = GSON.fromJson(dataConfigs.getExtParams(),
-                KafkaJob.KafkaJobTaskConfig.class);
-        KafkaJob kafkaJob = new KafkaJob();
+        KafkaTaskConfig kafkaTaskConfig = GSON.fromJson(dataConfigs.getExtParams(),
+                KafkaTaskConfig.class);
+        KafkaTask kafkaTask = new KafkaTask();
 
-        KafkaJob.Bootstrap bootstrap = new KafkaJob.Bootstrap();
-        bootstrap.setServers(kafkaJobTaskConfig.getBootstrapServers());
-        kafkaJob.setBootstrap(bootstrap);
-        KafkaJob.Partition partition = new KafkaJob.Partition();
-        partition.setOffset(kafkaJobTaskConfig.getPartitionOffsets());
-        kafkaJob.setPartition(partition);
-        KafkaJob.Group group = new KafkaJob.Group();
-        group.setId(kafkaJobTaskConfig.getGroupId());
-        kafkaJob.setGroup(group);
-        KafkaJob.RecordSpeed recordSpeed = new KafkaJob.RecordSpeed();
-        recordSpeed.setLimit(kafkaJobTaskConfig.getRecordSpeedLimit());
-        kafkaJob.setRecordSpeed(recordSpeed);
-        KafkaJob.ByteSpeed byteSpeed = new KafkaJob.ByteSpeed();
-        byteSpeed.setLimit(kafkaJobTaskConfig.getByteSpeedLimit());
-        kafkaJob.setByteSpeed(byteSpeed);
-        kafkaJob.setAutoOffsetReset(kafkaJobTaskConfig.getAutoOffsetReset());
+        KafkaTask.Bootstrap bootstrap = new KafkaTask.Bootstrap();
+        bootstrap.setServers(kafkaTaskConfig.getBootstrapServers());
+        kafkaTask.setBootstrap(bootstrap);
+        KafkaTask.Partition partition = new KafkaTask.Partition();
+        partition.setOffset(kafkaTaskConfig.getPartitionOffsets());
+        kafkaTask.setPartition(partition);
+        KafkaTask.Group group = new KafkaTask.Group();
+        group.setId(kafkaTaskConfig.getGroupId());
+        kafkaTask.setGroup(group);
+        KafkaTask.RecordSpeed recordSpeed = new KafkaTask.RecordSpeed();
+        recordSpeed.setLimit(kafkaTaskConfig.getRecordSpeedLimit());
+        kafkaTask.setRecordSpeed(recordSpeed);
+        KafkaTask.ByteSpeed byteSpeed = new KafkaTask.ByteSpeed();
+        byteSpeed.setLimit(kafkaTaskConfig.getByteSpeedLimit());
+        kafkaTask.setByteSpeed(byteSpeed);
+        kafkaTask.setAutoOffsetReset(kafkaTaskConfig.getAutoOffsetReset());
 
-        kafkaJob.setTopic(kafkaJobTaskConfig.getTopic());
+        kafkaTask.setTopic(kafkaTaskConfig.getTopic());
 
-        return kafkaJob;
+        return kafkaTask;
     }
 
     private static PulsarTask getPulsarTask(DataConfig dataConfig) {
@@ -230,163 +238,163 @@ public class TaskProfileDto {
         return pulsarTask;
     }
 
-    private static PostgreSQLJob getPostgresJob(DataConfig dataConfigs) {
-        PostgreSQLJob.PostgreSQLJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
-                PostgreSQLJob.PostgreSQLJobConfig.class);
-        PostgreSQLJob postgreSQLJob = new PostgreSQLJob();
+    private static PostgreSQLTask getPostgresTask(DataConfig dataConfigs) {
+        PostgreSQLTaskConfig config = GSON.fromJson(dataConfigs.getExtParams(),
+                PostgreSQLTaskConfig.class);
+        PostgreSQLTask postgreSQLTask = new PostgreSQLTask();
 
-        postgreSQLJob.setUser(config.getUsername());
-        postgreSQLJob.setPassword(config.getPassword());
-        postgreSQLJob.setHostname(config.getHostname());
-        postgreSQLJob.setPort(config.getPort());
-        postgreSQLJob.setDbname(config.getDatabase());
-        postgreSQLJob.setServername(config.getSchema());
-        postgreSQLJob.setPluginname(config.getDecodingPluginName());
-        postgreSQLJob.setTableNameList(config.getTableNameList());
-        postgreSQLJob.setServerTimeZone(config.getServerTimeZone());
-        postgreSQLJob.setScanStartupMode(config.getScanStartupMode());
-        postgreSQLJob.setPrimaryKey(config.getPrimaryKey());
+        postgreSQLTask.setUser(config.getUsername());
+        postgreSQLTask.setPassword(config.getPassword());
+        postgreSQLTask.setHostname(config.getHostname());
+        postgreSQLTask.setPort(config.getPort());
+        postgreSQLTask.setDbname(config.getDatabase());
+        postgreSQLTask.setServername(config.getSchema());
+        postgreSQLTask.setPluginname(config.getDecodingPluginName());
+        postgreSQLTask.setTableNameList(config.getTableNameList());
+        postgreSQLTask.setServerTimeZone(config.getServerTimeZone());
+        postgreSQLTask.setScanStartupMode(config.getScanStartupMode());
+        postgreSQLTask.setPrimaryKey(config.getPrimaryKey());
 
-        return postgreSQLJob;
+        return postgreSQLTask;
     }
 
-    private static RedisJob getRedisJob(DataConfig dataConfig) {
-        RedisJob.RedisJobConfig config = GSON.fromJson(dataConfig.getExtParams(), RedisJob.RedisJobConfig.class);
-        RedisJob redisJob = new RedisJob();
+    private static RedisTask getRedisTask(DataConfig dataConfig) {
+        RedisTaskConfig config = GSON.fromJson(dataConfig.getExtParams(), RedisTaskConfig.class);
+        RedisTask redisTask = new RedisTask();
 
-        redisJob.setAuthUser(config.getUsername());
-        redisJob.setAuthPassword(config.getPassword());
-        redisJob.setHostname(config.getHostname());
-        redisJob.setPort(config.getPort());
-        redisJob.setSsl(config.getSsl());
-        redisJob.setReadTimeout(config.getTimeout());
-        redisJob.setQueueSize(config.getQueueSize());
-        redisJob.setReplId(config.getReplId());
+        redisTask.setAuthUser(config.getUsername());
+        redisTask.setAuthPassword(config.getPassword());
+        redisTask.setHostname(config.getHostname());
+        redisTask.setPort(config.getPort());
+        redisTask.setSsl(config.getSsl());
+        redisTask.setReadTimeout(config.getTimeout());
+        redisTask.setQueueSize(config.getQueueSize());
+        redisTask.setReplId(config.getReplId());
 
-        return redisJob;
+        return redisTask;
     }
 
-    private static MongoJob getMongoJob(DataConfig dataConfigs) {
+    private static MongoTask getMongoTask(DataConfig dataConfigs) {
 
-        MongoJob.MongoJobTaskConfig config = GSON.fromJson(dataConfigs.getExtParams(),
-                MongoJob.MongoJobTaskConfig.class);
-        MongoJob mongoJob = new MongoJob();
+        MongoTaskConfig config = GSON.fromJson(dataConfigs.getExtParams(),
+                MongoTaskConfig.class);
+        MongoTask mongoTask = new MongoTask();
 
-        mongoJob.setHosts(config.getHosts());
-        mongoJob.setUser(config.getUsername());
-        mongoJob.setPassword(config.getPassword());
-        mongoJob.setDatabaseIncludeList(config.getDatabaseIncludeList());
-        mongoJob.setDatabaseExcludeList(config.getDatabaseExcludeList());
-        mongoJob.setCollectionIncludeList(config.getCollectionIncludeList());
-        mongoJob.setCollectionExcludeList(config.getCollectionExcludeList());
-        mongoJob.setFieldExcludeList(config.getFieldExcludeList());
-        mongoJob.setConnectTimeoutInMs(config.getConnectTimeoutInMs());
-        mongoJob.setQueueSize(config.getQueueSize());
-        mongoJob.setCursorMaxAwaitTimeInMs(config.getCursorMaxAwaitTimeInMs());
-        mongoJob.setSocketTimeoutInMs(config.getSocketTimeoutInMs());
-        mongoJob.setSelectionTimeoutInMs(config.getSelectionTimeoutInMs());
-        mongoJob.setFieldRenames(config.getFieldRenames());
-        mongoJob.setMembersAutoDiscover(config.getMembersAutoDiscover());
-        mongoJob.setConnectMaxAttempts(config.getConnectMaxAttempts());
-        mongoJob.setConnectBackoffMaxDelayInMs(config.getConnectBackoffMaxDelayInMs());
-        mongoJob.setConnectBackoffInitialDelayInMs(config.getConnectBackoffInitialDelayInMs());
-        mongoJob.setInitialSyncMaxThreads(config.getInitialSyncMaxThreads());
-        mongoJob.setSslInvalidHostnameAllowed(config.getSslInvalidHostnameAllowed());
-        mongoJob.setSslEnabled(config.getSslEnabled());
-        mongoJob.setPollIntervalInMs(config.getPollIntervalInMs());
+        mongoTask.setHosts(config.getHosts());
+        mongoTask.setUser(config.getUsername());
+        mongoTask.setPassword(config.getPassword());
+        mongoTask.setDatabaseIncludeList(config.getDatabaseIncludeList());
+        mongoTask.setDatabaseExcludeList(config.getDatabaseExcludeList());
+        mongoTask.setCollectionIncludeList(config.getCollectionIncludeList());
+        mongoTask.setCollectionExcludeList(config.getCollectionExcludeList());
+        mongoTask.setFieldExcludeList(config.getFieldExcludeList());
+        mongoTask.setConnectTimeoutInMs(config.getConnectTimeoutInMs());
+        mongoTask.setQueueSize(config.getQueueSize());
+        mongoTask.setCursorMaxAwaitTimeInMs(config.getCursorMaxAwaitTimeInMs());
+        mongoTask.setSocketTimeoutInMs(config.getSocketTimeoutInMs());
+        mongoTask.setSelectionTimeoutInMs(config.getSelectionTimeoutInMs());
+        mongoTask.setFieldRenames(config.getFieldRenames());
+        mongoTask.setMembersAutoDiscover(config.getMembersAutoDiscover());
+        mongoTask.setConnectMaxAttempts(config.getConnectMaxAttempts());
+        mongoTask.setConnectBackoffMaxDelayInMs(config.getConnectBackoffMaxDelayInMs());
+        mongoTask.setConnectBackoffInitialDelayInMs(config.getConnectBackoffInitialDelayInMs());
+        mongoTask.setInitialSyncMaxThreads(config.getInitialSyncMaxThreads());
+        mongoTask.setSslInvalidHostnameAllowed(config.getSslInvalidHostnameAllowed());
+        mongoTask.setSslEnabled(config.getSslEnabled());
+        mongoTask.setPollIntervalInMs(config.getPollIntervalInMs());
 
-        MongoJob.Offset offset = new MongoJob.Offset();
+        MongoTask.Offset offset = new MongoTask.Offset();
         offset.setFilename(config.getOffsetFilename());
         offset.setSpecificOffsetFile(config.getSpecificOffsetFile());
         offset.setSpecificOffsetPos(config.getSpecificOffsetPos());
-        mongoJob.setOffset(offset);
+        mongoTask.setOffset(offset);
 
-        MongoJob.Snapshot snapshot = new MongoJob.Snapshot();
+        MongoTask.Snapshot snapshot = new MongoTask.Snapshot();
         snapshot.setMode(config.getSnapshotMode());
-        mongoJob.setSnapshot(snapshot);
+        mongoTask.setSnapshot(snapshot);
 
-        MongoJob.History history = new MongoJob.History();
+        MongoTask.History history = new MongoTask.History();
         history.setFilename(config.getHistoryFilename());
-        mongoJob.setHistory(history);
+        mongoTask.setHistory(history);
 
-        return mongoJob;
+        return mongoTask;
     }
 
-    private static OracleJob getOracleJob(DataConfig dataConfigs) {
-        OracleJob.OracleJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
-                OracleJob.OracleJobConfig.class);
-        OracleJob oracleJob = new OracleJob();
-        oracleJob.setUser(config.getUser());
-        oracleJob.setHostname(config.getHostname());
-        oracleJob.setPassword(config.getPassword());
-        oracleJob.setPort(config.getPort());
-        oracleJob.setServerName(config.getServerName());
-        oracleJob.setDbname(config.getDbname());
+    private static OracleTask getOracleTask(DataConfig dataConfigs) {
+        OracleTaskConfig config = GSON.fromJson(dataConfigs.getExtParams(),
+                OracleTaskConfig.class);
+        OracleTask oracleTask = new OracleTask();
+        oracleTask.setUser(config.getUser());
+        oracleTask.setHostname(config.getHostname());
+        oracleTask.setPassword(config.getPassword());
+        oracleTask.setPort(config.getPort());
+        oracleTask.setServerName(config.getServerName());
+        oracleTask.setDbname(config.getDbname());
 
-        OracleJob.Offset offset = new OracleJob.Offset();
+        OracleTask.Offset offset = new OracleTask.Offset();
         offset.setFilename(config.getOffsetFilename());
         offset.setSpecificOffsetFile(config.getSpecificOffsetFile());
         offset.setSpecificOffsetPos(config.getSpecificOffsetPos());
-        oracleJob.setOffset(offset);
+        oracleTask.setOffset(offset);
 
-        OracleJob.Snapshot snapshot = new OracleJob.Snapshot();
+        OracleTask.Snapshot snapshot = new OracleTask.Snapshot();
         snapshot.setMode(config.getSnapshotMode());
-        oracleJob.setSnapshot(snapshot);
+        oracleTask.setSnapshot(snapshot);
 
-        OracleJob.History history = new OracleJob.History();
+        OracleTask.History history = new OracleTask.History();
         history.setFilename(config.getHistoryFilename());
-        oracleJob.setHistory(history);
+        oracleTask.setHistory(history);
 
-        return oracleJob;
+        return oracleTask;
     }
 
-    private static SqlServerJob getSqlServerJob(DataConfig dataConfigs) {
-        SqlServerJob.SqlserverJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
-                SqlServerJob.SqlserverJobConfig.class);
-        SqlServerJob sqlServerJob = new SqlServerJob();
-        sqlServerJob.setUser(config.getUsername());
-        sqlServerJob.setHostname(config.getHostname());
-        sqlServerJob.setPassword(config.getPassword());
-        sqlServerJob.setPort(config.getPort());
-        sqlServerJob.setServerName(config.getSchemaName());
-        sqlServerJob.setDbname(config.getDatabase());
+    private static SqlServerTask getSqlServerTask(DataConfig dataConfigs) {
+        SqlserverTaskConfig config = GSON.fromJson(dataConfigs.getExtParams(),
+                SqlserverTaskConfig.class);
+        SqlServerTask sqlServerTask = new SqlServerTask();
+        sqlServerTask.setUser(config.getUsername());
+        sqlServerTask.setHostname(config.getHostname());
+        sqlServerTask.setPassword(config.getPassword());
+        sqlServerTask.setPort(config.getPort());
+        sqlServerTask.setServerName(config.getSchemaName());
+        sqlServerTask.setDbname(config.getDatabase());
 
-        SqlServerJob.Offset offset = new SqlServerJob.Offset();
+        SqlServerTask.Offset offset = new SqlServerTask.Offset();
         offset.setFilename(config.getOffsetFilename());
         offset.setSpecificOffsetFile(config.getSpecificOffsetFile());
         offset.setSpecificOffsetPos(config.getSpecificOffsetPos());
-        sqlServerJob.setOffset(offset);
+        sqlServerTask.setOffset(offset);
 
-        SqlServerJob.Snapshot snapshot = new SqlServerJob.Snapshot();
+        SqlServerTask.Snapshot snapshot = new SqlServerTask.Snapshot();
         snapshot.setMode(config.getSnapshotMode());
-        sqlServerJob.setSnapshot(snapshot);
+        sqlServerTask.setSnapshot(snapshot);
 
-        SqlServerJob.History history = new SqlServerJob.History();
+        SqlServerTask.History history = new SqlServerTask.History();
         history.setFilename(config.getHistoryFilename());
-        sqlServerJob.setHistory(history);
+        sqlServerTask.setHistory(history);
 
-        return sqlServerJob;
+        return sqlServerTask;
     }
 
-    public static MqttJob getMqttJob(DataConfig dataConfigs) {
-        MqttJob.MqttJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
-                MqttJob.MqttJobConfig.class);
-        MqttJob mqttJob = new MqttJob();
+    public static MqttTask getMqttTask(DataConfig dataConfigs) {
+        MqttConfig config = GSON.fromJson(dataConfigs.getExtParams(),
+                MqttConfig.class);
+        MqttTask mqttTask = new MqttTask();
 
-        mqttJob.setServerURI(config.getServerURI());
-        mqttJob.setUserName(config.getUsername());
-        mqttJob.setPassword(config.getPassword());
-        mqttJob.setTopic(config.getTopic());
-        mqttJob.setConnectionTimeOut(config.getConnectionTimeOut());
-        mqttJob.setKeepAliveInterval(config.getKeepAliveInterval());
-        mqttJob.setQos(config.getQos());
-        mqttJob.setCleanSession(config.getCleanSession());
-        mqttJob.setClientIdPrefix(config.getClientId());
-        mqttJob.setQueueSize(config.getQueueSize());
-        mqttJob.setAutomaticReconnect(config.getAutomaticReconnect());
-        mqttJob.setMqttVersion(config.getMqttVersion());
+        mqttTask.setServerURI(config.getServerURI());
+        mqttTask.setUserName(config.getUsername());
+        mqttTask.setPassword(config.getPassword());
+        mqttTask.setTopic(config.getTopic());
+        mqttTask.setConnectionTimeOut(config.getConnectionTimeOut());
+        mqttTask.setKeepAliveInterval(config.getKeepAliveInterval());
+        mqttTask.setQos(config.getQos());
+        mqttTask.setCleanSession(config.getCleanSession());
+        mqttTask.setClientIdPrefix(config.getClientId());
+        mqttTask.setQueueSize(config.getQueueSize());
+        mqttTask.setAutomaticReconnect(config.getAutomaticReconnect());
+        mqttTask.setMqttVersion(config.getMqttVersion());
 
-        return mqttJob;
+        return mqttTask;
     }
 
     private static Proxy getProxy(DataConfig dataConfigs) {
@@ -457,14 +465,14 @@ public class TaskProfileDto {
         switch (requireNonNull(taskType)) {
             case SQL:
             case BINLOG:
-                BinlogJob binlogJob = getBinlogJob(dataConfig);
-                task.setBinlogJob(binlogJob);
+                BinlogTask binlogTask = getBinlogTask(dataConfig);
+                task.setBinlogTask(binlogTask);
                 task.setSource(BINLOG_SOURCE);
                 profileDto.setTask(task);
                 break;
             case FILE:
                 task.setTaskClass(DEFAULT_FILE_TASK);
-                FileTask fileTask = getFileJob(dataConfig);
+                FileTask fileTask = getFileTask(dataConfig);
                 task.setCycleUnit(fileTask.getCycleUnit());
                 task.setFileTask(fileTask);
                 task.setSource(DEFAULT_SOURCE);
@@ -472,8 +480,8 @@ public class TaskProfileDto {
                 break;
             case KAFKA:
                 task.setTaskClass(DEFAULT_KAFKA_TASK);
-                KafkaJob kafkaJob = getKafkaJob(dataConfig);
-                task.setKafkaJob(kafkaJob);
+                KafkaTask kafkaTask = getKafkaTask(dataConfig);
+                task.setKafkaTask(kafkaTask);
                 task.setSource(KAFKA_SOURCE);
                 profileDto.setTask(task);
                 break;
@@ -485,38 +493,38 @@ public class TaskProfileDto {
                 profileDto.setTask(task);
                 break;
             case POSTGRES:
-                PostgreSQLJob postgreSQLJob = getPostgresJob(dataConfig);
-                task.setPostgreSQLJob(postgreSQLJob);
+                PostgreSQLTask postgreSQLTask = getPostgresTask(dataConfig);
+                task.setPostgreSQLTask(postgreSQLTask);
                 task.setSource(POSTGRESQL_SOURCE);
                 profileDto.setTask(task);
                 break;
             case ORACLE:
-                OracleJob oracleJob = getOracleJob(dataConfig);
-                task.setOracleJob(oracleJob);
+                OracleTask oracleTask = getOracleTask(dataConfig);
+                task.setOracleTask(oracleTask);
                 task.setSource(ORACLE_SOURCE);
                 profileDto.setTask(task);
                 break;
             case SQLSERVER:
-                SqlServerJob sqlserverJob = getSqlServerJob(dataConfig);
-                task.setSqlserverJob(sqlserverJob);
+                SqlServerTask sqlserverTask = getSqlServerTask(dataConfig);
+                task.setSqlserverTask(sqlserverTask);
                 task.setSource(SQLSERVER_SOURCE);
                 profileDto.setTask(task);
                 break;
             case MONGODB:
-                MongoJob mongoJob = getMongoJob(dataConfig);
-                task.setMongoJob(mongoJob);
+                MongoTask mongoTask = getMongoTask(dataConfig);
+                task.setMongoTask(mongoTask);
                 task.setSource(MONGO_SOURCE);
                 profileDto.setTask(task);
                 break;
             case REDIS:
-                RedisJob redisJob = getRedisJob(dataConfig);
-                task.setRedisJob(redisJob);
+                RedisTask redisTask = getRedisTask(dataConfig);
+                task.setRedisTask(redisTask);
                 task.setSource(REDIS_SOURCE);
                 profileDto.setTask(task);
                 break;
             case MQTT:
-                MqttJob mqttJob = getMqttJob(dataConfig);
-                task.setMqttJob(mqttJob);
+                MqttTask mqttTask = getMqttTask(dataConfig);
+                task.setMqttTask(mqttTask);
                 task.setSource(MQTT_SOURCE);
                 profileDto.setTask(task);
                 break;
@@ -554,15 +562,15 @@ public class TaskProfileDto {
         private String timeZone;
 
         private FileTask fileTask;
-        private BinlogJob binlogJob;
-        private KafkaJob kafkaJob;
+        private BinlogTask binlogTask;
+        private KafkaTask kafkaTask;
         private PulsarTask pulsarTask;
-        private PostgreSQLJob postgreSQLJob;
-        private OracleJob oracleJob;
-        private MongoJob mongoJob;
-        private RedisJob redisJob;
-        private MqttJob mqttJob;
-        private SqlServerJob sqlserverJob;
+        private PostgreSQLTask postgreSQLTask;
+        private OracleTask oracleTask;
+        private MongoTask mongoTask;
+        private RedisTask redisTask;
+        private MqttTask mqttTask;
+        private SqlServerTask sqlserverTask;
     }
 
     @Data

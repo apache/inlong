@@ -19,28 +19,39 @@ package org.apache.inlong.agent.pojo;
 
 import lombok.Data;
 
+/**
+ * MqttTask : mqtt task
+ */
 @Data
-public class RedisJob {
+public class MqttTask {
 
-    private String authUser;
-    private String authPassword;
-    private String hostname;
-    private String port;
-    private Boolean ssl;
-    private String readTimeout;
+    private String serverURI;
+    private String userName;
+    private String password;
+    private String topic;
+    private String connectionTimeOut;
+    private String keepAliveInterval;
+    private String qos;
+    private String cleanSession;
+    private String clientIdPrefix;
     private String queueSize;
-    private String replId;
+    private String automaticReconnect;
+    private String mqttVersion;
 
     @Data
-    public static class RedisJobConfig {
+    public static class MqttConfig {
 
+        private String serverURI;
         private String username;
         private String password;
-        private String hostname;
-        private String port;
-        private Boolean ssl;
-        private String timeout;
+        private String topic;
+        private String connectionTimeOut;
+        private String keepAliveInterval;
+        private String qos;
+        private String cleanSession;
+        private String clientId;
         private String queueSize;
-        private String replId;
+        private String automaticReconnect;
+        private String mqttVersion;
     }
 }

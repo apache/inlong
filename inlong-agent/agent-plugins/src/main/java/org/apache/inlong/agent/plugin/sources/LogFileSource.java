@@ -84,9 +84,9 @@ import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_FILE_N
 import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_HOST_NAME;
 import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_SOURCE_IP;
 import static org.apache.inlong.agent.constant.TaskConstants.DEFAULT_FILE_SOURCE_EXTEND_CLASS;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_FILE_META_ENV_LIST;
 import static org.apache.inlong.agent.constant.TaskConstants.OFFSET;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_CYCLE_UNIT;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_FILE_META_ENV_LIST;
 
 /**
  * Read text files
@@ -230,10 +230,10 @@ public class LogFileSource extends AbstractSource {
     }
 
     public void registerMeta(InstanceProfile jobConf) {
-        if (!jobConf.hasKey(JOB_FILE_META_ENV_LIST)) {
+        if (!jobConf.hasKey(TASK_FILE_META_ENV_LIST)) {
             return;
         }
-        String[] env = jobConf.get(JOB_FILE_META_ENV_LIST).split(COMMA);
+        String[] env = jobConf.get(TASK_FILE_META_ENV_LIST).split(COMMA);
         Arrays.stream(env).forEach(data -> {
             if (data.equalsIgnoreCase(KUBERNETES)) {
                 needMetadata = true;
@@ -248,8 +248,8 @@ public class LogFileSource extends AbstractSource {
     }
 
     private boolean isIncrement(InstanceProfile profile) {
-        if (profile.hasKey(TaskConstants.JOB_FILE_CONTENT_COLLECT_TYPE) && DataCollectType.INCREMENT
-                .equalsIgnoreCase(profile.get(TaskConstants.JOB_FILE_CONTENT_COLLECT_TYPE))) {
+        if (profile.hasKey(TaskConstants.TASK_FILE_CONTENT_COLLECT_TYPE) && DataCollectType.INCREMENT
+                .equalsIgnoreCase(profile.get(TaskConstants.TASK_FILE_CONTENT_COLLECT_TYPE))) {
             return true;
         }
         return false;

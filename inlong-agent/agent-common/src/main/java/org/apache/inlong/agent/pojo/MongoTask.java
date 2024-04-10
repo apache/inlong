@@ -20,10 +20,10 @@ package org.apache.inlong.agent.pojo;
 import lombok.Data;
 
 /**
- * MongoJob : mongo job
+ * MongoTask : mongo task
  */
 @Data
-public class MongoJob {
+public class MongoTask {
 
     private String hosts;
     private String user;
@@ -81,7 +81,7 @@ public class MongoJob {
     }
 
     @Data
-    public static class MongoJobTaskConfig {
+    public static class MongoTaskConfig {
 
         private String hosts;
         private String username;

@@ -19,39 +19,40 @@ package org.apache.inlong.agent.pojo;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
- * MqttJob : mqtt job
+ * PostgreSQL Task info
  */
 @Data
-public class MqttJob {
+public class PostgreSQLTask {
 
-    private String serverURI;
-    private String userName;
+    private String user;
     private String password;
-    private String topic;
-    private String connectionTimeOut;
-    private String keepAliveInterval;
-    private String qos;
-    private String cleanSession;
-    private String clientIdPrefix;
-    private String queueSize;
-    private String automaticReconnect;
-    private String mqttVersion;
+    private String hostname;
+    private String port;
+    private String dbname;
+    private String schema;
+    private String servername;
+    private String pluginname;
+    private List<String> tableNameList;
+    private String serverTimeZone;
+    private String scanStartupMode;
+    private String primaryKey;
 
     @Data
-    public static class MqttJobConfig {
+    public static class PostgreSQLTaskConfig {
 
-        private String serverURI;
         private String username;
         private String password;
-        private String topic;
-        private String connectionTimeOut;
-        private String keepAliveInterval;
-        private String qos;
-        private String cleanSession;
-        private String clientId;
-        private String queueSize;
-        private String automaticReconnect;
-        private String mqttVersion;
+        private String hostname;
+        private String port;
+        private String database;
+        private String schema;
+        private String decodingPluginName;
+        private List<String> tableNameList;
+        private String serverTimeZone;
+        private String scanStartupMode;
+        private String primaryKey;
     }
 }

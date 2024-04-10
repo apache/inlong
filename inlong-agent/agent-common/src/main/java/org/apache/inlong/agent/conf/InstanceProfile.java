@@ -37,8 +37,8 @@ import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INL
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.TaskConstants.INSTANCE_STATE;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MQ_ClUSTERS;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MQ_TOPIC;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MQ_CLUSTERS;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MQ_TOPIC;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_RETRY;
 
 /**
@@ -127,7 +127,7 @@ public class InstanceProfile extends AbstractConfiguration implements Comparable
      */
     public List<MQClusterInfo> getMqClusters() {
         List<MQClusterInfo> result = null;
-        String mqClusterStr = get(JOB_MQ_ClUSTERS);
+        String mqClusterStr = get(TASK_MQ_CLUSTERS);
         if (StringUtils.isNotBlank(mqClusterStr)) {
             result = GSON.fromJson(mqClusterStr, new TypeToken<List<MQClusterInfo>>() {
             }.getType());
@@ -140,7 +140,7 @@ public class InstanceProfile extends AbstractConfiguration implements Comparable
      */
     public DataProxyTopicInfo getMqTopic() {
         DataProxyTopicInfo result = null;
-        String topicStr = get(JOB_MQ_TOPIC);
+        String topicStr = get(TASK_MQ_TOPIC);
         if (StringUtils.isNotBlank(topicStr)) {
             result = GSON.fromJson(topicStr, DataProxyTopicInfo.class);
         }
