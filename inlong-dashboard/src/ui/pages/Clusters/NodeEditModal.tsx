@@ -162,7 +162,6 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         type: 'select',
         label: i18n.t('pages.Clusters.Node.Agent'),
         name: 'moduleIdList',
-        rules: [{ required: false }],
         hidden: type !== 'AGENT',
         props: {
           options: {
@@ -194,7 +193,6 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         type: 'select',
         label: i18n.t('pages.Clusters.Node.AgentInstaller'),
         name: 'installer',
-        rules: [{ required: false }],
         hidden: type !== 'AGENT',
         props: {
           mode: 'multiple',
