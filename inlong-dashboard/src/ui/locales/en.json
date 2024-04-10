@@ -751,6 +751,8 @@
   "pages.Clusters.Node.Name": "Node",
   "pages.Clusters.Node.Port": "Port",
   "pages.Clusters.Node.ProtocolType": "Protocol type",
+  "pages.Clusters.Node.Agent": "Agent",
+  "pages.Clusters.Node.AgentInstaller": "Installer",
   "pages.Clusters.Node.Status": "Status",
   "pages.Clusters.Node.Status.Normal": "Normal",
   "pages.Clusters.Node.Status.Timeout": "Timeout",
