@@ -23,21 +23,21 @@ import org.apache.inlong.audit.entities.AuditCycle;
 /**
  * Cache Of minute 10 ,for minute 10 openapi
  */
-public class CacheOfMinute10 extends AbstractCache {
+public class TenMinutesCache extends AbstractCache {
 
-    private static volatile CacheOfMinute10 cacheOfMinute10 = null;
+    private static volatile TenMinutesCache tenMinutesCache = null;
 
-    private CacheOfMinute10() {
+    private TenMinutesCache() {
         super(AuditCycle.MINUTE_10);
     }
-    public static CacheOfMinute10 getInstance() {
-        if (cacheOfMinute10 == null) {
+    public static TenMinutesCache getInstance() {
+        if (tenMinutesCache == null) {
             synchronized (Configuration.class) {
-                if (cacheOfMinute10 == null) {
-                    cacheOfMinute10 = new CacheOfMinute10();
+                if (tenMinutesCache == null) {
+                    tenMinutesCache = new TenMinutesCache();
                 }
             }
         }
-        return cacheOfMinute10;
+        return tenMinutesCache;
     }
 }

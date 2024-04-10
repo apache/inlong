@@ -34,7 +34,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_API_CACHE_EXPIRED_HOURS;
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PI_CACHE_MAX_SIZE;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_API_CACHE_MAX_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_API_CACHE_EXPIRED_HOURS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_API_CACHE_MAX_SIZE;
 
@@ -52,7 +52,7 @@ public class AbstractCache {
     protected AbstractCache(AuditCycle auditCycle) {
         cache = Caffeine.newBuilder()
                 .maximumSize(Configuration.getInstance().get(KEY_API_CACHE_MAX_SIZE,
-                        DEFAULT_PI_CACHE_MAX_SIZE))
+                        DEFAULT_API_CACHE_MAX_SIZE))
                 .expireAfterWrite(Configuration.getInstance().get(KEY_API_CACHE_EXPIRED_HOURS,
                         DEFAULT_API_CACHE_EXPIRED_HOURS), TimeUnit.HOURS)
                 .build();

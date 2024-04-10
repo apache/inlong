@@ -24,8 +24,7 @@ public class CacheUtils {
 
     public static String buildCacheKey(String logTs, String inlongGroupId, String inlongStreamId,
             String auditId, String auditTag) {
-        StringBuilder keyBuilder = new StringBuilder();
-        return keyBuilder
+        return new StringBuilder()
                 .append(logTs)
                 .append(inlongGroupId)
                 .append(inlongStreamId)

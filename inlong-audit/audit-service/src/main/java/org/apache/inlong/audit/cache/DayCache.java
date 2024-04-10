@@ -59,15 +59,15 @@ import static org.apache.inlong.audit.config.SqlConstants.KEY_MYSQL_SOURCE_QUERY
 /**
  * Cache Of day ,for day openapi
  */
-public class CacheOfDay implements AutoCloseable {
+public class DayCache implements AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CacheOfDay.class);
-    private static volatile CacheOfDay cacheOfDay = null;
+    private static final Logger LOG = LoggerFactory.getLogger(DayCache.class);
+    private static volatile DayCache dayCache = null;
     private DataSource dataSource;
 
     private final String querySql;
 
-    private CacheOfDay() {
+    private DayCache() {
         createDataSource();
         querySql = Configuration.getInstance().get(KEY_MYSQL_SOURCE_QUERY_DAY_SQL,
                 DEFAULT_MYSQL_SOURCE_QUERY_DAY_SQL);
@@ -77,15 +77,15 @@ public class CacheOfDay implements AutoCloseable {
      * Get instance
      * @return
      */
-    public static CacheOfDay getInstance() {
-        if (cacheOfDay == null) {
+    public static DayCache getInstance() {
+        if (dayCache == null) {
             synchronized (Configuration.class) {
-                if (cacheOfDay == null) {
-                    cacheOfDay = new CacheOfDay();
+                if (dayCache == null) {
+                    dayCache = new DayCache();
                 }
             }
         }
-        return cacheOfDay;
+        return dayCache;
     }
 
     /**
@@ -113,22 +113,15 @@ public class CacheOfDay implements AutoCloseable {
             pstat.setString(5, auditId);
             try (ResultSet resultSet = pstat.executeQuery()) {
                 while (resultSet.next()) {
-                    String inlongGroupID = resultSet.getString(1);
-                    String InlongStreamID = resultSet.getString(2);
-                    String AuditId = resultSet.getString(3);
-                    String AuditTag = resultSet.getString(4);
-                    long count = resultSet.getLong(5);
-                    long size = resultSet.getLong(6);
-                    long delay = resultSet.getLong(7);
                     StatData data = new StatData();
                     data.setLogTs(startTime);
-                    data.setInlongGroupId(inlongGroupID);
-                    data.setInlongStreamId(InlongStreamID);
-                    data.setAuditId(AuditId);
-                    data.setAuditTag(AuditTag);
-                    data.setCount(count);
-                    data.setSize(size);
-                    data.setDelay(delay);
+                    data.setInlongGroupId(resultSet.getString(1));
+                    data.setInlongStreamId(resultSet.getString(2));
+                    data.setAuditId(resultSet.getString(3));
+                    data.setAuditTag(resultSet.getString(4));
+                    data.setCount(resultSet.getLong(5));
+                    data.setSize(resultSet.getLong(6));
+                    data.setDelay(resultSet.getLong(7));
                     result.add(data);
                 }
             } catch (SQLException sqlException) {

@@ -110,7 +110,7 @@ public class JdbcSource {
             ScheduledExecutorService timer =
                     statTimers.computeIfAbsent(statBackTime, k -> Executors.newSingleThreadScheduledExecutor());
             timer.scheduleWithFixedDelay(new StatServer(statBackTime),
-                    statBackTime,
+                    0,
                     statInterval, TimeUnit.MINUTES);
         }
     }

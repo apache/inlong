@@ -17,9 +17,9 @@
 
 package org.apache.inlong.audit.service;
 
-import org.apache.inlong.audit.cache.CacheOfHour;
-import org.apache.inlong.audit.cache.CacheOfMinute10;
-import org.apache.inlong.audit.cache.CacheOfMinute30;
+import org.apache.inlong.audit.cache.HalfHourCache;
+import org.apache.inlong.audit.cache.HourCache;
+import org.apache.inlong.audit.cache.TenMinutesCache;
 import org.apache.inlong.audit.channel.DataQueue;
 import org.apache.inlong.audit.config.Configuration;
 import org.apache.inlong.audit.entities.AuditCycle;
@@ -66,15 +66,15 @@ public class EtlService {
 
     private static final Logger LOG = LoggerFactory.getLogger(JdbcSource.class);
     private JdbcSource mysqlSourceOfTemp;
-    private JdbcSource mysqlSourceOfCacheMinute10;
-    private JdbcSource mysqlSourceOfCacheMinute30;
-    private JdbcSource mysqlSourceOfCacheHour;
+    private JdbcSource mysqlSourceOfTenMinutesCache;
+    private JdbcSource mysqlSourceOfHalfHourCache;
+    private JdbcSource mysqlSourceOfHourCache;
     private JdbcSink mysqlSinkOfDay;
     private JdbcSource clickhouseSource;
     private JdbcSink mysqlSinkOfTemp;
-    private CacheSink cacheSinkOfMinute10;
-    private CacheSink cacheSinkOfMinute30;
-    private CacheSink cacheSinkOfHour;
+    private CacheSink cacheSinkOfTenMinutesCache;
+    private CacheSink cacheSinkOfHalfHourCache;
+    private CacheSink cacheSinkOfHourCache;
     private final int queueSize;
     private final int statBackTimes;
 
@@ -91,9 +91,9 @@ public class EtlService {
     public void start() {
         clickhouseToMysql();
         mysqlToMysqlOfDay();
-        mysqlToCacheOfMinute10();
-        mysqlToCacheOfMinute30();
-        mysqlToCacheOfHour();
+        mysqlToTenMinutesCache();
+        mysqlToHalfHourCache();
+        mysqlToHourCache();
     }
 
     /**
@@ -117,39 +117,39 @@ public class EtlService {
     /**
      * Aggregate data from mysql data source and store in local cache for openapi.
      */
-    private void mysqlToCacheOfMinute10() {
+    private void mysqlToTenMinutesCache() {
         DataQueue dataQueue = new DataQueue(queueSize);
-        mysqlSourceOfCacheMinute10 =
+        mysqlSourceOfTenMinutesCache =
                 new JdbcSource(dataQueue, buildMysqlSourceConfig(AuditCycle.MINUTE_10, statBackTimes));
-        mysqlSourceOfCacheMinute10.start();
+        mysqlSourceOfTenMinutesCache.start();
 
-        cacheSinkOfMinute10 = new CacheSink(dataQueue, CacheOfMinute10.getInstance().getCache());
-        cacheSinkOfMinute10.start();
+        cacheSinkOfTenMinutesCache = new CacheSink(dataQueue, TenMinutesCache.getInstance().getCache());
+        cacheSinkOfTenMinutesCache.start();
     }
 
     /**
      * Aggregate data from mysql data source and store in local cache for openapi.
      */
-    private void mysqlToCacheOfMinute30() {
+    private void mysqlToHalfHourCache() {
         DataQueue dataQueue = new DataQueue(queueSize);
-        mysqlSourceOfCacheMinute30 =
+        mysqlSourceOfHalfHourCache =
                 new JdbcSource(dataQueue, buildMysqlSourceConfig(AuditCycle.MINUTE_30, statBackTimes));
-        mysqlSourceOfCacheMinute30.start();
+        mysqlSourceOfHalfHourCache.start();
 
-        cacheSinkOfMinute30 = new CacheSink(dataQueue, CacheOfMinute30.getInstance().getCache());
-        cacheSinkOfMinute30.start();
+        cacheSinkOfHalfHourCache = new CacheSink(dataQueue, HalfHourCache.getInstance().getCache());
+        cacheSinkOfHalfHourCache.start();
     }
 
     /**
      * Aggregate data from mysql data source and store in local cache for openapi.
      */
-    private void mysqlToCacheOfHour() {
+    private void mysqlToHourCache() {
         DataQueue dataQueue = new DataQueue(queueSize);
-        mysqlSourceOfCacheHour = new JdbcSource(dataQueue, buildMysqlSourceConfig(AuditCycle.HOUR, statBackTimes));
-        mysqlSourceOfCacheHour.start();
+        mysqlSourceOfHourCache = new JdbcSource(dataQueue, buildMysqlSourceConfig(AuditCycle.HOUR, statBackTimes));
+        mysqlSourceOfHourCache.start();
 
-        cacheSinkOfHour = new CacheSink(dataQueue, CacheOfHour.getInstance().getCache());
-        cacheSinkOfHour.start();
+        cacheSinkOfHourCache = new CacheSink(dataQueue, HourCache.getInstance().getCache());
+        cacheSinkOfHourCache.start();
     }
 
     /**
@@ -252,12 +252,12 @@ public class EtlService {
         clickhouseSource.destroy();
         mysqlSinkOfTemp.destroy();
 
-        mysqlSourceOfCacheMinute10.destroy();
-        mysqlSourceOfCacheMinute30.destroy();
-        mysqlSourceOfCacheHour.destroy();
+        mysqlSourceOfTenMinutesCache.destroy();
+        mysqlSourceOfHalfHourCache.destroy();
+        mysqlSourceOfHourCache.destroy();
 
-        cacheSinkOfMinute10.destroy();
-        cacheSinkOfMinute30.destroy();
-        cacheSinkOfHour.destroy();
+        cacheSinkOfTenMinutesCache.destroy();
+        cacheSinkOfHalfHourCache.destroy();
+        cacheSinkOfHourCache.destroy();
     }
 }

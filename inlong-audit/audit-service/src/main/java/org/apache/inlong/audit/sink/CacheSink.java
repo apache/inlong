@@ -76,8 +76,8 @@ public class CacheSink {
                 cache.put(cacheKey, data);
                 data = dataQueue.pull(pullTimeOut, TimeUnit.MILLISECONDS);
             }
-        } catch (Exception e) {
-            LOG.error("Process exception! {}", e.getMessage());
+        } catch (Exception exception) {
+            LOG.error("Process exception! ", exception);
         }
     }
 

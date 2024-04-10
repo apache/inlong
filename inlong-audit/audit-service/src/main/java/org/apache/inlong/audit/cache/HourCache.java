@@ -23,20 +23,20 @@ import org.apache.inlong.audit.entities.AuditCycle;
 /**
  * Cache Of hour ,for hour openapi
  */
-public class CacheOfHour extends AbstractCache {
+public class HourCache extends AbstractCache {
 
-    private static volatile CacheOfHour cacheOfHour = null;
-    private CacheOfHour() {
+    private static volatile HourCache hourCache = null;
+    private HourCache() {
         super(AuditCycle.HOUR);
     }
-    public static CacheOfHour getInstance() {
-        if (cacheOfHour == null) {
+    public static HourCache getInstance() {
+        if (hourCache == null) {
             synchronized (Configuration.class) {
-                if (cacheOfHour == null) {
-                    cacheOfHour = new CacheOfHour();
+                if (hourCache == null) {
+                    hourCache = new HourCache();
                 }
             }
         }
-        return cacheOfHour;
+        return hourCache;
     }
 }
