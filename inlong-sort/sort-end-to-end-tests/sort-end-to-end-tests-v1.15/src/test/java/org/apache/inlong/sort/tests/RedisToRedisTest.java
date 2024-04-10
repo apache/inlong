@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.tests;
 
-import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
+import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnvJRE8;
 import org.apache.inlong.sort.tests.utils.RedisContainer;
 import org.apache.inlong.sort.tests.utils.TestUtils;
 
@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertEquals;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
-public class RedisToRedisTest extends FlinkContainerTestEnv {
+public class RedisToRedisTest extends FlinkContainerTestEnvJRE8 {
 
     private static final Logger LOG = LoggerFactory.getLogger(RedisContainer.class);
     private static final Path redisJar = TestUtils.getResource("sort-connector-redis.jar");

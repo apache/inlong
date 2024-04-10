@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.tests;
 
-import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
+import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnvJRE8;
 import org.apache.inlong.sort.tests.utils.JdbcProxy;
 import org.apache.inlong.sort.tests.utils.StarRocksContainer;
 import org.apache.inlong.sort.tests.utils.TestUtils;
@@ -60,7 +60,7 @@ import static com.mongodb.client.model.Updates.*;
  * End-to-end tests for sort-connector-mongodb-cdc-v1.15 uber jar.
  * Test flink sql Mongodb cdc to StarRocks
  */
-public class Mongodb2StarRocksTest extends FlinkContainerTestEnv {
+public class Mongodb2StarRocksTest extends FlinkContainerTestEnvJRE8 {
 
     private static final Logger LOG = LoggerFactory.getLogger(Mongodb2StarRocksTest.class);
 
