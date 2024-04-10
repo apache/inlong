@@ -17,15 +17,16 @@
 
 package org.apache.inlong.agent.conf;
 
-import com.google.common.collect.ComparisonChain;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.utils.file.FileUtils;
 import org.apache.inlong.common.enums.InstanceStateEnum;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
+
+import com.google.common.collect.ComparisonChain;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

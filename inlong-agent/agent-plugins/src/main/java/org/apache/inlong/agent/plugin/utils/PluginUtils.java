@@ -55,8 +55,8 @@ import static org.apache.inlong.agent.constant.KubernetesConstants.HTTPS;
 import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES_SERVICE_HOST;
 import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES_SERVICE_PORT;
 import static org.apache.inlong.agent.constant.TaskConstants.FILE_DIR_FILTER_PATTERNS;
-import static org.apache.inlong.agent.constant.TaskConstants.TASK_RETRY_TIME;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_FILE_TIME_OFFSET;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_RETRY_TIME;
 
 /**
  * Utils for plugin package.

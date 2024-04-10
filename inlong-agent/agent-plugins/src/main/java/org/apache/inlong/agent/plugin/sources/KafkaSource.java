@@ -65,14 +65,14 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_PARTITION_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_QUEUE_PERMIT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_SOURCE_PERMIT;
-import static org.apache.inlong.agent.constant.TaskConstants.TASK_KAFKA_PARTITION_OFFSET_DELIMITER;
-import static org.apache.inlong.agent.constant.TaskConstants.TASK_KAFKA_OFFSET_DELIMITER;
 import static org.apache.inlong.agent.constant.TaskConstants.OFFSET;
 import static org.apache.inlong.agent.constant.TaskConstants.RESTORE_FROM_DB;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_CYCLE_UNIT;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_KAFKA_AUTO_COMMIT_OFFSET_RESET;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_KAFKA_BOOTSTRAP_SERVERS;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_KAFKA_OFFSET;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_KAFKA_OFFSET_DELIMITER;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_KAFKA_PARTITION_OFFSET_DELIMITER;
 
 /**
  * kafka source, split kafka source job into multi readers

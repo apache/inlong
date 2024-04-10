@@ -84,9 +84,9 @@ import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_FILE_N
 import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_HOST_NAME;
 import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_SOURCE_IP;
 import static org.apache.inlong.agent.constant.TaskConstants.DEFAULT_FILE_SOURCE_EXTEND_CLASS;
-import static org.apache.inlong.agent.constant.TaskConstants.TASK_FILE_META_ENV_LIST;
 import static org.apache.inlong.agent.constant.TaskConstants.OFFSET;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_CYCLE_UNIT;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_FILE_META_ENV_LIST;
 
 /**
  * Read text files
