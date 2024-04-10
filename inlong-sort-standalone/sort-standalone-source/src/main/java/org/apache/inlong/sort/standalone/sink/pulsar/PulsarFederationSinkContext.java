@@ -221,8 +221,8 @@ public class PulsarFederationSinkContext extends SinkContext {
             if (sendTime > 0) {
                 long currentTime = System.currentTimeMillis();
                 long sinkDuration = currentTime - sendTime;
-                long nodeDuration = currentTime - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, msgTime);
-                long wholeDuration = currentTime - msgTime;
+                long nodeDuration = currentTime - currentRecord.getFetchTime();
+                long wholeDuration = currentTime - currentRecord.getRawLogTime();
                 metricItem.sinkDuration.addAndGet(sinkDuration * count);
                 metricItem.nodeDuration.addAndGet(nodeDuration * count);
                 metricItem.wholeDuration.addAndGet(wholeDuration * count);
