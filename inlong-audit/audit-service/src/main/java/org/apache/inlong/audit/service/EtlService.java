@@ -40,16 +40,16 @@ import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DAILY_SUMMARY_STAT_BACK_TIMES;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATA_QUEUE_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_REALTIME_SUMMARY_STAT_BACK_TIMES;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SELECTOR_FOLLOWER_LISTEN_CYCLE_MS;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SELECTOR_SERVICE_ID;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_DAILY_SUMMARY_STAT_BACK_TIMES;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SUMMARY_DAILY_STAT_BACK_TIMES;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SUMMARY_REALTIME_STAT_BACK_TIMES;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATA_QUEUE_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_REALTIME_SUMMARY_STAT_BACK_TIMES;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_SELECTOR_FOLLOWER_LISTEN_CYCLE_MS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_SELECTOR_SERVICE_ID;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_SUMMARY_DAILY_STAT_BACK_TIMES;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_SUMMARY_REALTIME_STAT_BACK_TIMES;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_CLICKHOUSE_SOURCE_QUERY_SQL;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_MYSQL_SINK_INSERT_DAY_SQL;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_MYSQL_SINK_INSERT_TEMP_SQL;
@@ -83,8 +83,8 @@ public class EtlService {
     public EtlService() {
         queueSize = Configuration.getInstance().get(KEY_DATA_QUEUE_SIZE,
                 DEFAULT_DATA_QUEUE_SIZE);
-        statBackTimes = Configuration.getInstance().get(KEY_REALTIME_SUMMARY_STAT_BACK_TIMES,
-                DEFAULT_REALTIME_SUMMARY_STAT_BACK_TIMES);
+        statBackTimes = Configuration.getInstance().get(KEY_SUMMARY_REALTIME_STAT_BACK_TIMES,
+                DEFAULT_SUMMARY_REALTIME_STAT_BACK_TIMES);
     }
 
     /**
@@ -108,8 +108,8 @@ public class EtlService {
         DataQueue dataQueue = new DataQueue(queueSize);
 
         mysqlSourceOfTemp = new JdbcSource(dataQueue, buildMysqlSourceConfig(AuditCycle.DAY,
-                Configuration.getInstance().get(KEY_DAILY_SUMMARY_STAT_BACK_TIMES,
-                        DEFAULT_DAILY_SUMMARY_STAT_BACK_TIMES)));
+                Configuration.getInstance().get(KEY_SUMMARY_DAILY_STAT_BACK_TIMES,
+                        DEFAULT_SUMMARY_DAILY_STAT_BACK_TIMES)));
         mysqlSourceOfTemp.start();
 
         SinkConfig sinkConfig = buildMysqlSinkConfig(Configuration.getInstance().get(KEY_MYSQL_SINK_INSERT_DAY_SQL,
@@ -215,8 +215,8 @@ public class EtlService {
         return new SourceConfig(AuditCycle.MINUTE_5,
                 Configuration.getInstance().get(KEY_CLICKHOUSE_SOURCE_QUERY_SQL,
                         DEFAULT_CLICKHOUSE_SOURCE_QUERY_SQL),
-                Configuration.getInstance().get(KEY_REALTIME_SUMMARY_STAT_BACK_TIMES,
-                        DEFAULT_REALTIME_SUMMARY_STAT_BACK_TIMES),
+                Configuration.getInstance().get(KEY_SUMMARY_REALTIME_STAT_BACK_TIMES,
+                        DEFAULT_SUMMARY_REALTIME_STAT_BACK_TIMES),
                 jdbcConfig.getDriverClass(),
                 jdbcConfig.getJdbcUrl(),
                 jdbcConfig.getUserName(),

@@ -59,11 +59,11 @@ public class ConfigConstants {
     public static final String DEFAULT_AUDIT_IDS = "3;4;5;6";
 
     // Summary config
-    public static final String KEY_REALTIME_SUMMARY_STAT_BACK_TIMES = "realtime.summary.stat.back.times";
-    public static final int DEFAULT_REALTIME_SUMMARY_STAT_BACK_TIMES = 6;
+    public static final String KEY_SUMMARY_REALTIME_STAT_BACK_TIMES = "summary.realtime.stat.back.times";
+    public static final int DEFAULT_SUMMARY_REALTIME_STAT_BACK_TIMES = 6;
 
-    public static final String KEY_DAILY_SUMMARY_STAT_BACK_TIMES = "daily.summary.stat.back.times";
-    public static final int DEFAULT_DAILY_SUMMARY_STAT_BACK_TIMES = 2;
+    public static final String KEY_SUMMARY_DAILY_STAT_BACK_TIMES = "summary.daily.stat.back.times";
+    public static final int DEFAULT_SUMMARY_DAILY_STAT_BACK_TIMES = 2;
 
     public static final String KEY_STAT_BACK_INITIAL_OFFSET = "stat.back.initial.offset";
     public static final int DEFAULT_STAT_BACK_INITIAL_OFFSET = 0;
