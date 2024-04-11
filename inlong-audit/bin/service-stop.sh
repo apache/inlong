@@ -19,5 +19,24 @@
 # under the License.
 #
 
-# this program kills the audit store
-ps -ef |grep "audit-service" | grep -v grep|awk '{print $2}' | xargs kill -9
+# this program kills the audit service
+for i in {1..5}
+do
+  pid=$(ps aux | grep "audit-service" | grep -v "grep" | awk '{print $2}')
+  if [ -z "$pid" ]; then
+      echo "audit-service is not running"
+      break
+  else
+      kill $pid
+  fi
+  sleep 10
+done
+
+pid=$(ps aux | grep "audit-service" | grep -v "grep" | awk '{print $2}')
+if [ -z "$pid" ]; then
+    echo "audit-service has stopped"
+else
+    kill -9 $pid
+fi
+
+echo "Stop audit-service successfully."
