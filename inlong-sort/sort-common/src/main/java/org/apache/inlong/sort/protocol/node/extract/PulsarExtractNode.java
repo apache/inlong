@@ -146,7 +146,8 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric, Meta
             options.put("scan.startup.sub-name", scanStartupSubName);
             options.put("scan.startup.sub-start-offset", scanStartupSubStartOffset);
         }
-        if (StringUtils.isNotBlank(clientAuthPluginClassName)) {
+        if (StringUtils.isNotBlank(clientAuthPluginClassName)
+                && StringUtils.isNotBlank(clientAuthParams)) {
             options.put("pulsar.client.authPluginClassName", clientAuthPluginClassName);
             options.put("pulsar.client.authParams", clientAuthParams);
         }
