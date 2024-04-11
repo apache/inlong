@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import org.apache.inlong.common.enums.IndicatorType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.AuditQuerySource;
@@ -133,9 +134,7 @@ public class AuditServiceImpl implements AuditService {
     private static final String TERMS = "terms";
 
     // key: type of audit base item, value: entity of audit base item
-    private final Map<String, AuditBaseEntity> auditSentItemMap = new ConcurrentHashMap<>();
-
-    private final Map<String, AuditBaseEntity> auditReceivedItemMap = new ConcurrentHashMap<>();
+    private final Map<String, Map<Integer, AuditBaseEntity>> auditIndicatorMap = new ConcurrentHashMap<>();
 
     private final Map<String, AuditBaseEntity> auditItemMap = new ConcurrentHashMap<>();
 
@@ -186,11 +185,8 @@ public class AuditServiceImpl implements AuditService {
             for (AuditBaseEntity auditBaseEntity : auditBaseEntities) {
                 auditItemMap.put(auditBaseEntity.getAuditId(), auditBaseEntity);
                 String type = auditBaseEntity.getType();
-                if (auditBaseEntity.getIsSent() == 1) {
-                    auditSentItemMap.put(type, auditBaseEntity);
-                } else {
-                    auditReceivedItemMap.put(type, auditBaseEntity);
-                }
+                Map<Integer, AuditBaseEntity> itemMap = auditIndicatorMap.computeIfAbsent(type, v -> new HashMap<>());
+                itemMap.put(auditBaseEntity.getIndicatorType(), auditBaseEntity);
             }
         } catch (Throwable t) {
             LOGGER.error("failed to reload audit base item info", t);
@@ -240,22 +236,19 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public String getAuditId(String type, boolean isSent) {
+    public String getAuditId(String type, IndicatorType indicatorType) {
         if (StringUtils.isBlank(type)) {
             return null;
         }
-        AuditBaseEntity auditBaseEntity = isSent ? auditSentItemMap.get(type) : auditReceivedItemMap.get(type);
+        Map<Integer, AuditBaseEntity> itemMap = auditIndicatorMap.computeIfAbsent(type, v -> new HashMap<>());
+        AuditBaseEntity auditBaseEntity = itemMap.get(indicatorType.getCode());
         if (auditBaseEntity != null) {
             return auditBaseEntity.getAuditId();
         }
-        auditBaseEntity = auditBaseMapper.selectByTypeAndIsSent(type, isSent ? 1 : 0);
+        auditBaseEntity = auditBaseMapper.selectByTypeAndIndicatorType(type, indicatorType.getCode());
         Preconditions.expectNotNull(auditBaseEntity, ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED,
                 String.format(ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED.getMessage(), type));
-        if (isSent) {
-            auditSentItemMap.put(type, auditBaseEntity);
-        } else {
-            auditReceivedItemMap.put(type, auditBaseEntity);
-        }
+        itemMap.put(auditBaseEntity.getIndicatorType(), auditBaseEntity);
         return auditBaseEntity.getAuditId();
     }
 
@@ -293,15 +286,15 @@ public class AuditServiceImpl implements AuditService {
                 sourceNodeType = sourceEntityList.get(0).getSourceType();
             }
 
-            auditIdMap.put(getAuditId(sinkNodeType, true), sinkNodeType);
+            auditIdMap.put(getAuditId(sinkNodeType, IndicatorType.SEND_SUCCESS), sinkNodeType);
 
             if (CollectionUtils.isEmpty(request.getAuditIds())) {
                 // properly overwrite audit ids by role and stream config
                 if (InlongConstants.DATASYNC_MODE.equals(groupEntity.getInlongGroupMode())) {
-                    auditIdMap.put(getAuditId(sourceNodeType, false), sourceNodeType);
+                    auditIdMap.put(getAuditId(sourceNodeType, IndicatorType.RECEIVED_SUCCESS), sourceNodeType);
                     request.setAuditIds(getAuditIds(groupId, streamId, sourceNodeType, sinkNodeType));
                 } else {
-                    auditIdMap.put(getAuditId(sinkNodeType, false), sinkNodeType);
+                    auditIdMap.put(getAuditId(sinkNodeType, IndicatorType.RECEIVED_SUCCESS), sinkNodeType);
                     request.setAuditIds(getAuditIds(groupId, streamId, null, sinkNodeType));
                 }
             }
@@ -456,14 +449,14 @@ public class AuditServiceImpl implements AuditService {
 
         // if no sink is configured, return data-proxy output instead of sort
         if (sinkNodeType == null) {
-            auditSet.add(getAuditId(ClusterType.DATAPROXY, true));
+            auditSet.add(getAuditId(ClusterType.DATAPROXY, IndicatorType.SEND_SUCCESS));
         } else {
-            auditSet.add(getAuditId(sinkNodeType, true));
+            auditSet.add(getAuditId(sinkNodeType, IndicatorType.SEND_SUCCESS));
             InlongGroupEntity inlongGroup = inlongGroupMapper.selectByGroupId(groupId);
             if (InlongConstants.DATASYNC_MODE.equals(inlongGroup.getInlongGroupMode())) {
-                auditSet.add(getAuditId(sourceNodeType, false));
+                auditSet.add(getAuditId(sourceNodeType, IndicatorType.RECEIVED_SUCCESS));
             } else {
-                auditSet.add(getAuditId(sinkNodeType, false));
+                auditSet.add(getAuditId(sinkNodeType, IndicatorType.RECEIVED_SUCCESS));
             }
         }
 
@@ -472,9 +465,9 @@ public class AuditServiceImpl implements AuditService {
         if (CollectionUtils.isEmpty(sourceList)
                 || sourceList.stream().allMatch(s -> SourceType.AUTO_PUSH.equals(s.getSourceType()))) {
             // need data_proxy received type when agent has received type
-            boolean dpReceivedNeeded = auditSet.contains(getAuditId(ClusterType.AGENT, false));
+            boolean dpReceivedNeeded = auditSet.contains(getAuditId(ClusterType.AGENT, IndicatorType.RECEIVED_SUCCESS));
             if (dpReceivedNeeded) {
-                auditSet.add(getAuditId(ClusterType.DATAPROXY, false));
+                auditSet.add(getAuditId(ClusterType.DATAPROXY, IndicatorType.RECEIVED_SUCCESS));
             }
         }
 
