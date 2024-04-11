@@ -22,14 +22,14 @@ package org.apache.inlong.common.enums;
  */
 public enum IndicatorType {
 
+    RECEIVED_SUCCESS(0, "RECEIVED_SUCCESS", "Message received success"),
     SEND_SUCCESS(1, "SEND_SUCCESS", "Message send success"),
-    RECEIVED_SUCCESS(2, "RECEIVED_SUCCESS", "Message received success"),
+    RECEIVED_FAILED(2, "RECEIVED_FAILED", "Message received failed"),
     SEND_FAILED(3, "SEND_FAILED", "Message send failed"),
-    RECEIVED_FAILED(4, "RECEIVED_FAILED", "Message received failed"),
+    RECEIVED_RETRY(4, "RECEIVED_RETRY", "Message received retry"),
     SEND_RETRY(5, "SEND_RETRY", "Message send retry"),
-    RECEIVED_RETRY(6, "RECEIVED_RETRY", "Message received retry"),
+    RECEIVED_DISCARD(6, "RECEIVED_DISCARD", "Message received discard"),
     SEND_DISCARD(7, "SEND_DISCARD", "Message send discard"),
-    RECEIVED_DISCARD(8, "RECEIVED_DISCARD", "Message received discard"),
 
     UNKNOWN_TYPE(Integer.MAX_VALUE, "UNKNOWN_TYPE", "Unknown type");
 
