@@ -133,7 +133,7 @@ public class AuditServiceImpl implements AuditService {
     private static final String DELAY = "delay";
     private static final String TERMS = "terms";
 
-    // key: type of audit base item, value: entity of audit base item
+    // key 1: type of audit, like pulsar, hive, key 2: indicator type, value : entity of audit base item
     private final Map<String, Map<Integer, AuditBaseEntity>> auditIndicatorMap = new ConcurrentHashMap<>();
 
     private final Map<String, AuditBaseEntity> auditItemMap = new ConcurrentHashMap<>();
