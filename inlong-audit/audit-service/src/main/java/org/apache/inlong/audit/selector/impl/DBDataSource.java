@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DBDataSource {
 
-    private static final Logger logger = LoggerFactory.getLogger(DBDataSource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DBDataSource.class);
     private String selectorSql = SqlConstants.SELECTOR_SQL;
     private String replaceLeaderSql = SqlConstants.REPLACE_LEADER_SQL;
     private String reLeaseSql = SqlConstants.RELEASE_SQL;
@@ -63,12 +63,12 @@ public class DBDataSource {
             if (!selectorConfig.isUseDefaultLeader()) {
                 initDataSource();
                 if (needFormatSql) {
-                    formatSql(selectorConfig.getElectorDbName(), selectorConfig.getServiceId(),
+                    formatSql(selectorConfig.getSelectorDbName(), selectorConfig.getServiceId(),
                             selectorConfig.getLeaderId());
                 }
             }
         } catch (Exception exception) {
-            logger.error(exception.getMessage());
+            LOGGER.error(exception.getMessage());
             throw exception;
         }
     }
@@ -88,7 +88,7 @@ public class DBDataSource {
                 if (datasource == null || datasource.isClosed()) {
                     HikariConfig config = new HikariConfig();
                     config.setDriverClassName(selectorConfig.getDbDriver());
-                    logger.info("Init dataSource:{}", selectorConfig.getDbUrl());
+                    LOGGER.info("Init dataSource:{}", selectorConfig.getDbUrl());
                     config.setJdbcUrl(selectorConfig.getDbUrl());
                     config.setUsername(selectorConfig.getDbUser());
                     config.setPassword(selectorConfig.getDbPasswd());
@@ -107,7 +107,7 @@ public class DBDataSource {
 
                 initSucc = true;
             } catch (Exception exception) {
-                logger.error("DB url:{},user name:{},password:{},exception:{}",
+                LOGGER.error("DB url:{},user name:{},password:{},exception:{}",
                         selectorConfig.getDbUrl(),
                         selectorConfig.getDbUser(),
                         selectorConfig.getDbPasswd(),
@@ -144,15 +144,15 @@ public class DBDataSource {
                 try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
                     result = pstmt.executeUpdate();
                 } catch (Exception executeUpdatEexception) {
-                    logger.error("Exception :{}", executeUpdatEexception.getMessage());
+                    LOGGER.error("Exception :{}", executeUpdatEexception.getMessage());
                 }
             } catch (Exception pstmtEexception) {
-                logger.error("Exception :{}", pstmtEexception.getMessage());
+                LOGGER.error("Exception :{}", pstmtEexception.getMessage());
             }
             getConnectionFailTimes.set(0);
         } catch (Exception exception) {
             getConnectionFailTimes.addAndGet(1);
-            logger.warn("Get Connection fail. {}", exception.getMessage());
+            LOGGER.warn("Get Connection fail. {}", exception.getMessage());
         }
         return result;
     }
@@ -165,12 +165,12 @@ public class DBDataSource {
             try {
                 int result = executeUpdate(selectorSql);
                 if (result == 2) {
-                    logger.info("{} get the leader", selectorConfig.getLeaderId());
+                    LOGGER.info("{} get the leader", selectorConfig.getLeaderId());
                 } else if (result == 1) {
-                    logger.info("{} do not get the leader", selectorConfig.getLeaderId());
+                    LOGGER.info("{} do not get the leader", selectorConfig.getLeaderId());
                 }
             } catch (Exception exception) {
-                logger.error("Exception: {} ,sql:{}", exception.getMessage(), selectorSql);
+                LOGGER.error("Exception: {} ,sql:{}", exception.getMessage(), selectorSql);
             }
 
         }
@@ -187,13 +187,13 @@ public class DBDataSource {
         try {
             int result = executeUpdate(replaceLeaderSql);
             if (result > 0) {
-                logger.info("Replace leader success.sql:{}", replaceLeaderSql);
+                LOGGER.info("Replace leader success.sql:{}", replaceLeaderSql);
             } else {
-                logger.warn("Replace leader failed. sql:" + replaceLeaderSql);
+                LOGGER.warn("Replace leader failed. sql:" + replaceLeaderSql);
             }
 
         } catch (Exception exception) {
-            logger.error("Exception :{} ", exception.getMessage());
+            LOGGER.error("Exception :{} ", exception.getMessage());
         }
     }
 
@@ -203,12 +203,12 @@ public class DBDataSource {
     public void releaseLeader() {
         try {
             int result = executeUpdate(reLeaseSql);
-            logger.info("ReleaseLeader sql:{}", reLeaseSql);
+            LOGGER.info("ReleaseLeader sql:{}", reLeaseSql);
             if (result == 1) {
-                logger.info("{} release the leader success", selectorConfig.getLeaderId());
+                LOGGER.info("{} release the leader success", selectorConfig.getLeaderId());
             }
         } catch (Exception exception) {
-            logger.error("ReLease sql:{},exception {}:,", reLeaseSql, exception.getMessage());
+            LOGGER.error("ReLease sql:{},exception {}:,", reLeaseSql, exception.getMessage());
         }
 
     }
@@ -226,7 +226,7 @@ public class DBDataSource {
 
             try {
                 if (null == datasource || datasource.isClosed()) {
-                    logger.warn("DataSource is closed init is again");
+                    LOGGER.warn("DataSource is closed init is again");
                     initDataSource();
                 }
                 try (Connection connection = datasource.getConnection()) {
@@ -236,13 +236,13 @@ public class DBDataSource {
                             leaderId = resultSet.getString("leader");
                         }
                     } catch (Exception exception) {
-                        logger.error("Exception {}", exception.getMessage());
+                        LOGGER.error("Exception {}", exception.getMessage());
                     }
                 } catch (Throwable connectionException) {
-                    logger.error("Exception {}", connectionException.getMessage());
+                    LOGGER.error("Exception {}", connectionException.getMessage());
                 }
             } catch (Exception datasourceException) {
-                logger.error("Exception {}", datasourceException.getMessage());
+                LOGGER.error("Exception {}", datasourceException.getMessage());
             }
 
             return leaderId;
@@ -263,7 +263,7 @@ public class DBDataSource {
                 }
                 return false;
             } catch (Exception exception) {
-                logger.error("Exception {}", exception.getMessage());
+                LOGGER.error("Exception {}", exception.getMessage());
                 return true;
             }
         }
@@ -278,14 +278,14 @@ public class DBDataSource {
     public void formatSql(String... params) {
         selectorSql = MessageFormat.format(selectorSql, params);
         selectorSql = selectorSql.replaceAll("#", selectorConfig.getLeaderTimeout() + "");
-        logger.info(selectorSql);
+        LOGGER.info(selectorSql);
         replaceLeaderSql = MessageFormat.format(replaceLeaderSql, params);
-        logger.info(replaceLeaderSql);
+        LOGGER.info(replaceLeaderSql);
         reLeaseSql = MessageFormat.format(reLeaseSql, params);
-        logger.info("ReLeaseSql:{}", reLeaseSql);
+        LOGGER.info("ReLeaseSql:{}", reLeaseSql);
         isLeaderSql = MessageFormat.format(isLeaderSql, params);
-        logger.info(isLeaderSql);
+        LOGGER.info(isLeaderSql);
         searchCurrentLeaderSql = MessageFormat.format(searchCurrentLeaderSql, params);
-        logger.info(searchCurrentLeaderSql);
+        LOGGER.info(searchCurrentLeaderSql);
     }
 }

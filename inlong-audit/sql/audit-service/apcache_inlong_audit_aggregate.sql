@@ -66,3 +66,15 @@ CREATE TABLE IF NOT EXISTS `audit_data_day`
     PRIMARY KEY (`log_ts`,`inlong_group_id`,`inlong_stream_id`,`audit_id`,`audit_tag`)
 ) ENGINE = InnoDB
 DEFAULT CHARSET = utf8 COMMENT ='Inlong audit data day table';
+
+-- ----------------------------
+-- Table structure for selector
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `leader_selector` (
+   `service_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+   `leader_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+   `last_seen_active` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (`service_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'selector db'
+
+

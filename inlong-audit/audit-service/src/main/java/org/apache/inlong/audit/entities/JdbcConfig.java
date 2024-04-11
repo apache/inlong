@@ -15,21 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.selector;
+package org.apache.inlong.audit.entities;
 
-import org.apache.inlong.audit.selector.api.SelectorChangeListener;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+@Data
+@AllArgsConstructor
+public class JdbcConfig {
 
-/**
- * Elector change listener impl
- */
-public class ElectorChangeListenerImpl implements SelectorChangeListener {
-
-    private static final Logger logger = LoggerFactory.getLogger(ElectorChangeListenerImpl.class);
-
-    public void leaderChanged(boolean currentNodeIsLeader) {
-        logger.info("LeaderChanged {}:", currentNodeIsLeader);
-    }
+    String driverClass;
+    String JdbcUrl;
+    String userName;
+    String password;
 }

@@ -15,12 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.selector.api;
+package org.apache.inlong.audit.selector;
+
+import org.apache.inlong.audit.selector.api.SelectorChangeListener;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Selector change listener
+ * Selector change listener impl
  */
-public abstract interface SelectorChangeListener {
+public class SelectorChangeListenerImpl implements SelectorChangeListener {
 
-    public abstract void leaderChanged(boolean currentNodeIsLeader);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SelectorChangeListenerImpl.class);
+
+    public void leaderChanged(boolean currentNodeIsLeader) {
+        LOGGER.info("Leader changed {}:", currentNodeIsLeader);
+    }
 }

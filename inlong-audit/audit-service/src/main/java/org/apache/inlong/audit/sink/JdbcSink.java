@@ -60,7 +60,7 @@ import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SQL
  */
 public class JdbcSink implements AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JdbcSink.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JdbcSink.class);
     private final ScheduledExecutorService sinkTimer = Executors.newSingleThreadScheduledExecutor();
     private final DataQueue dataQueue;
     private final int insertBatch;
@@ -126,7 +126,7 @@ public class JdbcSink implements AutoCloseable {
                 preparedStatement.clearBatch();
             }
         } catch (Exception e) {
-            LOG.error("Process exception! {}", e.getMessage());
+            LOGGER.error("Process exception! {}", e.getMessage());
         }
     }
 

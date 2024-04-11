@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class SelectorImpl extends Selector {
 
-    private static final Logger logger = LoggerFactory.getLogger(SelectorImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SelectorImpl.class);
     private final SelectorConfig selectorConfig;
     private final ExecutorService fixedThreadPool;
     private boolean canElector = true;
@@ -60,7 +60,7 @@ public class SelectorImpl extends Selector {
      */
     public void init() throws Exception {
         try {
-            logger.info("Init selector impl...");
+            LOGGER.info("Init selector impl...");
 
             dbDataSource.init(true);
 
@@ -68,7 +68,7 @@ public class SelectorImpl extends Selector {
 
             fixedThreadPool.execute(new DBMonitorTask(selectorConfig, dbDataSource));
         } catch (Exception exception) {
-            logger.error("Failed to init selector", exception);
+            LOGGER.error("Failed to init selector", exception);
         }
     }
 
@@ -89,14 +89,14 @@ public class SelectorImpl extends Selector {
             try {
                 dbDataSource.releaseLeader();
             } catch (Exception exception) {
-                logger.error("Exception :{}", exception.getMessage());
+                LOGGER.error("Exception :{}", exception.getMessage());
             }
 
         try {
             TimeUnit.SECONDS.sleep(Configuration.getInstance().get(ConfigConstants.KEY_RELEASE_LEADER_INTERVAL,
                     ConfigConstants.DEFAULT_RELEASE_LEADER_INTERVAL));
         } catch (Exception exception) {
-            logger.error("Exception :{}", exception.getMessage());
+            LOGGER.error("Exception :{}", exception.getMessage());
         }
     }
 
@@ -142,7 +142,7 @@ public class SelectorImpl extends Selector {
             dbDataSource.init(false);
             canSelect(true);
         } catch (Exception exception) {
-            logger.error("Exception :{}", exception.getMessage());
+            LOGGER.error("Exception :{}", exception.getMessage());
             return false;
         }
         return true;
@@ -198,7 +198,7 @@ public class SelectorImpl extends Selector {
                 try {
                     TimeUnit.SECONDS.sleep(sleepTime);
                 } catch (Exception exception) {
-                    logger.error("Exception :{}", exception.getMessage());
+                    LOGGER.error("Exception :{}", exception.getMessage());
                 }
             }
         }

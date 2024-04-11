@@ -30,34 +30,34 @@ import java.util.concurrent.TimeUnit;
  */
 public class DBMonitorTask implements Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(DBMonitorTask.class);
-    private SelectorConfig electorConfig;
-    private DBDataSource dbDataSource;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DBMonitorTask.class);
+    private final SelectorConfig selectorConfig;
+    private final DBDataSource dbDataSource;
     private int dbClosedTimes = 0;
-    private boolean replaced = true;
+    private final boolean replaced = true;
 
-    public DBMonitorTask(SelectorConfig electorConfig, DBDataSource dbDataSource) {
-        this.electorConfig = electorConfig;
+    public DBMonitorTask(SelectorConfig selectorConfig, DBDataSource dbDataSource) {
+        this.selectorConfig = selectorConfig;
         this.dbDataSource = dbDataSource;
     }
 
     public void run() {
         try {
             while (true) {
-                logger.info("DB monitor task run once");
-                TimeUnit.SECONDS.sleep(electorConfig.getDbMonitorRunInterval());
+                LOGGER.info("DB monitor task run once");
+                TimeUnit.SECONDS.sleep(selectorConfig.getDbMonitorRunInterval());
 
-                if (!(electorConfig.isUseDefaultLeader()))
+                if (!(selectorConfig.isUseDefaultLeader()))
                     break;
             }
             if (dbDataSource.isDBDataSourceClosed()) {
                 dbClosedTimes += 1;
-                logger.info("DB closed times :{}", dbClosedTimes);
+                LOGGER.info("DB closed times :{}", dbClosedTimes);
             } else {
                 dbClosedTimes = 0;
             }
         } catch (Exception e) {
-            logger.error("DB monitor task has exception {}", e.getMessage());
+            LOGGER.error("DB monitor task has exception {}", e.getMessage());
         }
     }
 }

@@ -40,7 +40,7 @@ import static org.apache.inlong.audit.config.ConfigConstants.KEY_SOURCE_DB_SINK_
  */
 public class CacheSink {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CacheSink.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CacheSink.class);
     private final ScheduledExecutorService sinkTimer = Executors.newSingleThreadScheduledExecutor();
     private final DataQueue dataQueue;
     private final Cache<String, StatData> cache;
@@ -77,7 +77,7 @@ public class CacheSink {
                 data = dataQueue.pull(pullTimeOut, TimeUnit.MILLISECONDS);
             }
         } catch (Exception exception) {
-            LOG.error("Process exception! ", exception);
+            LOGGER.error("Process exception! ", exception);
         }
     }
 

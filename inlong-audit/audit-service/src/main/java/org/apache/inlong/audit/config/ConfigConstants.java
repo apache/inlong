@@ -37,46 +37,18 @@ public class ConfigConstants {
     public static final String KEY_MYSQL_PASSWORD = "mysql.password";
 
     // Time config
-    public static final String KEY_QUERY_SQL_TIME_OUT = "query.sql.timeout";
-    public static final int DEFAULT_QUERY_SQL_TIME_OUT = 300;
-    public static final String KEY_JDBC_TIME_OUT = "jdbc.timeout.second";
-    public static final int DEFAULT_JDBC_TIME_OUT = 300;
     public static final String KEY_DATASOURCE_CONNECTION_TIMEOUT = "datasource.connection.timeout.ms";
     public static final int DEFAULT_CONNECTION_TIMEOUT = 1000 * 60 * 5;
-    public static final String KEY_API_RESPONSE_TIMEOUT = "api.response.timeout";
-    public static final int DEFAULT_API_TIMEOUT = 30;
     public static final String KEY_QUEUE_PULL_TIMEOUT = "queue.pull.timeout.ms";
     public static final int DEFAULT_QUEUE_PULL_TIMEOUT = 1000;
 
     // Interval config
-    public static final String KEY_SOURCE_CLICKHOUSE_STAT_INTERVAL = "source.clickhouse.stat.interval.minute";
-    public static final int DEFAULT_SOURCE_CLICKHOUSE_STAT_INTERVAL = 1;
     public static final String KEY_SOURCE_DB_STAT_INTERVAL = "source.db.stat.interval.minute";
     public static final int DEFAULT_SOURCE_DB_STAT_INTERVAL = 1;
     public static final String KEY_SOURCE_DB_SINK_INTERVAL = "sink.db.interval.ms";
     public static final int DEFAULT_SOURCE_DB_SINK_INTERVAL = 100;
     public static final String KEY_SOURCE_DB_SINK_BATCH = "sink.db.batch";
     public static final int DEFAULT_SOURCE_DB_SINK_BATCH = 1000;
-    public static final String KEY_SOURCE_DB_SINK_INTERNAL = "sink.db.internal.ms";
-    public static final int DEFAULT_SOURCE_DB_SINK_INTERNAL = 100;
-
-    // Api config
-    public static final String KEY_HOUR_API_PATH = "hour.api.path";
-    public static final String DEFAULT_HOUR_API_PATH = "/audit/query/hour";
-    public static final String KEY_DAY_API_PATH = "day.api.path";
-    public static final String DEFAULT_DAY_API_PATH = "/audit/query/day";
-    public static final String KEY_DAY_API_TABLE = "day.api.table";
-    public static final String DEFAULT_DAY_API_TABLE = "audit_data_day";
-    public static final String KEY_MINUTE_API_TABLE = "minute.api.table";
-    public static final String DEFAULT_MINUTE_API_TABLE = "audit_data_temp";
-    public static final String KEY_MINUTE_10_API_PATH = "minute.10.api.path";
-    public static final String DEFAULT_MINUTE_10_API_PATH = "/audit/query/minute/10";
-    public static final String KEY_MINUTE_30_API_PATH = "minute.30.api.path";
-    public static final String DEFAULT_MINUTE_30_API_PATH = "/audit/query/minute/30";
-    public static final String KEY_API_POOL_SIZE = "api.pool.size";
-    public static final int DEFAULT_POOL_SIZE = 10;
-    public static final String KEY_API_BACKLOG_SIZE = "api.backlog.size";
-    public static final int DEFAULT_API_BACKLOG_SIZE = 100;
 
     public static final String KEY_DATASOURCE_POOL_SIZE = "datasource.pool.size";
     public static final int DEFAULT_DATASOURCE_POOL_SIZE = 1000;
@@ -87,25 +59,25 @@ public class ConfigConstants {
     public static final String DEFAULT_AUDIT_IDS = "3;4;5;6";
 
     // Summary config
-    public static final String KEY_REALTIME_SUMMARY_SOURCE_TABLE = "realtime.summary.source.table";
-    public static final String DEFAULT_REALTIME_SUMMARY_SOURCE_TABLE = "audit_data";
-    public static final String KEY_REALTIME_SUMMARY_SINK_TABLE = "realtime.summary.sink.table";
-    public static final String DEFAULT_REALTIME_SUMMARY_SINK_TABLE = "audit_data_temp";
-    public static final String KEY_REALTIME_SUMMARY_STAT_BACK_TIMES = "realtime.summary.stat.back.times";
-    public static final int DEFAULT_REALTIME_SUMMARY_STAT_BACK_TIMES = 6;
+    public static final String KEY_SUMMARY_REALTIME_STAT_BACK_TIMES = "summary.realtime.stat.back.times";
+    public static final int DEFAULT_SUMMARY_REALTIME_STAT_BACK_TIMES = 6;
 
-    public static final String KEY_DAILY_SUMMARY_SOURCE_TABLE = "daily.summary.source.table";
-    public static final String DEFAULT_DAILY_SUMMARY_SOURCE_TABLE = "audit_data_temp";
-    public static final String KEY_DAILY_SUMMARY_SINK_TABLE = "daily.summary.sink.table";
-    public static final String DEFAULT_DAILY_SUMMARY_SINK_TABLE = "audit_data_day";
-    public static final String KEY_DAILY_SUMMARY_STAT_BACK_TIMES = "daily.summary.stat.back.times";
-    public static final int DEFAULT_DAILY_SUMMARY_STAT_BACK_TIMES = 2;
+    public static final String KEY_SUMMARY_DAILY_STAT_BACK_TIMES = "summary.daily.stat.back.times";
+    public static final int DEFAULT_SUMMARY_DAILY_STAT_BACK_TIMES = 2;
+
+    public static final String KEY_STAT_BACK_INITIAL_OFFSET = "stat.back.initial.offset";
+    public static final int DEFAULT_STAT_BACK_INITIAL_OFFSET = 0;
 
     // HA selector config
     public static final String KEY_RELEASE_LEADER_INTERVAL = "release.leader.interval";
     public static final int DEFAULT_RELEASE_LEADER_INTERVAL = 40;
     public static final String KEY_SELECTOR_THREAD_POOL_SIZE = "selector.thread.pool.size";
     public static final int DEFAULT_SELECTOR_THREAD_POOL_SIZE = 3;
+
+    public static final String KEY_SELECTOR_SERVICE_ID = "selector.service.id";
+    public static final String DEFAULT_SELECTOR_SERVICE_ID = "audit-service";
+    public static final String KEY_SELECTOR_FOLLOWER_LISTEN_CYCLE_MS = "selector.follower.listen.cycle.ms";
+    public static final int DEFAULT_SELECTOR_FOLLOWER_LISTEN_CYCLE_MS = 2000;
 
     // HikariConfig
     public static final String CACHE_PREP_STMTS = "cachePrepStmts";
@@ -123,12 +95,5 @@ public class ConfigConstants {
 
     public static final int MAX_INIT_COUNT = 2;
     public static final int RANDOM_BOUND = 10;
-
-    // Cache config
-    public static final String KEY_API_CACHE_MAX_SIZE = "api.cache.max.size";
-    public static final int DEFAULT_API_CACHE_MAX_SIZE = 50000000;
-
-    public static final String KEY_API_CACHE_EXPIRED_HOURS = "api.cache.expired.hours";
-    public static final int DEFAULT_API_CACHE_EXPIRED_HOURS = 12;
 
 }

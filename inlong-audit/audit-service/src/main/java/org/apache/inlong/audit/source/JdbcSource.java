@@ -56,6 +56,7 @@ import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATASOURCE_
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_CACHE_SQL_LIMIT;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SOURCE_DB_STAT_INTERVAL;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_STAT_BACK_INITIAL_OFFSET;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_AUDIT_IDS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_CACHE_PREP_STMTS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_CONNECTION_TIMEOUT;
@@ -63,8 +64,10 @@ import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_POOL
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SQL_LIMIT;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_SOURCE_DB_STAT_INTERVAL;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_STAT_BACK_INITIAL_OFFSET;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SQL_LIMIT;
+import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_AUDIT_TAG;
 import static org.apache.inlong.audit.entities.AuditCycle.DAY;
 import static org.apache.inlong.audit.entities.AuditCycle.HOUR;
 
@@ -74,7 +77,7 @@ import static org.apache.inlong.audit.entities.AuditCycle.HOUR;
 @Data
 public class JdbcSource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JdbcSource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JdbcSource.class);
     private final ConcurrentHashMap<Integer, ScheduledExecutorService> statTimers = new ConcurrentHashMap<>();
     private DataQueue dataQueue;
     private List<String> auditIds;
@@ -106,12 +109,14 @@ public class JdbcSource {
         if (sourceConfig.getAuditCycle() == DAY) {
             statInterval = HOUR.getValue();
         }
-        for (int statBackTime = 1; statBackTime < sourceConfig.getStatBackTimes(); statBackTime++) {
+        int offset = Configuration.getInstance().get(KEY_STAT_BACK_INITIAL_OFFSET,
+                DEFAULT_STAT_BACK_INITIAL_OFFSET);
+        for (int statBackTime = 0; statBackTime < sourceConfig.getStatBackTimes(); statBackTime++) {
             ScheduledExecutorService timer =
                     statTimers.computeIfAbsent(statBackTime, k -> Executors.newSingleThreadScheduledExecutor());
-            timer.scheduleWithFixedDelay(new StatServer(statBackTime),
+            timer.scheduleWithFixedDelay(new StatServer(offset++),
                     0,
-                    statInterval, TimeUnit.MINUTES);
+                    statInterval + statBackTime, TimeUnit.MINUTES);
         }
     }
 
@@ -218,12 +223,12 @@ public class JdbcSource {
 
         public void run() {
             long currentTimestamp = System.currentTimeMillis();
-            LOG.info("Stat source data at {},stat back times:{}", currentTimestamp, statBackTimes);
+            LOGGER.info("Stat source data at {},stat back times:{}", currentTimestamp, statBackTimes);
 
             statByStep();
 
             long timeCost = System.currentTimeMillis() - currentTimestamp;
-            LOG.info("Stat source data cost time:{}ms,stat back times:{}", timeCost, statBackTimes);
+            LOGGER.info("Stat source data cost time:{}ms,stat back times:{}", timeCost, statBackTimes);
         }
 
         /**
@@ -255,7 +260,7 @@ public class JdbcSource {
                 long currentTimestamp = System.currentTimeMillis();
                 query(statCycle.getStartTime(), statCycle.getEndTime(), auditId);
                 long timeCost = System.currentTimeMillis() - currentTimestamp;
-                LOG.info("[{}]-[{}],{},stat back times:{},audit id:{},cost:{}ms",
+                LOGGER.info("[{}]-[{}],{},stat back times:{},audit id:{},cost:{}ms",
                         statCycle.getStartTime(), statCycle.getEndTime(),
                         sourceConfig.getAuditCycle(),
                         statBackTimes, auditId, timeCost);
@@ -280,29 +285,27 @@ public class JdbcSource {
                 pstat.setString(3, auditId);
                 try (ResultSet resultSet = pstat.executeQuery()) {
                     while (resultSet.next()) {
-                        String inlongGroupID = resultSet.getString(1);
-                        String InlongStreamID = resultSet.getString(2);
-                        String AuditId = resultSet.getString(3);
-                        String AuditTag = resultSet.getString(4);
-                        long count = resultSet.getLong(5);
-                        long size = resultSet.getLong(6);
-                        long delay = resultSet.getLong(7);
                         StatData data = new StatData();
                         data.setLogTs(startTime);
-                        data.setInlongGroupId(inlongGroupID);
-                        data.setInlongStreamId(InlongStreamID);
-                        data.setAuditId(AuditId);
-                        data.setAuditTag(AuditTag);
-                        data.setCount(count);
-                        data.setSize(size);
-                        data.setDelay(delay);
+                        data.setInlongGroupId(resultSet.getString(1));
+                        data.setInlongStreamId(resultSet.getString(2));
+                        data.setAuditId(resultSet.getString(3));
+                        String auditTag = resultSet.getString(4);
+                        if (null == auditTag) {
+                            data.setAuditTag(DEFAULT_AUDIT_TAG);
+                        } else {
+                            data.setAuditTag(auditTag);
+                        }
+                        data.setCount(resultSet.getLong(5));
+                        data.setSize(resultSet.getLong(6));
+                        data.setDelay(resultSet.getLong(7));
                         dataQueue.push(data);
                     }
                 } catch (SQLException sqlException) {
-                    LOG.error("Query has SQL exception! ", sqlException);
+                    LOGGER.error("Query has SQL exception! ", sqlException);
                 }
             } catch (Exception exception) {
-                LOG.error("Query has exception! ", exception);
+                LOGGER.error("Query has exception! ", exception);
             }
         }
 

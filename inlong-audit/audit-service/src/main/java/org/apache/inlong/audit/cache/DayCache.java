@@ -18,7 +18,9 @@
 package org.apache.inlong.audit.cache;
 
 import org.apache.inlong.audit.config.Configuration;
+import org.apache.inlong.audit.entities.JdbcConfig;
 import org.apache.inlong.audit.entities.StatData;
+import org.apache.inlong.audit.utils.JdbcUtils;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -33,7 +35,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 
 import static org.apache.inlong.audit.config.ConfigConstants.CACHE_PREP_STMTS;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CACHE_PREP_STMTS;
@@ -44,11 +45,6 @@ import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_C
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_CACHE_PREP_STMTS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_CONNECTION_TIMEOUT;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_POOL_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_DEFAULT_MYSQL_DRIVER;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_MYSQL_DRIVER;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_MYSQL_JDBC_URL;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_MYSQL_PASSWORD;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_MYSQL_USERNAME;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SQL_LIMIT;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SIZE;
@@ -61,7 +57,7 @@ import static org.apache.inlong.audit.config.SqlConstants.KEY_MYSQL_SOURCE_QUERY
  */
 public class DayCache implements AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DayCache.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DayCache.class);
     private static volatile DayCache dayCache = null;
     private DataSource dataSource;
 
@@ -114,21 +110,21 @@ public class DayCache implements AutoCloseable {
             try (ResultSet resultSet = pstat.executeQuery()) {
                 while (resultSet.next()) {
                     StatData data = new StatData();
-                    data.setLogTs(startTime);
-                    data.setInlongGroupId(resultSet.getString(1));
-                    data.setInlongStreamId(resultSet.getString(2));
-                    data.setAuditId(resultSet.getString(3));
-                    data.setAuditTag(resultSet.getString(4));
-                    data.setCount(resultSet.getLong(5));
-                    data.setSize(resultSet.getLong(6));
-                    data.setDelay(resultSet.getLong(7));
+                    data.setLogTs(resultSet.getString(1));
+                    data.setInlongGroupId(resultSet.getString(2));
+                    data.setInlongStreamId(resultSet.getString(3));
+                    data.setAuditId(resultSet.getString(4));
+                    data.setAuditTag(resultSet.getString(5));
+                    data.setCount(resultSet.getLong(6));
+                    data.setSize(resultSet.getLong(7));
+                    data.setDelay(resultSet.getLong(8));
                     result.add(data);
                 }
             } catch (SQLException sqlException) {
-                LOG.error("Query has SQL exception! ", sqlException);
+                LOGGER.error("Query has SQL exception! ", sqlException);
             }
         } catch (Exception exception) {
-            LOG.error("Query has exception! ", exception);
+            LOGGER.error("Query has exception! ", exception);
         }
         return result;
     }
@@ -137,20 +133,13 @@ public class DayCache implements AutoCloseable {
      * Create data source
      */
     private void createDataSource() {
-        String driver = Configuration.getInstance().get(KEY_MYSQL_DRIVER, KEY_DEFAULT_MYSQL_DRIVER);
-        String jdbcUrl = Configuration.getInstance().get(KEY_MYSQL_JDBC_URL);
-        String userName = Configuration.getInstance().get(KEY_MYSQL_USERNAME);
-        String passWord = Configuration.getInstance().get(KEY_MYSQL_PASSWORD);
-        assert (Objects.nonNull(driver)
-                && Objects.nonNull(jdbcUrl)
-                && Objects.nonNull(userName)
-                && Objects.nonNull(passWord));
+        JdbcConfig jdbcConfig = JdbcUtils.buildMysqlConfig();
 
         HikariConfig config = new HikariConfig();
-        config.setDriverClassName(driver);
-        config.setJdbcUrl(jdbcUrl);
-        config.setUsername(userName);
-        config.setPassword(passWord);
+        config.setDriverClassName(jdbcConfig.getDriverClass());
+        config.setJdbcUrl(jdbcConfig.getJdbcUrl());
+        config.setUsername(jdbcConfig.getUserName());
+        config.setPassword(jdbcConfig.getPassword());
         config.setConnectionTimeout(Configuration.getInstance().get(KEY_DATASOURCE_CONNECTION_TIMEOUT,
                 DEFAULT_CONNECTION_TIMEOUT));
         config.addDataSourceProperty(CACHE_PREP_STMTS,

@@ -29,7 +29,7 @@ import java.util.Properties;
  */
 public class Configuration {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Configuration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
     public static final String DEFAULT_CONFIG_FILE = "conf/audit-service.properties";
 
     private static volatile Configuration conf = null;
@@ -42,7 +42,7 @@ public class Configuration {
         try (FileInputStream fileInputStream = new FileInputStream(DEFAULT_CONFIG_FILE)) {
             properties.load(fileInputStream);
         } catch (Exception e) {
-            LOG.error("Configuration has exception!", e);
+            LOGGER.error("Configuration has exception!", e);
         }
     }
 
@@ -85,6 +85,18 @@ public class Configuration {
     public int get(String key, int defaultValue) {
         Object value = properties.get(key);
         return value == null ? defaultValue : (Integer) value;
+    }
+
+    /**
+     * Get double value
+     *
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    public double get(String key, double defaultValue) {
+        Object value = properties.get(key);
+        return value == null ? defaultValue : (Double) value;
     }
 
     /**
