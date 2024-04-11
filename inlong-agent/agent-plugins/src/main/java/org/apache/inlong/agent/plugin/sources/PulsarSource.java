@@ -185,13 +185,13 @@ public class PulsarSource extends AbstractSource {
                 break;
             }
             org.apache.pulsar.client.api.Message<byte[]> message = consumer.receive(0, TimeUnit.MILLISECONDS);
-            MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_TOTAL_LEN);
             if (ObjectUtils.isEmpty(message)) {
                 if (queue.isEmpty()) {
                     emptyCount.incrementAndGet();
                 } else {
                     emptyCount.set(0);
                 }
+                MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_TOTAL_LEN);
                 AgentUtils.silenceSleepInSeconds(1);
                 continue;
             }
@@ -203,6 +203,7 @@ public class PulsarSource extends AbstractSource {
                 break;
             }
             putIntoQueue(sourceData);
+            MemoryManager.getInstance().release(AGENT_GLOBAL_READER_SOURCE_PERMIT, BATCH_TOTAL_LEN);
             consumer.acknowledge(message);
 
             if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_INTERVAL_MS) {
@@ -260,7 +261,7 @@ public class PulsarSource extends AbstractSource {
 
     @Override
     public Message read() {
-        PulsarSource.SourceData sourceData = null;
+        SourceData sourceData = null;
         try {
             sourceData = queue.poll(READ_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
@@ -274,7 +275,7 @@ public class PulsarSource extends AbstractSource {
         return finalMsg;
     }
 
-    private Message createMessage(PulsarSource.SourceData sourceData) {
+    private Message createMessage(SourceData sourceData) {
         String proxyPartitionKey = profile.get(PROXY_SEND_PARTITION_KEY, DigestUtils.md5Hex(inlongGroupId));
         Map<String, String> header = new HashMap<>();
         header.put(PROXY_KEY_DATA, proxyPartitionKey);
