@@ -68,3 +68,6 @@ CREATE TABLE IF NOT EXISTS `package_config` (
 )  ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4 COMMENT = 'Package config table'
 
+DROP INDEX `unique_audit_base_type` ON `audit_base`;
+ALTER TABLE `audit_base` CHANGE is_sent indicator_type int(4) DEFAULT NULL COMMENT 'Indicator type for audit';
+ALTER TABLE `audit_base` ADD UNIQUE KEY unique_audit_base_type (`indicator_type`,`type` )

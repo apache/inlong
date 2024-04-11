@@ -809,17 +809,17 @@ CREATE TABLE IF NOT EXISTS `audit_base`
     `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `name`             varchar(256) NOT NULL COMMENT 'Audit base name',
     `type`             varchar(20)  NOT NULL COMMENT 'Audit base item type, such as: AGENT, DATAPROXY, etc',
-    `is_sent`          int(4)       NOT NULL DEFAULT '0' COMMENT '0: received, 1: sent',
+    `indicator_type`   int(4)       DEFAULT NULL COMMENT 'Indicator type for audit',
     `audit_id`         varchar(11)  NOT NULL COMMENT 'Audit ID mapping of audit name',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_audit_base_type` (`type`, `is_sent`),
+    UNIQUE KEY `unique_audit_base_type` (`type`, `indicator_type`),
     UNIQUE KEY `unique_audit_base_name` (`name`)
 );
 
 -- ----------------------------
 -- Insert audit_base item
 -- ----------------------------
-INSERT INTO `audit_base`(`name`, `type`, `is_sent`, `audit_id`)
+INSERT INTO `audit_base`(`name`, `type`, `indicator_type`, `audit_id`)
 VALUES ('audit_sdk_collect', 'SDK', 0, '1'),
        ('audit_sdk_sent', 'SDK', 1, '2'),
        ('audit_agent_collect', 'AGENT', 0, '3'),
