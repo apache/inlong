@@ -856,7 +856,7 @@ CREATE TABLE IF NOT EXISTS `audit_base`
     `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `name`             varchar(256) NOT NULL COMMENT 'Audit base name',
     `type`             varchar(20)  NOT NULL COMMENT 'Audit base item type, such as: AGENT, DATAPROXY, etc',
-    `indicator_type`   int(11)      DEFAULT NULL COMMENT 'Indicator type for audit',
+    `indicator_type`   int(4)       DEFAULT NULL COMMENT 'Indicator type for audit',
     `audit_id`         varchar(11)  NOT NULL COMMENT 'Audit ID mapping of audit name',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_audit_base_type` (`type`, `indicator_type`),
