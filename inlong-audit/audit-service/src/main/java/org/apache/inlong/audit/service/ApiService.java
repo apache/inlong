@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -132,7 +133,7 @@ public class ApiService {
                     handleLegalParams(responseJson, params);
                 }
 
-                byte[] bytes = responseJson.toString().getBytes();
+                byte[] bytes = responseJson.toString().getBytes(StandardCharsets.UTF_8);
 
                 exchange.getResponseHeaders().set(KEY_HTTP_HEADER_CONTENT_TYPE,
                         VALUE_HTTP_HEADER_CONTENT_TYPE);
