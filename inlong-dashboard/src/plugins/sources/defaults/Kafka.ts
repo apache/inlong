@@ -22,6 +22,7 @@ import { RenderRow } from '@/plugins/RenderRow';
 import { RenderList } from '@/plugins/RenderList';
 import { SourceInfo } from '../common/SourceInfo';
 import i18n from '@/i18n';
+import rulesPattern from '@/core/utils/pattern';
 
 const { I18n } = DataWithBackend;
 const { FieldDecorator, SyncField, IngestionField } = RenderRow;
@@ -31,6 +32,97 @@ export default class KafkaSource
   extends SourceInfo
   implements DataWithBackend, RenderRow, RenderList
 {
+  @FieldDecorator({
+    type: 'select',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: Boolean(values.id),
+      showSearch: true,
+      allowClear: true,
+      filterOption: false,
+      options: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
+          url: '/cluster/list',
+          method: 'POST',
+          data: {
+            keyword,
+            type: 'AGENT',
+            pageNum: 1,
+            pageSize: 10,
+          },
+        }),
+        requestParams: {
+          formatResult: result =>
+            result?.list?.map(item => ({
+              ...item,
+              label: item.displayName,
+              value: item.name,
+            })),
+        },
+      },
+      onChange: (value, option) => {
+        return {
+          clusterId: option.id,
+        };
+      },
+    }),
+  })
+  @ColumnDecorator()
+  @IngestionField()
+  @I18n('meta.Sources.File.ClusterName')
+  inlongClusterName: string;
+
+  @FieldDecorator({
+    type: 'text',
+    hidden: true,
+  })
+  @I18n('clusterId')
+  @IngestionField()
+  clusterId: number;
+
+  @FieldDecorator({
+    type: 'select',
+    rules: [
+      {
+        pattern: rulesPattern.ip,
+        message: i18n.t('meta.Sources.File.IpRule'),
+        required: true,
+      },
+    ],
+    props: values => ({
+      disabled: Boolean(values.id),
+      showSearch: true,
+      allowClear: true,
+      filterOption: false,
+      options: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
+          url: '/cluster/node/list',
+          method: 'POST',
+          data: {
+            keyword,
+            parentId: values.clusterId,
+            pageNum: 1,
+            pageSize: 10,
+          },
+        }),
+        requestParams: {
+          formatResult: result =>
+            result?.list?.map(item => ({
+              ...item,
+              label: item.ip,
+              value: item.ip,
+            })),
+        },
+      },
+    }),
+  })
+  @ColumnDecorator()
+  @IngestionField()
+  @I18n('meta.Sources.File.DataSourceIP')
+  agentIp: string;
+
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
@@ -60,7 +152,7 @@ export default class KafkaSource
 
   @FieldDecorator({
     type: 'select',
-    initialValue: 'Latest',
+    initialValue: 'latest',
     rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,

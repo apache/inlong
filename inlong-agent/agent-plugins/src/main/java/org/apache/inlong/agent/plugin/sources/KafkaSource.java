@@ -145,7 +145,7 @@ public class KafkaSource extends AbstractSource {
             props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, profile.get(TASK_KAFKA_AUTO_COMMIT_OFFSET_RESET));
             props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
 
-            allPartitionOffsets = profile.get(TASK_KAFKA_OFFSET);
+            allPartitionOffsets = profile.get(TASK_KAFKA_OFFSET, null);
             isRestoreFromDB = profile.getBoolean(RESTORE_FROM_DB, false);
             if (!isRestoreFromDB && StringUtils.isNotBlank(allPartitionOffsets)) {
                 // example:0#110_1#666_2#222
