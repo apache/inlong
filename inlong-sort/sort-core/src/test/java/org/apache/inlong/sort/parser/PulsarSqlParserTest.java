@@ -77,7 +77,9 @@ public class PulsarSqlParserTest extends AbstractTestBase {
                 "earliest",
                 null,
                 "test",
-                "earliest");
+                "earliest",
+                "org.apache.pulsar.client.impl.auth.AuthenticationToken",
+                "token auth params");
     }
 
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {

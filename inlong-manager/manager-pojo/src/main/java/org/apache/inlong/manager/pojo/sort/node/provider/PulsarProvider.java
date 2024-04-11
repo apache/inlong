@@ -80,7 +80,9 @@ public class PulsarProvider implements ExtractNodeProvider {
                 startupMode.getValue(),
                 primaryKey,
                 pulsarSource.getSubscription(),
-                scanStartupSubStartOffset);
+                scanStartupSubStartOffset,
+                "",
+                "");
     }
 
     @Override

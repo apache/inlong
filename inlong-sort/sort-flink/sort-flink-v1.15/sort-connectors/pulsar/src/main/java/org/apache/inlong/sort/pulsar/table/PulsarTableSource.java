@@ -31,6 +31,8 @@ import org.apache.flink.table.connector.source.abilities.SupportsReadingMetadata
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.pulsar.client.api.SubscriptionType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -54,6 +56,8 @@ public class PulsarTableSource implements ScanTableSource, SupportsReadingMetada
     // --------------------------------------------------------------------------------------------
     // Format attributes
     // --------------------------------------------------------------------------------------------
+
+    private static final Logger LOG = LoggerFactory.getLogger(PulsarTableSource.class);
 
     private static final String FORMAT_METADATA_PREFIX = "value.";
 
@@ -111,6 +115,7 @@ public class PulsarTableSource implements ScanTableSource, SupportsReadingMetada
     public ScanRuntimeProvider getScanRuntimeProvider(ScanContext context) {
         PulsarDeserializationSchema<RowData> deserializationSchema =
                 deserializationSchemaFactory.createPulsarDeserialization(context);
+        LOG.info("pulsar source init with properties: {}", properties);
         PulsarSource<RowData> source =
                 PulsarSource.builder()
                         .setTopics(topics)

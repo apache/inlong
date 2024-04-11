@@ -51,6 +51,9 @@ public class PulsarExtractNodeTest extends SerializeBaseTest<Node> {
                 "earliest",
                 null,
                 "subscription",
-                "earliest");
+                "earliest",
+                "org.apache.pulsar.client.impl.auth.AuthenticationToken",
+                "token auth params");
+        );
     }
 }
