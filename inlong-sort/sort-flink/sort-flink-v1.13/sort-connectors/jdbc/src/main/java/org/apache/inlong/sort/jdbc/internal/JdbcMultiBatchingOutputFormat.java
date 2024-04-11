@@ -608,6 +608,10 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
 
     @Override
     public synchronized void flush() throws IOException {
+        // when batch count > 0, execute flush operation
+        if (batchCount == 0) {
+            return;
+        }
         checkFlushException();
         attemptFlush();
         batchCount = 0;

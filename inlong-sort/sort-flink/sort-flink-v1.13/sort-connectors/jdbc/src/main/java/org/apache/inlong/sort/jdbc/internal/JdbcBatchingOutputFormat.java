@@ -355,8 +355,11 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
 
     @Override
     public synchronized void flush() throws IOException {
+        // when batch count > 0, execute flush operation
+        if (batchCount == 0) {
+            return;
+        }
         checkFlushException();
-
         for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
             try {
                 attemptFlush();
