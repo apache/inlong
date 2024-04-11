@@ -52,7 +52,7 @@ public enum DataTypeEnum {
 
     public static DataTypeEnum convert(String value) {
         for (DataTypeEnum v : values()) {
-            if (v.getType().equals(value)) {
+            if (v.getType().equals(value.toLowerCase(Locale.ROOT))) {
                 return v;
             }
         }

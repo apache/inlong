@@ -24,8 +24,8 @@ import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.util.StringUtil;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage.FieldInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.datatype.DataTypeOperator;
 import org.apache.inlong.manager.service.datatype.DataTypeOperatorFactory;
 
@@ -84,7 +84,7 @@ public class InlongMsgDeserializeOperator implements DeserializeOperator {
                     String body = new String(bodyBytes, Charset.forName(streamInfo.getDataEncoding()));
                     DataTypeOperator dataTypeOperator =
                             dataTypeOperatorFactory.getInstance(DataTypeEnum.forType(streamInfo.getDataType()));
-                    List<StreamField> streamFieldList = dataTypeOperator.parseFields(body, streamInfo);
+                    List<FieldInfo> streamFieldList = dataTypeOperator.parseFields(body, streamInfo);
                     BriefMQMessage message = BriefMQMessage.builder()
                             .id(index)
                             .inlongGroupId(groupId)

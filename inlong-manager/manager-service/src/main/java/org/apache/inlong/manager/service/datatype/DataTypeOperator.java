@@ -18,8 +18,9 @@
 package org.apache.inlong.manager.service.datatype;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage.FieldInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.pojo.stream.StreamField;
 
 import java.util.List;
 
@@ -39,8 +40,8 @@ public interface DataTypeOperator {
      * @param streamInfo inlong stream info
      * @return list of field info
      */
-    default List<StreamField> parseFields(String message, InlongStreamInfo streamInfo) throws Exception {
-        return streamInfo.getFieldList();
+    default List<FieldInfo> parseFields(String message, InlongStreamInfo streamInfo) throws Exception {
+        return CommonBeanUtils.copyListProperties(streamInfo.getFieldList(), FieldInfo::new);
     }
 
 }

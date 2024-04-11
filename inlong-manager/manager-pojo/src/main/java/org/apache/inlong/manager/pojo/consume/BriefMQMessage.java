@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.consume;
 
-import org.apache.inlong.manager.pojo.stream.StreamField;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -61,6 +59,18 @@ public class BriefMQMessage {
     private String body;
 
     @ApiModelProperty(value = "List of field info")
-    private List<StreamField> fieldList;
+    private List<FieldInfo> fieldList;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FieldInfo {
+
+        private String fieldName;
+
+        private String FieldValue;
+
+    }
 
 }
