@@ -111,7 +111,7 @@ public class JdbcSource {
         }
         int offset = Configuration.getInstance().get(KEY_STAT_BACK_INITIAL_OFFSET,
                 DEFAULT_STAT_BACK_INITIAL_OFFSET);
-        for (int statBackTime = 1; statBackTime < sourceConfig.getStatBackTimes(); statBackTime++) {
+        for (int statBackTime = 0; statBackTime < sourceConfig.getStatBackTimes(); statBackTime++) {
             ScheduledExecutorService timer =
                     statTimers.computeIfAbsent(statBackTime, k -> Executors.newSingleThreadScheduledExecutor());
             timer.scheduleWithFixedDelay(new StatServer(offset++),
