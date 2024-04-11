@@ -22,5 +22,5 @@ package org.apache.inlong.audit.selector.api;
  */
 public abstract interface SelectorChangeListener {
 
-    public abstract void leaderChanged(boolean paramBoolean);
+    public abstract void leaderChanged(boolean currentNodeIsLeader);
 }

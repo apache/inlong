@@ -66,19 +66,19 @@ public class JdbcUtils {
      * @param driverClass
      * @param jdbcUrl
      * @param userName
-     * @param passWord
+     * @param password
      * @return
      */
-    private static JdbcConfig doBuild(String driverClass, String jdbcUrl, String userName, String passWord) {
+    private static JdbcConfig doBuild(String driverClass, String jdbcUrl, String userName, String password) {
         assert (Objects.nonNull(driverClass)
                 && Objects.nonNull(jdbcUrl)
                 && Objects.nonNull(userName)
-                && Objects.nonNull(passWord));
+                && Objects.nonNull(password));
 
         return new JdbcConfig(
                 driverClass,
                 jdbcUrl,
                 userName,
-                passWord);
+                password);
     }
 }

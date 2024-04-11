@@ -31,7 +31,7 @@ import java.util.Objects;
 @Data
 public class SelectorConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(SelectorConfig.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SelectorConfig.class);
     public static final String MONITOR_COMMON_NAME = "audit";
     private final String serviceId;
     private final String leaderId;
@@ -41,7 +41,7 @@ public class SelectorConfig {
     private String dbUrl;
     private String dbUser;
     private String dbPasswd;
-    private String electorDbName = "leader_election";
+    private String selectorDbName = "leader_selector";
     private int leaderTimeout = 20;
     private int tryToBeLeaderInterval = 5;
     private int dbMonitorRunInterval = 20;
@@ -79,7 +79,7 @@ public class SelectorConfig {
             try {
                 ip = InetAddress.getLocalHost().getHostAddress();
             } catch (Exception e) {
-                logger.error("Get local ip has exception:{}", e.getMessage());
+                LOGGER.error("Get local ip has exception:{}", e.getMessage());
                 ip = "N/A";
             }
         return ip;

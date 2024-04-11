@@ -37,34 +37,25 @@ public class SqlConstants {
     // ClickHouse query sql
     public static final String KEY_CLICKHOUSE_SOURCE_QUERY_SQL = "clickhouse.source.query.sql";
     public static final String DEFAULT_CLICKHOUSE_SOURCE_QUERY_SQL =
-            "SELECT inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
-                    "    , sum(cnt) AS cnt, sum(size) AS size\n" +
-                    "    , sum(delay) AS delay\n" +
+            "SELECT inlong_group_id, inlong_stream_id, audit_id\n" +
+                    "\t, audit_tag, cnt, size, delay,MAX(audit_version)\n" +
                     "FROM (\n" +
-                    "    SELECT max(audit_version), ip, docker_id, thread_id\n" +
-                    "        , inlong_group_id, inlong_stream_id, audit_id, audit_tag, cnt\n" +
-                    "        , size, delay\n" +
-                    "    FROM (\n" +
-                    "        SELECT audit_version, ip, docker_id, thread_id, inlong_group_id\n" +
-                    "            , inlong_stream_id, audit_id, audit_tag, sum(count) AS cnt\n" +
-                    "            , sum(size) AS size, sum(delay) AS delay\n" +
-                    "        FROM (\n" +
-                    "            SELECT audit_version, docker_id, thread_id, sdk_ts, packet_id\n" +
-                    "                , log_ts, ip, inlong_group_id, inlong_stream_id, audit_id\n" +
-                    "                , audit_tag, count, size, delay\n" +
-                    "            FROM audit_data \n" +
-                    "            WHERE log_ts BETWEEN ? AND ? \n" +
-                    "                AND audit_id = ? \n" +
-                    "            GROUP BY audit_version, docker_id, thread_id, sdk_ts, packet_id, log_ts, ip, inlong_group_id, inlong_stream_id, audit_id, audit_tag, count, size, delay\n"
+                    "\tSELECT audit_version, inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
+                    "\t\t, SUM(count) AS cnt, SUM(size) AS size\n" +
+                    "\t\t, SUM(delay) AS delay\n" +
+                    "\tFROM (\n" +
+                    "\t\tSELECT audit_version, docker_id, thread_id, sdk_ts, packet_id\n" +
+                    "\t\t\t, log_ts, ip, inlong_group_id, inlong_stream_id, audit_id\n" +
+                    "\t\t\t, audit_tag, count, size, delay\n" +
+                    "\t\tFROM audit_data\n" +
+                    "\t\tWHERE log_ts BETWEEN ? AND ? \n" +
+                    "\t\t\tAND audit_id = ? \n" +
+                    "\t\tGROUP BY audit_version, docker_id, thread_id, sdk_ts, packet_id, log_ts, ip, inlong_group_id, inlong_stream_id, audit_id, audit_tag, count, size, delay\n"
                     +
-                    "        ) t1\n" +
-                    "        GROUP BY audit_version, ip, docker_id, thread_id, inlong_group_id, inlong_stream_id, audit_id, audit_tag\n"
-                    +
-                    "    ) t2\n" +
-                    "    GROUP BY ip, docker_id, thread_id, inlong_group_id, inlong_stream_id, audit_id, audit_tag, cnt, size, delay\n"
-                    +
-                    ") t3\n" +
-                    "GROUP BY inlong_group_id, inlong_stream_id, audit_id, audit_tag";
+                    "\t) t1\n" +
+                    "\tGROUP BY audit_version, inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
+                    ") t2\n" +
+                    "GROUP BY inlong_group_id, inlong_stream_id, audit_id, audit_tag, cnt, size, delay";
 
     // Mysql query sql
     public static final String KEY_MYSQL_SOURCE_QUERY_TEMP_SQL = "mysql.query.temp.sql";

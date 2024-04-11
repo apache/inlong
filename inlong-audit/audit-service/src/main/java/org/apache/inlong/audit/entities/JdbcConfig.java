@@ -27,5 +27,5 @@ public class JdbcConfig {
     String driverClass;
     String JdbcUrl;
     String userName;
-    String passWord;
+    String password;
 }

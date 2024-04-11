@@ -20,14 +20,13 @@ package org.apache.inlong.audit.cache;
 import org.apache.inlong.audit.config.Configuration;
 import org.apache.inlong.audit.entities.AuditCycle;
 import org.apache.inlong.audit.entities.StatData;
-import org.apache.inlong.audit.source.JdbcSource;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -44,7 +43,7 @@ import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_CACHE_MAX_
  */
 public class AbstractCache {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JdbcSource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCache.class);
     protected final Cache<String, StatData> cache;
     protected final ScheduledExecutorService monitorTimer = Executors.newSingleThreadScheduledExecutor();
     protected AuditCycle auditCycle;
@@ -87,7 +86,7 @@ public class AbstractCache {
         if (null == statData) {
             return new LinkedList<>();
         }
-        return Arrays.asList(statData);
+        return Collections.singletonList(statData);
     }
 
     /**
@@ -102,6 +101,6 @@ public class AbstractCache {
      * Monitor
      */
     private void monitor() {
-        LOG.info("{} api local cache size={}", auditCycle, cache.estimatedSize());
+        LOGGER.info("{} api local cache size={}", auditCycle, cache.estimatedSize());
     }
 }

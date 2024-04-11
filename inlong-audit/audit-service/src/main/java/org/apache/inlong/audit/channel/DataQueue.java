@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class DataQueue {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DataQueue.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataQueue.class);
 
     private final LinkedBlockingQueue<StatData> queue;
 
@@ -65,6 +65,6 @@ public class DataQueue {
         if (queue != null) {
             queue.clear();
         }
-        LOG.info("destroy channel!");
+        LOGGER.info("destroy channel!");
     }
 }

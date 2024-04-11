@@ -24,7 +24,7 @@ import org.apache.inlong.audit.selector.impl.SelectorImpl;
  */
 public class SelectorFactory {
 
-    public static Selector getNewElector(SelectorConfig electorConfig) {
-        return new SelectorImpl(electorConfig);
+    public static Selector getNewElector(SelectorConfig selectorConfig) {
+        return new SelectorImpl(selectorConfig);
     }
 }

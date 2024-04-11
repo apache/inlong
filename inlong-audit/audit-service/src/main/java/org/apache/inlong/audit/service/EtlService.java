@@ -64,7 +64,7 @@ import static org.apache.inlong.audit.config.SqlConstants.KEY_MYSQL_SOURCE_QUERY
  */
 public class EtlService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JdbcSource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EtlService.class);
     private JdbcSource mysqlSourceOfTemp;
     private JdbcSource mysqlSourceOfTenMinutesCache;
     private JdbcSource mysqlSourceOfHalfHourCache;
@@ -185,7 +185,7 @@ public class EtlService {
                 jdbcConfig.getDriverClass(),
                 jdbcConfig.getJdbcUrl(),
                 jdbcConfig.getUserName(),
-                jdbcConfig.getPassWord());
+                jdbcConfig.getPassword());
     }
 
     /**
@@ -202,7 +202,7 @@ public class EtlService {
                 jdbcConfig.getDriverClass(),
                 jdbcConfig.getJdbcUrl(),
                 jdbcConfig.getUserName(),
-                jdbcConfig.getPassWord());
+                jdbcConfig.getPassword());
     }
 
     /**
@@ -220,7 +220,7 @@ public class EtlService {
                 jdbcConfig.getDriverClass(),
                 jdbcConfig.getJdbcUrl(),
                 jdbcConfig.getUserName(),
-                jdbcConfig.getPassWord());
+                jdbcConfig.getPassword());
     }
 
     /**
@@ -229,19 +229,19 @@ public class EtlService {
     private void initSelector() {
         JdbcConfig jdbcConfig = JdbcUtils.buildMysqlConfig();
         String leaderId = NetworkUtils.getLocalIp() + "-" + UUID.randomUUID();
-        LOG.info("Init selector. Leader id is :{}", leaderId);
+        LOGGER.info("Init selector. Leader id is :{}", leaderId);
         if (selector == null) {
             SelectorConfig electorConfig = new SelectorConfig(
                     Configuration.getInstance().get(KEY_SELECTOR_SERVICE_ID, DEFAULT_SELECTOR_SERVICE_ID),
                     leaderId,
                     jdbcConfig.getJdbcUrl(),
-                    jdbcConfig.getUserName(), jdbcConfig.getPassWord(), jdbcConfig.getDriverClass());
+                    jdbcConfig.getUserName(), jdbcConfig.getPassword(), jdbcConfig.getDriverClass());
 
             selector = SelectorFactory.getNewElector(electorConfig);
             try {
                 selector.init();
             } catch (Exception e) {
-                LOG.error("Init selector has exception:", e);
+                LOGGER.error("Init selector has exception:", e);
             }
         }
     }
@@ -255,11 +255,11 @@ public class EtlService {
                 Thread.sleep(Configuration.getInstance().get(KEY_SELECTOR_FOLLOWER_LISTEN_CYCLE_MS,
                         DEFAULT_SELECTOR_FOLLOWER_LISTEN_CYCLE_MS));
             } catch (Exception e) {
-                LOG.error("Wait to be Leader has exception! lost Leadership!", e);
+                LOGGER.error("Wait to be Leader has exception! lost Leadership!", e);
             }
 
             if (selector.isLeader()) {
-                LOG.info("I get Leadership! Begin to aggregate clickhouse data to mysql");
+                LOGGER.info("I get Leadership! Begin to aggregate clickhouse data to mysql");
                 clickhouseToMysql();
                 return;
             }

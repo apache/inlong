@@ -23,13 +23,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Elector change listener impl
+ * Selector change listener impl
  */
 public class SelectorChangeListenerImpl implements SelectorChangeListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(SelectorChangeListenerImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SelectorChangeListenerImpl.class);
 
     public void leaderChanged(boolean currentNodeIsLeader) {
-        logger.info("Leader changed {}:", currentNodeIsLeader);
+        LOGGER.info("Leader changed {}:", currentNodeIsLeader);
     }
 }

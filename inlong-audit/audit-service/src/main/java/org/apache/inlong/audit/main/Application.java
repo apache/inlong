@@ -31,7 +31,10 @@ public class Application {
 
     public static void main(String[] args) {
         try {
+            // Etl service aggregate the data from the data source and store the aggregated data to the target storage
             etlService.start();
+
+            // Api service provide audit data interface to external services
             apiService.start();
 
             stopIfKilled();

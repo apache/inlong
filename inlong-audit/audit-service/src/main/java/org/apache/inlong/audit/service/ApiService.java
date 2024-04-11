@@ -47,28 +47,28 @@ import static org.apache.inlong.audit.config.OpenApiConstants.AUDIT_ID;
 import static org.apache.inlong.audit.config.OpenApiConstants.AUDIT_TAG;
 import static org.apache.inlong.audit.config.OpenApiConstants.BIND_PORT;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_BACKLOG_SIZE;
+import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_DAY_PATH;
+import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_HOUR_PATH;
+import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_MINUTE_10_PATH;
+import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_MINUTE_30_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_REAL_LIMITER_QPS;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_AUDIT_TAG;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_DAY_API_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_HOUR_API_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_MINUTE_10_API_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_MINUTE_30_API_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_POOL_SIZE;
 import static org.apache.inlong.audit.config.OpenApiConstants.END_TIME;
 import static org.apache.inlong.audit.config.OpenApiConstants.HTTP_RESPOND_CODE;
 import static org.apache.inlong.audit.config.OpenApiConstants.INLONG_GROUP_Id;
 import static org.apache.inlong.audit.config.OpenApiConstants.INLONG_STREAM_Id;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_BACKLOG_SIZE;
+import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_DAY_PATH;
+import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_HOUR_PATH;
+import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_MINUTE_10_PATH;
+import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_MINUTE_30_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_POOL_SIZE;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_REAL_LIMITER_QPS;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_DAY_API_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HOUR_API_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_BODY_ERR_DATA;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_BODY_ERR_MSG;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_BODY_SUCCESS;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_HEADER_CONTENT_TYPE;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_MINUTE_10_API_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_MINUTE_30_API_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.START_TIME;
 import static org.apache.inlong.audit.config.OpenApiConstants.VALUE_HTTP_HEADER_CONTENT_TYPE;
 
@@ -90,13 +90,14 @@ public class ApiService {
                     Configuration.getInstance().get(KEY_API_BACKLOG_SIZE, DEFAULT_API_BACKLOG_SIZE));
             server.setExecutor(Executors.newFixedThreadPool(
                     Configuration.getInstance().get(KEY_API_POOL_SIZE, DEFAULT_POOL_SIZE)));
-            server.createContext(Configuration.getInstance().get(KEY_DAY_API_PATH, DEFAULT_DAY_API_PATH),
+            server.createContext(Configuration.getInstance().get(KEY_API_DAY_PATH, DEFAULT_API_DAY_PATH),
                     new AuditHandler(AuditCycle.DAY));
-            server.createContext(Configuration.getInstance().get(KEY_HOUR_API_PATH, DEFAULT_HOUR_API_PATH),
+            server.createContext(Configuration.getInstance().get(KEY_API_HOUR_PATH, DEFAULT_API_HOUR_PATH),
                     new AuditHandler(AuditCycle.HOUR));
-            server.createContext(Configuration.getInstance().get(KEY_MINUTE_10_API_PATH, DEFAULT_MINUTE_10_API_PATH),
+            server.createContext(
+                    Configuration.getInstance().get(KEY_API_MINUTE_10_PATH, DEFAULT_API_MINUTE_10_PATH),
                     new AuditHandler(AuditCycle.MINUTE_10));
-            server.createContext(Configuration.getInstance().get(KEY_MINUTE_30_API_PATH, DEFAULT_MINUTE_30_API_PATH),
+            server.createContext(Configuration.getInstance().get(KEY_API_MINUTE_30_PATH, DEFAULT_API_MINUTE_30_PATH),
                     new AuditHandler(AuditCycle.MINUTE_30));
             server.start();
         } catch (Exception e) {
@@ -177,6 +178,7 @@ public class ApiService {
         private void handleLegalParams(JsonObject responseJson, Map<String, String> params) {
             String cacheKey = CacheUtils.buildCacheKey(params.get(START_TIME), params.get(INLONG_GROUP_Id),
                     params.get(INLONG_STREAM_Id), params.get(AUDIT_ID), params.get(AUDIT_TAG));
+            LOGGER.info("handleLegalParams cacheKey {}", cacheKey);
             List<StatData> statData = null;
             switch (apiType) {
                 case MINUTE_10:

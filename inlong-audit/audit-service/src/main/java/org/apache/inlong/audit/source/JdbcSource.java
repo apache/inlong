@@ -77,7 +77,7 @@ import static org.apache.inlong.audit.entities.AuditCycle.HOUR;
 @Data
 public class JdbcSource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JdbcSource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JdbcSource.class);
     private final ConcurrentHashMap<Integer, ScheduledExecutorService> statTimers = new ConcurrentHashMap<>();
     private DataQueue dataQueue;
     private List<String> auditIds;
@@ -111,12 +111,12 @@ public class JdbcSource {
         }
         int offset = Configuration.getInstance().get(KEY_STAT_BACK_INITIAL_OFFSET,
                 DEFAULT_STAT_BACK_INITIAL_OFFSET);
-        for (int statBackTime = 0; statBackTime < sourceConfig.getStatBackTimes(); statBackTime++) {
+        for (int statBackTime = 1; statBackTime < sourceConfig.getStatBackTimes(); statBackTime++) {
             ScheduledExecutorService timer =
                     statTimers.computeIfAbsent(statBackTime, k -> Executors.newSingleThreadScheduledExecutor());
             timer.scheduleWithFixedDelay(new StatServer(offset++),
                     0,
-                    statInterval, TimeUnit.MINUTES);
+                    statInterval + statBackTime, TimeUnit.MINUTES);
         }
     }
 
@@ -223,12 +223,12 @@ public class JdbcSource {
 
         public void run() {
             long currentTimestamp = System.currentTimeMillis();
-            LOG.info("Stat source data at {},stat back times:{}", currentTimestamp, statBackTimes);
+            LOGGER.info("Stat source data at {},stat back times:{}", currentTimestamp, statBackTimes);
 
             statByStep();
 
             long timeCost = System.currentTimeMillis() - currentTimestamp;
-            LOG.info("Stat source data cost time:{}ms,stat back times:{}", timeCost, statBackTimes);
+            LOGGER.info("Stat source data cost time:{}ms,stat back times:{}", timeCost, statBackTimes);
         }
 
         /**
@@ -260,7 +260,7 @@ public class JdbcSource {
                 long currentTimestamp = System.currentTimeMillis();
                 query(statCycle.getStartTime(), statCycle.getEndTime(), auditId);
                 long timeCost = System.currentTimeMillis() - currentTimestamp;
-                LOG.info("[{}]-[{}],{},stat back times:{},audit id:{},cost:{}ms",
+                LOGGER.info("[{}]-[{}],{},stat back times:{},audit id:{},cost:{}ms",
                         statCycle.getStartTime(), statCycle.getEndTime(),
                         sourceConfig.getAuditCycle(),
                         statBackTimes, auditId, timeCost);
@@ -302,10 +302,10 @@ public class JdbcSource {
                         dataQueue.push(data);
                     }
                 } catch (SQLException sqlException) {
-                    LOG.error("Query has SQL exception! ", sqlException);
+                    LOGGER.error("Query has SQL exception! ", sqlException);
                 }
             } catch (Exception exception) {
-                LOG.error("Query has exception! ", exception);
+                LOGGER.error("Query has exception! ", exception);
             }
         }
 

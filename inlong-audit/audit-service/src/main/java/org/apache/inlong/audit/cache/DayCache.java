@@ -57,7 +57,7 @@ import static org.apache.inlong.audit.config.SqlConstants.KEY_MYSQL_SOURCE_QUERY
  */
 public class DayCache implements AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DayCache.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DayCache.class);
     private static volatile DayCache dayCache = null;
     private DataSource dataSource;
 
@@ -121,10 +121,10 @@ public class DayCache implements AutoCloseable {
                     result.add(data);
                 }
             } catch (SQLException sqlException) {
-                LOG.error("Query has SQL exception! ", sqlException);
+                LOGGER.error("Query has SQL exception! ", sqlException);
             }
         } catch (Exception exception) {
-            LOG.error("Query has exception! ", exception);
+            LOGGER.error("Query has exception! ", exception);
         }
         return result;
     }
@@ -139,7 +139,7 @@ public class DayCache implements AutoCloseable {
         config.setDriverClassName(jdbcConfig.getDriverClass());
         config.setJdbcUrl(jdbcConfig.getJdbcUrl());
         config.setUsername(jdbcConfig.getUserName());
-        config.setPassword(jdbcConfig.getPassWord());
+        config.setPassword(jdbcConfig.getPassword());
         config.setConnectionTimeout(Configuration.getInstance().get(KEY_DATASOURCE_CONNECTION_TIMEOUT,
                 DEFAULT_CONNECTION_TIMEOUT));
         config.addDataSourceProperty(CACHE_PREP_STMTS,

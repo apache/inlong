@@ -22,14 +22,15 @@ package org.apache.inlong.audit.config;
  */
 public class OpenApiConstants {
 
-    public static final String KEY_HOUR_API_PATH = "hour.api.path";
-    public static final String DEFAULT_HOUR_API_PATH = "/audit/query/hour";
-    public static final String KEY_DAY_API_PATH = "day.api.path";
-    public static final String DEFAULT_DAY_API_PATH = "/audit/query/day";
-    public static final String KEY_MINUTE_10_API_PATH = "minute.10.api.path";
-    public static final String DEFAULT_MINUTE_10_API_PATH = "/audit/query/minute/10";
-    public static final String KEY_MINUTE_30_API_PATH = "minute.30.api.path";
-    public static final String DEFAULT_MINUTE_30_API_PATH = "/audit/query/minute/30";
+    // Api config
+    public static final String KEY_API_HOUR_PATH = "api.hour.path";
+    public static final String DEFAULT_API_HOUR_PATH = "/audit/query/hour";
+    public static final String KEY_API_DAY_PATH = "api.day.path";
+    public static final String DEFAULT_API_DAY_PATH = "/audit/query/day";
+    public static final String KEY_API_MINUTE_10_PATH = "api.minute.10.path";
+    public static final String DEFAULT_API_MINUTE_10_PATH = "/audit/query/minute/10";
+    public static final String KEY_API_MINUTE_30_PATH = "api.minute.30.path";
+    public static final String DEFAULT_API_MINUTE_30_PATH = "/audit/query/minute/30";
     public static final String KEY_API_POOL_SIZE = "api.pool.size";
     public static final int DEFAULT_POOL_SIZE = 10;
     public static final String KEY_API_BACKLOG_SIZE = "api.backlog.size";

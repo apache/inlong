@@ -33,11 +33,11 @@
     <modules>
         <module>audit-proxy</module>
         <module>audit-store</module>
+        <module>audit-service</module>
         <module>audit-common</module>
         <module>audit-sdk</module>
         <module>audit-release</module>
         <module>audit-docker</module>
-        <module>audit-service</module>
     </modules>
 
     <properties>
