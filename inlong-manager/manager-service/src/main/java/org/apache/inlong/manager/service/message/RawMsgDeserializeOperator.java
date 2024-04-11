@@ -22,8 +22,8 @@ import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage.FieldInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.datatype.DataTypeOperator;
 import org.apache.inlong.manager.service.datatype.DataTypeOperatorFactory;
 
@@ -58,7 +58,7 @@ public class RawMsgDeserializeOperator implements DeserializeOperator {
         try {
             DataTypeOperator dataTypeOperator =
                     dataTypeOperatorFactory.getInstance(DataTypeEnum.forType(streamInfo.getDataType()));
-            List<StreamField> streamFieldList = dataTypeOperator.parseFields(body, streamInfo);
+            List<FieldInfo> fieldList = dataTypeOperator.parseFields(body, streamInfo);
             BriefMQMessage briefMQMessage = BriefMQMessage.builder()
                     .id(index)
                     .inlongGroupId(groupId)
@@ -67,7 +67,7 @@ public class RawMsgDeserializeOperator implements DeserializeOperator {
                     .clientIp(headers.get(CLIENT_IP))
                     .headers(headers)
                     .body(body)
-                    .fieldList(streamFieldList)
+                    .fieldList(fieldList)
                     .build();
             return Collections.singletonList(briefMQMessage);
         } catch (Exception e) {
