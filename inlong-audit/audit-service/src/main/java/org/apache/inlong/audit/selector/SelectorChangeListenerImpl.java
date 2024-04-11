@@ -25,11 +25,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Elector change listener impl
  */
-public class ElectorChangeListenerImpl implements SelectorChangeListener {
+public class SelectorChangeListenerImpl implements SelectorChangeListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElectorChangeListenerImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(SelectorChangeListenerImpl.class);
 
     public void leaderChanged(boolean currentNodeIsLeader) {
-        logger.info("LeaderChanged {}:", currentNodeIsLeader);
+        logger.info("Leader changed {}:", currentNodeIsLeader);
     }
 }

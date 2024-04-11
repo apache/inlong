@@ -52,7 +52,7 @@ public class SelectorConfig {
     private String cachePrepStmts = "true";
     private int prepStmtCacheSize = 250;
     private int prepStmtCacheSqlLimit = 2048;
-    private String monitorName = "elector_leader_state";
+    private String monitorName = "selector_leader_state";
     private String ip;
     private SelectorChangeListener selectorChangeListener;
 

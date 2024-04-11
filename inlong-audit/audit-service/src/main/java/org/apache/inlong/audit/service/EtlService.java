@@ -23,33 +23,33 @@ import org.apache.inlong.audit.cache.TenMinutesCache;
 import org.apache.inlong.audit.channel.DataQueue;
 import org.apache.inlong.audit.config.Configuration;
 import org.apache.inlong.audit.entities.AuditCycle;
+import org.apache.inlong.audit.entities.JdbcConfig;
 import org.apache.inlong.audit.entities.SinkConfig;
 import org.apache.inlong.audit.entities.SourceConfig;
+import org.apache.inlong.audit.selector.api.Selector;
+import org.apache.inlong.audit.selector.api.SelectorConfig;
+import org.apache.inlong.audit.selector.api.SelectorFactory;
 import org.apache.inlong.audit.sink.CacheSink;
 import org.apache.inlong.audit.sink.JdbcSink;
 import org.apache.inlong.audit.source.JdbcSource;
+import org.apache.inlong.audit.utils.JdbcUtils;
+import org.apache.inlong.common.util.NetworkUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
+import java.util.UUID;
 
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CLICKHOUSE_DRIVER;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DAILY_SUMMARY_STAT_BACK_TIMES;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATA_QUEUE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_REALTIME_SUMMARY_STAT_BACK_TIMES;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_CLICKHOUSE_DRIVER;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_CLICKHOUSE_JDBC_URL;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_CLICKHOUSE_PASSWORD;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_CLICKHOUSE_USERNAME;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SELECTOR_FOLLOWER_LISTEN_CYCLE_MS;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SELECTOR_SERVICE_ID;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DAILY_SUMMARY_STAT_BACK_TIMES;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATA_QUEUE_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_DEFAULT_MYSQL_DRIVER;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_MYSQL_DRIVER;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_MYSQL_JDBC_URL;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_MYSQL_PASSWORD;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_MYSQL_USERNAME;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_REALTIME_SUMMARY_STAT_BACK_TIMES;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_SELECTOR_FOLLOWER_LISTEN_CYCLE_MS;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_SELECTOR_SERVICE_ID;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_CLICKHOUSE_SOURCE_QUERY_SQL;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_MYSQL_SINK_INSERT_DAY_SQL;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_MYSQL_SINK_INSERT_TEMP_SQL;
@@ -77,6 +77,8 @@ public class EtlService {
     private CacheSink cacheSinkOfHourCache;
     private final int queueSize;
     private final int statBackTimes;
+    private static Selector selector;
+    private boolean running = true;
 
     public EtlService() {
         queueSize = Configuration.getInstance().get(KEY_DATA_QUEUE_SIZE,
@@ -89,11 +91,13 @@ public class EtlService {
      * Start the etl service.
      */
     public void start() {
-        clickhouseToMysql();
         mysqlToMysqlOfDay();
         mysqlToTenMinutesCache();
         mysqlToHalfHourCache();
         mysqlToHourCache();
+
+        initSelector();
+        waitToBeLeader();
     }
 
     /**
@@ -175,21 +179,13 @@ public class EtlService {
      * @return
      */
     private SinkConfig buildMysqlSinkConfig(String insertSql) {
-        String driver = Configuration.getInstance().get(KEY_MYSQL_DRIVER, KEY_DEFAULT_MYSQL_DRIVER);
-        String jdbcUrl = Configuration.getInstance().get(KEY_MYSQL_JDBC_URL);
-        String userName = Configuration.getInstance().get(KEY_MYSQL_USERNAME);
-        String passWord = Configuration.getInstance().get(KEY_MYSQL_PASSWORD);
-        assert (Objects.nonNull(driver)
-                && Objects.nonNull(jdbcUrl)
-                && Objects.nonNull(userName)
-                && Objects.nonNull(passWord));
-
+        JdbcConfig jdbcConfig = JdbcUtils.buildMysqlConfig();
         return new SinkConfig(
                 insertSql,
-                driver,
-                jdbcUrl,
-                userName,
-                passWord);
+                jdbcConfig.getDriverClass(),
+                jdbcConfig.getJdbcUrl(),
+                jdbcConfig.getUserName(),
+                jdbcConfig.getPassWord());
     }
 
     /**
@@ -198,22 +194,15 @@ public class EtlService {
      * @return
      */
     private SourceConfig buildMysqlSourceConfig(AuditCycle auditCycle, int statBackTimes) {
-        String driver = Configuration.getInstance().get(KEY_MYSQL_DRIVER, KEY_DEFAULT_MYSQL_DRIVER);
-        String jdbcUrl = Configuration.getInstance().get(KEY_MYSQL_JDBC_URL);
-        String userName = Configuration.getInstance().get(KEY_MYSQL_USERNAME);
-        String passWord = Configuration.getInstance().get(KEY_MYSQL_PASSWORD);
-        assert (Objects.nonNull(driver)
-                && Objects.nonNull(jdbcUrl)
-                && Objects.nonNull(userName));
-
+        JdbcConfig jdbcConfig = JdbcUtils.buildMysqlConfig();
         return new SourceConfig(auditCycle,
                 Configuration.getInstance().get(KEY_MYSQL_SOURCE_QUERY_TEMP_SQL,
                         DEFAULT_MYSQL_SOURCE_QUERY_TEMP_SQL),
                 statBackTimes,
-                driver,
-                jdbcUrl,
-                userName,
-                passWord);
+                jdbcConfig.getDriverClass(),
+                jdbcConfig.getJdbcUrl(),
+                jdbcConfig.getUserName(),
+                jdbcConfig.getPassWord());
     }
 
     /**
@@ -222,30 +211,66 @@ public class EtlService {
      * @return
      */
     private SourceConfig buildClickhouseSourceConfig() {
-        String driver = Configuration.getInstance().get(KEY_CLICKHOUSE_DRIVER, DEFAULT_CLICKHOUSE_DRIVER);
-        String jdbcUrl = Configuration.getInstance().get(KEY_CLICKHOUSE_JDBC_URL);
-        String userName = Configuration.getInstance().get(KEY_CLICKHOUSE_USERNAME);
-        String passWord = Configuration.getInstance().get(KEY_CLICKHOUSE_PASSWORD);
-        assert (Objects.nonNull(driver)
-                && Objects.nonNull(jdbcUrl)
-                && Objects.nonNull(userName)
-                && Objects.nonNull(passWord));
-
+        JdbcConfig jdbcConfig = JdbcUtils.buildClickhouseConfig();
         return new SourceConfig(AuditCycle.MINUTE_5,
                 Configuration.getInstance().get(KEY_CLICKHOUSE_SOURCE_QUERY_SQL,
                         DEFAULT_CLICKHOUSE_SOURCE_QUERY_SQL),
                 Configuration.getInstance().get(KEY_REALTIME_SUMMARY_STAT_BACK_TIMES,
                         DEFAULT_REALTIME_SUMMARY_STAT_BACK_TIMES),
-                driver,
-                jdbcUrl,
-                userName,
-                passWord);
+                jdbcConfig.getDriverClass(),
+                jdbcConfig.getJdbcUrl(),
+                jdbcConfig.getUserName(),
+                jdbcConfig.getPassWord());
+    }
+
+    /**
+     * Init selector
+     */
+    private void initSelector() {
+        JdbcConfig jdbcConfig = JdbcUtils.buildMysqlConfig();
+        String leaderId = NetworkUtils.getLocalIp() + "-" + UUID.randomUUID();
+        LOG.info("Init selector. Leader id is :{}", leaderId);
+        if (selector == null) {
+            SelectorConfig electorConfig = new SelectorConfig(
+                    Configuration.getInstance().get(KEY_SELECTOR_SERVICE_ID, DEFAULT_SELECTOR_SERVICE_ID),
+                    leaderId,
+                    jdbcConfig.getJdbcUrl(),
+                    jdbcConfig.getUserName(), jdbcConfig.getPassWord(), jdbcConfig.getDriverClass());
+
+            selector = SelectorFactory.getNewElector(electorConfig);
+            try {
+                selector.init();
+            } catch (Exception e) {
+                LOG.error("Init selector has exception:", e);
+            }
+        }
+    }
+
+    /**
+     * Wait to be leader
+     */
+    public void waitToBeLeader() {
+        while (running) {
+            try {
+                Thread.sleep(Configuration.getInstance().get(KEY_SELECTOR_FOLLOWER_LISTEN_CYCLE_MS,
+                        DEFAULT_SELECTOR_FOLLOWER_LISTEN_CYCLE_MS));
+            } catch (Exception e) {
+                LOG.error("Wait to be Leader has exception! lost Leadership!", e);
+            }
+
+            if (selector.isLeader()) {
+                LOG.info("I get Leadership! Begin to aggregate clickhouse data to mysql");
+                clickhouseToMysql();
+                return;
+            }
+        }
     }
 
     /**
      * Stop the etl service,and destroy related resources.
      */
     public void stop() {
+        running = false;
         mysqlSourceOfTemp.destroy();
         mysqlSinkOfDay.destroy();
 
@@ -259,5 +284,7 @@ public class EtlService {
         cacheSinkOfTenMinutesCache.destroy();
         cacheSinkOfHalfHourCache.destroy();
         cacheSinkOfHourCache.destroy();
+
+        selector.close();
     }
 }

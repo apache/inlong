@@ -28,15 +28,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_API_CACHE_EXPIRED_HOURS;
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_API_CACHE_MAX_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_API_CACHE_EXPIRED_HOURS;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_API_CACHE_MAX_SIZE;
+import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_CACHE_EXPIRED_HOURS;
+import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_CACHE_MAX_SIZE;
+import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_CACHE_EXPIRED_HOURS;
+import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_CACHE_MAX_SIZE;
 
 /**
  * Abstract cache.
@@ -82,7 +83,11 @@ public class AbstractCache {
      * @return
      */
     public List<StatData> getData(String key) {
-        return Arrays.asList(cache.getIfPresent(key));
+        StatData statData = cache.getIfPresent(key);
+        if (null == statData) {
+            return new LinkedList<>();
+        }
+        return Arrays.asList(statData);
     }
 
     /**

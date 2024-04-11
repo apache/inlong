@@ -88,6 +88,18 @@ public class Configuration {
     }
 
     /**
+     * Get double value
+     *
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    public double get(String key, double defaultValue) {
+        Object value = properties.get(key);
+        return value == null ? defaultValue : (Double) value;
+    }
+
+    /**
      * @param key
      * @return
      */
