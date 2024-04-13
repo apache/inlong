@@ -51,6 +51,12 @@ public interface Source {
     void init(InstanceProfile profile);
 
     /**
+     * Executed after init, usually used to start the source's worker thread
+     *
+     */
+    void start();
+
+    /**
      * destroy
      */
     void destroy();
