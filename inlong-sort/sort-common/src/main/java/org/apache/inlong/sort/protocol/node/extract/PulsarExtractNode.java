@@ -73,6 +73,22 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric, Meta
     @JsonProperty("scanStartupSubStartOffset")
     private String scanStartupSubStartOffset;
 
+    /**
+     * pulsar client auth plugin class name
+     * e.g. org.apache.pulsar.client.impl.auth.AuthenticationToken
+     */
+    @JsonProperty("clientAuthPluginClassName")
+    private String clientAuthPluginClassName;
+
+    /**
+     * pulsar client auth params
+     * e.g. token:{tokenString}
+     * the tokenString should be compatible with the clientAuthPluginClassName see also in:
+     * <a href="https://pulsar.apache.org/docs/next/security-jwt/"> pulsar auth </a>
+     */
+    @JsonProperty("clientAuthParams")
+    private String clientAuthParams;
+
     @JsonCreator
     public PulsarExtractNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
@@ -86,7 +102,10 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric, Meta
             @Nonnull @JsonProperty("scanStartupMode") String scanStartupMode,
             @JsonProperty("primaryKey") String primaryKey,
             @JsonProperty("scanStartupSubName") String scanStartupSubName,
-            @JsonProperty("scanStartupSubStartOffset") String scanStartupSubStartOffset) {
+            @JsonProperty("scanStartupSubStartOffset") String scanStartupSubStartOffset,
+            @JsonProperty("clientAuthPluginClassName") String clientAuthPluginClassName,
+            @JsonProperty("clientAuthParams") String clientAuthParams) {
+
         super(id, name, fields, watermarkField, properties);
         this.topic = Preconditions.checkNotNull(topic, "pulsar topic is null.");
         this.serviceUrl = Preconditions.checkNotNull(serviceUrl, "pulsar serviceUrl is null.");
@@ -97,6 +116,9 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric, Meta
         this.primaryKey = primaryKey;
         this.scanStartupSubName = scanStartupSubName;
         this.scanStartupSubStartOffset = scanStartupSubStartOffset;
+        this.clientAuthPluginClassName = clientAuthPluginClassName;
+        this.clientAuthParams = clientAuthParams;
+
     }
 
     /**
@@ -107,22 +129,27 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric, Meta
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        if (StringUtils.isEmpty(this.primaryKey)) {
+        if (StringUtils.isBlank(this.primaryKey)) {
             options.put("connector", "pulsar-inlong");
             options.putAll(format.generateOptions(false));
         } else {
             options.put("connector", "upsert-pulsar-inlong");
             options.putAll(format.generateOptions(true));
         }
-        if (adminUrl != null) {
+        if (StringUtils.isNotBlank(adminUrl)) {
             options.put("admin-url", adminUrl);
         }
         options.put("service-url", serviceUrl);
         options.put("topic", topic);
         options.put("scan.startup.mode", scanStartupMode);
-        if (scanStartupSubName != null) {
+        if (StringUtils.isNotBlank(scanStartupSubName)) {
             options.put("scan.startup.sub-name", scanStartupSubName);
             options.put("scan.startup.sub-start-offset", scanStartupSubStartOffset);
+        }
+        if (StringUtils.isNotBlank(clientAuthPluginClassName)
+                && StringUtils.isNotBlank(clientAuthParams)) {
+            options.put("pulsar.client.authPluginClassName", clientAuthPluginClassName);
+            options.put("pulsar.client.authParams", clientAuthParams);
         }
         return options;
     }

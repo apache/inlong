@@ -429,4 +429,18 @@ public final class Constants {
                     .withDescription(
                             "Inner format");
 
+    public static final ConfigOption<String> PULSAR_CLIENT_AUTH_PLUGIN_CLASSNAME =
+            ConfigOptions.key("pulsar.client.authPluginClassName")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "pulsar client auth plugin class name");
+
+    public static final ConfigOption<String> PULSAR_AUTH_PARAMS =
+            ConfigOptions.key("pulsar.client.authParams")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "pulsar client auth params");
+
 }
