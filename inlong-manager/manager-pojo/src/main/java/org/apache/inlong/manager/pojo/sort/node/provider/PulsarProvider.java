@@ -81,8 +81,8 @@ public class PulsarProvider implements ExtractNodeProvider {
                 primaryKey,
                 pulsarSource.getSubscription(),
                 scanStartupSubStartOffset,
-                "",
-                "");
+                pulsarSource.getClientAuthPluginClassName(),
+                pulsarSource.getClientAuthParams());
     }
 
     @Override
