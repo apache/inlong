@@ -248,8 +248,8 @@ public class ElasticsearchService implements InsertData, AutoCloseable {
         return builder;
     }
 
-    private void doBuild(XContentBuilder builder, String builderName, String value) throws IOException {
-        builder.startObject(builderName);
+    private void doBuild(XContentBuilder builder, String name, String value) throws IOException {
+        builder.startObject(name);
         builder.field(X_CONTENT_BUILDER_TYPE, value);
         builder.endObject();
     }
