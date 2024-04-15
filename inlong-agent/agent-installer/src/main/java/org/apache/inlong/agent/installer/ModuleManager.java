@@ -33,6 +33,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -445,9 +445,11 @@ public class ModuleManager extends AbstractDaemon {
 
     private boolean isPackageDownloaded(ModuleConfig module) {
         String path = module.getPackageConfig().getStoragePath() + "/" + module.getPackageConfig().getFileName();
-        if (calcFileMd5(path).equals(module.getPackageConfig().getMd5())) {
+        String fileMd5 = calcFileMd5(path);
+        if (fileMd5.equals(module.getPackageConfig().getMd5())) {
             return true;
         } else {
+            LOGGER.error("md5 not match! fileMd5 {} moduleMd5 {}", fileMd5, module.getPackageConfig().getMd5());
             return false;
         }
     }
@@ -474,7 +476,6 @@ public class ModuleManager extends AbstractDaemon {
     }
 
     private static String calcFileMd5(String path) {
-        BigInteger bi = null;
         byte[] buffer = new byte[DOWNLOAD_PACKAGE_READ_BUFF_SIZE];
         int len = 0;
         try (FileInputStream fileInputStream = new FileInputStream(path)) {
@@ -482,8 +483,7 @@ public class ModuleManager extends AbstractDaemon {
             while ((len = fileInputStream.read(buffer)) != -1) {
                 md.update(buffer, 0, len);
             }
-            byte[] b = md.digest();
-            bi = new BigInteger(1, b);
+            return new String(Hex.encodeHex(md.digest()));
         } catch (NoSuchAlgorithmException e) {
             LOGGER.error("calc file md5 NoSuchAlgorithmException", e);
             return "";
@@ -491,6 +491,5 @@ public class ModuleManager extends AbstractDaemon {
             LOGGER.error("calc file md5 IOException", e);
             return "";
         }
-        return bi.toString(16);
     }
 }
