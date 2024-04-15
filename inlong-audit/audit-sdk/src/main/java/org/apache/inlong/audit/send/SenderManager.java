@@ -17,15 +17,14 @@
 
 package org.apache.inlong.audit.send;
 
-import org.apache.inlong.audit.protocol.AuditApi;
-import org.apache.inlong.audit.util.AuditConfig;
-import org.apache.inlong.audit.util.AuditData;
-import org.apache.inlong.audit.util.SenderResult;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import org.apache.inlong.audit.protocol.AuditApi;
+import org.apache.inlong.audit.util.AuditConfig;
+import org.apache.inlong.audit.util.AuditData;
+import org.apache.inlong.audit.util.SenderResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -274,7 +273,7 @@ public class SenderManager {
                         requestId, baseCommand.getAuditReply().getMessage());
                 if (LOG.isDebugEnabled()) {
                     for (Map.Entry<Long, AuditData> entry : this.dataMap.entrySet()) {
-                        LOG.debug("Data map key:{},request id:{}", entry.getKey(), requestId);
+                        LOG.debug("Data map key:{}, request id:{}", entry.getKey(), requestId);
                     }
                 }
                 return;
@@ -285,7 +284,7 @@ public class SenderManager {
                 this.dataMap.remove(requestId);
                 return;
             }
-            LOG.error("Audit-proxy has error response! code={},message={}",
+            LOG.error("Audit-proxy has error response! code={}, message={}",
                     baseCommand.getAuditReply().getRspCode(), baseCommand.getAuditReply().getMessage());
 
             if (data.increaseResendTimes() < SenderGroup.MAX_SEND_TIMES) {
