@@ -130,16 +130,7 @@ public class PulsarSource extends AbstractSource {
                 LOGGER.info("Skip to reset consume");
             }
             return consumer;
-        } catch (PulsarClientException e) {
-            if (consumer == null) {
-                try {
-                    consumer.close();
-                } catch (PulsarClientException ex) {
-                    LOGGER.error("close consumer error", e);
-                }
-            }
-            LOGGER.error("get consumer error", e);
-        } catch (IllegalArgumentException e) {
+        } catch (PulsarClientException | IllegalArgumentException e) {
             if (consumer == null) {
                 try {
                     consumer.close();
