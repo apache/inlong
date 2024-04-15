@@ -45,7 +45,7 @@
         values (#{ip,jdbcType=VARCHAR}, #{dockerId,jdbcType=VARCHAR}, #{threadId,jdbcType=VARCHAR},
                 #{sdkTs,jdbcType=TIMESTAMP}, #{packetId,jdbcType=BIGINT}, #{logTs,jdbcType=TIMESTAMP},
                 #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR}, #{auditId,jdbcType=VARCHAR},
-                #{auditTag,jdbcType=VARCHAR},#{audit_version,jdbcType=BIGINT},
+                #{auditTag,jdbcType=VARCHAR},#{auditVersion,jdbcType=BIGINT},
                 #{count,jdbcType=BIGINT}, #{size,jdbcType=BIGINT}, #{delay,jdbcType=BIGINT})
     </insert>
 </mapper>
