@@ -115,35 +115,39 @@ public class PulsarSource extends AbstractSource {
     }
 
     private Consumer<byte[]> getConsumer() {
+        Consumer<byte[]> consumer = null;
         try {
-            Consumer<byte[]> consumer = null;
-            try {
-                consumer = pulsarClient.newConsumer(Schema.BYTES)
-                        .topic(topic)
-                        .subscriptionName(subscription)
-                        .subscriptionInitialPosition(SubscriptionInitialPosition.valueOf(subscriptionPosition))
-                        .subscriptionType(SubscriptionType.valueOf(subscriptionType))
-                        .subscribe();
-                if (!isRestoreFromDB && timestamp != 0L) {
-                    consumer.seek(timestamp);
-                    LOGGER.info("Reset consume from {}", timestamp);
-                } else {
-                    LOGGER.info("Skip to reset consume");
-                }
-                return consumer;
-            } catch (PulsarClientException e) {
-                if (consumer == null) {
-                    consumer.close();
-                }
-                LOGGER.error("get consumer error", e);
-            } catch (IllegalArgumentException e) {
-                if (consumer == null) {
-                    consumer.close();
-                }
-                LOGGER.error("get consumer error", e);
+            consumer = pulsarClient.newConsumer(Schema.BYTES)
+                    .topic(topic)
+                    .subscriptionName(subscription)
+                    .subscriptionInitialPosition(SubscriptionInitialPosition.valueOf(subscriptionPosition))
+                    .subscriptionType(SubscriptionType.valueOf(subscriptionType))
+                    .subscribe();
+            if (!isRestoreFromDB && timestamp != 0L) {
+                consumer.seek(timestamp);
+                LOGGER.info("Reset consume from {}", timestamp);
+            } else {
+                LOGGER.info("Skip to reset consume");
             }
-        } catch (Throwable e) {
-            LOGGER.error("do run error maybe pulsar client is configured incorrectly: ", e);
+            return consumer;
+        } catch (PulsarClientException e) {
+            if (consumer == null) {
+                try {
+                    consumer.close();
+                } catch (PulsarClientException ex) {
+                    LOGGER.error("close consumer error", e);
+                }
+            }
+            LOGGER.error("get consumer error", e);
+        } catch (IllegalArgumentException e) {
+            if (consumer == null) {
+                try {
+                    consumer.close();
+                } catch (PulsarClientException ex) {
+                    LOGGER.error("close consumer error", e);
+                }
+            }
+            LOGGER.error("get consumer error", e);
         }
         return null;
     }

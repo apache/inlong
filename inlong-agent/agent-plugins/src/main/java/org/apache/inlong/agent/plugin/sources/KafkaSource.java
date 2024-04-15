@@ -123,43 +123,39 @@ public class KafkaSource extends AbstractSource {
     }
 
     private KafkaConsumer<String, byte[]> getKafkaConsumer() {
+        List<PartitionInfo> partitionInfoList;
+        KafkaConsumer<String, byte[]> kafkaConsumer = null;
+        props.put(KAFKA_SESSION_TIMEOUT, 30000);
         try {
-            List<PartitionInfo> partitionInfoList;
-            KafkaConsumer<String, byte[]> kafkaConsumer = null;
-            props.put(KAFKA_SESSION_TIMEOUT, 30000);
-            try {
-                kafkaConsumer = new KafkaConsumer<>(props);
-                partitionInfoList = kafkaConsumer.partitionsFor(topic);
-                if (partitionInfoList == null) {
-                    kafkaConsumer.close();
-                    return null;
-                }
-                List<TopicPartition> topicPartitions = new ArrayList<>();
-                for (PartitionInfo partitionInfo : partitionInfoList) {
-                    TopicPartition topicPartition = new TopicPartition(partitionInfo.topic(),
-                            partitionInfo.partition());
-                    topicPartitions.add(topicPartition);
-                }
-                kafkaConsumer.assign(topicPartitions);
-                if (!isRestoreFromDB && StringUtils.isNotBlank(allPartitionOffsets)) {
-                    for (TopicPartition topicPartition : topicPartitions) {
-                        Long offset = partitionOffsets.get(topicPartition.partition());
-                        if (ObjectUtils.isNotEmpty(offset)) {
-                            kafkaConsumer.seek(topicPartition, offset);
-                        }
-                    }
-                } else {
-                    LOGGER.info("Skip to seek offset");
-                }
-                return kafkaConsumer;
-            } catch (Exception e) {
-                if (kafkaConsumer != null) {
-                    kafkaConsumer.close();
-                }
-                LOGGER.error("get kafka consumer error", e);
+            kafkaConsumer = new KafkaConsumer<>(props);
+            partitionInfoList = kafkaConsumer.partitionsFor(topic);
+            if (partitionInfoList == null) {
+                kafkaConsumer.close();
+                return null;
             }
-        } catch (Throwable e) {
-            LOGGER.error("do run error maybe topic is configured incorrectly: ", e);
+            List<TopicPartition> topicPartitions = new ArrayList<>();
+            for (PartitionInfo partitionInfo : partitionInfoList) {
+                TopicPartition topicPartition = new TopicPartition(partitionInfo.topic(),
+                        partitionInfo.partition());
+                topicPartitions.add(topicPartition);
+            }
+            kafkaConsumer.assign(topicPartitions);
+            if (!isRestoreFromDB && StringUtils.isNotBlank(allPartitionOffsets)) {
+                for (TopicPartition topicPartition : topicPartitions) {
+                    Long offset = partitionOffsets.get(topicPartition.partition());
+                    if (ObjectUtils.isNotEmpty(offset)) {
+                        kafkaConsumer.seek(topicPartition, offset);
+                    }
+                }
+            } else {
+                LOGGER.info("Skip to seek offset");
+            }
+            return kafkaConsumer;
+        } catch (Exception e) {
+            if (kafkaConsumer != null) {
+                kafkaConsumer.close();
+            }
+            LOGGER.error("get kafka consumer error", e);
         }
         return null;
     }
