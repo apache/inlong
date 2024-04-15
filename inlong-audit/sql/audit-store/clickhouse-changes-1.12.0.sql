@@ -19,6 +19,6 @@
 
 USE `apache_inlong_audit`;
 
-ALTER TABLE audit_data ADD COLUMN audit_version Int64 DEFAULT -1 COMMENT 'Audit version' after `audit_tag`;
+ALTER TABLE audit_data ADD COLUMN audit_version Int64 DEFAULT -1 COMMENT 'Audit version' AFTER `audit_tag`;
 
 
