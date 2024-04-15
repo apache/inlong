@@ -209,14 +209,14 @@ public class AuditReporterImpl implements Serializable {
      * Add audit data
      */
     public void add(int auditID, String inlongGroupID, String inlongStreamID, Long logTime, long count, long size) {
-        add(auditID, DEFAULT_AUDIT_TAG, inlongGroupID, inlongStreamID, logTime, count, size);
+        add(auditID, DEFAULT_AUDIT_TAG, inlongGroupID, inlongStreamID, logTime, count, size, DEFAULT_AUDIT_VERSION);
     }
 
     public void add(int auditID, String auditTag, String inlongGroupID, String inlongStreamID, Long logTime,
-            long count, long size) {
+            long count, long size, long auditVersion) {
         long delayTime = System.currentTimeMillis() - logTime;
         add(auditID, auditTag, inlongGroupID, inlongStreamID, logTime, count, size,
-                delayTime * count, DEFAULT_AUDIT_VERSION);
+                delayTime * count, auditVersion);
     }
 
     public void add(int auditID, String inlongGroupID, String inlongStreamID, Long logTime, long count, long size,
