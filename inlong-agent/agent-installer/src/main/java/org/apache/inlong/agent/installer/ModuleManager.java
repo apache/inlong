@@ -478,7 +478,7 @@ public class ModuleManager extends AbstractDaemon {
     private static String calcFileMd5(String path) {
         byte[] buffer = new byte[DOWNLOAD_PACKAGE_READ_BUFF_SIZE];
         int len = 0;
-        String ret = "";
+        String ret = null;
         try (FileInputStream fileInputStream = new FileInputStream(path)) {
             MessageDigest md = MessageDigest.getInstance("MD5");
             while ((len = fileInputStream.read(buffer)) != -1) {
