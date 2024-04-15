@@ -27,13 +27,13 @@ Call the add method for statistics, where the auditID parameter uniquely identif
 inlongGroupID,inlongStreamID,logTime are audit dimensions, count is the number of items, size is the size, and logTime
 is milliseconds.
 
-#### Example of add api for Agent
+#### Example of add API for Agent
 ```java
     AuditOperator.getInstance().add(auditID,auditTag,inlongGroupID,inlongStreamID,logTime,
         count,size,auditVersion);
 ```
 The scenario of supplementary recording of agent data, so the version number parameter needs to be passed in.
-#### Example of add api for DataProxy
+#### Example of add API for DataProxy
 ```java
     AuditOperator.getInstance().add(auditID,auditTag,inlongGroupID,inlongStreamID,logTime,
         count,size,auditVersion);
