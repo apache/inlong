@@ -260,6 +260,9 @@ public class SenderManager {
      * processing return package
      */
     public void onMessageReceived(ChannelHandlerContext ctx, byte[] msg) {
+        if (null == msg) {
+            return;
+        }
         try {
             // Analyze abnormal events
             AuditApi.BaseCommand baseCommand = AuditApi.BaseCommand.parseFrom(msg);
@@ -276,16 +279,16 @@ public class SenderManager {
                 }
                 return;
             }
-            // check resp
-            LOG.debug("Audit-proxy response code: {}", baseCommand.getAuditReply().getRspCode());
+            // Check audit-proxy response code
+            LOG.info("Audit-proxy response code: {}", baseCommand.getAuditReply().getRspCode());
             if (AuditApi.AuditReply.RSP_CODE.SUCCESS.equals(baseCommand.getAuditReply().getRspCode())) {
                 this.dataMap.remove(requestId);
                 return;
             }
-            LOG.error("Audit-proxy response code: {}", baseCommand.getAuditReply().getRspCode());
+            LOG.error("Audit-proxy has error response! code={},message={}",
+                    baseCommand.getAuditReply().getRspCode(), baseCommand.getAuditReply().getMessage());
 
-            int resendTimes = data.increaseResendTimes();
-            if (resendTimes < SenderGroup.MAX_SEND_TIMES) {
+            if (data.increaseResendTimes() < SenderGroup.MAX_SEND_TIMES) {
                 this.sendData(data.getDataByte());
             }
         } catch (Throwable ex) {

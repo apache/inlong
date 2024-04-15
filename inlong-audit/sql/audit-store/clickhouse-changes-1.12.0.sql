@@ -15,32 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.db.entities;
+-- When upgrading to version 1.12.0, please execute those SQLs in the clickhouse which audit used.
 
-import lombok.Getter;
-import lombok.Setter;
+USE `apache_inlong_audit`;
 
-import java.sql.Timestamp;
-import java.util.Date;
+ALTER TABLE audit_data ADD COLUMN audit_version Int64 DEFAULT -1 COMMENT 'Audit version' after `audit_tag`;
 
-@Getter
-@Setter
-public class AuditDataPo {
 
-    private String ip;
-    private String dockerId;
-    private String threadId;
-    private Date sdkTs;
-    private Long packetId;
-    private Date logTs;
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private String auditId;
-    private String auditTag;
-    private long auditVersion;
-    private Long count;
-    private Long size;
-    private Long delay;
-    private Timestamp updateTime;
-
-}
