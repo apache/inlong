@@ -478,18 +478,19 @@ public class ModuleManager extends AbstractDaemon {
     private static String calcFileMd5(String path) {
         byte[] buffer = new byte[DOWNLOAD_PACKAGE_READ_BUFF_SIZE];
         int len = 0;
+        String ret = null;
         try (FileInputStream fileInputStream = new FileInputStream(path)) {
             MessageDigest md = MessageDigest.getInstance("MD5");
             while ((len = fileInputStream.read(buffer)) != -1) {
                 md.update(buffer, 0, len);
             }
-            return new String(Hex.encodeHex(md.digest()));
+            ret = new String(Hex.encodeHex(md.digest()));
         } catch (NoSuchAlgorithmException e) {
             LOGGER.error("calc file md5 NoSuchAlgorithmException", e);
-            return "";
+
         } catch (IOException e) {
             LOGGER.error("calc file md5 IOException", e);
-            return "";
         }
+        return ret;
     }
 }
