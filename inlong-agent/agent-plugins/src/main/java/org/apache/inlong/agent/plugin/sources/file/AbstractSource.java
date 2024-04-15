@@ -238,7 +238,7 @@ public abstract class AbstractSource implements Source {
         }
         try {
             boolean offerSuc = false;
-            while (isRunnable() && offerSuc != true) {
+            while (isRunnable() && !offerSuc) {
                 offerSuc = queue.offer(sourceData, 1, TimeUnit.SECONDS);
             }
             if (!offerSuc) {
