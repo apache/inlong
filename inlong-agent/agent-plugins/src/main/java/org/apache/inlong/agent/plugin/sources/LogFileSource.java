@@ -59,6 +59,7 @@ public class LogFileSource extends AbstractSource {
     private volatile boolean fileExist = true;
     private String inodeInfo;
     private volatile long lastInodeUpdateTime = 0;
+    private RandomAccessFile randomAccessFile;
 
     public LogFileSource() {
     }
@@ -76,6 +77,7 @@ public class LogFileSource extends AbstractSource {
             lastInodeUpdateTime = AgentUtils.getCurrentTime();
             linePosition = getInitLineOffset(isIncrement, taskId, instanceId, inodeInfo);
             bytePosition = getBytePositionByLine(linePosition);
+            randomAccessFile = new RandomAccessFile(file, "r");
         } catch (Exception ex) {
             stopRunning();
             throw new FileException("error init stream for " + file.getPath(), ex);
@@ -126,14 +128,10 @@ public class LogFileSource extends AbstractSource {
     private List<SourceData> readFromPos(long pos) throws IOException {
         List<byte[]> lines = new ArrayList<>();
         List<SourceData> dataList = new ArrayList<>();
-        RandomAccessFile input = new RandomAccessFile(file, "r");
-        bytePosition = readLines(input, pos, lines, BATCH_READ_LINE_COUNT, BATCH_READ_LINE_TOTAL_LEN, false);
+        bytePosition = readLines(randomAccessFile, pos, lines, BATCH_READ_LINE_COUNT, BATCH_READ_LINE_TOTAL_LEN, false);
         for (int i = 0; i < lines.size(); i++) {
             linePosition++;
             dataList.add(new SourceData(lines.get(i), linePosition));
-        }
-        if (input != null) {
-            input.close();
         }
         return dataList;
     }
@@ -305,5 +303,16 @@ public class LogFileSource extends AbstractSource {
     @Override
     public List<Reader> split(TaskProfile jobConf) {
         return null;
+    }
+
+    @Override
+    protected void releaseSource() {
+        if (randomAccessFile != null) {
+            try {
+                randomAccessFile.close();
+            } catch (IOException e) {
+                LOGGER.error("close randomAccessFile error", e);
+            }
+        }
     }
 }

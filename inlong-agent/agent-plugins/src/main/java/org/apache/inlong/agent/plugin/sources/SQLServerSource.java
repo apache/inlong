@@ -79,6 +79,11 @@ public class SQLServerSource extends AbstractSource {
     }
 
     @Override
+    protected void releaseSource() {
+
+    }
+
+    @Override
     public boolean sourceFinish() {
         return false;
     }

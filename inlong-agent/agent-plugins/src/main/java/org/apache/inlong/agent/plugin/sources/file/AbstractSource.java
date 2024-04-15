@@ -280,19 +280,19 @@ public abstract class AbstractSource implements Source {
                         profile.get(TaskConstants.FILE_SOURCE_EXTEND_CLASS, DEFAULT_FILE_SOURCE_EXTEND_CLASS))
                         .getDeclaredConstructor(InstanceProfile.class);
             } catch (NoSuchMethodException e) {
-                LOGGER.error("init {} NoSuchMethodException error", e);
+                LOGGER.error("init {} NoSuchMethodException error", instanceId, e);
             } catch (ClassNotFoundException e) {
-                LOGGER.error("init {} ClassNotFoundException error", e);
+                LOGGER.error("init {} ClassNotFoundException error", instanceId, e);
             }
             constructor.setAccessible(true);
             try {
                 extendedHandler = (ExtendedHandler) constructor.newInstance(profile);
             } catch (InstantiationException e) {
-                LOGGER.error("init {} InstantiationException error", e);
+                LOGGER.error("init {} InstantiationException error", instanceId, e);
             } catch (IllegalAccessException e) {
-                LOGGER.error("init {} IllegalAccessException error", e);
+                LOGGER.error("init {} IllegalAccessException error", instanceId, e);
             } catch (InvocationTargetException e) {
-                LOGGER.error("init {} InvocationTargetException error", e);
+                LOGGER.error("init {} InvocationTargetException error", instanceId, e);
             }
         }
     }
@@ -362,8 +362,14 @@ public abstract class AbstractSource implements Source {
             AgentUtils.silenceSleepInMs(1);
         }
         clearQueue(queue);
+        releaseSource();
         LOGGER.info("destroy read source name {} end", instanceId);
     }
+
+    /**
+     * Release the source resource if needed
+     */
+    protected abstract void releaseSource();
 
     private void clearQueue(BlockingQueue<SourceData> queue) {
         if (queue == null) {

@@ -116,13 +116,14 @@ public class PulsarSource extends AbstractSource {
 
     private Consumer<byte[]> getConsumer() {
         try {
-            try (Consumer<byte[]> consumer = pulsarClient.newConsumer(Schema.BYTES)
-                    .topic(topic)
-                    .subscriptionName(subscription)
-                    .subscriptionInitialPosition(SubscriptionInitialPosition.valueOf(subscriptionPosition))
-                    .subscriptionType(SubscriptionType.valueOf(subscriptionType))
-                    .subscribe()) {
-
+            Consumer<byte[]> consumer = null;
+            try {
+                consumer = pulsarClient.newConsumer(Schema.BYTES)
+                        .topic(topic)
+                        .subscriptionName(subscription)
+                        .subscriptionInitialPosition(SubscriptionInitialPosition.valueOf(subscriptionPosition))
+                        .subscriptionType(SubscriptionType.valueOf(subscriptionType))
+                        .subscribe();
                 if (!isRestoreFromDB && timestamp != 0L) {
                     consumer.seek(timestamp);
                     LOGGER.info("Reset consume from {}", timestamp);
@@ -130,6 +131,16 @@ public class PulsarSource extends AbstractSource {
                     LOGGER.info("Skip to reset consume");
                 }
                 return consumer;
+            } catch (PulsarClientException e) {
+                if (consumer == null) {
+                    consumer.close();
+                }
+                LOGGER.error("get consumer error", e);
+            } catch (IllegalArgumentException e) {
+                if (consumer == null) {
+                    consumer.close();
+                }
+                LOGGER.error("get consumer error", e);
             }
         } catch (Throwable e) {
             LOGGER.error("do run error maybe pulsar client is configured incorrectly: ", e);
@@ -145,6 +156,17 @@ public class PulsarSource extends AbstractSource {
     @Override
     protected boolean isRunnable() {
         return runnable;
+    }
+
+    @Override
+    protected void releaseSource() {
+        if (consumer != null) {
+            try {
+                consumer.close();
+            } catch (PulsarClientException e) {
+                LOGGER.error("close consumer error", e);
+            }
+        }
     }
 
     @Override
