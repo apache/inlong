@@ -88,6 +88,12 @@ public class PulsarSource extends StreamSource {
     @Builder.Default
     private String wrapType = MessageWrapType.INLONG_MSG_V0.getName();
 
+    @ApiModelProperty(value = "Client auth plugin class name")
+    private String clientAuthPluginClassName;
+
+    @ApiModelProperty(value = "Client auth params")
+    private String clientAuthParams;
+
     @ApiModelProperty("Reset subscription time")
     private Long resetTime;
 
