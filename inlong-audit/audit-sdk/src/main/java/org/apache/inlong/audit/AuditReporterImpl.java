@@ -213,7 +213,7 @@ public class AuditReporterImpl implements Serializable {
     }
 
     public void add(int auditID, String auditTag, String inlongGroupID, String inlongStreamID, Long logTime,
-                    long count, long size, long auditVersion) {
+            long count, long size, long auditVersion) {
         long delayTime = System.currentTimeMillis() - logTime;
         add(auditID, auditTag, inlongGroupID, inlongStreamID, logTime, count, size,
                 delayTime * count, auditVersion);
