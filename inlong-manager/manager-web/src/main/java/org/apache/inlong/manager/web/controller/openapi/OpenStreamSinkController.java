@@ -83,6 +83,13 @@ public class OpenStreamSinkController {
         return Response.success(sinkService.save(request, LoginUserUtils.getLoginUser()));
     }
 
+    @RequestMapping(value = "/sink/batchSave", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.SINK)
+    @ApiOperation(value = "Batch save stream sink")
+    public Response<List<Integer>> batchSave(@Validated @RequestBody List<SinkRequest> requestList) {
+        return Response.success(sinkService.batchSave(requestList, LoginUserUtils.getLoginUser().getName()));
+    }
+
     @RequestMapping(value = "/sink/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.SINK)
     @ApiOperation(value = "Update stream sink")

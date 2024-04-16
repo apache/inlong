@@ -51,6 +51,15 @@ public interface InlongStreamService {
     Integer save(InlongStreamRequest request, String operator);
 
     /**
+     * Batch save inlong stream information.
+     *
+     * @param requestList Inlong stream information list.
+     * @param operator The name of operator.
+     * @return Id list after successful save.
+     */
+    List<Integer> batchSave(List<InlongStreamRequest> requestList, String operator);
+
+    /**
      * Save inlong stream information.
      *
      * @param request Inlong stream information.

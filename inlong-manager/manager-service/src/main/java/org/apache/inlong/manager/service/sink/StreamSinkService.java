@@ -60,6 +60,15 @@ public interface StreamSinkService {
     Integer save(SinkRequest request, UserInfo opInfo);
 
     /**
+     * Batch save the sink info.
+     *
+     * @param requestList sink request list need to save
+     * @param operator name of operator
+     * @return sink id list after saving
+     */
+    List<Integer> batchSave(List<SinkRequest> requestList, String operator);
+
+    /**
      * Get stream sink info based on id.
      *
      * @param id sink id

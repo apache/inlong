@@ -50,11 +50,17 @@ public interface InlongGroupApi {
     @POST("group/save")
     Call<Response<String>> createGroup(@Body InlongGroupRequest request);
 
+    @POST("group/batchSave")
+    Call<Response<List<String>>> batchCreateGroup(@Body List<InlongGroupRequest> requestList);
+
     @POST("group/update")
     Call<Response<String>> updateGroup(@Body InlongGroupRequest request);
 
     @POST("group/startProcess/{id}")
-    Call<Response<WorkflowResult>> initInlongGroup(@Path("id") String id);
+    Call<Response<WorkflowResult>> startProcess(@Path("id") String id);
+
+    @POST("group/batchStartProcess/{id}")
+    Call<Response<WorkflowResult>> batchStartProcess(@Body List<String> groupIdList);
 
     @POST("group/suspendProcessAsync/{id}")
     Call<Response<String>> suspendProcessAsync(@Path("id") String id);

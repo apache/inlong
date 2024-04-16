@@ -61,6 +61,16 @@ public interface InlongGroupService {
             UserInfo opInfo);
 
     /**
+     * Batch save inlong group info.
+     *
+     * @param groupRequestList group request list need to save
+     * @param operator name of operator
+     * @return inlong group id list after saving
+     */
+    List<String> batchSave(
+            @Valid @NotNull(message = "inlong group request list cannot be null") List<InlongGroupRequest> groupRequestList,
+            String operator);
+    /**
      * Query whether the specified group id exists
      *
      * @param groupId the group id to be queried

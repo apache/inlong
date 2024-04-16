@@ -31,10 +31,15 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
+import java.util.List;
+
 public interface StreamSourceApi {
 
     @POST("source/save")
     Call<Response<Integer>> createSource(@Body SourceRequest request);
+
+    @POST("source/batchSave")
+    Call<Response<List<Integer>>> batchCreateSource(@Body List<SourceRequest> requestList);
 
     @POST("source/update")
     Call<Response<Boolean>> updateSource(@Body SourceRequest request);

@@ -54,6 +54,12 @@ public class StreamSinkClient {
         return response.getData();
     }
 
+    public List<Integer> batchCreateSink(List<SinkRequest> sinkRequests) {
+        Response<List<Integer>> response = ClientUtils.executeHttpCall(streamSinkApi.batchSave(sinkRequests));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
     /**
      * Delete stream sink info by ID.
      */

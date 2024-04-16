@@ -53,6 +53,15 @@ public interface StreamSourceService {
     Integer save(SourceRequest request, UserInfo opInfo);
 
     /**
+     * Batch save the source information
+     *
+     * @param requestList Source request list.
+     * @param operator Operator's name.
+     * @return source id list after saving.
+     */
+    List<Integer> batchSave(List<SourceRequest> requestList, String operator);
+
+    /**
      * Query source information based on id
      *
      * @param id source id.

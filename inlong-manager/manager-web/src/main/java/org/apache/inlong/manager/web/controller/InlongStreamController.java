@@ -86,6 +86,14 @@ public class InlongStreamController {
         return Response.success(result);
     }
 
+    @RequestMapping(value = "/stream/batchSave", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.STREAM)
+    @ApiOperation(value = "Batch save inlong stream")
+    public Response<List<Integer>> batchSave(@RequestBody List<InlongStreamRequest> requestList) {
+        List<Integer> result = streamService.batchSave(requestList, LoginUserUtils.getLoginUser().getName());
+        return Response.success(result);
+    }
+
     @RequestMapping(value = "/stream/exist/{groupId}/{streamId}", method = RequestMethod.GET)
     @ApiOperation(value = "Is the inlong stream exists")
     @ApiImplicitParams({
@@ -154,6 +162,7 @@ public class InlongStreamController {
     }
 
     @RequestMapping(value = "/stream/suspendProcess/{groupId}/{streamId}", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.SUSPEND, operationTarget = OperationTarget.STREAM)
     @ApiOperation(value = "Suspend inlong stream process")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
@@ -254,6 +263,14 @@ public class InlongStreamController {
             @RequestParam Integer messageCount) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamService.listMessages(groupId, streamId, messageCount, username));
+    }
+
+    @RequestMapping(value = "/stream/listByTenant", method = RequestMethod.POST)
+    @ApiOperation(value = "List inlong stream briefs by paginating, only wedata use")
+    public Response<PageResult<InlongStreamBriefInfo>> listByTenant(@RequestBody InlongStreamPageRequest request) {
+        request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
+        request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.TENANT_ADMIN));
+        return Response.success(streamService.listBriefByTenant(request));
     }
 
 }

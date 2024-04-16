@@ -105,6 +105,14 @@ public class OpenInLongStreamController {
         return Response.success(streamService.save(request, LoginUserUtils.getLoginUser()));
     }
 
+    @RequestMapping(value = "/stream/batchSave", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.STREAM)
+    @ApiOperation(value = "Batch save inlong stream")
+    public Response<List<Integer>> batchSave(@RequestBody List<InlongStreamRequest> requestList) {
+        List<Integer> result = streamService.batchSave(requestList, LoginUserUtils.getLoginUser().getName());
+        return Response.success(result);
+    }
+
     @RequestMapping(value = "/stream/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.STREAM)
     @ApiOperation(value = "Update inlong stream")

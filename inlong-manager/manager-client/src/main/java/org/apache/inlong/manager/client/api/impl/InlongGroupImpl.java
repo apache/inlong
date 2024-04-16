@@ -117,7 +117,7 @@ public class InlongGroupImpl implements InlongGroup {
     @Override
     public InlongGroupContext init() throws Exception {
         InlongGroupInfo groupInfo = this.groupContext.getGroupInfo();
-        WorkflowResult initWorkflowResult = groupClient.initInlongGroup(groupInfo.genRequest());
+        WorkflowResult initWorkflowResult = groupClient.startProcess(groupInfo.genRequest());
         List<TaskResponse> taskViews = initWorkflowResult.getNewTasks();
         Preconditions.expectNotEmpty(taskViews, "init inlong group info failed");
         TaskResponse taskView = taskViews.get(0);

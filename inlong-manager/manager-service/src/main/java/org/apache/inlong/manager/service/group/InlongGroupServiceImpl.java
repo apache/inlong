@@ -217,6 +217,17 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public List<String> batchSave(List<InlongGroupRequest> groupRequestList, String operator) {
+        List<String> groupIdList = new ArrayList<>();
+        for (InlongGroupRequest groupRequest : groupRequestList) {
+            String groupId = this.save(groupRequest, operator);
+            groupIdList.add(groupId);
+        }
+        return groupIdList;
+    }
+
+    @Override
     public Boolean exist(String groupId) {
         Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);

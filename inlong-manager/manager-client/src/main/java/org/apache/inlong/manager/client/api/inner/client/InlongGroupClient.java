@@ -45,6 +45,7 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import retrofit2.Call;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD;
 import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD_OLD;
@@ -168,6 +169,16 @@ public class InlongGroupClient {
     }
 
     /**
+     * Batch create an inlong group
+     */
+    public List<String> batchCreateGroup(List<InlongGroupRequest> groupRequestList) {
+        Response<List<String>> response =
+                ClientUtils.executeHttpCall(inlongGroupApi.batchCreateGroup(groupRequestList));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
      * Update inlong group info
      *
      * @return groupId && errMsg
@@ -186,9 +197,18 @@ public class InlongGroupClient {
         return response.getData();
     }
 
-    public WorkflowResult initInlongGroup(InlongGroupRequest groupInfo) {
+    public WorkflowResult startProcess(InlongGroupRequest groupInfo) {
         Response<WorkflowResult> responseBody = ClientUtils.executeHttpCall(
-                inlongGroupApi.initInlongGroup(groupInfo.getInlongGroupId()));
+                inlongGroupApi.startProcess(groupInfo.getInlongGroupId()));
+        ClientUtils.assertRespSuccess(responseBody);
+        return responseBody.getData();
+    }
+
+    public WorkflowResult BatchStartProcess(List<InlongGroupRequest> groupRequestList) {
+        List<String> groupIdList = groupRequestList.stream().map(InlongGroupRequest::getInlongGroupId).collect(
+                Collectors.toList());
+        Response<WorkflowResult> responseBody = ClientUtils.executeHttpCall(
+                inlongGroupApi.batchStartProcess(groupIdList));
         ClientUtils.assertRespSuccess(responseBody);
         return responseBody.getData();
     }

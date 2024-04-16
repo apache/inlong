@@ -41,6 +41,7 @@ import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm.GroupFullInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
@@ -52,6 +53,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -113,6 +115,24 @@ public class InlongGroupProcessService {
         }
 
         LOGGER.info("success to start approve process for groupId={} by operator={}", groupId, operator);
+        return result;
+    }
+
+    public WorkflowResult batchStartProcess(List<String> groupIdList, String operator) {
+        for (String groupId : groupIdList) {
+            LOGGER.info("begin to start approve process for groupId={} by operator={}", groupId, operator);
+
+            groupService.updateStatus(groupId, GroupStatus.TO_BE_APPROVAL.getCode(), operator);
+        }
+        ApplyGroupProcessForm form = genApplyGroupProcessForm(groupIdList);
+        WorkflowResult result = workflowService.start(ProcessName.APPLY_GROUP_PROCESS, operator, form);
+        List<TaskResponse> tasks = result.getNewTasks();
+        if (TaskStatus.FAILED == tasks.get(tasks.size() - 1).getStatus()) {
+            throw new BusinessException(ErrorCodeEnum.WORKFLOW_START_RECORD_FAILED,
+                    String.format("failed to start inlong group for groupId=%s", groupIdList));
+        }
+
+        LOGGER.info("success to start approve process for groupId={} by operator={}", groupIdList, operator);
         return result;
     }
 
@@ -365,6 +385,21 @@ public class InlongGroupProcessService {
         form.setGroupInfo(groupInfo);
         List<InlongStreamBriefInfo> infoList = streamService.listBriefWithSink(groupInfo.getInlongGroupId());
         form.setStreamInfoList(infoList);
+        return form;
+    }
+
+    private ApplyGroupProcessForm genApplyGroupProcessForm(List<String> groupIdList) {
+        ApplyGroupProcessForm form = new ApplyGroupProcessForm();
+        List<GroupFullInfo> groupFullInfoList = new ArrayList<>();
+        for (String groupId : groupIdList) {
+            InlongGroupInfo groupInfo = groupService.get(groupId);
+            List<InlongStreamBriefInfo> infoList = streamService.listBriefWithSink(groupInfo.getInlongGroupId());
+            GroupFullInfo groupFullInfo = new GroupFullInfo();
+            groupFullInfo.setGroupInfo(groupInfo);
+            groupFullInfo.setStreamInfoList(infoList);
+            groupFullInfoList.add(groupFullInfo);
+        }
+        form.setGroupFullInfoList(groupFullInfoList);
         return form;
     }
 

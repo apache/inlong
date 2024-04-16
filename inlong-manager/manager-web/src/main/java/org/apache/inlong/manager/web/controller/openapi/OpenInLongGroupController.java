@@ -88,6 +88,15 @@ public class OpenInLongGroupController {
         return Response.success(groupService.save(groupRequest, LoginUserUtils.getLoginUser()));
     }
 
+    @RequestMapping(value = "/group/batchSave", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.GROUP)
+    @ApiOperation(value = "Batch Save inlong group")
+    public Response<List<String>> batchSave(
+            @Validated(SaveValidation.class) @RequestBody List<InlongGroupRequest> groupRequestList) {
+        String operator = LoginUserUtils.getLoginUser().getName();
+        return Response.success(groupService.batchSave(groupRequestList, operator));
+    }
+
     @RequestMapping(value = "/group/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.GROUP)
     @ApiOperation(value = "Update inlong group")

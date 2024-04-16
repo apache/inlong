@@ -185,6 +185,16 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
+    public List<Integer> batchSave(List<InlongStreamRequest> requestList, String operator) {
+        List<Integer> resultList = new ArrayList<>();
+        for (InlongStreamRequest request : requestList) {
+            int id = this.save(request, operator);
+            resultList.add(id);
+        }
+        return resultList;
+    }
+
+    @Override
     public Integer save(InlongStreamRequest request, UserInfo opInfo) {
         InlongGroupEntity entity = groupMapper.selectByGroupId(request.getInlongGroupId());
         if (entity == null) {

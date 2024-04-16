@@ -66,6 +66,13 @@ public class StreamSinkController {
         return Response.success(sinkService.save(request, LoginUserUtils.getLoginUser().getName()));
     }
 
+    @RequestMapping(value = "/sink/batchSave", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.SINK)
+    @ApiOperation(value = "Batch save stream sink")
+    public Response<List<Integer>> batchSave(@Validated @RequestBody List<SinkRequest> requestList) {
+        return Response.success(sinkService.batchSave(requestList, LoginUserUtils.getLoginUser().getName()));
+    }
+
     @RequestMapping(value = "/sink/get/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Get stream sink")
     @OperationLog(operation = OperationType.GET, operationTarget = OperationTarget.SINK)

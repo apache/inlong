@@ -163,6 +163,16 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
+    public List<Integer> batchSave(List<SourceRequest> requestList, String operator) {
+        List<Integer> resultList = new ArrayList<>();
+        for (SourceRequest request : requestList) {
+            int id = this.save(request, operator);
+            resultList.add(id);
+        }
+        return resultList;
+    }
+
+    @Override
     public StreamSource get(Integer id) {
         if (id == null) {
             throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "source id is empty");

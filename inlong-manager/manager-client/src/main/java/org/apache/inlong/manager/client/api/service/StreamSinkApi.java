@@ -41,6 +41,9 @@ public interface StreamSinkApi {
     @POST("sink/save")
     Call<Response<Integer>> save(@Body SinkRequest request);
 
+    @POST("sink/batchSave")
+    Call<Response<List<Integer>>> batchSave(@Body List<SinkRequest> requestList);
+
     @POST("sink/update")
     Call<Response<Boolean>> updateById(@Body SinkRequest request);
 

@@ -53,6 +53,15 @@ public class StreamSourceClient {
     }
 
     /**
+     * Batch create inlong stream source.
+     */
+    public List<Integer> batchCreateSource(List<SourceRequest> requestList) {
+        Response<List<Integer>> response = ClientUtils.executeHttpCall(streamSourceApi.batchCreateSource(requestList));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
      * List stream sources by the given groupId and streamId.
      */
     public List<StreamSource> listSources(String groupId, String streamId) {

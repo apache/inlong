@@ -43,6 +43,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * Open InLong Stream Source controller
  */
@@ -78,6 +80,14 @@ public class OpenStreamSourceController {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(sourceService.save(request, LoginUserUtils.getLoginUser()));
+    }
+
+    @RequestMapping(value = "/source/batchSave", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.SOURCE)
+    @ApiOperation(value = "Batch save stream source")
+    public Response<List<Integer>> batchSave(
+            @Validated(SaveValidation.class) @RequestBody List<SourceRequest> requestList) {
+        return Response.success(sourceService.batchSave(requestList, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/source/update", method = RequestMethod.POST)

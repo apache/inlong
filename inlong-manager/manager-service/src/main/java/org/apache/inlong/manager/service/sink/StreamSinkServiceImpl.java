@@ -235,6 +235,16 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     }
 
     @Override
+    public List<Integer> batchSave(List<SinkRequest> requestList, String operator) {
+        List<Integer> resultList = new ArrayList<>();
+        for (SinkRequest request : requestList) {
+            int id = this.save(request, operator);
+            resultList.add(id);
+        }
+        return resultList;
+    }
+
+    @Override
     public StreamSink get(Integer id) {
         if (id == null) {
             throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "sink id is empty");

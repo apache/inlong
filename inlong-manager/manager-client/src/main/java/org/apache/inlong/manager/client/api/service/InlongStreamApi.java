@@ -41,6 +41,9 @@ public interface InlongStreamApi {
     @POST("stream/save")
     Call<Response<Integer>> createStream(@Body InlongStreamInfo stream);
 
+    @POST("stream/batchSave")
+    Call<Response<List<Integer>>> batchCreateStream(@Body List<InlongStreamInfo> streamInfos);
+
     @GET("stream/exist/{groupId}/{streamId}")
     Call<Response<Boolean>> isStreamExists(@Path("groupId") String groupId, @Path("streamId") String streamId);
 
