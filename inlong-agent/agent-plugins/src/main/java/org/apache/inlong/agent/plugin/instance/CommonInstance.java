@@ -70,6 +70,7 @@ public abstract class CommonInstance extends Instance {
                     profile.getInstanceId(), profile.toJsonStr());
             source = (Source) Class.forName(profile.getSourceClass()).newInstance();
             source.init(profile);
+            source.start();
             sink = (Sink) Class.forName(profile.getSinkClass()).newInstance();
             sink.init(profile);
             inited = true;
