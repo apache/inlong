@@ -26,6 +26,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -56,12 +58,14 @@ public class ApplyConsumeProcessForm extends BaseProcessForm {
     }
 
     @Override
-    public Map<String, Object> showInList() {
+    public List<Map<String, Object>> showInList() {
+        List<Map<String, Object>> showInList = new ArrayList<>();
         Map<String, Object> show = Maps.newHashMap();
         if (consumeInfo != null) {
             show.put("inlongGroupId", consumeInfo.getInlongGroupId());
             show.put("consumerGroup", consumeInfo.getConsumerGroup());
         }
-        return show;
+        showInList.add(show);
+        return showInList;
     }
 }

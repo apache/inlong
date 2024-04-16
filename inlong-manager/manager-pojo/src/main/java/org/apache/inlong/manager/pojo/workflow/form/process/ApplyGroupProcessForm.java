@@ -79,23 +79,24 @@ public class ApplyGroupProcessForm extends BaseProcessForm {
     }
 
     @Override
-    public Map<String, Object> showInList() {
-        Map<String, Object> show = Maps.newHashMap();
+    public List<Map<String, Object>> showInList() {
+        List<Map<String, Object>> showList = new ArrayList<>();
         if (groupInfo != null) {
-            show.put("inlongGroupId", groupInfo.getInlongGroupId());
-            show.put("inlongGroupMode", groupInfo.getInlongGroupMode());
-        } else {
-            List<String> groupIdList = new ArrayList<>();
-            List<Integer> groupModeList = new ArrayList<>();
-            groupFullInfoList.forEach(v -> {
-                InlongGroupInfo groupInfo = v.getGroupInfo();
-                groupIdList.add(groupInfo.getInlongGroupId());
-                groupModeList.add(groupInfo.getInlongGroupMode());
-            });
-            show.put("inlongGroupId", Joiner.on(",").join(groupIdList));
-            show.put("inlongGroupMode", Joiner.on(",").join(groupModeList));
+            addShowInfo(groupInfo, showList);
         }
-        return show;
+        if (CollectionUtils.isNotEmpty(groupFullInfoList)) {
+            groupFullInfoList.forEach(groupFullInfo -> {
+                addShowInfo(groupFullInfo.getGroupInfo(), showList);
+            });
+        }
+        return showList;
+    }
+
+    private void addShowInfo(InlongGroupInfo groupInfo, List<Map<String, Object>> showList) {
+        Map<String, Object> show = Maps.newHashMap();
+        show.put("inlongGroupId", groupInfo.getInlongGroupId());
+        show.put("inlongGroupMode", groupInfo.getInlongGroupMode());
+        showList.add(show);
     }
 
     @Data
