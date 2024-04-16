@@ -91,7 +91,7 @@ public class InlongStreamController {
     @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.STREAM)
     @ApiOperation(value = "Batch save inlong stream")
     public Response<List<BatchResult>> batchSave(@RequestBody List<InlongStreamRequest> requestList) {
-        List<Integer> result = streamService.batchSave(requestList, LoginUserUtils.getLoginUser().getName());
+        List<BatchResult> result = streamService.batchSave(requestList, LoginUserUtils.getLoginUser().getName());
         return Response.success(result);
     }
 
