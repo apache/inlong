@@ -21,6 +21,7 @@ import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.StreamSinkApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
@@ -54,8 +55,8 @@ public class StreamSinkClient {
         return response.getData();
     }
 
-    public List<Integer> batchCreateSink(List<SinkRequest> sinkRequests) {
-        Response<List<Integer>> response = ClientUtils.executeHttpCall(streamSinkApi.batchSave(sinkRequests));
+    public List<BatchResult> batchCreateSink(List<SinkRequest> sinkRequests) {
+        Response<List<BatchResult>> response = ClientUtils.executeHttpCall(streamSinkApi.batchSave(sinkRequests));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

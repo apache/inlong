@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.service;
 
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
@@ -42,7 +43,7 @@ public interface StreamSinkApi {
     Call<Response<Integer>> save(@Body SinkRequest request);
 
     @POST("sink/batchSave")
-    Call<Response<List<Integer>>> batchSave(@Body List<SinkRequest> requestList);
+    Call<Response<List<BatchResult>>> batchSave(@Body List<SinkRequest> requestList);
 
     @POST("sink/update")
     Call<Response<Boolean>> updateById(@Body SinkRequest request);

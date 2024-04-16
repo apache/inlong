@@ -23,6 +23,7 @@ import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.common.validation.SaveValidation;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -91,7 +92,7 @@ public class OpenInLongGroupController {
     @RequestMapping(value = "/group/batchSave", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.GROUP)
     @ApiOperation(value = "Batch Save inlong group")
-    public Response<List<String>> batchSave(
+    public Response<List<BatchResult>> batchSave(
             @Validated(SaveValidation.class) @RequestBody List<InlongGroupRequest> groupRequestList) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupService.batchSave(groupRequestList, operator));

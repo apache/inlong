@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.sink.AddFieldRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
@@ -108,8 +109,8 @@ public class OpenInLongStreamController {
     @RequestMapping(value = "/stream/batchSave", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.STREAM)
     @ApiOperation(value = "Batch save inlong stream")
-    public Response<List<Integer>> batchSave(@RequestBody List<InlongStreamRequest> requestList) {
-        List<Integer> result = streamService.batchSave(requestList, LoginUserUtils.getLoginUser().getName());
+    public Response<List<BatchResult>> batchSave(@RequestBody List<InlongStreamRequest> requestList) {
+        List<BatchResult> result = streamService.batchSave(requestList, LoginUserUtils.getLoginUser().getName());
         return Response.success(result);
     }
 

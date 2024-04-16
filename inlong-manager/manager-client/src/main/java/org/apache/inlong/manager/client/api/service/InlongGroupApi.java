@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.service;
 
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
@@ -51,7 +52,7 @@ public interface InlongGroupApi {
     Call<Response<String>> createGroup(@Body InlongGroupRequest request);
 
     @POST("group/batchSave")
-    Call<Response<List<String>>> batchCreateGroup(@Body List<InlongGroupRequest> requestList);
+    Call<Response<List<BatchResult>>> batchCreateGroup(@Body List<InlongGroupRequest> requestList);
 
     @POST("group/update")
     Call<Response<String>> updateGroup(@Body InlongGroupRequest request);

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.service;
 
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
@@ -42,7 +43,7 @@ public interface InlongStreamApi {
     Call<Response<Integer>> createStream(@Body InlongStreamInfo stream);
 
     @POST("stream/batchSave")
-    Call<Response<List<Integer>>> batchCreateStream(@Body List<InlongStreamInfo> streamInfos);
+    Call<Response<List<BatchResult>>> batchCreateStream(@Body List<InlongStreamInfo> streamInfos);
 
     @GET("stream/exist/{groupId}/{streamId}")
     Call<Response<Boolean>> isStreamExists(@Path("groupId") String groupId, @Path("streamId") String streamId);

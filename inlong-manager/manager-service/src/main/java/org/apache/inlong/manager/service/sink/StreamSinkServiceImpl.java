@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.sink;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
@@ -34,6 +35,7 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -235,11 +237,24 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     }
 
     @Override
-    public List<Integer> batchSave(List<SinkRequest> requestList, String operator) {
-        List<Integer> resultList = new ArrayList<>();
+    public List<BatchResult> batchSave(List<SinkRequest> requestList, String operator) {
+        List<BatchResult> resultList = new ArrayList<>();
         for (SinkRequest request : requestList) {
-            int id = this.save(request, operator);
-            resultList.add(id);
+            BatchResult result = BatchResult.builder()
+                    .uniqueKey(request.getSinkName() + "-" + request.getInlongGroupId() + "-"
+                            + request.getInlongStreamId())
+                    .operationTarget(OperationTarget.SINK)
+                    .build();
+            try {
+                this.save(request, operator);
+                result.setSuccess(true);
+            } catch (Exception e) {
+                LOGGER.error("failed to save save source info for sinkName={}, groupId={}, streamId={}",
+                        request.getSinkName(), request.getInlongGroupId(), request.getInlongStreamId(), e);
+                result.setSuccess(false);
+                result.setErrMsg(e.getMessage());
+            }
+            resultList.add(result);
         }
         return resultList;
     }

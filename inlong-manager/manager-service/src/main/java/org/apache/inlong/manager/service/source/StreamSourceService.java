@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.source;
 
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
@@ -59,7 +60,7 @@ public interface StreamSourceService {
      * @param operator Operator's name.
      * @return source id list after saving.
      */
-    List<Integer> batchSave(List<SourceRequest> requestList, String operator);
+    List<BatchResult> batchSave(List<SourceRequest> requestList, String operator);
 
     /**
      * Query source information based on id

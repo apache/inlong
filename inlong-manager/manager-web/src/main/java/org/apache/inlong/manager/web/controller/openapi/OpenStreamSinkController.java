@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -86,7 +87,7 @@ public class OpenStreamSinkController {
     @RequestMapping(value = "/sink/batchSave", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.SINK)
     @ApiOperation(value = "Batch save stream sink")
-    public Response<List<Integer>> batchSave(@Validated @RequestBody List<SinkRequest> requestList) {
+    public Response<List<BatchResult>> batchSave(@Validated @RequestBody List<SinkRequest> requestList) {
         return Response.success(sinkService.batchSave(requestList, LoginUserUtils.getLoginUser().getName()));
     }
 

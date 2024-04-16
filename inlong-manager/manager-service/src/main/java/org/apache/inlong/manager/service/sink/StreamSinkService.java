@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -66,7 +67,7 @@ public interface StreamSinkService {
      * @param operator name of operator
      * @return sink id list after saving
      */
-    List<Integer> batchSave(List<SinkRequest> requestList, String operator);
+    List<BatchResult> batchSave(List<SinkRequest> requestList, String operator);
 
     /**
      * Get stream sink info based on id.

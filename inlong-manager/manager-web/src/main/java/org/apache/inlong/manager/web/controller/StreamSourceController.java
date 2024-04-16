@@ -21,6 +21,7 @@ import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.SaveValidation;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
@@ -67,7 +68,7 @@ public class StreamSourceController {
     @RequestMapping(value = "/source/batchSave", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.SOURCE)
     @ApiOperation(value = "Batch save stream source")
-    public Response<List<Integer>> batchSave(
+    public Response<List<BatchResult>> batchSave(
             @Validated(SaveValidation.class) @RequestBody List<SourceRequest> requestList) {
         return Response.success(sourceService.batchSave(requestList, LoginUserUtils.getLoginUser().getName()));
     }

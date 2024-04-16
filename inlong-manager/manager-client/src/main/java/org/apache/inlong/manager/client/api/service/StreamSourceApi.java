@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.service;
 
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.source.SourcePageRequest;
@@ -39,7 +40,7 @@ public interface StreamSourceApi {
     Call<Response<Integer>> createSource(@Body SourceRequest request);
 
     @POST("source/batchSave")
-    Call<Response<List<Integer>>> batchCreateSource(@Body List<SourceRequest> requestList);
+    Call<Response<List<BatchResult>>> batchCreateSource(@Body List<SourceRequest> requestList);
 
     @POST("source/update")
     Call<Response<Boolean>> updateSource(@Body SourceRequest request);

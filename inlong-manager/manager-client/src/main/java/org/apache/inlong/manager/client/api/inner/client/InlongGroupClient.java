@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
@@ -171,8 +172,8 @@ public class InlongGroupClient {
     /**
      * Batch create inlong group
      */
-    public List<String> batchCreateGroup(List<InlongGroupRequest> groupRequestList) {
-        Response<List<String>> response =
+    public List<BatchResult> batchCreateGroup(List<InlongGroupRequest> groupRequestList) {
+        Response<List<BatchResult>> response =
                 ClientUtils.executeHttpCall(inlongGroupApi.batchCreateGroup(groupRequestList));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
