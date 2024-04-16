@@ -204,7 +204,7 @@ public class InlongGroupClient {
         return responseBody.getData();
     }
 
-    public WorkflowResult BatchStartProcess(List<InlongGroupRequest> groupRequestList) {
+    public WorkflowResult batchStartProcess(List<InlongGroupRequest> groupRequestList) {
         List<String> groupIdList = groupRequestList.stream().map(InlongGroupRequest::getInlongGroupId).collect(
                 Collectors.toList());
         Response<WorkflowResult> responseBody = ClientUtils.executeHttpCall(
