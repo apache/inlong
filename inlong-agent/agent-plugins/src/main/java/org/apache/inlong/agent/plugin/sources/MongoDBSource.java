@@ -45,8 +45,38 @@ public class MongoDBSource extends AbstractSource {
     }
 
     @Override
+    protected String getThreadName() {
+        return null;
+    }
+
+    @Override
+    protected void printCurrentState() {
+
+    }
+
+    @Override
+    protected boolean doPrepareToRead() {
+        return false;
+    }
+
+    @Override
+    protected List<SourceData> readFromSource() {
+        return null;
+    }
+
+    @Override
     public Message read() {
         return null;
+    }
+
+    @Override
+    protected boolean isRunnable() {
+        return runnable;
+    }
+
+    @Override
+    protected void releaseSource() {
+
     }
 
     @Override
