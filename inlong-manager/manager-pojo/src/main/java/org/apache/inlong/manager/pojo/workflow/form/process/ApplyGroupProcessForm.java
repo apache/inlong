@@ -52,7 +52,7 @@ public class ApplyGroupProcessForm extends BaseProcessForm {
     @ApiModelProperty(value = "All inlong stream info under the inlong group, including the sink info")
     private List<InlongStreamBriefInfo> streamInfoList;
 
-    @ApiModelProperty(value = "Inlong group info list")
+    @ApiModelProperty(value = "Inlong group full info list")
     private List<GroupFullInfo> groupFullInfoList;
 
     @Override

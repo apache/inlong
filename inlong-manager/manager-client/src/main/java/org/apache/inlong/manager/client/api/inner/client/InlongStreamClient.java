@@ -59,7 +59,7 @@ public class InlongStreamClient {
     }
 
     /**
-     * Batch create an inlong stream.
+     * Batch create inlong stream.
      */
     public List<Integer> batchCreateStreamInfo(List<InlongStreamInfo> streamInfos) {
         Response<List<Integer>> response = ClientUtils.executeHttpCall(inlongStreamApi.batchCreateStream(streamInfos));

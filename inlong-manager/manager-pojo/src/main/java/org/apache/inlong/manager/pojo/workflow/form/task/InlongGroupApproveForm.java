@@ -49,7 +49,7 @@ public class InlongGroupApproveForm extends BaseTaskForm {
     @ApiModelProperty(value = "All inlong stream info under the inlong group, including the sink info")
     private List<InlongStreamApproveRequest> streamApproveInfoList;
 
-    @ApiModelProperty(value = "Inlong group info list request")
+    @ApiModelProperty(value = "Inlong group approve full info list")
     private List<GroupApproveFullRequest> groupApproveFullInfoList;
 
     @Override

@@ -169,7 +169,7 @@ public class InlongGroupClient {
     }
 
     /**
-     * Batch create an inlong group
+     * Batch create inlong group
      */
     public List<String> batchCreateGroup(List<InlongGroupRequest> groupRequestList) {
         Response<List<String>> response =
