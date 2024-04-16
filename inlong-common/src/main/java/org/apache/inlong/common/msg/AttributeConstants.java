@@ -105,6 +105,6 @@ public interface AttributeConstants {
     // it will be added by the Bus with the current time
     public static final String MSG_RPT_TIME = "rtms";
 
-    //  Audit version is used for audit to reconciliation
+    // Audit version is used for audit to reconciliation
     String AUDIT_VERSION = "auditVersion";
 }
