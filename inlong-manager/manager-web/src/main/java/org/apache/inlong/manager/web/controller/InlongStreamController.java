@@ -265,12 +265,4 @@ public class InlongStreamController {
         return Response.success(streamService.listMessages(groupId, streamId, messageCount, username));
     }
 
-    @RequestMapping(value = "/stream/listByTenant", method = RequestMethod.POST)
-    @ApiOperation(value = "List inlong stream briefs by paginating, only wedata use")
-    public Response<PageResult<InlongStreamBriefInfo>> listByTenant(@RequestBody InlongStreamPageRequest request) {
-        request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
-        request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.TENANT_ADMIN));
-        return Response.success(streamService.listBriefByTenant(request));
-    }
-
 }
