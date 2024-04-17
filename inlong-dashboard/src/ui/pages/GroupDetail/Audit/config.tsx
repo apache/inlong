@@ -178,7 +178,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
     type: 'datepicker',
     label: i18n.t('pages.GroupDetail.Audit.EndDate'),
     name: 'endDate',
-    initialValues: dayjs(initialValues.endDate),
+    initialValue: dayjs(initialValues.endDate),
     props: {
       allowClear: false,
       format: 'YYYY-MM-DD',
