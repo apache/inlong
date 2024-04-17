@@ -15,30 +15,34 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.manager.dao.entity;
 
-import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
- * Sort cluster config interface.
+ * Sort config entity, including sink type, sink id, etc.
  */
-public interface SortClusterService {
+@Data
+public class SortConfigEntity implements Serializable {
 
-    /**
-     * Get the cluster config response by specific cluster name.
-     *
-     * @param clusterName Cluster name.
-     * @param md5 Last md5.
-     * @return Corresponding response.
-     */
-    SortClusterResponse getClusterConfig(String clusterName, String md5);
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private Integer sinkId;
+    private String sinkType;
+    private String inlongClusterTag;
+    private String inlongClusterName;
+    private String sortTaskName;
+    private String dataNodeName;
+    private String sourceParams;
+    private String clusterParams;
+    private Integer isDeleted;
+    private String creator;
+    private String modifier;
+    private Date createTime;
+    private Date modifyTime;
+    private Integer version;
 
-    /**
-     * Get the cluster config response by specific cluster name V2.
-     *
-     * @param clusterName Cluster name.
-     * @param md5 Last md5.
-     * @return Corresponding response.
-     */
-    SortClusterResponse getClusterConfigV2(String clusterName, String md5);
 }

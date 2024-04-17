@@ -71,3 +71,25 @@ CREATE TABLE IF NOT EXISTS `package_config` (
 DROP INDEX `unique_audit_base_type` ON `audit_base`;
 ALTER TABLE `audit_base` CHANGE is_sent indicator_type int(4) DEFAULT NULL COMMENT 'Indicator type for audit';
 ALTER TABLE `audit_base` ADD UNIQUE KEY unique_audit_base_type (`indicator_type`,`type`);
+
+CREATE TABLE IF NOT EXISTS `sort_config`
+(
+    `id`                  int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `sink_id`             int(11)       NOT NULL COMMENT 'Sink id',
+    `source_params`       text          NOT NULL COMMENT 'The source params of sort',
+    `cluster_params`      text          NOT NULL COMMENT 'The cluster params of sort',
+    `sink_type`           varchar(128)  NOT NULL COMMENT 'Sink type',
+    `inlong_cluster_name` varchar(128)  NOT NULL COMMENT 'Inlong cluster name',
+    `inlong_cluster_tag`  varchar(128)  NOT NULL COMMENT 'Inlong cluster tag',
+    `sort_task_name`      varchar(128)  NOT NULL COMMENT 'Sort task name',
+    `data_node_name`      varchar(128)  NOT NULL COMMENT 'Data node name',
+    `creator`             varchar(128)  DEFAULT NULL COMMENT 'Creator',
+    `modifier`            varchar(128)  DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`         datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`         datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `is_deleted`          int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
+    `version`             int(11)       NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_sort_config_sink_id` (`sink_id`, `is_deleted`)
+    ) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4 COMMENT = 'sort_config';

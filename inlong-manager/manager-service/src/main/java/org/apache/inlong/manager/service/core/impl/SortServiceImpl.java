@@ -77,8 +77,18 @@ public class SortServiceImpl implements SortService, PluginBinder {
     }
 
     @Override
+    public SortClusterResponse getClusterConfigV2(String clusterName, String md5) {
+        return sortClusterService.getClusterConfigV2(clusterName, md5);
+    }
+
+    @Override
     public SortSourceConfigResponse getSourceConfig(String clusterName, String sortTaskId, String md5) {
         return sortSourceService.getSourceConfig(clusterName, sortTaskId, md5);
+    }
+
+    @Override
+    public SortSourceConfigResponse getSourceConfigV2(String clusterName, String sortTaskId, String md5) {
+        return sortSourceService.getSourceConfigV2(clusterName, sortTaskId, md5);
     }
 
     @Override
