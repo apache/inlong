@@ -170,7 +170,7 @@ public class EtlService {
         DataQueue dataQueue = new DataQueue(queueSize);
         List<JdbcConfig> sourceList = ConfigService.getInstance().getAuditSourceByServiceId(serviceId);
         for (JdbcConfig jdbcConfig : sourceList) {
-            JdbcSource jdbcSource= new JdbcSource(dataQueue, buildAuditJdbcSourceConfig(jdbcConfig));
+            JdbcSource jdbcSource = new JdbcSource(dataQueue, buildAuditJdbcSourceConfig(jdbcConfig));
             jdbcSource.start();
             auditJdbcSources.add(jdbcSource);
             LOGGER.info("Audit source to mysql jdbc config:{}", jdbcConfig);
