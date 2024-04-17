@@ -318,8 +318,10 @@ public class ModuleManager extends AbstractDaemon {
     private void updateModule(ModuleConfig localModule, ModuleConfig managerModule) {
         LOGGER.info("update module {} start", localModule.getId());
         if (localModule.getPackageConfig().getMd5().equals(managerModule.getPackageConfig().getMd5())) {
-            LOGGER.info("module {} package md5 no change, will restart", localModule.getId());
+            LOGGER.info("module {} package md5 no change, will restart and save config", localModule.getId());
             restartModule(localModule, managerModule);
+            managerModule.setState(ModuleStateEnum.INSTALLED);
+            updateModuleConfig(managerModule);
         } else {
             LOGGER.info("module {} package md5 changed, will reinstall", localModule.getId());
             deleteModule(localModule);
@@ -343,6 +345,11 @@ public class ModuleManager extends AbstractDaemon {
             return;
         }
         currentModules.remove(module.getId());
+        saveToLocalFile(confPath);
+    }
+
+    private void updateModuleConfig(ModuleConfig module) {
+        currentModules.put(module.getId(), module);
         saveToLocalFile(confPath);
     }
 
