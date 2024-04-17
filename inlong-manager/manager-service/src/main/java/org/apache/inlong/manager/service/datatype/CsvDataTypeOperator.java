@@ -46,11 +46,10 @@ public class CsvDataTypeOperator implements DataTypeOperator {
                 separator = (char) Integer.parseInt(streamInfo.getDataSeparator());
             }
             String[] bodys = StringUtils.split(str, separator);
-            if (bodys.length != fields.size()) {
-                return fields;
-            }
             for (int i = 0; i < bodys.length; i++) {
-                fields.get(i).setFieldValue(bodys[i]);
+                if (i < fields.size()) {
+                    fields.get(i).setFieldValue(bodys[i]);
+                }
             }
         } catch (Exception e) {
             log.warn("parse fields failed for groupId = {}, streamId = {}", streamInfo.getInlongGroupId(),
