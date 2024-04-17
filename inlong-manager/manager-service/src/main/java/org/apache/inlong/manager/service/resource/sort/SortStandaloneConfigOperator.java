@@ -75,8 +75,8 @@ import java.util.stream.Collectors;
 public class SortStandaloneConfigOperator implements SortConfigOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortStandaloneConfigOperator.class);
-    private static final String KEY_OLD_TENANT = "tenant";
-    private static final String KEY_NEW_TENANT = "pulsarTenant";
+    private static final String KEY_TENANT = "tenant";
+    private static final String KEY_TENANT_V2 = "pulsarTenant";
     private static final String STANDALONE_CLUSTER_PREFIX = "SORT_";
 
     @Autowired
@@ -238,10 +238,10 @@ public class SortStandaloneConfigOperator implements SortConfigOperator {
             String namespace = sortGroupInfo.getMqResource();
             String topic = streamEntity.getMqResource();
             Map<String, String> groupExt = sortGroupInfo.getExtParamsMap();
-            String groupTenant = Optional.ofNullable(groupExt.get(KEY_NEW_TENANT)).orElse(groupExt.get(KEY_OLD_TENANT));
+            String groupTenant = Optional.ofNullable(groupExt.get(KEY_TENANT_V2)).orElse(groupExt.get(KEY_TENANT));
             String tenant = StringUtils.isNotBlank(groupTenant)
                     ? groupTenant
-                    : Optional.ofNullable(param.get(KEY_NEW_TENANT)).orElse(param.get(KEY_OLD_TENANT));
+                    : Optional.ofNullable(param.get(KEY_TENANT_V2)).orElse(param.get(KEY_TENANT));
             String fullTopic = tenant + InlongConstants.SLASH + namespace + InlongConstants.SLASH + topic;
 
             return Topic.builder()
