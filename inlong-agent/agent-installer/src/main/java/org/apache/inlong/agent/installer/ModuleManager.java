@@ -115,6 +115,10 @@ public class ModuleManager extends AbstractDaemon {
         if (config == null) {
             return;
         }
+        if (config.getModuleList().isEmpty()) {
+            LOGGER.error("module list should not be empty!");
+            return;
+        }
         configQueue.clear();
         for (int i = 0; i < config.getModuleList().size(); i++) {
             LOGGER.info("submitModules index {} total {} {}", i, config.getModuleList().size(),
@@ -405,6 +409,10 @@ public class ModuleManager extends AbstractDaemon {
 
     private boolean isProcessAllStarted(ModuleConfig module) {
         String ret = ExcuteLinux.exeCmd(module.getCheckCommand());
+        if (ret == null) {
+            LOGGER.error("get module process num {} failed", module.getName());
+            return false;
+        }
         String[] processArray = ret.split("\n");
         int cnt = 0;
         for (int i = 0; i < processArray.length; i++) {
