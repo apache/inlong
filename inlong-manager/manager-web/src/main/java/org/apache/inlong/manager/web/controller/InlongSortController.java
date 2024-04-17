@@ -21,6 +21,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
 import org.apache.inlong.manager.pojo.sort.SortStatusRequest;
 import org.apache.inlong.manager.service.core.SortService;
+import org.apache.inlong.manager.service.core.SortSourceService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -42,11 +43,19 @@ public class InlongSortController {
 
     @Autowired
     private SortService sortService;
+    @Autowired
+    private SortSourceService sortSourceService;
 
     @PostMapping(value = "/sort/listStatus")
     @ApiOperation(value = "List sort job status")
     public Response<List<SortStatusInfo>> listSortStatus(@RequestBody SortStatusRequest request) {
         return Response.success(sortService.listSortStatus(request));
+    }
+
+    @PostMapping(value = "/sort/refreshCluster")
+    @ApiOperation(value = "Refresh cluster cache")
+    public Response<Boolean> refreshCluster() {
+        return Response.success(sortSourceService.refreshCluster());
     }
 
 }

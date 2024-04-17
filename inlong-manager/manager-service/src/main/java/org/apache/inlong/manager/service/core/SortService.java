@@ -46,7 +46,7 @@ public interface SortService {
     SortClusterResponse getClusterConfig(String clusterName, String md5);
 
     /**
-     * Get sort cluster config V@.
+     * Get sort cluster config V2.
      *
      * <p>For a specific sort cluster, there are a series of tasks that defined how dataflow into and
      * out from sort.</p>

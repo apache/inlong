@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.sort;
 
+import org.apache.inlong.common.constant.ClusterSwitch;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.pojo.sdk.Topic;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -28,14 +29,18 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
 import org.apache.inlong.manager.dao.entity.SortConfigEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongStreamExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SortConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
@@ -51,6 +56,7 @@ import org.apache.inlong.manager.service.node.DataNodeOperatorFactory;
 import org.apache.inlong.manager.service.sink.SinkOperatorFactory;
 import org.apache.inlong.manager.service.sink.StreamSinkOperator;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -62,6 +68,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,6 +77,7 @@ public class SortStandaloneConfigOperator implements SortConfigOperator {
     private static final Logger LOGGER = LoggerFactory.getLogger(SortStandaloneConfigOperator.class);
     private static final String KEY_OLD_TENANT = "tenant";
     private static final String KEY_NEW_TENANT = "pulsarTenant";
+    private static final String STANDALONE_CLUSTER_PREFIX = "SORT_";
 
     @Autowired
     private StreamSinkFieldEntityMapper sinkFieldMapper;
@@ -91,6 +99,10 @@ public class SortStandaloneConfigOperator implements SortConfigOperator {
     private SortConfigEntityMapper sortConfigEntityMapper;
     @Autowired
     private InlongGroupEntityMapper groupEntityMapper;
+    @Autowired
+    private InlongGroupExtEntityMapper groupExtEntityMapper;
+    @Autowired
+    private InlongStreamExtEntityMapper streamExtEntityMapper;
 
     @Override
     public Boolean accept(List<String> sinkTypeList) {
@@ -134,17 +146,48 @@ public class SortStandaloneConfigOperator implements SortConfigOperator {
             SortSourceStreamSinkInfo sortSink =
                     CommonBeanUtils.copyProperties(sinkEntity, SortSourceStreamSinkInfo::new);
             sortSink.setSortClusterName(sink.getInlongClusterName());
+            InlongClusterEntity standAloneCluster = clusterMapper.selectByNameAndType(sinkEntity.getInlongClusterName(),
+                    STANDALONE_CLUSTER_PREFIX + sinkEntity.getSinkType());
             if (SinkType.SORT_STANDALONE_SINK.contains(sink.getSinkType())) {
                 InlongStreamEntity streamEntity = streamEntityMapper.selectByIdentifier(sink.getInlongGroupId(),
                         sink.getInlongStreamId());
+                List<Topic> topicList = new ArrayList<>();
                 Topic topic = saveTopic(sortGroupInfo, streamEntity, sortSink);
-                saveSortCluster(groupInfo, sinkEntity, topic);
+                topicList.add(topic);
+                InlongGroupExtEntity groupBackUpTag =
+                        groupExtEntityMapper.selectByUniqueKey(groupEntity.getInlongGroupId(),
+                                ClusterSwitch.BACKUP_CLUSTER_TAG);
+                InlongGroupExtEntity backUpMqResource =
+                        groupExtEntityMapper.selectByUniqueKey(groupEntity.getInlongGroupId(),
+                                ClusterSwitch.BACKUP_MQ_RESOURCE);
+                InlongStreamExtEntity streamBackUpMqResource = streamExtEntityMapper.selectByKey(
+                        sink.getInlongGroupId(), sink.getInlongStreamId(), ClusterSwitch.BACKUP_MQ_RESOURCE);
+                Set<String> clusterTags = Sets.newHashSet(
+                        standAloneCluster.getClusterTags().split(InlongConstants.COMMA));
+                if (groupBackUpTag != null && (CollectionUtils.isEmpty(clusterTags) || clusterTags.contains(
+                        groupBackUpTag.getKeyValue()))) {
+                    SortSourceGroupInfo backUpSortGroupInfo =
+                            CommonBeanUtils.copyProperties(sortGroupInfo, SortSourceGroupInfo::new);
+                    backUpSortGroupInfo.setClusterTag(groupBackUpTag.getKeyValue());
+                    InlongStreamEntity backUpStreamEntity =
+                            CommonBeanUtils.copyProperties(streamEntity, InlongStreamEntity::new);
+                    if (backUpMqResource != null) {
+                        backUpSortGroupInfo.setMqResource(backUpMqResource.getKeyValue());
+                    }
+                    if (streamBackUpMqResource != null) {
+                        backUpStreamEntity.setMqResource(streamBackUpMqResource.getKeyValue());
+                    }
+                    Topic backUpTopic = saveTopic(backUpSortGroupInfo, backUpStreamEntity, sortSink);
+                    topicList.add(backUpTopic);
+                }
+                saveSortCluster(groupInfo, sinkEntity, topicList, groupBackUpTag.getKeyValue());
             }
         }
 
     }
 
-    private void saveSortCluster(InlongGroupInfo groupInfo, StreamSinkEntity sinkEntity, Topic topic) {
+    private void saveSortCluster(InlongGroupInfo groupInfo, StreamSinkEntity sinkEntity, List<Topic> topicList,
+            String backUpTag) {
         DataNodeEntity dataNodeEntity = dataNodeMapper.selectByUniqueKey(sinkEntity.getDataNodeName(),
                 sinkEntity.getSinkType());
         DataNodeOperator nodeOperator = dataNodeOperatorFactory.getInstance(dataNodeEntity.getType());
@@ -155,20 +198,24 @@ public class SortStandaloneConfigOperator implements SortConfigOperator {
                     StreamSinkFieldEntity::getFieldName).collect(Collectors.toList());
             Map<String, String> params = operator.parse2IdParams(sinkEntity, fields, dataNodeInfo);
             SortConfigEntity sortConfigEntity = sortConfigEntityMapper.selectBySinkId(sinkEntity.getId());
+            String clusterTags = groupInfo.getInlongClusterTag();
+            if (StringUtils.isNotBlank(backUpTag)) {
+                clusterTags = clusterTags + InlongConstants.COMMA + backUpTag;
+            }
             if (sortConfigEntity == null) {
                 sortConfigEntity = CommonBeanUtils.copyProperties(sinkEntity, SortConfigEntity::new);
                 sortConfigEntity.setSinkId(sinkEntity.getId());
-                sortConfigEntity.setSourceParams(objectMapper.writeValueAsString(topic));
+                sortConfigEntity.setSourceParams(objectMapper.writeValueAsString(topicList));
                 sortConfigEntity.setClusterParams(objectMapper.writeValueAsString(params));
-                sortConfigEntity.setInlongClusterTag(groupInfo.getInlongClusterTag());
+                sortConfigEntity.setInlongClusterTag(clusterTags);
                 sortConfigEntityMapper.insert(sortConfigEntity);
             } else {
                 sortConfigEntity.setInlongClusterName(sinkEntity.getInlongClusterName());
                 sortConfigEntity.setSortTaskName(sinkEntity.getSortTaskName());
                 sortConfigEntity.setDataNodeName(sinkEntity.getDataNodeName());
-                sortConfigEntity.setSourceParams(objectMapper.writeValueAsString(topic));
+                sortConfigEntity.setSourceParams(objectMapper.writeValueAsString(topicList));
                 sortConfigEntity.setClusterParams(objectMapper.writeValueAsString(params));
-                sortConfigEntity.setInlongClusterTag(groupInfo.getInlongClusterTag());
+                sortConfigEntity.setInlongClusterTag(clusterTags);
                 sortConfigEntityMapper.updateByIdSelective(sortConfigEntity);
             }
         } catch (Exception e) {

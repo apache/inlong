@@ -55,6 +55,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -114,6 +115,8 @@ public class SortSourceServiceImpl implements SortSourceService {
 
     private Map<String, SortSourceClusterInfo> sortClusters;
     private Map<String, List<SortSourceClusterInfo>> mqClusters;
+    private Map<String, List<SortSourceClusterInfo>> mqClustersV2;
+
     private Map<String, SortSourceGroupInfo> groupInfos;
     private Map<String, Map<String, SortSourceStreamInfo>> allStreams;
     private Map<String, String> backupClusterTag;
@@ -129,6 +132,7 @@ public class SortSourceServiceImpl implements SortSourceService {
     public void initialize() {
         LOGGER.info("create repository for " + SortSourceServiceImpl.class.getSimpleName());
         try {
+            reloadMqCluster();
             reload();
             setReloadTimer();
         } catch (Throwable t) {
@@ -147,6 +151,38 @@ public class SortSourceServiceImpl implements SortSourceService {
             LOGGER.error("fail to reload all source config", t);
         }
         LOGGER.debug("end to reload config");
+    }
+
+    @Override
+    public Boolean refreshCluster() {
+        reloadMqCluster();
+        return true;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void reloadMqCluster() {
+        LOGGER.debug("start to reload mq cluster config.");
+        try {
+            List<SortSourceClusterInfo> allClusters = configLoader.loadAllClusters();
+
+            // group mq clusters by cluster tag
+            Map<String, List<SortSourceClusterInfo>> mqClusterMap = new ConcurrentHashMap<>();
+            allClusters.stream()
+                    .filter(cluster -> SUPPORTED_MQ_TYPE.contains(cluster.getType()))
+                    .filter(SortSourceClusterInfo::isConsumable)
+                    .forEach(mq -> {
+                        Set<String> tags = mq.getClusterTagsSet();
+                        tags.forEach(tag -> {
+                            List<SortSourceClusterInfo> list =
+                                    mqClusterMap.computeIfAbsent(tag, k -> new ArrayList<>());
+                            list.add(mq);
+                        });
+                    });
+            mqClustersV2 = mqClusterMap;
+        } catch (Throwable t) {
+            LOGGER.error("fail to reload mq cluster config", t);
+        }
+        LOGGER.debug("end to mq cluster config");
     }
 
     @Override
@@ -278,7 +314,14 @@ public class SortSourceServiceImpl implements SortSourceService {
                         list.add(mq);
                     });
                 });
-
+        for (String tag : mqClusters.keySet()) {
+            List<SortSourceClusterInfo> list = mqClustersV2.get(tag);
+            if (!list.equals(mqClusters.get(tag))) {
+                LOGGER.warn(
+                        "The cluster info in cache is not equal with database for clusterTag={}, in cache={}, in database={}",
+                        tag, list, mqClusters.get(tag));
+            }
+        }
         // reload all stream sinks, to Map<clusterName, Map<taskName, List<groupId>>> format
         List<SortSourceStreamSinkInfo> allStreamSinks = configLoader.loadAllStreamSinks();
         streamSinkMap = new HashMap<>();
@@ -549,36 +592,43 @@ public class SortSourceServiceImpl implements SortSourceService {
                                 .sortTaskId(sortTaskName)
                                 .cacheZones(new HashMap<>())
                                 .build());
-                List<SortSourceClusterInfo> clusterInfos = mqClusters.get(inlongClusterTag);
-                for (SortSourceClusterInfo clusterInfo : clusterInfos) {
-                    String pulsarClusterName = clusterInfo.getName();
-                    CacheZone cacheZone = cacheZoneConfig.getCacheZones().computeIfAbsent(pulsarClusterName, k -> {
-                        InlongClusterEntity clusterEntity = clusterEntityMapper.selectByNameAndType(pulsarClusterName,
-                                ClusterType.PULSAR);
-                        SortSourceClusterInfo sortSourceClusterInfo = CommonBeanUtils.copyProperties(clusterEntity,
-                                SortSourceClusterInfo::new);
-                        Map<String, String> param = sortSourceClusterInfo.getExtParamsMap();
-                        String auth = param.getOrDefault(KEY_AUTH, StringUtils.EMPTY);
-                        return CacheZone.builder()
-                                .zoneName(pulsarClusterName)
-                                .serviceUrl(clusterEntity.getUrl())
-                                .topics(new ArrayList<>())
-                                .authentication(auth)
-                                .cacheZoneProperties(sortSourceClusterInfo.getExtParamsMap())
-                                .zoneType(ClusterType.PULSAR)
-                                .build();
-                    });
-                    try {
-                        cacheZone.getTopics()
-                                .add(JsonUtils.parseObject(sortConfigEntity.getSourceParams(), Topic.class));
-                    } catch (Exception e) {
-                        LOGGER.error("parse extParams of cluster params failure:", e);
-                        throw new BusinessException("parse extParams of cluster params failure");
+                List<String> clusterTags = Arrays.asList(
+                        sortConfigEntity.getInlongClusterTag().split(InlongConstants.COMMA));
+                try {
+                    List<Topic> topicList = JsonUtils.parseArray(sortConfigEntity.getSourceParams(), Topic.class);
+                    for (int i = 0; i < clusterTags.size(); i++) {
+                        List<SortSourceClusterInfo> clusterInfos = mqClustersV2.get(clusterTags.get(i));
+                        for (SortSourceClusterInfo clusterInfo : clusterInfos) {
+                            String pulsarClusterName = clusterInfo.getName();
+                            CacheZone cacheZone =
+                                    cacheZoneConfig.getCacheZones().computeIfAbsent(pulsarClusterName, k -> {
+                                        InlongClusterEntity clusterEntity =
+                                                clusterEntityMapper.selectByNameAndType(pulsarClusterName,
+                                                        ClusterType.PULSAR);
+                                        SortSourceClusterInfo sortSourceClusterInfo =
+                                                CommonBeanUtils.copyProperties(clusterEntity,
+                                                        SortSourceClusterInfo::new);
+                                        Map<String, String> param = sortSourceClusterInfo.getExtParamsMap();
+                                        String auth = param.getOrDefault(KEY_AUTH, StringUtils.EMPTY);
+                                        return CacheZone.builder()
+                                                .zoneName(pulsarClusterName)
+                                                .serviceUrl(clusterEntity.getUrl())
+                                                .topics(new ArrayList<>())
+                                                .authentication(auth)
+                                                .cacheZoneProperties(sortSourceClusterInfo.getExtParamsMap())
+                                                .zoneType(ClusterType.PULSAR)
+                                                .build();
+                                    });
+                            cacheZone.getTopics().add(topicList.get(i));
+                        }
                     }
-                    String jsonStr = GSON.toJson(cacheZoneConfig);
-                    String md5 = DigestUtils.md5Hex(jsonStr);
-                    task2Md5.put(sortTaskName, md5);
+                } catch (Exception e) {
+                    LOGGER.error("parse extParams of cluster params failure:", e);
+                    throw new BusinessException("parse extParams of cluster params failure");
                 }
+                String jsonStr = GSON.toJson(cacheZoneConfig);
+                String md5 = DigestUtils.md5Hex(jsonStr);
+                task2Md5.put(sortTaskName, md5);
             });
             sortSourceConfigMapV2 = newConfigMap;
             sortSourceMd5MapV2 = newMd5Map;

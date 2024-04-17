@@ -44,4 +44,9 @@ public interface SortSourceService {
      */
     SortSourceConfigResponse getSourceConfigV2(String clusterName, String taskName, String md5);
 
+    /**
+     * Refresh mq cluster cache
+     */
+    Boolean refreshCluster();
+
 }
