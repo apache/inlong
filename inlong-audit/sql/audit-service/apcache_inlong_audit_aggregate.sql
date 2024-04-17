@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS `audit_id_config` (
 -- ----------------------------
 -- Table structure for audit source config
 -- ----------------------------
-CREATE TABLE `audit_source_config` (
+CREATE TABLE IF NOT EXISTS `audit_source_config` (
      `source_name` varchar(32) NOT NULL DEFAULT '' COMMENT 'Source_name',
      `jdbc_url` varchar(256) NOT NULL DEFAULT '' COMMENT 'Jdbc url',
      `jdbc_driver_class` varchar(128) NOT NULL DEFAULT '' COMMENT 'Jdbc driver class',
