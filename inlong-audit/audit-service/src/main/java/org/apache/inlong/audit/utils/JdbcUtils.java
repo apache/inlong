@@ -22,11 +22,6 @@ import org.apache.inlong.audit.entities.JdbcConfig;
 
 import java.util.Objects;
 
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CLICKHOUSE_DRIVER;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_CLICKHOUSE_DRIVER;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_CLICKHOUSE_JDBC_URL;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_CLICKHOUSE_PASSWORD;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_CLICKHOUSE_USERNAME;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DEFAULT_MYSQL_DRIVER;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_MYSQL_DRIVER;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_MYSQL_JDBC_URL;
@@ -47,18 +42,6 @@ public class JdbcUtils {
                 Configuration.getInstance().get(KEY_MYSQL_JDBC_URL),
                 Configuration.getInstance().get(KEY_MYSQL_USERNAME),
                 Configuration.getInstance().get(KEY_MYSQL_PASSWORD));
-    }
-
-    /**
-     * Build clickhouse config
-     * @return
-     */
-    public static JdbcConfig buildClickhouseConfig() {
-        return doBuild(
-                Configuration.getInstance().get(KEY_CLICKHOUSE_DRIVER, DEFAULT_CLICKHOUSE_DRIVER),
-                Configuration.getInstance().get(KEY_CLICKHOUSE_JDBC_URL),
-                Configuration.getInstance().get(KEY_CLICKHOUSE_USERNAME),
-                Configuration.getInstance().get(KEY_CLICKHOUSE_PASSWORD));
     }
 
     /**

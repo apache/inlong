@@ -74,7 +74,7 @@ public class Configuration {
 
     public boolean get(String key, boolean defaultValue) {
         Object value = properties.get(key);
-        return value == null ? defaultValue : (Boolean) value;
+        return value == null ? defaultValue : Boolean.parseBoolean((String) value);
     }
 
     /**
@@ -84,7 +84,7 @@ public class Configuration {
      */
     public int get(String key, int defaultValue) {
         Object value = properties.get(key);
-        return value == null ? defaultValue : (Integer) value;
+        return value == null ? defaultValue : Integer.parseInt((String) value);
     }
 
     /**
@@ -96,7 +96,7 @@ public class Configuration {
      */
     public double get(String key, double defaultValue) {
         Object value = properties.get(key);
-        return value == null ? defaultValue : (Double) value;
+        return value == null ? defaultValue : Double.parseDouble((String) value);
     }
 
     /**

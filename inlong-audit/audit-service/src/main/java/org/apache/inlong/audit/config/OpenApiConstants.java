@@ -27,10 +27,12 @@ public class OpenApiConstants {
     public static final String DEFAULT_API_HOUR_PATH = "/audit/query/hour";
     public static final String KEY_API_DAY_PATH = "api.day.path";
     public static final String DEFAULT_API_DAY_PATH = "/audit/query/day";
-    public static final String KEY_API_MINUTE_10_PATH = "api.minute.10.path";
-    public static final String DEFAULT_API_MINUTE_10_PATH = "/audit/query/minute/10";
-    public static final String KEY_API_MINUTE_30_PATH = "api.minute.30.path";
-    public static final String DEFAULT_API_MINUTE_30_PATH = "/audit/query/minute/30";
+    public static final String KEY_API_MINUTES_PATH = "api.minute.path";
+    public static final String DEFAULT_API_MINUTES_PATH = "/audit/query/minutes";
+    public static final String KEY_API_GET_IPS_PATH = "api.get.ips.path";
+    public static final String DEFAULT_API_GET_IPS_PATH = "/audit/query/getIps";
+    public static final String KEY_API_GET_IDS_PATH = "api.get.ids.path";
+    public static final String DEFAULT_API_GET_IDS_PATH = "/audit/query/getIds";
     public static final String KEY_API_POOL_SIZE = "api.pool.size";
     public static final int DEFAULT_POOL_SIZE = 10;
     public static final String KEY_API_BACKLOG_SIZE = "api.backlog.size";
@@ -52,6 +54,8 @@ public class OpenApiConstants {
     public static final String AUDIT_TAG = "auditTag";
     public static final String INLONG_GROUP_Id = "inlongGroupId";
     public static final String INLONG_STREAM_Id = "inlongStreamId";
+    public static final String IP = "ip";
+    public static final String AUDIT_CYCLE = "auditCycle";
     public static final String KEY_HTTP_BODY_SUCCESS = "success";
     public static final String KEY_HTTP_BODY_ERR_MSG = "errMsg";
     public static final String KEY_HTTP_BODY_ERR_DATA = "data";

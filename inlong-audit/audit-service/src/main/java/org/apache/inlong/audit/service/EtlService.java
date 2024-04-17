@@ -38,6 +38,8 @@ import org.apache.inlong.common.util.NetworkUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATA_QUEUE_SIZE;
@@ -50,14 +52,14 @@ import static org.apache.inlong.audit.config.ConfigConstants.KEY_SELECTOR_FOLLOW
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_SELECTOR_SERVICE_ID;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_SUMMARY_DAILY_STAT_BACK_TIMES;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_SUMMARY_REALTIME_STAT_BACK_TIMES;
-import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_CLICKHOUSE_SOURCE_QUERY_SQL;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_MYSQL_SINK_INSERT_DAY_SQL;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_MYSQL_SINK_INSERT_TEMP_SQL;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_MYSQL_SOURCE_QUERY_TEMP_SQL;
-import static org.apache.inlong.audit.config.SqlConstants.KEY_CLICKHOUSE_SOURCE_QUERY_SQL;
+import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_SOURCE_STAT_SQL;
 import static org.apache.inlong.audit.config.SqlConstants.KEY_MYSQL_SINK_INSERT_DAY_SQL;
 import static org.apache.inlong.audit.config.SqlConstants.KEY_MYSQL_SINK_INSERT_TEMP_SQL;
 import static org.apache.inlong.audit.config.SqlConstants.KEY_MYSQL_SOURCE_QUERY_TEMP_SQL;
+import static org.apache.inlong.audit.config.SqlConstants.KEY_SOURCE_STAT_SQL;
 
 /**
  * Etl service aggregate the data from the data source and store the aggregated data to the target storage.
@@ -70,21 +72,24 @@ public class EtlService {
     private JdbcSource mysqlSourceOfHalfHourCache;
     private JdbcSource mysqlSourceOfHourCache;
     private JdbcSink mysqlSinkOfDay;
-    private JdbcSource clickhouseSource;
+    private final List<JdbcSource> auditJdbcSources = new LinkedList<>();
     private JdbcSink mysqlSinkOfTemp;
     private CacheSink cacheSinkOfTenMinutesCache;
     private CacheSink cacheSinkOfHalfHourCache;
     private CacheSink cacheSinkOfHourCache;
+
     private final int queueSize;
     private final int statBackTimes;
     private static Selector selector;
     private boolean running = true;
+    private final String serviceId;
 
     public EtlService() {
         queueSize = Configuration.getInstance().get(KEY_DATA_QUEUE_SIZE,
                 DEFAULT_DATA_QUEUE_SIZE);
         statBackTimes = Configuration.getInstance().get(KEY_SUMMARY_REALTIME_STAT_BACK_TIMES,
                 DEFAULT_SUMMARY_REALTIME_STAT_BACK_TIMES);
+        serviceId = Configuration.getInstance().get(KEY_SELECTOR_SERVICE_ID, DEFAULT_SELECTOR_SERVICE_ID);
     }
 
     /**
@@ -159,12 +164,17 @@ public class EtlService {
     /**
      * Aggregate data from clickhouse data source and store the aggregated data in the target mysql table.
      * The default audit data cycle is 5 minutes,and stored in a temporary table.
+     * Support multiple audit source clusters.
      */
-    private void clickhouseToMysql() {
+    private void auditSourceToMysql() {
         DataQueue dataQueue = new DataQueue(queueSize);
-
-        clickhouseSource = new JdbcSource(dataQueue, buildClickhouseSourceConfig());
-        clickhouseSource.start();
+        List<JdbcConfig> sourceList = ConfigService.getInstance().getAuditSourceByServiceId(serviceId);
+        for (JdbcConfig jdbcConfig : sourceList) {
+            JdbcSource jdbcSource= new JdbcSource(dataQueue, buildAuditJdbcSourceConfig(jdbcConfig));
+            jdbcSource.start();
+            auditJdbcSources.add(jdbcSource);
+            LOGGER.info("Audit source to mysql jdbc config:{}", jdbcConfig);
+        }
 
         SinkConfig sinkConfig = buildMysqlSinkConfig(Configuration.getInstance().get(KEY_MYSQL_SINK_INSERT_TEMP_SQL,
                 DEFAULT_MYSQL_SINK_INSERT_TEMP_SQL));
@@ -206,15 +216,14 @@ public class EtlService {
     }
 
     /**
-     * Build the configurations of clickhouse source.
+     * Build the configurations of audit source.
      *
      * @return
      */
-    private SourceConfig buildClickhouseSourceConfig() {
-        JdbcConfig jdbcConfig = JdbcUtils.buildClickhouseConfig();
+    private SourceConfig buildAuditJdbcSourceConfig(JdbcConfig jdbcConfig) {
         return new SourceConfig(AuditCycle.MINUTE_5,
-                Configuration.getInstance().get(KEY_CLICKHOUSE_SOURCE_QUERY_SQL,
-                        DEFAULT_CLICKHOUSE_SOURCE_QUERY_SQL),
+                Configuration.getInstance().get(KEY_SOURCE_STAT_SQL,
+                        DEFAULT_SOURCE_STAT_SQL),
                 Configuration.getInstance().get(KEY_SUMMARY_REALTIME_STAT_BACK_TIMES,
                         DEFAULT_SUMMARY_REALTIME_STAT_BACK_TIMES),
                 jdbcConfig.getDriverClass(),
@@ -232,7 +241,7 @@ public class EtlService {
         LOGGER.info("Init selector. Leader id is :{}", leaderId);
         if (selector == null) {
             SelectorConfig electorConfig = new SelectorConfig(
-                    Configuration.getInstance().get(KEY_SELECTOR_SERVICE_ID, DEFAULT_SELECTOR_SERVICE_ID),
+                    serviceId,
                     leaderId,
                     jdbcConfig.getJdbcUrl(),
                     jdbcConfig.getUserName(), jdbcConfig.getPassword(), jdbcConfig.getDriverClass());
@@ -260,7 +269,7 @@ public class EtlService {
 
             if (selector.isLeader()) {
                 LOGGER.info("I get Leadership! Begin to aggregate clickhouse data to mysql");
-                clickhouseToMysql();
+                auditSourceToMysql();
                 return;
             }
         }
@@ -274,7 +283,9 @@ public class EtlService {
         mysqlSourceOfTemp.destroy();
         mysqlSinkOfDay.destroy();
 
-        clickhouseSource.destroy();
+        for (JdbcSource source : auditJdbcSources) {
+            source.destroy();
+        }
         mysqlSinkOfTemp.destroy();
 
         mysqlSourceOfTenMinutesCache.destroy();

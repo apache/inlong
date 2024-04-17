@@ -20,8 +20,10 @@ package org.apache.inlong.audit.service;
 import org.apache.inlong.audit.cache.DayCache;
 import org.apache.inlong.audit.cache.HalfHourCache;
 import org.apache.inlong.audit.cache.HourCache;
+import org.apache.inlong.audit.cache.RealTimeQuery;
 import org.apache.inlong.audit.cache.TenMinutesCache;
 import org.apache.inlong.audit.config.Configuration;
+import org.apache.inlong.audit.entities.ApiType;
 import org.apache.inlong.audit.entities.AuditCycle;
 import org.apache.inlong.audit.entities.StatData;
 import org.apache.inlong.audit.utils.CacheUtils;
@@ -44,14 +46,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
+import static org.apache.inlong.audit.config.OpenApiConstants.AUDIT_CYCLE;
 import static org.apache.inlong.audit.config.OpenApiConstants.AUDIT_ID;
 import static org.apache.inlong.audit.config.OpenApiConstants.AUDIT_TAG;
 import static org.apache.inlong.audit.config.OpenApiConstants.BIND_PORT;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_BACKLOG_SIZE;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_DAY_PATH;
+import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_GET_IDS_PATH;
+import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_GET_IPS_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_HOUR_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_MINUTE_10_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_MINUTE_30_PATH;
+import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_MINUTES_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_REAL_LIMITER_QPS;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_AUDIT_TAG;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_POOL_SIZE;
@@ -59,11 +63,13 @@ import static org.apache.inlong.audit.config.OpenApiConstants.END_TIME;
 import static org.apache.inlong.audit.config.OpenApiConstants.HTTP_RESPOND_CODE;
 import static org.apache.inlong.audit.config.OpenApiConstants.INLONG_GROUP_Id;
 import static org.apache.inlong.audit.config.OpenApiConstants.INLONG_STREAM_Id;
+import static org.apache.inlong.audit.config.OpenApiConstants.IP;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_BACKLOG_SIZE;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_DAY_PATH;
+import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_GET_IDS_PATH;
+import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_GET_IPS_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_HOUR_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_MINUTE_10_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_MINUTE_30_PATH;
+import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_MINUTES_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_POOL_SIZE;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_REAL_LIMITER_QPS;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_BODY_ERR_DATA;
@@ -72,6 +78,11 @@ import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_BODY_SUCC
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_HEADER_CONTENT_TYPE;
 import static org.apache.inlong.audit.config.OpenApiConstants.START_TIME;
 import static org.apache.inlong.audit.config.OpenApiConstants.VALUE_HTTP_HEADER_CONTENT_TYPE;
+import static org.apache.inlong.audit.entities.ApiType.DAY;
+import static org.apache.inlong.audit.entities.ApiType.GET_IDS;
+import static org.apache.inlong.audit.entities.ApiType.GET_IPS;
+import static org.apache.inlong.audit.entities.ApiType.HOUR;
+import static org.apache.inlong.audit.entities.ApiType.MINUTES;
 
 public class ApiService {
 
@@ -92,14 +103,15 @@ public class ApiService {
             server.setExecutor(Executors.newFixedThreadPool(
                     Configuration.getInstance().get(KEY_API_POOL_SIZE, DEFAULT_POOL_SIZE)));
             server.createContext(Configuration.getInstance().get(KEY_API_DAY_PATH, DEFAULT_API_DAY_PATH),
-                    new AuditHandler(AuditCycle.DAY));
+                    new AuditHandler(DAY));
             server.createContext(Configuration.getInstance().get(KEY_API_HOUR_PATH, DEFAULT_API_HOUR_PATH),
-                    new AuditHandler(AuditCycle.HOUR));
-            server.createContext(
-                    Configuration.getInstance().get(KEY_API_MINUTE_10_PATH, DEFAULT_API_MINUTE_10_PATH),
-                    new AuditHandler(AuditCycle.MINUTE_10));
-            server.createContext(Configuration.getInstance().get(KEY_API_MINUTE_30_PATH, DEFAULT_API_MINUTE_30_PATH),
-                    new AuditHandler(AuditCycle.MINUTE_30));
+                    new AuditHandler(HOUR));
+            server.createContext(Configuration.getInstance().get(KEY_API_MINUTES_PATH, DEFAULT_API_MINUTES_PATH),
+                    new AuditHandler(MINUTES));
+            server.createContext(Configuration.getInstance().get(KEY_API_GET_IDS_PATH, DEFAULT_API_GET_IDS_PATH),
+                    new AuditHandler(GET_IDS));
+            server.createContext(Configuration.getInstance().get(KEY_API_GET_IPS_PATH, DEFAULT_API_GET_IPS_PATH),
+                    new AuditHandler(GET_IPS));
             server.start();
         } catch (Exception e) {
             LOGGER.error("Init http server has exception!", e);
@@ -108,10 +120,10 @@ public class ApiService {
 
     static class AuditHandler implements HttpHandler, AutoCloseable {
 
-        private final AuditCycle apiType;
+        private final ApiType apiType;
         private final RateLimiter limiter;
 
-        public AuditHandler(AuditCycle apiType) {
+        public AuditHandler(ApiType apiType) {
             this.apiType = apiType;
             limiter = RateLimiter.create(Configuration.getInstance().get(KEY_API_REAL_LIMITER_QPS,
                     DEFAULT_API_REAL_LIMITER_QPS));
@@ -127,10 +139,10 @@ public class ApiService {
                 JsonObject responseJson = new JsonObject();
 
                 Map<String, String> params = parseRequestURI(exchange.getRequestURI().getQuery());
-                if (!checkParams(params)) {
-                    handleInvalidParams(responseJson, exchange);
-                } else {
+                if (checkNecessaryParams(params)) {
                     handleLegalParams(responseJson, params);
+                } else {
+                    handleInvalidParams(responseJson, exchange);
                 }
 
                 byte[] bytes = responseJson.toString().getBytes(StandardCharsets.UTF_8);
@@ -161,12 +173,31 @@ public class ApiService {
             return params;
         }
 
-        private boolean checkParams(Map<String, String> params) {
-            return params.containsKey(START_TIME)
-                    && params.containsKey(END_TIME)
-                    && params.containsKey(AUDIT_ID)
-                    && params.containsKey(INLONG_GROUP_Id)
-                    && params.containsKey(INLONG_STREAM_Id);
+        private boolean checkNecessaryParams(Map<String, String> params) {
+            switch (apiType) {
+                case HOUR:
+                case DAY:
+                case GET_IPS:
+                    return params.containsKey(START_TIME)
+                            && params.containsKey(END_TIME)
+                            && params.containsKey(AUDIT_ID)
+                            && params.containsKey(INLONG_GROUP_Id)
+                            && params.containsKey(INLONG_STREAM_Id);
+                case MINUTES:
+                    return params.containsKey(START_TIME)
+                            && params.containsKey(END_TIME)
+                            && params.containsKey(AUDIT_ID)
+                            && params.containsKey(INLONG_GROUP_Id)
+                            && params.containsKey(INLONG_STREAM_Id)
+                            && params.containsKey(AUDIT_CYCLE);
+                case GET_IDS:
+                    return params.containsKey(START_TIME)
+                            && params.containsKey(END_TIME)
+                            && params.containsKey(AUDIT_ID)
+                            && params.containsKey(IP);
+                default:
+                    return false;
+            }
         }
 
         private void handleInvalidParams(JsonObject responseJson, HttpExchange exchange) {
@@ -177,18 +208,14 @@ public class ApiService {
         }
 
         private void handleLegalParams(JsonObject responseJson, Map<String, String> params) {
-            String cacheKey = CacheUtils.buildCacheKey(params.get(START_TIME), params.get(INLONG_GROUP_Id),
-                    params.get(INLONG_STREAM_Id), params.get(AUDIT_ID), params.get(AUDIT_TAG));
-            LOGGER.info("handleLegalParams cacheKey {}", cacheKey);
             List<StatData> statData = null;
             switch (apiType) {
-                case MINUTE_10:
-                    statData = TenMinutesCache.getInstance().getData(cacheKey);
-                    break;
-                case MINUTE_30:
-                    statData = HalfHourCache.getInstance().getData(cacheKey);
+                case MINUTES:
+                    statData = handleMinutesApi(params);
                     break;
                 case HOUR:
+                    String cacheKey = CacheUtils.buildCacheKey(params.get(START_TIME), params.get(INLONG_GROUP_Id),
+                            params.get(INLONG_STREAM_Id), params.get(AUDIT_ID));
                     statData = HourCache.getInstance().getData(cacheKey);
                     break;
                 case DAY:
@@ -197,12 +224,27 @@ public class ApiService {
                             params.get(END_TIME),
                             params.get(INLONG_GROUP_Id),
                             params.get(INLONG_STREAM_Id),
-                            params.get(AUDIT_ID),
-                            params.get(AUDIT_TAG));
+                            params.get(AUDIT_ID));
+                    break;
+                case GET_IDS:
+                    statData = RealTimeQuery.getInstance().queryIdsByIp(
+                            params.get(START_TIME),
+                            params.get(END_TIME),
+                            params.get(IP),
+                            params.get(AUDIT_ID));
+                    break;
+                case GET_IPS:
+                    statData = RealTimeQuery.getInstance().queryReportIps(
+                            params.get(START_TIME),
+                            params.get(END_TIME),
+                            params.get(INLONG_GROUP_Id),
+                            params.get(INLONG_STREAM_Id),
+                            params.get(AUDIT_ID));
                     break;
                 default:
                     LOGGER.error("Unsupported interface type! type is {}", apiType);
             }
+
             if (null == statData)
                 statData = new LinkedList<>();
 
@@ -210,6 +252,31 @@ public class ApiService {
             responseJson.addProperty(KEY_HTTP_BODY_ERR_MSG, "");
             Gson gson = new Gson();
             responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(statData));
+        }
+
+        private List<StatData> handleMinutesApi(Map<String, String> params) {
+            String cacheKey = CacheUtils.buildCacheKey(params.get(START_TIME), params.get(INLONG_GROUP_Id),
+                    params.get(INLONG_STREAM_Id), params.get(AUDIT_ID));
+            int cycle = Integer.parseInt(params.get(AUDIT_CYCLE));
+            List<StatData> statData = null;
+            switch (AuditCycle.fromInt(cycle)) {
+                case MINUTE:
+                    statData = RealTimeQuery.getInstance().queryLogTs(params.get(START_TIME),
+                            params.get(END_TIME),
+                            params.get(INLONG_GROUP_Id),
+                            params.get(INLONG_STREAM_Id),
+                            params.get(AUDIT_ID));
+                    break;
+                case MINUTE_10:
+                    statData = TenMinutesCache.getInstance().getData(cacheKey);
+                    break;
+                case MINUTE_30:
+                    statData = HalfHourCache.getInstance().getData(cacheKey);
+                    break;
+                default:
+                    LOGGER.error("Unsupported cycle type! cycle is {}", cycle);
+            }
+            return statData;
         }
 
         @Override

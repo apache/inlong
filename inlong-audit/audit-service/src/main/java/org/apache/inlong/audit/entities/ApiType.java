@@ -15,20 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.utils;
+package org.apache.inlong.audit.entities;
 
 /**
- * Cache utils
+ * Openapi type
  */
-public class CacheUtils {
-
-    public static String buildCacheKey(String logTs, String inlongGroupId, String inlongStreamId,
-            String auditId) {
-        return new StringBuilder()
-                .append(logTs)
-                .append(inlongGroupId)
-                .append(inlongStreamId)
-                .append(auditId)
-                .toString();
-    }
+public enum ApiType {
+    MINUTES, HOUR, DAY, GET_IPS, GET_IDS;
 }

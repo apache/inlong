@@ -34,4 +34,5 @@ public class StatData {
     private Long size;
     private Long delay;
     private Timestamp updateTime;
+    private String ip;
 }

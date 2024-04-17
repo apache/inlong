@@ -22,13 +22,6 @@ package org.apache.inlong.audit.config;
  */
 public class ConfigConstants {
 
-    // Source config
-    public static final String KEY_CLICKHOUSE_DRIVER = "clickhouse.driver";
-    public static final String DEFAULT_CLICKHOUSE_DRIVER = "ru.yandex.clickhouse.ClickHouseDriver";
-    public static final String KEY_CLICKHOUSE_JDBC_URL = "clickhouse.jdbc.url";
-    public static final String KEY_CLICKHOUSE_USERNAME = "clickhouse.username";
-    public static final String KEY_CLICKHOUSE_PASSWORD = "clickhouse.password";
-
     // DB config
     public static final String KEY_MYSQL_DRIVER = "mysql.driver";
     public static final String KEY_DEFAULT_MYSQL_DRIVER = "com.mysql.cj.jdbc.Driver";
@@ -49,14 +42,14 @@ public class ConfigConstants {
     public static final int DEFAULT_SOURCE_DB_SINK_INTERVAL = 100;
     public static final String KEY_SOURCE_DB_SINK_BATCH = "sink.db.batch";
     public static final int DEFAULT_SOURCE_DB_SINK_BATCH = 1000;
+    public static final String KEY_UPDATE_CONFIG_INTERVAL_SECONDS = "update.config.interval.seconds";
+    public static final int DEFAULT_UPDATE_CONFIG_INTERVAL_SECONDS = 60;
 
     public static final String KEY_DATASOURCE_POOL_SIZE = "datasource.pool.size";
-    public static final int DEFAULT_DATASOURCE_POOL_SIZE = 1000;
+    public static final int DEFAULT_DATASOURCE_POOL_SIZE = 2;
 
     public static final String KEY_DATA_QUEUE_SIZE = "data.queue.size";
     public static final int DEFAULT_DATA_QUEUE_SIZE = 1000000;
-    public static final String KEY_AUDIT_IDS = "audit.ids";
-    public static final String DEFAULT_AUDIT_IDS = "3;4;5;6";
 
     // Summary config
     public static final String KEY_SUMMARY_REALTIME_STAT_BACK_TIMES = "summary.realtime.stat.back.times";

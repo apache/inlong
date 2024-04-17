@@ -72,7 +72,7 @@ public class CacheSink {
             StatData data = dataQueue.pull(pullTimeOut, TimeUnit.MILLISECONDS);
             while (data != null) {
                 String cacheKey = CacheUtils.buildCacheKey(data.getLogTs(), data.getInlongGroupId(),
-                        data.getInlongStreamId(), data.getAuditId(), data.getAuditTag());
+                        data.getInlongStreamId(), data.getAuditId());
                 cache.put(cacheKey, data);
                 data = dataQueue.pull(pullTimeOut, TimeUnit.MILLISECONDS);
             }
