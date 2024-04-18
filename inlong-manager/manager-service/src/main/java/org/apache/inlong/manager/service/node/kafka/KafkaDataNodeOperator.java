@@ -96,7 +96,7 @@ public class KafkaDataNodeOperator extends AbstractDataNodeOperator {
         KafkaDataNodeRequest kafkaDataNodeRequest = (KafkaDataNodeRequest) request;
         String bootstrapServers = kafkaDataNodeRequest.getBootstrapServers();
         Preconditions.expectNotBlank(bootstrapServers, ErrorCodeEnum.INVALID_PARAMETER,
-                "connection admin urlcannot be empty");
+                "connection bootstrapServers  cannot be empty");
         if (getKafkaConnection(bootstrapServers)) {
             LOGGER.info("kafka  connection success for bootstrapServers={}",
                     bootstrapServers);
