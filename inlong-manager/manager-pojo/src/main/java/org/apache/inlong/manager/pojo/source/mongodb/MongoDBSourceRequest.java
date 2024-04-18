@@ -53,6 +53,9 @@ public class MongoDBSourceRequest extends SourceRequest {
     @ApiModelProperty("MongoDB collection name")
     private String collection;
 
+    @ApiModelProperty("Debezium snapshot mode. Available options are initial and never, default is initial")
+    private String snapshotMode = "initial";
+
     @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
 
