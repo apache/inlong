@@ -120,7 +120,7 @@ public class RealTimeQuery {
     }
 
     /**
-     * Query data which log time.
+     * Query the audit data of log time.
      *
      * @param startTime
      * @param endTime
@@ -145,7 +145,7 @@ public class RealTimeQuery {
     }
 
     /**
-     * Do query log time.
+     * Do query the audit data of log time.
      *
      * @param dataSource
      * @param startTime
