@@ -22,10 +22,16 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamApproveRequest;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,20 +43,48 @@ public class InlongGroupApproveForm extends BaseTaskForm {
 
     public static final String FORM_NAME = "InlongGroupApproveForm";
 
-    @ApiModelProperty(value = "Inlong group approve info", required = true)
+    @ApiModelProperty(value = "Inlong group approve info")
     private InlongGroupApproveRequest groupApproveInfo;
 
     @ApiModelProperty(value = "All inlong stream info under the inlong group, including the sink info")
     private List<InlongStreamApproveRequest> streamApproveInfoList;
 
+    @ApiModelProperty(value = "Inlong group approve full info list")
+    private List<GroupApproveFullRequest> groupApproveFullInfoList;
+
     @Override
     public void validate() throws FormValidateException {
-        Preconditions.expectNotNull(groupApproveInfo, "inlong group approve info is empty");
+        Preconditions.expectTrue(groupApproveInfo != null || CollectionUtils.isNotEmpty(groupApproveFullInfoList),
+                "inlong group approve info is empty");
     }
 
     @Override
     public String getFormName() {
         return FORM_NAME;
+    }
+
+    @JsonIgnore
+    public List<GroupApproveFullRequest> getApproveFullRequest() {
+        List<GroupApproveFullRequest> result = new ArrayList<>();
+        if (groupApproveInfo != null) {
+            result.add(new GroupApproveFullRequest(groupApproveInfo, streamApproveInfoList));
+        }
+        if (CollectionUtils.isNotEmpty(groupApproveFullInfoList)) {
+            result.addAll(groupApproveFullInfoList);
+        }
+        return result;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class GroupApproveFullRequest {
+
+        private InlongGroupApproveRequest groupApproveInfo;
+
+        private List<InlongStreamApproveRequest> streamApproveInfoList;
+
     }
 
 }

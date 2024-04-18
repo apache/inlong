@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.pojo.workflow.form.task.InlongGroupApproveForm;
+import org.apache.inlong.manager.pojo.workflow.form.task.InlongGroupApproveForm.GroupApproveFullRequest;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -31,6 +32,8 @@ import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * The listener for modifying InlongGroup info after the application InlongGroup process is approved.
@@ -57,15 +60,18 @@ public class AfterApprovedTaskListener implements TaskEventListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         InlongGroupApproveForm form = (InlongGroupApproveForm) context.getActionContext().getForm();
-        InlongGroupApproveRequest approveInfo = form.getGroupApproveInfo();
-        String groupId = approveInfo.getInlongGroupId();
-        log.info("begin to execute AfterApprovedTaskListener for groupId={}", groupId);
+        List<GroupApproveFullRequest> approveRequestList = form.getApproveFullRequest();
+        for (GroupApproveFullRequest request : approveRequestList) {
+            InlongGroupApproveRequest approveInfo = request.getGroupApproveInfo();
+            String groupId = approveInfo.getInlongGroupId();
+            log.info("begin to execute AfterApprovedTaskListener for groupId={}", groupId);
 
-        // save the inlong group and other info after approval
-        groupService.updateAfterApprove(approveInfo, context.getOperator());
-        streamService.updateAfterApprove(form.getStreamApproveInfoList(), context.getOperator());
+            // save the inlong group and other info after approval
+            groupService.updateAfterApprove(approveInfo, context.getOperator());
+            streamService.updateAfterApprove(request.getStreamApproveInfoList(), context.getOperator());
 
-        log.info("success to execute AfterApprovedTaskListener for groupId={}", groupId);
+            log.info("success to execute AfterApprovedTaskListener for groupId={}", groupId);
+        }
         return ListenerResult.success();
     }
 

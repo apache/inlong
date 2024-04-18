@@ -23,6 +23,7 @@ import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.tool.excel.ExcelTool;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
@@ -83,6 +84,14 @@ public class InlongStreamController {
     @ApiOperation(value = "Save inlong stream")
     public Response<Integer> save(@RequestBody InlongStreamRequest request) {
         int result = streamService.save(request, LoginUserUtils.getLoginUser().getName());
+        return Response.success(result);
+    }
+
+    @RequestMapping(value = "/stream/batchSave", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.STREAM)
+    @ApiOperation(value = "Batch save inlong stream")
+    public Response<List<BatchResult>> batchSave(@RequestBody List<InlongStreamRequest> requestList) {
+        List<BatchResult> result = streamService.batchSave(requestList, LoginUserUtils.getLoginUser().getName());
         return Response.success(result);
     }
 
@@ -154,6 +163,7 @@ public class InlongStreamController {
     }
 
     @RequestMapping(value = "/stream/suspendProcess/{groupId}/{streamId}", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.SUSPEND, operationTarget = OperationTarget.STREAM)
     @ApiOperation(value = "Suspend inlong stream process")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),

@@ -26,6 +26,7 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,11 +62,13 @@ public class GroupResourceProcessForm extends BaseProcessForm {
     }
 
     @Override
-    public Map<String, Object> showInList() {
+    public List<Map<String, Object>> showInList() {
+        List<Map<String, Object>> showInList = new ArrayList<>();
         Map<String, Object> show = new HashMap<>();
         show.put("inlongGroupId", groupInfo.getInlongGroupId());
         show.put("groupOperateType", this.groupOperateType);
-        return show;
+        showInList.add(show);
+        return showInList;
     }
 
 }

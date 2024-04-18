@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.listener.group.apply;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -31,6 +32,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -54,22 +57,24 @@ public class CancelApplyProcessListener implements ProcessEventListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         ApplyGroupProcessForm form = (ApplyGroupProcessForm) context.getProcessForm();
-        String groupId = form.getInlongGroupId();
-        log.info("begin to execute CancelApplyProcessListener for groupId={}", groupId);
+        List<String> groupList = Arrays.asList(form.getInlongGroupId().split(InlongConstants.COMMA));
+        for (String groupId : groupList) {
+            log.info("begin to execute CancelApplyProcessListener for groupId={}", groupId);
 
-        // only the [ToBeApproval] status allowed the canceling operation
-        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
-        if (entity == null) {
-            throw new WorkflowListenerException("InlongGroup not found with groupId=" + groupId);
-        }
-        if (!Objects.equals(GroupStatus.TO_BE_APPROVAL.getCode(), entity.getStatus())) {
-            throw new WorkflowListenerException(String.format("Current status [%s] was not allowed to cancel",
-                    GroupStatus.forCode(entity.getStatus())));
-        }
-        String operator = context.getOperator();
-        groupMapper.updateStatus(groupId, GroupStatus.TO_BE_SUBMIT.getCode(), operator);
+            // only the [ToBeApproval] status allowed the canceling operation
+            InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+            if (entity == null) {
+                throw new WorkflowListenerException("InlongGroup not found with groupId=" + groupId);
+            }
+            if (!Objects.equals(GroupStatus.TO_BE_APPROVAL.getCode(), entity.getStatus())) {
+                throw new WorkflowListenerException(String.format("Current status [%s] was not allowed to cancel",
+                        GroupStatus.forCode(entity.getStatus())));
+            }
+            String operator = context.getOperator();
+            groupMapper.updateStatus(groupId, GroupStatus.TO_BE_SUBMIT.getCode(), operator);
 
-        log.info("success to execute CancelApplyProcessListener for groupId={}", groupId);
+            log.info("success to execute CancelApplyProcessListener for groupId={}", groupId);
+        }
         return ListenerResult.success();
     }
 

@@ -21,6 +21,7 @@ import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
 import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
@@ -64,6 +65,13 @@ public class StreamSinkController {
     @ApiOperation(value = "Save stream sink")
     public Response<Integer> save(@Validated @RequestBody SinkRequest request) {
         return Response.success(sinkService.save(request, LoginUserUtils.getLoginUser().getName()));
+    }
+
+    @RequestMapping(value = "/sink/batchSave", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.SINK)
+    @ApiOperation(value = "Batch save stream sink")
+    public Response<List<BatchResult>> batchSave(@Validated @RequestBody List<SinkRequest> requestList) {
+        return Response.success(sinkService.batchSave(requestList, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/sink/get/{id}", method = RequestMethod.GET)

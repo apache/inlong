@@ -15,38 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.pojo.common;
 
-/**
- * Operation type
- */
-public enum OperationType {
+import org.apache.inlong.manager.common.enums.OperationTarget;
 
-    CREATE,
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-    UPDATE,
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class BatchResult {
 
-    /**
-     * Insert or update
-     */
-    UPSERT,
+    // Unique identification of operation target
+    private String uniqueKey;
+    private boolean success;
+    private OperationTarget operationTarget;
+    private String errMsg;
 
-    DELETE,
-
-    GET,
-
-    LIST,
-
-    SUSPEND,
-
-    START;
-
-    public static OperationType forOperationType(String type) {
-        for (OperationType operationType : values()) {
-            if (operationType.name().equalsIgnoreCase(type)) {
-                return operationType;
-            }
-        }
-        throw new IllegalArgumentException(String.format("Unsupported operation type for %s", type));
-    }
 }

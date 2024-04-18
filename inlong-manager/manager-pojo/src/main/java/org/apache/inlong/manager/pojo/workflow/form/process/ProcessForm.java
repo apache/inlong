@@ -21,6 +21,7 @@ import org.apache.inlong.manager.pojo.workflow.form.Form;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,7 +48,7 @@ public interface ProcessForm extends Form {
     /**
      * Field data displayed in the process list.
      */
-    default Map<String, Object> showInList() {
+    default List<Map<String, Object>> showInList() {
         return null;
     }
 

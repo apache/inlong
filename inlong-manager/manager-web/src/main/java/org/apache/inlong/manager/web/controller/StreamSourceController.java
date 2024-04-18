@@ -21,6 +21,7 @@ import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.SaveValidation;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.source.DataAddTaskRequest;
@@ -44,6 +45,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * Stream source control layer
  */
@@ -60,6 +63,14 @@ public class StreamSourceController {
     @ApiOperation(value = "Save stream source")
     public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody SourceRequest request) {
         return Response.success(sourceService.save(request, LoginUserUtils.getLoginUser().getName()));
+    }
+
+    @RequestMapping(value = "/source/batchSave", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.SOURCE)
+    @ApiOperation(value = "Batch save stream source")
+    public Response<List<BatchResult>> batchSave(
+            @Validated(SaveValidation.class) @RequestBody List<SourceRequest> requestList) {
+        return Response.success(sourceService.batchSave(requestList, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/source/get/{id}", method = RequestMethod.GET)

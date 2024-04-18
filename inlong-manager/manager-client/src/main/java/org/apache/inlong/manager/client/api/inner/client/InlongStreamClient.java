@@ -22,6 +22,7 @@ import org.apache.inlong.manager.client.api.service.InlongStreamApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
@@ -54,6 +55,16 @@ public class InlongStreamClient {
      */
     public Integer createStreamInfo(InlongStreamInfo streamInfo) {
         Response<Integer> response = ClientUtils.executeHttpCall(inlongStreamApi.createStream(streamInfo));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Batch create inlong stream.
+     */
+    public List<BatchResult> batchCreateStreamInfo(List<InlongStreamInfo> streamInfos) {
+        Response<List<BatchResult>> response =
+                ClientUtils.executeHttpCall(inlongStreamApi.batchCreateStream(streamInfos));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

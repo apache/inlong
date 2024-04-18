@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.stream;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.tool.excel.ExcelTool;
@@ -35,6 +36,7 @@ import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -182,6 +184,28 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         LOGGER.info("success to save inlong stream info for groupId={}", groupId);
         return streamEntity.getId();
+    }
+
+    @Override
+    public List<BatchResult> batchSave(List<InlongStreamRequest> requestList, String operator) {
+        List<BatchResult> resultList = new ArrayList<>();
+        for (InlongStreamRequest request : requestList) {
+            BatchResult result = BatchResult.builder()
+                    .uniqueKey(request.getInlongGroupId() + "-" + request.getInlongStreamId())
+                    .operationTarget(OperationTarget.STREAM)
+                    .build();
+            try {
+                this.save(request, operator);
+                result.setSuccess(true);
+            } catch (Exception e) {
+                LOGGER.error("failed to save inlong stream for groupId={}, streamId={}", request.getInlongGroupId(),
+                        request.getInlongStreamId(), e);
+                result.setSuccess(false);
+                result.setErrMsg(e.getMessage());
+            }
+            resultList.add(result);
+        }
+        return resultList;
     }
 
     @Override

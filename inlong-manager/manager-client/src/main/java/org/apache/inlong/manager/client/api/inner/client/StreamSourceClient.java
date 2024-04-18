@@ -22,6 +22,7 @@ import org.apache.inlong.manager.client.api.service.StreamSourceApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.source.SourcePageRequest;
@@ -48,6 +49,16 @@ public class StreamSourceClient {
      */
     public Integer createSource(SourceRequest request) {
         Response<Integer> response = ClientUtils.executeHttpCall(streamSourceApi.createSource(request));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Batch create inlong stream source.
+     */
+    public List<BatchResult> batchCreateSource(List<SourceRequest> requestList) {
+        Response<List<BatchResult>> response =
+                ClientUtils.executeHttpCall(streamSourceApi.batchCreateSource(requestList));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

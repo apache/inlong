@@ -22,13 +22,20 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Apply inlong group process form
@@ -39,15 +46,19 @@ public class ApplyGroupProcessForm extends BaseProcessForm {
 
     public static final String FORM_NAME = "ApplyGroupProcessForm";
 
-    @ApiModelProperty(value = "Inlong group info", required = true)
+    @ApiModelProperty(value = "Inlong group info")
     private InlongGroupInfo groupInfo;
 
     @ApiModelProperty(value = "All inlong stream info under the inlong group, including the sink info")
     private List<InlongStreamBriefInfo> streamInfoList;
 
+    @ApiModelProperty(value = "Inlong group full info list")
+    private List<GroupFullInfo> groupFullInfoList;
+
     @Override
     public void validate() throws FormValidateException {
-        Preconditions.expectNotNull(groupInfo, "inlong group info is empty");
+        Preconditions.expectTrue(groupInfo != null || CollectionUtils.isNotEmpty(groupFullInfoList),
+                "inlong group info is empty");
     }
 
     @Override
@@ -57,14 +68,46 @@ public class ApplyGroupProcessForm extends BaseProcessForm {
 
     @Override
     public String getInlongGroupId() {
-        return groupInfo.getInlongGroupId();
+        if (groupInfo != null) {
+            return groupInfo.getInlongGroupId();
+        }
+        List<String> groupIdList = groupFullInfoList.stream().map(v -> {
+            InlongGroupInfo groupInfo = v.getGroupInfo();
+            return groupInfo.getInlongGroupId();
+        }).collect(Collectors.toList());
+        return Joiner.on(",").join(groupIdList);
     }
 
     @Override
-    public Map<String, Object> showInList() {
+    public List<Map<String, Object>> showInList() {
+        List<Map<String, Object>> showList = new ArrayList<>();
+        if (groupInfo != null) {
+            addShowInfo(groupInfo, showList);
+        }
+        if (CollectionUtils.isNotEmpty(groupFullInfoList)) {
+            groupFullInfoList.forEach(groupFullInfo -> {
+                addShowInfo(groupFullInfo.getGroupInfo(), showList);
+            });
+        }
+        return showList;
+    }
+
+    private void addShowInfo(InlongGroupInfo groupInfo, List<Map<String, Object>> showList) {
         Map<String, Object> show = Maps.newHashMap();
         show.put("inlongGroupId", groupInfo.getInlongGroupId());
         show.put("inlongGroupMode", groupInfo.getInlongGroupMode());
-        return show;
+        showList.add(show);
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class GroupFullInfo {
+
+        private InlongGroupInfo groupInfo;
+
+        private List<InlongStreamBriefInfo> streamInfoList;
+
     }
 }
