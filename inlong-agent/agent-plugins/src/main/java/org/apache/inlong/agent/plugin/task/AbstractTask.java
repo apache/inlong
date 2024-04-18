@@ -67,7 +67,8 @@ public abstract class AbstractTask extends Task {
 
     protected abstract void initTask();
 
-    protected abstract void releaseTask();
+    protected void releaseTask() {
+    }
 
     @Override
     public void destroy() {
