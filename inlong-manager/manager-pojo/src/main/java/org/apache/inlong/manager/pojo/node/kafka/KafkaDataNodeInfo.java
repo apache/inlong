@@ -17,24 +17,24 @@
 
 package org.apache.inlong.manager.pojo.node.kafka;
 
+import org.apache.inlong.manager.common.consts.DataNodeType;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.consts.DataNodeType;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.node.DataNodeInfo;
-import org.apache.inlong.manager.pojo.node.pulsar.PulsarDataNodeRequest;
 
 /**
- * Pulsar data node info
+ * Kafka data node info
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = DataNodeType.PULSAR)
+@JsonTypeDefine(value = DataNodeType.KAFKA)
 @ApiModel("Kafka data node info")
 public class KafkaDataNodeInfo extends DataNodeInfo {
 
@@ -52,7 +52,7 @@ public class KafkaDataNodeInfo extends DataNodeInfo {
     }
 
     @Override
-    public PulsarDataNodeRequest genRequest() {
-        return CommonBeanUtils.copyProperties(this, PulsarDataNodeRequest::new);
+    public KafkaDataNodeRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, KafkaDataNodeRequest::new);
     }
 }

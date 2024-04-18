@@ -17,22 +17,23 @@
 
 package org.apache.inlong.manager.pojo.node.kafka;
 
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.pojo.node.pulsar.PulsarDataNodeRequest;
+
+import javax.validation.constraints.NotNull;
 
 /**
- * Pulsar data node info
+ * Kafka data node info
  */
 @Data
 @Builder
@@ -53,7 +54,7 @@ public class KafkaDataNodeDTO {
     /**
      * Get the dto instance from the request
      */
-    public static KafkaDataNodeDTO getFromRequest(PulsarDataNodeRequest request, String extParams) {
+    public static KafkaDataNodeDTO getFromRequest(KafkaDataNodeRequest request, String extParams) {
         KafkaDataNodeDTO dto = StringUtils.isNotBlank(extParams)
                 ? KafkaDataNodeDTO.getFromJson(extParams)
                 : new KafkaDataNodeDTO();
@@ -68,7 +69,7 @@ public class KafkaDataNodeDTO {
             return JsonUtils.parseObject(extParams, KafkaDataNodeDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT,
-                    String.format("Failed to parse extParams for pulsar node: %s", e.getMessage()));
+                    String.format("Failed to parse extParams for kafka node: %s", e.getMessage()));
         }
     }
 }

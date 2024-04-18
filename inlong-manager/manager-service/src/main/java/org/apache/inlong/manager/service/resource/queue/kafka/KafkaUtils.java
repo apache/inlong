@@ -34,7 +34,7 @@ public class KafkaUtils {
     public static AdminClient getAdminClient(KafkaClusterInfo kafkaClusterInfo) {
         Properties properties = new Properties();
         // Configure the access address and port number of the Kafka service
-        properties.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaClusterInfo.getUrl());
+        properties.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaClusterInfo.getBootstrapServers());
         // Create AdminClient instance
         return AdminClient.create(properties);
     }
