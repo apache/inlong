@@ -37,6 +37,7 @@ import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_CACHE_
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_CACHE_MAX_SIZE;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_CACHE_EXPIRED_HOURS;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_CACHE_MAX_SIZE;
+import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
 
 /**
  * Abstract cache.
@@ -84,9 +85,10 @@ public class AbstractCache {
     public List<StatData> getData(String key) {
         StatData statData = cache.getIfPresent(key);
         if (null == statData) {
-            return new LinkedList<>();
+            // Compatible with scenarios where the auditTag openapi parameter can be empty.
+            statData = cache.getIfPresent(key + DEFAULT_AUDIT_TAG);
         }
-        return Collections.singletonList(statData);
+        return statData == null ? new LinkedList<>() : Collections.singletonList(statData);
     }
 
     /**

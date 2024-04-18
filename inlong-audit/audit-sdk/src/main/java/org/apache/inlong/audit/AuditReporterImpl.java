@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
 import static org.apache.inlong.audit.protocol.AuditApi.BaseCommand.Type.AUDIT_REQUEST;
 
 public class AuditReporterImpl implements Serializable {
@@ -53,7 +54,6 @@ public class AuditReporterImpl implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditReporterImpl.class);
     private static final String FIELD_SEPARATORS = ":";
-    private static final String DEFAULT_AUDIT_TAG = "-1";
     private static final long DEFAULT_AUDIT_VERSION = -1;
     private static final int BATCH_NUM = 100;
     private final ReentrantLock GLOBAL_LOCK = new ReentrantLock();

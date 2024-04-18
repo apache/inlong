@@ -63,5 +63,5 @@ public class OpenApiConstants {
     public static final String VALUE_HTTP_HEADER_CONTENT_TYPE = "application/json;charset=utf-8";
     public static final int BIND_PORT = 80;
     public static final int HTTP_RESPOND_CODE = 200;
-    public static final String DEFAULT_AUDIT_TAG = "";
+    public static final String DEFAULT_PARAMS_AUDIT_TAG = "";
 }

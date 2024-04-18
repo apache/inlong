@@ -57,7 +57,7 @@ import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_GET_IP
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_HOUR_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_MINUTES_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_REAL_LIMITER_QPS;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_AUDIT_TAG;
+import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_PARAMS_AUDIT_TAG;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_POOL_SIZE;
 import static org.apache.inlong.audit.config.OpenApiConstants.END_TIME;
 import static org.apache.inlong.audit.config.OpenApiConstants.HTTP_RESPOND_CODE;
@@ -169,7 +169,7 @@ public class ApiService {
                     }
                 }
             }
-            params.putIfAbsent(AUDIT_TAG, DEFAULT_AUDIT_TAG);
+            params.putIfAbsent(AUDIT_TAG, DEFAULT_PARAMS_AUDIT_TAG);
             return params;
         }
 
@@ -215,7 +215,7 @@ public class ApiService {
                     break;
                 case HOUR:
                     String cacheKey = CacheUtils.buildCacheKey(params.get(START_TIME), params.get(INLONG_GROUP_Id),
-                            params.get(INLONG_STREAM_Id), params.get(AUDIT_ID));
+                            params.get(INLONG_STREAM_Id), params.get(AUDIT_ID), params.get(AUDIT_TAG));
                     statData = HourCache.getInstance().getData(cacheKey);
                     break;
                 case DAY:
@@ -256,7 +256,7 @@ public class ApiService {
 
         private List<StatData> handleMinutesApi(Map<String, String> params) {
             String cacheKey = CacheUtils.buildCacheKey(params.get(START_TIME), params.get(INLONG_GROUP_Id),
-                    params.get(INLONG_STREAM_Id), params.get(AUDIT_ID));
+                    params.get(INLONG_STREAM_Id), params.get(AUDIT_ID), params.get(AUDIT_TAG));
             int cycle = Integer.parseInt(params.get(AUDIT_CYCLE));
             List<StatData> statData = null;
             switch (AuditCycle.fromInt(cycle)) {

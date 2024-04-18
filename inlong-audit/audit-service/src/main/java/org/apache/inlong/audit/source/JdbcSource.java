@@ -65,7 +65,7 @@ import static org.apache.inlong.audit.config.ConfigConstants.KEY_SOURCE_DB_STAT_
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_STAT_BACK_INITIAL_OFFSET;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SQL_LIMIT;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_AUDIT_TAG;
+import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_PARAMS_AUDIT_TAG;
 import static org.apache.inlong.audit.entities.AuditCycle.DAY;
 import static org.apache.inlong.audit.entities.AuditCycle.HOUR;
 
@@ -290,7 +290,7 @@ public class JdbcSource {
                         data.setAuditId(resultSet.getString(3));
                         String auditTag = resultSet.getString(4);
                         if (null == auditTag) {
-                            data.setAuditTag(DEFAULT_AUDIT_TAG);
+                            data.setAuditTag(DEFAULT_PARAMS_AUDIT_TAG);
                         } else {
                             data.setAuditTag(auditTag);
                         }

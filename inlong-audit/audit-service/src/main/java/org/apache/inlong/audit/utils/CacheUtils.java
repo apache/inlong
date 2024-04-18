@@ -23,12 +23,13 @@ package org.apache.inlong.audit.utils;
 public class CacheUtils {
 
     public static String buildCacheKey(String logTs, String inlongGroupId, String inlongStreamId,
-            String auditId) {
+            String auditId, String auditTag) {
         return new StringBuilder()
                 .append(logTs)
                 .append(inlongGroupId)
                 .append(inlongStreamId)
                 .append(auditId)
+                .append(auditTag)
                 .toString();
     }
 }

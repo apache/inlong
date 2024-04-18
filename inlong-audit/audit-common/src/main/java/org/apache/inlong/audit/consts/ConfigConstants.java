@@ -72,4 +72,5 @@ public class ConfigConstants {
     public static final String MANAGER_GET_CONFIG_PATH = "/audit/getConfig";
 
     public static final String MSG_VALID_THRESHOLD_DAYS = "msg.valid.threshold.days";
+    public static final String DEFAULT_AUDIT_TAG = "-1";
 }
