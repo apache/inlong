@@ -166,7 +166,6 @@ public class MongoDBSource extends AbstractSource {
                     break;
                 }
             }
-            LOGGER.info("read {} messages from debezium queue", dataList.size());
         } catch (InterruptedException e) {
             LOGGER.error("poll {} data from debezium queue interrupted.", instanceId);
         }
