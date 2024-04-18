@@ -76,7 +76,6 @@ public class MongoDBSource extends AbstractSource {
             collection = profile.get(TaskConstants.TASK_MONGO_COLLECTION_INCLUDE_LIST);
             snapshotMode = profile.get(TaskConstants.TASK_MONGO_SNAPSHOT_MODE, "initial");
 
-
             props.setProperty("name", "MongoDB-" + instanceId);
             props.setProperty("connector.class", MongoDbConnector.class.getName());
             props.setProperty("offset.storage", FileOffsetBackingStore.class.getName());
@@ -176,6 +175,7 @@ public class MongoDBSource extends AbstractSource {
     @Override
     protected void releaseSource() {
         LOGGER.info("release mongo source");
+        executor.shutdownNow();
     }
 
     @Override
