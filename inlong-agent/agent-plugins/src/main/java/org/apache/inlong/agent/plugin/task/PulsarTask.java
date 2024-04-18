@@ -55,10 +55,6 @@ public class PulsarTask extends AbstractTask {
     }
 
     @Override
-    protected void releaseTask() {
-    }
-
-    @Override
     public boolean isProfileValid(TaskProfile profile) {
         if (!profile.allRequiredKeyExist()) {
             LOGGER.error("task profile needs all required key");

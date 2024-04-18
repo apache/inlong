@@ -46,17 +46,11 @@ public class MongoDBTask extends AbstractTask {
     }
 
     @Override
-    protected void releaseTask() {
-
-    }
-
-    @Override
     public boolean isProfileValid(TaskProfile profile) {
         if (!profile.allRequiredKeyExist()) {
             LOGGER.error("task profile needs all required key");
             return false;
         }
-
         return true;
     }
 

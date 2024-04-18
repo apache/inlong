@@ -47,10 +47,6 @@ public class KafkaTask extends AbstractTask {
     }
 
     @Override
-    protected void releaseTask() {
-    }
-
-    @Override
     protected List<InstanceProfile> getNewInstanceList() {
         List<InstanceProfile> list = new ArrayList<>();
         if (isAdded) {
