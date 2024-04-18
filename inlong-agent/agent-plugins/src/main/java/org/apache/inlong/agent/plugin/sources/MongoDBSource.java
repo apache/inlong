@@ -66,11 +66,9 @@ public class MongoDBSource extends AbstractSource {
     }
 
     @Override
-    public void init(InstanceProfile profile) {
+    protected void initSource(InstanceProfile profile) {
         try {
             LOGGER.info("MongoDBSource init: {}", profile.toJsonStr());
-            this.profile = profile;
-            super.init(profile);
             debeziumQueue = new LinkedBlockingQueue<>(DEBEZIUM_QUEUE_SIZE);
             database = profile.get(TaskConstants.TASK_MONGO_DATABASE_INCLUDE_LIST);
             collection = profile.get(TaskConstants.TASK_MONGO_COLLECTION_INCLUDE_LIST);

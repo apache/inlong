@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.file.Reader;
@@ -51,6 +52,11 @@ public class SQLServerSource extends AbstractSource {
     @Override
     protected String getThreadName() {
         return null;
+    }
+
+    @Override
+    protected void initSource(InstanceProfile profile) {
+
     }
 
     @Override

@@ -69,11 +69,9 @@ public class KafkaSource extends AbstractSource {
     }
 
     @Override
-    public void init(InstanceProfile profile) {
+    protected void initSource(InstanceProfile profile) {
         try {
             LOGGER.info("KafkaSource init: {}", profile.toJsonStr());
-            this.profile = profile;
-            super.init(profile);
             topic = profile.getInstanceId();
             props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, profile.get(TASK_KAFKA_BOOTSTRAP_SERVERS));
             props.put(ConsumerConfig.GROUP_ID_CONFIG, taskId);

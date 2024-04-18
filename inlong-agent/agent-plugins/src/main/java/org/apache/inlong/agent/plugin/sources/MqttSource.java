@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.plugin.Message;
@@ -82,6 +83,11 @@ public class MqttSource extends AbstractSource {
     @Override
     protected String getThreadName() {
         return null;
+    }
+
+    @Override
+    protected void initSource(InstanceProfile profile) {
+
     }
 
     @Override

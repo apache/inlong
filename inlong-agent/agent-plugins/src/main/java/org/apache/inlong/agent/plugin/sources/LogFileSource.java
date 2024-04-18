@@ -65,10 +65,9 @@ public class LogFileSource extends AbstractSource {
     }
 
     @Override
-    public void init(InstanceProfile profile) {
+    protected void initSource(InstanceProfile profile) {
         try {
             LOGGER.info("LogFileSource init: {}", profile.toJsonStr());
-            super.init(profile);
             fileName = profile.getInstanceId();
             bufferToReadFile = new byte[SIZE_OF_BUFFER_TO_READ_FILE];
             isIncrement = isIncrement(profile);
