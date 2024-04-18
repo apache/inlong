@@ -38,6 +38,7 @@ public class KafkaTask extends AbstractTask {
     public static final String DEFAULT_KAFKA_INSTANCE = "org.apache.inlong.agent.plugin.instance.KafkaInstance";
     private boolean isAdded = false;
     private String topic;
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
 
     @Override
     protected void initTask() {
@@ -55,7 +56,7 @@ public class KafkaTask extends AbstractTask {
         if (isAdded) {
             return list;
         }
-        String dataTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+        String dataTime = LocalDateTime.now().format(dateTimeFormatter);
         InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_KAFKA_INSTANCE, topic,
                 CycleUnitType.HOUR, dataTime, AgentUtils.getCurrentTime());
         LOGGER.info("taskProfile.createInstanceProfile: {}", instanceProfile.toJsonStr());

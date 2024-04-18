@@ -43,6 +43,7 @@ public class PulsarTask extends AbstractTask {
     private String namespace;
     private String topic;
     private String instanceId;
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
 
     @Override
     protected void initTask() {
@@ -72,7 +73,7 @@ public class PulsarTask extends AbstractTask {
         if (isAdded) {
             return list;
         }
-        String dataTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+        String dataTime = LocalDateTime.now().format(dateTimeFormatter);
         InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_PULSAR_INSTANCE, instanceId,
                 CycleUnitType.HOUR, dataTime, AgentUtils.getCurrentTime());
         LOGGER.info("taskProfile.createInstanceProfile: {}", instanceProfile.toJsonStr());

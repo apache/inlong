@@ -37,6 +37,7 @@ public class MongoDBTask extends AbstractTask {
     public static final String DEFAULT_MONGODB_INSTANCE = "org.apache.inlong.agent.plugin.instance.MongoDBInstance";
     private boolean isAdded = false;
     private String collection;
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
 
     @Override
     protected void initTask() {
@@ -65,7 +66,7 @@ public class MongoDBTask extends AbstractTask {
         if (isAdded) {
             return list;
         }
-        String dataTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+        String dataTime = LocalDateTime.now().format(dateTimeFormatter);
         InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_MONGODB_INSTANCE, collection,
                 CycleUnitType.HOUR, dataTime, AgentUtils.getCurrentTime());
         LOGGER.info("taskProfile.createInstanceProfile: {}", instanceProfile.toJsonStr());
