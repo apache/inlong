@@ -234,7 +234,7 @@ public class ApiService {
                             params.get(AUDIT_ID));
                     break;
                 case GET_IPS:
-                    statData = RealTimeQuery.getInstance().queryReportIps(
+                    statData = RealTimeQuery.getInstance().queryIpsById(
                             params.get(START_TIME),
                             params.get(END_TIME),
                             params.get(INLONG_GROUP_Id),

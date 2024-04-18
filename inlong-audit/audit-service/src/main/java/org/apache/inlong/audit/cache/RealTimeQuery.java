@@ -188,7 +188,7 @@ public class RealTimeQuery {
     }
 
     /**
-     * Query inlong group id by report ip.
+     * Query InLong group id by report ip.
      *
      * @param startTime
      * @param endTime
@@ -210,7 +210,7 @@ public class RealTimeQuery {
     }
 
     /**
-     * Do query inlong group id by report ip.
+     * Do query InLong group id by report ip.
      *
      * @param dataSource
      * @param startTime
@@ -260,11 +260,11 @@ public class RealTimeQuery {
      * @param auditId
      * @return
      */
-    public List<StatData> queryReportIps(String startTime, String endTime, String inlongGroupId,
-            String inlongStreamId, String auditId) {
+    public List<StatData> queryIpsById(String startTime, String endTime, String inlongGroupId,
+                                       String inlongStreamId, String auditId) {
         List<StatData> statDataList = new LinkedList<>();
         for (DataSource dataSource : dataSourceList) {
-            statDataList = doQueryReportIps(dataSource, startTime, endTime, inlongGroupId, inlongStreamId, auditId);
+            statDataList = doQueryIpsById(dataSource, startTime, endTime, inlongGroupId, inlongStreamId, auditId);
             if (!statDataList.isEmpty()) {
                 break;
             }
@@ -283,9 +283,9 @@ public class RealTimeQuery {
      * @param auditId
      * @return
      */
-    private List<StatData> doQueryReportIps(DataSource dataSource, String startTime, String endTime,
-            String inlongGroupId,
-            String inlongStreamId, String auditId) {
+    private List<StatData> doQueryIpsById(DataSource dataSource, String startTime, String endTime,
+                                          String inlongGroupId,
+                                          String inlongStreamId, String auditId) {
         List<StatData> result = new LinkedList<>();
         try (Connection connection = dataSource.getConnection();
                 PreparedStatement pstat = connection.prepareStatement(queryReportIpsSql)) {
