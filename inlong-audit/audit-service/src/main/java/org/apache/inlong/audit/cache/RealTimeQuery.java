@@ -228,7 +228,6 @@ public class RealTimeQuery {
             pstat.setString(2, endTime);
             pstat.setString(3, auditId);
             pstat.setString(4, ip);
-            LOGGER.info("doQueryIdsByIp {}", pstat.toString());
             try (ResultSet resultSet = pstat.executeQuery()) {
                 while (resultSet.next()) {
                     StatData data = new StatData();
@@ -261,7 +260,7 @@ public class RealTimeQuery {
      * @return
      */
     public List<StatData> queryIpsById(String startTime, String endTime, String inlongGroupId,
-                                       String inlongStreamId, String auditId) {
+            String inlongStreamId, String auditId) {
         List<StatData> statDataList = new LinkedList<>();
         for (DataSource dataSource : dataSourceList) {
             statDataList = doQueryIpsById(dataSource, startTime, endTime, inlongGroupId, inlongStreamId, auditId);
@@ -284,8 +283,8 @@ public class RealTimeQuery {
      * @return
      */
     private List<StatData> doQueryIpsById(DataSource dataSource, String startTime, String endTime,
-                                          String inlongGroupId,
-                                          String inlongStreamId, String auditId) {
+            String inlongGroupId,
+            String inlongStreamId, String auditId) {
         List<StatData> result = new LinkedList<>();
         try (Connection connection = dataSource.getConnection();
                 PreparedStatement pstat = connection.prepareStatement(queryReportIpsSql)) {

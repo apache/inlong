@@ -43,17 +43,17 @@ import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.audit.config.ConfigConstants.CACHE_PREP_STMTS;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CACHE_PREP_STMTS;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CONFIG_UPDATE_INTERVAL_SECONDS;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CONNECTION_TIMEOUT;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATASOURCE_POOL_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_CACHE_SQL_LIMIT;
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_UPDATE_CONFIG_INTERVAL_SECONDS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_CACHE_PREP_STMTS;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_CONFIG_UPDATE_INTERVAL_SECONDS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_CONNECTION_TIMEOUT;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_POOL_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SQL_LIMIT;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_UPDATE_CONFIG_INTERVAL_SECONDS;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SQL_LIMIT;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_MYSQL_QUERY_AUDIT_ID_SQL;
@@ -104,8 +104,8 @@ public class ConfigService {
                 updateAuditSource();
             }
         }, 0,
-                Configuration.getInstance().get(KEY_UPDATE_CONFIG_INTERVAL_SECONDS,
-                        DEFAULT_UPDATE_CONFIG_INTERVAL_SECONDS),
+                Configuration.getInstance().get(KEY_CONFIG_UPDATE_INTERVAL_SECONDS,
+                        DEFAULT_CONFIG_UPDATE_INTERVAL_SECONDS),
                 TimeUnit.SECONDS);
     }
 

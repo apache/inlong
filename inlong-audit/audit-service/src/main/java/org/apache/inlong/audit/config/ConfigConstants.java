@@ -42,8 +42,8 @@ public class ConfigConstants {
     public static final int DEFAULT_SOURCE_DB_SINK_INTERVAL = 100;
     public static final String KEY_SOURCE_DB_SINK_BATCH = "sink.db.batch";
     public static final int DEFAULT_SOURCE_DB_SINK_BATCH = 1000;
-    public static final String KEY_UPDATE_CONFIG_INTERVAL_SECONDS = "update.config.interval.seconds";
-    public static final int DEFAULT_UPDATE_CONFIG_INTERVAL_SECONDS = 60;
+    public static final String KEY_CONFIG_UPDATE_INTERVAL_SECONDS = "config.update.interval.seconds";
+    public static final int DEFAULT_CONFIG_UPDATE_INTERVAL_SECONDS = 60;
 
     public static final String KEY_DATASOURCE_POOL_SIZE = "datasource.pool.size";
     public static final int DEFAULT_DATASOURCE_POOL_SIZE = 2;
