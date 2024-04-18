@@ -22,6 +22,7 @@ import org.apache.inlong.audit.config.Configuration;
 import org.apache.inlong.audit.entities.SourceConfig;
 import org.apache.inlong.audit.entities.StartEndTime;
 import org.apache.inlong.audit.entities.StatData;
+import org.apache.inlong.audit.service.ConfigService;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -37,7 +38,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,7 +49,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.audit.config.ConfigConstants.CACHE_PREP_STMTS;
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_AUDIT_IDS;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CACHE_PREP_STMTS;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CONNECTION_TIMEOUT;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATASOURCE_POOL_SIZE;
@@ -57,7 +56,6 @@ import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_C
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_CACHE_SQL_LIMIT;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SOURCE_DB_STAT_INTERVAL;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_STAT_BACK_INITIAL_OFFSET;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_AUDIT_IDS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_CACHE_PREP_STMTS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_CONNECTION_TIMEOUT;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_POOL_SIZE;
@@ -67,7 +65,7 @@ import static org.apache.inlong.audit.config.ConfigConstants.KEY_SOURCE_DB_STAT_
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_STAT_BACK_INITIAL_OFFSET;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SQL_LIMIT;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_AUDIT_TAG;
+import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_PARAMS_AUDIT_TAG;
 import static org.apache.inlong.audit.entities.AuditCycle.DAY;
 import static org.apache.inlong.audit.entities.AuditCycle.HOUR;
 
@@ -80,7 +78,6 @@ public class JdbcSource {
     private static final Logger LOGGER = LoggerFactory.getLogger(JdbcSource.class);
     private final ConcurrentHashMap<Integer, ScheduledExecutorService> statTimers = new ConcurrentHashMap<>();
     private DataQueue dataQueue;
-    private List<String> auditIds;
     private int querySqlTimeout;
     private DataSource dataSource;
     private String querySql;
@@ -92,7 +89,6 @@ public class JdbcSource {
     public JdbcSource(DataQueue dataQueue, SourceConfig sourceConfig) {
         this.dataQueue = dataQueue;
         this.sourceConfig = sourceConfig;
-        auditIds = Arrays.asList(Configuration.getInstance().get(KEY_AUDIT_IDS, DEFAULT_AUDIT_IDS).split(";"));
     }
 
     /**
@@ -235,7 +231,9 @@ public class JdbcSource {
          * Stat by step
          */
         public void statByStep() {
+            List<String> auditIds = ConfigService.getInstance().getAuditIds();
             if (auditIds.isEmpty()) {
+                LOGGER.info("No audit id need to stat!");
                 return;
             }
             List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -292,7 +290,7 @@ public class JdbcSource {
                         data.setAuditId(resultSet.getString(3));
                         String auditTag = resultSet.getString(4);
                         if (null == auditTag) {
-                            data.setAuditTag(DEFAULT_AUDIT_TAG);
+                            data.setAuditTag(DEFAULT_PARAMS_AUDIT_TAG);
                         } else {
                             data.setAuditTag(auditTag);
                         }

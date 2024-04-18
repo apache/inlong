@@ -91,11 +91,10 @@ public class DayCache implements AutoCloseable {
      * @param inlongGroupId
      * @param inlongStreamId
      * @param auditId
-     * @param auditTag
      * @return
      */
     public List<StatData> getData(String startTime, String endTime, String inlongGroupId,
-            String inlongStreamId, String auditId, String auditTag) {
+            String inlongStreamId, String auditId) {
         List<StatData> result = new LinkedList<>();
         try (Connection connection = dataSource.getConnection();
                 PreparedStatement pstat = connection.prepareStatement(querySql)) {

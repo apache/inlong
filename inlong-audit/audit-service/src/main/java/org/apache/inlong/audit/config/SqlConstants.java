@@ -34,9 +34,9 @@ public class SqlConstants {
             "select leader_id as leader from {0} where service_id=''{1}''";
     public static final String SELECT_TEST_SQL = "SELECT 1 ";
 
-    // ClickHouse query sql
-    public static final String KEY_CLICKHOUSE_SOURCE_QUERY_SQL = "clickhouse.source.query.sql";
-    public static final String DEFAULT_CLICKHOUSE_SOURCE_QUERY_SQL =
+    // Source query sql
+    public static final String KEY_SOURCE_STAT_SQL = "source.stat.sql";
+    public static final String DEFAULT_SOURCE_STAT_SQL =
             "SELECT inlong_group_id, inlong_stream_id, audit_id\n" +
                     "\t, audit_tag, cnt, size, delay,MAX(audit_version)\n" +
                     "FROM (\n" +
@@ -50,12 +50,59 @@ public class SqlConstants {
                     "\t\tFROM audit_data\n" +
                     "\t\tWHERE log_ts BETWEEN ? AND ? \n" +
                     "\t\t\tAND audit_id = ? \n" +
-                    "\t\tGROUP BY audit_version, docker_id, thread_id, sdk_ts, packet_id, log_ts, ip, inlong_group_id, inlong_stream_id, audit_id, audit_tag, count, size, delay\n"
+                    "\t\tGROUP BY audit_version, docker_id, thread_id, sdk_ts, packet_id, log_ts, ip, inlong_group_id, inlong_stream_id, audit_id, audit_tag, count, size, delay\n "
                     +
                     "\t) t1\n" +
                     "\tGROUP BY audit_version, inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
                     ") t2\n" +
                     "GROUP BY inlong_group_id, inlong_stream_id, audit_id, audit_tag, cnt, size, delay";
+
+    public static final String KEY_SOURCE_QUERY_IPS_SQL = "source.query.ips.sql";
+    public static final String DEFAULT_SOURCE_QUERY_IPS_SQL =
+            "SELECT ip, sum(count) AS cnt, sum(size) AS size\n" +
+                    "\t, sum(delay) AS delay\n" +
+                    "FROM audit_data\n" +
+                    "WHERE log_ts BETWEEN ? AND ?\n" +
+                    "\tAND inlong_group_id = ? \n" +
+                    "\tAND inlong_stream_id =  ? \n" +
+                    "\tAND audit_id =  ? \n" +
+                    "GROUP BY ip ";
+
+    public static final String KEY_SOURCE_QUERY_IDS_SQL = "source.query.ids.sql";
+    public static final String DEFAULT_SOURCE_QUERY_IDS_SQL =
+            "SELECT inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
+                    "\t, sum(count) AS cnt, sum(size) AS size\n" +
+                    "\t, sum(delay) AS delay\n" +
+                    "FROM audit_data\n" +
+                    "WHERE log_ts BETWEEN ? AND ? \n" +
+                    "\tAND audit_id = ? \n" +
+                    "\tAND ip = ? \n" +
+                    "GROUP BY inlong_group_id, inlong_stream_id, audit_id, audit_tag";
+
+    public static final String KEY_SOURCE_QUERY_MINUTE_SQL = "source.query.minute.sql";
+    public static final String DEFAULT_SOURCE_QUERY_MINUTE_SQL =
+            "SELECT log_ts, inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
+                    "\t, cnt, size, delay, max(audit_version)\n" +
+                    "FROM (\n" +
+                    "\tSELECT audit_version, log_ts, inlong_group_id, inlong_stream_id, audit_id\n" +
+                    "\t\t, audit_tag, sum(count) AS cnt, sum(size) AS size\n" +
+                    "\t\t, sum(delay) AS delay\n" +
+                    "\tFROM (\n" +
+                    "\t\tSELECT audit_version, docker_id, thread_id, sdk_ts, packet_id\n" +
+                    "\t\t\t, log_ts, ip, inlong_group_id, inlong_stream_id, audit_id\n" +
+                    "\t\t\t, audit_tag, count, size, delay\n" +
+                    "\t\tFROM audit_data\n" +
+                    "\t\tWHERE log_ts BETWEEN ? AND ?\n" +
+                    "\t\t\tAND inlong_group_id = ?\n" +
+                    "\t\t\tAND inlong_stream_id = ?\n" +
+                    "\t\t\tAND audit_id = ? \n" +
+                    "\t\tGROUP BY audit_version, docker_id, thread_id, sdk_ts, packet_id, log_ts, ip, inlong_group_id, inlong_stream_id, audit_id, audit_tag, count, size, delay\n"
+                    +
+                    "\t) t1\n" +
+                    "\tGROUP BY audit_version, log_ts, inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
+                    ") t2\n" +
+                    "GROUP BY log_ts, inlong_group_id, inlong_stream_id, audit_id, audit_tag, cnt, size, delay \n" +
+                    "limit 1440 ";
 
     // Mysql query sql
     public static final String KEY_MYSQL_SOURCE_QUERY_TEMP_SQL = "mysql.query.temp.sql";
@@ -72,6 +119,14 @@ public class SqlConstants {
     public static final String DEFAULT_MYSQL_SOURCE_QUERY_DAY_SQL =
             "select log_ts,inlong_group_id,inlong_stream_id,audit_id,audit_tag,count,size,delay " +
                     "from audit_data_day where log_ts between ? and ? and inlong_group_id=? and inlong_stream_id=? and audit_id =? ";
+
+    public static final String KEY_MYSQL_QUERY_AUDIT_ID_SQL = "mysql.query.audit.id.sql";
+    public static final String DEFAULT_MYSQL_QUERY_AUDIT_ID_SQL =
+            "select audit_id from audit_id_config where status=1 ";
+
+    public static final String KEY_MYSQL_QUERY_AUDIT_SOURCE_SQL = "mysql.query.audit.source.sql";
+    public static final String DEFAULT_MYSQL_QUERY_AUDIT_SOURCE_SQL =
+            "select jdbc_driver_class, jdbc_url, jdbc_user_name, jdbc_password, service_id from audit_source_config where status=1 ";
 
     // Mysql insert sql
     public static final String KEY_MYSQL_SINK_INSERT_DAY_SQL = "mysql.sink.insert.day.sql";

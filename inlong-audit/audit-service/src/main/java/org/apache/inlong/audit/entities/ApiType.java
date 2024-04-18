@@ -18,34 +18,8 @@
 package org.apache.inlong.audit.entities;
 
 /**
- * Audit cycle
+ * OpenAPI type
  */
-public enum AuditCycle {
-
-    MINUTE(1), MINUTE_5(5), MINUTE_10(10), MINUTE_30(30), HOUR(60), DAY(1440), UNKNOWN(1000);
-
-    private final int cycle;
-
-    AuditCycle(int cycle) {
-        this.cycle = cycle;
-    }
-
-    public int getValue() {
-        return cycle;
-    }
-
-    /**
-     * Convert int to AuditCycle.
-     *
-     * @param value
-     * @return
-     */
-    public static AuditCycle fromInt(int value) {
-        for (AuditCycle auditCycle : AuditCycle.values()) {
-            if (auditCycle.getValue() == value) {
-                return auditCycle;
-            }
-        }
-        return UNKNOWN;
-    }
+public enum ApiType {
+    MINUTES, HOUR, DAY, GET_IPS, GET_IDS;
 }

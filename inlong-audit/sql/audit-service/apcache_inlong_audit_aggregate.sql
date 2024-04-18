@@ -77,4 +77,29 @@ CREATE TABLE IF NOT EXISTS `leader_selector` (
    PRIMARY KEY (`service_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'selector db'
 
+-- ----------------------------
+-- Table structure for audit id config
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `audit_id_config` (
+    `audit_id` varchar(128) NOT NULL DEFAULT '' COMMENT 'Audit id',
+    `status` int(11) DEFAULT '1' COMMENT 'Audit source config status. 0:Offline,1:Online',
+    `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update time',
+    PRIMARY KEY (`audit_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = UTF8 COMMENT = 'Audit id config'
+
+
+-- ----------------------------
+-- Table structure for audit source config
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `audit_source_config` (
+     `source_name` varchar(32) NOT NULL DEFAULT '' COMMENT 'Source_name',
+     `jdbc_url` varchar(256) NOT NULL DEFAULT '' COMMENT 'Jdbc url',
+     `jdbc_driver_class` varchar(128) NOT NULL DEFAULT '' COMMENT 'Jdbc driver class',
+     `jdbc_user_name` varchar(128) NOT NULL DEFAULT '' COMMENT 'Jdbc url',
+     `jdbc_password` varchar(128) NOT NULL DEFAULT '' COMMENT 'Jdbc password',
+     `service_id` varchar(128) NOT NULL DEFAULT '' COMMENT 'Service id',
+     `status` int(11) DEFAULT '1' COMMENT 'Audit source config status. 0:Offline,1:Online',
+     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update time',
+     PRIMARY KEY (`source_name`, `jdbc_url`)
+) ENGINE = InnoDB DEFAULT CHARSET = UTF8 COMMENT = 'Audit source config'
 
