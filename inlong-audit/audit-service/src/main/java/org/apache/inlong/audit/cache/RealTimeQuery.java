@@ -178,10 +178,10 @@ public class RealTimeQuery {
                     result.add(data);
                 }
             } catch (SQLException sqlException) {
-                LOGGER.error("Query has SQL exception! ", sqlException);
+                LOGGER.error("Query log time has SQL exception!, datasource={} ", dataSource, sqlException);
             }
         } catch (Exception exception) {
-            LOGGER.error("Query has exception! ", exception);
+            LOGGER.error("Query log time has exception!, datasource={} ", dataSource, exception);
         }
         return result;
     }
@@ -202,8 +202,6 @@ public class RealTimeQuery {
             if (!statDataList.isEmpty()) {
                 break;
             }
-            LOGGER.info("Change another audit source to query data! Params is: {} {} {} {}",
-                    startTime, endTime, ip, auditId);
         }
         return statDataList;
     }
@@ -240,10 +238,10 @@ public class RealTimeQuery {
                     result.add(data);
                 }
             } catch (SQLException sqlException) {
-                LOGGER.error("Query has SQL exception! ", sqlException);
+                LOGGER.error("Query inLongGroupIds has SQL exception!, datasource={} ", dataSource, sqlException);
             }
         } catch (Exception exception) {
-            LOGGER.error("Query has exception! ", exception);
+            LOGGER.error("Query inLongGroupIds has exception!, datasource={} ", dataSource, exception);
         }
         return result;
     }
@@ -302,10 +300,10 @@ public class RealTimeQuery {
                     result.add(data);
                 }
             } catch (SQLException sqlException) {
-                LOGGER.error("Query has SQL exception! ", sqlException);
+                LOGGER.error("Query ips has SQL exception!, datasource={} ", dataSource, sqlException);
             }
         } catch (Exception exception) {
-            LOGGER.error("Query has exception! ", exception);
+            LOGGER.error("Query ips has exception! ", exception);
         }
         return result;
     }
