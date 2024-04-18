@@ -43,7 +43,7 @@ public enum OperationType {
 
     public static OperationType forOperationType(String type) {
         for (OperationType operationType : values()) {
-            if (operationType.name().equals(type)) {
+            if (operationType.name().equalsIgnoreCase(type)) {
                 return operationType;
             }
         }

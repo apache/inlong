@@ -241,8 +241,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         List<BatchResult> resultList = new ArrayList<>();
         for (SinkRequest request : requestList) {
             BatchResult result = BatchResult.builder()
-                    .uniqueKey(request.getSinkName() + "-" + request.getInlongGroupId() + "-"
-                            + request.getInlongStreamId())
+                    .uniqueKey(request.getInlongGroupId() + "-" + request.getInlongStreamId() + "-"
+                            + request.getSinkName())
                     .operationTarget(OperationTarget.SINK)
                     .build();
             try {

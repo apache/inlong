@@ -169,8 +169,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         List<BatchResult> resultList = new ArrayList<>();
         for (SourceRequest request : requestList) {
             BatchResult result = BatchResult.builder()
-                    .uniqueKey(request.getSourceName() + "-" + request.getInlongGroupId() + "-"
-                            + request.getInlongStreamId())
+                    .uniqueKey(request.getInlongGroupId() + "-" + request.getInlongStreamId() + "-"
+                            + request.getSourceName())
                     .operationTarget(OperationTarget.SOURCE)
                     .build();
             try {
