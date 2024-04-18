@@ -20,86 +20,48 @@ package org.apache.inlong.agent.plugin.task;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CycleUnitType;
-import org.apache.inlong.agent.core.instance.ActionType;
-import org.apache.inlong.agent.core.instance.InstanceAction;
-import org.apache.inlong.agent.core.instance.InstanceManager;
-import org.apache.inlong.agent.core.task.TaskManager;
-import org.apache.inlong.agent.db.Db;
-import org.apache.inlong.agent.metrics.audit.AuditUtils;
-import org.apache.inlong.agent.plugin.file.Task;
-import org.apache.inlong.agent.state.State;
 import org.apache.inlong.agent.utils.AgentUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.apache.inlong.agent.constant.TaskConstants.RESTORE_FROM_DB;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_KAFKA_TOPIC;
 
-public class KafkaTask extends Task {
+public class KafkaTask extends AbstractTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaTask.class);
     public static final String DEFAULT_KAFKA_INSTANCE = "org.apache.inlong.agent.plugin.instance.KafkaInstance";
-    public static final int CORE_THREAD_SLEEP_TIME = 5000;
-    public static final int CORE_THREAD_PRINT_TIME = 10000;
-
-    private TaskProfile taskProfile;
-    private Db basicDb;
-    private TaskManager taskManager;
-    private InstanceManager instanceManager;
-    private long lastPrintTime = 0;
-    private boolean initOK = false;
-    private volatile boolean running = false;
     private boolean isAdded = false;
-    private boolean isRestoreFromDB = false;
-
     private String topic;
 
     @Override
-    public void init(Object srcManager, TaskProfile taskProfile, Db basicDb) throws IOException {
-        taskManager = (TaskManager) srcManager;
-        commonInit(taskProfile, basicDb);
-        initOK = true;
-    }
-
-    private void commonInit(TaskProfile taskProfile, Db basicDb) {
+    protected void initTask() {
         LOGGER.info("kafka commonInit: {}", taskProfile.toJsonStr());
-        this.taskProfile = taskProfile;
-        this.basicDb = basicDb;
         this.topic = taskProfile.get(TASK_KAFKA_TOPIC);
-        this.isRestoreFromDB = taskProfile.getBoolean(RESTORE_FROM_DB, false);
-        instanceManager = new InstanceManager(taskProfile.getTaskId(), 1,
-                basicDb, taskManager.getTaskDb());
-        try {
-            instanceManager.start();
-        } catch (Exception e) {
-            LOGGER.error("start instance manager error: ", e);
-        }
     }
 
     @Override
-    public void destroy() {
-        doChangeState(State.SUCCEEDED);
-        if (instanceManager != null) {
-            instanceManager.stop();
-        }
+    protected void releaseTask() {
     }
 
     @Override
-    public TaskProfile getProfile() {
-        return taskProfile;
-    }
-
-    @Override
-    public String getTaskId() {
-        if (taskProfile == null) {
-            return "";
+    protected List<InstanceProfile> getNewInstanceList() {
+        List<InstanceProfile> list = new ArrayList<>();
+        if (isAdded) {
+            return list;
         }
-        return taskProfile.getTaskId();
+        String dataTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_KAFKA_INSTANCE, topic,
+                CycleUnitType.HOUR, dataTime, AgentUtils.getCurrentTime());
+        LOGGER.info("taskProfile.createInstanceProfile: {}", instanceProfile.toJsonStr());
+        list.add(instanceProfile);
+        this.isAdded = true;
+        return list;
     }
 
     @Override
@@ -108,61 +70,6 @@ public class KafkaTask extends Task {
             LOGGER.error("task profile needs all required key");
             return false;
         }
-
         return true;
-    }
-
-    @Override
-    public void addCallbacks() {
-
-    }
-
-    @Override
-    public void run() {
-        Thread.currentThread().setName("kafka-task-core-" + getTaskId());
-        running = true;
-        try {
-            doRun();
-        } catch (Throwable e) {
-            LOGGER.error("do run error: ", e);
-        }
-        running = false;
-    }
-
-    private void doRun() {
-        while (!isFinished()) {
-            if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_TIME) {
-                LOGGER.info("kafka task running! taskId {}", getTaskId());
-                lastPrintTime = AgentUtils.getCurrentTime();
-            }
-            AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
-            if (!initOK) {
-                continue;
-            }
-
-            // Add instance profile to instance manager
-            addInstanceProfile();
-
-            String inlongGroupId = taskProfile.getInlongGroupId();
-            String inlongStreamId = taskProfile.getInlongStreamId();
-            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_TASK_HEARTBEAT, inlongGroupId, inlongStreamId,
-                    AgentUtils.getCurrentTime(), 1, 1);
-        }
-    }
-
-    private void addInstanceProfile() {
-        if (isAdded) {
-            return;
-        }
-        String dataTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
-        InstanceProfile instanceProfile = taskProfile.createInstanceProfile(DEFAULT_KAFKA_INSTANCE, topic,
-                CycleUnitType.HOUR, dataTime, AgentUtils.getCurrentTime());
-        LOGGER.info("taskProfile.createInstanceProfile: {}", instanceProfile.toJsonStr());
-        InstanceAction action = new InstanceAction(ActionType.ADD, instanceProfile);
-        while (!isFinished() && !instanceManager.submitAction(action)) {
-            LOGGER.error("instance manager action queue is full: taskId {}", instanceManager.getTaskId());
-            AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
-        }
-        this.isAdded = true;
     }
 }
