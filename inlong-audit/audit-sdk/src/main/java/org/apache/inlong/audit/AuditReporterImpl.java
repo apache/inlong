@@ -208,25 +208,32 @@ public class AuditReporterImpl implements Serializable {
     /**
      * Add audit data
      */
-    public void add(int auditID, String inlongGroupID, String inlongStreamID, Long logTime, long count, long size) {
+    public void add(int auditID, String inlongGroupID, String inlongStreamID, long logTime, long count, long size) {
         add(auditID, DEFAULT_AUDIT_TAG, inlongGroupID, inlongStreamID, logTime, count, size, DEFAULT_AUDIT_VERSION);
     }
 
-    public void add(int auditID, String auditTag, String inlongGroupID, String inlongStreamID, Long logTime,
+    public void add(long isolateKey, int auditID, String auditTag, String inlongGroupID, String inlongStreamID,
+            long logTime, long count, long size, long auditVersion) {
+        long delayTime = System.currentTimeMillis() - logTime;
+        add(isolateKey, auditID, auditTag, inlongGroupID, inlongStreamID, logTime,
+                count, size, delayTime, auditVersion);
+    }
+
+    public void add(int auditID, String auditTag, String inlongGroupID, String inlongStreamID, long logTime,
             long count, long size, long auditVersion) {
         long delayTime = System.currentTimeMillis() - logTime;
-        add(auditID, auditTag, inlongGroupID, inlongStreamID, logTime, count, size,
+        add(DEFAULT_ISOLATE_KEY, auditID, auditTag, inlongGroupID, inlongStreamID, logTime, count, size,
                 delayTime * count, auditVersion);
     }
 
-    public void add(int auditID, String inlongGroupID, String inlongStreamID, Long logTime, long count, long size,
+    public void add(int auditID, String inlongGroupID, String inlongStreamID, long logTime, long count, long size,
             long delayTime) {
-        add(auditID, DEFAULT_AUDIT_TAG, inlongGroupID, inlongStreamID, logTime, count, size,
+        add(DEFAULT_ISOLATE_KEY, auditID, DEFAULT_AUDIT_TAG, inlongGroupID, inlongStreamID, logTime, count, size,
                 delayTime, DEFAULT_AUDIT_VERSION);
     }
 
-    public void add(int auditID, String auditTag, String inlongGroupID, String inlongStreamID, Long logTime,
-            long count, long size, long delayTime, long auditVersion) {
+    public void add(long isolateKey, int auditID, String auditTag, String inlongGroupID, String inlongStreamID,
+            long logTime, long count, long size, long delayTime, long auditVersion) {
         StringJoiner keyJoiner = new StringJoiner(FIELD_SEPARATORS);
         keyJoiner.add(String.valueOf(logTime / PERIOD));
         keyJoiner.add(inlongGroupID);
@@ -234,7 +241,7 @@ public class AuditReporterImpl implements Serializable {
         keyJoiner.add(String.valueOf(auditID));
         keyJoiner.add(auditTag);
         keyJoiner.add(String.valueOf(auditVersion));
-        addByKey(DEFAULT_ISOLATE_KEY, keyJoiner.toString(), count, size, delayTime);
+        addByKey(isolateKey, keyJoiner.toString(), count, size, delayTime);
     }
 
     /**
