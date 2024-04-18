@@ -73,7 +73,6 @@ public class RealTimeQuery {
     private RealTimeQuery() {
         List<JdbcConfig> jdbcConfigList = ConfigService.getInstance().getAllAuditSource();
         for (JdbcConfig jdbcConfig : jdbcConfigList) {
-            assert false;
             dataSourceList.add(createDataSource(jdbcConfig));
         }
 

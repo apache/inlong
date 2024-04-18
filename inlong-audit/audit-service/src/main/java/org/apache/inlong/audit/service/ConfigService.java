@@ -144,14 +144,14 @@ public class ConfigService {
             }
 
             try (ResultSet resultSet = pstat.executeQuery()) {
-                CopyOnWriteArrayList<String> auditIdList = new CopyOnWriteArrayList<>();
+                CopyOnWriteArrayList<String> auditIdsTemp = new CopyOnWriteArrayList<>();
                 while (resultSet.next()) {
                     String auditId = resultSet.getString(1);
                     LOGGER.info("Update audit id {}", auditId);
-                    auditIdList.add(auditId);
+                    auditIdsTemp.add(auditId);
                 }
-                if (!auditIdList.isEmpty()) {
-                    auditIds = auditIdList;
+                if (!auditIdsTemp.isEmpty()) {
+                    auditIds = auditIdsTemp;
                 }
             } catch (SQLException sqlException) {
                 LOGGER.error("Query has SQL exception! ", sqlException);
@@ -172,19 +172,19 @@ public class ConfigService {
                 createDataSource();
             }
             try (ResultSet resultSet = pstat.executeQuery()) {
-                ConcurrentHashMap<String, List<JdbcConfig>> auditSource = new ConcurrentHashMap<>();
+                ConcurrentHashMap<String, List<JdbcConfig>> auditSourcesTemp = new ConcurrentHashMap<>();
                 while (resultSet.next()) {
                     JdbcConfig data = new JdbcConfig(resultSet.getString(1),
                             resultSet.getString(2),
                             resultSet.getString(3),
                             resultSet.getString(4));
                     String serviceId = resultSet.getString(5);
-                    List<JdbcConfig> config = auditSource.computeIfAbsent(serviceId, k -> new LinkedList<>());
+                    List<JdbcConfig> config = auditSourcesTemp.computeIfAbsent(serviceId, k -> new LinkedList<>());
                     config.add(data);
                     LOGGER.info("Update audit source service id = {}, jdbc config = {}", serviceId, data);
                 }
-                if (!auditSource.isEmpty()) {
-                    auditSources = auditSource;
+                if (!auditSourcesTemp.isEmpty()) {
+                    auditSources = auditSourcesTemp;
                 }
             } catch (SQLException sqlException) {
                 LOGGER.error("Query has SQL exception! ", sqlException);
