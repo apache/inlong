@@ -157,7 +157,7 @@ public class MongoDBSource extends AbstractSource {
         List<SourceData> dataList = new ArrayList<>();
         try {
             int size = 0;
-            while (size <= BATCH_READ_LINE_TOTAL_LEN) {
+            while (size < BATCH_READ_LINE_TOTAL_LEN) {
                 SourceData sourceData = debeziumQueue.poll(1, TimeUnit.SECONDS);
                 if (sourceData != null) {
                     size += sourceData.getData().length;
