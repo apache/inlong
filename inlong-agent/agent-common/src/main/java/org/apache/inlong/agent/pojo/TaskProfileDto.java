@@ -49,6 +49,7 @@ public class TaskProfileDto {
     public static final String DEFAULT_FILE_TASK = "org.apache.inlong.agent.plugin.task.file.LogFileTask";
     public static final String DEFAULT_KAFKA_TASK = "org.apache.inlong.agent.plugin.task.KafkaTask";
     public static final String DEFAULT_PULSAR_TASK = "org.apache.inlong.agent.plugin.task.PulsarTask";
+    public static final String DEFAULT_MONGODB_TASK = "org.apache.inlong.agent.plugin.task.MongoDBTask";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
     public static final String DEFAULT_DATA_PROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
@@ -283,25 +284,9 @@ public class TaskProfileDto {
         mongoTask.setHosts(config.getHosts());
         mongoTask.setUser(config.getUsername());
         mongoTask.setPassword(config.getPassword());
-        mongoTask.setDatabaseIncludeList(config.getDatabaseIncludeList());
-        mongoTask.setDatabaseExcludeList(config.getDatabaseExcludeList());
-        mongoTask.setCollectionIncludeList(config.getCollectionIncludeList());
-        mongoTask.setCollectionExcludeList(config.getCollectionExcludeList());
-        mongoTask.setFieldExcludeList(config.getFieldExcludeList());
-        mongoTask.setConnectTimeoutInMs(config.getConnectTimeoutInMs());
-        mongoTask.setQueueSize(config.getQueueSize());
-        mongoTask.setCursorMaxAwaitTimeInMs(config.getCursorMaxAwaitTimeInMs());
-        mongoTask.setSocketTimeoutInMs(config.getSocketTimeoutInMs());
-        mongoTask.setSelectionTimeoutInMs(config.getSelectionTimeoutInMs());
-        mongoTask.setFieldRenames(config.getFieldRenames());
-        mongoTask.setMembersAutoDiscover(config.getMembersAutoDiscover());
-        mongoTask.setConnectMaxAttempts(config.getConnectMaxAttempts());
-        mongoTask.setConnectBackoffMaxDelayInMs(config.getConnectBackoffMaxDelayInMs());
-        mongoTask.setConnectBackoffInitialDelayInMs(config.getConnectBackoffInitialDelayInMs());
-        mongoTask.setInitialSyncMaxThreads(config.getInitialSyncMaxThreads());
-        mongoTask.setSslInvalidHostnameAllowed(config.getSslInvalidHostnameAllowed());
-        mongoTask.setSslEnabled(config.getSslEnabled());
-        mongoTask.setPollIntervalInMs(config.getPollIntervalInMs());
+        mongoTask.setDatabaseIncludeList(config.getDatabase());
+        mongoTask.setCollectionIncludeList(config.getCollection());
+        mongoTask.setSnapshotMode(config.getSnapshotMode());
 
         MongoTask.Offset offset = new MongoTask.Offset();
         offset.setFilename(config.getOffsetFilename());
@@ -511,6 +496,7 @@ public class TaskProfileDto {
                 profileDto.setTask(task);
                 break;
             case MONGODB:
+                task.setTaskClass(DEFAULT_MONGODB_TASK);
                 MongoTask mongoTask = getMongoTask(dataConfig);
                 task.setMongoTask(mongoTask);
                 task.setSource(MONGO_SOURCE);
