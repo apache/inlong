@@ -156,11 +156,17 @@ public class MongoDBSource extends AbstractSource {
     protected List<SourceData> readFromSource() {
         List<SourceData> dataList = new ArrayList<>();
         try {
-            SourceData sourceData = debeziumQueue.poll(1, TimeUnit.SECONDS);
-            if (sourceData != null) {
-                LOGGER.info("read 1 message from debezium queue");
-                dataList.add(sourceData);
+            int size = 0;
+            while (size <= BATCH_READ_LINE_TOTAL_LEN) {
+                SourceData sourceData = debeziumQueue.poll(1, TimeUnit.SECONDS);
+                if (sourceData != null) {
+                    size += sourceData.getData().length;
+                    dataList.add(sourceData);
+                } else {
+                    break;
+                }
             }
+            LOGGER.info("read {} messages from debezium queue", dataList.size());
         } catch (InterruptedException e) {
             LOGGER.error("poll {} data from debezium queue interrupted.", instanceId);
         }
