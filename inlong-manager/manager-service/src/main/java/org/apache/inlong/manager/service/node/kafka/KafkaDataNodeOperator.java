@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.node.kafka;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -30,11 +32,7 @@ import org.apache.inlong.manager.pojo.node.kafka.KafkaDataNodeDTO;
 import org.apache.inlong.manager.pojo.node.kafka.KafkaDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.kafka.KafkaDataNodeRequest;
 import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
-import org.apache.inlong.manager.service.node.pulsar.PulsarDataNodeOperator;
 import org.apache.inlong.manager.service.resource.queue.kafka.KafkaUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +45,7 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class KafkaDataNodeOperator extends AbstractDataNodeOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PulsarDataNodeOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaDataNodeOperator.class);
 
     @Autowired
     private ObjectMapper objectMapper;
