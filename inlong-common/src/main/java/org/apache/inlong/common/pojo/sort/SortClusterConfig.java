@@ -17,7 +17,7 @@
 
 package org.apache.inlong.common.pojo.sort;
 
-import org.apache.inlong.common.pojo.sort.dataflow.DataflowConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
 import org.apache.inlong.common.pojo.sort.mq.MqClusterConfig;
 
 import lombok.Data;
@@ -30,5 +30,5 @@ public class SortClusterConfig implements Serializable {
 
     private String clusterTag;
     private List<MqClusterConfig> mqClusterConfigs;
-    private List<DataflowConfig> dataflowConfigs;
+    private List<DataFlowConfig> dataFlowConfigs;
 }

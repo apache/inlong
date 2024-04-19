@@ -25,7 +25,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 @Data
-public class DataflowConfig implements Serializable {
+public class DataFlowConfig implements Serializable {
 
     private String dataflowId;
     private Integer version;
