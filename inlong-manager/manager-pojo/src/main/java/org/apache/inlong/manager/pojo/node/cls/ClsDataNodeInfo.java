@@ -39,7 +39,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = DataNodeType.ELASTICSEARCH)
+@JsonTypeDefine(value = DataNodeType.CLS)
 @ApiModel("Cloud log service data node info")
 public class ClsDataNodeInfo extends DataNodeInfo {
 

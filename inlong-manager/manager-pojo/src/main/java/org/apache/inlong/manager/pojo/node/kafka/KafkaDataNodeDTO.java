@@ -51,6 +51,9 @@ public class KafkaDataNodeDTO {
     @ApiModelProperty(value = "kafka produce confirmation mechanism")
     private String ack;
 
+    @ApiModelProperty("audit set name")
+    private String auditSetName;
+
     /**
      * Get the dto instance from the request
      */

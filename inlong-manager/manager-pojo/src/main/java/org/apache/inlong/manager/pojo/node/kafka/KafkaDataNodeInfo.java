@@ -47,6 +47,9 @@ public class KafkaDataNodeInfo extends DataNodeInfo {
     @ApiModelProperty(value = "kafka produce confirmation mechanism")
     private String ack;
 
+    @ApiModelProperty("audit set name")
+    private String auditSetName;
+
     public KafkaDataNodeInfo() {
         this.setType(DataNodeType.KAFKA);
     }
