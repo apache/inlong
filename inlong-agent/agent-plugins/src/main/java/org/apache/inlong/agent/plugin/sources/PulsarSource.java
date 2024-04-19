@@ -63,10 +63,9 @@ public class PulsarSource extends AbstractSource {
     }
 
     @Override
-    public void init(InstanceProfile profile) {
+    protected void initSource(InstanceProfile profile) {
         try {
             LOGGER.info("PulsarSource init: {}", profile.toJsonStr());
-            super.init(profile);
             topic = profile.getInstanceId();
             serviceUrl = profile.get(TASK_PULSAR_SERVICE_URL);
             subscription = profile.get(TASK_PULSAR_SUBSCRIPTION, PULSAR_SUBSCRIPTION_PREFIX + inlongStreamId);
