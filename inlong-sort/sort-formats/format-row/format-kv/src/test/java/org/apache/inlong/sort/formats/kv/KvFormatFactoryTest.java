@@ -43,7 +43,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.apache.inlong.sort.formats.util.FormatUtils.marshall;
+import static org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatUtils.marshall;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 

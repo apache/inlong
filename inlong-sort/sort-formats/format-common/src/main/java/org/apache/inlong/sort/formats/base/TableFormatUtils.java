@@ -35,6 +35,7 @@ import org.apache.inlong.common.pojo.sort.dataflow.field.format.DoubleTypeInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.FloatFormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.FloatTypeInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatUtils;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.IntFormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.IntTypeInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.LocalZonedTimestampFormatInfo;
@@ -57,7 +58,6 @@ import org.apache.inlong.common.pojo.sort.dataflow.field.format.TimestampTypeInf
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.TypeInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.VarBinaryFormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.VarCharFormatInfo;
-import org.apache.inlong.sort.formats.util.FormatUtils;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;

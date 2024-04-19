@@ -19,13 +19,13 @@ package org.apache.inlong.sort.formats.kv;
 
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.BooleanFormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatUtils;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.IntFormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.StringFormatInfo;
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.base.TableFormatOptions;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
-import org.apache.inlong.sort.formats.util.FormatUtils;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;

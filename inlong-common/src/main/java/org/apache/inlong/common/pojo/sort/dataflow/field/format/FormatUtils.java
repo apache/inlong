@@ -15,14 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.util;
+package org.apache.inlong.common.pojo.sort.dataflow.field.format;
 
-import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
-
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.DeserializationFeature;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import javax.annotation.Nonnull;
 

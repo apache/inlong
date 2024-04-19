@@ -19,13 +19,13 @@ package org.apache.inlong.sort.formats.inlongmsgtlogcsv;
 
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.DateFormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatUtils;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.IntFormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.StringFormatInfo;
 import org.apache.inlong.sort.formats.base.TableFormatDeserializer;
 import org.apache.inlong.sort.formats.base.TableFormatForRowUtils;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
-import org.apache.inlong.sort.formats.util.FormatUtils;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.api.TableSchema;

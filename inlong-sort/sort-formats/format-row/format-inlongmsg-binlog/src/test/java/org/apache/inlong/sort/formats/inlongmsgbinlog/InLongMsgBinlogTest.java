@@ -34,8 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatUtils.marshall;
 import static org.apache.inlong.sort.formats.inlongmsgbinlog.InLongMsgBinlogUtils.DEFAULT_METADATA_FIELD_NAME;
-import static org.apache.inlong.sort.formats.util.FormatUtils.marshall;
 
 public class InLongMsgBinlogTest extends DescriptorTestBase {
 

@@ -18,7 +18,7 @@
 package org.apache.inlong.sort.formats.common;
 
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
-import org.apache.inlong.sort.formats.util.FormatUtils;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatUtils;
 
 import org.junit.Test;
 
