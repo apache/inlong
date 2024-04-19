@@ -42,7 +42,7 @@ import lombok.experimental.SuperBuilder;
 public class KafkaClusterInfo extends ClusterInfo {
 
     @JsonProperty("bootstrap.servers")
-    @ApiModelProperty(value = "Kafka bootstrap servers' URL, is the 'url' field of the cluster")
+    @ApiModelProperty(value = "Kafka bootstrap servers' URL")
     private String bootstrapServers;
 
     public KafkaClusterInfo() {
