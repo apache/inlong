@@ -15,43 +15,41 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.cluster.kafka;
+package org.apache.inlong.manager.pojo.node.kafka;
 
-import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 
 /**
- * Inlong cluster info for Kafka
+ * Kafka data node request
  */
 @Data
-@SuperBuilder
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.KAFKA)
-@ApiModel("Inlong cluster info for Kafka")
-public class KafkaClusterInfo extends ClusterInfo {
+@JsonTypeDefine(value = DataNodeType.KAFKA)
+@ApiModel("Kafka data node request")
+public class KafkaDataNodeRequest extends DataNodeRequest {
 
-    @JsonProperty("bootstrap.servers")
-    @ApiModelProperty(value = "Kafka bootstrap servers' URL")
+    @ApiModelProperty("kafka bootstrapServers")
     private String bootstrapServers;
 
-    public KafkaClusterInfo() {
-        this.setType(ClusterType.KAFKA);
-    }
+    @ApiModelProperty("kafka client id")
+    private String clientId;
 
-    @Override
-    public KafkaClusterRequest genRequest() {
-        return CommonBeanUtils.copyProperties(this, KafkaClusterRequest::new);
-    }
+    @ApiModelProperty(value = "kafka produce confirmation mechanism")
+    private String ack;
 
+    @ApiModelProperty("audit set name")
+    private String auditSetName;
+
+    public KafkaDataNodeRequest() {
+        this.setType(DataNodeType.KAFKA);
+    }
 }

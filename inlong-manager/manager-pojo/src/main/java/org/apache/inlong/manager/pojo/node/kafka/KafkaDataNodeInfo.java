@@ -15,43 +15,47 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.cluster.kafka;
+package org.apache.inlong.manager.pojo.node.kafka;
 
-import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 
 /**
- * Inlong cluster info for Kafka
+ * Kafka data node info
  */
 @Data
-@SuperBuilder
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.KAFKA)
-@ApiModel("Inlong cluster info for Kafka")
-public class KafkaClusterInfo extends ClusterInfo {
+@JsonTypeDefine(value = DataNodeType.KAFKA)
+@ApiModel("Kafka data node info")
+public class KafkaDataNodeInfo extends DataNodeInfo {
 
-    @JsonProperty("bootstrap.servers")
-    @ApiModelProperty(value = "Kafka bootstrap servers' URL")
+    @ApiModelProperty("kafka bootstrapServers")
     private String bootstrapServers;
 
-    public KafkaClusterInfo() {
-        this.setType(ClusterType.KAFKA);
+    @ApiModelProperty("kafka client id")
+    private String clientId;
+
+    @ApiModelProperty(value = "kafka produce confirmation mechanism")
+    private String ack;
+
+    @ApiModelProperty("audit set name")
+    private String auditSetName;
+
+    public KafkaDataNodeInfo() {
+        this.setType(DataNodeType.KAFKA);
     }
 
     @Override
-    public KafkaClusterRequest genRequest() {
-        return CommonBeanUtils.copyProperties(this, KafkaClusterRequest::new);
+    public KafkaDataNodeRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, KafkaDataNodeRequest::new);
     }
-
 }
