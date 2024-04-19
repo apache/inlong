@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.group.tubemq;
 
-import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -35,7 +35,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong group info for TubeMQ")
-@JsonTypeDefine(value = MQType.TUBEMQ)
+@JsonTypeDefine(value = Constants.MQType.TUBEMQ)
 public class InlongTubeMQInfo extends InlongGroupInfo {
 
     @ApiModelProperty("TubeMQ manager URL")
@@ -48,7 +48,7 @@ public class InlongTubeMQInfo extends InlongGroupInfo {
     private int clusterId = 1;
 
     public InlongTubeMQInfo() {
-        this.setMqType(MQType.TUBEMQ);
+        this.setMqType(Constants.MQType.TUBEMQ);
     }
 
     @Override

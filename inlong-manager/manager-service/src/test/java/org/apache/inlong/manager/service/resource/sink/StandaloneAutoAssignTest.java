@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.sink;
 
-import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
@@ -48,7 +48,7 @@ public class StandaloneAutoAssignTest extends ServiceBaseTest {
 
         String group = "autoGroup";
         String stream = "autoStream";
-        InlongGroupInfo groupInfo = this.createInlongGroup(group, MQType.PULSAR);
+        InlongGroupInfo groupInfo = this.createInlongGroup(group, Constants.MQType.PULSAR);
         InlongStreamInfo streamInfo = this.createStreamInfo(groupInfo, stream);
         Integer id = saveClsSink(groupInfo.getInlongGroupId(), streamInfo.getInlongStreamId());
 

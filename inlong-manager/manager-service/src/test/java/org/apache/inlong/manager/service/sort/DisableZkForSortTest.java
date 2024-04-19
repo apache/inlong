@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.sort;
 
-import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
@@ -123,7 +123,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
 
     // @Test
     public void testCreateSortConfigInUpdateWorkflow() {
-        InlongGroupInfo groupInfo = createInlongGroup("test20", MQType.PULSAR);
+        InlongGroupInfo groupInfo = createInlongGroup("test20", Constants.MQType.PULSAR);
         groupInfo.setEnableZookeeper(InlongConstants.ENABLE_ZK);
         groupInfo.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
         groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), OPERATOR);

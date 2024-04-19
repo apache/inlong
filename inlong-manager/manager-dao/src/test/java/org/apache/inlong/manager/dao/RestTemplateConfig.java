@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.dao;
 
-import org.apache.inlong.common.constant.ProtocolType;
+import org.apache.inlong.common.constant.Constants;
 
 import lombok.Data;
 import org.apache.http.HttpResponse;
@@ -81,8 +81,8 @@ public class RestTemplateConfig {
     public PoolingHttpClientConnectionManager httpClientConnectionManager() {
         // Support HTTP, HTTPS
         Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
-                .register(ProtocolType.HTTP, PlainConnectionSocketFactory.getSocketFactory())
-                .register(ProtocolType.HTTPS, SSLConnectionSocketFactory.getSocketFactory())
+                .register(Constants.ProtocolType.HTTP, PlainConnectionSocketFactory.getSocketFactory())
+                .register(Constants.ProtocolType.HTTPS, SSLConnectionSocketFactory.getSocketFactory())
                 .build();
         PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager(
                 registry);

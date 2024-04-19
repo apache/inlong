@@ -17,7 +17,7 @@
 
 package org.apache.inlong.common.pojo.sort.dataflow.deserialization;
 
-import org.apache.inlong.common.constant.DeserializationType;
+import org.apache.inlong.common.constant.Constants;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -26,10 +26,10 @@ import java.io.Serializable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = InlongMsgDeserializationConfig.class, name = DeserializationType.INLONG_MSG),
-        @JsonSubTypes.Type(value = InlongMsgPbDeserialiationConfig.class, name = DeserializationType.INLONG_MSG_PB),
-        @JsonSubTypes.Type(value = CsvDeserializationConfig.class, name = DeserializationType.CSV),
-        @JsonSubTypes.Type(value = KvDeserializationConfig.class, name = DeserializationType.KV),
+        @JsonSubTypes.Type(value = InlongMsgDeserializationConfig.class, name = Constants.DeserializationType.INLONG_MSG),
+        @JsonSubTypes.Type(value = InlongMsgPbDeserialiationConfig.class, name = Constants.DeserializationType.INLONG_MSG_PB),
+        @JsonSubTypes.Type(value = CsvDeserializationConfig.class, name = Constants.DeserializationType.CSV),
+        @JsonSubTypes.Type(value = KvDeserializationConfig.class, name = Constants.DeserializationType.KV),
 })
 public interface DeserializationConfig extends Serializable {
 

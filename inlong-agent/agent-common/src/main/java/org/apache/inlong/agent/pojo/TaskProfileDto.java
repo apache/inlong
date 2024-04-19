@@ -31,7 +31,7 @@ import org.apache.inlong.agent.pojo.PostgreSQLTask.PostgreSQLTaskConfig;
 import org.apache.inlong.agent.pojo.PulsarTask.PulsarTaskConfig;
 import org.apache.inlong.agent.pojo.RedisTask.RedisTaskConfig;
 import org.apache.inlong.agent.pojo.SqlServerTask.SqlserverTaskConfig;
-import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 
@@ -453,9 +453,9 @@ public class TaskProfileDto {
             String mqType = dataConfig.getMqClusters().get(0).getMqType();
             task.setMqClusters(GSON.toJson(dataConfig.getMqClusters()));
             task.setTopicInfo(GSON.toJson(dataConfig.getTopicInfo()));
-            if (mqType.equals(MQType.PULSAR)) {
+            if (mqType.equals(Constants.MQType.PULSAR)) {
                 task.setSink(PULSAR_SINK);
-            } else if (mqType.equals(MQType.KAFKA)) {
+            } else if (mqType.equals(Constants.MQType.KAFKA)) {
                 task.setSink(KAFKA_SINK);
             } else {
                 throw new IllegalArgumentException("input dataConfig" + dataConfig + "is invalid please check");

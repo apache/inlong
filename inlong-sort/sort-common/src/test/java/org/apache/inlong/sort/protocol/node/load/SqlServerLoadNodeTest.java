@@ -17,9 +17,9 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.LongFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.StringFormatInfo;
 import org.apache.inlong.sort.SerializeBaseTest;
-import org.apache.inlong.sort.formats.common.LongFormatInfo;
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 

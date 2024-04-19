@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.group;
 
-import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -48,7 +48,7 @@ public class InlongGroupOperator4NoneMQ extends AbstractGroupOperator {
 
     @Override
     public String getMQType() {
-        return MQType.NONE;
+        return Constants.MQType.NONE;
     }
 
     @Override

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core.heartbeat;
 
-import org.apache.inlong.common.constant.ProtocolType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.manager.common.enums.NodeStatus;
@@ -66,7 +66,7 @@ public class HeartbeatManagerTest extends ServiceBaseTest {
         nodeRequest.setType(msg.getComponentType());
         nodeRequest.setIp(msg.getIp());
         nodeRequest.setPort(Integer.valueOf(msg.getPort()));
-        nodeRequest.setProtocolType(ProtocolType.HTTP);
+        nodeRequest.setProtocolType(Constants.ProtocolType.HTTP);
         nodeRequest.setNodeLoad(0xFFFF);
         InlongClusterNodeEntity clusterNode = clusterNodeMapper.selectByUniqueKey(nodeRequest);
         Assertions.assertNotNull(clusterNode);
@@ -78,7 +78,7 @@ public class HeartbeatManagerTest extends ServiceBaseTest {
         heartbeatMsg.setIp("127.0.0.1");
         heartbeatMsg.setPort("46802");
         heartbeatMsg.setClusterTag("default_cluster");
-        heartbeatMsg.setProtocolType(ProtocolType.HTTP);
+        heartbeatMsg.setProtocolType(Constants.ProtocolType.HTTP);
         heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getType());
         heartbeatMsg.setReportTime(System.currentTimeMillis());
         return heartbeatMsg;

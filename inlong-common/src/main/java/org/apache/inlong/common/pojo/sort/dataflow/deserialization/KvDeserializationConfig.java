@@ -24,6 +24,5 @@ public class KvDeserializationConfig implements DeserializationConfig {
 
     private char entrySplitter;
     private char kvSplitter;
-    private String streamId;
     private Character escapeChar;
 }

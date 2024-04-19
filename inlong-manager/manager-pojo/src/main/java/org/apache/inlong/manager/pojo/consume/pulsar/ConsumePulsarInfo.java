@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.consume.pulsar;
 
-import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
@@ -34,7 +34,7 @@ import lombok.ToString;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = MQType.PULSAR)
+@JsonTypeDefine(value = Constants.MQType.PULSAR)
 @ApiModel("Inlong consume info of Pulsar")
 public class ConsumePulsarInfo extends InlongConsumeInfo {
 

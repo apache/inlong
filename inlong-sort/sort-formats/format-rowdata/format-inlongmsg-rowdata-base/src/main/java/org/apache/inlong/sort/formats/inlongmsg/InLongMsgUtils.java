@@ -17,9 +17,9 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
-import org.apache.inlong.sort.formats.common.RowFormatInfo;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.GenericRowData;

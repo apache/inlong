@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
-import org.apache.inlong.common.constant.ProtocolType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
@@ -846,7 +846,7 @@ class ClientFactoryTest {
                 .parentId(1)
                 .ip("127.0.0.1")
                 .port(46801)
-                .protocolType(ProtocolType.HTTP)
+                .protocolType(Constants.ProtocolType.HTTP)
                 .build();
         List<ClusterNodeResponse> responses = new ArrayList<>();
         responses.add(response);
@@ -856,7 +856,7 @@ class ClientFactoryTest {
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(responses)))));
         List<ClusterNodeResponse> clusterNode = clusterClient.listNode(
-                "1", ClusterType.DATAPROXY, ProtocolType.HTTP);
+                "1", ClusterType.DATAPROXY, Constants.ProtocolType.HTTP);
         Assertions.assertEquals(1, clusterNode.size());
     }
 

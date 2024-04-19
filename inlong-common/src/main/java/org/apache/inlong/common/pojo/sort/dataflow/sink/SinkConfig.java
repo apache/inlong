@@ -17,20 +17,25 @@
 
 package org.apache.inlong.common.pojo.sort.dataflow.sink;
 
-import org.apache.inlong.common.constant.SinkType;
+import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ClsSinkConfig.class, name = SinkType.CLS),
-        @JsonSubTypes.Type(value = EsSinkConfig.class, name = SinkType.ELASTICSEARCH),
-        @JsonSubTypes.Type(value = PulsarSinkConfig.class, name = SinkType.PULSAR),
+        @JsonSubTypes.Type(value = ClsSinkConfig.class, name = Constants.SinkType.CLS),
+        @JsonSubTypes.Type(value = EsSinkConfig.class, name = Constants.SinkType.ELASTICSEARCH),
+        @JsonSubTypes.Type(value = PulsarSinkConfig.class, name = Constants.SinkType.PULSAR),
 })
 public abstract class SinkConfig implements Serializable {
+
+    private String encodingType;
+    private List<FieldConfig> fieldConfigs;
 }

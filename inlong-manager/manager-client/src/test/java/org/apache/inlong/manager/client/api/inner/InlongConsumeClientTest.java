@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
-import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.manager.client.api.inner.client.InlongConsumeClient;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -59,7 +59,7 @@ public class InlongConsumeClientTest extends ClientFactoryTest {
 
         InlongConsumeRequest request = new ConsumePulsarRequest();
         request.setTopic("test_topic");
-        request.setMqType(MQType.PULSAR);
+        request.setMqType(Constants.MQType.PULSAR);
         request.setConsumerGroup("test_consume_group");
         Integer consumeId = consumeClient.save(request);
         Assertions.assertEquals(1, consumeId);
@@ -68,7 +68,7 @@ public class InlongConsumeClientTest extends ClientFactoryTest {
     @Test
     void testConsumeGet() {
         InlongConsumeInfo response = new ConsumePulsarInfo();
-        response.setMqType(MQType.PULSAR);
+        response.setMqType(Constants.MQType.PULSAR);
         response.setId(1);
 
         stubFor(
@@ -103,7 +103,7 @@ public class InlongConsumeClientTest extends ClientFactoryTest {
         List<InlongConsumeBriefInfo> responses = Lists.newArrayList(
                 InlongConsumeBriefInfo.builder()
                         .id(1)
-                        .mqType(MQType.PULSAR)
+                        .mqType(Constants.MQType.PULSAR)
                         .inlongGroupId("test_group_id")
                         .consumerGroup("test_consume_group")
                         .build());
@@ -127,7 +127,7 @@ public class InlongConsumeClientTest extends ClientFactoryTest {
 
         InlongConsumeRequest request = new ConsumePulsarRequest();
         request.setId(1);
-        request.setMqType(MQType.PULSAR);
+        request.setMqType(Constants.MQType.PULSAR);
         Integer consumeId = consumeClient.update(request);
         Assertions.assertEquals(1, consumeId);
     }
@@ -141,7 +141,7 @@ public class InlongConsumeClientTest extends ClientFactoryTest {
 
         InlongConsumeRequest request = new ConsumePulsarRequest();
         request.setId(1);
-        request.setMqType(MQType.PULSAR);
+        request.setMqType(Constants.MQType.PULSAR);
         Boolean delete = consumeClient.delete(1);
         Assertions.assertTrue(delete);
     }

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sdk.dataproxy.example;
 
-import org.apache.inlong.common.constant.ProtocolType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
@@ -83,7 +83,7 @@ public class TcpClientExample {
                 dataProxyConfig.setConfStoreBasePath(configBasePath);
             }
             dataProxyConfig.setReadProxyIPFromLocal(isReadProxyIPFromLocal);
-            dataProxyConfig.setProtocolType(ProtocolType.TCP);
+            dataProxyConfig.setProtocolType(Constants.ProtocolType.TCP);
             messageSender = DefaultMessageSender.generateSenderByClusterId(dataProxyConfig);
             messageSender.setMsgtype(msgType);
         } catch (Exception e) {

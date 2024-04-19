@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.formats.kv;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.BasicFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.DefaultTableFormatDeserializer;
 import org.apache.inlong.sort.formats.base.DefaultTableFormatSerializer;
 import org.apache.inlong.sort.formats.base.ProjectedDeserializationSchemaFactory;
@@ -25,9 +28,6 @@ import org.apache.inlong.sort.formats.base.TableFormatDeserializer;
 import org.apache.inlong.sort.formats.base.TableFormatDeserializerFactory;
 import org.apache.inlong.sort.formats.base.TableFormatSerializer;
 import org.apache.inlong.sort.formats.base.TableFormatSerializerFactory;
-import org.apache.inlong.sort.formats.common.BasicFormatInfo;
-import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.RowFormatInfo;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;

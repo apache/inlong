@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.queue.tubemq;
 
-import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
@@ -66,7 +66,7 @@ public class TubeMQQueueResourceOperator implements QueueResourceOperator {
 
     @Override
     public boolean accept(String mqType) {
-        return MQType.TUBEMQ.equals(mqType);
+        return Constants.MQType.TUBEMQ.equals(mqType);
     }
 
     @Override

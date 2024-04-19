@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.consume.pulsar;
 
-import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
 
@@ -34,7 +34,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong consume request of Pulsar")
-@JsonTypeDefine(value = MQType.PULSAR)
+@JsonTypeDefine(value = Constants.MQType.PULSAR)
 public class ConsumePulsarRequest extends InlongConsumeRequest {
 
     @ApiModelProperty("Whether to configure the dead letter queue, 0: not configure, 1: configure")

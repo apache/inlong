@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sort.protocol;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.StringFormatInfo;
 import org.apache.inlong.sort.SerializeBaseTest;
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;

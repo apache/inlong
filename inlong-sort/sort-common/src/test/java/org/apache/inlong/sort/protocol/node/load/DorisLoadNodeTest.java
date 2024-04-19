@@ -17,11 +17,11 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.DecimalFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.DoubleFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.IntFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.StringFormatInfo;
 import org.apache.inlong.sort.SerializeBaseTest;
-import org.apache.inlong.sort.formats.common.DecimalFormatInfo;
-import org.apache.inlong.sort.formats.common.DoubleFormatInfo;
-import org.apache.inlong.sort.formats.common.IntFormatInfo;
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;

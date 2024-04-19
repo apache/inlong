@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.listener.consume.apply;
 
-import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ConsumeStatus;
@@ -85,11 +85,11 @@ public class ApproveConsumeProcessListener implements ProcessEventListener {
         }
 
         String mqType = entity.getMqType();
-        if (MQType.TUBEMQ.equals(mqType)) {
+        if (Constants.MQType.TUBEMQ.equals(mqType)) {
             this.createTubeConsumerGroup(entity, context.getOperator());
-        } else if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
+        } else if (Constants.MQType.PULSAR.equals(mqType) || Constants.MQType.TDMQ_PULSAR.equals(mqType)) {
             this.createPulsarSubscription(entity);
-        } else if (MQType.KAFKA.equals(mqType)) {
+        } else if (Constants.MQType.KAFKA.equals(mqType)) {
             // Kafka consumers do not need to register in advance
         } else {
             throw new WorkflowListenerException("Unsupported MQ type " + mqType);

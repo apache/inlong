@@ -17,7 +17,7 @@
 
 package org.apache.inlong.common.pojo.sort;
 
-import org.apache.inlong.common.pojo.sort.dataflow.node.NodeConfig;
+import org.apache.inlong.common.pojo.sort.node.NodeConfig;
 
 import lombok.Data;
 

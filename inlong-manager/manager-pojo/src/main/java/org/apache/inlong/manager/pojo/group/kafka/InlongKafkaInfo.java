@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.group.kafka;
 
-import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -33,7 +33,7 @@ import lombok.ToString;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = MQType.KAFKA)
+@JsonTypeDefine(value = Constants.MQType.KAFKA)
 @ApiModel("Inlong group info for Kafka")
 public class InlongKafkaInfo extends InlongGroupInfo {
 
@@ -43,7 +43,7 @@ public class InlongKafkaInfo extends InlongGroupInfo {
     private Short replicationFactor = 1;
 
     public InlongKafkaInfo() {
-        this.setMqType(MQType.KAFKA);
+        this.setMqType(Constants.MQType.KAFKA);
     }
 
     @Override

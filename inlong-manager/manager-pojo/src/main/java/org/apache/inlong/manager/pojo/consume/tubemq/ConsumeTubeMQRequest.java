@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.consume.tubemq;
 
-import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
 
@@ -32,7 +32,7 @@ import lombok.ToString;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = MQType.TUBEMQ)
+@JsonTypeDefine(value = Constants.MQType.TUBEMQ)
 @ApiModel("Inlong consume request of TubeMQ")
 public class ConsumeTubeMQRequest extends InlongConsumeRequest {
 

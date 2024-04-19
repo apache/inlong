@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.group;
 
-import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
@@ -66,7 +66,7 @@ public class InlongGroupServiceTest {
 
         InlongPulsarInfo pulsarInfo = new InlongPulsarInfo();
         pulsarInfo.setInlongGroupId(inlongGroupId);
-        pulsarInfo.setMqType(MQType.PULSAR);
+        pulsarInfo.setMqType(Constants.MQType.PULSAR);
         pulsarInfo.setCreator(operator);
         pulsarInfo.setInCharges(operator);
         pulsarInfo.setStatus(GroupStatus.CONFIG_SUCCESSFUL.getCode());

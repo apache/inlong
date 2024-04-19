@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.protocol;
 
-import org.apache.inlong.sort.formats.common.FormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 
 import com.google.common.base.Preconditions;

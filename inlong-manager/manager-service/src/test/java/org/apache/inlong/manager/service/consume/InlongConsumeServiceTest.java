@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.consume;
 
-import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
@@ -104,7 +104,7 @@ public class InlongConsumeServiceTest extends ServiceBaseTest {
         ConsumePulsarRequest request = new ConsumePulsarRequest();
         request.setInlongGroupId(groupId);
         request.setInlongStreamId(streamId);
-        request.setMqType(MQType.PULSAR);
+        request.setMqType(Constants.MQType.PULSAR);
         request.setTopic(streamId);
         request.setConsumerGroup(consumerGroup);
         request.setInCharges(GLOBAL_OPERATOR);
@@ -131,7 +131,7 @@ public class InlongConsumeServiceTest extends ServiceBaseTest {
     private Integer testUpdate(InlongConsumeInfo consumeInfo) {
         ConsumePulsarRequest request = new ConsumePulsarRequest();
         request.setId(consumeInfo.getId());
-        request.setMqType(MQType.PULSAR);
+        request.setMqType(Constants.MQType.PULSAR);
         request.setInlongGroupId(groupId);
         request.setIsDlq(1);
         request.setDeadLetterTopic(deadLetterTopic);

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.consume;
 
-import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -74,12 +74,12 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
 
     @Override
     public Boolean accept(String mqType) {
-        return getMQType().equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType);
+        return getMQType().equals(mqType) || Constants.MQType.TDMQ_PULSAR.equals(mqType);
     }
 
     @Override
     public String getMQType() {
-        return MQType.PULSAR;
+        return Constants.MQType.PULSAR;
     }
 
     @Override

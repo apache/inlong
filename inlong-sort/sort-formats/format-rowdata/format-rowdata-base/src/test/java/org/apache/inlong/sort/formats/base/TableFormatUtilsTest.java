@@ -17,16 +17,16 @@
 
 package org.apache.inlong.sort.formats.base;
 
-import org.apache.inlong.sort.formats.common.ArrayTypeInfo;
-import org.apache.inlong.sort.formats.common.DateFormatInfo;
-import org.apache.inlong.sort.formats.common.FloatFormatInfo;
-import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.IntFormatInfo;
-import org.apache.inlong.sort.formats.common.IntTypeInfo;
-import org.apache.inlong.sort.formats.common.LongTypeInfo;
-import org.apache.inlong.sort.formats.common.RowFormatInfo;
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
-import org.apache.inlong.sort.formats.common.StringTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.ArrayTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.DateFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FloatFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.IntFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.IntTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.LongTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.StringFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.StringTypeInfo;
 
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.catalog.Column;

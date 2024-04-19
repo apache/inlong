@@ -33,4 +33,65 @@ public class Constants {
     // Default audit version is -1
     public static final long DEFAULT_AUDIT_VERSION = -1;
 
+    public static class DataNodeType {
+
+        public static final String KAFKA = "KAFKA";
+        public static final String PULSAR = "PULSAR";
+        public static final String CLS = "CLS";
+        public static final String ELASTICSEARCH = "ELASTICSEARCH";
+    }
+
+    public static class DeserializationType {
+
+        public static final String INLONG_MSG = "INLONG_MSG";
+        public static final String INLONG_MSG_PB = "INLONG_MSG_PB";
+        public static final String CSV = "CSV";
+        public static final String KV = "KV";
+    }
+
+    public static class CompressionType {
+
+        public static final String GZIP = "GZIP";
+        public static final String SNAPPY = "SNAPPY";
+        public static final String LZO = "LZO";
+        public static final String NONE = "NONE";
+    }
+
+    /**
+     * Constants of MQ type.
+     */
+    public static class MQType {
+
+        public static final String TUBEMQ = "TUBEMQ";
+        public static final String PULSAR = "PULSAR";
+        public static final String KAFKA = "KAFKA";
+        public static final String TDMQ_PULSAR = "TDMQ_PULSAR";
+
+        /**
+         * Not use any MQ
+         */
+        public static final String NONE = "NONE";
+
+    }
+
+    /**
+     * Constants of protocol type.
+     */
+    public static class ProtocolType {
+
+        public static final String TCP = "TCP";
+        public static final String UDP = "UDP";
+
+        public static final String HTTP = "HTTP";
+        public static final String HTTPS = "HTTPS";
+
+    }
+
+    public static class SinkType {
+
+        public static final String KAFKA = "KAFKA";
+        public static final String PULSAR = "PULSAR";
+        public static final String CLS = "CLS";
+        public static final String ELASTICSEARCH = "ELASTICSEARCH";
+    }
 }

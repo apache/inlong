@@ -17,10 +17,10 @@
 
 package org.apache.inlong.sort.formats.inlongmsgcsv;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters;
 import org.apache.inlong.sort.formats.base.FieldToRowDataConverters.FieldToRowDataConverter;
-import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 

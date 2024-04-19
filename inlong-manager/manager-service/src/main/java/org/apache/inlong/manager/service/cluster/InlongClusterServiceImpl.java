@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.cluster;
 
 import org.apache.inlong.common.constant.Constants;
-import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.heartbeat.ReportResourceType;
 import org.apache.inlong.common.pojo.audit.AuditConfig;
 import org.apache.inlong.common.pojo.audit.MQInfo;
@@ -1351,7 +1350,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             String realClusterTag = groupInfo.getInlongClusterTag();
 
             String mqType = groupInfo.getMqType();
-            if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
+            if (Constants.MQType.PULSAR.equals(mqType) || Constants.MQType.TDMQ_PULSAR.equals(mqType)) {
                 InlongPulsarDTO pulsarDTO = InlongPulsarDTO.getFromJson(groupInfo.getExtParams());
                 // First get the tenant from the InlongGroup, and then get it from the PulsarCluster.
                 String tenant = pulsarDTO.getPulsarTenant();
@@ -1379,12 +1378,12 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     topicConfig.setTopic(topic);
                     topicList.add(topicConfig);
                 }
-            } else if (MQType.TUBEMQ.equals(mqType)) {
+            } else if (Constants.MQType.TUBEMQ.equals(mqType)) {
                 DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
                 topicConfig.setInlongGroupId(groupId);
                 topicConfig.setTopic(mqResource);
                 topicList.add(topicConfig);
-            } else if (MQType.KAFKA.equals(mqType)) {
+            } else if (Constants.MQType.KAFKA.equals(mqType)) {
                 List<InlongStreamBriefInfo> streamList = streamMapper.selectBriefList(groupId);
                 for (InlongStreamBriefInfo streamInfo : streamList) {
                     String streamId = streamInfo.getInlongStreamId();

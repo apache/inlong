@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.group.none;
 
-import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 
@@ -33,13 +33,13 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong group request without MQ")
-@JsonTypeDefine(value = MQType.NONE)
+@JsonTypeDefine(value = Constants.MQType.NONE)
 public class InlongNoneMqTopicInfo extends InlongGroupTopicInfo {
 
     // no field
 
     public InlongNoneMqTopicInfo() {
-        this.setMqType(MQType.NONE);
+        this.setMqType(Constants.MQType.NONE);
     }
 
 }

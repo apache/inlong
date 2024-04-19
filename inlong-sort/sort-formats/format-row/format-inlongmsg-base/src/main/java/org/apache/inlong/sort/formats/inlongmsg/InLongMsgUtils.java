@@ -18,10 +18,10 @@
 package org.apache.inlong.sort.formats.inlongmsg;
 
 import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.base.TableFormatForRowUtils;
-import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.util.StringUtils;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
