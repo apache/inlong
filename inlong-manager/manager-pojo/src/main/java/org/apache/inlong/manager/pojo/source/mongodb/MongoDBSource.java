@@ -58,7 +58,7 @@ public class MongoDBSource extends StreamSource {
     @ApiModelProperty("MongoDB collection name")
     private String collection;
 
-    @ApiModelProperty("Debezium snapshot mode")
+    @ApiModelProperty("Debezium snapshot mode. Available options are initial and never, default is initial")
     private String snapshotMode;
 
     @ApiModelProperty("Primary key must be shared by all tables")
