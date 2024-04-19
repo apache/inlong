@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.node.kafka;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -33,6 +31,9 @@ import org.apache.inlong.manager.pojo.node.kafka.KafkaDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.kafka.KafkaDataNodeRequest;
 import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
 import org.apache.inlong.manager.service.resource.queue.kafka.KafkaUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,7 +87,7 @@ public class KafkaDataNodeOperator extends AbstractDataNodeOperator {
             KafkaDataNodeDTO dto = KafkaDataNodeDTO.getFromRequest(nodeRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+            throw new BusinessException(ErrorCodeEnum.DATA_NODE_INFO_INCORRECT,
                     String.format("Failed to build extParams for kafka node: %s", e.getMessage()));
         }
     }
@@ -98,7 +99,7 @@ public class KafkaDataNodeOperator extends AbstractDataNodeOperator {
         Preconditions.expectNotBlank(bootstrapServers, ErrorCodeEnum.INVALID_PARAMETER,
                 "connection bootstrapServers  cannot be empty");
         if (getKafkaConnection(bootstrapServers)) {
-            LOGGER.info("kafka  connection success for bootstrapServers={}",
+            LOGGER.info("kafka connection success for bootstrapServers={}",
                     bootstrapServers);
         }
         return true;

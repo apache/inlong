@@ -68,7 +68,7 @@ public class KafkaDataNodeDTO {
         try {
             return JsonUtils.parseObject(extParams, KafkaDataNodeDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT,
+            throw new BusinessException(ErrorCodeEnum.DATA_NODE_INFO_INCORRECT,
                     String.format("Failed to parse extParams for kafka node: %s", e.getMessage()));
         }
     }
