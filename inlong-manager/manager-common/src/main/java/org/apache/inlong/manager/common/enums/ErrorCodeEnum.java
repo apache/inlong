@@ -73,7 +73,7 @@ public enum ErrorCodeEnum {
     DATA_NODE_NOT_FOUND(1150, "Data node information does not exist"),
     DATA_NODE_TYPE_NOT_SUPPORTED(1151, "Data node type '%s' not supported"),
     DATA_NODE_ID_CHANGED(1152, "Data node information's id not equals"),
-    DATA_NODE_INFO_INCORRECT(1153, "data node info was incorrect"),
+    DATA_NODE_INFO_INCORRECT(1153, "Data node info was incorrect"),
 
     STREAM_NOT_FOUND(1201, "Inlong stream does not exist/no operation permission"),
     STREAM_ID_DUPLICATE(1202, "The current inlong group has a inlong stream with the same ID"),
