@@ -39,7 +39,7 @@ import lombok.ToString;
 public class KafkaClusterRequest extends ClusterRequest {
 
     @JsonProperty("bootstrap.servers")
-    @ApiModelProperty(value = "Kafka bootstrap servers' URL, is the 'url' field of the cluster")
+    @ApiModelProperty(value = "Kafka bootstrap servers' URL")
     private String bootstrapServers;
 
     public KafkaClusterRequest() {
