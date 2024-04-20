@@ -56,7 +56,7 @@ public class HeartbeatControllerTest extends WebBaseTest {
     private HeartbeatController heartbeatController;
 
     private static final String TEST_PWD = "test_#$%%Y@UI$123";
-    private static final String INSTANCE_IP = "192.168.1.3";
+    private static final String INSTANCE_IP = "127.0.0.1";
     private static final String COMPONENT_TYPE = "DATAPROXY";
     private static final String INLONG_GROUP_ID_1 = "test_group_heartbeat_1";
     private static final String INLONG_GROUP_ID_2 = "test_group_heartbeat_2";
@@ -66,7 +66,7 @@ public class HeartbeatControllerTest extends WebBaseTest {
     private static final String CLUSTER_NAME = "test_cluster";
     private static final String CLUSTER_TAG = "test_cluster";
     private static final String EXT_TAG = "test_ext_tag";
-    private static final String PORT = "12345";
+    private static final String PORT = "46801";
     private static final Long REPORT_TIME =
             LocalDate.now().atStartOfDay().toInstant(ZoneOffset.of("+8")).toEpochMilli();
     @BeforeAll
