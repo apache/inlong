@@ -21,7 +21,7 @@ import org.apache.inlong.audit.base.HighPriorityThreadFactory;
 import org.apache.inlong.audit.consts.ConfigConstants;
 import org.apache.inlong.audit.file.ConfigManager;
 import org.apache.inlong.audit.utils.FailoverChannelProcessorHolder;
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.pojo.audit.MQInfo;
 import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
@@ -391,7 +391,7 @@ public class TubeSink extends AbstractSink implements Configurable {
         ConfigManager configManager = ConfigManager.getInstance();
         List<MQInfo> mqInfoList = configManager.getMqInfoList();
         mqInfoList.forEach(mqClusterInfo -> {
-            if (Constants.MQType.TUBEMQ.equals(mqClusterInfo.getMqType())) {
+            if (MQType.TUBEMQ.equals(mqClusterInfo.getMqType())) {
                 masterHostAndPortList = mqClusterInfo.getUrl();
             }
         });

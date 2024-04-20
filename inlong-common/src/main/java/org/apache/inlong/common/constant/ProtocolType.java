@@ -15,27 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.consume.tubemq;
-
-import org.apache.inlong.common.constant.MQType;
-import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
-
-import io.swagger.annotations.ApiModel;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+package org.apache.inlong.common.constant;
 
 /**
- * Inlong consume request of TubeMQ
+ * Constants of protocol type.
  */
-@Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = MQType.TUBEMQ)
-@ApiModel("Inlong consume request of TubeMQ")
-public class ConsumeTubeMQRequest extends InlongConsumeRequest {
+public class ProtocolType {
 
-    // no fields
+    public static final String TCP = "TCP";
+    public static final String UDP = "UDP";
+
+    public static final String HTTP = "HTTP";
+    public static final String HTTPS = "HTTPS";
 
 }

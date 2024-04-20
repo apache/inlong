@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.common.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.common.SendResult;
@@ -56,8 +56,8 @@ public class HttpProxySender extends Thread {
 
     public HttpProxySender(ProxyClientConfig configure) throws Exception {
         // correct ProtocolType settings
-        if (!Constants.ProtocolType.HTTP.equals(configure.getProtocolType())) {
-            configure.setProtocolType(Constants.ProtocolType.HTTP);
+        if (!ProtocolType.HTTP.equals(configure.getProtocolType())) {
+            configure.setProtocolType(ProtocolType.HTTP);
         }
         logger.info("Initial http sender, configure is {}", configure);
         this.proxyClientConfig = configure;

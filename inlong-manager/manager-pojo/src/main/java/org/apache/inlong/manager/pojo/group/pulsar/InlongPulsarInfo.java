@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.group.pulsar;
 
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -36,7 +36,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = Constants.MQType.PULSAR)
+@JsonTypeDefine(value = MQType.PULSAR)
 @ApiModel("Inlong group info for Pulsar")
 public class InlongPulsarInfo extends InlongGroupInfo {
 
@@ -81,7 +81,7 @@ public class InlongPulsarInfo extends InlongGroupInfo {
     private Double maxMarkDeleteRate = 0.0;
 
     public InlongPulsarInfo() {
-        this.setMqType(Constants.MQType.PULSAR);
+        this.setMqType(MQType.PULSAR);
     }
 
     @Override

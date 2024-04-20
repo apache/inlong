@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sdk.dataproxy;
 
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.util.MessageUtils;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
@@ -101,8 +101,8 @@ public class DefaultMessageSender implements MessageSender {
     public static DefaultMessageSender generateSenderByClusterId(ProxyClientConfig configure,
             ThreadFactory selfDefineFactory) throws Exception {
         // correct ProtocolType settings
-        if (!Constants.ProtocolType.TCP.equals(configure.getProtocolType())) {
-            configure.setProtocolType(Constants.ProtocolType.TCP);
+        if (!ProtocolType.TCP.equals(configure.getProtocolType())) {
+            configure.setProtocolType(ProtocolType.TCP);
         }
         LOGGER.info("Initial tcp sender, configure is {}", configure);
         // initial sender object

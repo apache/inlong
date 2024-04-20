@@ -28,7 +28,7 @@ import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.message.SequentialID;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
@@ -203,7 +203,7 @@ public class SenderManager {
 
         proxyClientConfig.setIoThreadNum(ioThreadNum);
         proxyClientConfig.setEnableBusyWait(enableBusyWait);
-        proxyClientConfig.setProtocolType(Constants.ProtocolType.TCP);
+        proxyClientConfig.setProtocolType(ProtocolType.TCP);
 
         SHARED_FACTORY = new DefaultThreadFactory("agent-sender-manager-" + sourcePath,
                 Thread.currentThread().isDaemon());

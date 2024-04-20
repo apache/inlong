@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.group.pulsar;
 
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
@@ -33,11 +33,11 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong group info for Tdmq Pulsar")
-@JsonTypeDefine(value = Constants.MQType.TDMQ_PULSAR)
+@JsonTypeDefine(value = MQType.TDMQ_PULSAR)
 public class InlongTdmqPulsarInfo extends InlongPulsarInfo {
 
     public InlongTdmqPulsarInfo() {
-        this.setMqType(Constants.MQType.TDMQ_PULSAR);
+        this.setMqType(MQType.TDMQ_PULSAR);
     }
 
     @Override

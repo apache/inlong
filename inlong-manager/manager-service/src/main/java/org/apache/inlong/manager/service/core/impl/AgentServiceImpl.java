@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.db.CommandEntity;
 import org.apache.inlong.common.enums.PullJobTypeEnum;
 import org.apache.inlong.common.enums.TaskStateEnum;
@@ -710,7 +711,7 @@ public class AgentServiceImpl implements AgentService {
                 // add topic setting
                 String mqResource = groupEntity.getMqResource();
                 String mqType = groupEntity.getMqType();
-                if (Constants.MQType.PULSAR.equals(mqType) || Constants.MQType.TDMQ_PULSAR.equals(mqType)) {
+                if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
                     // first get the tenant from the InlongGroup, and then get it from the PulsarCluster.
                     InlongPulsarDTO pulsarDTO = InlongPulsarDTO.getFromJson(groupEntity.getExtParams());
                     String tenant = pulsarDTO.getPulsarTenant();
@@ -728,12 +729,12 @@ public class AgentServiceImpl implements AgentService {
                     topicConfig.setInlongGroupId(groupId + "/" + streamId);
                     topicConfig.setTopic(topic);
                     dataConfig.setTopicInfo(topicConfig);
-                } else if (Constants.MQType.TUBEMQ.equals(mqType)) {
+                } else if (MQType.TUBEMQ.equals(mqType)) {
                     DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
                     topicConfig.setInlongGroupId(groupId);
                     topicConfig.setTopic(mqResource);
                     dataConfig.setTopicInfo(topicConfig);
-                } else if (Constants.MQType.KAFKA.equals(mqType)) {
+                } else if (MQType.KAFKA.equals(mqType)) {
                     DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
                     topicConfig.setInlongGroupId(groupId);
                     topicConfig.setTopic(groupEntity.getMqResource() + DOT + streamEntity.getMqResource());

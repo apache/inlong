@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.source.listener;
 
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessName;
@@ -62,7 +62,7 @@ public class StreamSourceListenerTest extends ServiceBaseTest {
      */
     // @Test
     public void testAllOperate() {
-        groupInfo = createInlongGroup(GROUP_ID, Constants.MQType.PULSAR);
+        groupInfo = createInlongGroup(GROUP_ID, MQType.PULSAR);
         groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_ING.getCode(), GLOBAL_OPERATOR);
         groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), GLOBAL_OPERATOR);
         groupService.update(groupInfo.genRequest(), GLOBAL_OPERATOR);

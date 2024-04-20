@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.group;
 
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -55,12 +55,12 @@ public class InlongGroupOperator4Pulsar extends AbstractGroupOperator {
 
     @Override
     public Boolean accept(String mqType) {
-        return getMQType().equals(mqType) || Constants.MQType.TDMQ_PULSAR.equals(mqType);
+        return getMQType().equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType);
     }
 
     @Override
     public String getMQType() {
-        return Constants.MQType.PULSAR;
+        return MQType.PULSAR;
     }
 
     @Override

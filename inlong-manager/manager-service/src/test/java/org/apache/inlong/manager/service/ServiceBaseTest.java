@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service;
 
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -95,9 +95,9 @@ public class ServiceBaseTest extends BaseTest {
         }
 
         InlongGroupInfo groupInfo;
-        if (Constants.MQType.PULSAR.equals(mqType) || Constants.MQType.TDMQ_PULSAR.equals(mqType)) {
+        if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
             groupInfo = new InlongPulsarInfo();
-        } else if (Constants.MQType.TUBEMQ.equals(mqType)) {
+        } else if (MQType.TUBEMQ.equals(mqType)) {
             groupInfo = new InlongPulsarInfo();
         } else {
             groupInfo = new InlongNoneMqInfo();

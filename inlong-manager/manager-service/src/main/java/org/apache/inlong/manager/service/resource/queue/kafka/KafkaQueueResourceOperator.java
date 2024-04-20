@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.resource.queue.kafka;
 
 import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -71,7 +72,7 @@ public class KafkaQueueResourceOperator implements QueueResourceOperator {
 
     @Override
     public boolean accept(String mqType) {
-        return Constants.MQType.KAFKA.equals(mqType);
+        return MQType.KAFKA.equals(mqType);
     }
 
     @Override

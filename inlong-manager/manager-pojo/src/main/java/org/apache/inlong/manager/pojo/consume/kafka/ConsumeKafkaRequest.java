@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.consume.kafka;
 
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
 
@@ -33,7 +33,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong consume request of Kafka")
-@JsonTypeDefine(value = Constants.MQType.KAFKA)
+@JsonTypeDefine(value = MQType.KAFKA)
 public class ConsumeKafkaRequest extends InlongConsumeRequest {
 
 }

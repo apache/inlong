@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.common.heartbeat.StreamHeartbeat;
@@ -57,7 +57,7 @@ public class HeartbeatServiceTest extends ServiceBaseTest {
         request.setPort("56802");
         request.setClusterTag("default_cluster");
         request.setReportTime(Instant.now().toEpochMilli());
-        request.setProtocolType(Constants.ProtocolType.HTTP);
+        request.setProtocolType(ProtocolType.HTTP);
 
         List<GroupHeartbeat> groupHeartbeats = new ArrayList<>();
         GroupHeartbeat groupHeartbeat = new GroupHeartbeat();

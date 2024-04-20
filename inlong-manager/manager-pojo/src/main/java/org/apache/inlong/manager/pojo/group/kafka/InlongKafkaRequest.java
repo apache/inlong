@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.group.kafka;
 
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 
@@ -33,7 +33,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong group request for Kafka")
-@JsonTypeDefine(value = Constants.MQType.KAFKA)
+@JsonTypeDefine(value = MQType.KAFKA)
 public class InlongKafkaRequest extends InlongGroupRequest {
 
     // partition number
@@ -42,7 +42,7 @@ public class InlongKafkaRequest extends InlongGroupRequest {
     private Short replicationFactor = 1;
 
     public InlongKafkaRequest() {
-        this.setMqType(Constants.MQType.KAFKA);
+        this.setMqType(MQType.KAFKA);
     }
 
 }

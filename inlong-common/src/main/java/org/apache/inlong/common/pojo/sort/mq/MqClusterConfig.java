@@ -17,19 +17,18 @@
 
 package org.apache.inlong.common.pojo.sort.mq;
 
-import org.apache.inlong.common.constant.Constants;
-
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.inlong.common.constant.MQType;
 
 import java.io.Serializable;
 
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = PulsarClusterConfig.class, name = Constants.MQType.PULSAR),
-        @JsonSubTypes.Type(value = TubeClusterConfig.class, name = Constants.MQType.TUBEMQ)
+        @JsonSubTypes.Type(value = PulsarClusterConfig.class, name = MQType.PULSAR),
+        @JsonSubTypes.Type(value = TubeClusterConfig.class, name = MQType.TUBEMQ)
 })
 public abstract class MqClusterConfig implements Serializable {
 

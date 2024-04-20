@@ -20,7 +20,7 @@ package org.apache.inlong.audit.sink;
 import org.apache.inlong.audit.base.HighPriorityThreadFactory;
 import org.apache.inlong.audit.file.ConfigManager;
 import org.apache.inlong.audit.utils.FailoverChannelProcessorHolder;
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.pojo.audit.MQInfo;
 import org.apache.inlong.common.util.NetworkUtils;
 
@@ -289,7 +289,7 @@ public class KafkaSink extends AbstractSink implements Configurable {
         ConfigManager configManager = ConfigManager.getInstance();
         List<MQInfo> mqInfoList = configManager.getMqInfoList();
         mqInfoList.forEach(mqClusterInfo -> {
-            if (Constants.MQType.KAFKA.equals(mqClusterInfo.getMqType())) {
+            if (MQType.KAFKA.equals(mqClusterInfo.getMqType())) {
                 kafkaServerUrl = mqClusterInfo.getUrl();
             }
         });

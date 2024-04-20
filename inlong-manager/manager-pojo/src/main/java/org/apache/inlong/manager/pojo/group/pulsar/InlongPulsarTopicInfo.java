@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.group.pulsar;
 
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 
@@ -34,7 +34,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = Constants.MQType.PULSAR)
+@JsonTypeDefine(value = MQType.PULSAR)
 @ApiModel("Inlong pulsar group topic info")
 public class InlongPulsarTopicInfo extends InlongGroupTopicInfo {
 
@@ -48,7 +48,7 @@ public class InlongPulsarTopicInfo extends InlongGroupTopicInfo {
     private List<String> topics;
 
     public InlongPulsarTopicInfo() {
-        this.setMqType(Constants.MQType.PULSAR);
+        this.setMqType(MQType.PULSAR);
     }
 
 }

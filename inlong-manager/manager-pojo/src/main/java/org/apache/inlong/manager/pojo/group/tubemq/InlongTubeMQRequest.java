@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.group.tubemq;
 
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 
@@ -33,13 +33,13 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong group request for TubeMQ")
-@JsonTypeDefine(value = Constants.MQType.TUBEMQ)
+@JsonTypeDefine(value = MQType.TUBEMQ)
 public class InlongTubeMQRequest extends InlongGroupRequest {
 
     // no field
 
     public InlongTubeMQRequest() {
-        this.setMqType(Constants.MQType.TUBEMQ);
+        this.setMqType(MQType.TUBEMQ);
     }
 
 }

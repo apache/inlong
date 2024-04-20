@@ -15,27 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.consume.tubemq;
+package org.apache.inlong.common.constant;
 
-import org.apache.inlong.common.constant.MQType;
-import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
+public class DeserializationType {
 
-import io.swagger.annotations.ApiModel;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-
-/**
- * Inlong consume request of TubeMQ
- */
-@Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = MQType.TUBEMQ)
-@ApiModel("Inlong consume request of TubeMQ")
-public class ConsumeTubeMQRequest extends InlongConsumeRequest {
-
-    // no fields
-
+    public static final String INLONG_MSG = "INLONG_MSG";
+    public static final String INLONG_MSG_PB = "INLONG_MSG_PB";
+    public static final String CSV = "CSV";
+    public static final String KV = "KV";
 }

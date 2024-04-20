@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.dao;
 
-import org.apache.inlong.common.constant.Constants;
-
 import lombok.Data;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -31,6 +29,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
+import org.apache.inlong.common.constant.ProtocolType;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -81,8 +80,8 @@ public class RestTemplateConfig {
     public PoolingHttpClientConnectionManager httpClientConnectionManager() {
         // Support HTTP, HTTPS
         Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
-                .register(Constants.ProtocolType.HTTP, PlainConnectionSocketFactory.getSocketFactory())
-                .register(Constants.ProtocolType.HTTPS, SSLConnectionSocketFactory.getSocketFactory())
+                .register(ProtocolType.HTTP, PlainConnectionSocketFactory.getSocketFactory())
+                .register(ProtocolType.HTTPS, SSLConnectionSocketFactory.getSocketFactory())
                 .build();
         PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager(
                 registry);

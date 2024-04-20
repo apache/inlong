@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.inlong.common.constant.ClusterSwitch;
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.pojo.sdk.CacheZone;
 import org.apache.inlong.common.pojo.sdk.CacheZoneConfig;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
@@ -78,9 +78,9 @@ public class SortSourceServiceImpl implements SortSourceService {
     private static final Set<String> SUPPORTED_MQ_TYPE = new HashSet<String>() {
 
         {
-            add(Constants.MQType.KAFKA);
-            add(Constants.MQType.TUBEMQ);
-            add(Constants.MQType.PULSAR);
+            add(MQType.KAFKA);
+            add(MQType.TUBEMQ);
+            add(MQType.PULSAR);
         }
     };
     private static final String KEY_AUTH = "authentication";

@@ -17,19 +17,18 @@
 
 package org.apache.inlong.common.pojo.sort.dataflow.deserialization;
 
-import org.apache.inlong.common.constant.Constants;
-
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.inlong.common.constant.DeserializationType;
 
 import java.io.Serializable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = InlongMsgDeserializationConfig.class, name = Constants.DeserializationType.INLONG_MSG),
-        @JsonSubTypes.Type(value = InlongMsgPbDeserialiationConfig.class, name = Constants.DeserializationType.INLONG_MSG_PB),
-        @JsonSubTypes.Type(value = CsvDeserializationConfig.class, name = Constants.DeserializationType.CSV),
-        @JsonSubTypes.Type(value = KvDeserializationConfig.class, name = Constants.DeserializationType.KV),
+        @JsonSubTypes.Type(value = InlongMsgDeserializationConfig.class, name = DeserializationType.INLONG_MSG),
+        @JsonSubTypes.Type(value = InlongMsgPbDeserialiationConfig.class, name = DeserializationType.INLONG_MSG_PB),
+        @JsonSubTypes.Type(value = CsvDeserializationConfig.class, name = DeserializationType.CSV),
+        @JsonSubTypes.Type(value = KvDeserializationConfig.class, name = DeserializationType.KV),
 })
 public interface DeserializationConfig extends Serializable {
 

@@ -17,20 +17,19 @@
 
 package org.apache.inlong.common.pojo.sort.node;
 
-import org.apache.inlong.common.constant.Constants;
-
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.inlong.common.constant.DataNodeType;
 
 import java.io.Serializable;
 
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ClsNodeConfig.class, name = Constants.DataNodeType.CLS),
-        @JsonSubTypes.Type(value = EsNodeConfig.class, name = Constants.DataNodeType.ELASTICSEARCH),
-        @JsonSubTypes.Type(value = PulsarNodeConfig.class, name = Constants.DataNodeType.PULSAR),
+        @JsonSubTypes.Type(value = ClsNodeConfig.class, name = DataNodeType.CLS),
+        @JsonSubTypes.Type(value = EsNodeConfig.class, name = DataNodeType.ELASTICSEARCH),
+        @JsonSubTypes.Type(value = PulsarNodeConfig.class, name = DataNodeType.PULSAR),
 })
 public abstract class NodeConfig implements Serializable {
 

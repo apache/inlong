@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.group.kafka;
 
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 
@@ -34,7 +34,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = Constants.MQType.KAFKA)
+@JsonTypeDefine(value = MQType.KAFKA)
 @ApiModel("Inlong kafka group topic info")
 public class InlongKafkaTopicInfo extends InlongGroupTopicInfo {
 
@@ -42,7 +42,7 @@ public class InlongKafkaTopicInfo extends InlongGroupTopicInfo {
     private List<String> topics;
 
     public InlongKafkaTopicInfo() {
-        this.setMqType(Constants.MQType.KAFKA);
+        this.setMqType(MQType.KAFKA);
     }
 
 }
