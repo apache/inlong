@@ -17,10 +17,11 @@
 
 package org.apache.inlong.common.pojo.sort.node;
 
+import org.apache.inlong.common.constant.DataNodeType;
+
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.inlong.common.constant.DataNodeType;
 
 import java.io.Serializable;
 

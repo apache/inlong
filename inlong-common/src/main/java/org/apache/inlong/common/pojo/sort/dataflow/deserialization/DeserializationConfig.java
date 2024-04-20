@@ -17,9 +17,10 @@
 
 package org.apache.inlong.common.pojo.sort.dataflow.deserialization;
 
+import org.apache.inlong.common.constant.DeserializationType;
+
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.inlong.common.constant.DeserializationType;
 
 import java.io.Serializable;
 
