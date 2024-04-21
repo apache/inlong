@@ -106,9 +106,11 @@ public class SenderManager {
     private volatile boolean resendRunning = false;
     private volatile boolean started = false;
     private static final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
+    private long auditVersion;
 
     public SenderManager(InstanceProfile profile, String inlongGroupId, String sourcePath) {
         this.profile = profile;
+        auditVersion = Long.parseLong(profile.getTaskId());
         managerAddr = agentConf.get(AGENT_MANAGER_ADDR);
         proxySend = profile.getBoolean(TASK_PROXY_SEND, DEFAULT_TASK_PROXY_SEND);
         totalAsyncBufSize = profile
@@ -233,10 +235,10 @@ public class SenderManager {
                 AgentSenderCallback cb = new AgentSenderCallback(message, retry);
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_TRY_SEND, message.getGroupId(),
                         message.getStreamId(), message.getDataTime(), message.getMsgCnt(),
-                        message.getTotalSize());
+                        message.getTotalSize(), auditVersion);
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_TRY_SEND_REAL_TIME, message.getGroupId(),
                         message.getStreamId(), AgentUtils.getCurrentTime(), message.getMsgCnt(),
-                        message.getTotalSize());
+                        message.getTotalSize(), auditVersion);
                 asyncSendByMessageSender(cb, message.getDataList(), message.getGroupId(),
                         message.getStreamId(), message.getDataTime(), SEQUENTIAL_ID.getNextUuid(),
                         maxSenderTimeout, TimeUnit.SECONDS, message.getExtraMap(), proxySend);
@@ -246,10 +248,10 @@ public class SenderManager {
             } catch (Exception exception) {
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_EXCEPTION, message.getGroupId(),
                         message.getStreamId(), message.getDataTime(), message.getMsgCnt(),
-                        message.getTotalSize());
+                        message.getTotalSize(), auditVersion);
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_EXCEPTION_REAL_TIME, message.getGroupId(),
                         message.getStreamId(), AgentUtils.getCurrentTime(), message.getMsgCnt(),
-                        message.getTotalSize());
+                        message.getTotalSize(), auditVersion);
                 suc = false;
                 if (retry > maxSenderRetry) {
                     if (retry % 10 == 0) {
@@ -291,10 +293,10 @@ public class SenderManager {
                         SenderMessage message = callback.message;
                         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_RESEND, message.getGroupId(),
                                 message.getStreamId(), message.getDataTime(), message.getMsgCnt(),
-                                message.getTotalSize());
+                                message.getTotalSize(), auditVersion);
                         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_RESEND_REAL_TIME, message.getGroupId(),
                                 message.getStreamId(), AgentUtils.getCurrentTime(), message.getMsgCnt(),
-                                message.getTotalSize());
+                                message.getTotalSize(), auditVersion);
                         sendBatchWithRetryCount(callback.message, callback.retry + 1);
                     }
                 } catch (Exception ex) {
@@ -353,18 +355,18 @@ public class SenderManager {
                 message.getOffsetAckList().forEach(ack -> ack.setHasAck(true));
                 getMetricItem(groupId, streamId).pluginSendSuccessCount.addAndGet(msgCnt);
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId,
-                        dataTime, message.getMsgCnt(), message.getTotalSize());
+                        dataTime, message.getMsgCnt(), message.getTotalSize(), auditVersion);
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS_REAL_TIME, groupId, streamId,
-                        AgentUtils.getCurrentTime(), message.getMsgCnt(), message.getTotalSize());
+                        AgentUtils.getCurrentTime(), message.getMsgCnt(), message.getTotalSize(), auditVersion);
             } else {
                 LOGGER.warn("send groupId {}, streamId {}, taskId {}, instanceId {}, dataTime {} fail with times {}, "
                         + "error {}", groupId, streamId, taskId, instanceId, dataTime, retry, result);
                 getMetricItem(groupId, streamId).pluginSendFailCount.addAndGet(msgCnt);
                 putInResendQueue(new AgentSenderCallback(message, retry));
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_FAILED, groupId, streamId,
-                        dataTime, message.getMsgCnt(), message.getTotalSize());
+                        dataTime, message.getMsgCnt(), message.getTotalSize(), auditVersion);
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_FAILED_REAL_TIME, groupId, streamId,
-                        AgentUtils.getCurrentTime(), message.getMsgCnt(), message.getTotalSize());
+                        AgentUtils.getCurrentTime(), message.getMsgCnt(), message.getTotalSize(), auditVersion);
             }
         }
 

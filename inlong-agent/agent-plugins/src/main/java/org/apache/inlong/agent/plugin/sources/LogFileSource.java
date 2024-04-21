@@ -246,8 +246,16 @@ public class LogFileSource extends AbstractSource {
                         if (overLen) {
                             LOGGER.warn("readLines over len finally string len {}",
                                     new String(baos.toByteArray()).length());
-                            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS_REAL_TIME, inlongGroupId,
-                                    inlongStreamId, AgentUtils.getCurrentTime(), 1, maxPackSize);
+                            long auditTime = 0;
+                            if (isRealTime) {
+                                auditTime = AgentUtils.getCurrentTime();
+                            } else {
+                                auditTime = profile.getSinkDataTime();
+                            }
+                            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_FAILED, inlongGroupId, inlongStreamId,
+                                    auditTime, 1, maxPackSize, auditVersion);
+                            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_FAILED_REAL_TIME, inlongGroupId,
+                                    inlongStreamId, AgentUtils.getCurrentTime(), 1, maxPackSize, auditVersion);
                         }
                         baos.reset();
                         overLen = false;

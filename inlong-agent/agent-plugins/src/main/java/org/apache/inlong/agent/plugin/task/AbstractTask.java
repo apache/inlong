@@ -48,12 +48,14 @@ public abstract class AbstractTask extends Task {
     protected volatile boolean running = false;
     protected boolean initOK = false;
     protected long lastPrintTime = 0;
+    protected long auditVersion;
 
     @Override
     public void init(Object srcManager, TaskProfile taskProfile, Db basicDb) throws IOException {
         taskManager = (TaskManager) srcManager;
         this.taskProfile = taskProfile;
         this.basicDb = basicDb;
+        auditVersion = Long.parseLong(taskProfile.getTaskId());
         instanceManager = new InstanceManager(taskProfile.getTaskId(), taskProfile.getInt(TaskConstants.FILE_MAX_NUM),
                 basicDb, taskManager.getTaskDb());
         try {
@@ -132,7 +134,7 @@ public abstract class AbstractTask extends Task {
 
     protected void taskHeartbeat() {
         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_TASK_HEARTBEAT, taskProfile.getInlongGroupId(),
-                taskProfile.getInlongStreamId(), AgentUtils.getCurrentTime(), 1, 1);
+                taskProfile.getInlongStreamId(), AgentUtils.getCurrentTime(), 1, 1, auditVersion);
 
     }
 
