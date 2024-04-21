@@ -54,6 +54,7 @@ import org.apache.inlong.manager.pojo.node.es.ElasticsearchQuerySortInfo.SortVal
 import org.apache.inlong.manager.pojo.node.es.ElasticsearchRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
+import org.apache.inlong.manager.service.audit.AuditRunnable;
 import org.apache.inlong.manager.service.audit.InlongAuditSourceOperator;
 import org.apache.inlong.manager.service.audit.InlongAuditSourceOperatorFactory;
 import org.apache.inlong.manager.service.core.AuditService;
@@ -78,13 +79,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -96,6 +97,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -133,6 +138,8 @@ public class AuditServiceImpl implements AuditService {
     private static final String DELAY = "delay";
     private static final String TERMS = "terms";
 
+    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
+
     // key 1: type of audit, like pulsar, hive, key 2: indicator type, value : entity of audit base item
     private final Map<String, Map<Integer, AuditBaseEntity>> auditIndicatorMap = new ConcurrentHashMap<>();
 
@@ -147,6 +154,8 @@ public class AuditServiceImpl implements AuditService {
 
     @Value("${audit.query.source}")
     private String auditQuerySource;
+    @Value("${audit.query.url:http://127.0.0.1}")
+    private String auditQueryUrl;
 
     @Autowired
     private AuditBaseEntityMapper auditBaseMapper;
@@ -166,6 +175,8 @@ public class AuditServiceImpl implements AuditService {
     private InlongGroupEntityMapper inlongGroupMapper;
     @Autowired
     private InlongAuditSourceOperatorFactory auditSourceOperatorFactory;
+    @Autowired
+    private RestTemplate restTemplate;
 
     @PostConstruct
     public void initialize() {
@@ -304,6 +315,7 @@ public class AuditServiceImpl implements AuditService {
 
         List<AuditVO> result = new ArrayList<>();
         AuditQuerySource querySource = AuditQuerySource.valueOf(auditQuerySource);
+        CountDownLatch latch = new CountDownLatch(request.getAuditIds().size());
         for (String auditId : request.getAuditIds()) {
             AuditBaseEntity auditBaseEntity = auditItemMap.get(auditId);
             String auditName = auditBaseEntity != null ? auditBaseEntity.getName() : "";
@@ -356,36 +368,25 @@ public class AuditServiceImpl implements AuditService {
                     }
                 }
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
-                try (Connection connection = config.getCkConnection();
-                        PreparedStatement statement = getAuditCkStatementGroupByLogTs(connection, groupId, streamId,
-                                request.getIp(), auditId,
-                                request.getStartDate(),
-                                request.getEndDate());
-
-                        ResultSet resultSet = statement.executeQuery()) {
-                    List<AuditInfo> auditSet = new ArrayList<>();
-                    while (resultSet.next()) {
-                        AuditInfo vo = new AuditInfo();
-                        vo.setInlongGroupId(resultSet.getString("inlong_group_id"));
-                        vo.setInlongStreamId(resultSet.getString("inlong_stream_id"));
-                        vo.setLogTs(resultSet.getString("log_ts"));
-                        vo.setCount(resultSet.getLong("total"));
-                        vo.setDelay(resultSet.getLong("total_delay"));
-                        vo.setSize(resultSet.getLong("total_size"));
-                        auditSet.add(vo);
-                    }
-                    result.add(new AuditVO(auditId, auditName, auditSet, auditIdMap.getOrDefault(auditId, null)));
-                }
+                AuditRunnable task = new AuditRunnable(request, auditId, auditName, result, latch, restTemplate,
+                        auditQueryUrl, auditIdMap, false);
+                this.executor.execute(task);
             }
         }
+        if (AuditQuerySource.CLICKHOUSE == querySource) {
+            latch.await(30, TimeUnit.SECONDS);
+        } else {
+            result = aggregateByTimeDim(result, request.getTimeStaticsDim());
+        }
         LOGGER.info("success to query audit list for request={}", request);
-        return aggregateByTimeDim(result, request.getTimeStaticsDim());
+        return result;
     }
 
     @Override
     public List<AuditVO> listAll(AuditRequest request) throws Exception {
         List<AuditVO> result = new ArrayList<>();
         AuditQuerySource querySource = AuditQuerySource.valueOf(auditQuerySource);
+        CountDownLatch latch = new CountDownLatch(request.getAuditIds().size());
         for (String auditId : request.getAuditIds()) {
             AuditBaseEntity auditBaseEntity = auditItemMap.get(auditId);
             String auditName = "";
@@ -412,25 +413,9 @@ public class AuditServiceImpl implements AuditService {
                 }).collect(Collectors.toList());
                 result.add(new AuditVO(auditId, auditName, auditSet, null));
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
-                try (Connection connection = config.getCkConnection();
-                        PreparedStatement statement = getAuditCkStatementGroupByIp(connection,
-                                request.getInlongGroupId(), request.getInlongStreamId(), request.getIp(), auditId,
-                                request.getStartDate(), request.getEndDate());
-
-                        ResultSet resultSet = statement.executeQuery()) {
-                    List<AuditInfo> auditSet = new ArrayList<>();
-                    while (resultSet.next()) {
-                        AuditInfo vo = new AuditInfo();
-                        vo.setInlongGroupId(resultSet.getString("inlong_group_id"));
-                        vo.setInlongStreamId(resultSet.getString("inlong_stream_id"));
-                        vo.setIp(resultSet.getString("ip"));
-                        vo.setCount(resultSet.getLong("total"));
-                        vo.setDelay(resultSet.getLong("total_delay"));
-                        vo.setSize(resultSet.getLong("total_size"));
-                        auditSet.add(vo);
-                    }
-                    result.add(new AuditVO(auditId, auditName, auditSet, null));
-                }
+                AuditRunnable task = new AuditRunnable(request, auditId, auditName, result, latch, restTemplate,
+                        auditQueryUrl, null, true);
+                this.executor.execute(task);
             }
         }
         return result;
