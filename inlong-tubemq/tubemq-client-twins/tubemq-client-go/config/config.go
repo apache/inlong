@@ -475,8 +475,14 @@ func getConfigFromToken(config *Config, values []string) error {
 		config.Net.Auth.Password = values[1]
 	case "logPath":
 		err = log.SetLogPath(values[1])
+		if err == nil {
+			config.Log.LogPath = values[1]
+		}
 	case "logLevel":
 		err = log.SetLogLevel(values[1])
+		if err == nil {
+			config.Log.LogLevel = values[1]
+		}
 	default:
 		return fmt.Errorf("address format invalid, unknown keys: %v", values[0])
 	}
