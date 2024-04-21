@@ -93,11 +93,11 @@ public class AuditRunnable implements Runnable {
                 auditSet = getAuditInfoList(request, request.getInlongGroupId(), request.getInlongStreamId(), auditId);
             }
             auditVOList.add(new AuditVO(auditId, auditName, auditSet, auditIdMap.getOrDefault(auditId, null)));
-            this.latch.countDown();
         } catch (Exception e) {
             LOGGER.error("query audit failed for request={}", request);
-            this.latch.countDown();
             throw new BusinessException("query audit failed");
+        } finally {
+            this.latch.countDown();
         }
 
     }
@@ -134,7 +134,7 @@ public class AuditRunnable implements Runnable {
             LOGGER.info("success to query audit info result={}", result);
             return CommonBeanUtils.copyListProperties(result.getData(), AuditInfo::new);
         } catch (Exception e) {
-            LOGGER.info("query audit failed for groupId={}, streamId={}", groupId, streamId, e);
+            LOGGER.info("query audit failed for request={}", request, e);
         }
 
         return auditSet;
@@ -177,7 +177,7 @@ public class AuditRunnable implements Runnable {
             LOGGER.info("success to query audit info result={}", result);
             return CommonBeanUtils.copyListProperties(result.getData(), AuditInfo::new);
         } catch (Exception e) {
-            LOGGER.info("query audit failed for groupId={}, streamId={}", groupId, streamId, e);
+            LOGGER.info("query audit failed for request={}", request, e);
         }
 
         return auditSet;

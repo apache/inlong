@@ -341,9 +341,8 @@ public class AuditServiceImpl implements AuditService {
                 }).collect(Collectors.toList());
                 result.add(new AuditVO(auditId, auditName, auditSet, auditIdMap.getOrDefault(auditId, null)));
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
-                AuditRunnable task = new AuditRunnable(request, auditId, auditName, result, latch, restTemplate,
-                        auditQueryUrl, auditIdMap, false);
-                this.executor.execute(task);
+                this.executor.execute(new AuditRunnable(request, auditId, auditName, result, latch, restTemplate,
+                        auditQueryUrl, auditIdMap, false));
             }
         }
         if (AuditQuerySource.CLICKHOUSE == querySource) {
@@ -386,9 +385,8 @@ public class AuditServiceImpl implements AuditService {
                 }).collect(Collectors.toList());
                 result.add(new AuditVO(auditId, auditName, auditSet, null));
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
-                AuditRunnable task = new AuditRunnable(request, auditId, auditName, result, latch, restTemplate,
-                        auditQueryUrl, null, true);
-                this.executor.execute(task);
+                this.executor.execute(new AuditRunnable(request, auditId, auditName, result, latch, restTemplate,
+                        auditQueryUrl, null, true));
             }
         }
         return result;
