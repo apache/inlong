@@ -55,7 +55,12 @@ public interface InlongGroupEntityMapper {
 
     List<InlongGroupEntity> selectByClusterTag(@Param(value = "inlongClusterTag") String inlongClusterTag);
 
+    @MultiTenantQuery(with = false)
+    List<InlongGroupEntity> selectByClusterTagWithoutTenant(@Param(value = "inlongClusterTag") String inlongClusterTag);
+
     List<InlongGroupEntity> selectByTopicRequest(InlongGroupTopicRequest request);
+
+    List<InlongGroupEntity> selectByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 
     /**
      * Select all group info for sort sdk.

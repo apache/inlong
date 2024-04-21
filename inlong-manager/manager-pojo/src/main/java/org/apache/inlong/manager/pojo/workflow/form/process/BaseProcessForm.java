@@ -32,6 +32,7 @@ import lombok.Data;
         @JsonSubTypes.Type(value = ApplyConsumeProcessForm.class, name = ApplyConsumeProcessForm.FORM_NAME),
         @JsonSubTypes.Type(value = GroupResourceProcessForm.class, name = GroupResourceProcessForm.FORM_NAME),
         @JsonSubTypes.Type(value = StreamResourceProcessForm.class, name = StreamResourceProcessForm.FORM_NAME),
+        @JsonSubTypes.Type(value = ClusterResourceProcessForm.class, name = ClusterResourceProcessForm.FORM_NAME),
 })
 public abstract class BaseProcessForm implements ProcessForm {
 

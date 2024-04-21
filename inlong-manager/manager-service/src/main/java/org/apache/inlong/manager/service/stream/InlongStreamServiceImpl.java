@@ -99,6 +99,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_MQ_RESOURCE;
 import static org.apache.inlong.manager.common.consts.InlongConstants.BATCH_PARSING_FILED_JSON_COMMENT_PROP;
 import static org.apache.inlong.manager.common.consts.InlongConstants.BATCH_PARSING_FILED_JSON_NAME_PROP;
 import static org.apache.inlong.manager.common.consts.InlongConstants.BATCH_PARSING_FILED_JSON_TYPE_PROP;
@@ -343,6 +344,44 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         List<InlongStreamEntity> inlongStreamEntityList = streamMapper.selectByGroupId(groupId);
         List<InlongStreamInfo> streamList = CommonBeanUtils.copyListProperties(inlongStreamEntityList,
                 InlongStreamInfo::new);
+        List<StreamField> streamFields = getStreamFields(groupId, null);
+        Map<String, List<StreamField>> streamFieldMap = streamFields.stream().collect(
+                Collectors.groupingBy(StreamField::getInlongStreamId,
+                        HashMap::new,
+                        Collectors.toCollection(ArrayList::new)));
+        List<InlongStreamExtEntity> extEntities = streamExtMapper.selectByRelatedId(groupId, null);
+        Map<String, List<InlongStreamExtInfo>> extInfoMap = extEntities.stream()
+                .map(extEntity -> CommonBeanUtils.copyProperties(extEntity, InlongStreamExtInfo::new))
+                .collect(Collectors.groupingBy(InlongStreamExtInfo::getInlongStreamId,
+                        HashMap::new,
+                        Collectors.toCollection(ArrayList::new)));
+        streamList.forEach(streamInfo -> {
+            String streamId = streamInfo.getInlongStreamId();
+            // Processing extParams
+            unpackExtParams(streamInfo.getExtParams(), streamInfo);
+            List<StreamField> fieldInfos = streamFieldMap.get(streamId);
+            streamInfo.setFieldList(fieldInfos);
+            List<InlongStreamExtInfo> extInfos = extInfoMap.get(streamId);
+            streamInfo.setExtList(extInfos);
+            List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
+            streamInfo.setSinkList(sinkList);
+            List<StreamSource> sourceList = sourceService.listSource(groupId, streamId);
+            streamInfo.setSourceList(sourceList);
+        });
+        return streamList;
+    }
+
+
+    @Override
+    public List<InlongStreamInfo> listBackUp(String groupId) {
+        LOGGER.debug("begin to list inlong streams by groupId={}", groupId);
+        List<InlongStreamEntity> inlongStreamEntityList = streamMapper.selectByGroupId(groupId);
+        List<InlongStreamInfo> streamList = CommonBeanUtils.copyListProperties(inlongStreamEntityList,
+                InlongStreamInfo::new);
+        for (InlongStreamInfo streamInfo : streamList) {
+            streamExtMapper.selectByKey(streamInfo.getInlongGroupId(), streamInfo.getInlongStreamId(),
+                    BACKUP_MQ_RESOURCE);
+        }
         List<StreamField> streamFields = getStreamFields(groupId, null);
         Map<String, List<StreamField>> streamFieldMap = streamFields.stream().collect(
                 Collectors.groupingBy(StreamField::getInlongStreamId,

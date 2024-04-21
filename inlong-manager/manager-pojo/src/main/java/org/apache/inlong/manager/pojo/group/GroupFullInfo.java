@@ -15,43 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.workflow.form.process;
+package org.apache.inlong.manager.pojo.group;
 
-import org.apache.inlong.manager.pojo.workflow.form.Form;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * WorkflowProcess main form
+ * Inlong group full info
  */
-public interface ProcessForm extends Form {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Group full info")
+public class GroupFullInfo {
 
-    /**
-     * Get inlong group id.
-     *
-     * @return inlong group id.
-     */
-    @JsonIgnore
-    default String getInlongGroupId() {
-        return null;
-    };
+    private InlongGroupInfo groupInfo;
 
-    /**
-     * Get form title.
-     */
-    @JsonIgnore
-    default String getTitle() {
-        return null;
-    }
-
-    /**
-     * Field data displayed in the process list.
-     */
-    default List<Map<String, Object>> showInList() {
-        return null;
-    }
-
+    private List<InlongStreamInfo> streamInfoList;
 }

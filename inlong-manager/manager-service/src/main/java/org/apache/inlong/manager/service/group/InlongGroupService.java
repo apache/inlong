@@ -29,10 +29,10 @@ import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
 import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.pojo.workflow.form.process.ClusterResourceProcessForm.GroupFullInfo;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +55,7 @@ public interface InlongGroupService {
      * Save inlong group info.
      *
      * @param groupInfo group request need to save
-     * @param opInfo    userinfo of operator
+     * @param opInfo userinfo of operator
      * @return detail of inlong group
      */
     String save(@Valid @NotNull(message = "inlong group request cannot be null") InlongGroupRequest groupInfo,
@@ -133,7 +133,7 @@ public interface InlongGroupService {
      * Query inlong group brief info list
      *
      * @param request pagination query request
-     * @param opInfo  userinfo of operator
+     * @param opInfo userinfo of operator
      * @return group list
      */
     List<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request, UserInfo opInfo);
@@ -208,12 +208,14 @@ public interface InlongGroupService {
 
     /**
      * List topic infos
+     *
      * @return List of InlongGroupTopicInfo
      */
     List<InlongGroupTopicInfo> listTopics(InlongGroupTopicRequest clusterTag);
 
     /**
      * List group detail
+     *
      * @return List of inlong group detail, including cluster info and sort info
      */
     Map<String, Object> detail(String groupId);
@@ -221,5 +223,9 @@ public interface InlongGroupService {
     Boolean startTagSwitch(String groupId, String clusterTag);
 
     Boolean finishTagSwitch(String groupId);
+
+    List<GroupFullInfo> getGroupByClusterTag(String clusterTag);
+
+    List<GroupFullInfo> getGroupByBackUpClusterTag(String clusterTag);
 
 }

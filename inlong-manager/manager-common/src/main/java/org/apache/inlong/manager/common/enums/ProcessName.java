@@ -70,7 +70,9 @@ public enum ProcessName {
     /**
      * Delete inlong stream process
      */
-    DELETE_STREAM_RESOURCE("Delete Stream");
+    DELETE_STREAM_RESOURCE("Delete Stream"),
+
+    CREATE_CLUSTER_RESOURCE("Create Cluster");
 
     private final String displayName;
 

@@ -15,43 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.workflow.form.process;
+package org.apache.inlong.manager.workflow.event.task;
 
-import org.apache.inlong.manager.pojo.workflow.form.Form;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.util.List;
-import java.util.Map;
+import org.apache.inlong.manager.common.enums.TaskEvent;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
 
 /**
- * WorkflowProcess main form
+ * Listener of operate cluster.
  */
-public interface ProcessForm extends Form {
+public interface ClusterOperateListener extends TaskEventListener {
 
-    /**
-     * Get inlong group id.
-     *
-     * @return inlong group id.
-     */
-    @JsonIgnore
-    default String getInlongGroupId() {
-        return null;
+    ClusterOperateListener DEFAULT_CLUSTER_OPERATE_LISTENER = new ClusterOperateListener() {
+
+        @Override
+        public TaskEvent event() {
+            return TaskEvent.COMPLETE;
+        }
+
+        @Override
+        public ListenerResult listen(WorkflowContext context) {
+            return ListenerResult.success();
+        }
     };
-
-    /**
-     * Get form title.
-     */
-    @JsonIgnore
-    default String getTitle() {
-        return null;
-    }
-
-    /**
-     * Field data displayed in the process list.
-     */
-    default List<Map<String, Object>> showInList() {
-        return null;
-    }
 
 }

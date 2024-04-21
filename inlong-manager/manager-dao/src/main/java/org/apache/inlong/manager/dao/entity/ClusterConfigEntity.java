@@ -15,43 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.workflow.form.process;
+package org.apache.inlong.manager.dao.entity;
 
-import org.apache.inlong.manager.pojo.workflow.form.Form;
+import lombok.Data;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.util.List;
-import java.util.Map;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
- * WorkflowProcess main form
+ * Cluster config entity, including cluster tag, etc.
  */
-public interface ProcessForm extends Form {
+@Data
+public class ClusterConfigEntity implements Serializable {
 
-    /**
-     * Get inlong group id.
-     *
-     * @return inlong group id.
-     */
-    @JsonIgnore
-    default String getInlongGroupId() {
-        return null;
-    };
-
-    /**
-     * Get form title.
-     */
-    @JsonIgnore
-    default String getTitle() {
-        return null;
-    }
-
-    /**
-     * Field data displayed in the process list.
-     */
-    default List<Map<String, Object>> showInList() {
-        return null;
-    }
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String clusterTag;
+    private String configParams;
+    private Integer isDeleted;
+    private String creator;
+    private String modifier;
+    private Date createTime;
+    private Date modifyTime;
+    private Integer version;
 
 }
