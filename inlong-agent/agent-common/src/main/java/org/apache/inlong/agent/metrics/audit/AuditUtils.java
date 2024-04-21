@@ -110,9 +110,7 @@ public class AuditUtils {
         if (!IS_AUDIT) {
             return;
         }
-        AuditOperator.getInstance()
-                .add(auditID, DEFAULT_AUDIT_TAG, inlongGroupId, inlongStreamId, logTime, count, size,
-                        DEFAULT_AUDIT_VERSION);
+        add(auditID, inlongGroupId, inlongStreamId, logTime, count, size, DEFAULT_AUDIT_VERSION);
     }
 
     /**
