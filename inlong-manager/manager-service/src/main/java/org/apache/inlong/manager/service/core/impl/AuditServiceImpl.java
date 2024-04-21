@@ -65,7 +65,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -341,32 +340,6 @@ public class AuditServiceImpl implements AuditService {
                     return vo;
                 }).collect(Collectors.toList());
                 result.add(new AuditVO(auditId, auditName, auditSet, auditIdMap.getOrDefault(auditId, null)));
-            } else if (AuditQuerySource.ELASTICSEARCH == querySource) {
-                String index = String.format("%s_%s", request.getStartDate().replaceAll("-", ""), auditId);
-                if (!elasticsearchApi.indexExists(index)) {
-                    LOGGER.warn("elasticsearch index={} not exists", index);
-                    continue;
-                }
-                JsonObject response = elasticsearchApi.search(index, toAuditSearchRequestJson(groupId, streamId));
-                JsonObject aggregations = response.getAsJsonObject(AGGREGATIONS).getAsJsonObject(TERM_FILED);
-                if (!aggregations.isJsonNull()) {
-                    JsonObject logTs = aggregations.getAsJsonObject(TERM_FILED);
-                    if (!logTs.isJsonNull()) {
-                        JsonArray buckets = logTs.getAsJsonArray(BUCKETS);
-                        List<AuditInfo> auditSet = new ArrayList<>();
-                        for (int i = 0; i < buckets.size(); i++) {
-                            JsonObject bucket = buckets.get(i).getAsJsonObject();
-                            AuditInfo vo = new AuditInfo();
-                            vo.setLogTs(bucket.get(KEY).getAsString());
-                            vo.setCount((long) bucket.get(AGGREGATIONS_COUNT).getAsJsonObject().get(VALUE)
-                                    .getAsLong());
-                            vo.setDelay((long) bucket.get(AGGREGATIONS_DELAY).getAsJsonObject().get(VALUE)
-                                    .getAsLong());
-                            auditSet.add(vo);
-                        }
-                        result.add(new AuditVO(auditId, auditName, auditSet, auditIdMap.getOrDefault(auditId, null)));
-                    }
-                }
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
                 AuditRunnable task = new AuditRunnable(request, auditId, auditName, result, latch, restTemplate,
                         auditQueryUrl, auditIdMap, false);
