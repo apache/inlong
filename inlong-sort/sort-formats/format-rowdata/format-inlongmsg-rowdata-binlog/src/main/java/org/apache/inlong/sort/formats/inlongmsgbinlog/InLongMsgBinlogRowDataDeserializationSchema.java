@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.formats.inlongmsgbinlog;
 
-import org.apache.inlong.sort.formats.common.RowFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgDeserializationSchema;
 import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgFormatDeserializer;
 

@@ -17,11 +17,11 @@
 
 package org.apache.inlong.sort.formats.inlongmsgbinlog;
 
-import org.apache.inlong.sort.formats.common.DateFormatInfo;
-import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.IntFormatInfo;
-import org.apache.inlong.sort.formats.common.RowFormatInfo;
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.DateFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.IntFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.StringFormatInfo;
 
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.descriptors.Descriptor;
@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.inlong.sort.formats.common.FormatUtils.marshall;
+import static org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatUtils.marshall;
 import static org.apache.inlong.sort.formats.inlongmsgbinlog.InLongMsgBinlogUtils.DEFAULT_METADATA_FIELD_NAME;
 
 public class InLongMsgBinlogTest extends DescriptorTestBase {

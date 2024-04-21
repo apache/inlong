@@ -17,11 +17,11 @@
 
 package org.apache.inlong.sort.formats.csv;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.DefaultSerializationSchema;
 import org.apache.inlong.sort.formats.base.RowDataToFieldConverters;
 import org.apache.inlong.sort.formats.base.TableFormatForRowDataUtils;
-import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.RowFormatInfo;
 
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;

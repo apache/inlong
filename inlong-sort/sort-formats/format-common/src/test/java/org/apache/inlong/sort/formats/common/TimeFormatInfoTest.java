@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.formats.common;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.TimeFormatInfo;
+
 import org.junit.Test;
 
 import java.sql.Time;

@@ -17,19 +17,19 @@
 
 package org.apache.inlong.sort.formats.json;
 
-import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
-import org.apache.inlong.sort.formats.common.BasicFormatInfo;
-import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
-import org.apache.inlong.sort.formats.common.ByteFormatInfo;
-import org.apache.inlong.sort.formats.common.DecimalFormatInfo;
-import org.apache.inlong.sort.formats.common.DoubleFormatInfo;
-import org.apache.inlong.sort.formats.common.FloatFormatInfo;
-import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.IntFormatInfo;
-import org.apache.inlong.sort.formats.common.LongFormatInfo;
-import org.apache.inlong.sort.formats.common.MapFormatInfo;
-import org.apache.inlong.sort.formats.common.RowFormatInfo;
-import org.apache.inlong.sort.formats.common.ShortFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.ArrayFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.BasicFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.BooleanFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.ByteFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.DecimalFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.DoubleFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FloatFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.IntFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.LongFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.MapFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.ShortFormatInfo;
 
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.Configuration;

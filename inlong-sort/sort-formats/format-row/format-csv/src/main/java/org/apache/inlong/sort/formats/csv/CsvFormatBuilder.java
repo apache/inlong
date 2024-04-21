@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sort.formats.csv;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.TextFormatBuilder;
-import org.apache.inlong.sort.formats.common.RowFormatInfo;
 
 import org.apache.flink.table.descriptors.DescriptorProperties;
 

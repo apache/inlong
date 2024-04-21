@@ -17,9 +17,9 @@
 
 package org.apache.inlong.sort.formats.kv;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowFormatInfo;
 import org.apache.inlong.sort.formats.base.DefaultSerializationSchema;
-import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.RowFormatInfo;
 
 import org.apache.flink.types.Row;
 import org.slf4j.Logger;

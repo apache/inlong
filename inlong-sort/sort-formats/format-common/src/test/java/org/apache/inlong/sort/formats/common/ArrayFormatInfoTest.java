@@ -17,6 +17,13 @@
 
 package org.apache.inlong.sort.formats.common;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.ArrayFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.DateFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FloatFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.MapFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.StringFormatInfo;
+
 import java.util.Arrays;
 import java.util.Collection;
 

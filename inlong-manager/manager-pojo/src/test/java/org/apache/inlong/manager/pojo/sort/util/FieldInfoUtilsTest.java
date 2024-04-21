@@ -17,6 +17,12 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.ByteTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.IntTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.LocalZonedTimestampTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.ShortTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.StringTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.TypeInfo;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.fieldtype.strategy.ClickHouseFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.IcebergFieldTypeStrategy;
@@ -26,12 +32,6 @@ import org.apache.inlong.manager.common.fieldtype.strategy.OracleFieldTypeStrate
 import org.apache.inlong.manager.common.fieldtype.strategy.PostgreSQLFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.SQLServerFieldTypeStrategy;
 import org.apache.inlong.manager.pojo.stream.StreamField;
-import org.apache.inlong.sort.formats.common.ByteTypeInfo;
-import org.apache.inlong.sort.formats.common.IntTypeInfo;
-import org.apache.inlong.sort.formats.common.LocalZonedTimestampTypeInfo;
-import org.apache.inlong.sort.formats.common.ShortTypeInfo;
-import org.apache.inlong.sort.formats.common.StringTypeInfo;
-import org.apache.inlong.sort.formats.common.TypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 
 import org.junit.jupiter.api.Assertions;

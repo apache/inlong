@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.protocol.transformation.function;
 
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.Function;
 import org.apache.inlong.sort.protocol.transformation.FunctionBaseTest;

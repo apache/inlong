@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.inlong.sort.formats.common.DecimalFormatInfo;
-import org.apache.inlong.sort.formats.common.LongFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.DecimalFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.LongFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;
