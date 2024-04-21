@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -180,6 +179,7 @@ func NewDefaultConfig() *Config {
 	c.Heartbeat.Interval = 10000 * time.Millisecond
 	c.Heartbeat.MaxRetryTimes = 5
 	c.Heartbeat.AfterFail = 60000 * time.Millisecond
+
 	c.Log.LogLevel = "warn"
 	c.Log.LogPath = "../log/tubemq.log"
 
@@ -474,9 +474,9 @@ func getConfigFromToken(config *Config, values []string) error {
 	case "authPassword":
 		config.Net.Auth.Password = values[1]
 	case "logPath":
-		config.Log.LogPath, err = parseLogPath(values[1])
+		err = log.SetLogPath(values[1])
 	case "logLevel":
-		config.Log.LogLevel, err = parseLogLevel(values[1])
+		err = log.SetLogLevel(values[1])
 	default:
 		return fmt.Errorf("address format invalid, unknown keys: %v", values[0])
 	}
@@ -492,31 +492,6 @@ func parseDuration(val string) (time.Duration, error) {
 		return 0, err
 	}
 	return time.Duration(maxWait) * time.Millisecond, err
-}
-func parseLogPath(path string) (string, error) {
-	// Check if file already exists
-	if _, err := os.Stat(path); err == nil {
-		return path, nil
-	}
-	// Attempt to create it
-	var d []byte
-	err := os.WriteFile(path, d, 0644)
-	if err == nil {
-		removeErr := os.Remove(path)
-		if removeErr != nil {
-			return "", removeErr
-		} // And delete it
-		return path, nil
-	}
-	return "", err
-}
-
-func parseLogLevel(level string) (string, error) {
-	if _, exist := log.LevelNames[level]; !exist {
-		return "",
-			errors.New("the supported log levels are: trace, debug, info, warn, error, fatal. Please check your log level")
-	}
-	return level, nil
 }
 
 type Option func(*Config)
