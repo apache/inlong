@@ -72,38 +72,39 @@ You can use InLong in the following ways：
 - Visualize your operations on [InLong dashboard](https://inlong.apache.org/docs/next/user_guide/dashboard_usage).
 
 ## Supported Data Nodes (Updating)
-| Type         | Name              | Version                      |
-|--------------|-------------------|------------------------------|
-| Extract Node | Auto Push         | None                         |
-|              | File              | None                         |
-|              | Kafka             | 2.x                          |
-|              | MongoDB           | >= 3.6                       |
-|              | MQTT              | >= 3.1                       |
-|              | MySQL             | 5.6, 5.7, 8.0.x              |
-|              | Oracle            | 11,12,19                     |
-|              | PostgreSQL        | 9.6, 10, 11, 12              |
-|              | Pulsar            | 2.8.x                        |
-|              | Redis             | 2.6.x                        |
-|              | SQLServer         | 2012, 2014, 2016, 2017, 2019 |
-| Load Node    | Auto Consumption  | None                         |
-|              | ClickHouse        | 20.7+                        |
-|              | Elasticsearch     | 6.x, 7.x                     |
-|              | Greenplum         | 4.x, 5.x, 6.x                |
-|              | HBase             | 2.2.x                        |
-|              | HDFS              | 2.x, 3.x                     |
-|              | Hive              | 1.x, 2.x, 3.x                |
-|              | Iceberg           | 0.12.x                       |
-|              | Hudi              | 0.12.x                       |
-|              | Kafka             | 2.x                          |
-|              | MySQL             | 5.6, 5.7, 8.0.x              |
-|              | Oracle            | 11, 12, 19                   |
-|              | PostgreSQL        | 9.6, 10, 11, 12              |
-|              | SQLServer         | 2012, 2014, 2016, 2017, 2019 |
-|              | TDSQL-PostgreSQL  | 10.17                        |
-|              | Doris             | >= 0.13                      |
-|              | StarRocks         | >= 2.0                       |
-|              | Kudu              | >= 1.12.0                    |
-|              | Redis             | >= 3.0                       |
+| Type         | Name             | Version                      |
+|--------------|------------------|------------------------------|
+| Extract Node | Auto Push        | None                         |
+|              | File             | None                         |
+|              | Kafka            | 2.x                          |
+|              | MongoDB          | >= 3.6                       |
+|              | MQTT             | >= 3.1                       |
+|              | MySQL            | 5.6, 5.7, 8.0.x              |
+|              | Oracle           | 11,12,19                     |
+|              | PostgreSQL       | 9.6, 10, 11, 12              |
+|              | Pulsar           | 2.8.x                        |
+|              | Redis            | 2.6.x                        |
+|              | SQLServer        | 2012, 2014, 2016, 2017, 2019 |
+| Load Node    | Auto Consumption | None                         |
+|              | ClickHouse       | 20.7+                        |
+|              | Elasticsearch    | 6.x, 7.x                     |
+|              | Greenplum        | 4.x, 5.x, 6.x                |
+|              | HBase            | 2.2.x                        |
+|              | HDFS             | 2.x, 3.x                     |
+|              | Hive             | 1.x, 2.x, 3.x                |
+|              | Iceberg          | 0.12.x                       |
+|              | Hudi             | 0.12.x                       |
+|              | Paimon           | 0.7.0+                       |
+|              | Kafka            | 2.x                          |
+|              | MySQL            | 5.6, 5.7, 8.0.x              |
+|              | Oracle           | 11, 12, 19                   |
+|              | PostgreSQL       | 9.6, 10, 11, 12              |
+|              | SQLServer        | 2012, 2014, 2016, 2017, 2019 |
+|              | TDSQL-PostgreSQL | 10.17                        |
+|              | Doris            | >= 0.13                      |
+|              | StarRocks        | >= 2.0                       |
+|              | Kudu             | >= 1.12.0                    |
+|              | Redis            | >= 3.0                       |
 
 ## Build InLong
 More detailed instructions can be found at [Quick Start](https://inlong.apache.org/docs/next/quick_start/how_to_build) section in the documentation.

@@ -140,6 +140,26 @@ const hudiFieldTypes = [
   value: item,
 }));
 
+const paimonFieldTypes = [
+  'int',
+  'long',
+  'string',
+  'float',
+  'double',
+  'date',
+  'timestamp',
+  'time',
+  'boolean',
+  'decimal',
+  'timestamptz',
+  'binary',
+  'fixed',
+  'uuid',
+].map(item => ({
+  label: item,
+  value: item,
+}));
+
 const icebergFieldTypes = [
   'string',
   'boolean',

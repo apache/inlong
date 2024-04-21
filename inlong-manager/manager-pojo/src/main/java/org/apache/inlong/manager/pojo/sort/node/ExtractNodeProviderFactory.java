@@ -26,6 +26,7 @@ import org.apache.inlong.manager.pojo.sort.node.provider.KafkaProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.MongoDBProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.MySQLBinlogProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.OracleProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.PaimonProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.PostgreSQLProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.PulsarProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.RedisProvider;
@@ -48,6 +49,7 @@ public class ExtractNodeProviderFactory {
     static {
         // The Providers Parsing SourceInfo to ExtractNode which sort needed
         EXTRACT_NODE_PROVIDER_LIST.add(new HudiProvider());
+        EXTRACT_NODE_PROVIDER_LIST.add(new PaimonProvider());
         EXTRACT_NODE_PROVIDER_LIST.add(new KafkaProvider());
         EXTRACT_NODE_PROVIDER_LIST.add(new MongoDBProvider());
         EXTRACT_NODE_PROVIDER_LIST.add(new OracleProvider());

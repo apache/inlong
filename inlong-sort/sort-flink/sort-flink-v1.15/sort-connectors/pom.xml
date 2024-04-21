@@ -42,6 +42,7 @@
         <module>tubemq</module>
         <module>hbase</module>
         <module>hudi</module>
+        <module>paimon</module>
         <module>kafka</module>
         <module>redis</module>
     </modules>

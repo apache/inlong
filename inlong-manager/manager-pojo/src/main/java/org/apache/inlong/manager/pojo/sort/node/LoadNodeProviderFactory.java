@@ -33,6 +33,7 @@ import org.apache.inlong.manager.pojo.sort.node.provider.KafkaProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.KuduProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.MySQLProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.OracleProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.PaimonProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.PostgreSQLProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.RedisProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.SQLServerProvider;
@@ -63,6 +64,7 @@ public class LoadNodeProviderFactory {
         LOAD_NODE_PROVIDER_LIST.add(new HDFSProvider());
         LOAD_NODE_PROVIDER_LIST.add(new HiveProvider());
         LOAD_NODE_PROVIDER_LIST.add(new HudiProvider());
+        LOAD_NODE_PROVIDER_LIST.add(new PaimonProvider());
         LOAD_NODE_PROVIDER_LIST.add(new IcebergProvider());
         LOAD_NODE_PROVIDER_LIST.add(new KuduProvider());
         LOAD_NODE_PROVIDER_LIST.add(new MySQLProvider());

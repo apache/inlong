@@ -108,6 +108,14 @@
         <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
+            <directory>../inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/paimon/target</directory>
+            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <includes>
+                <include>sort-connector-paimon-v1.15-${project.version}.jar</include>
+            </includes>
+        <fileMode>0644</fileMode>
+        </fileSet>
+        <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/kafka/target</directory>
             <outputDirectory>inlong-sort/connectors</outputDirectory>
             <includes>

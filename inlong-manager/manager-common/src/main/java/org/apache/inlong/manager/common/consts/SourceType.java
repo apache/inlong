@@ -22,6 +22,8 @@ import org.apache.inlong.common.enums.TaskTypeEnum;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.apache.inlong.manager.common.consts.DataNodeType.PAIMON;
+
 /**
  * Constants of source type.
  */
@@ -55,6 +57,7 @@ public class SourceType extends StreamType {
             put(REDIS, TaskTypeEnum.REDIS);
             put(MQTT, TaskTypeEnum.MQTT);
             put(HUDI, TaskTypeEnum.HUDI);
+            put(PAIMON, TaskTypeEnum.PAIMON);
 
         }
     };

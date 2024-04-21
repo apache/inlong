@@ -29,6 +29,9 @@ public class StreamType {
     public static final String HUDI = "HUDI";
 
     @SupportSortType(sortType = SortType.SORT_FLINK)
+    public static final String PAIMON = "PAIMON";
+
+    @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String POSTGRESQL = "POSTGRESQL";
 
     @SupportSortType(sortType = SortType.SORT_FLINK)
