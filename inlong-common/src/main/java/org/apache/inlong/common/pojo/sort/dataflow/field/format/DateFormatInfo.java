@@ -50,11 +50,15 @@ public class DateFormatInfo implements BasicFormatInfo<Date> {
     @Nullable
     private final SimpleDateFormat simpleDateFormat;
 
+    @JsonIgnore
+    @Nullable
+    private final ThreadLocal<SimpleDateFormat> threadLocal;
+
     @JsonCreator
     public DateFormatInfo(
             @JsonProperty(FIELD_FORMAT) @Nonnull String format) {
         this.format = format;
-
+        this.threadLocal = new ThreadLocal<>();
         if (!format.equals("SECONDS")
                 && !format.equals("MILLIS")
                 && !format.equals("MICROS")
@@ -80,6 +84,17 @@ public class DateFormatInfo implements BasicFormatInfo<Date> {
         return DateTypeInfo.INSTANCE;
     }
 
+    private SimpleDateFormat get() {
+        if (simpleDateFormat == null) {
+            throw new IllegalStateException();
+        }
+        SimpleDateFormat local = threadLocal.get();
+        if (local == null) {
+            threadLocal.set((SimpleDateFormat) simpleDateFormat.clone());
+        }
+        return threadLocal.get();
+    }
+
     @Override
     public String serialize(Date date) {
         switch (format) {
@@ -98,11 +113,7 @@ public class DateFormatInfo implements BasicFormatInfo<Date> {
                 return Long.toString(seconds);
             }
             default: {
-                if (simpleDateFormat == null) {
-                    throw new IllegalStateException();
-                }
-
-                return simpleDateFormat.format(date);
+                return get().format(date);
             }
         }
     }
@@ -126,11 +137,7 @@ public class DateFormatInfo implements BasicFormatInfo<Date> {
                 return new Date(millis);
             }
             default: {
-                if (simpleDateFormat == null) {
-                    throw new IllegalStateException();
-                }
-
-                java.util.Date jDate = simpleDateFormat.parse(text.trim());
+                java.util.Date jDate = get().parse(text.trim());
                 return new Date(jDate.getTime());
             }
         }

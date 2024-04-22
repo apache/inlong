@@ -52,6 +52,10 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
     @JsonIgnore
     @Nullable
     private final SimpleDateFormat simpleDateFormat;
+    
+    @JsonIgnore
+    @Nullable
+    private final ThreadLocal<SimpleDateFormat> threadLocal;
 
     @JsonProperty("precision")
     private int precision;
@@ -62,6 +66,7 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
             @JsonProperty("precision") int precision) {
         this.format = format;
         this.precision = precision;
+        this.threadLocal = new ThreadLocal<>();
         if (!format.equals("MICROS")
                 && !format.equals("MILLIS")
                 && !format.equals("SECONDS")
@@ -83,6 +88,17 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
 
     public TimestampFormatInfo(@JsonProperty("precision") int precision) {
         this("yyyy-MM-dd HH:mm:ss", precision);
+    }
+
+    private SimpleDateFormat get() {
+        if (simpleDateFormat == null) {
+            throw new IllegalStateException();
+        }
+        SimpleDateFormat local = threadLocal.get();
+        if (local == null) {
+            threadLocal.set((SimpleDateFormat) simpleDateFormat.clone());
+        }
+        return threadLocal.get();
     }
 
     @Nonnull
@@ -114,11 +130,7 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
                 return Long.toString(seconds);
             }
             default: {
-                if (simpleDateFormat == null) {
-                    throw new IllegalStateException();
-                }
-
-                return simpleDateFormat.format(timestamp);
+                return get().format(timestamp);
             }
         }
     }
@@ -141,11 +153,7 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
                 return new Timestamp(millis);
             }
             default: {
-                if (simpleDateFormat == null) {
-                    throw new IllegalStateException();
-                }
-
-                Date date = simpleDateFormat.parse(text);
+                Date date = get().parse(text);
                 return new Timestamp(date.getTime());
             }
         }

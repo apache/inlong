@@ -50,6 +50,9 @@ public class TimeFormatInfo implements BasicFormatInfo<Time> {
     @JsonIgnore
     @Nullable
     private final SimpleDateFormat simpleDateFormat;
+    @JsonIgnore
+    @Nullable
+    private final ThreadLocal<SimpleDateFormat> threadLocal;
     @JsonProperty("precision")
     private int precision;
 
@@ -59,6 +62,7 @@ public class TimeFormatInfo implements BasicFormatInfo<Time> {
             @JsonProperty("precision") int precision) {
         this.format = format;
         this.precision = precision;
+        this.threadLocal = new ThreadLocal<>();
         if (!format.equals("MICROS")
                 && !format.equals("MILLIS")
                 && !format.equals("SECONDS")
@@ -76,6 +80,17 @@ public class TimeFormatInfo implements BasicFormatInfo<Time> {
 
     public TimeFormatInfo() {
         this("HH:mm:ss", DEFAULT_PRECISION_FOR_TIMESTAMP);
+    }
+
+    private SimpleDateFormat get() {
+        if (simpleDateFormat == null) {
+            throw new IllegalStateException();
+        }
+        SimpleDateFormat local = threadLocal.get();
+        if (local == null) {
+            threadLocal.set((SimpleDateFormat) simpleDateFormat.clone());
+        }
+        return threadLocal.get();
     }
 
     @Nonnull
@@ -106,11 +121,7 @@ public class TimeFormatInfo implements BasicFormatInfo<Time> {
                 return Long.toString(seconds);
             }
             default: {
-                if (simpleDateFormat == null) {
-                    throw new IllegalStateException();
-                }
-
-                return simpleDateFormat.format(time);
+                return get().format(time);
             }
         }
     }
@@ -133,11 +144,7 @@ public class TimeFormatInfo implements BasicFormatInfo<Time> {
                 return new Time(millis);
             }
             default: {
-                if (simpleDateFormat == null) {
-                    throw new IllegalStateException();
-                }
-
-                Date date = simpleDateFormat.parse(text);
+                Date date = get().parse(text);
                 return new Time(date.getTime());
             }
         }
