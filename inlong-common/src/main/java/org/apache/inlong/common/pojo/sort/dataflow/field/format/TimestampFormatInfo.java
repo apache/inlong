@@ -52,7 +52,7 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
     @JsonIgnore
     @Nullable
     private final SimpleDateFormat simpleDateFormat;
-    
+
     @JsonIgnore
     @Nullable
     private final ThreadLocal<SimpleDateFormat> threadLocal;
