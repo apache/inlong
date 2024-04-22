@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
 	"net/url"
 	"strconv"
 	"strings"
@@ -143,6 +144,15 @@ type Config struct {
 		// AfterFail is the heartbeat timeout after a heartbeat failure.
 		AfterFail time.Duration
 	}
+
+	// Log is the namespace for configuration related to log messages,
+	// used by the logger
+	Log struct {
+		// LogPath represents the path where the log save in
+		LogPath string
+		// LogLevel represents the level of log
+		LogLevel string
+	}
 }
 
 // NewDefaultConfig returns a default config of the client.
@@ -174,6 +184,9 @@ func NewDefaultConfig() *Config {
 	c.Heartbeat.Interval = 10000 * time.Millisecond
 	c.Heartbeat.MaxRetryTimes = 5
 	c.Heartbeat.AfterFail = 60000 * time.Millisecond
+
+	c.Log.LogLevel = "warn"
+	c.Log.LogPath = "../log/tubemq.log"
 
 	return c
 }
@@ -465,6 +478,16 @@ func getConfigFromToken(config *Config, values []string) error {
 		config.Net.Auth.UserName = values[1]
 	case "authPassword":
 		config.Net.Auth.Password = values[1]
+	case "logPath":
+		err = log.SetLogPath(values[1])
+		if err == nil {
+			config.Log.LogPath = values[1]
+		}
+	case "logLevel":
+		err = log.SetLogLevel(values[1])
+		if err == nil {
+			config.Log.LogLevel = values[1]
+		}
 	default:
 		return fmt.Errorf("address format invalid, unknown keys: %v", values[0])
 	}
@@ -618,5 +641,29 @@ func WithBoundConsume(sessionKey string, sourceCount int, selectBig bool, partOf
 func WithConsumePosition(consumePosition int) Option {
 	return func(c *Config) {
 		c.Consumer.ConsumePosition = consumePosition
+	}
+}
+
+// WithLogLevel set log level
+func WithLogLevel(level string) Option {
+	return func(c *Config) {
+		err := log.SetLogLevel(level)
+		if err != nil {
+			log.Errorf("[Log]log level setting error: %s", err.Error())
+			return
+		}
+		c.Log.LogLevel = level
+	}
+}
+
+// WithLogPath set log path
+func WithLogPath(path string) Option {
+	return func(c *Config) {
+		err := log.SetLogPath(path)
+		if err != nil {
+			log.Errorf("[Log]log path setting error %s", err.Error())
+			return
+		}
+		c.Log.LogPath = path
 	}
 }
