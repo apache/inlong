@@ -56,14 +56,15 @@ func SetLogLevel(level string) error {
 
 // SetLogPath set log path
 func SetLogPath(path string) error {
-	err := isValidLogPath(path)
+	err := verifyLogPath(path)
 	if err != nil {
 		return err
 	}
 	defaultConfig.LogPath = path
 	return nil
 }
-func isValidLogPath(path string) error {
+
+func verifyLogPath(path string) error {
 	// Check if file already exists
 	if _, err := os.Stat(path); err == nil {
 		return nil

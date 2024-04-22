@@ -144,8 +144,13 @@ type Config struct {
 		// AfterFail is the heartbeat timeout after a heartbeat failure.
 		AfterFail time.Duration
 	}
+
+	// Log is the namespace for configuration related to log messages,
+	// used by the logger
 	Log struct {
-		LogPath  string
+		// LogPath represents the path where the log save in
+		LogPath string
+		// LogLevel represents the level of log
 		LogLevel string
 	}
 }
@@ -642,6 +647,11 @@ func WithConsumePosition(consumePosition int) Option {
 // WithLogLevel set log level
 func WithLogLevel(level string) Option {
 	return func(c *Config) {
+		err := log.SetLogLevel(level)
+		if err != nil {
+			log.Errorf("[Log]log level setting error: %s", err.Error())
+			return
+		}
 		c.Log.LogLevel = level
 	}
 }
@@ -649,6 +659,11 @@ func WithLogLevel(level string) Option {
 // WithLogPath set log path
 func WithLogPath(path string) Option {
 	return func(c *Config) {
+		err := log.SetLogPath(path)
+		if err != nil {
+			log.Errorf("[Log]log path setting error %s", err.Error())
+			return
+		}
 		c.Log.LogPath = path
 	}
 }
