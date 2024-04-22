@@ -101,10 +101,11 @@ public abstract class AbstractSource implements Source {
     protected volatile boolean runnable = true;
     protected volatile boolean running = false;
     protected String taskId;
+    protected long auditVersion;
     protected String instanceId;
     protected InstanceProfile profile;
     private ExtendedHandler extendedHandler;
-    private boolean isRealTime = false;
+    protected boolean isRealTime = false;
     protected volatile long emptyCount = 0;
     protected int maxPackSize;
     private static final ThreadPoolExecutor EXECUTOR_SERVICE = new ThreadPoolExecutor(
@@ -118,6 +119,7 @@ public abstract class AbstractSource implements Source {
     public void init(InstanceProfile profile) {
         this.profile = profile;
         taskId = profile.getTaskId();
+        auditVersion = Long.parseLong(taskId);
         instanceId = profile.getInstanceId();
         inlongGroupId = profile.getInlongGroupId();
         inlongStreamId = profile.getInlongStreamId();
@@ -333,9 +335,9 @@ public abstract class AbstractSource implements Source {
             auditTime = profile.getSinkDataTime();
         }
         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, header.get(PROXY_KEY_STREAM_ID),
-                auditTime, 1, sourceData.getData().length);
+                auditTime, 1, sourceData.getData().length, auditVersion);
         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS_REAL_TIME, inlongGroupId, header.get(PROXY_KEY_STREAM_ID),
-                AgentUtils.getCurrentTime(), 1, sourceData.getData().length);
+                AgentUtils.getCurrentTime(), 1, sourceData.getData().length, auditVersion);
         Message finalMsg = new DefaultMessage(sourceData.getData(), header);
         // if the message size is greater than max pack size,should drop it.
         if (finalMsg.getBody().length > maxPackSize) {

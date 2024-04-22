@@ -30,6 +30,8 @@ import static org.apache.inlong.agent.constant.AgentConstants.AUDIT_ENABLE;
 import static org.apache.inlong.agent.constant.AgentConstants.AUDIT_KEY_PROXYS;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AUDIT_ENABLE;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AUDIT_PROXYS;
+import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
+import static org.apache.inlong.common.constant.Constants.DEFAULT_AUDIT_VERSION;
 
 /**
  * AuditUtils
@@ -42,6 +44,7 @@ public class AuditUtils {
     public static final int AUDIT_DEFAULT_MAX_CACHE_ROWS = 2000000;
     public static final int AUDIT_ID_AGENT_READ_SUCCESS = 3;
     public static final int AUDIT_ID_AGENT_SEND_SUCCESS = 4;
+    public static final int AUDIT_ID_AGENT_READ_FAILED = 10003;
     public static final int AUDIT_ID_AGENT_SEND_FAILED = 10004;
     public static final int AUDIT_ID_AGENT_READ_SUCCESS_REAL_TIME = 30001;
     public static final int AUDIT_ID_AGENT_SEND_SUCCESS_REAL_TIME = 30002;
@@ -54,6 +57,7 @@ public class AuditUtils {
     public static final int AUDIT_ID_AGENT_INSTANCE_MGR_HEARTBEAT = 30009;
     public static final int AUDIT_ID_AGENT_INSTANCE_HEARTBEAT = 30010;
     public static final int AUDIT_ID_AGENT_SEND_FAILED_REAL_TIME = 30011;
+    public static final int AUDIT_ID_AGENT_READ_FAILED_REAL_TIME = 30012;
     public static final int AUDIT_ID_AGENT_ADD_INSTANCE_MEM_FAILED = 30013;
     public static final int AUDIT_ID_AGENT_DEL_INSTANCE_MEM_UNUSUAL = 30014;
     public static final int AUDIT_ID_AGENT_TRY_SEND = 30020;
@@ -93,11 +97,17 @@ public class AuditUtils {
      * Add audit metric
      */
     public static void add(int auditID, String inlongGroupId, String inlongStreamId,
-            long logTime, int count, long size) {
+            long logTime, int count, long size, long version) {
         if (!IS_AUDIT) {
             return;
         }
-        AuditOperator.getInstance().add(auditID, inlongGroupId, inlongStreamId, logTime, count, size);
+        AuditOperator.getInstance()
+                .add(auditID, DEFAULT_AUDIT_TAG, inlongGroupId, inlongStreamId, logTime, count, size, version);
+    }
+
+    public static void add(int auditID, String inlongGroupId, String inlongStreamId,
+            long logTime, int count, long size) {
+        add(auditID, inlongGroupId, inlongStreamId, logTime, count, size, DEFAULT_AUDIT_VERSION);
     }
 
     /**

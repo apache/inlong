@@ -59,12 +59,14 @@ public abstract class CommonInstance extends Instance {
     private volatile int checkFinishCount = 0;
     private int heartbeatcheckCount = 0;
     private long heartBeatStartTime = AgentUtils.getCurrentTime();
+    protected long auditVersion;
 
     @Override
     public boolean init(Object srcManager, InstanceProfile srcProfile) {
         try {
             instanceManager = (InstanceManager) srcManager;
             profile = srcProfile;
+            auditVersion = Long.parseLong(getTaskId());
             setInodeInfo(profile);
             LOGGER.info("task id: {} submit new instance {} profile detail {}.", profile.getTaskId(),
                     profile.getInstanceId(), profile.toJsonStr());
@@ -153,7 +155,7 @@ public abstract class CommonInstance extends Instance {
     private void heartbeatStatic() {
         if (AgentUtils.getCurrentTime() - heartBeatStartTime > TimeUnit.SECONDS.toMillis(1)) {
             AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_INSTANCE_HEARTBEAT, profile.getInlongGroupId(),
-                    profile.getInlongStreamId(), AgentUtils.getCurrentTime(), 1, 1);
+                    profile.getInlongStreamId(), AgentUtils.getCurrentTime(), 1, 1, auditVersion);
             heartbeatcheckCount = 0;
             heartBeatStartTime = AgentUtils.getCurrentTime();
         }
