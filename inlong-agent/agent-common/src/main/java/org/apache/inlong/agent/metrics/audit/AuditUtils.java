@@ -107,9 +107,6 @@ public class AuditUtils {
 
     public static void add(int auditID, String inlongGroupId, String inlongStreamId,
             long logTime, int count, long size) {
-        if (!IS_AUDIT) {
-            return;
-        }
         add(auditID, inlongGroupId, inlongStreamId, logTime, count, size, DEFAULT_AUDIT_VERSION);
     }
 
