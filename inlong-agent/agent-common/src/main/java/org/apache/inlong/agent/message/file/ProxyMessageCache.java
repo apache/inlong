@@ -39,6 +39,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_PAC
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_SIZE;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_TIMEOUT_MS;
+import static org.apache.inlong.common.msg.AttributeConstants.AUDIT_VERSION;
 
 /**
  * Handle List of Proxy Message, which belong to the same stream id.
@@ -77,6 +78,7 @@ public class ProxyMessageCache {
         dataTime = instanceProfile.getSinkDataTime();
         extraMap.put(AttributeConstants.MESSAGE_SYNC_SEND, "false");
         extraMap.putAll(AgentUtils.parseAddAttrToMap(instanceProfile.getPredefineFields()));
+        extraMap.put(AUDIT_VERSION, taskId);
     }
 
     public void generateExtraMap(String dataKey) {
