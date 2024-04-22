@@ -153,7 +153,7 @@ public class AuditServiceImpl implements AuditService {
 
     @Value("${audit.query.source}")
     private String auditQuerySource;
-    @Value("${audit.query.url:http://127.0.0.1}")
+    @Value("${audit.query.url:http://127.0.0.1:10080}")
     private String auditQueryUrl;
 
     @Autowired
