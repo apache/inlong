@@ -34,7 +34,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id , cluster_tag, cluster_type, config_params, is_deleted, creator, modifier, create_time, modify_time, version
+        id, cluster_tag, cluster_type, config_params, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.ClusterConfigEntity">

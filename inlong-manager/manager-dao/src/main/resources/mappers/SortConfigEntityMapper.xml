@@ -38,7 +38,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id , sink_id, sink_type, inlong_cluster_tag, inlong_cluster_name, sort_task_name, data_node_name, config_params, is_deleted, creator, modifier, create_time, modify_time, version
+        id, sink_id, sink_type, inlong_cluster_tag, inlong_cluster_name, sort_task_name, data_node_name, config_params, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.SortConfigEntity">

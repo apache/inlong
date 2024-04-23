@@ -98,6 +98,7 @@ CREATE TABLE IF NOT EXISTS `cluster_config`
 (
     `id`                  int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `cluster_tag`         varchar(128)  NOT NULL COMMENT 'Inlong cluster tag',
+    `cluster_type`        varchar(128)  NOT NULL COMMENT 'Inlong cluster type',
     `config_params`       text          NOT NULL COMMENT 'The cluster params',
     `creator`             varchar(128)  DEFAULT NULL COMMENT 'Creator',
     `modifier`            varchar(128)  DEFAULT NULL COMMENT 'Modifier name',
