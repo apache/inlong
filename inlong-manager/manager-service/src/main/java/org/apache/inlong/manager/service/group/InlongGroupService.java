@@ -225,7 +225,6 @@ public interface InlongGroupService {
 
     Boolean finishTagSwitch(String groupId);
 
-
     /**
      * List group detail by cluster tag
      *
