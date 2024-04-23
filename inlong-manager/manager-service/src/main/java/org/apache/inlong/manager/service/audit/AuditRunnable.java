@@ -121,7 +121,7 @@ public class AuditRunnable implements Runnable {
                         .append("&inlongGroupId=").append(groupId)
                         .append("&inlongStreamId=").append(streamId);
             }
-            builder.append("startTime=").append(start)
+            builder.append("&startTime=").append(start)
                     .append("&endTime=").append(end)
                     .append("&auditId=").append(auditId);
             String url = builder.toString();
