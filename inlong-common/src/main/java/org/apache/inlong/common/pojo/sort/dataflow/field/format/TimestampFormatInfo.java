@@ -17,16 +17,14 @@
 
 package org.apache.inlong.common.pojo.sort.dataflow.field.format;
 
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -49,10 +47,6 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
     @Nonnull
     private final String format;
 
-    @JsonIgnore
-    @Nullable
-    private final SimpleDateFormat simpleDateFormat;
-
     @JsonProperty("precision")
     private int precision;
 
@@ -62,14 +56,12 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
             @JsonProperty("precision") int precision) {
         this.format = format;
         this.precision = precision;
-        if (!format.equals("MICROS")
+        if (!format.equals("SECONDS")
                 && !format.equals("MILLIS")
-                && !format.equals("SECONDS")
+                && !format.equals("MICROS")
                 && !DATE_AND_TIME_STANDARD_SQL.equals(format)
                 && !DATE_AND_TIME_STANDARD_ISO_8601.equals(format)) {
-            this.simpleDateFormat = new SimpleDateFormat(format);
-        } else {
-            this.simpleDateFormat = null;
+            FastDateFormat.getInstance(format);
         }
     }
 
@@ -114,11 +106,7 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
                 return Long.toString(seconds);
             }
             default: {
-                if (simpleDateFormat == null) {
-                    throw new IllegalStateException();
-                }
-
-                return simpleDateFormat.format(timestamp);
+                return FastDateFormat.getInstance(format).format(timestamp.getTime());
             }
         }
     }
@@ -141,11 +129,7 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
                 return new Timestamp(millis);
             }
             default: {
-                if (simpleDateFormat == null) {
-                    throw new IllegalStateException();
-                }
-
-                Date date = simpleDateFormat.parse(text);
+                Date date = FastDateFormat.getInstance(format).parse(text);
                 return new Timestamp(date.getTime());
             }
         }
