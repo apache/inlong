@@ -236,7 +236,7 @@ public class LogFileTask extends AbstractTask {
             runAtLeastOneTime = true;
         }
         dealWithEventMap();
-        if (allInstanceFinished()) {
+        if (instanceQueue.isEmpty() && allInstanceFinished()) {
             LOGGER.info("retry task finished, send action to task manager, taskId {}", getTaskId());
             TaskAction action = new TaskAction(org.apache.inlong.agent.core.task.ActionType.FINISH, taskProfile);
             taskManager.submitAction(action);
