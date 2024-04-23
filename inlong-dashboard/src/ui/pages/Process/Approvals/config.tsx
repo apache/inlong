@@ -88,8 +88,8 @@ export const getColumns = activedName => [
     width: 200,
     render: (text, record) =>
       record.showInList
-        ?.filter(item => item.consumeName)
-        ?.map(item => item.consumeName)
+        ?.filter(item => item.consumerGroup)
+        ?.map(item => item.consumerGroup)
         .join(';'),
   },
   {
