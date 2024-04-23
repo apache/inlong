@@ -84,7 +84,7 @@ public class SortServiceImpl implements SortService, PluginBinder {
     private static final int RESPONSE_CODE_SUCCESS = 0;
     private static final int RESPONSE_CODE_NO_UPDATE = 1;
     private static final int RESPONSE_CODE_FAIL = -1;
-    private static final int RESPONSE_CODE_REQ_PARAMS_ERROR = -101;
+    private static final int RESPONSE_CODE_REQUEST_PARAMS_ERROR = -101;
     @Lazy
     @Autowired
     private SortSourceService sortSourceService;
@@ -193,10 +193,10 @@ public class SortServiceImpl implements SortService, PluginBinder {
     @Override
     public SortConfigResponse getSortConfig(String clusterName, String md5) {
         if (StringUtils.isBlank(clusterName)) {
-            String errMsg = "blank cluster name or task name, return nothing";
+            String errMsg = "cluster name is blank, return nothing";
             log.debug(errMsg);
             return SortConfigResponse.builder()
-                    .code(RESPONSE_CODE_REQ_PARAMS_ERROR)
+                    .code(RESPONSE_CODE_REQUEST_PARAMS_ERROR)
                     .msg(errMsg)
                     .build();
         }

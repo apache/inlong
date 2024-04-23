@@ -29,9 +29,9 @@ import lombok.NoArgsConstructor;
 public class SortConfigResponse {
 
     public static final int SUCC = 0;
-    public static final int NOUPDATE = 1;
+    public static final int NO_UPDATE = 1;
     public static final int FAIL = -1;
-    public static final int REQ_PARAMS_ERROR = -101;
+    public static final int REQUEST_PARAMS_ERROR = -101;
 
     String msg;
     int code;

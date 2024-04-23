@@ -74,7 +74,7 @@ public class InlongClusterProcessService {
      * Create cluster in synchronous/asynchronous way.
      */
     public boolean startProcess(String clusterTag, String operator, boolean sync) {
-        log.info("begin to start cluster process for clusterTag={}, operator={}", clusterTag, operator);
+        log.info("start cluster process for clusterTag={}, operator={}", clusterTag, operator);
 
         List<GroupFullInfo> groupFullInfoList = new ArrayList<>();
         LoginUserUtils.getLoginUser().getRoles().add(UserRoleCode.INLONG_SERVICE);
@@ -91,8 +91,7 @@ public class InlongClusterProcessService {
             ProcessStatus processStatus = workflowResult.getProcessInfo().getStatus();
             return processStatus == ProcessStatus.COMPLETED;
         } else {
-            log.info("begin to start cluster process for clusterTag={}, form={}", clusterTag,
-                    clusterResourceProcessForm);
+            log.info("start cluster process for clusterTag={}, form={}", clusterTag, clusterResourceProcessForm);
             UserInfo userInfo = LoginUserUtils.getLoginUser();
             EXECUTOR_SERVICE.execute(
                     () -> workflowService.startAsync(processName, userInfo, clusterResourceProcessForm));

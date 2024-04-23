@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.pojo.workflow.form.process;
 
+import org.apache.inlong.manager.common.exceptions.FormValidateException;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -36,4 +38,8 @@ import lombok.Data;
 })
 public abstract class BaseProcessForm implements ProcessForm {
 
+    @Override
+    public void validate() throws FormValidateException {
+
+    }
 }

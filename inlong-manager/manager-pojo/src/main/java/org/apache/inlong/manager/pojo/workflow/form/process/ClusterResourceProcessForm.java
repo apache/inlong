@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.workflow.form.process;
 
-import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.pojo.group.GroupFullInfo;
 
 import lombok.Data;
@@ -47,11 +46,6 @@ public class ClusterResourceProcessForm extends BaseProcessForm {
         processForm.setInlongClusterTag(inlongClusterTag);
         processForm.setGroupFullInfoList(groupFullInfoList);
         return processForm;
-    }
-
-    @Override
-    public void validate() throws FormValidateException {
-
     }
 
     @Override
