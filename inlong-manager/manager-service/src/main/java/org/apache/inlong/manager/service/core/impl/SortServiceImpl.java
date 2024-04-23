@@ -100,11 +100,20 @@ public class SortServiceImpl implements SortService, PluginBinder {
     @Autowired
     private DataNodeOperatorFactory dataNodeOperatorFactory;
     /**
-     * key 1: cluster name, key 2: task name, value : md5
+     * key 1: sort cluster name, value : sort config
      */
     private Map<String, String> sortConfigMap = new ConcurrentHashMap<>();
+    /**
+     * key 1: sort cluster name, value : md5
+     */
     private Map<String, String> sortConfigMd5Map = new ConcurrentHashMap<>();
+    /**
+     * key 1: mq cluster name, value : mq cluster config
+     */
     private Map<String, List<MqClusterConfig>> mqClusterConfigMap = new ConcurrentHashMap<>();
+    /**
+     * key 1: data node name, value : data node config
+     */
     private Map<String, NodeConfig> nodeInfoMap = new ConcurrentHashMap<>();
     /**
      * The plugin poller will be initialed after the application starts.

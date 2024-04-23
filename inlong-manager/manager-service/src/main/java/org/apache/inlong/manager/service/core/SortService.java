@@ -70,6 +70,13 @@ public interface SortService {
      */
     List<SortStatusInfo> listSortStatus(SortStatusRequest request);
 
+    /**
+     * Get Sort config info.
+     *
+     * @param clusterName Cluster name
+     * @param md5 Last update md5.
+     * @return Sort config info
+     */
     SortConfigResponse getSortConfig(String clusterName, String md5);
 
 }

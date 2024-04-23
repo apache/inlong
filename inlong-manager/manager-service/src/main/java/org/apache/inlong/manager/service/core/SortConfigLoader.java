@@ -113,10 +113,15 @@ public interface SortConfigLoader {
     /**
      * Load all Sink config info
      *
-     * @return List of fields info
+     * @return List of sort config info
      */
     List<SortConfigEntity> loadAllSortConfigEntity();
 
+    /**
+     * Load all cluster config info
+     *
+     * @return List of cluster config info
+     */
     List<ClusterConfigEntity> loadAllClusterConfigEntity();
 
 }

@@ -225,8 +225,19 @@ public interface InlongGroupService {
 
     Boolean finishTagSwitch(String groupId);
 
+
+    /**
+     * List group detail by cluster tag
+     *
+     * @return List of inlong group detail, including cluster info and sort info
+     */
     List<GroupFullInfo> getGroupByClusterTag(String clusterTag);
 
+    /**
+     * List group detail by back up cluster tag
+     *
+     * @return List of inlong group detail, including cluster info and sort info
+     */
     List<GroupFullInfo> getGroupByBackUpClusterTag(String clusterTag);
 
 }
