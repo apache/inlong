@@ -76,13 +76,21 @@ export const getColumns = activedName => [
   {
     title: i18n.t('pages.Approvals.GroupId'),
     dataIndex: 'inlongGroupId',
-    render: (text, record) => record.showInList?.inlongGroupId,
+    render: (text, record) =>
+      record.showInList
+        ?.filter(item => item.inlongGroupId)
+        ?.map(item => item.inlongGroupId)
+        .join(';'),
   },
   {
     title: i18n.t('pages.Approvals.ConsumeName'),
     dataIndex: 'consumerGroup',
     width: 200,
-    render: (text, record) => record.showInList?.consumerGroup,
+    render: (text, record) =>
+      record.showInList
+        ?.filter(item => item.consumerGroup)
+        ?.map(item => item.consumerGroup)
+        .join(';'),
   },
   {
     title: i18n.t('pages.Approvals.GroupMode'),
