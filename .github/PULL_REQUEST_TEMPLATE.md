@@ -1,19 +1,20 @@
-### Prepare a Pull Request
-*(Change the title refer to the following example)*
+<!-- Prepare a Pull Request
+Change the title of pull request refer to the following example:
+  [INLONG-XYZ][Component] Title of the pull request 
+-->
 
-- Title Example: [INLONG-XYZ][Component] Title of the pull request
+<!-- Specify the issue this pull request going to fix.
+The following *XYZ* should be replaced by the actual [GitHub Issue](https://github.com/apache/inlong/issues) number)-->
 
-*(The following *XYZ* should be replaced by the actual [GitHub Issue](https://github.com/apache/inlong/issues) number)*
-
-- Fixes #XYZ
+Fixes #XYZ
 
 ### Motivation
 
-*Explain here the context, and why you're making that change. What is the problem you're trying to solve?*
+<!--Explain here the context, and why you're making that change. What is the problem you're trying to solve.-->
 
 ### Modifications
 
-*Describe the modifications you've done.*
+<!--Describe the modifications you've done.-->
 
 ### Verifying this change
 
