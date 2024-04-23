@@ -17,21 +17,16 @@
 
 package org.apache.inlong.common.pojo.sort.dataflow.field.format;
 
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import java.sql.Date;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-
-import static org.apache.inlong.common.pojo.sort.dataflow.field.format.Constants.DATE_AND_TIME_STANDARD_ISO_8601;
-import static org.apache.inlong.common.pojo.sort.dataflow.field.format.Constants.DATE_AND_TIME_STANDARD_SQL;
 
 /**
  * The format information for {@link Date}s.
@@ -46,28 +41,10 @@ public class DateFormatInfo implements BasicFormatInfo<Date> {
     @Nonnull
     private final String format;
 
-    @JsonIgnore
-    @Nullable
-    private final SimpleDateFormat simpleDateFormat;
-
-    @JsonIgnore
-    @Nullable
-    private final ThreadLocal<SimpleDateFormat> threadLocal;
-
     @JsonCreator
     public DateFormatInfo(
             @JsonProperty(FIELD_FORMAT) @Nonnull String format) {
         this.format = format;
-        this.threadLocal = new ThreadLocal<>();
-        if (!format.equals("SECONDS")
-                && !format.equals("MILLIS")
-                && !format.equals("MICROS")
-                && !DATE_AND_TIME_STANDARD_SQL.equals(format)
-                && !DATE_AND_TIME_STANDARD_ISO_8601.equals(format)) {
-            this.simpleDateFormat = new SimpleDateFormat(format);
-        } else {
-            this.simpleDateFormat = null;
-        }
     }
 
     public DateFormatInfo() {
@@ -82,17 +59,6 @@ public class DateFormatInfo implements BasicFormatInfo<Date> {
     @Override
     public DateTypeInfo getTypeInfo() {
         return DateTypeInfo.INSTANCE;
-    }
-
-    private SimpleDateFormat get() {
-        if (simpleDateFormat == null) {
-            throw new IllegalStateException();
-        }
-        SimpleDateFormat local = threadLocal.get();
-        if (local == null) {
-            threadLocal.set((SimpleDateFormat) simpleDateFormat.clone());
-        }
-        return threadLocal.get();
     }
 
     @Override
@@ -113,7 +79,7 @@ public class DateFormatInfo implements BasicFormatInfo<Date> {
                 return Long.toString(seconds);
             }
             default: {
-                return get().format(date);
+                return FastDateFormat.getInstance(format).format(date.getTime());
             }
         }
     }
@@ -137,8 +103,8 @@ public class DateFormatInfo implements BasicFormatInfo<Date> {
                 return new Date(millis);
             }
             default: {
-                java.util.Date jDate = get().parse(text.trim());
-                return new Date(jDate.getTime());
+                java.util.Date date = FastDateFormat.getInstance(format).parse(text.trim());
+                return new Date(date.getTime());
             }
         }
     }

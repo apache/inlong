@@ -17,22 +17,17 @@
 
 package org.apache.inlong.common.pojo.sort.dataflow.field.format;
 
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import java.sql.Time;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-
-import static org.apache.inlong.common.pojo.sort.dataflow.field.format.Constants.DATE_AND_TIME_STANDARD_ISO_8601;
-import static org.apache.inlong.common.pojo.sort.dataflow.field.format.Constants.DATE_AND_TIME_STANDARD_SQL;
 
 /**
  * The format information for {@link Time}s.
@@ -47,12 +42,6 @@ public class TimeFormatInfo implements BasicFormatInfo<Time> {
     @JsonProperty(FIELD_FORMAT)
     @Nonnull
     private final String format;
-    @JsonIgnore
-    @Nullable
-    private final SimpleDateFormat simpleDateFormat;
-    @JsonIgnore
-    @Nullable
-    private final ThreadLocal<SimpleDateFormat> threadLocal;
     @JsonProperty("precision")
     private int precision;
 
@@ -62,16 +51,6 @@ public class TimeFormatInfo implements BasicFormatInfo<Time> {
             @JsonProperty("precision") int precision) {
         this.format = format;
         this.precision = precision;
-        this.threadLocal = new ThreadLocal<>();
-        if (!format.equals("MICROS")
-                && !format.equals("MILLIS")
-                && !format.equals("SECONDS")
-                && !DATE_AND_TIME_STANDARD_SQL.equals(format)
-                && !DATE_AND_TIME_STANDARD_ISO_8601.equals(format)) {
-            this.simpleDateFormat = new SimpleDateFormat(format);
-        } else {
-            this.simpleDateFormat = null;
-        }
     }
 
     public TimeFormatInfo(@JsonProperty(FIELD_FORMAT) @Nonnull String format) {
@@ -80,17 +59,6 @@ public class TimeFormatInfo implements BasicFormatInfo<Time> {
 
     public TimeFormatInfo() {
         this("HH:mm:ss", DEFAULT_PRECISION_FOR_TIMESTAMP);
-    }
-
-    private SimpleDateFormat get() {
-        if (simpleDateFormat == null) {
-            throw new IllegalStateException();
-        }
-        SimpleDateFormat local = threadLocal.get();
-        if (local == null) {
-            threadLocal.set((SimpleDateFormat) simpleDateFormat.clone());
-        }
-        return threadLocal.get();
     }
 
     @Nonnull
@@ -121,7 +89,7 @@ public class TimeFormatInfo implements BasicFormatInfo<Time> {
                 return Long.toString(seconds);
             }
             default: {
-                return get().format(time);
+                return FastDateFormat.getInstance(format).format(time.getTime());
             }
         }
     }
@@ -144,7 +112,7 @@ public class TimeFormatInfo implements BasicFormatInfo<Time> {
                 return new Time(millis);
             }
             default: {
-                Date date = get().parse(text);
+                Date date = FastDateFormat.getInstance(format).parse(text);
                 return new Time(date.getTime());
             }
         }
