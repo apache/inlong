@@ -36,15 +36,9 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.SortConfigEntity;
-import org.apache.inlong.manager.dao.mapper.ClusterConfigEntityMapper;
-import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
-import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
-import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
-import org.apache.inlong.manager.dao.mapper.InlongStreamExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SortConfigEntityMapper;
-import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -52,12 +46,10 @@ import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.datatype.DataTypeOperator;
 import org.apache.inlong.manager.service.datatype.DataTypeOperatorFactory;
 import org.apache.inlong.manager.service.message.DeserializeOperator;
 import org.apache.inlong.manager.service.message.DeserializeOperatorFactory;
-import org.apache.inlong.manager.service.node.DataNodeOperatorFactory;
 import org.apache.inlong.manager.service.sink.SinkOperatorFactory;
 import org.apache.inlong.manager.service.sink.StreamSinkOperator;
 
@@ -79,38 +71,17 @@ import static org.apache.inlong.manager.service.resource.queue.pulsar.PulsarQueu
 public class SortStandaloneConfigOperator implements SortConfigOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortStandaloneConfigOperator.class);
-    private static final String KEY_TENANT = "tenant";
-    private static final String KEY_TENANT_V2 = "pulsarTenant";
-    private static final String STANDALONE_CLUSTER_PREFIX = "SORT_";
 
     @Autowired
     private StreamSinkFieldEntityMapper sinkFieldMapper;
     @Autowired
     private InlongClusterEntityMapper clusterMapper;
     @Autowired
-    private InlongStreamEntityMapper streamEntityMapper;
-    @Autowired
-    private DataNodeEntityMapper dataNodeMapper;
-    @Autowired
-    private StreamSinkEntityMapper sinkEntityMapper;
-    @Autowired
-    private SinkOperatorFactory sinkOperatorFactory;
-    @Autowired
-    private DataNodeOperatorFactory dataNodeOperatorFactory;
-    @Autowired
     private SortConfigEntityMapper sortConfigEntityMapper;
     @Autowired
     private InlongGroupEntityMapper groupEntityMapper;
     @Autowired
-    private InlongGroupExtEntityMapper groupExtEntityMapper;
-    @Autowired
-    private InlongStreamExtEntityMapper streamExtEntityMapper;
-    @Autowired
     public DeserializeOperatorFactory deserializeOperatorFactory;
-    @Autowired
-    private ClusterConfigEntityMapper clusterConfigEntityMapper;
-    @Autowired
-    private InlongClusterService clusterService;
     @Autowired
     public DataTypeOperatorFactory dataTypeOperatorFactory;
     @Autowired
@@ -149,7 +120,7 @@ public class SortStandaloneConfigOperator implements SortConfigOperator {
             return;
         }
         InlongGroupEntity groupEntity = groupEntityMapper.selectByGroupId(groupInfo.getInlongGroupId());
-        Preconditions.expectTrue(MQType.PULSAR.equals(groupEntity.getMqType()), "Standalone only support pulsar");
+        Preconditions.expectTrue(MQType.PULSAR.equals(groupEntity.getMqType()), "standalone only support pulsar");
         for (StreamSink sink : streamInfo.getSinkList()) {
             if (SinkType.SORT_STANDALONE_SINK.contains(sink.getSinkType())) {
                 saveDataFlow(groupInfo, streamInfo, sink);
