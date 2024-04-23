@@ -18,31 +18,59 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
+import org.apache.inlong.common.pojo.sort.SortClusterConfig;
+import org.apache.inlong.common.pojo.sort.SortConfig;
+import org.apache.inlong.common.pojo.sort.SortTaskConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
+import org.apache.inlong.common.pojo.sort.mq.MqClusterConfig;
+import org.apache.inlong.common.pojo.sort.mq.PulsarClusterConfig;
+import org.apache.inlong.common.pojo.sort.node.NodeConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
+import org.apache.inlong.common.pojo.sortstandalone.SortConfigResponse;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.common.plugin.PluginBinder;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.ClusterConfigEntity;
+import org.apache.inlong.manager.dao.entity.DataNodeEntity;
+import org.apache.inlong.manager.dao.entity.SortConfigEntity;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
 import org.apache.inlong.manager.pojo.sort.SortStatusRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.core.SortClusterService;
+import org.apache.inlong.manager.service.core.SortConfigLoader;
 import org.apache.inlong.manager.service.core.SortService;
 import org.apache.inlong.manager.service.core.SortSourceService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.service.node.DataNodeOperator;
+import org.apache.inlong.manager.service.node.DataNodeOperatorFactory;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.workflow.plugin.sort.PollerPlugin;
 import org.apache.inlong.manager.workflow.plugin.sort.SortPoller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.PostConstruct;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -53,6 +81,10 @@ import java.util.stream.Collectors;
 @Service
 public class SortServiceImpl implements SortService, PluginBinder {
 
+    private static final int RESPONSE_CODE_SUCCESS = 0;
+    private static final int RESPONSE_CODE_NO_UPDATE = 1;
+    private static final int RESPONSE_CODE_FAIL = -1;
+    private static final int RESPONSE_CODE_REQ_PARAMS_ERROR = -101;
     @Lazy
     @Autowired
     private SortSourceService sortSourceService;
@@ -63,7 +95,17 @@ public class SortServiceImpl implements SortService, PluginBinder {
     private InlongGroupService groupService;
     @Autowired
     private InlongStreamService streamService;
-
+    @Autowired
+    private SortConfigLoader configLoader;
+    @Autowired
+    private DataNodeOperatorFactory dataNodeOperatorFactory;
+    /**
+     * key 1: cluster name, key 2: task name, value : md5
+     */
+    private Map<String, String> sortConfigMap = new ConcurrentHashMap<>();
+    private Map<String, String> sortConfigMd5Map = new ConcurrentHashMap<>();
+    private Map<String, List<MqClusterConfig>> mqClusterConfigMap = new ConcurrentHashMap<>();
+    private Map<String, NodeConfig> nodeInfoMap = new ConcurrentHashMap<>();
     /**
      * The plugin poller will be initialed after the application starts.
      *
@@ -71,24 +113,44 @@ public class SortServiceImpl implements SortService, PluginBinder {
      */
     private SortPoller sortPoller;
 
+    @PostConstruct
+    public void initialize() {
+        log.info("create SortServiceImpl for " + SortSourceServiceImpl.class.getSimpleName());
+        try {
+            reload();;
+            setReloadTimer();
+        } catch (Throwable t) {
+            log.error("initialize SortServiceImpl error", t);
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void reload() {
+        log.debug("start to reload sort config.");
+        try {
+            reloadMqCluster();
+            reloadNodeConfig();
+            reloadDataFlowConfig();
+        } catch (Throwable t) {
+            log.error("fail to reload all sort config", t);
+        }
+        log.debug("end to reload config");
+    }
+
+    private void setReloadTimer() {
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        long reloadInterval = 60000L;
+        executorService.scheduleAtFixedRate(this::reload, reloadInterval, reloadInterval, TimeUnit.MILLISECONDS);
+    }
+
     @Override
     public SortClusterResponse getClusterConfig(String clusterName, String md5) {
         return sortClusterService.getClusterConfig(clusterName, md5);
     }
 
     @Override
-    public SortClusterResponse getClusterConfigV2(String clusterName, String md5) {
-        return sortClusterService.getClusterConfigV2(clusterName, md5);
-    }
-
-    @Override
     public SortSourceConfigResponse getSourceConfig(String clusterName, String sortTaskId, String md5) {
         return sortSourceService.getSourceConfig(clusterName, sortTaskId, md5);
-    }
-
-    @Override
-    public SortSourceConfigResponse getSourceConfigV2(String clusterName, String sortTaskId, String md5) {
-        return sortSourceService.getSourceConfigV2(clusterName, sortTaskId, md5);
     }
 
     @Override
@@ -127,4 +189,126 @@ public class SortServiceImpl implements SortService, PluginBinder {
             sortPoller = pollerPlugin.getSortPoller();
         }
     }
+
+    @Override
+    public SortConfigResponse getSortConfig(String clusterName, String md5) {
+        if (StringUtils.isBlank(clusterName)) {
+            String errMsg = "blank cluster name or task name, return nothing";
+            log.debug(errMsg);
+            return SortConfigResponse.builder()
+                    .code(RESPONSE_CODE_REQ_PARAMS_ERROR)
+                    .msg(errMsg)
+                    .build();
+        }
+        if (!sortConfigMap.containsKey(clusterName)) {
+            String errMsg = String.format("there is no valid sort config of cluster %s", clusterName);
+            log.debug(errMsg);
+            return SortConfigResponse.builder()
+                    .code(RESPONSE_CODE_SUCCESS)
+                    .msg(errMsg)
+                    .build();
+        }
+        if (sortConfigMd5Map.get(clusterName).equals(md5)) {
+            return SortConfigResponse.builder()
+                    .code(RESPONSE_CODE_NO_UPDATE)
+                    .msg("No update")
+                    .md5(md5)
+                    .build();
+        }
+        return SortConfigResponse.builder()
+                .code(RESPONSE_CODE_SUCCESS)
+                .data(sortConfigMap.get(clusterName))
+                .md5(sortConfigMd5Map.get(clusterName))
+                .build();
+    }
+
+    private void reloadMqCluster() {
+        List<ClusterConfigEntity> clusterConfigEntityList = configLoader.loadAllClusterConfigEntity();
+        clusterConfigEntityList.forEach(clusterConfigEntity -> {
+            String clusterTag = clusterConfigEntity.getClusterTag();
+            if (ClusterType.PULSAR.equals(clusterConfigEntity.getClusterType())) {
+                List<PulsarClusterConfig> pulsarClusterConfigs =
+                        JsonUtils.parseArray(clusterConfigEntity.getConfigParams(),
+                                PulsarClusterConfig.class);
+                List<MqClusterConfig> list = new ArrayList<>(pulsarClusterConfigs);
+                mqClusterConfigMap.putIfAbsent(clusterTag, list);
+            }
+        });
+    }
+
+    private void reloadNodeConfig() {
+        List<DataNodeEntity> dataNodeEntities = configLoader.loadAllDataNodeEntity();
+        Map<String, NodeConfig> task2DataNodeMap = dataNodeEntities.stream()
+                .filter(entity -> StringUtils.isNotBlank(entity.getName()))
+                .map(entity -> {
+                    try {
+                        DataNodeOperator operator = dataNodeOperatorFactory.getInstance(entity.getType());
+                        return operator.getNodeConfig(entity);
+                    } catch (Exception e) {
+                        log.error("parse node config error for data node name={}", entity.getName(), e);
+                    }
+                    return null;
+                }).filter(Objects::nonNull)
+                .collect(Collectors.toMap(NodeConfig::getNodeName, info -> info));
+        nodeInfoMap = task2DataNodeMap;
+
+    }
+
+    private void reloadDataFlowConfig() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, String> sortConfigs = new HashMap<>();
+        Map<String, String> sortConfigMd5s = new HashMap<>();
+        Map<String, List<SortTaskConfig>> temp = new HashMap<>();
+        List<SortConfigEntity> sinkConfigEntityList = configLoader.loadAllSortConfigEntity();
+        Map<String, Map<String, Map<String, List<SortConfigEntity>>>> cluster2SinkMap = sinkConfigEntityList.stream()
+                .collect(Collectors.groupingBy(SortConfigEntity::getInlongClusterName,
+                        Collectors.groupingBy(SortConfigEntity::getSortTaskName,
+                                Collectors.groupingBy(SortConfigEntity::getInlongClusterTag))));
+        for (String sortClusterName : cluster2SinkMap.keySet()) {
+            List<SortTaskConfig> map = temp.computeIfAbsent(sortClusterName,
+                    v -> new ArrayList<>());
+            SortConfig sortConfig = new SortConfig();
+            sortConfig.setSortClusterName(sortClusterName);
+            Map<String, Map<String, List<SortConfigEntity>>> sortTaskNameMap = cluster2SinkMap.get(sortClusterName);
+            for (String sortTaskName : sortTaskNameMap.keySet()) {
+                Map<String, List<SortConfigEntity>> clusterTagMap = sortTaskNameMap.get(sortTaskName);
+                SortTaskConfig sortTaskConfig = SortTaskConfig.builder()
+                        .sortTaskName(sortTaskName)
+                        .clusters(new ArrayList<>())
+                        .nodeConfig(nodeInfoMap.get(sortTaskName))
+                        .build();
+                for (String clusterTag : clusterTagMap.keySet()) {
+                    List<SortConfigEntity> sinkConfigEntities = clusterTagMap.get(clusterTag);
+                    List<DataFlowConfig> dataFlowConfigs = sinkConfigEntities.stream().map(v -> {
+                        try {
+                            return objectMapper.readValue(v.getConfigParams(), DataFlowConfig.class);
+                        } catch (Exception e) {
+                            log.error("parse data flow config error for sinkId={}", v.getSinkId(), e);
+                        }
+                        return null;
+                    }).filter(Objects::nonNull).collect(Collectors.toList());
+                    SortClusterConfig sortClusterConfig = SortClusterConfig.builder()
+                            .mqClusterConfigs(mqClusterConfigMap.get(clusterTag))
+                            .clusterTag(clusterTag)
+                            .dataFlowConfigs(dataFlowConfigs)
+                            .build();
+                    sortTaskConfig.getClusters().add(sortClusterConfig);
+                }
+                map.add(sortTaskConfig);
+            }
+            sortConfig.setClusters(temp.get(sortClusterName));
+            try {
+                String configStr = objectMapper.writeValueAsString(sortConfig);
+                sortConfigs.put(sortClusterName, configStr);
+                String md5 = DigestUtils.md5Hex(configStr);
+                sortConfigMd5s.put(sortClusterName, md5);
+            } catch (Exception e) {
+                log.info("parse sort config error for cluster name={}", sortClusterName, e);
+            }
+
+        }
+        sortConfigMap = sortConfigs;
+        sortConfigMd5Map = sortConfigMd5s;
+    }
+
 }

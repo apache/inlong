@@ -21,6 +21,8 @@ import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.common.pojo.sort.dataflow.deserialization.DeserializationConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.deserialization.InlongMsgDeserializationConfig;
 import org.apache.inlong.common.util.StringUtil;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
@@ -104,5 +106,12 @@ public class InlongMsgDeserializeOperator implements DeserializeOperator {
             }
         }
         return messageList;
+    }
+
+    @Override
+    public DeserializationConfig getDeserializationConfig(InlongStreamInfo streamInfo) {
+        InlongMsgDeserializationConfig inlongMsgDeserializationConfig = new InlongMsgDeserializationConfig();
+        inlongMsgDeserializationConfig.setStreamId(streamInfo.getInlongStreamId());
+        return inlongMsgDeserializationConfig;
     }
 }

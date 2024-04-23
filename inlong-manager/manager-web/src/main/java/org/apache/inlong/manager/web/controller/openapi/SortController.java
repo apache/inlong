@@ -48,14 +48,6 @@ public class SortController {
         return sortService.getClusterConfig(clusterName, md5);
     }
 
-    @GetMapping("/sort/getClusterConfigV2")
-    @ApiOperation(value = "get sort cluster config V2")
-    public SortClusterResponse getSortClusterConfigV2(
-            @RequestParam String clusterName,
-            @RequestParam String md5) {
-        return sortService.getClusterConfigV2(clusterName, md5);
-    }
-
     @GetMapping("/sort/getSortSource")
     @ApiOperation(value = "get sort sdk config")
     public SortSourceConfigResponse getSortSourceConfig(
@@ -63,15 +55,6 @@ public class SortController {
             @RequestParam String sortTaskId,
             @RequestParam String md5) {
         return sortService.getSourceConfig(clusterName, sortTaskId, md5);
-    }
-
-    @GetMapping("/sort/getSortSourceV2")
-    @ApiOperation(value = "get sort sdk config V2")
-    public SortSourceConfigResponse getSortSourceConfigV2(
-            @RequestParam String clusterName,
-            @RequestParam String sortTaskId,
-            @RequestParam String md5) {
-        return sortService.getSourceConfigV2(clusterName, sortTaskId, md5);
     }
 
 }

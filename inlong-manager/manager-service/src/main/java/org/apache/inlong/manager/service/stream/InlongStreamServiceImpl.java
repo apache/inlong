@@ -371,7 +371,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         return streamList;
     }
 
-
     @Override
     public List<InlongStreamInfo> listBackUp(String groupId) {
         LOGGER.debug("begin to list inlong streams by groupId={}", groupId);

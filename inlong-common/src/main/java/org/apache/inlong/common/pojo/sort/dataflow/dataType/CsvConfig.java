@@ -15,22 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.sort;
+package org.apache.inlong.common.pojo.sort.dataflow.dataType;
 
-import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
-import org.apache.inlong.common.pojo.sort.mq.MqClusterConfig;
-
-import lombok.Builder;
 import lombok.Data;
 
-import java.io.Serializable;
-import java.util.List;
-
 @Data
-@Builder
-public class SortClusterConfig implements Serializable {
+public class CsvConfig implements DataTypeConfig {
 
-    private String clusterTag;
-    private List<MqClusterConfig> mqClusterConfigs;
-    private List<DataFlowConfig> dataFlowConfigs;
+    private char delimiter;
+    private Character escapeChar;
 }

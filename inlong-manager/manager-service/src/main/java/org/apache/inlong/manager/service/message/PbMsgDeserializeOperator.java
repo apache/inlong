@@ -19,6 +19,8 @@ package org.apache.inlong.manager.service.message;
 
 import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.common.pojo.sort.dataflow.deserialization.DeserializationConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.deserialization.InlongMsgPbDeserialiationConfig;
 import org.apache.inlong.common.util.Utils;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -26,6 +28,7 @@ import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MapFieldEntry;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObjs;
+import org.apache.inlong.sort.configuration.Constants;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -90,5 +93,12 @@ public class PbMsgDeserializeOperator implements DeserializeOperator {
         }
 
         return messageList;
+    }
+
+    @Override
+    public DeserializationConfig getDeserializationConfig(InlongStreamInfo streamInfo) {
+        InlongMsgPbDeserialiationConfig inlongMsgPbDeserialiationConfig = new InlongMsgPbDeserialiationConfig();
+        inlongMsgPbDeserialiationConfig.setCompressionType(Constants.CompressionType.GZIP.name());
+        return inlongMsgPbDeserialiationConfig;
     }
 }

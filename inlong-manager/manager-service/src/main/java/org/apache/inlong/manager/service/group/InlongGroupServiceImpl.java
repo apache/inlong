@@ -47,6 +47,7 @@ import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.group.GroupFullInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupCountResponse;
@@ -65,7 +66,6 @@ import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
-import org.apache.inlong.manager.pojo.workflow.form.process.ClusterResourceProcessForm.GroupFullInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
@@ -884,12 +884,15 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     @Override
     public List<GroupFullInfo> getGroupByBackUpClusterTag(String clusterTag) {
+        List<GroupFullInfo> groupInfoList = new ArrayList<>();
         List<String> groupIdList = groupExtMapper.selectGroupIdByKeyNameAndValue(BACKUP_CLUSTER_TAG, clusterTag);
+        if (CollectionUtils.isEmpty(groupIdList)) {
+            return groupInfoList;
+        }
         List<InlongGroupEntity> groupEntities = groupMapper.selectByInlongGroupIds(groupIdList);
         if (CollectionUtils.isEmpty(groupEntities)) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-        List<GroupFullInfo> groupInfoList = new ArrayList<>();
         for (InlongGroupEntity groupEntity : groupEntities) {
             // query mq information
             InlongGroupOperator instance = groupOperatorFactory.getInstance(groupEntity.getMqType());

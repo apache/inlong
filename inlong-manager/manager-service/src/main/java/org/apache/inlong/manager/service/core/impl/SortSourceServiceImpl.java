@@ -26,14 +26,9 @@ import org.apache.inlong.common.pojo.sdk.Topic;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
-import org.apache.inlong.manager.dao.entity.SortConfigEntity;
-import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceGroupInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo;
@@ -55,7 +50,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -107,32 +101,22 @@ public class SortSourceServiceImpl implements SortSourceService {
      */
     private Map<String, Map<String, CacheZoneConfig>> sortSourceConfigMap = new ConcurrentHashMap<>();
 
-    private Map<String, Map<String, String>> sortSourceMd5MapV2 = new ConcurrentHashMap<>();
-    /**
-     * key 1: cluster name, key 2: task name, value : source config
-     */
-    private Map<String, Map<String, CacheZoneConfig>> sortSourceConfigMapV2 = new ConcurrentHashMap<>();
-
     private Map<String, SortSourceClusterInfo> sortClusters;
     private Map<String, List<SortSourceClusterInfo>> mqClusters;
-    private Map<String, List<SortSourceClusterInfo>> mqClustersV2;
-
     private Map<String, SortSourceGroupInfo> groupInfos;
     private Map<String, Map<String, SortSourceStreamInfo>> allStreams;
     private Map<String, String> backupClusterTag;
     private Map<String, String> backupGroupMqResource;
     private Map<String, Map<String, String>> backupStreamMqResource;
     private Map<String, Map<String, List<SortSourceStreamSinkInfo>>> streamSinkMap;
+
     @Autowired
     private SortConfigLoader configLoader;
-    @Autowired
-    private InlongClusterEntityMapper clusterEntityMapper;
 
     @PostConstruct
     public void initialize() {
         LOGGER.info("create repository for " + SortSourceServiceImpl.class.getSimpleName());
         try {
-            reloadMqCluster();
             reload();
             setReloadTimer();
         } catch (Throwable t) {
@@ -145,44 +129,11 @@ public class SortSourceServiceImpl implements SortSourceService {
         LOGGER.debug("start to reload sort config.");
         try {
             reloadAllConfigs();
-            parseAllV2();
             parseAll();
         } catch (Throwable t) {
             LOGGER.error("fail to reload all source config", t);
         }
         LOGGER.debug("end to reload config");
-    }
-
-    @Override
-    public Boolean refreshCluster() {
-        reloadMqCluster();
-        return true;
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void reloadMqCluster() {
-        LOGGER.debug("start to reload mq cluster config.");
-        try {
-            List<SortSourceClusterInfo> allClusters = configLoader.loadAllClusters();
-
-            // group mq clusters by cluster tag
-            Map<String, List<SortSourceClusterInfo>> mqClusterMap = new ConcurrentHashMap<>();
-            allClusters.stream()
-                    .filter(cluster -> SUPPORTED_MQ_TYPE.contains(cluster.getType()))
-                    .filter(SortSourceClusterInfo::isConsumable)
-                    .forEach(mq -> {
-                        Set<String> tags = mq.getClusterTagsSet();
-                        tags.forEach(tag -> {
-                            List<SortSourceClusterInfo> list =
-                                    mqClusterMap.computeIfAbsent(tag, k -> new ArrayList<>());
-                            list.add(mq);
-                        });
-                    });
-            mqClustersV2 = mqClusterMap;
-        } catch (Throwable t) {
-            LOGGER.error("fail to reload mq cluster config", t);
-        }
-        LOGGER.debug("end to mq cluster config");
     }
 
     @Override
@@ -240,61 +191,6 @@ public class SortSourceServiceImpl implements SortSourceService {
 
     }
 
-    @Override
-    public SortSourceConfigResponse getSourceConfigV2(
-            String cluster,
-            String task,
-            String md5) {
-
-        // if cluster or task are invalid
-        if (StringUtils.isBlank(cluster) || StringUtils.isBlank(task)) {
-            String errMsg = "blank cluster name or task name, return nothing";
-            LOGGER.debug(errMsg);
-            return SortSourceConfigResponse.builder()
-                    .code(RESPONSE_CODE_REQ_PARAMS_ERROR)
-                    .msg(errMsg)
-                    .build();
-        }
-
-        // if there is no config, but still return success
-        if (!sortSourceConfigMapV2.containsKey(cluster) || !sortSourceConfigMapV2.get(cluster).containsKey(task)) {
-            String errMsg = String.format("there is no valid source config of cluster %s, task %s", cluster, task);
-            LOGGER.debug(errMsg);
-            return SortSourceConfigResponse.builder()
-                    .code(RESPONSE_CODE_SUCCESS)
-                    .msg(errMsg)
-                    .build();
-        }
-
-        // if the same md5
-        if (sortSourceMd5MapV2.get(cluster).get(task).equals(md5)) {
-            return SortSourceConfigResponse.builder()
-                    .code(RESPONSE_CODE_NO_UPDATE)
-                    .msg("No update")
-                    .md5(md5)
-                    .build();
-        }
-
-        // if there is bad config
-        if (sortSourceConfigMapV2.get(cluster).get(task).getCacheZones().isEmpty()) {
-            String errMsg = String.format("find empty cache zones of cluster %s, task %s, "
-                    + "please check the manager log", cluster, task);
-            LOGGER.debug(errMsg);
-            return SortSourceConfigResponse.builder()
-                    .code(RESPONSE_CODE_FAIL)
-                    .msg(errMsg)
-                    .build();
-        }
-
-        return SortSourceConfigResponse.builder()
-                .code(RESPONSE_CODE_SUCCESS)
-                .msg("Success")
-                .data(sortSourceConfigMapV2.get(cluster).get(task))
-                .md5(sortSourceMd5MapV2.get(cluster).get(task))
-                .build();
-
-    }
-
     private void reloadAllConfigs() {
 
         // reload mq cluster and sort cluster
@@ -314,14 +210,7 @@ public class SortSourceServiceImpl implements SortSourceService {
                         list.add(mq);
                     });
                 });
-        for (String tag : mqClusters.keySet()) {
-            List<SortSourceClusterInfo> list = mqClustersV2.get(tag);
-            if (!list.equals(mqClusters.get(tag))) {
-                LOGGER.warn(
-                        "The cluster info in cache is not equal with database for clusterTag={}, in cache={}, in database={}",
-                        tag, list, mqClusters.get(tag));
-            }
-        }
+
         // reload all stream sinks, to Map<clusterName, Map<taskName, List<groupId>>> format
         List<SortSourceStreamSinkInfo> allStreamSinks = configLoader.loadAllStreamSinks();
         streamSinkMap = new HashMap<>();
@@ -570,71 +459,5 @@ public class SortSourceServiceImpl implements SortSourceService {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         long reloadInterval = 60000L;
         executorService.scheduleAtFixedRate(this::reload, reloadInterval, reloadInterval, TimeUnit.MILLISECONDS);
-    }
-
-    private void parseAllV2() {
-        Map<String, Map<String, String>> newMd5Map = new ConcurrentHashMap<>();
-        Map<String, Map<String, CacheZoneConfig>> newConfigMap = new ConcurrentHashMap<>();
-        try {
-            List<SortConfigEntity> sortConfigEntityList = configLoader.loadAllSortConfigEntity();
-            sortConfigEntityList.forEach(sortConfigEntity -> {
-                String sortClusterName = sortConfigEntity.getInlongClusterName();
-                String inlongClusterTag = sortConfigEntity.getInlongClusterTag();
-                String sortTaskName = sortConfigEntity.getSortTaskName();
-                Preconditions.expectNotNull(sortClusters.get(sortClusterName), "sort cluster should not be NULL");
-
-                Map<String, CacheZoneConfig> cacheZoneConfigMap = newConfigMap.computeIfAbsent(sortClusterName,
-                        k -> new HashMap<>());
-                Map<String, String> task2Md5 = newMd5Map.computeIfAbsent(sortClusterName, k -> new HashMap<>());
-                CacheZoneConfig cacheZoneConfig = cacheZoneConfigMap.computeIfAbsent(sortTaskName,
-                        k -> CacheZoneConfig.builder()
-                                .sortClusterName(sortClusterName)
-                                .sortTaskId(sortTaskName)
-                                .cacheZones(new HashMap<>())
-                                .build());
-                List<String> clusterTags = Arrays.asList(
-                        sortConfigEntity.getInlongClusterTag().split(InlongConstants.COMMA));
-                try {
-                    List<Topic> topicList = JsonUtils.parseArray(sortConfigEntity.getSourceParams(), Topic.class);
-                    for (int i = 0; i < clusterTags.size(); i++) {
-                        List<SortSourceClusterInfo> clusterInfos = mqClustersV2.get(clusterTags.get(i));
-                        for (SortSourceClusterInfo clusterInfo : clusterInfos) {
-                            String pulsarClusterName = clusterInfo.getName();
-                            CacheZone cacheZone =
-                                    cacheZoneConfig.getCacheZones().computeIfAbsent(pulsarClusterName, k -> {
-                                        InlongClusterEntity clusterEntity =
-                                                clusterEntityMapper.selectByNameAndType(pulsarClusterName,
-                                                        ClusterType.PULSAR);
-                                        SortSourceClusterInfo sortSourceClusterInfo =
-                                                CommonBeanUtils.copyProperties(clusterEntity,
-                                                        SortSourceClusterInfo::new);
-                                        Map<String, String> param = sortSourceClusterInfo.getExtParamsMap();
-                                        String auth = param.getOrDefault(KEY_AUTH, StringUtils.EMPTY);
-                                        return CacheZone.builder()
-                                                .zoneName(pulsarClusterName)
-                                                .serviceUrl(clusterEntity.getUrl())
-                                                .topics(new ArrayList<>())
-                                                .authentication(auth)
-                                                .cacheZoneProperties(sortSourceClusterInfo.getExtParamsMap())
-                                                .zoneType(ClusterType.PULSAR)
-                                                .build();
-                                    });
-                            cacheZone.getTopics().add(topicList.get(i));
-                        }
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("parse extParams of cluster params failure:", e);
-                    throw new BusinessException("parse extParams of cluster params failure");
-                }
-                String jsonStr = GSON.toJson(cacheZoneConfig);
-                String md5 = DigestUtils.md5Hex(jsonStr);
-                task2Md5.put(sortTaskName, md5);
-            });
-            sortSourceConfigMapV2 = newConfigMap;
-            sortSourceMd5MapV2 = newMd5Map;
-        } catch (Exception e) {
-            LOGGER.error("parse cluster params v2 failed", e);
-        }
-
     }
 }

@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.service.message;
 
 import org.apache.inlong.common.enums.MessageWrapType;
+import org.apache.inlong.common.pojo.sort.dataflow.deserialization.DeserializationConfig;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
@@ -58,4 +60,8 @@ public interface DeserializeOperator {
         return null;
     }
 
+    default DeserializationConfig getDeserializationConfig(InlongStreamInfo streamInfo) {
+        throw new BusinessException(String.format("current type not support DeserializationInfo for wrapType=%s",
+                streamInfo.getWrapType()));
+    }
 }

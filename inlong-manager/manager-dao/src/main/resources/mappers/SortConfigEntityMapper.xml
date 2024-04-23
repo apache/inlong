@@ -28,7 +28,6 @@
         <result column="inlong_cluster_name" jdbcType="VARCHAR" property="inlongClusterName"/>
         <result column="sort_task_name" jdbcType="VARCHAR" property="sortTaskName"/>
         <result column="data_node_name" jdbcType="VARCHAR" property="dataNodeName"/>
-        <result column="topic_params" jdbcType="VARCHAR" property="topicParams"/>
         <result column="config_params" jdbcType="VARCHAR" property="configParams"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
         <result column="creator" jdbcType="VARCHAR" property="creator"/>
@@ -39,17 +38,17 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id , sink_id, sink_type, inlong_cluster_tag, inlong_cluster_name, sort_task_name, data_node_name, topic_params, config_params, is_deleted, creator, modifier, create_time, modify_time, version
+        id , sink_id, sink_type, inlong_cluster_tag, inlong_cluster_name, sort_task_name, data_node_name, config_params, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.SortConfigEntity">
         insert into sort_config (id, sink_id, sink_type,
                                  inlong_cluster_tag, inlong_cluster_name, sort_task_name,
-                                 data_node_name, topic_params, config_params,
+                                 data_node_name, config_params,
                                  creator, modifier)
         values (#{id, jdbcType=INTEGER}, #{sinkId, jdbcType=INTEGER}, #{sinkType, jdbcType=VARCHAR},
                 #{inlongClusterTag, jdbcType=VARCHAR}, #{inlongClusterName, jdbcType=VARCHAR},#{sortTaskName, jdbcType=VARCHAR},
-                #{dataNodeName, jdbcType=VARCHAR}, #{topicParams, jdbcType=VARCHAR}, #{configParams, jdbcType=VARCHAR},
+                #{dataNodeName, jdbcType=VARCHAR}, #{configParams, jdbcType=VARCHAR},
                 #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
     </insert>
 
@@ -95,9 +94,6 @@
             </if>
             <if test="dataNodeName != null">
                 data_node_name = #{dataNodeName,jdbcType=VARCHAR},
-            </if>
-            <if test="topicParams != null">
-                topic_params = #{topicParams,jdbcType=VARCHAR},
             </if>
             <if test="configParams != null">
                 config_params = #{configParams,jdbcType=VARCHAR},

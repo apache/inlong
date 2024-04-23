@@ -22,7 +22,8 @@
 <mapper namespace="org.apache.inlong.manager.dao.mapper.ClusterConfigEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.ClusterConfigEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
-        <result column="clusterTag" jdbcType="VARCHAR" property="clusterTag"/>
+        <result column="cluster_tag" jdbcType="VARCHAR" property="clusterTag"/>
+        <result column="cluster_type" jdbcType="VARCHAR" property="clusterType"/>
         <result column="config_params" jdbcType="VARCHAR" property="configParams"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
         <result column="creator" jdbcType="VARCHAR" property="creator"/>
@@ -33,14 +34,14 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id , cluster_tag, config_params, is_deleted, creator, modifier, create_time, modify_time, version
+        id , cluster_tag, cluster_type, config_params, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.ClusterConfigEntity">
-        insert into cluster_config (id, cluster_tag, config_params,
-                                 creator, modifier)
-        values (#{id, jdbcType=INTEGER}, #{clusterTag, jdbcType=VARCHAR}, #{configParams, jdbcType=VARCHAR},
-                #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
+        insert into cluster_config (id, cluster_tag, cluster_type,
+                                    config_params, creator, modifier)
+        values (#{id, jdbcType=INTEGER}, #{clusterTag, jdbcType=VARCHAR}, #{clusterType, jdbcType=VARCHAR},
+                #{configParams, jdbcType=VARCHAR}, #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
     </insert>
 
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -70,6 +71,9 @@
         <set>
             <if test="clusterTag != null">
                 cluster_tag = #{clusterTag,jdbcType=VARCHAR},
+            </if>
+            <if test="clusterType != null">
+                cluster_type = #{clusterType,jdbcType=VARCHAR},
             </if>
             <if test="configParams != null">
                 config_params = #{configParams,jdbcType=VARCHAR},

@@ -33,20 +33,4 @@ public interface SortSourceService {
      * @return SortSourceConfigResponse
      */
     SortSourceConfigResponse getSourceConfig(String clusterName, String taskName, String md5);
-
-    /**
-     * Get {@link SortSourceConfigResponse} by cluster name and task name V2.
-     *
-     * @param clusterName Target cluster name.
-     * @param taskName Target task name.
-     * @param md5 Last update Md5.
-     * @return SortSourceConfigResponse
-     */
-    SortSourceConfigResponse getSourceConfigV2(String clusterName, String taskName, String md5);
-
-    /**
-     * Refresh mq cluster cache
-     */
-    Boolean refreshCluster();
-
 }

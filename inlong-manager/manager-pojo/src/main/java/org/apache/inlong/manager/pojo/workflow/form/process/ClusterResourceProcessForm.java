@@ -17,15 +17,11 @@
 
 package org.apache.inlong.manager.pojo.workflow.form.process;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.pojo.group.GroupFullInfo;
-import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 

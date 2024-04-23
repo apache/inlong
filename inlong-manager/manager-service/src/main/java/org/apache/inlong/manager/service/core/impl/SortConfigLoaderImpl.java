@@ -17,11 +17,13 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import org.apache.inlong.manager.dao.entity.ClusterConfigEntity;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
 import org.apache.inlong.manager.dao.entity.SortConfigEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.dao.mapper.ClusterConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
@@ -68,6 +70,8 @@ public class SortConfigLoaderImpl implements SortConfigLoader {
     private DataNodeEntityMapper dataNodeEntityMapper;
     @Autowired
     private SortConfigEntityMapper sortConfigEntityMapper;
+    @Autowired
+    private ClusterConfigEntityMapper clusterConfigEntityMapper;
 
     @Transactional
     @Override
@@ -166,5 +170,14 @@ public class SortConfigLoaderImpl implements SortConfigLoader {
         List<SortConfigEntity> allSortConfigs = new ArrayList<>();
         cursor.forEach(allSortConfigs::add);
         return allSortConfigs;
+    }
+
+    @Transactional
+    @Override
+    public List<ClusterConfigEntity> loadAllClusterConfigEntity() {
+        Cursor<ClusterConfigEntity> cursor = clusterConfigEntityMapper.selectAllClusterConfigs();
+        List<ClusterConfigEntity> allClusterConfigs = new ArrayList<>();
+        cursor.forEach(allClusterConfigs::add);
+        return allClusterConfigs;
     }
 }

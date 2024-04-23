@@ -15,13 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.sort.dataflow.deserialization;
+package org.apache.inlong.common.pojo.sortstandalone;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class CsvDeserializationConfig implements DeserializationConfig {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class SortConfigResponse {
 
-    private char delimiter;
-    private Character escapeChar;
+    public static final int SUCC = 0;
+    public static final int NOUPDATE = 1;
+    public static final int FAIL = -1;
+    public static final int REQ_PARAMS_ERROR = -101;
+
+    String msg;
+    int code;
+    String md5;
+    String data;
+
 }

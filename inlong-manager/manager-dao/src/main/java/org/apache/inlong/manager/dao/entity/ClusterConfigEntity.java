@@ -31,6 +31,7 @@ public class ClusterConfigEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     private Integer id;
     private String clusterTag;
+    private String clusterType;
     private String configParams;
     private Integer isDeleted;
     private String creator;

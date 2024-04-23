@@ -260,6 +260,7 @@ public class FieldInfoUtils {
                 break;
             case INT32:
             case INT:
+            case INTEGER:
                 formatInfo = new IntFormatInfo();
                 break;
             case INT64:

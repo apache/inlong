@@ -36,8 +36,7 @@ public class SortConfigEntity implements Serializable {
     private String inlongClusterName;
     private String sortTaskName;
     private String dataNodeName;
-    private String sourceParams;
-    private String clusterParams;
+    private String configParams;
     private Integer isDeleted;
     private String creator;
     private String modifier;

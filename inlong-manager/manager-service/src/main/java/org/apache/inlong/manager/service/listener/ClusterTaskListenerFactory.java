@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.listener;
 
-import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.common.plugin.PluginBinder;
 import org.apache.inlong.manager.service.listener.queue.ClusterConfigListener;
@@ -27,10 +26,13 @@ import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
 import org.apache.inlong.manager.workflow.definition.TaskListenerFactory;
 import org.apache.inlong.manager.workflow.event.task.ClusterOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
+
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;

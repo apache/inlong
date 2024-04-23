@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.inlong.manager.common.tenant.MultiTenantQuery;
+import org.apache.inlong.manager.dao.entity.ClusterConfigEntity;
+
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.mapping.ResultSetType;
-import org.apache.inlong.manager.common.tenant.MultiTenantQuery;
-import org.apache.inlong.manager.dao.entity.ClusterConfigEntity;
 import org.springframework.stereotype.Repository;
 
 @Repository

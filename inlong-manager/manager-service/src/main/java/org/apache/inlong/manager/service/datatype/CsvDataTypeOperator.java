@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.service.datatype;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.CsvConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage.FieldInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -56,5 +58,21 @@ public class CsvDataTypeOperator implements DataTypeOperator {
                     streamInfo.getInlongStreamId(), e);
         }
         return fields;
+    }
+
+    @Override
+    public DataTypeConfig getDataTypeConfig(InlongStreamInfo streamInfo) {
+        char separator = 0;
+        if (StringUtils.isNotBlank(streamInfo.getDataSeparator())) {
+            separator = (char) Integer.parseInt(streamInfo.getDataSeparator());
+        }
+        Character escape = null;
+        if (streamInfo.getDataEscapeChar() != null) {
+            escape = streamInfo.getDataEscapeChar().charAt(0);
+        }
+        CsvConfig csvConfig = new CsvConfig();
+        csvConfig.setDelimiter(separator);
+        csvConfig.setEscapeChar(escape);
+        return csvConfig;
     }
 }

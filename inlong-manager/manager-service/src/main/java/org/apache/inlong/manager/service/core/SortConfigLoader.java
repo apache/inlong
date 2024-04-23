@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core;
 
+import org.apache.inlong.manager.dao.entity.ClusterConfigEntity;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
@@ -115,5 +116,7 @@ public interface SortConfigLoader {
      * @return List of fields info
      */
     List<SortConfigEntity> loadAllSortConfigEntity();
+
+    List<ClusterConfigEntity> loadAllClusterConfigEntity();
 
 }

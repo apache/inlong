@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.workflow.cluster;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.pojo.workflow.form.process.ClusterResourceProcessForm;
 import org.apache.inlong.manager.service.listener.ClusterTaskListenerFactory;
@@ -30,6 +29,8 @@ import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -81,8 +82,6 @@ public class SyncClusterResourceWorkflowDefinition implements WorkflowDefinition
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
-        // Task dependency order: 1.MQ -> 2.Sink -> 3.Sort -> 4.Source
-        // To ensure that after some tasks fail, data will not start to be collected by source or consumed by sort
         startEvent.addNext(initMQTask);
         initMQTask.addNext(endEvent);
 

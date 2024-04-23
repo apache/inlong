@@ -17,11 +17,12 @@
 
 package org.apache.inlong.manager.pojo.group;
 
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
 import java.util.List;
 

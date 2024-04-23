@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import org.apache.inlong.common.pojo.sort.dataflow.sink.SinkConfig;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkStatus;
@@ -253,6 +254,11 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
      */
     protected void checkFieldInfo(SinkField fieldInfo) {
 
+    }
+
+    @Override
+    public SinkConfig getSinkConfig(StreamSink sink) {
+        throw new BusinessException(String.format("not support get sink config for sink type=%s", sink.getSinkType()));
     }
 
 }
