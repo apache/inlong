@@ -39,6 +39,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      # Release space size
+      - name: Remove unnecessary packages
+        run: |
+          echo "=== Before pruning ==="
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache
+          echo "=== After pruning ==="
+          df -h
+
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
@@ -49,7 +61,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            ~/.m2/repository
+            ~/.m2/repository/*/*/*
             !~/.m2/repository/org/apache/inlong
           key: ${{ runner.os }}-inlong-flink13-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-inlong-flink13
