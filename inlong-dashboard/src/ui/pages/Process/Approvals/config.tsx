@@ -78,9 +78,9 @@ export const getColumns = activedName => [
     dataIndex: 'inlongGroupId',
     render: (text, record) =>
       record.showInList
-      ?.filter(item => item.inlongGroupId)
-      ?.map(item => item.inlongGroupId)
-      .join(';'),
+        ?.filter(item => item.inlongGroupId)
+        ?.map(item => item.inlongGroupId)
+        .join(';'),
   },
   {
     title: i18n.t('pages.Approvals.ConsumeName'),
@@ -88,9 +88,9 @@ export const getColumns = activedName => [
     width: 200,
     render: (text, record) =>
       record.showInList
-      ?.filter(item => item.consumeName)
-      ?.map(item => item.consumeName)
-      .join(';'),
+        ?.filter(item => item.consumeName)
+        ?.map(item => item.consumeName)
+        .join(';'),
   },
   {
     title: i18n.t('pages.Approvals.GroupMode'),
