@@ -29,6 +29,9 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.inlong.common.pojo.sort.dataflow.field.format.Constants.DATE_AND_TIME_STANDARD_ISO_8601;
+import static org.apache.inlong.common.pojo.sort.dataflow.field.format.Constants.DATE_AND_TIME_STANDARD_SQL;
+
 /**
  * The format information for {@link Time}s.
  */
@@ -51,6 +54,13 @@ public class TimeFormatInfo implements BasicFormatInfo<Time> {
             @JsonProperty("precision") int precision) {
         this.format = format;
         this.precision = precision;
+        if (!format.equals("SECONDS")
+                && !format.equals("MILLIS")
+                && !format.equals("MICROS")
+                && !DATE_AND_TIME_STANDARD_SQL.equals(format)
+                && !DATE_AND_TIME_STANDARD_ISO_8601.equals(format)) {
+            FastDateFormat.getInstance(format);
+        }
     }
 
     public TimeFormatInfo(@JsonProperty(FIELD_FORMAT) @Nonnull String format) {

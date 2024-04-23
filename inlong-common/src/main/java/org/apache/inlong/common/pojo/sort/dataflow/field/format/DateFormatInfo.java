@@ -25,8 +25,12 @@ import javax.annotation.Nonnull;
 
 import java.sql.Date;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+
+import static org.apache.inlong.common.pojo.sort.dataflow.field.format.Constants.DATE_AND_TIME_STANDARD_ISO_8601;
+import static org.apache.inlong.common.pojo.sort.dataflow.field.format.Constants.DATE_AND_TIME_STANDARD_SQL;
 
 /**
  * The format information for {@link Date}s.
@@ -45,6 +49,13 @@ public class DateFormatInfo implements BasicFormatInfo<Date> {
     public DateFormatInfo(
             @JsonProperty(FIELD_FORMAT) @Nonnull String format) {
         this.format = format;
+        if (!format.equals("SECONDS")
+                && !format.equals("MILLIS")
+                && !format.equals("MICROS")
+                && !DATE_AND_TIME_STANDARD_SQL.equals(format)
+                && !DATE_AND_TIME_STANDARD_ISO_8601.equals(format)) {
+            FastDateFormat.getInstance(format);
+        }
     }
 
     public DateFormatInfo() {
