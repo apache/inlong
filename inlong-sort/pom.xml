@@ -197,5 +197,14 @@
                 <flink.docker.image.name>flink:1.15.4-scala_2.12</flink.docker.image.name>
             </properties>
         </profile>
+        <profile>
+            <id>v1.18</id>
+            <properties>
+                <sort.flink.version>v1.18</sort.flink.version>
+                <flink.version>1.18.1</flink.version>
+                <flink.minor.version>1.18</flink.minor.version>
+                <flink.scala.binary.version>2.12</flink.scala.binary.version>
+            </properties>
+        </profile>
     </profiles>
 </project>
