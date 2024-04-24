@@ -387,8 +387,10 @@ public class AuditServiceImpl implements AuditService {
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
                 this.executor.execute(new AuditRunnable(request, auditId, auditName, result, latch, restTemplate,
                         auditQueryUrl, null, true));
-                latch.await(30, TimeUnit.SECONDS);
             }
+        }
+        if (AuditQuerySource.CLICKHOUSE == querySource) {
+            latch.await(30, TimeUnit.SECONDS);
         }
         return result;
     }
