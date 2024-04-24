@@ -114,10 +114,10 @@ public class AuditRunnable implements Runnable {
             StringBuilder builder = new StringBuilder();
             builder.append(auditUrl);
             if (StringUtils.isNotBlank(ip)) {
-                builder.append("/audit/query/getIps?")
+                builder.append("/audit/query/getIds?")
                         .append("&ip=").append(ip);
             } else {
-                builder.append("/audit/query/minutes?")
+                builder.append("/audit/query/getIps?")
                         .append("&inlongGroupId=").append(groupId)
                         .append("&inlongStreamId=").append(streamId);
             }
