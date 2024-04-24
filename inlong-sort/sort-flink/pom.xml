@@ -45,6 +45,7 @@
                 <module>base</module>
                 <module>sort-flink-v1.13</module>
                 <module>sort-flink-v1.15</module>
+                <module>sort-flink-v1.18</module>
             </modules>
         </profile>
         <profile>
@@ -61,6 +62,14 @@
                 <module>cdc-base</module>
                 <module>base</module>
                 <module>sort-flink-v1.15</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>v1.18</id>
+            <modules>
+                <module>cdc-base</module>
+                <module>base</module>
+                <module>sort-flink-v1.18</module>
             </modules>
         </profile>
     </profiles>
