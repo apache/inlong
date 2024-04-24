@@ -28,7 +28,7 @@
 
     <artifactId>sort-connector-pulsar-v1.18</artifactId>
     <packaging>jar</packaging>
-    <name>Apache InLong - Sort-connector-pulsar v1.18</name>
+    <name>Apache InLong - Sort-connector-pulsar</name>
 
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>

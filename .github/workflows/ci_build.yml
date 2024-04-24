@@ -121,5 +121,12 @@ jobs:
           name: apache-inlong-${{ env.VERSION }}-sort-connectors-flink-v1.15.tar.gz
           path: ./inlong-distribution/target/apache-inlong-${{ env.VERSION }}-sort-connectors-flink-v1.15.tar.gz
 
+      - name: Upload sort connectors package for flink v1.18
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: apache-inlong-${{ env.VERSION }}-sort-connectors-flink-v1.18.tar.gz
+          path: ./inlong-distribution/target/apache-inlong-${{ env.VERSION }}-sort-connectors-flink-v1.18.tar.gz
+
       - name: Clean up build packages
         run: mvn clean
