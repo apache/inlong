@@ -844,8 +844,7 @@ public class AgentServiceImpl implements AgentService {
         String jsonStr = GSON.toJson(configs);
         String configMd5 = DigestUtils.md5Hex(jsonStr);
 
-        ConfigResult configResult = ConfigResult.builder().moduleList(configs).moduleNum(configs.size())
-                .md5(configMd5)
+        ConfigResult configResult = ConfigResult.builder().moduleList(configs).md5(configMd5)
                 .code(InstallerCode.SUCCESS)
                 .build();
         LOGGER.info("success load module config, size = {}", configResult.getModuleList().size());

@@ -42,10 +42,7 @@ public class ConfigResult {
      * The md5 of the config result
      */
     private String md5;
-    /**
-     * Number of module
-     */
-    private Integer moduleNum;
+
     /**
      * The list of module config list
      */

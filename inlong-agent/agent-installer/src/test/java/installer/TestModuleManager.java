@@ -174,11 +174,11 @@ public class TestModuleManager {
         configs.add(getModuleConfig(1, "inlong-agent", "inlong-agent-md5-185454", "1.0", 1,
                 "cd ~/inlong-agent/bin;sh agent.sh start", "cd ~/inlong-agent/bin;sh agent.sh stop",
                 "ps aux | grep core.AgentMain | grep java | grep -v grep | awk '{print $2}'",
-                "cd ~/inlong-agent/bin;sh agent.sh stop;rm -rf ~/inlong-agent/;mkdir ~/inlong-agent;cd /tmp;tar -xzvf agent-release-1.12.0-SNAPSHOT-bin.tar.gz -C ~/inlong-agent;cd ~/inlong-agent/bin;sh agent.sh start",
-                "echo empty uninstall cmd", "agent-release-1.12.0-SNAPSHOT-bin.tar.gz",
-                "http://11.151.252.111:8083/inlong/manager/openapi/agent/download/agent-release-1.12.0-SNAPSHOT-bin.tar.gz",
+                "cd ~/inlong-agent/bin;sh agent.sh stop;rm -rf ~/inlong-agent/;mkdir ~/inlong-agent;cd /tmp;tar -xzvf agent-release-1.13.0-SNAPSHOT-bin.tar.gz -C ~/inlong-agent;cd ~/inlong-agent/bin;sh agent.sh start",
+                "echo empty uninstall cmd", "agent-release-1.13.0-SNAPSHOT-bin.tar.gz",
+                "http://11.151.252.111:8083/inlong/manager/openapi/agent/download/agent-release-1.13.0-SNAPSHOT-bin.tar.gz",
                 NEW_MD5));
-        return ConfigResult.builder().moduleList(configs).moduleNum(1).md5("config-result-md5-193603").build();
+        return ConfigResult.builder().moduleList(configs).md5("config-result-md5-193603").build();
     }
 
     private ModuleConfig getModuleConfig(int id, String name, String md5, String version, Integer procNum,
