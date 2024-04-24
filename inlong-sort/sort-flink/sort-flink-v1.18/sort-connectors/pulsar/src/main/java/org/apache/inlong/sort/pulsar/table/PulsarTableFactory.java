@@ -17,6 +17,40 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import org.apache.flink.api.common.serialization.DeserializationSchema;
+import org.apache.flink.api.common.serialization.SerializationSchema;
+import org.apache.flink.configuration.ConfigOption;
+import org.apache.flink.configuration.ReadableConfig;
+import org.apache.flink.connector.base.DeliveryGuarantee;
+import org.apache.flink.connector.pulsar.common.config.PulsarOptions;
+import org.apache.flink.connector.pulsar.sink.PulsarSinkOptions;
+import org.apache.flink.connector.pulsar.sink.writer.router.TopicRouter;
+import org.apache.flink.connector.pulsar.sink.writer.router.TopicRoutingMode;
+import org.apache.flink.connector.pulsar.source.PulsarSourceOptions;
+import org.apache.flink.connector.pulsar.source.enumerator.cursor.StartCursor;
+import org.apache.flink.connector.pulsar.source.enumerator.cursor.StopCursor;
+import org.apache.flink.connector.pulsar.table.sink.PulsarTableSerializationSchemaFactory;
+import org.apache.flink.connector.pulsar.table.sink.PulsarTableSink;
+import org.apache.flink.connector.pulsar.table.source.PulsarTableDeserializationSchemaFactory;
+import org.apache.flink.connector.pulsar.table.source.PulsarTableSource;
+import org.apache.flink.table.connector.ChangelogMode;
+import org.apache.flink.table.connector.format.DecodingFormat;
+import org.apache.flink.table.connector.format.EncodingFormat;
+import org.apache.flink.table.connector.sink.DynamicTableSink;
+import org.apache.flink.table.connector.source.DynamicTableSource;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.factories.DynamicTableSinkFactory;
+import org.apache.flink.table.factories.DynamicTableSourceFactory;
+import org.apache.flink.table.factories.FactoryUtil;
+import org.apache.flink.table.types.DataType;
+import org.apache.pulsar.client.api.SubscriptionType;
+
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import static org.apache.flink.connector.pulsar.common.config.PulsarOptions.PULSAR_SERVICE_URL;
 import static org.apache.flink.connector.pulsar.source.PulsarSourceOptions.PULSAR_SUBSCRIPTION_NAME;
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
@@ -59,39 +93,6 @@ import static org.apache.inlong.sort.pulsar.table.PulsarTableValidationUtils.val
 import static org.apache.inlong.sort.pulsar.table.PulsarTableValidationUtils.validateTableSinkOptions;
 import static org.apache.inlong.sort.pulsar.table.PulsarTableValidationUtils.validateTableSourceOptions;
 import static org.apache.pulsar.shade.org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.configuration.ConfigOption;
-import org.apache.flink.configuration.ReadableConfig;
-import org.apache.flink.connector.base.DeliveryGuarantee;
-import org.apache.flink.connector.pulsar.common.config.PulsarOptions;
-import org.apache.flink.connector.pulsar.sink.PulsarSinkOptions;
-import org.apache.flink.connector.pulsar.sink.writer.router.TopicRouter;
-import org.apache.flink.connector.pulsar.sink.writer.router.TopicRoutingMode;
-import org.apache.flink.connector.pulsar.source.PulsarSourceOptions;
-import org.apache.flink.connector.pulsar.source.enumerator.cursor.StartCursor;
-import org.apache.flink.connector.pulsar.source.enumerator.cursor.StopCursor;
-import org.apache.flink.connector.pulsar.table.sink.PulsarTableSerializationSchemaFactory;
-import org.apache.flink.connector.pulsar.table.sink.PulsarTableSink;
-import org.apache.flink.connector.pulsar.table.source.PulsarTableDeserializationSchemaFactory;
-import org.apache.flink.connector.pulsar.table.source.PulsarTableSource;
-import org.apache.flink.table.connector.ChangelogMode;
-import org.apache.flink.table.connector.format.DecodingFormat;
-import org.apache.flink.table.connector.format.EncodingFormat;
-import org.apache.flink.table.connector.sink.DynamicTableSink;
-import org.apache.flink.table.connector.source.DynamicTableSource;
-import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.factories.DynamicTableSinkFactory;
-import org.apache.flink.table.factories.DynamicTableSourceFactory;
-import org.apache.flink.table.factories.FactoryUtil;
-import org.apache.flink.table.types.DataType;
-import org.apache.pulsar.client.api.SubscriptionType;
 
 /**
  * Factory for creating {@link DynamicTableSource} and {@link DynamicTableSink}.

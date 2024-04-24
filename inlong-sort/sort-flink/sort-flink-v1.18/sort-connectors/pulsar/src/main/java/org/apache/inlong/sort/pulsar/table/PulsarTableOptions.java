@@ -17,18 +17,19 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
-import static org.apache.flink.configuration.description.TextElement.code;
-import static org.apache.flink.configuration.description.TextElement.text;
-import static org.apache.flink.table.factories.FactoryUtil.FORMAT_SUFFIX;
-
-import java.time.Duration;
-import java.util.List;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.description.Description;
 import org.apache.flink.connector.pulsar.sink.writer.router.TopicRoutingMode;
 import org.apache.pulsar.client.api.SubscriptionType;
+
+import java.time.Duration;
+import java.util.List;
+
+import static org.apache.flink.configuration.description.TextElement.code;
+import static org.apache.flink.configuration.description.TextElement.text;
+import static org.apache.flink.table.factories.FactoryUtil.FORMAT_SUFFIX;
 
 /**
  * Config options that is used to configure a Pulsar SQL Connector. These config options are

@@ -17,6 +17,23 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import org.apache.flink.api.common.serialization.DeserializationSchema;
+import org.apache.flink.configuration.ConfigOption;
+import org.apache.flink.configuration.ReadableConfig;
+import org.apache.flink.connector.pulsar.sink.writer.router.TopicRoutingMode;
+import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.table.catalog.ObjectIdentifier;
+import org.apache.flink.table.connector.format.DecodingFormat;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.factories.FactoryUtil;
+import org.apache.flink.types.RowKind;
+import org.apache.pulsar.client.api.SubscriptionType;
+import org.apache.pulsar.shade.com.google.common.collect.Sets;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import static org.apache.inlong.sort.pulsar.table.PulsarTableOptionUtils.getValueDecodingFormat;
 import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.KEY_FIELDS;
 import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.KEY_FORMAT;
@@ -30,22 +47,6 @@ import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.SOURCE_STOP
 import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.SOURCE_SUBSCRIPTION_TYPE;
 import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.TOPIC;
 import static org.apache.pulsar.common.naming.TopicName.isValid;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.configuration.ConfigOption;
-import org.apache.flink.configuration.ReadableConfig;
-import org.apache.flink.connector.pulsar.sink.writer.router.TopicRoutingMode;
-import org.apache.flink.table.api.ValidationException;
-import org.apache.flink.table.catalog.ObjectIdentifier;
-import org.apache.flink.table.connector.format.DecodingFormat;
-import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.factories.FactoryUtil;
-import org.apache.flink.types.RowKind;
-import org.apache.pulsar.client.api.SubscriptionType;
-import org.apache.pulsar.shade.com.google.common.collect.Sets;
 
 /** Util class for source and sink validation rules. */
 public class PulsarTableValidationUtils {
