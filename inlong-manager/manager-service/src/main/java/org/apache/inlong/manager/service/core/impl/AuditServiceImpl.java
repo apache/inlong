@@ -389,6 +389,9 @@ public class AuditServiceImpl implements AuditService {
                         auditQueryUrl, null, true));
             }
         }
+        if (AuditQuerySource.CLICKHOUSE == querySource) {
+            latch.await(30, TimeUnit.SECONDS);
+        }
         return result;
     }
 
