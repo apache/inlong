@@ -32,7 +32,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.apache.inlong.dataproxy.config.ConfigManager.CONFIG_HOLDER_LIST;
+import static org.apache.inlong.dataproxy.config.ConfigManager.CONFIG_HOLDER_MAP;
 
 public abstract class ConfigHolder {
 
@@ -50,7 +50,7 @@ public abstract class ConfigHolder {
     public ConfigHolder(String fileName) {
         this.fileName = fileName;
         setFilePath(fileName);
-        CONFIG_HOLDER_LIST.add(this);
+        CONFIG_HOLDER_MAP.put(this, System.currentTimeMillis());
     }
 
     /**

@@ -45,7 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,7 +60,7 @@ public class ConfigManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigManager.class);
 
-    public static final List<ConfigHolder> CONFIG_HOLDER_LIST = new ArrayList<>();
+    public static final Map<ConfigHolder, Long> CONFIG_HOLDER_MAP = new ConcurrentHashMap<>();
     // whether handshake manager ok
     public static final AtomicBoolean handshakeManagerOk = new AtomicBoolean(false);
     private static volatile boolean isInit = false;
@@ -91,7 +90,10 @@ public class ConfigManager {
         synchronized (ConfigManager.class) {
             if (!isInit) {
                 instance = new ConfigManager();
-                for (ConfigHolder holder : CONFIG_HOLDER_LIST) {
+                for (ConfigHolder holder : CONFIG_HOLDER_MAP.keySet()) {
+                    if (holder == null) {
+                        continue;
+                    }
                     holder.loadFromFileToHolder();
                 }
                 ReloadConfigWorker reloadProperties = ReloadConfigWorker.create(instance);
@@ -249,29 +251,22 @@ public class ConfigManager {
             long count = 0;
             long startTime;
             long wstTime;
-            boolean fisrtCheck = true;
             LOG.info("Reload-Config Worker started!");
             while (isRunning) {
-                count += 1;
                 startTime = System.currentTimeMillis();
                 try {
                     // check and load local configure files
-                    for (ConfigHolder holder : CONFIG_HOLDER_LIST) {
+                    for (ConfigHolder holder : CONFIG_HOLDER_MAP.keySet()) {
+                        if (holder == null) {
+                            continue;
+                        }
                         if (holder.checkAndUpdateHolder()) {
                             holder.executeCallbacks();
                         }
                     }
-                    // connect to manager
-                    if (fisrtCheck) {
-                        fisrtCheck = false;
+                    // connect to manager for updating remote config
+                    if (count % 3 == 0) {
                         checkRemoteConfig();
-                        count = 0;
-                    } else {
-                        // wait for 3 * check-time to update remote config
-                        if (count % 3 == 0) {
-                            checkRemoteConfig();
-                            count = 0;
-                        }
                     }
                     // check processing time
                     wstTime = System.currentTimeMillis() - startTime;
@@ -286,6 +281,8 @@ public class ConfigManager {
                     break;
                 } catch (Throwable ex2) {
                     LOG.error("Reload-Config Worker encounters exception, continue process", ex2);
+                } finally {
+                    count++;
                 }
             }
             LOG.info("Reload-Config Worker existed!");
@@ -310,24 +307,12 @@ public class ConfigManager {
         }
 
         private void checkRemoteConfig() {
-            String proxyClusterName = CommonConfigHolder.getInstance().getClusterName();
-            String proxyClusterTag = CommonConfigHolder.getInstance().getClusterTag();
-            if (StringUtils.isBlank(proxyClusterName) || StringUtils.isBlank(proxyClusterTag)) {
-                LOG.error("Found {} or {} is blank in {}, can't quest remote configure!",
-                        CommonConfigHolder.KEY_PROXY_CLUSTER_NAME,
-                        CommonConfigHolder.KEY_PROXY_CLUSTER_TAG,
-                        CommonConfigHolder.COMMON_CONFIG_FILE_NAME);
-                return;
-            }
             List<String> managerIpList = CommonConfigHolder.getInstance().getManagerHosts();
-            if (managerIpList == null || managerIpList.size() == 0) {
-                LOG.error("Found manager ip list are empty, can't quest remote configure!");
-                return;
-            }
             int managerIpSize = managerIpList.size();
             for (int i = 0; i < managerIpList.size(); i++) {
                 String host = managerIpList.get(Math.abs(managerIpListIndex.getAndIncrement()) % managerIpSize);
-                if (this.reloadDataProxyConfig(proxyClusterName, proxyClusterTag, host)) {
+                if (this.reloadDataProxyConfig(CommonConfigHolder.getInstance().getClusterName(),
+                        CommonConfigHolder.getInstance().getClusterTag(), host)) {
                     break;
                 }
             }
