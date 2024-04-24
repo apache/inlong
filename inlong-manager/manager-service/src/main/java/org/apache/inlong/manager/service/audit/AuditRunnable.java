@@ -131,7 +131,7 @@ public class AuditRunnable implements Runnable {
                     HttpMethod.GET, null,
                     null,
                     AuditResponse.class);
-            LOGGER.info("success to query audit info result={}", result);
+            LOGGER.info("success to query audit info for url ={}", url);
             return CommonBeanUtils.copyListProperties(result.getData(), AuditInfo::new);
         } catch (Exception e) {
             LOGGER.info("query audit failed for request={}", request, e);
@@ -174,7 +174,7 @@ public class AuditRunnable implements Runnable {
                     HttpMethod.GET, null,
                     null,
                     AuditResponse.class);
-            LOGGER.info("success to query audit info result={}", result);
+            LOGGER.info("success to query audit info for url ={}", url);
             return CommonBeanUtils.copyListProperties(result.getData(), AuditInfo::new);
         } catch (Exception e) {
             LOGGER.info("query audit failed for request={}", request, e);
