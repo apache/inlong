@@ -54,6 +54,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -461,7 +462,7 @@ public class ModuleManager extends AbstractDaemon {
     private boolean isPackageDownloaded(ModuleConfig module) {
         String path = module.getPackageConfig().getStoragePath() + "/" + module.getPackageConfig().getFileName();
         String fileMd5 = calcFileMd5(path);
-        if (fileMd5.equals(module.getPackageConfig().getMd5())) {
+        if (Objects.equals(fileMd5, module.getPackageConfig().getMd5())) {
             return true;
         } else {
             LOGGER.error("md5 not match! fileMd5 {} moduleMd5 {}", fileMd5, module.getPackageConfig().getMd5());
