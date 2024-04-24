@@ -5,7 +5,7 @@ InLong Manager is available for development and experience.
 ### Pull Image
 
 ```
-docker pull inlong/manager:latest
+docker pull inlong/manager:1.12.0
 ```
 
 ### Start Container
