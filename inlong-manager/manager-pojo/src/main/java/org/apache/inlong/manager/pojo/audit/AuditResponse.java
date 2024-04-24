@@ -38,6 +38,7 @@ public class AuditResponse {
     @AllArgsConstructor
     public static class AuditItem {
 
+        private String ip;
         private String logTs;
         private String inlongGroupId;
         private String inlongStreamId;
