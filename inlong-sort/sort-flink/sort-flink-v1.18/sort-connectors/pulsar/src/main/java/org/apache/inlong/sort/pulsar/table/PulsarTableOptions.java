@@ -37,6 +37,7 @@ import static org.apache.flink.table.factories.FactoryUtil.FORMAT_SUFFIX;
  * org.apache.flink.connector.pulsar.common.config.PulsarOptions}, {@link
  * org.apache.flink.connector.pulsar.source.PulsarSourceOptions}, and {@link
  * org.apache.flink.connector.pulsar.sink.PulsarSinkOptions}.
+ * Modify from  {@link org.apache.flink.connector.pulsar.table.PulsarTableOptions}
  */
 @PublicEvolving
 public final class PulsarTableOptions {

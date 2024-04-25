@@ -48,7 +48,9 @@ import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.SOURCE_SUBS
 import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.TOPIC;
 import static org.apache.pulsar.common.naming.TopicName.isValid;
 
-/** Util class for source and sink validation rules. */
+/** Util class for source and sink validation rules.
+ * Modify from  {@link org.apache.flink.connector.pulsar.table.PulsarTableValidationUtils}
+ * */
 public class PulsarTableValidationUtils {
 
     private PulsarTableValidationUtils() {

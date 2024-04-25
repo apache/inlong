@@ -80,6 +80,7 @@ import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.VALUE_FORMA
  *   <li>Create key and value encoding/decoding format.
  *   <li>Create key and value projection.
  * </ul>
+ * Modify from  {@link org.apache.flink.connector.pulsar.table.PulsarTableOptionUtils}
  */
 public class PulsarTableOptionUtils {
 
