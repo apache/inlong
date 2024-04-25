@@ -32,6 +32,7 @@
 
     <modules>
         <module>pulsar</module>
+        <module>jdbc</module>
     </modules>
 
     <properties>
