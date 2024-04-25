@@ -62,6 +62,7 @@ public interface AuditEntityMapper {
 
     List<Map<String, Object>> sumGroupByIp(@Param(value = "groupId") String groupId,
             @Param(value = "streamId") String streamId,
+            @Param(value = "ip") String ip,
             @Param(value = "auditId") String auditId,
             @Param(value = "startDate") String startDate,
             @Param(value = "endData") String endData);
