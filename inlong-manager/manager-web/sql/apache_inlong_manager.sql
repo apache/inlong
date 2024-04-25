@@ -977,7 +977,7 @@ CREATE TABLE IF NOT EXISTS `module_config`
     `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT = 'Module config table'
+  DEFAULT CHARSET = utf8mb4 COMMENT = 'Module config table';
 
 -- ----------------------------
 -- Table structure for package_config
@@ -996,7 +996,7 @@ CREATE TABLE IF NOT EXISTS `package_config` (
     `modify_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`)
 )  ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4 COMMENT = 'Package config table'
+    DEFAULT CHARSET = utf8mb4 COMMENT = 'Package config table';
 -- ----------------------------
 
 SET FOREIGN_KEY_CHECKS = 1;
