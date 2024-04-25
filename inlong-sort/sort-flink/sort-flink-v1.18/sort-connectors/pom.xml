@@ -22,23 +22,28 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.inlong</groupId>
-        <artifactId>sort-flink</artifactId>
+        <artifactId>sort-flink-v1.18</artifactId>
         <version>1.13.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>sort-flink-v1.18</artifactId>
+    <artifactId>sort-connectors-v1.18</artifactId>
     <packaging>pom</packaging>
-    <name>Apache InLong - Sort Flink v1.18</name>
+    <name>Apache InLong - Sort Connectors v1.18</name>
 
     <modules>
-        <module>sort-flink-dependencies</module>
-        <module>sort-connectors</module>
+        <module>pulsar</module>
     </modules>
 
     <properties>
-        <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
-        <flink.version>1.18.1</flink.version>
-        <flink.scala.binary.version>2.12</flink.scala.binary.version>
+        <inlong.root.dir>${project.parent.parent.parent.parent.basedir}</inlong.root.dir>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-flink-dependencies-v1.18</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>
