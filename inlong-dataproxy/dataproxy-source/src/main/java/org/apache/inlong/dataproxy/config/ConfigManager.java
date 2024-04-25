@@ -91,9 +91,6 @@ public class ConfigManager {
             if (!isInit) {
                 instance = new ConfigManager();
                 for (ConfigHolder holder : CONFIG_HOLDER_MAP.keySet()) {
-                    if (holder == null) {
-                        continue;
-                    }
                     holder.loadFromFileToHolder();
                 }
                 ReloadConfigWorker reloadProperties = ReloadConfigWorker.create(instance);
@@ -257,9 +254,6 @@ public class ConfigManager {
                 try {
                     // check and load local configure files
                     for (ConfigHolder holder : CONFIG_HOLDER_MAP.keySet()) {
-                        if (holder == null) {
-                            continue;
-                        }
                         if (holder.checkAndUpdateHolder()) {
                             holder.executeCallbacks();
                         }
