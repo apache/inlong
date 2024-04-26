@@ -67,7 +67,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
     // message group
     private BatchPackManager dispatchManager;
     private final BufferQueue<PackProfile> dispatchQueue =
-            new BufferQueue<>(CommonConfigHolder.getInstance().getMaxBufferQueueSizeKb());
+            new BufferQueue<>(CommonConfigHolder.getInstance().getDefBufferQueueSizeKB());
     // scheduled thread pool
     // reload
     // dispatch

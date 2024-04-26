@@ -17,13 +17,13 @@
 
 package org.apache.inlong.dataproxy.sink.common;
 
+import org.apache.inlong.common.enums.InlongCompressType;
 import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
 import org.apache.inlong.sdk.commons.protocol.EventConstants;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
-import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MapFieldEntry;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObjs;
@@ -48,7 +48,7 @@ public class DefaultEventHandler implements EventHandler {
      */
     @Override
     public Map<String, String> parseHeader(IdTopicConfig idConfig, BatchPackProfile profile, String nodeId,
-            INLONG_COMPRESSED_TYPE compressType) {
+            InlongCompressType compressType) {
         Map<String, String> headers = new HashMap<>();
         // version int32 protocol version, the value is 1
         headers.put(ConfigConstants.MSG_ENCODE_VER, MessageWrapType.INLONG_MSG_V1.getStrId());
@@ -71,7 +71,7 @@ public class DefaultEventHandler implements EventHandler {
         // INLONG_GZ = 1,
         // INLONG_SNAPPY = 2
         headers.put(EventConstants.HEADER_KEY_COMPRESS_TYPE,
-                String.valueOf(compressType.getNumber()));
+                String.valueOf(compressType.getName()));
         // messageKey string partition hash key, optional
         return headers;
     }
@@ -80,7 +80,7 @@ public class DefaultEventHandler implements EventHandler {
      * parseBody
      */
     @Override
-    public byte[] parseBody(IdTopicConfig idConfig, BatchPackProfile profile, INLONG_COMPRESSED_TYPE compressType)
+    public byte[] parseBody(IdTopicConfig idConfig, BatchPackProfile profile, InlongCompressType compressType)
             throws IOException {
         List<ProxyEvent> events = profile.getEvents();
         // encode
@@ -105,7 +105,7 @@ public class DefaultEventHandler implements EventHandler {
             case INLONG_GZ:
                 compressBytes = GzipUtils.compress(srcBytes);
                 break;
-            case INLONG_NO_COMPRESS:
+            case NONE:
             default:
                 compressBytes = srcBytes;
                 break;

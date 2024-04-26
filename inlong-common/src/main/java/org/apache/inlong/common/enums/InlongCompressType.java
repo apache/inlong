@@ -17,7 +17,10 @@
 
 package org.apache.inlong.common.enums;
 
+import com.google.common.collect.Sets;
+
 import java.util.Objects;
+import java.util.Set;
 
 public enum InlongCompressType {
 
@@ -25,6 +28,9 @@ public enum InlongCompressType {
     INLONG_GZ(1, "INLONG_GZ", "The message compressed with inlong gz"),
     INLONG_SNAPPY(2, "INLONG_SNAPPY", "The message compressed with inlong snappy"),
     UNKNOWN(99, "UNKNOWN", "Unknown compress type");
+
+    public static final Set<String> allowedCompressTypes =
+            Sets.newHashSet(NONE.getName(), INLONG_GZ.getName(), INLONG_SNAPPY.getName());
 
     private final int id;
     private final String name;

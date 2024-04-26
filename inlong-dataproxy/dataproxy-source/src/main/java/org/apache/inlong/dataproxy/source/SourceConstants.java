@@ -25,6 +25,8 @@ public class SourceConstants {
     public static final String SYSENV_HOST_IP = "inlongHostIp";
     // default source host
     public static final String VAL_DEF_HOST_VALUE = "0.0.0.0";
+    // loopback host
+    public static final String VAL_LOOPBACK_HOST_VALUE = "127.0.0.1";
     // source port
     public static final String SRCCXT_CONFIG_PORT = "port";
     // system env source port

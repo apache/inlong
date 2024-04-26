@@ -339,7 +339,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             this.responsePackage(ctx, ProxySdk.ResultCode.SUCCUSS, packObject);
         }
         // process
-        if (CommonConfigHolder.getInstance().isResponseAfterSave()) {
+        if (CommonConfigHolder.getInstance().isDefV1MsgResponseBySink()) {
             this.processAndWaitingSave(ctx, packObject, events);
         } else {
             this.processAndResponse(ctx, packObject, events);
