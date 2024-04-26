@@ -17,7 +17,7 @@
 
 package org.apache.inlong.dataproxy.utils;
 
-import org.apache.inlong.dataproxy.source.SourceConstants;
+import org.apache.inlong.dataproxy.consts.SourceConstants;
 
 import io.netty.channel.Channel;
 import org.apache.commons.lang3.StringUtils;

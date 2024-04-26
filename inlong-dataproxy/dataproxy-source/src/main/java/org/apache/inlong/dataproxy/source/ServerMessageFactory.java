@@ -17,6 +17,8 @@
 
 package org.apache.inlong.dataproxy.source;
 
+import org.apache.inlong.dataproxy.consts.SourceConstants;
+
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
