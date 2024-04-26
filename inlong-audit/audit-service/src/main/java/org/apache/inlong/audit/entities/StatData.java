@@ -24,7 +24,7 @@ import java.sql.Timestamp;
 @Data
 public class StatData {
 
-    private String auditVersion;
+    private long auditVersion;
     private String logTs;
     private String inlongGroupId;
     private String inlongStreamId;
@@ -35,4 +35,5 @@ public class StatData {
     private Long delay;
     private Timestamp updateTime;
     private String ip;
+    private String sourceName;
 }

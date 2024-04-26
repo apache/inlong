@@ -33,8 +33,8 @@ public class OpenApiConstants {
     public static final String DEFAULT_API_GET_IPS_PATH = "/audit/query/getIps";
     public static final String KEY_API_GET_IDS_PATH = "api.get.ids.path";
     public static final String DEFAULT_API_GET_IDS_PATH = "/audit/query/getIds";
-    public static final String KEY_API_POOL_SIZE = "api.pool.size";
-    public static final int DEFAULT_POOL_SIZE = 10;
+    public static final String KEY_API_THREAD_POOL_SIZE = "api.thread.pool.size";
+    public static final int DEFAULT_API_THREAD_POOL_SIZE = 10;
     public static final String KEY_API_BACKLOG_SIZE = "api.backlog.size";
     public static final int DEFAULT_API_BACKLOG_SIZE = 100;
     public static final String KEY_API_REAL_LIMITER_QPS = "api.real.limiter.qps";
@@ -61,7 +61,8 @@ public class OpenApiConstants {
     public static final String KEY_HTTP_BODY_ERR_DATA = "data";
     public static final String KEY_HTTP_HEADER_CONTENT_TYPE = "Content-Type";
     public static final String VALUE_HTTP_HEADER_CONTENT_TYPE = "application/json;charset=utf-8";
-    public static final int BIND_PORT = 80;
+    public static final String KEY_HTTP_SERVER_BIND_PORT = "api.http.server.bind.port";
+    public static final int DEFAULT_HTTP_SERVER_BIND_PORT = 10080;
     public static final int HTTP_RESPOND_CODE = 200;
     public static final String DEFAULT_PARAMS_AUDIT_TAG = "";
 }

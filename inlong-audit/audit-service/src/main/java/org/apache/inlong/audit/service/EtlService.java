@@ -26,29 +26,22 @@ import org.apache.inlong.audit.entities.AuditCycle;
 import org.apache.inlong.audit.entities.JdbcConfig;
 import org.apache.inlong.audit.entities.SinkConfig;
 import org.apache.inlong.audit.entities.SourceConfig;
-import org.apache.inlong.audit.selector.api.Selector;
-import org.apache.inlong.audit.selector.api.SelectorConfig;
-import org.apache.inlong.audit.selector.api.SelectorFactory;
 import org.apache.inlong.audit.sink.CacheSink;
 import org.apache.inlong.audit.sink.JdbcSink;
 import org.apache.inlong.audit.source.JdbcSource;
 import org.apache.inlong.audit.utils.JdbcUtils;
-import org.apache.inlong.common.util.NetworkUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATA_QUEUE_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SELECTOR_FOLLOWER_LISTEN_CYCLE_MS;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SELECTOR_SERVICE_ID;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SUMMARY_DAILY_STAT_BACK_TIMES;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SUMMARY_REALTIME_STAT_BACK_TIMES;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATA_QUEUE_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_SELECTOR_FOLLOWER_LISTEN_CYCLE_MS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_SELECTOR_SERVICE_ID;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_SUMMARY_DAILY_STAT_BACK_TIMES;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_SUMMARY_REALTIME_STAT_BACK_TIMES;
@@ -77,11 +70,8 @@ public class EtlService {
     private CacheSink cacheSinkOfTenMinutesCache;
     private CacheSink cacheSinkOfHalfHourCache;
     private CacheSink cacheSinkOfHourCache;
-
     private final int queueSize;
     private final int statBackTimes;
-    private static Selector selector;
-    private boolean running = true;
     private final String serviceId;
 
     public EtlService() {
@@ -100,9 +90,6 @@ public class EtlService {
         mysqlToTenMinutesCache();
         mysqlToHalfHourCache();
         mysqlToHourCache();
-
-        initSelector();
-        waitToBeLeader();
     }
 
     /**
@@ -166,7 +153,7 @@ public class EtlService {
      * The default audit data cycle is 5 minutes,and stored in a temporary table.
      * Support multiple audit source clusters.
      */
-    private void auditSourceToMysql() {
+    public void auditSourceToMysql() {
         DataQueue dataQueue = new DataQueue(queueSize);
         List<JdbcConfig> sourceList = ConfigService.getInstance().getAuditSourceByServiceId(serviceId);
         for (JdbcConfig jdbcConfig : sourceList) {
@@ -229,64 +216,22 @@ public class EtlService {
                 jdbcConfig.getDriverClass(),
                 jdbcConfig.getJdbcUrl(),
                 jdbcConfig.getUserName(),
-                jdbcConfig.getPassword());
-    }
-
-    /**
-     * Init selector
-     */
-    private void initSelector() {
-        JdbcConfig jdbcConfig = JdbcUtils.buildMysqlConfig();
-        String leaderId = NetworkUtils.getLocalIp() + "-" + UUID.randomUUID();
-        LOGGER.info("Init selector. Leader id is :{}", leaderId);
-        if (selector == null) {
-            SelectorConfig electorConfig = new SelectorConfig(
-                    serviceId,
-                    leaderId,
-                    jdbcConfig.getJdbcUrl(),
-                    jdbcConfig.getUserName(), jdbcConfig.getPassword(), jdbcConfig.getDriverClass());
-
-            selector = SelectorFactory.getNewElector(electorConfig);
-            try {
-                selector.init();
-            } catch (Exception e) {
-                LOGGER.error("Init selector has exception:", e);
-            }
-        }
-    }
-
-    /**
-     * Wait to be leader
-     */
-    public void waitToBeLeader() {
-        while (running) {
-            try {
-                Thread.sleep(Configuration.getInstance().get(KEY_SELECTOR_FOLLOWER_LISTEN_CYCLE_MS,
-                        DEFAULT_SELECTOR_FOLLOWER_LISTEN_CYCLE_MS));
-            } catch (Exception e) {
-                LOGGER.error("Wait to be Leader has exception! lost Leadership!", e);
-            }
-
-            if (selector.isLeader()) {
-                LOGGER.info("I get Leadership! Begin to aggregate clickhouse data to mysql");
-                auditSourceToMysql();
-                return;
-            }
-        }
+                jdbcConfig.getPassword(),
+                true);
     }
 
     /**
      * Stop the etl service,and destroy related resources.
      */
     public void stop() {
-        running = false;
         mysqlSourceOfTemp.destroy();
         mysqlSinkOfDay.destroy();
 
         for (JdbcSource source : auditJdbcSources) {
             source.destroy();
         }
-        mysqlSinkOfTemp.destroy();
+        if (null != mysqlSinkOfTemp)
+            mysqlSinkOfTemp.destroy();
 
         mysqlSourceOfTenMinutesCache.destroy();
         mysqlSourceOfHalfHourCache.destroy();
@@ -295,7 +240,5 @@ public class EtlService {
         cacheSinkOfTenMinutesCache.destroy();
         cacheSinkOfHalfHourCache.destroy();
         cacheSinkOfHourCache.destroy();
-
-        selector.close();
     }
 }

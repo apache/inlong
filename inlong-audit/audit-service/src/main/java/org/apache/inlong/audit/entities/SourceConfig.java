@@ -17,12 +17,14 @@
 
 package org.apache.inlong.audit.entities;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
  * Source config
  */
 @Data
+@AllArgsConstructor
 public class SourceConfig {
 
     private AuditCycle auditCycle;
@@ -32,6 +34,7 @@ public class SourceConfig {
     private final String jdbcUrl;
     private final String username;
     private final String password;
+    private boolean needJoin = false;
 
     public SourceConfig(AuditCycle auditCycle,
             String querySql,
