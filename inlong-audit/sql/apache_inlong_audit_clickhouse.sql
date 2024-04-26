@@ -24,6 +24,7 @@ USE apache_inlong_audit;
 
 -- ----------------------------
 -- Table structure for audit_data
+-- The table creation statement of the audit flow table is used to record the real-time flow data of the audit.
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `audit_data`
 (
@@ -42,5 +43,5 @@ CREATE TABLE IF NOT EXISTS `audit_data`
     `delay`            Int64 COMMENT 'Message delay',
     `update_time`      DateTime COMMENT 'Update time'
 ) ENGINE = MergeTree
-      ORDER BY inlong_group_id
-      SETTINGS index_granularity = 8192;
+ORDER BY inlong_group_id
+SETTINGS index_granularity = 8192;
