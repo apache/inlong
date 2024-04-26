@@ -70,6 +70,9 @@ const Comp = ({ inlongGroupId, readonly, isCreate }: Props, ref) => {
 
     if (isUpdate) {
       submitData.inlongGroupId = inlongGroupId;
+      if (mqType == 'PULSAR') {
+        submitData.pulsarTenat = form.getFieldValue('pulsarTenant');
+      }
     }
 
     const result = await request({

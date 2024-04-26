@@ -119,6 +119,9 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly, isCreate }: Props, ref)
     if (isUpdate) {
       submitData.inlongGroupId = inlongGroupId;
       submitData.inlongStreamId = inlongStreamId;
+      if (mqType == 'PULSAR') {
+        submitData.pulsarTenat = form.getFieldValue('pulsarTenant');
+      }
     }
 
     const result = await request({
