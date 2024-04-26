@@ -30,7 +30,7 @@ public class SinkConfig {
     private String insertSql;
     private final String driverClassName;
     private final String jdbcUrl;
-    private final String username;
+    private final String userName;
     private final String password;
 
 }

@@ -37,25 +37,38 @@ public class SqlConstants {
     // Source query sql
     public static final String KEY_SOURCE_STAT_SQL = "source.stat.sql";
     public static final String DEFAULT_SOURCE_STAT_SQL =
-            "SELECT inlong_group_id, inlong_stream_id, audit_id\n" +
-                    "\t, audit_tag, cnt, size, delay,MAX(audit_version)\n" +
+            "SELECT inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
+                    "\t, SUM(cnt) AS cnt, SUM(size) AS size\n" +
+                    "\t, SUM(delay) AS delay\n" +
                     "FROM (\n" +
-                    "\tSELECT audit_version, inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
-                    "\t\t, SUM(count) AS cnt, SUM(size) AS size\n" +
-                    "\t\t, SUM(delay) AS delay\n" +
-                    "\tFROM (\n" +
-                    "\t\tSELECT audit_version, docker_id, thread_id, sdk_ts, packet_id\n" +
-                    "\t\t\t, log_ts, ip, inlong_group_id, inlong_stream_id, audit_id\n" +
-                    "\t\t\t, audit_tag, count, size, delay\n" +
-                    "\t\tFROM audit_data\n" +
-                    "\t\tWHERE log_ts BETWEEN ? AND ? \n" +
-                    "\t\t\tAND audit_id = ? \n" +
-                    "\t\tGROUP BY audit_version, docker_id, thread_id, sdk_ts, packet_id, log_ts, ip, inlong_group_id, inlong_stream_id, audit_id, audit_tag, count, size, delay\n "
+                    "\tSELECT t_all_version.log_ts, t_all_version.inlong_group_id, t_all_version.inlong_stream_id, t_all_version.audit_id, t_all_version.audit_tag\n"
                     +
-                    "\t) t1\n" +
-                    "\tGROUP BY audit_version, inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
-                    ") t2\n" +
-                    "GROUP BY inlong_group_id, inlong_stream_id, audit_id, audit_tag, cnt, size, delay";
+                    "\t\t, t_all_version.cnt, t_all_version.size, t_all_version.delay\n" +
+                    "\tFROM (\n" +
+                    "\t\tSELECT audit_version, log_ts, inlong_group_id, inlong_stream_id, audit_id\n" +
+                    "\t\t\t, audit_tag, SUM(count) AS cnt, SUM(size) AS size\n" +
+                    "\t\t\t, SUM(delay) AS delay\n" +
+                    "\t\tFROM audit_data\n" +
+                    "\t\tWHERE log_ts BETWEEN ? AND ?\n" +
+                    "\t\t\tAND audit_id = ?\n" +
+                    "\t\tGROUP BY audit_version, log_ts, inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
+                    "\t) t_all_version\n" +
+                    "\t\tJOIN (\n" +
+                    "\t\t\tSELECT max(audit_version) AS audit_version, log_ts, inlong_group_id, inlong_stream_id\n" +
+                    "\t\t\t\t, audit_id, audit_tag\n" +
+                    "\t\t\tFROM audit_data\n" +
+                    "\t\t\tWHERE log_ts BETWEEN ? AND ?\n" +
+                    "\t\t\t\tAND audit_id = ?\n" +
+                    "\t\t\tGROUP BY log_ts, inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
+                    "\t\t) t_max_version\n" +
+                    "\t\tON t_all_version.audit_version = t_max_version.audit_version\n" +
+                    "\t\t\tAND t_all_version.log_ts = t_max_version.log_ts\n" +
+                    "\t\t\tAND t_all_version.inlong_group_id = t_max_version.inlong_group_id\n" +
+                    "\t\t\tAND t_all_version.inlong_stream_id = t_max_version.inlong_stream_id\n" +
+                    "\t\t\tAND t_all_version.audit_id = t_max_version.audit_id\n" +
+                    "\t\t\tAND t_all_version.audit_tag = t_max_version.audit_tag\n" +
+                    ") t_sum\n" +
+                    "GROUP BY inlong_group_id, inlong_stream_id, audit_id, audit_tag";
 
     public static final String KEY_SOURCE_QUERY_IPS_SQL = "source.query.ips.sql";
     public static final String DEFAULT_SOURCE_QUERY_IPS_SQL =
@@ -82,27 +95,22 @@ public class SqlConstants {
     public static final String KEY_SOURCE_QUERY_MINUTE_SQL = "source.query.minute.sql";
     public static final String DEFAULT_SOURCE_QUERY_MINUTE_SQL =
             "SELECT log_ts, inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
-                    "\t, cnt, size, delay, max(audit_version)\n" +
+                    "\t, sum(count) AS cnt, sum(size) AS size\n" +
+                    "\t, sum(delay) AS delay, audit_version\n" +
                     "FROM (\n" +
-                    "\tSELECT audit_version, log_ts, inlong_group_id, inlong_stream_id, audit_id\n" +
-                    "\t\t, audit_tag, sum(count) AS cnt, sum(size) AS size\n" +
-                    "\t\t, sum(delay) AS delay\n" +
-                    "\tFROM (\n" +
-                    "\t\tSELECT audit_version, docker_id, thread_id, sdk_ts, packet_id\n" +
-                    "\t\t\t, log_ts, ip, inlong_group_id, inlong_stream_id, audit_id\n" +
-                    "\t\t\t, audit_tag, count, size, delay\n" +
-                    "\t\tFROM audit_data\n" +
-                    "\t\tWHERE log_ts BETWEEN ? AND ?\n" +
-                    "\t\t\tAND inlong_group_id = ?\n" +
-                    "\t\t\tAND inlong_stream_id = ?\n" +
-                    "\t\t\tAND audit_id = ? \n" +
-                    "\t\tGROUP BY audit_version, docker_id, thread_id, sdk_ts, packet_id, log_ts, ip, inlong_group_id, inlong_stream_id, audit_id, audit_tag, count, size, delay\n"
+                    "\tSELECT audit_version, docker_id, thread_id, sdk_ts, packet_id\n" +
+                    "\t\t, log_ts, ip, inlong_group_id, inlong_stream_id, audit_id\n" +
+                    "\t\t, audit_tag, count, size, delay\n" +
+                    "\tFROM audit_data\n" +
+                    "\tWHERE log_ts BETWEEN ? AND ?\n" +
+                    "\t\tAND inlong_group_id = ?\n" +
+                    "\t\tAND inlong_stream_id = ?\n" +
+                    "\t\tAND audit_id = ?\n" +
+                    "\tGROUP BY audit_version, docker_id, thread_id, sdk_ts, packet_id, log_ts, ip, inlong_group_id, inlong_stream_id, audit_id, audit_tag, count, size, delay\n"
                     +
-                    "\t) t1\n" +
-                    "\tGROUP BY audit_version, log_ts, inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
-                    ") t2\n" +
-                    "GROUP BY log_ts, inlong_group_id, inlong_stream_id, audit_id, audit_tag, cnt, size, delay \n" +
-                    "limit 1440 ";
+                    ") t_distinct\n" +
+                    "GROUP BY audit_version, log_ts, inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
+                    "LIMIT 1440";
 
     // Mysql query sql
     public static final String KEY_MYSQL_SOURCE_QUERY_TEMP_SQL = "mysql.query.temp.sql";

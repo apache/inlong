@@ -21,9 +21,9 @@ import org.apache.inlong.audit.config.Configuration;
 import org.apache.inlong.audit.entities.JdbcConfig;
 import org.apache.inlong.audit.entities.StatData;
 import org.apache.inlong.audit.service.ConfigService;
+import org.apache.inlong.audit.utils.CacheUtils;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,22 +33,21 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
-import static org.apache.inlong.audit.config.ConfigConstants.CACHE_PREP_STMTS;
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CACHE_PREP_STMTS;
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CONNECTION_TIMEOUT;
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATASOURCE_POOL_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_CACHE_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_CACHE_SQL_LIMIT;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_CACHE_PREP_STMTS;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_CONNECTION_TIMEOUT;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_POOL_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SQL_LIMIT;
-import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SIZE;
-import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SQL_LIMIT;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATASOURCE_DETECT_INTERVAL_MS;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATASOURCE_MAX_IDLE_CONNECTIONS;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATASOURCE_MAX_TOTAL_CONNECTIONS;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATASOURCE_MIX_IDLE_CONNECTIONS;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_DETECT_INTERVAL_MS;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_MAX_IDLE_CONNECTIONS;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_MAX_TOTAL_CONNECTIONS;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_MIN_IDLE_CONNECTIONS;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_SOURCE_QUERY_IDS_SQL;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_SOURCE_QUERY_IPS_SQL;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_SOURCE_QUERY_MINUTE_SQL;
@@ -64,7 +63,7 @@ public class RealTimeQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(RealTimeQuery.class);
     private static volatile RealTimeQuery realTimeQuery = null;
 
-    private final List<DataSource> dataSourceList = new LinkedList<>();
+    private final List<BasicDataSource> dataSourceList = new LinkedList<>();
 
     private final String queryLogTsSql;
     private final String queryIdsByIpSql;
@@ -73,7 +72,26 @@ public class RealTimeQuery {
     private RealTimeQuery() {
         List<JdbcConfig> jdbcConfigList = ConfigService.getInstance().getAllAuditSource();
         for (JdbcConfig jdbcConfig : jdbcConfigList) {
-            dataSourceList.add(createDataSource(jdbcConfig));
+            BasicDataSource dataSource = new BasicDataSource();
+            dataSource.setDriverClassName(jdbcConfig.getDriverClass());
+            dataSource.setUrl(jdbcConfig.getJdbcUrl());
+            dataSource.setUsername(jdbcConfig.getUserName());
+            dataSource.setPassword(jdbcConfig.getPassword());
+            dataSource.setInitialSize(Configuration.getInstance().get(KEY_DATASOURCE_MIN_IDLE_CONNECTIONS,
+                    DEFAULT_DATASOURCE_MIX_IDLE_CONNECTIONS));
+            dataSource.setMaxActive(Configuration.getInstance().get(KEY_DATASOURCE_MAX_TOTAL_CONNECTIONS,
+                    DEFAULT_DATASOURCE_MAX_TOTAL_CONNECTIONS));
+            dataSource.setMaxIdle(Configuration.getInstance().get(KEY_DATASOURCE_MAX_IDLE_CONNECTIONS,
+                    DEFAULT_DATASOURCE_MAX_IDLE_CONNECTIONS));
+            dataSource.setMinIdle(Configuration.getInstance().get(KEY_DATASOURCE_MIN_IDLE_CONNECTIONS,
+                    DEFAULT_DATASOURCE_MIX_IDLE_CONNECTIONS));
+            dataSource.setTestOnBorrow(true);
+            dataSource.setValidationQuery("SELECT 1");
+            dataSource
+                    .setTimeBetweenEvictionRunsMillis(Configuration.getInstance().get(KEY_DATASOURCE_DETECT_INTERVAL_MS,
+                            DEFAULT_DATASOURCE_DETECT_INTERVAL_MS));
+
+            dataSourceList.add(dataSource);
         }
 
         queryLogTsSql = Configuration.getInstance().get(KEY_SOURCE_QUERY_MINUTE_SQL,
@@ -96,29 +114,6 @@ public class RealTimeQuery {
     }
 
     /**
-     * Create data source.
-     */
-    private DataSource createDataSource(JdbcConfig jdbcConfig) {
-        HikariConfig config = new HikariConfig();
-        config.setDriverClassName(jdbcConfig.getDriverClass());
-        config.setJdbcUrl(jdbcConfig.getJdbcUrl());
-        config.setUsername(jdbcConfig.getUserName());
-        config.setPassword(jdbcConfig.getPassword());
-        config.setConnectionTimeout(Configuration.getInstance().get(KEY_DATASOURCE_CONNECTION_TIMEOUT,
-                DEFAULT_CONNECTION_TIMEOUT));
-        config.addDataSourceProperty(CACHE_PREP_STMTS,
-                Configuration.getInstance().get(KEY_CACHE_PREP_STMTS, DEFAULT_CACHE_PREP_STMTS));
-        config.addDataSourceProperty(PREP_STMT_CACHE_SIZE,
-                Configuration.getInstance().get(KEY_PREP_STMT_CACHE_SIZE, DEFAULT_PREP_STMT_CACHE_SIZE));
-        config.addDataSourceProperty(PREP_STMT_CACHE_SQL_LIMIT,
-                Configuration.getInstance().get(KEY_PREP_STMT_CACHE_SQL_LIMIT, DEFAULT_PREP_STMT_CACHE_SQL_LIMIT));
-        config.setMaximumPoolSize(
-                Configuration.getInstance().get(KEY_DATASOURCE_POOL_SIZE,
-                        DEFAULT_DATASOURCE_POOL_SIZE));
-        return new HikariDataSource(config);
-    }
-
-    /**
      * Query the audit data of log time.
      *
      * @param startTime
@@ -130,17 +125,57 @@ public class RealTimeQuery {
      */
     public List<StatData> queryLogTs(String startTime, String endTime, String inlongGroupId,
             String inlongStreamId, String auditId) {
+        long currentTime = System.currentTimeMillis();
         List<StatData> statDataList = new LinkedList<>();
-        for (DataSource dataSource : dataSourceList) {
-            statDataList =
-                    doQueryLogTs(dataSource, startTime, endTime, inlongGroupId, inlongStreamId, auditId);
-            if (!statDataList.isEmpty()) {
-                break;
-            }
-            LOGGER.info("Change another audit source to query data! Params is: {} {} {} {} {}",
-                    startTime, endTime, inlongGroupId, inlongStreamId, auditId);
+        if (dataSourceList.isEmpty()) {
+            return statDataList;
         }
-        return statDataList;
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        for (DataSource dataSource : dataSourceList) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                List<StatData> statDataListTemp =
+                        doQueryLogTs(dataSource, startTime, endTime, inlongGroupId, inlongStreamId, auditId);
+                statDataList.addAll(statDataListTemp);
+            });
+            futures.add(future);
+        }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()])).join();
+        LOGGER.info("Query log ts by params: {} {} {} {} {}, cost {} ms", startTime, endTime, inlongGroupId,
+                inlongStreamId, auditId, System.currentTimeMillis() - currentTime);
+        return filterMaxAuditVersion(statDataList);
+    }
+
+    /**
+     * @param allStatData
+     * @return
+     */
+    public List<StatData> filterMaxAuditVersion(List<StatData> allStatData) {
+        HashMap<String, List<StatData>> allData = new HashMap<>();
+        for (StatData statData : allStatData) {
+            String dataKey = CacheUtils.buildCacheKey(
+                    statData.getLogTs(),
+                    statData.getInlongGroupId(),
+                    statData.getInlongStreamId(),
+                    statData.getAuditId(),
+                    statData.getAuditTag());
+            List<StatData> statDataList = allData.computeIfAbsent(dataKey, k -> new LinkedList<>());
+            statDataList.add(statData);
+        }
+        List<StatData> result = new LinkedList<>();
+        for (Map.Entry<String, List<StatData>> entry : allData.entrySet()) {
+            long maxAuditVersion = Long.MIN_VALUE;
+            for (StatData maxData : entry.getValue()) {
+                maxAuditVersion =
+                        maxData.getAuditVersion() > maxAuditVersion ? maxData.getAuditVersion() : maxAuditVersion;
+            }
+            for (StatData statData : entry.getValue()) {
+                if (statData.getAuditVersion() == maxAuditVersion) {
+                    result.add(statData);
+                    break;
+                }
+            }
+        }
+        return result;
     }
 
     /**
@@ -175,6 +210,7 @@ public class RealTimeQuery {
                     data.setCount(resultSet.getLong(6));
                     data.setSize(resultSet.getLong(7));
                     data.setDelay(resultSet.getLong(8));
+                    data.setAuditVersion(resultSet.getLong(9));
                     result.add(data);
                 }
             } catch (SQLException sqlException) {
@@ -203,6 +239,8 @@ public class RealTimeQuery {
                 break;
             }
         }
+        LOGGER.info("Query ids by params:{} {} {} {}, result size:{} ", startTime,
+                endTime, ip, auditId, statDataList.size());
         return statDataList;
     }
 
@@ -265,6 +303,8 @@ public class RealTimeQuery {
                 break;
             }
         }
+        LOGGER.info("Query ips by params:{} {} {} {} {}, result size:{} ",
+                startTime, endTime, inlongGroupId, inlongStreamId, auditId, statDataList.size());
         return statDataList;
     }
 

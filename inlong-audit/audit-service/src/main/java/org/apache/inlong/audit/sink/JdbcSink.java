@@ -137,7 +137,7 @@ public class JdbcSink implements AutoCloseable {
         HikariConfig config = new HikariConfig();
         config.setDriverClassName(sinkConfig.getDriverClassName());
         config.setJdbcUrl(sinkConfig.getJdbcUrl());
-        config.setUsername(sinkConfig.getUsername());
+        config.setUsername(sinkConfig.getUserName());
         config.setPassword(sinkConfig.getPassword());
         config.setConnectionTimeout(Configuration.getInstance().get(KEY_DATASOURCE_CONNECTION_TIMEOUT,
                 DEFAULT_CONNECTION_TIMEOUT));

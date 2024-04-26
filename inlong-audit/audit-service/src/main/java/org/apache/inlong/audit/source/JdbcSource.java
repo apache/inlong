@@ -49,6 +49,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.audit.config.ConfigConstants.CACHE_PREP_STMTS;
+import static org.apache.inlong.audit.config.ConfigConstants.DATE_FORMAT;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CACHE_PREP_STMTS;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CONNECTION_TIMEOUT;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATASOURCE_POOL_SIZE;
@@ -82,8 +83,6 @@ public class JdbcSource {
     private DataSource dataSource;
     private String querySql;
     private SourceConfig sourceConfig;
-
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final int MAX_MINUTE = 60;
 
     public JdbcSource(DataQueue dataQueue, SourceConfig sourceConfig) {
@@ -281,6 +280,11 @@ public class JdbcSource {
                 pstat.setString(1, startTime);
                 pstat.setString(2, endTime);
                 pstat.setString(3, auditId);
+                if (sourceConfig.isNeedJoin()) {
+                    pstat.setString(4, startTime);
+                    pstat.setString(5, endTime);
+                    pstat.setString(6, auditId);
+                }
                 try (ResultSet resultSet = pstat.executeQuery()) {
                     while (resultSet.next()) {
                         StatData data = new StatData();

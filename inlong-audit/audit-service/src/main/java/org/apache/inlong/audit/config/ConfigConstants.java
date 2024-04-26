@@ -29,11 +29,24 @@ public class ConfigConstants {
     public static final String KEY_MYSQL_USERNAME = "mysql.username";
     public static final String KEY_MYSQL_PASSWORD = "mysql.password";
 
+    public static final String KEY_DATASOURCE_MAX_TOTAL_CONNECTIONS = "datasource.max.total.connections";
+    public static final int DEFAULT_DATASOURCE_MAX_TOTAL_CONNECTIONS = 10;
+
+    public static final String KEY_DATASOURCE_MAX_IDLE_CONNECTIONS = "datasource.max.idle.connections";
+    public static final int DEFAULT_DATASOURCE_MAX_IDLE_CONNECTIONS = 2;
+
+    public static final String KEY_DATASOURCE_MIN_IDLE_CONNECTIONS = "datasource.min.idle.connections";
+    public static final int DEFAULT_DATASOURCE_MIX_IDLE_CONNECTIONS = 1;
+
+    public static final String KEY_DATASOURCE_DETECT_INTERVAL_MS = "datasource.detect.interval.ms";
+    public static final int DEFAULT_DATASOURCE_DETECT_INTERVAL_MS = 60000;
+
     // Time config
     public static final String KEY_DATASOURCE_CONNECTION_TIMEOUT = "datasource.connection.timeout.ms";
     public static final int DEFAULT_CONNECTION_TIMEOUT = 1000 * 60 * 5;
     public static final String KEY_QUEUE_PULL_TIMEOUT = "queue.pull.timeout.ms";
     public static final int DEFAULT_QUEUE_PULL_TIMEOUT = 1000;
+    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     // Interval config
     public static final String KEY_SOURCE_DB_STAT_INTERVAL = "source.db.stat.interval.minute";

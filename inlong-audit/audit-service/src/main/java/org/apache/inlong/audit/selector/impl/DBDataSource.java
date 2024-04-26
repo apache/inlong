@@ -165,9 +165,9 @@ public class DBDataSource {
             try {
                 int result = executeUpdate(selectorSql);
                 if (result == 2) {
-                    LOGGER.info("{} get the leader", selectorConfig.getLeaderId());
+                    LOGGER.info("{} become the leader", selectorConfig.getLeaderId());
                 } else if (result == 1) {
-                    LOGGER.info("{} do not get the leader", selectorConfig.getLeaderId());
+                    LOGGER.info("{} waiting to be the leader", selectorConfig.getLeaderId());
                 }
             } catch (Exception exception) {
                 LOGGER.error("Exception: {} ,sql:{}", exception.getMessage(), selectorSql);
