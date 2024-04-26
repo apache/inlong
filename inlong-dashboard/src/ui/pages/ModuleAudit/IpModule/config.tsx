@@ -137,7 +137,7 @@ export const getFormContent = (initialValues, onSearch) => [
   {
     type: (
       <Button type="primary" onClick={onSearch}>
-        {i18n.t('basic.Search')}
+        {i18n.t('basic.Refresh')}
       </Button>
     ),
   },
