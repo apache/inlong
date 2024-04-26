@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.source;
 
 import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.consts.SourceConstants;
 import org.apache.inlong.dataproxy.utils.ConfStringUtils;
 
 import com.google.common.base.Preconditions;

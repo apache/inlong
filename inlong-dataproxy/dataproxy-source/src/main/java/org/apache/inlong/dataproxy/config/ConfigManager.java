@@ -17,10 +17,17 @@
 
 package org.apache.inlong.dataproxy.config;
 
+import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.enums.DataTypeEnum;
+import org.apache.inlong.common.enums.InlongCompressType;
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.heartbeat.AddressInfo;
-import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
+import org.apache.inlong.common.pojo.dataproxy.CacheClusterObject;
+import org.apache.inlong.common.pojo.dataproxy.CacheClusterSetObject;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigRequest;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
+import org.apache.inlong.common.pojo.dataproxy.InLongIdObject;
+import org.apache.inlong.common.pojo.dataproxy.ProxyClusterObject;
 import org.apache.inlong.dataproxy.config.holder.BlackListConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
 import org.apache.inlong.dataproxy.config.holder.GroupIdNumConfigHolder;
@@ -29,12 +36,15 @@ import org.apache.inlong.dataproxy.config.holder.SourceReportConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.WeightConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.WhiteListConfigHolder;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
+import org.apache.inlong.dataproxy.config.pojo.CacheType;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
+import org.apache.inlong.dataproxy.config.pojo.InLongMetaConfig;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.utils.HttpUtils;
 
 import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -45,6 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -141,8 +152,8 @@ public class ConfigManager {
         return metaConfigHolder.getConfigMd5();
     }
 
-    public boolean updateMetaConfigInfo(String inDataMd5, String inDataJsonStr) {
-        return metaConfigHolder.updateConfigMap(inDataMd5, inDataJsonStr);
+    public boolean updateMetaConfigInfo(InLongMetaConfig metaConfig) {
+        return metaConfigHolder.updateConfigMap(metaConfig);
     }
 
     // register meta-config callback
@@ -331,7 +342,7 @@ public class ConfigManager {
                 }
                 httpPost.setEntity(HttpUtils.getEntity(request));
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Start to request {} to get config info, with params: {}, headers: {}",
+                    LOG.debug("Sync meta: start to get config, to:{}, params: {}, headers: {}",
                             url, request, httpPost.getAllHeaders());
                 }
                 // request with post
@@ -340,56 +351,247 @@ public class ConfigManager {
                 String returnStr = EntityUtils.toString(response.getEntity());
                 long dltTime = System.currentTimeMillis() - startTime;
                 if (dltTime >= CommonConfigHolder.getInstance().getMetaConfigWastAlarmMs()) {
-                    LOG.warn("End to request {} to get config info, WAIST {} ms, over alarm value {} ms",
-                            url, dltTime, CommonConfigHolder.getInstance().getMetaConfigWastAlarmMs());
+                    LOG.warn("Sync meta: end to get config, WAIST {} ms, over alarm: {} ms, from:{}",
+                            dltTime, CommonConfigHolder.getInstance().getMetaConfigWastAlarmMs(), url);
                 } else {
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("End to request {} to get config info:{}, WAIST {} ms",
-                                url, returnStr, dltTime);
+                        LOG.debug("Sync meta: end to get config, WAIST {} ms, from:{}, result:{}",
+                                dltTime, url, returnStr);
                     }
                 }
                 if (response.getStatusLine().getStatusCode() != 200) {
-                    LOG.warn("Failed to request {}, with params: {}, headers: {}, the response is {}",
-                            url, request, httpPost.getAllHeaders(), returnStr);
+                    LOG.error(
+                            "Sync meta: return failure, errCode {}, from:{}, params:{}, headers:{}, response:{}",
+                            response.getStatusLine().getStatusCode(), url, request, httpPost.getAllHeaders(),
+                            returnStr);
                     return false;
                 }
                 // get groupId <-> topic and m value.
-                DataProxyConfigResponse proxyResponse =
-                        gson.fromJson(returnStr, DataProxyConfigResponse.class);
-                if (!proxyResponse.isResult()) {
-                    LOG.warn("Fail to get config from url {}, with params {}, error code is {}",
-                            url, request, proxyResponse.getErrCode());
+                DataProxyConfigResponse proxyResponse;
+                try {
+                    proxyResponse = gson.fromJson(returnStr, DataProxyConfigResponse.class);
+                } catch (Throwable e) {
+                    LOG.error("Sync meta: exception thrown while parsing config, from:{}, params:{}, response:{}",
+                            url, request, returnStr, e);
                     return false;
                 }
-                if (proxyResponse.getErrCode() != DataProxyConfigResponse.SUCC) {
+                // check required fields
+                ImmutablePair<Boolean, String> validResult = validRequiredFields(proxyResponse);
+                if (!validResult.getLeft()) {
                     if (proxyResponse.getErrCode() != DataProxyConfigResponse.NOUPDATE) {
-                        LOG.warn("Get config failure from url:{}, with params {}, error code is {}",
-                                url, request, proxyResponse.getErrCode());
+                        LOG.error("Sync meta: {}, from:{}, params:{}, return:{}",
+                                validResult.getRight(), url, request, returnStr);
                     }
                     return true;
                 }
-                DataProxyCluster dataProxyCluster = proxyResponse.getData();
-                if (dataProxyCluster == null
-                        || dataProxyCluster.getCacheClusterSet() == null
-                        || dataProxyCluster.getCacheClusterSet().getCacheClusters().isEmpty()) {
-                    LOG.warn("Get config empty from url:{}, with params {}, return:{}, cluster is empty!",
+                // get mq cluster info
+                ImmutablePair<CacheType, Map<String, CacheClusterConfig>> clusterInfo =
+                        buildCacheClusterConfig(proxyResponse.getData().getCacheClusterSet());
+                if (clusterInfo.getLeft() == CacheType.N) {
+                    LOG.error("Sync meta: unsupported mq type {}, from:{}, params:{}, return:{}",
+                            clusterInfo.getLeft(), url, request, returnStr);
+                    return true;
+                }
+                if (clusterInfo.getRight().isEmpty()) {
+                    LOG.error("Sync meta: cacheClusters is empty, from:{}, params:{}, return:{}",
                             url, request, returnStr);
                     return true;
                 }
+                // get ID to Topic configure
+                Map<String, IdTopicConfig> idTopicConfigMap = buildCacheTopicConfig(
+                        clusterInfo.getLeft(), proxyResponse.getData().getProxyCluster());
+                InLongMetaConfig inLongMetaConfig = new InLongMetaConfig(proxyResponse.getMd5(),
+                        clusterInfo.getLeft(), clusterInfo.getRight(), idTopicConfigMap);
                 // update meta configure
-                if (configManager.updateMetaConfigInfo(proxyResponse.getMd5(), returnStr)) {
-                    if (!ConfigManager.handshakeManagerOk.get()) {
-                        ConfigManager.handshakeManagerOk.set(true);
-                        LOG.info("Get config success from manager and updated, set handshake status is ok!");
-                    }
+                configManager.updateMetaConfigInfo(inLongMetaConfig);
+                // update handshake to manager status
+                if (ConfigManager.handshakeManagerOk.get()) {
+                    LOG.info("Sync meta: sync config success, from:{}", url);
+                } else {
+                    ConfigManager.handshakeManagerOk.set(true);
+                    LOG.info("Sync meta: sync config success, handshake manager ok, from:{}", url);
                 }
                 return true;
             } catch (Throwable ex) {
-                LOG.error("Request manager {} failure, throw exception", url, ex);
+                LOG.error("Sync meta: process throw exception, from:{}", url, ex);
                 return false;
             } finally {
                 if (httpPost != null) {
                     httpPost.releaseConnection();
+                }
+            }
+        }
+
+        /**
+         * check required fields status
+         *
+         * @param response  response from Manager
+         *
+         * @return   check result
+         */
+        public ImmutablePair<Boolean, String> validRequiredFields(DataProxyConfigResponse response) {
+            if (response == null) {
+                return ImmutablePair.of(false, "parse result is null");
+            } else if (!response.isResult()) {
+                return ImmutablePair.of(false, "result is NOT true");
+            } else if (response.getErrCode() != DataProxyConfigResponse.SUCC) {
+                return ImmutablePair.of(false, "errCode is "
+                        + response.getErrCode() + ", NOT success");
+            } else if (response.getMd5() == null) {
+                return ImmutablePair.of(false, "md5 field is null");
+            } else if (response.getData() == null) {
+                return ImmutablePair.of(false, "data field is null");
+            } else if (response.getData().getProxyCluster() == null) {
+                return ImmutablePair.of(false, "proxyCluster field is null");
+            } else if (response.getData().getCacheClusterSet() == null) {
+                return ImmutablePair.of(false, "cacheClusterSet field is null");
+            } else if (response.getData().getProxyCluster().getInlongIds() == null) {
+                return ImmutablePair.of(false, "inlongIds field is null");
+            } else if (response.getData().getCacheClusterSet().getCacheClusters() == null) {
+                return ImmutablePair.of(false, "cacheClusters field is null");
+            }
+            return ImmutablePair.of(true, "ok");
+        }
+
+        /**
+         * build cluster config based on cluster set object
+         *
+         * @param clusterSetObject  mq cluster set obect
+         *
+         * @return   mq type and cluster set configure
+         */
+        private ImmutablePair<CacheType, Map<String, CacheClusterConfig>> buildCacheClusterConfig(
+                CacheClusterSetObject clusterSetObject) {
+            CacheType mqType = CacheType.convert(clusterSetObject.getType());
+            Map<String, CacheClusterConfig> result = new HashMap<>();
+            for (CacheClusterObject clusterObject : clusterSetObject.getCacheClusters()) {
+                if (clusterObject == null || StringUtils.isBlank(clusterObject.getName())) {
+                    continue;
+                }
+                CacheClusterConfig config = new CacheClusterConfig();
+                config.setClusterName(clusterObject.getName());
+                config.setToken(clusterObject.getToken());
+                config.getParams().putAll(clusterObject.getParams());
+                result.put(config.getClusterName(), config);
+            }
+            return ImmutablePair.of(mqType, result);
+        }
+
+        /**
+         * build id2field config based on id2Topic configure
+         *
+         * @param mqType  mq cluster type
+         * @param proxyClusterObject  cluster object info
+         *
+         * @return   ID to Topic configures
+         */
+        private Map<String, IdTopicConfig> buildCacheTopicConfig(
+                CacheType mqType, ProxyClusterObject proxyClusterObject) {
+            Map<String, IdTopicConfig> tmpTopicConfigMap = new HashMap<>();
+            List<InLongIdObject> inLongIds = proxyClusterObject.getInlongIds();
+            if (inLongIds.isEmpty()) {
+                return tmpTopicConfigMap;
+            }
+            int index;
+            String[] idItems;
+            String groupId;
+            String streamId;
+            String topicName;
+            String tenant;
+            String nameSpace;
+            for (InLongIdObject idObject : inLongIds) {
+                if (idObject == null
+                        || StringUtils.isBlank(idObject.getInlongId())
+                        || StringUtils.isBlank(idObject.getTopic())) {
+                    continue;
+                }
+                // parse inlong id
+                idItems = idObject.getInlongId().split("\\.");
+                if (idItems.length == 2) {
+                    if (StringUtils.isBlank(idItems[0])) {
+                        continue;
+                    }
+                    groupId = idItems[0].trim();
+                    streamId = idItems[1].trim();
+                } else {
+                    groupId = idObject.getInlongId().trim();
+                    streamId = "";
+                }
+                topicName = idObject.getTopic().trim();
+                // change full topic name "pulsar-xxx/test/base_topic_name" to
+                // base topic name "base_topic_name"
+                index = topicName.lastIndexOf('/');
+                if (index >= 0) {
+                    topicName = topicName.substring(index + 1).trim();
+                }
+                tenant = idObject.getParams().getOrDefault(ConfigConstants.KEY_TENANT, "");
+                nameSpace = idObject.getParams().getOrDefault(ConfigConstants.KEY_NAMESPACE, "");
+                if (StringUtils.isBlank(idObject.getTopic())) {
+                    // namespace field must exist and value not be empty,
+                    // otherwise it is an illegal configuration item.
+                    continue;
+                }
+                if (mqType.equals(CacheType.TUBE)) {
+                    topicName = nameSpace;
+                } else if (mqType.equals(CacheType.KAFKA)) {
+                    if (topicName.equals(streamId)) {
+                        topicName = String.format(Constants.DEFAULT_KAFKA_TOPIC_FORMAT, nameSpace, topicName);
+                    }
+                }
+                IdTopicConfig tmpConfig = new IdTopicConfig();
+                tmpConfig.setInlongGroupIdAndStreamId(groupId, streamId);
+                tmpConfig.setTenantAndNameSpace(tenant, nameSpace);
+                tmpConfig.setTopicName(topicName);
+                tmpConfig.setParams(idObject.getParams());
+                tmpConfig.setDataType(DataTypeEnum.convert(
+                        idObject.getParams().getOrDefault("dataType", DataTypeEnum.TEXT.getType())));
+                tmpConfig.setFieldDelimiter(idObject.getParams().getOrDefault("fieldDelimiter", "|"));
+                tmpConfig.setFileDelimiter(idObject.getParams().getOrDefault("fileDelimiter", "\n"));
+                tmpConfig.setUseExtendedFields(Boolean.valueOf(
+                        idObject.getParams().getOrDefault("useExtendedFields", "false")));
+                tmpConfig.setMsgWrapType(getPbWrapType(idObject));
+                tmpConfig.setV1CompressType(getPbCompressType(idObject));
+                tmpTopicConfigMap.put(tmpConfig.getUid(), tmpConfig);
+                // add only groupId object for tube
+                if (mqType.equals(CacheType.TUBE)
+                        && !tmpConfig.getUid().equals(tmpConfig.getInlongGroupId())
+                        && tmpTopicConfigMap.get(tmpConfig.getInlongGroupId()) == null) {
+                    IdTopicConfig tmpConfig2 = new IdTopicConfig();
+                    tmpConfig2.setInlongGroupIdAndStreamId(groupId, "");
+                    tmpConfig2.setTenantAndNameSpace(tenant, nameSpace);
+                    tmpConfig2.setTopicName(topicName);
+                    tmpConfig2.setDataType(tmpConfig.getDataType());
+                    tmpConfig2.setFieldDelimiter(tmpConfig.getFieldDelimiter());
+                    tmpConfig2.setFileDelimiter(tmpConfig.getFileDelimiter());
+                    tmpConfig2.setParams(new HashMap<>(tmpConfig.getParams()));
+                    tmpConfig2.setUseExtendedFields(tmpConfig.isUseExtendedFields());
+                    tmpConfig2.setMsgWrapType(tmpConfig.getMsgWrapType());
+                    tmpConfig2.setV1CompressType(tmpConfig.getV1CompressType());
+                    tmpTopicConfigMap.put(tmpConfig2.getUid(), tmpConfig2);
+                }
+            }
+            return tmpTopicConfigMap;
+        }
+
+        private MessageWrapType getPbWrapType(InLongIdObject idObject) {
+            String strWrapType = idObject.getParams().get("wrapType");
+            if (StringUtils.isBlank(strWrapType)) {
+                return MessageWrapType.UNKNOWN;
+            } else {
+                return MessageWrapType.forType(strWrapType);
+            }
+        }
+
+        private InlongCompressType getPbCompressType(InLongIdObject idObject) {
+            String strCompressType = idObject.getParams().get("inlongCompressType");
+            if (StringUtils.isBlank(strCompressType)) {
+                return CommonConfigHolder.getInstance().getDefV1MsgCompressType();
+            } else {
+                InlongCompressType msgCompType = InlongCompressType.forType(strCompressType);
+                if (msgCompType == InlongCompressType.UNKNOWN) {
+                    return CommonConfigHolder.getInstance().getDefV1MsgCompressType();
+                } else {
+                    return msgCompType;
                 }
             }
         }

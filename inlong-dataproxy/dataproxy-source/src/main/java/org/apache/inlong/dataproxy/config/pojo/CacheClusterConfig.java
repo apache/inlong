@@ -21,6 +21,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 
@@ -93,5 +94,24 @@ public class CacheClusterConfig {
                 .append("token", token)
                 .append("params", params)
                 .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof CacheClusterConfig)) {
+            return false;
+        }
+        CacheClusterConfig that = (CacheClusterConfig) o;
+        return Objects.equals(clusterName, that.clusterName)
+                && Objects.equals(token, that.token)
+                && Objects.equals(params, that.params);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(clusterName, token, params);
     }
 }

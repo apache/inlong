@@ -18,6 +18,8 @@
 package org.apache.inlong.dataproxy.config.pojo;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
+import org.apache.inlong.common.enums.InlongCompressType;
+import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.sdk.commons.protocol.InlongId;
 
 import org.apache.commons.lang.StringUtils;
@@ -25,6 +27,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * IdTopicConfig
@@ -42,6 +45,8 @@ public class IdTopicConfig {
     private String fieldDelimiter = "|";
     private String fileDelimiter = "\n";
     private Boolean useExtendedFields = false;
+    private MessageWrapType msgWrapType = MessageWrapType.UNKNOWN;
+    private InlongCompressType v1CompressType = InlongCompressType.INLONG_SNAPPY;
 
     private Map<String, String> params = new HashMap<>();
 
@@ -49,12 +54,28 @@ public class IdTopicConfig {
 
     }
 
-    public Boolean getUseExtendedFields() {
+    public boolean isUseExtendedFields() {
         return useExtendedFields;
     }
 
     public void setUseExtendedFields(Boolean useExtendedFields) {
         this.useExtendedFields = useExtendedFields;
+    }
+
+    public MessageWrapType getMsgWrapType() {
+        return msgWrapType;
+    }
+
+    public void setMsgWrapType(MessageWrapType msgWrapType) {
+        this.msgWrapType = msgWrapType;
+    }
+
+    public InlongCompressType getV1CompressType() {
+        return v1CompressType;
+    }
+
+    public void setV1CompressType(InlongCompressType v1CompressType) {
+        this.v1CompressType = v1CompressType;
     }
 
     /**
@@ -221,11 +242,42 @@ public class IdTopicConfig {
                 .append("inlongGroupId", inlongGroupId)
                 .append("inlongStreamid", inlongStreamid)
                 .append("topicName", topicName)
+                .append("tenant", tenant)
                 .append("nameSpace", nameSpace)
                 .append("dataType", dataType)
                 .append("fieldDelimiter", fieldDelimiter)
                 .append("fileDelimiter", fileDelimiter)
+                .append("useExtendedFields", useExtendedFields)
+                .append("msgWrapType", msgWrapType)
+                .append("pbCompressType", v1CompressType)
                 .append("params", params)
                 .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof IdTopicConfig)) {
+            return false;
+        }
+        IdTopicConfig that = (IdTopicConfig) o;
+        return uid.equals(that.uid) && Objects.equals(inlongGroupId, that.inlongGroupId)
+                && Objects.equals(inlongStreamid, that.inlongStreamid) && topicName.equals(that.topicName)
+                && Objects.equals(tenant, that.tenant) && Objects.equals(nameSpace, that.nameSpace)
+                && dataType == that.dataType && Objects.equals(fieldDelimiter, that.fieldDelimiter)
+                && Objects.equals(fileDelimiter, that.fileDelimiter)
+                && Objects.equals(useExtendedFields, that.useExtendedFields)
+                && Objects.equals(msgWrapType, that.msgWrapType)
+                && v1CompressType == that.v1CompressType
+                && Objects.equals(params, that.params);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uid, inlongGroupId, inlongStreamid, topicName, tenant, nameSpace,
+                dataType, fieldDelimiter, fileDelimiter, useExtendedFields, msgWrapType,
+                v1CompressType, params);
     }
 }

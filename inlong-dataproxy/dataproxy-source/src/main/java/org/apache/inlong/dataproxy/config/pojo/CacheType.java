@@ -73,7 +73,16 @@ public enum CacheType {
      */
     public static CacheType convert(String value) {
         for (CacheType v : values()) {
-            if (v.value().equals(value)) {
+            if (v.value().equalsIgnoreCase(value)) {
+                return v;
+            }
+        }
+        return N;
+    }
+
+    public static CacheType valueOf(int idValue) {
+        for (CacheType v : values()) {
+            if (v.getId() == idValue) {
                 return v;
             }
         }
