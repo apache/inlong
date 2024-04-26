@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import org.apache.inlong.sort.pulsar.table.source.PulsarTableDeserializationSchemaFactory;
+import org.apache.inlong.sort.pulsar.table.source.PulsarTableSource;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ConfigOption;
@@ -31,8 +34,6 @@ import org.apache.flink.connector.pulsar.source.enumerator.cursor.StartCursor;
 import org.apache.flink.connector.pulsar.source.enumerator.cursor.StopCursor;
 import org.apache.flink.connector.pulsar.table.sink.PulsarTableSerializationSchemaFactory;
 import org.apache.flink.connector.pulsar.table.sink.PulsarTableSink;
-import org.apache.flink.connector.pulsar.table.source.PulsarTableDeserializationSchemaFactory;
-import org.apache.flink.connector.pulsar.table.source.PulsarTableSource;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.format.DecodingFormat;
 import org.apache.flink.table.connector.format.EncodingFormat;
@@ -99,6 +100,7 @@ import static org.apache.pulsar.shade.org.apache.commons.lang3.RandomStringUtils
  *
  * <p>The main role of this class is to retrieve config options and validate options from config and
  * the table schema. It also sets default values if a config option is not present.
+ * Modify from  {@link org.apache.flink.connector.pulsar.table.PulsarTableFactory}
  */
 public class PulsarTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
@@ -154,6 +156,10 @@ public class PulsarTableFactory implements DynamicTableSourceFactory, DynamicTab
         final int[] valueProjection = createValueFormatProjection(tableOptions, physicalDataType);
         final int[] keyProjection = createKeyFormatProjection(tableOptions, physicalDataType);
 
+        String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
+        String auditHostAndPorts = tableOptions.get(INLONG_AUDIT);
+        String auditKeys = tableOptions.get(AUDIT_KEYS);
+
         final PulsarTableDeserializationSchemaFactory deserializationSchemaFactory =
                 new PulsarTableDeserializationSchemaFactory(
                         physicalDataType,
@@ -161,7 +167,10 @@ public class PulsarTableFactory implements DynamicTableSourceFactory, DynamicTab
                         keyProjection,
                         valueDecodingFormat,
                         valueProjection,
-                        UPSERT_DISABLED);
+                        UPSERT_DISABLED,
+                        inlongMetric,
+                        auditHostAndPorts,
+                        auditKeys);
 
         // Set default values for configuration not exposed to user.
         final DecodingFormat<DeserializationSchema<RowData>> decodingFormatForMetadataPushdown =
