@@ -66,5 +66,11 @@
                 <module>format-json-v1.15</module>
             </modules>
         </profile>
+        <profile>
+            <id>v1.18</id>
+            <modules>
+                <module>format-json-v1.18</module>
+            </modules>
+        </profile>
     </profiles>
 </project>

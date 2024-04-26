@@ -59,17 +59,13 @@ import org.apache.inlong.common.pojo.sort.dataflow.field.format.TypeInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.VarBinaryFormatInfo;
 import org.apache.inlong.common.pojo.sort.dataflow.field.format.VarCharFormatInfo;
 
-import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.table.api.DataTypes;
+import org.apache.flink.table.api.TableColumn;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.descriptors.DescriptorProperties;
-import org.apache.flink.table.factories.DeserializationSchemaFactory;
-import org.apache.flink.table.factories.SerializationSchemaFactory;
-import org.apache.flink.table.factories.TableFactoryService;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.ArrayType;
 import org.apache.flink.table.types.logical.BigIntType;
@@ -102,7 +98,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import static org.apache.flink.table.factories.TableFormatFactoryBase.deriveSchema;
 import static org.apache.flink.util.Preconditions.checkState;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_DERIVE_SCHEMA;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_PROPERTY_VERSION;
@@ -114,50 +109,12 @@ import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_SC
 public class TableFormatUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(TableFormatUtils.class);
-
-    /**
-     * Returns the {@link DeserializationSchema} described by the given
-     * properties.
-     *
-     * @param properties The properties describing the deserializer.
-     * @param classLoader The class loader for the deserializer.
-     * @param <T> The type of the data.
-     * @return The {@link DeserializationSchema} described by the properties.
-     */
-    public static <T> DeserializationSchema<T> getDeserializationSchema(
-            final Map<String, String> properties,
-            final ClassLoader classLoader) {
-        @SuppressWarnings("unchecked")
-        final DeserializationSchemaFactory<T> deserializationSchemaFactory =
-                TableFactoryService.find(
-                        DeserializationSchemaFactory.class,
-                        properties,
-                        classLoader);
-
-        return deserializationSchemaFactory.createDeserializationSchema(properties);
-    }
-
-    /**
-     * Returns the {@link SerializationSchema} described by the given
-     * properties.
-     *
-     * @param properties The properties describing the serializer.
-     * @param classLoader The class loader for the serializer.
-     * @param <T> The type of the data.
-     * @return The {@link SerializationSchema} described by the properties.
-     */
-    public static <T> SerializationSchema<T> getSerializationSchema(
-            final Map<String, String> properties,
-            final ClassLoader classLoader) {
-        @SuppressWarnings("unchecked")
-        final SerializationSchemaFactory<T> serializationSchemaFactory =
-                TableFactoryService.find(
-                        SerializationSchemaFactory.class,
-                        properties,
-                        classLoader);
-
-        return serializationSchemaFactory.createSerializationSchema(properties);
-    }
+    private static final String SCHEMA = "schema";
+    private static final String SCHEMA_PROCTIME = "proctime";
+    private static final String SCHEMA_FROM = "from";
+    private static final String ROWTIME_TIMESTAMPS_TYPE = "rowtime.timestamps.type";
+    private static final String ROWTIME_TIMESTAMPS_TYPE_VALUE_FROM_FIELD = "from-field";
+    private static final String ROWTIME_TIMESTAMPS_FROM = "rowtime.timestamps.from";
 
     /**
      * Derive the format information for the given type.
@@ -538,6 +495,49 @@ public class TableFormatUtils {
             throw new ValidationException("A definition of a schema or "
                     + "derivation from the table's schema is required.");
         }
+    }
+
+    public static TableSchema deriveSchema(Map<String, String> properties) {
+        final DescriptorProperties descriptorProperties = new DescriptorProperties();
+        descriptorProperties.putProperties(properties);
+
+        final TableSchema.Builder builder = TableSchema.builder();
+
+        final TableSchema tableSchema = descriptorProperties.getTableSchema(SCHEMA);
+        for (int i = 0; i < tableSchema.getFieldCount(); i++) {
+            final TableColumn tableColumn = tableSchema.getTableColumns().get(i);
+            final String fieldName = tableColumn.getName();
+            final DataType dataType = tableColumn.getType();
+            if (!tableColumn.isPhysical()) {
+                // skip non-physical columns
+                continue;
+            }
+            final boolean isProctime =
+                    descriptorProperties
+                            .getOptionalBoolean(SCHEMA + '.' + i + '.' + SCHEMA_PROCTIME)
+                            .orElse(false);
+            final String timestampKey = SCHEMA + '.' + i + '.' + ROWTIME_TIMESTAMPS_TYPE;
+            final boolean isRowtime = descriptorProperties.containsKey(timestampKey);
+            if (!isProctime && !isRowtime) {
+                // check for aliasing
+                final String aliasName =
+                        descriptorProperties
+                                .getOptionalString(SCHEMA + '.' + i + '.' + SCHEMA_FROM)
+                                .orElse(fieldName);
+                builder.field(aliasName, dataType);
+            }
+            // only use the rowtime attribute if it references a field
+            else if (isRowtime
+                    && descriptorProperties.isValue(
+                            timestampKey, ROWTIME_TIMESTAMPS_TYPE_VALUE_FROM_FIELD)) {
+                final String aliasName =
+                        descriptorProperties.getString(
+                                SCHEMA + '.' + i + '.' + ROWTIME_TIMESTAMPS_FROM);
+                builder.field(aliasName, dataType);
+            }
+        }
+
+        return builder.build();
     }
 
     /**
