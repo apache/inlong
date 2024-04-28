@@ -22,22 +22,18 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
-import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.InstanceDb;
 import org.apache.inlong.agent.db.TaskProfileDb;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Instance;
 import org.apache.inlong.agent.utils.AgentUtils;
-import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.enums.InstanceStateEnum;
-import org.apache.inlong.common.enums.TaskStateEnum;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,7 +41,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.apache.inlong.agent.constant.TaskConstants.RESTORE_FROM_DB;
 
@@ -57,11 +52,9 @@ public class InstanceManager extends AbstractDaemon {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InstanceManager.class);
     private static final int ACTION_QUEUE_CAPACITY = 100;
-    public static final int CLEAN_INSTANCE_ONCE_LIMIT = 10;
     public volatile int CORE_THREAD_SLEEP_TIME_MS = 1000;
-    public static final int INSTANCE_DB_CLEAN_INTERVAL_MS = 10000;
-    private long lastCleanTime = 0;
-    public static final String DB_INSTANCE_EXPIRE_CYCLE_COUNT = "3";
+    public static final int INSTANCE_PRINT_INTERVAL_MS = 10000;
+    private long lastPrintTime = 0;
     // instance in db
     private final InstanceDb instanceDb;
     private TaskProfileDb taskProfileDb;
@@ -167,7 +160,7 @@ public class InstanceManager extends AbstractDaemon {
             while (isRunnable()) {
                 try {
                     AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME_MS);
-                    cleanDbInstance();
+                    printInstanceState();
                     dealWithActionQueue(actionQueue);
                     keepPaceWithDb();
                     String inlongGroupId = taskFromDb.getInlongGroupId();
@@ -184,10 +177,9 @@ public class InstanceManager extends AbstractDaemon {
         };
     }
 
-    private void cleanDbInstance() {
-        if (AgentUtils.getCurrentTime() - lastCleanTime > INSTANCE_DB_CLEAN_INTERVAL_MS) {
+    private void printInstanceState() {
+        if (AgentUtils.getCurrentTime() - lastPrintTime > INSTANCE_PRINT_INTERVAL_MS) {
             List<InstanceProfile> instances = instanceDb.getInstances(taskId);
-            doCleanDbInstance(instances);
             InstancePrintStat stat = new InstancePrintStat();
             for (int i = 0; i < instances.size(); i++) {
                 InstanceProfile instance = instances.get(i);
@@ -196,45 +188,7 @@ public class InstanceManager extends AbstractDaemon {
             LOGGER.info(
                     "instanceManager running! taskId {} mem {} db total {} {} action count {}",
                     taskId, instanceMap.size(), instances.size(), stat, actionQueue.size());
-            lastCleanTime = AgentUtils.getCurrentTime();
-        }
-    }
-
-    private void doCleanDbInstance(List<InstanceProfile> instances) {
-        AtomicInteger cleanCount = new AtomicInteger();
-        Iterator<InstanceProfile> iterator = instances.iterator();
-        while (iterator.hasNext()) {
-            if (cleanCount.get() > CLEAN_INSTANCE_ONCE_LIMIT) {
-                return;
-            }
-            InstanceProfile instanceFromDb = iterator.next();
-            if (instanceFromDb.getState() != InstanceStateEnum.FINISHED) {
-                return;
-            }
-            TaskProfile taskFromDb = taskProfileDb.getTask(taskId);
-            if (taskFromDb != null) {
-                if (taskFromDb.getCycleUnit().compareToIgnoreCase(CycleUnitType.REAL_TIME) == 0) {
-                    return;
-                }
-                if (taskFromDb.isRetry()) {
-                    if (taskFromDb.getState() != TaskStateEnum.RETRY_FINISH) {
-                        return;
-                    }
-                } else {
-                    if (instanceFromDb.getState() != InstanceStateEnum.FINISHED) {
-                        return;
-                    }
-                }
-            }
-            long expireTime = DateTransUtils.calcOffset(DB_INSTANCE_EXPIRE_CYCLE_COUNT + taskFromDb.getCycleUnit());
-            if (AgentUtils.getCurrentTime() - instanceFromDb.getModifyTime() > expireTime) {
-                cleanCount.getAndIncrement();
-                LOGGER.info("instance has expired, delete from db dataTime {} taskId {} instanceId {}",
-                        instanceFromDb.getSourceDataTime(), instanceFromDb.getTaskId(),
-                        instanceFromDb.getInstanceId());
-                deleteFromDb(instanceFromDb.getInstanceId());
-                iterator.remove();
-            }
+            lastPrintTime = AgentUtils.getCurrentTime();
         }
     }
 

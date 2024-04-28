@@ -132,7 +132,7 @@ public class TaskManager extends AbstractDaemon {
                 agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE));
         offsetBasicDb =
                 initDb(agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET));
-        OffsetManager.init(offsetBasicDb, instanceBasicDb);
+        OffsetManager.init(taskBasicDb, instanceBasicDb, offsetBasicDb);
         this.runningPool = new ThreadPoolExecutor(
                 0, Integer.MAX_VALUE,
                 60L, TimeUnit.SECONDS,
