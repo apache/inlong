@@ -24,17 +24,17 @@
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
-        <result column="is_sent" jdbcType="INTEGER" property="isSent"/>
+        <result column="indicator_type" jdbcType="INTEGER" property="indicatorType"/>
         <result column="audit_id" jdbcType="VARCHAR" property="auditId"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, type, is_sent, audit_id
+        id, name, type, indicator_type, audit_id
     </sql>
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.AuditBaseEntity">
-        insert into audit_base (id, name, type, is_sent, audit_id)
+        insert into audit_base (id, name, type, indicator_type, audit_id)
         values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
-                #{type,jdbcType=VARCHAR}, #{isSent,jdbcType=INTEGER},
+                #{type,jdbcType=VARCHAR}, #{indicatorType,jdbcType=INTEGER},
                 #{auditId,jdbcType=VARCHAR})
     </insert>
 
@@ -61,12 +61,12 @@
             </if>
         </where>
     </select>
-    <select id="selectByTypeAndIsSent" resultType="org.apache.inlong.manager.dao.entity.AuditBaseEntity">
+    <select id="selectByTypeAndIndicatorType" resultType="org.apache.inlong.manager.dao.entity.AuditBaseEntity">
         select
         <include refid="Base_Column_List"/>
         from audit_base
         where type = #{type, jdbcType=VARCHAR}
-        and is_sent = #{isSent, jdbcType=INTEGER}
+        and indicator_type = #{indicatorType, jdbcType=INTEGER}
     </select>
 
 </mapper>

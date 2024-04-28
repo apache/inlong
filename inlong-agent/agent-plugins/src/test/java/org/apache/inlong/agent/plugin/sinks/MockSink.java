@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DATA_TIME;
+import static org.apache.inlong.agent.constant.TaskConstants.SINK_DATA_TIME;
 
 public class MockSink extends AbstractSink {
 
@@ -58,7 +58,7 @@ public class MockSink extends AbstractSink {
     @Override
     public void init(InstanceProfile jobConf) {
         super.init(jobConf);
-        dataTime = AgentUtils.timeStrConvertToMillSec(jobConf.get(JOB_DATA_TIME, ""),
+        dataTime = AgentUtils.timeStrConvertToMillSec(jobConf.get(SINK_DATA_TIME, ""),
                 jobConf.get(JOB_CYCLE_UNIT, ""));
         sourceFileName = "test";
         LOGGER.info("get dataTime is : {}", dataTime);

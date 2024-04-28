@@ -80,6 +80,12 @@ public class PulsarSourceDTO {
     @ApiModelProperty(value = "The message body wrap  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
     private String wrapType;
 
+    @ApiModelProperty(value = "Client auth plugin class name")
+    private String clientAuthPluginClassName;
+
+    @ApiModelProperty(value = "Client auth params")
+    private String clientAuthParams;
+
     @ApiModelProperty("Reset subscription time")
     private Long resetTime;
 

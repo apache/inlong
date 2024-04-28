@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.group;
 
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
@@ -60,6 +61,16 @@ public interface InlongGroupService {
     String save(@Valid @NotNull(message = "inlong group request cannot be null") InlongGroupRequest groupInfo,
             UserInfo opInfo);
 
+    /**
+     * Batch save inlong group info.
+     *
+     * @param groupRequestList group request list need to save
+     * @param operator name of operator
+     * @return inlong group id list after saving
+     */
+    List<BatchResult> batchSave(
+            @Valid @NotNull(message = "inlong group request list cannot be null") List<InlongGroupRequest> groupRequestList,
+            String operator);
     /**
      * Query whether the specified group id exists
      *

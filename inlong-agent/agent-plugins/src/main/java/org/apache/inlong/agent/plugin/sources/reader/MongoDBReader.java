@@ -78,34 +78,34 @@ import static io.debezium.connector.mongodb.MongoDbConnectorConfig.SSL_ENABLED;
 import static io.debezium.connector.mongodb.MongoDbConnectorConfig.USER;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPACITY;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_BACKOFF_INITIAL_DELAY;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_BACKOFF_MAX_DELAY;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_CAPTURE_MODE;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_COLLECTION_EXCLUDE_LIST;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_COLLECTION_INCLUDE_LIST;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_CONNECT_MAX_ATTEMPTS;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_CONNECT_TIMEOUT_MS;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_CURSOR_MAX_AWAIT;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_DATABASE_EXCLUDE_LIST;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_DATABASE_INCLUDE_LIST;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_FIELD_EXCLUDE_LIST;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_FIELD_RENAMES;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_HOSTS;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_INITIAL_SYNC_MAX_THREADS;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_MEMBERS_DISCOVER;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_OFFSETS;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_OFFSET_SPECIFIC_OFFSET_FILE;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_OFFSET_SPECIFIC_OFFSET_POS;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_PASSWORD;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_POLL_INTERVAL;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_QUEUE_SIZE;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_SELECTION_TIMEOUT;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_SNAPSHOT_MODE;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_SOCKET_TIMEOUT;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_SSL_ENABLE;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_SSL_INVALID_HOSTNAME_ALLOWED;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_STORE_HISTORY_FILENAME;
-import static org.apache.inlong.agent.constant.TaskConstants.JOB_MONGO_USER;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_BACKOFF_INITIAL_DELAY;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_BACKOFF_MAX_DELAY;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_CAPTURE_MODE;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_COLLECTION_EXCLUDE_LIST;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_COLLECTION_INCLUDE_LIST;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_CONNECT_MAX_ATTEMPTS;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_CONNECT_TIMEOUT_MS;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_CURSOR_MAX_AWAIT;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_DATABASE_EXCLUDE_LIST;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_DATABASE_INCLUDE_LIST;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_FIELD_EXCLUDE_LIST;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_FIELD_RENAMES;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_HOSTS;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_INITIAL_SYNC_MAX_THREADS;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_MEMBERS_DISCOVER;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_OFFSETS;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_OFFSET_SPECIFIC_OFFSET_FILE;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_OFFSET_SPECIFIC_OFFSET_POS;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_PASSWORD;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_POLL_INTERVAL;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_QUEUE_SIZE;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_SELECTION_TIMEOUT;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_SNAPSHOT_MODE;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_SOCKET_TIMEOUT;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_SSL_ENABLE;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_SSL_INVALID_HOSTNAME_ALLOWED;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_STORE_HISTORY_FILENAME;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_MONGO_USER;
 
 /**
  * MongoDBReader : mongo source, split mongo source job into multi readers
@@ -223,18 +223,18 @@ public class MongoDBReader extends AbstractReader {
      * @param jobConf job conf
      */
     private void setGlobalParamsValue(InstanceProfile jobConf) {
-        bufferPool = new LinkedBlockingQueue<>(jobConf.getInt(JOB_MONGO_QUEUE_SIZE, 1000));
+        bufferPool = new LinkedBlockingQueue<>(jobConf.getInt(TASK_MONGO_QUEUE_SIZE, 1000));
         instanceId = jobConf.getInstanceId();
         // offset file absolute path
-        offsetStoreFileName = jobConf.get(JOB_MONGO_STORE_HISTORY_FILENAME,
+        offsetStoreFileName = jobConf.get(TASK_MONGO_STORE_HISTORY_FILENAME,
                 MongoDBSnapshotBase.getSnapshotFilePath()) + "/mongo-" + instanceId + "-offset.dat";
         // snapshot info
         snapshot = new MongoDBSnapshotBase(offsetStoreFileName);
-        String offset = jobConf.get(JOB_MONGO_OFFSETS, "");
+        String offset = jobConf.get(TASK_MONGO_OFFSETS, "");
         snapshot.save(offset, new File(offsetStoreFileName));
         // offset info
-        specificOffsetFile = jobConf.get(JOB_MONGO_OFFSET_SPECIFIC_OFFSET_FILE, "");
-        specificOffsetPos = jobConf.get(JOB_MONGO_OFFSET_SPECIFIC_OFFSET_POS, "-1");
+        specificOffsetFile = jobConf.get(TASK_MONGO_OFFSET_SPECIFIC_OFFSET_FILE, "");
+        specificOffsetPos = jobConf.get(TASK_MONGO_OFFSET_SPECIFIC_OFFSET_POS, "-1");
     }
 
     /**
@@ -275,31 +275,31 @@ public class MongoDBReader extends AbstractReader {
      */
     private Properties buildMongoConnectorConfig(InstanceProfile jobConf) {
         Configuration.Builder builder = Configuration.create();
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_HOSTS, HOSTS);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_USER, USER);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_PASSWORD, PASSWORD);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_DATABASE_INCLUDE_LIST, DATABASE_INCLUDE_LIST);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_DATABASE_EXCLUDE_LIST, DATABASE_EXCLUDE_LIST);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_COLLECTION_INCLUDE_LIST, COLLECTION_INCLUDE_LIST);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_COLLECTION_EXCLUDE_LIST, COLLECTION_EXCLUDE_LIST);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_FIELD_EXCLUDE_LIST, FIELD_EXCLUDE_LIST);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_SNAPSHOT_MODE, SNAPSHOT_MODE);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_CAPTURE_MODE, CAPTURE_MODE);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_CONNECT_TIMEOUT_MS, CONNECT_TIMEOUT_MS);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_CURSOR_MAX_AWAIT, CURSOR_MAX_AWAIT_TIME_MS);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_SOCKET_TIMEOUT, SOCKET_TIMEOUT_MS);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_SELECTION_TIMEOUT, SERVER_SELECTION_TIMEOUT_MS);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_FIELD_RENAMES, FIELD_RENAMES);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_MEMBERS_DISCOVER, AUTO_DISCOVER_MEMBERS);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_CONNECT_MAX_ATTEMPTS, MAX_FAILED_CONNECTIONS);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_BACKOFF_MAX_DELAY, CONNECT_BACKOFF_MAX_DELAY_MS);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_HOSTS, HOSTS);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_USER, USER);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_PASSWORD, PASSWORD);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_DATABASE_INCLUDE_LIST, DATABASE_INCLUDE_LIST);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_DATABASE_EXCLUDE_LIST, DATABASE_EXCLUDE_LIST);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_COLLECTION_INCLUDE_LIST, COLLECTION_INCLUDE_LIST);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_COLLECTION_EXCLUDE_LIST, COLLECTION_EXCLUDE_LIST);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_FIELD_EXCLUDE_LIST, FIELD_EXCLUDE_LIST);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_SNAPSHOT_MODE, SNAPSHOT_MODE);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_CAPTURE_MODE, CAPTURE_MODE);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_CONNECT_TIMEOUT_MS, CONNECT_TIMEOUT_MS);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_CURSOR_MAX_AWAIT, CURSOR_MAX_AWAIT_TIME_MS);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_SOCKET_TIMEOUT, SOCKET_TIMEOUT_MS);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_SELECTION_TIMEOUT, SERVER_SELECTION_TIMEOUT_MS);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_FIELD_RENAMES, FIELD_RENAMES);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_MEMBERS_DISCOVER, AUTO_DISCOVER_MEMBERS);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_CONNECT_MAX_ATTEMPTS, MAX_FAILED_CONNECTIONS);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_BACKOFF_MAX_DELAY, CONNECT_BACKOFF_MAX_DELAY_MS);
         setEngineConfigIfNecessary(jobConf, builder,
-                JOB_MONGO_BACKOFF_INITIAL_DELAY, CONNECT_BACKOFF_INITIAL_DELAY_MS);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_INITIAL_SYNC_MAX_THREADS, MAX_COPY_THREADS);
+                TASK_MONGO_BACKOFF_INITIAL_DELAY, CONNECT_BACKOFF_INITIAL_DELAY_MS);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_INITIAL_SYNC_MAX_THREADS, MAX_COPY_THREADS);
         setEngineConfigIfNecessary(jobConf, builder,
-                JOB_MONGO_SSL_INVALID_HOSTNAME_ALLOWED, SSL_ALLOW_INVALID_HOSTNAMES);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_SSL_ENABLE, SSL_ENABLED);
-        setEngineConfigIfNecessary(jobConf, builder, JOB_MONGO_POLL_INTERVAL, MONGODB_POLL_INTERVAL_MS);
+                TASK_MONGO_SSL_INVALID_HOSTNAME_ALLOWED, SSL_ALLOW_INVALID_HOSTNAMES);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_SSL_ENABLE, SSL_ENABLED);
+        setEngineConfigIfNecessary(jobConf, builder, TASK_MONGO_POLL_INTERVAL, MONGODB_POLL_INTERVAL_MS);
 
         Properties props = builder.build().asProperties();
         props.setProperty("offset.storage.file.filename", offsetStoreFileName);
@@ -307,12 +307,12 @@ public class MongoDBReader extends AbstractReader {
         props.setProperty("name", "engine-" + instanceId);
         props.setProperty("mongodb.name", "inlong-mongodb-" + instanceId);
 
-        String snapshotMode = props.getOrDefault(JOB_MONGO_SNAPSHOT_MODE, "").toString();
+        String snapshotMode = props.getOrDefault(TASK_MONGO_SNAPSHOT_MODE, "").toString();
         if (Objects.equals(SnapshotModeConstants.INITIAL, snapshotMode)) {
-            Preconditions.checkNotNull(JOB_MONGO_OFFSET_SPECIFIC_OFFSET_FILE,
-                    JOB_MONGO_OFFSET_SPECIFIC_OFFSET_FILE + " cannot be null");
-            Preconditions.checkNotNull(JOB_MONGO_OFFSET_SPECIFIC_OFFSET_POS,
-                    JOB_MONGO_OFFSET_SPECIFIC_OFFSET_POS + " cannot be null");
+            Preconditions.checkNotNull(TASK_MONGO_OFFSET_SPECIFIC_OFFSET_FILE,
+                    TASK_MONGO_OFFSET_SPECIFIC_OFFSET_FILE + " cannot be null");
+            Preconditions.checkNotNull(TASK_MONGO_OFFSET_SPECIFIC_OFFSET_POS,
+                    TASK_MONGO_OFFSET_SPECIFIC_OFFSET_POS + " cannot be null");
             props.setProperty("offset.storage", InLongFileOffsetBackingStore.class.getCanonicalName());
             props.setProperty(InLongFileOffsetBackingStore.OFFSET_STATE_VALUE,
                     serializeOffset(instanceId, specificOffsetFile, specificOffsetPos));

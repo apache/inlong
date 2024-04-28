@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.sort;
 
+import org.apache.inlong.common.enums.IndicatorType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -145,7 +146,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         List<StreamSource> sources = sourceMap.get(streamId);
         for (StreamSink sinkInfo : sinkInfos) {
             CommonBeanUtils.copyProperties(inlongStreamInfo, sinkInfo, true);
-            addAuditId(sinkInfo.getProperties(), sinkInfo.getSinkType(), true);
+            addAuditId(sinkInfo.getProperties(), sinkInfo.getSinkType(), IndicatorType.SEND_SUCCESS);
         }
 
         for (StreamSource source : sources) {
@@ -167,7 +168,8 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
             }
 
             for (int i = 0; i < sources.size(); i++) {
-                addAuditId(sources.get(i).getProperties(), sinkInfos.get(0).getSinkType(), false);
+                addAuditId(sources.get(i).getProperties(), sinkInfos.get(0).getSinkType(),
+                        IndicatorType.RECEIVED_SUCCESS);
             }
         } else {
             if (CollectionUtils.isNotEmpty(transformResponses)) {
@@ -183,7 +185,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
             }
 
             for (StreamSource source : sources) {
-                addAuditId(source.getProperties(), source.getSourceType(), false);
+                addAuditId(source.getProperties(), source.getSourceType(), IndicatorType.RECEIVED_SUCCESS);
             }
         }
 
@@ -294,9 +296,9 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         streamInfo.getExtList().add(extInfo);
     }
 
-    private void addAuditId(Map<String, Object> properties, String type, boolean isSent) {
+    private void addAuditId(Map<String, Object> properties, String type, IndicatorType indicatorType) {
         try {
-            String auditId = auditService.getAuditId(type, isSent);
+            String auditId = auditService.getAuditId(type, indicatorType);
             properties.putIfAbsent("metrics.audit.key", auditId);
             properties.putIfAbsent("metrics.audit.proxy.hosts", auditHost);
         } catch (Exception e) {

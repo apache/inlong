@@ -80,6 +80,7 @@ public class InstanceManager extends AbstractDaemon {
     private final int instanceLimit;
     private final AgentConfiguration agentConf;
     private final String taskId;
+    private long auditVersion;
     private volatile boolean runAtLeastOneTime = false;
     private volatile boolean running = false;
     private final double reserveCoefficient = 0.8;
@@ -122,6 +123,7 @@ public class InstanceManager extends AbstractDaemon {
      */
     public InstanceManager(String taskId, int instanceLimit, Db basicDb, TaskProfileDb taskProfileDb) {
         this.taskId = taskId;
+        this.auditVersion = Long.parseLong(taskId);
         instanceDb = new InstanceDb(basicDb);
         this.taskProfileDb = taskProfileDb;
         this.agentConf = AgentConfiguration.getAgentConf();
@@ -171,7 +173,7 @@ public class InstanceManager extends AbstractDaemon {
                     String inlongGroupId = taskFromDb.getInlongGroupId();
                     String inlongStreamId = taskFromDb.getInlongStreamId();
                     AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_INSTANCE_MGR_HEARTBEAT, inlongGroupId, inlongStreamId,
-                            AgentUtils.getCurrentTime(), 1, 1);
+                            AgentUtils.getCurrentTime(), 1, 1, auditVersion);
                 } catch (Throwable ex) {
                     LOGGER.error("coreThread error: ", ex);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
@@ -387,7 +389,7 @@ public class InstanceManager extends AbstractDaemon {
         LOGGER.info("delete instance from db: taskId {} instanceId {} result {}", taskId,
                 instanceId, instanceDb.getInstance(taskId, instanceId));
         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_DEL_INSTANCE_DB, inlongGroupId, inlongStreamId,
-                profile.getSinkDataTime(), 1, 1);
+                profile.getSinkDataTime(), 1, 1, auditVersion);
     }
 
     private void deleteFromMemory(String instanceId) {
@@ -403,7 +405,7 @@ public class InstanceManager extends AbstractDaemon {
         instanceMap.remove(instanceId);
         LOGGER.info("delete instance from memory: taskId {} instanceId {}", taskId, instance.getInstanceId());
         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_DEL_INSTANCE_MEM, inlongGroupId, inlongStreamId,
-                instance.getProfile().getSinkDataTime(), 1, 1);
+                instance.getProfile().getSinkDataTime(), 1, 1, auditVersion);
     }
 
     private void addToDb(InstanceProfile profile, boolean addNew) {
@@ -413,7 +415,7 @@ public class InstanceManager extends AbstractDaemon {
             String inlongGroupId = profile.getInlongGroupId();
             String inlongStreamId = profile.getInlongStreamId();
             AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_ADD_INSTANCE_DB, inlongGroupId, inlongStreamId,
-                    profile.getSinkDataTime(), 1, 1);
+                    profile.getSinkDataTime(), 1, 1, auditVersion);
         }
     }
 
@@ -430,7 +432,7 @@ public class InstanceManager extends AbstractDaemon {
             LOGGER.error("old instance {} should not exist, try stop it first",
                     instanceProfile.getInstanceId());
             AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_DEL_INSTANCE_MEM_UNUSUAL, inlongGroupId, inlongStreamId,
-                    instanceProfile.getSinkDataTime(), 1, 1);
+                    instanceProfile.getSinkDataTime(), 1, 1, auditVersion);
         }
         LOGGER.info("instanceProfile {}", instanceProfile.toJsonStr());
         try {
@@ -445,12 +447,12 @@ public class InstanceManager extends AbstractDaemon {
                         instance.getInstanceId(), instanceMap.size(), EXECUTOR_SERVICE.getTaskCount(),
                         EXECUTOR_SERVICE.getActiveCount());
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_ADD_INSTANCE_MEM, inlongGroupId, inlongStreamId,
-                        instanceProfile.getSinkDataTime(), 1, 1);
+                        instanceProfile.getSinkDataTime(), 1, 1, auditVersion);
             } else {
                 LOGGER.error(
                         "add instance to memory init failed instanceId {}", instance.getInstanceId());
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_ADD_INSTANCE_MEM_FAILED, inlongGroupId, inlongStreamId,
-                        instanceProfile.getSinkDataTime(), 1, 1);
+                        instanceProfile.getSinkDataTime(), 1, 1, auditVersion);
             }
         } catch (Throwable t) {
             LOGGER.error("add instance error {}", t.getMessage());

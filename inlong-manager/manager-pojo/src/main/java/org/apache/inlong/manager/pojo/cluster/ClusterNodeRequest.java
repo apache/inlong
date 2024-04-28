@@ -80,4 +80,7 @@ public class ClusterNodeRequest {
     @ApiModelProperty(value = "Whether to proceed with installation")
     private Boolean isInstall = false;
 
+    @ApiModelProperty(value = "Current user", hidden = true)
+    private String currentUser;
+
 }

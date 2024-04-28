@@ -360,11 +360,13 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         // save cluster node
         String ip = "127.0.0.1";
         Integer port1 = 46800;
-        Integer nodeId1 = this.saveDataProxyClusterNode(id, ClusterType.DATAPROXY, ip, port1, ProtocolType.TCP);
+        Integer nodeId1 =
+                this.saveDataProxyClusterNode(id, ClusterType.DATAPROXY, ip, port1, ProtocolType.TCP);
         Assertions.assertNotNull(nodeId1);
 
         Integer port2 = 46801;
-        Integer nodeId2 = this.saveDataProxyClusterNode(id, ClusterType.DATAPROXY, ip, port2, ProtocolType.TCP);
+        Integer nodeId2 =
+                this.saveDataProxyClusterNode(id, ClusterType.DATAPROXY, ip, port2, ProtocolType.TCP);
         Assertions.assertNotNull(nodeId2);
 
         // create an inlong group which use the clusterTag
@@ -382,7 +384,8 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
                 ComponentTypeEnum.DataProxy.getType(), ProtocolType.TCP);
         heartbeatManager.reportHeartbeat(msg2);
         // get the data proxy nodes, the first port should is p1, second port is p2
-        DataProxyNodeResponse nodeResponse = clusterService.getDataProxyNodes(inlongGroupId, ProtocolType.TCP);
+        DataProxyNodeResponse nodeResponse =
+                clusterService.getDataProxyNodes(inlongGroupId, ProtocolType.TCP);
         List<DataProxyNodeInfo> nodeInfoList = nodeResponse.getNodeList();
         nodeInfoList.sort(Comparator.comparingInt(DataProxyNodeInfo::getId));
         Assertions.assertEquals(nodeInfoList.size(), 2);

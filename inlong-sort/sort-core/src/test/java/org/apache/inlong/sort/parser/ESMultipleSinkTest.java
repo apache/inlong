@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.inlong.sort.formats.common.VarBinaryFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.VarBinaryFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;

@@ -17,14 +17,20 @@
 
 package org.apache.inlong.manager.service.message;
 
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.util.StringUtil;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage.FieldInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.service.datatype.DataTypeOperator;
+import org.apache.inlong.manager.service.datatype.DataTypeOperatorFactory;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
@@ -37,6 +43,9 @@ import java.util.Objects;
 @Slf4j
 @Service
 public class InlongMsgDeserializeOperator implements DeserializeOperator {
+
+    @Autowired
+    public DataTypeOperatorFactory dataTypeOperatorFactory;
 
     @Override
     public boolean accept(MessageWrapType type) {
@@ -71,9 +80,27 @@ public class InlongMsgDeserializeOperator implements DeserializeOperator {
                 if (Objects.isNull(bodyBytes)) {
                     continue;
                 }
-                BriefMQMessage message = new BriefMQMessage(index, groupId, streamId, msgTime, attrMap.get(CLIENT_IP),
-                        new String(bodyBytes, Charset.forName(streamInfo.getDataEncoding())));
-                messageList.add(message);
+                try {
+                    String body = new String(bodyBytes, Charset.forName(streamInfo.getDataEncoding()));
+                    DataTypeOperator dataTypeOperator =
+                            dataTypeOperatorFactory.getInstance(DataTypeEnum.forType(streamInfo.getDataType()));
+                    List<FieldInfo> streamFieldList = dataTypeOperator.parseFields(body, streamInfo);
+                    BriefMQMessage message = BriefMQMessage.builder()
+                            .id(index)
+                            .inlongGroupId(groupId)
+                            .inlongStreamId(streamId)
+                            .dt(msgTime)
+                            .clientIp(attrMap.get(CLIENT_IP))
+                            .headers(headers)
+                            .body(body)
+                            .fieldList(streamFieldList)
+                            .build();
+                    messageList.add(message);
+                } catch (Exception e) {
+                    String errMsg = String.format("decode msg failed for groupId=%s, streamId=%s", groupId, streamId);
+                    log.error(errMsg, e);
+                    throw new BusinessException(errMsg);
+                }
             }
         }
         return messageList;

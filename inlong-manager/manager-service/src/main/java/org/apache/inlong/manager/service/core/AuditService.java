@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core;
 
+import org.apache.inlong.common.enums.IndicatorType;
 import org.apache.inlong.manager.pojo.audit.AuditBaseResponse;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditSourceRequest;
@@ -49,13 +50,13 @@ public interface AuditService {
     List<AuditBaseResponse> getAuditBases();
 
     /**
-     * Get audit id by type and isSent.
+     * Get audit id by type and indicator type.
      *
      * @param type audit type.
-     * @param isSent Whether to receive or send
+     * @param indicatorType indicator type
      * @return Audit id.
      */
-    String getAuditId(String type, boolean isSent);
+    String getAuditId(String type, IndicatorType indicatorType);
 
     /**
      * Refresh the base item of audit cache.

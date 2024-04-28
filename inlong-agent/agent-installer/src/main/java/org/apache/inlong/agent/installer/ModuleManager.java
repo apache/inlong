@@ -28,11 +28,13 @@ import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.pojo.agent.installer.ConfigResult;
 import org.apache.inlong.common.pojo.agent.installer.ModuleConfig;
 import org.apache.inlong.common.pojo.agent.installer.ModuleStateEnum;
+import org.apache.inlong.common.pojo.agent.installer.PackageConfig;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +48,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -54,6 +55,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -78,6 +80,7 @@ public class ModuleManager extends AbstractDaemon {
     public static final int DOWNLOAD_PACKAGE_READ_BUFF_SIZE = 1024 * 1024;
     public static final String LOCAL_CONFIG_FILE = "modules.json";
     private static final Logger LOGGER = LoggerFactory.getLogger(ModuleManager.class);
+    public static final int MAX_MODULE_SIZE = 10;
     private final InstallerConfiguration conf;
     private final String confPath;
     private final BlockingQueue<ConfigResult> configQueue;
@@ -112,7 +115,8 @@ public class ModuleManager extends AbstractDaemon {
     }
 
     public void submitConfig(ConfigResult config) {
-        if (config == null) {
+        if (!isConfigValid(config)) {
+            LOGGER.error("config is invalid !");
             return;
         }
         configQueue.clear();
@@ -121,6 +125,94 @@ public class ModuleManager extends AbstractDaemon {
                     GSON.toJson(config.getModuleList().get(i)));
         }
         configQueue.add(config);
+    }
+
+    private boolean isConfigValid(ConfigResult config) {
+        if (config == null) {
+            LOGGER.error("config is null!");
+            return false;
+        }
+        if (config.getMd5() == null) {
+            LOGGER.error("modules md5 should not be null!");
+            return false;
+        }
+        if (config.getModuleList().isEmpty()) {
+            LOGGER.error("module list should not be empty!");
+            return false;
+        }
+        if (config.getModuleList().size() > MAX_MODULE_SIZE) {
+            LOGGER.error("module list {} over size {}!", config.getModuleList().size(), MAX_MODULE_SIZE);
+            return false;
+        }
+        for (int i = 0; i < config.getModuleList().size(); i++) {
+            if (!isModuleConfigValid(config.getModuleList().get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isModuleConfigValid(ModuleConfig module) {
+        if (module == null) {
+            LOGGER.error("module should not be null!");
+            return false;
+        }
+        if (module.getMd5() == null) {
+            LOGGER.error("module md5 should not be null!");
+            return false;
+        }
+        if (module.getName() == null) {
+            LOGGER.error("module name should not be null!");
+            return false;
+        }
+        if (module.getVersion() == null) {
+            LOGGER.error("module version should not be null!");
+            return false;
+        }
+        if (module.getInstallCommand() == null) {
+            LOGGER.error("module install cmd should not be null!");
+            return false;
+        }
+        if (module.getStartCommand() == null) {
+            LOGGER.error("module start cmd should not be null!");
+            return false;
+        }
+        if (module.getStopCommand() == null) {
+            LOGGER.error("module stop cmd should not be null!");
+            return false;
+        }
+        if (module.getCheckCommand() == null) {
+            LOGGER.error("module check cmd should not be null!");
+            return false;
+        }
+        if (!isPackageConfigValid(module.getPackageConfig())) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isPackageConfigValid(PackageConfig packageConfig) {
+        if (packageConfig == null) {
+            LOGGER.error("module package config should not be null!");
+            return false;
+        }
+        if (packageConfig.getMd5() == null) {
+            LOGGER.error("package md5 should not be null!");
+            return false;
+        }
+        if (packageConfig.getFileName() == null) {
+            LOGGER.error("package file name should not be null!");
+            return false;
+        }
+        if (packageConfig.getDownloadUrl() == null) {
+            LOGGER.error("package url should not be null!");
+            return false;
+        }
+        if (packageConfig.getStoragePath() == null) {
+            LOGGER.error("package save path should not be null!");
+            return false;
+        }
+        return true;
     }
 
     public String getCurrentMd5() {
@@ -186,7 +278,7 @@ public class ModuleManager extends AbstractDaemon {
         File jsonPath = new File(temp.getPath() + "/" + LOCAL_CONFIG_FILE);
         try (BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(jsonPath), StandardCharsets.UTF_8))) {
-            String curConfig = GSON.toJson(ConfigResult.builder().md5(currentMd5).moduleNum(currentModules.size())
+            String curConfig = GSON.toJson(ConfigResult.builder().md5(currentMd5)
                     .moduleList(currentModules.values().stream().collect(Collectors.toList())).build());
             writer.write(curConfig);
             writer.flush();
@@ -231,7 +323,8 @@ public class ModuleManager extends AbstractDaemon {
                         installModule(module);
                         saveModuleState(module.getId(), ModuleStateEnum.INSTALLED);
                     } else {
-                        LOGGER.info("check module {} package failed, change stated to new, will download package again",
+                        LOGGER.info(
+                                "check module {} package failed, change stated to new, will download package again",
                                 module.getName());
                         saveModuleState(module.getId(), ModuleStateEnum.NEW);
                     }
@@ -318,8 +411,10 @@ public class ModuleManager extends AbstractDaemon {
     private void updateModule(ModuleConfig localModule, ModuleConfig managerModule) {
         LOGGER.info("update module {} start", localModule.getId());
         if (localModule.getPackageConfig().getMd5().equals(managerModule.getPackageConfig().getMd5())) {
-            LOGGER.info("module {} package md5 no change, will restart", localModule.getId());
+            LOGGER.info("module {} package md5 no change, will restart and save config", localModule.getId());
             restartModule(localModule, managerModule);
+            managerModule.setState(ModuleStateEnum.INSTALLED);
+            updateModuleConfig(managerModule);
         } else {
             LOGGER.info("module {} package md5 changed, will reinstall", localModule.getId());
             deleteModule(localModule);
@@ -343,6 +438,11 @@ public class ModuleManager extends AbstractDaemon {
             return;
         }
         currentModules.remove(module.getId());
+        saveToLocalFile(confPath);
+    }
+
+    private void updateModuleConfig(ModuleConfig module) {
+        currentModules.put(module.getId(), module);
         saveToLocalFile(confPath);
     }
 
@@ -398,6 +498,10 @@ public class ModuleManager extends AbstractDaemon {
 
     private boolean isProcessAllStarted(ModuleConfig module) {
         String ret = ExcuteLinux.exeCmd(module.getCheckCommand());
+        if (ret == null) {
+            LOGGER.error("get module process num {} failed", module.getName());
+            return false;
+        }
         String[] processArray = ret.split("\n");
         int cnt = 0;
         for (int i = 0; i < processArray.length; i++) {
@@ -410,7 +514,8 @@ public class ModuleManager extends AbstractDaemon {
     }
 
     private boolean downloadModule(ModuleConfig module) {
-        LOGGER.info("download module {} begin with url {}", module.getId(), module.getPackageConfig().getDownloadUrl());
+        LOGGER.info("download module {} begin with url {}", module.getId(),
+                module.getPackageConfig().getDownloadUrl());
         try {
             URL url = new URL(module.getPackageConfig().getDownloadUrl());
             URLConnection conn = url.openConnection();
@@ -418,7 +523,8 @@ public class ModuleManager extends AbstractDaemon {
             authHeader.forEach((k, v) -> {
                 conn.setRequestProperty(k, v);
             });
-            String path = module.getPackageConfig().getStoragePath() + "/" + module.getPackageConfig().getFileName();
+            String path =
+                    module.getPackageConfig().getStoragePath() + "/" + module.getPackageConfig().getFileName();
             try (InputStream inputStream = conn.getInputStream();
                     FileOutputStream outputStream = new FileOutputStream(path)) {
                 LOGGER.info("save path {}", path);
@@ -445,9 +551,11 @@ public class ModuleManager extends AbstractDaemon {
 
     private boolean isPackageDownloaded(ModuleConfig module) {
         String path = module.getPackageConfig().getStoragePath() + "/" + module.getPackageConfig().getFileName();
-        if (calcFileMd5(path).equals(module.getPackageConfig().getMd5())) {
+        String fileMd5 = calcFileMd5(path);
+        if (Objects.equals(fileMd5, module.getPackageConfig().getMd5())) {
             return true;
         } else {
+            LOGGER.error("md5 not match! fileMd5 {} moduleMd5 {}", fileMd5, module.getPackageConfig().getMd5());
             return false;
         }
     }
@@ -474,23 +582,20 @@ public class ModuleManager extends AbstractDaemon {
     }
 
     private static String calcFileMd5(String path) {
-        BigInteger bi = null;
         byte[] buffer = new byte[DOWNLOAD_PACKAGE_READ_BUFF_SIZE];
         int len = 0;
+        String ret = null;
         try (FileInputStream fileInputStream = new FileInputStream(path)) {
             MessageDigest md = MessageDigest.getInstance("MD5");
             while ((len = fileInputStream.read(buffer)) != -1) {
                 md.update(buffer, 0, len);
             }
-            byte[] b = md.digest();
-            bi = new BigInteger(1, b);
+            ret = new String(Hex.encodeHex(md.digest()));
         } catch (NoSuchAlgorithmException e) {
             LOGGER.error("calc file md5 NoSuchAlgorithmException", e);
-            return "";
         } catch (IOException e) {
             LOGGER.error("calc file md5 IOException", e);
-            return "";
         }
-        return bi.toString(16);
+        return ret;
     }
 }

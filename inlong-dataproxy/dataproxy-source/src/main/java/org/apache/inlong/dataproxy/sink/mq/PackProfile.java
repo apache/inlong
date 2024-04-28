@@ -51,7 +51,7 @@ public abstract class PackProfile {
         this.inlongGroupId = inlongGroupId;
         this.inlongStreamId = inlongStreamId;
         this.dispatchTime = dispatchTime;
-        this.enableRetryAfterFailure = CommonConfigHolder.getInstance().isEnableSendRetryAfterFailure();
+        this.enableRetryAfterFailure = CommonConfigHolder.getInstance().isSendRetryAfterFailure();
         this.maxRetries = CommonConfigHolder.getInstance().getMaxRetriesAfterFailure();
     }
 

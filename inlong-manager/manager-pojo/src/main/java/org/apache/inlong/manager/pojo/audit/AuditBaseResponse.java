@@ -35,8 +35,8 @@ public class AuditBaseResponse {
     @ApiModelProperty(value = "Audit type")
     private String type;
 
-    @ApiModelProperty(value = "is sent")
-    private Integer isSent;
+    @ApiModelProperty(value = "Indicator type")
+    private Integer indicatorType;
 
     @ApiModelProperty(value = "Audit id")
     private String auditId;

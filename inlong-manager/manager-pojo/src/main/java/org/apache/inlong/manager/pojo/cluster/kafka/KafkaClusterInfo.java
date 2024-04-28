@@ -22,7 +22,9 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -38,6 +40,10 @@ import lombok.experimental.SuperBuilder;
 @JsonTypeDefine(value = ClusterType.KAFKA)
 @ApiModel("Inlong cluster info for Kafka")
 public class KafkaClusterInfo extends ClusterInfo {
+
+    @JsonProperty("bootstrap.servers")
+    @ApiModelProperty(value = "Kafka bootstrap servers' URL")
+    private String bootstrapServers;
 
     public KafkaClusterInfo() {
         this.setType(ClusterType.KAFKA);

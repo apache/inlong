@@ -43,12 +43,12 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ClickHouseService implements InsertData, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClickHouseService.class);
-    public static final String INSERT_SQL = "insert into audit_data (ip, docker_id, thread_id,\r\n"
-            + "      sdk_ts, packet_id, log_ts,\r\n"
-            + "      inlong_group_id, inlong_stream_id, audit_id,audit_tag,\r\n"
+    private static final String INSERT_SQL = "insert into audit_data (ip, docker_id, thread_id, \r\n"
+            + "      sdk_ts, packet_id, log_ts, \r\n"
+            + "      inlong_group_id, inlong_stream_id, audit_id, audit_tag, audit_version, \r\n"
             + "      count, size, delay, \r\n"
             + "      update_time)\r\n"
-            + "    values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            + "    values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     private ClickHouseConfig chConfig;
 
@@ -61,6 +61,7 @@ public class ClickHouseService implements InsertData, AutoCloseable {
 
     /**
      * Constructor
+     *
      * @param chConfig ClickHouse service config, such as jdbc url, jdbc username, jdbc password.
      */
     public ClickHouseService(ClickHouseConfig chConfig) {
@@ -111,10 +112,11 @@ public class ClickHouseService implements InsertData, AutoCloseable {
                 pstat.setString(8, data.getInlongStreamId());
                 pstat.setString(9, data.getAuditId());
                 pstat.setString(10, data.getAuditTag());
-                pstat.setLong(11, data.getCount());
-                pstat.setLong(12, data.getSize());
-                pstat.setLong(13, data.getDelay());
-                pstat.setTimestamp(14, data.getUpdateTime());
+                pstat.setLong(11, data.getAuditVersion());
+                pstat.setLong(12, data.getCount());
+                pstat.setLong(13, data.getSize());
+                pstat.setLong(14, data.getDelay());
+                pstat.setTimestamp(15, data.getUpdateTime());
                 pstat.addBatch();
                 this.batchCounter.decrementAndGet();
                 if (++counter >= chConfig.getBatchThreshold()) {
@@ -144,6 +146,7 @@ public class ClickHouseService implements InsertData, AutoCloseable {
 
     /**
      * reconnect
+     *
      * @throws SQLException Exception when creating connection.
      */
     private void reconnect() throws SQLException {
@@ -162,7 +165,8 @@ public class ClickHouseService implements InsertData, AutoCloseable {
 
     /**
      * insert
-     * @param msgBody audit data reading from Pulsar or other MessageQueue. 
+     *
+     * @param msgBody audit data reading from Pulsar or other MessageQueue.
      */
     @Override
     public void insert(AuditData msgBody) {
@@ -175,6 +179,7 @@ public class ClickHouseService implements InsertData, AutoCloseable {
         data.setLogTs(new Timestamp(msgBody.getLogTs()));
         data.setAuditId(msgBody.getAuditId());
         data.setAuditTag(msgBody.getAuditTag());
+        data.setAuditVersion(msgBody.getAuditVersion());
         data.setCount(msgBody.getCount());
         data.setDelay(msgBody.getDelay());
         data.setInlongGroupId(msgBody.getInlongGroupId());
@@ -194,6 +199,7 @@ public class ClickHouseService implements InsertData, AutoCloseable {
 
     /**
      * close
+     *
      * @throws Exception Exception when closing ClickHouse connection.
      */
     @Override

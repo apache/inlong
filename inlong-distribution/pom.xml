@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
-        <version>1.12.0-SNAPSHOT</version>
+        <version>1.13.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>inlong-distribution</artifactId>
@@ -65,6 +65,7 @@
                             <descriptors>
                                 <descriptor>src/main/assemblies/sort-connectors-v1.13.xml</descriptor>
                                 <descriptor>src/main/assemblies/sort-connectors-v1.15.xml</descriptor>
+                                <descriptor>src/main/assemblies/sort-connectors-v1.18.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>

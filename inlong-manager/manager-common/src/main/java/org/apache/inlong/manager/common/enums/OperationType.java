@@ -35,5 +35,18 @@ public enum OperationType {
 
     GET,
 
-    LIST
+    LIST,
+
+    SUSPEND,
+
+    START;
+
+    public static OperationType forOperationType(String type) {
+        for (OperationType operationType : values()) {
+            if (operationType.name().equalsIgnoreCase(type)) {
+                return operationType;
+            }
+        }
+        throw new IllegalArgumentException(String.format("Unsupported operation type for %s", type));
+    }
 }

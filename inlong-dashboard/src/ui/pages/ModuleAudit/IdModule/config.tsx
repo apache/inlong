@@ -20,6 +20,8 @@
 import dayjs from 'dayjs';
 import i18n from '@/i18n';
 import request from '@/core/utils/request';
+import { Button } from 'antd';
+import React from 'react';
 
 export const timeStaticsDimList = [
   {
@@ -45,7 +47,7 @@ export const toTableData = (source, sourceDataMap) => {
     }));
 };
 
-export const getFormContent = initialValues => [
+export const getFormContent = (initialValues, onSearch) => [
   {
     type: 'select',
     label: i18n.t('pages.ModuleAudit.config.InlongGroupId'),
@@ -177,6 +179,13 @@ export const getFormContent = initialValues => [
         },
       },
     },
+  },
+  {
+    type: (
+      <Button type="primary" onClick={onSearch}>
+        {i18n.t('basic.Refresh')}
+      </Button>
+    ),
   },
 ];
 

@@ -17,9 +17,9 @@
 
 package org.apache.inlong.dataproxy.sink.common;
 
+import org.apache.inlong.common.enums.InlongCompressType;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
-import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
 
 import java.util.Map;
 
@@ -33,11 +33,11 @@ public interface EventHandler {
      * parseHeader
      */
     Map<String, String> parseHeader(IdTopicConfig idConfig, BatchPackProfile profile, String nodeId,
-            INLONG_COMPRESSED_TYPE compressType) throws Exception;
+            InlongCompressType compressType) throws Exception;
 
     /**
      * parseBody
      */
-    byte[] parseBody(IdTopicConfig idConfig, BatchPackProfile profile, INLONG_COMPRESSED_TYPE compressType)
+    byte[] parseBody(IdTopicConfig idConfig, BatchPackProfile profile, InlongCompressType compressType)
             throws Exception;
 }

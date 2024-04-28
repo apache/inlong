@@ -18,12 +18,12 @@
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.common.enums.MetaField;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.LongFormatInfo;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
-import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
@@ -80,7 +80,9 @@ public class PulsarProvider implements ExtractNodeProvider {
                 startupMode.getValue(),
                 primaryKey,
                 pulsarSource.getSubscription(),
-                scanStartupSubStartOffset);
+                scanStartupSubStartOffset,
+                pulsarSource.getClientAuthPluginClassName(),
+                pulsarSource.getClientAuthParams());
     }
 
     @Override

@@ -18,7 +18,7 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import HighTable from '@/ui/components/HighTable';
+import HighTable, { useForm } from '@/ui/components/HighTable';
 import { useRequest } from '@/ui/hooks';
 import { timestampFormat } from '@/core/utils';
 import { getFormContent, toTableData, getTableColumns } from './config';
@@ -26,6 +26,8 @@ import { getFormContent, toTableData, getTableColumns } from './config';
 export const idModule = 'id';
 
 const Comp: React.FC = () => {
+  const [form] = useForm();
+
   const [query, setQuery] = useState({
     startDate: +new Date(),
     endDate: +new Date(),
@@ -75,6 +77,11 @@ const Comp: React.FC = () => {
     return output;
   }, [sourceData]);
 
+  const onSearch = async () => {
+    await form.validateFields();
+    run();
+  };
+
   const onFilter = keyword => {
     setQuery({
       ...query,
@@ -94,7 +101,7 @@ const Comp: React.FC = () => {
     <>
       <HighTable
         filterForm={{
-          content: getFormContent(query),
+          content: getFormContent(query, onSearch),
           onFilter,
         }}
         table={{

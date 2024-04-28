@@ -73,6 +73,7 @@ public enum ErrorCodeEnum {
     DATA_NODE_NOT_FOUND(1150, "Data node information does not exist"),
     DATA_NODE_TYPE_NOT_SUPPORTED(1151, "Data node type '%s' not supported"),
     DATA_NODE_ID_CHANGED(1152, "Data node information's id not equals"),
+    DATA_NODE_INFO_INCORRECT(1153, "Data node info was incorrect"),
 
     STREAM_NOT_FOUND(1201, "Inlong stream does not exist/no operation permission"),
     STREAM_ID_DUPLICATE(1202, "The current inlong group has a inlong stream with the same ID"),
@@ -156,6 +157,13 @@ public enum ErrorCodeEnum {
     AUDIT_SOURCE_URL_NOT_SUPPORTED(4003, "Audit Source URL '%s' not supported"),
 
     TENANT_NOT_EXIST(5001, "Tenant '%s' is not exist"),
+
+    MODULE_NOT_FOUND(6001, "Module does not exist/no operation authority"),
+    MODULE_INFO_INCORRECT(6002, "Module info was incorrect"),
+
+    PACKAGE_NOT_FOUND(7001, "Package does not exist/no operation authority"),
+    PACKAGE_INFO_INCORRECT(7002, "Package info was incorrect")
+
     ;
 
     private final int code;

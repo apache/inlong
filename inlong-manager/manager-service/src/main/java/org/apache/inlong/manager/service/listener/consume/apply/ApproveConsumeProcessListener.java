@@ -127,24 +127,28 @@ public class ApproveConsumeProcessListener implements ProcessEventListener {
                 "mq resource cannot empty for groupId=" + groupId);
 
         String clusterTag = groupEntity.getInlongClusterTag();
-        ClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.PULSAR);
-        PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
-        try {
-            InlongPulsarDTO pulsarDTO = InlongPulsarDTO.getFromJson(groupEntity.getExtParams());
-            String tenant = pulsarDTO.getPulsarTenant();
-            if (StringUtils.isBlank(tenant)) {
-                tenant = pulsarCluster.getPulsarTenant();
-            }
-            PulsarTopicInfo topicMessage = new PulsarTopicInfo();
-            topicMessage.setPulsarTenant(tenant);
-            topicMessage.setNamespace(mqResource);
+        List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR);
+        for (ClusterInfo clusterInfo : clusterInfos) {
+            PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+            try {
+                InlongPulsarDTO pulsarDTO = InlongPulsarDTO.getFromJson(groupEntity.getExtParams());
+                String tenant = pulsarDTO.getPulsarTenant();
+                if (StringUtils.isBlank(tenant)) {
+                    tenant = pulsarCluster.getPulsarTenant();
+                }
+                PulsarTopicInfo topicMessage = new PulsarTopicInfo();
+                topicMessage.setPulsarTenant(tenant);
+                topicMessage.setNamespace(mqResource);
 
-            List<String> topics = Arrays.asList(entity.getTopic().split(InlongConstants.COMMA));
-            this.createPulsarSubscription(pulsarCluster, entity.getConsumerGroup(), topicMessage, topics);
-        } catch (Exception e) {
-            log.error("create pulsar topic failed", e);
-            throw new WorkflowListenerException("failed to create pulsar topic for groupId=" + groupId + ", reason: "
-                    + e.getMessage());
+                List<String> topics = Arrays.asList(entity.getTopic().split(InlongConstants.COMMA));
+
+                this.createPulsarSubscription(pulsarCluster, entity.getConsumerGroup(), topicMessage, topics);
+            } catch (Exception e) {
+                log.error("create pulsar topic failed", e);
+                throw new WorkflowListenerException(
+                        "failed to create pulsar topic for groupId=" + groupId + ", reason: "
+                                + e.getMessage());
+            }
         }
     }
 

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.listener.group.apply;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -37,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -63,21 +65,22 @@ public class ApproveApplyProcessListener implements ProcessEventListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         ApplyGroupProcessForm form = (ApplyGroupProcessForm) context.getProcessForm();
-        String groupId = form.getInlongGroupId();
-        log.info("begin to execute ApproveApplyProcessListener for groupId={}", groupId);
+        List<String> groupList = Arrays.asList(form.getInlongGroupId().split(InlongConstants.COMMA));
+        for (String groupId : groupList) {
+            log.info("begin to execute ApproveApplyProcessListener for groupId={}", groupId);
 
-        InlongGroupInfo groupInfo = groupService.get(groupId);
-        GroupResourceProcessForm processForm = new GroupResourceProcessForm();
-        processForm.setGroupInfo(groupInfo);
-        String username = context.getOperator();
-        List<InlongStreamInfo> streamList = streamService.list(groupId);
-        processForm.setStreamInfos(streamList);
+            InlongGroupInfo groupInfo = groupService.get(groupId);
+            GroupResourceProcessForm processForm = new GroupResourceProcessForm();
+            processForm.setGroupInfo(groupInfo);
+            List<InlongStreamInfo> streamList = streamService.list(groupId);
+            processForm.setStreamInfos(streamList);
 
-        // may run for long time, make it async processing
-        UserInfo userInfo = LoginUserUtils.getLoginUser();
-        EXECUTOR_SERVICE.execute(
-                () -> workflowService.startAsync(ProcessName.CREATE_GROUP_RESOURCE, userInfo, processForm));
-        log.info("success to execute ApproveApplyProcessListener for groupId={}", groupId);
+            // may run for long time, make it async processing
+            UserInfo userInfo = LoginUserUtils.getLoginUser();
+            EXECUTOR_SERVICE.execute(
+                    () -> workflowService.startAsync(ProcessName.CREATE_GROUP_RESOURCE, userInfo, processForm));
+            log.info("success to execute ApproveApplyProcessListener for groupId={}", groupId);
+        }
         return ListenerResult.success();
     }
 

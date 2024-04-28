@@ -303,11 +303,13 @@ public class TubeMQOperator {
                     map.put(kv.split(InlongConstants.EQUAL)[0], kv.split(InlongConstants.EQUAL)[1]);
                 }
 
-                int wrapTypeId = Integer.parseInt(map.getOrDefault(InlongConstants.MSG_ENCODE_VER,
-                        Integer.toString(MessageWrapType.INLONG_MSG_V0.getId())));
+                MessageWrapType messageWrapType = MessageWrapType.forType(streamInfo.getWrapType());
+                if (map.get(InlongConstants.MSG_ENCODE_VER) != null) {
+                    messageWrapType =
+                            MessageWrapType.valueOf(Integer.parseInt(map.get(InlongConstants.MSG_ENCODE_VER)));
+                }
                 byte[] messageData = Base64.getDecoder().decode(tubeDataInfo.getData());
-                DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
-                        MessageWrapType.valueOf(wrapTypeId));
+                DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(messageWrapType);
                 messageList.addAll(deserializeOperator.decodeMsg(streamInfo, messageData, map, index));
             }
 

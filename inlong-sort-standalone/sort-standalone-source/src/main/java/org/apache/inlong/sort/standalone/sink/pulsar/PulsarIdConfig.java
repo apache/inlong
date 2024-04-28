@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
-import org.apache.inlong.sort.standalone.config.pojo.type.DataType;
 import org.apache.inlong.sort.standalone.utils.Constants;
 
 import java.util.Map;
@@ -40,7 +40,7 @@ public class PulsarIdConfig {
     private String uid;
     private String separator = "|";
     private String topic;
-    private DataType dataType = DataType.TEXT;
+    private DataTypeEnum dataType = DataTypeEnum.TEXT;
 
     /**
      * Constructor
@@ -60,8 +60,8 @@ public class PulsarIdConfig {
         this.uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
         this.separator = idParam.getOrDefault(PulsarIdConfig.KEY_SEPARATOR, PulsarIdConfig.DEFAULT_SEPARATOR);
         this.topic = idParam.getOrDefault(Constants.TOPIC, uid);
-        this.dataType = DataType
-                .convert(idParam.getOrDefault(PulsarIdConfig.KEY_DATA_TYPE, DataType.TEXT.value()));
+        this.dataType = DataTypeEnum
+                .convert(idParam.getOrDefault(PulsarIdConfig.KEY_DATA_TYPE, DataTypeEnum.TEXT.getType()));
     }
 
     /**
@@ -159,7 +159,7 @@ public class PulsarIdConfig {
      *
      * @return the dataType
      */
-    public DataType getDataType() {
+    public DataTypeEnum getDataType() {
         return dataType;
     }
 
@@ -168,7 +168,7 @@ public class PulsarIdConfig {
      *
      * @param dataType the dataType to set
      */
-    public void setDataType(DataType dataType) {
+    public void setDataType(DataTypeEnum dataType) {
         this.dataType = dataType;
     }
 

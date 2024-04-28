@@ -24,6 +24,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Brief Message info for MQ
  */
@@ -49,7 +52,25 @@ public class BriefMQMessage {
     @ApiModelProperty(value = "Client ip")
     private String clientIp;
 
+    @ApiModelProperty(value = "Message header")
+    private Map<String, String> headers;
+
     @ApiModelProperty(value = "Message body")
     private String body;
+
+    @ApiModelProperty(value = "List of field info")
+    private List<FieldInfo> fieldList;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FieldInfo {
+
+        private String fieldName;
+
+        private String FieldValue;
+
+    }
 
 }

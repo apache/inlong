@@ -38,6 +38,8 @@ const resources = {
       'configs.menus.TenantManagement': 'Tenant Management',
       'configs.menus.SystemOperation': 'Operation',
       'configs.menus.ModuleAudit': 'Module audit',
+      'configs.menus.agentModule': 'Version Management',
+      'configs.menus.agentPackage': 'Package',
     },
   },
   cn: {
@@ -55,6 +57,8 @@ const resources = {
       'configs.menus.TenantManagement': '租户管理',
       'configs.menus.SystemOperation': '系统运维',
       'configs.menus.ModuleAudit': '模块审计',
+      'configs.menus.agentModule': '版本管理',
+      'configs.menus.agentPackage': '安装包',
     },
   },
 };

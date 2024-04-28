@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
-import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
 

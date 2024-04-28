@@ -77,6 +77,6 @@ public class ProcessResponse {
     private List<TaskResponse> currentTasks;
 
     @ApiModelProperty(value = "Extra information shown in the list")
-    private Map<String, Object> showInList;
+    private List<Map<String, Object>> showInList;
 
 }

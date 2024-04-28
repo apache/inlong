@@ -129,7 +129,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
     public static void before() {
         LOG.info("Starting containers...");
         jobManager =
-                new GenericContainer<>("flink:1.13.5-scala_2.11")
+                new GenericContainer<>("flink:1.13.5-scala_2.11-java8")
                         .withCommand("jobmanager")
                         .withNetwork(NETWORK)
                         .withNetworkAliases(INTER_CONTAINER_JM_ALIAS)
@@ -137,7 +137,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
                         .withEnv("FLINK_PROPERTIES", FLINK_PROPERTIES)
                         .withLogConsumer(new Slf4jLogConsumer(JM_LOG));
         taskManager =
-                new GenericContainer<>("flink:1.13.5-scala_2.11")
+                new GenericContainer<>("flink:1.13.5-scala_2.11-java8")
                         .withCommand("taskmanager")
                         .withNetwork(NETWORK)
                         .withNetworkAliases(INTER_CONTAINER_TM_ALIAS)
@@ -185,8 +185,8 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
         ExecResult execResult =
                 jobManager.execInContainer("bash", "-c", String.join(" ", commands));
         LOG.info(execResult.getStdout());
-        LOG.error(execResult.getStderr());
         if (execResult.getExitCode() != 0) {
+            LOG.error(execResult.getStderr());
             throw new AssertionError("Failed when submitting the SQL job.");
         }
     }

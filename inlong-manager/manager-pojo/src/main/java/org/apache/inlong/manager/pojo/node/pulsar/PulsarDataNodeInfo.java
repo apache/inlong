@@ -44,6 +44,9 @@ public class PulsarDataNodeInfo extends DataNodeInfo {
     @ApiModelProperty("Pulsar admin url")
     private String adminUrl;
 
+    @ApiModelProperty("The compression format used for pulsar producer")
+    private String compressionType;
+
     public PulsarDataNodeInfo() {
         this.setType(DataNodeType.PULSAR);
     }

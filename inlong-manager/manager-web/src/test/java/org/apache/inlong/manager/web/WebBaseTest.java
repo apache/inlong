@@ -206,7 +206,7 @@ public abstract class WebBaseTest extends BaseTest {
         JsonNode jsonNode = objectMapper.readTree(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8));
         return objectMapper
                 .readValue(
-                        jsonNode.get("data").get("records").toString(),
+                        jsonNode.get("data").get("list").toString(),
                         objectMapper.getTypeFactory().constructParametricType(List.class, t));
     }
 }

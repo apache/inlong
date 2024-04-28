@@ -89,6 +89,6 @@ public class TaskResponse {
     private Object extParams;
 
     @ApiModelProperty(value = "Extra information shown in the list")
-    private Map<String, Object> showInList;
+    private List<Map<String, Object>> showInList;
 
 }

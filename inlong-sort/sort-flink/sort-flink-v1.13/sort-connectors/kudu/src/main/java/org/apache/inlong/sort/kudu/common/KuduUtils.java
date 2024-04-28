@@ -17,18 +17,18 @@
 
 package org.apache.inlong.sort.kudu.common;
 
-import org.apache.inlong.sort.formats.common.BooleanTypeInfo;
-import org.apache.inlong.sort.formats.common.ByteTypeInfo;
-import org.apache.inlong.sort.formats.common.DateTypeInfo;
-import org.apache.inlong.sort.formats.common.DecimalTypeInfo;
-import org.apache.inlong.sort.formats.common.DoubleTypeInfo;
-import org.apache.inlong.sort.formats.common.FloatTypeInfo;
-import org.apache.inlong.sort.formats.common.IntTypeInfo;
-import org.apache.inlong.sort.formats.common.LongTypeInfo;
-import org.apache.inlong.sort.formats.common.RowTypeInfo;
-import org.apache.inlong.sort.formats.common.StringTypeInfo;
-import org.apache.inlong.sort.formats.common.TimestampTypeInfo;
-import org.apache.inlong.sort.formats.common.TypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.BooleanTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.ByteTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.DateTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.DecimalTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.DoubleTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FloatTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.IntTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.LongTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.RowTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.StringTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.TimestampTypeInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.TypeInfo;
 
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.table.types.DataType;

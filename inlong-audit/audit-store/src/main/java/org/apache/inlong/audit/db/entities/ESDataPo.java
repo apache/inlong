@@ -35,6 +35,7 @@ public class ESDataPo {
     private String inlongStreamId;
     private String auditId;
     private String auditTag;
+    private long auditVersion;
     private long count;
     private long size;
     private long delay;

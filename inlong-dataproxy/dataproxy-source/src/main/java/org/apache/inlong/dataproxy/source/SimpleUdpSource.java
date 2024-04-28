@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.source;
 
 import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.consts.SourceConstants;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelOption;

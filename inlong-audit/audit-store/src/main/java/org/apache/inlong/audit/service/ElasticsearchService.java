@@ -67,9 +67,12 @@ public class ElasticsearchService implements InsertData, AutoCloseable {
     @Autowired
     @Qualifier("restClient")
     private RestHighLevelClient client;
-
     @Autowired
     private ElasticsearchConfig esConfig;
+
+    private final static String X_CONTENT_BUILDER_TYPE = "type";
+    private final static String X_CONTENT_BUILDER_LONG_VALUE = "long";
+    private final static String X_CONTENT_BUILDER_KEYWORD_VALUE = "keyword";
 
     public void startTimerRoutine() {
         timerService.scheduleAtFixedRate((new Runnable() {
@@ -225,107 +228,35 @@ public class ElasticsearchService implements InsertData, AutoCloseable {
     protected XContentBuilder generateBuilder() throws IOException {
         XContentBuilder builder = XContentFactory.jsonBuilder();
         builder.startObject();
-        {
-            builder.startObject("properties");
-            {
-                builder.startObject("audit_id");
-                {
-                    builder.field("type", "keyword");
-                }
-                builder.endObject();
-            }
-            {
-                builder.startObject("audit_tag");
-                {
-                    builder.field("type", "keyword");
-                }
-                builder.endObject();
-            }
-            {
-                builder.startObject("inlong_group_id");
-                {
-                    builder.field("type", "keyword");
-                }
-                builder.endObject();
-            }
-            {
-                builder.startObject("inlong_stream_id");
-                {
-                    builder.field("type", "keyword");
-                }
-                builder.endObject();
-            }
-            {
-                builder.startObject("docker_id");
-                {
-                    builder.field("type", "keyword");
-                }
-                builder.endObject();
-            }
-            {
-                builder.startObject("thread_id");
-                {
-                    builder.field("type", "keyword");
-                }
-                builder.endObject();
-            }
-            {
-                builder.startObject("ip");
-                {
-                    builder.field("type", "keyword");
-                }
-                builder.endObject();
-            }
-            {
-                builder.startObject("log_ts");
-                {
-                    builder.field("type", "keyword");
-                }
-                builder.endObject();
-            }
-            {
-                builder.startObject("sdk_ts");
-                {
-                    builder.field("type", "long");
-                }
-                builder.endObject();
-            }
-            {
-                builder.startObject("count");
-                {
-                    builder.field("type", "long");
-                }
-                builder.endObject();
-            }
-            {
-                builder.startObject("size");
-                {
-                    builder.field("type", "long");
-                }
-                builder.endObject();
-            }
-            {
-                builder.startObject("delay");
-                {
-                    builder.field("type", "long");
-                }
-                builder.endObject();
-            }
-            {
-                builder.startObject("packet_id");
-                {
-                    builder.field("type", "long");
-                }
-                builder.endObject();
-            }
-            builder.endObject();
-        }
+        builder.startObject("properties");
+        doBuild(builder, "audit_id", X_CONTENT_BUILDER_KEYWORD_VALUE);
+        doBuild(builder, "audit_tag", X_CONTENT_BUILDER_KEYWORD_VALUE);
+        doBuild(builder, "audit_version", X_CONTENT_BUILDER_KEYWORD_VALUE);
+        doBuild(builder, "inlong_group_id", X_CONTENT_BUILDER_KEYWORD_VALUE);
+        doBuild(builder, "inlong_stream_id", X_CONTENT_BUILDER_KEYWORD_VALUE);
+        doBuild(builder, "docker_id", X_CONTENT_BUILDER_KEYWORD_VALUE);
+        doBuild(builder, "thread_id", X_CONTENT_BUILDER_KEYWORD_VALUE);
+        doBuild(builder, "ip", X_CONTENT_BUILDER_KEYWORD_VALUE);
+        doBuild(builder, "log_ts", X_CONTENT_BUILDER_KEYWORD_VALUE);
+        doBuild(builder, "sdk_ts", X_CONTENT_BUILDER_LONG_VALUE);
+        doBuild(builder, "count", X_CONTENT_BUILDER_LONG_VALUE);
+        doBuild(builder, "size", X_CONTENT_BUILDER_LONG_VALUE);
+        doBuild(builder, "delay", X_CONTENT_BUILDER_LONG_VALUE);
+        doBuild(builder, "packet_id", X_CONTENT_BUILDER_LONG_VALUE);
+        builder.endObject();
         builder.endObject();
         return builder;
     }
 
+    private void doBuild(XContentBuilder builder, String name, String value) throws IOException {
+        builder.startObject(name);
+        builder.field(X_CONTENT_BUILDER_TYPE, value);
+        builder.endObject();
+    }
+
     /**
      * insert
+     *
      * @param msgBody
      */
     @Override
@@ -338,6 +269,7 @@ public class ElasticsearchService implements InsertData, AutoCloseable {
         esPo.setLogTs(new Date(msgBody.getLogTs()));
         esPo.setAuditId(msgBody.getAuditId());
         esPo.setAuditTag(msgBody.getAuditTag());
+        esPo.setAuditVersion(msgBody.getAuditVersion());
         esPo.setCount(msgBody.getCount());
         esPo.setDelay(msgBody.getDelay());
         esPo.setInlongGroupId(msgBody.getInlongGroupId());

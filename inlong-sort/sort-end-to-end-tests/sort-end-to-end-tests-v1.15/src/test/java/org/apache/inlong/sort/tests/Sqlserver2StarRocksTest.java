@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.tests;
 
-import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
+import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnvJRE8;
 import org.apache.inlong.sort.tests.utils.JdbcProxy;
 import org.apache.inlong.sort.tests.utils.MSSQLServerContainer;
 import org.apache.inlong.sort.tests.utils.StarRocksContainer;
@@ -48,7 +48,7 @@ import static org.apache.inlong.sort.tests.utils.StarRocksManager.STAR_ROCKS_LOG
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.getNewStarRocksImageName;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStarRocksTable;
 
-public class Sqlserver2StarRocksTest extends FlinkContainerTestEnv {
+public class Sqlserver2StarRocksTest extends FlinkContainerTestEnvJRE8 {
 
     private static final Logger LOG = LoggerFactory.getLogger(Sqlserver2StarRocksTest.class);
 

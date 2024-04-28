@@ -244,7 +244,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         };
     }
 
-    private Map<String, Object> getShowInList(WorkflowProcessEntity processEntity) {
+    private List<Map<String, Object>> getShowInList(WorkflowProcessEntity processEntity) {
         WorkflowProcess process = processDefService.getByName(processEntity.getName());
         if (process == null || process.getFormClass() == null) {
             return null;
@@ -270,7 +270,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         query.setIdList(list);
 
         List<WorkflowProcessEntity> processEntities = queryService.listProcessEntity(query);
-        Map<Integer, Map<String, Object>> processShowInListMap = Maps.newHashMap();
+        Map<Integer, List<Map<String, Object>>> processShowInListMap = Maps.newHashMap();
         processEntities.forEach(entity -> processShowInListMap.put(entity.getId(), getShowInList(entity)));
         taskList.forEach(task -> task.setShowInList(processShowInListMap.get(task.getProcessId())));
     }

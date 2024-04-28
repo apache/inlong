@@ -17,6 +17,11 @@
 
 package log
 
+import (
+	"errors"
+	"os"
+)
+
 // OutputConfig defines the output config which can be reconfigured by user.
 type OutputConfig struct {
 	// LogPath is the path for the log.
@@ -38,4 +43,42 @@ var defaultConfig = &OutputConfig{
 	MaxBackups: 5,
 	MaxAge:     3,
 	Level:      "warn",
+}
+
+// SetLogLevel set log level
+func SetLogLevel(level string) error {
+	if _, exist := LevelNames[level]; !exist {
+		return errors.New("the supported log levels are: trace, debug, info, warn, error, fatal. Please check your log level")
+	}
+	defaultConfig.Level = level
+	return nil
+}
+
+// SetLogPath set log path
+func SetLogPath(path string) error {
+	err := verifyLogPath(path)
+	if err != nil {
+		return err
+	}
+	defaultConfig.LogPath = path
+	return nil
+}
+
+func verifyLogPath(path string) error {
+	// Check if file already exists
+	if _, err := os.Stat(path); err == nil {
+		return nil
+	}
+
+	// Attempt to create it
+	var d []byte
+	err := os.WriteFile(path, d, 0644)
+	if err == nil {
+		removeErr := os.Remove(path)
+		if removeErr != nil {
+			return removeErr
+		} // And delete it
+		return nil
+	}
+	return err
 }

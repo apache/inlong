@@ -23,6 +23,7 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -42,6 +43,7 @@ import org.apache.inlong.manager.dao.mapper.InlongStreamExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.dao.mapper.TenantClusterTagEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -214,6 +216,28 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // save ext info
         this.saveOrUpdateExt(groupId, request.getExtList());
         return groupId;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public List<BatchResult> batchSave(List<InlongGroupRequest> groupRequestList, String operator) {
+        List<BatchResult> resultList = new ArrayList<>();
+        for (InlongGroupRequest groupRequest : groupRequestList) {
+            BatchResult result = BatchResult.builder()
+                    .uniqueKey(groupRequest.getInlongGroupId())
+                    .operationTarget(OperationTarget.GROUP)
+                    .build();
+            try {
+                this.save(groupRequest, operator);
+                result.setSuccess(true);
+            } catch (Exception e) {
+                LOGGER.error("failed to save inlong group for groupId={}", groupRequest.getInlongGroupId(), e);
+                result.setSuccess(false);
+                result.setErrMsg(e.getMessage());
+            }
+            resultList.add(result);
+        }
+        return resultList;
     }
 
     @Override

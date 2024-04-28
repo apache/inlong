@@ -30,8 +30,10 @@ public enum DataTypeEnum {
     CANAL("canal"),
     DEBEZIUM_JSON("debezium_json"),
     RAW("raw"),
-
-    ;
+    TEXT("text"),
+    PB("pb"),
+    JCE("jce"),
+    UNKNOWN("n");
 
     private final String type;
 
@@ -46,6 +48,20 @@ public enum DataTypeEnum {
             }
         }
         throw new IllegalArgumentException("Unsupported data type for " + type);
+    }
+
+    public static DataTypeEnum convert(String value) {
+        for (DataTypeEnum v : values()) {
+            if (v.getType().equals(value.toLowerCase(Locale.ROOT))) {
+                return v;
+            }
+        }
+        return UNKNOWN;
+    }
+
+    @Override
+    public String toString() {
+        return this.name() + ":" + this.type;
     }
 
     public String getType() {

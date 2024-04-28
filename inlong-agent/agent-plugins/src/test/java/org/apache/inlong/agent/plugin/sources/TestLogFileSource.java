@@ -94,6 +94,7 @@ public class TestLogFileSource {
                 OffsetManager.getInstance().setOffset(offsetProfile);
             }
             source.init(instanceProfile);
+            source.start();
             return source;
         } catch (Exception e) {
             LOGGER.error("source init error {}", e);

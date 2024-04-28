@@ -44,7 +44,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_UNIQ_ID;
@@ -177,7 +176,6 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             Thread.currentThread().setName("ManagerFetcher");
             while (isRunnable()) {
                 try {
-                    int configSleepTime = conf.getInt(AGENT_FETCHER_INTERVAL, DEFAULT_AGENT_FETCHER_INTERVAL);
                     TaskResult taskResult = getStaticConfig();
                     if (taskResult != null) {
                         List<TaskProfile> taskProfiles = new ArrayList<>();
@@ -187,10 +185,12 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
                         });
                         agentManager.getTaskManager().submitTaskProfiles(taskProfiles);
                     }
-                    TimeUnit.SECONDS.sleep(AgentUtils.getRandomBySeed(configSleepTime));
                 } catch (Throwable ex) {
                     LOGGER.warn("exception caught", ex);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
+                } finally {
+                    AgentUtils.silenceSleepInSeconds(AgentUtils.getRandomBySeed(
+                            conf.getInt(AGENT_FETCHER_INTERVAL, DEFAULT_AGENT_FETCHER_INTERVAL)));
                 }
             }
         };

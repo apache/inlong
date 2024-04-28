@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.inlong.sort.formats.common.LongFormatInfo;
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.LongFormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.StringFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -77,7 +77,9 @@ public class PulsarSqlParserTest extends AbstractTestBase {
                 "earliest",
                 null,
                 "test",
-                "earliest");
+                "earliest",
+                "org.apache.pulsar.client.impl.auth.AuthenticationToken",
+                "token auth params");
     }
 
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {

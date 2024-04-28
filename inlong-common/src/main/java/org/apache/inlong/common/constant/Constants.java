@@ -30,4 +30,7 @@ public class Constants {
     public static final String DEFAULT_KAFKA_TOPIC_FORMAT = "%s.%s";
     public static final String METRICS_AUDIT_PROXY_HOSTS_KEY = "metrics.audit.proxy.hosts";
 
+    // Default audit version is -1
+    public static final long DEFAULT_AUDIT_VERSION = -1;
+
 }

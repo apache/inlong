@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.stream;
 
+import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.sink.AddFieldRequest;
@@ -49,6 +50,15 @@ public interface InlongStreamService {
      * @return Id after successful save.
      */
     Integer save(InlongStreamRequest request, String operator);
+
+    /**
+     * Batch save inlong stream information.
+     *
+     * @param requestList Inlong stream information list.
+     * @param operator The name of operator.
+     * @return Id list after successful save.
+     */
+    List<BatchResult> batchSave(List<InlongStreamRequest> requestList, String operator);
 
     /**
      * Save inlong stream information.

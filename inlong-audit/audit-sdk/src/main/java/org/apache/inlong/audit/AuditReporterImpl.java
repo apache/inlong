@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
 import static org.apache.inlong.audit.protocol.AuditApi.BaseCommand.Type.AUDIT_REQUEST;
 
 public class AuditReporterImpl implements Serializable {
@@ -53,7 +54,6 @@ public class AuditReporterImpl implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditReporterImpl.class);
     private static final String FIELD_SEPARATORS = ":";
-    private static final String DEFAULT_AUDIT_TAG = "-1";
     private static final long DEFAULT_AUDIT_VERSION = -1;
     private static final int BATCH_NUM = 100;
     private final ReentrantLock GLOBAL_LOCK = new ReentrantLock();
@@ -208,25 +208,32 @@ public class AuditReporterImpl implements Serializable {
     /**
      * Add audit data
      */
-    public void add(int auditID, String inlongGroupID, String inlongStreamID, Long logTime, long count, long size) {
-        add(auditID, DEFAULT_AUDIT_TAG, inlongGroupID, inlongStreamID, logTime, count, size);
+    public void add(int auditID, String inlongGroupID, String inlongStreamID, long logTime, long count, long size) {
+        add(auditID, DEFAULT_AUDIT_TAG, inlongGroupID, inlongStreamID, logTime, count, size, DEFAULT_AUDIT_VERSION);
     }
 
-    public void add(int auditID, String auditTag, String inlongGroupID, String inlongStreamID, Long logTime,
-            long count, long size) {
+    public void add(long isolateKey, int auditID, String auditTag, String inlongGroupID, String inlongStreamID,
+            long logTime, long count, long size, long auditVersion) {
         long delayTime = System.currentTimeMillis() - logTime;
-        add(auditID, auditTag, inlongGroupID, inlongStreamID, logTime, count, size,
-                delayTime * count, DEFAULT_AUDIT_VERSION);
+        add(isolateKey, auditID, auditTag, inlongGroupID, inlongStreamID, logTime,
+                count, size, delayTime, auditVersion);
     }
 
-    public void add(int auditID, String inlongGroupID, String inlongStreamID, Long logTime, long count, long size,
+    public void add(int auditID, String auditTag, String inlongGroupID, String inlongStreamID, long logTime,
+            long count, long size, long auditVersion) {
+        long delayTime = System.currentTimeMillis() - logTime;
+        add(DEFAULT_ISOLATE_KEY, auditID, auditTag, inlongGroupID, inlongStreamID, logTime, count, size,
+                delayTime * count, auditVersion);
+    }
+
+    public void add(int auditID, String inlongGroupID, String inlongStreamID, long logTime, long count, long size,
             long delayTime) {
-        add(auditID, DEFAULT_AUDIT_TAG, inlongGroupID, inlongStreamID, logTime, count, size,
+        add(DEFAULT_ISOLATE_KEY, auditID, DEFAULT_AUDIT_TAG, inlongGroupID, inlongStreamID, logTime, count, size,
                 delayTime, DEFAULT_AUDIT_VERSION);
     }
 
-    public void add(int auditID, String auditTag, String inlongGroupID, String inlongStreamID, Long logTime,
-            long count, long size, long delayTime, long auditVersion) {
+    public void add(long isolateKey, int auditID, String auditTag, String inlongGroupID, String inlongStreamID,
+            long logTime, long count, long size, long delayTime, long auditVersion) {
         StringJoiner keyJoiner = new StringJoiner(FIELD_SEPARATORS);
         keyJoiner.add(String.valueOf(logTime / PERIOD));
         keyJoiner.add(inlongGroupID);
@@ -234,7 +241,7 @@ public class AuditReporterImpl implements Serializable {
         keyJoiner.add(String.valueOf(auditID));
         keyJoiner.add(auditTag);
         keyJoiner.add(String.valueOf(auditVersion));
-        addByKey(DEFAULT_ISOLATE_KEY, keyJoiner.toString(), count, size, delayTime);
+        addByKey(isolateKey, keyJoiner.toString(), count, size, delayTime);
     }
 
     /**

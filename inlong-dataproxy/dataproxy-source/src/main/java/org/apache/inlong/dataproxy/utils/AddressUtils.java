@@ -17,15 +17,47 @@
 
 package org.apache.inlong.dataproxy.utils;
 
+import org.apache.inlong.dataproxy.consts.SourceConstants;
+
 import io.netty.channel.Channel;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketAddress;
+import java.util.Map;
 
 public class AddressUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(AddressUtils.class);
+
+    private static final String localIp;
+
+    static {
+        localIp = getLocalIp();
+    }
+
+    public static String getLocalIp() {
+        if (localIp != null) {
+            return localIp;
+        }
+        String ip = "127.0.0.1";
+        DatagramSocket socket = null;
+        try {
+            socket = new DatagramSocket();
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            ip = socket.getLocalAddress().getHostAddress();
+        } catch (Throwable ex) {
+            logger.error("Get local IP failure,", ex);
+        } finally {
+            if (socket != null) {
+                socket.close();
+            }
+        }
+        return ip;
+    }
 
     public static String getChannelLocalIP(Channel channel) {
         return getChannelIP(channel, true);
@@ -57,4 +89,24 @@ public class AddressUtils {
         }
     }
 
+    public static String getSelfHost() {
+        String localIp = null;
+        Map<String, String> envMap = System.getenv();
+        if (envMap.containsKey(SourceConstants.SYSENV_HOST_IP)) {
+            String tmpVal = envMap.get(SourceConstants.SYSENV_HOST_IP);
+            if (ConfStringUtils.isValidIp(tmpVal)) {
+                localIp = tmpVal.trim();
+            } else {
+                logger.error("{}({}) config in system env not valid",
+                        SourceConstants.SYSENV_HOST_IP, tmpVal);
+            }
+        }
+        if (StringUtils.isBlank(localIp)
+                || SourceConstants.VAL_LOOPBACK_HOST_VALUE.equals(localIp)
+                || SourceConstants.VAL_DEF_HOST_VALUE.equals(localIp)) {
+            localIp = AddressUtils.getLocalIp();
+        }
+
+        return localIp;
+    }
 }

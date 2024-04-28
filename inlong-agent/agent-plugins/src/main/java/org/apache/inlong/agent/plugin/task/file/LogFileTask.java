@@ -21,14 +21,8 @@ import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.constant.TaskConstants;
-import org.apache.inlong.agent.core.instance.ActionType;
-import org.apache.inlong.agent.core.instance.InstanceAction;
-import org.apache.inlong.agent.core.instance.InstanceManager;
 import org.apache.inlong.agent.core.task.TaskAction;
-import org.apache.inlong.agent.core.task.TaskManager;
-import org.apache.inlong.agent.db.Db;
-import org.apache.inlong.agent.metrics.audit.AuditUtils;
-import org.apache.inlong.agent.plugin.file.Task;
+import org.apache.inlong.agent.plugin.task.AbstractTask;
 import org.apache.inlong.agent.plugin.task.file.FileScanner.BasicFileInfo;
 import org.apache.inlong.agent.plugin.utils.file.FilePathUtil;
 import org.apache.inlong.agent.plugin.utils.file.NewDateUtils;
@@ -60,7 +54,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -68,64 +64,60 @@ import java.util.stream.Stream;
 /**
  * Watch directory, if new valid files are created, create jobs correspondingly.
  */
-public class LogFileTask extends Task {
+public class LogFileTask extends AbstractTask {
 
-    public static final String DEFAULT_FILE_INSTANCE = "org.apache.inlong.agent.plugin.instance.FileInstance";
     private static final Logger LOGGER = LoggerFactory.getLogger(LogFileTask.class);
+    public static final String DEFAULT_FILE_INSTANCE = "org.apache.inlong.agent.plugin.instance.FileInstance";
     public static final String SCAN_CYCLE_RANCE = "-2";
-    private TaskProfile taskProfile;
-    private Db basicDb;
-    private TaskManager taskManager;
-    private InstanceManager instanceManager;
+    private static final int INSTANCE_QUEUE_CAPACITY = 10;
     private final Map<String, WatchEntity> watchers = new ConcurrentHashMap<>();
     private final Set<String> watchFailedDirs = new HashSet<>();
     private final Map<String/* dataTime */, Map<String/* fileName */, InstanceProfile>> eventMap =
             new ConcurrentHashMap<>();
     public static final long DAY_TIMEOUT_INTERVAL = 2 * 24 * 3600 * 1000;
-    public static final int CORE_THREAD_SLEEP_TIME = 1000;
     public static final int CORE_THREAD_MAX_GAP_TIME_MS = 60 * 1000;
-    public static final int CORE_THREAD_PRINT_TIME = 10000;
-    private long lastPrintTime = 0;
     private boolean retry;
     private long startTime;
     private long endTime;
     private boolean realTime = false;
-    private boolean initOK = false;
     private Set<String> originPatterns;
     private long lastScanTime = 0;
     public final long SCAN_INTERVAL = 1 * 60 * 1000;
     private volatile boolean runAtLeastOneTime = false;
     private volatile long coreThreadUpdateTime = 0;
-    private volatile boolean running = false;
+    private BlockingQueue<InstanceProfile> instanceQueue;
 
     @Override
-    public void init(Object srcManager, TaskProfile taskProfile, Db basicDb) throws IOException {
-        taskManager = (TaskManager) srcManager;
-        commonInit(taskProfile, basicDb);
-        if (retry) {
-            retryInit();
-        } else {
-            watchInit();
-        }
-        initOK = true;
-    }
-
-    private void commonInit(TaskProfile taskProfile, Db basicDb) {
-        this.taskProfile = taskProfile;
-        this.basicDb = basicDb;
+    protected void initTask() {
+        instanceQueue = new LinkedBlockingQueue<>(INSTANCE_QUEUE_CAPACITY);
         retry = taskProfile.getBoolean(TaskConstants.TASK_RETRY, false);
         originPatterns = Stream.of(taskProfile.get(TaskConstants.FILE_DIR_FILTER_PATTERNS).split(","))
                 .collect(Collectors.toSet());
         if (taskProfile.getCycleUnit().compareToIgnoreCase(CycleUnitType.REAL_TIME) == 0) {
             realTime = true;
         }
-        instanceManager = new InstanceManager(taskProfile.getTaskId(), taskProfile.getInt(TaskConstants.FILE_MAX_NUM),
-                basicDb, taskManager.getTaskDb());
-        try {
-            instanceManager.start();
-        } catch (Exception e) {
-            LOGGER.error("start instance manager error: ", e);
+        if (retry) {
+            retryInit();
+        } else {
+            watchInit();
         }
+    }
+
+    @Override
+    protected List<InstanceProfile> getNewInstanceList() {
+        if (retry) {
+            runForRetry();
+        } else {
+            runForNormal();
+        }
+        List<InstanceProfile> list = new ArrayList<>();
+        while (list.size() < INSTANCE_QUEUE_CAPACITY && !instanceQueue.isEmpty()) {
+            InstanceProfile profile = instanceQueue.poll();
+            if (profile != null) {
+                list.add(profile);
+            }
+        }
+        return list;
     }
 
     @Override
@@ -151,9 +143,8 @@ public class LogFileTask extends Task {
             LOGGER.error("task profile needs time zone");
             return false;
         }
-        boolean ret =
-                profile.hasKey(TaskConstants.FILE_DIR_FILTER_PATTERNS)
-                        && profile.hasKey(TaskConstants.FILE_MAX_NUM);
+        boolean ret = profile.hasKey(TaskConstants.FILE_DIR_FILTER_PATTERNS)
+                && profile.hasKey(TaskConstants.FILE_MAX_NUM);
         if (!ret) {
             LOGGER.error("task profile needs file keys");
             return false;
@@ -218,11 +209,7 @@ public class LogFileTask extends Task {
     }
 
     @Override
-    public void destroy() {
-        doChangeState(State.SUCCEEDED);
-        if (instanceManager != null) {
-            instanceManager.stop();
-        }
+    protected void releaseTask() {
         releaseWatchers(watchers);
     }
 
@@ -243,66 +230,13 @@ public class LogFileTask extends Task {
         });
     }
 
-    @Override
-    public TaskProfile getProfile() {
-        return taskProfile;
-    }
-
-    @Override
-    public String getTaskId() {
-        if (taskProfile == null) {
-            return "";
-        }
-        return taskProfile.getTaskId();
-    }
-
-    @Override
-    public void addCallbacks() {
-
-    }
-
-    @Override
-    public void run() {
-        Thread.currentThread().setName("directory-task-core-" + getTaskId());
-        running = true;
-        try {
-            doRun();
-        } catch (Throwable e) {
-            LOGGER.error("do run error: ", e);
-        }
-        running = false;
-    }
-
-    private void doRun() {
-        while (!isFinished()) {
-            if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_TIME) {
-                LOGGER.info("log file task running! taskId {}", getTaskId());
-                lastPrintTime = AgentUtils.getCurrentTime();
-            }
-            coreThreadUpdateTime = AgentUtils.getCurrentTime();
-            AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
-            if (!initOK) {
-                continue;
-            }
-            if (retry) {
-                runForRetry();
-            } else {
-                runForNormal();
-            }
-            String inlongGroupId = taskProfile.getInlongGroupId();
-            String inlongStreamId = taskProfile.getInlongStreamId();
-            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_TASK_HEARTBEAT, inlongGroupId, inlongStreamId,
-                    AgentUtils.getCurrentTime(), 1, 1);
-        }
-    }
-
     private void runForRetry() {
         if (!runAtLeastOneTime) {
             scanExistingFile();
             runAtLeastOneTime = true;
         }
         dealWithEventMap();
-        if (instanceManager.allInstanceFinished()) {
+        if (instanceQueue.isEmpty() && allInstanceFinished()) {
             LOGGER.info("retry task finished, send action to task manager, taskId {}", getTaskId());
             TaskAction action = new TaskAction(org.apache.inlong.agent.core.task.ActionType.FINISH, taskProfile);
             taskManager.submitAction(action);
@@ -435,13 +369,11 @@ public class LogFileTask extends Task {
             for (InstanceProfile sortEvent : sortedEvents) {
                 String fileName = sortEvent.getInstanceId();
                 InstanceProfile profile = sameDataTimeEvents.get(fileName);
-                InstanceAction action = new InstanceAction(ActionType.ADD, profile);
-                if (!isCurrentDataTime && instanceManager.isFull()) {
+                if (!isCurrentDataTime && isFull()) {
                     return;
                 }
-                while (!isFinished() && !instanceManager.submitAction(action)) {
-                    LOGGER.error("instance manager action queue is full: taskId {}", instanceManager.getTaskId());
-                    AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
+                if (!instanceQueue.offer(profile)) {
+                    return;
                 }
                 sameDataTimeEvents.remove(fileName);
             }
@@ -564,7 +496,7 @@ public class LogFileTask extends Task {
             return;
         }
         Long fileUpdateTime = FileUtils.getFileLastModifyTime(fileName);
-        if (!instanceManager.shouldAddAgain(fileName, fileUpdateTime)) {
+        if (!shouldAddAgain(fileName, fileUpdateTime)) {
             LOGGER.info("addToEvenMap shouldAddAgain returns false skip taskId {} dataTime {} fileName {}",
                     taskProfile.getTaskId(), dataTime, fileName);
             return;

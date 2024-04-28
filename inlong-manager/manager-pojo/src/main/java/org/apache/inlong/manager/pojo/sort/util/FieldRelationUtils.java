@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.StringTypeInfo;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.TransformType;
@@ -31,8 +33,6 @@ import org.apache.inlong.manager.pojo.transform.replacer.StringReplacerDefinitio
 import org.apache.inlong.manager.pojo.transform.replacer.StringReplacerDefinition.ReplaceRule;
 import org.apache.inlong.manager.pojo.transform.splitter.SplitterDefinition;
 import org.apache.inlong.manager.pojo.transform.splitter.SplitterDefinition.SplitRule;
-import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.StringTypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.CascadeFunction;
 import org.apache.inlong.sort.protocol.transformation.ConstantParam;

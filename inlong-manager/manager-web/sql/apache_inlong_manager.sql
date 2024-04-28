@@ -856,10 +856,10 @@ CREATE TABLE IF NOT EXISTS `audit_base`
     `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `name`             varchar(256) NOT NULL COMMENT 'Audit base name',
     `type`             varchar(20)  NOT NULL COMMENT 'Audit base item type, such as: AGENT, DATAPROXY, etc',
-    `is_sent`          int(4)       NOT NULL DEFAULT '0' COMMENT '0: received, 1: sent',
+    `indicator_type`   int(4)       DEFAULT NULL COMMENT 'Indicator type for audit',
     `audit_id`         varchar(11)  NOT NULL COMMENT 'Audit ID mapping of audit name',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_audit_base_type` (`type`, `is_sent`),
+    UNIQUE KEY `unique_audit_base_type` (`type`, `indicator_type`),
     UNIQUE KEY `unique_audit_base_name` (`name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8 COMMENT ='Audit base item table';
@@ -867,7 +867,7 @@ CREATE TABLE IF NOT EXISTS `audit_base`
 -- ----------------------------
 -- Insert audit_base item
 -- ----------------------------
-INSERT INTO `audit_base`(`name`, `type`, `is_sent`, `audit_id`)
+INSERT INTO `audit_base`(`name`, `type`, `indicator_type`, `audit_id`)
 VALUES ('audit_sdk_collect', 'SDK', 0, '1'),
        ('audit_sdk_sent', 'SDK', 1, '2'),
        ('audit_agent_read', 'AGENT', 0, '3'),
@@ -959,6 +959,44 @@ CREATE TABLE IF NOT EXISTS `tenant_cluster_tag`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Tenant cluster tag table';
 
+-- ----------------------------
+-- Table structure for module_config
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `module_config`
+(
+    `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `name`        varchar(256) NOT NULL COMMENT 'Module name',
+    `type`        varchar(255) DEFAULT NULL COMMENT 'Module type',
+    `package_id`  int(11)      NOT NULL COMMENT 'Package id',
+    `ext_params`  text                  COMMENT 'Extended params, will be saved as JSON string',
+    `version`     varchar(20)  NOT NULL COMMENT 'Version',
+    `is_deleted`  int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
+    `modifier`    varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
+    `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT = 'Module config table';
+
+-- ----------------------------
+-- Table structure for package_config
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `package_config` (
+    `id`           int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `md5`          varchar(256) NOT NULL COMMENT 'Md5 of package',
+    `file_name`    varchar(256) NOT NULL COMMENT 'File name',
+    `type`         varchar(255) DEFAULT NULL COMMENT 'Package type',
+    `download_url` varchar(256) NOT NULL COMMENT 'Download url for package',
+    `storage_path` varchar(256) NOT NULL COMMENT 'Storage path for package',
+    `is_deleted`   int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`      varchar(64)  NOT NULL COMMENT 'Creator name',
+    `modifier`     varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`)
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4 COMMENT = 'Package config table';
 -- ----------------------------
 
 SET FOREIGN_KEY_CHECKS = 1;
