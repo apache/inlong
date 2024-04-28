@@ -72,7 +72,7 @@ public class CommandExecutorImpl implements CommandExecutor {
 
     @Override
     public CommandResult execRemote(AgentClusterNodeRequest clusterNodeRequest, String cmd) throws Exception {
-        String cmdShell = "./conf/exec_remote_cmd.exp";
+        String cmdShell = "./conf/exec_cmd.exp";
         String ip = clusterNodeRequest.getIp();
         String port = String.valueOf(clusterNodeRequest.getPort());
         String user = clusterNodeRequest.getUsername();
