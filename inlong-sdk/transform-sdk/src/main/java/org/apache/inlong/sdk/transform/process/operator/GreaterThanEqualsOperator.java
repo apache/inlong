@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -17,11 +17,11 @@
 
 package org.apache.inlong.sdk.transform.process.operator;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
+import org.apache.commons.lang.ObjectUtils;
 
 /**
  * GreaterThanEqualsOperator
