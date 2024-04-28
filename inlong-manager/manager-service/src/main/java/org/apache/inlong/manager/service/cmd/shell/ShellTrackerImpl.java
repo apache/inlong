@@ -17,79 +17,48 @@
 
 package org.apache.inlong.manager.service.cmd.shell;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class SimpleTracker implements ShellTracker {
+@Data
+public class ShellTrackerImpl implements ShellTracker {
 
     private List<String> result = new ArrayList<String>();
     private int code;
+    private Long processId;
+    private String runResult;
 
     public int getCode() {
         return code;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.yy.hiido.ShellTracker#fail()
-     */
     public void fail(int code) {
         this.code = code;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.yy.hiido.ShellTracker#lineChange(java.lang.String)
-     */
     public void lineChange(String line) {
         result.add(line);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.yy.hiido.ShellTracker#setProcessId(long)
-     */
-    public void setProcessId(long arg0) {
+    public void setProcessId(long processId) {
+        this.processId = processId;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.yy.hiido.ShellTracker#setRunInfo(java.lang.String)
-     */
-    public void setRunInfo(String arg0) {
+    public void setRunResult(String runResult) {
+        this.runResult = runResult;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.yy.hiido.ShellTracker#beforeStart()
-     */
     public void beforeStart() {
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.yy.hiido.ShellTracker#start()
-     */
     public void start() {
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.yy.hiido.ShellTracker#success()
-     */
     public void success() {
     }
 
-    /**
-     * @return the result
-     */
     public List<String> getResult() {
         return result;
     }

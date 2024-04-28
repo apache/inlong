@@ -18,13 +18,13 @@
 package org.apache.inlong.manager.service.cmd;
 
 /**
- * Created by florianfan on 2015/11/9.
+ * Command result
  */
 public class CommandResult {
 
     private int code = 0;
-    private String stdout;
-    private String stderr;
+    private String result;
+    private String errMsg;
 
     public int getCode() {
         return code;
@@ -34,28 +34,28 @@ public class CommandResult {
         this.code = code;
     }
 
-    public String getStdout() {
-        return stdout;
+    public String getResult() {
+        return result;
     }
 
-    public void setStdout(String stdout) {
-        this.stdout = stdout;
+    public void setResult(String result) {
+        this.result = result;
     }
 
-    public String getStderr() {
-        return stderr;
+    public String getErrMsg() {
+        return errMsg;
     }
 
-    public void setStderr(String stderr) {
-        this.stderr = stderr;
+    public void setErrMsg(String errMsg) {
+        this.errMsg = errMsg;
     }
 
     @Override
     public String toString() {
         return "CommandResult{" +
                 "code=" + code +
-                ", stdout='" + stdout + '\'' +
-                ", stderr='" + stderr + '\'' +
+                ", stdout='" + result + '\'' +
+                ", stderr='" + errMsg + '\'' +
                 '}';
     }
 }

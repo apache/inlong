@@ -19,8 +19,8 @@ package org.apache.inlong.manager.service.cmd;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeRequest;
-import org.apache.inlong.manager.service.cmd.shell.ShellExecutor;
-import org.apache.inlong.manager.service.cmd.shell.SimpleTracker;
+import org.apache.inlong.manager.service.cmd.shell.ShellExecutorImpl;
+import org.apache.inlong.manager.service.cmd.shell.ShellTrackerImpl;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -54,19 +54,19 @@ public class CommandExecutorImpl implements CommandExecutor {
 
     @Override
     public CommandResult exec(String cmd) throws Exception {
-        SimpleTracker shellTracker = new SimpleTracker();
-        ShellExecutor shellExecutor = new ShellExecutor(shellTracker);
+        ShellTrackerImpl shellTracker = new ShellTrackerImpl();
+        ShellExecutorImpl shellExecutor = new ShellExecutorImpl(shellTracker);
         shellExecutor.syncExec("sh", "-c", cmd);
         String cmdMsg = join("sh", "-c", cmd);
         LOG.debug("run command : " + cmdMsg);
         CommandResult commandResult = new CommandResult();
         commandResult.setCode(shellTracker.getCode());
-        commandResult.setStdout(join(shellTracker.getResult()));
+        commandResult.setResult(join(shellTracker.getResult()));
         if (commandResult.getCode() != 0) {
             throw new Exception("command " + cmdMsg + " exec failed, code = " +
-                    commandResult.getCode() + ", output = " + commandResult.getStdout());
+                    commandResult.getCode() + ", output = " + commandResult.getResult());
         }
-        LOG.debug(commandResult.getStdout());
+        LOG.debug(commandResult.getResult());
         return commandResult;
     }
 
@@ -83,19 +83,19 @@ public class CommandExecutorImpl implements CommandExecutor {
         String cmdMsg = join(cmdShell, ip, user, password, remoteCommandTimeout, cmd, port);
         LOG.info("run remote command : " + cmdMsg);
 
-        SimpleTracker shellTracker = new SimpleTracker();
-        ShellExecutor shellExecutor = new ShellExecutor(shellTracker);
+        ShellTrackerImpl shellTracker = new ShellTrackerImpl();
+        ShellExecutorImpl shellExecutor = new ShellExecutorImpl(shellTracker);
         shellExecutor.syncExec(cmdShell, ip, user, password, remoteCommandTimeout, cmd, port);
 
         CommandResult commandResult = new CommandResult();
         commandResult.setCode(shellTracker.getCode());
-        commandResult.setStdout(join(shellTracker.getResult()));
+        commandResult.setResult(join(shellTracker.getResult()));
 
-        LOG.debug(commandResult.getStdout());
+        LOG.debug(commandResult.getResult());
         if (commandResult.getCode() != 0) {
             throw new Exception(
                     "remote command " + cmdMsg + " exec failed, code = " + commandResult.getCode() + ", output = "
-                            + commandResult.getStdout());
+                            + commandResult.getResult());
         }
         return commandResult;
     }

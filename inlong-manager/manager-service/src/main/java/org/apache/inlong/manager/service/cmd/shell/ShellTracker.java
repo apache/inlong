@@ -20,46 +20,44 @@ package org.apache.inlong.manager.service.cmd.shell;
 public interface ShellTracker {
 
     /**
-     * 每次输出行发生改变时，会调用此方法
      *
-     * @param runInfo shell运行信息
+     * Update run result for shell cmd
+     * @param runResult shell result
      */
-    public void setRunInfo(String runInfo);
+    void setRunResult(String runResult);
 
     /**
-     * 每次输出行改变时，回调此函数
      *
-     * @param line shell最新行信息
+     * Update line info
+     * @param line shell line info
      */
-    public void lineChange(String line);
+    void lineChange(String line);
 
     /**
-     * 当执行shell文件返回进程id时调用次方法
-     * 更新process进程Id
      *
-     * @param processId
+     * Set process ID
+     * @param processId process id
      */
-    public void setProcessId(long processId);
+    void setProcessId(long processId);
 
     /**
-     * 多线程开启之前的准备工作
-     * 任务开始之前
+     * Preparation work
      */
-    public void beforeStart();
+    void beforeStart();
 
     /**
-     * 任务开始
+     * Begin exec
      */
-    public void start();
+    void start();
 
     /**
-     * 任务失败
+     * Exec failed
      */
-    public void fail(int code);
+    void fail(int code);
 
     /**
-     * 任务成功
+     * Exec success
      */
-    public void success();
+    void success();
 
 }
