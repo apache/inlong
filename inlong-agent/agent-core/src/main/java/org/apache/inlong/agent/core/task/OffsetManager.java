@@ -143,20 +143,20 @@ public class OffsetManager extends AbstractDaemon {
             String taskId = instanceFromDb.getTaskId();
             String instanceId = instanceFromDb.getInstanceId();
             if (instanceFromDb.getState() != InstanceStateEnum.FINISHED) {
-                return;
+                continue;
             }
             TaskProfile taskFromDb = taskProfileDb.getTask(taskId);
             if (taskFromDb != null) {
                 if (taskFromDb.getCycleUnit().compareToIgnoreCase(CycleUnitType.REAL_TIME) == 0) {
-                    return;
+                    continue;
                 }
                 if (taskFromDb.isRetry()) {
                     if (taskFromDb.getState() != TaskStateEnum.RETRY_FINISH) {
-                        return;
+                        continue;
                     }
                 } else {
                     if (instanceFromDb.getState() != InstanceStateEnum.FINISHED) {
-                        return;
+                        continue;
                     }
                 }
             }

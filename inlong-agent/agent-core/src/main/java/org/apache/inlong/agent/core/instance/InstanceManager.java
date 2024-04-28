@@ -178,7 +178,8 @@ public class InstanceManager extends AbstractDaemon {
     }
 
     private void printInstanceState() {
-        if (AgentUtils.getCurrentTime() - lastPrintTime > INSTANCE_PRINT_INTERVAL_MS) {
+        long currentTime = AgentUtils.getCurrentTime();
+        if (currentTime - lastPrintTime > INSTANCE_PRINT_INTERVAL_MS) {
             List<InstanceProfile> instances = instanceDb.getInstances(taskId);
             InstancePrintStat stat = new InstancePrintStat();
             for (int i = 0; i < instances.size(); i++) {
@@ -188,7 +189,7 @@ public class InstanceManager extends AbstractDaemon {
             LOGGER.info(
                     "instanceManager running! taskId {} mem {} db total {} {} action count {}",
                     taskId, instanceMap.size(), instances.size(), stat, actionQueue.size());
-            lastPrintTime = AgentUtils.getCurrentTime();
+            lastPrintTime = currentTime;
         }
     }
 
