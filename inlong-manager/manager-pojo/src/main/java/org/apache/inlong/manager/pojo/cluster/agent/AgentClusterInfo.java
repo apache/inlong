@@ -42,6 +42,12 @@ public class AgentClusterInfo extends ClusterInfo {
     @ApiModelProperty(value = "Version number of the server list collected by the cluster")
     private Integer serverVersion;
 
+    @ApiModelProperty(value = "Auth secret id")
+    private String authSecretId;
+
+    @ApiModelProperty(value = "Auth secret key")
+    private String authSecretKey;
+
     public AgentClusterInfo() {
         this.setType(ClusterType.AGENT);
     }

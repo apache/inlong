@@ -40,6 +40,12 @@ public class AgentClusterRequest extends ClusterRequest {
     @ApiModelProperty(value = "Version number of the server list collected by the cluster")
     private Integer serverVersion = 1;
 
+    @ApiModelProperty(value = "Auth secret id")
+    private Integer authSecretId;
+
+    @ApiModelProperty(value = "Auth secret key")
+    private Integer authSecretKey;
+
     public AgentClusterRequest() {
         this.setType(ClusterType.AGENT);
     }

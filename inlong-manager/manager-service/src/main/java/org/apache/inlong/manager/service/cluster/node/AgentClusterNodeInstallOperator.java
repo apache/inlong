@@ -18,16 +18,30 @@
 package org.apache.inlong.manager.service.cluster.node;
 
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.ModuleType;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
+import org.apache.inlong.manager.dao.entity.ModuleConfigEntity;
+import org.apache.inlong.manager.dao.entity.PackageConfigEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
+import org.apache.inlong.manager.dao.mapper.ModuleConfigEntityMapper;
+import org.apache.inlong.manager.dao.mapper.PackageConfigEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
+import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterDTO;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeRequest;
+import org.apache.inlong.manager.service.cmd.CommandExecutor;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstallOperator {
@@ -36,6 +50,19 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
 
     @Autowired
     private InlongClusterEntityMapper clusterEntityMapper;
+    @Autowired
+    private CommandExecutor commandExecutor;
+    @Autowired
+    private ModuleConfigEntityMapper moduleConfigEntityMapper;
+    @Autowired
+    private PackageConfigEntityMapper packageConfigEntityMapper;
+
+    @Value("${audit.proxy.url}")
+    private String auditProxyUrl;
+    @Value("${agent.install.path}")
+    private String agentInstallPath;
+    @Value("${manager.url}")
+    private String managerUrl;
 
     @Override
     public Boolean accept(String clusterType) {
@@ -49,9 +76,35 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
 
     @Override
     public boolean install(ClusterNodeRequest clusterNodeRequest, String operator) {
-        // todo Provide agent installation capability
-        AgentClusterNodeRequest agentNodeRequest = (AgentClusterNodeRequest) clusterNodeRequest;
-        InlongClusterEntity clusterEntity = clusterEntityMapper.selectById(clusterNodeRequest.getParentId());
+        LOGGER.info("begin to insert agent inlong cluster node={}", clusterNodeRequest);
+        try {
+            InlongClusterEntity clusterEntity = clusterEntityMapper.selectById(clusterNodeRequest.getParentId());
+            AgentClusterDTO agentClusterDTO = AgentClusterDTO.getFromJson(clusterEntity.getExtParams());
+            AgentClusterNodeRequest request = (AgentClusterNodeRequest) clusterNodeRequest;
+            commandExecutor.mkdir(request, agentInstallPath);
+            String downLoadUrl = getInstallerDownLoadUrl(request);
+            String fileName = downLoadUrl.substring(downLoadUrl.lastIndexOf('/') + 1);
+            commandExecutor.downLoadPackage(request, agentInstallPath, downLoadUrl);
+            commandExecutor.tarPackage(request, fileName, agentInstallPath);
+            String confFile = agentInstallPath + "conf/installer.properties";
+            Map<String, String> configMap = new HashMap<>();
+            configMap.put("agent.local.ip", request.getIp());
+            configMap.put("agent.manager.addr", managerUrl);
+            configMap.put("agent.manager.auth.secretId", agentClusterDTO.getAuthSecretId());
+            configMap.put("agent.manager.auth.secretKey", agentClusterDTO.getAuthSecretKey());
+            configMap.put("agent.cluster.tag", clusterEntity.getClusterTags());
+            configMap.put("agent.cluster.name", clusterEntity.getName());
+            configMap.put("agent.proxys", auditProxyUrl);
+            commandExecutor.modifyConfig(request, configMap, confFile);
+            String startCmd = agentInstallPath + "bin/installer.sh start";
+            commandExecutor.execRemote(request, startCmd);
+
+        } catch (Exception e) {
+            String errMsg = String.format("install installer failed for ip=%s", clusterNodeRequest.getIp());
+            LOGGER.error(errMsg, e);
+            throw new BusinessException(errMsg);
+        }
+        LOGGER.info("success to insert agent inlong cluster node={}", clusterNodeRequest);
         return true;
     }
 
@@ -60,5 +113,23 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
         // todo Provide agent uninstallation capability
         InlongClusterEntity clusterEntity = clusterEntityMapper.selectById(clusterNodeEntity.getParentId());
         return true;
+    }
+
+    private String getInstallerDownLoadUrl(AgentClusterNodeRequest request) {
+        if (CollectionUtils.isEmpty(request.getModuleIdList())) {
+            throw new BusinessException(
+                    String.format("install failed when module id list is null for ip=%s, type=%s", request.getIp(),
+                            request.getType()));
+        }
+        for (Integer moduleId : request.getModuleIdList()) {
+            ModuleConfigEntity moduleConfigEntity = moduleConfigEntityMapper.selectByPrimaryKey(moduleId);
+            if (Objects.equals(moduleConfigEntity.getType(), ModuleType.INSTALLER.name())) {
+                PackageConfigEntity packageConfigEntity = packageConfigEntityMapper.selectByPrimaryKey(
+                        moduleConfigEntity.getPackageId());
+                return packageConfigEntity.getDownloadUrl();
+            }
+        }
+        throw new BusinessException(String.format("cant get installer download url for ip=%s, type=%s", request.getIp(),
+                request.getType()));
     }
 }
