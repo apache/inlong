@@ -41,6 +41,20 @@ public class InstanceDb {
     }
 
     /**
+     * list all instance from db.
+     *
+     * @return list of task
+     */
+    public List<InstanceProfile> listAllInstances() {
+        List<KeyValueEntity> result = this.db.findAll("");
+        List<InstanceProfile> instanceList = new ArrayList<>();
+        for (KeyValueEntity entity : result) {
+            instanceList.add(entity.getAsInstanceProfile());
+        }
+        return instanceList;
+    }
+
+    /**
      * get instance list from db.
      *
      * @return list of task

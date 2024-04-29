@@ -57,6 +57,8 @@ public class TestLogFileSource {
     private static final Gson GSON = new Gson();
     private static final String[] check = {"hello line-end-symbol aa", "world line-end-symbol",
             "agent line-end-symbol"};
+    // task basic db
+    private static Db taskBasicDb;
     // instance basic db
     private static Db instanceBasicDb;
     // offset basic db
@@ -64,12 +66,12 @@ public class TestLogFileSource {
 
     @BeforeClass
     public static void setup() {
-
         helper = new AgentBaseTestsHelper(TestLogFileSource.class.getName()).setupAgentHome();
+        taskBasicDb = TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_TASK);
         instanceBasicDb = TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE);
         offsetBasicDb =
                 TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET);
-        OffsetManager.init(offsetBasicDb, instanceBasicDb);
+        OffsetManager.init(taskBasicDb, instanceBasicDb, offsetBasicDb);
     }
 
     private LogFileSource getSource(int taskId, long offset) {
