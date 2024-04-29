@@ -129,8 +129,7 @@ public class PulsarConsume extends BaseConsume {
                             public void received(Consumer<byte[]> consumer, Message<byte[]> msg) {
                                 try {
                                     String body = new String(msg.getData(), StandardCharsets.UTF_8);
-                                    handleMessage(body);
-                                    consumer.acknowledge(msg);
+                                    handleMessage(body, consumer, msg.getMessageId());
                                 } catch (Exception e) {
                                     LOG.error("Consumer has exception topic {}, subName {}, ex {}",
                                             topic,

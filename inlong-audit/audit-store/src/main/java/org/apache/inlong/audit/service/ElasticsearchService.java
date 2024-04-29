@@ -24,6 +24,8 @@ import org.apache.inlong.audit.protocol.AuditData;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.pulsar.client.api.Consumer;
+import org.apache.pulsar.client.api.MessageId;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -277,5 +279,10 @@ public class ElasticsearchService implements InsertData, AutoCloseable {
         esPo.setSize(msgBody.getSize());
         esPo.setPacketId(msgBody.getPacketId());
         this.insertData(esPo);
+    }
+
+    @Override
+    public void insert(AuditData msgBody, Consumer<byte[]> consumer, MessageId messageId) {
+
     }
 }

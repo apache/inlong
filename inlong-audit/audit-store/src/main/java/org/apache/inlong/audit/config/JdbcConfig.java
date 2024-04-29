@@ -15,22 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.service;
+package org.apache.inlong.audit.config;
 
-import org.apache.inlong.audit.protocol.AuditData;
+import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
-import org.apache.pulsar.client.api.Consumer;
-import org.apache.pulsar.client.api.MessageId;
+@Configuration
+@Data
+public class JdbcConfig {
 
-/**
- * Insert Data interface
- */
-public interface InsertData {
-
-    /**
-     * insert audit data to storage.
-     */
-    void insert(AuditData msgBody);
-
-    void insert(AuditData msgBody, Consumer<byte[]> consumer, MessageId messageId);
+    @Value("${jdbc.driver:com.mysql.cj.jdbc.Driver}")
+    private String driver;
+    @Value("${jdbc.url}")
+    private String url;
+    @Value("${jdbc.username}")
+    private String userName;
+    @Value("${jdbc.password}")
+    private String password;
+    @Value("${jdbc.batchIntervalMs:1000}")
+    private int batchIntervalMs;
+    @Value("${jdbc.batchThreshold:500}")
+    private int batchThreshold;
+    @Value("${jdbc.processIntervalMs:100}")
+    private int processIntervalMs;
+    @Value("${data.queue.size:1000000}")
+    private int dataQueueSize;
 }

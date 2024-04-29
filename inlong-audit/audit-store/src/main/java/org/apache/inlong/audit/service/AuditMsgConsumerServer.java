@@ -18,6 +18,7 @@
 package org.apache.inlong.audit.service;
 
 import org.apache.inlong.audit.config.ClickHouseConfig;
+import org.apache.inlong.audit.config.JdbcConfig;
 import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
 import org.apache.inlong.audit.consts.ConfigConstants;
@@ -68,16 +69,14 @@ public class AuditMsgConsumerServer implements InitializingBean {
     private ClickHouseConfig chConfig;
     // ClickHouseService
     private ClickHouseService ckService;
-
+    @Autowired
+    private JdbcConfig jdbcConfig;
+    private JdbcService jdbcService;
     private static final String DEFAULT_CONFIG_PROPERTIES = "application.properties";
-
     // interval time of getting mq config
     private static final int INTERVAL_MS = 5000;
-
     private final CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-
     private final Gson gson = new Gson();
-
     /**
      * Initializing bean
      */
@@ -105,12 +104,14 @@ public class AuditMsgConsumerServer implements InitializingBean {
         if (mqConsume == null) {
             LOG.error("Unknown MessageQueue {}", mqConfig.getMqType());
         }
-
         if (storeConfig.isElasticsearchStore()) {
             esService.startTimerRoutine();
         }
         if (storeConfig.isClickHouseStore()) {
             ckService.start();
+        }
+        if (storeConfig.isJdbc()) {
+            jdbcService.start();
         }
         mqConsume.start();
     }
@@ -132,6 +133,11 @@ public class AuditMsgConsumerServer implements InitializingBean {
             // create ck object
             ckService = new ClickHouseService(chConfig);
             insertServiceList.add(ckService);
+        }
+        if (storeConfig.isJdbc()) {
+            // create jdbc object
+            jdbcService = new JdbcService(jdbcConfig);
+            insertServiceList.add(jdbcService);
         }
         return insertServiceList;
     }
