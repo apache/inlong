@@ -22,6 +22,22 @@ import { RenderRow } from '@/plugins/RenderRow';
 import { RenderList } from '@/plugins/RenderList';
 import { ClusterInfo } from '../common/ClusterInfo';
 
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
+
 export default class AgentCluster
   extends ClusterInfo
-  implements DataWithBackend, RenderRow, RenderList {}
+  implements DataWithBackend, RenderRow, RenderList
+{
+  @FieldDecorator({
+    type: 'input',
+  })
+  @I18n('pages.Clusters.Agent.AuthUsername')
+  authUsername: string;
+
+  @FieldDecorator({
+    type: 'input',
+  })
+  @I18n('pages.Clusters.Agent.AuthCmk')
+  authCmk: string;
+}
