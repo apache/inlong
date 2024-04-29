@@ -114,7 +114,9 @@ if [ "${START_MODE}" = "all" ] || [ "${START_MODE}" = "store" ]; then
 fi
 
 # start service
-bash +x ./bin/service-start.sh
+if [ "${START_MODE}" = "all" ] || [ "${START_MODE}" = "service" ]; then
+  bash +x ./bin/service-start.sh
+fi
 
 sleep 3
 # keep alive
