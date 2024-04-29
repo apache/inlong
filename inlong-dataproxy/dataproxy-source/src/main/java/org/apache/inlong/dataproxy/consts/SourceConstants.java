@@ -31,8 +31,8 @@ public class SourceConstants {
     public static final String SRCCXT_CONFIG_PORT = "port";
     // system env source port
     public static final String SYSENV_HOST_PORT = "inlongHostPort";
-    // source logic type name
-    public static final String SRCCXT_LOGIC_TYPE_NAME = "logic-type-name";
+    // source logic execute type
+    public static final String SRCCXT_LOGIC_EXECUTE_TYPE = "logic-execute-type";
     // message factory name
     public static final String SRCCXT_MSG_FACTORY_NAME = "msg-factory-name";
     // message handler name
