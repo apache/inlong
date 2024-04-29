@@ -413,7 +413,7 @@ public class ModuleManager extends AbstractDaemon {
         if (localModule.getPackageConfig().getMd5().equals(managerModule.getPackageConfig().getMd5())) {
             LOGGER.info("module {} package md5 no change, will restart and save config", localModule.getId());
             restartModule(localModule, managerModule);
-            managerModule.setState(ModuleStateEnum.INSTALLED);
+            managerModule.setState(localModule.getState());
             updateModuleConfig(managerModule);
         } else {
             LOGGER.info("module {} package md5 changed, will reinstall", localModule.getId());
