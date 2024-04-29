@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.transform.process;
 
 import org.apache.inlong.sdk.transform.decode.CsvSourceDecoder;
+import org.apache.inlong.sdk.transform.decode.JsonSourceDecoder;
 import org.apache.inlong.sdk.transform.decode.KvSourceDecoder;
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.decode.SourceDecoder;
@@ -28,6 +29,8 @@ import org.apache.inlong.sdk.transform.encode.SinkData;
 import org.apache.inlong.sdk.transform.encode.SinkEncoder;
 import org.apache.inlong.sdk.transform.pojo.CsvSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.CsvSourceInfo;
+import org.apache.inlong.sdk.transform.pojo.FieldInfo;
+import org.apache.inlong.sdk.transform.pojo.JsonSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.SinkInfo;
@@ -103,6 +106,8 @@ public class TransformProcessor {
             this.decoder = new CsvSourceDecoder((CsvSourceInfo) sourceInfo);
         } else if (sourceInfo instanceof KvSourceInfo) {
             this.decoder = new KvSourceDecoder((KvSourceInfo) sourceInfo);
+        } else if (sourceInfo instanceof JsonSourceInfo) {
+            this.decoder = new JsonSourceDecoder((JsonSourceInfo) sourceInfo);
         }
     }
 
@@ -122,24 +127,35 @@ public class TransformProcessor {
         this.where = OperatorTools.buildOperator(this.transformSelect.getWhere());
         List<SelectItem> items = this.transformSelect.getSelectItems();
         this.selectItemMap = new HashMap<>(items.size());
-        for (SelectItem item : items) {
+        List<FieldInfo> fields = this.encoder.getFields();
+        for (int i = 0; i < items.size(); i++) {
+            SelectItem item = items.get(i);
+            String fieldName = null;
+            if (i < fields.size()) {
+                fieldName = fields.get(i).getName();
+            }
             if (item instanceof SelectExpressionItem) {
                 SelectExpressionItem exprItem = (SelectExpressionItem) item;
-                if (exprItem.getAlias() == null) {
-                    this.selectItemMap.put(exprItem.toString(),
-                            OperatorTools.buildParser(exprItem.getExpression()));
-                } else {
-                    this.selectItemMap.put(exprItem.getAlias().getName(),
-                            OperatorTools.buildParser(exprItem.getExpression()));
+                if (fieldName == null) {
+                    if (exprItem.getAlias() == null) {
+                        fieldName = exprItem.toString();
+                    } else {
+                        fieldName = exprItem.getAlias().getName();
+                    }
                 }
+                this.selectItemMap.put(fieldName,
+                        OperatorTools.buildParser(exprItem.getExpression()));
             }
         }
     }
 
     public List<String> transform(byte[] srcBytes, Map<String, Object> extParams) {
         SourceData sourceData = this.decoder.decode(srcBytes, extParams);
+        if (sourceData == null) {
+            return null;
+        }
         List<String> sinkDatas = new ArrayList<>(sourceData.getRowCount());
-        for (int i = 1; i <= sourceData.getRowCount(); i++) {
+        for (int i = 0; i < sourceData.getRowCount(); i++) {
             if (this.where != null && !this.where.check(sourceData, i)) {
                 continue;
             }

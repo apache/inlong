@@ -30,7 +30,7 @@ public class ColumnParser implements ValueParser {
     private String fieldName;
 
     public ColumnParser(Column expr) {
-        this.fieldName = expr.getColumnName();
+        this.fieldName = expr.toString();
     }
 
     /**

@@ -20,6 +20,7 @@ package org.apache.inlong.sdk.transform.process;
 import org.apache.inlong.sdk.transform.pojo.CsvSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.CsvSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.FieldInfo;
+import org.apache.inlong.sdk.transform.pojo.JsonSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.SinkInfo;
@@ -69,7 +70,7 @@ public class TestTransformProcessor {
     }
 
     @Test
-    public void testKvCsv() {
+    public void testKv2Csv() {
         try {
             List<FieldInfo> fields = new ArrayList<>();
             FieldInfo ftime = new FieldInfo();
@@ -92,6 +93,45 @@ public class TestTransformProcessor {
             TransformProcessor processor2 = new TransformProcessor(config);
             List<String> output2 = processor2.transform("ftime=2024-04-28 00:00:00&extinfo=ok", new HashMap<>());
             Assert.assertTrue(output2.size() == 0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testJson2Csv() {
+        try {
+            List<FieldInfo> fields = new ArrayList<>();
+            FieldInfo sid = new FieldInfo();
+            sid.setName("sid");
+            fields.add(sid);
+            FieldInfo packageID = new FieldInfo();
+            packageID.setName("packageID");
+            fields.add(packageID);
+            FieldInfo msgTime = new FieldInfo();
+            msgTime.setName("msgTime");
+            fields.add(msgTime);
+            FieldInfo msg = new FieldInfo();
+            msg.setName("msg");
+            fields.add(msg);
+            SourceInfo jsonSource = new JsonSourceInfo("UTF-8", "msgs");
+            SinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
+            String transformSql = "select $root.sid,$root.packageID,$child.msgTime,$child.msg from source";
+            TransformConfig config = new TransformConfig(jsonSource, csvSink, transformSql);
+            // case1
+            TransformProcessor processor = new TransformProcessor(config);
+            String srcString = "{\n"
+                    + "  \"sid\":\"value1\",\n"
+                    + "  \"packageID\":\"value2\",\n"
+                    + "  \"msgs\":[\n"
+                    + "  {\"msg\":\"value4\",\"msgTime\":1713243918000},\n"
+                    + "  {\"msg\":\"v4\",\"msgTime\":1713243918000}\n"
+                    + "  ]\n"
+                    + "}";
+            List<String> output = processor.transform(srcString, new HashMap<>());
+            Assert.assertTrue(output.size() == 2);
+            Assert.assertEquals(output.get(0), "value1|value2|1713243918000|value4");
+            Assert.assertEquals(output.get(1), "value1|value2|1713243918000|v4");
         } catch (Exception e) {
             e.printStackTrace();
         }
