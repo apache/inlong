@@ -71,18 +71,12 @@ public class AuditMsgConsumerServer implements InitializingBean {
     private ClickHouseService ckService;
     @Autowired
     private JdbcConfig jdbcConfig;
-
     private JdbcService jdbcService;
-
     private static final String DEFAULT_CONFIG_PROPERTIES = "application.properties";
-
     // interval time of getting mq config
     private static final int INTERVAL_MS = 5000;
-
     private final CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-
     private final Gson gson = new Gson();
-
     /**
      * Initializing bean
      */
@@ -110,7 +104,6 @@ public class AuditMsgConsumerServer implements InitializingBean {
         if (mqConsume == null) {
             LOG.error("Unknown MessageQueue {}", mqConfig.getMqType());
         }
-
         if (storeConfig.isElasticsearchStore()) {
             esService.startTimerRoutine();
         }
