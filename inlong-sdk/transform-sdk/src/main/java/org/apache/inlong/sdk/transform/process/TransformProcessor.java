@@ -140,7 +140,7 @@ public class TransformProcessor {
         SourceData sourceData = this.decoder.decode(srcBytes, extParams);
         List<String> sinkDatas = new ArrayList<>(sourceData.getRowCount());
         for (int i = 1; i <= sourceData.getRowCount(); i++) {
-            if (!this.where.check(sourceData, i)) {
+            if (this.where != null && !this.where.check(sourceData, i)) {
                 continue;
             }
             SinkData sinkData = new DefaultSinkData();
