@@ -60,12 +60,6 @@ public class SplitUtils {
         List<String[]> lines = new ArrayList<>();
         List<String> fields = new ArrayList<>();
 
-        // StringBuilder stringBuilder = STRING_BUILDER.get();
-        // if (stringBuilder == null) {
-        // stringBuilder = new StringBuilder();
-        // STRING_BUILDER.set(stringBuilder);
-        // }
-        // stringBuilder.delete(0, stringBuilder.length());
         int state = STATE_NORMAL;
 
         char[] srcValue = text.toCharArray();
@@ -166,27 +160,5 @@ public class SplitUtils {
             result[i] = lines.get(i);
         }
         return result;
-        // switch (state) {
-        // case STATE_NORMAL :
-        // fields.add(new String(fieldValue, 0, fieldIndex));
-        // fieldIndex = 0;
-        // lines.add(fields.toArray(new String[0]));
-        //
-        // String[][] result = new String[lines.size()][];
-        // for (int i = 0; i < lines.size(); i++) {
-        // result[i] = lines.get(i);
-        // }
-        // return result;
-        //
-        // case STATE_ESCAPING :
-        // throw new IllegalArgumentException(
-        // String.format("Not closed escaping. Text=[%s].", new Object[]{text}));
-        // case STATE_QUOTING :
-        // throw new IllegalArgumentException(String.format("Not closed quoting. Text=[%s].",
-        // new Object[]{text}));
-        // default :
-        // break;
-        // }
-        // throw new IllegalStateException(String.format("Text=[%s].", new Object[]{text}));
     }
 }
