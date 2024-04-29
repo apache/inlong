@@ -139,45 +139,6 @@ public class ShellExecutorImpl implements ShellExecutor {
         }
     }
 
-    public void syncScriptExec(String script, String[] envConfig) {
-        List<String> result = new ArrayList<String>();
-        try {
-            tracker.start();
-            Process ps = Runtime.getRuntime().exec("bash +x " + script, envConfig);
-            long pid = getPid(ps);
-            tracker.setProcessId(pid);
-            BufferedReader br = new BufferedReader(new InputStreamReader(ps.getInputStream()));
-            String line;
-            boolean hasException = false;
-            while ((line = br.readLine()) != null) {
-                if (HasException(line)) {
-                    hasException = true;
-                }
-                result.add(line);
-                tracker.setRunResult(arrayToString(result.toArray(), InlongConstants.NEW_LINE));
-                tracker.lineChange(line);
-            }
-            if (hasException) {
-                tracker.lineChange("Java exception exist in output");
-                tracker.fail(-1);
-                return;
-            }
-            ps.waitFor();
-            int exitValue = ps.exitValue();
-            if (exitValue != 0) {
-                tracker.fail(exitValue);
-                return;
-            }
-            tracker.success();
-        } catch (Exception e) {
-            e.printStackTrace();
-            result.add(e.getMessage());
-            tracker.setRunResult(arrayToString(result.toArray(), InlongConstants.NEW_LINE));
-            tracker.lineChange(e.getMessage());
-            tracker.fail(-1);
-        }
-    }
-
     public static class AsyncShellRunnable implements Runnable {
 
         private String shellPath;
