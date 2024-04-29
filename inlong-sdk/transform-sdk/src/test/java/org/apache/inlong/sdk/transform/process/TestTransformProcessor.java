@@ -26,7 +26,6 @@ import org.apache.inlong.sdk.transform.pojo.SinkInfo;
 import org.apache.inlong.sdk.transform.pojo.SourceInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
