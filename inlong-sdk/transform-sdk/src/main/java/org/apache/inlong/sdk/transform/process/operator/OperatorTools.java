@@ -23,6 +23,7 @@ import org.apache.inlong.sdk.transform.process.parser.StringParser;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.NotExpression;
 import net.sf.jsqlparser.expression.Parenthesis;
@@ -75,6 +76,8 @@ public class OperatorTools {
             return new StringParser((StringValue) expr);
         } else if (expr instanceof LongValue) {
             return new LongParser((LongValue) expr);
+        } else if (expr instanceof Function) {
+            return new ColumnParser((Function) expr);
         }
         return null;
     }

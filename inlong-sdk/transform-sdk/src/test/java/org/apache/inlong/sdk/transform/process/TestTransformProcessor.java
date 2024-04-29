@@ -138,6 +138,45 @@ public class TestTransformProcessor {
     }
 
     @Test
+    public void testJson2CsvForOne() {
+        try {
+            List<FieldInfo> fields = new ArrayList<>();
+            FieldInfo sid = new FieldInfo();
+            sid.setName("sid");
+            fields.add(sid);
+            FieldInfo packageID = new FieldInfo();
+            packageID.setName("packageID");
+            fields.add(packageID);
+            FieldInfo msgTime = new FieldInfo();
+            msgTime.setName("msgTime");
+            fields.add(msgTime);
+            FieldInfo msg = new FieldInfo();
+            msg.setName("msg");
+            fields.add(msg);
+            SourceInfo jsonSource = new JsonSourceInfo("UTF-8", "");
+            SinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
+            String transformSql =
+                    "select $root.sid,$root.packageID,$root.msgs(1).msgTime,$root.msgs(0).msg from source";
+            TransformConfig config = new TransformConfig(jsonSource, csvSink, transformSql);
+            // case1
+            TransformProcessor processor = new TransformProcessor(config);
+            String srcString = "{\n"
+                    + "  \"sid\":\"value1\",\n"
+                    + "  \"packageID\":\"value2\",\n"
+                    + "  \"msgs\":[\n"
+                    + "  {\"msg\":\"value4\",\"msgTime\":1713243918000},\n"
+                    + "  {\"msg\":\"v4\",\"msgTime\":1713243918000}\n"
+                    + "  ]\n"
+                    + "}";
+            List<String> output = processor.transform(srcString, new HashMap<>());
+            Assert.assertTrue(output.size() == 1);
+            Assert.assertEquals(output.get(0), "value1|value2|1713243918000|value4");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void testKvCsvByJsonConfig() {
         try {
             String configString1 = "{\"sourceInfo\":{\"type\":\"kv\",\"charset\":\"UTF-8\","
