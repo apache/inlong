@@ -35,7 +35,7 @@ ENV TUBE_AUDIT_TOPIC="inlong-audit"
 ENV AUDIT_DBNAME="apache_inlong_audit"
 # proxy/store/all, start audit module individually, or all
 ENV START_MODE="all"
-# mysql / clickhouse / elasticsearch
+# mysql / clickhouse / elasticsearch / starrocks
 ENV STORE_MODE=mysql
 # mysql
 ENV JDBC_URL=127.0.0.1:3306
@@ -52,6 +52,11 @@ ENV STORE_ES_PORT=9200
 ENV STORE_ES_AUTHENABLE=false
 ENV STORE_ES_USERNAME=elastic
 ENV STORE_ES_PASSWD=inlong
+# starrocks
+ENV STORE_SR_URL=127.0.0.1:9030
+ENV STORE_SR_USERNAME=default
+ENV STORE_SR_PASSWD=default
+ENV STORE_SR_DBNAME="apache_inlong_audit"
 # jvm
 ENV AUDIT_JVM_HEAP_OPTS="-XX:+UseContainerSupport -XX:InitialRAMPercentage=40.0 -XX:MaxRAMPercentage=80.0 -XX:-UseAdaptiveSizePolicy"
 WORKDIR /opt/inlong-audit

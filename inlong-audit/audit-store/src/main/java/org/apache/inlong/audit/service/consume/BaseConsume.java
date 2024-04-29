@@ -23,6 +23,8 @@ import org.apache.inlong.audit.protocol.AuditData;
 import org.apache.inlong.audit.service.InsertData;
 
 import com.google.gson.Gson;
+import org.apache.pulsar.client.api.Consumer;
+import org.apache.pulsar.client.api.MessageId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,5 +64,14 @@ public abstract class BaseConsume {
             }
         });
     }
-
+    protected void handleMessage(String body, Consumer<byte[]> consumer, MessageId messageId) {
+        AuditData msgBody = gson.fromJson(body, AuditData.class);
+        this.insertServiceList.forEach((service) -> {
+            try {
+                service.insert(msgBody, consumer, messageId);
+            } catch (Exception e) {
+                LOG.error("Handle message has exception!", e);
+            }
+        });
+    }
 }

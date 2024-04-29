@@ -20,6 +20,8 @@ package org.apache.inlong.audit.service;
 import org.apache.inlong.audit.db.dao.AuditDataDao;
 import org.apache.inlong.audit.db.entities.AuditDataPo;
 import org.apache.inlong.audit.protocol.AuditData;
+import org.apache.pulsar.client.api.Consumer;
+import org.apache.pulsar.client.api.MessageId;
 
 import java.util.Date;
 
@@ -52,6 +54,11 @@ public class MySqlService implements InsertData {
         po.setInlongStreamId(msgBody.getInlongStreamId());
         po.setSize(msgBody.getSize());
         dao.insert(po);
+    }
+
+    @Override
+    public void insert(AuditData msgBody, Consumer<byte[]> consumer, MessageId messageId) {
+
     }
 
 }

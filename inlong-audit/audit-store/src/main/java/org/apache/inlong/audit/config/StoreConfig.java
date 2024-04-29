@@ -42,4 +42,7 @@ public class StoreConfig {
         return store.contains("clickhouse");
     }
 
+    public boolean isJdbc() {
+        return store.contains("jdbc");
+    }
 }
