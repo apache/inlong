@@ -149,9 +149,9 @@ public abstract class BaseSource
         this.strPort = String.valueOf(this.srcPort);
         // get source logic type
         String tmpVal = context.getString(
-                SourceConstants.SRCCXT_LOGIC_TYPE_NAME, ReportResourceType.INLONG);
+                SourceConstants.SRCCXT_LOGIC_EXECUTE_TYPE, ReportResourceType.INLONG);
         Preconditions.checkArgument(StringUtils.isNotBlank(tmpVal),
-                SourceConstants.SRCCXT_LOGIC_TYPE_NAME + " config is blank");
+                SourceConstants.SRCCXT_LOGIC_EXECUTE_TYPE + " config is blank");
         this.rptSrcType = tmpVal.trim().toUpperCase();
         // get message factory
         tmpVal = context.getString(SourceConstants.SRCCXT_MSG_FACTORY_NAME,
@@ -276,7 +276,12 @@ public abstract class BaseSource
         }
         startSource();
         // register
+        ConfigManager.getInstance().addSourceReportInfo(srcHost,
+                String.valueOf(srcPort), rptSrcType, getProtocolName().toUpperCase());
         AdminServiceRegister.register(ProxyServiceMBean.MBEAN_TYPE, this.cachedSrcName, this);
+        logger.info("Source {} started at ({}:{}), {}={}, Protocal={}", this.getCachedSrcName(),
+                srcHost, srcPort, SourceConstants.SRCCXT_LOGIC_EXECUTE_TYPE, rptSrcType,
+                getProtocolName().toUpperCase());
     }
 
     @Override

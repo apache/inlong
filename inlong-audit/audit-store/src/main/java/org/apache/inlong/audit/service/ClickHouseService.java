@@ -21,6 +21,8 @@ import org.apache.inlong.audit.config.ClickHouseConfig;
 import org.apache.inlong.audit.db.entities.ClickHouseDataPo;
 import org.apache.inlong.audit.protocol.AuditData;
 
+import org.apache.pulsar.client.api.Consumer;
+import org.apache.pulsar.client.api.MessageId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -195,6 +197,11 @@ public class ClickHouseService implements InsertData, AutoCloseable {
             LOG.error(e.getMessage(), e);
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void insert(AuditData msgBody, Consumer<byte[]> consumer, MessageId messageId) {
+
     }
 
     /**

@@ -23,8 +23,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 
@@ -36,7 +36,7 @@ public class SourceReportConfigHolder {
     public static final Logger LOG =
             LoggerFactory.getLogger(SourceReportConfigHolder.class);
 
-    private final Map<String, AddressInfo> srcAddressMap = new HashMap<>();
+    private final Map<String, AddressInfo> srcAddressMap = new ConcurrentHashMap<>();
 
     public SourceReportConfigHolder() {
 
@@ -53,7 +53,8 @@ public class SourceReportConfigHolder {
             return;
         }
         String recordKey = sourceIp + "#" + sourcePort + "#" + protocolType;
-        srcAddressMap.put(recordKey, new AddressInfo(sourceIp, sourcePort, rptSrcType, protocolType));
+        this.srcAddressMap.put(recordKey,
+                new AddressInfo(sourceIp, sourcePort, rptSrcType, protocolType));
     }
 
     public Map<String, AddressInfo> getSrcAddressInfos() {

@@ -33,6 +33,7 @@
         <module>sdk-common</module>
         <module>sort-sdk</module>
         <module>dataproxy-sdk</module>
+        <module>transform-sdk</module>
     </modules>
 
     <properties>

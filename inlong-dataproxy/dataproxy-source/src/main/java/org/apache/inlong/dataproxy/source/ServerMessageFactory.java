@@ -78,7 +78,7 @@ public class ServerMessageFactory extends ChannelInitializer<SocketChannel> {
                 ChannelInboundHandlerAdapter messageHandler =
                         (ChannelInboundHandlerAdapter) ctor.newInstance(source);
                 ch.pipeline().addLast("messageHandler", messageHandler);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LOG.error("{} newInstance {} failure!", source.getCachedSrcName(),
                         source.getMessageHandlerName(), e);
             }

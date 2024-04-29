@@ -105,15 +105,11 @@ public class SimpleTcpSource extends BaseSource implements Configurable {
             } else {
                 channelFuture = bootstrap.bind(new InetSocketAddress(srcHost, srcPort)).sync();
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             logger.error("Source {} bind ({}:{}) error, program will exit! e = {}",
                     this.getCachedSrcName(), srcHost, srcPort, e);
             System.exit(-1);
         }
-        ConfigManager.getInstance().addSourceReportInfo(srcHost,
-                String.valueOf(srcPort), rptSrcType, getProtocolName().toUpperCase());
-        logger.info("Source {} started at ({}:{}), rptSrcType={}!",
-                this.getCachedSrcName(), srcHost, srcPort, rptSrcType);
     }
 
     @Override
