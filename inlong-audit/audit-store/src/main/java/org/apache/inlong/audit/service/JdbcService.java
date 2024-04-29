@@ -20,6 +20,7 @@ package org.apache.inlong.audit.service;
 import org.apache.inlong.audit.config.JdbcConfig;
 import org.apache.inlong.audit.db.entities.JdbcDataPo;
 import org.apache.inlong.audit.protocol.AuditData;
+
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.MessageId;
 import org.slf4j.Logger;
