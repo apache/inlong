@@ -24,6 +24,7 @@ import org.apache.inlong.common.msg.MsgType;
 import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.StatConstants;
+import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.source.BaseSource;
 
 import io.netty.buffer.ByteBuf;
@@ -157,6 +158,8 @@ public class CodecBinMsg extends AbsV0MsgCodec {
                     .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(msgRcvTime);
             attrMap.put(AttributeConstants.MSG_RPT_TIME, String.valueOf(msgRcvTime));
         }
+        // get audit version
+        this.auditVersion = AuditUtils.getAuditVersion(this.attrMap);
         // get trace requirement
         if (this.needTraceMsg) {
             if (strBuff.length() > 0) {
