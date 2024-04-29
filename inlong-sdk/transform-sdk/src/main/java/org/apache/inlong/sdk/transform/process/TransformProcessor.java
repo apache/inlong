@@ -37,6 +37,9 @@ import org.apache.inlong.sdk.transform.process.operator.ExpressionOperator;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -69,7 +72,19 @@ public class TransformProcessor {
     private ExpressionOperator where;
     private Map<String, ValueParser> selectItemMap;
 
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    public TransformProcessor(String configString)
+            throws JsonMappingException, JsonProcessingException, JSQLParserException {
+        TransformConfig config = this.objectMapper.readValue(configString, TransformConfig.class);
+        this.init(config);
+    }
+
     public TransformProcessor(TransformConfig config) throws JSQLParserException {
+        this.init(config);
+    }
+
+    private void init(TransformConfig config) throws JSQLParserException {
         this.config = config;
         if (!StringUtils.isBlank(config.getSourceInfo().getCharset())) {
             this.srcCharset = Charset.forName(config.getSourceInfo().getCharset());

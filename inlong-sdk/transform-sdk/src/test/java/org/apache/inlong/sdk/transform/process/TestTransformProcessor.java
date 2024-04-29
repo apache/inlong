@@ -26,6 +26,7 @@ import org.apache.inlong.sdk.transform.pojo.SinkInfo;
 import org.apache.inlong.sdk.transform.pojo.SourceInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -90,6 +91,35 @@ public class TestTransformProcessor {
             // case2
             config.setTransformSql("select ftime,extinfo from source where extinfo!='ok'");
             TransformProcessor processor2 = new TransformProcessor(config);
+            List<String> output2 = processor2.transform("ftime=2024-04-28 00:00:00&extinfo=ok", new HashMap<>());
+            Assert.assertTrue(output2.size() == 0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testKvCsvByJsonConfig() {
+        try {
+            String configString1 = "{\"sourceInfo\":{\"type\":\"kv\",\"charset\":\"UTF-8\","
+                    + "\"fields\":[{\"name\":\"ftime\"},{\"name\":\"extinfo\"}]},"
+                    + "\"sinkInfo\":{\"type\":\"csv\",\"charset\":\"UTF-8\",\"delimiter\":\"|\","
+                    + "\"escapeChar\":\"\\\\\","
+                    + "\"fields\":[{\"name\":\"ftime\"},{\"name\":\"extinfo\"}]},"
+                    + "\"transformSql\":\"select ftime,extinfo from source where extinfo='ok'\"}";
+            // case1
+            TransformProcessor processor1 = new TransformProcessor(configString1);
+            List<String> output1 = processor1.transform("ftime=2024-04-28 00:00:00&extinfo=ok", new HashMap<>());
+            Assert.assertTrue(output1.size() == 1);
+            Assert.assertEquals(output1.get(0), "2024-04-28 00:00:00|ok");
+            // case2
+            String configString2 = "{\"sourceInfo\":{\"type\":\"kv\",\"charset\":\"UTF-8\","
+                    + "\"fields\":[{\"name\":\"ftime\"},{\"name\":\"extinfo\"}]},"
+                    + "\"sinkInfo\":{\"type\":\"csv\",\"charset\":\"UTF-8\",\"delimiter\":\"|\","
+                    + "\"escapeChar\":\"\\\\\","
+                    + "\"fields\":[{\"name\":\"ftime\"},{\"name\":\"extinfo\"}]},"
+                    + "\"transformSql\":\"select ftime,extinfo from source where extinfo!='ok'\"}";
+            TransformProcessor processor2 = new TransformProcessor(configString2);
             List<String> output2 = processor2.transform("ftime=2024-04-28 00:00:00&extinfo=ok", new HashMap<>());
             Assert.assertTrue(output2.size() == 0);
         } catch (Exception e) {
