@@ -59,9 +59,6 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_CYCLE_UNIT = "task.cycleUnit";
     public static final String FILE_TASK_CYCLE_UNIT = "task.fileTask.cycleUnit";
     public static final String TASK_FILE_CONTENT_COLLECT_TYPE = "task.fileTask.contentCollectType";
-    public static final String TASK_FILE_META_ENV_LIST = "task.fileTask.envList";
-    public static final String TASK_FILE_META_FILTER_BY_LABELS = "task.fileTask.filterMetaByLabels";
-    public static final String TASK_FILE_PROPERTIES = "task.fileTask.properties";
     public static final String SOURCE_DATA_CONTENT_STYLE = "task.fileTask.dataContentStyle";
     public static final String SOURCE_DATA_SEPARATOR = "task.fileTask.dataSeparator";
     public static final String TASK_RETRY = "task.fileTask.retry";
@@ -72,24 +69,6 @@ public class TaskConstants extends CommonConstants {
     public static final String FILE_SOURCE_EXTEND_CLASS = "task.fileTask.extendedClass";
     public static final String DEFAULT_FILE_SOURCE_EXTEND_CLASS =
             "org.apache.inlong.agent.plugin.sources.file.extend.ExtendedHandler";
-
-    // Binlog task
-    public static final String TASK_DATABASE_USER = "task.binlogTask.user";
-    public static final String TASK_DATABASE_PASSWORD = "task.binlogTask.password";
-    public static final String TASK_DATABASE_HOSTNAME = "task.binlogTask.hostname";
-    public static final String TASK_TABLE_WHITELIST = "task.binlogTask.tableWhiteList";
-    public static final String TASK_DATABASE_WHITELIST = "task.binlogTask.databaseWhiteList";
-    public static final String TASK_DATABASE_OFFSETS = "task.binlogTask.offsets";
-    public static final String TASK_DATABASE_OFFSET_FILENAME = "task.binlogTask.offset.filename";
-
-    public static final String TASK_DATABASE_SERVER_TIME_ZONE = "task.binlogTask.serverTimezone";
-    public static final String TASK_DATABASE_STORE_OFFSET_INTERVAL_MS = "task.binlogTask.offset.intervalMs";
-
-    public static final String TASK_DATABASE_STORE_HISTORY_FILENAME = "task.binlogTask.history.filename";
-    public static final String TASK_DATABASE_INCLUDE_SCHEMA_CHANGES = "task.binlogTask.schema";
-    public static final String TASK_DATABASE_SNAPSHOT_MODE = "task.binlogTask.snapshot.mode";
-    public static final String TASK_DATABASE_HISTORY_MONITOR_DDL = "task.binlogTask.ddl";
-    public static final String TASK_DATABASE_PORT = "task.binlogTask.port";
 
     // Kafka task
     public static final String TASK_KAFKA_TOPIC = "task.kafkaTask.topic";

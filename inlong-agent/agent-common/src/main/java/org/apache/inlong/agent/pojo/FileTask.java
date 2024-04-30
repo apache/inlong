@@ -19,7 +19,6 @@ package org.apache.inlong.agent.pojo;
 
 import lombok.Data;
 
-import java.util.List;
 import java.util.Map;
 
 @Data
@@ -43,17 +42,9 @@ public class FileTask {
     // FULL
     private String contentCollectType;
 
-    private String envList;
-
-    // JSON string, the content format is List<Map<String, String>>
-    private String metaFields;
-
     private String dataContentStyle;
 
     private String dataSeparator;
-
-    // JSON string, the content format is Map<String,string>
-    private String filterMetaByLabels;
 
     // JSON string, the content format is Map<String,Object>
     private String properties;
@@ -122,11 +113,6 @@ public class FileTask {
         // Type of file content, for example: FULL, INCREMENT
         private String contentCollectType;
 
-        // File needs to collect environment information, for example: kubernetes
-        private String envList;
-        // Metadata of data, for example:
-        // [{data:field1,field2},{kubernetes:namespace,labels,name,uuid}] and so on
-        private List<Map<String, String>> metaFields;
         // Type of data result for column separator
         // CSV format, set this parameter to a custom separator: , | :
         // Json format, set this parameter to json
@@ -134,9 +120,6 @@ public class FileTask {
 
         // Column separator of data source
         private String dataSeparator;
-
-        // Metadata filters by label, special parameters for K8S
-        private Map<String, String> filterMetaByLabels;
 
         // Properties for file
         private Map<String, Object> properties;

@@ -18,30 +18,22 @@
 package org.apache.inlong.agent.plugin.utils;
 
 import org.apache.inlong.agent.conf.TaskProfile;
-import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.plugin.task.PathPattern;
 import org.apache.inlong.agent.utils.AgentUtils;
 
-import io.fabric8.kubernetes.client.Config;
-import io.fabric8.kubernetes.client.ConfigBuilder;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pulsar.client.api.CompressionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -51,9 +43,6 @@ import static org.apache.inlong.agent.constant.CommonConstants.AGENT_NIX_OS;
 import static org.apache.inlong.agent.constant.CommonConstants.AGENT_NUX_OS;
 import static org.apache.inlong.agent.constant.CommonConstants.AGENT_OS_NAME;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FILE_MAX_NUM;
-import static org.apache.inlong.agent.constant.KubernetesConstants.HTTPS;
-import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES_SERVICE_HOST;
-import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES_SERVICE_PORT;
 import static org.apache.inlong.agent.constant.TaskConstants.FILE_DIR_FILTER_PATTERNS;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_FILE_TIME_OFFSET;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_RETRY_TIME;
@@ -156,22 +145,4 @@ public class PluginUtils {
             }
         }
     }
-
-    // TODO only support default config in the POD
-    public static KubernetesClient getKubernetesClient() throws IOException {
-        String ip = System.getenv(KUBERNETES_SERVICE_HOST);
-        String port = System.getenv(KUBERNETES_SERVICE_PORT);
-        if (Objects.isNull(ip) && Objects.isNull(port)) {
-            throw new RuntimeException("get k8s client error,k8s env ip and port is null");
-        }
-        String maserUrl = HTTPS.concat(ip).concat(CommonConstants.AGENT_COLON).concat(port);
-        Config config = new ConfigBuilder()
-                .withMasterUrl(maserUrl)
-                .withCaCertFile(Config.KUBERNETES_SERVICE_ACCOUNT_CA_CRT_PATH)
-                .withOauthToken(new String(
-                        Files.readAllBytes((new File(Config.KUBERNETES_SERVICE_ACCOUNT_TOKEN_PATH)).toPath())))
-                .build();
-        return new KubernetesClientBuilder().withConfig(config).build();
-    }
-
 }

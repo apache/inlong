@@ -172,18 +172,6 @@ public class TaskProfileDto {
             fileTask.setLine(line);
         }
 
-        if (null != taskConfig.getEnvList()) {
-            fileTask.setEnvList(taskConfig.getEnvList());
-        }
-
-        if (null != taskConfig.getMetaFields()) {
-            fileTask.setMetaFields(GSON.toJson(taskConfig.getMetaFields()));
-        }
-
-        if (null != taskConfig.getFilterMetaByLabels()) {
-            fileTask.setFilterMetaByLabels(GSON.toJson(taskConfig.getFilterMetaByLabels()));
-        }
-
         if (null != taskConfig.getMonitorInterval()) {
             fileTask.setMonitorInterval(taskConfig.getMonitorInterval());
         }
