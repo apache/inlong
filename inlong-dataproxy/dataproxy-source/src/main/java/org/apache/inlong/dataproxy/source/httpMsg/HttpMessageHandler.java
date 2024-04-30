@@ -26,6 +26,7 @@ import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.consts.HttpAttrConst;
 import org.apache.inlong.dataproxy.consts.StatConstants;
+import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.source.BaseSource;
 import org.apache.inlong.dataproxy.utils.AddressUtils;
 import org.apache.inlong.sdk.commons.protocol.EventConstants;
@@ -335,6 +336,8 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
         // get message count
         int intMsgCnt = NumberUtils.toInt(reqAttrs.get(HttpAttrConst.KEY_MESSAGE_COUNT), 1);
         String strMsgCount = String.valueOf(intMsgCnt);
+        // get audit version
+        long auditVersion = AuditUtils.getAuditVersion(reqAttrs);
         // build message attributes
         InLongMsg inLongMsg = InLongMsg.newInLongMsg(source.isCompressed());
         strBuff.append("groupId=").append(groupId)
@@ -345,6 +348,10 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
                 .append("&rt=").append(msgRcvTime)
                 .append(AttributeConstants.SEPARATOR).append(AttributeConstants.MSG_RPT_TIME)
                 .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(msgRcvTime);
+        if (auditVersion != -1L) {
+            strBuff.append(AttributeConstants.SEPARATOR).append(AttributeConstants.AUDIT_VERSION)
+                    .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(auditVersion);
+        }
         inLongMsg.addMsg(strBuff.toString(), body.getBytes(HttpAttrConst.VAL_DEF_CHARSET));
         byte[] inlongMsgData = inLongMsg.buildArray();
         long pkgTime = inLongMsg.getCreatetime();
@@ -365,6 +372,7 @@ public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequ
                 MessageWrapType.INLONG_MSG_V0.getStrId());
         eventHeaders.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
         eventHeaders.put(ConfigConstants.PKG_TIME_KEY, String.valueOf(pkgTime));
+        eventHeaders.put(AttributeConstants.AUDIT_VERSION, String.valueOf(auditVersion));
         Event event = EventBuilder.withBody(inlongMsgData, eventHeaders);
         try {
             source.getCachedChProcessor().processEvent(event);

@@ -23,6 +23,7 @@ import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.msg.MsgType;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.StatConstants;
+import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.source.BaseSource;
 
 import io.netty.buffer.ByteBuf;
@@ -188,6 +189,8 @@ public class CodecTextMsg extends AbsV0MsgCodec {
                 attrMap.put(AttributeConstants.DATA_TIME, String.valueOf(this.dataTimeMs));
             }
         }
+        // get audit version
+        this.auditVersion = AuditUtils.getAuditVersion(this.attrMap);
         // process sequence id
         String sequenceId = attrMap.get(AttributeConstants.SEQUENCE_ID);
         if (StringUtils.isNotBlank(sequenceId)) {
