@@ -42,7 +42,7 @@ public class OffsetProfile extends AbstractConfiguration {
     public OffsetProfile() {
     }
 
-    public OffsetProfile(String taskId, String instanceId, long offset, String inodeInfo) {
+    public OffsetProfile(String taskId, String instanceId, String offset, String inodeInfo) {
         setTaskId(taskId);
         setInstanceId(instanceId);
         setOffset(offset);
@@ -77,12 +77,12 @@ public class OffsetProfile extends AbstractConfiguration {
         setLong(TaskConstants.LAST_UPDATE_TIME, lastUpdateTime);
     }
 
-    public Long getOffset() {
-        return getLong(TaskConstants.OFFSET, TaskConstants.DEFAULT_OFFSET);
+    public String getOffset() {
+        return get(TaskConstants.OFFSET, TaskConstants.DEFAULT_OFFSET);
     }
 
-    public void setOffset(Long offset) {
-        setLong(TaskConstants.OFFSET, offset);
+    public void setOffset(String offset) {
+        set(TaskConstants.OFFSET, offset);
     }
 
     public String getInodeInfo() {

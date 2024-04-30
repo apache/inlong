@@ -92,7 +92,7 @@ public class TestLogFileSource {
             if (offset > 0) {
                 OffsetProfile offsetProfile = new OffsetProfile(instanceProfile.getTaskId(),
                         instanceProfile.getInstanceId(),
-                        offset, instanceProfile.get(INODE_INFO));
+                        Long.toString(offset), instanceProfile.get(INODE_INFO));
                 OffsetManager.getInstance().setOffset(offsetProfile);
             }
             source.init(instanceProfile);
