@@ -68,6 +68,7 @@ public abstract class AbsV0MsgCodec {
     protected String msgProcType = "b2b";
     protected boolean needResp = true;
     protected long msgPkgTime;
+    protected long auditVersion = -1L;
 
     public AbsV0MsgCodec(int totalDataLen, int msgTypeValue,
             long msgRcvTime, String strRemoteIP) {
@@ -246,6 +247,7 @@ public abstract class AbsV0MsgCodec {
         headers.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
         headers.put(AttributeConstants.UNIQ_ID, String.valueOf(uniq));
         headers.put(ConfigConstants.PKG_TIME_KEY, String.valueOf(msgPkgTime));
+        headers.put(AttributeConstants.AUDIT_VERSION, String.valueOf(auditVersion));
         // add extra key-value information
         if (!needResp) {
             headers.put(AttributeConstants.MESSAGE_IS_ACK, "false");

@@ -40,6 +40,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Map;
+
 /**
  * Kafka data node operator
  */
@@ -47,6 +49,9 @@ import org.springframework.web.client.RestTemplate;
 public class KafkaDataNodeOperator extends AbstractDataNodeOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaDataNodeOperator.class);
+
+    private static final String bootstrapServers = "bootstrap.servers";
+    private static final String clientId = "client.id";
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -77,6 +82,15 @@ public class KafkaDataNodeOperator extends AbstractDataNodeOperator {
             CommonBeanUtils.copyProperties(dto, kafkaDataNodeInfo);
         }
         return kafkaDataNodeInfo;
+    }
+
+    @Override
+    public Map<String, String> parse2SinkParams(DataNodeInfo info) {
+        Map<String, String> params = super.parse2SinkParams(info);
+        KafkaDataNodeInfo kafkaDataNodeInfo = (KafkaDataNodeInfo) info;
+        params.put(bootstrapServers, kafkaDataNodeInfo.getBootstrapServers());
+        params.put(clientId, kafkaDataNodeInfo.getClientId());
+        return params;
     }
 
     @Override

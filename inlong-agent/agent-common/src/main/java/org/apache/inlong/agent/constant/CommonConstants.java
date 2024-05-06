@@ -17,28 +17,16 @@
 
 package org.apache.inlong.agent.constant;
 
-import org.apache.inlong.agent.utils.AgentUtils;
-
 /**
  * Common constants.
  */
 public class CommonConstants {
 
-    public static final String PROXY_NET_TAG = "proxy.net.tag";
-    public static final String DEFAULT_PROXY_NET_TAG = "";
-
     public static final String PROXY_INLONG_GROUP_ID = "proxy.inlongGroupId";
     public static final String DEFAULT_PROXY_INLONG_GROUP_ID = "default_inlong_group_id";
-    public static final String POSITION_SUFFIX = ".position";
 
     public static final String PROXY_INLONG_STREAM_ID = "proxy.inlongStreamId";
     public static final String DEFAULT_PROXY_INLONG_STREAM_ID = "default_inlong_stream_id";
-
-    public static final String PROXY_LOCAL_HOST = "proxy.localHost";
-    public static final String DEFAULT_PROXY_LOCALHOST = AgentUtils.getLocalIp();
-
-    public static final String PROXY_IS_LOCAL_VISIT = "proxy.isLocalVisit";
-    public static final boolean DEFAULT_PROXY_IS_LOCAL_VISIT = true;
 
     public static final String PROXY_TOTAL_ASYNC_PROXY_SIZE = "proxy.total.async.proxy.size";
     public static final int DEFAULT_PROXY_TOTAL_ASYNC_PROXY_SIZE = 200 * 1024 * 1024;
@@ -99,73 +87,15 @@ public class CommonConstants {
     public static final String PROXY_KEY_GROUP_ID = "inlongGroupId";
     public static final String PROXY_KEY_STREAM_ID = "inlongStreamId";
     public static final String PROXY_KEY_DATA = "dataKey";
-    public static final String PROXY_KEY_ID = "id";
-    public static final String PROXY_KEY_AGENT_IP = "agentip";
-    public static final String PROXY_OCEANUS_F = "f";
-    public static final String PROXY_OCEANUS_BL = "bl";
-
-    // config for pulsar
-    // pulsar host port like http://host1:port1
-    public static final String PULSAR_SERVERS = "pulsar.servers";
-    // pulsar topic name
-    public static final String PULSAR_TOPIC = "pulsar.topic";
-    // whether async sending data
-    public static final String PULSAR_PRODUCER_ASYNC = "pulsar.producer.async";
-    public static final boolean DEFAULT_PULSAR_PRODUCER_ASYNC = true;
-
-    public static final String PULSAR_PRODUCER_MAX_PENDING_COUNT = "pulsar.producer.maxPending.count";
-    public static final int DEFAULT_PULSAR_PRODUCER_MAX_PENDING_COUNT = 10000;
-
-    public static final String PULSAR_PRODUCER_THREAD_NUM = "pulsar.producer.thread.num";
-    public static final int DEFAULT_PULSAR_PRODUCER_THREAD_NUM = 1;
-
-    public static final String PULSAR_PRODUCER_ENABLE_BATCH = "pulsar.producer.enable.batch";
-    public static final boolean DEFAULT_PULSAR_PRODUCER_ENABLE_BATCH = true;
-
-    public static final String PULSAR_SINK_POLL_TIMEOUT = "pulsar.sink.poll.timeout";
-    // time in ms
-    public static final long DEFAULT_PULSAR_SINK_POLL_TIMEOUT = 1000;
-
-    public static final String PULSAR_SINK_CACHE_CAPACITY = "pulsar.sink.cache.capacity";
-    public static final int DEFAULT_PULSAR_SINK_CACHE_CAPACITY = 100000;
-
-    public static final String PULSAR_PRODUCER_COMPRESS_TYPE = "pulsar.producer.compress.type";
-    public static final String DEFAULT_PULSAR_PRODUCER_COMPRESS_TYPE = "snappy";
-
-    public static final String PULSAR_PRODUCER_BATCH_MAXSIZE = "pulsar.producer.batch.maxsize";
-    public static final int DEFAULT_PULSAR_PRODUCER_BATCH_MAXSIZE = 1024 * 1024;
-
-    public static final String PULSAR_PRODUCER_BATCH_MAXCOUNT = "pulsar.producer.batch.maxcount";
-    public static final int DEFAULT_PULSAR_PRODUCER_BATCH_MAXCOUNT = 1000;
-
-    public static final String PULSAR_PRODUCER_BLOCK_QUEUE = "pulsar.producer.block.queue";
-    public static final boolean DEFAULT_PULSAR_PRODUCER_BLOCK_QUEUE = true;
 
     public static final int DEFAULT_FILE_MAX_NUM = 4096;
-
-    public static final String FILE_MAX_NUM = "file.max.num";
-
-    public static final String TRIGGER_ID_PREFIX = "trigger_";
-
     public static final String TASK_ID_PREFIX = "task_";
-
     public static final String INSTANCE_ID_PREFIX = "ins_";
-
     public static final String OFFSET_ID_PREFIX = "offset_";
-
-    public static final String COMMAND_STORE_INSTANCE_NAME = "commandStore";
-
     public static final String AGENT_OS_NAME = "os.name";
     public static final String AGENT_NIX_OS = "nix";
     public static final String AGENT_NUX_OS = "nux";
     public static final String AGENT_COLON = ":";
-
     public static final Integer DEFAULT_MAP_CAPACITY = 16;
-
-    public static final String KEY_METRICS_INDEX = "metricsIndex";
-
     public static final String COMMA = ",";
-    public static final String DELIMITER_UNDERLINE = "_";
-    public static final String DELIMITER_HYPHEN = "-";
-
 }

@@ -26,10 +26,13 @@ import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.utils.Constants;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Event;
 
 import java.util.Map;
+
+import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
 
 /**
  * Audit utils
@@ -72,15 +75,17 @@ public class AuditUtils {
             if (event.getHeaders().containsKey(ConfigConstants.MSG_COUNTER_KEY)) {
                 msgCount = Long.parseLong(event.getHeaders().get(ConfigConstants.MSG_COUNTER_KEY));
             }
-            AuditOperator.getInstance().add(auditID, inlongGroupId,
-                    inlongStreamId, logTime, msgCount, event.getBody().length);
+            long auditVersion = getAuditVersion(headers);
+            AuditOperator.getInstance().add(auditID, DEFAULT_AUDIT_TAG,
+                    inlongGroupId, inlongStreamId, logTime, msgCount, event.getBody().length, auditVersion);
         } else {
             String groupId = headers.get(AttributeConstants.GROUP_ID);
             String streamId = headers.get(AttributeConstants.STREAM_ID);
             long dataTime = NumberUtils.toLong(headers.get(AttributeConstants.DATA_TIME));
             long msgCount = NumberUtils.toLong(headers.get(ConfigConstants.MSG_COUNTER_KEY));
-            AuditOperator.getInstance().add(auditID, groupId,
-                    streamId, dataTime, msgCount, event.getBody().length);
+            long auditVersion = getAuditVersion(headers);
+            AuditOperator.getInstance().add(auditID, DEFAULT_AUDIT_TAG,
+                    groupId, streamId, dataTime, msgCount, event.getBody().length, auditVersion);
         }
     }
 
@@ -117,6 +122,25 @@ public class AuditUtils {
      */
     public static long getAuditFormatTime(long msgTime) {
         return msgTime - msgTime % CommonConfigHolder.getInstance().getAuditFormatInvlMs();
+    }
+
+    /**
+     * Get Audit version
+     *
+     * @param headers  the message headers
+     *
+     * @return audit version
+     */
+    public static long getAuditVersion(Map<String, String> headers) {
+        String strAuditVersion = headers.get(AttributeConstants.AUDIT_VERSION);
+        if (StringUtils.isNotBlank(strAuditVersion)) {
+            try {
+                return Long.parseLong(strAuditVersion);
+            } catch (Throwable ex) {
+                //
+            }
+        }
+        return -1L;
     }
 
     /**

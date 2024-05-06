@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -30,6 +31,7 @@ import org.apache.inlong.manager.pojo.sink.kafka.KafkaSinkDTO;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSinkRequest;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Kafka sink operator
@@ -45,6 +48,8 @@ import java.util.List;
 public class KafkaSinkOperator extends AbstractSinkOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSinkOperator.class);
+
+    private static final String topic = "topic";
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -73,6 +78,23 @@ public class KafkaSinkOperator extends AbstractSinkOperator {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
                     String.format("serialize extParams of Kafka SinkDTO failure: %s", e.getMessage()));
         }
+    }
+
+    @Override
+    public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields,
+            DataNodeInfo dataNodeInfo) {
+
+        Map<String, String> params = super.parse2IdParams(streamSink, fields, dataNodeInfo);
+
+        KafkaSinkDTO kafkaSinkDTO;
+        try {
+            kafkaSinkDTO = objectMapper.readValue(streamSink.getExtParams(), KafkaSinkDTO.class);
+        } catch (JsonProcessingException e) {
+            LOGGER.error("parse kafka sink dto error", e);
+            return params;
+        }
+        params.put(topic, kafkaSinkDTO.getTopicName());
+        return params;
     }
 
     @Override
