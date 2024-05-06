@@ -35,7 +35,9 @@ public interface ProcessForm extends Form {
      * @return inlong group id.
      */
     @JsonIgnore
-    String getInlongGroupId();
+    default String getInlongGroupId() {
+        return null;
+    };
 
     /**
      * Get form title.

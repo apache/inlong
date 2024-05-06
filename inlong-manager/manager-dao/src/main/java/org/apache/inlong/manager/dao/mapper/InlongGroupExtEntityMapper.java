@@ -46,6 +46,8 @@ public interface InlongGroupExtEntityMapper {
             @Param("inlongGroupId") String inlongGroupId,
             @Param("keyName") String keyName);
 
+    List<String> selectGroupIdByKeyNameAndValue(@Param("keyName") String keyName, @Param("keyValue") String keyValue);
+
     @Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = Integer.MIN_VALUE)
     Cursor<InlongGroupExtEntity> selectByKeyName(@Param("keyName") String keyName);
 

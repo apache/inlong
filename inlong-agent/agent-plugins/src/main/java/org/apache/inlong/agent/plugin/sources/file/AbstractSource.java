@@ -77,7 +77,7 @@ public abstract class AbstractSource implements Source {
     protected class SourceData {
 
         private byte[] data;
-        private Long offset;
+        private String offset;
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSource.class);
@@ -323,7 +323,7 @@ public abstract class AbstractSource implements Source {
         String proxyPartitionKey = profile.get(PROXY_SEND_PARTITION_KEY, DigestUtils.md5Hex(inlongGroupId));
         Map<String, String> header = new HashMap<>();
         header.put(PROXY_KEY_DATA, proxyPartitionKey);
-        header.put(OFFSET, sourceData.getOffset().toString());
+        header.put(OFFSET, sourceData.getOffset());
         header.put(PROXY_KEY_STREAM_ID, inlongStreamId);
         if (extendedHandler != null) {
             extendedHandler.dealWithHeader(header, sourceData.getData());

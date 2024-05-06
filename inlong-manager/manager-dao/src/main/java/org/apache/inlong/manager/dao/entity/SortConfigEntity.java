@@ -15,13 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.sort.dataflow.deserialization;
+package org.apache.inlong.manager.dao.entity;
 
 import lombok.Data;
 
-@Data
-public class CsvDeserializationConfig implements DeserializationConfig {
+import java.io.Serializable;
+import java.util.Date;
 
-    private char delimiter;
-    private Character escapeChar;
+/**
+ * Sort config entity, including sink type, sink id, etc.
+ */
+@Data
+public class SortConfigEntity implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private Integer sinkId;
+    private String sinkType;
+    private String inlongClusterTag;
+    private String inlongClusterName;
+    private String sortTaskName;
+    private String dataNodeName;
+    private String configParams;
+    private Integer isDeleted;
+    private String creator;
+    private String modifier;
+    private Date createTime;
+    private Date modifyTime;
+    private Integer version;
+
 }

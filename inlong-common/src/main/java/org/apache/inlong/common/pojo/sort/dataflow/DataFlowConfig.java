@@ -19,12 +19,14 @@ package org.apache.inlong.common.pojo.sort.dataflow;
 
 import org.apache.inlong.common.pojo.sort.dataflow.sink.SinkConfig;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Map;
 
 @Data
+@Builder
 public class DataFlowConfig implements Serializable {
 
     private String dataflowId;

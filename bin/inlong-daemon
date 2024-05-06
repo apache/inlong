@@ -71,7 +71,7 @@ start_inlong_audit() {
   inlong_audit_count=$(mysql --protocol=tcp -h${spring_datasource_hostname} -P${spring_datasource_port} -u${spring_datasource_username} -p${spring_datasource_password} -e "${select_db_sql}")
   inlong_num=$(echo $inlong_audit_count | tr -cd "[0-9]")
   if [ $inlong_num -eq 0 ]; then
-    mysql --protocol=tcp -h${spring_datasource_hostname} -P${spring_datasource_port} -u${spring_datasource_username} -p${spring_datasource_password} <sql/apache_inlong_audit.sql
+    mysql --protocol=tcp -h${spring_datasource_hostname} -P${spring_datasource_port} -u${spring_datasource_username} -p${spring_datasource_password} <sql/apache_inlong_audit_mysql.sql
   fi
   echo "start audit proxy"
   if [ "${mq_type}" = "pulsar" ]; then

@@ -15,14 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.sort.dataflow.deserialization;
+package org.apache.inlong.common.pojo.sort.dataflow.dataType;
 
-import lombok.Data;
+import org.apache.inlong.common.constant.DeserializationType;
 
-@Data
-public class KvDeserializationConfig implements DeserializationConfig {
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-    private char entrySplitter;
-    private char kvSplitter;
-    private Character escapeChar;
+import java.io.Serializable;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = CsvConfig.class, name = DeserializationType.CSV),
+        @JsonSubTypes.Type(value = KvConfig.class, name = DeserializationType.KV),
+})
+public interface DataTypeConfig extends Serializable {
+
 }

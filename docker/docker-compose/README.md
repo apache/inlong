@@ -13,7 +13,7 @@ Manually copy SQL files from `inlong-manager/sql` and `inlong-audit/sql` to the 
 
 ```shell
 cp inlong-manager/manager-web/sql/apache_inlong_manager.sql docker/docker-compose/sql
-cp inlong-audit/sql/apache_inlong_audit.sql docker/docker-compose/sql
+cp inlong-audit/sql/apache_inlong_audit_mysql.sql docker/docker-compose/sql
 ```
 
 Then, start all components.

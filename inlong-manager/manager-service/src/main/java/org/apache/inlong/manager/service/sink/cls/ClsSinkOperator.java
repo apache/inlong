@@ -17,6 +17,10 @@
 
 package org.apache.inlong.manager.service.sink.cls;
 
+import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.field.format.FormatInfo;
+import org.apache.inlong.common.pojo.sort.dataflow.sink.ClsSinkConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.sink.SinkConfig;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
@@ -37,6 +41,7 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.cls.ClsSink;
 import org.apache.inlong.manager.pojo.sink.cls.ClsSinkDTO;
 import org.apache.inlong.manager.pojo.sink.cls.ClsSinkRequest;
+import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
 import org.apache.inlong.manager.pojo.stream.InlongStreamExtParam;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
 
@@ -48,6 +53,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Cloud log service sink operator
@@ -138,5 +144,21 @@ public class ClsSinkOperator extends AbstractSinkOperator {
         }
         params.computeIfAbsent(KEY_FIELDS, k -> fieldNames.toString());
         return params;
+    }
+
+    @Override
+    public SinkConfig getSinkConfig(StreamSink sink) {
+        ClsSinkConfig sinkConfig = CommonBeanUtils.copyProperties(sink, ClsSinkConfig::new);
+        List<FieldConfig> fields = sinkFieldMapper.selectBySinkId(sink.getId()).stream().map(
+                v -> {
+                    FieldConfig fieldConfig = new FieldConfig();
+                    FormatInfo formatInfo = FieldInfoUtils.convertFieldFormat(
+                            v.getFieldType().toLowerCase());
+                    fieldConfig.setName(v.getFieldName());
+                    fieldConfig.setFormatInfo(formatInfo);
+                    return fieldConfig;
+                }).collect(Collectors.toList());
+        sinkConfig.setFieldConfigs(fields);
+        return sinkConfig;
     }
 }

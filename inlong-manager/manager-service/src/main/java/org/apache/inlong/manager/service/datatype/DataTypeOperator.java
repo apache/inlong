@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.service.datatype;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage.FieldInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -42,6 +44,11 @@ public interface DataTypeOperator {
      */
     default List<FieldInfo> parseFields(String message, InlongStreamInfo streamInfo) throws Exception {
         return CommonBeanUtils.copyListProperties(streamInfo.getFieldList(), FieldInfo::new);
+    }
+
+    default DataTypeConfig getDataTypeConfig(InlongStreamInfo streamInfo) {
+        throw new BusinessException(
+                String.format("current type is not support for data type=%s", streamInfo.getDataType()));
     }
 
 }

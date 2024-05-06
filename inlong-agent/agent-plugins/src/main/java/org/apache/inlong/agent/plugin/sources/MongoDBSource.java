@@ -121,7 +121,7 @@ public class MongoDBSource extends AbstractSource {
             RecordCommitter<ChangeEvent<String, String>> committer) throws InterruptedException {
         boolean offerSuc = false;
         for (ChangeEvent<String, String> record : records) {
-            SourceData sourceData = new SourceData(record.value().getBytes(StandardCharsets.UTF_8), 0L);
+            SourceData sourceData = new SourceData(record.value().getBytes(StandardCharsets.UTF_8), "0L");
             while (isRunnable() && !offerSuc) {
                 offerSuc = debeziumQueue.offer(sourceData, 1, TimeUnit.SECONDS);
             }

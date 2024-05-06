@@ -53,6 +53,13 @@
         and key_name = #{keyName, jdbcType=VARCHAR}
         and is_deleted = 0
     </select>
+    <select id="selectGroupIdByKeyNameAndValue" resultType="java.lang.String">
+        select distinct inlong_group_id
+        from inlong_group_ext
+        where key_name = #{keyName, jdbcType=VARCHAR}
+          and key_value = #{keyValue, jdbcType=VARCHAR}
+          and is_deleted = 0
+    </select>
     <select id="selectByKeyName" resultType="org.apache.inlong.manager.dao.entity.InlongGroupExtEntity">
         select
         <include refid="Base_Column_List"/>

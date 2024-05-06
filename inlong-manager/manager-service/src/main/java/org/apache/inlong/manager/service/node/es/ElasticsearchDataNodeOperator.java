@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.node.es;
 
+import org.apache.inlong.common.pojo.sort.node.EsNodeConfig;
+import org.apache.inlong.common.pojo.sort.node.NodeConfig;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -117,6 +119,14 @@ public class ElasticsearchDataNodeOperator extends AbstractDataNodeOperator {
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
         }
+    }
+
+    @Override
+    public NodeConfig getNodeConfig(DataNodeEntity dataNodeEntity) {
+        DataNodeInfo dataNodeInfo = this.getFromEntity(dataNodeEntity);
+        EsNodeConfig esNodeConfig = CommonBeanUtils.copyProperties(dataNodeInfo, EsNodeConfig::new);
+        esNodeConfig.setNodeName(dataNodeInfo.getName());
+        return esNodeConfig;
     }
 
 }

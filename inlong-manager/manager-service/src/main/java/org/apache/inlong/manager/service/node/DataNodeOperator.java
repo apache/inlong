@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.node;
 
+import org.apache.inlong.common.pojo.sort.node.NodeConfig;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
@@ -56,6 +57,14 @@ public interface DataNodeOperator {
      * @return cluster info after encapsulating
      */
     DataNodeInfo getFromEntity(DataNodeEntity entity);
+
+    /**
+     * Get the data node config from the given entity.
+     *
+     * @param entity data node entity
+     * @return node config info
+     */
+    NodeConfig getNodeConfig(DataNodeEntity entity);
 
     /**
      * Update the data node info.

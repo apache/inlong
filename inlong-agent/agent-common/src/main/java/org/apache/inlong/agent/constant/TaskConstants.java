@@ -48,7 +48,7 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_MQ_CLUSTERS = "task.mqClusters";
     public static final String TASK_MQ_TOPIC = "task.topicInfo";
     public static final String OFFSET = "offset";
-    public static final Long DEFAULT_OFFSET = -1L;
+    public static final String DEFAULT_OFFSET = "-1L";
     public static final String INODE_INFO = "inodeInfo";
 
     // File task

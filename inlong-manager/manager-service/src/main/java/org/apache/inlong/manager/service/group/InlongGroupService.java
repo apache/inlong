@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.group;
 
 import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.group.GroupFullInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupCountResponse;
@@ -55,7 +56,7 @@ public interface InlongGroupService {
      * Save inlong group info.
      *
      * @param groupInfo group request need to save
-     * @param opInfo    userinfo of operator
+     * @param opInfo userinfo of operator
      * @return detail of inlong group
      */
     String save(@Valid @NotNull(message = "inlong group request cannot be null") InlongGroupRequest groupInfo,
@@ -133,7 +134,7 @@ public interface InlongGroupService {
      * Query inlong group brief info list
      *
      * @param request pagination query request
-     * @param opInfo  userinfo of operator
+     * @param opInfo userinfo of operator
      * @return group list
      */
     List<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request, UserInfo opInfo);
@@ -208,12 +209,14 @@ public interface InlongGroupService {
 
     /**
      * List topic infos
+     *
      * @return List of InlongGroupTopicInfo
      */
     List<InlongGroupTopicInfo> listTopics(InlongGroupTopicRequest clusterTag);
 
     /**
      * List group detail
+     *
      * @return List of inlong group detail, including cluster info and sort info
      */
     Map<String, Object> detail(String groupId);
@@ -221,5 +224,19 @@ public interface InlongGroupService {
     Boolean startTagSwitch(String groupId, String clusterTag);
 
     Boolean finishTagSwitch(String groupId);
+
+    /**
+     * List group detail by cluster tag
+     *
+     * @return List of inlong group detail, including cluster info and sort info
+     */
+    List<GroupFullInfo> getGroupByClusterTag(String clusterTag);
+
+    /**
+     * List group detail by back up cluster tag
+     *
+     * @return List of inlong group detail, including cluster info and sort info
+     */
+    List<GroupFullInfo> getGroupByBackUpClusterTag(String clusterTag);
 
 }

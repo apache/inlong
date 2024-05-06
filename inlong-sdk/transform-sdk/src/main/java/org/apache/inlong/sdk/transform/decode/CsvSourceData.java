@@ -51,10 +51,10 @@ public class CsvSourceData implements SourceData {
 
     @Override
     public String getField(int rowNum, String fieldName) {
-        if (rowNum > this.rows.size()) {
+        if (rowNum >= this.rows.size()) {
             return null;
         }
-        Map<String, String> targetRow = this.rows.get(rowNum - 1);
+        Map<String, String> targetRow = this.rows.get(rowNum);
         return targetRow.get(fieldName);
     }
 }

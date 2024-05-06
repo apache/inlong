@@ -24,7 +24,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class OffsetAckInfo {
 
-    private Long offset;
+    private String offset;
     private int len;
     private Boolean hasAck;
 }

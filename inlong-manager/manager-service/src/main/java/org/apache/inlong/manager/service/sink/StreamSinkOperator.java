@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import org.apache.inlong.common.pojo.sort.dataflow.sink.SinkConfig;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -117,4 +118,12 @@ public interface StreamSinkOperator {
      * @return
      */
     Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields, DataNodeInfo dataNodeInfo);
+
+    /**
+     * Get the sink config.
+     *
+     * @param sink sink info
+     * @return sink config
+     */
+    SinkConfig getSinkConfig(StreamSink sink);
 }

@@ -22,6 +22,5 @@ import lombok.Data;
 @Data
 public class InlongMsgPbDeserialiationConfig implements DeserializationConfig {
 
-    private final String compressionType;
-    private DeserializationConfig innerDeserializationConfig;
+    private String compressionType;
 }
