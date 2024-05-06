@@ -61,4 +61,12 @@ public class KvSinkEncoder implements SinkEncoder {
         }
         return builder.substring(0, builder.length() - 1);
     }
+
+    /**
+     * get fields
+     * @return the fields
+     */
+    public List<FieldInfo> getFields() {
+        return fields;
+    }
 }

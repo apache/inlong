@@ -17,44 +17,35 @@
 
 package org.apache.inlong.sdk.transform.decode;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import lombok.Data;
+import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
- * CsvSourceData
+ * JsonNode
  * 
  */
-public class CsvSourceData implements SourceData {
+@Data
+public class JsonNode {
 
-    private List<Map<String, String>> rows = new ArrayList<>();
+    private String name;
+    private boolean isArray = false;
+    private int arrayIndex = -1;
 
-    private Map<String, String> currentRow;
-
-    public CsvSourceData() {
-    }
-
-    public void putField(String fieldName, String fieldValue) {
-        this.currentRow.put(fieldName, fieldValue);
-    }
-
-    public void addRow() {
-        this.currentRow = new HashMap<>();
-        rows.add(currentRow);
-    }
-
-    @Override
-    public int getRowCount() {
-        return this.rows.size();
-    }
-
-    @Override
-    public String getField(int rowNum, String fieldName) {
-        if (rowNum >= this.rows.size()) {
-            return null;
+    public JsonNode(String nodeString) {
+        int beginIndex = nodeString.indexOf('[');
+        if (beginIndex < 0) {
+            this.name = nodeString;
+        } else {
+            this.name = StringUtils.trim(nodeString.substring(0, beginIndex));
+            int endIndex = nodeString.lastIndexOf(']');
+            if (endIndex >= 0) {
+                this.isArray = true;
+                this.arrayIndex = NumberUtils.toInt(nodeString.substring(beginIndex + 1, endIndex), -1);
+                if (this.arrayIndex < 0) {
+                    this.arrayIndex = 0;
+                }
+            }
         }
-        Map<String, String> targetRow = this.rows.get(rowNum);
-        return targetRow.get(fieldName);
     }
 }

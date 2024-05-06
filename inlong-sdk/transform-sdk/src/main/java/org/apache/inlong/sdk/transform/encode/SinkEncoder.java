@@ -17,10 +17,16 @@
 
 package org.apache.inlong.sdk.transform.encode;
 
+import org.apache.inlong.sdk.transform.pojo.FieldInfo;
+
+import java.util.List;
+
 /**
  * SinkEncoder
  */
 public interface SinkEncoder {
 
     String encode(SinkData sinkData);
+
+    List<FieldInfo> getFields();
 }
