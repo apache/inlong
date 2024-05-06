@@ -185,7 +185,7 @@
         <hamcrest.version>1.3</hamcrest.version>
         <jsr.version>3.0.2</jsr.version>
         <jcommander.version>1.78</jcommander.version>
-        <je.version>7.3.7</je.version>
+        <je.version>18.1.11</je.version>
         <tencentcloud.cls.version>1.0.9</tencentcloud.cls.version>
         <HikariCP.version>4.0.3</HikariCP.version>
         <caffeine.version>2.9.3</caffeine.version>
