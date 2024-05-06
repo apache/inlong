@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.node.pulsar;
 
+import org.apache.inlong.common.pojo.sort.node.NodeConfig;
+import org.apache.inlong.common.pojo.sort.node.PulsarNodeConfig;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -119,4 +121,13 @@ public class PulsarDataNodeOperator extends AbstractDataNodeOperator {
             throw new BusinessException(errMsg);
         }
     }
+
+    @Override
+    public NodeConfig getNodeConfig(DataNodeEntity dataNodeEntity) {
+        DataNodeInfo dataNodeInfo = this.getFromEntity(dataNodeEntity);
+        PulsarNodeConfig pulsarNodeConfig = CommonBeanUtils.copyProperties(dataNodeInfo, PulsarNodeConfig::new);
+        pulsarNodeConfig.setNodeName(dataNodeInfo.getName());
+        return pulsarNodeConfig;
+    }
+
 }

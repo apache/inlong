@@ -40,6 +40,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
+import org.apache.inlong.manager.service.cluster.InlongClusterProcessService;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 
@@ -73,6 +74,8 @@ public class InlongClusterController {
 
     @Autowired
     private InlongClusterService clusterService;
+    @Autowired
+    private InlongClusterProcessService clusterProcessService;
 
     @PostMapping(value = "/cluster/tag/save")
     @ApiOperation(value = "Save cluster tag")
@@ -299,4 +302,15 @@ public class InlongClusterController {
     public Response<Boolean> testConnection(@Validated @RequestBody ClusterRequest request) {
         return Response.success(clusterService.testConnection(request));
     }
+
+    @RequestMapping(value = "/cluster/startProcess/{clusterTag}", method = RequestMethod.POST)
+    @ApiOperation(value = "Start inlong cluster process")
+    @OperationLog(operation = OperationType.START, operationTarget = OperationTarget.CLUSTER)
+    @ApiImplicitParam(name = "clusterTag", value = "Inlong cluster tag", dataTypeClass = String.class)
+    public Response<Boolean> startProcess(@PathVariable String clusterTag,
+            @RequestParam(required = false, defaultValue = "false") boolean sync) {
+        String operator = LoginUserUtils.getLoginUser().getName();
+        return Response.success(clusterProcessService.startProcess(clusterTag, operator, sync));
+    }
+
 }

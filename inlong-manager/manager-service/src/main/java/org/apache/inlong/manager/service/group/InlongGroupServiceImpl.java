@@ -47,6 +47,7 @@ import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.group.GroupFullInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupCountResponse;
@@ -858,6 +859,56 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             return;
         }
         groupExtMapper.deleteByPrimaryKey(extInfo.getId());
+    }
+
+    @Override
+    public List<GroupFullInfo> getGroupByClusterTag(String clusterTag) {
+        List<InlongGroupEntity> groupEntities = groupMapper.selectByClusterTagWithoutTenant(clusterTag);
+        if (CollectionUtils.isEmpty(groupEntities)) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        List<GroupFullInfo> groupInfoList = new ArrayList<>();
+        for (InlongGroupEntity groupEntity : groupEntities) {
+            // query mq information
+            InlongGroupOperator instance = groupOperatorFactory.getInstance(groupEntity.getMqType());
+            InlongGroupInfo groupInfo = instance.getFromEntity(groupEntity);
+            List<InlongStreamInfo> streamInfos = streamService.list(groupInfo.getInlongGroupId());
+            GroupFullInfo groupFullInfo = new GroupFullInfo();
+            groupFullInfo.setGroupInfo(groupInfo);
+            groupFullInfo.setStreamInfoList(streamInfos);
+            groupInfoList.add(groupFullInfo);
+        }
+
+        return groupInfoList;
+    }
+
+    @Override
+    public List<GroupFullInfo> getGroupByBackUpClusterTag(String clusterTag) {
+        List<GroupFullInfo> groupInfoList = new ArrayList<>();
+        List<String> groupIdList = groupExtMapper.selectGroupIdByKeyNameAndValue(BACKUP_CLUSTER_TAG, clusterTag);
+        if (CollectionUtils.isEmpty(groupIdList)) {
+            return groupInfoList;
+        }
+        List<InlongGroupEntity> groupEntities = groupMapper.selectByInlongGroupIds(groupIdList);
+        if (CollectionUtils.isEmpty(groupEntities)) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        for (InlongGroupEntity groupEntity : groupEntities) {
+            // query mq information
+            InlongGroupOperator instance = groupOperatorFactory.getInstance(groupEntity.getMqType());
+            InlongGroupInfo groupInfo = instance.getFromEntity(groupEntity);
+            InlongGroupExtEntity backUpMqResource =
+                    groupExtMapper.selectByUniqueKey(groupEntity.getInlongGroupId(), BACKUP_MQ_RESOURCE);
+            if (backUpMqResource != null) {
+                groupInfo.setMqResource(backUpMqResource.getKeyValue());
+            }
+            List<InlongStreamInfo> streamInfoList = streamService.listBackUp(groupEntity.getInlongGroupId());
+            GroupFullInfo groupFullInfo = new GroupFullInfo();
+            groupFullInfo.setGroupInfo(groupInfo);
+            groupFullInfo.setStreamInfoList(streamInfoList);
+            groupInfoList.add(groupFullInfo);
+        }
+        return groupInfoList;
     }
 
 }

@@ -17,16 +17,20 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import org.apache.inlong.manager.dao.entity.ClusterConfigEntity;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
+import org.apache.inlong.manager.dao.entity.SortConfigEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.dao.mapper.ClusterConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamExtEntityMapper;
+import org.apache.inlong.manager.dao.mapper.SortConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.sort.standalone.SortFieldInfo;
@@ -64,6 +68,10 @@ public class SortConfigLoaderImpl implements SortConfigLoader {
     private InlongStreamEntityMapper inlongStreamEntityMapper;
     @Autowired
     private DataNodeEntityMapper dataNodeEntityMapper;
+    @Autowired
+    private SortConfigEntityMapper sortConfigEntityMapper;
+    @Autowired
+    private ClusterConfigEntityMapper clusterConfigEntityMapper;
 
     @Transactional
     @Override
@@ -153,5 +161,23 @@ public class SortConfigLoaderImpl implements SortConfigLoader {
         List<SortFieldInfo> allFields = new ArrayList<>();
         cursor.forEach(allFields::add);
         return allFields;
+    }
+
+    @Transactional
+    @Override
+    public List<SortConfigEntity> loadAllSortConfigEntity() {
+        Cursor<SortConfigEntity> cursor = sortConfigEntityMapper.selectAllSortConfigs();
+        List<SortConfigEntity> allSortConfigs = new ArrayList<>();
+        cursor.forEach(allSortConfigs::add);
+        return allSortConfigs;
+    }
+
+    @Transactional
+    @Override
+    public List<ClusterConfigEntity> loadAllClusterConfigEntity() {
+        Cursor<ClusterConfigEntity> cursor = clusterConfigEntityMapper.selectAllClusterConfigs();
+        List<ClusterConfigEntity> allClusterConfigs = new ArrayList<>();
+        cursor.forEach(allClusterConfigs::add);
+        return allClusterConfigs;
     }
 }

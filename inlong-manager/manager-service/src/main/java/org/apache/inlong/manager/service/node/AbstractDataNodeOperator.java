@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.node;
 
+import org.apache.inlong.common.pojo.sort.node.NodeConfig;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SourceStatus;
@@ -136,5 +137,11 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
             LOGGER.error("failed to update stream source status by dataNodeName={}, status={}, by operator={}",
                     dataNodeName, status, operator, e);
         }
+    }
+
+    @Override
+    public NodeConfig getNodeConfig(DataNodeEntity dataNodeEntity) {
+        throw new BusinessException(
+                String.format("not support get node config for data not type =%s", dataNodeEntity.getType()));
     }
 }

@@ -361,6 +361,17 @@
             </if>
         </where>
     </select>
+    <select id="selectByInlongGroupIds" resultType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_group
+        <where>
+            inlong_group_id in
+            <foreach item="item" index="index" collection="groupIdList" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </where>
+    </select>
     <select id="selectByClusterTag" resultType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
         <bind name="_isInlongService" value="LoginUser.InlongService"/>
         select
@@ -374,6 +385,15 @@
             and inlong_cluster_tag = #{inlongClusterTag, jdbcType=VARCHAR}
         </where>
         limit 10
+    </select>
+    <select id="selectByClusterTagWithoutTenant" resultType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_group
+        <where>
+            and is_deleted = 0
+            and inlong_cluster_tag = #{inlongClusterTag, jdbcType=VARCHAR}
+        </where>
     </select>
     <select id="selectAllGroups" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSourceGroupInfo">
         select inlong_group_id    as groupId,

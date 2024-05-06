@@ -19,6 +19,7 @@ package org.apache.inlong.manager.web.controller.openapi;
 
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
+import org.apache.inlong.common.pojo.sortstandalone.SortConfigResponse;
 import org.apache.inlong.manager.service.core.SortService;
 
 import io.swagger.annotations.Api;
@@ -55,6 +56,14 @@ public class SortController {
             @RequestParam String sortTaskId,
             @RequestParam String md5) {
         return sortService.getSourceConfig(clusterName, sortTaskId, md5);
+    }
+
+    @GetMapping("/sort/getSortConfig")
+    @ApiOperation(value = "get sort config")
+    public SortConfigResponse getSortConfig(
+            @RequestParam String clusterName,
+            @RequestParam String md5) {
+        return sortService.getSortConfig(clusterName, md5);
     }
 
 }

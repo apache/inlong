@@ -72,7 +72,7 @@ public class SortSourceClusterInfo {
                     JsonElement element = jo.get(k);
                     if (element.isJsonPrimitive()) {
                         extParamsMap.put(k, element.getAsString());
-                    } else {
+                    } else if (!element.isJsonNull()) {
                         extParamsMap.put(k, element.toString());
                     }
                 });

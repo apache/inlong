@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import org.apache.inlong.common.pojo.sort.dataflow.sink.SinkConfig;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkStatus;
@@ -26,6 +27,7 @@ import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
+import org.apache.inlong.manager.dao.mapper.SortConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -66,6 +68,8 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     protected DataNodeOperateHelper dataNodeHelper;
     @Autowired
     protected InlongStreamEntityMapper inlongStreamEntityMapper;
+    @Autowired
+    protected SortConfigEntityMapper sortConfigEntityMapper;
 
     /**
      * Setting the parameters of the latest entity.
@@ -204,6 +208,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
 
     @Override
     public void deleteOpt(StreamSinkEntity entity, String operator) {
+        sortConfigEntityMapper.logicDeleteBySinkId(entity.getId());
         entity.setPreviousStatus(entity.getStatus());
         entity.setStatus(InlongConstants.DELETED_STATUS);
         entity.setIsDeleted(entity.getId());
@@ -249,6 +254,11 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
      */
     protected void checkFieldInfo(SinkField fieldInfo) {
 
+    }
+
+    @Override
+    public SinkConfig getSinkConfig(StreamSink sink) {
+        throw new BusinessException(String.format("not support get sink config for sink type=%s", sink.getSinkType()));
     }
 
 }

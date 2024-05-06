@@ -115,6 +115,8 @@ public interface InlongStreamService {
      */
     List<InlongStreamInfo> list(String groupId);
 
+    List<InlongStreamInfo> listBackUp(String groupId);
+
     /**
      * Paging query inlong stream brief info list
      *

@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.pojo.workflow.form.process;
 
+import org.apache.inlong.manager.common.exceptions.FormValidateException;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -32,7 +34,12 @@ import lombok.Data;
         @JsonSubTypes.Type(value = ApplyConsumeProcessForm.class, name = ApplyConsumeProcessForm.FORM_NAME),
         @JsonSubTypes.Type(value = GroupResourceProcessForm.class, name = GroupResourceProcessForm.FORM_NAME),
         @JsonSubTypes.Type(value = StreamResourceProcessForm.class, name = StreamResourceProcessForm.FORM_NAME),
+        @JsonSubTypes.Type(value = ClusterResourceProcessForm.class, name = ClusterResourceProcessForm.FORM_NAME),
 })
 public abstract class BaseProcessForm implements ProcessForm {
 
+    @Override
+    public void validate() throws FormValidateException {
+
+    }
 }

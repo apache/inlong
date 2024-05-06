@@ -23,5 +23,4 @@ import lombok.Data;
 public class InlongMsgDeserializationConfig implements DeserializationConfig {
 
     private String streamId;
-    private DeserializationConfig innerDeserializationConfig;
 }

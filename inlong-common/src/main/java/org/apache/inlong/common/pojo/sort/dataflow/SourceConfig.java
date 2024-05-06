@@ -17,6 +17,7 @@
 
 package org.apache.inlong.common.pojo.sort.dataflow;
 
+import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.deserialization.DeserializationConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
 
@@ -32,5 +33,6 @@ public class SourceConfig implements Serializable {
     private String subscription;
     private String encodingType;
     private DeserializationConfig deserializationConfig;
+    private DataTypeConfig dataTypeConfig;
     private List<FieldConfig> fieldConfigs;
 }
