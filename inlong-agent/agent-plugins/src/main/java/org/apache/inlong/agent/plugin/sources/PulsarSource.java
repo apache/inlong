@@ -33,6 +33,7 @@ import org.apache.pulsar.client.api.SubscriptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -103,7 +104,8 @@ public class PulsarSource extends AbstractSource {
             LOGGER.error("read from pulsar error", e);
         }
         if (!ObjectUtils.isEmpty(message)) {
-            dataList.add(new SourceData(message.getValue(), 0L));
+            dataList.add(new SourceData(message.getValue(), new String(message.getMessageId().toByteArray(),
+                    StandardCharsets.UTF_8)));
         }
         try {
             consumer.acknowledge(message);

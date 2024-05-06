@@ -50,8 +50,7 @@ public class ProxyMessage implements Message {
         this.dataKey = header.getOrDefault(PROXY_KEY_DATA, "");
         // use the batch key of user and inlongStreamId to determine one batch
         this.batchKey = dataKey + inlongStreamId;
-        Long offset = Long.parseLong(header.get(TaskConstants.OFFSET));
-        ackInfo = new OffsetAckInfo(offset, body.length, false);
+        ackInfo = new OffsetAckInfo(header.get(TaskConstants.OFFSET), body.length, false);
     }
 
     public ProxyMessage(Message message) {

@@ -130,7 +130,7 @@ public class LogFileSource extends AbstractSource {
         bytePosition = readLines(randomAccessFile, pos, lines, BATCH_READ_LINE_COUNT, BATCH_READ_LINE_TOTAL_LEN, false);
         for (int i = 0; i < lines.size(); i++) {
             linePosition++;
-            dataList.add(new SourceData(lines.get(i), linePosition));
+            dataList.add(new SourceData(lines.get(i), Long.toString(linePosition)));
         }
         return dataList;
     }
@@ -148,7 +148,7 @@ public class LogFileSource extends AbstractSource {
     private long getInitLineOffset(boolean isIncrement, String taskId, String instanceId, String inodeInfo) {
         long offset = 0;
         if (offsetProfile != null && offsetProfile.getInodeInfo().compareTo(inodeInfo) == 0) {
-            offset = offsetProfile.getOffset();
+            offset = Long.parseLong(offsetProfile.getOffset());
             int fileLineCount = getRealLineCount(instanceId);
             if (fileLineCount < offset) {
                 LOGGER.info("getInitLineOffset inode no change taskId {} file rotate, offset set to 0, file {}", taskId,

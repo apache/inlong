@@ -104,7 +104,7 @@ public class TestSenderManager {
                 List<OffsetAckInfo> ackInfoList = new ArrayList<>();
                 bodyList.add("123456789".getBytes(StandardCharsets.UTF_8));
                 for (int j = 0; j < bodyList.size(); j++) {
-                    OffsetAckInfo ackInfo = new OffsetAckInfo(offset++, bodyList.get(j).length, false);
+                    OffsetAckInfo ackInfo = new OffsetAckInfo(Long.toString(offset++), bodyList.get(j).length, false);
                     ackInfoList.add(ackInfo);
                     ackInfoListTotal.add(ackInfo);
                 }

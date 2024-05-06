@@ -112,7 +112,7 @@ public class KafkaSource extends AbstractSource {
         List<SourceData> dataList = new ArrayList<>();
         ConsumerRecords<String, byte[]> records = kafkaConsumer.poll(Duration.ofMillis(1000));
         for (ConsumerRecord<String, byte[]> record : records) {
-            SourceData sourceData = new SourceData(record.value(), record.offset());
+            SourceData sourceData = new SourceData(record.value(), Long.toString(record.offset()));
             dataList.add(sourceData);
             offset = record.offset();
         }
