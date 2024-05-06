@@ -20,6 +20,7 @@ package org.apache.inlong.sdk.transform.process;
 import org.apache.inlong.sdk.transform.decode.CsvSourceDecoder;
 import org.apache.inlong.sdk.transform.decode.JsonSourceDecoder;
 import org.apache.inlong.sdk.transform.decode.KvSourceDecoder;
+import org.apache.inlong.sdk.transform.decode.PbSourceDecoder;
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.decode.SourceDecoder;
 import org.apache.inlong.sdk.transform.encode.CsvSinkEncoder;
@@ -33,6 +34,7 @@ import org.apache.inlong.sdk.transform.pojo.FieldInfo;
 import org.apache.inlong.sdk.transform.pojo.JsonSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.KvSourceInfo;
+import org.apache.inlong.sdk.transform.pojo.PbSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.SinkInfo;
 import org.apache.inlong.sdk.transform.pojo.SourceInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
@@ -108,6 +110,8 @@ public class TransformProcessor {
             this.decoder = new KvSourceDecoder((KvSourceInfo) sourceInfo);
         } else if (sourceInfo instanceof JsonSourceInfo) {
             this.decoder = new JsonSourceDecoder((JsonSourceInfo) sourceInfo);
+        } else if (sourceInfo instanceof PbSourceInfo) {
+            this.decoder = new PbSourceDecoder((PbSourceInfo) sourceInfo);
         }
     }
 
