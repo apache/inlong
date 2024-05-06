@@ -91,7 +91,7 @@ if [[ "${JDBC_URL}" =~ (.+):([0-9]+) ]]; then
   inlong_audit_count=$(mysql -h${datasource_hostname} -P${datasource_port} -u${USERNAME} -p${PASSWORD} -e "${select_db_sql}")
   inlong_num=$(echo "$inlong_audit_count" | tr -cd "[0-9]")
   if [ "${inlong_num}" = 0 ]; then
-    mysql -h${datasource_hostname} -P${datasource_port} -u${USERNAME} -p${PASSWORD} < sql/apache_inlong_audit.sql
+    mysql -h${datasource_hostname} -P${datasource_port} -u${USERNAME} -p${PASSWORD} < sql/apache_inlong_audit_mysql.sql
   fi
 fi
 

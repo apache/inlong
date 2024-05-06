@@ -175,7 +175,7 @@
             <directory>../inlong-audit/audit-release/target/apache-inlong-audit-${project.version}-bin/sql</directory>
             <outputDirectory>../docker/docker-compose/sql</outputDirectory>
             <includes>
-                <include>apache_inlong_audit.sql</include>
+                <include>apache_inlong_audit_mysql.sql</include>
             </includes>
         </fileSet>
         <!-- package sql file for docker compose-->
