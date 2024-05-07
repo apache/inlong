@@ -19,11 +19,8 @@ package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.manager.pojo.audit.AuditBaseResponse;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
-import org.apache.inlong.manager.pojo.audit.AuditSourceRequest;
-import org.apache.inlong.manager.pojo.audit.AuditSourceResponse;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.common.Response;
-import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.service.core.AuditService;
 
 import io.swagger.annotations.Api;
@@ -70,23 +67,10 @@ public class AuditController {
         return Response.success(auditService.refreshBaseItemCache());
     }
 
-    @ApiOperation(value = "Update the audit source")
-    @PostMapping(value = "/audit/updateSource")
-    public Response<Integer> updateAuditSource(@Valid @RequestBody AuditSourceRequest request) {
-        return Response.success(auditService.updateAuditSource(request, LoginUserUtils.getLoginUser().getName()));
-    }
-
     @ApiOperation(value = "Get the audit base info")
     @GetMapping("/audit/getAuditBases")
     public Response<List<AuditBaseResponse>> getAuditBases() {
         return Response.success(auditService.getAuditBases());
-    }
-
-    @ApiOperation(value = "Get the audit source")
-    @GetMapping("/audit/getSource")
-    public Response<AuditSourceResponse> getAuditSource() {
-        // TODO support more parameters to query
-        return Response.success(auditService.getAuditSource());
     }
 
 }

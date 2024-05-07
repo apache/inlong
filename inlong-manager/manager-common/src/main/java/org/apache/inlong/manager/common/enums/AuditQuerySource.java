@@ -25,12 +25,5 @@ public enum AuditQuerySource {
      * MYSQL source of query
      */
     MYSQL,
-    /**
-     * ELASTICSEARCH source of query
-     */
-    ELASTICSEARCH,
-    /**
-     * CLICKHOUSE source of query
-     */
-    CLICKHOUSE;
+
 }

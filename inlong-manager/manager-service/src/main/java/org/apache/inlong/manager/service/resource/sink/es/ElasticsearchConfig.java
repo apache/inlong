@@ -25,7 +25,6 @@ import org.apache.http.HttpHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -48,13 +47,9 @@ public class ElasticsearchConfig {
     private RestTemplate restTemplate;
 
     private List<HttpHost> httpHosts;
-    @Value("${es.index.search.hostname}")
     private String hosts;
-    @Value("${es.auth.enable}")
     private Boolean authEnable = false;
-    @Value("${es.auth.user}")
     private String username;
-    @Value("${es.auth.password}")
     private String password;
 
     /**
