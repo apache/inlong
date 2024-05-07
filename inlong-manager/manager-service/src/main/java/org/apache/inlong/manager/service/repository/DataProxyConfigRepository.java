@@ -334,10 +334,9 @@ public class DataProxyConfigRepository implements IRepository {
 
         // to be compatible with multi-tenancy #7914
         String tenant = mapObj.get(KEY_NEW_TENANT_KEY);
-        if (StringUtils.isNotBlank(tenant)) {
-            mapObj.remove(KEY_NEW_TENANT_KEY);
-            mapObj.put(KEY_OLD_TENANT_KEY, tenant);
-        }
+        mapObj.remove(KEY_NEW_TENANT_KEY);
+        mapObj.put(KEY_OLD_TENANT_KEY, tenant);
+
         return mapObj;
     }
 
@@ -384,7 +383,6 @@ public class DataProxyConfigRepository implements IRepository {
             Map<String, String> params = fromJsonToMap(v.getExtParams());
             clusterTagParams.put(k, params);
         });
-        LOGGER.info("test cluster tag parms ={}", clusterTagParams);
         // reload inlong stream ext params
         Map<String, Map<String, String>> streamParams = new HashMap<>();
         streamIdMap.forEach((k, v) -> {
