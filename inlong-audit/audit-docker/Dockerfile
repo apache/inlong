@@ -35,8 +35,8 @@ ENV TUBE_AUDIT_TOPIC="inlong-audit"
 ENV AUDIT_DBNAME="apache_inlong_audit"
 # proxy/store/all, start audit module individually, or all
 ENV START_MODE="all"
-# mysql / starrocks
-ENV STORE_MODE=mysql
+# # Supports common JDBC protocol. Such as mysql / starrocks
+ENV STORE_MODE=jdbc
 # mysql
 ENV AUDIT_MYSQL_JDBC_URL=127.0.0.1:3306
 ENV AUDIT_MYSQL_USERNAME=root
