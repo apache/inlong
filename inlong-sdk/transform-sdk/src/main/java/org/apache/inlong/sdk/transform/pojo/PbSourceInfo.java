@@ -28,34 +28,54 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PbSourceInfo extends SourceInfo {
 
-    private String protoDefine;
+    private String protoDescription;
+    private String rootMessageType;
     private String rowsNodePath;
 
     @JsonCreator
     public PbSourceInfo(
             @JsonProperty("charset") String charset,
-            @JsonProperty("protoDefine") String protoDefine,
+            @JsonProperty("protoDescription") String protoDescription,
+            @JsonProperty("rootMessageType") String rootMessageType,
             @JsonProperty("rowsNodePath") String rowsNodePath) {
         super(charset);
-        this.protoDefine = protoDefine;
+        this.protoDescription = protoDescription;
+        this.rootMessageType = rootMessageType;
         this.rowsNodePath = rowsNodePath;
     }
 
     /**
-     * get protoDefine
-     * @return the protoDefine
+     * get protoDescription
+     * @return the protoDescription
      */
-    @JsonProperty("protoDefine")
-    public String getProtoDefine() {
-        return protoDefine;
+    @JsonProperty("protoDescription")
+    public String getProtoDescription() {
+        return protoDescription;
     }
 
     /**
-     * set protoDefine
-     * @param protoDefine the protoDefine to set
+     * set protoDescription
+     * @param protoDescription the protoDescription to set
      */
-    public void setProtoDefine(String protoDefine) {
-        this.protoDefine = protoDefine;
+    public void setProtoDescription(String protoDescription) {
+        this.protoDescription = protoDescription;
+    }
+
+    /**
+     * get rootMessageType
+     * @return the rootMessageType
+     */
+    @JsonProperty("rootMessageType")
+    public String getRootMessageType() {
+        return rootMessageType;
+    }
+
+    /**
+     * set rootMessageType
+     * @param rootMessageType the rootMessageType to set
+     */
+    public void setRootMessageType(String rootMessageType) {
+        this.rootMessageType = rootMessageType;
     }
 
     /**

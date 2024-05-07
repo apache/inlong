@@ -80,7 +80,12 @@ public class TestTransformConfig {
             ftime.setName("ftime");
             List<FieldInfo> fields = new ArrayList<>();
             fields.add(ftime);
-            SourceInfo pbSource = new PbSourceInfo("UTF-8", "syntax = \"proto3\";", "root");
+            String transformBase64 = "CrcCCg90cmFuc2Zvcm0ucHJvdG8SBHRlc3QirQEKClNka01lc3NhZ2USEAoDbXNnGAEgASgMUg"
+                    + "Ntc2cSGAoHbXNnVGltZRgCIAEoA1IHbXNnVGltZRI3CgdleHRpbmZvGAMgAygLMh0udGVzdC5TZGtNZXNzYWdlLk"
+                    + "V4dGluZm9FbnRyeVIHZXh0aW5mbxo6CgxFeHRpbmZvRW50cnkSEAoDa2V5GAEgASgJUgNrZXkSFAoFdmFsdWUY"
+                    + "AiABKAlSBXZhbHVlOgI4ASJmCg5TZGtEYXRhUmVxdWVzdBIQCgNzaWQYASABKAlSA3NpZBIkCgRtc2dzGAIgAygLMh"
+                    + "AudGVzdC5TZGtNZXNzYWdlUgRtc2dzEhwKCXBhY2thZ2VJRBgDIAEoBFIJcGFja2FnZUlEYgZwcm90bzM=";
+            SourceInfo pbSource = new PbSourceInfo("UTF-8", transformBase64, "SdkDataRequest", "msgs");
             SinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
             String transformSql = "select ftime from source";
             TransformConfig config = new TransformConfig(pbSource, csvSink, transformSql);

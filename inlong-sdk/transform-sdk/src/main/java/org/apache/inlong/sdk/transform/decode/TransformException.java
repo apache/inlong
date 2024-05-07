@@ -17,35 +17,23 @@
 
 package org.apache.inlong.sdk.transform.decode;
 
-import lombok.Data;
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.lang3.StringUtils;
-
 /**
- * JsonNode
+ * TransformException
  * 
  */
-@Data
-public class JsonNode {
+public class TransformException extends RuntimeException {
 
-    private String name;
-    private boolean isArray = false;
-    private int arrayIndex = -1;
+    /**
+     * serialVersionUID long
+     */
+    private static final long serialVersionUID = -6459186664919206191L;
 
-    public JsonNode(String nodeString) {
-        int beginIndex = nodeString.indexOf('(');
-        if (beginIndex < 0) {
-            this.name = nodeString;
-        } else {
-            this.name = StringUtils.trim(nodeString.substring(0, beginIndex));
-            int endIndex = nodeString.lastIndexOf(')');
-            if (endIndex >= 0) {
-                this.isArray = true;
-                this.arrayIndex = NumberUtils.toInt(nodeString.substring(beginIndex + 1, endIndex), -1);
-                if (this.arrayIndex < 0) {
-                    this.arrayIndex = 0;
-                }
-            }
-        }
+    /**
+     * Constructor
+     * @param error
+     * @param e
+     */
+    public TransformException(String error, Exception e) {
+        super(error, e);
     }
 }

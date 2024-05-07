@@ -35,7 +35,7 @@ public class ColumnParser implements ValueParser {
     }
 
     public ColumnParser(Function expr) {
-        this.fieldName = expr.toString().replace('(', '[').replace(')', ']');
+        this.fieldName = expr.toString();
     }
 
     /**
