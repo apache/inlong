@@ -53,25 +53,25 @@ fi
 sed -i "s/apache_inlong_audit/${AUDIT_DBNAME}/g" "${sql_mysql_file}"
 
 # replace the configuration for audit-store
-sed -i "s/127.0.0.1:3306\/apache_inlong_audit/${AUDIT_MYSQL_JDBC_URL}\/${AUDIT_DBNAME}/g" "${store_conf_file}"
-sed -i "s/jdbc.username=.*$/jdbc.username=${AUDIT_MYSQL_USERNAME}/g" "${store_conf_file}"
-sed -i "s/jdbc.password=.*$/jdbc.password=${AUDIT_MYSQL_PASSWORD}/g" "${store_conf_file}"
+sed -i "s/127.0.0.1:3306\/apache_inlong_audit/${AUDIT_JDBC_URL}\/${AUDIT_DBNAME}/g" "${store_conf_file}"
+sed -i "s/jdbc.username=.*$/jdbc.username=${AUDIT_USERNAME}/g" "${store_conf_file}"
+sed -i "s/jdbc.password=.*$/jdbc.password=${AUDIT_PASSWORD}/g" "${store_conf_file}"
 
 # replace the configuration for audit-service
-sed -i "s/mysql.jdbc.url=.*$/mysql.jdbc.url=jdbc:mysql:\/\/${AUDIT_MYSQL_JDBC_URL}\/${AUDIT_DBNAME}/g" "${service_conf_file}"
-sed -i "s/mysql.jdbc.username=.*$/mysql.jdbc.username=${AUDIT_MYSQL_USERNAME}/g" "${service_conf_file}"
-sed -i "s/mysql.jdbc.password=.*$/mysql.jdbc.password=${AUDIT_MYSQL_PASSWORD}/g" "${service_conf_file}"
+sed -i "s/mysql.jdbc.url=.*$/mysql.jdbc.url=jdbc:mysql:\/\/${AUDIT_JDBC_URL}\/${AUDIT_DBNAME}/g" "${service_conf_file}"
+sed -i "s/mysql.jdbc.username=.*$/mysql.jdbc.username=${AUDIT_USERNAME}/g" "${service_conf_file}"
+sed -i "s/mysql.jdbc.password=.*$/mysql.jdbc.password=${AUDIT_PASSWORD}/g" "${service_conf_file}"
 
 # Whether the database table exists. If it does not exist, initialize the database and skip if it exists.
-if [[ "${AUDIT_MYSQL_JDBC_URL}" =~ (.+):([0-9]+) ]]; then
+if [[ "${AUDIT_JDBC_URL}" =~ (.+):([0-9]+) ]]; then
   datasource_hostname=${BASH_REMATCH[1]}
   datasource_port=${BASH_REMATCH[2]}
 
   select_db_sql="SELECT COUNT(*) FROM information_schema.TABLES WHERE table_schema = 'apache_inlong_audit'"
-  inlong_audit_count=$(mysql -h${datasource_hostname} -P${datasource_port} -u${AUDIT_MYSQL_USERNAME} -p${AUDIT_MYSQL_PASSWORD} -e "${select_db_sql}")
+  inlong_audit_count=$(mysql -h${datasource_hostname} -P${datasource_port} -u${AUDIT_USERNAME} -p${AUDIT_PASSWORD} -e "${select_db_sql}")
   inlong_num=$(echo "$inlong_audit_count" | tr -cd "[0-9]")
   if [ "${inlong_num}" = 0 ]; then
-    mysql -h${datasource_hostname} -P${datasource_port} -u${AUDIT_MYSQL_USERNAME} -p${AUDIT_MYSQL_PASSWORD} < sql/apache_inlong_audit_mysql.sql
+    mysql -h${datasource_hostname} -P${datasource_port} -u${AUDIT_USERNAME} -p${AUDIT_PASSWORD} < sql/apache_inlong_audit_mysql.sql
   fi
 fi
 
