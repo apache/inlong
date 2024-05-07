@@ -17,13 +17,16 @@
 #
 
 file_path=$(cd "$(dirname "$0")"/../;pwd)
-# store config
-store_conf_file=${file_path}/conf/application.properties
+
+#SQL file
+sql_mysql_file="${file_path}"/sql/apache_inlong_audit_mysql.sql
+sql_sr_file="${file_path}"/sql/apache_inlong_audit_starrocks.sql
+
 # proxy config
 proxy_conf_file=${file_path}/conf/audit-proxy-${MQ_TYPE}.conf
-sql_mysql_file="${file_path}"/sql/apache_inlong_audit_mysql.sql
-sql_ck_file="${file_path}"/sql/apache_inlong_audit_clickhouse.sql
-sql_sr_file="${file_path}"/sql/apache_inlong_audit_starrocks.sql
+
+# store config
+store_conf_file=${file_path}/conf/application.properties
 
 # audit-service config
 service_conf_file=${file_path}/conf/audit-service.properties
@@ -52,46 +55,35 @@ if [ -n "${STORE_MODE}" ]; then
   sed -i "s/audit.config.store.mode=.*$/audit.config.store.mode=${STORE_MODE}/g" "${store_conf_file}"
 fi
 # DB
-sed -i "s/127.0.0.1:3306\/apache_inlong_audit/${JDBC_URL}\/${AUDIT_DBNAME}/g" "${store_conf_file}"
-sed -i "s/spring.datasource.druid.username=.*$/spring.datasource.druid.username=${USERNAME}/g" "${store_conf_file}"
-sed -i "s/spring.datasource.druid.password=.*$/spring.datasource.druid.password=${PASSWORD}/g" "${store_conf_file}"
+sed -i "s/127.0.0.1:3306\/apache_inlong_audit/${ENV_MYSQL_JDBC_URL}\/${AUDIT_DBNAME}/g" "${store_conf_file}"
+sed -i "s/spring.datasource.druid.username=.*$/spring.datasource.druid.username=${ENV_MYSQL_USERNAME}/g" "${store_conf_file}"
+sed -i "s/spring.datasource.druid.password=.*$/spring.datasource.druid.password=${ENV_MYSQL_PASSWORD}/g" "${store_conf_file}"
 # mysql file for audit
 sed -i "s/apache_inlong_audit/${AUDIT_DBNAME}/g" "${sql_mysql_file}"
-# clickhouse
-sed -i "s/clickhouse.url=.*$/clickhouse.url=jdbc:clickhouse:\/\/${STORE_CK_URL}\/${STORE_CK_DBNAME}/g" "${store_conf_file}"
-sed -i "s/clickhouse.username=.*$/clickhouse.username=${STORE_CK_USERNAME}/g" "${store_conf_file}"
-sed -i "s/clickhouse.password=.*$/clickhouse.password=${STORE_CK_PASSWD}/g" "${store_conf_file}"
-# mysql file for clickhouse
-sed -i "s/apache_inlong_audit/${STORE_CK_DBNAME}/g" "${sql_ck_file}"
-# elasticsearch
-sed -i "s/elasticsearch.host=.*$/elasticsearch.host=${STORE_ES_HOST}/g" "${store_conf_file}"
-sed -i "s/elasticsearch.port=.*$/elasticsearch.port=${STORE_ES_PORT}/g" "${store_conf_file}"
-sed -i "s/elasticsearch.authEnable=.*$/elasticsearch.authEnable=${STORE_ES_AUTHENABLE}/g" "${store_conf_file}"
-sed -i "s/elasticsearch.username=.*$/elasticsearch.username=${STORE_ES_USERNAME}/g" "${store_conf_file}"
-sed -i "s/elasticsearch.password=.*$/elasticsearch.password=${STORE_ES_PASSWD}/g" "${store_conf_file}"
 
 # StarRocks SQL file for audit
 sed -i "s/apache_inlong_audit/${AUDIT_DBNAME}/g" "${sql_sr_file}"
+
 # StarRocks
 sed -i "s/jdbc.url=.*$/jdbc.url=jdbc:mysql:\/\/${STORE_SR_URL}\/${STORE_SR_DBNAME}/g" "${store_conf_file}"
 sed -i "s/jdbc.username=.*$/jdbc.username=${STORE_SR_USERNAME}/g" "${store_conf_file}"
 sed -i "s/jdbc.password=.*$/jdbc.password=${STORE_SR_PASSWD}/g" "${store_conf_file}"
 
 # audit-service config
-sed -i "s/mysql.jdbc.url=.*$/mysql.jdbc.url=jdbc:mysql:\/\/${JDBC_URL}\/${AUDIT_DBNAME}/g" "${service_conf_file}"
-sed -i "s/mysql.jdbc.username=.*$/mysql.jdbc.username=${USERNAME}/g" "${service_conf_file}"
-sed -i "s/mysql.jdbc.password=.*$/mysql.jdbc.password=${PASSWORD}/g" "${service_conf_file}"
+sed -i "s/mysql.jdbc.url=.*$/mysql.jdbc.url=jdbc:mysql:\/\/${ENV_MYSQL_JDBC_URL}\/${AUDIT_DBNAME}/g" "${service_conf_file}"
+sed -i "s/mysql.jdbc.username=.*$/mysql.jdbc.username=${ENV_MYSQL_USERNAME}/g" "${service_conf_file}"
+sed -i "s/mysql.jdbc.password=.*$/mysql.jdbc.password=${ENV_MYSQL_PASSWORD}/g" "${service_conf_file}"
 
 # Whether the database table exists. If it does not exist, initialize the database and skip if it exists.
-if [[ "${JDBC_URL}" =~ (.+):([0-9]+) ]]; then
+if [[ "${ENV_MYSQL_JDBC_URL}" =~ (.+):([0-9]+) ]]; then
   datasource_hostname=${BASH_REMATCH[1]}
   datasource_port=${BASH_REMATCH[2]}
 
   select_db_sql="SELECT COUNT(*) FROM information_schema.TABLES WHERE table_schema = 'apache_inlong_audit'"
-  inlong_audit_count=$(mysql -h${datasource_hostname} -P${datasource_port} -u${USERNAME} -p${PASSWORD} -e "${select_db_sql}")
+  inlong_audit_count=$(mysql -h${datasource_hostname} -P${datasource_port} -u${ENV_MYSQL_USERNAME} -p${ENV_MYSQL_PASSWORD} -e "${select_db_sql}")
   inlong_num=$(echo "$inlong_audit_count" | tr -cd "[0-9]")
   if [ "${inlong_num}" = 0 ]; then
-    mysql -h${datasource_hostname} -P${datasource_port} -u${USERNAME} -p${PASSWORD} < sql/apache_inlong_audit_mysql.sql
+    mysql -h${datasource_hostname} -P${datasource_port} -u${ENV_MYSQL_USERNAME} -p${ENV_MYSQL_PASSWORD} < sql/apache_inlong_audit_mysql.sql
   fi
 fi
 
@@ -108,6 +100,7 @@ if [ "${START_MODE}" = "all" ] || [ "${START_MODE}" = "proxy" ]; then
     bash +x ./bin/proxy-start.sh tubemq
   fi
 fi
+
 # start store
 if [ "${START_MODE}" = "all" ] || [ "${START_MODE}" = "store" ]; then
   bash +x ./bin/store-start.sh

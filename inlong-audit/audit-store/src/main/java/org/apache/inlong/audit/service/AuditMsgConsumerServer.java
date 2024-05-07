@@ -17,12 +17,10 @@
 
 package org.apache.inlong.audit.service;
 
-import org.apache.inlong.audit.config.ClickHouseConfig;
 import org.apache.inlong.audit.config.JdbcConfig;
 import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
 import org.apache.inlong.audit.consts.ConfigConstants;
-import org.apache.inlong.audit.db.dao.AuditDataDao;
 import org.apache.inlong.audit.file.RemoteConfigJson;
 import org.apache.inlong.audit.service.consume.BaseConsume;
 import org.apache.inlong.audit.service.consume.KafkaConsume;
@@ -60,15 +58,7 @@ public class AuditMsgConsumerServer implements InitializingBean {
     @Autowired
     private MessageQueueConfig mqConfig;
     @Autowired
-    private AuditDataDao auditDataDao;
-    @Autowired
-    private ElasticsearchService esService;
-    @Autowired
     private StoreConfig storeConfig;
-    @Autowired
-    private ClickHouseConfig chConfig;
-    // ClickHouseService
-    private ClickHouseService ckService;
     @Autowired
     private JdbcConfig jdbcConfig;
     private JdbcService jdbcService;
@@ -104,12 +94,6 @@ public class AuditMsgConsumerServer implements InitializingBean {
         if (mqConsume == null) {
             LOG.error("Unknown MessageQueue {}", mqConfig.getMqType());
         }
-        if (storeConfig.isElasticsearchStore()) {
-            esService.startTimerRoutine();
-        }
-        if (storeConfig.isClickHouseStore()) {
-            ckService.start();
-        }
         if (storeConfig.isJdbc()) {
             jdbcService.start();
         }
@@ -123,17 +107,6 @@ public class AuditMsgConsumerServer implements InitializingBean {
      */
     private List<InsertData> getInsertServiceList() {
         List<InsertData> insertServiceList = new ArrayList<>();
-        if (storeConfig.isMysqlStore()) {
-            insertServiceList.add(new MySqlService(auditDataDao));
-        }
-        if (storeConfig.isElasticsearchStore()) {
-            insertServiceList.add(esService);
-        }
-        if (storeConfig.isClickHouseStore()) {
-            // create ck object
-            ckService = new ClickHouseService(chConfig);
-            insertServiceList.add(ckService);
-        }
         if (storeConfig.isJdbc()) {
             // create jdbc object
             jdbcService = new JdbcService(jdbcConfig);

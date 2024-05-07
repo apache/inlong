@@ -35,23 +35,12 @@ ENV TUBE_AUDIT_TOPIC="inlong-audit"
 ENV AUDIT_DBNAME="apache_inlong_audit"
 # proxy/store/all, start audit module individually, or all
 ENV START_MODE="all"
-# mysql / clickhouse / elasticsearch / starrocks
+# mysql / starrocks
 ENV STORE_MODE=mysql
 # mysql
-ENV JDBC_URL=127.0.0.1:3306
-ENV USERNAME=root
-ENV PASSWORD=inlong
-# clickhouse
-ENV STORE_CK_URL=127.0.0.1:8123
-ENV STORE_CK_USERNAME=default
-ENV STORE_CK_PASSWD=default
-ENV STORE_CK_DBNAME="apache_inlong_audit"
-# elasticsearch
-ENV STORE_ES_HOST=127.0.0.1
-ENV STORE_ES_PORT=9200
-ENV STORE_ES_AUTHENABLE=false
-ENV STORE_ES_USERNAME=elastic
-ENV STORE_ES_PASSWD=inlong
+ENV ENV_MYSQL_JDBC_URL=127.0.0.1:3306
+ENV ENV_MYSQL_USERNAME=root
+ENV ENV_MYSQL_PASSWORD=inlong
 # starrocks
 ENV STORE_SR_URL=127.0.0.1:9030
 ENV STORE_SR_USERNAME=default

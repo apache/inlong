@@ -139,8 +139,8 @@ public class RealTimeQuery {
             });
             futures.add(future);
         }
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()])).join();
-        LOGGER.info("Query log ts by params: {} {} {} {} {}, cost {} ms", startTime, endTime, inlongGroupId,
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        LOGGER.info("Query log ts by params: {} {} {} {} {}, total cost {} ms", startTime, endTime, inlongGroupId,
                 inlongStreamId, auditId, System.currentTimeMillis() - currentTime);
         return filterMaxAuditVersion(statDataList);
     }
@@ -165,8 +165,7 @@ public class RealTimeQuery {
         for (Map.Entry<String, List<StatData>> entry : allData.entrySet()) {
             long maxAuditVersion = Long.MIN_VALUE;
             for (StatData maxData : entry.getValue()) {
-                maxAuditVersion =
-                        maxData.getAuditVersion() > maxAuditVersion ? maxData.getAuditVersion() : maxAuditVersion;
+                maxAuditVersion = Math.max(maxData.getAuditVersion(), maxAuditVersion);
             }
             for (StatData statData : entry.getValue()) {
                 if (statData.getAuditVersion() == maxAuditVersion) {
@@ -191,6 +190,7 @@ public class RealTimeQuery {
      */
     private List<StatData> doQueryLogTs(DataSource dataSource, String startTime, String endTime, String inlongGroupId,
             String inlongStreamId, String auditId) {
+        long currentTime = System.currentTimeMillis();
         List<StatData> result = new LinkedList<>();
         try (Connection connection = dataSource.getConnection();
                 PreparedStatement pstat = connection.prepareStatement(queryLogTsSql)) {
@@ -219,6 +219,8 @@ public class RealTimeQuery {
         } catch (Exception exception) {
             LOGGER.error("Query log time has exception!, datasource={} ", dataSource, exception);
         }
+        LOGGER.info("Query log ts by params: {} {} {} {} {}, cost {} ms", startTime, endTime, inlongGroupId,
+                inlongStreamId, auditId, System.currentTimeMillis() - currentTime);
         return result;
     }
 
