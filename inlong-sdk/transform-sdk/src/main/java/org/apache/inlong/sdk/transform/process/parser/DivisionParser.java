@@ -15,38 +15,42 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.operator;
+package org.apache.inlong.sdk.transform.process.parser;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
-import org.apache.inlong.sdk.transform.process.parser.ValueParser;
+import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 
-import net.sf.jsqlparser.expression.operators.relational.MinorThan;
+import net.sf.jsqlparser.expression.operators.arithmetic.Division;
+
+import java.math.BigDecimal;
 
 /**
- * MinorThanOperator
+ * DivisionParser
  * 
  */
-public class MinorThanOperator implements ExpressionOperator {
+public class DivisionParser implements ValueParser {
 
     private ValueParser left;
+
     private ValueParser right;
 
-    public MinorThanOperator(MinorThan expr) {
+    public DivisionParser(Division expr) {
         this.left = OperatorTools.buildParser(expr.getLeftExpression());
         this.right = OperatorTools.buildParser(expr.getRightExpression());
     }
 
     /**
-     * check
+     * parse
      * @param sourceData
      * @param rowIndex
      * @return
      */
-    @SuppressWarnings("rawtypes")
     @Override
-    public boolean check(SourceData sourceData, int rowIndex) {
-        return OperatorTools.compareValue((Comparable) this.left.parse(sourceData, rowIndex),
-                (Comparable) this.right.parse(sourceData, rowIndex)) < 0;
+    public Object parse(SourceData sourceData, int rowIndex) {
+        Object leftObj = this.left.parse(sourceData, rowIndex);
+        Object rightObj = this.right.parse(sourceData, rowIndex);
+        BigDecimal leftValue = OperatorTools.parseBigDecimal(leftObj);
+        BigDecimal rightValue = OperatorTools.parseBigDecimal(rightObj);
+        return leftValue.divide(rightValue);
     }
-
 }

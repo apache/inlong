@@ -269,4 +269,30 @@ public class TestTransformProcessor {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void testPb2CsvForAdd() {
+        try {
+            List<FieldInfo> fields = this.getTestFieldList();
+            String transformBase64 = this.getPbTestDescription();
+            SourceInfo pbSource = new PbSourceInfo("UTF-8", transformBase64, "SdkDataRequest", null);
+            SinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
+            String transformSql = "select $root.sid,"
+                    + "($root.msgs(1).msgTime-$root.msgs(0).msgTime)/$root.packageID field2,"
+                    + "$root.packageID*($root.msgs(0).msgTime*$root.packageID+$root.msgs(1).msgTime/$root.packageID)"
+                    + "*$root.packageID field3,"
+                    + "$root.msgs(0).msg field4 from source "
+                    + "where $root.packageID<($root.msgs(0).msgTime+$root.msgs(1).msgTime"
+                    + "+$root.msgs(0).msgTime+$root.msgs(1).msgTime)";
+            TransformConfig config = new TransformConfig(pbSource, csvSink, transformSql);
+            // case1
+            TransformProcessor processor = new TransformProcessor(config);
+            byte[] srcBytes = this.getPbTestData();
+            List<String> output = processor.transform(srcBytes, new HashMap<>());
+            Assert.assertTrue(output.size() == 1);
+            Assert.assertEquals(output.get(0), "sid|2|3426487836002|msgValue4");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
