@@ -35,7 +35,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Release space size
       - name: Remove unnecessary packages
@@ -51,7 +51,7 @@ jobs:
 
       # Set up jdk
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: 8
           distribution: adopt
@@ -64,7 +64,7 @@ jobs:
 
       # Build project
       - name: Cache Maven packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.m2/repository/*/*/*
