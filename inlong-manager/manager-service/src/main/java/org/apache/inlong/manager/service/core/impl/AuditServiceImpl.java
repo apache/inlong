@@ -28,36 +28,27 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.AuditBaseEntity;
-import org.apache.inlong.manager.dao.entity.AuditSourceEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.AuditBaseEntityMapper;
 import org.apache.inlong.manager.dao.mapper.AuditEntityMapper;
-import org.apache.inlong.manager.dao.mapper.AuditSourceEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditBaseResponse;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
-import org.apache.inlong.manager.pojo.audit.AuditSourceRequest;
-import org.apache.inlong.manager.pojo.audit.AuditSourceResponse;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.audit.AuditRunnable;
-import org.apache.inlong.manager.service.audit.InlongAuditSourceOperator;
-import org.apache.inlong.manager.service.audit.InlongAuditSourceOperatorFactory;
 import org.apache.inlong.manager.service.core.AuditService;
-import org.apache.inlong.manager.service.resource.sink.ck.ClickHouseConfig;
-import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.jdbc.SQL;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -72,9 +63,6 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -107,32 +95,10 @@ public class AuditServiceImpl implements AuditService {
     private static final DateTimeFormatter SECOND_DATE_FORMATTER = DateTimeFormat.forPattern(SECOND_FORMAT);
     private static final DateTimeFormatter HOUR_DATE_FORMATTER = DateTimeFormat.forPattern(HOUR_FORMAT);
     private static final DateTimeFormatter DAY_DATE_FORMATTER = DateTimeFormat.forPattern(DAY_FORMAT);
-
-    private static final double DEFAULT_BOOST = 1.0;
-    private static final boolean ADJUST_PURE_NEGATIVE = true;
-    private static final int QUERY_FROM = 0;
-    private static final int QUERY_SIZE = 0;
-    private static final String SORT_ORDER = "ASC";
-    private static final String TERM_FILED = "log_ts";
-    private static final String AGGREGATIONS_COUNT = "count";
-    private static final String AGGREGATIONS_DELAY = "delay";
-    private static final String AGGREGATIONS = "aggregations";
-    private static final String BUCKETS = "buckets";
-    private static final String KEY = "key";
-    private static final String VALUE = "value";
-    private static final String INLONG_GROUP_ID = "inlong_group_id";
-    private static final String INLONG_STREAM_ID = "inlong_stream_id";
-    private static final String COUNT = "count";
-    private static final String DELAY = "delay";
-    private static final String TERMS = "terms";
-
-    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
-
     // key 1: type of audit, like pulsar, hive, key 2: indicator type, value : entity of audit base item
     private final Map<String, Map<Integer, AuditBaseEntity>> auditIndicatorMap = new ConcurrentHashMap<>();
-
     private final Map<String, AuditBaseEntity> auditItemMap = new ConcurrentHashMap<>();
-
+    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
     // defaults to return all audit ids, can be overwritten in properties file
     // see audit id definitions: https://inlong.apache.org/docs/modules/audit/overview#audit-id
     @Value("#{'${audit.admin.ids:3,4,5,6}'.split(',')}")
@@ -150,19 +116,11 @@ public class AuditServiceImpl implements AuditService {
     @Autowired
     private AuditEntityMapper auditEntityMapper;
     @Autowired
-    private ElasticsearchApi elasticsearchApi;
-    @Autowired
     private StreamSinkEntityMapper sinkEntityMapper;
     @Autowired
     private StreamSourceEntityMapper sourceEntityMapper;
     @Autowired
-    private ClickHouseConfig config;
-    @Autowired
-    private AuditSourceEntityMapper auditSourceMapper;
-    @Autowired
     private InlongGroupEntityMapper inlongGroupMapper;
-    @Autowired
-    private InlongAuditSourceOperatorFactory auditSourceOperatorFactory;
     @Autowired
     private RestTemplate restTemplate;
 
@@ -194,44 +152,6 @@ public class AuditServiceImpl implements AuditService {
 
         LOGGER.debug("success to reload audit base item info");
         return true;
-    }
-
-    @Override
-    public Integer updateAuditSource(AuditSourceRequest request, String operator) {
-        InlongAuditSourceOperator auditSourceOperator = auditSourceOperatorFactory.getInstance(request.getType());
-        request.setUrl(auditSourceOperator.convertTo(request.getUrl()));
-
-        String offlineUrl = request.getOfflineUrl();
-        if (StringUtils.isNotBlank(offlineUrl)) {
-            auditSourceMapper.offlineSourceByUrl(offlineUrl);
-            LOGGER.info("success offline the audit source with url: {}", offlineUrl);
-        }
-
-        // TODO firstly we should check to see if it exists, updated if it exists, and created if it doesn't exist
-        AuditSourceEntity entity = CommonBeanUtils.copyProperties(request, AuditSourceEntity::new);
-        entity.setStatus(InlongConstants.DEFAULT_ENABLE_VALUE);
-        entity.setCreator(operator);
-        entity.setModifier(operator);
-        auditSourceMapper.insert(entity);
-        Integer id = entity.getId();
-        LOGGER.info("success to insert audit source with id={}", id);
-
-        // TODO we should select the config that needs to be updated according to the source type
-        config.updateRuntimeConfig();
-        LOGGER.info("success to update audit source with id={}", id);
-
-        return id;
-    }
-
-    @Override
-    public AuditSourceResponse getAuditSource() {
-        AuditSourceEntity entity = auditSourceMapper.selectOnlineSource();
-        if (entity == null) {
-            throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND);
-        }
-
-        LOGGER.debug("success to get audit source, id={}", entity.getId());
-        return CommonBeanUtils.copyProperties(entity, AuditSourceResponse::new);
     }
 
     @Override
@@ -329,12 +249,12 @@ public class AuditServiceImpl implements AuditService {
                     return vo;
                 }).collect(Collectors.toList());
                 result.add(new AuditVO(auditId, auditName, auditSet, auditIdMap.getOrDefault(auditId, null)));
-            } else if (AuditQuerySource.CLICKHOUSE == querySource) {
+            } else {
                 this.executor.execute(new AuditRunnable(request, auditId, auditName, result, latch, restTemplate,
                         auditQueryUrl, auditIdMap, false));
             }
         }
-        if (AuditQuerySource.CLICKHOUSE == querySource) {
+        if (AuditQuerySource.MYSQL != querySource) {
             latch.await(30, TimeUnit.SECONDS);
         } else {
             result = aggregateByTimeDim(result, request.getTimeStaticsDim());
@@ -372,12 +292,12 @@ public class AuditServiceImpl implements AuditService {
                     return vo;
                 }).collect(Collectors.toList());
                 result.add(new AuditVO(auditId, auditName, auditSet, null));
-            } else if (AuditQuerySource.CLICKHOUSE == querySource) {
+            } else {
                 this.executor.execute(new AuditRunnable(request, auditId, auditName, result, latch, restTemplate,
                         auditQueryUrl, null, true));
             }
         }
-        if (AuditQuerySource.CLICKHOUSE == querySource) {
+        if (AuditQuerySource.MYSQL != querySource) {
             latch.await(30, TimeUnit.SECONDS);
         }
         return result;
@@ -419,86 +339,6 @@ public class AuditServiceImpl implements AuditService {
         }
 
         return new ArrayList<>(auditSet);
-    }
-
-    /**
-     * Get clickhouse Statement
-     *
-     * @param groupId The groupId of inlong
-     * @param streamId The streamId of inlong
-     * @param auditId The auditId of request
-     * @param startDate The start datetime of request
-     * @param endDate The en datetime of request
-     * @return The clickhouse Statement
-     */
-    private PreparedStatement getAuditCkStatementGroupByLogTs(Connection connection, String groupId, String streamId,
-            String ip,
-            String auditId, String startDate, String endDate) throws SQLException {
-        String start = DAY_DATE_FORMATTER.parseDateTime(startDate).toString(SECOND_FORMAT);
-        String end = DAY_DATE_FORMATTER.parseDateTime(endDate).plusDays(1).toString(SECOND_FORMAT);
-        if (StringUtils.isNotBlank(ip)) {
-            return getAuditCkStatementByIp(connection, auditId, ip, startDate, endDate);
-        }
-        // Query results are duplicated according to all fields.
-        String subQuery = new SQL()
-                .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", "log_ts", "inlong_group_id",
-                        "inlong_stream_id", "audit_id", "count", "size", "delay")
-                .FROM("audit_data")
-                .WHERE("inlong_group_id = ?")
-                .WHERE("inlong_stream_id = ?")
-                .WHERE("audit_id = ?")
-                .WHERE("log_ts >= ?")
-                .WHERE("log_ts < ?")
-                .toString();
-
-        String sql = new SQL()
-                .SELECT("inlong_group_id", "inlong_stream_id", "log_ts", "sum(count) as total",
-                        "sum(delay) as total_delay", "sum(size) as total_size")
-                .FROM("(" + subQuery + ") as sub")
-                .GROUP_BY("log_ts", "inlong_group_id", "inlong_stream_id")
-                .ORDER_BY("log_ts")
-                .toString();
-
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setString(1, groupId);
-        statement.setString(2, streamId);
-        statement.setString(3, auditId);
-        statement.setString(4, start);
-        statement.setString(5, end);
-        return statement;
-    }
-
-    private PreparedStatement getAuditCkStatementGroupByIp(Connection connection, String groupId,
-            String streamId, String ip, String auditId, String startDate, String endDate) throws SQLException {
-
-        if (StringUtils.isNotBlank(ip)) {
-            return getAuditCkStatementByIpGroupByIp(connection, auditId, ip, startDate, endDate);
-        }
-        // Query results are duplicated according to all fields.
-        String subQuery = new SQL()
-                .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", "log_ts", "inlong_group_id",
-                        "inlong_stream_id", "audit_id", "count", "size", "delay")
-                .FROM("audit_data")
-                .WHERE("inlong_group_id = ?")
-                .WHERE("inlong_stream_id = ?")
-                .WHERE("audit_id = ?")
-                .WHERE("log_ts >= ?")
-                .WHERE("log_ts < ?")
-                .toString();
-
-        String sql = new SQL()
-                .SELECT("inlong_group_id", "inlong_stream_id", "sum(count) as total", "ip",
-                        "sum(delay) as total_delay", "sum(size) as total_size")
-                .FROM("(" + subQuery + ") as sub")
-                .GROUP_BY("inlong_group_id", "inlong_stream_id", "ip")
-                .toString();
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setString(1, groupId);
-        statement.setString(2, streamId);
-        statement.setString(3, auditId);
-        statement.setString(4, startDate);
-        statement.setString(5, endDate);
-        return statement;
     }
 
     /**
@@ -572,62 +412,6 @@ public class AuditServiceImpl implements AuditService {
             LOGGER.error("format lot time exception", e);
         }
         return formatDateString;
-    }
-
-    private PreparedStatement getAuditCkStatementByIp(Connection connection, String auditId, String ip,
-            String startDate, String endDate) throws SQLException {
-        String start = DAY_DATE_FORMATTER.parseDateTime(startDate).toString(SECOND_FORMAT);
-        String end = DAY_DATE_FORMATTER.parseDateTime(endDate).plusDays(1).toString(SECOND_FORMAT);
-        String subQuery = new SQL()
-                .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", "log_ts", "inlong_group_id",
-                        "inlong_stream_id", "audit_id", "count", "size", "delay")
-                .FROM("audit_data")
-                .WHERE("ip = ?")
-                .WHERE("audit_id = ?")
-                .WHERE("log_ts >= ?")
-                .WHERE("log_ts < ?")
-                .toString();
-
-        String sql = new SQL()
-                .SELECT("inlong_group_id", "inlong_stream_id", "log_ts", "sum(count) as total",
-                        "sum(delay) as total_delay", "sum(size) as total_size")
-                .FROM("(" + subQuery + ") as sub")
-                .GROUP_BY("log_ts", "inlong_group_id", "inlong_stream_id")
-                .ORDER_BY("log_ts")
-                .toString();
-
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setString(1, ip);
-        statement.setString(2, auditId);
-        statement.setString(3, start);
-        statement.setString(4, end);
-        return statement;
-    }
-
-    private PreparedStatement getAuditCkStatementByIpGroupByIp(Connection connection, String auditId, String ip,
-            String startDate, String endDate) throws SQLException {
-        String subQuery = new SQL()
-                .SELECT_DISTINCT("ip", "docker_id", "thread_id", "sdk_ts", "packet_id", "log_ts", "inlong_group_id",
-                        "inlong_stream_id", "audit_id", "count", "size", "delay")
-                .FROM("audit_data")
-                .WHERE("ip = ?")
-                .WHERE("audit_id = ?")
-                .WHERE("log_ts >= ?")
-                .WHERE("log_ts < ?")
-                .toString();
-
-        String sql = new SQL()
-                .SELECT("inlong_group_id", "inlong_stream_id", "ip", "sum(count) as total",
-                        "sum(delay) as total_delay", "sum(size) as total_size")
-                .FROM("(" + subQuery + ") as sub")
-                .GROUP_BY("inlong_group_id", "inlong_stream_id", "ip")
-                .toString();
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setString(1, ip);
-        statement.setString(2, auditId);
-        statement.setString(3, startDate);
-        statement.setString(4, endDate);
-        return statement;
     }
 
 }
