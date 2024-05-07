@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.inlong.manager.dao.entity.InlongClusterTagEntity;
 import org.apache.inlong.manager.pojo.dataproxy.CacheCluster;
 import org.apache.inlong.manager.pojo.dataproxy.InlongGroupId;
 import org.apache.inlong.manager.pojo.dataproxy.InlongStreamId;
@@ -39,4 +40,7 @@ public interface ClusterSetMapper {
     List<InlongGroupId> selectInlongGroupId();
 
     List<InlongStreamId> selectInlongStreamId();
+
+    List<InlongClusterTagEntity> selectInlongClusterTag();
+
 }

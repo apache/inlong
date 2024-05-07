@@ -55,6 +55,9 @@ public class ClusterTagRequest {
     @Length(min = 1, max = 163840, message = "length must be between 1 and 163840")
     private String extParams;
 
+    @ApiModelProperty(value = "The compression type used for dataproxy and sort side data transmission to reduce the network IO overhead")
+    private String inlongCompressType;
+
     @ApiModelProperty(value = "Description of the cluster tag")
     @Length(max = 256, message = "length must be less than or equal to 256")
     private String description;
