@@ -20,7 +20,6 @@ file_path=$(cd "$(dirname "$0")"/../;pwd)
 
 #SQL file
 sql_mysql_file="${file_path}"/sql/apache_inlong_audit_mysql.sql
-sql_sr_file="${file_path}"/sql/apache_inlong_audit_starrocks.sql
 
 # proxy config
 proxy_conf_file=${file_path}/conf/audit-proxy-${MQ_TYPE}.conf
@@ -31,7 +30,7 @@ store_conf_file=${file_path}/conf/application.properties
 # audit-service config
 service_conf_file=${file_path}/conf/audit-service.properties
 
-# replace the configuration for audit proxy
+# replace the configuration for audit-proxy
 sed -i "s/manager.hosts=.*$/manager.hosts=${MANAGER_OPENAPI_IP}:${MANAGER_OPENAPI_PORT}/g" "${store_conf_file}"
 sed -i "s/proxy.cluster.tag=.*$/proxy.cluster.tag=${CLUSTER_TAG}/g" "${store_conf_file}"
 if [ "${MQ_TYPE}" = "pulsar" ]; then
@@ -50,26 +49,15 @@ if [ "${MQ_TYPE}" = "tubemq" ]; then
   sed -i "s/agent1.sinks.tube-sink-msg2.topic = .*$/agent1.sinks.tube-sink-msg2.topic = ${TUBE_AUDIT_TOPIC}/g" "${proxy_conf_file}"
 fi
 
-# replace the configuration for audit store
-if [ -n "${STORE_MODE}" ]; then
-  sed -i "s/audit.config.store.mode=.*$/audit.config.store.mode=${STORE_MODE}/g" "${store_conf_file}"
-fi
-# DB
-sed -i "s/127.0.0.1:3306\/apache_inlong_audit/${AUDIT_MYSQL_JDBC_URL}\/${AUDIT_DBNAME}/g" "${store_conf_file}"
-sed -i "s/spring.datasource.druid.username=.*$/spring.datasource.druid.username=${AUDIT_MYSQL_USERNAME}/g" "${store_conf_file}"
-sed -i "s/spring.datasource.druid.password=.*$/spring.datasource.druid.password=${AUDIT_MYSQL_PASSWORD}/g" "${store_conf_file}"
-# mysql file for audit
+# replace the audit db name for audit sql file
 sed -i "s/apache_inlong_audit/${AUDIT_DBNAME}/g" "${sql_mysql_file}"
 
-# StarRocks SQL file for audit
-sed -i "s/apache_inlong_audit/${AUDIT_DBNAME}/g" "${sql_sr_file}"
+# replace the configuration for audit-store
+sed -i "s/127.0.0.1:3306\/apache_inlong_audit/${AUDIT_MYSQL_JDBC_URL}\/${AUDIT_DBNAME}/g" "${store_conf_file}"
+sed -i "s/jdbc.username=.*$/jdbc.username=${AUDIT_MYSQL_USERNAME}/g" "${store_conf_file}"
+sed -i "s/jdbc.password=.*$/jdbc.password=${AUDIT_MYSQL_PASSWORD}/g" "${store_conf_file}"
 
-# StarRocks
-sed -i "s/jdbc.url=.*$/jdbc.url=jdbc:mysql:\/\/${STORE_SR_URL}\/${STORE_SR_DBNAME}/g" "${store_conf_file}"
-sed -i "s/jdbc.username=.*$/jdbc.username=${STORE_SR_USERNAME}/g" "${store_conf_file}"
-sed -i "s/jdbc.password=.*$/jdbc.password=${STORE_SR_PASSWD}/g" "${store_conf_file}"
-
-# audit-service config
+# replace the configuration for audit-service
 sed -i "s/mysql.jdbc.url=.*$/mysql.jdbc.url=jdbc:mysql:\/\/${AUDIT_MYSQL_JDBC_URL}\/${AUDIT_DBNAME}/g" "${service_conf_file}"
 sed -i "s/mysql.jdbc.username=.*$/mysql.jdbc.username=${AUDIT_MYSQL_USERNAME}/g" "${service_conf_file}"
 sed -i "s/mysql.jdbc.password=.*$/mysql.jdbc.password=${AUDIT_MYSQL_PASSWORD}/g" "${service_conf_file}"

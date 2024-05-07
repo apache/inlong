@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 @Setter
 public class StoreConfig {
 
+    // Supports common JDBC protocol. Such as mysql / StarRocks
     @Value("${audit.config.store.mode:jdbc}")
     private String store;
 
