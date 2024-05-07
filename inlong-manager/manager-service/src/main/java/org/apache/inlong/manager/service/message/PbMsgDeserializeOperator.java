@@ -103,6 +103,7 @@ public class PbMsgDeserializeOperator implements DeserializeOperator {
                         .dt(messageObj.getMsgTime())
                         .clientIp(headers.get(CLIENT_IP))
                         .body(body)
+                        .headers(headers)
                         .fieldList(streamFieldList)
                         .build();
                 messageList.add(message);
