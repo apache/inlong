@@ -17,11 +17,15 @@
 
 package org.apache.inlong.sort.formats.json;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.apache.flink.types.Row;
 
 import java.io.Serializable;
 import java.util.Map;
 
+@Data
+@AllArgsConstructor
 public class MysqlBinLogData implements Serializable {
 
     private static final long serialVersionUID = 7819918248769501308L;
@@ -41,25 +45,4 @@ public class MysqlBinLogData implements Serializable {
     private Row physicalData;
 
     private Map<String, Object> metadataMap;
-
-    public MysqlBinLogData(Row physicalData, Map<String, Object> metadataMap) {
-        this.physicalData = physicalData;
-        this.metadataMap = metadataMap;
-    }
-
-    public Row getPhysicalData() {
-        return physicalData;
-    }
-
-    public void setPhysicalData(Row physicalData) {
-        this.physicalData = physicalData;
-    }
-
-    public Map<String, Object> getMetadataMap() {
-        return metadataMap;
-    }
-
-    public void setMetadataMap(Map<String, Object> metadataMap) {
-        this.metadataMap = metadataMap;
-    }
 }
