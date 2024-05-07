@@ -15,38 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.transform.process.operator;
+package org.apache.inlong.sdk.transform.process.parser;
 
 import org.apache.inlong.sdk.transform.decode.SourceData;
-import org.apache.inlong.sdk.transform.process.parser.ValueParser;
+import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 
-import net.sf.jsqlparser.expression.operators.relational.MinorThan;
+import net.sf.jsqlparser.expression.Parenthesis;
 
 /**
- * MinorThanOperator
+ * ParenthesisParser
  * 
  */
-public class MinorThanOperator implements ExpressionOperator {
+public class ParenthesisParser implements ValueParser {
 
-    private ValueParser left;
-    private ValueParser right;
+    private ValueParser node;
 
-    public MinorThanOperator(MinorThan expr) {
-        this.left = OperatorTools.buildParser(expr.getLeftExpression());
-        this.right = OperatorTools.buildParser(expr.getRightExpression());
+    public ParenthesisParser(Parenthesis expr) {
+        this.node = OperatorTools.buildParser(expr.getExpression());
     }
 
     /**
-     * check
+     * parse
      * @param sourceData
      * @param rowIndex
      * @return
      */
-    @SuppressWarnings("rawtypes")
     @Override
-    public boolean check(SourceData sourceData, int rowIndex) {
-        return OperatorTools.compareValue((Comparable) this.left.parse(sourceData, rowIndex),
-                (Comparable) this.right.parse(sourceData, rowIndex)) < 0;
+    public Object parse(SourceData sourceData, int rowIndex) {
+        return node.parse(sourceData, rowIndex);
     }
-
 }

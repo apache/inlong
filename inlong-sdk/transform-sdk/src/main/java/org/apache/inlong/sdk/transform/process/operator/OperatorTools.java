@@ -17,9 +17,14 @@
 
 package org.apache.inlong.sdk.transform.process.operator;
 
+import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
+import org.apache.inlong.sdk.transform.process.parser.DivisionParser;
 import org.apache.inlong.sdk.transform.process.parser.LongParser;
+import org.apache.inlong.sdk.transform.process.parser.MultiplicationParser;
+import org.apache.inlong.sdk.transform.process.parser.ParenthesisParser;
 import org.apache.inlong.sdk.transform.process.parser.StringParser;
+import org.apache.inlong.sdk.transform.process.parser.SubtractionParser;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.Expression;
@@ -28,6 +33,10 @@ import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.NotExpression;
 import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
+import net.sf.jsqlparser.expression.operators.arithmetic.Division;
+import net.sf.jsqlparser.expression.operators.arithmetic.Multiplication;
+import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
@@ -37,12 +46,19 @@ import net.sf.jsqlparser.expression.operators.relational.MinorThan;
 import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
+import org.apache.commons.lang.ObjectUtils;
+
+import java.math.BigDecimal;
 
 /**
  * OperatorTools
  * 
  */
 public class OperatorTools {
+
+    public static final String ROOT_KEY = "$root";
+
+    public static final String CHILD_KEY = "$child";
 
     public static ExpressionOperator buildOperator(Expression expr) {
         if (expr instanceof AndExpression) {
@@ -76,9 +92,61 @@ public class OperatorTools {
             return new StringParser((StringValue) expr);
         } else if (expr instanceof LongValue) {
             return new LongParser((LongValue) expr);
+        } else if (expr instanceof Parenthesis) {
+            return new ParenthesisParser((Parenthesis) expr);
+        } else if (expr instanceof Addition) {
+            return new AdditionParser((Addition) expr);
+        } else if (expr instanceof Subtraction) {
+            return new SubtractionParser((Subtraction) expr);
+        } else if (expr instanceof Multiplication) {
+            return new MultiplicationParser((Multiplication) expr);
+        } else if (expr instanceof Division) {
+            return new DivisionParser((Division) expr);
         } else if (expr instanceof Function) {
-            return new ColumnParser((Function) expr);
+            String exprString = expr.toString();
+            if (exprString.startsWith(ROOT_KEY) || exprString.startsWith(CHILD_KEY)) {
+                return new ColumnParser((Function) expr);
+            } else {
+                // TODO
+            }
         }
         return null;
+    }
+
+    /**
+     * parseBigDecimal
+     * @param value
+     * @return
+     */
+    public static BigDecimal parseBigDecimal(Object value) {
+        if (value instanceof BigDecimal) {
+            return (BigDecimal) value;
+        } else {
+            return new BigDecimal(String.valueOf(value));
+        }
+    }
+
+    /**
+     * compareValue
+     * @param value
+     * @return
+     */
+    @SuppressWarnings("rawtypes")
+    public static int compareValue(Comparable left, Comparable right) {
+        if (left instanceof String) {
+            if (right instanceof String) {
+                return ObjectUtils.compare(left, right);
+            } else {
+                BigDecimal leftValue = parseBigDecimal(left);
+                return ObjectUtils.compare(leftValue, right);
+            }
+        } else {
+            if (right instanceof String) {
+                BigDecimal rightValue = parseBigDecimal(right);
+                return ObjectUtils.compare(left, rightValue);
+            } else {
+                return ObjectUtils.compare(left, right);
+            }
+        }
     }
 }

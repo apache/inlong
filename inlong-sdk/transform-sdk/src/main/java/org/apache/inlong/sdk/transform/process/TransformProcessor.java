@@ -52,6 +52,8 @@ import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringReader;
 import java.nio.charset.Charset;
@@ -66,6 +68,8 @@ import java.util.Map.Entry;
  * 
  */
 public class TransformProcessor {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TransformProcessor.class);
 
     private TransformConfig config;
     private SourceDecoder decoder;
@@ -166,8 +170,13 @@ public class TransformProcessor {
             SinkData sinkData = new DefaultSinkData();
             for (Entry<String, ValueParser> entry : this.selectItemMap.entrySet()) {
                 String fieldName = entry.getKey();
-                Object fieldValue = entry.getValue().parse(sourceData, i);
-                sinkData.putField(fieldName, String.valueOf(fieldValue));
+                try {
+                    Object fieldValue = entry.getValue().parse(sourceData, i);
+                    sinkData.putField(fieldName, String.valueOf(fieldValue));
+                } catch (Throwable t) {
+                    LOG.error(t.getMessage(), t);
+                    sinkData.putField(fieldName, "");
+                }
             }
             sinkDatas.add(this.encoder.encode(sinkData));
         }
