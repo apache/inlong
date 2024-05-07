@@ -21,7 +21,6 @@ import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
-import org.apache.commons.lang.ObjectUtils;
 
 /**
  * MinorThanEqualsOperator
@@ -46,7 +45,7 @@ public class MinorThanEqualsOperator implements ExpressionOperator {
     @SuppressWarnings("rawtypes")
     @Override
     public boolean check(SourceData sourceData, int rowIndex) {
-        return ObjectUtils.compare((Comparable) this.left.parse(sourceData, rowIndex),
+        return OperatorTools.compareValue((Comparable) this.left.parse(sourceData, rowIndex),
                 (Comparable) this.right.parse(sourceData, rowIndex)) <= 0;
     }
 

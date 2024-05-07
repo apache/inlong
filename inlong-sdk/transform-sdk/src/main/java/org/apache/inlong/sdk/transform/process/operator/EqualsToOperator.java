@@ -21,7 +21,6 @@ import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import org.apache.commons.lang.ObjectUtils;
 
 /**
  * EqualsToOperator
@@ -43,9 +42,11 @@ public class EqualsToOperator implements ExpressionOperator {
      * @param rowIndex
      * @return
      */
+    @SuppressWarnings("rawtypes")
     @Override
     public boolean check(SourceData sourceData, int rowIndex) {
-        return ObjectUtils.equals(this.left.parse(sourceData, rowIndex), this.right.parse(sourceData, rowIndex));
+        return OperatorTools.compareValue((Comparable) this.left.parse(sourceData, rowIndex),
+                (Comparable) this.right.parse(sourceData, rowIndex)) == 0;
     }
 
 }
