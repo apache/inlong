@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sdk.transform.process.operator;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
+import org.apache.inlong.sdk.transform.process.function.NowFunction;
 import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
 import org.apache.inlong.sdk.transform.process.parser.DivisionParser;
@@ -26,6 +29,8 @@ import org.apache.inlong.sdk.transform.process.parser.ParenthesisParser;
 import org.apache.inlong.sdk.transform.process.parser.StringParser;
 import org.apache.inlong.sdk.transform.process.parser.SubtractionParser;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
+
+import java.math.BigDecimal;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
@@ -46,9 +51,6 @@ import net.sf.jsqlparser.expression.operators.relational.MinorThan;
 import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
-import org.apache.commons.lang.ObjectUtils;
-
-import java.math.BigDecimal;
 
 /**
  * OperatorTools
@@ -108,6 +110,15 @@ public class OperatorTools {
                 return new ColumnParser((Function) expr);
             } else {
                 // TODO
+                Function func = (Function) expr;
+                switch (func.getName()) {
+                    case "concat" :
+                        return new ConcatFunction(func);
+                    case "now" :
+                        return new NowFunction(func);
+                    default :
+                        return new ColumnParser(func);
+                }
             }
         }
         return null;

@@ -27,7 +27,6 @@ import org.apache.inlong.sdk.transform.pojo.PbSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.SinkInfo;
 import org.apache.inlong.sdk.transform.pojo.SourceInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -133,8 +132,7 @@ public class TestTransformProcessor {
             List<FieldInfo> fields = this.getTestFieldList();
             SourceInfo jsonSource = new JsonSourceInfo("UTF-8", "");
             SinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
-            String transformSql =
-                    "select $root.sid,$root.packageID,$root.msgs(1).msgTime,$root.msgs(0).msg from source";
+            String transformSql = "select $root.sid,$root.packageID,$root.msgs(1).msgTime,$root.msgs(0).msg from source";
             TransformConfig config = new TransformConfig(jsonSource, csvSink, transformSql);
             // case1
             TransformProcessor processor = new TransformProcessor(config);
@@ -222,8 +220,7 @@ public class TestTransformProcessor {
     }
 
     private byte[] getPbTestData() {
-        String srcString =
-                "CgNzaWQSIAoJbXNnVmFsdWU0ELCdrqruMRoMCgNrZXkSBXZhbHVlEiMKCm1zZ1ZhbHVlNDIQsp2uqu4xGg4KBGtleTISBnZhbHVlMhgB";
+        String srcString = "CgNzaWQSIAoJbXNnVmFsdWU0ELCdrqruMRoMCgNrZXkSBXZhbHVlEiMKCm1zZ1ZhbHVlNDIQsp2uqu4xGg4KBGtleTISBnZhbHVlMhgB";
         byte[] srcBytes = Base64.getDecoder().decode(srcString);
         return srcBytes;
     }
@@ -256,8 +253,7 @@ public class TestTransformProcessor {
             String transformBase64 = this.getPbTestDescription();
             SourceInfo pbSource = new PbSourceInfo("UTF-8", transformBase64, "SdkDataRequest", null);
             SinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
-            String transformSql =
-                    "select $root.sid,$root.packageID,$root.msgs(1).msgTime,$root.msgs(0).msg from source";
+            String transformSql = "select $root.sid,$root.packageID,$root.msgs(1).msgTime,$root.msgs(0).msg from source";
             TransformConfig config = new TransformConfig(pbSource, csvSink, transformSql);
             // case1
             TransformProcessor processor = new TransformProcessor(config);
@@ -291,6 +287,47 @@ public class TestTransformProcessor {
             List<String> output = processor.transform(srcBytes, new HashMap<>());
             Assert.assertTrue(output.size() == 1);
             Assert.assertEquals(output.get(0), "sid|2|3426487836002|msgValue4");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testPb2CsvForConcat() {
+        try {
+            List<FieldInfo> fields = this.getTestFieldList();
+            String transformBase64 = this.getPbTestDescription();
+            SourceInfo pbSource = new PbSourceInfo("UTF-8", transformBase64, "SdkDataRequest", "msgs");
+            SinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
+            String transformSql = "select $root.sid,$root.packageID,$child.msgTime,"
+                    + "concat($root.sid,$root.packageID,$child.msgTime,$child.msg) msg,$root.msgs.msgTime.msg from source";
+            TransformConfig config = new TransformConfig(pbSource, csvSink, transformSql);
+            // case1
+            TransformProcessor processor = new TransformProcessor(config);
+            byte[] srcBytes = this.getPbTestData();
+            List<String> output = processor.transform(srcBytes, new HashMap<>());
+            Assert.assertTrue(output.size() == 2);
+            Assert.assertEquals(output.get(0), "sid|1|1713243918000|sid11713243918000msgValue4");
+            Assert.assertEquals(output.get(1), "sid|1|1713243918002|sid11713243918002msgValue42");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testPb2CsvForNow() {
+        try {
+            List<FieldInfo> fields = this.getTestFieldList();
+            String transformBase64 = this.getPbTestDescription();
+            SourceInfo pbSource = new PbSourceInfo("UTF-8", transformBase64, "SdkDataRequest", "msgs");
+            SinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
+            String transformSql = "select now() from source";
+            TransformConfig config = new TransformConfig(pbSource, csvSink, transformSql);
+            // case1
+            TransformProcessor processor = new TransformProcessor(config);
+            byte[] srcBytes = this.getPbTestData();
+            List<String> output = processor.transform(srcBytes, new HashMap<>());
+            Assert.assertTrue(output.size() == 2);
         } catch (Exception e) {
             e.printStackTrace();
         }
