@@ -27,6 +27,7 @@ import org.apache.inlong.sdk.transform.pojo.PbSourceInfo;
 import org.apache.inlong.sdk.transform.pojo.SinkInfo;
 import org.apache.inlong.sdk.transform.pojo.SourceInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -132,7 +133,8 @@ public class TestTransformProcessor {
             List<FieldInfo> fields = this.getTestFieldList();
             SourceInfo jsonSource = new JsonSourceInfo("UTF-8", "");
             SinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
-            String transformSql = "select $root.sid,$root.packageID,$root.msgs(1).msgTime,$root.msgs(0).msg from source";
+            String transformSql =
+                    "select $root.sid,$root.packageID,$root.msgs(1).msgTime,$root.msgs(0).msg from source";
             TransformConfig config = new TransformConfig(jsonSource, csvSink, transformSql);
             // case1
             TransformProcessor processor = new TransformProcessor(config);
@@ -220,7 +222,8 @@ public class TestTransformProcessor {
     }
 
     private byte[] getPbTestData() {
-        String srcString = "CgNzaWQSIAoJbXNnVmFsdWU0ELCdrqruMRoMCgNrZXkSBXZhbHVlEiMKCm1zZ1ZhbHVlNDIQsp2uqu4xGg4KBGtleTISBnZhbHVlMhgB";
+        String srcString =
+                "CgNzaWQSIAoJbXNnVmFsdWU0ELCdrqruMRoMCgNrZXkSBXZhbHVlEiMKCm1zZ1ZhbHVlNDIQsp2uqu4xGg4KBGtleTISBnZhbHVlMhgB";
         byte[] srcBytes = Base64.getDecoder().decode(srcString);
         return srcBytes;
     }
@@ -253,7 +256,8 @@ public class TestTransformProcessor {
             String transformBase64 = this.getPbTestDescription();
             SourceInfo pbSource = new PbSourceInfo("UTF-8", transformBase64, "SdkDataRequest", null);
             SinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
-            String transformSql = "select $root.sid,$root.packageID,$root.msgs(1).msgTime,$root.msgs(0).msg from source";
+            String transformSql =
+                    "select $root.sid,$root.packageID,$root.msgs(1).msgTime,$root.msgs(0).msg from source";
             TransformConfig config = new TransformConfig(pbSource, csvSink, transformSql);
             // case1
             TransformProcessor processor = new TransformProcessor(config);
