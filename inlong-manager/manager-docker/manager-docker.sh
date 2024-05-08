@@ -49,7 +49,6 @@ sed -i "s/apache_inlong_audit/${AUDIT_CK_DBNAME}/g" "${conf_file}"
 sed -i "s/flink.rest.address=.*$/flink.rest.address=${FLINK_HOST}/g" "${flink_conf_file}"
 sed -i "s/flink.rest.port=.*$/flink.rest.port=${FLINK_PORT}/g" "${flink_conf_file}"
 sed -i "s/flink.parallelism=.*$/flink.parallelism=${FLINK_PARALLELISM}/g" "${flink_conf_file}"
-sed -i "s/metrics.audit.proxy.hosts=.*$/metrics.audit.proxy.hosts=${AUDIT_PROXY_URL}/g" "${flink_conf_file}"
 # for db sql
 sed -i "s/apache_inlong_manager/${MANAGER_DBNAME}/g" "${sql_file}"
 
