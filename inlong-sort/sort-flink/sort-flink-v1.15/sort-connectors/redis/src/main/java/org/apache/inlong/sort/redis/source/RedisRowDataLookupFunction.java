@@ -61,7 +61,7 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
 
     RedisRowDataLookupFunction(RedisCommandDescription redisCommandDescription,
             FlinkJedisConfigBase flinkJedisConfigBase, RedisLookupOptions redisLookupOptions, String inlongMetric,
-                               String auditHostAndPorts, String auditKeys) {
+            String auditHostAndPorts, String auditKeys) {
         this.flinkJedisConfigBase = flinkJedisConfigBase;
         this.redisCommand = redisCommandDescription.getCommand();
         this.additionalKey = redisCommandDescription.getAdditionalKey();
@@ -120,7 +120,7 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
                         throw new UnsupportedOperationException(
                                 String.format("Unsupported for redisCommand: %s", redisCommand));
                 }
-                if(sourceMetricData != null){
+                if (sourceMetricData != null) {
                     sourceMetricData.outputMetricsWithEstimate(rowData, System.currentTimeMillis());
                 }
                 LOG.info("Report audit: {} and time : {}", rowData, System.currentTimeMillis());
