@@ -35,7 +35,6 @@ ENV PLUGINS_URL=default
 ENV FLINK_HOST=127.0.0.1
 ENV FLINK_PORT=8081
 ENV FLINK_PARALLELISM=1
-ENV AUDIT_PROXY_URL=127.0.0.1:10081
 # JVM env
 ENV MANAGER_JVM_HEAP_OPTS="-XX:+UseContainerSupport -XX:InitialRAMPercentage=40.0 -XX:MaxRAMPercentage=80.0 -XX:-UseAdaptiveSizePolicy"
 WORKDIR /opt/inlong-manager
