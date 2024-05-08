@@ -37,8 +37,8 @@ ENV AUDIT_DBNAME="apache_inlong_audit"
 ENV START_MODE="all"
 # MySQL / StarRocks
 ENV AUDIT_JDBC_URL=127.0.0.1:3306
-ENV AUDIT_USERNAME=root
-ENV AUDIT_PASSWORD=inlong
+ENV AUDIT_JDBC_USERNAME=root
+ENV AUDIT_JDBC_PASSWORD=inlong
 
 # jvm
 ENV AUDIT_JVM_HEAP_OPTS="-XX:+UseContainerSupport -XX:InitialRAMPercentage=40.0 -XX:MaxRAMPercentage=80.0 -XX:-UseAdaptiveSizePolicy"
