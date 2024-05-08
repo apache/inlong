@@ -37,7 +37,11 @@ import org.apache.flink.util.Preconditions;
 
 import java.util.Map;
 
-import static org.apache.flink.table.types.logical.LogicalTypeRoot.*;
+import static org.apache.flink.table.types.logical.LogicalTypeRoot.DOUBLE;
+import static org.apache.flink.table.types.logical.LogicalTypeRoot.VARCHAR;
+import static org.apache.flink.table.types.logical.LogicalTypeRoot.BIGINT;
+
+//import static org.apache.flink.table.types.logical.LogicalTypeRoot.*;
 
 /**
  * Redis dynamic table source
@@ -52,9 +56,9 @@ public class RedisDynamicTableSource implements LookupTableSource {
     private final RedisLookupOptions redisLookupOptions;
     private final Map<String, String> properties;
 
-    private String inlongMetric;
-    private String auditHostAndPorts;
-    private String auditKeys;
+    private final String inlongMetric;
+    private final String auditHostAndPorts;
+    private final String auditKeys;
 
     public RedisDynamicTableSource(Map<String, String> properties, ResolvedSchema tableSchema,
             ReadableConfig config, RedisLookupOptions redisLookupOptions, String inlongMetric, String auditHostAndPorts,

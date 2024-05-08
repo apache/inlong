@@ -39,8 +39,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataSize;
-
 /**
  * Redis RowData lookup function
  */
@@ -75,7 +73,9 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
                 .withAuditAddress(auditHostAndPorts)
                 .withAuditKeys(auditKeys)
                 .build();
-        this.sourceMetricData = new SourceMetricData(metricOption);
+        if (metricOption != null) {
+            sourceMetricData = new SourceMetricData(metricOption);
+        }
     }
 
     /**
@@ -120,7 +120,9 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
                         throw new UnsupportedOperationException(
                                 String.format("Unsupported for redisCommand: %s", redisCommand));
                 }
-                sourceMetricData.outputMetricsWithEstimate(rowData, System.currentTimeMillis());
+                if(sourceMetricData != null){
+                    sourceMetricData.outputMetricsWithEstimate(rowData, System.currentTimeMillis());
+                }
                 LOG.info("Report audit: {} and time : {}", rowData, System.currentTimeMillis());
                 if (cache == null) {
                     collect(rowData);
