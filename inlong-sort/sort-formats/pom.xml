@@ -30,12 +30,6 @@
     <packaging>pom</packaging>
     <name>Apache InLong - Sort Formats</name>
 
-    <modules>
-        <module>format-common</module>
-        <module>format-row</module>
-        <module>format-rowdata</module>
-    </modules>
-
     <properties>
         <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
         <flink.forkCount>1C</flink.forkCount>
@@ -100,22 +94,6 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
             <type>jar</type>
-            <scope>test</scope>
-        </dependency>
-
-        <!--flink dependency-->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-common</artifactId>
-            <version>${flink.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-common</artifactId>
-            <version>${flink.version}</version>
-            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
 
@@ -208,5 +186,88 @@
         <connection>git@git.code.oa.com:flink/flink-formats.git</connection>
         <url>https://git.code.oa.com/flink/flink-formats</url>
     </scm>
+
+    <profiles>
+        <profile>
+            <id>v1.13</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>format-common</module>
+                <module>format-row</module>
+                <module>format-rowdata</module>
+            </modules>
+            <dependencies>
+
+                <!--flink dependency-->
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-table-common</artifactId>
+                    <version>${flink.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-table-common</artifactId>
+                    <version>${flink.version}</version>
+                    <type>test-jar</type>
+                    <scope>test</scope>
+                </dependency>
+
+            </dependencies>
+        </profile>
+        <profile>
+            <id>v1.15</id>
+            <modules>
+                <module>format-common</module>
+                <module>format-row</module>
+                <module>format-rowdata</module>
+            </modules>
+            <dependencies>
+
+                <!--flink dependency-->
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-table-common</artifactId>
+                    <version>${flink.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-table-common</artifactId>
+                    <version>${flink.version}</version>
+                    <type>test-jar</type>
+                    <scope>test</scope>
+                </dependency>
+
+            </dependencies>
+        </profile>
+        <profile>
+            <id>v1.18</id>
+            <modules>
+                <module>format-common</module>
+                <module>format-row/format-json-v1.18</module>
+            </modules>
+            <dependencies>
+                <!--flink dependency-->
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-table-common</artifactId>
+                    <version>${flink.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-table-common</artifactId>
+                    <version>${flink.version}</version>
+                    <type>test-jar</type>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
 </project>

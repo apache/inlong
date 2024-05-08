@@ -204,5 +204,45 @@
                 </dependency>
             </dependencies>
         </profile>
+        <profile>
+            <id>v1.18</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.inlong</groupId>
+                    <artifactId>sort-format-json-v1.18</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-sql-parquet</artifactId>
+                    <version>${flink.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-sql-orc</artifactId>
+                    <version>${flink.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-csv</artifactId>
+                    <version>${flink.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-json</artifactId>
+                    <version>${flink.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-sql-avro</artifactId>
+                    <version>${flink.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.inlong</groupId>
+                    <artifactId>audit-sdk</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
 </project>

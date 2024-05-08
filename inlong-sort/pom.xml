@@ -204,6 +204,7 @@
                 <flink.version>1.18.1</flink.version>
                 <flink.minor.version>1.18</flink.minor.version>
                 <flink.scala.binary.version>2.12</flink.scala.binary.version>
+                <flink.test.utils.artifactId>flink-test-utils</flink.test.utils.artifactId>
             </properties>
         </profile>
     </profiles>

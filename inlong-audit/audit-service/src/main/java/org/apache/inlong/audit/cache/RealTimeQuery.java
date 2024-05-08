@@ -39,6 +39,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATASOURCE_DETECT_INTERVAL_MS;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATASOURCE_MAX_IDLE_CONNECTIONS;
@@ -48,6 +51,8 @@ import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_DETE
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_MAX_IDLE_CONNECTIONS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_MAX_TOTAL_CONNECTIONS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_MIN_IDLE_CONNECTIONS;
+import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_THREAD_POOL_SIZE;
+import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_THREAD_POOL_SIZE;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_SOURCE_QUERY_IDS_SQL;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_SOURCE_QUERY_IPS_SQL;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_SOURCE_QUERY_MINUTE_SQL;
@@ -68,8 +73,12 @@ public class RealTimeQuery {
     private final String queryLogTsSql;
     private final String queryIdsByIpSql;
     private final String queryReportIpsSql;
+    private final ExecutorService executor =
+            Executors.newFixedThreadPool(
+                    Configuration.getInstance().get(KEY_API_THREAD_POOL_SIZE, DEFAULT_API_THREAD_POOL_SIZE));
 
     private RealTimeQuery() {
+
         List<JdbcConfig> jdbcConfigList = ConfigService.getInstance().getAllAuditSource();
         for (JdbcConfig jdbcConfig : jdbcConfigList) {
             BasicDataSource dataSource = new BasicDataSource();
@@ -126,7 +135,7 @@ public class RealTimeQuery {
     public List<StatData> queryLogTs(String startTime, String endTime, String inlongGroupId,
             String inlongStreamId, String auditId) {
         long currentTime = System.currentTimeMillis();
-        List<StatData> statDataList = new LinkedList<>();
+        List<StatData> statDataList = new CopyOnWriteArrayList<>();
         if (dataSourceList.isEmpty()) {
             return statDataList;
         }
@@ -136,11 +145,11 @@ public class RealTimeQuery {
                 List<StatData> statDataListTemp =
                         doQueryLogTs(dataSource, startTime, endTime, inlongGroupId, inlongStreamId, auditId);
                 statDataList.addAll(statDataListTemp);
-            });
+            }, executor);
             futures.add(future);
         }
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()])).join();
-        LOGGER.info("Query log ts by params: {} {} {} {} {}, cost {} ms", startTime, endTime, inlongGroupId,
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        LOGGER.info("Query log ts by params: {} {} {} {} {}, total cost {} ms", startTime, endTime, inlongGroupId,
                 inlongStreamId, auditId, System.currentTimeMillis() - currentTime);
         return filterMaxAuditVersion(statDataList);
     }
@@ -165,8 +174,7 @@ public class RealTimeQuery {
         for (Map.Entry<String, List<StatData>> entry : allData.entrySet()) {
             long maxAuditVersion = Long.MIN_VALUE;
             for (StatData maxData : entry.getValue()) {
-                maxAuditVersion =
-                        maxData.getAuditVersion() > maxAuditVersion ? maxData.getAuditVersion() : maxAuditVersion;
+                maxAuditVersion = Math.max(maxData.getAuditVersion(), maxAuditVersion);
             }
             for (StatData statData : entry.getValue()) {
                 if (statData.getAuditVersion() == maxAuditVersion) {
@@ -191,6 +199,7 @@ public class RealTimeQuery {
      */
     private List<StatData> doQueryLogTs(DataSource dataSource, String startTime, String endTime, String inlongGroupId,
             String inlongStreamId, String auditId) {
+        long currentTime = System.currentTimeMillis();
         List<StatData> result = new LinkedList<>();
         try (Connection connection = dataSource.getConnection();
                 PreparedStatement pstat = connection.prepareStatement(queryLogTsSql)) {
@@ -219,6 +228,8 @@ public class RealTimeQuery {
         } catch (Exception exception) {
             LOGGER.error("Query log time has exception!, datasource={} ", dataSource, exception);
         }
+        LOGGER.info("Query log ts by params: {} {} {} {} {}, cost {} ms", startTime, endTime, inlongGroupId,
+                inlongStreamId, auditId, System.currentTimeMillis() - currentTime);
         return result;
     }
 

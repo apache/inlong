@@ -50,6 +50,9 @@ public class ClusterTagResponse {
     @ApiModelProperty(value = "Extended params")
     private String extParams;
 
+    @ApiModelProperty(value = "The compression type used for dataproxy and sort side data transmission to reduce the network IO overhead")
+    private String inlongCompressType;
+
     @ApiModelProperty(value = "Description of the cluster tag")
     private String description;
 
