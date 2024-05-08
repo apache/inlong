@@ -95,10 +95,15 @@ public class RedisDynamicTableFactory implements DynamicTableSourceFactory, Dyna
     public DynamicTableSource createDynamicTableSource(Context context) {
         FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         ReadableConfig config = helper.getOptions();
+
         helper.validate();
         validateConfigOptions(config, SUPPORT_SOURCE_COMMANDS);
+        String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
+        String auditHostAndPorts = config.get(INLONG_AUDIT);
+        String auditKeys = config.get(AUDIT_KEYS);
         return new RedisDynamicTableSource(context.getCatalogTable().getOptions(),
-                context.getCatalogTable().getResolvedSchema(), config, getJdbcLookupOptions(config));
+                context.getCatalogTable().getResolvedSchema(), config, getJdbcLookupOptions(config), inlongMetric,
+                auditHostAndPorts, auditKeys);
     }
 
     @Override

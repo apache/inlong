@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.redis.source;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.redis.common.config.RedisLookupOptions;
 import org.apache.inlong.sort.redis.common.container.InlongRedisCommandsContainer;
 import org.apache.inlong.sort.redis.common.container.RedisCommandsContainerBuilder;
@@ -37,6 +39,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataSize;
+
 /**
  * Redis RowData lookup function
  */
@@ -55,14 +59,23 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
     private transient Cache<RowData, RowData> cache;
     private InlongRedisCommandsContainer redisCommandsContainer;
 
+    private SourceMetricData sourceMetricData;
+
     RedisRowDataLookupFunction(RedisCommandDescription redisCommandDescription,
-            FlinkJedisConfigBase flinkJedisConfigBase, RedisLookupOptions redisLookupOptions) {
+            FlinkJedisConfigBase flinkJedisConfigBase, RedisLookupOptions redisLookupOptions, String inlongMetric,
+                               String auditHostAndPorts, String auditKeys) {
         this.flinkJedisConfigBase = flinkJedisConfigBase;
         this.redisCommand = redisCommandDescription.getCommand();
         this.additionalKey = redisCommandDescription.getAdditionalKey();
         this.cacheMaxSize = redisLookupOptions.getCacheMaxSize();
         this.cacheExpireMs = redisLookupOptions.getCacheExpireMs();
         this.maxRetryTimes = redisLookupOptions.getMaxRetryTimes();
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withAuditAddress(auditHostAndPorts)
+                .withAuditKeys(auditKeys)
+                .build();
+        this.sourceMetricData = new SourceMetricData(metricOption);
     }
 
     /**
@@ -107,6 +120,8 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
                         throw new UnsupportedOperationException(
                                 String.format("Unsupported for redisCommand: %s", redisCommand));
                 }
+                sourceMetricData.outputMetricsWithEstimate(rowData, System.currentTimeMillis());
+                LOG.info("Report audit: {} and time : {}", rowData, System.currentTimeMillis());
                 if (cache == null) {
                     collect(rowData);
                 } else {

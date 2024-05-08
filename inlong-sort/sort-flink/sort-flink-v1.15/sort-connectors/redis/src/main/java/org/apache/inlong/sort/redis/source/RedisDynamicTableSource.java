@@ -52,8 +52,13 @@ public class RedisDynamicTableSource implements LookupTableSource {
     private final RedisLookupOptions redisLookupOptions;
     private final Map<String, String> properties;
 
+    private String inlongMetric;
+    private String auditHostAndPorts;
+    private String auditKeys;
+
     public RedisDynamicTableSource(Map<String, String> properties, ResolvedSchema tableSchema,
-            ReadableConfig config, RedisLookupOptions redisLookupOptions) {
+            ReadableConfig config, RedisLookupOptions redisLookupOptions, String inlongMetric, String auditHostAndPorts,
+                                   String auditKeys) {
         this.properties = properties;
         Preconditions.checkNotNull(properties, "properties should not be null");
         this.tableSchema = tableSchema;
@@ -73,11 +78,15 @@ public class RedisDynamicTableSource implements LookupTableSource {
         flinkJedisConfigBase = RedisHandlerServices
                 .findRedisHandler(InlongJedisConfigHandler.class, properties).createFlinkJedisConfig(config);
         this.redisLookupOptions = redisLookupOptions;
+        this.inlongMetric = inlongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
+        this.auditKeys = auditKeys;
     }
 
     @Override
     public DynamicTableSource copy() {
-        return new RedisDynamicTableSource(properties, tableSchema, config, redisLookupOptions);
+        return new RedisDynamicTableSource(properties, tableSchema, config, redisLookupOptions, inlongMetric,
+                auditHostAndPorts, auditKeys);
     }
 
     @Override
@@ -88,6 +97,7 @@ public class RedisDynamicTableSource implements LookupTableSource {
     @Override
     public LookupRuntimeProvider getLookupRuntimeProvider(LookupContext context) {
         return TableFunctionProvider.of(new RedisRowDataLookupFunction(
-                redisMapper.getCommandDescription(), flinkJedisConfigBase, this.redisLookupOptions));
+                redisMapper.getCommandDescription(), flinkJedisConfigBase, this.redisLookupOptions, inlongMetric,
+                auditHostAndPorts, auditKeys));
     }
 }
