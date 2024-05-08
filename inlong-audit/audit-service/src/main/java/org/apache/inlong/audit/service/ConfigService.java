@@ -32,6 +32,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -48,12 +50,14 @@ import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CONNECTION_
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATASOURCE_POOL_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_CACHE_SQL_LIMIT;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SELECTOR_SERVICE_ID;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_CACHE_PREP_STMTS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_CONFIG_UPDATE_INTERVAL_SECONDS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_CONNECTION_TIMEOUT;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_POOL_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SQL_LIMIT;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_SELECTOR_SERVICE_ID;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SQL_LIMIT;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_MYSQL_QUERY_AUDIT_ID_SQL;
@@ -75,6 +79,15 @@ public class ConfigService {
     private ConcurrentHashMap<String, List<JdbcConfig>> auditSources = new ConcurrentHashMap<>();
     private final String queryAuditIdSql;
     private final String queryAuditSourceSql;
+
+    /**
+     * If there is no audit item configured in the service configuration table audit_id_config, the default audit item is used.
+     * Audit id 3 means that the Agent receives successfully.
+     * Audit id 4 means that the Agent sends successfully.
+     * Audit id 5 means that the DataProxy receives successfully.
+     * Audit id 6 means that the DataProxy sends successfully.
+     */
+    private final String DEFAULT_AUDIT_IDS = "3;4;5;6";
 
     public static ConfigService getInstance() {
         if (configService == null) {
@@ -160,6 +173,18 @@ public class ConfigService {
         } catch (Exception exception) {
             LOGGER.error("Query has exception! ", exception);
         }
+
+        /**
+         * If there is no audit item configured in the service configuration table audit_id_config, the default audit item will be used.
+         * audit id 3 means that the Agent receives successfully.
+         * audit id 4 means that the Agent sends successfully.
+         * audit id 5 means that the DataProxy receives successfully.
+         * audit id 6 means that the DataProxy sends successfully.
+         */
+        if (auditIds.isEmpty()) {
+            auditIds.addAll(Arrays.asList(DEFAULT_AUDIT_IDS.split(";")));
+            LOGGER.info("The default audit item is used: {}", DEFAULT_AUDIT_IDS);
+        }
     }
 
     /**
@@ -192,6 +217,16 @@ public class ConfigService {
         } catch (Exception exception) {
             LOGGER.error("Query has exception! ", exception);
         }
+
+        /**
+         * If the audit data source is not configured in the service configuration table audit_source_config,
+         * use the same MySQL configuration as the service.
+         */
+        if (auditSources.isEmpty()) {
+            auditSources.put(Configuration.getInstance().get(KEY_SELECTOR_SERVICE_ID, DEFAULT_SELECTOR_SERVICE_ID),
+                    Collections.singletonList(JdbcUtils.buildMysqlConfig()));
+            LOGGER.info("The default audit data source is used,the same as the audit service.");
+        }
     }
 
     /**
@@ -213,6 +248,7 @@ public class ConfigService {
         for (Map.Entry<String, List<JdbcConfig>> entry : auditSources.entrySet()) {
             sourceList.addAll(entry.getValue());
         }
+        sourceList.add(JdbcUtils.buildMysqlConfig());
         return sourceList;
     }
 
