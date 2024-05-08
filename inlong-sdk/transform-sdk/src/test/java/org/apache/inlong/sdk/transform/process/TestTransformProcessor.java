@@ -72,6 +72,28 @@ public class TestTransformProcessor {
     }
 
     @Test
+    public void testCsv2KvNoField() {
+        try {
+            SourceInfo csvSource = new CsvSourceInfo("UTF-8", "|", "\\", null);
+            SinkInfo kvSink = new KvSinkInfo("UTF-8", null);
+            String transformSql = "select $1 ftime,$2 extinfo from source where $2='ok'";
+            TransformConfig config = new TransformConfig(csvSource, kvSink, transformSql);
+            // case1
+            TransformProcessor processor1 = new TransformProcessor(config);
+            List<String> output1 = processor1.transform("2024-04-28 00:00:00|ok", new HashMap<>());
+            Assert.assertTrue(output1.size() == 1);
+            Assert.assertEquals(output1.get(0), "ftime=2024-04-28 00:00:00&extinfo=ok");
+            // case2
+            config.setTransformSql("select $1 ftime,$2 extinfo from source where $2!='ok'");
+            TransformProcessor processor2 = new TransformProcessor(config);
+            List<String> output2 = processor2.transform("2024-04-28 00:00:00|ok", new HashMap<>());
+            Assert.assertTrue(output2.size() == 0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void testKv2Csv() {
         try {
             List<FieldInfo> fields = new ArrayList<>();
@@ -83,6 +105,28 @@ public class TestTransformProcessor {
             fields.add(extinfo);
             SourceInfo kvSource = new KvSourceInfo("UTF-8", fields);
             SinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", fields);
+            String transformSql = "select ftime,extinfo from source where extinfo='ok'";
+            TransformConfig config = new TransformConfig(kvSource, csvSink, transformSql);
+            // case1
+            TransformProcessor processor1 = new TransformProcessor(config);
+            List<String> output1 = processor1.transform("ftime=2024-04-28 00:00:00&extinfo=ok", new HashMap<>());
+            Assert.assertTrue(output1.size() == 1);
+            Assert.assertEquals(output1.get(0), "2024-04-28 00:00:00|ok");
+            // case2
+            config.setTransformSql("select ftime,extinfo from source where extinfo!='ok'");
+            TransformProcessor processor2 = new TransformProcessor(config);
+            List<String> output2 = processor2.transform("ftime=2024-04-28 00:00:00&extinfo=ok", new HashMap<>());
+            Assert.assertTrue(output2.size() == 0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testKv2CsvNoField() {
+        try {
+            SourceInfo kvSource = new KvSourceInfo("UTF-8", null);
+            SinkInfo csvSink = new CsvSinkInfo("UTF-8", "|", "\\", null);
             String transformSql = "select ftime,extinfo from source where extinfo='ok'";
             TransformConfig config = new TransformConfig(kvSource, csvSink, transformSql);
             // case1

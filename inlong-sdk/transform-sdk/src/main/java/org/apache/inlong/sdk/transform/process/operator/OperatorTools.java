@@ -144,6 +144,17 @@ public class OperatorTools {
      */
     @SuppressWarnings("rawtypes")
     public static int compareValue(Comparable left, Comparable right) {
+        if (left == null) {
+            if (right == null) {
+                return 0;
+            } else {
+                return -1;
+            }
+        } else {
+            if (right == null) {
+                return 1;
+            }
+        }
         if (left instanceof String) {
             if (right instanceof String) {
                 return ObjectUtils.compare(left, right);

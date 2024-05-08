@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,7 +43,11 @@ public class CsvSinkInfo extends SinkInfo {
         super(SourceInfo.CSV, charset);
         this.delimiter = delimiter;
         this.escapeChar = escapeChar;
-        this.fields = fields;
+        if (fields != null) {
+            this.fields = fields;
+        } else {
+            this.fields = new ArrayList<>();
+        }
     }
 
     /**

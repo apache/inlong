@@ -17,9 +17,10 @@
 
 package org.apache.inlong.sdk.transform.encode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * DefaultSinkData
@@ -27,15 +28,17 @@ import java.util.Set;
  */
 public class DefaultSinkData implements SinkData {
 
+    private List<String> keyList = new ArrayList<>();
     private Map<String, String> currentRow = new HashMap<>();
 
     /**
-     * putField
+     * addField
      * @param fieldName
      * @param fieldValue
      */
     @Override
-    public void putField(String fieldName, String fieldValue) {
+    public void addField(String fieldName, String fieldValue) {
+        this.keyList.add(fieldName);
         this.currentRow.put(fieldName, fieldValue);
     }
 
@@ -50,11 +53,11 @@ public class DefaultSinkData implements SinkData {
     }
 
     /**
-     * keySet
+     * keyList
      * @return
      */
     @Override
-    public Set<String> keySet() {
-        return this.currentRow.keySet();
+    public List<String> keyList() {
+        return this.keyList;
     }
 }

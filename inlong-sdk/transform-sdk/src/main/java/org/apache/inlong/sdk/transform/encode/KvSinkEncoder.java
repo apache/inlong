@@ -50,14 +50,18 @@ public class KvSinkEncoder implements SinkEncoder {
      */
     @Override
     public String encode(SinkData sinkData) {
-        if (fields == null || fields.size() == 0) {
-            return "";
-        }
         builder.delete(0, builder.length());
-        for (FieldInfo field : fields) {
-            String fieldName = field.getName();
-            String fieldValue = sinkData.getField(fieldName);
-            builder.append(fieldName).append('=').append(fieldValue).append('&');
+        if (fields == null || fields.size() == 0) {
+            for (String fieldName : sinkData.keyList()) {
+                String fieldValue = sinkData.getField(fieldName);
+                builder.append(fieldName).append('=').append(fieldValue).append('&');
+            }
+        } else {
+            for (FieldInfo field : fields) {
+                String fieldName = field.getName();
+                String fieldValue = sinkData.getField(fieldName);
+                builder.append(fieldName).append('=').append(fieldValue).append('&');
+            }
         }
         return builder.substring(0, builder.length() - 1);
     }

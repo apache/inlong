@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sdk.transform.encode;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * SinkData
@@ -25,9 +25,9 @@ import java.util.Set;
  */
 public interface SinkData {
 
-    void putField(String fieldName, String fieldValue);
+    void addField(String fieldName, String fieldValue);
 
     String getField(String fieldName);
 
-    Set<String> keySet();
+    List<String> keyList();
 }

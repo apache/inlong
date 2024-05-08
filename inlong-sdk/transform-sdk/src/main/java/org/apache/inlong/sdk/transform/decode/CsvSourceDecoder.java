@@ -68,7 +68,7 @@ public class CsvSourceDecoder implements SourceDecoder {
             if (fields == null || fields.size() == 0) {
                 for (int j = 0; j < fieldValues.length; j++) {
                     String fieldName = SourceData.FIELD_DEFAULT_PREFIX + (j + 1);
-                    sourceData.putField(fieldName, fieldValues[i]);
+                    sourceData.putField(fieldName, fieldValues[j]);
                 }
                 continue;
             }
