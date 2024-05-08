@@ -215,8 +215,8 @@ public class MetricOption implements Serializable {
         }
 
         public MetricOption build() {
-            if (inlongAudit == null) {
-                LOG.warn("The property 'metrics.audit.proxy.hosts' has not been set," +
+            if (inlongAudit == null && inlongLabels == null) {
+                LOG.warn("The property 'metrics.audit.proxy.hosts and inlong.metric.labels' has not been set," +
                         " the program will not open audit function");
                 return null;
             }
