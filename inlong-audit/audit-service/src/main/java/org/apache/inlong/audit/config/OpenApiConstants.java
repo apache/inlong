@@ -45,7 +45,7 @@ public class OpenApiConstants {
     public static final int DEFAULT_API_CACHE_MAX_SIZE = 50000000;
 
     public static final String KEY_API_CACHE_EXPIRED_HOURS = "api.cache.expired.hours";
-    public static final int DEFAULT_API_CACHE_EXPIRED_HOURS = 12;
+    public static final int DEFAULT_API_CACHE_EXPIRED_HOURS = 18;
 
     // Http config
     public static final String PARAMS_START_TIME = "startTime";

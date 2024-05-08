@@ -27,20 +27,9 @@ import org.springframework.stereotype.Component;
 @Setter
 public class StoreConfig {
 
-    @Value("${audit.config.store.mode:mysql}")
+    // Supports common JDBC protocol. Such as mysql / StarRocks
+    @Value("${audit.config.store.mode:jdbc}")
     private String store;
-
-    public boolean isMysqlStore() {
-        return store.contains("mysql");
-    }
-
-    public boolean isElasticsearchStore() {
-        return store.contains("elasticsearch");
-    }
-
-    public boolean isClickHouseStore() {
-        return store.contains("clickhouse");
-    }
 
     public boolean isJdbc() {
         return store.contains("jdbc");

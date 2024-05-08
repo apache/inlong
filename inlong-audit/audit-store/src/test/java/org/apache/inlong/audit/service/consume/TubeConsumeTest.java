@@ -17,14 +17,11 @@
 
 package org.apache.inlong.audit.service.consume;
 
-import org.apache.inlong.audit.config.ClickHouseConfig;
+import org.apache.inlong.audit.config.JdbcConfig;
 import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
-import org.apache.inlong.audit.db.dao.AuditDataDao;
-import org.apache.inlong.audit.service.ClickHouseService;
-import org.apache.inlong.audit.service.ElasticsearchService;
 import org.apache.inlong.audit.service.InsertData;
-import org.apache.inlong.audit.service.MySqlService;
+import org.apache.inlong.audit.service.JdbcService;
 import org.apache.inlong.tubemq.client.consumer.ConsumerResult;
 import org.apache.inlong.tubemq.client.consumer.PullMessageConsumer;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
@@ -41,9 +38,7 @@ import static org.mockito.Mockito.when;
 public class TubeConsumeTest {
 
     private PullMessageConsumer pullMessageConsumer;
-    private AuditDataDao auditDataDao;
-    private ElasticsearchService esService;
-    private ClickHouseConfig chConfig;
+    private JdbcConfig jdbcConfig;
     private StoreConfig storeConfig;
     private MessageQueueConfig mqConfig;
     private String topic = "inlong-audit";
@@ -63,6 +58,7 @@ public class TubeConsumeTest {
 
     /**
      * testConsume
+     *
      * @throws InterruptedException
      */
     @Test
@@ -76,13 +72,12 @@ public class TubeConsumeTest {
 
     /**
      * getInsertServiceList
+     *
      * @return
      */
     private List<InsertData> getInsertServiceList() {
         List<InsertData> insertServiceList = new ArrayList<>();
-        insertServiceList.add(new MySqlService(auditDataDao));
-        insertServiceList.add(esService);
-        insertServiceList.add(new ClickHouseService(chConfig));
+        insertServiceList.add(new JdbcService(jdbcConfig));
         return insertServiceList;
     }
 }

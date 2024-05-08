@@ -17,14 +17,11 @@
 
 package org.apache.inlong.audit.service.consume;
 
-import org.apache.inlong.audit.config.ClickHouseConfig;
+import org.apache.inlong.audit.config.JdbcConfig;
 import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
-import org.apache.inlong.audit.db.dao.AuditDataDao;
-import org.apache.inlong.audit.service.ClickHouseService;
-import org.apache.inlong.audit.service.ElasticsearchService;
 import org.apache.inlong.audit.service.InsertData;
-import org.apache.inlong.audit.service.MySqlService;
+import org.apache.inlong.audit.service.JdbcService;
 
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -42,11 +39,9 @@ import static org.mockito.Mockito.when;
 public class KafkaConsumeTest {
 
     private KafkaConsumer consumer;
-    private AuditDataDao auditDataDao;
-    private ElasticsearchService esService;
-    private ClickHouseConfig ckConfig;
     private StoreConfig storeConfig;
     private MessageQueueConfig mqConfig;
+    private JdbcConfig jdbcConfig;
     private String topic = "inlong-audit";
     private ConsumerRecords records;
 
@@ -77,9 +72,7 @@ public class KafkaConsumeTest {
      */
     private List<InsertData> getInsertServiceList() {
         List<InsertData> insertData = new ArrayList<>();
-        insertData.add(new MySqlService(auditDataDao));
-        insertData.add(esService);
-        insertData.add(new ClickHouseService(ckConfig));
+        insertData.add(new JdbcService(jdbcConfig));
         return insertData;
     }
 }

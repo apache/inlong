@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS `leader_selector`
    `leader_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
    `last_seen_active` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
    PRIMARY KEY (`service_id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'selector db'
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'selector db';
 
 -- ----------------------------
 -- Table structure for audit id config
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `audit_id_config`
     `status` int(11) DEFAULT '1' COMMENT 'Audit source config status. 0:Offline,1:Online',
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update time',
     PRIMARY KEY (`audit_id`)
-) ENGINE = InnoDB DEFAULT CHARSET = UTF8 COMMENT = 'Audit id config'
+) ENGINE = InnoDB DEFAULT CHARSET = UTF8 COMMENT = 'Audit id config';
 
 
 -- ----------------------------
@@ -130,5 +130,5 @@ CREATE TABLE IF NOT EXISTS `audit_source_config`
      `status` int(11) DEFAULT '1' COMMENT 'Audit source config status. 0:Offline,1:Online',
      `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update time',
      PRIMARY KEY (`source_name`, `jdbc_url`)
-) ENGINE = InnoDB DEFAULT CHARSET = UTF8 COMMENT = 'Audit source config'
+) ENGINE = InnoDB DEFAULT CHARSET = UTF8 COMMENT = 'Audit source config';
 
