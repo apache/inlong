@@ -58,18 +58,27 @@ public class CsvSinkEncoder implements SinkEncoder {
      */
     @Override
     public String encode(SinkData sinkData) {
-        if (fields == null || fields.size() == 0) {
-            return "";
-        }
         builder.delete(0, builder.length());
-        if (escapeChar == null) {
-            fields.forEach(v -> builder.append(sinkData.getField(v.getName())).append(delimiter));
+        if (fields == null || fields.size() == 0) {
+            if (escapeChar == null) {
+                sinkData.keyList().forEach(k -> builder.append(sinkData.getField(k)).append(delimiter));
+            } else {
+                for (String fieldName : sinkData.keyList()) {
+                    String fieldValue = sinkData.getField(fieldName);
+                    EscapeUtils.escapeContent(builder, delimiter, escapeChar, fieldValue);
+                    builder.append(delimiter);
+                }
+            }
         } else {
-            for (FieldInfo field : fields) {
-                String fieldName = field.getName();
-                String fieldValue = sinkData.getField(fieldName);
-                EscapeUtils.escapeContent(builder, delimiter, escapeChar, fieldValue);
-                builder.append(delimiter);
+            if (escapeChar == null) {
+                fields.forEach(v -> builder.append(sinkData.getField(v.getName())).append(delimiter));
+            } else {
+                for (FieldInfo field : fields) {
+                    String fieldName = field.getName();
+                    String fieldValue = sinkData.getField(fieldName);
+                    EscapeUtils.escapeContent(builder, delimiter, escapeChar, fieldValue);
+                    builder.append(delimiter);
+                }
             }
         }
         return builder.substring(0, builder.length() - 1);

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,7 +37,11 @@ public class KvSinkInfo extends SinkInfo {
             @JsonProperty("charset") String charset,
             @JsonProperty("fields") List<FieldInfo> fields) {
         super(SourceInfo.KV, charset);
-        this.fields = fields;
+        if (fields != null) {
+            this.fields = fields;
+        } else {
+            this.fields = new ArrayList<>();
+        }
     }
 
     /**

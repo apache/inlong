@@ -172,10 +172,10 @@ public class TransformProcessor {
                 String fieldName = entry.getKey();
                 try {
                     Object fieldValue = entry.getValue().parse(sourceData, i);
-                    sinkData.putField(fieldName, String.valueOf(fieldValue));
+                    sinkData.addField(fieldName, String.valueOf(fieldValue));
                 } catch (Throwable t) {
                     LOG.error(t.getMessage(), t);
-                    sinkData.putField(fieldName, "");
+                    sinkData.addField(fieldName, "");
                 }
             }
             sinkDatas.add(this.encoder.encode(sinkData));
