@@ -57,7 +57,7 @@ public class MetricOption implements Serializable {
     private List<Integer> inlongAuditKeys;
 
     private MetricOption(
-            String inlongLabels,
+            Map<String, String> labels,
             @Nullable String inlongAudit,
             RegisteredMetric registeredMetric,
             long initRecords,
@@ -65,46 +65,18 @@ public class MetricOption implements Serializable {
             Long initDirtyRecords,
             Long initDirtyBytes,
             Long readPhase,
-            String inlongAuditKeys) {
-        Preconditions.checkArgument(!StringUtils.isNullOrWhitespaceOnly(inlongLabels),
-                "Inlong labels must be set for register metric.");
-
+            List<Integer> inlongAuditKeys,
+            HashSet<String> ipPortList) {
         this.initRecords = initRecords;
         this.initBytes = initBytes;
         this.initDirtyRecords = initDirtyRecords;
         this.initDirtyBytes = initDirtyBytes;
         this.readPhase = readPhase;
-        this.labels = new LinkedHashMap<>();
-        String[] inLongLabelArray = inlongLabels.split(DELIMITER);
-        Preconditions.checkArgument(Stream.of(inLongLabelArray).allMatch(label -> label.contains("=")),
-                "InLong metric label format must be xxx=xxx");
-        Stream.of(inLongLabelArray).forEach(label -> {
-            String key = label.substring(0, label.indexOf('='));
-            String value = label.substring(label.indexOf('=') + 1);
-            labels.put(key, value);
-        });
-
+        this.labels = labels;
         this.ipPorts = inlongAudit;
-
-        if (ipPorts != null) {
-
-            Preconditions.checkArgument(labels.containsKey(GROUP_ID) && labels.containsKey(STREAM_ID),
-                    "groupId and streamId must be set when enable inlong audit collect.");
-
-            if (inlongAuditKeys == null) {
-                LOG.warn("should set inlongAuditKeys when enable inlong audit collect, "
-                        + "fallback to use id {} as audit key", AUDIT_SORT_INPUT);
-                inlongAuditKeys = AUDIT_SORT_INPUT;
-            }
-
-            this.inlongAuditKeys = AuditUtils.extractAuditKeys(inlongAuditKeys);
-            this.ipPortList = AuditUtils.extractAuditIpPorts(ipPorts);
-
-        }
-
-        if (registeredMetric != null) {
-            this.registeredMetric = registeredMetric;
-        }
+        this.inlongAuditKeys = inlongAuditKeys;
+        this.ipPortList = ipPortList;
+        this.registeredMetric = registeredMetric;
     }
 
     public Map<String, String> getLabels() {
@@ -238,11 +210,43 @@ public class MetricOption implements Serializable {
         }
 
         public MetricOption build() {
-            if (inlongLabels == null && inlongAudit == null) {
+            if (inlongAudit == null) {
+                LOG.warn("The property 'metrics.audit.proxy.hosts' has not been set," +
+                        " the program will not open audit function");
                 return null;
             }
-            return new MetricOption(inlongLabels, inlongAudit, registeredMetric, initRecords, initBytes,
-                    initDirtyRecords, initDirtyBytes, initReadPhase, inlongAuditKeys);
+
+            Preconditions.checkArgument(!StringUtils.isNullOrWhitespaceOnly(inlongLabels),
+                    "Inlong labels must be set for register metric.");
+            String[] inLongLabelArray = inlongLabels.split(DELIMITER);
+            Preconditions.checkArgument(Stream.of(inLongLabelArray).allMatch(label -> label.contains("=")),
+                    "InLong metric label format must be xxx=xxx");
+            Map<String, String> labels = new LinkedHashMap<>();
+            Stream.of(inLongLabelArray).forEach(label -> {
+                String key = label.substring(0, label.indexOf('='));
+                String value = label.substring(label.indexOf('=') + 1);
+                labels.put(key, value);
+            });
+
+            List<Integer> inlongAuditKeysList = null;
+            HashSet<String> ipPortList = null;
+
+            if (inlongAudit != null) {
+                Preconditions.checkArgument(labels.containsKey(GROUP_ID) && labels.containsKey(STREAM_ID),
+                        "The groupId and streamId must be set when enable inlong audit collect.");
+
+                if (inlongAuditKeys == null) {
+                    LOG.warn("The inlongAuditKeys should be set when enable inlong audit collect, "
+                            + "fallback to use id {} as audit key", AUDIT_SORT_INPUT);
+                    inlongAuditKeys = AUDIT_SORT_INPUT;
+                }
+
+                inlongAuditKeysList = AuditUtils.extractAuditKeys(inlongAuditKeys);
+                ipPortList = AuditUtils.extractAuditIpPorts(inlongAudit);
+            }
+
+            return new MetricOption(labels, inlongAudit, registeredMetric, initRecords, initBytes,
+                    initDirtyRecords, initDirtyBytes, initReadPhase, inlongAuditKeysList, ipPortList);
         }
     }
 }
