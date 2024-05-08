@@ -248,7 +248,6 @@ public class ConfigService {
         for (Map.Entry<String, List<JdbcConfig>> entry : auditSources.entrySet()) {
             sourceList.addAll(entry.getValue());
         }
-        sourceList.add(JdbcUtils.buildMysqlConfig());
         return sourceList;
     }
 
