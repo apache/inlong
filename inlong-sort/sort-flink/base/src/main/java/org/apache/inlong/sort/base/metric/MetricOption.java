@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,7 @@ public class MetricOption implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Map<String, String> labels;
-    private HashSet<String> ipPortList;
+    private Set<String> ipPortSet;
     private String ipPorts;
     private RegisteredMetric registeredMetric;
     private long initRecords;
@@ -66,7 +67,7 @@ public class MetricOption implements Serializable {
             Long initDirtyBytes,
             Long readPhase,
             List<Integer> inlongAuditKeys,
-            HashSet<String> ipPortList) {
+            Set<String> ipPortSet) {
         this.initRecords = initRecords;
         this.initBytes = initBytes;
         this.initDirtyRecords = initDirtyRecords;
@@ -75,7 +76,7 @@ public class MetricOption implements Serializable {
         this.labels = labels;
         this.ipPorts = inlongAudit;
         this.inlongAuditKeys = inlongAuditKeys;
-        this.ipPortList = ipPortList;
+        this.ipPortSet = ipPortSet;
         this.registeredMetric = registeredMetric;
     }
 
@@ -83,8 +84,12 @@ public class MetricOption implements Serializable {
         return labels;
     }
 
-    public HashSet<String> getIpPortList() {
-        return ipPortList;
+    public Set<String> getIpPortSet() {
+        return ipPortSet;
+    }
+
+    public HashSet<String> getIpPortSetAsHashSet() {
+        return new HashSet<>(ipPortSet);
     }
 
     public Optional<String> getIpPorts() {
@@ -229,7 +234,7 @@ public class MetricOption implements Serializable {
             });
 
             List<Integer> inlongAuditKeysList = null;
-            HashSet<String> ipPortList = null;
+            Set<String> ipPortSet = null;
 
             if (inlongAudit != null) {
                 Preconditions.checkArgument(labels.containsKey(GROUP_ID) && labels.containsKey(STREAM_ID),
@@ -242,11 +247,11 @@ public class MetricOption implements Serializable {
                 }
 
                 inlongAuditKeysList = AuditUtils.extractAuditKeys(inlongAuditKeys);
-                ipPortList = AuditUtils.extractAuditIpPorts(inlongAudit);
+                ipPortSet = AuditUtils.extractAuditIpPorts(inlongAudit);
             }
 
             return new MetricOption(labels, inlongAudit, registeredMetric, initRecords, initBytes,
-                    initDirtyRecords, initDirtyBytes, initReadPhase, inlongAuditKeysList, ipPortList);
+                    initDirtyRecords, initDirtyBytes, initReadPhase, inlongAuditKeysList, ipPortSet);
         }
     }
 }

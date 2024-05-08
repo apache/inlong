@@ -101,7 +101,7 @@ public class SinkMetricData implements MetricData, Serializable {
         }
 
         if (option.getIpPorts().isPresent()) {
-            AuditOperator.getInstance().setAuditProxy(option.getIpPortList());
+            AuditOperator.getInstance().setAuditProxy(option.getIpPortSetAsHashSet());
             this.auditOperator = AuditOperator.getInstance();
             this.auditKeys = option.getInlongAuditKeys();
         }
