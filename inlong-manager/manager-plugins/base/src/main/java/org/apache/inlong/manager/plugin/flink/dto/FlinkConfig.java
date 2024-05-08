@@ -37,8 +37,6 @@ public class FlinkConfig {
 
     private boolean drain;
 
-    private String auditProxyHosts;
-
     // flink version
     private String version;
 

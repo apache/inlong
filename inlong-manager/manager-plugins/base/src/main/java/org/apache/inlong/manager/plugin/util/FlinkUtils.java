@@ -42,7 +42,6 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.apache.inlong.common.constant.Constants.METRICS_AUDIT_PROXY_HOSTS_KEY;
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.ADDRESS;
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.DRAIN;
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.FLINK_VERSION;
@@ -199,7 +198,6 @@ public class FlinkUtils {
         flinkConfig.setSavepointDirectory(properties.getProperty(SAVEPOINT_DIRECTORY));
         flinkConfig.setJobManagerPort(Integer.valueOf(properties.getProperty(JOB_MANAGER_PORT)));
         flinkConfig.setDrain(Boolean.parseBoolean(properties.getProperty(DRAIN)));
-        flinkConfig.setAuditProxyHosts(properties.getProperty(METRICS_AUDIT_PROXY_HOSTS_KEY));
         flinkConfig.setVersion(properties.getProperty(FLINK_VERSION));
         return flinkConfig;
     }
