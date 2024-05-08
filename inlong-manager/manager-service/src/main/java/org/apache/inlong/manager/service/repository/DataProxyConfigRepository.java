@@ -31,6 +31,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
+import org.apache.inlong.manager.dao.entity.InlongClusterTagEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
@@ -99,6 +100,7 @@ public class DataProxyConfigRepository implements IRepository {
     public static final String KEY_DATA_NODE_NAME = "defaultDataNodeName";
     public static final String KEY_SORT_CONSUMER_GROUP = "defaultSortConsumerGroup";
     public static final String KEY_SINK_NAME = "defaultSinkName";
+    public static final String KEY_INLONG_COMPRESS_TYPE = "inlongCompressType";
 
     public static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on(SEPARATOR).trimResults()
             .withKeyValueSeparator(KEY_VALUE_SEPARATOR);
@@ -372,6 +374,15 @@ public class DataProxyConfigRepository implements IRepository {
         Map<String, InlongStreamId> streamIdMap = new HashMap<>();
         clusterSetMapper.selectInlongStreamId()
                 .forEach(v -> streamIdMap.put(getInlongId(v.getInlongGroupId(), v.getInlongStreamId()), v));
+
+        Map<String, InlongClusterTagEntity> clusterTagMap = new HashMap<>();
+        clusterSetMapper.selectInlongClusterTag().forEach(v -> clusterTagMap.put(v.getClusterTag(), v));
+        // reload inlong stream ext params
+        Map<String, Map<String, String>> clusterTagParams = new HashMap<>();
+        clusterTagMap.forEach((k, v) -> {
+            Map<String, String> params = fromJsonToMap(v.getExtParams());
+            clusterTagParams.put(k, params);
+        });
         // reload inlong stream ext params
         Map<String, Map<String, String>> streamParams = new HashMap<>();
         streamIdMap.forEach((k, v) -> {
@@ -389,7 +400,7 @@ public class DataProxyConfigRepository implements IRepository {
 
         // build Map<clusterTag, List<InlongIdObject>>
         Map<String, List<InLongIdObject>> inlongIdMap = this.parseInlongId(groupIdMap, groupParams, streamIdMap,
-                streamParams);
+                streamParams, clusterTagParams);
         // mark inlong id to proxy cluster
         for (Entry<String, DataProxyCluster> entry : proxyClusterMap.entrySet()) {
             String clusterTag = entry.getValue().getProxyCluster().getSetName();
@@ -405,7 +416,7 @@ public class DataProxyConfigRepository implements IRepository {
      */
     private Map<String, List<InLongIdObject>> parseInlongId(Map<String, InlongGroupId> groupIdMap,
             Map<String, Map<String, String>> groupParams, Map<String, InlongStreamId> streamIdMap,
-            Map<String, Map<String, String>> streamParams) {
+            Map<String, Map<String, String>> streamParams, Map<String, Map<String, String>> clusterTagParams) {
         Map<String, List<InLongIdObject>> inlongIdMap = new HashMap<>();
         for (Entry<String, InlongStreamId> entry : streamIdMap.entrySet()) {
             InlongStreamId streamIdObj = entry.getValue();
@@ -427,6 +438,11 @@ public class DataProxyConfigRepository implements IRepository {
                 obj.setTopic(streamIdObj.getTopic());
                 obj.getParams().put(KEY_NAMESPACE, groupIdObj.getTopic());
             }
+            Map<String, String> tagParamMap = clusterTagParams.get(groupIdObj.getClusterTag());
+            if (tagParamMap != null && StringUtils.isNotBlank(tagParamMap.get(KEY_INLONG_COMPRESS_TYPE))) {
+                obj.getParams().put(KEY_INLONG_COMPRESS_TYPE, tagParamMap.get(KEY_INLONG_COMPRESS_TYPE));
+            }
+
             inlongIdMap.computeIfAbsent(groupIdObj.getClusterTag(), k -> new ArrayList<>()).add(obj);
             // backup
             InLongIdObject backupObj = new InLongIdObject();
@@ -444,6 +460,12 @@ public class DataProxyConfigRepository implements IRepository {
                     backupObj.getParams().put(KEY_NAMESPACE, groupMqResource);
                 } else {
                     backupObj.setTopic(groupMqResource);
+                }
+                Map<String, String> backUpTagParamMap = clusterTagParams.get(groupIdObj.getClusterTag());
+                if (backUpTagParamMap != null
+                        && StringUtils.isNotBlank(backUpTagParamMap.get(KEY_INLONG_COMPRESS_TYPE))) {
+                    backupObj.getParams().put(KEY_INLONG_COMPRESS_TYPE,
+                            backUpTagParamMap.get(KEY_INLONG_COMPRESS_TYPE));
                 }
                 inlongIdMap.computeIfAbsent(clusterTag, k -> new ArrayList<>()).add(backupObj);
             }

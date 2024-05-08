@@ -110,6 +110,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static org.apache.inlong.manager.pojo.cluster.InlongClusterTagExtParam.packExtParams;
+import static org.apache.inlong.manager.pojo.cluster.InlongClusterTagExtParam.unpackExtParams;
+
 /**
  * Inlong cluster service layer implementation
  */
@@ -170,6 +173,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
 
         InlongClusterTagEntity entity = CommonBeanUtils.copyProperties(request, InlongClusterTagEntity::new);
+        request.setExtParams(entity.getExtParams());
+        String extParam = packExtParams(request);
+        entity.setExtParams(extParam);
         entity.setCreator(operator);
         entity.setModifier(operator);
         clusterTagMapper.insert(entity);
@@ -196,6 +202,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     String.format("inlong cluster tag [%s] already exist", request.getClusterTag()));
         }
         InlongClusterTagEntity entity = CommonBeanUtils.copyProperties(request, InlongClusterTagEntity::new);
+        request.setExtParams(entity.getExtParams());
+        String extParam = packExtParams(request);
+        entity.setExtParams(extParam);
         entity.setCreator(opInfo.getName());
         entity.setModifier(opInfo.getName());
         clusterTagMapper.insert(entity);
@@ -212,6 +221,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
 
         ClusterTagResponse response = CommonBeanUtils.copyProperties(entity, ClusterTagResponse::new);
+        unpackExtParams(response);
 
         List<String> tenantList = tenantClusterTagMapper
                 .selectByTag(entity.getClusterTag()).stream()
@@ -231,6 +241,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     String.format("inlong cluster tag not found by id=%s", id));
         }
         ClusterTagResponse response = CommonBeanUtils.copyProperties(entity, ClusterTagResponse::new);
+        unpackExtParams(response);
+
         List<String> tenantList = tenantClusterTagMapper
                 .selectByTag(entity.getClusterTag()).stream()
                 .map(TenantClusterTagEntity::getTenant)
@@ -249,6 +261,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         PageResult<ClusterTagResponse> pageResult = PageResult.fromPage(entityPage)
                 .map(entity -> {
                     ClusterTagResponse response = CommonBeanUtils.copyProperties(entity, ClusterTagResponse::new);
+                    unpackExtParams(response);
+
                     List<String> tenantList = tenantClusterTagMapper
                             .selectByTag(entity.getClusterTag()).stream()
                             .map(TenantClusterTagEntity::getTenant)
@@ -336,6 +350,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
 
         CommonBeanUtils.copyProperties(request, exist, true);
+        request.setExtParams(exist.getExtParams());
+        String extParams = packExtParams(request);
+        exist.setExtParams(extParams);
         exist.setModifier(operator);
         if (InlongConstants.AFFECTED_ONE_ROW != clusterTagMapper.updateByIdSelective(exist)) {
             LOGGER.error(errMsg);
@@ -427,6 +444,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             }
         }
         CommonBeanUtils.copyProperties(request, exist, true);
+        request.setExtParams(exist.getExtParams());
+        String extParams = packExtParams(request);
+        exist.setExtParams(extParams);
         exist.setModifier(opInfo.getName());
         if (InlongConstants.AFFECTED_ONE_ROW != clusterTagMapper.updateByIdSelective(exist)) {
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);

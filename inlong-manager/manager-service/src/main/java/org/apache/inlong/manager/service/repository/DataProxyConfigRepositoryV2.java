@@ -31,6 +31,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
+import org.apache.inlong.manager.dao.entity.InlongClusterTagEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
@@ -95,6 +96,7 @@ public class DataProxyConfigRepositoryV2 implements IRepository {
     public static final String KEY_DATA_NODE_NAME = "defaultDataNodeName";
     public static final String KEY_SORT_CONSUMER_GROUP = "defaultSortConsumerGroup";
     public static final String KEY_SINK_NAME = "defaultSinkName";
+    public static final String KEY_INLONG_COMPRESS_TYPE = "inlongCompressType";
 
     public static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on(SEPARATOR).trimResults()
             .withKeyValueSeparator(KEY_VALUE_SEPARATOR);
@@ -258,8 +260,10 @@ public class DataProxyConfigRepositoryV2 implements IRepository {
             if (StringUtils.equalsIgnoreCase(producerTag, Boolean.TRUE.toString()) && StringUtils.isNotBlank(
                     cacheCluster.getClusterTags())) {
                 Set<String> clusterTags = Sets.newHashSet(cacheCluster.getClusterTags().split(InlongConstants.COMMA));
-                clusterTags.forEach(clusterTag -> cacheClusterMap.computeIfAbsent(clusterTag, k -> new HashMap<>())
-                        .computeIfAbsent(cacheCluster.getExtTag(), k -> new ArrayList<>()).add(cacheCluster));
+                clusterTags.forEach(clusterTag -> {
+                    cacheClusterMap.computeIfAbsent(clusterTag, k -> new HashMap<>())
+                            .computeIfAbsent(cacheCluster.getExtTag(), k -> new ArrayList<>()).add(cacheCluster);
+                });
             }
         }
         // mark cache cluster to proxy cluster
@@ -356,6 +360,15 @@ public class DataProxyConfigRepositoryV2 implements IRepository {
                 .loadGroupBackupInfo(ClusterSwitch.BACKUP_CLUSTER_TAG);
         groupExtCursor.forEach(v -> groupParams.computeIfAbsent(v.getInlongGroupId(), k -> new HashMap<>())
                 .put(ClusterSwitch.BACKUP_CLUSTER_TAG, v.getKeyValue()));
+
+        Map<String, InlongClusterTagEntity> clusterTagMap = new HashMap<>();
+        clusterSetMapper.selectInlongClusterTag().forEach(v -> clusterTagMap.put(v.getClusterTag(), v));
+        // reload inlong stream ext params
+        Map<String, Map<String, String>> clusterTagParams = new HashMap<>();
+        clusterTagMap.forEach((k, v) -> {
+            Map<String, String> params = fromJsonToMap(v.getExtParams());
+            clusterTagParams.put(k, params);
+        });
         // reload inlong stream id
         Map<String, InlongStreamId> streamIdMap = new HashMap<>();
         clusterSetMapper.selectInlongStreamId()
@@ -376,7 +389,7 @@ public class DataProxyConfigRepositoryV2 implements IRepository {
 
         // build Map<clusterTag, List<InlongIdObject>>
         Map<String, List<InLongIdObject>> inlongIdMap = this.parseInlongId(groupIdMap, groupParams, streamIdMap,
-                streamParams);
+                streamParams, clusterTagParams);
         // mark inlong id to proxy cluster
         for (Entry<String, DataProxyCluster> entry : proxyClusterMap.entrySet()) {
             String clusterTag = entry.getValue().getProxyCluster().getSetName();
@@ -392,7 +405,7 @@ public class DataProxyConfigRepositoryV2 implements IRepository {
      */
     private Map<String, List<InLongIdObject>> parseInlongId(Map<String, InlongGroupId> groupIdMap,
             Map<String, Map<String, String>> groupParams, Map<String, InlongStreamId> streamIdMap,
-            Map<String, Map<String, String>> streamParams) {
+            Map<String, Map<String, String>> streamParams, Map<String, Map<String, String>> clusterTagParams) {
         Map<String, List<InLongIdObject>> inlongIdMap = new HashMap<>();
         for (Entry<String, InlongStreamId> entry : streamIdMap.entrySet()) {
             InlongStreamId streamIdObj = entry.getValue();
@@ -408,12 +421,18 @@ public class DataProxyConfigRepositoryV2 implements IRepository {
             obj.setInlongId(inlongId);
             Optional.ofNullable(groupParams.get(groupId)).ifPresent(v -> obj.getParams().putAll(v));
             Optional.ofNullable(streamParams.get(inlongId)).ifPresent(v -> obj.getParams().putAll(v));
+
             if (StringUtils.isBlank(streamIdObj.getTopic())) {
                 obj.setTopic(groupIdObj.getTopic());
             } else {
                 obj.setTopic(streamIdObj.getTopic());
                 obj.getParams().put(KEY_NAMESPACE, groupIdObj.getTopic());
             }
+            Map<String, String> clusterParamMap = clusterTagParams.get(groupIdObj.getClusterTag());
+            if (clusterParamMap != null && StringUtils.isNotBlank(clusterParamMap.get(KEY_INLONG_COMPRESS_TYPE))) {
+                obj.getParams().put(KEY_INLONG_COMPRESS_TYPE, clusterParamMap.get(KEY_INLONG_COMPRESS_TYPE));
+            }
+
             inlongIdMap.computeIfAbsent(groupIdObj.getClusterTag(), k -> new ArrayList<>()).add(obj);
             // backup
             InLongIdObject backupObj = new InLongIdObject();
@@ -431,6 +450,12 @@ public class DataProxyConfigRepositoryV2 implements IRepository {
                     backupObj.getParams().put(KEY_NAMESPACE, groupMqResource);
                 } else {
                     backupObj.setTopic(groupMqResource);
+                }
+                Map<String, String> backUpTagParamMap = clusterTagParams.get(groupIdObj.getClusterTag());
+                if (backUpTagParamMap != null
+                        && StringUtils.isNotBlank(backUpTagParamMap.get(KEY_INLONG_COMPRESS_TYPE))) {
+                    backupObj.getParams().put(KEY_INLONG_COMPRESS_TYPE,
+                            backUpTagParamMap.get(KEY_INLONG_COMPRESS_TYPE));
                 }
                 inlongIdMap.computeIfAbsent(clusterTag, k -> new ArrayList<>()).add(backupObj);
             }

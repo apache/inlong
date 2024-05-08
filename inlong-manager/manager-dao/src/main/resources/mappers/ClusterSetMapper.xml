@@ -55,4 +55,10 @@
         from inlong_stream
         where is_deleted = 0
     </select>
+    <select id="selectInlongClusterTag" resultType="org.apache.inlong.manager.dao.entity.InlongClusterTagEntity">
+        select cluster_tag,
+               ext_params
+        from inlong_cluster_tag
+        where is_deleted = 0
+    </select>
 </mapper>
