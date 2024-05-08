@@ -121,9 +121,8 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
                                 String.format("Unsupported for redisCommand: %s", redisCommand));
                 }
                 if (sourceMetricData != null) {
-                    sourceMetricData.outputMetricsWithEstimate(rowData, System.currentTimeMillis());
+                    sourceMetricData.outputMetricsWithEstimate(rowData);
                 }
-                LOG.info("Report audit: {} and time : {}", rowData, System.currentTimeMillis());
                 if (cache == null) {
                     collect(rowData);
                 } else {
