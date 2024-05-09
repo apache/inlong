@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.kafka.table;
 
 import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.kafka.KafkaOptions;
 
 import org.apache.flink.annotation.Internal;
@@ -28,12 +29,9 @@ import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.connector.base.DeliveryGuarantee;
-import org.apache.flink.connector.kafka.source.KafkaSourceOptions;
 import org.apache.flink.streaming.connectors.kafka.config.StartupMode;
 import org.apache.flink.streaming.connectors.kafka.internals.KafkaTopicPartition;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
-import org.apache.flink.streaming.connectors.kafka.table.KafkaDynamicSink;
-import org.apache.flink.streaming.connectors.kafka.table.KafkaDynamicSource;
 import org.apache.flink.streaming.connectors.kafka.table.SinkBufferFlushMode;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.catalog.ObjectIdentifier;
@@ -51,6 +49,7 @@ import org.apache.flink.table.factories.FactoryUtil.TableFactoryHelper;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.kafka.source.KafkaSourceOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,6 +84,7 @@ import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOp
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.VALUE_FIELDS_INCLUDE;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.VALUE_FORMAT;
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
+import static org.apache.inlong.sort.base.Constants.*;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.PROPERTIES_PREFIX;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.StartupOptions;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.autoCompleteSchemaRegistrySubject;
@@ -222,6 +222,16 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
 
         final String keyPrefix = tableOptions.getOptional(KEY_FIELDS_PREFIX).orElse(null);
 
+        String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
+        String auditHostAndPorts = tableOptions.get(INLONG_AUDIT);
+        String auditKeys = tableOptions.get(AUDIT_KEYS);
+
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withAuditAddress(auditHostAndPorts)
+                .withAuditKeys(auditKeys)
+                .build();
+
         return createKafkaTableSource(
                 physicalDataType,
                 keyDecodingFormat.orElse(null),
@@ -235,7 +245,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 startupOptions.startupMode,
                 startupOptions.specificOffsets,
                 startupOptions.startupTimestampMillis,
-                context.getObjectIdentifier().asSummaryString());
+                context.getObjectIdentifier().asSummaryString(),
+                metricOption);
     }
 
     @Override
@@ -275,6 +286,16 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
 
         final Integer parallelism = tableOptions.getOptional(SINK_PARALLELISM).orElse(null);
 
+        String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
+        String auditHostAndPorts = tableOptions.get(INLONG_AUDIT);
+        String auditKeys = tableOptions.get(AUDIT_KEYS);
+
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withAuditAddress(auditHostAndPorts)
+                .withAuditKeys(auditKeys)
+                .build();
+
         return createKafkaTableSink(
                 physicalDataType,
                 keyEncodingFormat.orElse(null),
@@ -287,7 +308,9 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 getFlinkKafkaPartitioner(tableOptions, context.getClassLoader()).orElse(null),
                 deliveryGuarantee,
                 parallelism,
-                tableOptions.get(TRANSACTIONAL_ID_PREFIX));
+                tableOptions.get(TRANSACTIONAL_ID_PREFIX),
+                metricOption
+                );
     }
 
     private static Optional<DecodingFormat<DeserializationSchema<RowData>>> getKeyDecodingFormat(
@@ -390,7 +413,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
             StartupMode startupMode,
             Map<KafkaTopicPartition, Long> specificStartupOffsets,
             long startupTimestampMillis,
-            String tableIdentifier) {
+            String tableIdentifier,
+            MetricOption metricOption) {
         return new KafkaDynamicSource(
                 physicalDataType,
                 keyDecodingFormat,
@@ -405,7 +429,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 specificStartupOffsets,
                 startupTimestampMillis,
                 false,
-                tableIdentifier);
+                tableIdentifier,
+                metricOption);
     }
 
     protected KafkaDynamicSink createKafkaTableSink(
@@ -420,7 +445,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
             FlinkKafkaPartitioner<RowData> partitioner,
             DeliveryGuarantee deliveryGuarantee,
             Integer parallelism,
-            @Nullable String transactionalIdPrefix) {
+            @Nullable String transactionalIdPrefix,
+            MetricOption metricOption) {
         return new KafkaDynamicSink(
                 physicalDataType,
                 physicalDataType,
@@ -436,7 +462,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 false,
                 SinkBufferFlushMode.DISABLED,
                 parallelism,
-                transactionalIdPrefix);
+                transactionalIdPrefix,
+                metricOption);
     }
 
 }
