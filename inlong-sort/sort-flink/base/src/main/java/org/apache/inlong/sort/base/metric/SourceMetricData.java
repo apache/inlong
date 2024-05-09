@@ -104,7 +104,7 @@ public class SourceMetricData implements MetricData, Serializable {
         }
 
         if (option.getIpPorts().isPresent()) {
-            AuditOperator.getInstance().setAuditProxy(option.getIpPortList());
+            AuditOperator.getInstance().setAuditProxy(option.getIpPortSet());
             this.auditOperator = AuditOperator.getInstance();
             this.auditKeys = option.getInlongAuditKeys();
         }
@@ -114,7 +114,7 @@ public class SourceMetricData implements MetricData, Serializable {
         this.labels = option.getLabels();
 
         if (option.getIpPorts().isPresent()) {
-            AuditOperator.getInstance().setAuditProxy(option.getIpPortList());
+            AuditOperator.getInstance().setAuditProxy(option.getIpPortSet());
             this.auditOperator = AuditOperator.getInstance();
             this.auditKeys = option.getInlongAuditKeys();
         }
