@@ -83,7 +83,7 @@ public class MetricOption implements Serializable {
     public Map<String, String> getLabels() {
         return labels;
     }
-    
+
     public HashSet<String> getIpPortSet() {
         return new HashSet<>(ipPortSet);
     }
