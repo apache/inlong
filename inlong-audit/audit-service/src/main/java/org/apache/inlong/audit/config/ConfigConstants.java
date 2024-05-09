@@ -74,6 +74,9 @@ public class ConfigConstants {
     public static final String KEY_STAT_BACK_INITIAL_OFFSET = "stat.back.initial.offset";
     public static final int DEFAULT_STAT_BACK_INITIAL_OFFSET = 0;
 
+    public static final String KEY_STAT_THREAD_POOL_SIZE = "stat.thread.pool.size";
+    public static final int DEFAULT_STAT_THREAD_POOL_SIZE = 3;
+
     // HA selector config
     public static final String KEY_RELEASE_LEADER_INTERVAL = "release.leader.interval";
     public static final int DEFAULT_RELEASE_LEADER_INTERVAL = 40;

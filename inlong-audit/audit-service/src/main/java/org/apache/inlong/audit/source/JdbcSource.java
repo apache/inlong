@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -57,6 +58,7 @@ import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_C
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_CACHE_SQL_LIMIT;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SOURCE_DB_STAT_INTERVAL;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_STAT_BACK_INITIAL_OFFSET;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_STAT_THREAD_POOL_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_CACHE_PREP_STMTS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_CONNECTION_TIMEOUT;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_POOL_SIZE;
@@ -64,6 +66,7 @@ import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SQL_LIMIT;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_SOURCE_DB_STAT_INTERVAL;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_STAT_BACK_INITIAL_OFFSET;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_STAT_THREAD_POOL_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SQL_LIMIT;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_PARAMS_AUDIT_TAG;
@@ -211,6 +214,9 @@ public class JdbcSource {
     class StatServer implements Runnable, AutoCloseable {
 
         private final int statBackTimes;
+        private final ExecutorService executor =
+                Executors.newFixedThreadPool(
+                        Configuration.getInstance().get(KEY_STAT_THREAD_POOL_SIZE, DEFAULT_STAT_THREAD_POOL_SIZE));
 
         public StatServer(int statBackTimes) {
             this.statBackTimes = statBackTimes;
@@ -239,7 +245,7 @@ public class JdbcSource {
             for (String auditId : auditIds) {
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     aggregate(auditId);
-                });
+                }, executor);
                 futures.add(future);
             }
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()])).join();
