@@ -88,6 +88,7 @@ public class SinkType extends StreamType {
         SINK_TO_CLUSTER.put(CLS, ClusterType.SORT_CLS);
         SINK_TO_CLUSTER.put(ELASTICSEARCH, ClusterType.SORT_ES);
         SINK_TO_CLUSTER.put(PULSAR, ClusterType.SORT_PULSAR);
+        SINK_TO_CLUSTER.put(KAFKA, ClusterType.SORT_KAFKA);
     }
 
     static {

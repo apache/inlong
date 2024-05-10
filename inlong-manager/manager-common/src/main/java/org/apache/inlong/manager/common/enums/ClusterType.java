@@ -36,6 +36,7 @@ public class ClusterType {
     public static final String SORT_ES = "SORT_ES";
     public static final String SORT_CLS = "SORT_CLS";
     public static final String SORT_PULSAR = "SORT_PULSAR";
+    public static final String SORT_KAFKA = "SORT_KAFKA";
 
     private static final Set<String> TYPE_SET = new HashSet<String>() {
 
@@ -48,6 +49,7 @@ public class ClusterType {
             add(ClusterType.SORT_ES);
             add(ClusterType.SORT_CLS);
             add(ClusterType.SORT_PULSAR);
+            add(ClusterType.SORT_KAFKA);
         }
     };
 
