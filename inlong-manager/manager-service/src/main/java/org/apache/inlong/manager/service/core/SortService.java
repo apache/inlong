@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.core;
 
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
-import org.apache.inlong.common.pojo.sortstandalone.SortConfigResponse;
+import org.apache.inlong.common.pojo.sort.SortConfigResponse;
 import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
 import org.apache.inlong.manager.pojo.sort.SortStatusRequest;
 

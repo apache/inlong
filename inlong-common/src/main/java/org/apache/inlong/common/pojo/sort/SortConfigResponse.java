@@ -15,23 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.standalone.config.loader;
+package org.apache.inlong.common.pojo.sort;
 
-import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import org.apache.flume.conf.Configurable;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class SortConfigResponse {
 
-/**
- * 
- * SortClusterConfigLoader
- */
-@Deprecated
-public interface SortClusterConfigLoader extends Configurable {
+    public static final int SUCC = 0;
+    public static final int NO_UPDATE = 1;
+    public static final int FAIL = -1;
+    public static final int REQUEST_PARAMS_ERROR = -101;
 
-    /**
-     * load
-     * 
-     * @return
-     */
-    SortClusterConfig load();
+    String msg;
+    int code;
+    String md5;
+    String data;
+
 }

@@ -26,6 +26,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Deprecated
 public class SortClusterResponse {
 
     public static final int SUCC = 0;
