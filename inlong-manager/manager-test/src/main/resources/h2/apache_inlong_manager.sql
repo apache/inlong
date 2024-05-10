@@ -917,8 +917,7 @@ CREATE TABLE IF NOT EXISTS `sort_config`
 (
     `id`                  int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `sink_id`             int(11)       NOT NULL COMMENT 'Sink id',
-    `source_params`       text          NOT NULL COMMENT 'The source params of sort',
-    `cluster_params`      text          NOT NULL COMMENT 'The cluster params of sort',
+    `config_params`       text          NOT NULL COMMENT 'The config params',
     `sink_type`           varchar(128)  NOT NULL COMMENT 'Sink type',
     `inlong_cluster_name` varchar(128)  NOT NULL COMMENT 'Inlong cluster name',
     `inlong_cluster_tag`  varchar(128)  NOT NULL COMMENT 'Inlong cluster tag',
