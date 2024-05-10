@@ -140,8 +140,6 @@ start_inlong_agent() {
   echo "start agent"
   cd $INLONG_HOME/inlong-agent
   bash +x ./bin/agent.sh start
-  # wait to start
-  wait_port_to_listen agent ${agent_port}
 }
 
 # start inlong

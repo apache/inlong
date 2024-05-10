@@ -52,7 +52,6 @@ init_inlong_agent() {
   echo "Init agent configuration parameters"
   cd $INLONG_HOME/inlong-agent/conf
   $SED_COMMAND 's/agent.local.ip=.*/'''agent.local.ip=${local_ip}'''/g' agent.properties
-  $SED_COMMAND 's/agent.http.port=.*/'''agent.http.port=${agent_port}'''/g' agent.properties
   $SED_COMMAND 's/agent.manager.addr=.*/'''agent.manager.addr=${manager_server_hostname}:${manager_server_port}'''/g' agent.properties
   $SED_COMMAND "s/audit.enable=.*$/audit.enable=true/g" agent.properties
   $SED_COMMAND 's/audit.proxys=.*/'''audit.proxys=${audit_proxy_ip}:${audit_proxy_port}'''/g' agent.properties
