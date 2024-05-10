@@ -23,6 +23,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 ARG AUDIT_TARBALL
 ADD ${AUDIT_TARBALL} /opt/inlong-audit
+EXPOSE 10080
 EXPOSE 10081
 # pulsar or tubemq or kafka
 ENV MQ_TYPE=pulsar
