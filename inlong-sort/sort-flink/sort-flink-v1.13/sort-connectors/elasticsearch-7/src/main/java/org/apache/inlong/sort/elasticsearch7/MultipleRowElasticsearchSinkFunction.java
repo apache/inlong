@@ -26,7 +26,7 @@ import org.apache.inlong.sort.elasticsearch.table.TableSchemaFactory;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.table.data.RowData;
 import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.xcontent.XContentType;
 
 import javax.annotation.Nullable;
 
