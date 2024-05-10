@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sort.standalone.v2;
 
+import org.apache.inlong.common.pojo.sort.SortTaskConfig;
+import org.apache.inlong.sort.standalone.PropertiesConfigurationProvider;
+import org.apache.inlong.sort.standalone.config.holder.v2.SortClusterConfigHolder;
+import org.apache.inlong.sort.standalone.utils.v2.FlumeConfigGenerator;
+
 import com.google.common.eventbus.Subscribe;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flume.Channel;
@@ -25,10 +30,6 @@ import org.apache.flume.SourceRunner;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.flume.lifecycle.LifecycleSupervisor;
 import org.apache.flume.node.MaterializedConfiguration;
-import org.apache.inlong.common.pojo.sort.SortTaskConfig;
-import org.apache.inlong.sort.standalone.PropertiesConfigurationProvider;
-import org.apache.inlong.sort.standalone.config.holder.v2.SortClusterConfigHolder;
-import org.apache.inlong.sort.standalone.utils.v2.FlumeConfigGenerator;
 
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;

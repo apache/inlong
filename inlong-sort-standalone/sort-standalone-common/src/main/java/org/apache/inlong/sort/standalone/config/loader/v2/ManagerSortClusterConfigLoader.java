@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sort.standalone.config.loader.v2;
 
+import org.apache.inlong.common.pojo.sort.SortConfig;
+import org.apache.inlong.common.pojo.sort.SortConfigResponse;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.config.holder.ManagerUrlHandler;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -28,11 +33,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.common.pojo.sort.SortClusterConfig;
-import org.apache.inlong.common.pojo.sort.SortConfig;
-import org.apache.inlong.common.pojo.sort.SortConfigResponse;
-import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
-import org.apache.inlong.sort.standalone.config.holder.ManagerUrlHandler;
 
 import java.util.concurrent.TimeUnit;
 
@@ -42,7 +42,6 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public class ManagerSortClusterConfigLoader implements SortConfigLoader {
-
 
     private Context context;
     private CloseableHttpClient httpClient;

@@ -17,9 +17,10 @@
 
 package org.apache.inlong.sort.standalone.utils.v2;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.common.pojo.sort.SortTaskConfig;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.HashMap;
 import java.util.Map;

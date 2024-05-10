@@ -17,10 +17,6 @@
 
 package org.apache.inlong.sort.standalone.config.holder.v2;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.sort.SortConfig;
 import org.apache.inlong.common.pojo.sort.SortTaskConfig;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
@@ -28,6 +24,11 @@ import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigType;
 import org.apache.inlong.sort.standalone.config.loader.v2.ClassResourceSortClusterConfigLoader;
 import org.apache.inlong.sort.standalone.config.loader.v2.ManagerSortClusterConfigLoader;
 import org.apache.inlong.sort.standalone.config.loader.v2.SortConfigLoader;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flume.Context;
 
 import java.util.Date;
 import java.util.Timer;

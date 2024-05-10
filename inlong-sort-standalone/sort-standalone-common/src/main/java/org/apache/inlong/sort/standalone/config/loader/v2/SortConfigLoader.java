@@ -17,8 +17,9 @@
 
 package org.apache.inlong.sort.standalone.config.loader.v2;
 
-import org.apache.flume.conf.Configurable;
 import org.apache.inlong.common.pojo.sort.SortConfig;
+
+import org.apache.flume.conf.Configurable;
 
 public interface SortConfigLoader extends Configurable {
 

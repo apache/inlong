@@ -17,13 +17,14 @@
 
 package org.apache.inlong.sort.standalone.v2;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.sort.SortConfig;
 import org.apache.inlong.common.pojo.sort.SortTaskConfig;
 import org.apache.inlong.sdk.commons.admin.AdminTask;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.v2.SortClusterConfigHolder;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.flume.Context;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,6 +38,7 @@ import static org.apache.inlong.sort.standalone.utils.Constants.RELOAD_INTERVAL;
 
 @Slf4j
 public class SortCluster {
+
     private Timer reloadTimer;
     private Map<String, SortTask> taskMap = new ConcurrentHashMap<>();
     private List<SortTask> deletingTasks = new ArrayList<>();
