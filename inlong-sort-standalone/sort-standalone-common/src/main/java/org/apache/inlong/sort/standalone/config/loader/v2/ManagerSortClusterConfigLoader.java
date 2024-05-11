@@ -36,10 +36,6 @@ import org.apache.http.util.EntityUtils;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * 
- * ManagerSortClusterConfigLoader
- */
 @Slf4j
 public class ManagerSortClusterConfigLoader implements SortConfigLoader {
 
@@ -48,11 +44,6 @@ public class ManagerSortClusterConfigLoader implements SortConfigLoader {
     private ObjectMapper objectMapper = new ObjectMapper();
     private String md5;
 
-    /**
-     * constructHttpClient
-     * 
-     * @return
-     */
     private static synchronized CloseableHttpClient constructHttpClient() {
         long timeoutInMs = TimeUnit.MILLISECONDS.toMillis(50000);
         RequestConfig requestConfig = RequestConfig.custom()
@@ -63,22 +54,12 @@ public class ManagerSortClusterConfigLoader implements SortConfigLoader {
         return httpClientBuilder.build();
     }
 
-    /**
-     * configure
-     * 
-     * @param context
-     */
     @Override
     public void configure(Context context) {
         this.context = context;
         this.httpClient = constructHttpClient();
     }
 
-    /**
-     * load
-     * 
-     * @return
-     */
     @Override
     public SortConfig load() {
         HttpGet httpGet = null;
@@ -102,7 +83,7 @@ public class ManagerSortClusterConfigLoader implements SortConfigLoader {
             SortConfigResponse clusterResponse = objectMapper.readValue(returnStr, SortConfigResponse.class);
             int errCode = clusterResponse.getCode();
             if (errCode != SortConfigResponse.SUCC && errCode != SortConfigResponse.NO_UPDATE) {
-                log.info("fail to get config info from url={}, error code={}, msg={}",
+                log.info("failed to get config info from url={}, error code={}, msg={}",
                         url, clusterResponse.getCode(), clusterResponse.getMsg());
                 return null;
             }

@@ -140,7 +140,7 @@ public class SortTask {
 
         for (Map.Entry<String, Channel> entry : materializedConfiguration.getChannels().entrySet()) {
             try {
-                log.info("starting Channel " + entry.getKey());
+                log.info("starting channel " + entry.getKey());
                 supervisor.supervise(entry.getValue(),
                         new LifecycleSupervisor.SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
             } catch (Exception e) {
@@ -165,7 +165,7 @@ public class SortTask {
 
         for (Map.Entry<String, SinkRunner> entry : materializedConfiguration.getSinkRunners().entrySet()) {
             try {
-                log.info("starting Sink " + entry.getKey());
+                log.info("starting sink " + entry.getKey());
                 supervisor.supervise(entry.getValue(),
                         new LifecycleSupervisor.SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
             } catch (Exception e) {
@@ -175,7 +175,7 @@ public class SortTask {
 
         for (Map.Entry<String, SourceRunner> entry : materializedConfiguration.getSourceRunners().entrySet()) {
             try {
-                log.info("starting Source " + entry.getKey());
+                log.info("starting source " + entry.getKey());
                 supervisor.supervise(entry.getValue(),
                         new LifecycleSupervisor.SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
             } catch (Exception e) {

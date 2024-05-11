@@ -26,9 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * generator for flume config
- */
 public class FlumeConfigGenerator {
 
     public static final String KEY_TASK_NAME = "taskName";
@@ -55,12 +52,6 @@ public class FlumeConfigGenerator {
         return flumeConf;
     }
 
-    /**
-     * append channels config
-     *
-     * @param flumeConf final config of flume
-     * @param name sort task name
-     */
     private static void appendChannels(Map<String, String> flumeConf, String name) {
         StringBuilder builder = new StringBuilder();
         String channelName = name + "Channel";
@@ -73,12 +64,6 @@ public class FlumeConfigGenerator {
         appendCommon(flumeConf, prefix, name);
     }
 
-    /**
-     * appendCommon config
-     *
-     * @param flumeConf final config of flume
-     * @param prefix prefix of common properties
-     */
     private static void appendCommon(
             Map<String, String> flumeConf,
             String prefix,
@@ -94,12 +79,6 @@ public class FlumeConfigGenerator {
         }
     }
 
-    /**
-     * append sink config
-     *
-     * @param flumeConf final config of flume
-     * @param name sort task name
-     */
     private static void appendSinks(Map<String, String> flumeConf, String name) {
         // sinks
         String sinkName = name + "Sink";
@@ -120,12 +99,6 @@ public class FlumeConfigGenerator {
         appendCommon(flumeConf, prefix, name);
     }
 
-    /**
-     * append source config
-     *
-     * @param flumeConf final config of flume
-     * @param name sort task name
-     */
     private static void appendSources(Map<String, String> flumeConf, String name) {
         // sources
         String sourceName = name + "Source";

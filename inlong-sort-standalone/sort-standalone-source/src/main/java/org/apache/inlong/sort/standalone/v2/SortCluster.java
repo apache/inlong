@@ -44,9 +44,6 @@ public class SortCluster {
     private List<SortTask> deletingTasks = new ArrayList<>();
     private AdminTask adminTask;
 
-    /**
-     * start
-     */
     public void start() {
         try {
             this.reload();
@@ -59,9 +56,6 @@ public class SortCluster {
         }
     }
 
-    /**
-     * close
-     */
     public void close() {
         try {
             this.reloadTimer.cancel();
@@ -78,9 +72,6 @@ public class SortCluster {
         }
     }
 
-    /**
-     * setReloadTimer
-     */
     private void setReloadTimer() {
         reloadTimer = new Timer(true);
         TimerTask task = new TimerTask() {
@@ -96,9 +87,6 @@ public class SortCluster {
         reloadTimer.schedule(task, new Date(System.currentTimeMillis() + reloadInterval), reloadInterval);
     }
 
-    /**
-     * reload
-     */
     public void reload() {
         try {
             // get new config

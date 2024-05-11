@@ -28,10 +28,6 @@ import org.slf4j.Logger;
 
 import java.nio.charset.Charset;
 
-/**
- * 
- * ClassResourceCommonPropertiesLoader
- */
 public class ClassResourceSortClusterConfigLoader implements SortConfigLoader {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(ClassResourceSortClusterConfigLoader.class);
@@ -39,11 +35,6 @@ public class ClassResourceSortClusterConfigLoader implements SortConfigLoader {
     private Context context;
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    /**
-     * load
-     * 
-     * @return
-     */
     @Override
     public SortConfig load() {
         String fileName = SortClusterConfigType.DEFAULT_FILE;
@@ -57,16 +48,11 @@ public class ClassResourceSortClusterConfigLoader implements SortConfigLoader {
             confString = confString.substring(index);
             return objectMapper.readValue(confString, SortConfig.class);
         } catch (Exception e) {
-            LOG.error("fail to load properties, file ={}", fileName, e);
+            LOG.error("failed to load properties, file ={}", fileName, e);
         }
         return SortConfig.builder().build();
     }
 
-    /**
-     * configure
-     * 
-     * @param context
-     */
     @Override
     public void configure(Context context) {
         this.context = context;

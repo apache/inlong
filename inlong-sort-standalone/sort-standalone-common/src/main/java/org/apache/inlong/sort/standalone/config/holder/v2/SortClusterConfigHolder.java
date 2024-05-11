@@ -74,7 +74,7 @@ public class SortClusterConfigHolder {
                         instance.loader = (SortConfigLoader) loaderObject;
                     }
                 } catch (Throwable t) {
-                    log.error("fail to init loader, loaderType={}", loaderType);
+                    log.error("failed to init loader, loaderType={}", loaderType);
                 }
             }
             if (instance.loader == null) {
@@ -92,16 +92,10 @@ public class SortClusterConfigHolder {
 
     }
 
-    /**
-     * setReloadTimer
-     */
     private void setReloadTimer() {
         reloadTimer = new Timer(true);
         TimerTask task = new TimerTask() {
 
-            /**
-             * run
-             */
             public void run() {
                 reload();
             }
@@ -109,9 +103,6 @@ public class SortClusterConfigHolder {
         reloadTimer.schedule(task, new Date(System.currentTimeMillis() + reloadInterval), reloadInterval);
     }
 
-    /**
-     * reload
-     */
     private void reload() {
         try {
             SortConfig newConfig = this.loader.load();
@@ -123,21 +114,11 @@ public class SortClusterConfigHolder {
         }
     }
 
-    /**
-     * getClusterConfig
-     *
-     * @return
-     */
+
     public static SortConfig getSortConfig() {
         return get().config;
     }
 
-    /**
-     * getTaskConfig
-     *
-     * @param  sortTaskName
-     * @return
-     */
     public static SortTaskConfig getTaskConfig(String sortTaskName) {
         SortConfig config = get().config;
         if (config != null && config.getTasks() != null) {
