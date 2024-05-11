@@ -18,13 +18,6 @@
 package org.apache.inlong.sort.kafka.table;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.kafka.KafkaDeserializationSchema;
-import org.apache.inlong.sort.kafka.config.StartupMode;
-import org.apache.inlong.sort.kafka.internals.KafkaTopicPartition;
-import org.apache.inlong.sort.kafka.source.KafkaSource;
-import org.apache.inlong.sort.kafka.source.KafkaSourceBuilder;
-import org.apache.inlong.sort.kafka.source.enumerator.initializer.OffsetsInitializer;
-import org.apache.inlong.sort.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 import org.apache.inlong.sort.kafka.table.DynamicKafkaDeserializationSchema.MetadataConverter;
 
 import org.apache.flink.annotation.Internal;
@@ -32,9 +25,16 @@ import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.connector.source.Boundedness;
+import org.apache.flink.connector.kafka.source.KafkaSource;
+import org.apache.flink.connector.kafka.source.KafkaSourceBuilder;
+import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
+import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
+import org.apache.flink.streaming.connectors.kafka.config.StartupMode;
+import org.apache.flink.streaming.connectors.kafka.internals.KafkaTopicPartition;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.Projection;
@@ -136,7 +136,7 @@ public class KafkaDynamicSource
     protected final Properties properties;
 
     /**
-     * The startup mode for the contained consumer (default is {@link StartupMode#GROUP_OFFSETS}).
+     * The startup mode for the contained consumer (default is {StartupMode#GROUP_OFFSETS}).
      */
     protected final StartupMode startupMode;
 

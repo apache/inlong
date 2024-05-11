@@ -73,6 +73,7 @@
                                 <includes>
                                     <include>org.apache.inlong:*</include>
                                     <include>org.apache.kafka:*</include>
+                                    <include>org.apache.flink:flink-connector-kafka</include>
                                     <include>org.apache.flink:flink-connector-base</include>
                                     <!--  Include fixed version 18.0-13.0 of flink shaded guava  -->
                                     <include>org.apache.flink:flink-shaded-guava</include>

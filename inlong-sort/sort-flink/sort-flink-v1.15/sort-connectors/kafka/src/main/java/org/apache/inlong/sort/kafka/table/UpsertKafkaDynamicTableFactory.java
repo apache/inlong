@@ -19,8 +19,6 @@ package org.apache.inlong.sort.kafka.table;
 
 import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.kafka.KafkaOptions;
-import org.apache.inlong.sort.kafka.config.StartupMode;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
@@ -29,6 +27,9 @@ import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.connector.base.DeliveryGuarantee;
+import org.apache.flink.streaming.connectors.kafka.config.StartupMode;
+import org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions;
+import org.apache.flink.streaming.connectors.kafka.table.SinkBufferFlushMode;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.catalog.ResolvedCatalogTable;
 import org.apache.flink.table.catalog.ResolvedSchema;
@@ -55,18 +56,8 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.*;
 import static org.apache.inlong.sort.base.Constants.*;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.KEY_FIELDS;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.KEY_FIELDS_PREFIX;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.KEY_FORMAT;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.PROPS_BOOTSTRAP_SERVERS;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.SINK_BUFFER_FLUSH_INTERVAL;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.SINK_BUFFER_FLUSH_MAX_ROWS;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.SINK_PARALLELISM;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.TOPIC;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.TRANSACTIONAL_ID_PREFIX;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.VALUE_FIELDS_INCLUDE;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.VALUE_FORMAT;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.PROPERTIES_PREFIX;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.autoCompleteSchemaRegistrySubject;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.createKeyFormatProjection;

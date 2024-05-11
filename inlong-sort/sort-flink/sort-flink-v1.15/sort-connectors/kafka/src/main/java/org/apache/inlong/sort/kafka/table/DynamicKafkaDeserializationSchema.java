@@ -18,12 +18,12 @@
 package org.apache.inlong.sort.kafka.table;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricsCollector;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
-import org.apache.inlong.sort.kafka.KafkaDeserializationSchema;
-import org.apache.inlong.sort.kafka.KafkaSerializationSchema;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.DeserializationException;
@@ -40,7 +40,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/** A specific {@link KafkaSerializationSchema} for {@link KafkaDynamicSource}. */
+/** A specific {KafkaSerializationSchema} for {KafkaDynamicSource}. */
 class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<RowData> {
 
     private static final long serialVersionUID = 1L;
@@ -63,7 +63,6 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
     private final MetricOption metricOption;
 
     private SourceMetricData sourceMetricData;
-
     DynamicKafkaDeserializationSchema(
             int physicalArity,
             @Nullable DeserializationSchema<RowData> keyDeserialization,
@@ -106,7 +105,6 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         if (metricOption != null) {
             sourceMetricData = new SourceMetricData(metricOption);
         }
-        LOG.info("DynamicKafkaDeserialization init---");
     }
 
     @Override
@@ -125,10 +123,8 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         // shortcut in case no output projection is required,
         // also not for a cartesian product with the keys
         if (keyDeserialization == null && !hasMetadata) {
-            valueDeserialization.deserialize(record.value(), collector);
-            if (sourceMetricData != null) {
-                sourceMetricData.outputMetricsWithEstimate(record);
-            }
+            LOG.info("Source report audit information");
+            valueDeserialization.deserialize(record.value(), new MetricsCollector<>(collector, sourceMetricData));
             return;
         }
 
@@ -140,7 +136,7 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         // project output while emitting values
         outputCollector.inputRecord = record;
         outputCollector.physicalKeyRows = keyCollector.buffer;
-        outputCollector.outputCollector = collector;
+        outputCollector.outputCollector = new MetricsCollector<>(collector, sourceMetricData);;
         if (record.value() == null && upsertMode) {
             // collect tombstone messages in upsert mode by hand
             outputCollector.collect(null);
@@ -294,6 +290,7 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
                         metadataConverters[metadataPos].read(inputRecord));
             }
             outputCollector.collect(producedRow);
+            LOG.info("Source report audit information");
             if (sourceMetricData != null) {
                 sourceMetricData.outputMetricsWithEstimate(producedRow);
             }

@@ -15,15 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.kafka;
+package org.apache.inlong.sort.kafka.table;
 
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 
-/** Option utils for Kafka table source sink.
- *
- * Copy from flink-connector-kafka:1.15.4
- * */
+/** Option utils for Kafka table source sink.*/
 public class KafkaOptions {
 
     private KafkaOptions() {

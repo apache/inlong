@@ -18,12 +18,11 @@
 package org.apache.inlong.sort.kafka.table;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
-import org.apache.inlong.sort.kafka.partitioner.FlinkKafkaPartitioner;
-import org.apache.inlong.sort.kafka.sink.KafkaRecordSerializationSchema;
-import org.apache.inlong.sort.kafka.sink.KafkaSink;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
 
 import org.apache.flink.api.common.serialization.SerializationSchema;
+import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
+import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
@@ -35,8 +34,9 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataSize;
 
-/** SerializationSchema used by {@link KafkaDynamicSink} to configure a {@link KafkaSink}. */
+/** SerializationSchema used by {@link KafkaDynamicSink} to configure a {KafkaSink}. */
 class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationSchema<RowData> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DynamicKafkaRecordSerializationSchema.class);
@@ -51,7 +51,7 @@ class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationS
     private final int[] metadataPositions;
     private final boolean upsertMode;
     private final MetricOption metricOption;
-    private SourceMetricData sourceMetricData;
+    private SinkMetricData sinkMetricData;
 
     DynamicKafkaRecordSerializationSchema(
             String topic,
@@ -79,9 +79,6 @@ class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationS
         this.metadataPositions = metadataPositions;
         this.upsertMode = upsertMode;
         this.metricOption = metricOption;
-        if (metricOption != null) {
-            this.sourceMetricData = new SourceMetricData(metricOption);
-        }
 
     }
 
@@ -91,7 +88,7 @@ class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationS
         // shortcut in case no input projection is required
         if (keySerialization == null && !hasMetadata) {
             final byte[] valueSerialized = valueSerialization.serialize(consumedRow);
-            return new ProducerRecord<>(
+            ProducerRecord<byte[], byte[]> record = new ProducerRecord<>(
                     topic,
                     extractPartition(
                             consumedRow,
@@ -100,6 +97,9 @@ class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationS
                             context.getPartitionsForTopic(topic)),
                     null,
                     valueSerialized);
+            LOG.info("Sink report audit information");
+            sinkMetricData.invoke(1, getDataSize(record));
+            return record;
         }
         final byte[] keySerialized;
         if (keySerialization == null) {
@@ -142,8 +142,9 @@ class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationS
                 keySerialized,
                 valueSerialized,
                 readMetadata(consumedRow, KafkaDynamicSink.WritableMetadata.HEADERS));
-        if (sourceMetricData != null) {
-            sourceMetricData.outputMetricsWithEstimate(record);
+        LOG.info("Sink report audit information");
+        if (sinkMetricData != null) {
+            sinkMetricData.invoke(1, getDataSize(record));
         }
         return record;
     }
@@ -161,6 +162,10 @@ class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationS
                     sinkContext.getNumberOfParallelInstances());
         }
         valueSerialization.open(context);
+
+        if (metricOption != null) {
+            this.sinkMetricData = new SinkMetricData(metricOption, context.getMetricGroup());
+        }
     }
 
     private Integer extractPartition(

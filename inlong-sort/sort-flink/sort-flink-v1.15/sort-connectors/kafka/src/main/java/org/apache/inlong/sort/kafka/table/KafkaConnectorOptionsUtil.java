@@ -17,17 +17,16 @@
 
 package org.apache.inlong.sort.kafka.table;
 
-import org.apache.inlong.sort.kafka.config.StartupMode;
-import org.apache.inlong.sort.kafka.internals.KafkaTopicPartition;
-import org.apache.inlong.sort.kafka.partitioner.FlinkFixedPartitioner;
-import org.apache.inlong.sort.kafka.partitioner.FlinkKafkaPartitioner;
-
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.connector.base.DeliveryGuarantee;
+import org.apache.flink.streaming.connectors.kafka.config.StartupMode;
+import org.apache.flink.streaming.connectors.kafka.internals.KafkaTopicPartition;
+import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkFixedPartitioner;
+import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.table.api.TableException;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.data.RowData;
@@ -50,10 +49,10 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.*;
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.*;
 
-/** Utilities for {@link KafkaConnectorOptions}. */
+/** Utilities for { KafkaConnectorOptions}. */
 @Internal
 class KafkaConnectorOptionsUtil {
 
@@ -390,8 +389,8 @@ class KafkaConnectorOptionsUtil {
      * Creates an array of indices that determine which physical fields of the table schema to
      * include in the key format and the order that those fields have in the key format.
      *
-     * <p>See {@link KafkaConnectorOptions#KEY_FORMAT}, {@link KafkaConnectorOptions#KEY_FIELDS},
-     * and {@link KafkaConnectorOptions#KEY_FIELDS_PREFIX} for more information.
+     * <p>See {KafkaConnectorOptions#KEY_FORMAT}, { KafkaConnectorOptions#KEY_FIELDS},
+     * and {KafkaConnectorOptions#KEY_FIELDS_PREFIX} for more information.
      */
     public static int[] createKeyFormatProjection(
             ReadableConfig options, DataType physicalDataType) {
@@ -456,8 +455,8 @@ class KafkaConnectorOptionsUtil {
      * Creates an array of indices that determine which physical fields of the table schema to
      * include in the value format.
      *
-     * <p>See {@link KafkaConnectorOptions#VALUE_FORMAT}, {@link
-     * KafkaConnectorOptions#VALUE_FIELDS_INCLUDE}, and {@link
+     * <p>See {KafkaConnectorOptions#VALUE_FORMAT}, {
+     * KafkaConnectorOptions#VALUE_FIELDS_INCLUDE}, and {
      * KafkaConnectorOptions#KEY_FIELDS_PREFIX} for more information.
      */
     public static int[] createValueFormatProjection(

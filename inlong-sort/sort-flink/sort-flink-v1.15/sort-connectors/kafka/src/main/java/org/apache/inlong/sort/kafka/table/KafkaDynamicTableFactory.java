@@ -19,11 +19,6 @@ package org.apache.inlong.sort.kafka.table;
 
 import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.kafka.KafkaOptions;
-import org.apache.inlong.sort.kafka.config.StartupMode;
-import org.apache.inlong.sort.kafka.internals.KafkaTopicPartition;
-import org.apache.inlong.sort.kafka.partitioner.FlinkKafkaPartitioner;
-import org.apache.inlong.sort.kafka.source.KafkaSourceOptions;
 
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -33,6 +28,11 @@ import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.connector.base.DeliveryGuarantee;
+import org.apache.flink.connector.kafka.source.KafkaSourceOptions;
+import org.apache.flink.streaming.connectors.kafka.config.StartupMode;
+import org.apache.flink.streaming.connectors.kafka.internals.KafkaTopicPartition;
+import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
+import org.apache.flink.streaming.connectors.kafka.table.SinkBufferFlushMode;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.catalog.ObjectIdentifier;
 import org.apache.flink.table.connector.format.DecodingFormat;
@@ -65,40 +65,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.*;
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 import static org.apache.inlong.sort.base.Constants.*;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.DELIVERY_GUARANTEE;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.KEY_FIELDS;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.KEY_FIELDS_PREFIX;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.KEY_FORMAT;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.PROPS_BOOTSTRAP_SERVERS;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.PROPS_GROUP_ID;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.SCAN_STARTUP_MODE;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.SCAN_STARTUP_SPECIFIC_OFFSETS;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.SCAN_STARTUP_TIMESTAMP_MILLIS;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.SCAN_TOPIC_PARTITION_DISCOVERY;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.SINK_PARALLELISM;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.SINK_PARTITIONER;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.TOPIC;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.TOPIC_PATTERN;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.TRANSACTIONAL_ID_PREFIX;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.VALUE_FIELDS_INCLUDE;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.VALUE_FORMAT;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.PROPERTIES_PREFIX;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.StartupOptions;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.autoCompleteSchemaRegistrySubject;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.createKeyFormatProjection;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.createValueFormatProjection;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getFlinkKafkaPartitioner;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getKafkaProperties;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getSourceTopicPattern;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getSourceTopics;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getStartupOptions;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.validateTableSinkOptions;
-import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.validateTableSourceOptions;
+import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.*;
 
 /**
- * Factory for creating configured instances of {@link KafkaDynamicSource} and {@link
+ * Factory for creating configured instances of KafkaDynamicSource and
  * KafkaDynamicSink}.
  */
 @Internal
@@ -260,7 +233,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         final EncodingFormat<SerializationSchema<RowData>> valueEncodingFormat =
                 getValueEncodingFormat(helper);
 
-        helper.validateExcept(KafkaConnectorOptionsUtil.PROPERTIES_PREFIX);
+        helper.validateExcept(PROPERTIES_PREFIX);
 
         final ReadableConfig tableOptions = helper.getOptions();
 
