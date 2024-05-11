@@ -130,7 +130,6 @@ class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationS
             valueSerialized = valueSerialization.serialize(valueRow);
         }
 
-        LOG.info("DynamicKafkaRecordSerializationSchema yield a audit information");
         ProducerRecord<byte[], byte[]> record = new ProducerRecord<>(
                 topic,
                 extractPartition(

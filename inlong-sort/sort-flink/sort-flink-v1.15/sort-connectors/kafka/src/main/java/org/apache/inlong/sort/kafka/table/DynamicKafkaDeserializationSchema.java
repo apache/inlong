@@ -123,7 +123,6 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         // shortcut in case no output projection is required,
         // also not for a cartesian product with the keys
         if (keyDeserialization == null && !hasMetadata) {
-            LOG.info("Source report audit information");
             valueDeserialization.deserialize(record.value(), new MetricsCollector<>(collector, sourceMetricData));
             return;
         }
