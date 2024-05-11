@@ -21,7 +21,7 @@ import org.apache.inlong.common.pojo.sort.SortConfig;
 import org.apache.inlong.common.pojo.sort.SortTaskConfig;
 import org.apache.inlong.sdk.commons.admin.AdminTask;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
-import org.apache.inlong.sort.standalone.config.holder.v2.SortClusterConfigHolder;
+import org.apache.inlong.sort.standalone.config.holder.v2.SortConfigHolder;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flume.Context;
@@ -87,7 +87,7 @@ public class SortCluster {
     public void reload() {
         try {
             // get new config
-            SortConfig newConfig = SortClusterConfigHolder.getSortConfig();
+            SortConfig newConfig = SortConfigHolder.getSortConfig();
             if (newConfig == null) {
                 return;
             }

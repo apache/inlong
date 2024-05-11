@@ -37,26 +37,30 @@ import java.util.TimerTask;
 import static org.apache.inlong.sort.standalone.utils.Constants.RELOAD_INTERVAL;
 
 @Slf4j
-public class SortClusterConfigHolder {
+public class SortConfigHolder {
 
-    private static SortClusterConfigHolder instance;
+    private static SortConfigHolder instance;
 
     private long reloadInterval;
     private Timer reloadTimer;
     private SortConfigLoader loader;
     private SortConfig config;
 
-    private SortClusterConfigHolder() {
+    private SortConfigHolder() {
 
     }
 
-    private static SortClusterConfigHolder get() {
+    private static SortConfigHolder get() {
         if (instance != null) {
             return instance;
         }
 
-        synchronized (SortClusterConfigHolder.class) {
-            instance = new SortClusterConfigHolder();
+        synchronized (SortConfigHolder.class) {
+            if (instance != null) {
+                return instance;
+            }
+
+            instance = new SortConfigHolder();
             instance.reloadInterval = CommonPropertiesHolder.getLong(RELOAD_INTERVAL, 60000L);
             String loaderType = CommonPropertiesHolder
                     .getString(SortClusterConfigType.KEY_TYPE, SortClusterConfigType.MANAGER.name());
