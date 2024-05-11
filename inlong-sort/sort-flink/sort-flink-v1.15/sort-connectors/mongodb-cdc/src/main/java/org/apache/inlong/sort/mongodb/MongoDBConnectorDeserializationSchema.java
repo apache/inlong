@@ -1,11 +1,12 @@
 /*
- * Copyright 2008-present MongoDB, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +17,10 @@
 
 package org.apache.inlong.sort.mongodb;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricsCollector;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
+
 import com.mongodb.client.model.changestream.OperationType;
 import com.mongodb.internal.HexUtils;
 import com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope;
@@ -23,18 +28,34 @@ import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.table.AppendMetadataCollector;
 import com.ververica.cdc.debezium.table.MetadataConverter;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.table.data.*;
-import org.apache.flink.table.types.logical.*;
+import org.apache.flink.table.data.DecimalData;
+import org.apache.flink.table.data.GenericArrayData;
+import org.apache.flink.table.data.GenericMapData;
+import org.apache.flink.table.data.GenericRowData;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.data.StringData;
+import org.apache.flink.table.data.TimestampData;
+import org.apache.flink.table.types.logical.ArrayType;
+import org.apache.flink.table.types.logical.DecimalType;
+import org.apache.flink.table.types.logical.LogicalType;
+import org.apache.flink.table.types.logical.MapType;
+import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.logical.utils.LogicalTypeUtils;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricsCollector;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
-import org.bson.*;
+import org.bson.BsonBinary;
+import org.bson.BsonBinarySubType;
+import org.bson.BsonDateTime;
+import org.bson.BsonDocument;
+import org.bson.BsonMaxKey;
+import org.bson.BsonMinKey;
+import org.bson.BsonRegularExpression;
+import org.bson.BsonTimestamp;
+import org.bson.BsonUndefined;
+import org.bson.BsonValue;
 import org.bson.codecs.BsonArrayCodec;
 import org.bson.codecs.EncoderContext;
 import org.bson.json.JsonWriter;
@@ -45,7 +66,12 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,10 +82,11 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * Deserialization schema from Mongodb ChangeStreamDocument to Flink Table/SQL internal data
- * structure {@link RowData}.
+ * structure {RowData}.
  */
 public class MongoDBConnectorDeserializationSchema
-        implements DebeziumDeserializationSchema<RowData> {
+        implements
+            DebeziumDeserializationSchema<RowData> {
 
     private static final long serialVersionUID = 1750787080613035184L;
 
@@ -97,7 +124,7 @@ public class MongoDBConnectorDeserializationSchema
         this.physicalConverter = createConverter(physicalDataType);
         this.resultTypeInfo = resultTypeInfo;
         this.localTimeZone = localTimeZone;
-        if(metricOption != null) {
+        if (metricOption != null) {
             this.sourceMetricData = new SourceMetricData(metricOption);
         }
     }
@@ -199,6 +226,7 @@ public class MongoDBConnectorDeserializationSchema
      */
     @FunctionalInterface
     private interface DeserializationRuntimeConverter extends Serializable {
+
         Object convert(BsonValue docObj) throws Exception;
     }
 
@@ -470,7 +498,6 @@ public class MongoDBConnectorDeserializationSchema
     /**
      * A conversion from DateType to int describes the number of days since epoch.
      *
-     * @see DateType
      */
     private int convertToDate(BsonValue docObj) {
         if (docObj.isDateTime()) {
@@ -491,7 +518,6 @@ public class MongoDBConnectorDeserializationSchema
     /**
      * A conversion from TimeType to int describes the number of milliseconds of the day.
      *
-     * @see TimeType
      */
     private int convertToTime(BsonValue docObj) {
         if (docObj.isDateTime()) {
@@ -596,6 +622,7 @@ public class MongoDBConnectorDeserializationSchema
             Writer writer = new StringWriter();
             JsonWriter jsonArrayWriter =
                     new JsonWriter(writer) {
+
                         @Override
                         public void writeStartArray() {
                             doWriteStartArray();

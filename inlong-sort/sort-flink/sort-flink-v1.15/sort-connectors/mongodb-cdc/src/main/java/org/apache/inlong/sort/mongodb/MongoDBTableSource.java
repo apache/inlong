@@ -1,11 +1,12 @@
 /*
- * Copyright 2022 Ververica Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +16,8 @@
  */
 
 package org.apache.inlong.sort.mongodb;
+
+import org.apache.inlong.sort.base.metric.MetricOption;
 
 import com.ververica.cdc.connectors.mongodb.source.MongoDBSource;
 import com.ververica.cdc.connectors.mongodb.source.MongoDBSourceBuilder;
@@ -34,13 +37,17 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.base.metric.MetricOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -219,11 +226,10 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
 
         return metadataKeys.stream()
                 .map(
-                        key ->
-                                Stream.of(MongoDBReadableMetadata.values())
-                                        .filter(m -> m.getKey().equals(key))
-                                        .findFirst()
-                                        .orElseThrow(IllegalStateException::new))
+                        key -> Stream.of(MongoDBReadableMetadata.values())
+                                .filter(m -> m.getKey().equals(key))
+                                .findFirst()
+                                .orElseThrow(IllegalStateException::new))
                 .map(MongoDBReadableMetadata::getConverter)
                 .toArray(MetadataConverter[]::new);
     }

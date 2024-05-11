@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.mongodb;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.config.TableConfigOptions;
@@ -25,7 +27,6 @@ import org.apache.flink.table.catalog.UniqueConstraint;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
-import org.apache.inlong.sort.base.metric.MetricOption;
 
 import java.time.ZoneId;
 import java.util.HashSet;
