@@ -23,10 +23,5 @@ import org.apache.flume.conf.Configurable;
 
 public interface SortConfigLoader extends Configurable {
 
-    /**
-     * load
-     *
-     * @return
-     */
     SortConfig load();
 }

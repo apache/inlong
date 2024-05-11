@@ -80,9 +80,6 @@ public class SortTask {
         }
     }
 
-    /**
-     * stop
-     */
     public void stop() {
         lifecycleLock.lock();
         stopAllComponents();
@@ -93,9 +90,6 @@ public class SortTask {
         }
     }
 
-    /**
-     * stopAllComponents
-     */
     private void stopAllComponents() {
         if (this.materializedConfiguration != null) {
             log.info("shutting down configuration: {}", this.materializedConfiguration);
@@ -128,11 +122,6 @@ public class SortTask {
         }
     }
 
-    /**
-     * startAllComponents
-     *
-     * @param materializedConfiguration
-     */
     private void startAllComponents(MaterializedConfiguration materializedConfiguration) {
         log.info("starting new configuration:{}", materializedConfiguration);
 
