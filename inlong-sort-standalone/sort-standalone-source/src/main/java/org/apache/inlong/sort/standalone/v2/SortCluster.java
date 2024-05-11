@@ -76,9 +76,6 @@ public class SortCluster {
         reloadTimer = new Timer(true);
         TimerTask task = new TimerTask() {
 
-            /**
-             * run
-             */
             public void run() {
                 reload();
             }
