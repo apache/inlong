@@ -141,7 +141,6 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
 
     @Override
     public NodeConfig getNodeConfig(DataNodeEntity dataNodeEntity) {
-        throw new BusinessException(
-                String.format("not support get node config for data not type =%s", dataNodeEntity.getType()));
+        return null;
     }
 }
