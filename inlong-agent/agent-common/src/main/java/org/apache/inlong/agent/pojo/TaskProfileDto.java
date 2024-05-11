@@ -157,9 +157,10 @@ public class TaskProfileDto {
         fileTask.setCycleUnit(taskConfig.getCycleUnit());
         fileTask.setStartTime(taskConfig.getStartTime());
         fileTask.setEndTime(taskConfig.getEndTime());
-        fileTask.setProperties(GSON.toJson(taskConfig.getProperties()));
         if (taskConfig.getTimeOffset() != null) {
             fileTask.setTimeOffset(taskConfig.getTimeOffset());
+        } else {
+            fileTask.setTimeOffset("0" + fileTask.getCycleUnit());
         }
 
         if (taskConfig.getAdditionalAttr() != null) {
