@@ -57,7 +57,7 @@ public class ClassResourceSortClusterConfigLoader implements SortConfigLoader {
             confString = confString.substring(index);
             return objectMapper.readValue(confString, SortConfig.class);
         } catch (Exception e) {
-            LOG.error("fail to load properties, file ={}, and e= {}", fileName, e);
+            LOG.error("fail to load properties, file ={}", fileName, e);
         }
         return SortConfig.builder().build();
     }

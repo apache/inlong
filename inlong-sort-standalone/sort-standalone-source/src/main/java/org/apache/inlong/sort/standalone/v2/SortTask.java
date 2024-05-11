@@ -54,7 +54,7 @@ public class SortTask {
         }
         //
         Map<String, String> flumeConfiguration = FlumeConfigGenerator.generateFlumeConfiguration(config);
-        log.info("Start sort task:{},config:{}", taskName, flumeConfiguration);
+        log.info("start sort task={}, config={}", taskName, flumeConfiguration);
         PropertiesConfigurationProvider configurationProvider = new PropertiesConfigurationProvider(
                 config.getSortTaskName(), flumeConfiguration);
         this.handleConfigurationEvent(configurationProvider.getConfiguration());
@@ -71,7 +71,7 @@ public class SortTask {
             stopAllComponents();
             startAllComponents(conf);
         } catch (InterruptedException e) {
-            log.error("Interrupted while trying to handle configuration event", e);
+            log.error("interrupted while trying to handle configuration event", e);
         } finally {
             // If interrupted while trying to lock, we don't own the lock, so must not attempt to unlock
             if (lifecycleLock.isHeldByCurrentThread()) {
@@ -98,31 +98,31 @@ public class SortTask {
      */
     private void stopAllComponents() {
         if (this.materializedConfiguration != null) {
-            log.info("Shutting down configuration: {}", this.materializedConfiguration);
+            log.info("shutting down configuration: {}", this.materializedConfiguration);
             for (Map.Entry<String, SourceRunner> entry : this.materializedConfiguration.getSourceRunners().entrySet()) {
                 try {
-                    log.info("Stopping Source " + entry.getKey());
+                    log.info("stopping Source " + entry.getKey());
                     supervisor.unsupervise(entry.getValue());
                 } catch (Exception e) {
-                    log.error("Error while stopping {}", entry.getValue(), e);
+                    log.error("error while stopping {}", entry.getValue(), e);
                 }
             }
 
             for (Map.Entry<String, SinkRunner> entry : this.materializedConfiguration.getSinkRunners().entrySet()) {
                 try {
-                    log.info("Stopping Sink " + entry.getKey());
+                    log.info("stopping Sink " + entry.getKey());
                     supervisor.unsupervise(entry.getValue());
                 } catch (Exception e) {
-                    log.error("Error while stopping {}", entry.getValue(), e);
+                    log.error("error while stopping {}", entry.getValue(), e);
                 }
             }
 
             for (Map.Entry<String, Channel> entry : this.materializedConfiguration.getChannels().entrySet()) {
                 try {
-                    log.info("Stopping Channel " + entry.getKey());
+                    log.info("stopping Channel " + entry.getKey());
                     supervisor.unsupervise(entry.getValue());
                 } catch (Exception e) {
-                    log.error("Error while stopping {}", entry.getValue(), e);
+                    log.error("error while stopping {}", entry.getValue(), e);
                 }
             }
         }
@@ -134,17 +134,17 @@ public class SortTask {
      * @param materializedConfiguration
      */
     private void startAllComponents(MaterializedConfiguration materializedConfiguration) {
-        log.info("Starting new configuration:{}", materializedConfiguration);
+        log.info("starting new configuration:{}", materializedConfiguration);
 
         this.materializedConfiguration = materializedConfiguration;
 
         for (Map.Entry<String, Channel> entry : materializedConfiguration.getChannels().entrySet()) {
             try {
-                log.info("Starting Channel " + entry.getKey());
+                log.info("starting Channel " + entry.getKey());
                 supervisor.supervise(entry.getValue(),
                         new LifecycleSupervisor.SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
             } catch (Exception e) {
-                log.error("Error while starting {}", entry.getValue(), e);
+                log.error("error while starting {}", entry.getValue(), e);
             }
         }
 
@@ -155,31 +155,31 @@ public class SortTask {
             while (ch.getLifecycleState() != LifecycleState.START
                     && !supervisor.isComponentInErrorState(ch)) {
                 try {
-                    log.info("Waiting for channel: " + ch.getName() + " to start. Sleeping for 500 ms");
+                    log.info("waiting for channel: " + ch.getName() + " to start. Sleeping for 500 ms");
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
-                    log.error("Interrupted while waiting for channel to start.", e);
+                    log.error("interrupted while waiting for channel to start.", e);
                 }
             }
         }
 
         for (Map.Entry<String, SinkRunner> entry : materializedConfiguration.getSinkRunners().entrySet()) {
             try {
-                log.info("Starting Sink " + entry.getKey());
+                log.info("starting Sink " + entry.getKey());
                 supervisor.supervise(entry.getValue(),
                         new LifecycleSupervisor.SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
             } catch (Exception e) {
-                log.error("Error while starting {}", entry.getValue(), e);
+                log.error("error while starting {}", entry.getValue(), e);
             }
         }
 
         for (Map.Entry<String, SourceRunner> entry : materializedConfiguration.getSourceRunners().entrySet()) {
             try {
-                log.info("Starting Source " + entry.getKey());
+                log.info("starting Source " + entry.getKey());
                 supervisor.supervise(entry.getValue(),
                         new LifecycleSupervisor.SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
             } catch (Exception e) {
-                log.error("Error while starting {}", entry.getValue(), e);
+                log.error("error while starting {}", entry.getValue(), e);
             }
         }
     }

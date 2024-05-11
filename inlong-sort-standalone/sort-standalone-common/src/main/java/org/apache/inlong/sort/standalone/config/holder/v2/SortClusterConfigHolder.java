@@ -74,7 +74,7 @@ public class SortClusterConfigHolder {
                         instance.loader = (SortConfigLoader) loaderObject;
                     }
                 } catch (Throwable t) {
-                    log.error("fail to init loader,loaderType:{},error:{}", loaderType, t.getMessage());
+                    log.error("fail to init loader, loaderType={}", loaderType);
                 }
             }
             if (instance.loader == null) {
@@ -119,7 +119,7 @@ public class SortClusterConfigHolder {
                 this.config = newConfig;
             }
         } catch (Throwable e) {
-            log.error(e.getMessage(), e);
+            log.error("failed to reload sort config", e);
         }
     }
 

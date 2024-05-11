@@ -96,13 +96,13 @@ public class ManagerSortClusterConfigLoader implements SortConfigLoader {
             // request with get
             CloseableHttpResponse response = httpClient.execute(httpGet);
             String returnStr = EntityUtils.toString(response.getEntity());
-            log.info("end to request {},result:{}", url, returnStr);
+            log.info("end to request {}, result={}", url, returnStr);
             // get groupId <-> topic and m value.
 
             SortConfigResponse clusterResponse = objectMapper.readValue(returnStr, SortConfigResponse.class);
             int errCode = clusterResponse.getCode();
             if (errCode != SortConfigResponse.SUCC && errCode != SortConfigResponse.NO_UPDATE) {
-                log.info("Fail to get config info from url:{}, error code is {}, msg is {}",
+                log.info("fail to get config info from url={}, error code={}, msg={}",
                         url, clusterResponse.getCode(), clusterResponse.getMsg());
                 return null;
             }
