@@ -181,6 +181,7 @@ stop_inlong_audit() {
   cd $INLONG_HOME/inlong-audit/bin
   bash +x ./proxy-stop.sh
   bash +x ./store-stop.sh
+  bash +x ./service-stop.sh
 }
 
 stop_inlong_agent() {
