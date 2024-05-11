@@ -78,7 +78,6 @@ public class ManagerSortClusterConfigLoader implements SortConfigLoader {
             CloseableHttpResponse response = httpClient.execute(httpGet);
             String returnStr = EntityUtils.toString(response.getEntity());
             log.info("end to request {}, result={}", url, returnStr);
-            // get groupId <-> topic and m value.
 
             SortConfigResponse clusterResponse = objectMapper.readValue(returnStr, SortConfigResponse.class);
             int errCode = clusterResponse.getCode();

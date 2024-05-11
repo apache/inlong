@@ -39,11 +39,8 @@ public class FlumeConfigGenerator {
     public static Map<String, String> generateFlumeConfiguration(SortTaskConfig taskConfig) {
         Map<String, String> flumeConf = new HashMap<>();
         String sortTaskName = taskConfig.getSortTaskName();
-        // channels
         appendChannels(flumeConf, sortTaskName);
-        // sinks
         appendSinks(flumeConf, sortTaskName);
-        // sources
         appendSources(flumeConf, sortTaskName);
         return flumeConf;
     }
