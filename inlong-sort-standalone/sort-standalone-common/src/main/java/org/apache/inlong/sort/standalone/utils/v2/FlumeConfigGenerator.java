@@ -20,8 +20,6 @@ package org.apache.inlong.sort.standalone.utils.v2;
 import org.apache.inlong.common.pojo.sort.SortTaskConfig;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -37,8 +35,6 @@ public class FlumeConfigGenerator {
             "org.apache.inlong.sort.standalone.rollback.TimeBasedFilterInterceptor$Builder";
     public static final String KEY_ROLLBACK_START_TIME = "rollback.startTime";
     public static final String KEY_ROLLBACK_STOP_TIME = "rollback.stopTime";
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public static Map<String, String> generateFlumeConfiguration(SortTaskConfig taskConfig) {
         Map<String, String> flumeConf = new HashMap<>();
@@ -95,7 +91,8 @@ public class FlumeConfigGenerator {
         String channelKey = builder.append(prefix).append("channel").toString();
         String channelName = name + "Channel";
         flumeConf.put(channelKey, channelName);
-        //
+
+        // common
         appendCommon(flumeConf, prefix, name);
     }
 

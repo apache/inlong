@@ -114,7 +114,6 @@ public class SortClusterConfigHolder {
         }
     }
 
-
     public static SortConfig getSortConfig() {
         return get().config;
     }

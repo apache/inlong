@@ -31,7 +31,6 @@ import java.nio.charset.Charset;
 public class ClassResourceSortClusterConfigLoader implements SortConfigLoader {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(ClassResourceSortClusterConfigLoader.class);
-
     private Context context;
     private ObjectMapper objectMapper = new ObjectMapper();
 

@@ -52,7 +52,6 @@ public class SortTask {
         if (config == null) {
             return;
         }
-        //
         Map<String, String> flumeConfiguration = FlumeConfigGenerator.generateFlumeConfiguration(config);
         log.info("start sort task={}, config={}", taskName, flumeConfiguration);
         PropertiesConfigurationProvider configurationProvider = new PropertiesConfigurationProvider(
@@ -137,9 +136,7 @@ public class SortTask {
             }
         }
 
-        /*
-         * Wait for all channels to start.
-         */
+        // Wait for all channels to start.
         for (Channel ch : materializedConfiguration.getChannels().values()) {
             while (ch.getLifecycleState() != LifecycleState.START
                     && !supervisor.isComponentInErrorState(ch)) {

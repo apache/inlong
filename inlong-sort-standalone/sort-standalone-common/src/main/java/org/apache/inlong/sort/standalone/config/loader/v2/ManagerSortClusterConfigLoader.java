@@ -83,7 +83,7 @@ public class ManagerSortClusterConfigLoader implements SortConfigLoader {
             SortConfigResponse clusterResponse = objectMapper.readValue(returnStr, SortConfigResponse.class);
             int errCode = clusterResponse.getCode();
             if (errCode != SortConfigResponse.SUCC && errCode != SortConfigResponse.NO_UPDATE) {
-                log.info("failed to get config info from url={}, error code={}, msg={}",
+                log.error("failed to get config info from url={}, error code={}, msg={}",
                         url, clusterResponse.getCode(), clusterResponse.getMsg());
                 return null;
             }
