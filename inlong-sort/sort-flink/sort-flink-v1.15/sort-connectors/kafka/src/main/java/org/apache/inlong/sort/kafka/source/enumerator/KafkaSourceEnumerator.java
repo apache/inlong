@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +17,11 @@
 
 package org.apache.inlong.sort.kafka.source.enumerator;
 
+import org.apache.inlong.sort.kafka.source.KafkaSourceOptions;
+import org.apache.inlong.sort.kafka.source.enumerator.initializer.OffsetsInitializer;
+import org.apache.inlong.sort.kafka.source.enumerator.subscriber.KafkaSubscriber;
+import org.apache.inlong.sort.kafka.source.split.KafkaPartitionSplit;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.connector.source.Boundedness;
@@ -25,11 +29,10 @@ import org.apache.flink.api.connector.source.SplitEnumerator;
 import org.apache.flink.api.connector.source.SplitEnumeratorContext;
 import org.apache.flink.api.connector.source.SplitsAssignment;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.kafka.source.KafkaSourceOptions;
-import org.apache.inlong.sort.kafka.source.enumerator.initializer.OffsetsInitializer;
-import org.apache.inlong.sort.kafka.source.enumerator.subscriber.KafkaSubscriber;
-import org.apache.inlong.sort.kafka.source.split.KafkaPartitionSplit;
-import org.apache.kafka.clients.admin.*;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.ListConsumerGroupOffsetsOptions;
+import org.apache.kafka.clients.admin.ListOffsetsResult;
+import org.apache.kafka.clients.admin.OffsetSpec;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.OffsetAndTimestamp;
 import org.apache.kafka.common.TopicPartition;
@@ -37,16 +40,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-/** The enumerator class for Kafka source. */
+/** The enumerator class for Kafka source.
+ *
+ * Copy from flink-connector-kafka:1.15.4
+ * */
 @Internal
 public class KafkaSourceEnumerator
-        implements SplitEnumerator<KafkaPartitionSplit, KafkaSourceEnumState> {
+        implements
+            SplitEnumerator<KafkaPartitionSplit, KafkaSourceEnumState> {
+
     private static final Logger LOG = LoggerFactory.getLogger(KafkaSourceEnumerator.class);
     private final KafkaSubscriber subscriber;
     private final OffsetsInitializer startingOffsetInitializer;
@@ -371,9 +388,8 @@ public class KafkaSourceEnumerator
 
         assignedPartitions.forEach(dedupOrMarkAsRemoved);
         pendingPartitionSplitAssignment.forEach(
-                (reader, splits) ->
-                        splits.forEach(
-                                split -> dedupOrMarkAsRemoved.accept(split.getTopicPartition())));
+                (reader, splits) -> splits.forEach(
+                        split -> dedupOrMarkAsRemoved.accept(split.getTopicPartition())));
 
         if (!fetchedPartitions.isEmpty()) {
             LOG.info("Discovered new partitions: {}", fetchedPartitions);
@@ -441,6 +457,7 @@ public class KafkaSourceEnumerator
     /** A container class to hold the newly added partitions and removed partitions. */
     @VisibleForTesting
     static class PartitionChange {
+
         private final Set<TopicPartition> newPartitions;
         private final Set<TopicPartition> removedPartitions;
 
@@ -463,6 +480,7 @@ public class KafkaSourceEnumerator
     }
 
     private static class PartitionSplitChange {
+
         private final Set<KafkaPartitionSplit> newPartitionSplits;
         private final Set<TopicPartition> removedPartitions;
 
@@ -477,7 +495,10 @@ public class KafkaSourceEnumerator
     /** The implementation for offsets retriever with a consumer and an admin client. */
     @VisibleForTesting
     public static class PartitionOffsetsRetrieverImpl
-            implements OffsetsInitializer.PartitionOffsetsRetriever, AutoCloseable {
+            implements
+                OffsetsInitializer.PartitionOffsetsRetriever,
+                AutoCloseable {
+
         private final AdminClient adminClient;
         private final String groupId;
 
@@ -525,7 +546,6 @@ public class KafkaSourceEnumerator
          * the beginning offset, end offset as well as the offset matching a timestamp in
          * partitions.
          *
-         * @see KafkaAdminClient#listOffsets(Map)
          * @param topicPartitionOffsets The mapping from partition to the OffsetSpec to look up.
          * @return The list offsets result.
          */
@@ -537,8 +557,8 @@ public class KafkaSourceEnumerator
                         .all()
                         .thenApply(
                                 result -> {
-                                    Map<TopicPartition, ListOffsetsResult.ListOffsetsResultInfo>
-                                            offsets = new HashMap<>();
+                                    Map<TopicPartition, ListOffsetsResult.ListOffsetsResultInfo> offsets =
+                                            new HashMap<>();
                                     result.forEach(
                                             (tp, listOffsetsResultInfo) -> {
                                                 if (listOffsetsResultInfo != null) {
@@ -566,14 +586,15 @@ public class KafkaSourceEnumerator
         private Map<TopicPartition, Long> listOffsets(
                 Collection<TopicPartition> partitions, OffsetSpec offsetSpec) {
             return listOffsets(
-                            partitions.stream()
-                                    .collect(
-                                            Collectors.toMap(
-                                                    partition -> partition, __ -> offsetSpec)))
-                    .entrySet().stream()
-                    .collect(
-                            Collectors.toMap(
-                                    Map.Entry::getKey, entry -> entry.getValue().offset()));
+                    partitions.stream()
+                            .collect(
+                                    Collectors.toMap(
+                                            partition -> partition, __ -> offsetSpec)))
+                                                    .entrySet().stream()
+                                                    .collect(
+                                                            Collectors.toMap(
+                                                                    Map.Entry::getKey,
+                                                                    entry -> entry.getValue().offset()));
         }
 
         @Override
@@ -590,22 +611,20 @@ public class KafkaSourceEnumerator
         public Map<TopicPartition, OffsetAndTimestamp> offsetsForTimes(
                 Map<TopicPartition, Long> timestampsToSearch) {
             return listOffsets(
-                            timestampsToSearch.entrySet().stream()
-                                    .collect(
-                                            Collectors.toMap(
-                                                    Map.Entry::getKey,
-                                                    entry ->
-                                                            OffsetSpec.forTimestamp(
-                                                                    entry.getValue()))))
-                    .entrySet().stream()
-                    .collect(
-                            Collectors.toMap(
-                                    Map.Entry::getKey,
-                                    entry ->
-                                            new OffsetAndTimestamp(
-                                                    entry.getValue().offset(),
-                                                    entry.getValue().timestamp(),
-                                                    entry.getValue().leaderEpoch())));
+                    timestampsToSearch.entrySet().stream()
+                            .collect(
+                                    Collectors.toMap(
+                                            Map.Entry::getKey,
+                                            entry -> OffsetSpec.forTimestamp(
+                                                    entry.getValue()))))
+                                                            .entrySet().stream()
+                                                            .collect(
+                                                                    Collectors.toMap(
+                                                                            Map.Entry::getKey,
+                                                                            entry -> new OffsetAndTimestamp(
+                                                                                    entry.getValue().offset(),
+                                                                                    entry.getValue().timestamp(),
+                                                                                    entry.getValue().leaderEpoch())));
         }
 
         @Override

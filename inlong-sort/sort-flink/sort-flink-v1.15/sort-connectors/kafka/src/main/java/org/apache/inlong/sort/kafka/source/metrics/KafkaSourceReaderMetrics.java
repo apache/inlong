@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,15 +17,15 @@
 
 package org.apache.inlong.sort.kafka.source.metrics;
 
+import org.apache.inlong.sort.kafka.MetricUtil;
+
 import org.apache.flink.annotation.PublicEvolving;
-import org.apache.flink.connector.kafka.MetricUtil;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.groups.OperatorIOMetricGroup;
 import org.apache.flink.metrics.groups.SourceReaderMetricGroup;
 import org.apache.flink.runtime.metrics.MetricNames;
 import org.apache.flink.runtime.metrics.groups.TaskIOMetricGroup;
-import org.apache.inlong.sort.kafka.source.reader.KafkaSourceReader;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.Metric;
 import org.apache.kafka.common.MetricName;
@@ -35,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,24 +42,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
 
 /**
- * A collection class for handling metrics in {@link KafkaSourceReader}.
+ * Copy from iceberg-flink:iceberg-flink-1.15:1.3.1
  *
- * <p>All metrics of Kafka source reader are registered under group "KafkaSourceReader", which is a
- * child group of {@link org.apache.flink.metrics.groups.OperatorMetricGroup}. Metrics related to a
- * specific topic partition will be registered in the group
- * "KafkaSourceReader.topic.{topic_name}.partition.{partition_id}".
- *
- * <p>For example, current consuming offset of topic "my-topic" and partition 1 will be reported in
- * metric:
- * "{some_parent_groups}.operator.KafkaSourceReader.topic.my-topic.partition.1.currentOffset"
- *
- * <p>and number of successful commits will be reported in metric:
- * "{some_parent_groups}.operator.KafkaSourceReader.commitsSucceeded"
- *
- * <p>All metrics of Kafka consumer are also registered under group
- * "KafkaSourceReader.KafkaConsumer". For example, Kafka consumer metric "records-consumed-total"
- * can be found at:
- * {some_parent_groups}.operator.KafkaSourceReader.KafkaConsumer.records-consumed-total"
+ * Copy from flink-connector-kafka:1.15.4
  */
 @PublicEvolving
 public class KafkaSourceReaderMetrics {
@@ -97,10 +82,12 @@ public class KafkaSourceReaderMetrics {
     private final Map<TopicPartition, Offset> offsets = new HashMap<>();
 
     // Map for tracking records lag of topic partitions
-    @Nullable private ConcurrentMap<TopicPartition, Metric> recordsLagMetrics;
+    @Nullable
+    private ConcurrentMap<TopicPartition, Metric> recordsLagMetrics;
 
     // Kafka raw metric for bytes consumed total
-    @Nullable private Metric bytesConsumedTotalMetric;
+    @Nullable
+    private Metric bytesConsumedTotalMetric;
 
     /** Number of bytes consumed total at the latest {@link #updateNumBytesInCounter()}. */
     private long latestBytesConsumedTotal;
@@ -132,8 +119,7 @@ public class KafkaSourceReaderMetrics {
                 kafkaSourceReaderMetricGroup.addGroup(KAFKA_CONSUMER_METRIC_GROUP);
 
         kafkaConsumerMetrics.forEach(
-                (name, metric) ->
-                        kafkaConsumerMetricGroup.gauge(name.name(), () -> metric.metricValue()));
+                (name, metric) -> kafkaConsumerMetricGroup.gauge(name.name(), () -> metric.metricValue()));
     }
 
     /**
@@ -186,10 +172,9 @@ public class KafkaSourceReaderMetrics {
     public void registerNumBytesIn(KafkaConsumer<?, ?> consumer) {
         try {
             Predicate<Map.Entry<MetricName, ? extends Metric>> filter =
-                    (entry) ->
-                            entry.getKey().group().equals(CONSUMER_FETCH_MANAGER_GROUP)
-                                    && entry.getKey().name().equals(BYTES_CONSUMED_TOTAL)
-                                    && !entry.getKey().tags().containsKey("topic");
+                    (entry) -> entry.getKey().group().equals(CONSUMER_FETCH_MANAGER_GROUP)
+                            && entry.getKey().name().equals(BYTES_CONSUMED_TOTAL)
+                            && !entry.getKey().tags().containsKey("topic");
             this.bytesConsumedTotalMetric = MetricUtil.getKafkaMetric(consumer.metrics(), filter);
         } catch (IllegalStateException e) {
             LOG.warn(
@@ -269,14 +254,10 @@ public class KafkaSourceReaderMetrics {
                         .addGroup(PARTITION_GROUP, String.valueOf(tp.partition()));
         topicPartitionGroup.gauge(
                 CURRENT_OFFSET_METRIC_GAUGE,
-                () ->
-                        offsets.getOrDefault(tp, new Offset(INITIAL_OFFSET, INITIAL_OFFSET))
-                                .currentOffset);
+                () -> offsets.getOrDefault(tp, new Offset(INITIAL_OFFSET, INITIAL_OFFSET)).currentOffset);
         topicPartitionGroup.gauge(
                 COMMITTED_OFFSET_METRIC_GAUGE,
-                () ->
-                        offsets.getOrDefault(tp, new Offset(INITIAL_OFFSET, INITIAL_OFFSET))
-                                .committedOffset);
+                () -> offsets.getOrDefault(tp, new Offset(INITIAL_OFFSET, INITIAL_OFFSET)).committedOffset);
     }
 
     private void checkTopicPartitionTracked(TopicPartition tp) {
@@ -317,6 +298,7 @@ public class KafkaSourceReaderMetrics {
     }
 
     private static class Offset {
+
         long currentOffset;
         long committedOffset;
 

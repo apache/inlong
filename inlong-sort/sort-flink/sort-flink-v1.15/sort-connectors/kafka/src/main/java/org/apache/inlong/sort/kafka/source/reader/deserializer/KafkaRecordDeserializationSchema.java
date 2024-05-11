@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,10 +17,11 @@
 
 package org.apache.inlong.sort.kafka.source.reader.deserializer;
 
+import org.apache.inlong.sort.kafka.KafkaDeserializationSchema;
+
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
-import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.Deserializer;
@@ -31,7 +31,10 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
-/** An interface for the deserialization of Kafka records. */
+/** An interface for the deserialization of Kafka records.
+ *
+ * Copy from flink-connector-kafka:1.15.4
+ * */
 @PublicEvolving
 public interface KafkaRecordDeserializationSchema<T> extends Serializable, ResultTypeQueryable<T> {
 
@@ -44,7 +47,8 @@ public interface KafkaRecordDeserializationSchema<T> extends Serializable, Resul
      *
      * @param context Contextual information that can be used during initialization.
      */
-    default void open(DeserializationSchema.InitializationContext context) throws Exception {}
+    default void open(DeserializationSchema.InitializationContext context) throws Exception {
+    }
 
     /**
      * Deserializes the byte message.

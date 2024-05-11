@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,18 +17,19 @@
 
 package org.apache.inlong.sort.kafka.table;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.kafka.partitioner.FlinkKafkaPartitioner;
+import org.apache.inlong.sort.kafka.sink.KafkaSink;
+import org.apache.inlong.sort.kafka.sink.KafkaSinkBuilder;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.connector.base.DeliveryGuarantee;
-import org.apache.flink.connector.kafka.sink.KafkaSink;
-import org.apache.flink.connector.kafka.sink.KafkaSinkBuilder;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
-import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
-import org.apache.flink.streaming.connectors.kafka.table.SinkBufferFlushMode;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.Projection;
@@ -45,13 +45,20 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
-import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.header.Header;
 
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 import java.util.stream.Stream;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
@@ -105,7 +112,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
      * If the {@link #deliveryGuarantee} is {@link DeliveryGuarantee#EXACTLY_ONCE} the value is the
      * prefix for all ids of opened Kafka transactions.
      */
-    @Nullable private final String transactionalIdPrefix;
+    @Nullable
+    private final String transactionalIdPrefix;
 
     /** The Kafka topic to write to. */
     protected final String topic;
@@ -216,6 +224,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                         .build();
         if (flushMode.isEnabled() && upsertMode) {
             return new DataStreamSinkProvider() {
+
                 @Override
                 public DataStreamSink<?> consumeDataStream(
                         ProviderContext providerContext, DataStream<RowData> dataStream) {
@@ -228,10 +237,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                                     keyProjection,
                                     flushMode,
                                     objectReuse
-                                            ? createRowDataTypeSerializer(
-                                                            context,
-                                                            dataStream.getExecutionConfig())
-                                                    ::copy
+                                            ? rowData -> createRowDataTypeSerializer(
+                                                    context,
+                                                    dataStream.getExecutionConfig()).copy(rowData)
                                             : rowData -> rowData,
                                     metricOption);
                     final DataStreamSink<RowData> end = dataStream.sinkTo(sink);
@@ -367,9 +375,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
             List<LogicalType> physicalChildren, int[] keyProjection) {
         return Arrays.stream(keyProjection)
                 .mapToObj(
-                        targetField ->
-                                RowData.createFieldGetter(
-                                        physicalChildren.get(targetField), targetField))
+                        targetField -> RowData.createFieldGetter(
+                                physicalChildren.get(targetField), targetField))
                 .toArray(RowData.FieldGetter[]::new);
     }
 
@@ -393,12 +400,14 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
     // --------------------------------------------------------------------------------------------
 
     enum WritableMetadata {
+
         HEADERS(
                 "headers",
                 // key and value of the map are nullable to make handling easier in queries
                 DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.BYTES().nullable())
                         .nullable(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -425,6 +434,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 "timestamp",
                 DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).nullable(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -450,6 +460,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
     }
 
     interface MetadataConverter extends Serializable {
+
         Object read(RowData consumedRow, int pos);
     }
 

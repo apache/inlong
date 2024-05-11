@@ -1,12 +1,12 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.kafka.sink;
 
+import org.apache.inlong.sort.kafka.MetricUtil;
+import org.apache.inlong.sort.kafka.internals.metrics.KafkaMetricMutableWrapper;
+
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.operators.MailboxExecutor;
 import org.apache.flink.api.common.operators.ProcessingTimeService;
@@ -25,7 +28,6 @@ import org.apache.flink.api.connector.sink2.Sink;
 import org.apache.flink.api.connector.sink2.StatefulSink;
 import org.apache.flink.api.connector.sink2.TwoPhaseCommittingSink;
 import org.apache.flink.connector.base.DeliveryGuarantee;
-import org.apache.flink.connector.kafka.MetricUtil;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.groups.SinkWriterMetricGroup;
@@ -33,7 +35,6 @@ import org.apache.flink.runtime.checkpoint.CheckpointIDCounter;
 import org.apache.flink.shaded.guava30.com.google.common.collect.ImmutableList;
 import org.apache.flink.shaded.guava30.com.google.common.collect.Lists;
 import org.apache.flink.shaded.guava30.com.google.common.io.Closer;
-import org.apache.flink.streaming.connectors.kafka.internals.metrics.KafkaMetricMutableWrapper;
 import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -46,8 +47,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.function.Consumer;
 
 import static org.apache.flink.util.IOUtils.closeAll;
@@ -59,10 +69,13 @@ import static org.apache.flink.util.Preconditions.checkState;
  * {@link DeliveryGuarantee}s.
  *
  * @param <IN> The type of the input elements.
+ *
+ * Copy from flink-connector-kafka:1.15.4
  */
 class KafkaWriter<IN>
-        implements StatefulSink.StatefulSinkWriter<IN, KafkaWriterState>,
-                TwoPhaseCommittingSink.PrecommittingSinkWriter<IN, KafkaCommittable> {
+        implements
+            StatefulSink.StatefulSinkWriter<IN, KafkaWriterState>,
+            TwoPhaseCommittingSink.PrecommittingSinkWriter<IN, KafkaCommittable> {
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaWriter.class);
     private static final String KAFKA_PRODUCER_METRIC_NAME = "KafkaProducer";
@@ -134,8 +147,8 @@ class KafkaWriter<IN>
                         sinkInitContext.<RecordMetadata>metadataConsumer().orElse(null));
         this.disabledMetrics =
                 kafkaProducerConfig.containsKey(KEY_DISABLE_METRICS)
-                                && Boolean.parseBoolean(
-                                        kafkaProducerConfig.get(KEY_DISABLE_METRICS).toString())
+                        && Boolean.parseBoolean(
+                                kafkaProducerConfig.get(KEY_DISABLE_METRICS).toString())
                         || kafkaProducerConfig.containsKey(KEY_REGISTER_METRICS)
                                 && !Boolean.parseBoolean(
                                         kafkaProducerConfig.get(KEY_REGISTER_METRICS).toString());
@@ -385,8 +398,10 @@ class KafkaWriter<IN>
     }
 
     private class WriterCallback implements Callback {
+
         private final MailboxExecutor mailboxExecutor;
-        @Nullable private final Consumer<RecordMetadata> metadataConsumer;
+        @Nullable
+        private final Consumer<RecordMetadata> metadataConsumer;
 
         public WriterCallback(
                 MailboxExecutor mailboxExecutor,

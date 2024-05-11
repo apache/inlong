@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,8 +28,11 @@ import java.util.Map;
  * An implementation of {@link OffsetsInitializer} to initialize the offsets based on a timestamp.
  *
  * <p>Package private and should be instantiated via {@link OffsetsInitializer}.
+ *
+ * Copy from flink-connector-kafka:1.15.4
  */
 class TimestampOffsetsInitializer implements OffsetsInitializer {
+
     private static final long serialVersionUID = 2932230571773627233L;
     private final long startingTimestamp;
 

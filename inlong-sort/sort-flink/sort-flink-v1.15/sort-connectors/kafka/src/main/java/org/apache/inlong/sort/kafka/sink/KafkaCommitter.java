@@ -1,12 +1,12 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collection;
@@ -37,6 +38,8 @@ import java.util.Properties;
  * Committer implementation for {@link KafkaSink}
  *
  * <p>The committer is responsible to finalize the Kafka transactions by committing them.
+ *
+ * Copy from flink-connector-kafka:1.15.4
  */
 class KafkaCommitter implements Committer<KafkaCommittable>, Closeable {
 
@@ -47,7 +50,8 @@ class KafkaCommitter implements Committer<KafkaCommittable>, Closeable {
 
     private final Properties kafkaProducerConfig;
 
-    @Nullable private FlinkKafkaInternalProducer<?, ?> recoveryProducer;
+    @Nullable
+    private FlinkKafkaInternalProducer<?, ?> recoveryProducer;
 
     KafkaCommitter(Properties kafkaProducerConfig) {
         this.kafkaProducerConfig = kafkaProducerConfig;

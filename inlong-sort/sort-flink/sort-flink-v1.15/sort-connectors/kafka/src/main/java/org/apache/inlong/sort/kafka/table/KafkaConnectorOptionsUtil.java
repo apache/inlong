@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,17 +17,17 @@
 
 package org.apache.inlong.sort.kafka.table;
 
+import org.apache.inlong.sort.kafka.config.StartupMode;
+import org.apache.inlong.sort.kafka.internals.KafkaTopicPartition;
+import org.apache.inlong.sort.kafka.partitioner.FlinkFixedPartitioner;
+import org.apache.inlong.sort.kafka.partitioner.FlinkKafkaPartitioner;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.connector.base.DeliveryGuarantee;
-import org.apache.flink.streaming.connectors.kafka.config.StartupMode;
-import org.apache.flink.streaming.connectors.kafka.internals.KafkaTopicPartition;
-import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkFixedPartitioner;
-import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
-import org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.*;
 import org.apache.flink.table.api.TableException;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.data.RowData;
@@ -42,12 +41,17 @@ import org.apache.flink.util.FlinkException;
 import org.apache.flink.util.InstantiationUtil;
 import org.apache.flink.util.Preconditions;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.*;
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
+import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptions.*;
 
 /** Utilities for {@link KafkaConnectorOptions}. */
 @Internal
@@ -293,7 +297,7 @@ class KafkaConnectorOptionsUtil {
                                 case SINK_PARTITIONER_VALUE_DEFAULT:
                                 case SINK_PARTITIONER_VALUE_ROUND_ROBIN:
                                     return Optional.empty();
-                                    // Default fallback to full class name of the partitioner.
+                                // Default fallback to full class name of the partitioner.
                                 default:
                                     return Optional.of(
                                             initializePartitioner(partitioner, classLoader));
@@ -558,10 +562,12 @@ class KafkaConnectorOptionsUtil {
 
     /** Kafka startup options. * */
     public static class StartupOptions {
+
         public StartupMode startupMode;
         public Map<KafkaTopicPartition, Long> specificOffsets;
         public long startupTimestampMillis;
     }
 
-    private KafkaConnectorOptionsUtil() {}
+    private KafkaConnectorOptionsUtil() {
+    }
 }

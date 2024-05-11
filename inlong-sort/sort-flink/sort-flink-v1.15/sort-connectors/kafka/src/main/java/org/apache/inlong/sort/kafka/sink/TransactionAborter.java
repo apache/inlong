@@ -1,12 +1,12 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.kafka.sink;
 
 import javax.annotation.Nullable;
+
 import java.io.Closeable;
 import java.util.List;
 import java.util.function.Consumer;
@@ -41,8 +42,11 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * <p>Additionally, to cover for weird downscaling cases without checkpoints, it also checks for
  * transactions of subtask S+P where P is the current parallelism until it finds a subtask without
  * transactions.
+ *
+ * Copy from flink-connector-kafka:1.15.4
  */
 class TransactionAborter implements Closeable {
+
     private final int subtaskId;
     private final int parallelism;
     private final Function<String, FlinkKafkaInternalProducer<byte[], byte[]>> producerFactory;
@@ -78,7 +82,7 @@ class TransactionAborter implements Closeable {
      * is responsible for all even and subtask 1 for all odd subtasks.
      */
     private void abortTransactionsWithPrefix(String prefix, long startCheckpointId) {
-        for (int subtaskId = this.subtaskId; ; subtaskId += parallelism) {
+        for (int subtaskId = this.subtaskId;; subtaskId += parallelism) {
             if (abortTransactionOfSubtask(prefix, startCheckpointId, subtaskId) == 0) {
                 // If Flink didn't abort any transaction for current subtask, then we assume that no
                 // such subtask existed and no subtask with a higher number as well.
@@ -96,7 +100,7 @@ class TransactionAborter implements Closeable {
      */
     private int abortTransactionOfSubtask(String prefix, long startCheckpointId, int subtaskId) {
         int numTransactionAborted = 0;
-        for (long checkpointId = startCheckpointId; ; checkpointId++, numTransactionAborted++) {
+        for (long checkpointId = startCheckpointId;; checkpointId++, numTransactionAborted++) {
             // initTransactions fences all old transactions with the same id by bumping the epoch
             String transactionalId =
                     TransactionalIdFactory.buildTransactionalId(prefix, subtaskId, checkpointId);

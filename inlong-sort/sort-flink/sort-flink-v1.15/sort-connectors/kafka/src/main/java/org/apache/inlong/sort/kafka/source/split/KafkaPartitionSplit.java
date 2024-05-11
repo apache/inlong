@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,11 +22,16 @@ import org.apache.flink.api.connector.source.SourceSplit;
 import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.kafka.common.TopicPartition;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /** A {@link SourceSplit} for a Kafka partition. */
 @Internal
 public class KafkaPartitionSplit implements SourceSplit {
+
     public static final long NO_STOPPING_OFFSET = Long.MIN_VALUE;
     // Indicating the split should consume from the latest.
     public static final long LATEST_OFFSET = -1;
@@ -75,10 +79,10 @@ public class KafkaPartitionSplit implements SourceSplit {
 
     public Optional<Long> getStoppingOffset() {
         return stoppingOffset > 0
-                        || stoppingOffset == LATEST_OFFSET
-                        || stoppingOffset == COMMITTED_OFFSET
-                ? Optional.of(stoppingOffset)
-                : Optional.empty();
+                || stoppingOffset == LATEST_OFFSET
+                || stoppingOffset == COMMITTED_OFFSET
+                        ? Optional.of(stoppingOffset)
+                        : Optional.empty();
     }
 
     @Override

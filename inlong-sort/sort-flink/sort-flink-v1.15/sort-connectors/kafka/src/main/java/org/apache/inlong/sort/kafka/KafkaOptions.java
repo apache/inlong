@@ -20,7 +20,10 @@ package org.apache.inlong.sort.kafka;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 
-/** Option utils for Kafka table source sink. */
+/** Option utils for Kafka table source sink.
+ *
+ * Copy from flink-connector-kafka:1.15.4
+ * */
 public class KafkaOptions {
 
     private KafkaOptions() {

@@ -1,12 +1,12 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,14 +17,16 @@
 
 package org.apache.inlong.sort.kafka.sink;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
-import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serializer;
 
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,15 +77,22 @@ import static org.apache.flink.util.Preconditions.checkState;
  *
  * @param <IN> type of records to be serialized
  * @see KafkaRecordSerializationSchema#builder()
+ *
+ * Copy from flink-connector-kafka:1.15.4
  */
 @PublicEvolving
 public class KafkaRecordSerializationSchemaBuilder<IN> {
 
-    @Nullable private Function<? super IN, String> topicSelector;
-    @Nullable private SerializationSchema<? super IN> valueSerializationSchema;
-    @Nullable private FlinkKafkaPartitioner<? super IN> partitioner;
-    @Nullable private SerializationSchema<? super IN> keySerializationSchema;
-    @Nullable private MetricOption metricOption;
+    @Nullable
+    private Function<? super IN, String> topicSelector;
+    @Nullable
+    private SerializationSchema<? super IN> valueSerializationSchema;
+    @Nullable
+    private FlinkKafkaPartitioner<? super IN> partitioner;
+    @Nullable
+    private SerializationSchema<? super IN> keySerializationSchema;
+    @Nullable
+    private MetricOption metricOption;
 
     /**
      * Sets a custom partitioner determining the target partition of the target topic.
@@ -165,9 +174,8 @@ public class KafkaRecordSerializationSchemaBuilder<IN> {
      * @param <S> type of the used serializer class
      * @return {@code this}
      */
-    public <T extends IN, S extends Serializer<? super T>>
-            KafkaRecordSerializationSchemaBuilder<T> setKafkaKeySerializer(
-                    Class<S> keySerializer, Map<String, String> configuration) {
+    public <T extends IN, S extends Serializer<? super T>> KafkaRecordSerializationSchemaBuilder<T> setKafkaKeySerializer(
+            Class<S> keySerializer, Map<String, String> configuration) {
         checkKeySerializerNotSet();
         KafkaRecordSerializationSchemaBuilder<T> self = self();
         self.keySerializationSchema =
@@ -220,9 +228,8 @@ public class KafkaRecordSerializationSchemaBuilder<IN> {
      * @param <S> type of the used serializer class
      * @return {@code this}
      */
-    public <T extends IN, S extends Serializer<? super T>>
-            KafkaRecordSerializationSchemaBuilder<T> setKafkaValueSerializer(
-                    Class<S> valueSerializer, Map<String, String> configuration) {
+    public <T extends IN, S extends Serializer<? super T>> KafkaRecordSerializationSchemaBuilder<T> setKafkaValueSerializer(
+            Class<S> valueSerializer, Map<String, String> configuration) {
         checkValueSerializerNotSet();
         KafkaRecordSerializationSchemaBuilder<T> self = self();
         self.valueSerializationSchema =
@@ -273,7 +280,9 @@ public class KafkaRecordSerializationSchemaBuilder<IN> {
     }
 
     private static class KafkaRecordSerializationSchemaWrapper<IN>
-            implements KafkaRecordSerializationSchema<IN> {
+            implements
+                KafkaRecordSerializationSchema<IN> {
+
         private final SerializationSchema<? super IN> valueSerializationSchema;
         private final Function<? super IN, String> topicSelector;
         private final FlinkKafkaPartitioner<? super IN> partitioner;

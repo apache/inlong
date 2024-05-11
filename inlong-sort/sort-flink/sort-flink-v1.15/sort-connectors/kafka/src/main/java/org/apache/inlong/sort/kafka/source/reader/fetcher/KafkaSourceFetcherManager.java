@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +17,9 @@
 
 package org.apache.inlong.sort.kafka.source.reader.fetcher;
 
+import org.apache.inlong.sort.kafka.source.reader.KafkaPartitionSplitReader;
+import org.apache.inlong.sort.kafka.source.split.KafkaPartitionSplit;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
 import org.apache.flink.connector.base.source.reader.SourceReaderBase;
@@ -26,8 +28,6 @@ import org.apache.flink.connector.base.source.reader.fetcher.SplitFetcher;
 import org.apache.flink.connector.base.source.reader.fetcher.SplitFetcherTask;
 import org.apache.flink.connector.base.source.reader.splitreader.SplitReader;
 import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
-import org.apache.inlong.sort.kafka.source.reader.KafkaPartitionSplitReader;
-import org.apache.inlong.sort.kafka.source.split.KafkaPartitionSplit;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.consumer.OffsetCommitCallback;
@@ -48,7 +48,9 @@ import java.util.function.Supplier;
  */
 @Internal
 public class KafkaSourceFetcherManager
-        extends SingleThreadFetcherManager<ConsumerRecord<byte[], byte[]>, KafkaPartitionSplit> {
+        extends
+            SingleThreadFetcherManager<ConsumerRecord<byte[], byte[]>, KafkaPartitionSplit> {
+
     private static final Logger LOG = LoggerFactory.getLogger(KafkaSourceFetcherManager.class);
 
     /**
@@ -62,10 +64,8 @@ public class KafkaSourceFetcherManager
      * @param splitFinishedHook Hook for handling finished splits in split fetchers.
      */
     public KafkaSourceFetcherManager(
-            FutureCompletingBlockingQueue<RecordsWithSplitIds<ConsumerRecord<byte[], byte[]>>>
-                    elementsQueue,
-            Supplier<SplitReader<ConsumerRecord<byte[], byte[]>, KafkaPartitionSplit>>
-                    splitReaderSupplier,
+            FutureCompletingBlockingQueue<RecordsWithSplitIds<ConsumerRecord<byte[], byte[]>>> elementsQueue,
+            Supplier<SplitReader<ConsumerRecord<byte[], byte[]>, KafkaPartitionSplit>> splitReaderSupplier,
             Consumer<Collection<String>> splitFinishedHook) {
         super(elementsQueue, splitReaderSupplier, splitFinishedHook);
     }
@@ -97,6 +97,7 @@ public class KafkaSourceFetcherManager
 
         splitFetcher.enqueueTask(
                 new SplitFetcherTask() {
+
                     @Override
                     public boolean run() throws IOException {
                         kafkaReader.notifyCheckpointComplete(offsetsToCommit, callback);
@@ -104,7 +105,8 @@ public class KafkaSourceFetcherManager
                     }
 
                     @Override
-                    public void wakeUp() {}
+                    public void wakeUp() {
+                    }
                 });
     }
 }

@@ -1,12 +1,12 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.kafka.table;
+package org.apache.inlong.sort.kafka;
 
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -30,6 +30,8 @@ import java.io.Serializable;
  * (Java/Scala objects) that are processed by Flink.
  *
  * @param <T> The type created by the keyed deserialization schema.
+ *
+ * Copy from flink-connector-kafka:1.15.4
  */
 @PublicEvolving
 public interface KafkaDeserializationSchema<T> extends Serializable, ResultTypeQueryable<T> {
@@ -43,7 +45,8 @@ public interface KafkaDeserializationSchema<T> extends Serializable, ResultTypeQ
      *
      * @param context Contextual information that can be used during initialization.
      */
-    default void open(DeserializationSchema.InitializationContext context) throws Exception {}
+    default void open(DeserializationSchema.InitializationContext context) throws Exception {
+    }
 
     /**
      * Method to decide whether the element signals the end of the stream. If true is returned the

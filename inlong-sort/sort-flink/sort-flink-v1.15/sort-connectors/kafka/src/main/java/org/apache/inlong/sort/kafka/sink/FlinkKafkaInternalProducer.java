@@ -1,12 +1,12 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -37,6 +38,8 @@ import static org.apache.flink.util.Preconditions.checkState;
 
 /**
  * A {@link KafkaProducer} that exposes private fields to allow resume producing from a given state.
+ *
+ * Copy from flink-connector-kafka:1.15.4
  */
 class FlinkKafkaInternalProducer<K, V> extends KafkaProducer<K, V> {
 
@@ -46,7 +49,8 @@ class FlinkKafkaInternalProducer<K, V> extends KafkaProducer<K, V> {
             "org.apache.kafka.clients.producer.internals.TransactionManager$State";
     private static final String PRODUCER_ID_AND_EPOCH_FIELD_NAME = "producerIdAndEpoch";
 
-    @Nullable private String transactionalId;
+    @Nullable
+    private String transactionalId;
     private volatile boolean inTransaction;
     private volatile boolean closed;
 
@@ -203,14 +207,13 @@ class FlinkKafkaInternalProducer<K, V> extends KafkaProducer<K, V> {
                 invoke(
                         transactionManager,
                         "enqueueRequest",
-                        new Class[] {txnRequestHandler.getClass().getSuperclass()},
-                        new Object[] {txnRequestHandler});
+                        new Class[]{txnRequestHandler.getClass().getSuperclass()},
+                        new Object[]{txnRequestHandler});
                 result =
-                        (TransactionalRequestResult)
-                                getField(
-                                        txnRequestHandler,
-                                        txnRequestHandler.getClass().getSuperclass(),
-                                        "result");
+                        (TransactionalRequestResult) getField(
+                                txnRequestHandler,
+                                txnRequestHandler.getClass().getSuperclass(),
+                                "result");
             } else {
                 // we don't have an operation but this operation string is also used in
                 // addPartitionsToTransactionHandler.

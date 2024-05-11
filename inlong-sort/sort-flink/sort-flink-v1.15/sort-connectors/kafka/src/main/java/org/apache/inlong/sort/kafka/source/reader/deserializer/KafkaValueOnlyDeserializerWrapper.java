@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,7 +32,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Map;
 
-/** A package private class to wrap {@link Deserializer}. */
+/** A package private class to wrap {@link Deserializer}.
+ *
+ * Copy from flink-connector-kafka:1.15.4
+ * */
 class KafkaValueOnlyDeserializerWrapper<T> implements KafkaRecordDeserializationSchema<T> {
 
     private static final long serialVersionUID = 5409547407386004054L;
@@ -60,11 +62,10 @@ class KafkaValueOnlyDeserializerWrapper<T> implements KafkaRecordDeserialization
         try (TemporaryClassLoaderContext ignored =
                 TemporaryClassLoaderContext.of(userCodeClassLoader)) {
             deserializer =
-                    (Deserializer<T>)
-                            InstantiationUtil.instantiate(
-                                    deserializerClass.getName(),
-                                    Deserializer.class,
-                                    getClass().getClassLoader());
+                    (Deserializer<T>) InstantiationUtil.instantiate(
+                            deserializerClass.getName(),
+                            Deserializer.class,
+                            getClass().getClassLoader());
 
             if (deserializer instanceof Configurable) {
                 ((Configurable) deserializer).configure(config);

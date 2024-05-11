@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +17,10 @@
 
 package org.apache.inlong.sort.kafka.source.reader;
 
+import org.apache.inlong.sort.kafka.source.KafkaSourceOptions;
+import org.apache.inlong.sort.kafka.source.metrics.KafkaSourceReaderMetrics;
+import org.apache.inlong.sort.kafka.source.split.KafkaPartitionSplit;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.connector.source.SourceReaderContext;
@@ -27,26 +30,43 @@ import org.apache.flink.connector.base.source.reader.splitreader.SplitsAddition;
 import org.apache.flink.connector.base.source.reader.splitreader.SplitsChange;
 import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.kafka.source.KafkaSourceOptions;
-import org.apache.inlong.sort.kafka.source.metrics.KafkaSourceReaderMetrics;
-import org.apache.inlong.sort.kafka.source.split.KafkaPartitionSplit;
-import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-/** A {@link SplitReader} implementation that reads records from Kafka partitions. */
+/** A {@link SplitReader} implementation that reads records from Kafka partitions.
+ *
+ * Copy from flink-connector-kafka:1.15.4
+ */
 @Internal
 public class KafkaPartitionSplitReader
-        implements SplitReader<ConsumerRecord<byte[], byte[]>, KafkaPartitionSplit> {
+        implements
+            SplitReader<ConsumerRecord<byte[], byte[]>, KafkaPartitionSplit> {
+
     private static final Logger LOG = LoggerFactory.getLogger(KafkaPartitionSplitReader.class);
     private static final long POLL_TIMEOUT = 10000L;
 
@@ -299,18 +319,18 @@ public class KafkaPartitionSplitReader
         stoppingOffsets.putAll(endOffset);
         if (!partitionsStoppingAtCommitted.isEmpty()) {
             retryOnWakeup(
-                            () -> consumer.committed(partitionsStoppingAtCommitted),
-                            "getting committed offset as stopping offsets")
-                    .forEach(
-                            (tp, offsetAndMetadata) -> {
-                                Preconditions.checkNotNull(
-                                        offsetAndMetadata,
-                                        String.format(
-                                                "Partition %s should stop at committed offset. "
-                                                        + "But there is no committed offset of this partition for group %s",
-                                                tp, groupId));
-                                stoppingOffsets.put(tp, offsetAndMetadata.offset());
-                            });
+                    () -> consumer.committed(partitionsStoppingAtCommitted),
+                    "getting committed offset as stopping offsets")
+                            .forEach(
+                                    (tp, offsetAndMetadata) -> {
+                                        Preconditions.checkNotNull(
+                                                offsetAndMetadata,
+                                                String.format(
+                                                        "Partition %s should stop at committed offset. "
+                                                                + "But there is no committed offset of this partition for group %s",
+                                                        tp, groupId));
+                                        stoppingOffsets.put(tp, offsetAndMetadata.offset());
+                                    });
         }
     }
 
@@ -319,9 +339,8 @@ public class KafkaPartitionSplitReader
         // If none of the partitions have any records,
         for (TopicPartition tp : consumer.assignment()) {
             if (retryOnWakeup(
-                            () -> consumer.position(tp),
-                            "getting starting offset to check if split is empty")
-                    >= getStoppingOffset(tp)) {
+                    () -> consumer.position(tp),
+                    "getting starting offset to check if split is empty") >= getStoppingOffset(tp)) {
                 emptyPartitions.add(tp);
             }
         }
@@ -432,7 +451,8 @@ public class KafkaPartitionSplitReader
     // ---------------- private helper class ------------------------
 
     private static class KafkaPartitionSplitRecords
-            implements RecordsWithSplitIds<ConsumerRecord<byte[], byte[]>> {
+            implements
+                RecordsWithSplitIds<ConsumerRecord<byte[], byte[]>> {
 
         private final Set<String> finishedSplits = new HashSet<>();
         private final Map<TopicPartition, Long> stoppingOffsets = new HashMap<>();

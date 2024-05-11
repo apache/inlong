@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,19 +17,6 @@
 
 package org.apache.inlong.sort.kafka.source;
 
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.annotation.PublicEvolving;
-import org.apache.flink.annotation.VisibleForTesting;
-import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.connector.source.*;
-import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
-import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
-import org.apache.flink.core.io.SimpleVersionedSerializer;
-import org.apache.flink.metrics.MetricGroup;
-import org.apache.flink.util.UserCodeClassLoader;
 import org.apache.inlong.sort.kafka.source.enumerator.KafkaSourceEnumState;
 import org.apache.inlong.sort.kafka.source.enumerator.KafkaSourceEnumStateSerializer;
 import org.apache.inlong.sort.kafka.source.enumerator.KafkaSourceEnumerator;
@@ -44,9 +30,29 @@ import org.apache.inlong.sort.kafka.source.reader.deserializer.KafkaRecordDeseri
 import org.apache.inlong.sort.kafka.source.reader.fetcher.KafkaSourceFetcherManager;
 import org.apache.inlong.sort.kafka.source.split.KafkaPartitionSplit;
 import org.apache.inlong.sort.kafka.source.split.KafkaPartitionSplitSerializer;
+
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.annotation.PublicEvolving;
+import org.apache.flink.annotation.VisibleForTesting;
+import org.apache.flink.api.common.serialization.DeserializationSchema;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.connector.source.Boundedness;
+import org.apache.flink.api.connector.source.Source;
+import org.apache.flink.api.connector.source.SourceReader;
+import org.apache.flink.api.connector.source.SourceReaderContext;
+import org.apache.flink.api.connector.source.SplitEnumerator;
+import org.apache.flink.api.connector.source.SplitEnumeratorContext;
+import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
+import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
+import org.apache.flink.core.io.SimpleVersionedSerializer;
+import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.util.UserCodeClassLoader;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Properties;
@@ -72,11 +78,15 @@ import java.util.function.Supplier;
  * <p>See {@link KafkaSourceBuilder} for more details.
  *
  * @param <OUT> the output type of the source.
+ *
+ * Copy from flink-connector-kafka:1.15.4
  */
 @PublicEvolving
 public class KafkaSource<OUT>
-        implements Source<OUT, KafkaPartitionSplit, KafkaSourceEnumState>,
-                ResultTypeQueryable<OUT> {
+        implements
+            Source<OUT, KafkaPartitionSplit, KafkaSourceEnumState>,
+            ResultTypeQueryable<OUT> {
+
     private static final long serialVersionUID = -8755372893283732098L;
     // Users can choose only one of the following ways to specify the topics to consume from.
     private final KafkaSubscriber subscriber;
@@ -122,17 +132,19 @@ public class KafkaSource<OUT>
     @Override
     public SourceReader<OUT, KafkaPartitionSplit> createReader(SourceReaderContext readerContext)
             throws Exception {
-        return createReader(readerContext, (ignore) -> {});
+        return createReader(readerContext, (ignore) -> {
+        });
     }
 
     @VisibleForTesting
     SourceReader<OUT, KafkaPartitionSplit> createReader(
             SourceReaderContext readerContext, Consumer<Collection<String>> splitFinishedHook)
             throws Exception {
-        FutureCompletingBlockingQueue<RecordsWithSplitIds<ConsumerRecord<byte[], byte[]>>>
-                elementsQueue = new FutureCompletingBlockingQueue<>();
+        FutureCompletingBlockingQueue<RecordsWithSplitIds<ConsumerRecord<byte[], byte[]>>> elementsQueue =
+                new FutureCompletingBlockingQueue<>();
         deserializationSchema.open(
                 new DeserializationSchema.InitializationContext() {
+
                     @Override
                     public MetricGroup getMetricGroup() {
                         return readerContext.metricGroup().addGroup("deserializer");
@@ -149,7 +161,6 @@ public class KafkaSource<OUT>
         Supplier<KafkaPartitionSplitReader> splitReaderSupplier =
                 () -> new KafkaPartitionSplitReader(props, readerContext, kafkaSourceReaderMetrics);
         KafkaRecordEmitter<OUT> recordEmitter = new KafkaRecordEmitter<>(deserializationSchema);
-
         return new KafkaSourceReader<>(
                 elementsQueue,
                 new KafkaSourceFetcherManager(

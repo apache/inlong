@@ -1,12 +1,12 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,16 +17,20 @@
 
 package org.apache.inlong.sort.kafka.table;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.kafka.partitioner.FlinkKafkaPartitioner;
+import org.apache.inlong.sort.kafka.sink.KafkaRecordSerializationSchema;
+import org.apache.inlong.sort.kafka.sink.KafkaSink;
+
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
-import org.apache.flink.connector.kafka.sink.KafkaSink;
-import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
@@ -35,9 +39,11 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 /** SerializationSchema used by {@link KafkaDynamicSink} to configure a {@link KafkaSink}. */
 class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationSchema<RowData> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(DynamicKafkaRecordSerializationSchema.class);
     private final String topic;
     private final FlinkKafkaPartitioner<RowData> partitioner;
-    @Nullable private final SerializationSchema<RowData> keySerialization;
+    @Nullable
+    private final SerializationSchema<RowData> keySerialization;
     private final SerializationSchema<RowData> valueSerialization;
     private final RowData.FieldGetter[] keyFieldGetters;
     private final RowData.FieldGetter[] valueFieldGetters;
@@ -45,6 +51,7 @@ class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationS
     private final int[] metadataPositions;
     private final boolean upsertMode;
     private final MetricOption metricOption;
+    private SourceMetricData sourceMetricData;
 
     DynamicKafkaRecordSerializationSchema(
             String topic,
@@ -72,6 +79,9 @@ class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationS
         this.metadataPositions = metadataPositions;
         this.upsertMode = upsertMode;
         this.metricOption = metricOption;
+        if (metricOption != null) {
+            this.sourceMetricData = new SourceMetricData(metricOption);
+        }
 
     }
 
@@ -120,7 +130,8 @@ class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationS
             valueSerialized = valueSerialization.serialize(valueRow);
         }
 
-        return new ProducerRecord<>(
+        LOG.info("DynamicKafkaRecordSerializationSchema yield a audit information");
+        ProducerRecord<byte[], byte[]> record = new ProducerRecord<>(
                 topic,
                 extractPartition(
                         consumedRow,
@@ -131,6 +142,10 @@ class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationS
                 keySerialized,
                 valueSerialized,
                 readMetadata(consumedRow, KafkaDynamicSink.WritableMetadata.HEADERS));
+        if (sourceMetricData != null) {
+            sourceMetricData.outputMetricsWithEstimate(record);
+        }
+        return record;
     }
 
     @Override

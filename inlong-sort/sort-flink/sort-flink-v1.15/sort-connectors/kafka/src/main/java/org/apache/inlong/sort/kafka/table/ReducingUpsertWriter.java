@@ -1,12 +1,12 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,16 +17,18 @@
 
 package org.apache.inlong.sort.kafka.table;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
+
 import org.apache.flink.api.common.operators.ProcessingTimeService;
 import org.apache.flink.api.connector.sink2.StatefulSink;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.streaming.connectors.kafka.table.SinkBufferFlushMode;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -35,14 +37,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static org.apache.inlong.sort.kafka.table.DynamicKafkaRecordSerializationSchema.createProjectedRow;
 import static org.apache.flink.types.RowKind.DELETE;
 import static org.apache.flink.types.RowKind.UPDATE_AFTER;
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.kafka.table.DynamicKafkaRecordSerializationSchema.createProjectedRow;
 
 class ReducingUpsertWriter<WriterState>
-        implements StatefulSink.StatefulSinkWriter<RowData, WriterState> {
+        implements
+            StatefulSink.StatefulSinkWriter<RowData, WriterState> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ReducingUpsertWriter.class);
 
     private final StatefulSink.StatefulSinkWriter<RowData, WriterState> wrappedWriter;
     private final WrappedContext wrappedContext = new WrappedContext();
@@ -76,13 +81,12 @@ class ReducingUpsertWriter<WriterState>
         final RowData.FieldGetter[] keyFieldGetters =
                 Arrays.stream(keyProjection)
                         .mapToObj(
-                                targetField ->
-                                        RowData.createFieldGetter(
-                                                fields.get(targetField), targetField))
+                                targetField -> RowData.createFieldGetter(
+                                        fields.get(targetField), targetField))
                         .toArray(RowData.FieldGetter[]::new);
         this.keyExtractor = rowData -> createProjectedRow(rowData, RowKind.INSERT, keyFieldGetters);
         this.valueCopyFunction = valueCopyFunction;
-        if(metricOption != null){
+        if (metricOption != null) {
             this.sourceMetricData = new SourceMetricData(metricOption);
         }
     }
@@ -152,6 +156,8 @@ class ReducingUpsertWriter<WriterState>
         for (Tuple2<RowData, Long> value : reduceBuffer.values()) {
             wrappedContext.setTimestamp(value.f1);
             wrappedWriter.write(value.f0, wrappedContext);
+            LOG.info("Report upsert audit information, the value is : {}", value);
+            System.out.println("Report upsert audit information, the value is : " + value);
             sourceMetricData.outputMetricsWithEstimate(value.f0);
         }
         lastFlush = System.currentTimeMillis();
@@ -166,6 +172,7 @@ class ReducingUpsertWriter<WriterState>
      * ReducingUpsertWriter} will emit the records in the buffer with memorized timestamp.
      */
     private static class WrappedContext implements Context {
+
         private long timestamp;
         private Context context;
 
