@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.standalone.config.loader;
+package org.apache.inlong.sort.standalone.config.loader.v2;
 
-import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
-import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
+import org.apache.inlong.common.pojo.sort.SortConfig;
+import org.apache.inlong.common.pojo.sort.SortConfigResponse;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.ManagerUrlHandler;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.http.HttpHeaders;
@@ -33,29 +33,17 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * 
- * ManagerSortClusterConfigLoader
- */
-@Deprecated
-public class ManagerSortClusterConfigLoader implements SortClusterConfigLoader {
-
-    public static final Logger LOG = InlongLoggerFactory.getLogger(ClassResourceSortClusterConfigLoader.class);
+@Slf4j
+public class ManagerSortClusterConfigLoader implements SortConfigLoader {
 
     private Context context;
     private CloseableHttpClient httpClient;
     private ObjectMapper objectMapper = new ObjectMapper();
     private String md5;
 
-    /**
-     * constructHttpClient
-     * 
-     * @return
-     */
     private static synchronized CloseableHttpClient constructHttpClient() {
         long timeoutInMs = TimeUnit.MILLISECONDS.toMillis(50000);
         RequestConfig requestConfig = RequestConfig.custom()
@@ -66,54 +54,43 @@ public class ManagerSortClusterConfigLoader implements SortClusterConfigLoader {
         return httpClientBuilder.build();
     }
 
-    /**
-     * configure
-     * 
-     * @param context
-     */
     @Override
     public void configure(Context context) {
         this.context = context;
         this.httpClient = constructHttpClient();
     }
 
-    /**
-     * load
-     * 
-     * @return
-     */
     @Override
-    public SortClusterConfig load() {
+    public SortConfig load() {
         HttpGet httpGet = null;
         try {
             String clusterName = this.context.getString(CommonPropertiesHolder.KEY_CLUSTER_ID);
-            String url = ManagerUrlHandler.getSortClusterConfigUrl() + "?apiVersion=1.0&clusterName="
+            String url = ManagerUrlHandler.getSortClusterConfigUrl() + "?clusterName="
                     + clusterName + "&md5=";
             if (StringUtils.isNotBlank(this.md5)) {
                 url += this.md5;
             }
-            LOG.info("start to request {} to get config info", url);
+            log.info("start to request {} to get config info", url);
             httpGet = new HttpGet(url);
             httpGet.addHeader(HttpHeaders.CONNECTION, "close");
 
             // request with get
             CloseableHttpResponse response = httpClient.execute(httpGet);
             String returnStr = EntityUtils.toString(response.getEntity());
-            LOG.info("end to request {},result:{}", url, returnStr);
-            // get groupId <-> topic and m value.
+            log.info("end to request {}, result={}", url, returnStr);
 
-            SortClusterResponse clusterResponse = objectMapper.readValue(returnStr, SortClusterResponse.class);
+            SortConfigResponse clusterResponse = objectMapper.readValue(returnStr, SortConfigResponse.class);
             int errCode = clusterResponse.getCode();
-            if (errCode != SortClusterResponse.SUCC && errCode != SortClusterResponse.NOUPDATE) {
-                LOG.info("Fail to get config info from url:{}, error code is {}, msg is {}",
+            if (errCode != SortConfigResponse.SUCC && errCode != SortConfigResponse.NO_UPDATE) {
+                log.error("failed to get config info from url={}, error code={}, msg={}",
                         url, clusterResponse.getCode(), clusterResponse.getMsg());
                 return null;
             }
 
             this.md5 = clusterResponse.getMd5();
-            return clusterResponse.getData();
+            return objectMapper.readValue(clusterResponse.getData(), SortConfig.class);
         } catch (Exception ex) {
-            LOG.error("exception caught", ex);
+            log.error("exception caught", ex);
             return null;
         } finally {
             if (httpGet != null) {

@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.standalone.config.loader;
+package org.apache.inlong.sort.standalone.config.loader.v2;
 
-import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
+import org.apache.inlong.common.pojo.sort.SortConfig;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigType;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
@@ -26,27 +26,16 @@ import org.apache.commons.io.IOUtils;
 import org.apache.flume.Context;
 import org.slf4j.Logger;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
-/**
- * 
- * ClassResourceCommonPropertiesLoader
- */
-@Deprecated
-public class ClassResourceSortClusterConfigLoader implements SortClusterConfigLoader {
+public class ClassResourceSortClusterConfigLoader implements SortConfigLoader {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(ClassResourceSortClusterConfigLoader.class);
-
     private Context context;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
-    /**
-     * load
-     * 
-     * @return
-     */
     @Override
-    public SortClusterConfig load() {
+    public SortConfig load() {
         String fileName = SortClusterConfigType.DEFAULT_FILE;
         try {
             if (context != null) {
@@ -56,22 +45,13 @@ public class ClassResourceSortClusterConfigLoader implements SortClusterConfigLo
                     Charset.defaultCharset());
             int index = confString.indexOf('{');
             confString = confString.substring(index);
-            ObjectMapper objectMapper = new ObjectMapper();
-            SortClusterConfig config = objectMapper.readValue(confString, SortClusterConfig.class);
-            return config;
-        } catch (UnsupportedEncodingException e) {
-            LOG.error("fail to load properties, file ={}, and e= {}", fileName, e);
+            return objectMapper.readValue(confString, SortConfig.class);
         } catch (Exception e) {
-            LOG.error("fail to load properties, file ={}, and e= {}", fileName, e);
+            LOG.error("failed to load properties, file ={}", fileName, e);
         }
-        return SortClusterConfig.builder().build();
+        return SortConfig.builder().build();
     }
 
-    /**
-     * configure
-     * 
-     * @param context
-     */
     @Override
     public void configure(Context context) {
         this.context = context;

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.sortstandalone;
+package org.apache.inlong.common.pojo.sort;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

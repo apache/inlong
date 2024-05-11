@@ -15,45 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.standalone;
+package org.apache.inlong.sort.standalone.v2;
 
-import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
-import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.common.pojo.sort.SortConfig;
+import org.apache.inlong.common.pojo.sort.SortTaskConfig;
 import org.apache.inlong.sdk.commons.admin.AdminTask;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
-import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+import org.apache.inlong.sort.standalone.config.holder.v2.SortConfigHolder;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flume.Context;
-import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.apache.inlong.sort.standalone.utils.Constants.RELOAD_INTERVAL;
 
-/**
- * SortCluster
- */
-@Deprecated
+@Slf4j
 public class SortCluster {
-
-    public static final Logger LOG = InlongLoggerFactory.getLogger(SortCluster.class);
 
     private Timer reloadTimer;
     private Map<String, SortTask> taskMap = new ConcurrentHashMap<>();
     private List<SortTask> deletingTasks = new ArrayList<>();
     private AdminTask adminTask;
 
-    /**
-     * start
-     */
     public void start() {
         try {
             this.reload();
@@ -62,18 +52,15 @@ public class SortCluster {
             this.adminTask = new AdminTask(new Context(CommonPropertiesHolder.get()));
             this.adminTask.start();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error("failed to start sort cluster", e);
         }
     }
 
-    /**
-     * close
-     */
     public void close() {
         try {
             this.reloadTimer.cancel();
             // stop sort task
-            for (Entry<String, SortTask> entry : this.taskMap.entrySet()) {
+            for (Map.Entry<String, SortTask> entry : this.taskMap.entrySet()) {
                 entry.getValue().stop();
             }
             // stop admin task
@@ -81,20 +68,14 @@ public class SortCluster {
                 this.adminTask.stop();
             }
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error("failed to close sort cluster", e);
         }
     }
 
-    /**
-     * setReloadTimer
-     */
     private void setReloadTimer() {
         reloadTimer = new Timer(true);
         TimerTask task = new TimerTask() {
 
-            /**
-             * run
-             */
             public void run() {
                 reload();
             }
@@ -103,19 +84,16 @@ public class SortCluster {
         reloadTimer.schedule(task, new Date(System.currentTimeMillis() + reloadInterval), reloadInterval);
     }
 
-    /**
-     * reload
-     */
     public void reload() {
         try {
             // get new config
-            SortClusterConfig newConfig = SortClusterConfigHolder.getClusterConfig();
+            SortConfig newConfig = SortConfigHolder.getSortConfig();
             if (newConfig == null) {
                 return;
             }
             // add new task
-            for (SortTaskConfig taskConfig : newConfig.getSortTasks()) {
-                String newTaskName = taskConfig.getName();
+            for (SortTaskConfig taskConfig : newConfig.getTasks()) {
+                String newTaskName = taskConfig.getSortTaskName();
                 if (taskMap.containsKey(newTaskName)) {
                     continue;
                 }
@@ -125,11 +103,11 @@ public class SortCluster {
             }
             // remove task
             deletingTasks.clear();
-            for (Entry<String, SortTask> entry : taskMap.entrySet()) {
+            for (Map.Entry<String, SortTask> entry : taskMap.entrySet()) {
                 String taskName = entry.getKey();
                 boolean isFound = false;
-                for (SortTaskConfig taskConfig : newConfig.getSortTasks()) {
-                    if (taskName.equals(taskConfig.getName())) {
+                for (SortTaskConfig taskConfig : newConfig.getTasks()) {
+                    if (taskName.equals(taskConfig.getSortTaskName())) {
                         isFound = true;
                         break;
                     }
@@ -144,7 +122,7 @@ public class SortCluster {
                 taskMap.remove(task.getTaskName());
             }
         } catch (Throwable e) {
-            LOG.error(e.getMessage(), e);
+            log.error("failed to reload cluster", e);
         }
     }
 }

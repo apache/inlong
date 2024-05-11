@@ -20,13 +20,13 @@ package org.apache.inlong.manager.service.core.impl;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.common.pojo.sort.SortClusterConfig;
 import org.apache.inlong.common.pojo.sort.SortConfig;
+import org.apache.inlong.common.pojo.sort.SortConfigResponse;
 import org.apache.inlong.common.pojo.sort.SortTaskConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
 import org.apache.inlong.common.pojo.sort.mq.MqClusterConfig;
 import org.apache.inlong.common.pojo.sort.mq.PulsarClusterConfig;
 import org.apache.inlong.common.pojo.sort.node.NodeConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
-import org.apache.inlong.common.pojo.sortstandalone.SortConfigResponse;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.plugin.Plugin;
@@ -305,7 +305,7 @@ public class SortServiceImpl implements SortService, PluginBinder {
                 }
                 map.add(sortTaskConfig);
             }
-            sortConfig.setClusters(temp.get(sortClusterName));
+            sortConfig.setTasks(temp.get(sortClusterName));
             try {
                 String configStr = objectMapper.writeValueAsString(sortConfig);
                 sortConfigs.put(sortClusterName, configStr);

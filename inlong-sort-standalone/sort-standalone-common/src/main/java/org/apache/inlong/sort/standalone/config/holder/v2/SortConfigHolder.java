@@ -15,19 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.standalone.config.holder;
+package org.apache.inlong.sort.standalone.config.holder.v2;
 
-import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
-import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
-import org.apache.inlong.sort.standalone.config.loader.ClassResourceSortClusterConfigLoader;
-import org.apache.inlong.sort.standalone.config.loader.ManagerSortClusterConfigLoader;
-import org.apache.inlong.sort.standalone.config.loader.SortClusterConfigLoader;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+import org.apache.inlong.common.pojo.sort.SortConfig;
+import org.apache.inlong.common.pojo.sort.SortTaskConfig;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigType;
+import org.apache.inlong.sort.standalone.config.loader.v2.ClassResourceSortClusterConfigLoader;
+import org.apache.inlong.sort.standalone.config.loader.v2.ManagerSortClusterConfigLoader;
+import org.apache.inlong.sort.standalone.config.loader.v2.SortConfigLoader;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
-import org.slf4j.Logger;
 
 import java.util.Date;
 import java.util.Timer;
@@ -35,40 +36,31 @@ import java.util.TimerTask;
 
 import static org.apache.inlong.sort.standalone.utils.Constants.RELOAD_INTERVAL;
 
-/**
- * 
- * SortClusterConfigHolder
- */
-@Deprecated
-public final class SortClusterConfigHolder {
+@Slf4j
+public class SortConfigHolder {
 
-    public static final Logger LOG = InlongLoggerFactory.getLogger(SortClusterConfigHolder.class);
-
-    private static SortClusterConfigHolder instance;
+    private static SortConfigHolder instance;
 
     private long reloadInterval;
     private Timer reloadTimer;
-    private SortClusterConfigLoader loader;
-    private SortClusterConfig config;
+    private SortConfigLoader loader;
+    private SortConfig config;
 
-    /**
-     * Constructor
-     */
-    private SortClusterConfigHolder() {
+    private SortConfigHolder() {
 
     }
 
-    /**
-     * getInstance
-     * 
-     * @return
-     */
-    private static SortClusterConfigHolder get() {
+    private static SortConfigHolder get() {
         if (instance != null) {
             return instance;
         }
-        synchronized (SortClusterConfigHolder.class) {
-            instance = new SortClusterConfigHolder();
+
+        synchronized (SortConfigHolder.class) {
+            if (instance != null) {
+                return instance;
+            }
+
+            instance = new SortConfigHolder();
             instance.reloadInterval = CommonPropertiesHolder.getLong(RELOAD_INTERVAL, 60000L);
             String loaderType = CommonPropertiesHolder
                     .getString(SortClusterConfigType.KEY_TYPE, SortClusterConfigType.MANAGER.name());
@@ -82,11 +74,11 @@ public final class SortClusterConfigHolder {
                 try {
                     Class<?> loaderClass = ClassUtils.getClass(loaderType);
                     Object loaderObject = loaderClass.getDeclaredConstructor().newInstance();
-                    if (loaderObject instanceof SortClusterConfigLoader) {
-                        instance.loader = (SortClusterConfigLoader) loaderObject;
+                    if (loaderObject instanceof SortConfigLoader) {
+                        instance.loader = (SortConfigLoader) loaderObject;
                     }
                 } catch (Throwable t) {
-                    LOG.error("Fail to init loader,loaderType:{},error:{}", loaderType, t.getMessage());
+                    log.error("failed to init loader, loaderType={}", loaderType);
                 }
             }
             if (instance.loader == null) {
@@ -97,22 +89,17 @@ public final class SortClusterConfigHolder {
                 instance.reload();
                 instance.setReloadTimer();
             } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
+                log.error("failed to reload instance", e);
             }
         }
         return instance;
+
     }
 
-    /**
-     * setReloadTimer
-     */
     private void setReloadTimer() {
         reloadTimer = new Timer(true);
         TimerTask task = new TimerTask() {
 
-            /**
-             * run
-             */
             public void run() {
                 reload();
             }
@@ -120,40 +107,26 @@ public final class SortClusterConfigHolder {
         reloadTimer.schedule(task, new Date(System.currentTimeMillis() + reloadInterval), reloadInterval);
     }
 
-    /**
-     * reload
-     */
     private void reload() {
         try {
-            SortClusterConfig newConfig = this.loader.load();
+            SortConfig newConfig = this.loader.load();
             if (newConfig != null) {
                 this.config = newConfig;
             }
         } catch (Throwable e) {
-            LOG.error(e.getMessage(), e);
+            log.error("failed to reload sort config", e);
         }
     }
 
-    /**
-     * getClusterConfig
-     * 
-     * @return
-     */
-    public static SortClusterConfig getClusterConfig() {
+    public static SortConfig getSortConfig() {
         return get().config;
     }
 
-    /**
-     * getTaskConfig
-     * 
-     * @param  sortTaskName
-     * @return
-     */
     public static SortTaskConfig getTaskConfig(String sortTaskName) {
-        SortClusterConfig config = get().config;
-        if (config != null && config.getSortTasks() != null) {
-            for (SortTaskConfig task : config.getSortTasks()) {
-                if (StringUtils.equals(sortTaskName, task.getName())) {
+        SortConfig config = get().config;
+        if (config != null && config.getTasks() != null) {
+            for (SortTaskConfig task : config.getTasks()) {
+                if (StringUtils.equals(sortTaskName, task.getSortTaskName())) {
                     return task;
                 }
             }

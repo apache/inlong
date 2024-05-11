@@ -15,23 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.standalone.config.loader;
+package org.apache.inlong.sort.standalone.config.loader.v2;
 
-import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
+import org.apache.inlong.common.pojo.sort.SortConfig;
 
 import org.apache.flume.conf.Configurable;
 
-/**
- * 
- * SortClusterConfigLoader
- */
-@Deprecated
-public interface SortClusterConfigLoader extends Configurable {
+public interface SortConfigLoader extends Configurable {
 
-    /**
-     * load
-     * 
-     * @return
-     */
-    SortClusterConfig load();
+    SortConfig load();
 }
