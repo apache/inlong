@@ -75,7 +75,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-/** A version-agnostic Kafka {@link ScanTableSource}. */
+/** A version-agnostic Kafka {@link ScanTableSource}.
+ *
+ * Copy from iceberg-flink:iceberg-flink-1.15:1.3.1
+ * */
 @Internal
 public class KafkaDynamicSource
         implements

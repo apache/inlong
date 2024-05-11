@@ -36,7 +36,10 @@ import javax.annotation.Nullable;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataSize;
 
-/** SerializationSchema used by {@link KafkaDynamicSink} to configure a {KafkaSink}. */
+/** SerializationSchema used by {@link KafkaDynamicSink} to configure a {KafkaSink}.
+ *
+ * Copy from iceberg-flink:iceberg-flink-1.15:1.3.1
+ * */
 class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationSchema<RowData> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DynamicKafkaRecordSerializationSchema.class);

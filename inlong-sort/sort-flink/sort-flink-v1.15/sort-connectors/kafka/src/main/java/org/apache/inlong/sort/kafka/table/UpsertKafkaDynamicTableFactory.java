@@ -66,7 +66,10 @@ import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getKa
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getSourceTopicPattern;
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getSourceTopics;
 
-/** Upsert-Kafka factory. */
+/** Upsert-Kafka factory.
+ *
+ * Copy from iceberg-flink:iceberg-flink-1.15:1.3.1
+ * */
 public class UpsertKafkaDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
     public static final String IDENTIFIER = "upsert-kafka-inlong";

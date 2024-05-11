@@ -40,7 +40,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/** A specific {KafkaSerializationSchema} for {KafkaDynamicSource}. */
+/** A specific {KafkaSerializationSchema} for {KafkaDynamicSource}.
+ *
+ * Copy from iceberg-flink:iceberg-flink-1.15:1.3.1
+ * */
 class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<RowData> {
 
     private static final long serialVersionUID = 1L;

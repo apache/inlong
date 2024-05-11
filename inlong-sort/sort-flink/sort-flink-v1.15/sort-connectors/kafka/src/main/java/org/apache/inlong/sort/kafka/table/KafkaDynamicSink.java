@@ -64,7 +64,10 @@ import java.util.stream.Stream;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
-/** A version-agnostic Kafka {@link DynamicTableSink}. */
+/** A version-agnostic Kafka {@link DynamicTableSink}.
+ *
+ * Copy from iceberg-flink:iceberg-flink-1.15:1.3.1
+ * */
 @Internal
 public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetadata {
 

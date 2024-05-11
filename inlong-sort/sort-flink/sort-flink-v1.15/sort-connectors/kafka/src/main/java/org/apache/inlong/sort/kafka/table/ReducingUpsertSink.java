@@ -37,6 +37,8 @@ import java.util.Collection;
  *
  * <p>The sink provides eventual consistency guarantees without the need of a two-phase protocol
  * because the updates are idempotent therefore duplicates have no effect.
+ *
+ * Copy from iceberg-flink:iceberg-flink-1.15:1.3.1
  */
 class ReducingUpsertSink<WriterState> implements StatefulSink<RowData, WriterState> {
 

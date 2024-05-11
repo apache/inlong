@@ -52,7 +52,10 @@ import java.util.stream.IntStream;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.*;
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 
-/** Utilities for { KafkaConnectorOptions}. */
+/** Utilities for { KafkaConnectorOptions}.
+ *
+ * Copy from iceberg-flink:iceberg-flink-1.15:1.3.1
+ * */
 @Internal
 class KafkaConnectorOptionsUtil {
 

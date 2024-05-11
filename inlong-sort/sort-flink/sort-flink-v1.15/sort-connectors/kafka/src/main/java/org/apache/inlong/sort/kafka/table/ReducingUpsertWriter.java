@@ -44,6 +44,10 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.kafka.table.DynamicKafkaRecordSerializationSchema.createProjectedRow;
 
+/**
+ * Copy from iceberg-flink:iceberg-flink-1.15:1.3.1
+ * @param <WriterState>
+ */
 class ReducingUpsertWriter<WriterState>
         implements
             StatefulSink.StatefulSinkWriter<RowData, WriterState> {
