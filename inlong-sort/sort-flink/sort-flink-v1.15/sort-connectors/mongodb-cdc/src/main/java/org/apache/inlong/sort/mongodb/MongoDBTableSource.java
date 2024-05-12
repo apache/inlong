@@ -303,7 +303,8 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
                 && Objects.equals(splitMetaGroupSize, that.splitMetaGroupSize)
                 && Objects.equals(splitSizeMB, that.splitSizeMB)
                 && Objects.equals(producedDataType, that.producedDataType)
-                && Objects.equals(metadataKeys, that.metadataKeys);
+                && Objects.equals(metadataKeys, that.metadataKeys)
+                && Objects.equals(metricOption, that.metricOption);
     }
 
     @Override
@@ -327,7 +328,8 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
                 splitMetaGroupSize,
                 splitSizeMB,
                 producedDataType,
-                metadataKeys);
+                metadataKeys,
+                metricOption);
     }
 
     @Override
