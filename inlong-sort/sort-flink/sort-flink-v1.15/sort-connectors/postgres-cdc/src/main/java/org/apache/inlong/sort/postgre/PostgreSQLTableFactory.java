@@ -39,7 +39,10 @@ import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
-/** Factory for creating configured instance of {@link PostgreSQLTableSource}. */
+/** Factory for creating configured instance of {@link PostgreSQLTableSource}.
+ *
+ * Copy from com.ververica:flink-connector-postgres-cdc-2.3.0
+ * */
 public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
 
     private static final String IDENTIFIER = "postgres-cdc-inlong";

@@ -50,6 +50,8 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 /**
  * A {@link DynamicTableSource} that describes how to create a PostgreSQL source from a logical
  * description.
+ *
+ * Copy from com.ververica:flink-connector-postgres-cdc-2.3.0
  */
 public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMetadata {
 

@@ -20,7 +20,10 @@ package org.apache.inlong.sort.postgre;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
 
-/** The {@link RowDataDebeziumDeserializeSchema.ValueValidator} for Postgres connector. */
+/** The {@link RowDataDebeziumDeserializeSchema.ValueValidator} for Postgres connector.
+ *
+ * Copy from com.ververica:flink-connector-postgres-cdc-2.3.0
+ * */
 public final class PostgresValueValidator
         implements
             RowDataDebeziumDeserializeSchema.ValueValidator {
