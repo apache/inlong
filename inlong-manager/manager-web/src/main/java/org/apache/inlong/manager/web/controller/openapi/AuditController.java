@@ -19,17 +19,23 @@ package org.apache.inlong.manager.web.controller.openapi;
 
 import org.apache.inlong.common.pojo.audit.AuditConfig;
 import org.apache.inlong.common.pojo.audit.AuditConfigRequest;
+import org.apache.inlong.manager.pojo.audit.AuditRequest;
+import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.manager.service.core.AuditService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+import java.util.List;
 
 /**
  * Audit controller.
@@ -41,6 +47,8 @@ public class AuditController {
 
     @Autowired
     private InlongClusterService clusterService;
+    @Autowired
+    private AuditService auditService;
 
     @PostMapping("/audit/getConfig")
     @ApiOperation(value = "Get mq config list")
@@ -50,5 +58,17 @@ public class AuditController {
             return Response.fail("Failed to get MQ config of cluster tag: " + request.getClusterTag());
         }
         return Response.success(auditConfig);
+    }
+
+    @PostMapping(value = "/audit/list")
+    @ApiOperation(value = "Query audit list according to conditions")
+    public Response<List<AuditVO>> listByCondition(@Valid @RequestBody AuditRequest request) throws Exception {
+        return Response.success(auditService.listByCondition(request));
+    }
+
+    @PostMapping(value = "/audit/listAll")
+    @ApiOperation(value = "Query all audit list according to conditions")
+    public Response<List<AuditVO>> listAll(@Valid @RequestBody AuditRequest request) throws Exception {
+        return Response.success(auditService.listAll(request));
     }
 }
