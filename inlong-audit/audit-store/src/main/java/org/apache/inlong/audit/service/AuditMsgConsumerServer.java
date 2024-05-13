@@ -121,7 +121,7 @@ public class AuditMsgConsumerServer implements InitializingBean {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(DEFAULT_CONFIG_PROPERTIES)) {
             properties.load(inputStream);
             String managerHosts = properties.getProperty("manager.hosts");
-            String clusterTag = properties.getProperty("proxy.cluster.tag");
+            String clusterTag = properties.getProperty("default.mq.cluster.tag");
             String[] hostList = StringUtils.split(managerHosts, ",");
             for (String host : hostList) {
                 while (true) {
