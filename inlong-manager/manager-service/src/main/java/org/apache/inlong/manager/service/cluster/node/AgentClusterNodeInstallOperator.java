@@ -92,7 +92,7 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
             String fileName = downLoadUrl.substring(downLoadUrl.lastIndexOf('/') + 1);
             commandExecutor.downLoadPackage(request, agentInstallPath, downLoadUrl);
             commandExecutor.tarPackage(request, fileName, agentInstallPath);
-            String confFile = agentInstallPath + "conf/installer.properties";
+            String confFile = agentInstallPath + "/conf/installer.properties";
             Map<String, String> configMap = new HashMap<>();
             configMap.put("agent.local.ip", request.getIp());
             configMap.put("agent.manager.addr", managerUrl);
@@ -106,7 +106,7 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
             configMap.put("agent.cluster.name", clusterEntity.getName());
             configMap.put("audit.proxys", auditProxyUrl);
             commandExecutor.modifyConfig(request, configMap, confFile);
-            String startCmd = agentInstallPath + "bin/installer.sh start";
+            String startCmd = agentInstallPath + "/bin/installer.sh start";
             commandExecutor.execRemote(request, startCmd);
 
         } catch (Exception e) {
@@ -139,7 +139,8 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
                 return packageConfigEntity.getDownloadUrl();
             }
         }
-        throw new BusinessException(String.format("can't get installer download url for ip=%s, type=%s", request.getIp(),
-                request.getType()));
+        throw new BusinessException(
+                String.format("can't get installer download url for ip=%s, type=%s", request.getIp(),
+                        request.getType()));
     }
 }

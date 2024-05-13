@@ -36,32 +36,16 @@ public class CommandExecutorImpl implements CommandExecutor {
 
     private static final Logger LOG = LoggerFactory.getLogger(CommandExecutorImpl.class);
 
-    private String join(List<String> strings) {
-        StringBuilder buffer = new StringBuilder();
-        for (String string : strings) {
-            buffer.append(string).append(InlongConstants.NEW_LINE);
-        }
-        return buffer.toString();
-    }
-
-    private String join(String... strings) {
-        StringBuffer buffer = new StringBuffer();
-        for (String string : strings) {
-            buffer.append(string).append(InlongConstants.BLANK);
-        }
-        return buffer.toString();
-    }
-
     @Override
     public CommandResult exec(String cmd) throws Exception {
         ShellTrackerImpl shellTracker = new ShellTrackerImpl();
         ShellExecutorImpl shellExecutor = new ShellExecutorImpl(shellTracker);
         shellExecutor.syncExec("sh", "-c", cmd);
-        String cmdMsg = join("sh", "-c", cmd);
+        String cmdMsg = String.join(InlongConstants.BLANK, "sh", "-c", cmd);
         LOG.debug("run command : " + cmdMsg);
         CommandResult commandResult = new CommandResult();
         commandResult.setCode(shellTracker.getCode());
-        commandResult.setResult(join(shellTracker.getResult()));
+        commandResult.setResult(String.join(InlongConstants.BLANK, shellTracker.getResult()));
         if (commandResult.getCode() != 0) {
             throw new Exception("command " + cmdMsg + " exec failed, code = " +
                     commandResult.getCode() + ", output = " + commandResult.getResult());
@@ -80,7 +64,8 @@ public class CommandExecutorImpl implements CommandExecutor {
         String remoteCommandTimeout = "20000";
 
         cmd = "sh -c \"" + cmd + "\"";
-        String cmdMsg = join(cmdShell, ip, user, password, remoteCommandTimeout, cmd, port);
+        String cmdMsg =
+                String.join(InlongConstants.BLANK, cmdShell, ip, user, password, remoteCommandTimeout, cmd, port);
         LOG.info("run remote command : " + cmdMsg);
 
         ShellTrackerImpl shellTracker = new ShellTrackerImpl();
@@ -89,7 +74,7 @@ public class CommandExecutorImpl implements CommandExecutor {
 
         CommandResult commandResult = new CommandResult();
         commandResult.setCode(shellTracker.getCode());
-        commandResult.setResult(join(shellTracker.getResult()));
+        commandResult.setResult(String.join(InlongConstants.BLANK, shellTracker.getResult()));
 
         LOG.debug(commandResult.getResult());
         if (commandResult.getCode() != 0) {
