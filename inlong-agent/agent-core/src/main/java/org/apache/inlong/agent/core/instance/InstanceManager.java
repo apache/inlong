@@ -54,7 +54,7 @@ public class InstanceManager extends AbstractDaemon {
     private static final int ACTION_QUEUE_CAPACITY = 100;
     public volatile int CORE_THREAD_SLEEP_TIME_MS = 1000;
     public static final int INSTANCE_PRINT_INTERVAL_MS = 10000;
-    public static final long INSTANCE_MAX_HEARTBEAT_GAP_MS = 5 * 60 * 1000;
+    public static final long INSTANCE_KEEP_ALIVE_MS = 5 * 60 * 1000;
     private long lastPrintTime = 0;
     // instance in db
     private final InstanceDb instanceDb;
@@ -241,7 +241,7 @@ public class InstanceManager extends AbstractDaemon {
             if (stateFromDb != InstanceStateEnum.DEFAULT) {
                 deleteFromMemory(instance.getInstanceId());
             }
-            if (AgentUtils.getCurrentTime() - instance.getLastHeartbeatTime() > INSTANCE_MAX_HEARTBEAT_GAP_MS) {
+            if (AgentUtils.getCurrentTime() - instance.getLastHeartbeatTime() > INSTANCE_KEEP_ALIVE_MS) {
                 LOGGER.error("instance heartbeat timeout {} will delete from memory", instance.getInstanceId());
                 deleteFromMemory(instance.getInstanceId());
             }
