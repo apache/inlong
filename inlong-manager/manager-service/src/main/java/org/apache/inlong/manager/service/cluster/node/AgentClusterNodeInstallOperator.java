@@ -139,7 +139,7 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
                 return packageConfigEntity.getDownloadUrl();
             }
         }
-        throw new BusinessException(String.format("cant get installer download url for ip=%s, type=%s", request.getIp(),
+        throw new BusinessException(String.format("can't get installer download url for ip=%s, type=%s", request.getIp(),
                 request.getType()));
     }
 }

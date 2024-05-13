@@ -49,7 +49,7 @@ public class ShellExecutorImpl implements ShellExecutor {
             long procHandle = f.getLong(process);
             return procHandle;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("get pid failed", e);
             return -1;
         }
     }
@@ -131,7 +131,7 @@ public class ShellExecutorImpl implements ShellExecutor {
             }
             tracker.success();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("sync exec shell failed", e);
             result.add(e.getMessage());
             tracker.setRunResult(arrayToString(result.toArray(), InlongConstants.NEW_LINE));
             tracker.lineChange(e.getMessage());
@@ -183,7 +183,7 @@ public class ShellExecutorImpl implements ShellExecutor {
                 }
                 tracker.success();
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("async exec shell failed", e);
                 result.add(e.getMessage());
                 tracker.setRunResult(arrayToString(result.toArray(), InlongConstants.NEW_LINE));
                 tracker.lineChange(e.getMessage());
