@@ -17,14 +17,14 @@
 
 package org.apache.inlong.sort.postgre;
 
-import com.ververica.cdc.connectors.postgres.table.PostgreSQLTableSource;
+import org.apache.inlong.sort.base.metric.MetricOption;
+
 import com.ververica.cdc.debezium.table.DebeziumChangelogMode;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.source.DynamicTableSource;
-import org.apache.flink.table.factories.DynamicTableFactory;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 
@@ -116,7 +116,7 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
                                     + "\"upsert\": Encodes changes as upsert stream that describes idempotent updates on a key. It can be used for tables with primary keys when replica identity FULL is not an option.");
 
     @Override
-    public DynamicTableSource createDynamicTableSource(DynamicTableFactory.Context context) {
+    public DynamicTableSource createDynamicTableSource(Context context) {
         final FactoryUtil.TableFactoryHelper helper =
                 FactoryUtil.createTableFactoryHelper(this, context);
         helper.validateExcept(DEBEZIUM_OPTIONS_PREFIX);
@@ -139,6 +139,14 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
                     physicalSchema.getPrimaryKey().isPresent(),
                     "Primary key must be present when upsert mode is selected.");
         }
+        String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
+        String auditHostAndPorts = config.get(INLONG_AUDIT);
+        String auditKeys = config.get(AUDIT_KEYS);
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withAuditAddress(auditHostAndPorts)
+                .withAuditKeys(auditKeys)
+                .build();
 
         return new PostgreSQLTableSource(
                 physicalSchema,
@@ -152,7 +160,8 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
                 pluginName,
                 slotName,
                 changelogMode,
-                getDebeziumProperties(context.getCatalogTable().getOptions()));
+                getDebeziumProperties(context.getCatalogTable().getOptions()),
+                metricOption);
     }
 
     @Override
