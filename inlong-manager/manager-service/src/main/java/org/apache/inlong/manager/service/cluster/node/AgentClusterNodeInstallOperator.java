@@ -32,7 +32,6 @@ import org.apache.inlong.manager.dao.mapper.ModuleConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.PackageConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
-import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterDTO;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeRequest;
 import org.apache.inlong.manager.service.cmd.CommandExecutor;
 
@@ -51,6 +50,16 @@ import java.util.Objects;
 public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstallOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentClusterNodeInstallOperator.class);
+
+    public static final String INSTALLER_CONF_PATH = "/conf/installer.properties";
+    public static final String INSTALLER_START_CMD = "/bin/installer.sh start";
+    public static final String AGENT_MANAGER_AUTH_SECRET_ID = "agent.manager.auth.secretId";
+    public static final String AGENT_MANAGER_AUTH_SECRET_KEY = "agent.manager.auth.secretKey";
+    public static final String AGENT_MANAGER_ADDR = "agent.manager.addr";
+    public static final String AGENT_CLUSTER_NAME = "agent.cluster.name";
+    public static final String AGENT_CLUSTER_TAG = "agent.cluster.tag";
+    public static final String AUDIT_PROXYS_URL = "audit.proxys";
+    public static final String AGENT_LOCAL_IP = "agent.local.ip";
 
     @Autowired
     private InlongClusterEntityMapper clusterEntityMapper;
@@ -85,28 +94,27 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
         LOGGER.info("begin to insert agent inlong cluster node={}", clusterNodeRequest);
         try {
             InlongClusterEntity clusterEntity = clusterEntityMapper.selectById(clusterNodeRequest.getParentId());
-            AgentClusterDTO agentClusterDTO = AgentClusterDTO.getFromJson(clusterEntity.getExtParams());
             AgentClusterNodeRequest request = (AgentClusterNodeRequest) clusterNodeRequest;
             commandExecutor.mkdir(request, agentInstallPath);
             String downLoadUrl = getInstallerDownLoadUrl(request);
             String fileName = downLoadUrl.substring(downLoadUrl.lastIndexOf('/') + 1);
             commandExecutor.downLoadPackage(request, agentInstallPath, downLoadUrl);
             commandExecutor.tarPackage(request, fileName, agentInstallPath);
-            String confFile = agentInstallPath + "/conf/installer.properties";
+            String confFile = agentInstallPath + INSTALLER_CONF_PATH;
             Map<String, String> configMap = new HashMap<>();
-            configMap.put("agent.local.ip", request.getIp());
-            configMap.put("agent.manager.addr", managerUrl);
+            configMap.put(AGENT_LOCAL_IP, request.getIp());
+            configMap.put(AGENT_MANAGER_ADDR, managerUrl);
             UserEntity userInfo = userEntityMapper.selectByName(operator);
             Preconditions.expectNotNull(userInfo, "User doesn't exist");
             String secretKey =
                     new String(AESUtils.decryptAsString(userInfo.getSecretKey(), userInfo.getEncryptVersion()));
-            configMap.put("agent.manager.auth.secretId", operator);
-            configMap.put("agent.manager.auth.secretKey", secretKey);
-            configMap.put("agent.cluster.tag", clusterEntity.getClusterTags());
-            configMap.put("agent.cluster.name", clusterEntity.getName());
-            configMap.put("audit.proxys", auditProxyUrl);
+            configMap.put(AGENT_MANAGER_AUTH_SECRET_ID, operator);
+            configMap.put(AGENT_MANAGER_AUTH_SECRET_KEY, secretKey);
+            configMap.put(AGENT_CLUSTER_TAG, clusterEntity.getClusterTags());
+            configMap.put(AGENT_CLUSTER_NAME, clusterEntity.getName());
+            configMap.put(AUDIT_PROXYS_URL, auditProxyUrl);
             commandExecutor.modifyConfig(request, configMap, confFile);
-            String startCmd = agentInstallPath + "/bin/installer.sh start";
+            String startCmd = agentInstallPath + INSTALLER_START_CMD;
             commandExecutor.execRemote(request, startCmd);
 
         } catch (Exception e) {
