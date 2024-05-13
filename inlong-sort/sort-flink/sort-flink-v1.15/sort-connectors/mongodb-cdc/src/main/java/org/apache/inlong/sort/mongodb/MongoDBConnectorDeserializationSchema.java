@@ -147,8 +147,7 @@ public class MongoDBConnectorDeserializationSchema
             case INSERT:
                 GenericRowData insert = extractRowData(fullDocument);
                 insert.setRowKind(RowKind.INSERT);
-                out = new MetricsCollector<>(out, sourceMetricData);
-                emit(record, insert, out);
+                emit(record, insert, new MetricsCollector<>(out, sourceMetricData));
                 break;
             case DELETE:
                 GenericRowData delete = extractRowData(documentKey);
@@ -163,14 +162,12 @@ public class MongoDBConnectorDeserializationSchema
                 }
                 GenericRowData updateAfter = extractRowData(fullDocument);
                 updateAfter.setRowKind(RowKind.UPDATE_AFTER);
-                out = new MetricsCollector<>(out, sourceMetricData);
-                emit(record, updateAfter, out);
+                emit(record, updateAfter, new MetricsCollector<>(out, sourceMetricData));
                 break;
             case REPLACE:
                 GenericRowData replaceAfter = extractRowData(fullDocument);
                 replaceAfter.setRowKind(RowKind.UPDATE_AFTER);
-                out = new MetricsCollector<>(out, sourceMetricData);
-                emit(record, replaceAfter, out);
+                emit(record, replaceAfter, new MetricsCollector<>(out, sourceMetricData));
                 break;
             case INVALIDATE:
             case DROP:
