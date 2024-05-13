@@ -1,11 +1,12 @@
 /*
- * Copyright 2022 Ververica Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +16,8 @@
  */
 
 package org.apache.inlong.sort.sqlserver;
+
+import org.apache.inlong.sort.base.metric.MetricOption;
 
 import com.ververica.cdc.connectors.sqlserver.SqlServerSource;
 import com.ververica.cdc.connectors.sqlserver.table.SqlServerDeserializationConverterFactory;
@@ -34,11 +37,13 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
 
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,6 +52,8 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 /**
  * A {@link DynamicTableSource} that describes how to create a SqlServer source from a logical
  * description.
+ * <p>
+ * Copy from com.ververica:flink-connector-sqlserver-cdc:2.3.0
  */
 public class SqlServerTableSource implements ScanTableSource, SupportsReadingMetadata {
 
@@ -151,11 +158,10 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
 
         return metadataKeys.stream()
                 .map(
-                        key ->
-                                Stream.of(SqlServerReadableMetadata.values())
-                                        .filter(m -> m.getKey().equals(key))
-                                        .findFirst()
-                                        .orElseThrow(IllegalStateException::new))
+                        key -> Stream.of(SqlServerReadableMetadata.values())
+                                .filter(m -> m.getKey().equals(key))
+                                .findFirst()
+                                .orElseThrow(IllegalStateException::new))
                 .map(SqlServerReadableMetadata::getConverter)
                 .toArray(MetadataConverter[]::new);
     }

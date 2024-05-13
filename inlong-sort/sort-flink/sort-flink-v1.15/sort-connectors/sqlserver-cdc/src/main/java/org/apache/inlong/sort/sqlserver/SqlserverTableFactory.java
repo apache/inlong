@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.sqlserver;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+
 import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
@@ -26,8 +28,6 @@ import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
 
 import java.time.ZoneId;
 import java.util.HashSet;
