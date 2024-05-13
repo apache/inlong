@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.standalone.sink;
+package org.apache.inlong.sort.standalone.sink.v2;
 
 import org.apache.inlong.common.metric.MetricRegister;
-import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.common.pojo.sort.SortTaskConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
-import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
+import org.apache.inlong.sort.standalone.config.holder.v2.SortConfigHolder;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItemSet;
 import org.apache.inlong.sort.standalone.utils.BufferQueue;
@@ -37,11 +37,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- * 
- * SinkContext
- */
-@Deprecated
 public class SinkContext {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(SinkContext.class);
@@ -69,53 +64,36 @@ public class SinkContext {
     protected final SortMetricItemSet metricItemSet;
     protected Timer reloadTimer;
 
-    /**
-     * Constructor
-     * 
-     * @param sinkName
-     * @param context
-     * @param channel
-     */
     public SinkContext(String sinkName, Context context, Channel channel) {
         this.sinkName = sinkName;
         this.sinkContext = context;
         this.channel = channel;
-        this.clusterId = context.getString(CommonPropertiesHolder.KEY_CLUSTER_ID);
-        this.taskName = context.getString(KEY_TASK_NAME);
+        this.clusterId = sinkContext.getString(CommonPropertiesHolder.KEY_CLUSTER_ID);
+        this.taskName = sinkContext.getString(KEY_TASK_NAME);
         this.maxThreads = sinkContext.getInteger(KEY_MAX_THREADS, 10);
         this.processInterval = sinkContext.getInteger(KEY_PROCESSINTERVAL, 100);
         this.reloadInterval = sinkContext.getLong(KEY_RELOADINTERVAL, 60000L);
-        //
         this.metricItemSet = new SortMetricItemSet(sinkName);
         MetricRegister.register(this.metricItemSet);
     }
 
-    /**
-     * start
-     */
     public void start() {
         try {
             this.reload();
             this.setReloadTimer();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error("failed to start sink context", e);
         }
     }
 
-    /**
-     * close
-     */
     public void close() {
         try {
             this.reloadTimer.cancel();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error("failed to close sink context", e);
         }
     }
 
-    /**
-     * setReloadTimer
-     */
     protected void setReloadTimer() {
         reloadTimer = new Timer(true);
         TimerTask task = new TimerTask() {
@@ -127,113 +105,54 @@ public class SinkContext {
         reloadTimer.schedule(task, new Date(System.currentTimeMillis() + reloadInterval), reloadInterval);
     }
 
-    /**
-     * reload
-     */
     public void reload() {
         try {
-            this.sortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
+            this.sortTaskConfig = SortConfigHolder.getTaskConfig(taskName);
         } catch (Throwable e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error("failed to stop sink context", e);
         }
     }
 
-    /**
-     * get clusterId
-     * 
-     * @return the clusterId
-     */
     public String getClusterId() {
         return clusterId;
     }
 
-    /**
-     * get taskName
-     * 
-     * @return the taskName
-     */
     public String getTaskName() {
         return taskName;
     }
 
-    /**
-     * get sinkName
-     * 
-     * @return the sinkName
-     */
     public String getSinkName() {
         return sinkName;
     }
 
-    /**
-     * get sinkContext
-     * 
-     * @return the sinkContext
-     */
     public Context getSinkContext() {
         return sinkContext;
     }
 
-    /**
-     * get sortTaskConfig
-     * 
-     * @return the sortTaskConfig
-     */
     public SortTaskConfig getSortTaskConfig() {
         return sortTaskConfig;
     }
 
-    /**
-     * get channel
-     * 
-     * @return the channel
-     */
     public Channel getChannel() {
         return channel;
     }
 
-    /**
-     * get maxThreads
-     * 
-     * @return the maxThreads
-     */
     public int getMaxThreads() {
         return maxThreads;
     }
 
-    /**
-     * get processInterval
-     * 
-     * @return the processInterval
-     */
     public long getProcessInterval() {
         return processInterval;
     }
 
-    /**
-     * get reloadInterval
-     * 
-     * @return the reloadInterval
-     */
     public long getReloadInterval() {
         return reloadInterval;
     }
 
-    /**
-     * get metricItemSet
-     * 
-     * @return the metricItemSet
-     */
     public SortMetricItemSet getMetricItemSet() {
         return metricItemSet;
     }
 
-    /**
-     * fillInlongId
-     *
-     * @param currentRecord
-     * @param dimensions
-     */
     public static void fillInlongId(ProfileEvent currentRecord, Map<String, String> dimensions) {
         String inlongGroupId = currentRecord.getInlongGroupId();
         inlongGroupId = (StringUtils.isBlank(inlongGroupId)) ? "-" : inlongGroupId;
@@ -243,10 +162,6 @@ public class SinkContext {
         dimensions.put(SortMetricItem.KEY_INLONG_STREAM_ID, inlongStreamId);
     }
 
-    /**
-     * createBufferQueue
-     * @return
-     */
     public static <U> BufferQueue<U> createBufferQueue() {
         int maxBufferQueueSizeKb = CommonPropertiesHolder.getInteger(KEY_MAX_BUFFERQUEUE_SIZE_KB,
                 DEFAULT_MAX_BUFFERQUEUE_SIZE_KB);

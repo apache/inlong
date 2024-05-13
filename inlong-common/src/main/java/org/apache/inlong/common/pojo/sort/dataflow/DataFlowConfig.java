@@ -31,6 +31,8 @@ public class DataFlowConfig implements Serializable {
 
     private String dataflowId;
     private Integer version;
+    private String inlongGroupId;
+    private String inlongStreamId;
     private SourceConfig sourceConfig;
     private SinkConfig sinkConfig;
     private Map<String, String> properties;
