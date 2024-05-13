@@ -19,6 +19,7 @@ package org.apache.inlong.agent.core.instance;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.plugin.Instance;
+import org.apache.inlong.agent.utils.AgentUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +65,11 @@ public class MockInstance extends Instance {
     @Override
     public String getInstanceId() {
         return profile.getInstanceId();
+    }
+
+    @Override
+    public long getLastHeartbeatTime() {
+        return AgentUtils.getCurrentTime();
     }
 
     @Override
