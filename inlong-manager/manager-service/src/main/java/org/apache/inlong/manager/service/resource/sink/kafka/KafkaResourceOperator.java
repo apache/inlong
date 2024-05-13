@@ -76,7 +76,6 @@ public class KafkaResourceOperator extends AbstractStandaloneSinkResourceOperato
                         new NewTopic(topicName, Optional.of(partitionNum), Optional.empty())));
                 result.values().get(topicName).get();
             }
-            this.assignCluster(sinkInfo);
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(),
                     "create kafka topic success");
             LOGGER.info("success to create kafka topic [{}] for sinkInfo={}", topicName, sinkInfo);
@@ -85,6 +84,7 @@ public class KafkaResourceOperator extends AbstractStandaloneSinkResourceOperato
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), e.getMessage());
             throw new WorkflowException("create kafka topic failed, reason: " + e.getMessage());
         }
+        this.assignCluster(sinkInfo);
     }
 
     /**
