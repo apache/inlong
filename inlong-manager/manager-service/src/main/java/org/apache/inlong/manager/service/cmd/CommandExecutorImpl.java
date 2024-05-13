@@ -42,7 +42,7 @@ public class CommandExecutorImpl implements CommandExecutor {
         ShellExecutorImpl shellExecutor = new ShellExecutorImpl(shellTracker);
         shellExecutor.syncExec("sh", "-c", cmd);
         String cmdMsg = String.join(InlongConstants.BLANK, "sh", "-c", cmd);
-        LOG.debug("run command : " + cmdMsg);
+        LOG.debug("run command : {}", cmdMsg);
         CommandResult commandResult = new CommandResult();
         commandResult.setCode(shellTracker.getCode());
         commandResult.setResult(String.join(InlongConstants.BLANK, shellTracker.getResult()));
@@ -66,7 +66,7 @@ public class CommandExecutorImpl implements CommandExecutor {
         cmd = "sh -c \"" + cmd + "\"";
         String cmdMsg =
                 String.join(InlongConstants.BLANK, cmdShell, ip, user, password, remoteCommandTimeout, cmd, port);
-        LOG.info("run remote command : " + cmdMsg);
+        LOG.info("run remote command : {}", cmdMsg);
 
         ShellTrackerImpl shellTracker = new ShellTrackerImpl();
         ShellExecutorImpl shellExecutor = new ShellExecutorImpl(shellTracker);

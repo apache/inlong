@@ -25,6 +25,6 @@ public interface ShellExecutor {
      * @param shellPath shell path
      * @param params params
      */
-    public void syncExec(String shellPath, String... params);
+    void syncExec(String shellPath, String... params);
 
 }
