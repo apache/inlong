@@ -32,7 +32,7 @@ service_conf_file=${file_path}/conf/audit-service.properties
 
 # replace the configuration for audit-proxy
 sed -i "s/manager.hosts=.*$/manager.hosts=${MANAGER_OPENAPI_IP}:${MANAGER_OPENAPI_PORT}/g" "${store_conf_file}"
-sed -i "s/proxy.cluster.tag=.*$/proxy.cluster.tag=${CLUSTER_TAG}/g" "${store_conf_file}"
+sed -i "s/default.mq.cluster.tag=.*$/default.mq.cluster.tag=${CLUSTER_TAG}/g" "${store_conf_file}"
 if [ "${MQ_TYPE}" = "pulsar" ]; then
   sed -i "s/audit.config.proxy.type=.*$/audit.config.proxy.type=pulsar"/g "${store_conf_file}"
   sed -i "s/audit.pulsar.topic = .*$/audit.pulsar.topic = ${PULSAR_AUDIT_TOPIC}/g" "${store_conf_file}"
