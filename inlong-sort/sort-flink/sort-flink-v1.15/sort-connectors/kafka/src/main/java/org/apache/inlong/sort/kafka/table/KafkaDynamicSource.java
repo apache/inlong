@@ -77,7 +77,7 @@ import java.util.stream.Stream;
 
 /** A version-agnostic Kafka {@link ScanTableSource}.
  *
- * Copy from iceberg-flink:iceberg-flink-1.15:1.3.1
+ * Copy from org.apache.flink:flink-connector-kafka:1.15.4
  * */
 @Internal
 public class KafkaDynamicSource
@@ -364,7 +364,8 @@ public class KafkaDynamicSource
                 && startupTimestampMillis == that.startupTimestampMillis
                 && Objects.equals(upsertMode, that.upsertMode)
                 && Objects.equals(tableIdentifier, that.tableIdentifier)
-                && Objects.equals(watermarkStrategy, that.watermarkStrategy);
+                && Objects.equals(watermarkStrategy, that.watermarkStrategy)
+                && Objects.equals(metricOption, that.metricOption);
     }
 
     @Override
@@ -386,7 +387,8 @@ public class KafkaDynamicSource
                 startupTimestampMillis,
                 upsertMode,
                 tableIdentifier,
-                watermarkStrategy);
+                watermarkStrategy,
+                metricOption);
     }
 
     // --------------------------------------------------------------------------------------------

@@ -22,7 +22,7 @@ import org.apache.flink.configuration.ConfigOptions;
 
 /** Option utils for Kafka table source sink.
  *
- * Copy from iceberg-flink:iceberg-flink-1.15:1.3.1
+ * Copy from org.apache.flink:flink-connector-kafka:1.15.4
  * */
 public class KafkaOptions {
 

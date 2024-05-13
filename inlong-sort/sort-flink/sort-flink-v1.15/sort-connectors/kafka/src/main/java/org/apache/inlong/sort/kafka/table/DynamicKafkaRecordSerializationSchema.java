@@ -28,8 +28,6 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
@@ -37,12 +35,11 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataSize;
 
 /** SerializationSchema used by {@link KafkaDynamicSink} to configure a {KafkaSink}.
- *
- * Copy from iceberg-flink:iceberg-flink-1.15:1.3.1
+ * <p>
+ * Copy from org.apache.flink:flink-connector-kafka:1.15.4
  * */
 class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationSchema<RowData> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DynamicKafkaRecordSerializationSchema.class);
     private final String topic;
     private final FlinkKafkaPartitioner<RowData> partitioner;
     @Nullable
@@ -100,7 +97,6 @@ class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationS
                             context.getPartitionsForTopic(topic)),
                     null,
                     valueSerialized);
-            LOG.info("Sink report audit information");
             sinkMetricData.invoke(1, getDataSize(record));
             return record;
         }
@@ -144,7 +140,6 @@ class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationS
                 keySerialized,
                 valueSerialized,
                 readMetadata(consumedRow, KafkaDynamicSink.WritableMetadata.HEADERS));
-        LOG.info("Sink report audit information");
         if (sinkMetricData != null) {
             sinkMetricData.invoke(1, getDataSize(record));
         }

@@ -54,7 +54,7 @@ import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 
 /** Utilities for { KafkaConnectorOptions}.
  *
- * Copy from iceberg-flink:iceberg-flink-1.15:1.3.1
+ * Copy from org.apache.flink:flink-connector-kafka:1.15.4
  * */
 @Internal
 class KafkaConnectorOptionsUtil {

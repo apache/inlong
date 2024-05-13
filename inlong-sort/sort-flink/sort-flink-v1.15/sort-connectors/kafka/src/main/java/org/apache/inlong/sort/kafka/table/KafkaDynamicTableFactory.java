@@ -74,7 +74,7 @@ import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.*;
  * Factory for creating configured instances of KafkaDynamicSource and
  * KafkaDynamicSink}.
  *
- * Copy from iceberg-flink:iceberg-flink-1.15:1.3.1
+ * Copy from org.apache.flink:flink-connector-kafka:1.15.4
  */
 @Internal
 public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {

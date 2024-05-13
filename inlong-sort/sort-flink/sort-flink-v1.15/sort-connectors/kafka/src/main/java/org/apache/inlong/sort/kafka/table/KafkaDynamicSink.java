@@ -66,7 +66,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /** A version-agnostic Kafka {@link DynamicTableSink}.
  *
- * Copy from iceberg-flink:iceberg-flink-1.15:1.3.1
+ * Copy from org.apache.flink:flink-connector-kafka:1.15.4
  * */
 @Internal
 public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetadata {
@@ -325,7 +325,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 && Objects.equals(upsertMode, that.upsertMode)
                 && Objects.equals(flushMode, that.flushMode)
                 && Objects.equals(transactionalIdPrefix, that.transactionalIdPrefix)
-                && Objects.equals(parallelism, that.parallelism);
+                && Objects.equals(parallelism, that.parallelism)
+                && Objects.equals(metricOption, that.metricOption);
     }
 
     @Override
@@ -346,7 +347,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 upsertMode,
                 flushMode,
                 transactionalIdPrefix,
-                parallelism);
+                parallelism,
+                metricOption);
     }
 
     // --------------------------------------------------------------------------------------------
