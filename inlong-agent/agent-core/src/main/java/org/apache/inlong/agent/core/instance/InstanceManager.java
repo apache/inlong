@@ -242,7 +242,7 @@ public class InstanceManager extends AbstractDaemon {
                 deleteFromMemory(instance.getInstanceId());
             }
             if (AgentUtils.getCurrentTime() - instance.getLastHeartbeatTime() > INSTANCE_KEEP_ALIVE_MS) {
-                LOGGER.error("instance heartbeat timeout {} will delete from memory", instance.getInstanceId());
+                LOGGER.error("instance heartbeat timeout, id: {}, will be deleted from memory", instance.getInstanceId());
                 deleteFromMemory(instance.getInstanceId());
             }
         });
