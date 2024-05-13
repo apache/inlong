@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.service.resource.sink.kafka;
 
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Properties;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkStatus;
@@ -24,9 +27,8 @@ import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSinkDTO;
-import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
+import org.apache.inlong.manager.service.resource.sink.AbstractStandaloneSinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-
 import org.apache.kafka.clients.admin.Admin;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
@@ -39,15 +41,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Properties;
-
 /**
  * Kafka resource operator for creating Kafka topic
  */
 @Service
-public class KafkaResourceOperator implements SinkResourceOperator {
+public class KafkaResourceOperator extends AbstractStandaloneSinkResourceOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaResourceOperator.class);
 
@@ -76,7 +74,7 @@ public class KafkaResourceOperator implements SinkResourceOperator {
                         new NewTopic(topicName, Optional.of(partitionNum), Optional.empty())));
                 result.values().get(topicName).get();
             }
-
+            this.assignCluster(sinkInfo);
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(),
                     "create kafka topic success");
             LOGGER.info("success to create kafka topic [{}] for sinkInfo={}", topicName, sinkInfo);
