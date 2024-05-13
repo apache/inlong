@@ -78,7 +78,7 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
 
     /** Metadata that is appended at the end of a physical source row. */
     protected List<String> metadataKeys;
-    private MetricOption metricOption;
+    private final MetricOption metricOption;
 
     public SqlServerTableSource(
             ResolvedSchema physicalSchema,

@@ -103,7 +103,7 @@ public final class RowDataDebeziumDeserializeSchema
 
     /** Changelog Mode to use for encoding changes in Flink internal data structure. */
     private final DebeziumChangelogMode changelogMode;
-    private SourceMetricData sourceMetricData;
+    private final SourceMetricData sourceMetricData;
 
     /** Returns a builder to build {@link RowDataDebeziumDeserializeSchema}. */
     public static Builder newBuilder() {
@@ -224,11 +224,6 @@ public final class RowDataDebeziumDeserializeSchema
             return this;
         }
 
-        public Builder setValueValidator(ValueValidator validator) {
-            this.validator = validator;
-            return this;
-        }
-
         public Builder setServerTimeZone(ZoneId serverTimeZone) {
             this.serverTimeZone = serverTimeZone;
             return this;
@@ -240,10 +235,6 @@ public final class RowDataDebeziumDeserializeSchema
             return this;
         }
 
-        public Builder setChangelogMode(DebeziumChangelogMode changelogMode) {
-            this.changelogMode = changelogMode;
-            return this;
-        }
         public Builder setSourceMetricData(MetricOption metricOption) {
             if (metricOption != null) {
                 this.sourceMetricData = new SourceMetricData(metricOption);
