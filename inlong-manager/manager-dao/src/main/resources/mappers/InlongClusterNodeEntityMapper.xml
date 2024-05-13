@@ -198,7 +198,7 @@
                 password = #{password,jdbcType=VARCHAR},
             </if>
             <if test="sshPort != null">
-                ssh_ort = #{sshPort,jdbcType=INTEGER},
+                ssh_port = #{sshPort,jdbcType=INTEGER},
             </if>
             <if test="protocolType != null">
                 protocol_type = #{protocolType,jdbcType=VARCHAR},
