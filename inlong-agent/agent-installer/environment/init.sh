@@ -16,4 +16,5 @@
 # limitations under the License.
 #
 
+# This script is used for environment initialization and can be modified according to different environments
 echo "Begin initializing the environment"
