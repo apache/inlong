@@ -74,7 +74,7 @@ public class CommandExecutorImpl implements CommandExecutor {
     public CommandResult execRemote(AgentClusterNodeRequest clusterNodeRequest, String cmd) throws Exception {
         String cmdShell = "./conf/exec_cmd.exp";
         String ip = clusterNodeRequest.getIp();
-        String port = String.valueOf(clusterNodeRequest.getPort());
+        String port = String.valueOf(clusterNodeRequest.getSshPort());
         String user = clusterNodeRequest.getUsername();
         String password = clusterNodeRequest.getPassword();
         String remoteCommandTimeout = "20000";
@@ -124,7 +124,7 @@ public class CommandExecutorImpl implements CommandExecutor {
     @Override
     public CommandResult downLoadPackage(AgentClusterNodeRequest clusterNodeRequest, String downLoadPath,
             String downLoadUrl) throws Exception {
-        return execRemote(clusterNodeRequest, "wget -P " + downLoadPath + downLoadUrl);
+        return execRemote(clusterNodeRequest, "wget -P " + downLoadPath + InlongConstants.BLANK + downLoadUrl);
     }
 
     @Override

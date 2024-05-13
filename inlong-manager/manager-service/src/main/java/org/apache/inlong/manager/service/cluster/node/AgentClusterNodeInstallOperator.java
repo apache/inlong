@@ -20,13 +20,17 @@ package org.apache.inlong.manager.service.cluster.node;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ModuleType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.AESUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.entity.ModuleConfigEntity;
 import org.apache.inlong.manager.dao.entity.PackageConfigEntity;
+import org.apache.inlong.manager.dao.entity.UserEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.ModuleConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.PackageConfigEntityMapper;
+import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterDTO;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeRequest;
@@ -56,12 +60,14 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
     private ModuleConfigEntityMapper moduleConfigEntityMapper;
     @Autowired
     private PackageConfigEntityMapper packageConfigEntityMapper;
+    @Autowired
+    private UserEntityMapper userEntityMapper;
 
-    @Value("${audit.proxy.url}")
+    @Value("${metrics.audit.proxy.hosts:127.0.0.1:10081}")
     private String auditProxyUrl;
-    @Value("${agent.install.path}")
+    @Value("${agent.install.path:inlong/inlong-installer/}")
     private String agentInstallPath;
-    @Value("${manager.url}")
+    @Value("${manager.url:127.0.0.1:8083}")
     private String managerUrl;
 
     @Override
@@ -90,11 +96,15 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
             Map<String, String> configMap = new HashMap<>();
             configMap.put("agent.local.ip", request.getIp());
             configMap.put("agent.manager.addr", managerUrl);
-            configMap.put("agent.manager.auth.secretId", agentClusterDTO.getAuthSecretId());
-            configMap.put("agent.manager.auth.secretKey", agentClusterDTO.getAuthSecretKey());
+            UserEntity userInfo = userEntityMapper.selectByName(operator);
+            Preconditions.expectNotNull(userInfo, "User doesn't exist");
+            String secretKey =
+                    new String(AESUtils.decryptAsString(userInfo.getSecretKey(), userInfo.getEncryptVersion()));
+            configMap.put("agent.manager.auth.secretId", operator);
+            configMap.put("agent.manager.auth.secretKey", secretKey);
             configMap.put("agent.cluster.tag", clusterEntity.getClusterTags());
             configMap.put("agent.cluster.name", clusterEntity.getName());
-            configMap.put("agent.proxys", auditProxyUrl);
+            configMap.put("audit.proxys", auditProxyUrl);
             commandExecutor.modifyConfig(request, configMap, confFile);
             String startCmd = agentInstallPath + "bin/installer.sh start";
             commandExecutor.execRemote(request, startCmd);
