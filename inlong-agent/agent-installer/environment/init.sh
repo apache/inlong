@@ -16,4 +16,4 @@
 # limitations under the License.
 #
 
-echo "Start doing some environment initialization work"
+echo "Begin initializing the environment"
