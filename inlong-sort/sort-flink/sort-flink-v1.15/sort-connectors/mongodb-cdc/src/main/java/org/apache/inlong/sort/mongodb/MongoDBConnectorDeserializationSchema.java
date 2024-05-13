@@ -83,6 +83,8 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 /**
  * Deserialization schema from Mongodb ChangeStreamDocument to Flink Table/SQL internal data
  * structure {RowData}.
+ *
+ * Copy from com.ververica:flink-connector-mongodb-cdc-2.3.0
  */
 public class MongoDBConnectorDeserializationSchema
         implements

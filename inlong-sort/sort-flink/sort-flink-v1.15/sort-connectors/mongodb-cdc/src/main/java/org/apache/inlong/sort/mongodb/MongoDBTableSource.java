@@ -59,6 +59,8 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 /**
  * A {@link DynamicTableSource} that describes how to create a MongoDB change stream events source
  * from a logical description.
+ *
+ * Copy from com.ververica:flink-connector-mongodb-cdc-2.3.0
  */
 public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetadata {
 
