@@ -17,12 +17,34 @@
 
 package org.apache.inlong.manager.common.enums;
 
+import java.util.Objects;
+
 /**
  * Constant of module type.
  */
 public enum ModuleType {
 
-    AGENT,
-    INSTALLER
+    AGENT(1),
+    INSTALLER(2),
+    UNKNOWN(3);
+
+    final int moduleId;
+
+    ModuleType(int moduleId) {
+        this.moduleId = moduleId;
+    }
+
+    public int getModuleId() {
+        return moduleId;
+    }
+
+    public static ModuleType forType(String type) {
+        for (ModuleType moduleType : ModuleType.values()) {
+            if (Objects.equals(moduleType.name(), type)) {
+                return moduleType;
+            }
+        }
+        return UNKNOWN;
+    }
 
 }
