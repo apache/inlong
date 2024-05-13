@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
--- This is the SQL change file from version 1.9.0 to the current version 1.10.0.
--- When upgrading to version 1.10.0, please execute those SQLs in the DB (such as MySQL) used by the Manager module.
+-- This is the SQL change file from version 1.12.0 to the current version 1.13.0.
+-- When upgrading to version 1.13.0, please execute those SQLs in the DB (such as MySQL) used by the Manager module.
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
