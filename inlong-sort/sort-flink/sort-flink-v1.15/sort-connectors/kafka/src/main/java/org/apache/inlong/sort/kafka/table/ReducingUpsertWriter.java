@@ -161,8 +161,6 @@ class ReducingUpsertWriter<WriterState>
         for (Tuple2<RowData, Long> value : reduceBuffer.values()) {
             wrappedContext.setTimestamp(value.f1);
             wrappedWriter.write(value.f0, wrappedContext);
-            LOG.info("Report upsert audit information, the value is : {}", value);
-            System.out.println("Report upsert audit information, the value is : " + value);
             sourceMetricData.outputMetricsWithEstimate(value.f0);
         }
         lastFlush = System.currentTimeMillis();

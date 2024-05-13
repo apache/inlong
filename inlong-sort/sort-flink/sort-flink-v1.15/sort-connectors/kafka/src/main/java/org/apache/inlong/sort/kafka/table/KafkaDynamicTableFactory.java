@@ -388,8 +388,6 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
             long startupTimestampMillis,
             String tableIdentifier,
             MetricOption metricOption) {
-        LOG.info("Factory create KafkaDynamicSource------");
-        System.out.println("Factory create KafkaDynamicSource------");
         return new KafkaDynamicSource(
                 physicalDataType,
                 keyDecodingFormat,

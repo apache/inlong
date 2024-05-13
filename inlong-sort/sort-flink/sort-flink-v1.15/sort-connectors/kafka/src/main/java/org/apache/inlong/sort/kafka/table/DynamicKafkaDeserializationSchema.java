@@ -92,8 +92,7 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
                         keyProjection,
                         valueProjection,
                         metadataConverters,
-                        upsertMode,
-                        metricOption);
+                        upsertMode);
         this.producedTypeInfo = producedTypeInfo;
         this.upsertMode = upsertMode;
         this.metricOption = metricOption;
@@ -219,21 +218,17 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
 
         private transient Collector<RowData> outputCollector;
 
-        private SourceMetricData sourceMetricData;
-
         OutputProjectionCollector(
                 int physicalArity,
                 int[] keyProjection,
                 int[] valueProjection,
                 MetadataConverter[] metadataConverters,
-                boolean upsertMode,
-                MetricOption metricOption) {
+                boolean upsertMode) {
             this.physicalArity = physicalArity;
             this.keyProjection = keyProjection;
             this.valueProjection = valueProjection;
             this.metadataConverters = metadataConverters;
             this.upsertMode = upsertMode;
-            this.sourceMetricData = sourceMetricData;
         }
 
         @Override
@@ -292,10 +287,6 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
                         metadataConverters[metadataPos].read(inputRecord));
             }
             outputCollector.collect(producedRow);
-            LOG.info("Source report audit information");
-            if (sourceMetricData != null) {
-                sourceMetricData.outputMetricsWithEstimate(producedRow);
-            }
         }
     }
 }
