@@ -46,8 +46,7 @@ public class ShellExecutorImpl implements ShellExecutor {
         try {
             Field f = process.getClass().getDeclaredField("pid");
             f.setAccessible(true);
-            long procHandle = f.getLong(process);
-            return procHandle;
+            return f.getLong(process);
         } catch (Exception e) {
             log.error("get pid failed", e);
             return -1;
@@ -93,17 +92,10 @@ public class ShellExecutorImpl implements ShellExecutor {
         return false;
     }
 
-    public void asyncExec(String shellPath, String... params) {
-        AsyncShellRunnable asyncShell = new AsyncShellRunnable(shellPath, this.tracker, params);
-        Thread thread = new Thread(asyncShell);
-        thread.start();
-    }
-
     public void syncExec(String shellPath, String... params) {
         List<String> result = new ArrayList<String>();
         String[] cmds = merge(shellPath, params);
         try {
-            tracker.start();
             Process ps = Runtime.getRuntime().exec(cmds);
             long pid = getPid(ps);
             tracker.setProcessId(pid);
@@ -120,75 +112,20 @@ public class ShellExecutorImpl implements ShellExecutor {
             }
             if (hasException) {
                 tracker.lineChange("Java exception exist in output");
-                tracker.fail(-1);
+                tracker.setCode(-1);
                 return;
             }
             ps.waitFor();
             int exitValue = ps.exitValue();
             if (exitValue != 0) {
-                tracker.fail(exitValue);
-                return;
+                tracker.setCode(exitValue);
             }
-            tracker.success();
         } catch (Exception e) {
             log.error("sync exec shell failed", e);
             result.add(e.getMessage());
             tracker.setRunResult(arrayToString(result.toArray(), InlongConstants.NEW_LINE));
             tracker.lineChange(e.getMessage());
-            tracker.fail(-1);
-        }
-    }
-
-    public static class AsyncShellRunnable implements Runnable {
-
-        private String shellPath;
-        private String[] params;
-        private List<String> result = new ArrayList<String>();
-        private ShellTracker tracker;
-
-        public AsyncShellRunnable(String shellPath, ShellTracker tracker, String... params) {
-            this.shellPath = shellPath;
-            this.params = params;
-            this.tracker = tracker;
-        }
-
-        public void run() {
-            String[] cmds = merge(shellPath, params);
-            try {
-                tracker.start();
-                Process ps = Runtime.getRuntime().exec(cmds);
-                long pid = getPid(ps);
-                tracker.setProcessId(pid);
-                BufferedReader br = new BufferedReader(new InputStreamReader(ps.getInputStream()));
-                String line;
-                boolean hasException = false;
-                while ((line = br.readLine()) != null) {
-                    if (HasException(line)) {
-                        hasException = true;
-                    }
-                    result.add(line);
-                    tracker.setRunResult(arrayToString(result.toArray(), InlongConstants.NEW_LINE));
-                    tracker.lineChange(line);
-                }
-                if (hasException) {
-                    tracker.lineChange("Java exception exist in output");
-                    tracker.fail(-1);
-                    return;
-                }
-                ps.waitFor();
-                int exitValue = ps.exitValue();
-                if (exitValue != 0) {
-                    tracker.fail(exitValue);
-                    return;
-                }
-                tracker.success();
-            } catch (Exception e) {
-                log.error("async exec shell failed", e);
-                result.add(e.getMessage());
-                tracker.setRunResult(arrayToString(result.toArray(), InlongConstants.NEW_LINE));
-                tracker.lineChange(e.getMessage());
-                tracker.fail(-1);
-            }
+            tracker.setCode(-1);
         }
     }
 }

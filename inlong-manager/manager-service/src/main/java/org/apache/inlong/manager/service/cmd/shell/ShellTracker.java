@@ -17,47 +17,20 @@
 
 package org.apache.inlong.manager.service.cmd.shell;
 
-public interface ShellTracker {
+import lombok.Data;
 
-    /**
-     *
-     * Update run result for shell cmd
-     * @param runResult shell result
-     */
-    void setRunResult(String runResult);
+import java.util.ArrayList;
+import java.util.List;
 
-    /**
-     *
-     * Update line info
-     * @param line shell line info
-     */
-    void lineChange(String line);
+@Data
+public class ShellTracker {
 
-    /**
-     *
-     * Set process ID
-     * @param processId process id
-     */
-    void setProcessId(long processId);
+    private List<String> result = new ArrayList<>();
+    private int code;
+    private Long processId;
+    private String runResult;
 
-    /**
-     * Preparation work
-     */
-    void beforeStart();
-
-    /**
-     * Begin exec
-     */
-    void start();
-
-    /**
-     * Exec failed
-     */
-    void fail(int code);
-
-    /**
-     * Exec success
-     */
-    void success();
-
+    public void lineChange(String line) {
+        result.add(line);
+    }
 }

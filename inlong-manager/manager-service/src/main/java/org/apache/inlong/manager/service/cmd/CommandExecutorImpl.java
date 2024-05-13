@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.cmd;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeRequest;
 import org.apache.inlong.manager.service.cmd.shell.ShellExecutorImpl;
-import org.apache.inlong.manager.service.cmd.shell.ShellTrackerImpl;
+import org.apache.inlong.manager.service.cmd.shell.ShellTracker;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ public class CommandExecutorImpl implements CommandExecutor {
 
     @Override
     public CommandResult exec(String cmd) throws Exception {
-        ShellTrackerImpl shellTracker = new ShellTrackerImpl();
+        ShellTracker shellTracker = new ShellTracker();
         ShellExecutorImpl shellExecutor = new ShellExecutorImpl(shellTracker);
         shellExecutor.syncExec("sh", "-c", cmd);
         String cmdMsg = String.join(InlongConstants.BLANK, "sh", "-c", cmd);
@@ -68,7 +68,7 @@ public class CommandExecutorImpl implements CommandExecutor {
                 String.join(InlongConstants.BLANK, cmdShell, ip, user, password, remoteCommandTimeout, cmd, port);
         LOG.info("run remote command : {}", cmdMsg);
 
-        ShellTrackerImpl shellTracker = new ShellTrackerImpl();
+        ShellTracker shellTracker = new ShellTracker();
         ShellExecutorImpl shellExecutor = new ShellExecutorImpl(shellTracker);
         shellExecutor.syncExec(cmdShell, ip, user, password, remoteCommandTimeout, cmd, port);
 
