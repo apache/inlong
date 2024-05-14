@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.sqlserver;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
 
 import com.ververica.cdc.connectors.sqlserver.SqlServerSource;
 import com.ververica.cdc.connectors.sqlserver.table.SqlServerDeserializationConverterFactory;
@@ -125,6 +126,7 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
                 (RowType) physicalSchema.toPhysicalRowDataType().getLogicalType();
         MetadataConverter[] metadataConverters = getMetadataConverters();
         TypeInformation<RowData> typeInfo = scanContext.createTypeInformation(producedDataType);
+        SourceMetricData sourceMetricData = new SourceMetricData(metricOption);
 
         DebeziumDeserializationSchema<RowData> deserializer =
                 RowDataDebeziumDeserializeSchema.newBuilder()
@@ -134,7 +136,7 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
                         .setServerTimeZone(serverTimeZone)
                         .setUserDefinedConverterFactory(
                                 SqlServerDeserializationConverterFactory.instance())
-                        .setSourceMetricData(metricOption)
+                        .setSourceMetricData(sourceMetricData)
                         .build();
         DebeziumSourceFunction<RowData> sourceFunction =
                 SqlServerSource.<RowData>builder()

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.sqlserver;
 
-import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 
@@ -235,10 +234,8 @@ public final class RowDataDebeziumDeserializeSchema
             return this;
         }
 
-        public Builder setSourceMetricData(MetricOption metricOption) {
-            if (metricOption != null) {
-                this.sourceMetricData = new SourceMetricData(metricOption);
-            }
+        public Builder setSourceMetricData(SourceMetricData sourceMetricData) {
+            this.sourceMetricData = sourceMetricData;
             return this;
         }
 
