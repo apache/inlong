@@ -17,12 +17,12 @@
 
 package org.apache.inlong.common.pojo.sort.dataflow;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.apache.inlong.common.pojo.sort.dataflow.sink.SinkConfig;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Map;
