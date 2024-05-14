@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.postgre;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
 
 import com.ververica.cdc.connectors.postgres.PostgreSQLSource;
 import com.ververica.cdc.connectors.postgres.table.PostgreSQLDeserializationConverterFactory;
@@ -36,7 +37,6 @@ import org.apache.flink.table.connector.source.abilities.SupportsReadingMetadata
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
 
 import java.util.Collections;
 import java.util.List;

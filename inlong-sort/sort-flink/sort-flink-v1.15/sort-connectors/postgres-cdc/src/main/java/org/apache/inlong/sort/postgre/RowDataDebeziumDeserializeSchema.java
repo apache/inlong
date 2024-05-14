@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.postgre;
 
-import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 
