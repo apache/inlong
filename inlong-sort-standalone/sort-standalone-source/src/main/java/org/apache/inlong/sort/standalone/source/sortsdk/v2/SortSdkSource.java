@@ -17,11 +17,6 @@
 
 package org.apache.inlong.sort.standalone.source.sortsdk.v2;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.flume.Context;
-import org.apache.flume.EventDrivenSource;
-import org.apache.flume.conf.Configurable;
-import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.sdk.commons.admin.AdminServiceRegister;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClient;
@@ -38,6 +33,12 @@ import org.apache.inlong.sort.standalone.source.sortsdk.DefaultTopicChangeListen
 import org.apache.inlong.sort.standalone.source.sortsdk.FetchCallback;
 import org.apache.inlong.sort.standalone.source.sortsdk.SortSdkSourceContext;
 import org.apache.inlong.sort.standalone.utils.v2.FlumeConfigGenerator;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.flume.Context;
+import org.apache.flume.EventDrivenSource;
+import org.apache.flume.conf.Configurable;
+import org.apache.flume.source.AbstractSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,10 +72,10 @@ import java.util.concurrent.TimeUnit;
  */
 public final class SortSdkSource extends AbstractSource
         implements
-        Configurable,
-        Runnable,
-        EventDrivenSource,
-        ConsumerServiceMBean {
+            Configurable,
+            Runnable,
+            EventDrivenSource,
+            ConsumerServiceMBean {
 
     // Log of {@link SortSdkSource}.
     private static final Logger LOG = LoggerFactory.getLogger(SortSdkSource.class);
