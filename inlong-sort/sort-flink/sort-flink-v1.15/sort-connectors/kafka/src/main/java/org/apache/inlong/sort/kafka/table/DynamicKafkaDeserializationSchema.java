@@ -31,8 +31,6 @@ import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.Preconditions;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
@@ -41,13 +39,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** A specific {KafkaSerializationSchema} for {KafkaDynamicSource}.
- *
+ * <p>
  * Copy from org.apache.flink:flink-connector-kafka:1.15.4
  * */
 class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<RowData> {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(DynamicKafkaDeserializationSchema.class);
 
     private final @Nullable DeserializationSchema<RowData> keyDeserialization;
 
@@ -125,7 +122,8 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         // shortcut in case no output projection is required,
         // also not for a cartesian product with the keys
         if (keyDeserialization == null && !hasMetadata) {
-            valueDeserialization.deserialize(record.value(), new MetricsCollector<>(collector, sourceMetricData));
+            valueDeserialization.deserialize(record.value(),
+                    sourceMetricData == null ? collector : new MetricsCollector<>(collector, sourceMetricData));
             return;
         }
 
@@ -137,7 +135,8 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         // project output while emitting values
         outputCollector.inputRecord = record;
         outputCollector.physicalKeyRows = keyCollector.buffer;
-        outputCollector.outputCollector = new MetricsCollector<>(collector, sourceMetricData);;
+        outputCollector.outputCollector =
+                sourceMetricData == null ? collector : new MetricsCollector<>(collector, sourceMetricData);
         if (record.value() == null && upsertMode) {
             // collect tombstone messages in upsert mode by hand
             outputCollector.collect(null);
@@ -197,8 +196,6 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
             implements
                 Collector<RowData>,
                 Serializable {
-
-        private static final Logger LOG = LoggerFactory.getLogger(OutputProjectionCollector.class);
 
         private static final long serialVersionUID = 1L;
 

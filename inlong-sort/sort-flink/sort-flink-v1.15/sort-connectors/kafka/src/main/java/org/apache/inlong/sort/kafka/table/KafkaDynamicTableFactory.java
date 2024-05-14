@@ -73,7 +73,7 @@ import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.*;
 /**
  * Factory for creating configured instances of KafkaDynamicSource and
  * KafkaDynamicSink}.
- *
+ * <p>
  * Copy from org.apache.flink:flink-connector-kafka:1.15.4
  */
 @Internal

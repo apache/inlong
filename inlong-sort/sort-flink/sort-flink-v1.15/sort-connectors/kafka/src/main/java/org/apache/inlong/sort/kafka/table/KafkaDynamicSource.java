@@ -76,7 +76,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /** A version-agnostic Kafka {@link ScanTableSource}.
- *
+ * <p>
  * Copy from org.apache.flink:flink-connector-kafka:1.15.4
  * */
 @Internal

@@ -21,7 +21,7 @@ import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 
 /** Option utils for Kafka table source sink.
- *
+ * <p>
  * Copy from org.apache.flink:flink-connector-kafka:1.15.4
  * */
 public class KafkaOptions {

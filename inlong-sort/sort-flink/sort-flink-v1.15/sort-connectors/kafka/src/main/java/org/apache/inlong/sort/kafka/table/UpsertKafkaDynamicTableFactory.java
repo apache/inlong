@@ -67,7 +67,7 @@ import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getSo
 import static org.apache.inlong.sort.kafka.table.KafkaConnectorOptionsUtil.getSourceTopics;
 
 /** Upsert-Kafka factory.
- *
+ * <p>
  * Copy from org.apache.flink:flink-connector-kafka:1.15.4
  * */
 public class UpsertKafkaDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {

@@ -53,7 +53,7 @@ import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOp
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 
 /** Utilities for { KafkaConnectorOptions}.
- *
+ * <p>
  * Copy from org.apache.flink:flink-connector-kafka:1.15.4
  * */
 @Internal
@@ -333,7 +333,7 @@ class KafkaConnectorOptionsUtil {
         }
 
         for (String pair : pairs) {
-            if (null == pair || pair.length() == 0 || !pair.contains(",")) {
+            if (null == pair || !pair.contains(",")) {
                 throw new ValidationException(validationExceptionMessage);
             }
 

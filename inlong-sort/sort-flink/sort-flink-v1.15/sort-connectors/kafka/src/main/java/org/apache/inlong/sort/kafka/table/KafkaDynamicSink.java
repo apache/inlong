@@ -65,7 +65,7 @@ import java.util.stream.Stream;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /** A version-agnostic Kafka {@link DynamicTableSink}.
- *
+ * <p>
  * Copy from org.apache.flink:flink-connector-kafka:1.15.4
  * */
 @Internal

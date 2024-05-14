@@ -28,8 +28,6 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.types.RowKind;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -51,8 +49,6 @@ import static org.apache.inlong.sort.kafka.table.DynamicKafkaRecordSerialization
 class ReducingUpsertWriter<WriterState>
         implements
             StatefulSink.StatefulSinkWriter<RowData, WriterState> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ReducingUpsertWriter.class);
 
     private final StatefulSink.StatefulSinkWriter<RowData, WriterState> wrappedWriter;
     private final WrappedContext wrappedContext = new WrappedContext();
