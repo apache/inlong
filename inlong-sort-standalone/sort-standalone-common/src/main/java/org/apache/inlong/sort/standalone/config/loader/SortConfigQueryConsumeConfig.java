@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,7 +70,7 @@ public class SortConfigQueryConsumeConfig implements QueryConsumeConfig {
                 topic.setTopic(flow.getSourceConfig().getTopic());
                 // only supports pulsar now
                 topic.setTopicType(InlongTopicTypeEnum.PULSAR.getName());
-                topic.setProperties(flow.getProperties());
+                topic.setProperties(flow.getProperties() != null ? flow.getProperties() : new HashMap<>());
                 topics.add(topic);
             }
         }
