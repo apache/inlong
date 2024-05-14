@@ -127,10 +127,6 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
         MetadataConverter[] metadataConverters = getMetadataConverters();
         TypeInformation<RowData> typeInfo = scanContext.createTypeInformation(producedDataType);
 
-        SourceMetricData sourceMetricData = null;
-        if (metricOption != null) {
-            sourceMetricData = new SourceMetricData(metricOption);
-        }
         DebeziumDeserializationSchema<RowData> deserializer =
                 RowDataDebeziumDeserializeSchema.newBuilder()
                         .setPhysicalRowType(physicalDataType)
@@ -139,7 +135,7 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
                         .setServerTimeZone(serverTimeZone)
                         .setUserDefinedConverterFactory(
                                 SqlServerDeserializationConverterFactory.instance())
-                        .setSourceMetricData(sourceMetricData)
+                        .setSourceMetricData(metricOption == null ? null : new SourceMetricData(metricOption))
                         .build();
         DebeziumSourceFunction<RowData> sourceFunction =
                 SqlServerSource.<RowData>builder()
