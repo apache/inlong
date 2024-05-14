@@ -68,9 +68,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * <p>
  * Copy from com.ververica:flink-connector-debezium:2.3.0
  */
-public final class RowDataDebeziumDeserializeSchema
-        implements
-            DebeziumDeserializationSchema<RowData> {
+public final class RowDataDebeziumDeserializeSchema implements DebeziumDeserializationSchema<RowData> {
 
     private static final long serialVersionUID = 2L;
 
@@ -140,7 +138,9 @@ public final class RowDataDebeziumDeserializeSchema
             GenericRowData insert = extractAfterRow(value, valueSchema);
             validator.validate(insert, RowKind.INSERT);
             insert.setRowKind(RowKind.INSERT);
-            out = new MetricsCollector<>(out, sourceMetricData);
+            if (sourceMetricData != null) {
+                out = new MetricsCollector<>(out, sourceMetricData);
+            }
             emit(record, insert, out);
         } else if (op == Envelope.Operation.DELETE) {
             GenericRowData delete = extractBeforeRow(value, valueSchema);
@@ -158,7 +158,9 @@ public final class RowDataDebeziumDeserializeSchema
             GenericRowData after = extractAfterRow(value, valueSchema);
             validator.validate(after, RowKind.UPDATE_AFTER);
             after.setRowKind(RowKind.UPDATE_AFTER);
-            out = new MetricsCollector<>(out, sourceMetricData);
+            if (sourceMetricData != null) {
+                out = new MetricsCollector<>(out, sourceMetricData);
+            }
             emit(record, after, out);
         }
     }
@@ -200,12 +202,12 @@ public final class RowDataDebeziumDeserializeSchema
         private RowType physicalRowType;
         private TypeInformation<RowData> resultTypeInfo;
         private MetadataConverter[] metadataConverters = new MetadataConverter[0];
-        private ValueValidator validator = (rowData, rowKind) -> {
+        private final ValueValidator validator = (rowData, rowKind) -> {
         };
         private ZoneId serverTimeZone = ZoneId.of("UTC");
         private DeserializationRuntimeConverterFactory userDefinedConverterFactory =
                 DeserializationRuntimeConverterFactory.DEFAULT;
-        private DebeziumChangelogMode changelogMode = DebeziumChangelogMode.ALL;
+        private final DebeziumChangelogMode changelogMode = DebeziumChangelogMode.ALL;
         private SourceMetricData sourceMetricData;
 
         public Builder setPhysicalRowType(RowType physicalRowType) {
