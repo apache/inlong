@@ -139,6 +139,7 @@ export default class PulsarSource
   @FieldDecorator({
     type: 'inputnumber',
     rules: [{ required: true }],
+    initialValue: 20,
     props: values => ({
       min: 1,
       max: 100,
@@ -152,6 +153,7 @@ export default class PulsarSource
 
   @FieldDecorator({
     type: 'radio',
+    initialValue: 'R',
     props: values => ({
       disabled: Boolean(values.id),
       options: [
@@ -177,9 +179,11 @@ export default class PulsarSource
   @FieldDecorator({
     type: 'input',
     tooltip: i18n.t('meta.Sources.File.TimeOffsetHelp'),
+    initialValue: '0h',
     rules: [
       {
         pattern: /[0-9][mhd]$/,
+        required: true,
         message: i18n.t('meta.Sources.File.TimeOffsetRules'),
       },
     ],
