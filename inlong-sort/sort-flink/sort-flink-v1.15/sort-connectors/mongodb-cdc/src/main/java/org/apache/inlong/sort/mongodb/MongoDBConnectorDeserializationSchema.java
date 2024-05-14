@@ -83,12 +83,10 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 /**
  * Deserialization schema from Mongodb ChangeStreamDocument to Flink Table/SQL internal data
  * structure {RowData}.
- *
+ * <p>
  * Copy from com.ververica:flink-connector-mongodb-cdc-2.3.0
  */
-public class MongoDBConnectorDeserializationSchema
-        implements
-            DebeziumDeserializationSchema<RowData> {
+public class MongoDBConnectorDeserializationSchema implements DebeziumDeserializationSchema<RowData> {
 
     private static final long serialVersionUID = 1750787080613035184L;
 
@@ -162,12 +160,14 @@ public class MongoDBConnectorDeserializationSchema
                 }
                 GenericRowData updateAfter = extractRowData(fullDocument);
                 updateAfter.setRowKind(RowKind.UPDATE_AFTER);
-                emit(record, updateAfter, new MetricsCollector<>(out, sourceMetricData));
+                emit(record, updateAfter,
+                        sourceMetricData == null ? out : new MetricsCollector<>(out, sourceMetricData));
                 break;
             case REPLACE:
                 GenericRowData replaceAfter = extractRowData(fullDocument);
                 replaceAfter.setRowKind(RowKind.UPDATE_AFTER);
-                emit(record, replaceAfter, new MetricsCollector<>(out, sourceMetricData));
+                emit(record, replaceAfter,
+                        sourceMetricData == null ? out : new MetricsCollector<>(out, sourceMetricData));
                 break;
             case INVALIDATE:
             case DROP:
