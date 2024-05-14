@@ -37,8 +37,6 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
@@ -63,8 +61,6 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * Copy from com.ververica:flink-connector-mongodb-cdc-2.3.0
  */
 public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetadata {
-
-    private static final Logger LOG = LoggerFactory.getLogger(MongoDBTableSource.class);
 
     private final ResolvedSchema physicalSchema;
     private final String hosts;
@@ -94,7 +90,7 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
     /** Metadata that is appended at the end of a physical source row. */
     protected List<String> metadataKeys;
 
-    private MetricOption metricOption;
+    private final MetricOption metricOption;
 
     public MongoDBTableSource(
             ResolvedSchema physicalSchema,
