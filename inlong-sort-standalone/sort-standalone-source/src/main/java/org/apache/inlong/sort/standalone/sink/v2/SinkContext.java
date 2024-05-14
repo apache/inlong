@@ -40,27 +40,21 @@ import java.util.TimerTask;
 public class SinkContext {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(SinkContext.class);
-
     public static final String KEY_MAX_THREADS = "maxThreads";
     public static final String KEY_PROCESSINTERVAL = "processInterval";
     public static final String KEY_RELOADINTERVAL = "reloadInterval";
     public static final String KEY_TASK_NAME = "taskName";
     public static final String KEY_MAX_BUFFERQUEUE_SIZE_KB = "maxBufferQueueSizeKb";
     public static final int DEFAULT_MAX_BUFFERQUEUE_SIZE_KB = 128 * 1024;
-
     protected final String clusterId;
     protected final String taskName;
     protected final String sinkName;
     protected final Context sinkContext;
-
     protected SortTaskConfig sortTaskConfig;
-
     protected final Channel channel;
-    //
     protected final int maxThreads;
     protected final long processInterval;
     protected final long reloadInterval;
-    //
     protected final SortMetricItemSet metricItemSet;
     protected Timer reloadTimer;
 

@@ -77,32 +77,16 @@ public final class SortSdkSource extends AbstractSource
             EventDrivenSource,
             ConsumerServiceMBean {
 
-    // Log of {@link SortSdkSource}.
     private static final Logger LOG = LoggerFactory.getLogger(SortSdkSource.class);
-
     public static final String SORT_SDK_PREFIX = "sortsdk.";
-
-    // Default pool of {@link ScheduledExecutorService}.
     private static final int CORE_POOL_SIZE = 1;
-
-    // Default consume strategy of {@link SortClient}.
     private static final SortClientConfig.ConsumeStrategy defaultStrategy = SortClientConfig.ConsumeStrategy.lastest;
-
     private static final String KEY_SORT_SDK_CLIENT_NUM = "sortSdkClientNum";
     private static final int DEFAULT_SORT_SDK_CLIENT_NUM = 1;
-
     private String taskName;
-
-    // Context of SortSdkSource.
     private SortSdkSourceContext context;
-
-    // The cluster name of sort.
     private String sortClusterName;
-
-    // Reload config interval.
     private long reloadInterval;
-
-    // Executor for config reloading.
     private ScheduledExecutorService pool;
 
     private List<SortClient> sortClients = new ArrayList<>();
@@ -175,7 +159,6 @@ public final class SortSdkSource extends AbstractSource
                 client = SortClientFactory.createSortClient(clientConfig);
             } else {
                 LOG.info("create sort sdk client in custom way:{}", configType);
-                // user-defined
                 Class<?> loaderClass = ClassUtils.getClass(configType);
                 Object loaderObject = loaderClass.getDeclaredConstructor().newInstance();
                 if (loaderObject instanceof Configurable) {
@@ -190,13 +173,9 @@ public final class SortSdkSource extends AbstractSource
                 client = SortClientFactory.createSortClient(clientConfig, (QueryConsumeConfig) loaderObject);
             }
 
-            // init
             client.init();
-            // temporary use to ACK fetched msg.
             callback.setClient(client);
             return client;
-        } catch (UnknownHostException ex) {
-            LOG.error("got one UnknownHostException when init client of id:{}", sortTaskName, ex);
         } catch (Throwable th) {
             LOG.error("got one throwable when init client of id:{}", sortTaskName, th);
         }
