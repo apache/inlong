@@ -126,8 +126,11 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
                 (RowType) physicalSchema.toPhysicalRowDataType().getLogicalType();
         MetadataConverter[] metadataConverters = getMetadataConverters();
         TypeInformation<RowData> typeInfo = scanContext.createTypeInformation(producedDataType);
-        SourceMetricData sourceMetricData = new SourceMetricData(metricOption);
 
+        SourceMetricData sourceMetricData = null;
+        if (metricOption != null) {
+            sourceMetricData = new SourceMetricData(metricOption);
+        }
         DebeziumDeserializationSchema<RowData> deserializer =
                 RowDataDebeziumDeserializeSchema.newBuilder()
                         .setPhysicalRowType(physicalDataType)
