@@ -244,10 +244,8 @@ public final class RowDataDebeziumDeserializeSchema
             this.changelogMode = changelogMode;
             return this;
         }
-        public Builder setSourceMetricData(MetricOption metricOption) {
-            if (metricOption != null) {
-                this.sourceMetricData = new SourceMetricData(metricOption);
-            }
+        public Builder setSourceMetricData(SourceMetricData sourceMetricData) {
+            this.sourceMetricData = sourceMetricData;
             return this;
         }
 

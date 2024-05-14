@@ -36,6 +36,7 @@ import org.apache.flink.table.connector.source.abilities.SupportsReadingMetadata
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
 
 import java.util.Collections;
 import java.util.List;
@@ -138,7 +139,7 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                                 PostgreSQLDeserializationConverterFactory.instance())
                         .setValueValidator(new PostgresValueValidator(schemaName, tableName))
                         .setChangelogMode(changelogMode)
-                        .setSourceMetricData(metricOption)
+                        .setSourceMetricData(new SourceMetricData(metricOption))
                         .build();
         DebeziumSourceFunction<RowData> sourceFunction =
                 PostgreSQLSource.<RowData>builder()
