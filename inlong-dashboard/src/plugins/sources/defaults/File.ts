@@ -182,7 +182,7 @@ export default class PulsarSource
     initialValue: '0h',
     rules: [
       {
-        pattern: /[0-9][mhd]$/,
+        pattern: /-?[0-9][mhd]$/,
         required: true,
         message: i18n.t('meta.Sources.File.TimeOffsetRules'),
       },
