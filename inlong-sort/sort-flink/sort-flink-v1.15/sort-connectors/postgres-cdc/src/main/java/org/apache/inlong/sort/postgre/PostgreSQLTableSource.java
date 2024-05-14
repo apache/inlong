@@ -139,7 +139,7 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                                 PostgreSQLDeserializationConverterFactory.instance())
                         .setValueValidator(new PostgresValueValidator(schemaName, tableName))
                         .setChangelogMode(changelogMode)
-                        .setSourceMetricData(new SourceMetricData(metricOption))
+                        .setSourceMetricData(metricOption == null ? null : new SourceMetricData(metricOption))
                         .build();
         DebeziumSourceFunction<RowData> sourceFunction =
                 PostgreSQLSource.<RowData>builder()
