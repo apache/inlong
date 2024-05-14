@@ -70,7 +70,7 @@ public class TestDefaultEvent2LogItemHandler {
 
     private ClsIdConfig prepareIdConfig() {
         ClsIdConfig config = new ClsIdConfig();
-        config.setFieldList(Arrays.asList("f1","f2","f3","f4","f5","f6","f7","f8"));
+        config.setFieldList(Arrays.asList("f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8"));
         config.setInlongGroupId("testGroup");
         config.setInlongStreamId("testStream");
         config.setSecretId("testSecretId");
