@@ -17,6 +17,8 @@
 
 package org.apache.inlong.common.pojo.sort.dataflow;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.apache.inlong.common.pojo.sort.dataflow.sink.SinkConfig;
 
 import lombok.Builder;
@@ -27,6 +29,8 @@ import java.util.Map;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class DataFlowConfig implements Serializable {
 
     private String dataflowId;
