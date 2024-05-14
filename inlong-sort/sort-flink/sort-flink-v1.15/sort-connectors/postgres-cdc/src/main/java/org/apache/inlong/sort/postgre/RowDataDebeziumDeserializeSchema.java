@@ -138,7 +138,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             GenericRowData insert = extractAfterRow(value, valueSchema);
             validator.validate(insert, RowKind.INSERT);
             insert.setRowKind(RowKind.INSERT);
-            if (sourceMetricData != null){
+            if (sourceMetricData != null) {
                 out = new MetricsCollector<>(out, sourceMetricData);
             }
             emit(record, insert, out);
@@ -158,7 +158,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             GenericRowData after = extractAfterRow(value, valueSchema);
             validator.validate(after, RowKind.UPDATE_AFTER);
             after.setRowKind(RowKind.UPDATE_AFTER);
-            if (sourceMetricData != null){
+            if (sourceMetricData != null) {
                 out = new MetricsCollector<>(out, sourceMetricData);
             }
             emit(record, after, out);
