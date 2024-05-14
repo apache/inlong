@@ -61,6 +61,7 @@ public class ClsIdConfig {
                 .inlongStreamId(dataFlowConfig.getInlongStreamId())
                 .contentOffset(sinkConfig.getContentOffset())
                 .fieldOffset(sinkConfig.getFieldOffset())
+                .separator(sinkConfig.getSeparator())
                 .fieldList(fields)
                 .topicId(sinkConfig.getTopicId())
                 .endpoint(nodeConfig.getEndpoint())
