@@ -153,7 +153,7 @@ export default class PulsarSource
 
   @FieldDecorator({
     type: 'radio',
-    initialValue: 'R',
+    initialValue: 'H',
     props: values => ({
       disabled: Boolean(values.id),
       options: [
