@@ -21,7 +21,7 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
 
 /** The {@link RowDataDebeziumDeserializeSchema.ValueValidator} for Postgres connector.
- *
+ * <p>
  * Copy from com.ververica:flink-connector-postgres-cdc-2.3.0
  * */
 public final class PostgresValueValidator

@@ -65,12 +65,10 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 /**
  * Deserialization schema from Debezium object to Flink Table/SQL internal data structure {@link
  * RowData}.
- *
+ * <p>
  * Copy from com.ververica:flink-connector-postgres-cdc-2.3.0
  */
-public final class RowDataDebeziumDeserializeSchema
-        implements
-            DebeziumDeserializationSchema<RowData> {
+public final class RowDataDebeziumDeserializeSchema implements DebeziumDeserializationSchema<RowData> {
 
     private static final long serialVersionUID = 2L;
 
@@ -102,7 +100,7 @@ public final class RowDataDebeziumDeserializeSchema
 
     /** Changelog Mode to use for encoding changes in Flink internal data structure. */
     private final DebeziumChangelogMode changelogMode;
-    private SourceMetricData sourceMetricData;
+    private final SourceMetricData sourceMetricData;
 
     /** Returns a builder to build {@link RowDataDebeziumDeserializeSchema}. */
     public static Builder newBuilder() {
@@ -140,7 +138,9 @@ public final class RowDataDebeziumDeserializeSchema
             GenericRowData insert = extractAfterRow(value, valueSchema);
             validator.validate(insert, RowKind.INSERT);
             insert.setRowKind(RowKind.INSERT);
-            out = new MetricsCollector<>(out, sourceMetricData);
+            if (sourceMetricData != null){
+                out = new MetricsCollector<>(out, sourceMetricData);
+            }
             emit(record, insert, out);
         } else if (op == Envelope.Operation.DELETE) {
             GenericRowData delete = extractBeforeRow(value, valueSchema);
@@ -158,7 +158,9 @@ public final class RowDataDebeziumDeserializeSchema
             GenericRowData after = extractAfterRow(value, valueSchema);
             validator.validate(after, RowKind.UPDATE_AFTER);
             after.setRowKind(RowKind.UPDATE_AFTER);
-            out = new MetricsCollector<>(out, sourceMetricData);
+            if (sourceMetricData != null){
+                out = new MetricsCollector<>(out, sourceMetricData);
+            }
             emit(record, after, out);
         }
     }
@@ -202,7 +204,7 @@ public final class RowDataDebeziumDeserializeSchema
         private MetadataConverter[] metadataConverters = new MetadataConverter[0];
         private ValueValidator validator = (rowData, rowKind) -> {
         };
-        private ZoneId serverTimeZone = ZoneId.of("UTC");
+        private final ZoneId serverTimeZone = ZoneId.of("UTC");
         private DeserializationRuntimeConverterFactory userDefinedConverterFactory =
                 DeserializationRuntimeConverterFactory.DEFAULT;
         private DebeziumChangelogMode changelogMode = DebeziumChangelogMode.ALL;
@@ -225,11 +227,6 @@ public final class RowDataDebeziumDeserializeSchema
 
         public Builder setValueValidator(ValueValidator validator) {
             this.validator = validator;
-            return this;
-        }
-
-        public Builder setServerTimeZone(ZoneId serverTimeZone) {
-            this.serverTimeZone = serverTimeZone;
             return this;
         }
 
