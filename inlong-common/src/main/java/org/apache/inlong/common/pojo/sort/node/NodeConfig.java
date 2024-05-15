@@ -24,6 +24,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSub
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
+import java.util.Map;
 
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -36,4 +37,5 @@ public abstract class NodeConfig implements Serializable {
 
     private Integer version;
     private String nodeName;
+    private Map<String, String> properties;
 }
