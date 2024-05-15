@@ -15,29 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.sort.dataflow;
+-- This is the SQL change file from version 1.12.0 to the current version 1.13.0.
+-- When upgrading to version 1.13.0, please execute those SQLs in the DB (such as MySQL) used by the Manager module.
 
-import org.apache.inlong.common.pojo.sort.dataflow.sink.SinkConfig;
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+USE `apache_inlong_manager`;
 
-import java.io.Serializable;
-import java.util.Map;
-
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class DataFlowConfig implements Serializable {
-
-    private String dataflowId;
-    private Integer version;
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private SourceConfig sourceConfig;
-    private SinkConfig sinkConfig;
-    private Map<String, String> properties;
-}
+ALTER TABLE `inlong_cluster_node` ADD COLUMN  `username` varchar(256) DEFAULT NULL COMMENT 'username for ssh';
+ALTER TABLE `inlong_cluster_node` ADD COLUMN  `password` varchar(256) DEFAULT NULL COMMENT 'password for ssh';
+ALTER TABLE `inlong_cluster_node` ADD COLUMN  `ssh_port` int(11) DEFAULT NULL COMMENT 'ssh port';

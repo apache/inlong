@@ -288,7 +288,6 @@ public class DataNodeServiceImpl implements DataNodeService {
     @Override
     public Boolean testConnection(DataNodeRequest request) {
         LOGGER.info("begin test connection for: {}", request);
-        String type = request.getType();
 
         // according to the data node type, test connection
         DataNodeOperator dataNodeOperator = operatorFactory.getInstance(request.getType());

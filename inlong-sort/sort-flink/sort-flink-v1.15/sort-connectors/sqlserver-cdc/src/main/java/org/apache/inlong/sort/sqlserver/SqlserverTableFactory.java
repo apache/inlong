@@ -17,7 +17,8 @@
 
 package org.apache.inlong.sort.sqlserver;
 
-import com.ververica.cdc.connectors.sqlserver.table.SqlServerTableSource;
+import org.apache.inlong.sort.base.metric.MetricOption;
+
 import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
@@ -35,6 +36,7 @@ import java.util.Set;
 import static com.ververica.cdc.debezium.table.DebeziumOptions.DEBEZIUM_OPTIONS_PREFIX;
 import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
 import static com.ververica.cdc.debezium.utils.ResolvedSchemaUtils.getPhysicalSchema;
+import static org.apache.inlong.sort.base.Constants.*;
 
 /** Factory for creating configured instance of {@link com.ververica.cdc.connectors.sqlserver.SqlServerSource}. */
 public class SqlserverTableFactory implements DynamicTableSourceFactory {
@@ -122,6 +124,9 @@ public class SqlserverTableFactory implements DynamicTableSourceFactory {
         options.add(PORT);
         options.add(SERVER_TIME_ZONE);
         options.add(SCAN_STARTUP_MODE);
+        options.add(INLONG_METRIC);
+        options.add(INLONG_AUDIT);
+        options.add(AUDIT_KEYS);
 
         return options;
     }
@@ -144,6 +149,16 @@ public class SqlserverTableFactory implements DynamicTableSourceFactory {
         ResolvedSchema physicalSchema =
                 getPhysicalSchema(context.getCatalogTable().getResolvedSchema());
 
+        String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
+        String auditHostAndPorts = config.get(INLONG_AUDIT);
+        String auditKeys = config.get(AUDIT_KEYS);
+
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withAuditAddress(auditHostAndPorts)
+                .withAuditKeys(auditKeys)
+                .build();
+
         return new SqlServerTableSource(
                 physicalSchema,
                 port,
@@ -155,7 +170,8 @@ public class SqlserverTableFactory implements DynamicTableSourceFactory {
                 username,
                 password,
                 getDebeziumProperties(context.getCatalogTable().getOptions()),
-                getStartupOptions(config));
+                getStartupOptions(config),
+                metricOption);
     }
 
     private static final String SCAN_STARTUP_MODE_VALUE_INITIAL = "initial";

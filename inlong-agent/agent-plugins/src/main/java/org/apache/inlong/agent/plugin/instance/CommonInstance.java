@@ -57,7 +57,7 @@ public abstract class CommonInstance extends Instance {
     private volatile boolean running = false;
     private volatile boolean inited = false;
     private volatile int checkFinishCount = 0;
-    private int heartbeatcheckCount = 0;
+    private int heartbeatCheckCount = 0;
     private long heartBeatStartTime = AgentUtils.getCurrentTime();
     protected long auditVersion;
 
@@ -72,15 +72,15 @@ public abstract class CommonInstance extends Instance {
                     profile.getInstanceId(), profile.toJsonStr());
             source = (Source) Class.forName(profile.getSourceClass()).newInstance();
             source.init(profile);
-            source.start();
             sink = (Sink) Class.forName(profile.getSinkClass()).newInstance();
             sink.init(profile);
             inited = true;
             return true;
         } catch (Throwable e) {
-            handleSourceDeleted();
+            handleDeleted();
             doChangeState(State.FATAL);
-            LOGGER.error("init instance {} for task {} failed", profile.getInstanceId(), profile.getInstanceId(), e);
+            LOGGER.error("init instance {} for task {} failed", profile.getInstanceId(), profile.getInstanceId(),
+                    e);
             ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
             return false;
         }
@@ -117,10 +117,17 @@ public abstract class CommonInstance extends Instance {
     }
 
     private void doRun() {
+        source.start();
         while (!isFinished()) {
             if (!source.sourceExist()) {
-                handleSourceDeleted();
-                break;
+                if (handleDeleted()) {
+                    break;
+                } else {
+                    LOGGER.error("instance manager action queue is full: taskId {}",
+                            instanceManager.getTaskId());
+                    AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
+                    continue;
+                }
             }
             Message msg = source.read();
             if (msg == null) {
@@ -144,8 +151,8 @@ public abstract class CommonInstance extends Instance {
                         AgentUtils.silenceSleepInMs(WRITE_FAILED_WAIT_TIME_MS);
                     }
                 }
-                heartbeatcheckCount++;
-                if (heartbeatcheckCount > HEARTBEAT_CHECK_GAP) {
+                heartbeatCheckCount++;
+                if (heartbeatCheckCount > HEARTBEAT_CHECK_GAP) {
                     heartbeatStatic();
                 }
             }
@@ -156,7 +163,7 @@ public abstract class CommonInstance extends Instance {
         if (AgentUtils.getCurrentTime() - heartBeatStartTime > TimeUnit.SECONDS.toMillis(1)) {
             AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_INSTANCE_HEARTBEAT, profile.getInlongGroupId(),
                     profile.getInlongStreamId(), AgentUtils.getCurrentTime(), 1, 1, auditVersion);
-            heartbeatcheckCount = 0;
+            heartbeatCheckCount = 0;
             heartBeatStartTime = AgentUtils.getCurrentTime();
         }
     }
@@ -169,16 +176,17 @@ public abstract class CommonInstance extends Instance {
         }
     }
 
-    private void handleSourceDeleted() {
+    private boolean handleDeleted() {
         OffsetManager.getInstance().deleteOffset(getTaskId(), getInstanceId());
         profile.setState(InstanceStateEnum.DELETE);
         profile.setModifyTime(AgentUtils.getCurrentTime());
         InstanceAction action = new InstanceAction(ActionType.DELETE, profile);
-        while (!isFinished() && !instanceManager.submitAction(action)) {
-            LOGGER.error("instance manager action queue is full: taskId {}",
-                    instanceManager.getTaskId());
-            AgentUtils.silenceSleepInMs(CORE_THREAD_SLEEP_TIME);
-        }
+        return instanceManager.submitAction(action);
+    }
+
+    @Override
+    public long getLastHeartbeatTime() {
+        return heartBeatStartTime;
     }
 
     @Override

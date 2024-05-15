@@ -17,16 +17,26 @@
 
 package org.apache.inlong.sort.standalone.sink.cls;
 
-import lombok.Data;
+import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.sink.ClsSinkConfig;
+import org.apache.inlong.common.pojo.sort.node.ClsNodeConfig;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Cls config of each uid.
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ClsIdConfig {
 
     private String inlongGroupId;
@@ -36,23 +46,28 @@ public class ClsIdConfig {
     private String secretId;
     private String secretKey;
     private String topicId;
-    private String fieldNames;
+    private List<String> fieldList;
     private int fieldOffset = 2;
     private int contentOffset = 0;
-    private List<String> fieldList;
 
-    /**
-     * Parse fieldNames to list of fields.
-     * @return List of fields.
-     */
-    public List<String> getFieldList() {
-        if (fieldList == null) {
-            this.fieldList = new ArrayList<>();
-            if (fieldNames != null) {
-                String[] fieldNameArray = fieldNames.split("\\s+");
-                this.fieldList.addAll(Arrays.asList(fieldNameArray));
-            }
-        }
-        return fieldList;
+    public static ClsIdConfig create(DataFlowConfig dataFlowConfig, ClsNodeConfig nodeConfig) {
+        ClsSinkConfig sinkConfig = (ClsSinkConfig) dataFlowConfig.getSinkConfig();
+        List<String> fields = sinkConfig.getFieldConfigs()
+                .stream()
+                .map(FieldConfig::getName)
+                .collect(Collectors.toList());
+        return ClsIdConfig.builder()
+                .inlongGroupId(dataFlowConfig.getInlongGroupId())
+                .inlongStreamId(dataFlowConfig.getInlongStreamId())
+                .contentOffset(sinkConfig.getContentOffset())
+                .fieldOffset(sinkConfig.getFieldOffset())
+                .separator(sinkConfig.getSeparator())
+                .fieldList(fields)
+                .topicId(sinkConfig.getTopicId())
+                .endpoint(nodeConfig.getEndpoint())
+                .secretId(nodeConfig.getSendSecretId())
+                .secretKey(nodeConfig.getSendSecretKey())
+                .build();
     }
+
 }

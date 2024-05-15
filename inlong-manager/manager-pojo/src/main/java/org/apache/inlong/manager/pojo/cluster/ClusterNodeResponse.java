@@ -52,6 +52,15 @@ public class ClusterNodeResponse {
     @ApiModelProperty(value = "Cluster port")
     private Integer port;
 
+    @ApiModelProperty(value = "Username")
+    private String username;
+
+    @ApiModelProperty(value = "password")
+    private String password;
+
+    @ApiModelProperty(value = "SSH port")
+    private Integer sshPort;
+
     @ApiModelProperty(value = "Cluster protocol type")
     private String protocolType;
 

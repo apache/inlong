@@ -39,9 +39,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_IN_CHARGES;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HTTP_PORT;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_NODE_GROUP;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_HTTP_PORT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_HEARTBEAT_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH;
 
@@ -148,7 +146,6 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
      */
     private HeartbeatMsg buildHeartbeatMsg() {
         final String agentIp = AgentUtils.fetchLocalIp();
-        final int agentPort = conf.getInt(AGENT_HTTP_PORT, DEFAULT_AGENT_HTTP_PORT);
         final String clusterName = conf.get(AGENT_CLUSTER_NAME);
         final String clusterTag = conf.get(AGENT_CLUSTER_TAG);
         final String inCharges = conf.get(AGENT_CLUSTER_IN_CHARGES);
@@ -156,7 +153,6 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
 
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         heartbeatMsg.setIp(agentIp);
-        heartbeatMsg.setPort(String.valueOf(agentPort));
         heartbeatMsg.setComponentType(ComponentTypeEnum.Agent.getType());
         heartbeatMsg.setReportTime(System.currentTimeMillis());
         if (StringUtils.isNotBlank(clusterName)) {
@@ -183,7 +179,6 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         heartbeatMsg.setNodeSrvStatus(NodeSrvStatus.SERVICE_UNINSTALL);
         heartbeatMsg.setInCharges(conf.get(AGENT_CLUSTER_IN_CHARGES));
         heartbeatMsg.setIp(AgentUtils.fetchLocalIp());
-        heartbeatMsg.setPort(String.valueOf(conf.getInt(AGENT_HTTP_PORT, DEFAULT_AGENT_HTTP_PORT)));
         heartbeatMsg.setComponentType(ComponentTypeEnum.Agent.getType());
         heartbeatMsg.setClusterName(conf.get(AGENT_CLUSTER_NAME));
         heartbeatMsg.setClusterTag(conf.get(AGENT_CLUSTER_TAG));
