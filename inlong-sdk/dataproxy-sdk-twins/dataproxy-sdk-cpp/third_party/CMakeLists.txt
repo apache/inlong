@@ -27,7 +27,6 @@ include(ExternalProject)
 
 ExternalProject_Add(
         log4cplus
-        PREFIX ${LOG4CPLUS_BINARY_DIR}
         GIT_REPOSITORY https://github.com/log4cplus/log4cplus.git
         GIT_TAG REL_2_0_8
         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR} -DBUILD_SHARED_LIBS=OFF
