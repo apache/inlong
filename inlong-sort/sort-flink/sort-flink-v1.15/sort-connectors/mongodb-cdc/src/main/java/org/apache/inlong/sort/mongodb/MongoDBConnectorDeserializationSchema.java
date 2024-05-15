@@ -145,7 +145,8 @@ public class MongoDBConnectorDeserializationSchema implements DebeziumDeserializ
             case INSERT:
                 GenericRowData insert = extractRowData(fullDocument);
                 insert.setRowKind(RowKind.INSERT);
-                emit(record, insert, new MetricsCollector<>(out, sourceMetricData));
+                emit(record, insert,
+                        sourceMetricData == null ? out : new MetricsCollector<>(out, sourceMetricData));
                 break;
             case DELETE:
                 GenericRowData delete = extractRowData(documentKey);
