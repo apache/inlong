@@ -84,6 +84,7 @@ public class ClusterConfigListener implements ClusterOperateListener {
                             CommonBeanUtils.copyProperties(pulsarCluster, PulsarClusterConfig::new);
                     pulsarClusterConfig.setVersion(String.valueOf(pulsarCluster.getVersion()));
                     pulsarClusterConfig.setClusterName(pulsarCluster.getName());
+                    pulsarClusterConfig.setServiceUrl(pulsarCluster.getUrl());
                     list.add(pulsarClusterConfig);
                 }
                 clusterConfigEntity.setConfigParams(objectMapper.writeValueAsString(list));

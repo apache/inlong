@@ -247,7 +247,7 @@ public class ConfigManager {
             try {
                 String managerHosts = configManager.getProperties(DEFAULT_CONFIG_PROPERTIES).get("manager.hosts");
                 String proxyClusterTag = configManager.getProperties(DEFAULT_CONFIG_PROPERTIES)
-                        .get("proxy.cluster.tag");
+                        .get("default.mq.cluster.tag");
                 LOG.info("manager url: {}", managerHosts);
                 String[] hostList = StringUtils.split(managerHosts, ",");
                 for (String host : hostList) {

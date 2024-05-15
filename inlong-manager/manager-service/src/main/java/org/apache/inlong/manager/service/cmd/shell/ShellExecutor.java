@@ -15,27 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.sortstandalone;
+package org.apache.inlong.manager.service.cmd.shell;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public interface ShellExecutor {
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class SortConfigResponse {
-
-    public static final int SUCC = 0;
-    public static final int NO_UPDATE = 1;
-    public static final int FAIL = -1;
-    public static final int REQUEST_PARAMS_ERROR = -101;
-
-    String msg;
-    int code;
-    String md5;
-    String data;
+    /**
+     * Execute shell commands
+     *
+     * @param shellPath shell path
+     * @param params params
+     */
+    void syncExec(String shellPath, String... params);
 
 }

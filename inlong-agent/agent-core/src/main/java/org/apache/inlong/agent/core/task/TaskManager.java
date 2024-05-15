@@ -58,7 +58,7 @@ public class TaskManager extends AbstractDaemon {
     public static final int CONFIG_QUEUE_CAPACITY = 1;
     public static final int CORE_THREAD_SLEEP_TIME = 1000;
     public static final int CORE_THREAD_PRINT_TIME = 10000;
-    private static final int ACTION_QUEUE_CAPACITY = 100000;
+    private static final int ACTION_QUEUE_CAPACITY = 1000;
     private long lastPrintTime = 0;
     // task basic db
     private final Db taskBasicDb;

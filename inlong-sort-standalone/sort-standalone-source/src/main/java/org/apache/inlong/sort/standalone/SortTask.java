@@ -40,6 +40,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 
  * SortTask
  */
+@Deprecated
 public class SortTask {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(SortTask.class);

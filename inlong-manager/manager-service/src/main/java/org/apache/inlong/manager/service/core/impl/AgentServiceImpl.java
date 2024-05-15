@@ -103,7 +103,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -162,9 +161,6 @@ public class AgentServiceImpl implements AgentService {
     private Integer dataAddTaskCleanInterval;
     @Value("${add.task.retention.days:7}")
     private Integer retentionDays;
-
-    @Value("#{${module.name.map:{'agent':1}}}")
-    private Map<String, Integer> moduleNameIdMap = new HashMap<>();
 
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
@@ -860,7 +856,7 @@ public class AgentServiceImpl implements AgentService {
         for (Integer moduleId : moduleIdList) {
             ModuleConfigEntity moduleConfigEntity = moduleConfigEntityMapper.selectByPrimaryKey(moduleId);
             ModuleConfig moduleConfig = CommonBeanUtils.copyProperties(moduleConfigEntity, ModuleConfig::new);
-            moduleConfig.setId(moduleNameIdMap.getOrDefault(moduleConfigEntity.getName(), 1));
+            moduleConfig.setId(ModuleType.forType(moduleConfigEntity.getType()).getModuleId());
             PackageConfigEntity packageConfigEntity =
                     packageConfigEntityMapper.selectByPrimaryKey(moduleConfigEntity.getPackageId());
             moduleConfig

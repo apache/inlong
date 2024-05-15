@@ -33,6 +33,7 @@ services:
     volumes:
       - ./mysql:/var/lib/mysql
       - ./sql:/docker-entrypoint-initdb.d
+    command: --authentication_policy=mysql_native_password
 
   pulsar:
     image: apachepulsar/pulsar:2.8.2
@@ -98,8 +99,6 @@ services:
       - DATAPROXY_IP=dataproxy
       - DATAPROXY_PORT=46801
       - AUDIT_PROXY_URL=audit:10081
-    ports:
-      - "8008:8008"
     volumes:
       - ./collect-data:/data/collect-data
 

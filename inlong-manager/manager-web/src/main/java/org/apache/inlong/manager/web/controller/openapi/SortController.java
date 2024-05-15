@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.web.controller.openapi;
 
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
+import org.apache.inlong.common.pojo.sort.SortConfigResponse;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
-import org.apache.inlong.common.pojo.sortstandalone.SortConfigResponse;
 import org.apache.inlong.manager.service.core.SortService;
 
 import io.swagger.annotations.Api;

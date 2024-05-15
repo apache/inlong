@@ -41,6 +41,7 @@ import static org.apache.inlong.sort.standalone.utils.Constants.RELOAD_INTERVAL;
 /**
  * SortCluster
  */
+@Deprecated
 public class SortCluster {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(SortCluster.class);
