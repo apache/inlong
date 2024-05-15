@@ -47,7 +47,7 @@ public class ClsSink extends AbstractSink implements Configurable {
                 worker.start();
             }
         } catch (Exception e) {
-            LOG.error("failed to start cls sink", e);
+            LOG.error("failed to start cls sink, ex={}", e.getMessage(), e);
         }
     }
 
@@ -61,7 +61,7 @@ public class ClsSink extends AbstractSink implements Configurable {
             }
             this.workers.clear();
         } catch (Exception e) {
-            LOG.error("failed to stop cls sink", e);
+            LOG.error("failed to stop cls sink, ex={}", e.getMessage(), e);
         }
     }
 

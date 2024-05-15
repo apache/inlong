@@ -93,9 +93,12 @@ public final class SortSdkSource extends AbstractSource
     @Override
     public synchronized void start() {
         int sortSdkClientNum = CommonPropertiesHolder.getInteger(KEY_SORT_SDK_CLIENT_NUM, DEFAULT_SORT_SDK_CLIENT_NUM);
-        LOG.info("start to SortSdkSource:{}, client num is {}", taskName, sortSdkClientNum);
+        LOG.info("start SortSdkSource:{}, client num is {}", taskName, sortSdkClientNum);
         for (int i = 0; i < sortSdkClientNum; i++) {
-            this.sortClients.add(this.newClient(taskName));
+            SortClient client = this.newClient(taskName);
+            if (client != null) {
+                this.sortClients.add(client);
+            }
         }
     }
 
@@ -134,7 +137,7 @@ public final class SortSdkSource extends AbstractSource
     }
 
     private SortClient newClient(final String sortTaskName) {
-        LOG.info("start to new sort client for task: {}", sortTaskName);
+        LOG.info("start a new sort client for task: {}", sortTaskName);
         try {
             final SortClientConfig clientConfig = new SortClientConfig(sortTaskName, this.sortClusterName,
                     new DefaultTopicChangeListener(),
@@ -164,7 +167,7 @@ public final class SortSdkSource extends AbstractSource
                     ((Configurable) loaderObject).configure(new Context(CommonPropertiesHolder.get()));
                 }
                 if (!(loaderObject instanceof QueryConsumeConfig)) {
-                    LOG.error("got exception when create QueryConsumeConfig instance,config key:{},config class:{}",
+                    LOG.error("got exception when create QueryConsumeConfig instance, config key:{},config class:{}",
                             SortSourceConfigType.KEY_TYPE, configType);
                     return null;
                 }
