@@ -97,7 +97,9 @@ class DynamicKafkaRecordSerializationSchema implements KafkaRecordSerializationS
                             context.getPartitionsForTopic(topic)),
                     null,
                     valueSerialized);
-            sinkMetricData.invoke(1, getDataSize(record));
+            if (sinkMetricData != null) {
+                sinkMetricData.invoke(1, getDataSize(record));
+            }
             return record;
         }
         final byte[] keySerialized;

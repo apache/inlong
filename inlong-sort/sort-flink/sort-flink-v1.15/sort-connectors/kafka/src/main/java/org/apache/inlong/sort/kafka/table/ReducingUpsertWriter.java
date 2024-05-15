@@ -154,10 +154,17 @@ class ReducingUpsertWriter<WriterState>
     }
 
     private void flush() throws IOException, InterruptedException {
-        for (Tuple2<RowData, Long> value : reduceBuffer.values()) {
-            wrappedContext.setTimestamp(value.f1);
-            wrappedWriter.write(value.f0, wrappedContext);
-            sourceMetricData.outputMetricsWithEstimate(value.f0);
+        if (sourceMetricData != null) {
+            for (Tuple2<RowData, Long> value : reduceBuffer.values()) {
+                wrappedContext.setTimestamp(value.f1);
+                wrappedWriter.write(value.f0, wrappedContext);
+                sourceMetricData.outputMetricsWithEstimate(value.f0);
+            }
+        } else {
+            for (Tuple2<RowData, Long> value : reduceBuffer.values()) {
+                wrappedContext.setTimestamp(value.f1);
+                wrappedWriter.write(value.f0, wrappedContext);
+            }
         }
         lastFlush = System.currentTimeMillis();
         reduceBuffer.clear();
