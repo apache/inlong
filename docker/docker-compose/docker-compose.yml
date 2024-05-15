@@ -99,8 +99,6 @@ services:
       - DATAPROXY_IP=dataproxy
       - DATAPROXY_PORT=46801
       - AUDIT_PROXY_URL=audit:10081
-    ports:
-      - "8008:8008"
     volumes:
       - ./collect-data:/data/collect-data
 

@@ -15,36 +15,47 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
-
-import java.util.Objects;
+package org.apache.inlong.manager.service.cmd;
 
 /**
- * Constant of module type.
+ * Command result
  */
-public enum ModuleType {
+public class CommandResult {
 
-    AGENT(1),
-    INSTALLER(2),
-    UNKNOWN(3);
+    private int code = 0;
+    private String result;
+    private String errMsg;
 
-    final int moduleId;
-
-    ModuleType(int moduleId) {
-        this.moduleId = moduleId;
+    public int getCode() {
+        return code;
     }
 
-    public int getModuleId() {
-        return moduleId;
+    public void setCode(int code) {
+        this.code = code;
     }
 
-    public static ModuleType forType(String type) {
-        for (ModuleType moduleType : ModuleType.values()) {
-            if (Objects.equals(moduleType.name(), type)) {
-                return moduleType;
-            }
-        }
-        return UNKNOWN;
+    public String getResult() {
+        return result;
     }
 
+    public void setResult(String result) {
+        this.result = result;
+    }
+
+    public String getErrMsg() {
+        return errMsg;
+    }
+
+    public void setErrMsg(String errMsg) {
+        this.errMsg = errMsg;
+    }
+
+    @Override
+    public String toString() {
+        return "CommandResult{" +
+                "code=" + code +
+                ", stdout='" + result + '\'' +
+                ", stderr='" + errMsg + '\'' +
+                '}';
+    }
 }

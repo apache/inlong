@@ -32,6 +32,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +70,7 @@ public class TestDefaultEvent2LogItemHandler {
 
     private ClsIdConfig prepareIdConfig() {
         ClsIdConfig config = new ClsIdConfig();
-        config.setFieldNames("f1 f2 f3 f4 f5 f6 f7 f8");
+        config.setFieldList(Arrays.asList("f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8"));
         config.setInlongGroupId("testGroup");
         config.setInlongStreamId("testStream");
         config.setSecretId("testSecretId");

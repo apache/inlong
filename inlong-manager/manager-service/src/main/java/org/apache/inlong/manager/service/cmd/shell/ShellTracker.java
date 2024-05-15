@@ -15,30 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.sort.dataflow;
+package org.apache.inlong.manager.service.cmd.shell;
 
-import org.apache.inlong.common.pojo.sort.dataflow.sink.SinkConfig;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class DataFlowConfig implements Serializable {
+public class ShellTracker {
 
-    private String dataflowId;
-    private Integer version;
-    private String auditTag;
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private SourceConfig sourceConfig;
-    private SinkConfig sinkConfig;
-    private Map<String, String> properties;
+    private List<String> result = new ArrayList<>();
+    private int code;
+    private Long processId;
+    private String runResult;
+
+    public void lineChange(String line) {
+        result.add(line);
+    }
 }

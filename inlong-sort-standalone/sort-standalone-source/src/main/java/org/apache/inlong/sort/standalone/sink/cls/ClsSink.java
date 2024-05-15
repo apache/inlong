@@ -27,13 +27,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Cls Sink implementation.
- *
- * <p>
- *     Response for initialization of {@link ClsChannelWorker}.
- * </p>
- */
 public class ClsSink extends AbstractSink implements Configurable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClsSink.class);
@@ -42,9 +35,6 @@ public class ClsSink extends AbstractSink implements Configurable {
     private ClsSinkContext context;
     private List<ClsChannelWorker> workers = new ArrayList<>();
 
-    /**
-     * Start {@link ClsChannelWorker}.
-     */
     @Override
     public void start() {
         super.start();
@@ -57,13 +47,10 @@ public class ClsSink extends AbstractSink implements Configurable {
                 worker.start();
             }
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error("failed to start cls sink, ex={}", e.getMessage(), e);
         }
     }
 
-    /**
-     * Stop {@link ClsChannelWorker}.
-     */
     @Override
     public void stop() {
         super.stop();
@@ -74,24 +61,15 @@ public class ClsSink extends AbstractSink implements Configurable {
             }
             this.workers.clear();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error("failed to stop cls sink, ex={}", e.getMessage(), e);
         }
     }
 
-    /**
-     * Process.
-     * @return Status
-     * @throws EventDeliveryException
-     */
     @Override
     public Status process() throws EventDeliveryException {
         return Status.BACKOFF;
     }
 
-    /**
-     * Config parent context.
-     * @param context Parent context.
-     */
     @Override
     public void configure(Context context) {
         LOG.info("start to configure:{}, context:{}.", this.getName(), context.toString());

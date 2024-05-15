@@ -53,4 +53,6 @@ public abstract class Instance extends AbstractStateWrapper {
      * get instance id
      */
     public abstract String getInstanceId();
+
+    public abstract long getLastHeartbeatTime();
 }

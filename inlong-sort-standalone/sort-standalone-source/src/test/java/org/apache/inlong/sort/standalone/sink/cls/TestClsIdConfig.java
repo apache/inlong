@@ -23,6 +23,7 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(PowerMockRunner.class)
@@ -32,8 +33,7 @@ public class TestClsIdConfig {
     @Test
     public void testGetFieldList() {
         ClsIdConfig idConfig = new ClsIdConfig();
-        String testFieldName = "1 2 3 4 5 6 7";
-        idConfig.setFieldNames(testFieldName);
+        idConfig.setFieldList(Arrays.asList("1", "2", "3", "4", "5", "6", "7"));
         List<String> fieldList = idConfig.getFieldList();
         Assert.assertEquals(7, fieldList.size());
     }

@@ -162,6 +162,8 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                 .sourceConfig(getSourceConfig(groupInfo, streamInfo, sink))
                 .auditTag(String.valueOf(sink.getId()))
                 .sinkConfig(getSinkConfig(sink))
+                .inlongGroupId(groupInfo.getInlongGroupId())
+                .inlongStreamId(streamInfo.getInlongStreamId())
                 .build();
     }
 

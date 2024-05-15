@@ -97,6 +97,8 @@ public class TaskProfileDto {
 
     private static final Gson GSON = new Gson();
 
+    public static final String deafult_time_offset = "0";
+
     private Task task;
     private Proxy proxy;
 
@@ -157,9 +159,10 @@ public class TaskProfileDto {
         fileTask.setCycleUnit(taskConfig.getCycleUnit());
         fileTask.setStartTime(taskConfig.getStartTime());
         fileTask.setEndTime(taskConfig.getEndTime());
-        fileTask.setProperties(GSON.toJson(taskConfig.getProperties()));
         if (taskConfig.getTimeOffset() != null) {
             fileTask.setTimeOffset(taskConfig.getTimeOffset());
+        } else {
+            fileTask.setTimeOffset(deafult_time_offset + fileTask.getCycleUnit());
         }
 
         if (taskConfig.getAdditionalAttr() != null) {

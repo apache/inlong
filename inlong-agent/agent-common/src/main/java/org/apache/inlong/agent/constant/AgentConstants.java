@@ -39,8 +39,6 @@ public class AgentConstants {
     public static final String AGENT_FETCHER_CLASSNAME = "agent.fetcher.classname";
     public static final String AGENT_CONF_PARENT = "agent.conf.parent";
     public static final String DEFAULT_AGENT_CONF_PARENT = "conf";
-    public static final String AGENT_HTTP_PORT = "agent.http.port";
-    public static final int DEFAULT_AGENT_HTTP_PORT = 8008;
     public static final String CHANNEL_MEMORY_CAPACITY = "channel.memory.capacity";
     public static final int DEFAULT_CHANNEL_MEMORY_CAPACITY = 2000;
     public static final String JOB_NUMBER_LIMIT = "job.number.limit";
