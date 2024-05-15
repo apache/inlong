@@ -30,4 +30,7 @@ public class PulsarClusterConfig extends MqClusterConfig {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String serviceUrl;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String token;
 }

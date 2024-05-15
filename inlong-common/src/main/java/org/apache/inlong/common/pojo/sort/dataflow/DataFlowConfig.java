@@ -35,6 +35,7 @@ public class DataFlowConfig implements Serializable {
 
     private String dataflowId;
     private Integer version;
+    private String auditTag;
     private String inlongGroupId;
     private String inlongStreamId;
     private SourceConfig sourceConfig;

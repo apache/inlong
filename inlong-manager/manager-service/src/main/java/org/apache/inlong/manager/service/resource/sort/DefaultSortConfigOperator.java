@@ -160,6 +160,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         return DataFlowConfig.builder()
                 .dataflowId(String.valueOf(sink.getId()))
                 .sourceConfig(getSourceConfig(groupInfo, streamInfo, sink))
+                .auditTag(String.valueOf(sink.getId()))
                 .sinkConfig(getSinkConfig(sink))
                 .inlongGroupId(groupInfo.getInlongGroupId())
                 .inlongStreamId(streamInfo.getInlongStreamId())
