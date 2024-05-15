@@ -19,14 +19,18 @@ package org.apache.inlong.common.pojo.sort;
 
 import org.apache.inlong.common.pojo.sort.node.NodeConfig;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class SortTaskConfig implements Serializable {
 
     private String sortTaskName;
