@@ -26,6 +26,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error")
 include(ExternalProject)
 
 ExternalProject_Add(
+        log4cplus
+        GIT_REPOSITORY https://github.com/log4cplus/log4cplus.git
+        GIT_TAG REL_2_0_8
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR} -DBUILD_SHARED_LIBS=OFF
+)
+
+ExternalProject_Add(
         snappy_proj
         URL https://github.com/google/snappy/archive/1.1.8.tar.gz
         CMAKE_ARGS
