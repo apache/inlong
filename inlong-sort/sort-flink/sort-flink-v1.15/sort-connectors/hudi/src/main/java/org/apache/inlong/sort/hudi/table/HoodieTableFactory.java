@@ -65,7 +65,7 @@ public class HoodieTableFactory implements DynamicTableSinkFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(HoodieTableFactory.class);
 
-    public static final String FACTORY_ID = "hudi";
+    public static final String FACTORY_ID = "hudi-inlong";
 
     @Override
     public DynamicTableSink createDynamicTableSink(Context context) {
@@ -100,7 +100,11 @@ public class HoodieTableFactory implements DynamicTableSinkFactory {
 
     @Override
     public Set<ConfigOption<?>> optionalOptions() {
-        return FlinkOptions.optionalOptions();
+            Set<ConfigOption<?>> configOptions = FlinkOptions.optionalOptions();
+            configOptions.add(AUDIT_KEYS);
+            configOptions.add(INLONG_METRIC);
+            configOptions.add(INLONG_AUDIT);
+        return configOptions;
     }
 
     // -------------------------------------------------------------------------
