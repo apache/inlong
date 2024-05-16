@@ -94,10 +94,9 @@ export const getFormContent = (initialValues, onSearch) => [
       dropdownMatchSelectWidth: false,
       options: {
         requestAuto: true,
-        requestTrigger: ['onOpen', 'onSearch'],
-        requestService: async keyword => {
-          const res = await request('/audit/getAuditBases');
-          return keyword === undefined ? res : res.filter(audit => audit.name.includes(keyword));
+        requestTrigger: ['onOpen'],
+        requestService: () => {
+          return request('/audit/getAuditBases');
         },
         requestParams: {
           formatResult: result =>
@@ -107,6 +106,7 @@ export const getFormContent = (initialValues, onSearch) => [
             })) || [],
         },
       },
+      filterOption: (keyword, option) => option.label.includes(keyword),
     },
   },
   {
@@ -119,10 +119,9 @@ export const getFormContent = (initialValues, onSearch) => [
       dropdownMatchSelectWidth: false,
       options: {
         requestAuto: true,
-        requestTrigger: ['onOpen', 'onSearch'],
-        requestService: async keyword => {
-          const res = await request('/audit/getAuditBases');
-          return keyword === undefined ? res : res.filter(audit => audit.name.includes(keyword));
+        requestTrigger: ['onOpen'],
+        requestService: () => {
+          return request('/audit/getAuditBases');
         },
         requestParams: {
           formatResult: result =>
@@ -132,6 +131,7 @@ export const getFormContent = (initialValues, onSearch) => [
             })) || [],
         },
       },
+      filterOption: (keyword, option) => option.label.includes(keyword),
     },
   },
   {
