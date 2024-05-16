@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.hudi.table.sink;
+package org.apache.inlong.sort.hudi.table;
 
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
-import org.apache.hudi.table.HoodieTableFactory;
 
 import java.util.Set;
 
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
@@ -47,6 +47,7 @@ public class HudiTableInlongFactory extends HoodieTableFactory {
     @Override
     public Set<ConfigOption<?>> optionalOptions() {
         Set<ConfigOption<?>> configOptions = super.optionalOptions();
+        configOptions.add(AUDIT_KEYS);
         configOptions.add(INLONG_METRIC);
         configOptions.add(INLONG_AUDIT);
         return configOptions;
