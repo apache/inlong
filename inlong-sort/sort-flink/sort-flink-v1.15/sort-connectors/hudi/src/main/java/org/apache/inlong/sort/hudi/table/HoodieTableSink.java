@@ -35,8 +35,6 @@ import org.apache.hudi.configuration.FlinkOptions;
 import org.apache.hudi.configuration.OptionsInference;
 import org.apache.hudi.configuration.OptionsResolver;
 import org.apache.hudi.util.ChangelogModes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -46,8 +44,6 @@ import java.util.Map;
  * Copy from org.apache.hudi:hudi-flink1.15-bundle:0.12.3
  */
 public class HoodieTableSink implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
-
-    private static final Logger LOG = LoggerFactory.getLogger(HoodieTableSink.class);
 
     private final Configuration conf;
     private final ResolvedSchema schema;
@@ -84,17 +80,14 @@ public class HoodieTableSink implements DynamicTableSink, SupportsPartitioning, 
             // bulk_insert mode
             final String writeOperation = this.conf.get(FlinkOptions.OPERATION);
             if (WriteOperationType.fromValue(writeOperation) == WriteOperationType.BULK_INSERT) {
-                LOG.info("HudiSink----------- bulkInsert");
                 return Pipelines.bulkInsert(conf, rowType, dataStream, metricOption);
             }
 
             // Append mode
             if (OptionsResolver.isAppendMode(conf)) {
-                LOG.info("HudiSink----------- append");
                 DataStream<Object> pipeline =
                         Pipelines.append(conf, rowType, dataStream, context.isBounded(), metricOption);
                 if (OptionsResolver.needsAsyncClustering(conf)) {
-                    LOG.info("HudiSink----------- cluster");
                     return Pipelines.cluster(conf, rowType, pipeline);
                 } else {
                     return Pipelines.dummySink(pipeline);
