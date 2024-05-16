@@ -58,7 +58,7 @@ public class AuditReporterImpl implements Serializable {
     private static final long DEFAULT_AUDIT_VERSION = -1;
     private static final int BATCH_NUM = 100;
     private static final int PERIOD = 1000 * 60;
-    // Resource isolation key is used in checkpoint and other scenarios.DEFAULT 0.
+    // Resource isolation key is used in checkpoint, the default value is 0.
     private static final long DEFAULT_ISOLATE_KEY = 0;
     private final ReentrantLock GLOBAL_LOCK = new ReentrantLock();
     private final ConcurrentHashMap<Long, ConcurrentHashMap<String, StatInfo>> preStatMap =
@@ -503,7 +503,7 @@ public class AuditReporterImpl implements Serializable {
     }
 
     /**
-     * Generate success and failure, real-time and non-real-time, retry, discard and other Audit item IDs through the baseline Audit ID.
+     *  Generate Audit item IDs.
      *
      * @param baseAuditId
      * @param success

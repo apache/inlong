@@ -11,8 +11,8 @@ The Audit Sdk uses log production time as the audit standard,
 which can ensure that each module is reconciled in accordance with the unified audit standard.
 
 ## Usage
-### SetAuditProxy API
-Set the AuditProxy ip:port list. The Audit Sdk will summarize the results according to the cycle 
+### Configure Audit Proxy Addresses
+The Audit SDK will summarize the results according to the cycle  
 and send them to the ip:port list set by the interface.
 If the ip:port of the AuditProxy is fixed, then this interface needs to be called once. 
 If the AuditProxy changes in real time, then the business program needs to call this interface periodically to update
@@ -22,7 +22,7 @@ If the AuditProxy changes in real time, then the business program needs to call 
     AuditOperator.getInstance().setAuditProxy(ipPortList);
 ```
 
-### Add API
+### Description for Add API
 Call the add method for statistics, where the auditID parameter uniquely identifies an audit object,
 inlongGroupID,inlongStreamID,logTime are audit dimensions, count is the number of items, size is the size, and logTime
 is milliseconds.
@@ -57,11 +57,11 @@ The scenario of supplementary recording of DataProxy data, so the version number
         auditReporter.add(isolateKey, auditID, auditTag, inlongGroupID, inlongStreamID,
          logTime, count, size, auditVersion)
 ```
-
-##### AuditReporterImpl
 In order to ensure the accuracy of auditing, each operator needs to create an auditAuditReporterImpl instance.
-##### Explain of AuditDimensions
-| parameter      | meaning                                                                                          |
+
+- Explain of AuditDimensions
+
+| parameter      | description                                                                                          |
 |----------------|--------------------------------------------------------------------------------------------------|
 | auditID        | audit id,each module's reception and transmission will be assigned its own independent audit-id. |   
 | logTime        | log time ,each module uses the log time of the data source uniformly                             |     
@@ -71,8 +71,9 @@ In order to ensure the accuracy of auditing, each operator needs to create an au
 | inlongGroupID  | inlongGroupID                                                                                    |
 | inlongStreamID | inlongStreamID                                                                                   | 
 
-##### Explain of AuditValues
-| parameter       | meaning       |
+- Explain of AuditValues
+
+| parameter       | description       |
 |----------|----------|
 | count  | count  |   
 | size | size   |     
@@ -86,7 +87,7 @@ In order to ensure the accuracy of auditing, each operator needs to create an au
         boolean discard,
         boolean retry);
 ```
-| parameter       | meaning                                                                      |
+| parameter       | description                                                                      |
 |----------|------------------------------------------------------------------------------|
 | baseAuditId  | Each module is assigned two baseAuditId. For details, please see AuditIdEnum |   
 | success | Success and failure flags                                                    |     

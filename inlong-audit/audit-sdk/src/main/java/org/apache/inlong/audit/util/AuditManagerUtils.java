@@ -55,7 +55,7 @@ public class AuditManagerUtils {
     }
 
     /**
-     * Generate success and failure, real-time and non-real-time, retry, discard and other Audit item IDs through the baseline Audit ID.
+     *  Generate Audit item IDs.
      *
      * @param baseAuditId
      * @param success
