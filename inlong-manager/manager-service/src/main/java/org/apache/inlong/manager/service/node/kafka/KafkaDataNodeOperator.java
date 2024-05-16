@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.service.node.kafka;
 
+import org.apache.inlong.common.pojo.sort.node.ClsNodeConfig;
+import org.apache.inlong.common.pojo.sort.node.KafkaNodeConfig;
+import org.apache.inlong.common.pojo.sort.node.NodeConfig;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -117,6 +120,15 @@ public class KafkaDataNodeOperator extends AbstractDataNodeOperator {
                     bootstrapServers);
         }
         return true;
+    }
+
+
+    @Override
+    public NodeConfig getNodeConfig(DataNodeEntity dataNodeEntity) {
+        DataNodeInfo dataNodeInfo = this.getFromEntity(dataNodeEntity);
+        KafkaNodeConfig kafkaNodeConfig = CommonBeanUtils.copyProperties(dataNodeInfo, KafkaNodeConfig::new);
+        kafkaNodeConfig.setNodeName(dataNodeInfo.getName());
+        return kafkaNodeConfig;
     }
 
     private boolean getKafkaConnection(String bootstrapServers) {

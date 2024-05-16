@@ -17,26 +17,12 @@
 
 package org.apache.inlong.common.pojo.sort.node;
 
-import org.apache.inlong.common.constant.DataNodeType;
-
 import lombok.Data;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import java.io.Serializable;
-import java.util.Map;
 
 @Data
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = ClsNodeConfig.class, name = DataNodeType.CLS),
-        @JsonSubTypes.Type(value = EsNodeConfig.class, name = DataNodeType.ELASTICSEARCH),
-        @JsonSubTypes.Type(value = PulsarNodeConfig.class, name = DataNodeType.PULSAR),
-        @JsonSubTypes.Type(value = KafkaNodeConfig.class, name = DataNodeType.KAFKA),
-})
-public abstract class NodeConfig implements Serializable {
+public class KafkaNodeConfig extends NodeConfig {
 
-    private Integer version;
-    private String nodeName;
-    private Map<String, String> properties;
+    private String bootstrapServers;
+    private String clientId;
+    private String acks;
 }
