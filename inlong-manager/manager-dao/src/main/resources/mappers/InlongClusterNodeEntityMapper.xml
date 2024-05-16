@@ -95,7 +95,12 @@
         and parent_id = #{parentId,jdbcType=INTEGER}
         and type = #{type, jdbcType=VARCHAR}
         and ip = #{ip, jdbcType=VARCHAR}
-        and port = #{port, jdbcType=INTEGER}
+        <if test="port != null and port != ''">
+            and port = #{port, jdbcType=INTEGER}
+        </if>
+        <if test="port == null or port == ''">
+            and port is null
+        </if>
         <if test="protocolType != null and protocolType != ''">
             and protocol_type = #{protocolType, jdbcType=VARCHAR}
         </if>
