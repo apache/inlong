@@ -100,10 +100,10 @@ public class HoodieTableFactory implements DynamicTableSinkFactory {
 
     @Override
     public Set<ConfigOption<?>> optionalOptions() {
-            Set<ConfigOption<?>> configOptions = FlinkOptions.optionalOptions();
-            configOptions.add(AUDIT_KEYS);
-            configOptions.add(INLONG_METRIC);
-            configOptions.add(INLONG_AUDIT);
+        Set<ConfigOption<?>> configOptions = FlinkOptions.optionalOptions();
+        configOptions.add(AUDIT_KEYS);
+        configOptions.add(INLONG_METRIC);
+        configOptions.add(INLONG_AUDIT);
         return configOptions;
     }
 
