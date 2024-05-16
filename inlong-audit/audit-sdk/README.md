@@ -22,25 +22,25 @@ If the AuditProxy changes in real time, then the business program needs to call 
     AuditOperator.getInstance().setAuditProxy(ipPortList);
 ```
 
-### Description for Add API
+### Description API for Add Audit Data
 Call the add method for statistics, where the auditID parameter uniquely identifies an audit object,
 inlongGroupID,inlongStreamID,logTime are audit dimensions, count is the number of items, size is the size, and logTime
 is milliseconds.
 
-#### Example of add API for Agent
+#### Example for Agent to Add Audit Data
 ```java
     AuditOperator.getInstance().add(auditID, auditTag, inlongGroupID, inlongStreamID, logTime,
          count, size, auditVersion);
 ```
 The scenario of supplementary recording of agent data, so the version number parameter needs to be passed in.
-#### Example of add API for DataProxy
+#### Example for DataProxy to Add Audit Data
 ```java
     AuditOperator.getInstance().add(auditID, auditTag, inlongGroupID, inlongStreamID, logTime,
         count, size, auditVersion);
 ```
 The scenario of supplementary recording of DataProxy data, so the version number parameter needs to be passed in.
 
-#### Example of add API for Sort
+#### Example for Sort Flink to Add Audit Data
 ```java
     AuditReporterImpl auditReporter=new AuditReporterImpl();
         auditReporter.setAuditProxy(ipPortList);
