@@ -20,6 +20,7 @@ package org.apache.inlong.sort.hudi.sink.utils;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.hudi.sink.StreamWriteOperator;
 import org.apache.inlong.sort.hudi.sink.append.AppendWriteOperator;
+import org.apache.inlong.sort.hudi.sink.bucket.BucketStreamWriteOperator;
 import org.apache.inlong.sort.hudi.sink.bulk.BulkInsertWriteOperator;
 
 import org.apache.flink.api.common.functions.Partitioner;
@@ -43,7 +44,6 @@ import org.apache.hudi.sink.CleanFunction;
 import org.apache.hudi.sink.bootstrap.BootstrapOperator;
 import org.apache.hudi.sink.bootstrap.batch.BatchBootstrapOperator;
 import org.apache.hudi.sink.bucket.BucketBulkInsertWriterHelper;
-import org.apache.hudi.sink.bucket.BucketStreamWriteOperator;
 import org.apache.hudi.sink.bulk.RowDataKeyGen;
 import org.apache.hudi.sink.bulk.sort.SortOperatorGen;
 import org.apache.hudi.sink.clustering.ClusteringCommitEvent;
@@ -328,7 +328,8 @@ public class Pipelines {
     public static DataStream<Object> hoodieStreamWrite(Configuration conf, DataStream<HoodieRecord> dataStream,
             MetricOption metricOption) {
         if (OptionsResolver.isBucketIndexType(conf)) {
-            WriteOperatorFactory<HoodieRecord> operatorFactory = BucketStreamWriteOperator.getFactory(conf);
+            WriteOperatorFactory<HoodieRecord> operatorFactory =
+                    BucketStreamWriteOperator.getFactory(conf, metricOption);
             int bucketNum = conf.getInteger(FlinkOptions.BUCKET_INDEX_NUM_BUCKETS);
             String indexKeyFields = conf.getString(FlinkOptions.INDEX_KEY_FIELD);
             BucketIndexPartitioner<HoodieKey> partitioner = new BucketIndexPartitioner<>(bucketNum, indexKeyFields);
