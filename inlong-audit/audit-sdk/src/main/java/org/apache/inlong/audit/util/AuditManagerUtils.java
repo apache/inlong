@@ -28,7 +28,7 @@ import org.apache.inlong.audit.AuditIdEnum;
 public class AuditManagerUtils {
 
     public static final int AUDIT_SUFFIX_LENGTH = 16;
-    public static final String AUDIT_MAX_PREFIX = "1111";
+    public static final int AUDIT_MAX_PREFIX_LENGTH = 14;
 
     private static String buildSuccessAndFailureFlag(boolean success) {
         return success ? "0" : "1";
@@ -78,9 +78,10 @@ public class AuditManagerUtils {
 
     /**
      * Get max Audit ID.
+     *
      * @return
      */
-    public static int getMaxAuditId() {
-        return (int) Math.pow(2, AUDIT_SUFFIX_LENGTH + AUDIT_MAX_PREFIX.length()) - 1;
+    public static int getStartAuditIdForMetric() {
+        return 1 << (AUDIT_SUFFIX_LENGTH + AUDIT_MAX_PREFIX_LENGTH);
     }
 }
