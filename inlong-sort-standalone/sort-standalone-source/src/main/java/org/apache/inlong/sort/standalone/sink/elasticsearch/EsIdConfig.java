@@ -20,7 +20,6 @@ package org.apache.inlong.sort.standalone.sink.elasticsearch;
 import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.sink.EsSinkConfig;
-import org.apache.inlong.common.pojo.sort.node.EsNodeConfig;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
