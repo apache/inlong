@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.node.kafka;
 
-import org.apache.inlong.common.pojo.sort.node.ClsNodeConfig;
 import org.apache.inlong.common.pojo.sort.node.KafkaNodeConfig;
 import org.apache.inlong.common.pojo.sort.node.NodeConfig;
 import org.apache.inlong.manager.common.consts.DataNodeType;
@@ -121,7 +120,6 @@ public class KafkaDataNodeOperator extends AbstractDataNodeOperator {
         }
         return true;
     }
-
 
     @Override
     public NodeConfig getNodeConfig(DataNodeEntity dataNodeEntity) {
