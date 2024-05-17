@@ -17,11 +17,12 @@
 
 package org.apache.inlong.sort.mysql;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+
 import com.ververica.cdc.connectors.mysql.source.config.MySqlSourceOptions;
 import com.ververica.cdc.connectors.mysql.source.config.ServerIdRange;
 import com.ververica.cdc.connectors.mysql.source.offset.BinlogOffset;
 import com.ververica.cdc.connectors.mysql.source.offset.BinlogOffsetBuilder;
-import com.ververica.cdc.connectors.mysql.table.MySqlTableSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
 import org.apache.flink.annotation.Experimental;
 import org.apache.flink.configuration.ConfigOption;
@@ -48,7 +49,8 @@ import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProper
 import static com.ververica.cdc.debezium.utils.ResolvedSchemaUtils.getPhysicalSchema;
 import static org.apache.flink.util.Preconditions.checkState;
 import static org.apache.inlong.common.constant.Constants.METRICS_AUDIT_PROXY_HOSTS_KEY;
-import static org.apache.inlong.sort.base.Constants.*;
+import static org.apache.inlong.sort.base.Constants.GH_OST_DDL_CHANGE;
+import static org.apache.inlong.sort.base.Constants.GH_OST_TABLE_REGEX;
 
 public class MysqlTableFactory implements DynamicTableSourceFactory {
 
@@ -97,6 +99,15 @@ public class MysqlTableFactory implements DynamicTableSourceFactory {
             validateDistributionFactorLower(distributionFactorLower);
         }
 
+        String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
+        String auditHostAndPorts = config.get(INLONG_AUDIT);
+        String auditKeys = config.get(AUDIT_KEYS);
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withAuditAddress(auditHostAndPorts)
+                .withAuditKeys(auditKeys)
+                .build();
+
         return new MySqlTableSource(physicalSchema,
                 port,
                 hostname,
@@ -120,7 +131,8 @@ public class MysqlTableFactory implements DynamicTableSourceFactory {
                 scanNewlyAddedTableEnabled,
                 getJdbcProperties(context.getCatalogTable().getOptions()),
                 heartbeatInterval,
-                chunkKeyColumn);
+                chunkKeyColumn,
+                metricOption);
     }
 
     @Override
