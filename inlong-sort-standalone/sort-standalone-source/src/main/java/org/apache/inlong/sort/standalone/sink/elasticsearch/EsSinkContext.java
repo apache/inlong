@@ -159,7 +159,8 @@ public class EsSinkContext extends SinkContext {
                     .map(EsIdConfig::create)
                     .collect(Collectors.toMap(
                             config -> InlongId.generateUid(config.getInlongGroupId(), config.getInlongStreamId()),
-                            v -> v));;
+                            v -> v,
+                            (flow1, flow2) -> flow1));
             // rest client
             this.username = esNodeConfig.getUsername();
             this.password = esNodeConfig.getPassword();
