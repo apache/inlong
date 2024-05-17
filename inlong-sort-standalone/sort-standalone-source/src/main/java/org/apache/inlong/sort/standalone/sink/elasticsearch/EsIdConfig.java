@@ -17,16 +17,24 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
+import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.sink.EsSinkConfig;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
-/**
- * 
- * EsIdConfig
- */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class EsIdConfig {
 
     public static final String PATTERN_DAY = "{yyyyMMdd}";
@@ -63,175 +71,35 @@ public class EsIdConfig {
     private int contentOffset = 0;// except for boss + tab(1)
     private List<String> fieldList;
 
-    /**
-     * get inlongGroupId
-     * 
-     * @return the inlongGroupId
-     */
-    public String getInlongGroupId() {
-        return inlongGroupId;
+    public static EsIdConfig create(DataFlowConfig dataFlowConfig) {
+        EsSinkConfig sinkConfig = (EsSinkConfig) dataFlowConfig.getSinkConfig();
+        List<String> fields = sinkConfig.getFieldConfigs()
+                .stream()
+                .map(FieldConfig::getName)
+                .collect(Collectors.toList());
+        return EsIdConfig.builder()
+                .inlongGroupId(dataFlowConfig.getInlongGroupId())
+                .inlongStreamId(dataFlowConfig.getInlongStreamId())
+                .contentOffset(sinkConfig.getContentOffset())
+                .fieldOffset(sinkConfig.getFieldOffset())
+                .separator(sinkConfig.getSeparator())
+                .indexNamePattern(sinkConfig.getIndexNamePattern())
+                .fieldList(fields)
+                .build();
     }
 
-    /**
-     * set inlongGroupId
-     * 
-     * @param inlongGroupId the inlongGroupId to set
-     */
-    public void setInlongGroupId(String inlongGroupId) {
-        this.inlongGroupId = inlongGroupId;
-    }
-
-    /**
-     * get inlongStreamId
-     * 
-     * @return the inlongStreamId
-     */
-    public String getInlongStreamId() {
-        return inlongStreamId;
-    }
-
-    /**
-     * set inlongStreamId
-     * 
-     * @param inlongStreamId the inlongStreamId to set
-     */
-    public void setInlongStreamId(String inlongStreamId) {
-        this.inlongStreamId = inlongStreamId;
-    }
-
-    /**
-     * get separator
-     * 
-     * @return the separator
-     */
-    public String getSeparator() {
-        return separator;
-    }
-
-    /**
-     * set separator
-     * 
-     * @param separator the separator to set
-     */
-    public void setSeparator(String separator) {
-        this.separator = separator;
-    }
-
-    /**
-     * get indexNamePattern
-     * 
-     * @return the indexNamePattern
-     */
-    public String getIndexNamePattern() {
-        return indexNamePattern;
-    }
-
-    /**
-     * set indexNamePattern
-     * 
-     * @param indexNamePattern the indexNamePattern to set
-     */
-    public void setIndexNamePattern(String indexNamePattern) {
-        this.indexNamePattern = indexNamePattern;
-    }
-
-    /**
-     * get fieldOffset
-     * 
-     * @return the fieldOffset
-     */
-    public int getFieldOffset() {
-        return fieldOffset;
-    }
-
-    /**
-     * set fieldOffset
-     * 
-     * @param fieldOffset the fieldOffset to set
-     */
-    public void setFieldOffset(int fieldOffset) {
-        this.fieldOffset = fieldOffset;
-    }
-
-    /**
-     * get fieldList
-     * 
-     * @return the fieldList
-     */
-    public List<String> getFieldList() {
-        if (fieldList == null) {
-            this.fieldList = new ArrayList<>();
-            if (fieldNames != null) {
-                String[] fieldNameArray = fieldNames.split("\\s+");
-                this.fieldList.addAll(Arrays.asList(fieldNameArray));
-            }
-        }
-        return fieldList;
-    }
-
-    /**
-     * set fieldList
-     * 
-     * @param fieldList the fieldList to set
-     */
-    public void setFieldList(List<String> fieldList) {
-        this.fieldList = fieldList;
-    }
-
-    /**
-     * get fieldNames
-     * 
-     * @return the fieldNames
-     */
-    public String getFieldNames() {
-        return fieldNames;
-    }
-
-    /**
-     * set fieldNames
-     * 
-     * @param fieldNames the fieldNames to set
-     */
-    public void setFieldNames(String fieldNames) {
-        this.fieldNames = fieldNames;
-    }
-
-    /**
-     * get contentOffset
-     * 
-     * @return the contentOffset
-     */
-    public int getContentOffset() {
-        return contentOffset;
-    }
-
-    /**
-     * set contentOffset
-     * 
-     * @param contentOffset the contentOffset to set
-     */
-    public void setContentOffset(int contentOffset) {
-        this.contentOffset = contentOffset;
-    }
-
-    /**
-     * parseIndexName
-     * 
-     * @param  msgTime
-     * @return
-     */
     public String parseIndexName(long msgTime) {
         Date dtDate = new Date(msgTime);
         String result = indexNamePattern;
-        if (result.indexOf(PATTERN_MINUTE) >= 0) {
+        if (result.contains(PATTERN_MINUTE)) {
             String strHour = FORMAT_MINUTE.get().format(dtDate);
             result = result.replaceAll(REGEX_MINUTE, strHour);
         }
-        if (result.indexOf(PATTERN_HOUR) >= 0) {
+        if (result.contains(PATTERN_HOUR)) {
             String strHour = FORMAT_HOUR.get().format(dtDate);
             result = result.replaceAll(REGEX_HOUR, strHour);
         }
-        if (result.indexOf(PATTERN_DAY) >= 0) {
+        if (result.contains(PATTERN_DAY)) {
             String strHour = FORMAT_DAY.get().format(dtDate);
             result = result.replaceAll(REGEX_DAY, strHour);
         }

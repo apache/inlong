@@ -105,8 +105,9 @@ public class ClsSinkContext extends SinkContext {
                     objectMapper.writeValueAsString(newSortTaskConfig));
             this.sortTaskConfig = newSortTaskConfig;
             ClsNodeConfig requestNodeConfig = (ClsNodeConfig) sortTaskConfig.getNodeConfig();
-            this.clsNodeConfig =
-                    requestNodeConfig.getVersion() >= clsNodeConfig.getVersion() ? requestNodeConfig : clsNodeConfig;
+            if (clsNodeConfig == null || requestNodeConfig.getVersion() > clsNodeConfig.getVersion()) {
+                this.clsNodeConfig = requestNodeConfig;
+            }
             this.keywordMaxLength = DEFAULT_KEYWORD_MAX_LENGTH;
             this.reloadIdParams();
             this.reloadClients();
