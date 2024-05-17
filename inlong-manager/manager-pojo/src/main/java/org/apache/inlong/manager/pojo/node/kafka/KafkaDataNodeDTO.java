@@ -49,7 +49,7 @@ public class KafkaDataNodeDTO {
     private String clientId;
 
     @ApiModelProperty(value = "kafka produce confirmation mechanism")
-    private String ack;
+    private String acks;
 
     @ApiModelProperty("audit set name")
     private String auditSetName;

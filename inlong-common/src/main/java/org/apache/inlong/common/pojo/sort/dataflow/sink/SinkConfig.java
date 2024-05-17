@@ -33,6 +33,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = ClsSinkConfig.class, name = SinkType.CLS),
         @JsonSubTypes.Type(value = EsSinkConfig.class, name = SinkType.ELASTICSEARCH),
         @JsonSubTypes.Type(value = PulsarSinkConfig.class, name = SinkType.PULSAR),
+        @JsonSubTypes.Type(value = KafkaSinkConfig.class, name = SinkType.KAFKA),
 })
 public abstract class SinkConfig implements Serializable {
 
