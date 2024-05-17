@@ -11,8 +11,8 @@ The Audit Sdk uses log production time as the audit standard,
 which can ensure that each module is reconciled in accordance with the unified audit standard.
 
 ## Usage
-### setAuditProxy API
-Set the AuditProxy ip:port list. The Audit Sdk will summarize the results according to the cycle 
+### Configure Audit Proxy Addresses
+The Audit SDK will summarize the results according to the cycle  
 and send them to the ip:port list set by the interface.
 If the ip:port of the AuditProxy is fixed, then this interface needs to be called once. 
 If the AuditProxy changes in real time, then the business program needs to call this interface periodically to update
@@ -22,38 +22,46 @@ If the AuditProxy changes in real time, then the business program needs to call 
     AuditOperator.getInstance().setAuditProxy(ipPortList);
 ```
 
-### add API
+### Add Audit Data
 Call the add method for statistics, where the auditID parameter uniquely identifies an audit object,
 inlongGroupID,inlongStreamID,logTime are audit dimensions, count is the number of items, size is the size, and logTime
 is milliseconds.
 
-#### Example of add API for Agent
+#### Example for Agent to Add Audit Data
 ```java
-    AuditOperator.getInstance().add(auditID,auditTag,inlongGroupID,inlongStreamID,logTime,
-        count,size,auditVersion);
+    AuditOperator.getInstance().add(auditID, auditTag, inlongGroupID, inlongStreamID, logTime,
+         count, size, auditVersion);
 ```
 The scenario of supplementary recording of agent data, so the version number parameter needs to be passed in.
-#### Example of add API for DataProxy
+#### Example for DataProxy to Add Audit Data
 ```java
-    AuditOperator.getInstance().add(auditID,auditTag,inlongGroupID,inlongStreamID,logTime,
-        count,size,auditVersion);
+    AuditOperator.getInstance().add(auditID, auditTag, inlongGroupID, inlongStreamID, logTime,
+        count, size, auditVersion);
 ```
 The scenario of supplementary recording of DataProxy data, so the version number parameter needs to be passed in.
 
-#### Example of add API for Sort
+#### Example for Sort Flink to Add Audit Data
 ```java
     AuditReporterImpl auditReporter=new AuditReporterImpl();
         auditReporter.setAuditProxy(ipPortList);
+        auditReporter.setAutoFlush(false);
 
         AuditDimensions dimensions;
         AuditValues values;
-        auditReporter.add(dimensions,values);
+        auditReporter.add(dimensions, values);
 ```
-
-##### AuditReporterImpl
+```java
+    AuditReporterImpl auditReporter=new AuditReporterImpl();
+        auditReporter.setAuditProxy(ipPortList);
+        auditReporter.setAutoFlush(false);
+        auditReporter.add(isolateKey, auditID, auditTag, inlongGroupID, inlongStreamID,
+         logTime, count, size, auditVersion)
+```
 In order to ensure the accuracy of auditing, each operator needs to create an auditAuditReporterImpl instance.
-##### Explain of AuditDimensions
-| parameter      | meaning                                                                                          |
+
+- Explain of AuditDimensions
+
+| parameter      | description                                                                                          |
 |----------------|--------------------------------------------------------------------------------------------------|
 | auditID        | audit id,each module's reception and transmission will be assigned its own independent audit-id. |   
 | logTime        | log time ,each module uses the log time of the data source uniformly                             |     
@@ -63,9 +71,26 @@ In order to ensure the accuracy of auditing, each operator needs to create an au
 | inlongGroupID  | inlongGroupID                                                                                    |
 | inlongStreamID | inlongStreamID                                                                                   | 
 
-##### Explain of AuditValues
-| parameter       | meaning       |
+- Explain of AuditValues
+
+| parameter       | description       |
 |----------|----------|
 | count  | count  |   
 | size | size   |     
 | delayTime     | Data transmission delay,equal to current time minus log time |
+
+#### Build Audit item ID
+```java
+        AuditManagerUtils.buildAuditId(AuditIdEnum baseAuditId,
+        boolean success,
+        boolean isRealtime,
+        boolean discard,
+        boolean retry);
+```
+| parameter       | description                                                                      |
+|----------|------------------------------------------------------------------------------|
+| baseAuditId  | Each module is assigned two baseAuditId. For details, please see AuditIdEnum |   
+| success | Success and failure flags                                                    |     
+| isRealtime     | Real-time and non-real-time flags                                            |
+| discard     | Discard flag                                                                 |
+| retry     | Retry flag                                                                   |
