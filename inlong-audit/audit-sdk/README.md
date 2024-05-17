@@ -22,7 +22,7 @@ If the AuditProxy changes in real time, then the business program needs to call 
     AuditOperator.getInstance().setAuditProxy(ipPortList);
 ```
 
-### Description API for Add Audit Data
+### Add Audit Data
 Call the add method for statistics, where the auditID parameter uniquely identifies an audit object,
 inlongGroupID,inlongStreamID,logTime are audit dimensions, count is the number of items, size is the size, and logTime
 is milliseconds.
