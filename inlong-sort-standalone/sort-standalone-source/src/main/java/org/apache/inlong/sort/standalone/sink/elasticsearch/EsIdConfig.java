@@ -83,6 +83,7 @@ public class EsIdConfig {
                 .contentOffset(sinkConfig.getContentOffset())
                 .fieldOffset(sinkConfig.getFieldOffset())
                 .separator(sinkConfig.getSeparator())
+                .indexNamePattern(sinkConfig.getIndexNamePattern())
                 .fieldList(fields)
                 .build();
     }

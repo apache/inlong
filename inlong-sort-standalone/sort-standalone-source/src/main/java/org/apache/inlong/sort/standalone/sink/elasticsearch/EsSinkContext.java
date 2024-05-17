@@ -149,8 +149,8 @@ public class EsSinkContext extends SinkContext {
             if (esNodeConfig == null || requestNodeConfig.getVersion() > esNodeConfig.getVersion()) {
                 this.esNodeConfig = requestNodeConfig;
             }
-
-            this.sinkContext = new Context(this.sortTaskConfig.getNodeConfig().getProperties());
+            Map<String, String> properties = this.sortTaskConfig.getNodeConfig().getProperties();
+            this.sinkContext = new Context(properties != null ? properties : new HashMap<>());
             // change current config
             this.idConfigMap = this.sortTaskConfig.getClusters()
                     .stream()

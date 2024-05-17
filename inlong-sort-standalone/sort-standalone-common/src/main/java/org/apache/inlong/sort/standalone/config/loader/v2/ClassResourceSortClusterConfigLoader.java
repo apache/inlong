@@ -17,11 +17,11 @@
 
 package org.apache.inlong.sort.standalone.config.loader.v2;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.common.pojo.sort.SortConfig;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigType;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.apache.flume.Context;
 import org.slf4j.Logger;
@@ -45,7 +45,8 @@ public class ClassResourceSortClusterConfigLoader implements SortConfigLoader {
                     Charset.defaultCharset());
             int index = confString.indexOf('{');
             confString = confString.substring(index);
-            return objectMapper.readValue(confString, SortConfig.class);
+            SortConfig config = objectMapper.readValue(confString, SortConfig.class);
+            return config;
         } catch (Exception e) {
             LOG.error("failed to load properties, file ={}", fileName, e);
         }

@@ -134,6 +134,7 @@ public class SortConfigHolder {
                                     .collect(Collectors.toMap(flow -> InlongId.generateUid(flow.getInlongGroupId(),
                                             flow.getInlongStreamId()),
                                             DataFlowConfig::getAuditTag))));
+            this.config = newConfig;
         } catch (Throwable e) {
             log.error("failed to reload sort config", e);
         }
