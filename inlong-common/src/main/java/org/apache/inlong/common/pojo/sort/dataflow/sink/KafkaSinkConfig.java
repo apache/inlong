@@ -24,10 +24,5 @@ import lombok.EqualsAndHashCode;
 @Data
 public class KafkaSinkConfig extends SinkConfig {
 
-    private String bootstrapServers;
     private String topicName;
-    private Integer partitionNum;
-    private String serializationType;
-    private String autoOffsetReset;
-    private String primaryKey;
 }
