@@ -97,6 +97,9 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
     @Nullable
     private final String nullLiteral;
 
+    @Nonnull
+    private Boolean isIncludeFirstSegment = false;
+
     public InLongMsgTlogCsvFormatDeserializer(
             @Nonnull RowFormatInfo rowFormatInfo,
             @Nullable String timeFieldName,
@@ -116,6 +119,7 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
                 escapeChar,
                 quoteChar,
                 nullLiteral,
+                false,
                 InLongMsgUtils.getDefaultExceptionHandler(ignoreErrors));
     }
 
@@ -128,6 +132,7 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
             @Nullable String nullLiteral,
+            @Nullable boolean isIncludeFirstSegment,
             @Nonnull FailureHandler failureHandler) {
         super(failureHandler);
 
@@ -139,6 +144,7 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
         this.escapeChar = escapeChar;
         this.quoteChar = quoteChar;
         this.nullLiteral = nullLiteral;
+        this.isIncludeFirstSegment = isIncludeFirstSegment;
     }
 
     @Override
@@ -154,7 +160,8 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
     @Override
     protected List<InLongMsgBody> parseBodyList(byte[] bytes) throws Exception {
         return Collections.singletonList(
-                InLongMsgTlogCsvUtils.parseBody(bytes, charset, delimiter, escapeChar, quoteChar));
+                InLongMsgTlogCsvUtils.parseBody(bytes, charset, delimiter, escapeChar,
+                        quoteChar, isIncludeFirstSegment));
     }
 
     @Override
@@ -183,7 +190,7 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
         private String timeFieldName = DEFAULT_TIME_FIELD_NAME;
         private String attributesFieldName = DEFAULT_ATTRIBUTES_FIELD_NAME;
         private Character delimiter = DEFAULT_DELIMITER;
-
+        private boolean isIncludeFirstSegment = true;
         public Builder(RowFormatInfo rowFormatInfo) {
             super(rowFormatInfo);
         }
@@ -226,7 +233,8 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
                     escapeChar,
                     quoteChar,
                     nullLiteral,
-                    ignoreErrors);
+                    isIncludeFirstSegment,
+                    InLongMsgUtils.getDefaultExceptionHandler(ignoreErrors));
         }
     }
 
@@ -252,13 +260,14 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
                 delimiter.equals(that.delimiter) &&
                 Objects.equals(escapeChar, that.escapeChar) &&
                 Objects.equals(quoteChar, that.quoteChar) &&
-                Objects.equals(nullLiteral, that.nullLiteral);
+                Objects.equals(nullLiteral, that.nullLiteral) &&
+                Objects.equals(isIncludeFirstSegment, that.isIncludeFirstSegment);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), rowFormatInfo, timeFieldName,
                 attributesFieldName, charset, delimiter, escapeChar, quoteChar,
-                nullLiteral);
+                nullLiteral, isIncludeFirstSegment);
     }
 }

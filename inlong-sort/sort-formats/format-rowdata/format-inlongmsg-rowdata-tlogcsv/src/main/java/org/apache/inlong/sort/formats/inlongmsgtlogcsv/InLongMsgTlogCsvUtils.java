@@ -80,7 +80,8 @@ public class InLongMsgTlogCsvUtils {
             String charset,
             char delimiter,
             Character escapeChar,
-            Character quoteChar) {
+            Character quoteChar,
+            boolean isIncludeFirstSegment) {
         String text;
         if (bytes[0] == delimiter) {
             text = new String(bytes, 1, bytes.length - 1, Charset.forName(charset));
@@ -92,7 +93,7 @@ public class InLongMsgTlogCsvUtils {
 
         String tid = segments[0];
         List<String> fields =
-                Arrays.stream(segments, 1, segments.length).collect(Collectors.toList());
+                Arrays.stream(segments, (isIncludeFirstSegment ? 0 : 1), segments.length).collect(Collectors.toList());
 
         return new InLongMsgBody(bytes, tid, fields, Collections.emptyMap());
     }

@@ -68,10 +68,11 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
 
     private static final RowFormatInfo TEST_ROW_INFO =
             new RowFormatInfo(
-                    new String[]{"f1", "f2", "f3", "f4", "f5"},
+                    new String[]{"__addcol1_", "__addcol2_", "f1", "f2", "f3", "f4"},
                     new FormatInfo[]{
                             IntFormatInfo.INSTANCE,
-                            IntFormatInfo.INSTANCE,
+                            StringFormatInfo.INSTANCE,
+                            StringFormatInfo.INSTANCE,
                             StringFormatInfo.INSTANCE,
                             StringFormatInfo.INSTANCE,
                             StringFormatInfo.INSTANCE
@@ -91,6 +92,7 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
                         null,
                         null,
                         Collections.emptyList(),
+                        false,
                         errorHandler);
 
         InLongMsg inLongMsg1 = InLongMsg.newInLongMsg(true);

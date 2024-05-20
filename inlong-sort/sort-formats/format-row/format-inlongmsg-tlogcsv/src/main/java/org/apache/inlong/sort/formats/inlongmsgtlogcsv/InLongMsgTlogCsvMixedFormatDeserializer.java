@@ -69,13 +69,17 @@ public final class InLongMsgTlogCsvMixedFormatDeserializer
     @Nullable
     private final Character quoteChar;
 
+    @Nonnull
+    private Boolean isIncludeFirstSegment = false;
+
     public InLongMsgTlogCsvMixedFormatDeserializer(
             @Nonnull String charset,
             @Nonnull Character delimiter,
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
             @Nonnull Boolean ignoreErrors) {
-        this(charset, delimiter, escapeChar, quoteChar, InLongMsgUtils.getDefaultExceptionHandler(ignoreErrors));
+        this(charset, delimiter, escapeChar, quoteChar, false,
+                InLongMsgUtils.getDefaultExceptionHandler(ignoreErrors));
     }
 
     public InLongMsgTlogCsvMixedFormatDeserializer(
@@ -83,6 +87,7 @@ public final class InLongMsgTlogCsvMixedFormatDeserializer
             @Nonnull Character delimiter,
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
+            @Nonnull Boolean isIncludeFirstSegment,
             @Nonnull FailureHandler failureHandler) {
         super(failureHandler);
 
@@ -90,6 +95,7 @@ public final class InLongMsgTlogCsvMixedFormatDeserializer
         this.charset = charset;
         this.escapeChar = escapeChar;
         this.quoteChar = quoteChar;
+        this.isIncludeFirstSegment = isIncludeFirstSegment;
     }
 
     @Override
@@ -105,7 +111,8 @@ public final class InLongMsgTlogCsvMixedFormatDeserializer
     @Override
     protected List<InLongMsgBody> parseBodyList(byte[] bytes) throws Exception {
         return Collections.singletonList(
-                InLongMsgTlogCsvUtils.parseBody(bytes, charset, delimiter, escapeChar, quoteChar));
+                InLongMsgTlogCsvUtils.parseBody(bytes, charset, delimiter, escapeChar,
+                        quoteChar, isIncludeFirstSegment));
     }
 
     @Override
