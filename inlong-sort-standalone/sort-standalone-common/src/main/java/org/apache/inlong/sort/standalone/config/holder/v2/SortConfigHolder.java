@@ -135,6 +135,7 @@ public class SortConfigHolder {
                                             flow.getInlongStreamId()),
                                             DataFlowConfig::getAuditTag,
                                             (flow1, flow2) -> flow1))));
+            this.config = newConfig;
         } catch (Throwable e) {
             log.error("failed to reload sort config", e);
         }
