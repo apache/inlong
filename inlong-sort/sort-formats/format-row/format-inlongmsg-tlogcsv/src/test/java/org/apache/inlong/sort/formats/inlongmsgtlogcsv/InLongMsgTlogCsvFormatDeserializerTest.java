@@ -52,11 +52,10 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
 
     private static final RowFormatInfo TEST_ROW_INFO =
             new RowFormatInfo(
-                    new String[]{"__addcol1_", "__addcol2_", "f1", "f2", "f3", "f4"},
+                    new String[]{"__addcol1_", "__addcol2_", "f1", "f2", "f3"},
                     new FormatInfo[]{
                             IntFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE,
+                            IntFormatInfo.INSTANCE,
                             StringFormatInfo.INSTANCE,
                             StringFormatInfo.INSTANCE,
                             StringFormatInfo.INSTANCE
@@ -75,7 +74,7 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
                         null,
                         null,
                         null,
-                        true,
+                        false,
                         errorHandler);
 
         InLongMsg inLongMsg1 = InLongMsg.newInLongMsg(true);
@@ -195,10 +194,12 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
                 "field1",
                 "field2",
                 "field3");
-
+        List<Row> expectedRows = new ArrayList<>();
+        expectedRows.add(expectedRow1);
+        expectedRows.add(expectedRow2);
         testRowDeserialization(
                 inLongMsg1.buildArray(),
-                Arrays.asList(expectedRow1, expectedRow2));
+                expectedRows);
     }
 
     @Test
@@ -240,6 +241,7 @@ public class InLongMsgTlogCsvFormatDeserializerTest {
                 new InLongMsgTlogCsvFormatDeserializer.Builder(TEST_ROW_INFO)
                         .setTimeFieldName("inlongmsg_time")
                         .setAttributesFieldName("inlongmsg_attributes")
+                        .setIsIncludeFirstSegment(false)
                         .build();
 
         List<Row> actualRows = new ArrayList<>();

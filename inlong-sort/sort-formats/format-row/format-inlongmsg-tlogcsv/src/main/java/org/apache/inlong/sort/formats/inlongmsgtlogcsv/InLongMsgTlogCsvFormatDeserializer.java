@@ -190,9 +190,14 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
         private String timeFieldName = DEFAULT_TIME_FIELD_NAME;
         private String attributesFieldName = DEFAULT_ATTRIBUTES_FIELD_NAME;
         private Character delimiter = DEFAULT_DELIMITER;
-        private boolean isIncludeFirstSegment = true;
+        private boolean isIncludeFirstSegment = false;
         public Builder(RowFormatInfo rowFormatInfo) {
             super(rowFormatInfo);
+        }
+
+        public Builder setIsIncludeFirstSegment(boolean isIncludeFirstSegment) {
+            this.isIncludeFirstSegment = isIncludeFirstSegment;
+            return this;
         }
 
         public Builder setTimeFieldName(String timeFieldName) {
