@@ -18,15 +18,19 @@
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
+import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.sink.PulsarSinkConfig;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
-import org.apache.inlong.sort.standalone.utils.Constants;
 
-import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-/**
- *
- * KafkaIdConfig
- */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PulsarIdConfig {
 
     public static final String KEY_DATA_TYPE = "dataType";
@@ -42,134 +46,17 @@ public class PulsarIdConfig {
     private String topic;
     private DataTypeEnum dataType = DataTypeEnum.TEXT;
 
-    /**
-     * Constructor
-     */
-    public PulsarIdConfig() {
+    public static PulsarIdConfig create(DataFlowConfig dataFlowConfig) {
+        PulsarSinkConfig sinkConfig = (PulsarSinkConfig) dataFlowConfig.getSinkConfig();
 
-    }
+        return PulsarIdConfig.builder()
+                .inlongGroupId(dataFlowConfig.getInlongGroupId())
+                .inlongStreamId(dataFlowConfig.getInlongStreamId())
+                .uid(InlongId.generateUid(dataFlowConfig.getInlongGroupId(), dataFlowConfig.getInlongStreamId()))
+                .topic(sinkConfig.getTopic())
+                .dataType(DataTypeEnum.TEXT)
+                .build();
 
-    /**
-     * Constructor
-     *
-     * @param idParam
-     */
-    public PulsarIdConfig(Map<String, String> idParam) {
-        this.inlongGroupId = idParam.get(Constants.INLONG_GROUP_ID);
-        this.inlongStreamId = idParam.getOrDefault(Constants.INLONG_STREAM_ID, DEFAULT_INLONG_STREAM);
-        this.uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
-        this.separator = idParam.getOrDefault(PulsarIdConfig.KEY_SEPARATOR, PulsarIdConfig.DEFAULT_SEPARATOR);
-        this.topic = idParam.getOrDefault(Constants.TOPIC, uid);
-        this.dataType = DataTypeEnum
-                .convert(idParam.getOrDefault(PulsarIdConfig.KEY_DATA_TYPE, DataTypeEnum.TEXT.getType()));
-    }
-
-    /**
-     * get inlongGroupId
-     *
-     * @return the inlongGroupId
-     */
-    public String getInlongGroupId() {
-        return inlongGroupId;
-    }
-
-    /**
-     * set inlongGroupId
-     *
-     * @param inlongGroupId the inlongGroupId to set
-     */
-    public void setInlongGroupId(String inlongGroupId) {
-        this.inlongGroupId = inlongGroupId;
-    }
-
-    /**
-     * get inlongStreamId
-     *
-     * @return the inlongStreamId
-     */
-    public String getInlongStreamId() {
-        return inlongStreamId;
-    }
-
-    /**
-     * set inlongStreamId
-     *
-     * @param inlongStreamId the inlongStreamId to set
-     */
-    public void setInlongStreamId(String inlongStreamId) {
-        this.inlongStreamId = inlongStreamId;
-    }
-
-    /**
-     * get uid
-     *
-     * @return the uid
-     */
-    public String getUid() {
-        return uid;
-    }
-
-    /**
-     * set uid
-     *
-     * @param uid the uid to set
-     */
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    /**
-     * get separator
-     *
-     * @return the separator
-     */
-    public String getSeparator() {
-        return separator;
-    }
-
-    /**
-     * set separator
-     *
-     * @param separator the separator to set
-     */
-    public void setSeparator(String separator) {
-        this.separator = separator;
-    }
-
-    /**
-     * get topic
-     *
-     * @return the topic
-     */
-    public String getTopic() {
-        return topic;
-    }
-
-    /**
-     * set topic
-     *
-     * @param topic the topic to set
-     */
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
-
-    /**
-     * get dataType
-     *
-     * @return the dataType
-     */
-    public DataTypeEnum getDataType() {
-        return dataType;
-    }
-
-    /**
-     * set dataType
-     *
-     * @param dataType the dataType to set
-     */
-    public void setDataType(DataTypeEnum dataType) {
-        this.dataType = dataType;
     }
 
 }

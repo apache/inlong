@@ -133,7 +133,8 @@ public class SortConfigHolder {
                                     .filter(flow -> StringUtils.isNotEmpty(flow.getAuditTag()))
                                     .collect(Collectors.toMap(flow -> InlongId.generateUid(flow.getInlongGroupId(),
                                             flow.getInlongStreamId()),
-                                            DataFlowConfig::getAuditTag))));
+                                            DataFlowConfig::getAuditTag,
+                                            (flow1, flow2) -> flow1))));
             this.config = newConfig;
         } catch (Throwable e) {
             log.error("failed to reload sort config", e);
