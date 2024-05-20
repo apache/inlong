@@ -165,30 +165,39 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         }
 
         // protocolType may be null, and the protocolTypes' length may be less than ports' length
-        String[] ports = heartbeat.getPort().split(InlongConstants.COMMA);
         String[] ips = heartbeat.getIp().split(InlongConstants.COMMA);
+        String port = heartbeat.getPort();
+        String[] ports = null;
+        if (StringUtils.isNotBlank(port)) {
+            ports = port.split(InlongConstants.COMMA);
+            if (ports.length < ips.length) {
+                ports = null;
+            }
+        }
         String[] reportSourceTypes = null;
-        if (StringUtils.isNotBlank(heartbeat.getReportSourceType()) && ports.length > 1) {
+        if (StringUtils.isNotBlank(heartbeat.getReportSourceType()) && ips.length > 1) {
             reportSourceTypes = heartbeat.getReportSourceType().split(InlongConstants.COMMA);
-            if (reportSourceTypes.length < ports.length) {
+            if (reportSourceTypes.length < ips.length) {
                 reportSourceTypes = null;
             }
         }
         String protocolType = heartbeat.getProtocolType();
         String[] protocolTypes = null;
-        if (StringUtils.isNotBlank(protocolType) && ports.length > 1) {
+        if (StringUtils.isNotBlank(protocolType) && ips.length > 1) {
             protocolTypes = protocolType.split(InlongConstants.COMMA);
-            if (protocolTypes.length < ports.length) {
+            if (protocolTypes.length < ips.length) {
                 protocolTypes = null;
             }
         }
 
         int handlerNum = 0;
-        for (int i = 0; i < ports.length; i++) {
+        for (int i = 0; i < ips.length; i++) {
             // deep clone the heartbeat
             HeartbeatMsg heartbeatMsg = JsonUtils.parseObject(JsonUtils.toJsonByte(heartbeat), HeartbeatMsg.class);
             assert heartbeatMsg != null;
-            heartbeatMsg.setPort(ports[i].trim());
+            if (StringUtils.isNotBlank(port)) {
+                heartbeatMsg.setPort(ports[i].trim());
+            }
             heartbeatMsg.setIp(ips[i].trim());
             if (reportSourceTypes != null) {
                 heartbeatMsg.setReportSourceType(reportSourceTypes[i].trim());
@@ -228,7 +237,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         }
 
         // if the heartbeat already exists, or does not exist but insert/update success, then put it into the cache
-        if (lastHeartbeat == null || handlerNum == ports.length) {
+        if (lastHeartbeat == null || handlerNum == ips.length) {
             heartbeatCache.put(componentHeartbeat, heartbeat);
         }
     }
@@ -292,7 +301,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         nodeRequest.setParentId(clusterInfo.getId());
         nodeRequest.setType(heartbeat.getComponentType());
         nodeRequest.setIp(heartbeat.getIp());
-        nodeRequest.setPort(Integer.valueOf(heartbeat.getPort()));
+        if (StringUtils.isNotBlank(heartbeat.getPort())) {
+            nodeRequest.setPort(Integer.valueOf(heartbeat.getPort()));
+        }
         nodeRequest.setProtocolType(heartbeat.getProtocolType());
         return clusterNodeMapper.selectByUniqueKey(nodeRequest);
     }
@@ -302,7 +313,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         clusterNode.setParentId(clusterInfo.getId());
         clusterNode.setType(heartbeat.getComponentType());
         clusterNode.setIp(heartbeat.getIp());
-        clusterNode.setPort(Integer.valueOf(heartbeat.getPort()));
+        if (StringUtils.isNotBlank(heartbeat.getPort())) {
+            clusterNode.setPort(Integer.valueOf(heartbeat.getPort()));
+        }
         clusterNode.setProtocolType(heartbeat.getProtocolType());
         clusterNode.setNodeLoad(heartbeat.getLoad());
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
