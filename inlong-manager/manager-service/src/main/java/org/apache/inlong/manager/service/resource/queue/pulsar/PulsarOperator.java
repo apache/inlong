@@ -409,9 +409,8 @@ public class PulsarOperator {
      * Query topic message for the given pulsar cluster.
      */
     public List<BriefMQMessage> queryLatestMessage(PulsarClusterInfo pulsarClusterInfo, String topicFullName,
-            String subName,
             Integer messageCount, InlongStreamInfo streamInfo, boolean serial) {
-        LOGGER.info("begin to query message for topic {}, subName={}", topicFullName, subName);
+        LOGGER.info("begin to query message for topic {}", topicFullName);
         List<BriefMQMessage> messageList = new ArrayList<>();
         int partitionCount = getPartitionCount(pulsarClusterInfo, topicFullName);
         for (int messageIndex = 0; messageIndex < messageCount; messageIndex++) {
@@ -421,7 +420,7 @@ public class PulsarOperator {
             messageList.addAll(queryMessageFromPulsar(topicNameOfPartition, pulsarClusterInfo, messageIndex,
                     streamInfo, messagePosition));
         }
-        LOGGER.info("success query message by subs={} for topic={}", subName, topicFullName);
+        LOGGER.info("success query message for topic={}", topicFullName);
         return messageList;
     }
 
