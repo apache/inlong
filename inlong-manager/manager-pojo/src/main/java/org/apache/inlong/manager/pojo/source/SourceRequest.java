@@ -111,6 +111,9 @@ public class SourceRequest {
     @NotNull(groups = UpdateValidation.class, message = "version cannot be null")
     private Integer version;
 
+    @ApiModelProperty(value = "Audit version")
+    private String auditVersion;
+
     @ApiModelProperty("Field list, only support when inlong group in light weight mode")
     private List<StreamField> fieldList;
 

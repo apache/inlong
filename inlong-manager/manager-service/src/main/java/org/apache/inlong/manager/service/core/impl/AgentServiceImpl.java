@@ -673,10 +673,15 @@ public class AgentServiceImpl implements AgentService {
                             ? TaskStateEnum.RUNNING.getType()
                             : TaskStateEnum.FROZEN.getType());
             dataConfig.setSyncSend(streamEntity.getSyncSend());
-            if (SourceType.FILE.equalsIgnoreCase(entity.getSourceType())
-                    && StringUtils.isNotBlank(streamEntity.getDataSeparator())) {
+            if (SourceType.FILE.equalsIgnoreCase(entity.getSourceType())) {
                 String dataSeparator = String.valueOf((char) Integer.parseInt(streamEntity.getDataSeparator()));
-                extParams = getExtParams(extParams, dataSeparator);
+                FileSourceDTO fileSourceDTO = JsonUtils.parseObject(extParams, FileSourceDTO.class);
+                if (Objects.nonNull(fileSourceDTO)) {
+                    fileSourceDTO.setDataSeparator(dataSeparator);
+                    dataConfig.setAuditVersion(fileSourceDTO.getAuditVersion());
+                    fileSourceDTO.setDataContentStyle(streamEntity.getDataType());
+                    extParams = JsonUtils.toJsonString(fileSourceDTO);
+                }
             }
             InlongStreamInfo streamInfo = CommonBeanUtils.copyProperties(streamEntity, InlongStreamInfo::new);
             // Processing extParams
@@ -742,15 +747,6 @@ public class AgentServiceImpl implements AgentService {
         }
         dataConfig.setExtParams(extParams);
         return dataConfig;
-    }
-
-    private String getExtParams(String extParams, String dataSeparator) {
-        FileSourceDTO fileSourceDTO = JsonUtils.parseObject(extParams, FileSourceDTO.class);
-        if (Objects.nonNull(fileSourceDTO)) {
-            fileSourceDTO.setDataSeparator(dataSeparator);
-            return JsonUtils.toJsonString(fileSourceDTO);
-        }
-        return extParams;
     }
 
     /**

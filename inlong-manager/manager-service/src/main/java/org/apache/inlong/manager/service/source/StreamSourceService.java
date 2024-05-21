@@ -249,4 +249,13 @@ public interface StreamSourceService {
      */
     Integer addDataAddTask(DataAddTaskRequest request, String operator);
 
+    /**
+     * Batch Save the data add task information
+     *
+     * @param requestList Source request list.
+     * @param operator Operator's name.
+     * @return source id list after saving.
+     */
+    List<Integer> batchAddDataAddTask(String groupId, String streamId, List<DataAddTaskRequest> requestList,
+            String operator);
 }
