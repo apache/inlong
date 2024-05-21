@@ -87,7 +87,7 @@ public class AuditManagerUtils {
     }
 
     public static AuditInformation buildAuditInformation(String auditType,
-            FlowType dataFlow,
+            FlowType flowType,
             boolean success,
             boolean isRealtime,
             boolean discard,
@@ -96,16 +96,16 @@ public class AuditManagerUtils {
                 buildRealtimeFlag(isRealtime) +
                 buildDiscardFlag(discard) +
                 buildRetryFlag(retry);
-        AuditIdEnum baseAuditId = AuditIdEnum.getAuditId(auditType, dataFlow);
+        AuditIdEnum baseAuditId = AuditIdEnum.getAuditId(auditType, flowType);
         int auditId = Integer.parseInt(auditPreFix + buildAuditIdSuffix(baseAuditId.getValue()), 2);
         StringBuilder nameInEnglish = new StringBuilder()
                 .append(baseAuditId.getAuditType().value())
                 .append(AUDIT_DESCRIPTION_JOINER)
-                .append(dataFlow.getNameInEnglish())
+                .append(flowType.getNameInEnglish())
                 .append(AUDIT_DESCRIPTION_JOINER);
         StringBuilder nameInChinese = new StringBuilder()
                 .append(baseAuditId.getAuditType().value())
-                .append(dataFlow.getNameInChinese());
+                .append(flowType.getNameInChinese());
 
         if (discard) {
             nameInEnglish.append("discard").append(AUDIT_DESCRIPTION_JOINER);
