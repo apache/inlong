@@ -65,11 +65,9 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
       submitData.version = savedData?.version;
     }
     if (type === 'AGENT') {
+      submitData.protocolType = 'http';
       if (submitData.installer !== undefined) {
-        submitData.moduleIdList = submitData.moduleIdList.concat(submitData.installer);
-      }
-      if (isUpdate === undefined) {
-        submitData.isInstall = true;
+        submitData.moduleIdList = [submitData.moduleIdList].concat(submitData.installer);
       }
     }
     await request({
@@ -141,25 +139,6 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
       },
       {
         type: 'select',
-        label: i18n.t('pages.Clusters.Node.ProtocolType'),
-        name: 'protocolType',
-        initialValue: 'HTTP',
-        rules: [{ required: true }],
-        props: {
-          options: [
-            {
-              label: 'HTTP',
-              value: 'HTTP',
-            },
-            {
-              label: 'TCP',
-              value: 'TCP',
-            },
-          ],
-        },
-      },
-      {
-        type: 'select',
         label: i18n.t('pages.Clusters.Node.Agent'),
         name: 'moduleIdList',
         hidden: type !== 'AGENT',
@@ -220,6 +199,50 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
             },
           },
         },
+      },
+      {
+        type: 'radio',
+        label: i18n.t('pages.Clusters.Node.IsInstall'),
+        name: 'isInstall',
+        initialValue: false,
+        hidden: type !== 'AGENT',
+        rules: [{ required: true }],
+        props: {
+          options: [
+            {
+              label: i18n.t('pages.Clusters.Node.ManualInstall'),
+              value: false,
+            },
+            {
+              label: i18n.t('pages.Clusters.Node.SSHInstall'),
+              value: true,
+            },
+          ],
+        },
+      },
+      {
+        type: 'input',
+        label: i18n.t('pages.Clusters.Node.Username'),
+        name: 'username',
+        rules: [{ required: true }],
+        hidden: type !== 'AGENT',
+        visible: values => values?.isInstall,
+      },
+      {
+        type: 'input',
+        label: i18n.t('pages.Clusters.Node.Password'),
+        name: 'password',
+        rules: [{ required: true }],
+        hidden: type !== 'AGENT',
+        visible: values => values?.isInstall,
+      },
+      {
+        type: 'input',
+        label: i18n.t('pages.Clusters.Node.SSHPort'),
+        name: 'sshPort',
+        rules: [{ required: true }],
+        hidden: type !== 'AGENT',
+        visible: values => values?.isInstall,
       },
       {
         type: 'textarea',
