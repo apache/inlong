@@ -120,7 +120,7 @@ public class BulkInsertWriteFunction<I>
     }
 
     @Override
-    public void open(Configuration parameters) throws IOException {
+    public void open(Configuration parameters) {
         this.taskID = getRuntimeContext().getIndexOfThisSubtask();
         this.writeClient = FlinkWriteClients.createWriteClient(this.config, getRuntimeContext());
         this.ckpMetadata = CkpMetadata.getInstance(config);

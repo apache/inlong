@@ -79,7 +79,7 @@ public class AppendWriteFunction<I> extends AbstractStreamWriteFunction<I> {
     }
 
     @Override
-    public void open(Configuration parameters) throws Exception {
+    public void open(Configuration parameters) {
         if (metricOption != null) {
             this.sinkMetricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
         }

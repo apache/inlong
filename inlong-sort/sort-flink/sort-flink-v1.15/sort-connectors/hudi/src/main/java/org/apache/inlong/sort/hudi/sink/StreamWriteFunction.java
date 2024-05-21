@@ -124,7 +124,7 @@ public class StreamWriteFunction<I> extends AbstractStreamWriteFunction<I> {
     }
 
     @Override
-    public void open(Configuration parameters) throws IOException {
+    public void open(Configuration parameters) {
         this.tracer = new TotalSizeTracer(this.config);
         initBuffer();
         initWriteFunction();
