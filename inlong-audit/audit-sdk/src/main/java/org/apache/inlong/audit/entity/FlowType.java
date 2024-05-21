@@ -19,8 +19,8 @@ package org.apache.inlong.audit.entity;
 
 public enum FlowType {
 
-    INPUT("received", "接收"),
-    OUTPUT("send", "发送");
+    INPUT("received", " 接收"),
+    OUTPUT("send", " 发送");
     private final String nameInEnglish;
     private final String nameInChinese;
 

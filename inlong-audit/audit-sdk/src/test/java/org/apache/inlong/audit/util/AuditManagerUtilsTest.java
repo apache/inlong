@@ -44,43 +44,43 @@ public class AuditManagerUtilsTest {
         AuditInformation auditInfo =
                 AuditManagerUtils.buildAuditInformation(auditType, flowType, success, isRealtime, discard, retry);
         assertEquals(AGENT_INPUT.getValue(), auditInfo.getAuditId());
-        assertEquals("Agent接收成功", auditInfo.getNameInChinese());
+        assertEquals("Agent 接收成功", auditInfo.getNameInChinese());
 
         auditType = "DataProxy";
         auditInfo = AuditManagerUtils.buildAuditInformation(auditType, flowType, success, isRealtime, discard, retry);
         assertEquals(DATA_PROXY_INPUT.getValue(), auditInfo.getAuditId());
-        assertEquals("DataProxy接收成功", auditInfo.getNameInChinese());
+        assertEquals("DataProxy 接收成功", auditInfo.getNameInChinese());
 
         auditType = "Hive";
         auditInfo = AuditManagerUtils.buildAuditInformation(auditType, flowType, success, isRealtime, discard, retry);
         assertEquals(SORT_HIVE_INPUT.getValue(), auditInfo.getAuditId());
-        assertEquals("Hive接收成功", auditInfo.getNameInChinese());
+        assertEquals("Hive 接收成功", auditInfo.getNameInChinese());
 
         auditType = "StarRocks";
         auditInfo = AuditManagerUtils.buildAuditInformation(auditType, flowType, success, isRealtime, discard, retry);
         assertEquals(SORT_STARROCKS_INPUT.getValue(), auditInfo.getAuditId());
-        assertEquals("StarRocks接收成功", auditInfo.getNameInChinese());
+        assertEquals("StarRocks 接收成功", auditInfo.getNameInChinese());
 
         // Test the scenario of dataFlow case compatibility.
         auditType = "agent";
         auditInfo = AuditManagerUtils.buildAuditInformation(auditType, flowType, success, isRealtime, discard, retry);
         assertEquals(AGENT_INPUT.getValue(), auditInfo.getAuditId());
-        assertEquals("Agent接收成功", auditInfo.getNameInChinese());
+        assertEquals("Agent 接收成功", auditInfo.getNameInChinese());
 
         auditType = "dataProxy";
         auditInfo = AuditManagerUtils.buildAuditInformation(auditType, flowType, success, isRealtime, discard, retry);
         assertEquals(DATA_PROXY_INPUT.getValue(), auditInfo.getAuditId());
-        assertEquals("DataProxy接收成功", auditInfo.getNameInChinese());
+        assertEquals("DataProxy 接收成功", auditInfo.getNameInChinese());
 
         auditType = "hive";
         auditInfo = AuditManagerUtils.buildAuditInformation(auditType, flowType, success, isRealtime, discard, retry);
         assertEquals(SORT_HIVE_INPUT.getValue(), auditInfo.getAuditId());
-        assertEquals("Hive接收成功", auditInfo.getNameInChinese());
+        assertEquals("Hive 接收成功", auditInfo.getNameInChinese());
 
         auditType = "STARROCKS";
         auditInfo = AuditManagerUtils.buildAuditInformation(auditType, flowType, success, isRealtime, discard, retry);
         assertEquals(SORT_STARROCKS_INPUT.getValue(), auditInfo.getAuditId());
-        assertEquals("StarRocks接收成功", auditInfo.getNameInChinese());
+        assertEquals("StarRocks 接收成功", auditInfo.getNameInChinese());
 
         // Test send failed audit items.
         auditType = "Agent";
@@ -90,28 +90,30 @@ public class AuditManagerUtilsTest {
         discard = false;
         retry = false;
         auditInfo = AuditManagerUtils.buildAuditInformation(auditType, flowType, success, isRealtime, discard, retry);
-        assertEquals("Agent发送失败", auditInfo.getNameInChinese());
+        assertEquals("Agent 发送失败", auditInfo.getNameInChinese());
 
         auditType = "DataProxy";
         auditInfo = AuditManagerUtils.buildAuditInformation(auditType, flowType, success, isRealtime, discard, retry);
-        assertEquals("DataProxy发送失败", auditInfo.getNameInChinese());
+        assertEquals("DataProxy 发送失败", auditInfo.getNameInChinese());
 
         auditType = "Hive";
         auditInfo = AuditManagerUtils.buildAuditInformation(auditType, flowType, success, isRealtime, discard, retry);
-        assertEquals("Hive发送失败", auditInfo.getNameInChinese());
+        assertEquals("Hive 发送失败", auditInfo.getNameInChinese());
 
         auditType = "StarRocks";
         auditInfo = AuditManagerUtils.buildAuditInformation(auditType, flowType, success, isRealtime, discard, retry);
-        assertEquals("StarRocks发送失败", auditInfo.getNameInChinese());
+        assertEquals("StarRocks 发送失败", auditInfo.getNameInChinese());
     }
 
     @Test
     public void getAllAuditInformation() {
         List<AuditInformation> auditInfoList = AuditManagerUtils.getAllAuditInformation();
+        System.out.println(auditInfoList);
         assertTrue(auditInfoList.size() > 0);
 
         auditInfoList.clear();
         auditInfoList = AuditManagerUtils.getAllAuditInformation("Agent");
+
         assertTrue(auditInfoList.size() > 0);
     }
 

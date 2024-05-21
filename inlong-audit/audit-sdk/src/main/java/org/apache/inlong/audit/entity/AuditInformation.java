@@ -20,6 +20,10 @@ package org.apache.inlong.audit.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+/**
+ * The Audit information description currently only supports Chinese and English.
+ * If other languages need to be added, it can be expanded.
+ */
 @Data
 @AllArgsConstructor
 public class AuditInformation {
