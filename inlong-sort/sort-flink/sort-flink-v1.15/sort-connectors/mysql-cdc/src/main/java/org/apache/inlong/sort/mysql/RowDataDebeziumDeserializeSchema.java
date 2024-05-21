@@ -68,7 +68,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * Deserialization schema from Debezium object to Flink Table/SQL internal data structure {@link
  * RowData}.
  * <p>
- * Copy from com.ververica:flink-connector-postgres-cdc-2.3.0
+ * Copy from com.ververica:flink-connector-mysql-cdc-2.3.0
  */
 public final class RowDataDebeziumDeserializeSchema implements DebeziumDeserializationSchema<RowData> {
 

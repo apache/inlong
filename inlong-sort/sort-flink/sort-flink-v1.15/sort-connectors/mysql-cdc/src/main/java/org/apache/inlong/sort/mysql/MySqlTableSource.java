@@ -59,7 +59,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * A {@link DynamicTableSource} that describes how to create a MySQL binlog source from a logical
  * description.
  * <p>
- * Copy from com.ververica:flink-connector-postgres-cdc-2.3.0
+ * Copy from com.ververica:flink-connector-mysql-cdc-2.3.0
  */
 public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadata {
 
