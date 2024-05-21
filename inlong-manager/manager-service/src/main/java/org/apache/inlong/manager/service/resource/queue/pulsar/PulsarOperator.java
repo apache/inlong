@@ -416,7 +416,7 @@ public class PulsarOperator {
         int partitionCount = getPartitionCount(pulsarClusterInfo, topicFullName);
         for (int messageIndex = 0; messageIndex < messageCount; messageIndex++) {
             int currentPartitionNum = messageIndex % partitionCount;
-            int messagePosition = messageIndex / partitionCount;
+            int messagePosition = messageIndex / partitionCount + 1;
             String topicNameOfPartition = buildTopicNameOfPartition(topicFullName, currentPartitionNum, serial);
             messageList.addAll(queryMessageFromPulsar(topicNameOfPartition, pulsarClusterInfo, messageIndex,
                     streamInfo, messagePosition));
