@@ -17,65 +17,96 @@
 
 package org.apache.inlong.audit;
 
+import org.apache.inlong.audit.entity.AuditType;
+import org.apache.inlong.audit.entity.FlowType;
+import org.apache.inlong.audit.exceptions.AuditTypeNotExistException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.apache.inlong.audit.entity.AuditType.AGENT;
+import static org.apache.inlong.audit.entity.AuditType.BINLOG;
+import static org.apache.inlong.audit.entity.AuditType.CLICKHOUSE;
+import static org.apache.inlong.audit.entity.AuditType.DATAPROXY;
+import static org.apache.inlong.audit.entity.AuditType.DORIS;
+import static org.apache.inlong.audit.entity.AuditType.ELASTICSEARCH;
+import static org.apache.inlong.audit.entity.AuditType.HBASE;
+import static org.apache.inlong.audit.entity.AuditType.HIVE;
+import static org.apache.inlong.audit.entity.AuditType.HUDI;
+import static org.apache.inlong.audit.entity.AuditType.ICEBERG;
+import static org.apache.inlong.audit.entity.AuditType.KUDU;
+import static org.apache.inlong.audit.entity.AuditType.MYSQL;
+import static org.apache.inlong.audit.entity.AuditType.POSTGRES;
+import static org.apache.inlong.audit.entity.AuditType.SDK;
+import static org.apache.inlong.audit.entity.AuditType.STARROCKS;
+import static org.apache.inlong.audit.entity.AuditType.TUBE;
+import static org.apache.inlong.audit.entity.FlowType.INPUT;
+import static org.apache.inlong.audit.entity.FlowType.OUTPUT;
+
 /**
  * Audit item management, each module is assigned two baseline audit item IDs, namely receiving and sending.
  */
 public enum AuditIdEnum {
 
-    SDK_INPUT(1, "Received Audit Metrics for SDK"),
-    SDK_OUTPUT(2, "Sent Audit Metrics for SDK"),
+    SDK_INPUT(1, INPUT, SDK, "Received Audit Metrics for SDK"),
+    SDK_OUTPUT(2, OUTPUT, SDK, "Sent Audit Metrics for SDK"),
 
-    AGENT_INPUT(3, "Received Audit Metrics for Agent"),
-    AGENT_OUTPUT(4, "Sent Audit Metrics for Agent"),
+    AGENT_INPUT(3, INPUT, AGENT, "Received Audit Metrics for Agent"),
+    AGENT_OUTPUT(4, OUTPUT, AGENT, "Sent Audit Metrics for Agent"),
 
-    DATA_PROXY_INPUT(5, "Received Audit Metrics for DataProxy"),
-    DATA_PROXY_OUTPUT(6, "Sent Audit Metrics for DataProxy"),
+    DATA_PROXY_INPUT(5, INPUT, DATAPROXY, "Received Audit Metrics for DataProxy"),
+    DATA_PROXY_OUTPUT(6, OUTPUT, DATAPROXY, "Sent Audit Metrics for DataProxy"),
 
-    SORT_HIVE_INPUT(7, "Received Audit Metrics for Sort Hive"),
-    SORT_HIVE_OUTPUT(8, "Sent Audit Metrics for Sort Hive"),
+    SORT_HIVE_INPUT(7, INPUT, HIVE, "Received Audit Metrics for Sort Hive"),
+    SORT_HIVE_OUTPUT(8, OUTPUT, HIVE, "Sent Audit Metrics for Sort Hive"),
 
-    SORT_CLICKHOUSE_INPUT(9, "Received Audit Metrics for Sort ClickHouse"),
-    SORT_CLICKHOUSE_OUTPUT(10, "Sent Audit Metrics for Sort ClickHouse"),
+    SORT_CLICKHOUSE_INPUT(9, INPUT, CLICKHOUSE, "Received Audit Metrics for Sort ClickHouse"),
+    SORT_CLICKHOUSE_OUTPUT(10, OUTPUT, CLICKHOUSE, "Sent Audit Metrics for Sort ClickHouse"),
 
-    SORT_ELASTICSEARCH_INPUT(11, "Received Audit Metrics for Sort ElasticSearch"),
-    SORT_ELASTICSEARCH_OUTPUT(12, "Sent Audit Metrics for Sort ElasticSearch"),
+    SORT_ELASTICSEARCH_INPUT(11, INPUT, ELASTICSEARCH, "Received Audit Metrics for Sort ElasticSearch"),
+    SORT_ELASTICSEARCH_OUTPUT(12, OUTPUT, ELASTICSEARCH, "Sent Audit Metrics for Sort ElasticSearch"),
 
-    SORT_STARROCKS_INPUT(13, "Received Audit Metrics for Sort StarRocks"),
-    SORT_STARROCKS_OUTPUT(14, "Sent Audit Metrics for Sort StarRocks"),
+    SORT_STARROCKS_INPUT(13, INPUT, STARROCKS, "Received Audit Metrics for Sort StarRocks"),
+    SORT_STARROCKS_OUTPUT(14, OUTPUT, STARROCKS, "Sent Audit Metrics for Sort StarRocks"),
 
-    SORT_HUDI_INPUT(15, "Received Audit Metrics for Sort HuDi"),
-    SORT_HUDI_OUTPUT(16, "Sent Audit Metrics for Sort HuDi"),
+    SORT_HUDI_INPUT(15, INPUT, HUDI, "Received Audit Metrics for Sort HuDi"),
+    SORT_HUDI_OUTPUT(16, OUTPUT, HUDI, "Sent Audit Metrics for Sort HuDi"),
 
-    SORT_ICEBERG_INPUT(17, "Received Audit Metrics for Sort Iceberg"),
-    SORT_ICEBERG_OUTPUT(18, "Sent Audit Metrics for Sort Iceberg"),
+    SORT_ICEBERG_INPUT(17, INPUT, ICEBERG, "Received Audit Metrics for Sort Iceberg"),
+    SORT_ICEBERG_OUTPUT(18, OUTPUT, ICEBERG, "Sent Audit Metrics for Sort Iceberg"),
 
-    SORT_HBASE_INPUT(19, "Received Audit Metrics for Sort HBase"),
-    SORT_HBASE_OUTPUT(20, "Sent Audit Metrics for Sort HBase"),
+    SORT_HBASE_INPUT(19, INPUT, HBASE, "Received Audit Metrics for Sort HBase"),
+    SORT_HBASE_OUTPUT(20, OUTPUT, HBASE, "Sent Audit Metrics for Sort HBase"),
 
-    SORT_DORIS_INPUT(21, "Received Audit Metrics for Sort Doris"),
-    SORT_DORIS_OUTPUT(22, "Sent Audit Metrics for Sort Doris"),
+    SORT_DORIS_INPUT(21, INPUT, DORIS, "Received Audit Metrics for Sort Doris"),
+    SORT_DORIS_OUTPUT(22, OUTPUT, DORIS, "Sent Audit Metrics for Sort Doris"),
 
-    SORT_KUDU_INPUT(25, "Received Audit Metrics for Sort Kudu"),
-    SORT_KUDU_OUTPUT(26, "Sent Audit Metrics for Sort Kudu"),
+    SORT_KUDU_INPUT(25, INPUT, KUDU, "Received Audit Metrics for Sort Kudu"),
+    SORT_KUDU_OUTPUT(26, OUTPUT, KUDU, "Sent Audit Metrics for Sort Kudu"),
 
-    SORT_POSTGRES_INPUT(27, "Received Audit Metrics for Sort Postgres"),
-    SORT_POSTGRES_OUTPUT(28, "Sent Audit Metrics for Sort Postgres"),
+    SORT_POSTGRES_INPUT(27, INPUT, POSTGRES, "Received Audit Metrics for Sort Postgres"),
+    SORT_POSTGRES_OUTPUT(28, OUTPUT, POSTGRES, "Sent Audit Metrics for Sort Postgres"),
 
-    SORT_BINLOG_INPUT(29, "Received Audit Metrics for Sort Binlog"),
-    SORT_BINLOG_OUTPUT(30, "Sent Audit Metrics for Sort Binlog"),
+    SORT_BINLOG_INPUT(29, INPUT, BINLOG, "Received Audit Metrics for Sort Binlog"),
+    SORT_BINLOG_OUTPUT(30, OUTPUT, BINLOG, "Sent Audit Metrics for Sort Binlog"),
 
-    SORT_TUBE_INPUT(33, "Received Audit Metrics for Sort Tube"),
-    SORT_TUBE_OUTPUT(34, "Sent Audit Metrics for Sort Tube"),
+    SORT_TUBE_INPUT(33, INPUT, TUBE, "Received Audit Metrics for Sort Tube"),
+    SORT_TUBE_OUTPUT(34, OUTPUT, TUBE, "Sent Audit Metrics for Sort Tube"),
 
-    SORT_MYSQL_INPUT(35, "Received Audit Metrics for Sort MySQL"),
-    SORT_MYSQL_OUTPUT(36, "Sent Audit Metrics for Sort MySQL");
+    SORT_MYSQL_INPUT(35, INPUT, MYSQL, "Received Audit Metrics for Sort MySQL"),
+    SORT_MYSQL_OUTPUT(36, OUTPUT, MYSQL, "Sent Audit Metrics for Sort MySQL");
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuditIdEnum.class);
     private final int auditId;
     private final String description;
+    private final FlowType flowType;
+    private final AuditType auditType;
 
-    AuditIdEnum(int auditId, String description) {
+    AuditIdEnum(int auditId, FlowType flowType, AuditType auditType, String description) {
         this.auditId = auditId;
         this.description = description;
+        this.flowType = flowType;
+        this.auditType = auditType;
     }
 
     public int getValue() {
@@ -84,5 +115,24 @@ public enum AuditIdEnum {
 
     public String getDescription() {
         return description;
+    }
+
+    public FlowType getFlowType() {
+        return flowType;
+    }
+
+    public AuditType getAuditType() {
+        return auditType;
+    }
+
+    public static AuditIdEnum getAuditId(String auditType, FlowType flowType) {
+        for (AuditIdEnum auditIdEnum : AuditIdEnum.values()) {
+            if (auditIdEnum.getFlowType() == flowType &&
+                    auditType.equalsIgnoreCase(auditIdEnum.getAuditType().value())) {
+                return auditIdEnum;
+            }
+        }
+        LOGGER.error("Error Audit type: {}, flow type {}: ", auditType, flowType);
+        throw new AuditTypeNotExistException(String.format("Audit type %s does not exist", auditType));
     }
 }
