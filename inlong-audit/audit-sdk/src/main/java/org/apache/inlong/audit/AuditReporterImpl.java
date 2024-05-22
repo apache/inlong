@@ -17,6 +17,8 @@
 
 package org.apache.inlong.audit;
 
+import org.apache.inlong.audit.entity.AuditInformation;
+import org.apache.inlong.audit.entity.FlowType;
 import org.apache.inlong.audit.loader.SocketAddressListLoader;
 import org.apache.inlong.audit.protocol.AuditApi;
 import org.apache.inlong.audit.send.SenderManager;
@@ -503,7 +505,7 @@ public class AuditReporterImpl implements Serializable {
     }
 
     /**
-     *  Generate Audit item IDs.
+     * Generate Audit item IDs.
      *
      * @param baseAuditId
      * @param success
@@ -518,5 +520,25 @@ public class AuditReporterImpl implements Serializable {
             boolean discard,
             boolean retry) {
         return AuditManagerUtils.buildAuditId(baseAuditId, success, isRealtime, discard, retry);
+    }
+
+    public AuditInformation buildAuditInformation(String auditType,
+            FlowType dataFlow,
+            boolean success,
+            boolean isRealtime,
+            boolean discard,
+            boolean retry) {
+        return AuditManagerUtils.buildAuditInformation(auditType, dataFlow, success, isRealtime, discard, retry);
+    }
+    public List<AuditInformation> getAllAuditInformation() {
+        return AuditManagerUtils.getAllAuditInformation();
+    }
+
+    public List<AuditInformation> getAllAuditInformation(String auditType) {
+        return AuditManagerUtils.getAllAuditInformation(auditType);
+    }
+
+    public int getStartAuditIdForMetric() {
+        return AuditManagerUtils.getStartAuditIdForMetric();
     }
 }
