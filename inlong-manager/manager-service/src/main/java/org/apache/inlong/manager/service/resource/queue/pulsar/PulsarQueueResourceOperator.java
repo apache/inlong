@@ -68,8 +68,6 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
      */
     public static final String PULSAR_SUBSCRIPTION = "%s_%s_%s_consumer_group";
 
-    public static final String PULSAR_SUBSCRIPTION_REALTIME_REVIEW = "%s_%s_consumer_group_realtime_review";
-
     @Autowired
     private InlongClusterService clusterService;
     @Autowired
@@ -320,17 +318,9 @@ public class PulsarQueueResourceOperator implements QueueResourceOperator {
             this.executor.execute(task);
         }
         queryLatch.await(30, TimeUnit.SECONDS);
+        log.info("success query pulsar message for groupId={}, streamId={}", streamInfo.getInlongGroupId(),
+                streamInfo.getInlongStreamId());
 
-        // insert the consumer group info into the inlong_consume table
-        String topicName = streamInfo.getMqResource();
-        String clusterTag = inlongPulsarInfo.getInlongClusterTag();
-        String subs = String.format(PULSAR_SUBSCRIPTION_REALTIME_REVIEW, clusterTag, topicName);
-        Integer id = consumeService.saveBySystem(groupInfo, topicName, subs);
-        String groupId = streamInfo.getInlongGroupId();
-        log.info("success to save inlong consume [{}] for subs={}, groupId={}, topic={}",
-                id, subs, groupId, topicName);
-
-        // cut
         int finalMsgCount = Math.min(messageCount, briefMQMessages.size());
         if (finalMsgCount > 0) {
             return briefMQMessages.subList(0, finalMsgCount);
