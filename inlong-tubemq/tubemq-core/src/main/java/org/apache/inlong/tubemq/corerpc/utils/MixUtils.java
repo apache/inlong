@@ -75,7 +75,7 @@ public class MixUtils {
             if (strExceptionMsgSet.length > 0) {
                 if (!TStringUtils.isBlank(strExceptionMsgSet[0])) {
                     Class clazz = Class.forName(strExceptionMsgSet[0]);
-                    if (clazz != null) {
+                    if (clazz != null && Throwable.class.isAssignableFrom(clazz)) {
                         Constructor<?> ctor = clazz.getConstructor(String.class);
                         if (ctor != null) {
                             if (strExceptionMsgSet.length == 1) {
