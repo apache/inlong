@@ -92,6 +92,8 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
     @Nullable
     private final Character quoteChar;
 
+    @Nonnull
+    private Boolean isIncludeFirstSegment = false;
     /**
      * The literal represented null values, default "".
      */
@@ -123,6 +125,7 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
                 quoteChar,
                 nullLiteral,
                 metadataKeys,
+                false,
                 InLongMsgUtils.getDefaultExceptionHandler(ignoreErrors));
     }
 
@@ -136,6 +139,7 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
             @Nullable Character quoteChar,
             @Nullable String nullLiteral,
             List<String> metadataKeys,
+            @Nonnull Boolean isIncludeFirstSegment,
             @Nonnull FailureHandler failureHandler) {
         super(failureHandler);
 
@@ -148,7 +152,7 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
         this.quoteChar = quoteChar;
         this.nullLiteral = nullLiteral;
         this.metadataKeys = metadataKeys;
-
+        this.isIncludeFirstSegment = isIncludeFirstSegment;
         converters = Arrays.stream(rowFormatInfo.getFieldFormatInfos())
                 .map(formatInfo -> FieldToRowDataConverters.createConverter(
                         TableFormatUtils.deriveLogicalType(formatInfo)))
@@ -172,7 +176,8 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
     @Override
     protected List<InLongMsgBody> parseBodyList(byte[] bytes) throws Exception {
         return Collections.singletonList(
-                InLongMsgTlogCsvUtils.parseBody(bytes, charset, delimiter, escapeChar, quoteChar));
+                InLongMsgTlogCsvUtils.parseBody(bytes, charset, delimiter, escapeChar,
+                        quoteChar, isIncludeFirstSegment));
     }
 
     @Override
@@ -204,6 +209,7 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
         private String attributesFieldName = DEFAULT_ATTRIBUTES_FIELD_NAME;
         private Character delimiter = DEFAULT_DELIMITER;
         private List<String> metadataKeys = Collections.emptyList();
+        private boolean isIncludeFirstSegment = false;
 
         public Builder(RowFormatInfo rowFormatInfo) {
             super(rowFormatInfo);
@@ -229,6 +235,11 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
             return this;
         }
 
+        public Builder setIncludeFirstSegment(boolean isIncludeFirstSegment) {
+            this.isIncludeFirstSegment = isIncludeFirstSegment;
+            return this;
+        }
+
         public InLongMsgTlogCsvFormatDeserializer build() {
             return new InLongMsgTlogCsvFormatDeserializer(
                     rowFormatInfo,
@@ -240,7 +251,8 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
                     quoteChar,
                     nullLiteral,
                     metadataKeys,
-                    ignoreErrors);
+                    isIncludeFirstSegment,
+                    InLongMsgUtils.getDefaultExceptionHandler(ignoreErrors));
         }
     }
 
@@ -267,13 +279,14 @@ public final class InLongMsgTlogCsvFormatDeserializer extends AbstractInLongMsgF
                 Objects.equals(escapeChar, that.escapeChar) &&
                 Objects.equals(quoteChar, that.quoteChar) &&
                 Objects.equals(nullLiteral, that.nullLiteral) &&
-                Objects.equals(metadataKeys, that.metadataKeys);
+                Objects.equals(metadataKeys, that.metadataKeys) &&
+                Objects.equals(isIncludeFirstSegment, that.isIncludeFirstSegment);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), rowFormatInfo, timeFieldName,
                 attributesFieldName, charset, delimiter, escapeChar, quoteChar,
-                nullLiteral, metadataKeys);
+                nullLiteral, metadataKeys, isIncludeFirstSegment);
     }
 }
