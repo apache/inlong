@@ -23,7 +23,7 @@ import { RenderList } from '@/plugins/RenderList';
 import i18n from '@/i18n';
 import rulesPattern from '@/core/utils/pattern';
 import { SourceInfo } from '../common/SourceInfo';
-import MultiSelectWithALL, { ALL_OPTION_VALUE } from "@/ui/components/MultiSelectWithAll";
+import MultiSelectWithALL, { ALL_OPTION_VALUE } from '@/ui/components/MultiSelectWithAll';
 
 const { I18n } = DataWithBackend;
 const { FieldDecorator, IngestionField } = RenderRow;
