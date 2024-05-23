@@ -77,7 +77,8 @@ public class ClassResourceQueryConsumeConfig implements QueryConsumeConfig {
                     topic.setInLongCluster(cacheZoneCluster);
                     topic.setTopic(topicInfo.getTopic());
                     topic.setTopicType(cacheZone.getZoneType());
-                    topic.setProperties(topicInfo.getTopicProperties());
+                    Map<String, Object> properties = new HashMap<>(topicInfo.getTopicProperties());
+                    topic.setProperties(properties);
                     topics.add(topic);
                 }
             }

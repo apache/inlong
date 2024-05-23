@@ -41,25 +41,27 @@ public class SortClusterConfig implements Serializable {
     private List<MqClusterConfig> mqClusterConfigs;
     private List<DataFlowConfig> dataFlowConfigs;
 
+    public static SortClusterConfig checkDelete(SortClusterConfig last, SortClusterConfig current) {
+        return check(last, current, MqClusterConfig::batchCheckLast, DataFlowConfig::batchCheckDelete);
+    }
+
+    public static SortClusterConfig checkNew(SortClusterConfig last, SortClusterConfig current) {
+        return check(last, current, MqClusterConfig::batchCheckLatest, DataFlowConfig::batchCheckNew);
+    }
+
+    public static SortClusterConfig checkUpdate(SortClusterConfig last, SortClusterConfig current) {
+        return check(last, current, MqClusterConfig::batchCheckLatest, DataFlowConfig::batchCheckUpdate);
+    }
+
+    public static SortClusterConfig checkLatest(SortClusterConfig last, SortClusterConfig current) {
+        return check(last, current, MqClusterConfig::batchCheckLatest, DataFlowConfig::batchCheckLatest);
+    }
+
     public static List<SortClusterConfig> batchCheckDelete(
             List<SortClusterConfig> last,
             List<SortClusterConfig> current) {
         return SortConfigUtil.batchCheckDeleteRecursive(last, current,
                 SortClusterConfig::getClusterTag, SortClusterConfig::checkDelete);
-    }
-
-    public static List<SortClusterConfig> batchCheckUpdate(
-            List<SortClusterConfig> last,
-            List<SortClusterConfig> current) {
-        return SortConfigUtil.batchCheckUpdateRecursive(last, current,
-                SortClusterConfig::getClusterTag, SortClusterConfig::checkUpdate);
-    }
-
-    public static List<SortClusterConfig> batchCheckNoUpdate(
-            List<SortClusterConfig> last,
-            List<SortClusterConfig> current) {
-        return SortConfigUtil.batchCheckNoUpdateRecursive(last, current,
-                SortClusterConfig::getClusterTag, SortClusterConfig::checkNoUpdate);
     }
 
     public static List<SortClusterConfig> batchCheckNew(
@@ -69,20 +71,18 @@ public class SortClusterConfig implements Serializable {
                 SortClusterConfig::getClusterTag, SortClusterConfig::checkNew);
     }
 
-    public static SortClusterConfig checkDelete(SortClusterConfig last, SortClusterConfig current) {
-        return check(last, current, MqClusterConfig::batchCheckDelete, DataFlowConfig::batchCheckDelete);
+    public static List<SortClusterConfig> batchCheckUpdate(
+            List<SortClusterConfig> last,
+            List<SortClusterConfig> current) {
+        return SortConfigUtil.batchCheckUpdateRecursive(last, current,
+                SortClusterConfig::getClusterTag, SortClusterConfig::checkUpdate);
     }
 
-    public static SortClusterConfig checkUpdate(SortClusterConfig last, SortClusterConfig current) {
-        return check(last, current, MqClusterConfig::batchCheckUpdate, DataFlowConfig::batchCheckUpdate);
-    }
-
-    public static SortClusterConfig checkNoUpdate(SortClusterConfig last, SortClusterConfig current) {
-        return check(last, current, MqClusterConfig::batchCheckNoUpdate, DataFlowConfig::batchCheckNoUpdate);
-    }
-
-    public static SortClusterConfig checkNew(SortClusterConfig last, SortClusterConfig current) {
-        return check(last, current, MqClusterConfig::batchCheckNew, DataFlowConfig::batchCheckNew);
+    public static List<SortClusterConfig> batchCheckLatest(
+            List<SortClusterConfig> last,
+            List<SortClusterConfig> current) {
+        return SortConfigUtil.batchCheckLatestRecursive(last, current,
+                SortClusterConfig::getClusterTag, SortClusterConfig::checkLatest);
     }
 
     public static SortClusterConfig check(
@@ -95,7 +95,7 @@ public class SortClusterConfig implements Serializable {
         List<DataFlowConfig> checkDataflows = flowCheckFunction
                 .apply(last.getDataFlowConfigs(), current.getDataFlowConfigs());
 
-        if (CollectionUtils.isNotEmpty(checkCluster) && CollectionUtils.isNotEmpty(checkDataflows)) {
+        if (CollectionUtils.isEmpty(checkDataflows)) {
             return null;
         }
 

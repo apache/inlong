@@ -18,7 +18,6 @@
 package org.apache.inlong.common.pojo.sort.dataflow;
 
 import org.apache.inlong.common.pojo.sort.dataflow.sink.SinkConfig;
-import org.apache.inlong.common.util.ListUtil;
 import org.apache.inlong.common.util.SortConfigUtil;
 
 import lombok.AllArgsConstructor;
@@ -43,10 +42,10 @@ public class DataFlowConfig implements Serializable {
     private String inlongStreamId;
     private SourceConfig sourceConfig;
     private SinkConfig sinkConfig;
-    private Map<String, String> properties;
+    private Map<String, Object> properties;
 
     public static List<DataFlowConfig> batchCheckDelete(List<DataFlowConfig> last, List<DataFlowConfig> current) {
-        return ListUtil.subtract(last, current, DataFlowConfig::getDataflowId);
+        return SortConfigUtil.checkDelete(last, current, DataFlowConfig::getDataflowId);
     }
 
     public static List<DataFlowConfig> batchCheckUpdate(List<DataFlowConfig> last, List<DataFlowConfig> current) {
@@ -58,7 +57,12 @@ public class DataFlowConfig implements Serializable {
     }
 
     public static List<DataFlowConfig> batchCheckNew(List<DataFlowConfig> last, List<DataFlowConfig> current) {
-        return ListUtil.subtract(current, last, DataFlowConfig::getDataflowId);
+        return SortConfigUtil.checkNew(last, current, DataFlowConfig::getDataflowId);
+    }
+
+    public static List<DataFlowConfig> batchCheckLatest(List<DataFlowConfig> last, List<DataFlowConfig> current) {
+        return SortConfigUtil.checkLatest(last, current,
+                DataFlowConfig::getDataflowId, DataFlowConfig::getVersion);
     }
 
 }
