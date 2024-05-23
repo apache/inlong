@@ -125,6 +125,9 @@ public enum ErrorCodeEnum {
     MQ_TYPE_IS_NULL(1600, "MQ type is null"),
     MQ_TYPE_NOT_SUPPORT(1601, "MQ type '%s' not support"),
 
+    SCHEDULE_NOT_FOUND(1700, "Schedule info not found"),
+    SCHEDULE_DUPLICATE(1701, "Schedule info already exist"),
+
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
     WORKFLOW_APPROVER_NOT_FOUND(4001, "Workflow approver does not exist/no operation authority"),
     WORKFLOW_DELETE_RECORD_FAILED(4002, "Workflow delete record failure"),

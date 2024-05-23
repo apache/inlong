@@ -15,39 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.dao.mapper;
 
-/**
- * Operation target
- */
-public enum OperationTarget {
+import org.apache.inlong.manager.dao.entity.ScheduleEntity;
 
-    TENANT,
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
-    GROUP,
+@Repository
+public interface ScheduleEntityMapper {
 
-    STREAM,
+    int insert(ScheduleEntity scheduleEntity);
 
-    SOURCE,
+    ScheduleEntity selectByPrimaryKey(Integer id);
 
-    SINK,
+    ScheduleEntity selectByGroupId(String groupId);
 
-    CONSUME,
+    int updateByIdSelective(ScheduleEntity scheduleEntity);
 
-    WORKFLOW,
-
-    NODE,
-
-    CLUSTER,
-
-    TRANSFORM,
-
-    INLONG_ROLE,
-
-    TENANT_ROLE,
-
-    TEMPLATE,
-
-    SCHEDULE
-
+    int deleteByGroupId(@Param("inlongGroupId") String inlongGroupId);
 }
