@@ -962,4 +962,35 @@ CREATE TABLE IF NOT EXISTS `tenant_template`
 
 -- ----------------------------
 
+-- ----------------------------
+-- Table structure for schedule_config
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `schedule_config`
+(
+    `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `inlong_group_id`        varchar(256) NOT NULL COMMENT 'Inlong group id, undeleted ones cannot be repeated',
+    `schedule_type`          int(4)       NOT NULL DEFAULT '0' COMMENT 'Schedule type, 0 for normal, 1 for crontab',
+    `schedule_unit`          varchar(64)  NOT NULL COMMENT 'Schedule unit,M=month, W=week, D=day, H=hour, M=minute, O=oneway',
+    `schedule_interval`      int(11)      DEFAULT '1' COMMENT 'Schedule interval',
+    `start_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Start time for schedule',
+    `end_time`               timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'End time for schedule',
+    `delay_time`             int(11)      DEFAULT '0' COMMENT 'Delay time in minutes to schedule',
+    `self_depend`            int(11)      DEFAULT NULL COMMENT 'Self depend info',
+    `task_parallelism`       int(11)      DEFAULT NULL COMMENT 'Task parallelism',
+    `crontab_expression`     varchar(256) DEFAULT NULL COMMENT 'Crontab expression if schedule type is crontab',
+    `status`                 int(4)       DEFAULT '100' COMMENT 'Schedule status',
+    `previous_status`        int(4)       DEFAULT '100' COMMENT 'Previous schedule status',
+    `is_deleted`             int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`                varchar(64)  NOT NULL COMMENT 'Creator name',
+    `modifier`               varchar(64)  DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`                int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_group_schedule_config` (`inlong_group_id`, `is_deleted`)
+    ) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4 COMMENT = 'schedule_config';
+-- ----------------------------
+
+
 SET FOREIGN_KEY_CHECKS = 1;

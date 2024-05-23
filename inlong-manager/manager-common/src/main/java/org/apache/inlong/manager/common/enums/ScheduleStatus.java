@@ -17,37 +17,29 @@
 
 package org.apache.inlong.manager.common.enums;
 
-/**
- * Operation target
- */
-public enum OperationTarget {
+import lombok.Getter;
 
-    TENANT,
+@Getter
+public enum ScheduleStatus {
 
-    GROUP,
+    NEW(100, "new"),
+    DELETED(40, "deleted");
 
-    STREAM,
+    private final Integer code;
+    private final String description;
 
-    SOURCE,
+    ScheduleStatus(Integer code, String description) {
+        this.code = code;
+        this.description = description;
+    }
 
-    SINK,
-
-    CONSUME,
-
-    WORKFLOW,
-
-    NODE,
-
-    CLUSTER,
-
-    TRANSFORM,
-
-    INLONG_ROLE,
-
-    TENANT_ROLE,
-
-    TEMPLATE,
-
-    SCHEDULE
+    public static ScheduleStatus forCode(int code) {
+        for (ScheduleStatus status : values()) {
+            if (status.getCode() == code) {
+                return status;
+            }
+        }
+        throw new IllegalStateException(String.format("Illegal code=%s for ScheduleStatus", code));
+    }
 
 }
