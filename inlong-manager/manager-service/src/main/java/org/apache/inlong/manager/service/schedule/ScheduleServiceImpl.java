@@ -50,7 +50,6 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public int save(ScheduleInfoRequest request, String operator) {
         LOGGER.debug("begin to save schedule info, scheduleInfo: {}, operator: {}", request, operator);
-        Preconditions.expectNotNull(request, "schedule info request can't be null");
 
         String groupId = request.getGroupId();
         checkGroupExist(groupId);

@@ -43,7 +43,7 @@ public class ScheduleInfo {
 
     @ApiModelProperty("Inlong Group ID")
     @NotNull
-    private String groupId;
+    private String inlongGroupId;
 
     // schedule type, support [normal, crontab], 0 for normal and 1 for crontab
     @ApiModelProperty("Schedule type")

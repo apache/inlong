@@ -20,7 +20,7 @@
 <mapper namespace="org.apache.inlong.manager.dao.mapper.ScheduleEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.ScheduleEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
-        <result column="group_id" jdbcType="VARCHAR" property="groupId"/>
+        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="schedule_type" jdbcType="INTEGER" property="scheduleType"/>
         <result column="schedule_unit" jdbcType="VARCHAR" property="scheduleUnit"/>
         <result column="schedule_interval" jdbcType="INTEGER" property="scheduleInterval"/>
@@ -42,18 +42,18 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, group_id, schedule_type, schedule_unit, schedule_interval, start_time,
+        id, inlong_group_id, schedule_type, schedule_unit, schedule_interval, start_time,
           end_time, delay_time, self_depend, task_parallelism, crontab_expression,
            status, previous_status, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.ScheduleEntity">
-        insert into schedule_config (id, group_id, schedule_type, schedule_unit,
+        insert into schedule_config (id, inlong_group_id, schedule_type, schedule_unit,
                                      schedule_interval, start_time, end_time, delay_time,
                                      self_depend, task_parallelism, crontab_expression,
                                      status, previous_status, creator, modifier)
-        values (#{id, jdbcType=INTEGER}, #{groupId, jdbcType=VARCHAR},
+        values (#{id, jdbcType=INTEGER}, #{inlongGroupId, jdbcType=VARCHAR},
                 #{scheduleType, jdbcType=INTEGER}, #{scheduleUnit, jdbcType=VARCHAR},
                 #{scheduleInterval, jdbcType=INTEGER}, #{startTime, jdbcType=TIMESTAMP},
                 #{endTime, jdbcType=TIMESTAMP}, #{delayTime, jdbcType=INTEGER},
@@ -82,7 +82,7 @@
         update schedule_config
         <set>
             <if test="groupId != null">
-                group_id = #{groupId, jdbcType=VARCHAR},
+                inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR},
             </if>
             <if test="scheduleType != null">
                 schedule_type = #{scheduleType, jdbcType=INTEGER},
@@ -137,7 +137,7 @@
     <delete id="deleteByGroupId">
         delete
         from schedule_config
-        where group_id = #{groupId, jdbcType=VARCHAR}
+        where inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
     </delete>
 
 </mapper>
