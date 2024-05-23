@@ -55,7 +55,7 @@ public class StarRocksSqlBuilder {
         // Construct columns and partition columns
         sql.append(getColumnsAndComments(table));
         if (!StringUtils.isEmpty(table.getPrimaryKey())) {
-            sql.append(", PRIMARY KEY (")
+            sql.append(" PRIMARY KEY (")
                     .append(table.getPrimaryKey())
                     .append(")");
         }
