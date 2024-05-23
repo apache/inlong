@@ -74,14 +74,14 @@
         select
         <include refid="Base_Column_List"/>
         from schedule_config
-        where group_id = #{groupId,jdbcType=VARCHAR}
+        where inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR}
         and is_deleted = 0
     </select>
 
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.ScheduleEntity">
         update schedule_config
         <set>
-            <if test="groupId != null">
+            <if test="inlongGroupId != null">
                 inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR},
             </if>
             <if test="scheduleType != null">

@@ -33,7 +33,7 @@ ALTER TABLE `inlong_cluster_node` ADD COLUMN  `ssh_port` int(11) DEFAULT NULL CO
 CREATE TABLE IF NOT EXISTS `schedule_config`
 (
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `group_id`               varchar(256) NOT NULL COMMENT 'Inlong group id, undeleted ones cannot be repeated',
+    `inlong_group_id`               varchar(256) NOT NULL COMMENT 'Inlong group id, undeleted ones cannot be repeated',
     `schedule_type`          int(4)       NOT NULL DEFAULT '0' COMMENT 'Schedule type, 0 for normal, 1 for crontab',
     `schedule_unit`          varchar(64)  NOT NULL COMMENT 'Schedule unit,M=month, W=week, D=day, H=hour, M=minute, O=oneway',
     `schedule_interval`      int(11)      DEFAULT '1' COMMENT 'Schedule interval',
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `schedule_config`
     `modify_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `version`                int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_group_schedule_config` (`group_id`, `is_deleted`)
+    UNIQUE KEY `unique_group_schedule_config` (`inlong_group_id`, `is_deleted`)
     ) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4 COMMENT = 'schedule_config';
 -- ----------------------------

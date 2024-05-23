@@ -33,5 +33,5 @@ public interface ScheduleEntityMapper {
 
     int updateByIdSelective(ScheduleEntity scheduleEntity);
 
-    int deleteByGroupId(@Param("groupId") String groupId);
+    int deleteByGroupId(@Param("inlongGroupId") String inlongGroupId);
 }

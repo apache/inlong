@@ -982,7 +982,7 @@ CREATE TABLE IF NOT EXISTS `schedule_config`
     `modify_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `version`                int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_group_schedule_config` (`group_id`, `is_deleted`)
+    UNIQUE KEY `unique_group_schedule_config` (`inlong_group_id`, `is_deleted`)
     ) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4 COMMENT = 'schedule_config';
 -- ----------------------------
