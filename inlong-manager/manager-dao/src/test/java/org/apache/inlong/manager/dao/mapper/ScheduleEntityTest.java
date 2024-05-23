@@ -69,10 +69,10 @@ public class ScheduleEntityTest extends DaoBaseTest {
         Assertions.assertEquals(DEFAULT_TIME, entityQueried.getEndTime());
         Assertions.assertEquals(USER, entityQueried.getCreator());
 
-        scheduleEntity.setScheduleType(SCHEDULE_TYPE_NEW);
-        scheduleEntity.setScheduleUnit(SCHEDULE_UNIT_NEW);
-        scheduleEntity.setScheduleInterval(SCHEDULE_INTERVAL_NEW);
-        scheduleEntityMapper.updateByIdSelective(scheduleEntity);
+        entityQueried.setScheduleType(SCHEDULE_TYPE_NEW);
+        entityQueried.setScheduleUnit(SCHEDULE_UNIT_NEW);
+        entityQueried.setScheduleInterval(SCHEDULE_INTERVAL_NEW);
+        scheduleEntityMapper.updateByIdSelective(entityQueried);
         entityQueried = scheduleEntityMapper.selectByGroupId(scheduleEntity.getGroupId());
         Assertions.assertEquals(scheduleEntity.getGroupId(), entityQueried.getGroupId());
         Assertions.assertEquals(SCHEDULE_TYPE_NEW, entityQueried.getScheduleType());
@@ -112,7 +112,7 @@ public class ScheduleEntityTest extends DaoBaseTest {
         entity.setCreator(USER);
         entity.setCreateTime(new Date());
         entity.setModifyTime(new Date());
-        entity.setVersion(1);
+        entity.setIsDeleted(0);
         return entity;
     }
 }

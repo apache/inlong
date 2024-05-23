@@ -28,11 +28,11 @@ public interface ScheduleService {
     /**
      * Save schedule info.
      *
-     * @param scheduleInfo schedule request need to save
+     * @param request schedule request need to save
      * @param operator name of operator
      * @return schedule info id in backend storage
      */
-    int save(@Valid @NotNull(message = "schedule request cannot be null") ScheduleInfoRequest scheduleInfo,
+    int save(@Valid @NotNull(message = "schedule request cannot be null") ScheduleInfoRequest request,
             String operator);
 
     /**
@@ -54,11 +54,11 @@ public interface ScheduleService {
     /**
      * Modify schedule information
      *
-     * @param scheduleInfo schedule request that needs to be modified
+     * @param request schedule request that needs to be modified
      * @param operator name of operator
      * @return whether succeed
      */
-    Boolean update(@Valid @NotNull(message = "schedule request cannot be null") ScheduleInfoRequest scheduleInfo,
+    Boolean update(@Valid @NotNull(message = "schedule request cannot be null") ScheduleInfoRequest request,
             String operator);
 
     /**

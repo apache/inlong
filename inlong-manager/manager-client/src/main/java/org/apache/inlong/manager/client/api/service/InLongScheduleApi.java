@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.api.service;
 
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
+import org.apache.inlong.manager.pojo.schedule.ScheduleInfoRequest;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -31,13 +32,13 @@ import retrofit2.http.Query;
 public interface InLongScheduleApi {
 
     @POST("schedule/save")
-    Call<Response<Integer>> createSchedule(@Body ScheduleInfo scheduleInfo);
+    Call<Response<Integer>> createSchedule(@Body ScheduleInfoRequest request);
 
     @GET("schedule/exist/{groupId}")
     Call<Response<Boolean>> exist(@Path("groupId") String groupId);
 
     @POST("schedule/update")
-    Call<Response<Boolean>> update(@Body ScheduleInfo scheduleInfo);
+    Call<Response<Boolean>> update(@Body ScheduleInfoRequest request);
 
     @GET("schedule/get")
     Call<Response<ScheduleInfo>> get(@Query("groupId") String groupId);

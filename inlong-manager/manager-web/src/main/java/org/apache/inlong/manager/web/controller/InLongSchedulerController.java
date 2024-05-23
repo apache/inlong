@@ -29,7 +29,6 @@ import org.apache.inlong.manager.service.schedule.ScheduleService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -58,18 +57,14 @@ public class InLongSchedulerController {
 
     @RequestMapping(value = "/schedule/exist/{groupId}", method = RequestMethod.GET)
     @ApiOperation(value = "Is the schedule info exists for inlong group")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true)
-    })
+    @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true)
     public Response<Boolean> exist(@PathVariable String groupId) {
         return Response.success(scheduleService.exist(groupId));
     }
 
     @RequestMapping(value = "/schedule/get", method = RequestMethod.GET)
     @ApiOperation(value = "Get schedule info for inlong group")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true)
-    })
+    @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true)
     public Response<ScheduleInfo> get(@RequestParam String groupId) {
         return Response.success(scheduleService.get(groupId));
     }

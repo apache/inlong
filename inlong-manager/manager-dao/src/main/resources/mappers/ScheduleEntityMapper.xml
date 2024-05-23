@@ -52,15 +52,15 @@
         insert into schedule_config (id, group_id, schedule_type, schedule_unit,
                                      schedule_interval, start_time, end_time, delay_time,
                                      self_depend, task_parallelism, crontab_expression,
-                                     status, previous_status, is_deleted, creator, modifier)
+                                     status, previous_status, creator, modifier)
         values (#{id, jdbcType=INTEGER}, #{groupId, jdbcType=VARCHAR},
                 #{scheduleType, jdbcType=INTEGER}, #{scheduleUnit, jdbcType=VARCHAR},
                 #{scheduleInterval, jdbcType=INTEGER}, #{startTime, jdbcType=TIMESTAMP},
                 #{endTime, jdbcType=TIMESTAMP}, #{delayTime, jdbcType=INTEGER},
                 #{selfDepend, jdbcType=INTEGER}, #{taskParallelism, jdbcType=INTEGER},
                 #{crontabExpression, jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
-                #{previousStatus,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
-                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
+                #{previousStatus,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
+                #{modifier,jdbcType=VARCHAR})
     </insert>
 
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -75,6 +75,7 @@
         <include refid="Base_Column_List"/>
         from schedule_config
         where group_id = #{groupId,jdbcType=VARCHAR}
+        and is_deleted = 0
     </select>
 
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.ScheduleEntity">
@@ -110,9 +111,26 @@
             <if test="crontabExpression != null">
                 crontab_expression = #{crontabExpression, jdbcType=VARCHAR},
             </if>
+            <if test="status != null">
+                status = #{status, jdbcType=VARCHAR},
+            </if>
+            <if test="previousStatus != null">
+                previous_status = #{previousStatus, jdbcType=VARCHAR},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+            <if test="creator != null">
+                creator = #{creator, jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier, jdbcType=VARCHAR},
+            </if>
+            version = #{version, jdbcType=INTEGER} + 1
         </set>
         <where>
             id = #{id, jdbcType=INTEGER}
+            and version = #{version,jdbcType=INTEGER}
         </where>
     </update>
 

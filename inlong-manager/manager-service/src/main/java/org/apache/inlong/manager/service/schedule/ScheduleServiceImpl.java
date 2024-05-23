@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.schedule;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.ScheduleStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -34,6 +35,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 public class ScheduleServiceImpl implements ScheduleService {
 
@@ -45,18 +48,18 @@ public class ScheduleServiceImpl implements ScheduleService {
     private ScheduleEntityMapper scheduleEntityMapper;
 
     @Override
-    public int save(ScheduleInfoRequest scheduleInfo, String operator) {
-        LOGGER.debug("begin to save schedule info, scheduleInfo: {}, operator: {}", scheduleInfo, operator);
-        Preconditions.expectNotNull(scheduleInfo, "schedule info request can't be null");
+    public int save(ScheduleInfoRequest request, String operator) {
+        LOGGER.debug("begin to save schedule info, scheduleInfo: {}, operator: {}", request, operator);
+        Preconditions.expectNotNull(request, "schedule info request can't be null");
 
-        String groupId = scheduleInfo.getGroupId();
+        String groupId = request.getGroupId();
         checkGroupExist(groupId);
         if (scheduleEntityMapper.selectByGroupId(groupId) != null) {
             LOGGER.error("schedule info for group : {} already exists", groupId);
             throw new BusinessException(ErrorCodeEnum.SCHEDULE_DUPLICATE);
         }
 
-        ScheduleEntity scheduleEntity = CommonBeanUtils.copyProperties(scheduleInfo, ScheduleEntity::new);
+        ScheduleEntity scheduleEntity = CommonBeanUtils.copyProperties(request, ScheduleEntity::new);
         scheduleEntity.setStatus(ScheduleStatus.NEW.getCode());
         scheduleEntity.setCreator(operator);
         scheduleEntity.setModifier(operator);
@@ -81,9 +84,16 @@ public class ScheduleServiceImpl implements ScheduleService {
         LOGGER.debug("begin to update schedule info={}", request);
         String groupId = request.getGroupId();
         ScheduleEntity entity = getScheduleEntity(groupId);
+        String errMsg =
+                String.format("schedule info has already been updated with groupId=%s, curVersion=%s, expectVersion=%s",
+                        entity.getGroupId(), request.getVersion(), entity.getVersion());
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         CommonBeanUtils.copyProperties(request, entity, true);
         entity.setModifier(operator);
-        scheduleEntityMapper.updateByIdSelective(entity);
+        updateScheduleInfo(entity, errMsg);
         LOGGER.info("success to update schedule info for groupId={}", groupId);
         return true;
     }
@@ -97,9 +107,15 @@ public class ScheduleServiceImpl implements ScheduleService {
             LOGGER.error("schedule info for groupId {} does not exist", groupId);
             return false;
         }
-        int res = scheduleEntityMapper.deleteByGroupId(groupId);
+        entity.setPreviousStatus(entity.getStatus());
+        entity.setStatus(ScheduleStatus.DELETED.getCode());
+        entity.setModifier(operator);
+        entity.setIsDeleted(entity.getId());
+        updateScheduleInfo(entity,
+                String.format("schedule info has already been updated with groupId=%s, curVersion=%s",
+                        entity.getGroupId(), entity.getVersion()));
         LOGGER.info("success to delete schedule info for groupId={}", groupId);
-        return res > 0;
+        return true;
     }
 
     /**
@@ -122,5 +138,19 @@ public class ScheduleServiceImpl implements ScheduleService {
             throw new BusinessException(ErrorCodeEnum.SCHEDULE_NOT_FOUND);
         }
         return entity;
+    }
+
+    /**
+     * Update schedule entity and throw exception if update failed.
+     * @param entity to update
+     * @param errorMsg when update failed.
+     * @return
+     *
+     * */
+    private void updateScheduleInfo(ScheduleEntity entity, String errorMsg) {
+        if (scheduleEntityMapper.updateByIdSelective(entity) != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error(errorMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
     }
 }

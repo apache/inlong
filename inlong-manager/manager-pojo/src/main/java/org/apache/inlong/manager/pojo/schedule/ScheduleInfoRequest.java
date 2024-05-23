@@ -69,4 +69,8 @@ public class ScheduleInfoRequest {
     @ApiModelProperty("Schedule task parallelism")
     private Integer crontabExpression;
 
+    @ApiModelProperty(value = "Version number")
+    @NotNull(groups = UpdateValidation.class, message = "version cannot be null")
+    private Integer version;
+
 }

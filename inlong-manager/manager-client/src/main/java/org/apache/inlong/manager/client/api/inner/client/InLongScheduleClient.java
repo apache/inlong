@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
+import org.apache.inlong.manager.pojo.schedule.ScheduleInfoRequest;
 
 public class InLongScheduleClient {
 
@@ -33,8 +34,8 @@ public class InLongScheduleClient {
         scheduleApi = ClientUtils.createRetrofit(clientConfiguration).create(InLongScheduleApi.class);
     }
 
-    public Integer createScheduleInfo(ScheduleInfo scheduleInfo) {
-        Response<Integer> response = ClientUtils.executeHttpCall(scheduleApi.createSchedule(scheduleInfo));
+    public Integer createScheduleInfo(ScheduleInfoRequest request) {
+        Response<Integer> response = ClientUtils.executeHttpCall(scheduleApi.createSchedule(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -46,16 +47,8 @@ public class InLongScheduleClient {
         return response.getData();
     }
 
-    public Boolean scheduleInfoExist(ScheduleInfo scheduleInfo) {
-        String groupId = scheduleInfo.getGroupId();
-        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
-        Response<Boolean> response = ClientUtils.executeHttpCall(scheduleApi.exist(groupId));
-        ClientUtils.assertRespSuccess(response);
-        return response.getData();
-    }
-
-    public Boolean updateScheduleInfo(ScheduleInfo scheduleInfo) {
-        Response<Boolean> response = ClientUtils.executeHttpCall(scheduleApi.update(scheduleInfo));
+    public Boolean updateScheduleInfo(ScheduleInfoRequest request) {
+        Response<Boolean> response = ClientUtils.executeHttpCall(scheduleApi.update(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -66,23 +59,7 @@ public class InLongScheduleClient {
         return response.getData();
     }
 
-    public ScheduleInfo getScheduleInfo(ScheduleInfo scheduleInfo) {
-        String groupId = scheduleInfo.getGroupId();
-        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
-        Response<ScheduleInfo> response = ClientUtils.executeHttpCall(scheduleApi.get(groupId));
-        ClientUtils.assertRespSuccess(response);
-        return response.getData();
-    }
-
     public Boolean deleteScheduleInfo(String groupId) {
-        Response<Boolean> response = ClientUtils.executeHttpCall(scheduleApi.delete(groupId));
-        ClientUtils.assertRespSuccess(response);
-        return response.getData();
-    }
-
-    public Boolean deleteScheduleInfo(ScheduleInfo scheduleInfo) {
-        String groupId = scheduleInfo.getGroupId();
-        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         Response<Boolean> response = ClientUtils.executeHttpCall(scheduleApi.delete(groupId));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
