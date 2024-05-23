@@ -49,12 +49,12 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public int save(ScheduleInfoRequest request, String operator) {
-        LOGGER.debug("begin to save schedule info, scheduleInfo: {}, operator: {}", request, operator);
+        LOGGER.debug("begin to save schedule info, scheduleInfo={}, operator={}", request, operator);
 
         String groupId = request.getInlongGroupId();
         checkGroupExist(groupId);
         if (scheduleEntityMapper.selectByGroupId(groupId) != null) {
-            LOGGER.error("schedule info for group : {} already exists", groupId);
+            LOGGER.error("schedule info for group={} already exists", groupId);
             throw new BusinessException(ErrorCodeEnum.SCHEDULE_DUPLICATE);
         }
 
@@ -103,7 +103,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         checkGroupExist(groupId);
         ScheduleEntity entity = scheduleEntityMapper.selectByGroupId(groupId);
         if (entity == null) {
-            LOGGER.error("schedule info for groupId {} does not exist", groupId);
+            LOGGER.error("schedule info for groupId={} does not exist", groupId);
             return false;
         }
         entity.setPreviousStatus(entity.getStatus());
@@ -133,7 +133,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         checkGroupExist(groupId);
         ScheduleEntity entity = scheduleEntityMapper.selectByGroupId(groupId);
         if (entity == null) {
-            LOGGER.error("schedule info for group : {} not found", groupId);
+            LOGGER.error("schedule info for group={} not found", groupId);
             throw new BusinessException(ErrorCodeEnum.SCHEDULE_NOT_FOUND);
         }
         return entity;
