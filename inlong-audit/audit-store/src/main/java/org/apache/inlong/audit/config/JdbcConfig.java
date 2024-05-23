@@ -25,20 +25,20 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class JdbcConfig {
 
-    @Value("${jdbc.driver:com.mysql.cj.jdbc.Driver}")
+    @Value("${audit.store.jdbc.driver:com.mysql.cj.jdbc.Driver}")
     private String driver;
-    @Value("${jdbc.url}")
+    @Value("${audit.store.jdbc.url}")
     private String url;
-    @Value("${jdbc.username}")
+    @Value("${audit.store.jdbc.username}")
     private String userName;
-    @Value("${jdbc.password}")
+    @Value("${audit.store.jdbc.password}")
     private String password;
-    @Value("${jdbc.batchIntervalMs:1000}")
+    @Value("${audit.store.jdbc.batchIntervalMs:1000}")
     private int batchIntervalMs;
-    @Value("${jdbc.batchThreshold:500}")
+    @Value("${audit.store.jdbc.batchThreshold:500}")
     private int batchThreshold;
-    @Value("${jdbc.processIntervalMs:100}")
+    @Value("${audit.store.jdbc.processIntervalMs:100}")
     private int processIntervalMs;
-    @Value("${data.queue.size:1000000}")
+    @Value("${audit.store.data.queue.size:1000000}")
     private int dataQueueSize;
 }
