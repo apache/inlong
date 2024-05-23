@@ -140,6 +140,8 @@ public class InLongMsgCsvFormatDeserializerTest {
                         .build();
 
         String[] fieldNames = new String[]{
+                "inlongmsg_time",
+                "inlongmsg_attributes",
                 "f1",
                 "f2",
                 "f3",
@@ -149,6 +151,8 @@ public class InLongMsgCsvFormatDeserializerTest {
         };
 
         LogicalType[] fieldTypes = new LogicalType[]{
+                new TimestampType(),
+                new MapType(new VarCharType(), new VarCharType()),
                 new IntType(),
                 new IntType(),
                 new IntType(),
