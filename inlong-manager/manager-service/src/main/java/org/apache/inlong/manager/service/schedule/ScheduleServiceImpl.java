@@ -51,7 +51,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     public int save(ScheduleInfoRequest request, String operator) {
         LOGGER.debug("begin to save schedule info, scheduleInfo: {}, operator: {}", request, operator);
 
-        String groupId = request.getGroupId();
+        String groupId = request.getInlongGroupId();
         checkGroupExist(groupId);
         if (scheduleEntityMapper.selectByGroupId(groupId) != null) {
             LOGGER.error("schedule info for group : {} already exists", groupId);
@@ -81,7 +81,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public Boolean update(ScheduleInfoRequest request, String operator) {
         LOGGER.debug("begin to update schedule info={}", request);
-        String groupId = request.getGroupId();
+        String groupId = request.getInlongGroupId();
         ScheduleEntity entity = getScheduleEntity(groupId);
         String errMsg =
                 String.format("schedule info has already been updated with groupId=%s, curVersion=%s, expectVersion=%s",
