@@ -79,7 +79,6 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
-                                    <include>org.apache.hudi:*</include>
                                     <include>org.apache.hive:hive-exec</include>
                                     <include>org.apache.hadoop:*</include>
                                     <include>com.fasterxml.woodstox:*</include>

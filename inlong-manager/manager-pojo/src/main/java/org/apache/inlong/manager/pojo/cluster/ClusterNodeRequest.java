@@ -58,6 +58,15 @@ public class ClusterNodeRequest {
     @NotNull(message = "port cannot be null")
     private Integer port;
 
+    @ApiModelProperty(value = "Username")
+    private String username;
+
+    @ApiModelProperty(value = "password")
+    private String password;
+
+    @ApiModelProperty(value = "SSH port")
+    private Integer sshPort;
+
     @ApiModelProperty(value = "Cluster protocol type")
     @Length(min = 1, max = 20, message = "length must be less than or equal to 20")
     private String protocolType;

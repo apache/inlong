@@ -41,4 +41,7 @@ public class DataAddTaskRequest {
     @Length(min = 1, max = 20, message = "length must be between 1 and 20")
     private String sourceType;
 
+    @ApiModelProperty(value = "Audit version", hidden = true)
+    private String auditVersion;
+
 }

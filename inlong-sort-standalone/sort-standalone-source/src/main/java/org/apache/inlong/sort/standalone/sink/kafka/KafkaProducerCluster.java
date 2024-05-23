@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.standalone.sink.kafka;
 
+import org.apache.inlong.common.pojo.sort.node.KafkaNodeConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
-import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import org.apache.flume.Context;
 import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleAware;
@@ -43,7 +44,7 @@ public class KafkaProducerCluster implements LifecycleAware {
     public static final Logger LOG = InlongLoggerFactory.getLogger(KafkaProducerCluster.class);
 
     private final String workerName;
-    protected final CacheClusterConfig config;
+    protected final KafkaNodeConfig nodeConfig;
     private final KafkaFederationSinkContext sinkContext;
     private final Context context;
 
@@ -53,23 +54,16 @@ public class KafkaProducerCluster implements LifecycleAware {
 
     private KafkaProducer<String, byte[]> producer;
 
-    /**
-     * constructor of KafkaProducerCluster
-     *
-     * @param workerName                 workerName
-     * @param config                     config of cluster
-     * @param kafkaFederationSinkContext producer context
-     */
     public KafkaProducerCluster(
             String workerName,
-            CacheClusterConfig config,
+            KafkaNodeConfig nodeConfig,
             KafkaFederationSinkContext kafkaFederationSinkContext) {
         this.workerName = Preconditions.checkNotNull(workerName);
-        this.config = Preconditions.checkNotNull(config);
+        this.nodeConfig = nodeConfig;
         this.sinkContext = Preconditions.checkNotNull(kafkaFederationSinkContext);
-        this.context = Preconditions.checkNotNull(kafkaFederationSinkContext.getProducerContext());
+        this.context = new Context(nodeConfig.getProperties() != null ? nodeConfig.getProperties() : Maps.newHashMap());
         this.state = LifecycleState.IDLE;
-        this.cacheClusterName = Preconditions.checkNotNull(config.getClusterName());
+        this.cacheClusterName = nodeConfig.getNodeName();
         this.handler = sinkContext.createEventHandler();
     }
 
@@ -84,10 +78,13 @@ public class KafkaProducerCluster implements LifecycleAware {
                     ProducerConfig.PARTITIONER_CLASS_CONFIG,
                     context.getString(ProducerConfig.PARTITIONER_CLASS_CONFIG, PartitionerSelector.class.getName()));
             props.put(
+                    ProducerConfig.ACKS_CONFIG,
+                    context.getString(ProducerConfig.ACKS_CONFIG, "all"));
+            props.put(
                     ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                    context.getString(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
+                    nodeConfig.getBootstrapServers());
             props.put(ProducerConfig.CLIENT_ID_CONFIG,
-                    context.getString(ProducerConfig.CLIENT_ID_CONFIG, cacheClusterName) + "-" + workerName);
+                    nodeConfig.getClientId() + "-" + workerName);
             LOG.info("init kafka client info: " + props);
             producer = new KafkaProducer<>(props, new StringSerializer(), new ByteArraySerializer());
             Preconditions.checkNotNull(producer);

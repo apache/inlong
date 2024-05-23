@@ -29,6 +29,7 @@ ENV PASSWORD=inlong
 ENV ZK_URL=127.0.0.1:2181
 ENV CLEANSING_ENABLE=false
 ENV MANAGER_DBNAME=apache_inlong_manager
+ENV AUDIT_PROXY_URL=127.0.0.1:10081
 # support download plugins from remote address.
 ENV PLUGINS_URL=default
 # for flink-sort-plugin.properties

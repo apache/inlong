@@ -17,11 +17,14 @@
 
 package org.apache.inlong.audit;
 
+import org.apache.inlong.audit.entity.AuditInformation;
+import org.apache.inlong.audit.entity.FlowType;
 import org.apache.inlong.audit.loader.SocketAddressListLoader;
 import org.apache.inlong.audit.protocol.AuditApi;
 import org.apache.inlong.audit.send.SenderManager;
 import org.apache.inlong.audit.util.AuditConfig;
 import org.apache.inlong.audit.util.AuditDimensions;
+import org.apache.inlong.audit.util.AuditManagerUtils;
 import org.apache.inlong.audit.util.AuditValues;
 import org.apache.inlong.audit.util.Config;
 import org.apache.inlong.audit.util.StatInfo;
@@ -56,8 +59,10 @@ public class AuditReporterImpl implements Serializable {
     private static final String FIELD_SEPARATORS = ":";
     private static final long DEFAULT_AUDIT_VERSION = -1;
     private static final int BATCH_NUM = 100;
-    private final ReentrantLock GLOBAL_LOCK = new ReentrantLock();
     private static final int PERIOD = 1000 * 60;
+    // Resource isolation key is used in checkpoint, the default value is 0.
+    private static final long DEFAULT_ISOLATE_KEY = 0;
+    private final ReentrantLock GLOBAL_LOCK = new ReentrantLock();
     private final ConcurrentHashMap<Long, ConcurrentHashMap<String, StatInfo>> preStatMap =
             new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Long, ConcurrentHashMap<String, StatInfo>> summaryStatMap =
@@ -67,18 +72,14 @@ public class AuditReporterImpl implements Serializable {
     private final ConcurrentHashMap<Long, List<String>> expiredKeyList = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Long, Long> flushTime = new ConcurrentHashMap<>();
     private final Config config = new Config();
+    private final ScheduledExecutorService timeoutExecutor = Executors.newSingleThreadScheduledExecutor();
     private int packageId = 1;
     private int dataId = 0;
     private boolean initialized = false;
     private SenderManager manager;
     private AtomicInteger flushStat = new AtomicInteger(0);
-
-    private final ScheduledExecutorService timeoutExecutor = Executors.newSingleThreadScheduledExecutor();
     private AuditConfig auditConfig = null;
     private SocketAddressListLoader loader = null;
-
-    // Resource isolation key is used in checkpoint and other scenarios.DEFAULT 0.
-    private static final long DEFAULT_ISOLATE_KEY = 0;
     private int flushStatThreshold = 100;
     private boolean autoFlush = true;
 
@@ -501,5 +502,43 @@ public class AuditReporterImpl implements Serializable {
                 flushTime.remove(key);
             }
         });
+    }
+
+    /**
+     * Generate Audit item IDs.
+     *
+     * @param baseAuditId
+     * @param success
+     * @param isRealtime
+     * @param discard
+     * @param retry
+     * @return
+     */
+    public int buildAuditId(AuditIdEnum baseAuditId,
+            boolean success,
+            boolean isRealtime,
+            boolean discard,
+            boolean retry) {
+        return AuditManagerUtils.buildAuditId(baseAuditId, success, isRealtime, discard, retry);
+    }
+
+    public AuditInformation buildAuditInformation(String auditType,
+            FlowType dataFlow,
+            boolean success,
+            boolean isRealtime,
+            boolean discard,
+            boolean retry) {
+        return AuditManagerUtils.buildAuditInformation(auditType, dataFlow, success, isRealtime, discard, retry);
+    }
+    public List<AuditInformation> getAllAuditInformation() {
+        return AuditManagerUtils.getAllAuditInformation();
+    }
+
+    public List<AuditInformation> getAllAuditInformation(String auditType) {
+        return AuditManagerUtils.getAllAuditInformation(auditType);
+    }
+
+    public int getStartAuditIdForMetric() {
+        return AuditManagerUtils.getStartAuditIdForMetric();
     }
 }

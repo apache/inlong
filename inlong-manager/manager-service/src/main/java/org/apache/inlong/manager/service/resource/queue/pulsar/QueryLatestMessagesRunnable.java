@@ -33,8 +33,6 @@ import java.util.List;
  */
 public class QueryLatestMessagesRunnable implements Runnable {
 
-    public static final String PULSAR_SUBSCRIPTION_REALTIME_REVIEW = "%s_%s_consumer_group_realtime_review";
-
     private InlongPulsarInfo inlongPulsarInfo;
     private InlongStreamInfo streamInfo;
     private PulsarClusterInfo clusterInfo;
@@ -69,11 +67,9 @@ public class QueryLatestMessagesRunnable implements Runnable {
         String namespace = inlongPulsarInfo.getMqResource();
         String topicName = streamInfo.getMqResource();
         String fullTopicName = tenant + "/" + namespace + "/" + topicName;
-        String clusterTag = inlongPulsarInfo.getInlongClusterTag();
-        String subs = String.format(PULSAR_SUBSCRIPTION_REALTIME_REVIEW, clusterTag, topicName);
         boolean serial = InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(inlongPulsarInfo.getQueueModule());
-        List<BriefMQMessage> messages = pulsarOperator.queryLatestMessage(clusterInfo, fullTopicName, subs,
-                messageCount, streamInfo, serial);
+        List<BriefMQMessage> messages =
+                pulsarOperator.queryLatestMessage(clusterInfo, fullTopicName, messageCount, streamInfo, serial);
         if (CollectionUtils.isNotEmpty(messages)) {
             briefMQMessages.addAll(messages);
             this.latch.countDown(messages.size());

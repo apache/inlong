@@ -98,6 +98,9 @@ public class FileSourceDTO {
     @ApiModelProperty("End time")
     private Long endTime = 0L;
 
+    @ApiModelProperty(value = "Audit version")
+    private String auditVersion;
+
     @ApiModelProperty("Metadata filters by label, special parameters for K8S")
     private Map<String, String> filterMetaByLabels;
 

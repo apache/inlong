@@ -41,6 +41,7 @@ import java.util.TimerTask;
  * 
  * SinkContext
  */
+@Deprecated
 public class SinkContext {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(SinkContext.class);

@@ -50,6 +50,7 @@ public class DataConfig {
     private Integer state;
     private String predefinedFields;
     private String timeZone;
+    private String auditVersion;
     private String extParams;
     /**
      * The task version.

@@ -27,7 +27,6 @@ import org.apache.flink.streaming.connectors.kafka.config.StartupMode;
 import org.apache.flink.streaming.connectors.kafka.internals.KafkaTopicPartition;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkFixedPartitioner;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
-import org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions;
 import org.apache.flink.table.api.TableException;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.data.RowData;
@@ -50,22 +49,13 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.DELIVERY_GUARANTEE;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.KEY_FIELDS;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.KEY_FIELDS_PREFIX;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.KEY_FORMAT;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SCAN_STARTUP_MODE;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SCAN_STARTUP_SPECIFIC_OFFSETS;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SCAN_STARTUP_TIMESTAMP_MILLIS;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.SINK_PARTITIONER;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.TOPIC;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.TOPIC_PATTERN;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.TRANSACTIONAL_ID_PREFIX;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.VALUE_FIELDS_INCLUDE;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.VALUE_FORMAT;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaConnectorOptions.*;
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 
-/** Utilities for {@link KafkaConnectorOptions}. */
+/** Utilities for { KafkaConnectorOptions}.
+ * <p>
+ * Copy from org.apache.flink:flink-connector-kafka:1.15.4
+ * */
 @Internal
 class KafkaConnectorOptionsUtil {
 
@@ -76,13 +66,13 @@ class KafkaConnectorOptionsUtil {
     // Option enumerations
     // --------------------------------------------------------------------------------------------
 
-    // Prefix for Kafka specific properties.
-    public static final String PROPERTIES_PREFIX = "properties.";
-
     // Sink partitioner.
     public static final String SINK_PARTITIONER_VALUE_DEFAULT = "default";
     public static final String SINK_PARTITIONER_VALUE_FIXED = "fixed";
     public static final String SINK_PARTITIONER_VALUE_ROUND_ROBIN = "round-robin";
+
+    // Prefix for Kafka specific properties.
+    public static final String PROPERTIES_PREFIX = "properties.";
 
     // Other keywords.
     private static final String PARTITION = "partition";
@@ -152,7 +142,7 @@ class KafkaConnectorOptionsUtil {
                                                         "'%s' is required in '%s' startup mode"
                                                                 + " but missing.",
                                                         SCAN_STARTUP_TIMESTAMP_MILLIS.key(),
-                                                        KafkaConnectorOptions.ScanStartupMode.TIMESTAMP));
+                                                        ScanStartupMode.TIMESTAMP));
                                     }
 
                                     break;
@@ -165,7 +155,7 @@ class KafkaConnectorOptionsUtil {
                                                         "'%s' is required in '%s' startup mode"
                                                                 + " but missing.",
                                                         SCAN_STARTUP_SPECIFIC_OFFSETS.key(),
-                                                        KafkaConnectorOptions.ScanStartupMode.SPECIFIC_OFFSETS));
+                                                        ScanStartupMode.SPECIFIC_OFFSETS));
                                     }
                                     if (!isSingleTopic(tableOptions)) {
                                         throw new ValidationException(
@@ -216,56 +206,6 @@ class KafkaConnectorOptionsUtil {
         return tableOptions.getOptional(TOPIC).map(t -> t.size() == 1).orElse(false);
     }
 
-    /**
-     * Parses SpecificOffsets String to Map.
-     *
-     * <p>SpecificOffsets String format was given as following:
-     *
-     * <pre>
-     *     scan.startup.specific-offsets = partition:0,offset:42;partition:1,offset:300
-     * </pre>
-     *
-     * @return SpecificOffsets with Map format, key is partition, and value is offset
-     */
-    public static Map<Integer, Long> parseSpecificOffsets(
-            String specificOffsetsStr, String optionKey) {
-        final Map<Integer, Long> offsetMap = new HashMap<>();
-        final String[] pairs = specificOffsetsStr.split(";");
-        final String validationExceptionMessage =
-                String.format(
-                        "Invalid properties '%s' should follow the format "
-                                + "'partition:0,offset:42;partition:1,offset:300', but is '%s'.",
-                        optionKey, specificOffsetsStr);
-
-        if (pairs.length == 0) {
-            throw new ValidationException(validationExceptionMessage);
-        }
-
-        for (String pair : pairs) {
-            if (null == pair || pair.length() == 0 || !pair.contains(",")) {
-                throw new ValidationException(validationExceptionMessage);
-            }
-
-            final String[] kv = pair.split(",");
-            if (kv.length != 2
-                    || !kv[0].startsWith(PARTITION + ':')
-                    || !kv[1].startsWith(OFFSET + ':')) {
-                throw new ValidationException(validationExceptionMessage);
-            }
-
-            String partitionValue = kv[0].substring(kv[0].indexOf(":") + 1);
-            String offsetValue = kv[1].substring(kv[1].indexOf(":") + 1);
-            try {
-                final Integer partition = Integer.valueOf(partitionValue);
-                final Long offset = Long.valueOf(offsetValue);
-                offsetMap.put(partition, offset);
-            } catch (NumberFormatException e) {
-                throw new ValidationException(validationExceptionMessage, e);
-            }
-        }
-        return offsetMap;
-    }
-
     public static StartupOptions getStartupOptions(ReadableConfig tableOptions) {
         final Map<KafkaTopicPartition, Long> specificOffsets = new HashMap<>();
         final StartupMode startupMode =
@@ -306,9 +246,9 @@ class KafkaConnectorOptionsUtil {
 
     /**
      * Returns the {@link StartupMode} of Kafka Consumer by passed-in table-specific {@link
-     * KafkaConnectorOptions.ScanStartupMode}.
+     * ScanStartupMode}.
      */
-    private static StartupMode fromOption(KafkaConnectorOptions.ScanStartupMode scanStartupMode) {
+    private static StartupMode fromOption(ScanStartupMode scanStartupMode) {
         switch (scanStartupMode) {
             case EARLIEST_OFFSET:
                 return StartupMode.EARLIEST;
@@ -327,12 +267,124 @@ class KafkaConnectorOptionsUtil {
         }
     }
 
-    static void validateDeliveryGuarantee(ReadableConfig tableOptions) {
-        if (tableOptions.get(DELIVERY_GUARANTEE) == DeliveryGuarantee.EXACTLY_ONCE
-                && !tableOptions.getOptional(TRANSACTIONAL_ID_PREFIX).isPresent()) {
+    public static Properties getKafkaProperties(Map<String, String> tableOptions) {
+        final Properties kafkaProperties = new Properties();
+
+        if (hasKafkaClientProperties(tableOptions)) {
+            tableOptions.keySet().stream()
+                    .filter(key -> key.startsWith(PROPERTIES_PREFIX))
+                    .forEach(
+                            key -> {
+                                final String value = tableOptions.get(key);
+                                final String subKey = key.substring((PROPERTIES_PREFIX).length());
+                                kafkaProperties.put(subKey, value);
+                            });
+        }
+        return kafkaProperties;
+    }
+
+    /**
+     * The partitioner can be either "fixed", "round-robin" or a customized partitioner full class
+     * name.
+     */
+    public static Optional<FlinkKafkaPartitioner<RowData>> getFlinkKafkaPartitioner(
+            ReadableConfig tableOptions, ClassLoader classLoader) {
+        return tableOptions
+                .getOptional(SINK_PARTITIONER)
+                .flatMap(
+                        (String partitioner) -> {
+                            switch (partitioner) {
+                                case SINK_PARTITIONER_VALUE_FIXED:
+                                    return Optional.of(new FlinkFixedPartitioner<>());
+                                case SINK_PARTITIONER_VALUE_DEFAULT:
+                                case SINK_PARTITIONER_VALUE_ROUND_ROBIN:
+                                    return Optional.empty();
+                                // Default fallback to full class name of the partitioner.
+                                default:
+                                    return Optional.of(
+                                            initializePartitioner(partitioner, classLoader));
+                            }
+                        });
+    }
+
+    /**
+     * Parses SpecificOffsets String to Map.
+     *
+     * <p>SpecificOffsets String format was given as following:
+     *
+     * <pre>
+     *     scan.startup.specific-offsets = partition:0,offset:42;partition:1,offset:300
+     * </pre>
+     *
+     * @return SpecificOffsets with Map format, key is partition, and value is offset
+     */
+    public static Map<Integer, Long> parseSpecificOffsets(
+            String specificOffsetsStr, String optionKey) {
+        final Map<Integer, Long> offsetMap = new HashMap<>();
+        final String[] pairs = specificOffsetsStr.split(";");
+        final String validationExceptionMessage =
+                String.format(
+                        "Invalid properties '%s' should follow the format "
+                                + "'partition:0,offset:42;partition:1,offset:300', but is '%s'.",
+                        optionKey, specificOffsetsStr);
+
+        if (pairs.length == 0) {
+            throw new ValidationException(validationExceptionMessage);
+        }
+
+        for (String pair : pairs) {
+            if (null == pair || !pair.contains(",")) {
+                throw new ValidationException(validationExceptionMessage);
+            }
+
+            final String[] kv = pair.split(",");
+            if (kv.length != 2
+                    || !kv[0].startsWith(PARTITION + ':')
+                    || !kv[1].startsWith(OFFSET + ':')) {
+                throw new ValidationException(validationExceptionMessage);
+            }
+
+            String partitionValue = kv[0].substring(kv[0].indexOf(":") + 1);
+            String offsetValue = kv[1].substring(kv[1].indexOf(":") + 1);
+            try {
+                final Integer partition = Integer.valueOf(partitionValue);
+                final Long offset = Long.valueOf(offsetValue);
+                offsetMap.put(partition, offset);
+            } catch (NumberFormatException e) {
+                throw new ValidationException(validationExceptionMessage, e);
+            }
+        }
+        return offsetMap;
+    }
+
+    /**
+     * Decides if the table options contains Kafka client properties that start with prefix
+     * 'properties'.
+     */
+    private static boolean hasKafkaClientProperties(Map<String, String> tableOptions) {
+        return tableOptions.keySet().stream().anyMatch(k -> k.startsWith(PROPERTIES_PREFIX));
+    }
+
+    /** Returns a class value with the given class name. */
+    private static <T> FlinkKafkaPartitioner<T> initializePartitioner(
+            String name, ClassLoader classLoader) {
+        try {
+            Class<?> clazz = Class.forName(name, true, classLoader);
+            if (!FlinkKafkaPartitioner.class.isAssignableFrom(clazz)) {
+                throw new ValidationException(
+                        String.format(
+                                "Sink partitioner class '%s' should extend from the required class %s",
+                                name, FlinkKafkaPartitioner.class.getName()));
+            }
+            @SuppressWarnings("unchecked")
+            final FlinkKafkaPartitioner<T> kafkaPartitioner =
+                    InstantiationUtil.instantiate(name, FlinkKafkaPartitioner.class, classLoader);
+
+            return kafkaPartitioner;
+        } catch (ClassNotFoundException | FlinkException e) {
             throw new ValidationException(
-                    TRANSACTIONAL_ID_PREFIX.key()
-                            + " must be specified when using DeliveryGuarantee.EXACTLY_ONCE.");
+                    String.format("Could not find and instantiate partitioner class '%s'", name),
+                    e);
         }
     }
 
@@ -340,8 +392,8 @@ class KafkaConnectorOptionsUtil {
      * Creates an array of indices that determine which physical fields of the table schema to
      * include in the key format and the order that those fields have in the key format.
      *
-     * <p>See {@link KafkaConnectorOptions#KEY_FORMAT}, {@link KafkaConnectorOptions#KEY_FIELDS},
-     * and {@link KafkaConnectorOptions#KEY_FIELDS_PREFIX} for more information.
+     * <p>See {KafkaConnectorOptions#KEY_FORMAT}, { KafkaConnectorOptions#KEY_FIELDS},
+     * and {KafkaConnectorOptions#KEY_FIELDS_PREFIX} for more information.
      */
     public static int[] createKeyFormatProjection(
             ReadableConfig options, DataType physicalDataType) {
@@ -406,8 +458,8 @@ class KafkaConnectorOptionsUtil {
      * Creates an array of indices that determine which physical fields of the table schema to
      * include in the value format.
      *
-     * <p>See {@link KafkaConnectorOptions#VALUE_FORMAT}, {@link
-     * KafkaConnectorOptions#VALUE_FIELDS_INCLUDE}, and {@link
+     * <p>See {KafkaConnectorOptions#VALUE_FORMAT}, {
+     * KafkaConnectorOptions#VALUE_FIELDS_INCLUDE}, and {
      * KafkaConnectorOptions#KEY_FIELDS_PREFIX} for more information.
      */
     public static int[] createValueFormatProjection(
@@ -420,19 +472,19 @@ class KafkaConnectorOptionsUtil {
 
         final String keyPrefix = options.getOptional(KEY_FIELDS_PREFIX).orElse("");
 
-        final KafkaConnectorOptions.ValueFieldsStrategy strategy = options.get(VALUE_FIELDS_INCLUDE);
-        if (strategy == KafkaConnectorOptions.ValueFieldsStrategy.ALL) {
+        final ValueFieldsStrategy strategy = options.get(VALUE_FIELDS_INCLUDE);
+        if (strategy == ValueFieldsStrategy.ALL) {
             if (keyPrefix.length() > 0) {
                 throw new ValidationException(
                         String.format(
                                 "A key prefix is not allowed when option '%s' is set to '%s'. "
                                         + "Set it to '%s' instead to avoid field overlaps.",
                                 VALUE_FIELDS_INCLUDE.key(),
-                                KafkaConnectorOptions.ValueFieldsStrategy.ALL,
-                                KafkaConnectorOptions.ValueFieldsStrategy.EXCEPT_KEY));
+                                ValueFieldsStrategy.ALL,
+                                ValueFieldsStrategy.EXCEPT_KEY));
             }
             return physicalFields.toArray();
-        } else if (strategy == KafkaConnectorOptions.ValueFieldsStrategy.EXCEPT_KEY) {
+        } else if (strategy == ValueFieldsStrategy.EXCEPT_KEY) {
             final int[] keyProjection = createKeyFormatProjection(options, physicalDataType);
             return physicalFields
                     .filter(pos -> IntStream.of(keyProjection).noneMatch(k -> k == pos))
@@ -497,82 +549,20 @@ class KafkaConnectorOptionsUtil {
         }
     }
 
-    /**
-     * The partitioner can be either "fixed", "round-robin" or a customized partitioner full class
-     * name.
-     */
-    public static Optional<FlinkKafkaPartitioner<RowData>> getFlinkKafkaPartitioner(
-            ReadableConfig tableOptions, ClassLoader classLoader) {
-        return tableOptions
-                .getOptional(SINK_PARTITIONER)
-                .flatMap(
-                        (String partitioner) -> {
-                            switch (partitioner) {
-                                case SINK_PARTITIONER_VALUE_FIXED:
-                                    return Optional.of(new FlinkFixedPartitioner<>());
-                                case SINK_PARTITIONER_VALUE_DEFAULT:
-                                case SINK_PARTITIONER_VALUE_ROUND_ROBIN:
-                                    return Optional.empty();
-                                // Default fallback to full class name of the partitioner.
-                                default:
-                                    return Optional.of(
-                                            initializePartitioner(partitioner, classLoader));
-                            }
-                        });
-    }
-
-    /** Returns a class value with the given class name. */
-    private static <T> FlinkKafkaPartitioner<T> initializePartitioner(
-            String name, ClassLoader classLoader) {
-        try {
-            Class<?> clazz = Class.forName(name, true, classLoader);
-            if (!FlinkKafkaPartitioner.class.isAssignableFrom(clazz)) {
-                throw new ValidationException(
-                        String.format(
-                                "Sink partitioner class '%s' should extend from the required class %s",
-                                name, FlinkKafkaPartitioner.class.getName()));
-            }
-            @SuppressWarnings("unchecked")
-            final FlinkKafkaPartitioner<T> kafkaPartitioner =
-                    InstantiationUtil.instantiate(name, FlinkKafkaPartitioner.class, classLoader);
-
-            return kafkaPartitioner;
-        } catch (ClassNotFoundException | FlinkException e) {
+    static void validateDeliveryGuarantee(ReadableConfig tableOptions) {
+        if (tableOptions.get(DELIVERY_GUARANTEE) == DeliveryGuarantee.EXACTLY_ONCE
+                && !tableOptions.getOptional(TRANSACTIONAL_ID_PREFIX).isPresent()) {
             throw new ValidationException(
-                    String.format("Could not find and instantiate partitioner class '%s'", name),
-                    e);
+                    TRANSACTIONAL_ID_PREFIX.key()
+                            + " must be specified when using DeliveryGuarantee.EXACTLY_ONCE.");
         }
-    }
-
-    public static Properties getKafkaProperties(Map<String, String> tableOptions) {
-        final Properties kafkaProperties = new Properties();
-
-        if (hasKafkaClientProperties(tableOptions)) {
-            tableOptions.keySet().stream()
-                    .filter(key -> key.startsWith(PROPERTIES_PREFIX))
-                    .forEach(
-                            key -> {
-                                final String value = tableOptions.get(key);
-                                final String subKey = key.substring((PROPERTIES_PREFIX).length());
-                                kafkaProperties.put(subKey, value);
-                            });
-        }
-        return kafkaProperties;
-    }
-
-    /**
-     * Decides if the table options contains Kafka client properties that start with prefix
-     * 'properties'.
-     */
-    private static boolean hasKafkaClientProperties(Map<String, String> tableOptions) {
-        return tableOptions.keySet().stream().anyMatch(k -> k.startsWith(PROPERTIES_PREFIX));
     }
 
     // --------------------------------------------------------------------------------------------
     // Inner classes
     // --------------------------------------------------------------------------------------------
 
-    /** Kafka startup options. */
+    /** Kafka startup options. * */
     public static class StartupOptions {
 
         public StartupMode startupMode;

@@ -17,12 +17,12 @@
 
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
+import org.apache.inlong.common.pojo.sort.node.PulsarNodeConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
-import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
-import org.apache.commons.lang.math.NumberUtils;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Transaction;
@@ -73,8 +73,8 @@ public class PulsarProducerCluster implements LifecycleAware {
             + "BatchingPartitionSwitchFrequency";
 
     private final String workerName;
-    private final CacheClusterConfig config;
     private final PulsarFederationSinkContext sinkContext;
+    private final PulsarNodeConfig nodeConfig;
     private final Context context;
     private final String cacheClusterName;
     private LifecycleState state;
@@ -88,20 +88,13 @@ public class PulsarProducerCluster implements LifecycleAware {
 
     private Map<String, Producer<byte[]>> producerMap = new ConcurrentHashMap<>();
 
-    /**
-     * Constructor
-     *
-     * @param workerName
-     * @param config
-     * @param context
-     */
-    public PulsarProducerCluster(String workerName, CacheClusterConfig config, PulsarFederationSinkContext context) {
+    public PulsarProducerCluster(String workerName, PulsarNodeConfig nodeConfig, PulsarFederationSinkContext context) {
         this.workerName = workerName;
-        this.config = config;
         this.sinkContext = context;
-        this.context = context.getProducerContext();
+        this.nodeConfig = nodeConfig;
+        this.context = new Context(nodeConfig.getProperties() != null ? nodeConfig.getProperties() : Maps.newHashMap());
         this.state = LifecycleState.IDLE;
-        this.cacheClusterName = config.getClusterName();
+        this.cacheClusterName = nodeConfig.getNodeName();
         this.handler = sinkContext.createEventHandler();
     }
 
@@ -114,20 +107,19 @@ public class PulsarProducerCluster implements LifecycleAware {
         try {
             // create pulsar client
             ClientBuilder clientBuilder = PulsarClient.builder();
-            String serviceUrl = config.getParams().get(KEY_SERVICE_URL);
+            String serviceUrl = nodeConfig.getServiceUrl();
             if (StringUtils.isBlank(serviceUrl)) {
                 throw new IllegalArgumentException("service url should not be null");
             }
 
             clientBuilder.serviceUrl(serviceUrl);
-            String authentication = config.getParams().get(KEY_AUTHENTICATION);
+            String authentication = nodeConfig.getToken();
             if (StringUtils.isNoneBlank(authentication)) {
                 clientBuilder.authentication(AuthenticationFactory.token(authentication));
             }
 
             this.client = clientBuilder
-                    .statsInterval(NumberUtils.toLong(config.getParams().get(KEY_STATS_INTERVAL_SECONDS), -1),
-                            TimeUnit.SECONDS)
+                    .statsInterval(context.getLong(KEY_STATS_INTERVAL_SECONDS, -1L), TimeUnit.SECONDS)
                     .build();
 
             // create producer template
@@ -159,8 +151,12 @@ public class PulsarProducerCluster implements LifecycleAware {
      * @return CompressionType
      */
     private CompressionType getPulsarCompressionType() {
-        String type = this.context.getString(KEY_COMPRESSIONTYPE, DEFAULT_COMPRESS_TYPE);
-        switch (type) {
+        String type = nodeConfig.getCompressionType();
+        if (type == null) {
+            return CompressionType.ZLIB;
+        }
+
+        switch (type.toUpperCase()) {
             case "LZ4":
                 return CompressionType.LZ4;
             case "NONE":

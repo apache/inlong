@@ -19,9 +19,17 @@
 
 #!/bin/bash
 
+
+# Install third-party components
+cd ./third_party
+cmake .
+make
+
+cd ../
 rm -r build
 mkdir build
-# mkdir release
+
+# Compile project code
 cd build
 cmake ../
 make

@@ -17,22 +17,29 @@
 
 package org.apache.inlong.sort.standalone.config.holder.v2;
 
+import org.apache.inlong.common.pojo.sort.SortClusterConfig;
 import org.apache.inlong.common.pojo.sort.SortConfig;
 import org.apache.inlong.common.pojo.sort.SortTaskConfig;
+import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigType;
 import org.apache.inlong.sort.standalone.config.loader.v2.ClassResourceSortClusterConfigLoader;
 import org.apache.inlong.sort.standalone.config.loader.v2.ManagerSortClusterConfigLoader;
 import org.apache.inlong.sort.standalone.config.loader.v2.SortConfigLoader;
+import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.stream.Collectors;
 
 import static org.apache.inlong.sort.standalone.utils.Constants.RELOAD_INTERVAL;
 
@@ -45,9 +52,10 @@ public class SortConfigHolder {
     private Timer reloadTimer;
     private SortConfigLoader loader;
     private SortConfig config;
+    private Map<String, Map<String, String>> auditTagMap;
 
     private SortConfigHolder() {
-
+        this.auditTagMap = new HashMap<>();
     }
 
     private static SortConfigHolder get() {
@@ -110,9 +118,24 @@ public class SortConfigHolder {
     private void reload() {
         try {
             SortConfig newConfig = this.loader.load();
-            if (newConfig != null) {
-                this.config = newConfig;
+            if (newConfig == null) {
+                return;
             }
+
+            // <SortTaskName, <InlongId, AuditTag>>
+            this.auditTagMap = newConfig.getTasks()
+                    .stream()
+                    .collect(Collectors.toMap(SortTaskConfig::getSortTaskName,
+                            v -> v.getClusters()
+                                    .stream()
+                                    .map(SortClusterConfig::getDataFlowConfigs)
+                                    .flatMap(Collection::stream)
+                                    .filter(flow -> StringUtils.isNotEmpty(flow.getAuditTag()))
+                                    .collect(Collectors.toMap(flow -> InlongId.generateUid(flow.getInlongGroupId(),
+                                            flow.getInlongStreamId()),
+                                            DataFlowConfig::getAuditTag,
+                                            (flow1, flow2) -> flow1))));
+            this.config = newConfig;
         } catch (Throwable e) {
             log.error("failed to reload sort config", e);
         }
@@ -132,5 +155,16 @@ public class SortConfigHolder {
             }
         }
         return null;
+    }
+
+    public static String getAuditTag(
+            String sortTaskName,
+            String inlongGroupId,
+            String inlongStreamId) {
+        Map<String, String> taskMap = get().auditTagMap.get(sortTaskName);
+        if (taskMap == null) {
+            return null;
+        }
+        return taskMap.get(InlongId.generateUid(inlongGroupId, inlongStreamId));
     }
 }
