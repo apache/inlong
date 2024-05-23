@@ -46,8 +46,8 @@ public class ScheduleEntityTest extends DaoBaseTest {
     public void testSelectByGroupId() throws Exception {
         ScheduleEntity scheduleEntity = genEntity();
         scheduleEntityMapper.insert(scheduleEntity);
-        ScheduleEntity entityQueried = scheduleEntityMapper.selectByGroupId(scheduleEntity.getGroupId());
-        Assertions.assertEquals(scheduleEntity.getGroupId(), entityQueried.getGroupId());
+        ScheduleEntity entityQueried = scheduleEntityMapper.selectByGroupId(scheduleEntity.getInlongGroupId());
+        Assertions.assertEquals(scheduleEntity.getInlongGroupId(), entityQueried.getInlongGroupId());
         Assertions.assertEquals(SCHEDULE_TYPE, entityQueried.getScheduleType());
         Assertions.assertEquals(SCHEDULE_UNIT, entityQueried.getScheduleUnit());
         Assertions.assertEquals(SCHEDULE_INTERVAL, entityQueried.getScheduleInterval());
@@ -60,8 +60,8 @@ public class ScheduleEntityTest extends DaoBaseTest {
     public void testUpdate() throws Exception {
         ScheduleEntity scheduleEntity = genEntity();
         scheduleEntityMapper.insert(scheduleEntity);
-        ScheduleEntity entityQueried = scheduleEntityMapper.selectByGroupId(scheduleEntity.getGroupId());
-        Assertions.assertEquals(scheduleEntity.getGroupId(), entityQueried.getGroupId());
+        ScheduleEntity entityQueried = scheduleEntityMapper.selectByGroupId(scheduleEntity.getInlongGroupId());
+        Assertions.assertEquals(scheduleEntity.getInlongGroupId(), entityQueried.getInlongGroupId());
         Assertions.assertEquals(SCHEDULE_TYPE, entityQueried.getScheduleType());
         Assertions.assertEquals(SCHEDULE_UNIT, entityQueried.getScheduleUnit());
         Assertions.assertEquals(SCHEDULE_INTERVAL, entityQueried.getScheduleInterval());
@@ -73,8 +73,8 @@ public class ScheduleEntityTest extends DaoBaseTest {
         entityQueried.setScheduleUnit(SCHEDULE_UNIT_NEW);
         entityQueried.setScheduleInterval(SCHEDULE_INTERVAL_NEW);
         scheduleEntityMapper.updateByIdSelective(entityQueried);
-        entityQueried = scheduleEntityMapper.selectByGroupId(scheduleEntity.getGroupId());
-        Assertions.assertEquals(scheduleEntity.getGroupId(), entityQueried.getGroupId());
+        entityQueried = scheduleEntityMapper.selectByGroupId(scheduleEntity.getInlongGroupId());
+        Assertions.assertEquals(scheduleEntity.getInlongGroupId(), entityQueried.getInlongGroupId());
         Assertions.assertEquals(SCHEDULE_TYPE_NEW, entityQueried.getScheduleType());
         Assertions.assertEquals(SCHEDULE_UNIT_NEW, entityQueried.getScheduleUnit());
         Assertions.assertEquals(SCHEDULE_INTERVAL_NEW, entityQueried.getScheduleInterval());
@@ -87,8 +87,8 @@ public class ScheduleEntityTest extends DaoBaseTest {
     public void testDelete() throws Exception {
         ScheduleEntity scheduleEntity = genEntity();
         scheduleEntityMapper.insert(scheduleEntity);
-        ScheduleEntity entityQueried = scheduleEntityMapper.selectByGroupId(scheduleEntity.getGroupId());
-        Assertions.assertEquals(scheduleEntity.getGroupId(), entityQueried.getGroupId());
+        ScheduleEntity entityQueried = scheduleEntityMapper.selectByGroupId(scheduleEntity.getInlongGroupId());
+        Assertions.assertEquals(scheduleEntity.getInlongGroupId(), entityQueried.getInlongGroupId());
         Assertions.assertEquals(SCHEDULE_TYPE, entityQueried.getScheduleType());
         Assertions.assertEquals(SCHEDULE_UNIT, entityQueried.getScheduleUnit());
         Assertions.assertEquals(SCHEDULE_INTERVAL, entityQueried.getScheduleInterval());
@@ -96,14 +96,14 @@ public class ScheduleEntityTest extends DaoBaseTest {
         Assertions.assertEquals(DEFAULT_TIME, entityQueried.getEndTime());
         Assertions.assertEquals(USER, entityQueried.getCreator());
 
-        scheduleEntityMapper.deleteByGroupId(scheduleEntity.getGroupId());
-        entityQueried = scheduleEntityMapper.selectByGroupId(scheduleEntity.getGroupId());
+        scheduleEntityMapper.deleteByGroupId(scheduleEntity.getInlongGroupId());
+        entityQueried = scheduleEntityMapper.selectByGroupId(scheduleEntity.getInlongGroupId());
         Assertions.assertNull(entityQueried);
     }
 
     private ScheduleEntity genEntity() {
         ScheduleEntity entity = new ScheduleEntity();
-        entity.setGroupId(GROUP_ID_PREFIX + System.currentTimeMillis());
+        entity.setInlongGroupId(GROUP_ID_PREFIX + System.currentTimeMillis());
         entity.setScheduleType(SCHEDULE_TYPE);
         entity.setScheduleUnit(SCHEDULE_UNIT);
         entity.setScheduleInterval(SCHEDULE_INTERVAL);

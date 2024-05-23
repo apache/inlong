@@ -85,7 +85,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         ScheduleEntity entity = getScheduleEntity(groupId);
         String errMsg =
                 String.format("schedule info has already been updated with groupId=%s, curVersion=%s, expectVersion=%s",
-                        entity.getGroupId(), request.getVersion(), entity.getVersion());
+                        entity.getInlongGroupId(), request.getVersion(), entity.getVersion());
         if (!Objects.equals(entity.getVersion(), request.getVersion())) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
@@ -112,7 +112,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         entity.setIsDeleted(entity.getId());
         updateScheduleInfo(entity,
                 String.format("schedule info has already been updated with groupId=%s, curVersion=%s",
-                        entity.getGroupId(), entity.getVersion()));
+                        entity.getInlongGroupId(), entity.getVersion()));
         LOGGER.info("success to delete schedule info for groupId={}", groupId);
         return true;
     }

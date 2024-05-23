@@ -30,7 +30,7 @@ public class ScheduleEntity implements Serializable {
 
     private Integer id;
     // inLong group id
-    private String groupId;
+    private String inlongGroupId;
     // schedule type, support [normal, crontab], 0 for normal and 1 for crontab
     private Integer scheduleType;
     // time unit for offline task schedule interval, support [month, week, day, hour, minute, oneway]
