@@ -54,8 +54,8 @@ sed -i "s/apache_inlong_audit/${AUDIT_DBNAME}/g" "${sql_mysql_file}"
 
 # replace the configuration for audit-store
 sed -i "s/127.0.0.1:3306\/apache_inlong_audit/${AUDIT_JDBC_URL}\/${AUDIT_DBNAME}/g" "${store_conf_file}"
-sed -i "s/jdbc.username=.*$/jdbc.username=${AUDIT_JDBC_USERNAME}/g" "${store_conf_file}"
-sed -i "s/jdbc.password=.*$/jdbc.password=${AUDIT_JDBC_PASSWORD}/g" "${store_conf_file}"
+sed -i "s/audit.store.jdbc.username=.*$/audit.store.jdbc.username=${AUDIT_JDBC_USERNAME}/g" "${store_conf_file}"
+sed -i "s/audit.store.jdbc.password=.*$/audit.store.jdbc.password=${AUDIT_JDBC_PASSWORD}/g" "${store_conf_file}"
 
 # replace the configuration for audit-service
 sed -i "s/mysql.jdbc.url=.*$/mysql.jdbc.url=jdbc:mysql:\/\/${AUDIT_JDBC_URL}\/${AUDIT_DBNAME}/g" "${service_conf_file}"
