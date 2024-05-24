@@ -133,7 +133,7 @@ export default class PulsarSource
   @ColumnDecorator()
   @IngestionField()
   @I18n('meta.Sources.File.DataSourceIP')
-  agentIp: string[];
+  agentIp: string[] | string;
 
   @FieldDecorator({
     type: 'input',

@@ -69,6 +69,7 @@ const Comp: React.FC<Props> = ({
     const values = await form.validateFields();
     const submitData = new Entity()?.stringify(values) || values;
     submitData.agentIp = submitData.agentIp.filter(item => item !== ALL_OPTION_VALUE);
+    submitData.agentIp = submitData.agentIp.length === 0 ? '' : submitData.agentIp.join(',');
     const isUpdate = Boolean(id);
     if (isUpdate) {
       submitData.id = id;
