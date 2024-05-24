@@ -86,14 +86,14 @@ public class DorisSinkDTO {
      */
     public static DorisSinkDTO getFromRequest(DorisSinkRequest request, String extParams) throws Exception {
         Integer encryptVersion = AESUtils.getCurrentVersion(null);
-        String passwd = null;
-        if (StringUtils.isNotEmpty(request.getPassword())) {
-            passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
-                    encryptVersion);
-        }
 
         DorisSinkDTO dto = StringUtils.isNotBlank(extParams) ? DorisSinkDTO.getFromJson(extParams) : new DorisSinkDTO();
         CommonBeanUtils.copyProperties(request, dto, true);
+        String passwd = dto.getPassword();
+        if (StringUtils.isNotEmpty(passwd)) {
+            passwd = AESUtils.encryptToString(passwd.getBytes(StandardCharsets.UTF_8), encryptVersion);
+        }
+
         dto.setPassword(passwd);
         dto.setEncryptVersion(encryptVersion);
         return dto;
