@@ -36,6 +36,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_AUDIT_VERSION;
+
 public abstract class AbstractTask extends Task {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTask.class);
@@ -55,7 +57,7 @@ public abstract class AbstractTask extends Task {
         taskManager = (TaskManager) srcManager;
         this.taskProfile = taskProfile;
         this.basicDb = basicDb;
-        auditVersion = Long.parseLong(taskProfile.getTaskId());
+        auditVersion = Long.parseLong(taskProfile.get(TASK_AUDIT_VERSION));
         instanceManager = new InstanceManager(taskProfile.getTaskId(), taskProfile.getInt(TaskConstants.FILE_MAX_NUM),
                 basicDb, taskManager.getTaskDb());
         try {

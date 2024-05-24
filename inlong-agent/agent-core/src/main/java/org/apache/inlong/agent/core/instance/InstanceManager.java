@@ -43,6 +43,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.TaskConstants.RESTORE_FROM_DB;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_AUDIT_VERSION;
 
 /**
  * handle the instance created by task, including add, delete, update etc.
@@ -117,7 +118,6 @@ public class InstanceManager extends AbstractDaemon {
      */
     public InstanceManager(String taskId, int instanceLimit, Db basicDb, TaskProfileDb taskProfileDb) {
         this.taskId = taskId;
-        this.auditVersion = Long.parseLong(taskId);
         instanceDb = new InstanceDb(basicDb);
         this.taskProfileDb = taskProfileDb;
         this.agentConf = AgentConfiguration.getAgentConf();
@@ -298,6 +298,7 @@ public class InstanceManager extends AbstractDaemon {
 
     private void restoreFromDb() {
         taskFromDb = taskProfileDb.getTask(taskId);
+        auditVersion = Long.parseLong(taskFromDb.get(TASK_AUDIT_VERSION));
         List<InstanceProfile> profileList = instanceDb.getInstances(taskId);
         profileList.forEach((profile) -> {
             InstanceStateEnum state = profile.getState();
