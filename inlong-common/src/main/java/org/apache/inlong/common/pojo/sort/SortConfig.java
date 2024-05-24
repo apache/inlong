@@ -21,9 +21,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.function.BiFunction;
 
 @Data
 @Builder
@@ -33,4 +35,56 @@ public class SortConfig implements Serializable {
 
     private String sortClusterName;
     private List<SortTaskConfig> tasks;
+
+    public static SortConfig checkDelete(SortConfig last, SortConfig current) {
+        if (last == null) {
+            return null;
+        }
+        if (current == null) {
+            return last;
+        }
+        return check(last, current, SortTaskConfig::checkDeleteBatch);
+    }
+
+    public static SortConfig checkUpdate(SortConfig last, SortConfig current) {
+        if (last == null || current == null) {
+            return null;
+        }
+        return check(last, current, SortTaskConfig::checkUpdateBatch);
+    }
+
+    public static SortConfig checkNoUpdate(SortConfig last, SortConfig current) {
+        if (last == null || current == null) {
+            return null;
+        }
+        return check(last, current, SortTaskConfig::checkNoUpdateBatch);
+    }
+
+    public static SortConfig checkNew(SortConfig last, SortConfig current) {
+        if (last == null) {
+            return current;
+        }
+        if (current == null) {
+            return null;
+        }
+        return check(last, current, SortTaskConfig::checkNewBatch);
+    }
+
+    public static SortConfig check(
+            SortConfig last, SortConfig current,
+            BiFunction<List<SortTaskConfig>, List<SortTaskConfig>, List<SortTaskConfig>> taskCheckFunction) {
+        if (!last.getSortClusterName().equals(current.getSortClusterName())) {
+            return null;
+        }
+
+        List<SortTaskConfig> checkTasks = taskCheckFunction.apply(last.getTasks(), current.getTasks());
+        if (CollectionUtils.isEmpty(checkTasks)) {
+            return null;
+        }
+
+        return SortConfig.builder()
+                .sortClusterName(last.getSortClusterName())
+                .tasks(checkTasks)
+                .build();
+    }
 }

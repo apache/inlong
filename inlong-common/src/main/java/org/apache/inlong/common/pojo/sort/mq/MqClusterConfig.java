@@ -18,12 +18,15 @@
 package org.apache.inlong.common.pojo.sort.mq;
 
 import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.util.ListUtil;
+import org.apache.inlong.common.util.SortConfigUtil;
 
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -33,6 +36,24 @@ import java.io.Serializable;
 })
 public abstract class MqClusterConfig implements Serializable {
 
-    private String version;
+    private Integer version;
     private String clusterName;
+
+    public static List<MqClusterConfig> batchCheckDelete(List<MqClusterConfig> last, List<MqClusterConfig> current) {
+        return ListUtil.subtract(last, current, MqClusterConfig::getClusterName);
+    }
+
+    public static List<MqClusterConfig> batchCheckUpdate(List<MqClusterConfig> last, List<MqClusterConfig> current) {
+        return SortConfigUtil.checkUpdate(last, current, MqClusterConfig::getClusterName, MqClusterConfig::getVersion);
+    }
+
+    public static List<MqClusterConfig> batchCheckNoUpdate(List<MqClusterConfig> last, List<MqClusterConfig> current) {
+        return SortConfigUtil.checkNoUpdate(last, current, MqClusterConfig::getClusterName,
+                MqClusterConfig::getVersion);
+    }
+
+    public static List<MqClusterConfig> batchCheckNew(List<MqClusterConfig> last, List<MqClusterConfig> current) {
+        return ListUtil.subtract(current, last, MqClusterConfig::getClusterName);
+    }
+
 }
