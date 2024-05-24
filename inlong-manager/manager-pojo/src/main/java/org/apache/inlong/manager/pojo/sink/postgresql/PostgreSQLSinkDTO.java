@@ -87,8 +87,7 @@ public class PostgreSQLSinkDTO {
         CommonBeanUtils.copyProperties(request, dto, true);
         String passwd = dto.getPassword();
         if (StringUtils.isNotEmpty(passwd)) {
-            passwd = AESUtils.encryptToString(passwd.getBytes(StandardCharsets.UTF_8),
-                    encryptVersion);
+            passwd = AESUtils.encryptToString(passwd.getBytes(StandardCharsets.UTF_8), encryptVersion);
         }
         dto.setPassword(passwd);
         dto.setEncryptVersion(encryptVersion);
