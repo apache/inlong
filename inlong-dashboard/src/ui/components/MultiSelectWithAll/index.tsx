@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import HighSelect from '@/ui/components/HighSelect';
 
-export const ALL_OPTION_VALUE = 'ALL';
+export const ALL_OPTION_VALUE = 'All';
 const MultiSelectWithALL = props => {
   const [selectedValues, setSelectedValues] = useState([]);
 
