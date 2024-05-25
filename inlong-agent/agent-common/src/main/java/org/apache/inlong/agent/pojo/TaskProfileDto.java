@@ -419,7 +419,7 @@ public class TaskProfileDto {
         task.setPredefinedFields(dataConfig.getPredefinedFields());
         task.setCycleUnit(CycleUnitType.REAL_TIME);
         task.setTimeZone(dataConfig.getTimeZone());
-        if (null == dataConfig.getAuditVersion()) {
+        if (dataConfig.getAuditVersion() == null) {
             task.setAuditVersion(DEFAULT_AUDIT_VERSION);
         } else {
             task.setAuditVersion(dataConfig.getAuditVersion());
