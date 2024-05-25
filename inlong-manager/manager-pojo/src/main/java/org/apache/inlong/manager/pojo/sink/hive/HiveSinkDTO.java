@@ -99,14 +99,14 @@ public class HiveSinkDTO {
      */
     public static HiveSinkDTO getFromRequest(HiveSinkRequest request, String extParams) throws Exception {
         Integer encryptVersion = AESUtils.getCurrentVersion(null);
-        String passwd = null;
-        if (StringUtils.isNotEmpty(request.getPassword())) {
-            passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
-                    encryptVersion);
-        }
 
         HiveSinkDTO dto = StringUtils.isNotBlank(extParams) ? HiveSinkDTO.getFromJson(extParams) : new HiveSinkDTO();
         CommonBeanUtils.copyProperties(request, dto, true);
+        String passwd = dto.getPassword();
+        if (StringUtils.isNotEmpty(passwd)) {
+            passwd = AESUtils.encryptToString(passwd.getBytes(StandardCharsets.UTF_8), encryptVersion);
+        }
+
         dto.setPassword(passwd);
         dto.setEncryptVersion(encryptVersion);
         return dto;
