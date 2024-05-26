@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -181,7 +182,8 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
                 topic.setInLongCluster(cacheZoneCluster);
                 topic.setTopic(topicInfo.getTopic());
                 topic.setTopicType(cacheZone.getZoneType());
-                topic.setProperties(topicInfo.getTopicProperties());
+                Map<String, Object> properties = new HashMap<>(topicInfo.getTopicProperties());
+                topic.setProperties(properties);
                 newGroupTopics.add(topic);
             }
         }

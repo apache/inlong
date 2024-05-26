@@ -40,28 +40,43 @@ public class SortTaskConfig implements Serializable {
     private List<SortClusterConfig> clusters;
     private NodeConfig nodeConfig;
 
-    public static List<SortTaskConfig> checkDeleteBatch(List<SortTaskConfig> last, List<SortTaskConfig> current) {
+    public static List<SortTaskConfig> batchCheckDelete(List<SortTaskConfig> last, List<SortTaskConfig> current) {
         return SortConfigUtil.batchCheckDeleteRecursive(last, current,
                 SortTaskConfig::getSortTaskName, SortTaskConfig::checkDelete);
     }
 
-    public static List<SortTaskConfig> checkUpdateBatch(List<SortTaskConfig> last, List<SortTaskConfig> current) {
+    public static List<SortTaskConfig> batchCheckUpdate(List<SortTaskConfig> last, List<SortTaskConfig> current) {
         return SortConfigUtil.batchCheckUpdateRecursive(last, current,
                 SortTaskConfig::getSortTaskName, SortTaskConfig::checkUpdate);
     }
 
-    public static List<SortTaskConfig> checkNoUpdateBatch(List<SortTaskConfig> last, List<SortTaskConfig> current) {
-        return SortConfigUtil.batchCheckNoUpdateRecursive(last, current,
-                SortTaskConfig::getSortTaskName, SortTaskConfig::checkNoUpdate);
-    }
-
-    public static List<SortTaskConfig> checkNewBatch(List<SortTaskConfig> last, List<SortTaskConfig> current) {
+    public static List<SortTaskConfig> batchCheckNew(List<SortTaskConfig> last, List<SortTaskConfig> current) {
         return SortConfigUtil.batchCheckNewRecursive(last, current,
                 SortTaskConfig::getSortTaskName, SortTaskConfig::checkNew);
     }
 
+    public static List<SortTaskConfig> batchCheckLatest(List<SortTaskConfig> latest, List<SortTaskConfig> current) {
+        return SortConfigUtil.batchCheckLatestRecursive(latest, current,
+                SortTaskConfig::getSortTaskName, SortTaskConfig::checkLatest);
+    }
+
     public static SortTaskConfig checkDelete(SortTaskConfig last, SortTaskConfig current) {
         return check(last, current, SortClusterConfig::batchCheckDelete,
+                (lastNode, currentNode) -> lastNode);
+    }
+
+    public static SortTaskConfig checkUpdate(SortTaskConfig last, SortTaskConfig current) {
+        return check(last, current, SortClusterConfig::batchCheckUpdate,
+                (lastNode, currentNode) -> {
+                    if (lastNode == null || currentNode == null) {
+                        return null;
+                    }
+                    return lastNode.getVersion() < currentNode.getVersion() ? null : currentNode;
+                });
+    }
+
+    public static SortTaskConfig checkNew(SortTaskConfig last, SortTaskConfig current) {
+        return check(last, current, SortClusterConfig::batchCheckNew,
                 (lastNode, currentNode) -> {
                     if (lastNode == null || currentNode == null) {
                         return null;
@@ -70,19 +85,14 @@ public class SortTaskConfig implements Serializable {
                 });
     }
 
-    public static SortTaskConfig checkUpdate(SortTaskConfig last, SortTaskConfig current) {
-        return check(last, current, SortClusterConfig::batchCheckUpdate,
-                (lastNode, currentNode) -> lastNode.getVersion() < currentNode.getVersion() ? null : currentNode);
-    }
-
-    public static SortTaskConfig checkNoUpdate(SortTaskConfig last, SortTaskConfig current) {
-        return check(last, current, SortClusterConfig::batchCheckNoUpdate,
-                (lastNode, currentNode) -> lastNode.getVersion() >= currentNode.getVersion() ? lastNode : null);
-    }
-
-    public static SortTaskConfig checkNew(SortTaskConfig last, SortTaskConfig current) {
-        return check(last, current, SortClusterConfig::batchCheckNew,
-                (lastNode, currentNode) -> lastNode.getVersion() >= currentNode.getVersion() ? lastNode : currentNode);
+    public static SortTaskConfig checkLatest(SortTaskConfig last, SortTaskConfig current) {
+        return check(last, current, SortClusterConfig::batchCheckLatest,
+                (lastNode, currentNode) -> {
+                    if (lastNode == null || currentNode == null) {
+                        return null;
+                    }
+                    return lastNode.getVersion() >= currentNode.getVersion() ? lastNode : currentNode;
+                });
     }
 
     public static SortTaskConfig check(
@@ -100,6 +110,7 @@ public class SortTaskConfig implements Serializable {
 
         return SortTaskConfig
                 .builder()
+                .sortTaskName(last.getSortTaskName())
                 .clusters(checkCluster)
                 .nodeConfig(checkNode)
                 .build();

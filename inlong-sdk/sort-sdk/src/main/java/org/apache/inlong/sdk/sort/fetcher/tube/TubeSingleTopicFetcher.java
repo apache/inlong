@@ -78,7 +78,7 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
                 TreeSet<String> filters = null;
                 if (topic.getProperties() != null && topic.getProperties().containsKey(
                         SysConstants.TUBE_TOPIC_FILTER_KEY)) {
-                    String filterStr = topic.getProperties().get(SysConstants.TUBE_TOPIC_FILTER_KEY);
+                    String filterStr = topic.getProperties().get(SysConstants.TUBE_TOPIC_FILTER_KEY).toString();
                     String[] filterArray = filterStr.split(" ");
                     filters = new TreeSet<>(Arrays.asList(filterArray));
                 }

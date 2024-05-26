@@ -19,6 +19,7 @@ package org.apache.inlong.common.util;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SortConfigUtil {
 
@@ -84,6 +86,30 @@ public class SortConfigUtil {
                     return comparator.compare(lastElement, currentElement) < 0 ? currentElement : null;
                 })
                 .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Check and return list of elements which are the latest version by compare the version
+     *
+     * @param last Last elements list
+     * @param current Current elements list
+     * @param keyExtractor Map key extract function
+     * @param versionExtractor Compare key extractor
+     * @return List of elements which are the latest ones
+     * @param <T> Element type
+     * @param <R> Map key type
+     * @param <N> Compare key type
+     */
+    public static <T, R, N extends Comparable<? super N>> List<T> checkLatest(
+            List<T> last, List<T> current,
+            Function<T, R> keyExtractor,
+            Function<T, N> versionExtractor) {
+
+        return Stream.of(checkUpdate(last, current, keyExtractor, versionExtractor),
+                checkNoUpdate(last, current, keyExtractor, versionExtractor),
+                checkNew(last, current, keyExtractor))
+                .flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }
 
@@ -215,12 +241,28 @@ public class SortConfigUtil {
         return ListUtil.union(newInner, newByKey);
     }
 
+    public static <T, R, N extends Comparable<? super N>> List<T> batchCheckLatestRecursive(
+            List<T> last, List<T> current,
+            Function<T, R> keyExtractor,
+            BiFunction<T, T, T> singleCheckLatestFunction) {
+        if (CollectionUtils.isEmpty(last)) {
+            return current;
+        }
+        if (CollectionUtils.isEmpty(current)) {
+            return null;
+        }
+
+        List<T> newByKey = checkNew(current, last, keyExtractor);
+        List<T> latestInner = batchCheckRecursive(last, current, keyExtractor, singleCheckLatestFunction);
+        return ListUtil.union(latestInner, newByKey);
+    }
+
     /**
      * Batch check and return a list of elements base on a specified check function
      * @param last Elements of last check
      * @param current Elements of current
      * @param keyExtractor Key extractor of elements
-     * @param innerCheckFunction The single element check function
+     * @param singleCheckFunction The single element check function
      * @return A list of elements
      * @param <T> Element type
      * @param <R> Key type
@@ -228,7 +270,7 @@ public class SortConfigUtil {
     private static <T, R> List<T> batchCheckRecursive(
             List<T> last, List<T> current,
             Function<T, R> keyExtractor,
-            BiFunction<T, T, T> innerCheckFunction) {
+            BiFunction<T, T, T> singleCheckFunction) {
 
         List<R> intersectionKey = ListUtil.intersectionKey(last, current, keyExtractor);
         if (CollectionUtils.isEmpty(intersectionKey)) {
@@ -238,7 +280,7 @@ public class SortConfigUtil {
         Map<R, T> lastMap = ListUtil.toMap(last, keyExtractor);
         Map<R, T> currentMap = ListUtil.toMap(current, keyExtractor);
         return intersectionKey.stream()
-                .map(tag -> innerCheckFunction.apply(lastMap.get(tag), currentMap.get(tag)))
+                .map(tag -> singleCheckFunction.apply(lastMap.get(tag), currentMap.get(tag)))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }

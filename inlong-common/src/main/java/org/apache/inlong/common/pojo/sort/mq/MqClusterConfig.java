@@ -18,7 +18,6 @@
 package org.apache.inlong.common.pojo.sort.mq;
 
 import org.apache.inlong.common.constant.MQType;
-import org.apache.inlong.common.util.ListUtil;
 import org.apache.inlong.common.util.SortConfigUtil;
 
 import lombok.Data;
@@ -40,20 +39,30 @@ public abstract class MqClusterConfig implements Serializable {
     private String clusterName;
 
     public static List<MqClusterConfig> batchCheckDelete(List<MqClusterConfig> last, List<MqClusterConfig> current) {
-        return ListUtil.subtract(last, current, MqClusterConfig::getClusterName);
+        return SortConfigUtil.checkDelete(last, current, MqClusterConfig::getClusterName);
     }
 
     public static List<MqClusterConfig> batchCheckUpdate(List<MqClusterConfig> last, List<MqClusterConfig> current) {
-        return SortConfigUtil.checkUpdate(last, current, MqClusterConfig::getClusterName, MqClusterConfig::getVersion);
+        return SortConfigUtil.checkUpdate(last, current,
+                MqClusterConfig::getClusterName, MqClusterConfig::getVersion);
     }
 
     public static List<MqClusterConfig> batchCheckNoUpdate(List<MqClusterConfig> last, List<MqClusterConfig> current) {
-        return SortConfigUtil.checkNoUpdate(last, current, MqClusterConfig::getClusterName,
-                MqClusterConfig::getVersion);
+        return SortConfigUtil.checkNoUpdate(last, current,
+                MqClusterConfig::getClusterName, MqClusterConfig::getVersion);
     }
 
     public static List<MqClusterConfig> batchCheckNew(List<MqClusterConfig> last, List<MqClusterConfig> current) {
-        return ListUtil.subtract(current, last, MqClusterConfig::getClusterName);
+        return SortConfigUtil.checkNew(last, current, MqClusterConfig::getClusterName);
+    }
+
+    public static List<MqClusterConfig> batchCheckLatest(List<MqClusterConfig> last, List<MqClusterConfig> current) {
+        return SortConfigUtil.checkLatest(last, current,
+                MqClusterConfig::getClusterName, MqClusterConfig::getVersion);
+    }
+
+    public static List<MqClusterConfig> batchCheckLast(List<MqClusterConfig> last, List<MqClusterConfig> current) {
+        return last;
     }
 
 }

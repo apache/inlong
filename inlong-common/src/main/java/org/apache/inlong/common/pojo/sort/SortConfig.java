@@ -36,6 +36,19 @@ public class SortConfig implements Serializable {
     private String sortClusterName;
     private List<SortTaskConfig> tasks;
 
+    public static SortConfig checkLatest(SortConfig last, SortConfig current) {
+        if (last == null) {
+            return current;
+        }
+        if (current == null) {
+            return null;
+        }
+        return SortConfig.builder()
+                .sortClusterName(current.getSortClusterName())
+                .tasks(SortTaskConfig.batchCheckLatest(last.getTasks(), current.getTasks()))
+                .build();
+    }
+
     public static SortConfig checkDelete(SortConfig last, SortConfig current) {
         if (last == null) {
             return null;
@@ -43,21 +56,14 @@ public class SortConfig implements Serializable {
         if (current == null) {
             return last;
         }
-        return check(last, current, SortTaskConfig::checkDeleteBatch);
+        return check(last, current, SortTaskConfig::batchCheckDelete);
     }
 
     public static SortConfig checkUpdate(SortConfig last, SortConfig current) {
         if (last == null || current == null) {
             return null;
         }
-        return check(last, current, SortTaskConfig::checkUpdateBatch);
-    }
-
-    public static SortConfig checkNoUpdate(SortConfig last, SortConfig current) {
-        if (last == null || current == null) {
-            return null;
-        }
-        return check(last, current, SortTaskConfig::checkNoUpdateBatch);
+        return check(last, current, SortTaskConfig::batchCheckUpdate);
     }
 
     public static SortConfig checkNew(SortConfig last, SortConfig current) {
@@ -67,7 +73,7 @@ public class SortConfig implements Serializable {
         if (current == null) {
             return null;
         }
-        return check(last, current, SortTaskConfig::checkNewBatch);
+        return check(last, current, SortTaskConfig::batchCheckNew);
     }
 
     public static SortConfig check(
