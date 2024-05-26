@@ -294,7 +294,7 @@
         from stream_source
         <where>
             (inlong_cluster_name = #{clusterName, jdbcType=VARCHAR})
-            and (find_in_set( #{agentIp, jdbcType=VARCHAR}, agent_ip) or agent_ip ='ALL')
+            and (find_in_set( #{agentIp, jdbcType=VARCHAR}, agent_ip) or agent_ip ='All')
             and `status` in
             <foreach item="item" index="index" collection="statusList" open="(" close=")" separator=",">
                 #{item}
