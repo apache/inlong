@@ -216,9 +216,10 @@ public class RealTimeQuery {
                     data.setInlongStreamId(resultSet.getString(3));
                     data.setAuditId(resultSet.getString(4));
                     data.setAuditTag(resultSet.getString(5));
-                    data.setCount(resultSet.getLong(6));
+                    long count = resultSet.getLong(6);
+                    data.setCount(count);
                     data.setSize(resultSet.getLong(7));
-                    data.setDelay(resultSet.getLong(8));
+                    data.setDelay(CacheUtils.calculateAverageDelay(count, resultSet.getLong(8)));
                     data.setAuditVersion(resultSet.getLong(9));
                     result.add(data);
                 }
@@ -281,9 +282,10 @@ public class RealTimeQuery {
                     data.setInlongStreamId(resultSet.getString(2));
                     data.setAuditId(resultSet.getString(3));
                     data.setAuditTag(resultSet.getString(4));
-                    data.setCount(resultSet.getLong(5));
+                    long count = resultSet.getLong(5);
+                    data.setCount(count);
                     data.setSize(resultSet.getLong(6));
-                    data.setDelay(resultSet.getLong(7));
+                    data.setDelay(CacheUtils.calculateAverageDelay(count, resultSet.getLong(7)));
                     result.add(data);
                 }
             } catch (SQLException sqlException) {
@@ -345,9 +347,10 @@ public class RealTimeQuery {
                 while (resultSet.next()) {
                     StatData data = new StatData();
                     data.setIp(resultSet.getString(1));
-                    data.setCount(resultSet.getLong(2));
+                    long count = resultSet.getLong(2);
+                    data.setCount(count);
                     data.setSize(resultSet.getLong(3));
-                    data.setDelay(resultSet.getLong(4));
+                    data.setDelay(CacheUtils.calculateAverageDelay(count, resultSet.getLong(4)));
                     result.add(data);
                 }
             } catch (SQLException sqlException) {

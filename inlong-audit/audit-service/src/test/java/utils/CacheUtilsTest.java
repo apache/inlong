@@ -15,25 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.utils;
+package utils;
 
-/**
- * Cache utils
- */
-public class CacheUtils {
+import org.apache.inlong.audit.utils.CacheUtils;
 
-    public static String buildCacheKey(String logTs, String inlongGroupId, String inlongStreamId,
-            String auditId, String auditTag) {
-        return new StringBuilder()
-                .append(logTs)
-                .append(inlongGroupId)
-                .append(inlongStreamId)
-                .append(auditId)
-                .append(auditTag)
-                .toString();
-    }
+import org.junit.Test;
 
-    public static long calculateAverageDelay(long totalCount, long totalDelay) {
-        return totalCount == 0 ? 0 : (totalDelay / Math.abs(totalCount));
+import static org.junit.Assert.assertEquals;
+
+public class CacheUtilsTest {
+
+    @Test
+    public void calculateAverageDelay() {
+        long averageDelay = CacheUtils.calculateAverageDelay(10, 100);
+        assertEquals(10, averageDelay);
+
+        averageDelay = CacheUtils.calculateAverageDelay(-10, 100);
+        assertEquals(10, averageDelay);
+
+        averageDelay = CacheUtils.calculateAverageDelay(0, 100);
+        assertEquals(0, averageDelay);
     }
 }

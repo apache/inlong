@@ -23,6 +23,7 @@ import org.apache.inlong.audit.entities.SourceConfig;
 import org.apache.inlong.audit.entities.StartEndTime;
 import org.apache.inlong.audit.entities.StatData;
 import org.apache.inlong.audit.service.ConfigService;
+import org.apache.inlong.audit.utils.CacheUtils;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -304,9 +305,10 @@ public class JdbcSource {
                         } else {
                             data.setAuditTag(auditTag);
                         }
-                        data.setCount(resultSet.getLong(5));
+                        long count = resultSet.getLong(5);
+                        data.setCount(count);
                         data.setSize(resultSet.getLong(6));
-                        data.setDelay(resultSet.getLong(7));
+                        data.setDelay(CacheUtils.calculateAverageDelay(count, resultSet.getLong(7)));
                         dataQueue.push(data);
                     }
                 } catch (SQLException sqlException) {
