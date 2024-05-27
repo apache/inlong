@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.message.file;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
+import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.msg.AttributeConstants;
 
@@ -40,6 +41,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STRE
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_SIZE;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_TIMEOUT_MS;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_AUDIT_VERSION;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_CYCLE_UNIT;
 import static org.apache.inlong.common.msg.AttributeConstants.AUDIT_VERSION;
 
 /**
@@ -62,7 +64,6 @@ public class ProxyMessageCache {
     private long lastPrintTime = 0;
     private long dataTime;
     private boolean isRealTime = false;
-    protected long auditVersion;
     /**
      * extra map used when sending to dataproxy
      */
@@ -81,6 +82,10 @@ public class ProxyMessageCache {
         extraMap.put(AttributeConstants.MESSAGE_SYNC_SEND, "false");
         extraMap.putAll(AgentUtils.parseAddAttrToMap(instanceProfile.getPredefineFields()));
         extraMap.put(AUDIT_VERSION, instanceProfile.get(TASK_AUDIT_VERSION));
+        String cycleUnit = instanceProfile.get(TASK_CYCLE_UNIT);
+        if (cycleUnit.compareToIgnoreCase(CycleUnitType.REAL_TIME) == 0) {
+            isRealTime = true;
+        }
     }
 
     public void generateExtraMap(String dataKey) {
