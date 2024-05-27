@@ -23,6 +23,7 @@ import { RenderList } from '@/plugins/RenderList';
 import i18n from '@/i18n';
 import rulesPattern from '@/core/utils/pattern';
 import { SourceInfo } from '../common/SourceInfo';
+import MultiSelectWithALL, { ALL_OPTION_VALUE } from '@/ui/components/MultiSelectWithAll';
 
 const { I18n } = DataWithBackend;
 const { FieldDecorator, IngestionField } = RenderRow;
@@ -82,15 +83,17 @@ export default class PulsarSource
   clusterId: number;
 
   @FieldDecorator({
-    type: 'select',
+    type: MultiSelectWithALL,
+    tooltip: i18n.t('meta.Sources.File.FileIpHelp'),
     rules: [
       {
-        pattern: rulesPattern.ip,
+        pattern: rulesPattern.fileIp,
         message: i18n.t('meta.Sources.File.IpRule'),
         required: true,
       },
     ],
     props: values => ({
+      mode: 'multiple',
       disabled: Boolean(values.id),
       showSearch: true,
       allowClear: true,
@@ -108,12 +111,21 @@ export default class PulsarSource
           },
         }),
         requestParams: {
-          formatResult: result =>
-            result?.list?.map(item => ({
-              ...item,
-              label: item.ip,
-              value: item.ip,
-            })),
+          formatResult: result => {
+            const allOption = {
+              label: ALL_OPTION_VALUE,
+              value: ALL_OPTION_VALUE,
+            };
+            return result?.list
+              ? [
+                  allOption,
+                  ...result.list.map(item => ({
+                    label: item.ip,
+                    value: item.ip,
+                  })),
+                ]
+              : [allOption];
+          },
         },
       },
     }),
@@ -121,7 +133,7 @@ export default class PulsarSource
   @ColumnDecorator()
   @IngestionField()
   @I18n('meta.Sources.File.DataSourceIP')
-  agentIp: string;
+  agentIp: string[] | string;
 
   @FieldDecorator({
     type: 'input',
@@ -182,7 +194,7 @@ export default class PulsarSource
     initialValue: '0h',
     rules: [
       {
-        pattern: /-?[0-9][mhd]$/,
+        pattern: /-?\d+[mhd]$/,
         required: true,
         message: i18n.t('meta.Sources.File.TimeOffsetRules'),
       },
