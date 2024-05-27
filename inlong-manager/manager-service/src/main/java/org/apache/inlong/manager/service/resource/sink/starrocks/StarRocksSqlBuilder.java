@@ -156,7 +156,7 @@ public class StarRocksSqlBuilder {
             columnList.add(columnStr.toString());
         }
         StringBuilder result = new StringBuilder().append(" (").append(StringUtils.join(columnList, ",")).append(") ");
-        if (!StringUtils.isEmpty(tableInfo.getPrimaryKey())) {
+        if (StringUtils.isNotBlank(tableInfo.getPrimaryKey())) {
             result.append("PRIMARY KEY (")
                     .append(tableInfo.getPrimaryKey())
                     .append(") ");
