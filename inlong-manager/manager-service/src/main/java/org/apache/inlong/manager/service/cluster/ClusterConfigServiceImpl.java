@@ -54,40 +54,25 @@ public class ClusterConfigServiceImpl implements ClusterConfigService {
             ObjectMapper objectMapper = new ObjectMapper();
             List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR);
             List<PulsarClusterConfig> list = new ArrayList<>();
-            ClusterConfigEntity clusterConfigEntity = clusterConfigEntityMapper.selectByClusterTag(clusterTag);
-            if (clusterConfigEntity == null) {
-                clusterConfigEntity = new ClusterConfigEntity();
-                for (ClusterInfo clusterInfo : clusterInfos) {
-                    PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
-
-                    PulsarClusterConfig pulsarClusterConfig =
-                            CommonBeanUtils.copyProperties(pulsarCluster, PulsarClusterConfig::new);
-                    pulsarClusterConfig.setVersion(pulsarCluster.getVersion());
-                    pulsarClusterConfig.setClusterName(pulsarCluster.getName());
-                    pulsarClusterConfig.setServiceUrl(pulsarCluster.getUrl());
-                    list.add(pulsarClusterConfig);
-                }
-                clusterConfigEntity.setConfigParams(objectMapper.writeValueAsString(list));
-                clusterConfigEntity.setClusterTag(clusterTag);
-                clusterConfigEntity.setClusterType(ClusterType.PULSAR);
-                clusterConfigEntity.setModifier(operator);
+            ClusterConfigEntity existEntity = clusterConfigEntityMapper.selectByClusterTag(clusterTag);
+            for (ClusterInfo clusterInfo : clusterInfos) {
+                PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+                PulsarClusterConfig pulsarClusterConfig = CommonBeanUtils.copyProperties(pulsarCluster,
+                        PulsarClusterConfig::new);
+                pulsarClusterConfig.setVersion(pulsarCluster.getVersion());
+                pulsarClusterConfig.setClusterName(pulsarCluster.getName());
+                pulsarClusterConfig.setServiceUrl(pulsarCluster.getUrl());
+                list.add(pulsarClusterConfig);
+            }
+            ClusterConfigEntity clusterConfigEntity = existEntity == null ? new ClusterConfigEntity() : existEntity;
+            clusterConfigEntity.setConfigParams(objectMapper.writeValueAsString(list));
+            clusterConfigEntity.setClusterTag(clusterTag);
+            clusterConfigEntity.setClusterType(ClusterType.PULSAR);
+            clusterConfigEntity.setModifier(operator);
+            if (existEntity == null) {
                 clusterConfigEntity.setCreator(operator);
-                clusterConfigEntity.setVersion(0);
                 clusterConfigEntityMapper.insert(clusterConfigEntity);
             } else {
-                for (ClusterInfo clusterInfo : clusterInfos) {
-                    PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
-                    PulsarClusterConfig pulsarClusterConfig =
-                            CommonBeanUtils.copyProperties(pulsarCluster, PulsarClusterConfig::new);
-                    pulsarClusterConfig.setClusterName(pulsarCluster.getName());
-                    pulsarClusterConfig.setVersion(pulsarCluster.getVersion());
-                    pulsarClusterConfig.setServiceUrl(pulsarCluster.getUrl());
-                    list.add(pulsarClusterConfig);
-                }
-                clusterConfigEntity.setConfigParams(objectMapper.writeValueAsString(list));
-                clusterConfigEntity.setClusterTag(clusterTag);
-                clusterConfigEntity.setClusterType(ClusterType.PULSAR);
-                clusterConfigEntity.setModifier(operator);
                 clusterConfigEntityMapper.updateByIdSelective(clusterConfigEntity);
             }
         } catch (Exception e) {
@@ -98,4 +83,5 @@ public class ClusterConfigServiceImpl implements ClusterConfigService {
         }
         return true;
     }
+
 }
