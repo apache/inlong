@@ -64,6 +64,7 @@ import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_REA
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_READER_SOURCE_PERMIT;
 import static org.apache.inlong.agent.constant.TaskConstants.DEFAULT_FILE_SOURCE_EXTEND_CLASS;
 import static org.apache.inlong.agent.constant.TaskConstants.OFFSET;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_AUDIT_VERSION;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_CYCLE_UNIT;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_STREAM_ID;
@@ -119,7 +120,7 @@ public abstract class AbstractSource implements Source {
     public void init(InstanceProfile profile) {
         this.profile = profile;
         taskId = profile.getTaskId();
-        auditVersion = Long.parseLong(taskId);
+        auditVersion = Long.parseLong(profile.get(TASK_AUDIT_VERSION));
         instanceId = profile.getInstanceId();
         inlongGroupId = profile.getInlongGroupId();
         inlongStreamId = profile.getInlongStreamId();

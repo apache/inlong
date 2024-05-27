@@ -99,6 +99,8 @@ public class TaskProfileDto {
 
     public static final String deafult_time_offset = "0";
 
+    private static final String DEFAULT_AUDIT_VERSION = "0";
+
     private Task task;
     private Proxy proxy;
 
@@ -417,7 +419,11 @@ public class TaskProfileDto {
         task.setPredefinedFields(dataConfig.getPredefinedFields());
         task.setCycleUnit(CycleUnitType.REAL_TIME);
         task.setTimeZone(dataConfig.getTimeZone());
-
+        if (dataConfig.getAuditVersion() == null) {
+            task.setAuditVersion(DEFAULT_AUDIT_VERSION);
+        } else {
+            task.setAuditVersion(dataConfig.getAuditVersion());
+        }
         // set sink type
         if (dataConfig.getDataReportType() == NORMAL_SEND_TO_DATAPROXY.ordinal()) {
             task.setSink(DEFAULT_DATA_PROXY_SINK);
@@ -537,6 +543,7 @@ public class TaskProfileDto {
         private Integer state;
         private String cycleUnit;
         private String timeZone;
+        private String auditVersion;
 
         private FileTask fileTask;
         private BinlogTask binlogTask;

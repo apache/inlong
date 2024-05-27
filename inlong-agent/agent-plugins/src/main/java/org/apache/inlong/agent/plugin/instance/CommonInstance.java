@@ -38,6 +38,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_AUDIT_VERSION;
+
 /**
  * common instance contains source and sink.
  * main job is to read from source and write to sink
@@ -66,7 +68,7 @@ public abstract class CommonInstance extends Instance {
         try {
             instanceManager = (InstanceManager) srcManager;
             profile = srcProfile;
-            auditVersion = Long.parseLong(getTaskId());
+            auditVersion = Long.parseLong(srcProfile.get(TASK_AUDIT_VERSION));
             setInodeInfo(profile);
             LOGGER.info("task id: {} submit new instance {} profile detail {}.", profile.getTaskId(),
                     profile.getInstanceId(), profile.toJsonStr());

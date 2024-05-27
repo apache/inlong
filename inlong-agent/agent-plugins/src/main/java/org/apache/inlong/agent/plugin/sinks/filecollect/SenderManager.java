@@ -56,6 +56,7 @@ import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AD
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
 import static org.apache.inlong.agent.constant.TaskConstants.DEFAULT_TASK_PROXY_SEND;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_AUDIT_VERSION;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_PROXY_SEND;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_STREAM_ID;
@@ -110,7 +111,7 @@ public class SenderManager {
 
     public SenderManager(InstanceProfile profile, String inlongGroupId, String sourcePath) {
         this.profile = profile;
-        auditVersion = Long.parseLong(profile.getTaskId());
+        auditVersion = Long.parseLong(profile.get(TASK_AUDIT_VERSION));
         managerAddr = agentConf.get(AGENT_MANAGER_ADDR);
         proxySend = profile.getBoolean(TASK_PROXY_SEND, DEFAULT_TASK_PROXY_SEND);
         totalAsyncBufSize = profile

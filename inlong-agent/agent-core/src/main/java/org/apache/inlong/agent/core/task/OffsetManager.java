@@ -40,6 +40,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_AUDIT_VERSION;
+
 /**
  * used to store instance offset to db
  * where key is task id + read file name and value is instance offset
@@ -168,7 +170,7 @@ public class OffsetManager extends AbstractDaemon {
                 instanceDb.deleteInstance(taskId, instanceId);
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_DEL_INSTANCE_DB, instanceFromDb.getInlongGroupId(),
                         instanceFromDb.getInlongStreamId(), instanceFromDb.getSinkDataTime(), 1, 1,
-                        Long.parseLong(taskId));
+                        Long.parseLong(taskFromDb.get(TASK_AUDIT_VERSION)));
                 iterator.remove();
             }
         }
