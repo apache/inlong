@@ -69,12 +69,12 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
 
     @Override
     public Boolean accept(String sinkType) {
-        return SinkType.ELASTICSEARCH.equals(sinkType);
+        return SinkType.ES.equals(sinkType);
     }
 
     @Override
     protected String getSinkType() {
-        return SinkType.ELASTICSEARCH;
+        return SinkType.ES;
     }
 
     @Override

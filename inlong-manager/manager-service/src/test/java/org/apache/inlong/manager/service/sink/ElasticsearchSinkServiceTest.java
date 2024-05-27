@@ -59,7 +59,7 @@ public class ElasticsearchSinkServiceTest extends ServiceBaseTest {
         ElasticsearchSinkRequest sinkInfo = new ElasticsearchSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.ELASTICSEARCH);
+        sinkInfo.setSinkType(SinkType.ES);
 
         sinkInfo.setDataNodeName(dataNodeName);
 

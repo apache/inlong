@@ -15,29 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sink.es;
-
-import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.sink.SinkRequest;
-
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+package org.apache.inlong.manager.service.cluster;
 
 /**
- * Elasticsearch sink request.
+ * Cluster config service layer interface
  */
-@Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Elasticsearch sink request")
-@JsonTypeDefine(value = SinkType.ES)
-public class ElasticsearchSinkRequest extends SinkRequest {
+public interface ClusterConfigService {
 
-    @ApiModelProperty("indexNamePattern")
-    private String indexNamePattern;
-
+    boolean refresh(String clusterTag, String operator);
 }

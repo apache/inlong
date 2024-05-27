@@ -39,7 +39,7 @@ public class ElasticsearchProvider implements LoadNodeProvider {
 
     @Override
     public Boolean accept(String sinkType) {
-        return SinkType.ELASTICSEARCH.equals(sinkType);
+        return SinkType.ES.equals(sinkType);
     }
 
     @Override
