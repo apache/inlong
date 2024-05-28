@@ -399,9 +399,6 @@ public abstract class AbstractSource implements Source {
 
     @Override
     public boolean sourceFinish() {
-        if (isRealTime) {
-            return false;
-        }
         return emptyCount > EMPTY_CHECK_COUNT_AT_LEAST;
     }
 

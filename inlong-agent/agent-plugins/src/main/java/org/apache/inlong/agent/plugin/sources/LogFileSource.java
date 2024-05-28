@@ -290,7 +290,7 @@ public class LogFileSource extends AbstractSource {
             try {
                 return FileDataUtils.getInodeInfo(fileName).compareTo(inodeInfo) != 0;
             } catch (IOException e) {
-                LOGGER.error("check inode change file {} error {}", fileName, e.getMessage());
+                LOGGER.error("check inode change file {} error", fileName, e);
                 return true;
             }
         }
@@ -299,7 +299,7 @@ public class LogFileSource extends AbstractSource {
 
     @Override
     protected boolean isRunnable() {
-        return runnable && fileExist && !isInodeChanged();
+        return runnable && fileExist;
     }
 
     @Override

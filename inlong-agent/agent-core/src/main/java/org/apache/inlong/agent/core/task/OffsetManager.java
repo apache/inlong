@@ -162,7 +162,8 @@ public class OffsetManager extends AbstractDaemon {
                     }
                 }
             }
-            long expireTime = DateTransUtils.calcOffset(DB_INSTANCE_EXPIRE_CYCLE_COUNT + taskFromDb.getCycleUnit());
+            long expireTime = DateTransUtils.calcOffset(
+                    DB_INSTANCE_EXPIRE_CYCLE_COUNT + instanceFromDb.getCycleUnit());
             if (AgentUtils.getCurrentTime() - instanceFromDb.getModifyTime() > expireTime) {
                 cleanCount.getAndIncrement();
                 LOGGER.info("instance has expired, delete from db dataTime {} taskId {} instanceId {}",
@@ -170,7 +171,7 @@ public class OffsetManager extends AbstractDaemon {
                 instanceDb.deleteInstance(taskId, instanceId);
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_DEL_INSTANCE_DB, instanceFromDb.getInlongGroupId(),
                         instanceFromDb.getInlongStreamId(), instanceFromDb.getSinkDataTime(), 1, 1,
-                        Long.parseLong(taskFromDb.get(TASK_AUDIT_VERSION)));
+                        Long.parseLong(instanceFromDb.get(TASK_AUDIT_VERSION)));
                 iterator.remove();
             }
         }
