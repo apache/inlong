@@ -42,7 +42,7 @@ public class SinkType extends StreamType {
     public static final String HBASE = "HBASE";
 
     @SupportSortType(sortType = SortType.SORT_STANDALONE)
-    public static final String ELASTICSEARCH = "ES";
+    public static final String ES = "ES";
 
     @SupportSortType(sortType = SortType.SORT_FLINK)
     public static final String HDFS = "HDFS";
@@ -86,7 +86,7 @@ public class SinkType extends StreamType {
 
     static {
         SINK_TO_CLUSTER.put(CLS, ClusterType.SORT_CLS);
-        SINK_TO_CLUSTER.put(ELASTICSEARCH, ClusterType.SORT_ES);
+        SINK_TO_CLUSTER.put(ES, ClusterType.SORT_ES);
         SINK_TO_CLUSTER.put(PULSAR, ClusterType.SORT_PULSAR);
         SINK_TO_CLUSTER.put(KAFKA, ClusterType.SORT_KAFKA);
     }

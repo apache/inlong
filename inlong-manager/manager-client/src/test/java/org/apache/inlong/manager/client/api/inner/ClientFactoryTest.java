@@ -625,7 +625,7 @@ class ClientFactoryTest {
                         .build(),
                 ElasticsearchSink.builder()
                         .id(2)
-                        .sinkType(SinkType.ELASTICSEARCH)
+                        .sinkType(SinkType.ES)
                         .hosts("http://127.0.0.1:9200")
                         .flushInterval(2)
                         .build(),

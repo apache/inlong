@@ -38,7 +38,7 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Elasticsearch sink info")
 @SuperBuilder
-@JsonTypeDefine(value = SinkType.ELASTICSEARCH)
+@JsonTypeDefine(value = SinkType.ES)
 public class ElasticsearchSink extends StreamSink {
 
     @ApiModelProperty("Host of the Elasticsearch server")
@@ -97,7 +97,7 @@ public class ElasticsearchSink extends StreamSink {
     private String separator;
 
     public ElasticsearchSink() {
-        this.setSinkType(SinkType.ELASTICSEARCH);
+        this.setSinkType(SinkType.ES);
     }
 
     @Override

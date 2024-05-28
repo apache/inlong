@@ -37,7 +37,7 @@ public class ElasticsearchResourceOperator extends AbstractStandaloneSinkResourc
 
     @Override
     public Boolean accept(String sinkType) {
-        return SinkType.ELASTICSEARCH.equals(sinkType);
+        return SinkType.ES.equals(sinkType);
     }
 
     @Override
