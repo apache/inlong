@@ -83,7 +83,7 @@ public class ProxyMessageCache {
         extraMap.putAll(AgentUtils.parseAddAttrToMap(instanceProfile.getPredefineFields()));
         extraMap.put(AUDIT_VERSION, instanceProfile.get(TASK_AUDIT_VERSION));
         String cycleUnit = instanceProfile.get(TASK_CYCLE_UNIT);
-        if (cycleUnit.compareToIgnoreCase(CycleUnitType.REAL_TIME) == 0) {
+        if (cycleUnit.equalsIgnoreCase(CycleUnitType.REAL_TIME)) {
             isRealTime = true;
         }
     }
