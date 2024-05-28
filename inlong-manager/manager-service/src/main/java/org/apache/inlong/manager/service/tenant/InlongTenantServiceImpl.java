@@ -32,6 +32,7 @@ import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.InlongTenantEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.dao.entity.TenantClusterTagEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongConsumeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
@@ -236,14 +237,16 @@ public class InlongTenantServiceImpl implements InlongTenantService {
         // get related streams, consumes and tag;
         List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
         boolean streamMigrateResult = streamList.stream().allMatch(stream -> migrateStream(stream, from, to));
+        log.info("migrate stream from source tenant={} to target tenant={} for groupId={}, result={}", from, to,
+                groupId, streamMigrateResult);
         List<InlongConsumeEntity> consumeList = consumeEntityMapper.selectByGroupId(groupId);
         boolean consumeMigrateResult = this.migrateConsume(groupId, from, to, consumeList.size());
         boolean tagCopyResult = this.copyTenantTag(group.getInlongClusterTag(), from, to);
-
-        return streamMigrateResult
-                && consumeMigrateResult
-                && tagCopyResult
-                && this.migrateGroup(groupId, from, to);
+        boolean groupMigrateResult = this.migrateGroup(groupId, from, to);
+        boolean migrateResult = streamMigrateResult && consumeMigrateResult && tagCopyResult && groupMigrateResult;
+        log.info("migrate from source tenant={} to target tenant={} for groupId={}, result={}", from, to, groupId,
+                migrateResult);
+        return migrateResult;
     }
 
     public Boolean migrateStream(InlongStreamEntity stream, String from, String to) {
@@ -305,17 +308,29 @@ public class InlongTenantServiceImpl implements InlongTenantService {
     }
 
     public Boolean migrateConsume(String groupId, String from, String to, int size) {
-        return consumeEntityMapper.migrate(groupId, from, to) == size;
+        Boolean result = consumeEntityMapper.migrate(groupId, from, to) == size;
+        log.info("migrate consume from source tenant={} to target tenant={} for groupId={}, result={}", from, to,
+                groupId, result);
+        return result;
     }
 
     public Boolean migrateGroup(String groupId, String from, String to) {
-        return groupMapper.migrate(groupId, from, to) == InlongConstants.AFFECTED_ONE_ROW;
+        Boolean result = groupMapper.migrate(groupId, from, to) == InlongConstants.AFFECTED_ONE_ROW;
+        log.info("migrate group from source tenant={} to target tenant={} for groupId={}, result={}", from, to, groupId,
+                result);
+        return result;
     }
 
     public Boolean copyTenantTag(String clusterTag, String from, String to) {
         try {
+            TenantClusterTagEntity existEntity = tenantClusterTagMapper.selectByUniqueKey(clusterTag, to);
+            if (existEntity != null) {
+                log.debug("tag name={} in tenant={} already exist", clusterTag, to);
+                return true;
+            }
             // use displayName as the new name
-            return tenantClusterTagMapper.copy(clusterTag, from, to) == InlongConstants.AFFECTED_ONE_ROW;
+            tenantClusterTagMapper.copy(clusterTag, from, to);
+            return true;
         } catch (Exception e) {
             Throwable cause = e.getCause();
             if (cause instanceof SQLIntegrityConstraintViolationException) {
