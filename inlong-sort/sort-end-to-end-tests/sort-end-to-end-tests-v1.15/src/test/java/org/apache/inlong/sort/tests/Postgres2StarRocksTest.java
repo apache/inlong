@@ -158,11 +158,10 @@ public class Postgres2StarRocksTest extends FlinkContainerTestEnvJRE11 {
                         STAR_ROCKS.getDriverClassName());
         List<String> expectResult =
                 Arrays.asList("2,tom,Big 2-wheel scooter ");
-//        proxy.checkResultWithTimeout(
-//                expectResult,
-//                "test_output1",
-//                3,
-//                60000L);
-        while(true){}
+        proxy.checkResultWithTimeout(
+                expectResult,
+                "test_output1",
+                3,
+                60000L);
     }
 }
