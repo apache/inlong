@@ -55,7 +55,6 @@ import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_MINUTE
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_REAL_LIMITER_QPS;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_THREAD_POOL_SIZE;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_HTTP_SERVER_BIND_PORT;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_PARAMS_AUDIT_TAG;
 import static org.apache.inlong.audit.config.OpenApiConstants.HTTP_RESPOND_CODE;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_BACKLOG_SIZE;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_DAY_PATH;
@@ -79,6 +78,7 @@ import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_INLONG_STRE
 import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_IP;
 import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_START_TIME;
 import static org.apache.inlong.audit.config.OpenApiConstants.VALUE_HTTP_HEADER_CONTENT_TYPE;
+import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
 import static org.apache.inlong.audit.entities.ApiType.DAY;
 import static org.apache.inlong.audit.entities.ApiType.GET_IDS;
 import static org.apache.inlong.audit.entities.ApiType.GET_IPS;
@@ -180,7 +180,7 @@ public class ApiService {
                     }
                 }
             }
-            params.putIfAbsent(PARAMS_AUDIT_TAG, DEFAULT_PARAMS_AUDIT_TAG);
+            params.putIfAbsent(PARAMS_AUDIT_TAG, DEFAULT_AUDIT_TAG);
             return params;
         }
 

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.mysql;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 
@@ -104,7 +105,8 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
 
     /** Changelog Mode to use for encoding changes in Flink internal data structure. */
     private final DebeziumChangelogMode changelogMode;
-    private final SourceMetricData sourceMetricData;
+    private SourceMetricData sourceMetricData;
+    private final MetricOption metricOption;
 
     /** Returns a builder to build {@link RowDataDebeziumDeserializeSchema}. */
     public static Builder newBuilder() {
@@ -119,7 +121,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             ZoneId serverTimeZone,
             DeserializationRuntimeConverterFactory userDefinedConverterFactory,
             DebeziumChangelogMode changelogMode,
-            SourceMetricData sourceMetricData) {
+            MetricOption metricOption) {
         this.hasMetadata = checkNotNull(metadataConverters).length > 0;
         this.appendMetadataCollector = new AppendMetadataCollector(metadataConverters);
         this.physicalConverter =
@@ -130,7 +132,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         this.resultTypeInfo = checkNotNull(resultTypeInfo);
         this.validator = checkNotNull(validator);
         this.changelogMode = checkNotNull(changelogMode);
-        this.sourceMetricData = sourceMetricData;
+        this.metricOption = metricOption;
     }
 
     @Override
@@ -150,6 +152,9 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             GenericRowData delete = extractBeforeRow(value, valueSchema);
             validator.validate(delete, RowKind.DELETE);
             delete.setRowKind(RowKind.DELETE);
+            if (sourceMetricData != null) {
+                out = new MetricsCollector<>(out, sourceMetricData);
+            }
             emit(record, delete, out);
         } else {
             if (changelogMode == DebeziumChangelogMode.ALL) {
@@ -166,6 +171,17 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
                 out = new MetricsCollector<>(out, sourceMetricData);
             }
             emit(record, after, out);
+        }
+    }
+
+    /**
+     * Initialize the source metric data.
+     * Must be called on flink cluster rather than flink client
+     * Since the audit operator is not serializable
+     */
+    public void initSourceMetricData() {
+        if (metricOption != null) {
+            this.sourceMetricData = new SourceMetricData(metricOption);
         }
     }
 
@@ -212,7 +228,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         private DeserializationRuntimeConverterFactory userDefinedConverterFactory =
                 DeserializationRuntimeConverterFactory.DEFAULT;
         private DebeziumChangelogMode changelogMode = DebeziumChangelogMode.ALL;
-        private SourceMetricData sourceMetricData;
+        private MetricOption metricOption;
 
         public Builder setPhysicalRowType(RowType physicalRowType) {
             this.physicalRowType = physicalRowType;
@@ -249,8 +265,9 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             this.changelogMode = changelogMode;
             return this;
         }
-        public Builder setSourceMetricData(SourceMetricData sourceMetricData) {
-            this.sourceMetricData = sourceMetricData;
+
+        public Builder setMetricOption(MetricOption metricOption) {
+            this.metricOption = metricOption;
             return this;
         }
 
@@ -263,7 +280,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
                     serverTimeZone,
                     userDefinedConverterFactory,
                     changelogMode,
-                    sourceMetricData);
+                    metricOption);
         }
     }
 

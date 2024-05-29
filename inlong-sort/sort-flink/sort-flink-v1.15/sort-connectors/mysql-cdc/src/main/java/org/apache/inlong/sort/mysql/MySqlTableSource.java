@@ -18,9 +18,8 @@
 package org.apache.inlong.sort.mysql;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.mysql.source.MySqlSource;
 
-import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.MySqlDeserializationConverterFactory;
 import com.ververica.cdc.connectors.mysql.table.MySqlReadableMetadata;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
@@ -182,7 +181,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                         .setServerTimeZone(serverTimeZone)
                         .setUserDefinedConverterFactory(
                                 MySqlDeserializationConverterFactory.instance())
-                        .setSourceMetricData(metricOption == null ? null : new SourceMetricData(metricOption))
+                        .setMetricOption(metricOption)
                         .build();
         if (enableParallelRead) {
             MySqlSource<RowData> parallelSource =
