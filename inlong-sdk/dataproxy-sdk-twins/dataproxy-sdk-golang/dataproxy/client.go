@@ -85,11 +85,7 @@ func NewClient(opts ...Option) (Client, error) {
 		cli.Close()
 		return nil, err
 	}
-	err = cli.netClient.Start()
-	if err != nil {
-		cli.Close()
-		return nil, err
-	}
+
 	return cli, nil
 }
 
@@ -143,6 +139,12 @@ func (c *client) initNetClient() error {
 	if err != nil {
 		return err
 	}
+
+	err = netClient.Start()
+	if err != nil {
+		return err
+	}
+
 	// save net client
 	c.netClient = netClient
 	return nil
