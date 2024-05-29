@@ -100,7 +100,12 @@ public class SqlConstants {
                     "FROM (\n" +
                     "\tSELECT audit_version, docker_id, thread_id, sdk_ts, packet_id\n" +
                     "\t\t, log_ts, ip, inlong_group_id, inlong_stream_id, audit_id\n" +
-                    "\t\t, audit_tag, count, size, delay\n" +
+                    "\t\t, " +
+                    "   CASE \n" +
+                    "        WHEN audit_tag ='' THEN '-1'\n" +
+                    "        ELSE audit_tag\n" +
+                    "    END AS audit_tag ," +
+                    " count, size, delay\n" +
                     "\tFROM audit_data\n" +
                     "\tWHERE log_ts BETWEEN ? AND ?\n" +
                     "\t\tAND inlong_group_id = ?\n" +
