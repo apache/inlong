@@ -714,8 +714,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     private void chkUnmodifiableParams(InlongGroupEntity entity, InlongGroupRequest request) {
         // check mqType
-        Preconditions.expectEquals(entity.getMqType(), request.getMqType(),
-                ErrorCodeEnum.INVALID_PARAMETER, "mqType not allowed modify");
+        Preconditions.expectTrue(
+                Objects.equals(entity.getMqType(), request.getMqType())
+                        || Objects.equals(entity.getStatus(), GroupStatus.TO_BE_SUBMIT.getCode()),
+                "mqType not allowed modify");
         // check record version
         Preconditions.expectEquals(entity.getVersion(), request.getVersion(),
                 ErrorCodeEnum.CONFIG_EXPIRED,
