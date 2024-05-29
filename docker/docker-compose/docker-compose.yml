@@ -123,7 +123,7 @@ services:
 
   # flink jobmanager
   jobmanager:
-    image: apache/flink:1.13-scala_2.11
+    image: apache/flink:1.15-scala_2.12
     container_name: jobmanager
     environment:
       - |
@@ -135,7 +135,7 @@ services:
 
   # flink taskmanager
   taskmanager:
-    image: apache/flink:1.13-scala_2.11
+    image: apache/flink:1.15-scala_2.12
     container_name: taskmanager
     environment:
       - |

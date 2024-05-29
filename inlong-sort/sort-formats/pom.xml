@@ -190,9 +190,6 @@
     <profiles>
         <profile>
             <id>v1.13</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <modules>
                 <module>format-common</module>
                 <module>format-row</module>
@@ -220,6 +217,9 @@
         </profile>
         <profile>
             <id>v1.15</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <modules>
                 <module>format-common</module>
                 <module>format-row</module>
