@@ -28,6 +28,7 @@ import org.apache.inlong.audit.utils.CacheUtils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Data;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,10 +71,9 @@ import static org.apache.inlong.audit.config.ConfigConstants.KEY_STAT_BACK_INITI
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_STAT_THREAD_POOL_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SQL_LIMIT;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_PARAMS_AUDIT_TAG;
+import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
 import static org.apache.inlong.audit.entities.AuditCycle.DAY;
 import static org.apache.inlong.audit.entities.AuditCycle.HOUR;
-
 /**
  * Jdbc source
  */
@@ -300,11 +300,7 @@ public class JdbcSource {
                         data.setInlongStreamId(resultSet.getString(2));
                         data.setAuditId(resultSet.getString(3));
                         String auditTag = resultSet.getString(4);
-                        if (null == auditTag) {
-                            data.setAuditTag(DEFAULT_PARAMS_AUDIT_TAG);
-                        } else {
-                            data.setAuditTag(auditTag);
-                        }
+                        data.setAuditTag(StringUtils.isBlank(auditTag) ? DEFAULT_AUDIT_TAG : auditTag);
                         long count = resultSet.getLong(5);
                         data.setCount(count);
                         data.setSize(resultSet.getLong(6));

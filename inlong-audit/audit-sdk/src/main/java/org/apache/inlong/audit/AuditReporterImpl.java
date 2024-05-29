@@ -522,6 +522,38 @@ public class AuditReporterImpl implements Serializable {
         return AuditManagerUtils.buildAuditId(baseAuditId, success, isRealtime, discard, retry);
     }
 
+    public int buildSuccessfulAuditId(AuditIdEnum baseAuditId) {
+        return buildAuditId(baseAuditId, true, true, false, false);
+    }
+
+    public int buildSuccessfulAuditId(AuditIdEnum baseAuditId, boolean isRealtime) {
+        return buildAuditId(baseAuditId, true, isRealtime, false, false);
+    }
+
+    public int buildFailedAuditId(AuditIdEnum baseAuditId) {
+        return buildAuditId(baseAuditId, false, true, false, false);
+    }
+
+    public int buildFailedAuditId(AuditIdEnum baseAuditId, boolean isRealtime) {
+        return buildAuditId(baseAuditId, false, isRealtime, false, false);
+    }
+
+    public int buildDiscardAuditId(AuditIdEnum baseAuditId) {
+        return buildAuditId(baseAuditId, true, true, true, false);
+    }
+
+    public int buildDiscardAuditId(AuditIdEnum baseAuditId, boolean isRealtime) {
+        return buildAuditId(baseAuditId, true, isRealtime, true, false);
+    }
+
+    public int buildRetryAuditId(AuditIdEnum baseAuditId) {
+        return buildAuditId(baseAuditId, true, true, false, true);
+    }
+
+    public int buildRetryAuditId(AuditIdEnum baseAuditId, boolean isRealtime) {
+        return buildAuditId(baseAuditId, true, isRealtime, false, true);
+    }
+
     public AuditInformation buildAuditInformation(String auditType,
             FlowType dataFlow,
             boolean success,
@@ -530,6 +562,7 @@ public class AuditReporterImpl implements Serializable {
             boolean retry) {
         return AuditManagerUtils.buildAuditInformation(auditType, dataFlow, success, isRealtime, discard, retry);
     }
+
     public List<AuditInformation> getAllAuditInformation() {
         return AuditManagerUtils.getAllAuditInformation();
     }
