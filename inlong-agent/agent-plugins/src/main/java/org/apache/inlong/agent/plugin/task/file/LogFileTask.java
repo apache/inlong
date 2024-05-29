@@ -88,6 +88,11 @@ public class LogFileTask extends AbstractTask {
     private BlockingQueue<InstanceProfile> instanceQueue;
 
     @Override
+    protected int getInstanceLimit() {
+        return taskProfile.getInt(TaskConstants.FILE_MAX_NUM);
+    }
+
+    @Override
     protected void initTask() {
         instanceQueue = new LinkedBlockingQueue<>(INSTANCE_QUEUE_CAPACITY);
         retry = taskProfile.getBoolean(TaskConstants.TASK_RETRY, false);

@@ -38,12 +38,18 @@ public class PulsarTask extends AbstractTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PulsarTask.class);
     public static final String DEFAULT_PULSAR_INSTANCE = "org.apache.inlong.agent.plugin.instance.PulsarInstance";
+    public static final int DEFAULT_INSTANCE_LIMIT = 1;
     private boolean isAdded = false;
     private String tenant;
     private String namespace;
     private String topic;
     private String instanceId;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
+
+    @Override
+    protected int getInstanceLimit() {
+        return DEFAULT_INSTANCE_LIMIT;
+    }
 
     @Override
     protected void initTask() {
