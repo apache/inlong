@@ -19,7 +19,6 @@ package org.apache.inlong.agent.plugin.task;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
-import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.core.instance.ActionType;
 import org.apache.inlong.agent.core.instance.InstanceAction;
 import org.apache.inlong.agent.core.instance.InstanceManager;
@@ -58,7 +57,7 @@ public abstract class AbstractTask extends Task {
         this.taskProfile = taskProfile;
         this.basicDb = basicDb;
         auditVersion = Long.parseLong(taskProfile.get(TASK_AUDIT_VERSION));
-        instanceManager = new InstanceManager(taskProfile.getTaskId(), taskProfile.getInt(TaskConstants.FILE_MAX_NUM),
+        instanceManager = new InstanceManager(taskProfile.getTaskId(), getInstanceLimit(),
                 basicDb, taskManager.getTaskDb());
         try {
             instanceManager.start();
@@ -68,6 +67,8 @@ public abstract class AbstractTask extends Task {
         initTask();
         initOK = true;
     }
+
+    protected abstract int getInstanceLimit();
 
     protected abstract void initTask();
 
