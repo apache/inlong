@@ -1210,6 +1210,14 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     public DataProxyNodeResponse getDataProxyNodes(String groupId, String protocolType) {
         LOGGER.debug("begin to get data proxy nodes for groupId={}, protocol={}", groupId, protocolType);
 
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        GroupStatus groupStatus = GroupStatus.forCode(groupEntity.getStatus());
+        if (!Objects.equals(groupStatus, GroupStatus.CONFIG_SUCCESSFUL)) {
+            String errMsg =
+                    String.format("current group status=%s was not allowed to get data proxy nodes", groupStatus);
+            LOGGER.warn(errMsg);
+            throw new BusinessException(errMsg);
+        }
         List<InlongClusterNodeEntity> nodeEntities = getClusterNodes(groupId, ClusterType.DATAPROXY, protocolType);
         DataProxyNodeResponse response = new DataProxyNodeResponse();
         if (CollectionUtils.isEmpty(nodeEntities)) {

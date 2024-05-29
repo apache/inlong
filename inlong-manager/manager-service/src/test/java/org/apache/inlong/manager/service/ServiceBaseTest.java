@@ -111,6 +111,8 @@ public class ServiceBaseTest extends BaseTest {
         InlongGroupInfo updateGroupInfo = groupService.get(inlongGroupId);
         groupService.updateStatus(inlongGroupId, GroupStatus.TO_BE_APPROVAL.getCode(), GLOBAL_OPERATOR);
         groupService.updateStatus(inlongGroupId, GroupStatus.APPROVE_PASSED.getCode(), GLOBAL_OPERATOR);
+        groupService.updateStatus(inlongGroupId, GroupStatus.CONFIG_ING.getCode(), GLOBAL_OPERATOR);
+        groupService.updateStatus(inlongGroupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), GLOBAL_OPERATOR);
         groupService.update(updateGroupInfo.genRequest(), GLOBAL_OPERATOR);
 
         return groupInfo;
