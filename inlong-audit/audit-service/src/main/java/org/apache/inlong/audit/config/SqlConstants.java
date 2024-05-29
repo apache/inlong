@@ -46,7 +46,12 @@ public class SqlConstants {
                     "\t\t, t_all_version.cnt, t_all_version.size, t_all_version.delay\n" +
                     "\tFROM (\n" +
                     "\t\tSELECT audit_version, log_ts, inlong_group_id, inlong_stream_id, audit_id\n" +
-                    "\t\t\t, audit_tag, SUM(count) AS cnt, SUM(size) AS size\n" +
+                    "\t\t\t, " +
+                    "CASE \n" +
+                    "    WHEN audit_tag = '' THEN '-1'\n" +
+                    "    ELSE audit_tag\n" +
+                    "END AS audit_tag " +
+                    ", SUM(count) AS cnt, SUM(size) AS size\n" +
                     "\t\t\t, SUM(delay) AS delay\n" +
                     "\t\tFROM audit_data\n" +
                     "\t\tWHERE log_ts BETWEEN ? AND ?\n" +
@@ -55,7 +60,11 @@ public class SqlConstants {
                     "\t) t_all_version\n" +
                     "\t\tJOIN (\n" +
                     "\t\t\tSELECT max(audit_version) AS audit_version, log_ts, inlong_group_id, inlong_stream_id\n" +
-                    "\t\t\t\t, audit_id, audit_tag\n" +
+                    "\t\t\t\t, audit_id, " +
+                    "CASE \n" +
+                    "    WHEN audit_tag = '' THEN '-1'\n" +
+                    "    ELSE audit_tag\n" +
+                    "END AS audit_tag \n" +
                     "\t\t\tFROM audit_data\n" +
                     "\t\t\tWHERE log_ts BETWEEN ? AND ?\n" +
                     "\t\t\t\tAND audit_id = ?\n" +
@@ -83,7 +92,11 @@ public class SqlConstants {
 
     public static final String KEY_SOURCE_QUERY_IDS_SQL = "source.query.ids.sql";
     public static final String DEFAULT_SOURCE_QUERY_IDS_SQL =
-            "SELECT inlong_group_id, inlong_stream_id, audit_id, audit_tag\n" +
+            "SELECT inlong_group_id, inlong_stream_id, audit_id, " +
+                    "CASE \n" +
+                    "    WHEN audit_tag = '' THEN '-1'\n" +
+                    "    ELSE audit_tag\n" +
+                    "END AS audit_tag \n" +
                     "\t, sum(count) AS cnt, sum(size) AS size\n" +
                     "\t, sum(delay) AS delay\n" +
                     "FROM audit_data\n" +
