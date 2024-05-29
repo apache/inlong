@@ -17,10 +17,10 @@
 
 package org.apache.inlong.sort.sqlserver;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.table.AppendMetadataCollector;
 import com.ververica.cdc.debezium.table.DebeziumChangelogMode;
 import com.ververica.cdc.debezium.table.DeserializationRuntimeConverter;
@@ -51,6 +51,8 @@ import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -100,7 +102,10 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
 
     /** Changelog Mode to use for encoding changes in Flink internal data structure. */
     private final DebeziumChangelogMode changelogMode;
-    private final SourceMetricData sourceMetricData;
+    private final MetricOption metricOption;
+    private SourceMetricData sourceMetricData;
+
+    protected static final Logger LOG = LoggerFactory.getLogger(RowDataDebeziumDeserializeSchema.class);
 
     /** Returns a builder to build {@link RowDataDebeziumDeserializeSchema}. */
     public static Builder newBuilder() {
@@ -115,7 +120,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             ZoneId serverTimeZone,
             DeserializationRuntimeConverterFactory userDefinedConverterFactory,
             DebeziumChangelogMode changelogMode,
-            SourceMetricData sourceMetricData) {
+            MetricOption metricOption) {
         this.hasMetadata = checkNotNull(metadataConverters).length > 0;
         this.appendMetadataCollector = new AppendMetadataCollector(metadataConverters);
         this.physicalConverter =
@@ -126,7 +131,17 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         this.resultTypeInfo = checkNotNull(resultTypeInfo);
         this.validator = checkNotNull(validator);
         this.changelogMode = checkNotNull(changelogMode);
-        this.sourceMetricData = sourceMetricData;
+        this.metricOption = metricOption;
+    }
+
+    @Override
+    public void open() {
+        if (metricOption != null) {
+            LOG.info("SourceMetricData create -----------");
+            LOG.info("MetricOption is" + metricOption);
+
+            sourceMetricData = new SourceMetricData(metricOption);
+        }
     }
 
     @Override
@@ -208,7 +223,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         private DeserializationRuntimeConverterFactory userDefinedConverterFactory =
                 DeserializationRuntimeConverterFactory.DEFAULT;
         private final DebeziumChangelogMode changelogMode = DebeziumChangelogMode.ALL;
-        private SourceMetricData sourceMetricData;
+        private MetricOption metricOption;
 
         public Builder setPhysicalRowType(RowType physicalRowType) {
             this.physicalRowType = physicalRowType;
@@ -236,8 +251,8 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             return this;
         }
 
-        public Builder setSourceMetricData(SourceMetricData sourceMetricData) {
-            this.sourceMetricData = sourceMetricData;
+        public Builder setMetricOption(MetricOption metricOption) {
+            this.metricOption = metricOption;
             return this;
         }
 
@@ -250,7 +265,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
                     serverTimeZone,
                     userDefinedConverterFactory,
                     changelogMode,
-                    sourceMetricData);
+                    metricOption);
         }
     }
 

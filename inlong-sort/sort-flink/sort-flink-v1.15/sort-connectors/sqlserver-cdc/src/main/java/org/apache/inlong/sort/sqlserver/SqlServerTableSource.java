@@ -18,14 +18,10 @@
 package org.apache.inlong.sort.sqlserver;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
 
-import com.ververica.cdc.connectors.sqlserver.SqlServerSource;
 import com.ververica.cdc.connectors.sqlserver.table.SqlServerDeserializationConverterFactory;
 import com.ververica.cdc.connectors.sqlserver.table.SqlServerReadableMetadata;
 import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
-import com.ververica.cdc.debezium.DebeziumSourceFunction;
 import com.ververica.cdc.debezium.table.MetadataConverter;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
@@ -135,7 +131,7 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
                         .setServerTimeZone(serverTimeZone)
                         .setUserDefinedConverterFactory(
                                 SqlServerDeserializationConverterFactory.instance())
-                        .setSourceMetricData(metricOption == null ? null : new SourceMetricData(metricOption))
+                        .setMetricOption(metricOption)
                         .build();
         DebeziumSourceFunction<RowData> sourceFunction =
                 SqlServerSource.<RowData>builder()
