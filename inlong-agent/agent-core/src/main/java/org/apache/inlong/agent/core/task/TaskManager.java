@@ -149,6 +149,10 @@ public class TaskManager extends AbstractDaemon {
         return taskDb;
     }
 
+    public Db getInstanceBasicDb() {
+        return instanceBasicDb;
+    }
+
     /**
      * init db by class name
      *
