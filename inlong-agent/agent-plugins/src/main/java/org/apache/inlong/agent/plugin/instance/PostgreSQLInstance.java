@@ -15,39 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.db;
+package org.apache.inlong.agent.plugin.instance;
 
-import java.io.Closeable;
-import java.util.List;
+import org.apache.inlong.agent.conf.InstanceProfile;
+import org.apache.inlong.agent.constant.TaskConstants;
 
-/**
- * local storage for key/value.
- */
-public interface Db extends Closeable {
+public class PostgreSQLInstance extends CommonInstance {
 
-    KeyValueEntity get(String key);
-
-    /**
-     * store keyValue, if key has exists, overwrite it.
-     *
-     * @param entity key/value
-     */
-    void put(KeyValueEntity entity);
-
-    /**
-     * remove keyValue by key.
-     *
-     * @param key key
-     * @return key/value
-     * @throws NullPointerException key should not be null.
-     */
-    KeyValueEntity remove(String key);
-
-    /**
-     * find all by prefix key.
-     *
-     * @param prefix prefix string
-     * @return list of k/v
-     */
-    List<KeyValueEntity> findAll(String prefix);
+    @Override
+    public void setInodeInfo(InstanceProfile profile) {
+        profile.set(TaskConstants.INODE_INFO, "");
+    }
 }

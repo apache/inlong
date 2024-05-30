@@ -20,6 +20,7 @@
 import i18n from '@/i18n';
 import { Tooltip } from 'antd';
 import React from 'react';
+import { dateFormat } from '@/core/utils';
 
 const targetList = [
   {
@@ -140,5 +141,10 @@ export const getTableColumns = [
         {body}
       </Tooltip>
     ),
+  },
+  {
+    title: i18n.t('pages.GroupDetail.OperationLog.Table.OperationTime'),
+    dataIndex: 'requestTime',
+    render: text => dateFormat(new Date(text)),
   },
 ];

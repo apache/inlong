@@ -95,9 +95,6 @@ public class FileSource extends StreamSource {
     @ApiModelProperty("End time")
     private Long endTime;
 
-    @ApiModelProperty("Metadata filters by label, special parameters for K8S")
-    private Map<String, String> filterMetaByLabels;
-
     public FileSource() {
         this.setSourceType(SourceType.FILE);
     }
