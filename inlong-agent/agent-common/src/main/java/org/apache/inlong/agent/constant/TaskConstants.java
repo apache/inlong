@@ -97,6 +97,7 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_PULSAR_SUBSCRIPTION_POSITION = "task.pulsarTask.subscriptionPosition";
     public static final String TASK_PULSAR_RESET_TIME = "task.pulsarTask.resetTime";
 
+    // Mongo task
     public static final String TASK_MONGO_HOSTS = "task.mongoTask.hosts";
     public static final String TASK_MONGO_USER = "task.mongoTask.user";
     public static final String TASK_MONGO_PASSWORD = "task.mongoTask.password";
@@ -125,6 +126,18 @@ public class TaskConstants extends CommonConstants {
     public static final String TASK_MONGO_SSL_INVALID_HOSTNAME_ALLOWED = "task.mongoTask.sslInvalidHostnameAllowed";
     public static final String TASK_MONGO_SSL_ENABLE = "task.mongoTask.sslEnabled";
     public static final String TASK_MONGO_POLL_INTERVAL = "task.mongoTask.pollIntervalInMs";
+
+    // PostgreSQL task
+    public static final String TASK_POSTGRES_HOSTNAME = "task.postgreSQLTask.hostname";
+    public static final String TASK_POSTGRES_PORT = "task.postgreSQLTask.port";
+    public static final String TASK_POSTGRES_USER = "task.postgreSQLTask.user";
+    public static final String TASK_POSTGRES_PASSWORD = "task.postgreSQLTask.password";
+    public static final String TASK_POSTGRES_DBNAME = "task.postgreSQLTask.dbname";
+    public static final String TASK_POSTGRES_SERVERNAME = "task.postgreSQLTask.servername";
+    public static final String TASK_POSTGRES_SCHEMA_INCLUDE_LIST = "task.postgreSQLTask.schemaIncludeList";
+    public static final String TASK_POSTGRES_TABLE_INCLUDE_LIST = "task.postgreSQLTask.tableIncludeList";
+    public static final String TASK_POSTGRES_PLUGIN_NAME = "task.postgreSQLTask.pluginName";
+    public static final String TASK_POSTGRES_SNAPSHOT_MODE = "task.postgreSQLTask.snapshotMode";
 
     public static final String TASK_STATE = "task.state";
 
