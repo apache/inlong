@@ -39,9 +39,6 @@
     <profiles>
         <profile>
             <id>flink-all-version</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <modules>
                 <module>manager-plugins-flink-v1.13</module>
                 <module>manager-plugins-flink-v1.15</module>
@@ -56,6 +53,9 @@
         </profile>
         <profile>
             <id>v1.15</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <modules>
                 <module>manager-plugins-flink-v1.15</module>
             </modules>

@@ -36,9 +36,6 @@
     <profiles>
         <profile>
             <id>v1.13</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <modules>
                 <module>sort-end-to-end-tests-v1.13</module>
             </modules>
