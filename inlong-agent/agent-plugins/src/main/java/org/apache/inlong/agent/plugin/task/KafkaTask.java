@@ -36,7 +36,6 @@ public class KafkaTask extends AbstractTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaTask.class);
     public static final String DEFAULT_KAFKA_INSTANCE = "org.apache.inlong.agent.plugin.instance.KafkaInstance";
-    public static final int DEFAULT_INSTANCE_LIMIT = 1;
     private boolean isAdded = false;
     private String topic;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
