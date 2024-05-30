@@ -59,7 +59,7 @@ public class AuditUtils {
             auditIdReadSuccess =
                     AuditOperator.getInstance().buildSuccessfulAuditId(AuditIdEnum.DATA_PROXY_INPUT);
             auditIdSendSuccess =
-                    AuditOperator.getInstance().buildFailedAuditId(AuditIdEnum.DATA_PROXY_OUTPUT);
+                    AuditOperator.getInstance().buildSuccessfulAuditId(AuditIdEnum.DATA_PROXY_OUTPUT);
         }
     }
 
