@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.metrics.audit;
 
+import org.apache.inlong.audit.AuditIdEnum;
 import org.apache.inlong.audit.AuditOperator;
 import org.apache.inlong.audit.util.AuditConfig;
 import org.apache.inlong.common.enums.MessageWrapType;
@@ -39,8 +40,8 @@ import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
  */
 public class AuditUtils {
 
-    public static final int AUDIT_ID_DATAPROXY_READ_SUCCESS = 5;
-    public static final int AUDIT_ID_DATAPROXY_SEND_SUCCESS = 6;
+    private static int auditIdReadSuccess = 5;
+    private static int auditIdSendSuccess = 6;
 
     /**
      * Init audit
@@ -55,16 +56,38 @@ public class AuditUtils {
                     CommonConfigHolder.getInstance().getAuditFilePath(),
                     CommonConfigHolder.getInstance().getAuditMaxCacheRows());
             AuditOperator.getInstance().setAuditConfig(auditConfig);
+            auditIdReadSuccess =
+                    AuditOperator.getInstance().buildSuccessfulAuditId(AuditIdEnum.DATA_PROXY_INPUT);
+            auditIdSendSuccess =
+                    AuditOperator.getInstance().buildSuccessfulAuditId(AuditIdEnum.DATA_PROXY_OUTPUT);
         }
     }
 
     /**
-     * Add audit data
+     * Add input audit data
+     *
+     * @param event    event to be counted
      */
-    public static void add(int auditID, Event event) {
-        if (!CommonConfigHolder.getInstance().isEnableAudit() || event == null) {
+    public static void addInputSuccess(Event event) {
+        if (event == null || !CommonConfigHolder.getInstance().isEnableAudit()) {
             return;
         }
+        addAuditData(event, auditIdReadSuccess);
+    }
+
+    /**
+     * Add output audit data
+     *
+     * @param event    event to be counted
+     */
+    public static void addOutputSuccess(Event event) {
+        if (event == null || !CommonConfigHolder.getInstance().isEnableAudit()) {
+            return;
+        }
+        addAuditData(event, auditIdSendSuccess);
+    }
+
+    private static void addAuditData(Event event, int auditID) {
         Map<String, String> headers = event.getHeaders();
         String pkgVersion = headers.get(ConfigConstants.MSG_ENCODE_VER);
         if (MessageWrapType.INLONG_MSG_V1.getStrId().equalsIgnoreCase(pkgVersion)) {
