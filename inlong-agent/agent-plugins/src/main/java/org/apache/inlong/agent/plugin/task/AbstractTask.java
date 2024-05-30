@@ -42,6 +42,7 @@ public abstract class AbstractTask extends Task {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTask.class);
     public static final int CORE_THREAD_SLEEP_TIME = 1000;
     public static final int CORE_THREAD_PRINT_TIME = 10000;
+    protected static final int DEFAULT_INSTANCE_LIMIT = 1;
     protected TaskProfile taskProfile;
     protected Db basicDb;
     protected TaskManager taskManager;

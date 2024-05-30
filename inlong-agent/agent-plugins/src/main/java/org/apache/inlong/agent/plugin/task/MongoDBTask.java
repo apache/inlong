@@ -35,7 +35,6 @@ public class MongoDBTask extends AbstractTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoDBTask.class);
     public static final String DEFAULT_MONGODB_INSTANCE = "org.apache.inlong.agent.plugin.instance.MongoDBInstance";
-    public static final int DEFAULT_INSTANCE_LIMIT = 1;
     private boolean isAdded = false;
     private String collection;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
