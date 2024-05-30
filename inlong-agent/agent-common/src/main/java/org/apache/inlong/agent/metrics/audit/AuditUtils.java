@@ -41,7 +41,7 @@ public class AuditUtils {
     public static final String AUDIT_KEY_FILE_PATH = "audit.filePath";
     public static final String AUDIT_DEFAULT_FILE_PATH = "/data/inlong/audit/";
     public static final String AUDIT_KEY_MAX_CACHE_ROWS = "audit.maxCacheRows";
-    public static int AUDIT_DEFAULT_MAX_CACHE_ROWS = 2000000;
+    public static final int AUDIT_DEFAULT_MAX_CACHE_ROWS = 2000000;
     public static int AUDIT_ID_AGENT_READ_SUCCESS = 3;
     public static int AUDIT_ID_AGENT_SEND_SUCCESS = 4;
     public static int AUDIT_ID_AGENT_READ_FAILED = 524291;
