@@ -485,7 +485,7 @@ public abstract class BaseSource
         if (result) {
             metricItem.readSuccessCount.incrementAndGet();
             metricItem.readSuccessSize.addAndGet(size);
-            AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
+            AuditUtils.addInputSuccess(event);
         } else {
             metricItem.readFailCount.incrementAndGet();
             metricItem.readFailSize.addAndGet(size);

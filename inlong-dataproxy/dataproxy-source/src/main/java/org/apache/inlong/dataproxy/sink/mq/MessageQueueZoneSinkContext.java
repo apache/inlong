@@ -134,8 +134,7 @@ public class MessageQueueZoneSinkContext extends SinkContext {
             long sendTime) {
         if (currentRecord instanceof SimplePackProfile) {
             if (result) {
-                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS,
-                        ((SimplePackProfile) currentRecord).getEvent());
+                AuditUtils.addOutputSuccess(((SimplePackProfile) currentRecord).getEvent());
             }
             return;
         }
@@ -166,7 +165,7 @@ public class MessageQueueZoneSinkContext extends SinkContext {
                     metricItem.nodeDuration.addAndGet(nodeDuration);
                     metricItem.wholeDuration.addAndGet(wholeDuration);
                 }
-                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
+                AuditUtils.addOutputSuccess(event);
             } else {
                 metricItem.sendFailCount.addAndGet(1);
                 metricItem.sendFailSize.addAndGet(event.getBody().length);
