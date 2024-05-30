@@ -38,6 +38,8 @@ import org.apache.inlong.common.pojo.agent.DataConfig;
 import com.google.gson.Gson;
 import lombok.Data;
 
+import java.util.stream.Collectors;
+
 import static java.util.Objects.requireNonNull;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_ADDR;
 import static org.apache.inlong.agent.constant.TaskConstants.SYNC_SEND_OPEN;
@@ -50,6 +52,7 @@ public class TaskProfileDto {
     public static final String DEFAULT_KAFKA_TASK = "org.apache.inlong.agent.plugin.task.KafkaTask";
     public static final String DEFAULT_PULSAR_TASK = "org.apache.inlong.agent.plugin.task.PulsarTask";
     public static final String DEFAULT_MONGODB_TASK = "org.apache.inlong.agent.plugin.task.MongoDBTask";
+    public static final String DEFAULT_POSTGRESQL_TASK = "org.apache.inlong.agent.plugin.task.PostgreSQLTask";
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
     public static final String DEFAULT_DATA_PROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
@@ -242,11 +245,14 @@ public class TaskProfileDto {
         postgreSQLTask.setHostname(config.getHostname());
         postgreSQLTask.setPort(config.getPort());
         postgreSQLTask.setDbname(config.getDatabase());
-        postgreSQLTask.setServername(config.getSchema());
-        postgreSQLTask.setPluginname(config.getDecodingPluginName());
-        postgreSQLTask.setTableNameList(config.getTableNameList());
+        postgreSQLTask.setSchemaIncludeList(config.getSchema());
+        postgreSQLTask.setPluginName(config.getDecodingPluginName());
+        // Each identifier is of the form schemaName.tableName and connected with ","
+        postgreSQLTask.setTableIncludeList(
+                config.getTableNameList().stream().map(tableName -> config.getSchema() + "." + tableName).collect(
+                        Collectors.joining(",")));
         postgreSQLTask.setServerTimeZone(config.getServerTimeZone());
-        postgreSQLTask.setScanStartupMode(config.getScanStartupMode());
+        postgreSQLTask.setSnapshotMode(config.getScanStartupMode());
         postgreSQLTask.setPrimaryKey(config.getPrimaryKey());
 
         return postgreSQLTask;
@@ -475,6 +481,7 @@ public class TaskProfileDto {
                 profileDto.setTask(task);
                 break;
             case POSTGRES:
+                task.setTaskClass(DEFAULT_POSTGRESQL_TASK);
                 PostgreSQLTask postgreSQLTask = getPostgresTask(dataConfig);
                 task.setPostgreSQLTask(postgreSQLTask);
                 task.setSource(POSTGRESQL_SOURCE);

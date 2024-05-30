@@ -32,12 +32,11 @@ public class PostgreSQLTask {
     private String hostname;
     private String port;
     private String dbname;
-    private String schema;
-    private String servername;
-    private String pluginname;
-    private List<String> tableNameList;
+    private String schemaIncludeList;
+    private String pluginName;
+    private String tableIncludeList;
     private String serverTimeZone;
-    private String scanStartupMode;
+    private String snapshotMode;
     private String primaryKey;
 
     @Data
