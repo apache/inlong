@@ -21,7 +21,6 @@ import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.utils.AgentUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +30,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_POSTGRES_DBNAME;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_POSTGRES_HOSTNAME;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_POSTGRES_PASSWORD;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_POSTGRES_PLUGIN_NAME;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_POSTGRES_PORT;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_POSTGRES_TABLE_INCLUDE_LIST;
+import static org.apache.inlong.agent.constant.TaskConstants.TASK_POSTGRES_USER;
 
 public class PostgreSQLTask extends AbstractTask {
 
@@ -58,6 +62,30 @@ public class PostgreSQLTask extends AbstractTask {
     public boolean isProfileValid(TaskProfile profile) {
         if (!profile.allRequiredKeyExist()) {
             LOGGER.error("task profile needs all required key");
+            return false;
+        }
+        if (!profile.hasKey(profile.get(TASK_POSTGRES_HOSTNAME))) {
+            LOGGER.error("task profile needs hostname");
+            return false;
+        }
+        if (!profile.hasKey(profile.get(TASK_POSTGRES_PORT))) {
+            LOGGER.error("task profile needs port");
+            return false;
+        }
+        if (!profile.hasKey(profile.get(TASK_POSTGRES_USER))) {
+            LOGGER.error("task profile needs username");
+            return false;
+        }
+        if (!profile.hasKey(profile.get(TASK_POSTGRES_PASSWORD))) {
+            LOGGER.error("task profile needs password");
+            return false;
+        }
+        if (!profile.hasKey(profile.get(TASK_POSTGRES_DBNAME))) {
+            LOGGER.error("task profile needs DB name");
+            return false;
+        }
+        if (!profile.hasKey(profile.get(TASK_POSTGRES_PLUGIN_NAME))) {
+            LOGGER.error("task profile needs plugin name");
             return false;
         }
         return true;
