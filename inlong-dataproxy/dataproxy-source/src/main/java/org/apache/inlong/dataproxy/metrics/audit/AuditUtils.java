@@ -40,6 +40,9 @@ import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
  */
 public class AuditUtils {
 
+    private static int auditIdReadSuccess = 5;
+    private static int auditIdSendSuccess = 6;
+
     /**
      * Init audit
      */
@@ -53,6 +56,10 @@ public class AuditUtils {
                     CommonConfigHolder.getInstance().getAuditFilePath(),
                     CommonConfigHolder.getInstance().getAuditMaxCacheRows());
             AuditOperator.getInstance().setAuditConfig(auditConfig);
+            auditIdReadSuccess =
+                    AuditOperator.getInstance().buildSuccessfulAuditId(AuditIdEnum.DATA_PROXY_INPUT);
+            auditIdSendSuccess =
+                    AuditOperator.getInstance().buildFailedAuditId(AuditIdEnum.DATA_PROXY_OUTPUT);
         }
     }
 
@@ -65,8 +72,7 @@ public class AuditUtils {
         if (event == null || !CommonConfigHolder.getInstance().isEnableAudit()) {
             return;
         }
-        addAuditData(event,
-                AuditOperator.getInstance().buildSuccessfulAuditId(AuditIdEnum.DATA_PROXY_INPUT));
+        addAuditData(event, auditIdReadSuccess);
     }
 
     /**
@@ -78,8 +84,7 @@ public class AuditUtils {
         if (event == null || !CommonConfigHolder.getInstance().isEnableAudit()) {
             return;
         }
-        addAuditData(event,
-                AuditOperator.getInstance().buildFailedAuditId(AuditIdEnum.DATA_PROXY_OUTPUT));
+        addAuditData(event, auditIdSendSuccess);
     }
 
     private static void addAuditData(Event event, int auditID) {
