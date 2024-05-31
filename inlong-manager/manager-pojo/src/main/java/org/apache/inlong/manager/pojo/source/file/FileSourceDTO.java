@@ -101,9 +101,6 @@ public class FileSourceDTO {
     @ApiModelProperty(value = "Audit version")
     private String auditVersion;
 
-    @ApiModelProperty("Metadata filters by label, special parameters for K8S")
-    private Map<String, String> filterMetaByLabels;
-
     public static FileSourceDTO getFromRequest(@NotNull FileSourceRequest fileSourceRequest, String extParams) {
         FileSourceDTO dto = StringUtils.isNotBlank(extParams)
                 ? FileSourceDTO.getFromJson(extParams)

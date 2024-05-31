@@ -21,7 +21,6 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.core.task.TaskManager;
-import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.task.file.LogFileTask;
 import org.apache.inlong.common.enums.TaskStateEnum;
@@ -74,7 +73,6 @@ public class TestLogFileTask {
     @BeforeClass
     public static void setup() {
         helper = new AgentBaseTestsHelper(TestLogFileTask.class.getName()).setupAgentHome();
-        Db basicDb = TaskManager.initDb("/localdb");
         resourceName = LOADER.getResource("testScan/20230928_1/test_1.txt").getPath();
         tempResourceName = LOADER.getResource("testScan/temp.txt").getPath();
         File f = new File(tempResourceName);
@@ -97,7 +95,8 @@ public class TestLogFileTask {
                 return null;
             }).when(task, "addToEvenMap", Mockito.anyString(), Mockito.anyString());
             Assert.assertTrue(task.isProfileValid(taskProfile));
-            task.init(manager, taskProfile, basicDb);
+            manager.getTaskDb().storeTask(taskProfile);
+            task.init(manager, taskProfile, manager.getInstanceBasicDb());
             EXECUTOR_SERVICE.submit(task);
         } catch (Exception e) {
             LOGGER.error("source init error {}", e);

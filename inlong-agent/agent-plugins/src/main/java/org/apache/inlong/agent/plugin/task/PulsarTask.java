@@ -46,6 +46,11 @@ public class PulsarTask extends AbstractTask {
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
 
     @Override
+    protected int getInstanceLimit() {
+        return DEFAULT_INSTANCE_LIMIT;
+    }
+
+    @Override
     protected void initTask() {
         LOGGER.info("pulsar commonInit: {}", taskProfile.toJsonStr());
         this.tenant = taskProfile.get(TASK_PULSAR_TENANT);

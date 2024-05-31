@@ -19,7 +19,6 @@ package org.apache.inlong.agent.db;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.common.db.CommandEntity;
 
 import com.google.gson.Gson;
 import org.rocksdb.AbstractImmutableNativeReference;
@@ -40,7 +39,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -159,30 +157,13 @@ public class RocksDbImp implements Db {
     }
 
     @Override
-    public CommandEntity getCommand(String commandId) {
-        return null;
-    }
-
-    @Override
-    public CommandEntity putCommand(CommandEntity entity) {
-        return null;
-    }
-
-    @Override
-    public void set(KeyValueEntity entity) {
-        requireNonNull(entity);
-        put(entity);
-    }
-
-    @Override
-    public KeyValueEntity put(KeyValueEntity entity) {
+    public void put(KeyValueEntity entity) {
         requireNonNull(entity);
         try {
             db.put(columnHandlesMap.get(defaultFamilyName), entity.getKey().getBytes(), GSON.toJson(entity).getBytes());
         } catch (Exception e) {
             throw new RuntimeException("put value to rocks db error", e);
         }
-        return entity;
     }
 
     @Override
@@ -199,89 +180,6 @@ public class RocksDbImp implements Db {
         } catch (Exception e) {
             throw new RuntimeException("remove value from rocks db error", e);
         }
-    }
-
-    @Override
-    public List<KeyValueEntity> searchWithKeyPrefix(StateSearchKey searchKey, String keyPrefix) {
-        List<KeyValueEntity> results = new LinkedList<>();
-        try (final RocksIterator it = db.newIterator(columnHandlesMap.get(defaultFamilyName))) {
-            it.seekToFirst();
-            while (it.isValid()) {
-                KeyValueEntity keyValue = GSON.fromJson(new String(it.value()), KeyValueEntity.class);
-                if (keyValue.getStateSearchKey().equals(searchKey) && keyValue.getKey().startsWith(keyPrefix)) {
-                    results.add(keyValue);
-                }
-                it.next();
-            }
-        }
-        return results;
-    }
-
-    @Override
-    public List<CommandEntity> searchCommands(boolean isAcked) {
-        return null;
-    }
-
-    @Override
-    public List<KeyValueEntity> search(StateSearchKey searchKey) {
-        List<KeyValueEntity> results = new LinkedList<>();
-        try (final RocksIterator it = db.newIterator(columnHandlesMap.get(defaultFamilyName))) {
-            it.seekToFirst();
-            while (it.isValid()) {
-                KeyValueEntity keyValue = GSON.fromJson(new String(it.value()), KeyValueEntity.class);
-                if (keyValue.getStateSearchKey().equals(searchKey)) {
-                    results.add(keyValue);
-                }
-                it.next();
-            }
-        }
-        return results;
-    }
-
-    @Override
-    public List<KeyValueEntity> search(List<StateSearchKey> searchKeys) {
-        List<KeyValueEntity> results = new LinkedList<>();
-        try (final RocksIterator it = db.newIterator(columnHandlesMap.get(defaultFamilyName))) {
-            it.seekToFirst();
-            while (it.isValid()) {
-                KeyValueEntity keyValue = GSON.fromJson(new String(it.value()), KeyValueEntity.class);
-                if (Objects.nonNull(keyValue) && searchKeys.contains(keyValue.getStateSearchKey())) {
-                    results.add(keyValue);
-                }
-                it.next();
-            }
-        }
-        return results;
-    }
-
-    @Override
-    public KeyValueEntity searchOne(StateSearchKey searchKey) {
-        try (final RocksIterator it = db.newIterator(columnHandlesMap.get(defaultFamilyName))) {
-            it.seekToFirst();
-            while (it.isValid()) {
-                KeyValueEntity keyValue = GSON.fromJson(new String(it.value()), KeyValueEntity.class);
-                if (keyValue.getStateSearchKey().equals(searchKey)) {
-                    return keyValue;
-                }
-                it.next();
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public KeyValueEntity searchOne(String fileName) {
-        try (final RocksIterator it = db.newIterator(columnHandlesMap.get(defaultFamilyName))) {
-            it.seekToFirst();
-            while (it.isValid()) {
-                KeyValueEntity keyValue = GSON.fromJson(new String(it.value()), KeyValueEntity.class);
-                if (keyValue.getFileName().equals(fileName)) {
-                    return keyValue;
-                }
-                it.next();
-            }
-        }
-        return null;
     }
 
     @Override

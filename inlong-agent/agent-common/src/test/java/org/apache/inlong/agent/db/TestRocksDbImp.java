@@ -25,7 +25,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.List;
 
 public class TestRocksDbImp {
 
@@ -61,15 +60,6 @@ public class TestRocksDbImp {
         entity.setStateSearchKey(keys);
         entity1.setStateSearchKey(keys);
 
-        db.set(entity);
-        db.set(entity1);
-
-        List<KeyValueEntity> entityList = db.search(keys);
-        for (KeyValueEntity keyValueEntity : entityList) {
-            Assert.assertEquals(StateSearchKey.SUCCESS, keyValueEntity.getStateSearchKey());
-        }
-        Assert.assertEquals(2, entityList.size());
-
         entity.setJsonValue("testC");
         db.put(entity);
         KeyValueEntity newEntity = db.get("test1");
@@ -81,15 +71,7 @@ public class TestRocksDbImp {
         KeyValueEntity entity = new KeyValueEntity("searchKey1", "searchResult1", "test");
         db.put(entity);
         db.remove("searchKey1");
-        KeyValueEntity entityResult = db.searchOne(StateSearchKey.ACCEPTED);
+        KeyValueEntity entityResult = db.get("searchKey1");
         Assert.assertNull(entityResult);
-    }
-
-    @Test
-    public void testFileNameSearch() {
-        KeyValueEntity entity = new KeyValueEntity("searchKey1", "searchResult1", "test");
-        db.put(entity);
-        KeyValueEntity entityResult = db.searchOne(StateSearchKey.ACCEPTED);
-        Assert.assertEquals("searchKey1", entityResult.getKey());
     }
 }
