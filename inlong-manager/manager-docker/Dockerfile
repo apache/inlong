@@ -48,11 +48,9 @@ RUN wget -P lib/ ${default_jdbc_connector_url}
 # add sort resource
 ADD target/sort-dist-${VERSION}.jar /opt/inlong-sort/
 RUN wget -P /opt/inlong-sort/connectors/ ${default_jdbc_connector_url}
-ADD target/sort-connector-pulsar-${VERSION}.jar /opt/inlong-sort/connectors/
-ADD target/sort-connector-kafka-${VERSION}.jar /opt/inlong-sort/connectors/
-ADD target/sort-connector-jdbc-${VERSION}.jar /opt/inlong-sort/connectors/
-ADD target/sort-connector-hive-${VERSION}.jar /opt/inlong-sort/connectors/
-ADD target/sort-connector-mysql-cdc-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-pulsar-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-kafka-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-mysql-cdc-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
 # audit clickhouse
 ENV AUDIT_CK_URL=127.0.0.1:8123
 ENV AUDIT_CK_USERNAME=default
