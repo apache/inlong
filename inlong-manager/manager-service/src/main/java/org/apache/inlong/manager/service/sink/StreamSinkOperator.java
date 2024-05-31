@@ -25,6 +25,7 @@ import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 
 import com.github.pagehelper.Page;
 
@@ -102,6 +103,14 @@ public interface StreamSinkOperator {
      * @param request sink request info needs to save
      */
     void saveFieldOpt(SinkRequest request);
+
+    /**
+     * Sync the sink fields.
+     *
+     * @param request sink request info needs to save
+     * @param streamFields stream field list
+     */
+    void syncField(SinkRequest request, List<StreamField> streamFields);
 
     /**
      * Delete the sink info.

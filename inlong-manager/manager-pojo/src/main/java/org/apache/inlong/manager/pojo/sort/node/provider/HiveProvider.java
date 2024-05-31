@@ -30,6 +30,7 @@ import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 /**
  * The Provider for creating Hive load nodes.
  */
+@Service
 public class HiveProvider implements LoadNodeProvider {
 
     @Override

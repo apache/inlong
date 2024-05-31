@@ -22,11 +22,22 @@ package org.apache.inlong.manager.common.fieldtype.strategy;
  */
 public interface FieldTypeMappingStrategy {
 
+    Boolean accept(String type);
+
     /**
      * Get the field type of inlong field type mapping by the source field type.
      *
      * @param sourceType the source field type
      * @return the target field type of inlong field type mapping
      */
-    String getFieldTypeMapping(String sourceType);
+    String getSourceToSinkFieldTypeMapping(String sourceType);
+
+    /**
+     * Get the field type of inlong field type mapping by the stream field type.
+     *
+     * @param streamType the stream field type
+     * @return the target field type of inlong field type mapping
+     */
+    String getStreamToSinkFieldTypeMapping(String streamType);
+
 }

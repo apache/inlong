@@ -32,7 +32,6 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.service.core.AuditService;
-import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.service.transform.StreamTransformService;
 import org.apache.inlong.sort.protocol.GroupInfo;
@@ -77,9 +76,9 @@ public class SortFlinkConfigOperator implements SortConfigOperator {
     @Autowired
     private StreamTransformService transformService;
     @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
     private AuditService auditService;
+    @Autowired
+    private NodeFactory nodeFactory;
 
     @Override
     public Boolean accept(List<String> sinkTypeList) {
@@ -249,13 +248,13 @@ public class SortFlinkConfigOperator implements SortConfigOperator {
             List<StreamSink> sinks, Map<String, StreamField> constantFieldMap) {
         List<Node> nodes = new ArrayList<>();
         if (Objects.equals(sources.size(), sinks.size()) && Objects.equals(sources.size(), 1)) {
-            return NodeFactory.addBuiltInField(sources.get(0), sinks.get(0), transformResponses, constantFieldMap);
+            return nodeFactory.addBuiltInField(sources.get(0), sinks.get(0), transformResponses, constantFieldMap);
         }
         List<TransformNode> transformNodes =
                 TransformNodeUtils.createTransformNodes(transformResponses, constantFieldMap);
-        nodes.addAll(NodeFactory.createExtractNodes(sources));
+        nodes.addAll(nodeFactory.createExtractNodes(sources));
         nodes.addAll(transformNodes);
-        nodes.addAll(NodeFactory.createLoadNodes(sinks, constantFieldMap));
+        nodes.addAll(nodeFactory.createLoadNodes(sinks, constantFieldMap));
         return nodes;
     }
 

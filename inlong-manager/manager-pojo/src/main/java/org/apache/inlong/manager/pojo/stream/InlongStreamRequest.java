@@ -130,6 +130,9 @@ public class InlongStreamRequest extends BaseInlongStream {
     @ApiModelProperty("The multiple enable of sink")
     private Boolean sinkMultipleEnable;
 
+    @ApiModelProperty("Whether to sync field")
+    private Boolean syncField = false;
+
     @ApiModelProperty(value = "The message body  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, PB, etc")
     private String wrapType;
 

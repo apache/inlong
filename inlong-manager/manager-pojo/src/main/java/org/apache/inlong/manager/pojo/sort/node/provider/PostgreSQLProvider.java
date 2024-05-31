@@ -19,7 +19,7 @@ package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.StreamType;
 import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
-import org.apache.inlong.manager.common.fieldtype.strategy.PostgreSQLFieldTypeStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeStrategyFactory;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLSink;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
@@ -33,15 +33,20 @@ import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Map;
 
 /**
  * The Provider for creating PostgreSQL extract or load nodes.
  */
+@Service
 public class PostgreSQLProvider implements ExtractNodeProvider, LoadNodeProvider {
 
-    private static final FieldTypeMappingStrategy FIELD_TYPE_MAPPING_STRATEGY = new PostgreSQLFieldTypeStrategy();
+    @Autowired
+    private FieldTypeStrategyFactory fieldTypeStrategyFactory;
 
     @Override
     public Boolean accept(String streamType) {
@@ -51,8 +56,10 @@ public class PostgreSQLProvider implements ExtractNodeProvider, LoadNodeProvider
     @Override
     public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
         PostgreSQLSource postgreSQLSource = (PostgreSQLSource) streamNodeInfo;
+        FieldTypeMappingStrategy fieldTypeMappingStrategy =
+                fieldTypeStrategyFactory.getInstance(postgreSQLSource.getSourceType());
         List<FieldInfo> fieldInfos = parseStreamFieldInfos(postgreSQLSource.getFieldList(),
-                postgreSQLSource.getSourceName(), FIELD_TYPE_MAPPING_STRATEGY);
+                postgreSQLSource.getSourceName(), fieldTypeMappingStrategy);
         Map<String, String> properties = parseProperties(postgreSQLSource.getProperties());
 
         return new PostgresExtractNode(postgreSQLSource.getSourceName(),
@@ -77,8 +84,10 @@ public class PostgreSQLProvider implements ExtractNodeProvider, LoadNodeProvider
     public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         PostgreSQLSink postgreSQLSink = (PostgreSQLSink) nodeInfo;
         Map<String, String> properties = parseProperties(postgreSQLSink.getProperties());
+        FieldTypeMappingStrategy fieldTypeMappingStrategy =
+                fieldTypeStrategyFactory.getInstance(postgreSQLSink.getSinkType());
         List<FieldInfo> fieldInfos = parseSinkFieldInfos(postgreSQLSink.getSinkFieldList(),
-                postgreSQLSink.getSinkName(), FIELD_TYPE_MAPPING_STRATEGY);
+                postgreSQLSink.getSinkName(), fieldTypeMappingStrategy);
         List<FieldRelation> fieldRelations = parseSinkFields(postgreSQLSink.getSinkFieldList(), constantFieldMap);
 
         return new PostgresLoadNode(

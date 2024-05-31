@@ -20,24 +20,21 @@ package org.apache.inlong.manager.common.fieldtype.strategy;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.fieldtype.FieldTypeMappingReader;
 
-import org.apache.commons.lang3.StringUtils;
-
-import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
+import org.springframework.stereotype.Service;
 
 /**
  * The mysql field type mapping strategy
  */
-public class MySQLFieldTypeStrategy implements FieldTypeMappingStrategy {
-
-    private final FieldTypeMappingReader reader;
+@Service
+public class MySQLFieldTypeStrategy extends DefaultFieldTypeStrategy {
 
     public MySQLFieldTypeStrategy() {
         this.reader = new FieldTypeMappingReader(DataNodeType.MYSQL);
     }
 
     @Override
-    public String getFieldTypeMapping(String sourceType) {
-        String dataType = StringUtils.substringBefore(sourceType, LEFT_BRACKET).toUpperCase();
-        return reader.getFIELD_TYPE_MAPPING_MAP().getOrDefault(dataType, sourceType.toUpperCase());
+    public Boolean accept(String type) {
+        return DataNodeType.MYSQL.equals(type);
     }
+
 }

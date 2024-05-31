@@ -62,6 +62,8 @@ import org.apache.inlong.manager.service.group.InlongGroupOperator;
 import org.apache.inlong.manager.service.group.InlongGroupOperatorFactory;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperator;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperatorFactory;
+import org.apache.inlong.manager.service.sink.SinkOperatorFactory;
+import org.apache.inlong.manager.service.sink.StreamSinkOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 
@@ -144,6 +146,9 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Autowired
     @Lazy
     private InlongGroupOperatorFactory groupOperatorFactory;
+    @Autowired
+    @Lazy
+    private SinkOperatorFactory sinkOperatorFactory;
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
@@ -600,7 +605,14 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         // update stream extension infos
         List<InlongStreamExtInfo> extList = request.getExtList();
         saveOrUpdateExt(groupId, streamId, extList);
-
+        if (request.getSyncField()) {
+            LOGGER.info("test begin sync field={}", request);
+            List<StreamSinkEntity> sinkEntityList = sinkMapper.selectByRelatedId(groupId, streamId);
+            for (StreamSinkEntity sinkEntity : sinkEntityList) {
+                StreamSinkOperator sinkOperator = sinkOperatorFactory.getInstance(sinkEntity.getSinkType());
+                sinkOperator.syncField(sinkOperator.getFromEntity(sinkEntity).genSinkRequest(), request.getFieldList());
+            }
+        }
         LOGGER.info("success to update inlong stream without check for groupId={} streamId={}", groupId, streamId);
         return true;
     }

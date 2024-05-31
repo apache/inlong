@@ -33,12 +33,15 @@ import org.apache.inlong.sort.protocol.node.extract.HudiExtractNode;
 import org.apache.inlong.sort.protocol.node.load.HudiLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Map;
 
 /**
  * The Provider for creating Hudi extract or load nodes.
  */
+@Service
 public class HudiProvider implements ExtractNodeProvider, LoadNodeProvider {
 
     @Override

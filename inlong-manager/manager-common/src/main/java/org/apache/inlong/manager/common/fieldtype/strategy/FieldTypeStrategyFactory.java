@@ -17,24 +17,32 @@
 
 package org.apache.inlong.manager.common.fieldtype.strategy;
 
-import org.apache.inlong.manager.common.consts.DataNodeType;
-import org.apache.inlong.manager.common.fieldtype.FieldTypeMappingReader;
-
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
- * The postgresql field type mapping strategy
+ * Factory for {@link FieldTypeMappingStrategy}.
  */
 @Service
-public class PostgreSQLFieldTypeStrategy extends DefaultFieldTypeStrategy {
+@Slf4j
+public class FieldTypeStrategyFactory {
 
-    public PostgreSQLFieldTypeStrategy() {
-        this.reader = new FieldTypeMappingReader(DataNodeType.POSTGRESQL);
-    }
+    @Autowired
+    private List<FieldTypeMappingStrategy> strategyList;
 
-    @Override
-    public Boolean accept(String type) {
-        return DataNodeType.POSTGRESQL.equals(type);
+    /**
+     * Get a field type mapping strategy instance.
+     *
+     * @param type type
+     */
+    public FieldTypeMappingStrategy getInstance(String type) {
+        return strategyList.stream()
+                .filter(inst -> inst.accept(type))
+                .findFirst()
+                .orElse(null);
     }
 
 }
