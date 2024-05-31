@@ -47,6 +47,9 @@ public interface InlongGroupEntityMapper {
 
     InlongGroupEntity selectByGroupId(String groupId);
 
+    @MultiTenantQuery(with = false)
+    InlongGroupEntity selectByGroupIdWithoutTenant(String groupId);
+
     InlongGroupEntity selectByGroupIdForUpdate(String groupId);
 
     List<InlongGroupEntity> selectByCondition(InlongGroupPageRequest request);

@@ -101,6 +101,13 @@ public class InlongGroupController {
         return Response.success(groupService.get(groupId));
     }
 
+    @RequestMapping(value = "/group/getTenant/{groupId}", method = RequestMethod.GET)
+    @ApiOperation(value = "Get inlong group tenant")
+    @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
+    public Response<String> getTenant(@PathVariable String groupId) {
+        return Response.success(groupService.getTenant(groupId, LoginUserUtils.getLoginUser().getName()));
+    }
+
     @RequestMapping(value = "/group/countByStatus", method = RequestMethod.GET)
     @ApiOperation(value = "Count inlong group status for current user")
     @ApiImplicitParam(name = "inlongGroupMode", dataTypeClass = Integer.class, defaultValue = "0")

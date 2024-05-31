@@ -89,6 +89,14 @@ public interface InlongGroupService {
     InlongGroupInfo get(String groupId);
 
     /**
+     * Get inlong group tenant based on inlong group id
+     *
+     * @param groupId inlong group id
+     * @return tenant of inlong group
+     */
+    String getTenant(String groupId, String operator);
+
+    /**
      * Get inlong group info based on inlong group id
      *
      * @param groupId inlong group id
