@@ -32,7 +32,7 @@
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
         <orc.core.version>1.4.3</orc.core.version>
-        <aircompressor.version>0.8</aircompressor.version>
+        <aircompressor.version>0.27</aircompressor.version>
     </properties>
 
     <dependencyManagement>
