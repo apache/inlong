@@ -124,7 +124,7 @@
                             <artifactSet>
                                 <includes>
                                     <include>org.apache.inlong:*</include>
-                                    <include>com.google.protobuf:protobuf-java</include>
+                                    <include>com.google.protobuf:*</include>
                                     <include>org.apache.kafka:*</include>
                                     <include>com.fasterxml.*:*</include>
                                     <include>org.apache.iceberg:*</include>
@@ -158,6 +158,10 @@
                                 <relocation>
                                     <pattern>org.apache.inlong.sort.base</pattern>
                                     <shadedPattern>org.apache.inlong.sort.iceberg.shaded.org.apache.inlong.sort.base</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.iceberg.shaded.com.google</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
