@@ -142,6 +142,9 @@ public class InlongStreamInfo extends BaseInlongStream {
     @ApiModelProperty("The multiple enable of sink")
     private Boolean sinkMultipleEnable;
 
+    @ApiModelProperty("Whether to sync field")
+    private Boolean syncField = false;
+
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value")
     private Boolean ignoreParseError;
 
