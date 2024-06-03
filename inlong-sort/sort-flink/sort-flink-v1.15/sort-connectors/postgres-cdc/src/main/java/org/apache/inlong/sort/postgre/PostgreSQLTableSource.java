@@ -18,13 +18,9 @@
 package org.apache.inlong.sort.postgre;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
 
-import com.ververica.cdc.connectors.postgres.PostgreSQLSource;
 import com.ververica.cdc.connectors.postgres.table.PostgreSQLDeserializationConverterFactory;
 import com.ververica.cdc.connectors.postgres.table.PostgreSQLReadableMetadata;
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
-import com.ververica.cdc.debezium.DebeziumSourceFunction;
 import com.ververica.cdc.debezium.table.DebeziumChangelogMode;
 import com.ververica.cdc.debezium.table.MetadataConverter;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -139,7 +135,7 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                                 PostgreSQLDeserializationConverterFactory.instance())
                         .setValueValidator(new PostgresValueValidator(schemaName, tableName))
                         .setChangelogMode(changelogMode)
-                        .setSourceMetricData(metricOption == null ? null : new SourceMetricData(metricOption))
+                        .setMetricOption(metricOption)
                         .build();
         DebeziumSourceFunction<RowData> sourceFunction =
                 PostgreSQLSource.<RowData>builder()
@@ -237,7 +233,8 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                 dbzProperties,
                 producedDataType,
                 metadataKeys,
-                changelogMode);
+                changelogMode,
+                metricOption);
     }
 
     @Override
