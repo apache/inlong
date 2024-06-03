@@ -178,16 +178,16 @@ public class SqlserverTableFactory implements DynamicTableSourceFactory {
     private static final String SCAN_STARTUP_MODE_VALUE_INITIAL_ONLY = "initial-only";
     private static final String SCAN_STARTUP_MODE_VALUE_LATEST = "latest-offset";
 
-    private static com.ververica.cdc.connectors.sqlserver.table.StartupOptions getStartupOptions(
+    private static StartupOptions getStartupOptions(
             ReadableConfig config) {
         String modeString = config.get(SCAN_STARTUP_MODE);
 
         switch (modeString.toLowerCase()) {
             case SCAN_STARTUP_MODE_VALUE_INITIAL:
-                return com.ververica.cdc.connectors.sqlserver.table.StartupOptions.initial();
+                return StartupOptions.initial();
 
             case SCAN_STARTUP_MODE_VALUE_INITIAL_ONLY:
-                return com.ververica.cdc.connectors.sqlserver.table.StartupOptions.initialOnly();
+                return StartupOptions.initialOnly();
 
             case SCAN_STARTUP_MODE_VALUE_LATEST:
                 return StartupOptions.latest();
