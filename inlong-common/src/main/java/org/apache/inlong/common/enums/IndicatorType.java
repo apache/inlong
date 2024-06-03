@@ -53,6 +53,18 @@ public enum IndicatorType {
         return UNKNOWN_TYPE;
     }
 
+    public static Boolean isFailedType(IndicatorType indicatorType) {
+        return RECEIVED_FAILED.equals(indicatorType) || SEND_FAILED.equals(indicatorType);
+    }
+
+    public static Boolean isDiscardType(IndicatorType indicatorType) {
+        return RECEIVED_DISCARD.equals(indicatorType) || SEND_DISCARD.equals(indicatorType);
+    }
+
+    public static Boolean isRetryType(IndicatorType indicatorType) {
+        return RECEIVED_RETRY.equals(indicatorType) || SEND_RETRY.equals(indicatorType);
+    }
+
     public int getCode() {
         return code;
     }
@@ -64,5 +76,4 @@ public enum IndicatorType {
     public String getDesc() {
         return desc;
     }
-
 }

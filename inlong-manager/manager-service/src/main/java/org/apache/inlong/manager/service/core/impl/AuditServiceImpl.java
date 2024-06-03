@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import org.apache.inlong.audit.AuditOperator;
+import org.apache.inlong.audit.entity.AuditInformation;
+import org.apache.inlong.audit.entity.FlowType;
 import org.apache.inlong.common.enums.IndicatorType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
@@ -25,18 +28,14 @@ import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.AuditBaseEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
-import org.apache.inlong.manager.dao.mapper.AuditBaseEntityMapper;
 import org.apache.inlong.manager.dao.mapper.AuditEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
-import org.apache.inlong.manager.pojo.audit.AuditBaseResponse;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
@@ -96,8 +95,8 @@ public class AuditServiceImpl implements AuditService {
     private static final DateTimeFormatter HOUR_DATE_FORMATTER = DateTimeFormat.forPattern(HOUR_FORMAT);
     private static final DateTimeFormatter DAY_DATE_FORMATTER = DateTimeFormat.forPattern(DAY_FORMAT);
     // key 1: type of audit, like pulsar, hive, key 2: indicator type, value : entity of audit base item
-    private final Map<String, Map<Integer, AuditBaseEntity>> auditIndicatorMap = new ConcurrentHashMap<>();
-    private final Map<String, AuditBaseEntity> auditItemMap = new ConcurrentHashMap<>();
+    private final Map<String, Map<Integer, AuditInformation>> auditIndicatorMap = new ConcurrentHashMap<>();
+    private final Map<String, AuditInformation> auditItemMap = new ConcurrentHashMap<>();
     private ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
     // defaults to return all audit ids, can be overwritten in properties file
     // see audit id definitions: https://inlong.apache.org/docs/modules/audit/overview#audit-id
@@ -111,8 +110,6 @@ public class AuditServiceImpl implements AuditService {
     @Value("${audit.query.url:http://127.0.0.1:10080}")
     private String auditQueryUrl;
 
-    @Autowired
-    private AuditBaseEntityMapper auditBaseMapper;
     @Autowired
     private AuditEntityMapper auditEntityMapper;
     @Autowired
@@ -138,13 +135,7 @@ public class AuditServiceImpl implements AuditService {
     public Boolean refreshBaseItemCache() {
         LOGGER.debug("start to reload audit base item info");
         try {
-            List<AuditBaseEntity> auditBaseEntities = auditBaseMapper.selectAll();
-            for (AuditBaseEntity auditBaseEntity : auditBaseEntities) {
-                auditItemMap.put(auditBaseEntity.getAuditId(), auditBaseEntity);
-                String type = auditBaseEntity.getType();
-                Map<Integer, AuditBaseEntity> itemMap = auditIndicatorMap.computeIfAbsent(type, v -> new HashMap<>());
-                itemMap.put(auditBaseEntity.getIndicatorType(), auditBaseEntity);
-            }
+            auditIndicatorMap.clear();
         } catch (Throwable t) {
             LOGGER.error("failed to reload audit base item info", t);
             return false;
@@ -159,16 +150,21 @@ public class AuditServiceImpl implements AuditService {
         if (StringUtils.isBlank(type)) {
             return null;
         }
-        Map<Integer, AuditBaseEntity> itemMap = auditIndicatorMap.computeIfAbsent(type, v -> new HashMap<>());
-        AuditBaseEntity auditBaseEntity = itemMap.get(indicatorType.getCode());
-        if (auditBaseEntity != null) {
-            return auditBaseEntity.getAuditId();
+        Map<Integer, AuditInformation> itemMap = auditIndicatorMap.computeIfAbsent(type, v -> new HashMap<>());
+        AuditInformation auditInformation = itemMap.get(indicatorType.getCode());
+        if (auditInformation != null) {
+            return String.valueOf(auditInformation.getAuditId());
         }
-        auditBaseEntity = auditBaseMapper.selectByTypeAndIndicatorType(type, indicatorType.getCode());
-        Preconditions.expectNotNull(auditBaseEntity, ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED,
+        FlowType flowType = indicatorType.getCode() % 2 == 0 ? FlowType.INPUT : FlowType.OUTPUT;
+        auditInformation = AuditOperator.getInstance().buildAuditInformation(type, flowType,
+                IndicatorType.isFailedType(indicatorType),
+                true,
+                IndicatorType.isDiscardType(indicatorType),
+                IndicatorType.isRetryType(indicatorType));
+        Preconditions.expectNotNull(auditInformation, ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED,
                 String.format(ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED.getMessage(), type));
-        itemMap.put(auditBaseEntity.getIndicatorType(), auditBaseEntity);
-        return auditBaseEntity.getAuditId();
+        itemMap.put(indicatorType.getCode(), auditInformation);
+        return String.valueOf(auditInformation.getAuditId());
     }
 
     @Override
@@ -225,8 +221,8 @@ public class AuditServiceImpl implements AuditService {
         AuditQuerySource querySource = AuditQuerySource.valueOf(auditQuerySource);
         CountDownLatch latch = new CountDownLatch(request.getAuditIds().size());
         for (String auditId : request.getAuditIds()) {
-            AuditBaseEntity auditBaseEntity = auditItemMap.get(auditId);
-            String auditName = auditBaseEntity != null ? auditBaseEntity.getName() : "";
+            AuditInformation auditInformation = auditItemMap.get(auditId);
+            String auditName = auditInformation != null ? auditInformation.getNameInChinese() : "";
 
             if (AuditQuerySource.MYSQL == querySource) {
                 String format = "%Y-%m-%d %H:%i:00";
@@ -269,17 +265,19 @@ public class AuditServiceImpl implements AuditService {
         AuditQuerySource querySource = AuditQuerySource.valueOf(auditQuerySource);
         CountDownLatch latch = new CountDownLatch(request.getAuditIds().size());
         for (String auditId : request.getAuditIds()) {
-            AuditBaseEntity auditBaseEntity = auditItemMap.get(auditId);
+            AuditInformation auditInformation = auditItemMap.get(auditId);
             String auditName = "";
-            if (auditBaseEntity != null) {
-                auditName = auditBaseEntity.getName();
+            if (auditInformation != null) {
+                auditName = auditInformation.getNameInChinese();
             }
             if (AuditQuerySource.MYSQL == querySource) {
                 // Support min agg at now
                 DateTime endDate = SECOND_DATE_FORMATTER.parseDateTime(request.getEndDate());
                 String endDateStr = endDate.plusDays(1).toString(SECOND_DATE_FORMATTER);
-                List<Map<String, Object>> sumList = auditEntityMapper.sumGroupByIp(request.getInlongGroupId(),
-                        request.getInlongStreamId(), request.getIp(), auditId, request.getStartDate(), endDateStr);
+                List<Map<String, Object>> sumList = auditEntityMapper.sumGroupByIp(
+                        request.getInlongGroupId(), request.getInlongStreamId(), request.getIp(), auditId,
+                        request.getStartDate(),
+                        endDateStr);
                 List<AuditInfo> auditSet = sumList.stream().map(s -> {
                     AuditInfo vo = new AuditInfo();
                     vo.setInlongGroupId((String) s.get("inlongGroupId"));
@@ -304,9 +302,9 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public List<AuditBaseResponse> getAuditBases() {
-        List<AuditBaseEntity> auditBaseEntityList = auditBaseMapper.selectAll();
-        return CommonBeanUtils.copyListProperties(auditBaseEntityList, AuditBaseResponse::new);
+    public List<AuditInformation> getAuditBases() {
+        List<AuditInformation> auditInformations = AuditOperator.getInstance().getAllAuditInformation();
+        return auditInformations;
     }
 
     private List<String> getAuditIds(String groupId, String streamId, String sourceNodeType, String sinkNodeType) {
