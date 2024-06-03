@@ -160,8 +160,8 @@
                                     <shadedPattern>org.apache.inlong.sort.iceberg.shaded.org.apache.inlong.sort.base</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>com.google</pattern>
-                                    <shadedPattern>org.apache.inlong.sort.iceberg.shaded.com.google</shadedPattern>
+                                    <pattern>com.google.protobuf</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.iceberg.shaded.com.google.protobuf</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
