@@ -60,7 +60,7 @@ public class ClickHouseFieldTypeStrategy extends DefaultFieldTypeStrategy {
             }
         }
         String dataType = StringUtils.substringBefore(sourceType, LEFT_BRACKET).toUpperCase();
-        return reader.getSOURCE_TO_SINK_FIELD_TYPE_MAPPING_MAP().getOrDefault(dataType, sourceType.toUpperCase());
+        return reader.getSourceToSinkFieldTypeMap().getOrDefault(dataType, sourceType.toUpperCase());
     }
 
     @Override
@@ -74,6 +74,6 @@ public class ClickHouseFieldTypeStrategy extends DefaultFieldTypeStrategy {
             }
         }
         String dataType = StringUtils.substringBefore(sourceType, LEFT_BRACKET).toUpperCase();
-        return reader.getSOURCE_TO_SINK_FIELD_TYPE_MAPPING_MAP().getOrDefault(dataType, sourceType.toUpperCase());
+        return reader.getSourceToSinkFieldTypeMap().getOrDefault(dataType, sourceType.toUpperCase());
     }
 }

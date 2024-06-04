@@ -39,7 +39,7 @@ public class ExtractNodeProviderFactory {
      * The extract node provider collection
      */
     @Autowired
-    private List<ExtractNodeProvider> EXTRACT_NODE_PROVIDER_LIST = new ArrayList<>();
+    private List<ExtractNodeProvider> extractNodeProviderList = new ArrayList<>();
 
     /**
      * Get extract node provider
@@ -48,7 +48,7 @@ public class ExtractNodeProviderFactory {
      * @return the extract node provider
      */
     public ExtractNodeProvider getExtractNodeProvider(String sourceType) {
-        return EXTRACT_NODE_PROVIDER_LIST.stream()
+        return extractNodeProviderList.stream()
                 .filter(inst -> inst.accept(sourceType))
                 .findFirst()
                 .orElseThrow(() -> new BusinessException(ErrorCodeEnum.SOURCE_TYPE_NOT_SUPPORT,

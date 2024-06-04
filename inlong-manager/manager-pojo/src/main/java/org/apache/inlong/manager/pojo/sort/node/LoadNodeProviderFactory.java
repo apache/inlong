@@ -39,7 +39,7 @@ public class LoadNodeProviderFactory {
      * The load node provider collection
      */
     @Autowired
-    private List<LoadNodeProvider> LOAD_NODE_PROVIDER_LIST = new ArrayList<>();
+    private List<LoadNodeProvider> loadNodeProviderList = new ArrayList<>();
 
     /**
      * Get load node provider
@@ -48,7 +48,7 @@ public class LoadNodeProviderFactory {
      * @return the load node provider
      */
     public LoadNodeProvider getLoadNodeProvider(String sinkType) {
-        return LOAD_NODE_PROVIDER_LIST.stream()
+        return loadNodeProviderList.stream()
                 .filter(inst -> inst.accept(sinkType))
                 .findFirst()
                 .orElseThrow(() -> new BusinessException(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT,
