@@ -61,6 +61,6 @@ public abstract class DefaultFieldTypeStrategy implements FieldTypeMappingStrate
             }
         }
         String dataType = StringUtils.substringBefore(sourceType, LEFT_BRACKET).toUpperCase();
-        return reader.getSourceToSinkFieldTypeMap().getOrDefault(dataType, sourceType.toUpperCase());
+        return reader.getStreamToSinkFieldTypeMap().getOrDefault(dataType, sourceType.toUpperCase());
     }
 }
