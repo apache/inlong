@@ -157,7 +157,7 @@ public class AuditServiceImpl implements AuditService {
         }
         FlowType flowType = indicatorType.getCode() % 2 == 0 ? FlowType.INPUT : FlowType.OUTPUT;
         auditInformation = AuditOperator.getInstance().buildAuditInformation(type, flowType,
-                IndicatorType.isFailedType(indicatorType),
+                IndicatorType.isSuccessType(indicatorType),
                 true,
                 IndicatorType.isDiscardType(indicatorType),
                 IndicatorType.isRetryType(indicatorType));

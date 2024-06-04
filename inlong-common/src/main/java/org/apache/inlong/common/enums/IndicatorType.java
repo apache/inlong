@@ -53,8 +53,8 @@ public enum IndicatorType {
         return UNKNOWN_TYPE;
     }
 
-    public static Boolean isFailedType(IndicatorType indicatorType) {
-        return RECEIVED_FAILED.equals(indicatorType) || SEND_FAILED.equals(indicatorType);
+    public static Boolean isSuccessType(IndicatorType indicatorType) {
+        return !RECEIVED_FAILED.equals(indicatorType) && !SEND_FAILED.equals(indicatorType);
     }
 
     public static Boolean isDiscardType(IndicatorType indicatorType) {
