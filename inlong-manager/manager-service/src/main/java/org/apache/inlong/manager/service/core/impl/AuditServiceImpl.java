@@ -96,7 +96,7 @@ public class AuditServiceImpl implements AuditService {
     private static final DateTimeFormatter DAY_DATE_FORMATTER = DateTimeFormat.forPattern(DAY_FORMAT);
     // key 1: type of audit, like pulsar, hive, key 2: indicator type, value : entity of audit base item
     private final Map<String, Map<Integer, AuditInformation>> auditIndicatorMap = new ConcurrentHashMap<>();
-    private final Map<String, AuditInformation> auditItemMap = new ConcurrentHashMap<>();
+    private final Map<String, String> auditItemMap = new ConcurrentHashMap<>();
     private ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
     // defaults to return all audit ids, can be overwritten in properties file
     // see audit id definitions: https://inlong.apache.org/docs/modules/audit/overview#audit-id
@@ -136,6 +136,10 @@ public class AuditServiceImpl implements AuditService {
         LOGGER.debug("start to reload audit base item info");
         try {
             auditIndicatorMap.clear();
+            List<AuditInformation> auditInformationList = AuditOperator.getInstance().getAllAuditInformation();
+            auditInformationList.forEach(v -> {
+                auditItemMap.put(String.valueOf(v.getAuditId()), v.getNameInChinese());
+            });
         } catch (Throwable t) {
             LOGGER.error("failed to reload audit base item info", t);
             return false;
@@ -221,9 +225,7 @@ public class AuditServiceImpl implements AuditService {
         AuditQuerySource querySource = AuditQuerySource.valueOf(auditQuerySource);
         CountDownLatch latch = new CountDownLatch(request.getAuditIds().size());
         for (String auditId : request.getAuditIds()) {
-            AuditInformation auditInformation = auditItemMap.get(auditId);
-            String auditName = auditInformation != null ? auditInformation.getNameInChinese() : "";
-
+            String auditName = auditItemMap.get(auditId);
             if (AuditQuerySource.MYSQL == querySource) {
                 String format = "%Y-%m-%d %H:%i:00";
                 // Support min agg at now
@@ -265,11 +267,7 @@ public class AuditServiceImpl implements AuditService {
         AuditQuerySource querySource = AuditQuerySource.valueOf(auditQuerySource);
         CountDownLatch latch = new CountDownLatch(request.getAuditIds().size());
         for (String auditId : request.getAuditIds()) {
-            AuditInformation auditInformation = auditItemMap.get(auditId);
-            String auditName = "";
-            if (auditInformation != null) {
-                auditName = auditInformation.getNameInChinese();
-            }
+            String auditName = auditItemMap.get(auditId);
             if (AuditQuerySource.MYSQL == querySource) {
                 // Support min agg at now
                 DateTime endDate = SECOND_DATE_FORMATTER.parseDateTime(request.getEndDate());
