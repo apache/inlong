@@ -57,6 +57,8 @@ import org.apache.flink.connector.base.source.reader.RecordEmitter;
  * <p>See {@link MongoDBSourceBuilder} for more details.
  *
  * @param <T> the output type of the source.
+ * <p>
+ * Copy from com.ververica:flink-connector-mongodb-cdc-2.3.0
  */
 @Internal
 @Experimental

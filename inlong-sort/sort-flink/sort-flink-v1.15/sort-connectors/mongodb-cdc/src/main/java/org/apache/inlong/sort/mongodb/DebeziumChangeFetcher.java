@@ -48,6 +48,8 @@ import java.util.Queue;
  * emitting the records.
  *
  * @param <T> The type of elements produced by the handler.
+ * <p>
+ * Copy from com.ververica:flink-connector-mongodb-cdc-2.3.0
  */
 @Internal
 public class DebeziumChangeFetcher<T> {

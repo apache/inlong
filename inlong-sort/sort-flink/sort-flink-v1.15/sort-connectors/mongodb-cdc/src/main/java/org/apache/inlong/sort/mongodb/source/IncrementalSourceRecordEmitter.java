@@ -49,6 +49,8 @@ import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.*;
  *
  * <p>The {@link RecordEmitter} buffers the snapshot records of split and call the stream reader to
  * emit records rather than emit the records directly.
+ * <p>
+ * Copy from com.ververica:flink-connector-mongodb-cdc-2.3.0
  */
 public class IncrementalSourceRecordEmitter<T>
         implements

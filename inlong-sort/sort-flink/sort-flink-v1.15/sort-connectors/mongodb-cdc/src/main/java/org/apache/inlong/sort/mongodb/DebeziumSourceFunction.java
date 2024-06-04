@@ -97,6 +97,8 @@ import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHisto
  *
  * <p>Note: currently, the source function can't run in multiple parallel instances.
  * Copy from com.ververica:flink-connector-mongodb-cdc-2.3.0
+ * <p>
+ * Copy from com.ververica:flink-connector-mongodb-cdc-2.3.0
  */
 @PublicEvolving
 public class DebeziumSourceFunction<T> extends RichSourceFunction<T>

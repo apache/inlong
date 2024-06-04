@@ -62,6 +62,8 @@ import java.util.function.Supplier;
  * The basic source of Incremental Snapshot framework for datasource, it is based on FLIP-27 and
  * Watermark Signal Algorithm which supports parallel reading snapshot of table and then continue to
  * capture data change by streaming reading.
+ * <p>
+ * Copy from com.ververica:flink-connector-mongodb-cdc-2.3.0
  */
 @Experimental
 public class IncrementalSource<T, C extends SourceConfig>
