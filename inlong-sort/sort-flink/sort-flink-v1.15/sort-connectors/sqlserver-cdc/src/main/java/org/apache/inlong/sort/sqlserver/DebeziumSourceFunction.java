@@ -541,16 +541,6 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         return deserializer.getProducedType();
     }
 
-    @VisibleForTesting
-    public LinkedMap getPendingOffsetsToCommit() {
-        return pendingOffsetsToCommit;
-    }
-
-    @VisibleForTesting
-    public boolean getDebeziumStarted() {
-        return debeziumStarted;
-    }
-
     private Class<?> determineDatabase() {
         boolean isCompatibleWithLegacy =
                 FlinkDatabaseHistory.isCompatible(retrieveHistory(engineInstanceName));
@@ -572,10 +562,5 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             // impossible
             throw new IllegalStateException("Can't determine which DatabaseHistory to use.");
         }
-    }
-
-    @VisibleForTesting
-    public String getEngineInstanceName() {
-        return engineInstanceName;
     }
 }
