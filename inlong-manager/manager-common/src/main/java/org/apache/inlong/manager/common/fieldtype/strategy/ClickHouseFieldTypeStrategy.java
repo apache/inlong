@@ -62,18 +62,4 @@ public class ClickHouseFieldTypeStrategy extends DefaultFieldTypeStrategy {
         String dataType = StringUtils.substringBefore(sourceType, LEFT_BRACKET).toUpperCase();
         return reader.getSourceToSinkFieldTypeMap().getOrDefault(dataType, sourceType.toUpperCase());
     }
-
-    @Override
-    public String getStreamToSinkFieldTypeMapping(String sourceType) {
-        // support clickHouse field type special modifier Nullable
-        if (StringUtils.isNotBlank(sourceType)) {
-            Matcher matcher = PATTERN.matcher(sourceType.toUpperCase());
-            if (matcher.matches()) {
-                // obtain the field type modified by Nullable, for example, uint8(12) in Nullable(uint8(12))
-                sourceType = matcher.group(1);
-            }
-        }
-        String dataType = StringUtils.substringBefore(sourceType, LEFT_BRACKET).toUpperCase();
-        return reader.getStreamToSinkFieldTypeMap().getOrDefault(dataType, sourceType.toUpperCase());
-    }
 }
