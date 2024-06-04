@@ -36,12 +36,14 @@ import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.entity.TenantClusterTagEntity;
+import org.apache.inlong.manager.dao.entity.TenantUserRoleEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.dao.mapper.TenantClusterTagEntityMapper;
+import org.apache.inlong.manager.dao.mapper.TenantUserRoleEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.common.BatchResult;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
@@ -64,6 +66,8 @@ import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.pojo.sort.UserDefinedSortConf;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
+import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
@@ -72,6 +76,8 @@ import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.SourceOperatorFactory;
 import org.apache.inlong.manager.service.source.StreamSourceOperator;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
+import org.apache.inlong.manager.service.tenant.InlongTenantService;
+import org.apache.inlong.manager.service.user.InlongRoleService;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -145,6 +151,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     private InlongGroupOperatorFactory groupOperatorFactory;
     @Autowired
     private SourceOperatorFactory sourceOperatorFactory;
+    @Autowired
+    private InlongTenantService tenantService;
+    @Autowired
+    private InlongRoleService inlongRoleService;
+    @Autowired
+    private TenantUserRoleEntityMapper tenantUserRoleEntityMapper;
 
     /**
      * Check whether modification is supported under the current group status, and which fields can be modified.
@@ -291,6 +303,30 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         BaseSortConf sortConf = buildSortConfig(streamExtEntities);
         groupInfo.setSortConf(sortConf);
         return groupInfo;
+    }
+
+    @Override
+    public String getTenant(String groupId, String operator) {
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupIdWithoutTenant(groupId);
+        String tenant = groupEntity.getTenant();
+        if (Objects.equals(InlongConstants.DEFAULT_PULSAR_TENANT, tenant)) {
+            return tenant;
+        }
+        InlongTenantInfo tenantInfo = tenantService.getByName(tenant);
+        if (tenantInfo == null) {
+            String errMsg = String.format("tenant=[%s] not found", tenant);
+            LOGGER.error(errMsg);
+            throw new BusinessException(errMsg);
+        }
+
+        InlongRoleInfo inlongRoleInfo = inlongRoleService.getByUsername(operator);
+        TenantUserRoleEntity tenantRoleInfo = tenantUserRoleEntityMapper.selectByUsernameAndTenant(operator, tenant);
+        if (inlongRoleInfo == null && tenantRoleInfo == null) {
+            String errMsg = String.format("user=[%s] has no privilege for tenant=[%s]", operator, tenant);
+            LOGGER.error(errMsg);
+            throw new BusinessException(errMsg);
+        }
+        return tenant;
     }
 
     @Override
