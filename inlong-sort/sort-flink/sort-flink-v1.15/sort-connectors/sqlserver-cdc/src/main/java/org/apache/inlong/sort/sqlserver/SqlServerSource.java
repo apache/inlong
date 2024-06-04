@@ -28,6 +28,8 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 /**
  * A builder to build a SourceFunction which can read snapshot and continue to consume transaction
  * log for SqlServer.
+ * <p>
+ * Copy from com.ververica:flink-connector-debezium:2.3.0
  */
 public class SqlServerSource {
 

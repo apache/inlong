@@ -29,6 +29,8 @@ import java.io.Serializable;
  * (Java/Scala objects) that are processed by Flink.
  *
  * @param <T> The type created by the deserialization schema.
+ * <p>
+ * Copy from com.ververica:flink-connector-debezium:2.3.0
  */
 @PublicEvolving
 public interface DebeziumDeserializationSchema<T> extends Serializable, ResultTypeQueryable<T> {

@@ -100,6 +100,8 @@ import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHisto
  *
  * <p>Please refer to Debezium's documentation for the available configuration properties:
  * https://debezium.io/documentation/reference/1.5/development/engine.html#engine-properties
+ * <p>
+ * Copy from com.ververica:flink-connector-debezium:2.3.0
  */
 @PublicEvolving
 public class DebeziumSourceFunction<T> extends RichSourceFunction<T>

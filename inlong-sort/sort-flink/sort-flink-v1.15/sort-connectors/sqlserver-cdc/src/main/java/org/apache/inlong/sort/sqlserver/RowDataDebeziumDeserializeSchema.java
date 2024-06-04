@@ -105,8 +105,6 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
     private final MetricOption metricOption;
     private SourceMetricData sourceMetricData;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(RowDataDebeziumDeserializeSchema.class);
-
     /** Returns a builder to build {@link RowDataDebeziumDeserializeSchema}. */
     public static Builder newBuilder() {
         return new Builder();
@@ -137,9 +135,6 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
     @Override
     public void open() {
         if (metricOption != null) {
-            LOG.info("SourceMetricData create -----------");
-            LOG.info("MetricOption is" + metricOption);
-
             sourceMetricData = new SourceMetricData(metricOption);
         }
     }
