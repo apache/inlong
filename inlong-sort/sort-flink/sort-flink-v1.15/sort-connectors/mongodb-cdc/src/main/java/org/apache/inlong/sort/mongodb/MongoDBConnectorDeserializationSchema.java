@@ -24,7 +24,6 @@ import org.apache.inlong.sort.base.metric.SourceMetricData;
 import com.mongodb.client.model.changestream.OperationType;
 import com.mongodb.internal.HexUtils;
 import com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope;
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.table.AppendMetadataCollector;
 import com.ververica.cdc.debezium.table.MetadataConverter;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -111,6 +110,8 @@ public class MongoDBConnectorDeserializationSchema implements DebeziumDeserializ
      */
     private final AppendMetadataCollector appendMetadataCollector;
 
+    private final MetricOption metricOption;
+
     private SourceMetricData sourceMetricData;
 
     public MongoDBConnectorDeserializationSchema(
@@ -124,8 +125,13 @@ public class MongoDBConnectorDeserializationSchema implements DebeziumDeserializ
         this.physicalConverter = createConverter(physicalDataType);
         this.resultTypeInfo = resultTypeInfo;
         this.localTimeZone = localTimeZone;
+        this.metricOption = metricOption;
+    }
+
+    @Override
+    public void open() {
         if (metricOption != null) {
-            this.sourceMetricData = new SourceMetricData(metricOption);
+            sourceMetricData = new SourceMetricData(metricOption);
         }
     }
 
@@ -151,7 +157,7 @@ public class MongoDBConnectorDeserializationSchema implements DebeziumDeserializ
             case DELETE:
                 GenericRowData delete = extractRowData(documentKey);
                 delete.setRowKind(RowKind.DELETE);
-                emit(record, delete, out);
+                emit(record, delete, sourceMetricData == null ? out : new MetricsCollector<>(out, sourceMetricData));
                 break;
             case UPDATE:
                 // It’s null if another operation deletes the document

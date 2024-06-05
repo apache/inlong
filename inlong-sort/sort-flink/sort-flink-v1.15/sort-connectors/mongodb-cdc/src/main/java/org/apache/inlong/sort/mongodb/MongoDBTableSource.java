@@ -18,11 +18,10 @@
 package org.apache.inlong.sort.mongodb;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.mongodb.source.MongoDBSource;
+import org.apache.inlong.sort.mongodb.source.MongoDBSourceBuilder;
 
-import com.ververica.cdc.connectors.mongodb.source.MongoDBSource;
-import com.ververica.cdc.connectors.mongodb.source.MongoDBSourceBuilder;
 import com.ververica.cdc.connectors.mongodb.table.MongoDBReadableMetadata;
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.table.MetadataConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -195,8 +194,8 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
 
             return SourceProvider.of(builder.build());
         } else {
-            com.ververica.cdc.connectors.mongodb.MongoDBSource.Builder<RowData> builder =
-                    com.ververica.cdc.connectors.mongodb.MongoDBSource.<RowData>builder()
+            org.apache.inlong.sort.mongodb.MongoDBSource.Builder<RowData> builder =
+                    org.apache.inlong.sort.mongodb.MongoDBSource.<RowData>builder()
                             .hosts(hosts)
                             .deserializer(deserializer);
 
