@@ -20,24 +20,10 @@ package org.apache.inlong.manager.pojo.sort.node;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.ClickHouseProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.DorisProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.ElasticsearchProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.GreenplumProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.HBaseProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.HDFSProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.HiveProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.HudiProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.IcebergProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.KafkaProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.KuduProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.MySQLProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.OracleProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.PostgreSQLProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.RedisProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.SQLServerProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.StarRocksProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.TDSQLPostgreSQLProvider;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,34 +31,15 @@ import java.util.List;
 /**
  * Factory of the load node provider.
  */
+@Service
+@Slf4j
 public class LoadNodeProviderFactory {
 
     /**
      * The load node provider collection
      */
-    private static final List<LoadNodeProvider> LOAD_NODE_PROVIDER_LIST = new ArrayList<>();
-
-    static {
-        // The Providers Parsing SinkInfo to LoadNode which sort needed
-        LOAD_NODE_PROVIDER_LIST.add(new KafkaProvider());
-        LOAD_NODE_PROVIDER_LIST.add(new ClickHouseProvider());
-        LOAD_NODE_PROVIDER_LIST.add(new DorisProvider());
-        LOAD_NODE_PROVIDER_LIST.add(new ElasticsearchProvider());
-        LOAD_NODE_PROVIDER_LIST.add(new GreenplumProvider());
-        LOAD_NODE_PROVIDER_LIST.add(new HBaseProvider());
-        LOAD_NODE_PROVIDER_LIST.add(new HDFSProvider());
-        LOAD_NODE_PROVIDER_LIST.add(new HiveProvider());
-        LOAD_NODE_PROVIDER_LIST.add(new HudiProvider());
-        LOAD_NODE_PROVIDER_LIST.add(new IcebergProvider());
-        LOAD_NODE_PROVIDER_LIST.add(new KuduProvider());
-        LOAD_NODE_PROVIDER_LIST.add(new MySQLProvider());
-        LOAD_NODE_PROVIDER_LIST.add(new OracleProvider());
-        LOAD_NODE_PROVIDER_LIST.add(new PostgreSQLProvider());
-        LOAD_NODE_PROVIDER_LIST.add(new RedisProvider());
-        LOAD_NODE_PROVIDER_LIST.add(new SQLServerProvider());
-        LOAD_NODE_PROVIDER_LIST.add(new StarRocksProvider());
-        LOAD_NODE_PROVIDER_LIST.add(new TDSQLPostgreSQLProvider());
-    }
+    @Autowired
+    private List<LoadNodeProvider> loadNodeProviderList = new ArrayList<>();
 
     /**
      * Get load node provider
@@ -80,8 +47,8 @@ public class LoadNodeProviderFactory {
      * @param sinkType the specified sink type
      * @return the load node provider
      */
-    public static LoadNodeProvider getLoadNodeProvider(String sinkType) {
-        return LOAD_NODE_PROVIDER_LIST.stream()
+    public LoadNodeProvider getLoadNodeProvider(String sinkType) {
+        return loadNodeProviderList.stream()
                 .filter(inst -> inst.accept(sinkType))
                 .findFirst()
                 .orElseThrow(() -> new BusinessException(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT,

@@ -20,17 +20,10 @@ package org.apache.inlong.manager.pojo.sort.node;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.HudiProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.IcebergProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.KafkaProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.MongoDBProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.MySQLBinlogProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.OracleProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.PostgreSQLProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.PulsarProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.RedisProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.SQLServerProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.TubeMqProvider;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,28 +31,15 @@ import java.util.List;
 /**
  * Factory of the extract node provider.
  */
+@Service
+@Slf4j
 public class ExtractNodeProviderFactory {
 
     /**
      * The extract node provider collection
      */
-    private static final List<ExtractNodeProvider> EXTRACT_NODE_PROVIDER_LIST = new ArrayList<>();
-
-    static {
-        // The Providers Parsing SourceInfo to ExtractNode which sort needed
-        EXTRACT_NODE_PROVIDER_LIST.add(new HudiProvider());
-        EXTRACT_NODE_PROVIDER_LIST.add(new KafkaProvider());
-        EXTRACT_NODE_PROVIDER_LIST.add(new MongoDBProvider());
-        EXTRACT_NODE_PROVIDER_LIST.add(new OracleProvider());
-        EXTRACT_NODE_PROVIDER_LIST.add(new PulsarProvider());
-        EXTRACT_NODE_PROVIDER_LIST.add(new RedisProvider());
-        EXTRACT_NODE_PROVIDER_LIST.add(new TubeMqProvider());
-        EXTRACT_NODE_PROVIDER_LIST.add(new SQLServerProvider());
-        EXTRACT_NODE_PROVIDER_LIST.add(new PostgreSQLProvider());
-        EXTRACT_NODE_PROVIDER_LIST.add(new MySQLBinlogProvider());
-        EXTRACT_NODE_PROVIDER_LIST.add(new IcebergProvider());
-
-    }
+    @Autowired
+    private List<ExtractNodeProvider> extractNodeProviderList = new ArrayList<>();
 
     /**
      * Get extract node provider
@@ -67,8 +47,8 @@ public class ExtractNodeProviderFactory {
      * @param sourceType the specified source type
      * @return the extract node provider
      */
-    public static ExtractNodeProvider getExtractNodeProvider(String sourceType) {
-        return EXTRACT_NODE_PROVIDER_LIST.stream()
+    public ExtractNodeProvider getExtractNodeProvider(String sourceType) {
+        return extractNodeProviderList.stream()
                 .filter(inst -> inst.accept(sourceType))
                 .findFirst()
                 .orElseThrow(() -> new BusinessException(ErrorCodeEnum.SOURCE_TYPE_NOT_SUPPORT,

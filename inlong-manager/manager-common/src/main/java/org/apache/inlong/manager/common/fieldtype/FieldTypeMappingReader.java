@@ -47,6 +47,11 @@ public class FieldTypeMappingReader implements Serializable {
     private static final String SOURCE_TO_TARGET_KEY = "source.type.to.target.type.converter";
 
     /**
+     * Stream type to target type key in converter file.
+     */
+    private static final String STREAM_TO_TARGET_KEY = "stream.type.to.target.type.converter";
+
+    /**
      * Field type mapping source type key
      */
     private static final String MAPPING_SOURCE_TYPE_KEY = "source.type";
@@ -59,7 +64,10 @@ public class FieldTypeMappingReader implements Serializable {
     @Getter
     protected final String streamType;
     @Getter
-    protected final Map<String, String> FIELD_TYPE_MAPPING_MAP = Maps.newHashMap();
+    protected final Map<String, String> streamToSinkFieldTypeMap = Maps.newHashMap();
+
+    @Getter
+    protected final Map<String, String> sourceToSinkFieldTypeMap = Maps.newHashMap();
 
     public FieldTypeMappingReader(String streamType) {
         this.streamType = streamType;
@@ -76,7 +84,8 @@ public class FieldTypeMappingReader implements Serializable {
             Yaml yamlReader = new Yaml();
             Map<?, ?> converterConf = yamlReader.loadAs(new InputStreamReader(
                     resource.openStream()), Map.class);
-            readerOption(converterConf, SOURCE_TO_TARGET_KEY, FIELD_TYPE_MAPPING_MAP);
+            readerOption(converterConf, SOURCE_TO_TARGET_KEY, sourceToSinkFieldTypeMap);
+            readerOption(converterConf, STREAM_TO_TARGET_KEY, streamToSinkFieldTypeMap);
         } catch (Exception e) {
             log.error("Yaml reader read option error", e);
             throw new RuntimeException(e);

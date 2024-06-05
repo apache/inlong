@@ -19,7 +19,7 @@ package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
-import org.apache.inlong.manager.common.fieldtype.strategy.MySQLFieldTypeStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeStrategyFactory;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSink;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkDTO;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
@@ -31,6 +31,8 @@ import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import com.google.common.collect.Lists;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -38,9 +40,11 @@ import java.util.Map;
 /**
  * The Provider for creating MySQL load nodes.
  */
+@Service
 public class MySQLProvider implements LoadNodeProvider {
 
-    private static final FieldTypeMappingStrategy FIELD_TYPE_MAPPING_STRATEGY = new MySQLFieldTypeStrategy();
+    @Autowired
+    private FieldTypeStrategyFactory fieldTypeStrategyFactory;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -51,8 +55,10 @@ public class MySQLProvider implements LoadNodeProvider {
     public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         MySQLSink mysqlSink = (MySQLSink) nodeInfo;
         Map<String, String> properties = parseProperties(mysqlSink.getProperties());
+        FieldTypeMappingStrategy fieldTypeMappingStrategy =
+                fieldTypeStrategyFactory.getInstance(mysqlSink.getSinkType());
         List<FieldInfo> fieldInfos = parseSinkFieldInfos(mysqlSink.getSinkFieldList(), mysqlSink.getSinkName(),
-                FIELD_TYPE_MAPPING_STRATEGY);
+                fieldTypeMappingStrategy);
         List<FieldRelation> fieldRelations = parseSinkFields(mysqlSink.getSinkFieldList(), constantFieldMap);
 
         return new MySqlLoadNode(

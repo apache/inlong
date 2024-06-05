@@ -45,6 +45,7 @@ import org.apache.inlong.sort.protocol.node.load.RedisLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,7 @@ import java.util.Map;
 /**
  * The Provider for creating Redis extract or load nodes.
  */
+@Service
 public class RedisProvider implements ExtractNodeProvider, LoadNodeProvider {
 
     @Override

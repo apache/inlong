@@ -32,6 +32,7 @@ import org.apache.inlong.sort.protocol.node.load.StarRocksLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,7 @@ import java.util.stream.Collectors;
  * The Provider for creating StarRocks load nodes.
  */
 @Slf4j
+@Service
 public class StarRocksProvider implements LoadNodeProvider {
 
     @Override

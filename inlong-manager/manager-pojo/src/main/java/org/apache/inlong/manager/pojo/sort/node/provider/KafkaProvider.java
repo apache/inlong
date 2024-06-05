@@ -42,6 +42,7 @@ import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import com.google.common.collect.Lists;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,7 @@ import java.util.Map;
 /**
  * The Provider for creating Kafka extract or load nodes.
  */
+@Service
 public class KafkaProvider implements ExtractNodeProvider, LoadNodeProvider {
 
     @Override

@@ -73,7 +73,7 @@ public class FieldInfoUtils {
         boolean isMetaField = sinkField.getIsMetaField() == 1;
         String fieldType = sinkField.getFieldType();
         if (Objects.nonNull(fieldTypeMappingStrategy)) {
-            fieldType = fieldTypeMappingStrategy.getFieldTypeMapping(fieldType);
+            fieldType = fieldTypeMappingStrategy.getSourceToSinkFieldTypeMapping(fieldType);
         }
 
         FieldInfo fieldInfo = getFieldInfo(sinkField.getFieldName(),
@@ -88,7 +88,7 @@ public class FieldInfoUtils {
         boolean isMetaField = streamField.getIsMetaField() == 1;
         String fieldType = streamField.getFieldType();
         if (Objects.nonNull(fieldTypeMappingStrategy)) {
-            fieldType = fieldTypeMappingStrategy.getFieldTypeMapping(fieldType);
+            fieldType = fieldTypeMappingStrategy.getSourceToSinkFieldTypeMapping(fieldType);
         }
 
         FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), fieldType,
@@ -106,7 +106,7 @@ public class FieldInfoUtils {
         boolean isMetaField = streamField.getIsMetaField() == 1;
         String fieldType = streamField.getFieldType();
         if (Objects.nonNull(fieldTypeMappingStrategy)) {
-            fieldType = fieldTypeMappingStrategy.getFieldTypeMapping(fieldType);
+            fieldType = fieldTypeMappingStrategy.getSourceToSinkFieldTypeMapping(fieldType);
         }
 
         FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), fieldType,

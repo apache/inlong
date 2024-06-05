@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.common.fieldtype.strategy.ClickHouseFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeStrategyFactory;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
 import org.apache.inlong.manager.pojo.stream.StreamField;
@@ -29,15 +29,20 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Map;
 
 /**
  * The Provider for creating ClickHouse load nodes.
  */
+@Service
 public class ClickHouseProvider implements LoadNodeProvider {
 
-    private static final FieldTypeMappingStrategy FIELD_TYPE_MAPPING_STRATEGY = new ClickHouseFieldTypeStrategy();
+    @Autowired
+    private FieldTypeStrategyFactory fieldTypeStrategyFactory;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -48,8 +53,10 @@ public class ClickHouseProvider implements LoadNodeProvider {
     public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         ClickHouseSink streamSink = (ClickHouseSink) nodeInfo;
         Map<String, String> properties = parseProperties(streamSink.getProperties());
-        List<FieldInfo> fieldInfos = parseSinkFieldInfos(streamSink.getSinkFieldList(), streamSink.getSinkName(),
-                FIELD_TYPE_MAPPING_STRATEGY);
+        FieldTypeMappingStrategy fieldTypeMappingStrategy =
+                fieldTypeStrategyFactory.getInstance((streamSink.getSinkType()));
+        List<FieldInfo> fieldInfos =
+                parseSinkFieldInfos(streamSink.getSinkFieldList(), streamSink.getSinkName(), fieldTypeMappingStrategy);
         List<FieldRelation> fieldRelations = parseSinkFields(streamSink.getSinkFieldList(), constantFieldMap);
         return new ClickHouseLoadNode(
                 streamSink.getSinkName(),

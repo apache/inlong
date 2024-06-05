@@ -21,6 +21,7 @@ import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.fieldtype.FieldTypeMappingReader;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +31,8 @@ import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACK
 /**
  * The ClickHouse field type mapping strategy
  */
-public class ClickHouseFieldTypeStrategy implements FieldTypeMappingStrategy {
+@Service
+public class ClickHouseFieldTypeStrategy extends DefaultFieldTypeStrategy {
 
     private final FieldTypeMappingReader reader;
 
@@ -43,7 +45,12 @@ public class ClickHouseFieldTypeStrategy implements FieldTypeMappingStrategy {
     }
 
     @Override
-    public String getFieldTypeMapping(String sourceType) {
+    public Boolean accept(String type) {
+        return DataNodeType.CLICKHOUSE.equals(type);
+    }
+
+    @Override
+    public String getSourceToSinkFieldTypeMapping(String sourceType) {
         // support clickHouse field type special modifier Nullable
         if (StringUtils.isNotBlank(sourceType)) {
             Matcher matcher = PATTERN.matcher(sourceType.toUpperCase());
@@ -53,6 +60,6 @@ public class ClickHouseFieldTypeStrategy implements FieldTypeMappingStrategy {
             }
         }
         String dataType = StringUtils.substringBefore(sourceType, LEFT_BRACKET).toUpperCase();
-        return reader.getFIELD_TYPE_MAPPING_MAP().getOrDefault(dataType, sourceType.toUpperCase());
+        return reader.getSourceToSinkFieldTypeMap().getOrDefault(dataType, sourceType.toUpperCase());
     }
 }

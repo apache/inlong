@@ -30,7 +30,7 @@ import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
 import org.apache.inlong.sort.protocol.node.format.Format;
 
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 /**
  * The Provider for creating Pulsar extract nodes.
  */
+@Service
 public class PulsarProvider implements ExtractNodeProvider {
 
     @Override
@@ -64,9 +65,7 @@ public class PulsarProvider implements ExtractNodeProvider {
         final String primaryKey = pulsarSource.getPrimaryKey();
         final String serviceUrl = pulsarSource.getServiceUrl();
         final String adminUrl = pulsarSource.getAdminUrl();
-        final String scanStartupSubStartOffset =
-                StringUtils.isNotBlank(pulsarSource.getSubscription()) ? PulsarScanStartupMode.EARLIEST.getValue()
-                        : null;
+        final String scanStartupSubStartOffset = null;
 
         return new PulsarExtractNode(pulsarSource.getSourceName(),
                 pulsarSource.getSourceName(),
