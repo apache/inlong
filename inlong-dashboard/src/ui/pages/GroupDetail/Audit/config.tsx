@@ -211,8 +211,10 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
     label: i18n.t('pages.GroupDetail.Audit.Item'),
     name: 'auditIds',
     props: {
+      style: {
+        width: 200,
+      },
       mode: 'multiple',
-      maxTagCount: 3,
       allowClear: true,
       showSearch: true,
       dropdownMatchSelectWidth: false,
@@ -225,7 +227,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
         requestParams: {
           formatResult: result =>
             result?.map(item => ({
-              label: item.name,
+              label: item.nameInChinese,
               value: item.auditId,
             })) || [],
         },

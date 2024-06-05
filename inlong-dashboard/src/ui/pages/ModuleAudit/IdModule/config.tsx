@@ -147,7 +147,7 @@ export const getFormContent = (initialValues, onSearch) => [
         requestParams: {
           formatResult: result =>
             result?.map(item => ({
-              label: item.name,
+              label: item.nameInChinese,
               value: item.auditId,
             })) || [],
         },
@@ -172,7 +172,7 @@ export const getFormContent = (initialValues, onSearch) => [
         requestParams: {
           formatResult: result =>
             result?.map(item => ({
-              label: item.name,
+              label: item.nameInChinese,
               value: item.auditId,
             })) || [],
         },
