@@ -18,7 +18,6 @@
 package org.apache.inlong.audit.send;
 
 import org.apache.inlong.audit.util.AuditConfig;
-import org.apache.inlong.audit.util.RequestIdUtils;
 
 import org.junit.Test;
 
@@ -27,19 +26,6 @@ import static org.junit.Assert.assertTrue;
 public class SenderManagerTest {
 
     private AuditConfig testConfig = new AuditConfig();
-
-    @Test
-    public void nextRequestId() {
-        SenderManager testManager = new SenderManager(testConfig);
-        Long requestId = RequestIdUtils.nextRequestId();
-        assertTrue(requestId == 0);
-
-        requestId = RequestIdUtils.nextRequestId();
-        assertTrue(requestId == 1);
-
-        requestId = RequestIdUtils.nextRequestId();
-        assertTrue(requestId == 2);
-    }
 
     @Test
     public void clearBuffer() {

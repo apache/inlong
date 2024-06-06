@@ -25,6 +25,14 @@ public class RequestIdUtilsTest {
 
     @Test
     public void testNextRequestId() {
-        assertTrue(RequestIdUtils.nextRequestId() < RequestIdUtils.nextRequestId());
+
+        Long requestId = RequestIdUtils.nextRequestId();
+        assertTrue(requestId == 0);
+
+        requestId = RequestIdUtils.nextRequestId();
+        assertTrue(requestId == 1);
+
+        requestId = RequestIdUtils.nextRequestId();
+        assertTrue(requestId == 2);
     }
 }
