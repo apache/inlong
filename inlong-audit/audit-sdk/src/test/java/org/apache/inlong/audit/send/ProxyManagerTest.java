@@ -38,7 +38,7 @@ public class ProxyManagerTest {
         ProxyManager.getInstance().setAuditProxy(ipPortList);
         InetSocketAddress inetSocketAddress = ProxyManager.getInstance().getInetSocketAddress();
         assertEquals(10081, inetSocketAddress.getPort());
-        assertTrue(inetSocketAddress.getHostName().startsWith("172.0.0.")
-                && inetSocketAddress.getHostName().length() == 9);
+        assertTrue(inetSocketAddress.getAddress().getHostAddress().startsWith("172.0.0.")
+                && inetSocketAddress.getAddress().getHostAddress().length() == 9);
     }
 }
