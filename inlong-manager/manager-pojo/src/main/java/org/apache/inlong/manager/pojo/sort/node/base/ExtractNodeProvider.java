@@ -32,6 +32,7 @@ import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
+import org.apache.inlong.sort.protocol.node.format.KvFormat;
 import org.apache.inlong.sort.protocol.node.format.RawFormat;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -90,8 +91,10 @@ public interface ExtractNodeProvider extends NodeProvider {
      * Parse format
      *
      * @param serializationType data serialization, support: csv, json, canal, avro, etc
-     * @param wrapWithInlongMsg whether wrap content with {@link InLongMsgFormat}
+     * @param wrapType whether wrap content with {@link InLongMsgFormat}
      * @param separatorStr the separator of data content
+     * @param kvSeparatorStr the kv separator
+     * @param escapeCharStr the escape char
      * @param ignoreParseErrors whether ignore deserialization error data
      * @return the format for serialized content
      */
@@ -99,6 +102,8 @@ public interface ExtractNodeProvider extends NodeProvider {
             String serializationType,
             String wrapType,
             String separatorStr,
+            String kvSeparatorStr,
+            String escapeCharStr,
             Boolean ignoreParseErrors) {
         Format format;
         DataTypeEnum dataType = DataTypeEnum.forType(serializationType);
@@ -130,6 +135,21 @@ public interface ExtractNodeProvider extends NodeProvider {
                 break;
             case RAW:
                 format = new RawFormat();
+                break;
+            case KV:
+                if (StringUtils.isNumeric(separatorStr)) {
+                    char dataSeparator = (char) Integer.parseInt(separatorStr);
+                    separatorStr = Character.toString(dataSeparator);
+                }
+                if (StringUtils.isNumeric(kvSeparatorStr)) {
+                    char kvDataSeparator = (char) Integer.parseInt(kvSeparatorStr);
+                    kvSeparatorStr = Character.toString(kvDataSeparator);
+                }
+                if (StringUtils.isNumeric(escapeCharStr)) {
+                    char escapeChar = (char) Integer.parseInt(escapeCharStr);
+                    escapeCharStr = Character.toString(escapeChar);
+                }
+                format = new KvFormat(separatorStr, kvSeparatorStr, escapeCharStr, ignoreParseErrors, null, null, null);
                 break;
             default:
                 throw new IllegalArgumentException(String.format("Unsupported dataType=%s", dataType));

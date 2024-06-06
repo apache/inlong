@@ -73,6 +73,9 @@ public class PulsarSource extends StreamSource {
     @ApiModelProperty(value = "Data separator")
     private String dataSeparator;
 
+    @ApiModelProperty(value = "Kv separator")
+    private String kvSeparator;
+
     @ApiModelProperty(value = "Data field escape symbol")
     private String dataEscapeChar;
 

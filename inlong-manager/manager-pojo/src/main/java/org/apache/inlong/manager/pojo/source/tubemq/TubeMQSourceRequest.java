@@ -51,8 +51,17 @@ public class TubeMQSourceRequest extends SourceRequest {
     @ApiModelProperty("Session key of the TubeMQ")
     private String sessionKey;
 
+    @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
+    private String dataEncoding;
+
     @ApiModelProperty(value = "Data separator")
     private String dataSeparator;
+
+    @ApiModelProperty(value = "Kv separator")
+    private String kvSeparator;
+
+    @ApiModelProperty(value = "Data field escape symbol")
+    private String dataEscapeChar;
 
     @ApiModelProperty(value = "The message body wrap  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
     private String wrapType;

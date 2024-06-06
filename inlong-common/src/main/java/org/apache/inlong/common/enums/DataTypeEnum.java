@@ -25,6 +25,7 @@ import java.util.Locale;
 public enum DataTypeEnum {
 
     CSV("csv"),
+    KV("kv"),
     AVRO("avro"),
     JSON("json"),
     CANAL("canal"),
