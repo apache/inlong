@@ -20,6 +20,7 @@ package org.apache.inlong.sort.protocol.node.format;
 import lombok.Data;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -62,11 +63,11 @@ public class KvFormat implements Format {
 
     @JsonProperty(value = "nullLiteral")
     @Nullable
-    private final String NULL_LITERAL;
+    private final String nullLiteral;
 
     @JsonProperty(value = "quoteCharacter")
     @Nullable
-    private final String QUOTE_CHARACTER;
+    private final String quoteCharacter;
 
     @JsonCreator
     public KvFormat(@JsonProperty(value = "entryDelimiter") String entryDelimiter,
@@ -81,11 +82,16 @@ public class KvFormat implements Format {
         this.escapeChar = escapeChar;
         this.ignoreParseErrors = ignoreParseErrors;
         this.charset = charset;
-        this.NULL_LITERAL = nullLiteral;
-        this.QUOTE_CHARACTER = quoteCharacter;
+        this.nullLiteral = nullLiteral;
+        this.quoteCharacter = quoteCharacter;
+    }
+
+    public KvFormat() {
+        this("&", "=", null, "false", null, null, null);
     }
 
     @Override
+    @JsonIgnore
     public String getFormat() {
         return IDENTIFIER;
     }
@@ -106,11 +112,11 @@ public class KvFormat implements Format {
         if (ObjectUtils.isNotEmpty(this.charset)) {
             options.put(FORMAT_CHARSET, this.charset);
         }
-        if (ObjectUtils.isNotEmpty(this.NULL_LITERAL)) {
-            options.put(FORMAT_NULL_LITERAL, this.NULL_LITERAL);
+        if (ObjectUtils.isNotEmpty(this.nullLiteral)) {
+            options.put(FORMAT_NULL_LITERAL, this.nullLiteral);
         }
-        if (ObjectUtils.isNotEmpty(this.QUOTE_CHARACTER)) {
-            options.put(FORMAT_QUOTE_CHARACTER, this.QUOTE_CHARACTER);
+        if (ObjectUtils.isNotEmpty(this.quoteCharacter)) {
+            options.put(FORMAT_QUOTE_CHARACTER, this.quoteCharacter);
         }
         if (ObjectUtils.isNotEmpty(this.escapeChar)) {
             options.put(FORMAT_ESCAPE_CHARACTER, this.escapeChar);
