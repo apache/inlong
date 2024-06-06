@@ -86,7 +86,7 @@ public class OpenInLongGroupController {
     public Response<String> save(@Validated(SaveValidation.class) @RequestBody InlongGroupRequest groupRequest) {
         Preconditions.expectNotNull(groupRequest, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(groupService.save(groupRequest, LoginUserUtils.getLoginUser()));
+        return Response.success(groupService.save(groupRequest, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/group/batchSave", method = RequestMethod.POST)
@@ -104,7 +104,7 @@ public class OpenInLongGroupController {
     public Response<String> update(@Validated(UpdateValidation.class) @RequestBody InlongGroupRequest groupRequest) {
         Preconditions.expectNotNull(groupRequest, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(groupService.update(groupRequest, LoginUserUtils.getLoginUser()));
+        return Response.success(groupService.update(groupRequest, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/group/delete/{groupId}", method = RequestMethod.DELETE)

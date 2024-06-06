@@ -53,16 +53,6 @@ public interface InlongGroupService {
             String operator);
 
     /**
-     * Save inlong group info.
-     *
-     * @param groupInfo group request need to save
-     * @param opInfo userinfo of operator
-     * @return detail of inlong group
-     */
-    String save(@Valid @NotNull(message = "inlong group request cannot be null") InlongGroupRequest groupInfo,
-            UserInfo opInfo);
-
-    /**
      * Batch save inlong group info.
      *
      * @param groupRequestList group request list need to save
@@ -156,16 +146,6 @@ public interface InlongGroupService {
      */
     String update(@Valid @NotNull(message = "inlong group request cannot be null") InlongGroupRequest request,
             String operator);
-
-    /**
-     * Modify group information
-     *
-     * @param request inlong group request that needs to be modified
-     * @param opInfo userinfo of operator
-     * @return inlong group id
-     */
-    String update(@Valid @NotNull(message = "inlong group request cannot be null") InlongGroupRequest request,
-            UserInfo opInfo);
 
     /**
      * Modify the status of the specified group

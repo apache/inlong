@@ -214,25 +214,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public String save(InlongGroupRequest request, UserInfo opInfo) {
-        String groupId = request.getInlongGroupId();
-        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
-        if (entity != null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_DUPLICATE);
-        }
-        if (request.getEnableZookeeper() == null) {
-            request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
-        }
-
-        InlongGroupOperator instance = groupOperatorFactory.getInstance(request.getMqType());
-        groupId = instance.saveOpt(request, opInfo.getName());
-        // save ext info
-        this.saveOrUpdateExt(groupId, request.getExtList());
-        return groupId;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class)
     public List<BatchResult> batchSave(List<InlongGroupRequest> groupRequestList, String operator) {
         List<BatchResult> resultList = new ArrayList<>();
         for (InlongGroupRequest groupRequest : groupRequestList) {
@@ -497,38 +478,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         this.saveOrUpdateExt(groupId, request.getExtList());
 
         LOGGER.info("success to update inlong group for groupId={} by user={}", groupId, operator);
-        return groupId;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
-    public String update(InlongGroupRequest request, UserInfo opInfo) {
-        String groupId = request.getInlongGroupId();
-        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
-        if (entity == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
-        }
-        chkUnmodifiableParams(entity, request);
-        // check whether the current status supports modification
-        GroupStatus curStatus = GroupStatus.forCode(entity.getStatus());
-        if (GroupStatus.notAllowedUpdate(curStatus)) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED,
-                    String.format("Current status=%s is not allowed to update", curStatus));
-        }
-        // mq type cannot be changed
-        if (!entity.getMqType().equals(request.getMqType()) && !GroupStatus.allowedUpdateMQ(curStatus)) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED,
-                    String.format("Current status=%s is not allowed to update MQ type", curStatus));
-        }
-        // update record
-        if (request.getEnableZookeeper() == null) {
-            request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
-        }
-
-        InlongGroupOperator instance = groupOperatorFactory.getInstance(request.getMqType());
-        instance.updateOpt(request, opInfo.getName());
-        // save ext info
-        this.saveOrUpdateExt(groupId, request.getExtList());
         return groupId;
     }
 
