@@ -20,12 +20,7 @@ package org.apache.inlong.audit.send;
 import org.apache.inlong.audit.protocol.AuditApi;
 import org.apache.inlong.audit.util.AuditConfig;
 import org.apache.inlong.audit.util.AuditData;
-import org.apache.inlong.audit.util.SenderResult;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,147 +28,161 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Audit sender manager
  */
 public class SenderManager {
 
-    public static final Long MAX_REQUEST_ID = 1000000000L;
-    public static final int ALL_CONNECT_CHANNEL = -1;
-    public static final int DEFAULT_CONNECT_CHANNEL = 2;
-    public static final Logger LOG = LoggerFactory.getLogger(SenderManager.class);
-    private static final int SEND_INTERVAL_MS = 20;
-    private final SecureRandom sRandom = new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes());
-    private final AtomicLong requestIdSeq = new AtomicLong(0L);
-    private final ConcurrentHashMap<Long, AuditData> dataMap = new ConcurrentHashMap<>();
-    private final LinkedBlockingQueue<Long> requestIdQueue = new LinkedBlockingQueue<>();
-
-    private SenderGroup sender;
-    private int maxConnectChannels = ALL_CONNECT_CHANNEL;
-    // IPList
-    private List<String> currentIpPorts = new ArrayList<>();
+    private static final Logger LOGGER = LoggerFactory.getLogger(SenderManager.class);
+    private static final int SEND_INTERVAL_MS = 100;
+    private final ConcurrentHashMap<Long, AuditData> failedDataMap = new ConcurrentHashMap<>();
     private AuditConfig auditConfig;
-    private long lastCheckTime = System.currentTimeMillis();
+    private Socket socket = new Socket();
+    private static final int PACKAGE_HEADER_LEN = 4;
+    private static final int MAX_RESPONSE_LENGTH = 32 * 1024;
 
-    /**
-     * Constructor
-     */
     public SenderManager(AuditConfig config) {
-        this(config, DEFAULT_CONNECT_CHANNEL);
+        auditConfig = config;
     }
 
-    /**
-     * Constructor
-     */
-    public SenderManager(AuditConfig config, int maxConnectChannels) {
-        try {
-            this.auditConfig = config;
-            this.maxConnectChannels = maxConnectChannels;
-            this.sender = new SenderGroup(this);
-        } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex);
-        }
-    }
-
-    /**
-     * update config
-     */
-    public void setAuditProxy(HashSet<String> ipPortList) {
-        if (ipPortList.equals(currentIpPorts) && !this.sender.isHasSendError()) {
+    public void closeSocket() {
+        if (socket.isClosed()) {
+            LOGGER.info("Audit socket is already closed");
             return;
         }
-        this.sender.setHasSendError(false);
-        List<String> newIpPorts = new ArrayList<>();
-        newIpPorts.addAll(ipPortList);
-        this.currentIpPorts = newIpPorts;
-        int ipSize = ipPortList.size();
-        int needNewSize;
-        if (this.maxConnectChannels == ALL_CONNECT_CHANNEL || this.maxConnectChannels >= ipSize) {
-            needNewSize = ipSize;
-        } else {
-            needNewSize = maxConnectChannels;
-        }
-
-        List<String> updateConfigIpLists = new ArrayList<>();
-        List<String> availableIpLists = new ArrayList<>(ipPortList);
-        for (int i = 0; i < needNewSize; i++) {
-            int availableIpSize = availableIpLists.size();
-            int newIpPortIndex = this.sRandom.nextInt(availableIpSize);
-            String ipPort = availableIpLists.remove(newIpPortIndex);
-            updateConfigIpLists.add(ipPort);
-        }
-        LOG.info("needNewSize:{},updateConfigIpLists:{}", needNewSize, updateConfigIpLists);
-        if (updateConfigIpLists.size() > 0) {
-            this.sender.updateConfig(updateConfigIpLists);
+        try {
+            socket.close();
+            LOGGER.info("Audit socket closed successfully");
+        } catch (IOException exception) {
+            LOGGER.error("Error closing audit socket", exception);
         }
     }
 
-    /**
-     * next request id
-     */
-    public Long nextRequestId() {
-        long requestId = requestIdSeq.getAndIncrement();
-        if (requestId > MAX_REQUEST_ID) {
-            requestId = 0L;
-            requestIdSeq.set(requestId);
+    public boolean checkSocket() {
+        if (socket.isClosed() || !socket.isConnected()) {
+            try {
+                InetSocketAddress inetSocketAddress = ProxyManager.getInstance().getInetSocketAddress();
+                if (inetSocketAddress == null) {
+                    LOGGER.error("Audit inet socket address is null!");
+                    return false;
+                }
+                reconnect(inetSocketAddress, auditConfig.getSocketTimeout());
+            } catch (IOException exception) {
+                LOGGER.error("Connect to {} has exception!", socket.getInetAddress(), exception);
+                return false;
+            }
         }
-        return requestId;
+        return socket.isConnected();
+    }
+
+    private void reconnect(InetSocketAddress inetSocketAddress, int timeout)
+            throws IOException {
+        socket = new Socket();
+        socket.connect(inetSocketAddress, timeout);
+        socket.setSoTimeout(timeout);
     }
 
     /**
      * Send data with command
      */
-    public void send(AuditApi.BaseCommand baseCommand, AuditApi.AuditRequest auditRequest) {
+    public boolean send(AuditApi.BaseCommand baseCommand, AuditApi.AuditRequest auditRequest) {
         AuditData data = new AuditData(baseCommand, auditRequest);
-        // cache first
-        Long requestId = baseCommand.getAuditRequest().getRequestId();
-        this.dataMap.putIfAbsent(requestId, data);
-        this.sendData(data.getDataByte());
+        for (int retry = 0; retry < auditConfig.getRetryTimes(); retry++) {
+            if (sendData(data.getDataByte())) {
+                return true;
+            }
+            LOGGER.warn("Failed to send data on attempt {}. Retrying...", retry + 1);
+            sleep();
+        }
+
+        LOGGER.error("Failed to send data after {} attempts. Storing data for later retry.",
+                auditConfig.getRetryTimes());
+        failedDataMap.putIfAbsent(baseCommand.getAuditRequest().getRequestId(), data);
+        return false;
+    }
+
+    private void readFully(InputStream is, byte[] buffer, int len) throws IOException {
+        int bytesRead;
+        int totalBytesRead = 0;
+        while (totalBytesRead < len
+                && (bytesRead = is.read(buffer, totalBytesRead, len - totalBytesRead)) != -1) {
+            totalBytesRead += bytesRead;
+        }
     }
 
     /**
      * Send data byte array
      */
-    private void sendData(byte[] data) {
-        if (data == null || data.length <= 0) {
-            LOG.warn("send data is empty!");
-            return;
+    private boolean sendData(byte[] data) {
+        if (data == null || data.length == 0) {
+            LOGGER.warn("Send data is empty!");
+            return false;
         }
-        ByteBuf dataBuf = ByteBufAllocator.DEFAULT.buffer(data.length);
-        dataBuf.writeBytes(data);
-        SenderResult result = this.sender.send(dataBuf);
-        if (!result.result) {
-            this.sender.setHasSendError(true);
+        if (!checkSocket()) {
+            return false;
+        }
+        try {
+            OutputStream outputStream = socket.getOutputStream();
+            InputStream inputStream = socket.getInputStream();
+
+            outputStream.write(data);
+
+            byte[] header = new byte[PACKAGE_HEADER_LEN];
+            readFully(inputStream, header, PACKAGE_HEADER_LEN);
+
+            int bodyLen = ((header[0] & 0xFF) << 24) |
+                    ((header[1] & 0xFF) << 16) |
+                    ((header[2] & 0xFF) << 8) |
+                    (header[3] & 0xFF);
+
+            if (bodyLen > MAX_RESPONSE_LENGTH) {
+                closeSocket();
+                return false;
+            }
+
+            byte[] body = new byte[bodyLen];
+            readFully(inputStream, body, bodyLen);
+
+            AuditApi.BaseCommand reply = AuditApi.BaseCommand.parseFrom(body);
+            return AuditApi.AuditReply.RSP_CODE.SUCCESS.equals(reply.getAuditReply().getRspCode());
+        } catch (IOException exception) {
+            closeSocket();
+            LOGGER.error("Send audit data to proxy has exception!", exception);
+            return false;
         }
     }
 
     /**
      * Clean up the backlog of unsent message packets
      */
-    public void clearBuffer() {
-        LOG.info("Audit failed cache size: {}", this.dataMap.size());
-        for (AuditData data : this.dataMap.values()) {
-            this.sendData(data.getDataByte());
-            this.sleep();
+    public void checkFailedData() {
+        LOGGER.info("Audit failed cache size: {}", failedDataMap.size());
+
+        Iterator<Map.Entry<Long, AuditData>> iterator = failedDataMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Long, AuditData> entry = iterator.next();
+            if (sendData(entry.getValue().getDataByte())) {
+                iterator.remove();
+                sleep();
+            }
         }
-        if (this.dataMap.size() == 0) {
+        if (failedDataMap.isEmpty()) {
             checkAuditFile();
         }
-        if (this.dataMap.size() > auditConfig.getMaxCacheRow()) {
-            LOG.info("failed cache size: {}>{}", this.dataMap.size(), auditConfig.getMaxCacheRow());
+        if (failedDataMap.size() > auditConfig.getMaxCacheRow()) {
+            LOGGER.info("Failed cache size: {} > {}", failedDataMap.size(), auditConfig.getMaxCacheRow());
             writeLocalFile();
-            this.dataMap.clear();
+            failedDataMap.clear();
         }
     }
 
@@ -181,29 +190,37 @@ public class SenderManager {
      * write local file
      */
     private void writeLocalFile() {
+        if (!checkFilePath()) {
+            LOGGER.error("{} is not exist!", auditConfig.getFilePath());
+            return;
+        }
+
+        File file = new File(auditConfig.getDisasterFile());
+
         try {
-            if (!checkFilePath()) {
-                return;
-            }
-            File file = new File(auditConfig.getDisasterFile());
-            if (!file.exists()) {
+            if (file.exists()) {
+                if (file.length() > auditConfig.getMaxFileSize()) {
+                    if (!file.delete()) {
+                        LOGGER.error("Failed to delete file: {}", file.getAbsolutePath());
+                        return;
+                    }
+                    LOGGER.info("Deleted file due to exceeding max file size: {}", file.getAbsolutePath());
+                }
+            } else {
                 if (!file.createNewFile()) {
-                    LOG.error("create file {} failed", auditConfig.getDisasterFile());
+                    LOGGER.error("Failed to create file: {}", file.getAbsolutePath());
                     return;
                 }
-                LOG.info("create file {} success", auditConfig.getDisasterFile());
+                LOGGER.info("Created file: {}", file.getAbsolutePath());
             }
-            if (file.length() > auditConfig.getMaxFileSize()) {
-                file.delete();
-                return;
+
+            try (FileOutputStream fos = new FileOutputStream(file);
+                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(fos)) {
+
+                objectOutputStream.writeObject(failedDataMap);
             }
-            FileOutputStream fos = new FileOutputStream(file);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fos);
-            objectOutputStream.writeObject(dataMap);
-            objectOutputStream.close();
-            fos.close();
         } catch (IOException e) {
-            LOG.error("write local file error:{}", e.getMessage(), e);
+            LOGGER.error("Error writing to local file: {}", e.getMessage(), e);
         }
     }
 
@@ -214,9 +231,10 @@ public class SenderManager {
         File file = new File(auditConfig.getFilePath());
         if (!file.exists()) {
             if (!file.mkdirs()) {
+                LOGGER.error("Create file {} failed!", auditConfig.getFilePath());
                 return false;
             }
-            LOG.info("create file {} success", auditConfig.getFilePath());
+            LOGGER.info("Create file {} success", auditConfig.getFilePath());
         }
         return true;
     }
@@ -225,27 +243,30 @@ public class SenderManager {
      * check audit file
      */
     private void checkAuditFile() {
-        try {
-            File file = new File(auditConfig.getDisasterFile());
-            if (!file.exists()) {
-                return;
-            }
-            FileInputStream inputStream = new FileInputStream(auditConfig.getDisasterFile());
-            ObjectInputStream objectStream = new ObjectInputStream(inputStream);
+        File file = new File(auditConfig.getDisasterFile());
+        if (!file.exists()) {
+            return;
+        }
+
+        try (FileInputStream inputStream = new FileInputStream(file);
+                ObjectInputStream objectStream = new ObjectInputStream(inputStream)) {
+
             ConcurrentHashMap<Long, AuditData> fileData = (ConcurrentHashMap<Long, AuditData>) objectStream
                     .readObject();
+
             for (Map.Entry<Long, AuditData> entry : fileData.entrySet()) {
-                if (this.dataMap.size() < (auditConfig.getMaxCacheRow() / 2)) {
-                    this.dataMap.putIfAbsent(entry.getKey(), entry.getValue());
+                if (failedDataMap.size() < (auditConfig.getMaxCacheRow() / 2)) {
+                    failedDataMap.putIfAbsent(entry.getKey(), entry.getValue());
                 }
-                this.sendData(entry.getValue().getDataByte());
-                this.sleep();
+                sendData(entry.getValue().getDataByte());
+                sleep();
             }
-            objectStream.close();
-            inputStream.close();
-            file.delete();
         } catch (IOException | ClassNotFoundException e) {
-            LOG.error("check audit file error:{}", e.getMessage(), e);
+            LOGGER.error("check audit file error:{}", e.getMessage(), e);
+        } finally {
+            if (!file.delete()) {
+                LOGGER.error("Failed to delete file: {}", file.getAbsolutePath());
+            }
         }
     }
 
@@ -253,60 +274,7 @@ public class SenderManager {
      * get data map size
      */
     public int getDataMapSize() {
-        return this.dataMap.size();
-    }
-
-    /**
-     * processing return package
-     */
-    public void onMessageReceived(ChannelHandlerContext ctx, byte[] msg) {
-        if (null == msg) {
-            return;
-        }
-        try {
-            // Analyze abnormal events
-            AuditApi.BaseCommand baseCommand = AuditApi.BaseCommand.parseFrom(msg);
-            // Parse request id
-            Long requestId = baseCommand.getAuditReply().getRequestId();
-            AuditData data = this.dataMap.get(requestId);
-            if (data == null) {
-                LOG.error("Can not find the request id onMessageReceived {},message: {}",
-                        requestId, baseCommand.getAuditReply().getMessage());
-                if (LOG.isDebugEnabled()) {
-                    for (Map.Entry<Long, AuditData> entry : this.dataMap.entrySet()) {
-                        LOG.debug("Data map key:{}, request id:{}", entry.getKey(), requestId);
-                    }
-                }
-                return;
-            }
-            // Check audit-proxy response code
-            LOG.info("Audit-proxy response code: {}", baseCommand.getAuditReply().getRspCode());
-            if (AuditApi.AuditReply.RSP_CODE.SUCCESS.equals(baseCommand.getAuditReply().getRspCode())) {
-                this.dataMap.remove(requestId);
-                return;
-            }
-            LOG.error("Audit-proxy has error response! code={}, message={}",
-                    baseCommand.getAuditReply().getRspCode(), baseCommand.getAuditReply().getMessage());
-
-            if (data.increaseResendTimes() < SenderGroup.MAX_SEND_TIMES) {
-                this.sendData(data.getDataByte());
-            }
-        } catch (Throwable ex) {
-            LOG.error("Receive Message exception:{}", ex.getMessage(), ex);
-            this.sender.setHasSendError(true);
-        }
-    }
-
-    /**
-     * Handle the packet return exception
-     */
-    public void onExceptionCaught(ChannelHandlerContext ctx, Throwable e) {
-        LOG.error("channel context " + ctx + " occurred exception: ", e);
-        try {
-            this.sender.setHasSendError(true);
-        } catch (Throwable ex) {
-            LOG.error("setHasSendError error:{}", ex.getMessage(), ex);
-        }
+        return this.failedDataMap.size();
     }
 
     /**
@@ -316,7 +284,7 @@ public class SenderManager {
         try {
             Thread.sleep(SEND_INTERVAL_MS);
         } catch (Throwable ex) {
-            LOG.error("sleep error:{}", ex.getMessage(), ex);
+            LOGGER.error("sleep error:{}", ex.getMessage(), ex);
         }
     }
 
@@ -326,18 +294,4 @@ public class SenderManager {
     public void setAuditConfig(AuditConfig config) {
         auditConfig = config;
     }
-
-    public void release(Channel channel) {
-        this.sender.release(channel);
-    }
-
-    /**
-     * get dataMap
-     *
-     * @return the dataMap
-     */
-    public ConcurrentHashMap<Long, AuditData> getDataMap() {
-        return dataMap;
-    }
-
 }

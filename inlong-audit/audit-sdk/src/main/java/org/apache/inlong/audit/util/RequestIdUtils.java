@@ -15,23 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.send;
+package org.apache.inlong.audit.util;
 
-import org.apache.inlong.audit.util.AuditConfig;
+import java.util.concurrent.atomic.AtomicLong;
 
-import org.junit.Test;
+public class RequestIdUtils {
 
-import static org.junit.Assert.assertTrue;
+    private static final Long MAX_REQUEST_ID = 1000000000L;
+    private static final AtomicLong requestIdSeq = new AtomicLong(0L);
 
-public class SenderManagerTest {
-
-    private AuditConfig testConfig = new AuditConfig();
-
-    @Test
-    public void clearBuffer() {
-        SenderManager testManager = new SenderManager(testConfig);
-        testManager.checkFailedData();
-        int dataMapSize = testManager.getDataMapSize();
-        assertTrue(dataMapSize == 0);
+    /**
+     * Next request id
+     */
+    public static Long nextRequestId() {
+        long requestId = requestIdSeq.getAndIncrement();
+        if (requestId > MAX_REQUEST_ID) {
+            requestId = 0L;
+            requestIdSeq.set(requestId);
+        }
+        return requestId;
     }
 }

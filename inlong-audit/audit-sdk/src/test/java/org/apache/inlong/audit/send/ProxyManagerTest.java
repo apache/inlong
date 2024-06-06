@@ -17,21 +17,28 @@
 
 package org.apache.inlong.audit.send;
 
-import org.apache.inlong.audit.util.AuditConfig;
-
 import org.junit.Test;
 
+import java.net.InetSocketAddress;
+import java.util.HashSet;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class SenderManagerTest {
-
-    private AuditConfig testConfig = new AuditConfig();
+public class ProxyManagerTest {
 
     @Test
-    public void clearBuffer() {
-        SenderManager testManager = new SenderManager(testConfig);
-        testManager.checkFailedData();
-        int dataMapSize = testManager.getDataMapSize();
-        assertTrue(dataMapSize == 0);
+    public void testProxyManager() {
+        HashSet<String> ipPortList = new HashSet<>();
+        ipPortList.add("172.0.0.1:10081");
+        ipPortList.add("172.0.0.2:10081");
+        ipPortList.add("172.0.0.3:10081");
+        ipPortList.add("172.0.0.4:10081");
+        ipPortList.add("172.0.0.5:10081");
+        ProxyManager.getInstance().setAuditProxy(ipPortList);
+        InetSocketAddress inetSocketAddress = ProxyManager.getInstance().getInetSocketAddress();
+        assertEquals(10081, inetSocketAddress.getPort());
+        assertTrue(inetSocketAddress.getAddress().getHostAddress().startsWith("172.0.0.")
+                && inetSocketAddress.getAddress().getHostAddress().length() == 9);
     }
 }

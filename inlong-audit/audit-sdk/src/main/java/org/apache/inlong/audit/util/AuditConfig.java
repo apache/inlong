@@ -17,20 +17,25 @@
 
 package org.apache.inlong.audit.util;
 
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Data
 public class AuditConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(AuditConfig.class);
-    private static String FILE_PATH = "/data/inlong/audit/";
-    private static final int FILE_SIZE = 500 * 1024 * 1024;
-    private static final int MAX_CACHE_ROWS = 2000000;
+    private static String FILE_PATH = "./inLong-audit/";
+    private static final int FILE_SIZE = 100 * 1024 * 1024;
+    private static final int MAX_CACHE_ROWS = 1000000;
     private static final int MIN_CACHE_ROWS = 100;
 
     private String filePath;
     private int maxCacheRow;
     private int maxFileSize = FILE_SIZE;
+    private String disasterFileName = "disaster.data";
+    private int socketTimeout = 30000;
+    private int retryTimes = 2;
 
     public AuditConfig(String filePath, int maxCacheRow) {
         if (filePath == null || filePath.length() == 0) {
@@ -50,33 +55,8 @@ public class AuditConfig {
         this.maxCacheRow = MAX_CACHE_ROWS;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
-
-    public void setMaxCacheRow(int maxCacheRow) {
-        this.maxCacheRow = maxCacheRow;
-    }
-
-    public String getFilePath() {
-        return filePath;
-    }
-
-    public int getMaxCacheRow() {
-        return maxCacheRow;
-    }
-
-    public int getMaxFileSize() {
-        return maxFileSize;
-    }
-
-    public void setMaxFileSize(int maxFileSize) {
-        this.maxFileSize = maxFileSize;
-    }
-
     public String getDisasterFile() {
         return filePath + "/" + disasterFileName;
     }
 
-    private String disasterFileName = "disaster.data";
 }
