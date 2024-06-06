@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.sort.node.base;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.common.enums.MessageWrapType;
+import org.apache.inlong.common.util.StringUtil;
 import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
 import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
 import org.apache.inlong.manager.pojo.stream.StreamField;
@@ -109,10 +110,7 @@ public interface ExtractNodeProvider extends NodeProvider {
         DataTypeEnum dataType = DataTypeEnum.forType(serializationType);
         switch (dataType) {
             case CSV:
-                if (StringUtils.isNumeric(separatorStr)) {
-                    char dataSeparator = (char) Integer.parseInt(separatorStr);
-                    separatorStr = Character.toString(dataSeparator);
-                }
+                separatorStr = StringUtil.parseChar(separatorStr);
                 CsvFormat csvFormat = new CsvFormat(separatorStr);
                 csvFormat.setIgnoreParseErrors(ignoreParseErrors);
                 format = csvFormat;
@@ -137,18 +135,9 @@ public interface ExtractNodeProvider extends NodeProvider {
                 format = new RawFormat();
                 break;
             case KV:
-                if (StringUtils.isNumeric(separatorStr)) {
-                    char dataSeparator = (char) Integer.parseInt(separatorStr);
-                    separatorStr = Character.toString(dataSeparator);
-                }
-                if (StringUtils.isNumeric(kvSeparatorStr)) {
-                    char kvDataSeparator = (char) Integer.parseInt(kvSeparatorStr);
-                    kvSeparatorStr = Character.toString(kvDataSeparator);
-                }
-                if (StringUtils.isNumeric(escapeCharStr)) {
-                    char escapeChar = (char) Integer.parseInt(escapeCharStr);
-                    escapeCharStr = Character.toString(escapeChar);
-                }
+                separatorStr = StringUtil.parseChar(separatorStr);
+                kvSeparatorStr = StringUtil.parseChar(kvSeparatorStr);
+                escapeCharStr = StringUtil.parseChar(escapeCharStr);
                 format = new KvFormat(separatorStr, kvSeparatorStr, escapeCharStr, ignoreParseErrors, null, null, null);
                 break;
             default:

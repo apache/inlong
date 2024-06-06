@@ -17,9 +17,10 @@
 
 package org.apache.inlong.common.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -274,4 +275,11 @@ public class StringUtil {
         }
     }
 
+    public static String parseChar(String charStr) {
+        if (StringUtils.isNumeric(charStr)) {
+            char numberChar = (char) Integer.parseInt(charStr);
+            charStr = Character.toString(numberChar);
+        }
+        return charStr;
+    }
 }
