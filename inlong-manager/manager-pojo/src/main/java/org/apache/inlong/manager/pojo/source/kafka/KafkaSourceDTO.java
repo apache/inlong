@@ -97,7 +97,7 @@ public class KafkaSourceDTO {
     @ApiModelProperty(value = "Data separator")
     private String dataSeparator = String.valueOf((int) '|');
 
-    @ApiModelProperty(value = "Kv separator")
+    @ApiModelProperty(value = "KV separator")
     private String kvSeparator;
 
     @ApiModelProperty(value = "Data field escape symbol")
