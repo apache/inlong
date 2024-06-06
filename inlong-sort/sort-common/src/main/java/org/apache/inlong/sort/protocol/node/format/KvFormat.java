@@ -18,7 +18,7 @@
 package org.apache.inlong.sort.protocol.node.format;
 
 import lombok.Data;
-import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
@@ -109,19 +109,19 @@ public class KvFormat implements Format {
         options.put(FORMAT_KV_DELIMITER, this.kvDelimiter);
         options.put(FORMAT_KV_ENTRY_DELIMITER, this.entryDelimiter);
 
-        if (ObjectUtils.isNotEmpty(this.charset)) {
+        if (StringUtils.isNotBlank(charset)) {
             options.put(FORMAT_CHARSET, this.charset);
         }
-        if (ObjectUtils.isNotEmpty(this.nullLiteral)) {
+        if (StringUtils.isNotBlank(nullLiteral)) {
             options.put(FORMAT_NULL_LITERAL, this.nullLiteral);
         }
-        if (ObjectUtils.isNotEmpty(this.quoteCharacter)) {
+        if (StringUtils.isNotBlank(quoteCharacter)) {
             options.put(FORMAT_QUOTE_CHARACTER, this.quoteCharacter);
         }
-        if (ObjectUtils.isNotEmpty(this.escapeChar)) {
+        if (StringUtils.isNotBlank(escapeChar)) {
             options.put(FORMAT_ESCAPE_CHARACTER, this.escapeChar);
         }
-        if (ObjectUtils.isNotEmpty(this.ignoreParseErrors)) {
+        if (ignoreParseErrors != null) {
             options.put(FORMAT_IGNORE_ERRORS, String.valueOf(this.ignoreParseErrors));
         }
 
