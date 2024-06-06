@@ -52,6 +52,9 @@ public class BriefMQMessage {
     @ApiModelProperty(value = "Client ip")
     private String clientIp;
 
+    @ApiModelProperty(value = "Message attribute")
+    private String attribute;
+
     @ApiModelProperty(value = "Message header")
     private Map<String, String> headers;
 

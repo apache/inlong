@@ -94,6 +94,7 @@ public class InlongMsgDeserializeOperator implements DeserializeOperator {
                             .dt(msgTime)
                             .clientIp(attrMap.get(CLIENT_IP))
                             .headers(headers)
+                            .attribute(attr)
                             .body(body)
                             .fieldList(streamFieldList)
                             .build();
