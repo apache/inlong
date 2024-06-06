@@ -51,7 +51,7 @@ public class KvFormat implements Format {
 
     @JsonProperty(value = "ignoreParseErrors", defaultValue = "false")
     @Nullable
-    private final String ignoreParseErrors;
+    private final Boolean ignoreParseErrors;
 
     @JsonProperty(value = "escapeChar")
     @Nullable
@@ -73,7 +73,7 @@ public class KvFormat implements Format {
     public KvFormat(@JsonProperty(value = "entryDelimiter") String entryDelimiter,
             @JsonProperty(value = "kvDelimiter") String kvDelimiter,
             @Nullable @JsonProperty(value = "escapeChar") String escapeChar,
-            @Nullable @JsonProperty(value = "ignoreParseErrors", defaultValue = "false") String ignoreParseErrors,
+            @Nullable @JsonProperty(value = "ignoreParseErrors", defaultValue = "false") Boolean ignoreParseErrors,
             @Nullable @JsonProperty(value = "charset") String charset,
             @Nullable @JsonProperty(value = "nullLiteral") String nullLiteral,
             @Nullable @JsonProperty(value = "quoteCharacter") String quoteCharacter) {
@@ -87,7 +87,7 @@ public class KvFormat implements Format {
     }
 
     public KvFormat() {
-        this("&", "=", null, "false", null, null, null);
+        this("&", "=", null, false, null, null, null);
     }
 
     @Override
@@ -122,7 +122,7 @@ public class KvFormat implements Format {
             options.put(FORMAT_ESCAPE_CHARACTER, this.escapeChar);
         }
         if (ObjectUtils.isNotEmpty(this.ignoreParseErrors)) {
-            options.put(FORMAT_IGNORE_ERRORS, this.ignoreParseErrors);
+            options.put(FORMAT_IGNORE_ERRORS, String.valueOf(this.ignoreParseErrors));
         }
 
         return options;
