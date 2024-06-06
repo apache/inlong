@@ -69,7 +69,7 @@ public class TemplateField implements Serializable {
     @ApiModelProperty(value = "Value expression of predefined field")
     private String preExpression;
 
-    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
+    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes, default is 0")
     @Builder.Default
     private Integer isMetaField = 0;
 
@@ -95,8 +95,6 @@ public class TemplateField implements Serializable {
         this.fieldName = fieldName;
         this.fieldComment = fieldComment;
         this.fieldValue = fieldValue;
-        // default
-        this.isMetaField = 0;
     }
 
     public TemplateField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
@@ -105,21 +103,14 @@ public class TemplateField implements Serializable {
         this.isMetaField = isMetaField;
         this.metaFieldName = metaFieldName;
     }
-
     public TemplateField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
             Integer isMetaField, String metaFieldName, String originNodeName) {
-        this(index, fieldType, fieldName, fieldComment, fieldValue);
-        this.isMetaField = isMetaField;
-        this.metaFieldName = metaFieldName;
+        this(index, fieldType, fieldName, fieldComment, fieldValue, isMetaField, metaFieldName);
         this.originNodeName = originNodeName;
     }
-
     public TemplateField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
             Integer isMetaField, String metaFieldName, String originNodeName, String originFieldName) {
-        this(index, fieldType, fieldName, fieldComment, fieldValue);
-        this.isMetaField = isMetaField;
-        this.metaFieldName = metaFieldName;
-        this.originNodeName = originNodeName;
+        this(index, fieldType, fieldName, fieldComment, fieldValue, isMetaField, metaFieldName, originNodeName);
         this.originFieldName = originFieldName;
     }
 

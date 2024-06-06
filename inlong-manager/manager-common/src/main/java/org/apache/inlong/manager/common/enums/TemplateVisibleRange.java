@@ -24,6 +24,6 @@ public enum TemplateVisibleRange {
 
     ALL,
     IN_CHARGE,
-    TENANT,
+    TENANT
 
 }
