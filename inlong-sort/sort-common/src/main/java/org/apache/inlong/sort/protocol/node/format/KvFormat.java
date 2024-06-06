@@ -49,18 +49,23 @@ public class KvFormat implements Format {
     private final String kvDelimiter;
 
     @JsonProperty(value = "ignoreParseErrors", defaultValue = "false")
+    @Nullable
     private final String ignoreParseErrors;
 
     @JsonProperty(value = "escapeChar")
+    @Nullable
     private final String escapeChar;
 
     @JsonProperty(value = "charset")
+    @Nullable
     private final String charset;
 
     @JsonProperty(value = "nullLiteral")
+    @Nullable
     private final String NULL_LITERAL;
 
     @JsonProperty(value = "quoteCharacter")
+    @Nullable
     private final String QUOTE_CHARACTER;
 
     @JsonCreator
