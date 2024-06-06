@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -58,7 +59,6 @@ public class AuditReporterImpl implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditReporterImpl.class);
-    public static final Long MAX_REQUEST_ID = 1000000000L;
     private static final String FIELD_SEPARATORS = ":";
     private static final long DEFAULT_AUDIT_VERSION = -1;
     private static final int BATCH_NUM = 100;
@@ -399,7 +399,7 @@ public class AuditReporterImpl implements Serializable {
      * Summary pre stat map
      */
     private void summaryPreStatMap(long isolateKey, ConcurrentHashMap<String, StatInfo> statInfo) {
-        HashSet<String> expiredKeys = this.expiredKeyList.computeIfAbsent(isolateKey, k -> new HashSet<>());
+        Set<String> expiredKeys = this.expiredKeyList.computeIfAbsent(isolateKey, k -> new HashSet<>());
 
         for (Map.Entry<String, StatInfo> entry : statInfo.entrySet()) {
             String key = entry.getKey();
