@@ -38,12 +38,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -73,7 +73,7 @@ public class AuditReporterImpl implements Serializable {
             new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Long, ConcurrentHashMap<String, StatInfo>> expiredStatMap =
             new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Long, List<String>> expiredKeyList = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, HashSet<String>> expiredKeyList = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Long, Long> flushTime = new ConcurrentHashMap<>();
     private final Config config = new Config();
     private final ScheduledExecutorService timeoutExecutor = Executors.newSingleThreadScheduledExecutor();
@@ -400,16 +400,14 @@ public class AuditReporterImpl implements Serializable {
      * Summary pre stat map
      */
     private void summaryPreStatMap(long isolateKey, ConcurrentHashMap<String, StatInfo> statInfo) {
-        List<String> expiredKeys = this.expiredKeyList.computeIfAbsent(isolateKey, k -> new ArrayList<>());
+        Set<String> expiredKeys = this.expiredKeyList.computeIfAbsent(isolateKey, k -> new HashSet<>());
 
         for (Map.Entry<String, StatInfo> entry : statInfo.entrySet()) {
             String key = entry.getKey();
             StatInfo value = entry.getValue();
             // If there is no data, enter the list to be eliminated
             if (value.count.get() == 0) {
-                if (!expiredKeys.contains(key)) {
-                    expiredKeys.add(key);
-                }
+                expiredKeys.add(key);
                 continue;
             }
             sumThreadGroup(isolateKey, key, value);
@@ -420,10 +418,10 @@ public class AuditReporterImpl implements Serializable {
      * Clear expired key
      */
     private void clearExpiredKey(long isolateKey) {
-        Iterator<Map.Entry<Long, List<String>>> iterator =
+        Iterator<Map.Entry<Long, HashSet<String>>> iterator =
                 this.expiredKeyList.entrySet().iterator();
         while (iterator.hasNext()) {
-            Map.Entry<Long, List<String>> entry = iterator.next();
+            Map.Entry<Long, HashSet<String>> entry = iterator.next();
             if (entry.getValue().isEmpty()) {
                 LOGGER.info("Remove the key of expired key list: {},isolate key: {}", entry.getKey(), isolateKey);
                 iterator.remove();
