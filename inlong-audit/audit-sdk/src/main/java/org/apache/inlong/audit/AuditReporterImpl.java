@@ -43,7 +43,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -400,7 +399,7 @@ public class AuditReporterImpl implements Serializable {
      * Summary pre stat map
      */
     private void summaryPreStatMap(long isolateKey, ConcurrentHashMap<String, StatInfo> statInfo) {
-        Set<String> expiredKeys = this.expiredKeyList.computeIfAbsent(isolateKey, k -> new HashSet<>());
+        HashSet<String> expiredKeys = this.expiredKeyList.computeIfAbsent(isolateKey, k -> new HashSet<>());
 
         for (Map.Entry<String, StatInfo> entry : statInfo.entrySet()) {
             String key = entry.getKey();

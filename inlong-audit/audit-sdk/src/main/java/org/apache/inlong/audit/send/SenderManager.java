@@ -51,8 +51,6 @@ public class SenderManager {
     private static final int PACKAGE_HEADER_LEN = 4;
     private static final int MAX_RESPONSE_LENGTH = 32 * 1024;
 
-    private static final int MAX_RESPONSE_LENGTH = 32 * 1024;
-
     public SenderManager(AuditConfig config) {
         auditConfig = config;
     }
