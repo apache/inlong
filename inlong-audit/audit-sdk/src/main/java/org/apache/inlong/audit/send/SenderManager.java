@@ -49,6 +49,7 @@ public class SenderManager {
     private AuditConfig auditConfig;
     private Socket socket = new Socket();
     private static final int PACKAGE_HEADER_LEN = 4;
+    private static final int MAX_RESPONSE_LENGTH = 32 * 1024;
 
     public SenderManager(AuditConfig config) {
         auditConfig = config;
@@ -143,6 +144,11 @@ public class SenderManager {
                     ((header[1] & 0xFF) << 16) |
                     ((header[2] & 0xFF) << 8) |
                     (header[3] & 0xFF);
+
+            if (bodyLen > MAX_RESPONSE_LENGTH) {
+                closeSocket();
+                return false;
+            }
 
             byte[] body = new byte[bodyLen];
             readFully(inputStream, body, bodyLen);
