@@ -37,7 +37,6 @@ import org.apache.inlong.sort.protocol.node.format.KvFormat;
 import org.apache.inlong.sort.protocol.node.format.RawFormat;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
