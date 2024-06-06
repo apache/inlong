@@ -108,6 +108,11 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
                         mapNullKeyMode,
                         mapNullKeyLiteral,
                         encodeDecimalAsPlainNumber);
+        try {
+            this.jsonSerializer.open(null);
+        } catch (Exception e) {
+            throw new RuntimeException("JsonRowDataSerializationSchema failed to open", e);
+        }
     }
 
     private static RowType createJsonRowType(DataType physicalDataType, List<WriteableMetadata> writeableMetadata) {

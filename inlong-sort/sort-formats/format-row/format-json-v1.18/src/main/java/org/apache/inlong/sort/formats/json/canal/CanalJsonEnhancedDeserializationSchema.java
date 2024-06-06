@@ -141,6 +141,11 @@ public final class CanalJsonEnhancedDeserializationSchema implements Deserializa
                         // failOnMissingField
                         ignoreParseErrors,
                         timestampFormat);
+        try {
+            this.jsonDeserializer.open(null);
+        } catch (Exception e) {
+            throw new RuntimeException("JsonDeserializationSchema failed to open.", e);
+        }
         this.hasMetadata = requestedMetadata.size() > 0;
         this.metadataConverters = createMetadataConverters(jsonRowType, requestedMetadata);
         this.producedTypeInfo = producedTypeInfo;
