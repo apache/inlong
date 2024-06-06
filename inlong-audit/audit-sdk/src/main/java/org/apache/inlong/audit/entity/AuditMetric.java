@@ -15,24 +15,36 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.send;
+package org.apache.inlong.audit.entity;
 
-import org.apache.inlong.audit.util.Decoder;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.socket.SocketChannel;
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class AuditMetric {
 
-public class ClientPipelineFactory extends ChannelInitializer<SocketChannel> {
+    private Long successPack = 0L;
+    private Long failedPack = 0L;
+    private Long totalMsg = 0L;
 
-    private SenderManager senderManager;
-
-    public ClientPipelineFactory(SenderManager senderManager) {
-        this.senderManager = senderManager;
+    public void addSuccessPack(long successPack) {
+        this.successPack += successPack;
     }
 
-    @Override
-    public void initChannel(SocketChannel ch) throws Exception {
-        ch.pipeline().addLast("contentDecoder", new Decoder());
-        ch.pipeline().addLast("handler", new SenderHandler(senderManager));
+    public void addFailedPack(long failedPack) {
+        this.failedPack += failedPack;
+    }
+
+    public void addTotalMsg(long totalMsg) {
+        this.totalMsg += totalMsg;
+    }
+
+    public void reset() {
+        successPack = 0L;
+        failedPack = 0L;
+        totalMsg = 0L;
     }
 }

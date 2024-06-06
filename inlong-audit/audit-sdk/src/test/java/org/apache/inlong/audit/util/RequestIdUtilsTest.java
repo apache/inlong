@@ -17,33 +17,14 @@
 
 package org.apache.inlong.audit.util;
 
-import java.net.InetSocketAddress;
+import org.junit.Test;
 
-public class SenderResult {
+import static org.junit.Assert.assertTrue;
 
-    public final InetSocketAddress addr;
-    public boolean result;
+public class RequestIdUtilsTest {
 
-    /**
-     * Constructor
-     *
-     * @param addr
-     * @param result
-     */
-    public SenderResult(InetSocketAddress addr, boolean result) {
-        this.addr = addr;
-        this.result = result;
-    }
-
-    /**
-     * Constructor
-     *
-     * @param sendIp
-     * @param sendPort
-     * @param result
-     */
-    public SenderResult(String sendIp, int sendPort, boolean result) {
-        this.addr = new InetSocketAddress(sendIp, sendPort);
-        this.result = result;
+    @Test
+    public void testNextRequestId() {
+        assertTrue(RequestIdUtils.nextRequestId() < RequestIdUtils.nextRequestId());
     }
 }
