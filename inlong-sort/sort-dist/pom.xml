@@ -82,7 +82,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-kv</artifactId>
+            <artifactId>sort-format-rowdata-kv</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
