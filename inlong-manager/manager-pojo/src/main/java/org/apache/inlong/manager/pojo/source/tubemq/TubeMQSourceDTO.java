@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -55,8 +56,17 @@ public class TubeMQSourceDTO {
     @ApiModelProperty("Session key of the TubeMQ")
     private String sessionKey;
 
+    @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
+    private String dataEncoding = StandardCharsets.UTF_8.toString();
+
     @ApiModelProperty(value = "Data separator")
-    private String dataSeparator;
+    private String dataSeparator = String.valueOf((int) '|');
+
+    @ApiModelProperty(value = "KV separator")
+    private String kvSeparator;
+
+    @ApiModelProperty(value = "Data field escape symbol")
+    private String dataEscapeChar;
 
     @ApiModelProperty(value = "The message body wrap  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
     private String wrapType;

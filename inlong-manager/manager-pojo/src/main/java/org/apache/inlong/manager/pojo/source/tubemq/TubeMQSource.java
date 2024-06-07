@@ -59,8 +59,17 @@ public class TubeMQSource extends StreamSource {
     @ApiModelProperty("Session key of the TubeMQ")
     private String sessionKey;
 
+    @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
+    private String dataEncoding;
+
     @ApiModelProperty(value = "Data separator")
     private String dataSeparator;
+
+    @ApiModelProperty(value = "KV separator")
+    private String kvSeparator;
+
+    @ApiModelProperty(value = "Data field escape symbol")
+    private String dataEscapeChar;
 
     /**
      * The TubeMQ consumers use this streamId set to filter records reading from server.

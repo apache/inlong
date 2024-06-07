@@ -90,6 +90,9 @@ public class KafkaSource extends StreamSource {
     @ApiModelProperty(value = "Data separator")
     private String dataSeparator;
 
+    @ApiModelProperty(value = "KV separator")
+    private String kvSeparator;
+
     @ApiModelProperty(value = "Data field escape symbol")
     private String dataEscapeChar;
 
