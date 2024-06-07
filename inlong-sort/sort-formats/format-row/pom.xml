@@ -52,7 +52,7 @@
 
     <profiles>
         <profile>
-            <id>all-flink-version</id>
+            <id>flink-all-version</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
