@@ -951,6 +951,50 @@ CREATE TABLE IF NOT EXISTS `cluster_config`
     UNIQUE KEY `unique_clustert_config_sink_id` (`cluster_tag`, `is_deleted`)
 ) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4 COMMENT = 'cluster_config';
+
+-- ----------------------------
+-- Table structure for template
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `template`
+(
+    `id`                  int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `name`                varchar(128)  NOT NULL COMMENT 'Inlong cluster tag',
+    `in_charges`          varchar(512)  NOT NULL COMMENT 'Name of responsible person, separated by commas',
+    `visible_range`       text          NOT NULL COMMENT 'Visible range of template',
+    `creator`             varchar(128)  DEFAULT NULL COMMENT 'Creator',
+    `modifier`            varchar(128)  DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`         datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`         datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `is_deleted`          int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
+    `version`             int(11)       NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_template_name` (`name`, `is_deleted`)
+    ) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4 COMMENT = 'template';
+
+-- ----------------------------
+-- Table structure for template field
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `template_field`
+(
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `template_id`         int(11)      NOT NULL COMMENT 'Owning template id',
+    `is_predefined_field` tinyint(1)   DEFAULT '0' COMMENT 'Whether it is a predefined field, 0: no, 1: yes',
+    `field_name`          varchar(120) NOT NULL COMMENT 'field name',
+    `field_value`         varchar(128) DEFAULT NULL COMMENT 'Field value, required if it is a predefined field',
+    `pre_expression`      varchar(256) DEFAULT NULL COMMENT 'Pre-defined field value expression',
+    `field_type`          varchar(20)  NOT NULL COMMENT 'field type',
+    `field_comment`       varchar(50)  DEFAULT NULL COMMENT 'Field description',
+    `is_meta_field`       smallint(3)  DEFAULT '0' COMMENT 'Is this field a meta field? 0: no, 1: yes',
+    `meta_field_name`     varchar(120) DEFAULT NULL COMMENT 'Meta field name',
+    `field_format`        text         DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, custom such as yyyy-MM-dd HH:mm:ss, and serialize format of complex type or decimal precision, etc.',
+    `rank_num`            smallint(6)  DEFAULT '0' COMMENT 'Field order (front-end display field order)',
+    `is_deleted`          int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    PRIMARY KEY (`id`),
+    INDEX `template_field_index` (`template_id`)
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4 COMMENT ='Template field table';
+
 -- ----------------------------
 
 SET FOREIGN_KEY_CHECKS = 1;

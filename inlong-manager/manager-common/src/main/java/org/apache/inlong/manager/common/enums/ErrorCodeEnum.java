@@ -162,9 +162,13 @@ public enum ErrorCodeEnum {
     MODULE_INFO_INCORRECT(6002, "Module info was incorrect"),
 
     PACKAGE_NOT_FOUND(7001, "Package does not exist/no operation authority"),
-    PACKAGE_INFO_INCORRECT(7002, "Package info was incorrect")
+    PACKAGE_INFO_INCORRECT(7002, "Package info was incorrect"),
 
-    ;
+    TEMPLATE_NOT_FOUND(8001, "Template does not exist/no operation authority"),
+    TEMPLATE_NAME_DUPLICATE(8002, "The current template name is exist"),
+    TEMPLATE_INFO_INCORRECT(8003, "Template info was incorrect"),
+    TEMPLATE_FIELD_UPDATE_NOT_ALLOWED(8004, "Current status not allowed to modification/delete field"),
+    TEMPLATE_PERMISSION_DENIED(8005, "No permission to this inlong template");
 
     private final int code;
     private final String message;
