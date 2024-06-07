@@ -899,5 +899,12 @@
   "pages.PackageAgent.Config.FileName": "File Name",
   "pages.PackageAgent.Config.DownloadUrl": "Download Url",
   "pages.PackageAgent.Config.Md5": "MD5",
-  "pages.PackageAgent.Config.StoragePath": "Storage Path"
+  "pages.PackageAgent.Config.StoragePath": "Storage Path",
+  "pages.GroupDataTemplate.Edit":"Edit Template",
+  "pages.GroupDataTemplate.Create":"Create Template",
+  "pages.GroupDataTemplate.Name":"Template Name",
+  "pages.GroupDataTemplate.TenantList":"Tenant",
+  "pages.GroupDataTemplate.Version":"Version",
+  "pages.GroupDataTemplate.VisibleRange":"Visible Range",
+  "pages.GroupDataTemplate.InChargers":"InChargers"
 }

@@ -33,9 +33,18 @@ import type { MenuItemType } from '.';
 
 const conf: MenuItemType[] = [
   {
-    path: '/group',
-    name: i18n.t('configs.menus.Groups'),
+    name: i18n.t('接入管理'),
     icon: <ApiOutlined />,
+    children: [
+      {
+        path: '/group',
+        name: i18n.t('configs.menus.Groups'),
+      },
+      {
+        path: '/dataTemplate',
+        name: i18n.t('数据模板'),
+      },
+    ],
   },
   {
     path: '/sync',

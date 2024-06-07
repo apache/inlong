@@ -39,6 +39,10 @@ const conf: RouteProps[] = [
     ],
   },
   {
+    path: '/dataTemplate',
+    component: () => import('@/ui/pages/GroupDataTemplate'),
+  },
+  {
     path: '/consume',
     component: () => import('@/ui/pages/ConsumeDashboard'),
     childRoutes: [

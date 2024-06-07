@@ -222,7 +222,41 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
   })
   @I18n('meta.Stream.DataSeparator')
   dataSeparator: string;
-
+  @FieldDecorator({
+    type: 'select',
+    props: {
+      filterOption: true,
+      options: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
+          url: '/template/list',
+          method: 'POST',
+          data: {
+            keyword,
+            pageNum: 1,
+            pageSize: 20,
+          },
+        }),
+        requestParams: {
+          formatResult: result => {
+            console.log('result.log', result);
+            return result?.list?.map(item => ({
+              ...item,
+              label: item.name,
+              value: item.name,
+            }));
+          },
+        },
+      },
+    },
+    rules: [
+      {
+        required: true,
+      },
+    ],
+  })
+  @I18n('meta.Stream.SourceDataField.Template')
+  streamDataTemplate: string;
   @FieldDecorator({
     type: EditableTable,
     props: values => ({

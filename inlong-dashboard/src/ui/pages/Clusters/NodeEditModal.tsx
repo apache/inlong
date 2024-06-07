@@ -79,13 +79,43 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
     message.success(i18n.t('basic.OperatingSuccess'));
   };
 
+  const { data: agentInstaller, run: getAgentInstall } = useRequest(
+    () => ({
+      url: '/module/list',
+      method: 'POST',
+      data: {
+        pageNum: 1,
+        pageSize: 9999,
+      },
+    }),
+    {
+      manual: true,
+      onSuccess: result => {
+        let temp = result?.list
+          ?.filter(item => item.type === 'INSTALLER')
+          .map(item => ({
+            ...item,
+            label: `${item.name} ${item.version}`,
+            value: item.id,
+          }));
+        console.log('result', temp);
+        form.setFieldValue('installer', temp[0].id);
+      },
+    },
+  );
+
   useUpdateEffect(() => {
     if (modalProps.open) {
       // open
       form.resetFields();
       if (id) {
         getData(id);
+      } else {
+        if (type === 'AGENT') {
+          getAgentInstall();
+        }
       }
+      console.log(form.getFieldValue('installer'));
     }
   }, [modalProps.open]);
 
@@ -139,7 +169,26 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
       },
       {
         type: 'select',
-        label: i18n.t('pages.Clusters.Node.Agent'),
+        label: i18n.t('pages.Clusters.Node.ProtocolType'),
+        name: 'protocolType',
+        initialValue: 'HTTP',
+        rules: [{ required: true }],
+        props: {
+          options: [
+            {
+              label: 'HTTP',
+              value: 'HTTP',
+            },
+            {
+              label: 'TCP',
+              value: 'TCP',
+            },
+          ],
+        },
+      },
+      {
+        type: 'select',
+        label: i18n.t('pages.Clusters.Node.Agent.Version'),
         name: 'moduleIdList',
         hidden: type !== 'AGENT',
         props: {
@@ -169,35 +218,11 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         },
       },
       {
-        type: 'select',
-        label: i18n.t('pages.Clusters.Node.AgentInstaller'),
-        name: 'installer',
-        hidden: type !== 'AGENT',
+        type: 'textarea',
+        label: i18n.t('pages.Clusters.Description'),
+        name: 'description',
         props: {
-          mode: 'multiple',
-          options: {
-            requestAuto: true,
-            requestTrigger: ['onOpen'],
-            requestService: keyword => ({
-              url: '/module/list',
-              method: 'POST',
-              data: {
-                keyword,
-                pageNum: 1,
-                pageSize: 9999,
-              },
-            }),
-            requestParams: {
-              formatResult: result =>
-                result?.list
-                  ?.filter(item => item.type === 'INSTALLER')
-                  .map(item => ({
-                    ...item,
-                    label: `${item.name} ${item.version}`,
-                    value: item.id,
-                  })),
-            },
-          },
+          maxLength: 256,
         },
       },
       {
@@ -245,11 +270,36 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         visible: values => values?.isInstall,
       },
       {
-        type: 'textarea',
-        label: i18n.t('pages.Clusters.Description'),
-        name: 'description',
+        type: 'select',
+        label: i18n.t('pages.Clusters.Node.AgentInstaller'),
+        name: 'installer',
+        isPro: type === 'AGENT',
+        hidden: type !== 'AGENT',
         props: {
-          maxLength: 256,
+          mode: 'multiple',
+          options: {
+            requestAuto: true,
+            requestTrigger: ['onOpen'],
+            requestService: keyword => ({
+              url: '/module/list',
+              method: 'POST',
+              data: {
+                keyword,
+                pageNum: 1,
+                pageSize: 9999,
+              },
+            }),
+            requestParams: {
+              formatResult: result =>
+                result?.list
+                  ?.filter(item => item.type === 'INSTALLER')
+                  .map(item => ({
+                    ...item,
+                    label: `${item.name} ${item.version}`,
+                    value: item.id,
+                  })),
+            },
+          },
         },
       },
     ];
