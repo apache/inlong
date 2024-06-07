@@ -25,13 +25,16 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.TemplateEntity;
 import org.apache.inlong.manager.dao.entity.TemplateFieldEntity;
+import org.apache.inlong.manager.dao.entity.TenantTemplateEntity;
 import org.apache.inlong.manager.dao.mapper.TemplateEntityMapper;
 import org.apache.inlong.manager.dao.mapper.TemplateFieldEntityMapper;
+import org.apache.inlong.manager.dao.mapper.TenantTemplateEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.stream.TemplateField;
 import org.apache.inlong.manager.pojo.stream.TemplateInfo;
 import org.apache.inlong.manager.pojo.stream.TemplatePageRequest;
 import org.apache.inlong.manager.pojo.stream.TemplateRequest;
+import org.apache.inlong.manager.pojo.stream.TenantTemplateRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 
 import com.github.pagehelper.Page;
@@ -48,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Inlong template service layer implementation
@@ -61,6 +65,8 @@ public class TemplateServiceImpl implements TemplateService {
     private TemplateEntityMapper templateEntityMapper;
     @Autowired
     private TemplateFieldEntityMapper templateFieldEntityMapper;
+    @Autowired
+    private TenantTemplateEntityMapper tenantTemplateEntityMapper;
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
@@ -81,6 +87,14 @@ public class TemplateServiceImpl implements TemplateService {
         request.setId(templateEntity.getId());
         saveField(request);
 
+        if (CollectionUtils.isNotEmpty(request.getTenantList())) {
+            TenantTemplateRequest tagRequest = new TenantTemplateRequest();
+            tagRequest.setTemplateName(templateName);
+            request.getTenantList().forEach(tenant -> {
+                tagRequest.setTenant(tenant);
+                this.saveTenantTemplate(tagRequest, operator);
+            });
+        }
         LOGGER.info("success to save inlong stream info for template name={}", templateName);
         return templateEntity.getId();
     }
@@ -106,6 +120,12 @@ public class TemplateServiceImpl implements TemplateService {
         TemplateInfo templateInfo = CommonBeanUtils.copyProperties(templateEntity, TemplateInfo::new);
         List<TemplateField> templateFields = getTemplateFields(templateEntity.getId());
         templateInfo.setFieldList(templateFields);
+        List<String> tenantList = tenantTemplateEntityMapper
+                .selectByTemplateName(templateName).stream()
+                .map(TenantTemplateEntity::getTenant)
+                .collect(Collectors.toList());
+        checkVis(templateEntity, tenantList, operator);
+        templateInfo.setTenantList(tenantList);
         return templateInfo;
     }
 
@@ -127,6 +147,12 @@ public class TemplateServiceImpl implements TemplateService {
         PageResult<TemplateInfo> pageResult = PageResult.fromPage(entityPage)
                 .map(entity -> {
                     TemplateInfo response = CommonBeanUtils.copyProperties(entity, TemplateInfo::new);
+
+                    List<String> tenantList = tenantTemplateEntityMapper
+                            .selectByTemplateName(entity.getName()).stream()
+                            .map(TenantTemplateEntity::getTenant)
+                            .collect(Collectors.toList());
+                    response.setTenantList(tenantList);
                     return response;
                 });
         LOGGER.debug("success to list template page, result size {}", pageResult.getList().size());
@@ -282,6 +308,23 @@ public class TemplateServiceImpl implements TemplateService {
         // Then batch save the sink fields
         this.saveField(request);
         LOGGER.info("success to update template field");
+    }
+
+    public Integer saveTenantTemplate(TenantTemplateRequest request, String operator) {
+        LOGGER.debug("begin to save tenant template {}", request);
+        Preconditions.expectNotNull(request, "tenant cluster request cannot be empty");
+        Preconditions.expectNotBlank(request.getTemplateName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "template name cannot be empty");
+        Preconditions.expectNotBlank(request.getTenant(), ErrorCodeEnum.INVALID_PARAMETER,
+                "tenant cannot be empty");
+
+        TenantTemplateEntity entity = CommonBeanUtils.copyProperties(request, TenantTemplateEntity::new);
+        entity.setCreator(operator);
+        entity.setModifier(operator);
+        tenantTemplateEntityMapper.insert(entity);
+        LOGGER.info("success to save tenant tag, tenant={}, template name={}", request.getTenant(),
+                request.getTemplateName());
+        return entity.getId();
     }
 
 }
