@@ -26,6 +26,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -92,9 +93,24 @@ public class ShellExecutorImpl implements ShellExecutor {
         return false;
     }
 
+    public void syncExec(String shellPath, boolean keepEmptyParams, String... params) {
+        if (keepEmptyParams) {
+            List<String> cmdPath = new ArrayList<>();
+            cmdPath.add(shellPath);
+            cmdPath.addAll(Arrays.asList(params));
+            syncExecWithCmd(cmdPath.toArray(new String[0]));
+        } else {
+            syncExec(shellPath, params);
+        }
+    }
+
     public void syncExec(String shellPath, String... params) {
-        List<String> result = new ArrayList<String>();
         String[] cmds = merge(shellPath, params);
+        syncExecWithCmd(cmds);
+    }
+
+    private void syncExecWithCmd(String[] cmds) {
+        List<String> result = new ArrayList<String>();
         try {
             Process ps = Runtime.getRuntime().exec(cmds);
             long pid = getPid(ps);

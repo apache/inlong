@@ -25,6 +25,8 @@ public interface CommandExecutor {
 
     CommandResult exec(String cmd) throws Exception;
 
+    CommandResult execSshKeyGenerator() throws Exception;
+
     CommandResult execRemote(AgentClusterNodeRequest clusterNodeRequest, String cmd) throws Exception;
 
     CommandResult modifyConfig(AgentClusterNodeRequest clusterNodeRequest, Map<String, String> configMap,

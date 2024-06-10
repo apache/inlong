@@ -1,0 +1,35 @@
+#!/usr/bin/expect
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+spawn /bin/sh -c "echo ~"
+expect {
+    -re "(.*)\r\n" {
+        set home_dir $expect_out(1,string)
+    }
+}
+expect eof
+
+spawn ssh-keygen -t rsa -b 4096 -f ${home_dir}/.ssh/inlong_rsa
+expect {
+    "*Enter file in which to save the key" {send "\r"; exp_continue}
+    "Overwrite (y/n)?" { send "n\r"; exp_continue }
+    "Enter passphrase (empty for no passphrase):" { send "\r"; exp_continue }
+    "Enter same passphrase again:" { send "\r"; exp_continue }
+    eof
+}

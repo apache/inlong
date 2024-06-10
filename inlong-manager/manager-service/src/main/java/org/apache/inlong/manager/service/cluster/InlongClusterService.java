@@ -401,6 +401,13 @@ public interface InlongClusterService {
     Boolean deleteNode(Integer id, UserInfo opInfo);
 
     /**
+     * Obtain the SSH public key from the manager to install the agent.
+     *
+     * @return ssh public key
+     */
+    String getManagerSshPublicKey();
+
+    /**
      * Query data proxy nodes by the given inlong group id and protocol type
      *
      * @param inlongGroupId inlong group id
