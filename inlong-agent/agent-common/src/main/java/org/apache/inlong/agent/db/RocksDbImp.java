@@ -51,6 +51,8 @@ public class RocksDbImp implements Db {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RocksDbImp.class);
     private static final Gson GSON = new Gson();
+    public static final String SPLITTER = "_";
+    public static final String UNIQUE_KEY = "";
 
     private final AgentConfiguration conf;
     private final RocksDB db;
@@ -196,6 +198,21 @@ public class RocksDbImp implements Db {
             }
         }
         return results;
+    }
+
+    @Override
+    public String getSplitter() {
+        return SPLITTER;
+    }
+
+    @Override
+    public String getUniqueKey() {
+        return UNIQUE_KEY;
+    }
+
+    @Override
+    public String replaceKeywords(String source) {
+        return source;
     }
 
     @Override

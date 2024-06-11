@@ -29,13 +29,13 @@ import java.util.List;
 /**
  * db interface for task profile.
  */
-public class TaskProfileDb {
+public class TaskDb {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TaskProfileDb.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskDb.class);
 
     private final Db db;
 
-    public TaskProfileDb(Db db) {
+    public TaskDb(Db db) {
         this.db = db;
     }
 
@@ -87,11 +87,15 @@ public class TaskProfileDb {
         db.remove(getKeyByTaskId(taskId));
     }
 
-    private String getKey() {
-        return CommonConstants.TASK_ID_PREFIX;
+    public String getKey() {
+        if (db.getUniqueKey().isEmpty()) {
+            return CommonConstants.TASK_ID_PREFIX;
+        } else {
+            return db.getUniqueKey() + db.getSplitter() + CommonConstants.TASK_ID_PREFIX;
+        }
     }
 
-    private String getKeyByTaskId(String taskId) {
-        return CommonConstants.TASK_ID_PREFIX + taskId;
+    public String getKeyByTaskId(String taskId) {
+        return getKey() + db.getSplitter() + taskId;
     }
 }

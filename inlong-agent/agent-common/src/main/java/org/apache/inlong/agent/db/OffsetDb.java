@@ -40,21 +40,8 @@ public class OffsetDb {
         this.db = db;
     }
 
-    /**
-     * init db by class name
-     *
-     * @return db
-     */
-    private Db initDb(String childPath) {
-        try {
-            return new RocksDbImp(childPath);
-        } catch (Exception ex) {
-            throw new UnsupportedClassVersionError(ex.getMessage());
-        }
-    }
-
     public List<OffsetProfile> listAllOffsets() {
-        List<KeyValueEntity> result = this.db.findAll("");
+        List<KeyValueEntity> result = this.db.findAll(db.getUniqueKey());
         List<OffsetProfile> offsetList = new ArrayList<>();
         for (KeyValueEntity entity : result) {
             offsetList.add(entity.getAsOffsetProfile());
@@ -85,7 +72,13 @@ public class OffsetDb {
         }
     }
 
-    private String getKey(String taskId, String instanceId) {
-        return CommonConstants.OFFSET_ID_PREFIX + taskId + "_" + instanceId;
+    public String getKey(String taskId, String instanceId) {
+        if (db.getUniqueKey().isEmpty()) {
+            return CommonConstants.OFFSET_ID_PREFIX + db.getSplitter() + taskId
+                    + db.getSplitter() + db.replaceKeywords(instanceId);
+        } else {
+            return db.getUniqueKey() + db.getSplitter() + CommonConstants.OFFSET_ID_PREFIX + db.getSplitter() + taskId
+                    + db.getSplitter() + db.replaceKeywords(instanceId);
+        }
     }
 }

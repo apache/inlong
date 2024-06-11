@@ -23,7 +23,7 @@ import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.RocksDbImp;
-import org.apache.inlong.agent.db.TaskProfileDb;
+import org.apache.inlong.agent.db.TaskDb;
 
 import java.util.List;
 
@@ -37,7 +37,7 @@ public class RocksDBUtils {
     }
 
     public static void upgrade(Db db) {
-        TaskProfileDb triggerProfileDb = new TaskProfileDb(db);
+        TaskDb triggerProfileDb = new TaskDb(db);
         List<TaskProfile> allTaskProfiles = triggerProfileDb.getTasks();
         allTaskProfiles.forEach(triggerProfile -> {
             if (triggerProfile.hasKey(TaskConstants.TASK_DIR_FILTER_PATTERN)) {

@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class InstanceDb {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TaskProfileDb.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InstanceDb.class);
 
     private final Db db;
 
@@ -46,7 +46,7 @@ public class InstanceDb {
      * @return list of task
      */
     public List<InstanceProfile> listAllInstances() {
-        List<KeyValueEntity> result = this.db.findAll("");
+        List<KeyValueEntity> result = this.db.findAll(db.getUniqueKey());
         List<InstanceProfile> instanceList = new ArrayList<>();
         for (KeyValueEntity entity : result) {
             instanceList.add(entity.getAsInstanceProfile());
@@ -109,15 +109,19 @@ public class InstanceDb {
         db.remove(getKeyByTaskAndInstanceId(taskId, instanceId));
     }
 
-    private String getKey() {
-        return CommonConstants.INSTANCE_ID_PREFIX;
+    public String getKey() {
+        if (db.getUniqueKey().isEmpty()) {
+            return CommonConstants.INSTANCE_ID_PREFIX + db.getSplitter();
+        } else {
+            return db.getUniqueKey() + db.getSplitter() + CommonConstants.INSTANCE_ID_PREFIX + db.getSplitter();
+        }
     }
 
-    private String getKeyByTaskId(String taskId) {
-        return CommonConstants.INSTANCE_ID_PREFIX + taskId;
+    public String getKeyByTaskId(String taskId) {
+        return getKey() + taskId;
     }
 
-    private String getKeyByTaskAndInstanceId(String taskId, String instanceId) {
-        return CommonConstants.INSTANCE_ID_PREFIX + taskId + "_" + instanceId;
+    public String getKeyByTaskAndInstanceId(String taskId, String instanceId) {
+        return getKeyByTaskId(taskId) + db.getSplitter() + db.replaceKeywords(instanceId);
     }
 }

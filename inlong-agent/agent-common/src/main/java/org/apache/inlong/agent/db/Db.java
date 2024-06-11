@@ -50,4 +50,10 @@ public interface Db extends Closeable {
      * @return list of k/v
      */
     List<KeyValueEntity> findAll(String prefix);
+
+    String getSplitter();
+
+    String getUniqueKey();
+
+    String replaceKeywords(String source);
 }

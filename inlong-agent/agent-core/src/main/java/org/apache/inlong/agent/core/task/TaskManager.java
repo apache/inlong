@@ -24,7 +24,7 @@ import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.RocksDbImp;
-import org.apache.inlong.agent.db.TaskProfileDb;
+import org.apache.inlong.agent.db.TaskDb;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.file.Task;
 import org.apache.inlong.agent.utils.AgentUtils;
@@ -67,7 +67,7 @@ public class TaskManager extends AbstractDaemon {
     // offset basic db
     private final Db offsetBasicDb;
     // task in db
-    private final TaskProfileDb taskDb;
+    private final TaskDb taskDb;
     // task in memory
     private final ConcurrentHashMap<String, Task> taskMap;
     // task config from manager.
@@ -127,7 +127,7 @@ public class TaskManager extends AbstractDaemon {
         this.agentConf = AgentConfiguration.getAgentConf();
         taskBasicDb = initDb(
                 agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_TASK));
-        taskDb = new TaskProfileDb(taskBasicDb);
+        taskDb = new TaskDb(taskBasicDb);
         instanceBasicDb = initDb(
                 agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE));
         offsetBasicDb =
@@ -145,7 +145,7 @@ public class TaskManager extends AbstractDaemon {
         actionQueue = new LinkedBlockingQueue<>(ACTION_QUEUE_CAPACITY);
     }
 
-    public TaskProfileDb getTaskDb() {
+    public TaskDb getTaskDb() {
         return taskDb;
     }
 

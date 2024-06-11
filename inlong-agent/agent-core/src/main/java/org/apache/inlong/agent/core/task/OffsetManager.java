@@ -25,7 +25,7 @@ import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.InstanceDb;
 import org.apache.inlong.agent.db.OffsetDb;
-import org.apache.inlong.agent.db.TaskProfileDb;
+import org.apache.inlong.agent.db.TaskDb;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.DateTransUtils;
@@ -55,10 +55,10 @@ public class OffsetManager extends AbstractDaemon {
     private static volatile OffsetManager offsetManager = null;
     private final OffsetDb offsetDb;
     private final InstanceDb instanceDb;
-    private final TaskProfileDb taskProfileDb;
+    private final TaskDb taskDb;
 
     private OffsetManager(Db taskBasicDb, Db instanceBasicDb, Db offsetBasicDb) {
-        taskProfileDb = new TaskProfileDb(taskBasicDb);
+        taskDb = new TaskDb(taskBasicDb);
         instanceDb = new InstanceDb(instanceBasicDb);
         offsetDb = new OffsetDb(offsetBasicDb);
     }
@@ -147,7 +147,7 @@ public class OffsetManager extends AbstractDaemon {
             if (instanceFromDb.getState() != InstanceStateEnum.FINISHED) {
                 continue;
             }
-            TaskProfile taskFromDb = taskProfileDb.getTask(taskId);
+            TaskProfile taskFromDb = taskDb.getTask(taskId);
             if (taskFromDb != null) {
                 if (taskFromDb.getCycleUnit().compareToIgnoreCase(CycleUnitType.REAL_TIME) == 0) {
                     continue;

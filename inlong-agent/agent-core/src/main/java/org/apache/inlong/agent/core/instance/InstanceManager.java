@@ -24,7 +24,7 @@ import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.InstanceDb;
-import org.apache.inlong.agent.db.TaskProfileDb;
+import org.apache.inlong.agent.db.TaskDb;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Instance;
 import org.apache.inlong.agent.utils.AgentUtils;
@@ -59,7 +59,7 @@ public class InstanceManager extends AbstractDaemon {
     private long lastPrintTime = 0;
     // instance in db
     private final InstanceDb instanceDb;
-    private TaskProfileDb taskProfileDb;
+    private TaskDb taskDb;
     private TaskProfile taskFromDb;
     // task in memory
     private final ConcurrentHashMap<String, Instance> instanceMap;
@@ -116,10 +116,10 @@ public class InstanceManager extends AbstractDaemon {
     /**
      * Init task manager.
      */
-    public InstanceManager(String taskId, int instanceLimit, Db basicDb, TaskProfileDb taskProfileDb) {
+    public InstanceManager(String taskId, int instanceLimit, Db basicDb, TaskDb taskDb) {
         this.taskId = taskId;
         instanceDb = new InstanceDb(basicDb);
-        this.taskProfileDb = taskProfileDb;
+        this.taskDb = taskDb;
         this.agentConf = AgentConfiguration.getAgentConf();
         instanceMap = new ConcurrentHashMap<>();
         this.instanceLimit = instanceLimit;
@@ -297,7 +297,7 @@ public class InstanceManager extends AbstractDaemon {
     }
 
     private void restoreFromDb() {
-        taskFromDb = taskProfileDb.getTask(taskId);
+        taskFromDb = taskDb.getTask(taskId);
         auditVersion = Long.parseLong(taskFromDb.get(TASK_AUDIT_VERSION));
         List<InstanceProfile> profileList = instanceDb.getInstances(taskId);
         profileList.forEach((profile) -> {
