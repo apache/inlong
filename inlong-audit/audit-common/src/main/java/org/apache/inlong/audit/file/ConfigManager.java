@@ -94,6 +94,14 @@ public class ConfigManager {
         return null;
     }
 
+    public String getValue(String key) {
+        ConfigHolder holder = holderMap.get(DEFAULT_CONFIG_PROPERTIES);
+        if (holder != null) {
+            return holder.getHolder().get(key);
+        }
+        return null;
+    }
+
     private boolean updatePropertiesHolder(Map<String, String> result,
             String holderName, boolean addElseRemove) {
         if (StringUtils.isNotEmpty(holderName)) {

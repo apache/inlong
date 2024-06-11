@@ -17,9 +17,16 @@
 
 package org.apache.inlong.audit.entities;
 
-/**
- * OpenAPI type
- */
-public enum ApiType {
-    MINUTES, HOUR, DAY, GET_IPS, GET_IDS, GET_AUDIT_PROXY, PROXY_HEARTBEAT;
+public enum AuditComponent {
+
+    AGENT("Agent"), DATAPROXY("DataProxy"), SORT("Sort"), COMMON_AUDIT("Common");
+    private final String component;
+
+    AuditComponent(String component) {
+        this.component = component;
+    }
+
+    public String getComponent() {
+        return component;
+    }
 }

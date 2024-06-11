@@ -132,3 +132,30 @@ CREATE TABLE IF NOT EXISTS `audit_source_config`
      PRIMARY KEY (`source_name`, `jdbc_url`)
 ) ENGINE = InnoDB DEFAULT CHARSET = UTF8 COMMENT = 'Audit source config';
 
+-- ----------------------------
+-- Table structure for audit proxy heartbeat
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `audit_proxy_heartbeat`
+(
+    `component` varchar(64) NOT NULL DEFAULT 'Common' COMMENT 'Component name, such as: Agent, Sort...',
+    `host` varchar(64) NOT NULL COMMENT 'Audit proxy IP',
+    `port` bigint NOT NULL COMMENT 'Audit Proxy Port',
+    `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update time',
+    PRIMARY KEY (`component`, `host`, `port`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8 COMMENT = 'Audit Proxy Heartbeat';
+
+
+-- ----------------------------
+-- Table structure for audit proxy host
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `audit_proxy_host`
+(
+    `component` varchar(64) NOT NULL DEFAULT 'Common' COMMENT 'Component name, such as: Agent, Sort...',
+    `host` varchar(128) NOT NULL DEFAULT '' COMMENT 'Component instance, can be ip, name',
+    `port` bigint NOT NULL COMMENT 'Audit Proxy Port',
+    `status` int(11) DEFAULT '1' COMMENT 'Audit source config status. 0:Offline,1:Online',
+    `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`component`, `host`, `port`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8 COMMENT = 'Audit Porxy Host';
+
