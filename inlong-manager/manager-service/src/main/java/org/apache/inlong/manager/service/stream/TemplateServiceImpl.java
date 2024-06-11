@@ -120,12 +120,16 @@ public class TemplateServiceImpl implements TemplateService {
         TemplateInfo templateInfo = CommonBeanUtils.copyProperties(templateEntity, TemplateInfo::new);
         List<TemplateField> templateFields = getTemplateFields(templateEntity.getId());
         templateInfo.setFieldList(templateFields);
-        List<String> tenantList = tenantTemplateEntityMapper
-                .selectByTemplateName(templateName).stream()
-                .map(TenantTemplateEntity::getTenant)
-                .collect(Collectors.toList());
-        checkVis(templateEntity, tenantList, operator);
-        templateInfo.setTenantList(tenantList);
+        List<TenantTemplateEntity> tenantTemplateEntities = tenantTemplateEntityMapper.selectByTemplateName(
+                templateName);
+        if (Objects.equals(templateEntity.getVisibleRange(), TemplateVisibleRange.TENANT.name())
+                && CollectionUtils.isNotEmpty(tenantTemplateEntities)) {
+            List<String> tenantList = tenantTemplateEntities.stream()
+                    .map(TenantTemplateEntity::getTenant)
+                    .collect(Collectors.toList());
+            checkVis(templateEntity, tenantList, operator);
+            templateInfo.setTenantList(tenantList);
+        }
         return templateInfo;
     }
 

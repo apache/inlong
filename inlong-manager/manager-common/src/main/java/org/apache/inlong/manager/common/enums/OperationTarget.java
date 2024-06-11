@@ -44,6 +44,8 @@ public enum OperationTarget {
 
     INLONG_ROLE,
 
-    TENANT_ROLE
+    TENANT_ROLE,
+
+    TEMPLATE
 
 }
