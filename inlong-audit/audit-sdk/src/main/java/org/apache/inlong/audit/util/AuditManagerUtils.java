@@ -18,6 +18,7 @@
 package org.apache.inlong.audit.util;
 
 import org.apache.inlong.audit.AuditIdEnum;
+import org.apache.inlong.audit.MetricIdEnum;
 import org.apache.inlong.audit.entity.AuditInformation;
 import org.apache.inlong.audit.entity.FlowType;
 
@@ -134,6 +135,10 @@ public class AuditManagerUtils {
         for (AuditIdEnum auditIdEnum : AuditIdEnum.values()) {
             auditInformationList.addAll(combineAuditInformation(auditIdEnum.getAuditType().value(),
                     auditIdEnum.getFlowType()));
+        }
+        for (MetricIdEnum metricIdEnum : MetricIdEnum.values()) {
+            auditInformationList.add(new AuditInformation(metricIdEnum.getValue(), metricIdEnum.getEnglishDescription(),
+                    metricIdEnum.getChineseDescription()));
         }
         return auditInformationList;
     }
