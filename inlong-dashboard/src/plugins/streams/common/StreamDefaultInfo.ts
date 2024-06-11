@@ -249,14 +249,11 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
         },
       },
     },
-    rules: [
-      {
-        required: true,
-      },
-    ],
+    rules: [],
   })
   @I18n('meta.Stream.SourceDataField.Template')
   streamDataTemplate: string;
+
   @FieldDecorator({
     type: EditableTable,
     props: values => ({
