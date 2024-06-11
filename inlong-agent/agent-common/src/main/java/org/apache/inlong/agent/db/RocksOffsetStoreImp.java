@@ -47,9 +47,9 @@ import static java.util.Objects.requireNonNull;
 /**
  * DB implement based on the Rocks DB.
  */
-public class RocksDbImp implements Db {
+public class RocksOffsetStoreImp implements OffsetStore {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RocksDbImp.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RocksOffsetStoreImp.class);
     private static final Gson GSON = new Gson();
     public static final String SPLITTER = "_";
     public static final String UNIQUE_KEY = "";
@@ -62,7 +62,7 @@ public class RocksDbImp implements Db {
     private ConcurrentHashMap<String, ColumnFamilyDescriptor> columnDescriptorMap;
     private String storePath;
 
-    public RocksDbImp(String childPath) {
+    public RocksOffsetStoreImp(String childPath) {
         // init rocks db
         this.conf = AgentConfiguration.getAgentConf();
         this.db = initEnv(childPath);
@@ -126,7 +126,7 @@ public class RocksDbImp implements Db {
         } else {
             LOGGER.info("loading column families :" + existing.stream().map(String::new).collect(Collectors.toList()));
             managedColumnFamilies.addAll(
-                    existing.stream().map(RocksDbImp::getColumnFamilyDescriptor).collect(Collectors.toList()));
+                    existing.stream().map(RocksOffsetStoreImp::getColumnFamilyDescriptor).collect(Collectors.toList()));
         }
         return managedColumnFamilies;
     }

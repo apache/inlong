@@ -22,8 +22,8 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
-import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.InstanceDb;
+import org.apache.inlong.agent.db.OffsetStore;
 import org.apache.inlong.agent.db.TaskDb;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Instance;
@@ -116,9 +116,9 @@ public class InstanceManager extends AbstractDaemon {
     /**
      * Init task manager.
      */
-    public InstanceManager(String taskId, int instanceLimit, Db basicDb, TaskDb taskDb) {
+    public InstanceManager(String taskId, int instanceLimit, OffsetStore basicOffsetStore, TaskDb taskDb) {
         this.taskId = taskId;
-        instanceDb = new InstanceDb(basicDb);
+        instanceDb = new InstanceDb(basicOffsetStore);
         this.taskDb = taskDb;
         this.agentConf = AgentConfiguration.getAgentConf();
         instanceMap = new ConcurrentHashMap<>();

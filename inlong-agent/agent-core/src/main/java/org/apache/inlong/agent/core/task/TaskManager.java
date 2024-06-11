@@ -22,8 +22,8 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.db.Db;
-import org.apache.inlong.agent.db.RocksDbImp;
+import org.apache.inlong.agent.db.OffsetStore;
+import org.apache.inlong.agent.db.RocksOffsetStoreImp;
 import org.apache.inlong.agent.db.TaskDb;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.file.Task;
@@ -61,11 +61,11 @@ public class TaskManager extends AbstractDaemon {
     private static final int ACTION_QUEUE_CAPACITY = 1000;
     private long lastPrintTime = 0;
     // task basic db
-    private final Db taskBasicDb;
+    private final OffsetStore taskBasicOffsetStore;
     // instance basic db
-    private final Db instanceBasicDb;
+    private final OffsetStore instanceBasicOffsetStore;
     // offset basic db
-    private final Db offsetBasicDb;
+    private final OffsetStore offsetBasicOffsetStore;
     // task in db
     private final TaskDb taskDb;
     // task in memory
@@ -125,14 +125,14 @@ public class TaskManager extends AbstractDaemon {
      */
     public TaskManager() {
         this.agentConf = AgentConfiguration.getAgentConf();
-        taskBasicDb = initDb(
+        taskBasicOffsetStore = initDb(
                 agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_TASK));
-        taskDb = new TaskDb(taskBasicDb);
-        instanceBasicDb = initDb(
+        taskDb = new TaskDb(taskBasicOffsetStore);
+        instanceBasicOffsetStore = initDb(
                 agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE));
-        offsetBasicDb =
+        offsetBasicOffsetStore =
                 initDb(agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET));
-        OffsetManager.init(taskBasicDb, instanceBasicDb, offsetBasicDb);
+        OffsetManager.init(taskBasicOffsetStore, instanceBasicOffsetStore, offsetBasicOffsetStore);
         this.runningPool = new ThreadPoolExecutor(
                 0, Integer.MAX_VALUE,
                 60L, TimeUnit.SECONDS,
@@ -149,8 +149,8 @@ public class TaskManager extends AbstractDaemon {
         return taskDb;
     }
 
-    public Db getInstanceBasicDb() {
-        return instanceBasicDb;
+    public OffsetStore getInstanceBasicDb() {
+        return instanceBasicOffsetStore;
     }
 
     /**
@@ -158,9 +158,9 @@ public class TaskManager extends AbstractDaemon {
      *
      * @return db
      */
-    public static Db initDb(String childPath) {
+    public static OffsetStore initDb(String childPath) {
         try {
-            return new RocksDbImp(childPath);
+            return new RocksOffsetStoreImp(childPath);
         } catch (Exception ex) {
             throw new UnsupportedClassVersionError(ex.getMessage());
         }
@@ -492,7 +492,7 @@ public class TaskManager extends AbstractDaemon {
         try {
             Class<?> taskClass = Class.forName(taskProfile.getTaskClass());
             Task task = (Task) taskClass.newInstance();
-            task.init(this, taskProfile, instanceBasicDb);
+            task.init(this, taskProfile, instanceBasicOffsetStore);
             taskMap.put(taskProfile.getTaskId(), task);
             runningPool.submit(task);
             LOGGER.info(

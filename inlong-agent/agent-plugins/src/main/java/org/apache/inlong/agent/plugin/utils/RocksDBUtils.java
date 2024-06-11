@@ -21,8 +21,8 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.TaskConstants;
-import org.apache.inlong.agent.db.Db;
-import org.apache.inlong.agent.db.RocksDbImp;
+import org.apache.inlong.agent.db.OffsetStore;
+import org.apache.inlong.agent.db.RocksOffsetStoreImp;
 import org.apache.inlong.agent.db.TaskDb;
 
 import java.util.List;
@@ -31,13 +31,13 @@ public class RocksDBUtils {
 
     public static void main(String[] args) {
         AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
-        Db db = new RocksDbImp(
+        OffsetStore offsetStore = new RocksOffsetStoreImp(
                 agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.DEFAULT_AGENT_ROCKS_DB_PATH));
-        upgrade(db);
+        upgrade(offsetStore);
     }
 
-    public static void upgrade(Db db) {
-        TaskDb triggerProfileDb = new TaskDb(db);
+    public static void upgrade(OffsetStore offsetStore) {
+        TaskDb triggerProfileDb = new TaskDb(offsetStore);
         List<TaskProfile> allTaskProfiles = triggerProfileDb.getTasks();
         allTaskProfiles.forEach(triggerProfile -> {
             if (triggerProfile.hasKey(TaskConstants.TASK_DIR_FILTER_PATTERN)) {
@@ -50,6 +50,6 @@ public class RocksDBUtils {
         });
     }
 
-    public static void printTrigger(Db db) {
+    public static void printTrigger(OffsetStore offsetStore) {
     }
 }

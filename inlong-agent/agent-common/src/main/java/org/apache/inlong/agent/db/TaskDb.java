@@ -33,10 +33,10 @@ public class TaskDb {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskDb.class);
 
-    private final Db db;
+    private final OffsetStore offsetStore;
 
-    public TaskDb(Db db) {
-        this.db = db;
+    public TaskDb(OffsetStore offsetStore) {
+        this.offsetStore = offsetStore;
     }
 
     /**
@@ -45,7 +45,7 @@ public class TaskDb {
      * @return list of task
      */
     public List<TaskProfile> getTasks() {
-        List<KeyValueEntity> result = this.db.findAll(getKey());
+        List<KeyValueEntity> result = this.offsetStore.findAll(getKey());
         List<TaskProfile> taskList = new ArrayList<>();
         for (KeyValueEntity entity : result) {
             taskList.add(entity.getAsTaskProfile());
@@ -63,7 +63,7 @@ public class TaskDb {
             String keyName = getKeyByTaskId(task.getTaskId());
             KeyValueEntity entity = new KeyValueEntity(keyName,
                     task.toJsonStr(), "");
-            db.put(entity);
+            offsetStore.put(entity);
         }
     }
 
@@ -73,7 +73,7 @@ public class TaskDb {
      * @param taskId taskId
      */
     public TaskProfile getTask(String taskId) {
-        KeyValueEntity result = this.db.get(getKeyByTaskId(taskId));
+        KeyValueEntity result = this.offsetStore.get(getKeyByTaskId(taskId));
         if (result == null) {
             return null;
         }
@@ -84,18 +84,18 @@ public class TaskDb {
      * delete task by id.
      */
     public void deleteTask(String taskId) {
-        db.remove(getKeyByTaskId(taskId));
+        offsetStore.remove(getKeyByTaskId(taskId));
     }
 
     public String getKey() {
-        if (db.getUniqueKey().isEmpty()) {
+        if (offsetStore.getUniqueKey().isEmpty()) {
             return CommonConstants.TASK_ID_PREFIX;
         } else {
-            return db.getUniqueKey() + db.getSplitter() + CommonConstants.TASK_ID_PREFIX;
+            return offsetStore.getUniqueKey() + offsetStore.getSplitter() + CommonConstants.TASK_ID_PREFIX;
         }
     }
 
     public String getKeyByTaskId(String taskId) {
-        return getKey() + db.getSplitter() + taskId;
+        return getKey() + offsetStore.getSplitter() + taskId;
     }
 }

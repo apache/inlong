@@ -18,7 +18,7 @@
 package org.apache.inlong.agent.plugin.file;
 
 import org.apache.inlong.agent.conf.TaskProfile;
-import org.apache.inlong.agent.db.Db;
+import org.apache.inlong.agent.db.OffsetStore;
 import org.apache.inlong.agent.state.AbstractStateWrapper;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ public abstract class Task extends AbstractStateWrapper {
      *
      * @throws IOException
      */
-    public abstract void init(Object srcManager, TaskProfile profile, Db basicDb) throws IOException;
+    public abstract void init(Object srcManager, TaskProfile profile, OffsetStore basicOffsetStore) throws IOException;
 
     /**
      * destroy task.

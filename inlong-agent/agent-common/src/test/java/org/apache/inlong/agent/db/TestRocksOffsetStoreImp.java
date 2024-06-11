@@ -26,15 +26,15 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-public class TestRocksDbImp {
+public class TestRocksOffsetStoreImp {
 
-    private static RocksDbImp db;
+    private static RocksOffsetStoreImp db;
     private static AgentBaseTestsHelper helper;
 
     @BeforeClass
     public static void setup() throws Exception {
-        helper = new AgentBaseTestsHelper(TestRocksDbImp.class.getName()).setupAgentHome();
-        db = new RocksDbImp("/localdb");
+        helper = new AgentBaseTestsHelper(TestRocksOffsetStoreImp.class.getName()).setupAgentHome();
+        db = new RocksOffsetStoreImp("/localdb");
     }
 
     @AfterClass

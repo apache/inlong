@@ -21,9 +21,9 @@ import java.io.Closeable;
 import java.util.List;
 
 /**
- * local storage for key/value.
+ * offset store
  */
-public interface Db extends Closeable {
+public interface OffsetStore extends Closeable {
 
     KeyValueEntity get(String key);
 

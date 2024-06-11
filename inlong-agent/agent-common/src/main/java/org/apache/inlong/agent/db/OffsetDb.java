@@ -34,14 +34,14 @@ import java.util.List;
 public class OffsetDb {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OffsetDb.class);
-    private final Db db;
+    private final OffsetStore offsetStore;
 
-    public OffsetDb(Db db) {
-        this.db = db;
+    public OffsetDb(OffsetStore offsetStore) {
+        this.offsetStore = offsetStore;
     }
 
     public List<OffsetProfile> listAllOffsets() {
-        List<KeyValueEntity> result = this.db.findAll(db.getUniqueKey());
+        List<KeyValueEntity> result = this.offsetStore.findAll(offsetStore.getUniqueKey());
         List<OffsetProfile> offsetList = new ArrayList<>();
         for (KeyValueEntity entity : result) {
             offsetList.add(entity.getAsOffsetProfile());
@@ -50,7 +50,7 @@ public class OffsetDb {
     }
 
     public OffsetProfile getOffset(String taskId, String instanceId) {
-        KeyValueEntity result = db.get(getKey(taskId, instanceId));
+        KeyValueEntity result = offsetStore.get(getKey(taskId, instanceId));
         if (result == null) {
             return null;
         }
@@ -58,7 +58,7 @@ public class OffsetDb {
     }
 
     public void deleteOffset(String taskId, String instanceId) {
-        db.remove(getKey(taskId, instanceId));
+        offsetStore.remove(getKey(taskId, instanceId));
     }
 
     public void setOffset(OffsetProfile offsetProfile) {
@@ -68,17 +68,18 @@ public class OffsetDb {
                     offsetProfile.getInstanceId());
             KeyValueEntity entity = new KeyValueEntity(keyName,
                     offsetProfile.toJsonStr(), offsetProfile.get(TaskConstants.INSTANCE_ID));
-            db.put(entity);
+            offsetStore.put(entity);
         }
     }
 
     public String getKey(String taskId, String instanceId) {
-        if (db.getUniqueKey().isEmpty()) {
-            return CommonConstants.OFFSET_ID_PREFIX + db.getSplitter() + taskId
-                    + db.getSplitter() + db.replaceKeywords(instanceId);
+        if (offsetStore.getUniqueKey().isEmpty()) {
+            return CommonConstants.OFFSET_ID_PREFIX + offsetStore.getSplitter() + taskId
+                    + offsetStore.getSplitter() + offsetStore.replaceKeywords(instanceId);
         } else {
-            return db.getUniqueKey() + db.getSplitter() + CommonConstants.OFFSET_ID_PREFIX + db.getSplitter() + taskId
-                    + db.getSplitter() + db.replaceKeywords(instanceId);
+            return offsetStore.getUniqueKey() + offsetStore.getSplitter() + CommonConstants.OFFSET_ID_PREFIX
+                    + offsetStore.getSplitter() + taskId
+                    + offsetStore.getSplitter() + offsetStore.replaceKeywords(instanceId);
         }
     }
 }

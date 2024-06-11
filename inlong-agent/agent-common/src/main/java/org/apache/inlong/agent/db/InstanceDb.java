@@ -34,10 +34,10 @@ public class InstanceDb {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InstanceDb.class);
 
-    private final Db db;
+    private final OffsetStore offsetStore;
 
-    public InstanceDb(Db db) {
-        this.db = db;
+    public InstanceDb(OffsetStore offsetStore) {
+        this.offsetStore = offsetStore;
     }
 
     /**
@@ -46,7 +46,7 @@ public class InstanceDb {
      * @return list of task
      */
     public List<InstanceProfile> listAllInstances() {
-        List<KeyValueEntity> result = this.db.findAll(db.getUniqueKey());
+        List<KeyValueEntity> result = this.offsetStore.findAll(offsetStore.getUniqueKey());
         List<InstanceProfile> instanceList = new ArrayList<>();
         for (KeyValueEntity entity : result) {
             instanceList.add(entity.getAsInstanceProfile());
@@ -60,7 +60,7 @@ public class InstanceDb {
      * @return list of task
      */
     public List<InstanceProfile> getInstances(String taskId) {
-        List<KeyValueEntity> result = this.db.findAll(getKeyByTaskId(taskId));
+        List<KeyValueEntity> result = this.offsetStore.findAll(getKeyByTaskId(taskId));
         List<InstanceProfile> instanceList = new ArrayList<>();
         for (KeyValueEntity entity : result) {
             instanceList.add(entity.getAsInstanceProfile());
@@ -79,7 +79,7 @@ public class InstanceDb {
                     instance.get(TaskConstants.INSTANCE_ID));
             KeyValueEntity entity = new KeyValueEntity(keyName,
                     instance.toJsonStr(), instance.get(TaskConstants.INSTANCE_ID));
-            db.put(entity);
+            offsetStore.put(entity);
         } else {
             LOGGER.error("instance profile invalid!");
         }
@@ -92,7 +92,7 @@ public class InstanceDb {
      * @param instanceId it can be file name(file collect), table name(db sync) etc
      */
     public InstanceProfile getInstance(String taskId, String instanceId) {
-        KeyValueEntity result = this.db.get(getKeyByTaskAndInstanceId(taskId, instanceId));
+        KeyValueEntity result = this.offsetStore.get(getKeyByTaskAndInstanceId(taskId, instanceId));
         if (result == null) {
             return null;
         }
@@ -106,14 +106,15 @@ public class InstanceDb {
      * @param instanceId it can be file name(file collect), table name(db sync) etc
      */
     public void deleteInstance(String taskId, String instanceId) {
-        db.remove(getKeyByTaskAndInstanceId(taskId, instanceId));
+        offsetStore.remove(getKeyByTaskAndInstanceId(taskId, instanceId));
     }
 
     public String getKey() {
-        if (db.getUniqueKey().isEmpty()) {
-            return CommonConstants.INSTANCE_ID_PREFIX + db.getSplitter();
+        if (offsetStore.getUniqueKey().isEmpty()) {
+            return CommonConstants.INSTANCE_ID_PREFIX + offsetStore.getSplitter();
         } else {
-            return db.getUniqueKey() + db.getSplitter() + CommonConstants.INSTANCE_ID_PREFIX + db.getSplitter();
+            return offsetStore.getUniqueKey() + offsetStore.getSplitter() + CommonConstants.INSTANCE_ID_PREFIX
+                    + offsetStore.getSplitter();
         }
     }
 
@@ -122,6 +123,6 @@ public class InstanceDb {
     }
 
     public String getKeyByTaskAndInstanceId(String taskId, String instanceId) {
-        return getKeyByTaskId(taskId) + db.getSplitter() + db.replaceKeywords(instanceId);
+        return getKeyByTaskId(taskId) + offsetStore.getSplitter() + offsetStore.replaceKeywords(instanceId);
     }
 }
