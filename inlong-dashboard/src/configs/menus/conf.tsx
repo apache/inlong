@@ -33,7 +33,7 @@ import type { MenuItemType } from '.';
 
 const conf: MenuItemType[] = [
   {
-    name: i18n.t('接入管理'),
+    name: i18n.t('configs.menus.GroupsManagement'),
     icon: <ApiOutlined />,
     children: [
       {
@@ -42,7 +42,7 @@ const conf: MenuItemType[] = [
       },
       {
         path: '/dataTemplate',
-        name: i18n.t('数据模板'),
+        name: i18n.t('configs.menus.Groups.Template'),
       },
     ],
   },
