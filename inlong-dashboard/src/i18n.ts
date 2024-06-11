@@ -49,7 +49,7 @@ const resources = {
       'configs.menus.Process': '审批管理',
       'configs.menus.Groups': '数据接入',
       'configs.menus.GroupsManagement': '接入管理',
-      'configs.menus.Groups.Template': '数据源字段模板',
+      'configs.menus.Groups.Template': '模板',
       'configs.menus.Subscribe': '数据订阅',
       'configs.menus.Clusters': '集群管理',
       'configs.menus.ClusterTags': '标签管理',
