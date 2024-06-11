@@ -222,7 +222,7 @@ public class SqlConstants {
 
     public static final String KEY_AUDIT_PROXY_HEARTBEAT_SQL = "audit.proxy.heartbeat.sql";
     public static final String DEFAULT_AUDIT_PROXY_HEARTBEAT_SQL =
-            "REPLACE INTO audit_proxy_heartbeat (component, host, port)\n" +
-                    "VALUES (?, ?, ?)";
+            "replace into audit_proxy_heartbeat (component, host, port)\n" +
+                    "values (?, ?, ?)";
 
 }

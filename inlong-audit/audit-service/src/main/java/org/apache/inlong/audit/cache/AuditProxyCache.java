@@ -181,7 +181,7 @@ public class AuditProxyCache {
     private HashSet<AuditProxy> queryAuditProxyInfo(String component) {
         HashSet<AuditProxy> result = new HashSet<>();
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(queryAuditProxyHostByComponentSQL)) {
+                PreparedStatement statement = connection.prepareStatement(queryAuditProxyHostByComponentSQL)) {
             statement.setString(1, component);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
