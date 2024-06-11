@@ -31,6 +31,7 @@ import static org.apache.inlong.audit.entity.AuditType.DATAPROXY;
 import static org.apache.inlong.audit.entity.AuditType.DORIS;
 import static org.apache.inlong.audit.entity.AuditType.ELASTICSEARCH;
 import static org.apache.inlong.audit.entity.AuditType.HBASE;
+import static org.apache.inlong.audit.entity.AuditType.HDFS;
 import static org.apache.inlong.audit.entity.AuditType.HIVE;
 import static org.apache.inlong.audit.entity.AuditType.HUDI;
 import static org.apache.inlong.audit.entity.AuditType.ICEBERG;
@@ -94,7 +95,10 @@ public enum AuditIdEnum {
     SORT_TUBE_OUTPUT(34, OUTPUT, TUBE, "Sent Audit Metrics for Sort Tube"),
 
     SORT_MYSQL_INPUT(35, INPUT, MYSQL, "Received Audit Metrics for Sort MySQL"),
-    SORT_MYSQL_OUTPUT(36, OUTPUT, MYSQL, "Sent Audit Metrics for Sort MySQL");
+    SORT_MYSQL_OUTPUT(36, OUTPUT, MYSQL, "Sent Audit Metrics for Sort MySQL"),
+
+    SORT_HDFS_INPUT(37, INPUT, HDFS, "Received Audit Metrics for Sort HDFS"),
+    SORT_HDFS_OUTPUT(38, OUTPUT, HDFS, "Sent Audit Metrics for Sort HDFS");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditIdEnum.class);
     private final int auditId;

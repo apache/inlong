@@ -34,7 +34,8 @@ public enum AuditType {
     POSTGRES("Postgres"),
     BINLOG("Binlog"),
     TUBE("Tube"),
-    MYSQL("MySQL");
+    MYSQL("MySQL"),
+    HDFS("HDFS");
 
     private final String auditType;
 
