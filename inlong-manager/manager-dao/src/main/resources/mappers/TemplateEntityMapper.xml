@@ -75,6 +75,7 @@
             and (t.visible_range = "ALL" or
             (t.visible_range = "IN_CHARGE"
             and find_in_set(#{currentUser, jdbcType=VARCHAR}, t.in_charges))
+            or (t.visible_range = "TENANT" and  #{tenant, jdbcType=VARCHAR} in (select tet.tenant from tenant_template tet where tet.template_name = t.name and tet.is_deleted=0 ))
             )
             <if test="visibleRange != null">
                 and t.visible_range = #{visibleRange,jdbcType=VARCHAR}

@@ -943,5 +943,23 @@ CREATE TABLE IF NOT EXISTS `template_field`
 );
 
 -- ----------------------------
+-- Table structure for tenant_template
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `tenant_template`
+(
+    `id`            int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `tenant`        varchar(256) NOT NULL COMMENT 'Inlong tenant',
+    `template_name` varchar(128) NOT NULL COMMENT 'template name',
+    `is_deleted`    int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`       varchar(64)  NOT NULL COMMENT 'Creator name',
+    `modifier`      varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`       int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_tenant_inlong_template` (`tenant`, `template_name`, `is_deleted`)
+);
+
+-- ----------------------------
 
 SET FOREIGN_KEY_CHECKS = 1;

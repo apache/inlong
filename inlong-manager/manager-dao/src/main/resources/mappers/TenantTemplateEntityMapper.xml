@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License. You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied. See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.TenantTemplateEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.TenantTemplateEntity">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="tenant" jdbcType="VARCHAR" property="tenant" />
+        <result column="template_name" jdbcType="VARCHAR" property="templateName" />
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+        <result column="version" jdbcType="INTEGER" property="version" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, tenant, template_name, is_deleted, creator, modifier, create_time, modify_time,
+        version
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from tenant_template
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectByUniqueKey" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from tenant_template
+        where tenant = #{tenant,jdbcType=VARCHAR}
+        and template_name = #{templateName,jdbcType=VARCHAR}
+        and is_deleted = 0
+    </select>
+    <select id="selectByTemplateName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from tenant_template
+        where is_deleted = 0
+        and template_name = #{templateName,jdbcType=VARCHAR}
+    </select>
+    <select id="selectByCondition" parameterType="org.apache.inlong.manager.pojo.stream.TenantTemplatePageRequest"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from tenant_template
+        <where>
+            is_deleted = 0
+            <if test="tenant != null and tenant != ''">
+                and tenant = #{tenant,jdbcType=VARCHAR}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and template_name like CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="tenantList != null and tenantList.size() > 0">
+                and tenant in
+                <foreach item="item" index="index" collection="tenantList" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        group by template_name, tenant
+        order by modify_time desc
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from tenant_template
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.TenantTemplateEntity">
+        insert into tenant_template (id, tenant, template_name,
+                                        creator, modifier)
+        values (#{id,jdbcType=INTEGER}, #{tenant,jdbcType=VARCHAR}, #{templateName,jdbcType=VARCHAR},
+                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
+    </insert>
+    <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.TenantTemplateEntity">
+        update tenant_template
+        <set>
+            <if test="tenant != null">
+                tenant = #{tenant,jdbcType=VARCHAR},
+            </if>
+            <if test="templateName != null">
+                template_name = #{templateName,jdbcType=VARCHAR},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            version = #{version,jdbcType=INTEGER} + 1
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+        and version = #{version,jdbcType=INTEGER}
+    </update>
+</mapper>

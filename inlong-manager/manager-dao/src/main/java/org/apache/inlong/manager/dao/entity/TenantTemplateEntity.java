@@ -15,37 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.dao.entity;
 
-/**
- * Operation target
- */
-public enum OperationTarget {
+import lombok.Data;
 
-    TENANT,
+import java.io.Serializable;
+import java.util.Date;
 
-    GROUP,
+@Data
+public class TenantTemplateEntity implements Serializable {
 
-    STREAM,
+    private static final long serialVersionUID = 1L;
 
-    SOURCE,
-
-    SINK,
-
-    CONSUME,
-
-    WORKFLOW,
-
-    NODE,
-
-    CLUSTER,
-
-    TRANSFORM,
-
-    INLONG_ROLE,
-
-    TENANT_ROLE,
-
-    TEMPLATE
-
+    private Integer id;
+    private String tenant;
+    private String templateName;
+    private Integer isDeleted;
+    private String creator;
+    private String modifier;
+    private Date createTime;
+    private Date modifyTime;
+    private Integer version;
 }

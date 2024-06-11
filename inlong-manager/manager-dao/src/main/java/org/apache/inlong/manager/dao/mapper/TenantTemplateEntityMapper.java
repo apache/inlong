@@ -15,37 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.dao.mapper;
 
-/**
- * Operation target
- */
-public enum OperationTarget {
+import org.apache.inlong.manager.dao.entity.TenantTemplateEntity;
+import org.apache.inlong.manager.pojo.cluster.TenantClusterTagPageRequest;
 
-    TENANT,
+import org.springframework.stereotype.Repository;
 
-    GROUP,
+import java.util.List;
 
-    STREAM,
+@Repository
+public interface TenantTemplateEntityMapper {
 
-    SOURCE,
+    int updateByIdSelective(TenantTemplateEntity record);
 
-    SINK,
+    int insert(TenantTemplateEntity record);
 
-    CONSUME,
+    TenantTemplateEntity selectByPrimaryKey(Integer id);
 
-    WORKFLOW,
+    TenantTemplateEntity selectByUniqueKey(String templateName, String tenant);
 
-    NODE,
+    List<TenantTemplateEntity> selectByTemplateName(String templateName);
 
-    CLUSTER,
-
-    TRANSFORM,
-
-    INLONG_ROLE,
-
-    TENANT_ROLE,
-
-    TEMPLATE
+    List<TenantTemplateEntity> selectByCondition(TenantClusterTagPageRequest request);
 
 }

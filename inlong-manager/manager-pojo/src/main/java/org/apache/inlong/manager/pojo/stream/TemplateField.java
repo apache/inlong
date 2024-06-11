@@ -69,7 +69,7 @@ public class TemplateField implements Serializable {
     @ApiModelProperty(value = "Value expression of predefined field")
     private String preExpression;
 
-    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes, default is 0")
+    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
     @Builder.Default
     private Integer isMetaField = 0;
 
