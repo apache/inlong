@@ -141,11 +141,6 @@ public final class CanalJsonEnhancedDeserializationSchema implements Deserializa
                         // failOnMissingField
                         ignoreParseErrors,
                         timestampFormat);
-        try {
-            this.jsonDeserializer.open(null);
-        } catch (Exception e) {
-            throw new RuntimeException("JsonDeserializationSchema failed to open.", e);
-        }
         this.hasMetadata = requestedMetadata.size() > 0;
         this.metadataConverters = createMetadataConverters(jsonRowType, requestedMetadata);
         this.producedTypeInfo = producedTypeInfo;
@@ -303,6 +298,15 @@ public final class CanalJsonEnhancedDeserializationSchema implements Deserializa
                 throw new IOException(
                         format("Corrupt Canal JSON message '%s'.", new String(message)), t);
             }
+        }
+    }
+
+    @Override
+    public void open(InitializationContext context) {
+        try {
+            this.jsonDeserializer.open(context);
+        } catch (Exception e) {
+            throw new RuntimeException("JsonRowDataDeserializationSchema failed to open.", e);
         }
     }
 

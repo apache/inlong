@@ -117,6 +117,7 @@ public class CanalJsonEnhancedSerDeSchemaTest {
         List<String> lines = readLines("canal-json-inlong-data.txt");
         DeserializationSchema<RowData> deserializationSchema = createCanalJsonDeserializationSchema(
                 PHYSICAL_DATA_TYPE, READABLE_METADATA);
+        deserializationSchema.open(null);
         // deserialize
         SimpleCollector out = new SimpleCollector();
         for (String line : lines) {

@@ -108,11 +108,6 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
                         mapNullKeyMode,
                         mapNullKeyLiteral,
                         encodeDecimalAsPlainNumber);
-        try {
-            this.jsonSerializer.open(null);
-        } catch (Exception e) {
-            throw new RuntimeException("JsonRowDataSerializationSchema failed to open", e);
-        }
     }
 
     private static RowType createJsonRowType(DataType physicalDataType, List<WriteableMetadata> writeableMetadata) {
@@ -150,6 +145,11 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
             size--;
         }
         reuse = new GenericRowData(size);
+        try {
+            this.jsonSerializer.open(context);
+        } catch (Exception e) {
+            throw new RuntimeException("JsonRowDataSerializationSchema failed to open", e);
+        }
     }
 
     /**
