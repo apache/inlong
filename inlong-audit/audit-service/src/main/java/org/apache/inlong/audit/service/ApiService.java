@@ -17,6 +17,7 @@
 
 package org.apache.inlong.audit.service;
 
+import org.apache.inlong.audit.cache.AuditProxyCache;
 import org.apache.inlong.audit.cache.DayCache;
 import org.apache.inlong.audit.cache.HalfHourCache;
 import org.apache.inlong.audit.cache.HourCache;
@@ -24,8 +25,11 @@ import org.apache.inlong.audit.cache.RealTimeQuery;
 import org.apache.inlong.audit.cache.TenMinutesCache;
 import org.apache.inlong.audit.config.Configuration;
 import org.apache.inlong.audit.entities.ApiType;
+import org.apache.inlong.audit.entities.AuditComponent;
 import org.apache.inlong.audit.entities.AuditCycle;
+import org.apache.inlong.audit.entities.AuditProxy;
 import org.apache.inlong.audit.entities.StatData;
+import org.apache.inlong.audit.heartbeat.ProxyHeartbeat;
 
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.Gson;
@@ -48,20 +52,24 @@ import java.util.concurrent.Executors;
 
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_BACKLOG_SIZE;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_DAY_PATH;
+import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_GET_AUDIT_PROXY_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_GET_IDS_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_GET_IPS_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_HOUR_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_MINUTES_PATH;
+import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_PROXY_HEART_BEAT_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_REAL_LIMITER_QPS;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_THREAD_POOL_SIZE;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_HTTP_SERVER_BIND_PORT;
 import static org.apache.inlong.audit.config.OpenApiConstants.HTTP_RESPOND_CODE;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_BACKLOG_SIZE;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_DAY_PATH;
+import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_GET_AUDIT_PROXY_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_GET_IDS_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_GET_IPS_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_HOUR_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_MINUTES_PATH;
+import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_PROXY_HEART_BEAT_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_REAL_LIMITER_QPS;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_THREAD_POOL_SIZE;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_BODY_ERR_DATA;
@@ -69,8 +77,11 @@ import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_BODY_ERR_
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_BODY_SUCCESS;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_HEADER_CONTENT_TYPE;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_SERVER_BIND_PORT;
+import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_AUDIT_COMPONENT;
 import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_AUDIT_CYCLE;
+import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_AUDIT_HOST;
 import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_AUDIT_ID;
+import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_AUDIT_PORT;
 import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_AUDIT_TAG;
 import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_END_TIME;
 import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_INLONG_GROUP_Id;
@@ -80,14 +91,17 @@ import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_START_TIME;
 import static org.apache.inlong.audit.config.OpenApiConstants.VALUE_HTTP_HEADER_CONTENT_TYPE;
 import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
 import static org.apache.inlong.audit.entities.ApiType.DAY;
+import static org.apache.inlong.audit.entities.ApiType.GET_AUDIT_PROXY;
 import static org.apache.inlong.audit.entities.ApiType.GET_IDS;
 import static org.apache.inlong.audit.entities.ApiType.GET_IPS;
 import static org.apache.inlong.audit.entities.ApiType.HOUR;
 import static org.apache.inlong.audit.entities.ApiType.MINUTES;
+import static org.apache.inlong.audit.entities.ApiType.PROXY_HEARTBEAT;
 
 public class ApiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiService.class);
+
     public void start() {
         initHttpServer();
     }
@@ -113,6 +127,12 @@ public class ApiService {
                     new AuditHandler(GET_IDS));
             server.createContext(Configuration.getInstance().get(KEY_API_GET_IPS_PATH, DEFAULT_API_GET_IPS_PATH),
                     new AuditHandler(GET_IPS));
+            server.createContext(
+                    Configuration.getInstance().get(KEY_API_GET_AUDIT_PROXY_PATH, DEFAULT_API_GET_AUDIT_PROXY_PATH),
+                    new AuditHandler(GET_AUDIT_PROXY));
+            server.createContext(
+                    Configuration.getInstance().get(KEY_API_PROXY_HEART_BEAT_PATH, DEFAULT_API_PROXY_HEART_BEAT_PATH),
+                    new AuditHandler(PROXY_HEARTBEAT));
             server.start();
             LOGGER.info("Init http server success. Bind port is: {}", bindPort);
         } catch (Exception e) {
@@ -136,6 +156,7 @@ public class ApiService {
 
         @Override
         public void handle(HttpExchange exchange) {
+            LOGGER.info("handle {}", exchange.getRequestURI().toString());
             if (null != limiter) {
                 limiter.acquire();
             }
@@ -181,6 +202,7 @@ public class ApiService {
                 }
             }
             params.putIfAbsent(PARAMS_AUDIT_TAG, DEFAULT_AUDIT_TAG);
+            params.putIfAbsent(PARAMS_AUDIT_COMPONENT, AuditComponent.COMMON_AUDIT.getComponent());
             return params;
         }
 
@@ -206,6 +228,10 @@ public class ApiService {
                             && params.containsKey(PARAMS_END_TIME)
                             && params.containsKey(PARAMS_AUDIT_ID)
                             && params.containsKey(PARAMS_IP);
+                case PROXY_HEARTBEAT:
+                    return params.containsKey(PARAMS_AUDIT_HOST) && params.containsKey(PARAMS_AUDIT_PORT);
+                case GET_AUDIT_PROXY:
+                    return true;
                 default:
                     return false;
             }
@@ -219,11 +245,14 @@ public class ApiService {
         }
 
         private void handleLegalParams(JsonObject responseJson, Map<String, String> params) {
-            List<StatData> statData = null;
+            responseJson.addProperty(KEY_HTTP_BODY_SUCCESS, true);
+            responseJson.addProperty(KEY_HTTP_BODY_ERR_MSG, "");
+            Gson gson = new Gson();
+            List<StatData> statData;
             try {
                 switch (apiType) {
                     case MINUTES:
-                        statData = handleMinutesApi(params);
+                        responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(handleMinutesApi(params)));
                         break;
                     case HOUR:
                         statData = HourCache.getInstance().getData(params.get(PARAMS_START_TIME),
@@ -232,6 +261,7 @@ public class ApiService {
                                 params.get(PARAMS_INLONG_STREAM_Id),
                                 params.get(PARAMS_AUDIT_ID),
                                 params.get(PARAMS_AUDIT_TAG));
+                        responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(statData));
                         break;
                     case DAY:
                         statData = DayCache.getInstance().getData(
@@ -240,6 +270,7 @@ public class ApiService {
                                 params.get(PARAMS_INLONG_GROUP_Id),
                                 params.get(PARAMS_INLONG_STREAM_Id),
                                 params.get(PARAMS_AUDIT_ID));
+                        responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(statData));
                         break;
                     case GET_IDS:
                         statData = RealTimeQuery.getInstance().queryIdsByIp(
@@ -247,6 +278,7 @@ public class ApiService {
                                 params.get(PARAMS_END_TIME),
                                 params.get(PARAMS_IP),
                                 params.get(PARAMS_AUDIT_ID));
+                        responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(statData));
                         break;
                     case GET_IPS:
                         statData = RealTimeQuery.getInstance().queryIpsById(
@@ -255,21 +287,26 @@ public class ApiService {
                                 params.get(PARAMS_INLONG_GROUP_Id),
                                 params.get(PARAMS_INLONG_STREAM_Id),
                                 params.get(PARAMS_AUDIT_ID));
+                        responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(statData));
+                        break;
+                    case GET_AUDIT_PROXY:
+                        List<AuditProxy> auditProxy =
+                                AuditProxyCache.getInstance().getData(params.get(PARAMS_AUDIT_COMPONENT));
+                        responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(auditProxy));
+                        break;
+                    case PROXY_HEARTBEAT:
+                        ProxyHeartbeat.getInstance().heartbeat(params.get(PARAMS_AUDIT_COMPONENT),
+                                params.get(PARAMS_AUDIT_HOST), Integer.parseInt(params.get(PARAMS_AUDIT_PORT)));
+                        responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(new LinkedList<>()));
                         break;
                     default:
                         LOGGER.error("Unsupported interface type! type is {}", apiType);
+                        responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(new LinkedList<>()));
                 }
             } catch (Exception exception) {
                 LOGGER.error("Handle legal params has exception ", exception);
+                responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(new LinkedList<>()));
             }
-
-            if (null == statData)
-                statData = new LinkedList<>();
-
-            responseJson.addProperty(KEY_HTTP_BODY_SUCCESS, true);
-            responseJson.addProperty(KEY_HTTP_BODY_ERR_MSG, "");
-            Gson gson = new Gson();
-            responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(statData));
         }
 
         private List<StatData> handleMinutesApi(Map<String, String> params) {
