@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -37,6 +38,8 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
+import org.apache.inlong.manager.pojo.audit.AuditProxyResponse;
+import org.apache.inlong.manager.pojo.audit.AuditProxyResponse.AuditProxy;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
@@ -56,6 +59,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -393,6 +397,30 @@ public class AuditServiceImpl implements AuditService {
             result.add(statInfo);
         }
         return result;
+    }
+
+    @Override
+    public List<AuditProxy> getAuditProxy(String component) throws Exception {
+        try {
+            StringBuilder builder = new StringBuilder();
+            builder.append(auditQueryUrl)
+                    .append("/audit/query/getAuditProxy?")
+                    .append("component=")
+                    .append(component);
+            String url = builder.toString();
+            LOGGER.info("query audit url ={}", url);
+            AuditProxyResponse result = HttpUtils.request(restTemplate,
+                    url,
+                    HttpMethod.GET, null,
+                    null,
+                    AuditProxyResponse.class);
+            LOGGER.info("success to query audit proxy url list for request url ={}", url);
+            return result.getData();
+        } catch (Exception e) {
+            String errMsg = String.format("get audit proxy url failed for %s", component);
+            LOGGER.info(errMsg, e);
+            throw new BusinessException(errMsg);
+        }
     }
 
     /**

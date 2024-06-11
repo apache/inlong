@@ -18,12 +18,14 @@
 package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.audit.entity.AuditInformation;
+import org.apache.inlong.manager.pojo.audit.AuditProxyResponse.AuditProxy;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.service.core.AuditService;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -71,6 +74,13 @@ public class AuditController {
     @GetMapping("/audit/getAuditBases")
     public Response<List<AuditInformation>> getAuditBases() {
         return Response.success(auditService.getAuditBases());
+    }
+
+    @GetMapping(value = "/audit/getAuditProxy")
+    @ApiOperation(value = "Get audit proxy url")
+    @ApiImplicitParam(name = "component", dataTypeClass = String.class, required = true)
+    public Response<List<AuditProxy>> getAuditProxy(@RequestParam String component) throws Exception {
+        return Response.success(auditService.getAuditProxy(component));
     }
 
 }
