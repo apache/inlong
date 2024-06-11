@@ -25,6 +25,7 @@ import { PageContainer } from '@/ui/components/PageContainer';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/ui/hooks';
 import CreateModal from './CreateModal';
+import { timestampFormat } from '@/core/utils';
 
 const Comp: React.FC = () => {
   const [options, setOptions] = useState({
@@ -126,6 +127,11 @@ const Comp: React.FC = () => {
         dataIndex: 'tenantList',
         key: 'tenantList',
         width: 200,
+        render: (text, record: any) => (
+          <>
+            <div>{record.tenantList?.join(',')}</div>
+          </>
+        ),
       },
       {
         title: i18n.t('pages.GroupDataTemplate.Version'),
