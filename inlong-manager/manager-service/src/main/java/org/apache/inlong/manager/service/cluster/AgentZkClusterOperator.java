@@ -61,7 +61,8 @@ public class AgentZkClusterOperator extends AbstractClusterOperator {
         AgentZkClusterRequest agentZkClusterRequest = (AgentZkClusterRequest) request;
         CommonBeanUtils.copyProperties(agentZkClusterRequest, targetEntity, true);
         try {
-            AgentZkClusterDTO dto = AgentZkClusterDTO.getFromRequest(agentZkClusterRequest);
+            AgentZkClusterDTO dto =
+                    AgentZkClusterDTO.getFromRequest(agentZkClusterRequest, targetEntity.getExtParams());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,

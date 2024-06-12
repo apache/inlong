@@ -19,12 +19,14 @@ package org.apache.inlong.manager.pojo.cluster.zk;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import io.swagger.annotations.ApiModel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -40,9 +42,11 @@ public class AgentZkClusterDTO {
     /**
      * Get the dto instance from the request
      */
-    public static AgentZkClusterDTO getFromRequest(AgentZkClusterRequest request) {
-        return AgentZkClusterDTO.builder()
-                .build();
+    public static AgentZkClusterDTO getFromRequest(AgentZkClusterRequest request, String extParams) {
+        AgentZkClusterDTO dto = StringUtils.isNotBlank(extParams)
+                ? AgentZkClusterDTO.getFromJson(extParams)
+                : new AgentZkClusterDTO();
+        return CommonBeanUtils.copyProperties(request, dto, true);
     }
 
     /**
