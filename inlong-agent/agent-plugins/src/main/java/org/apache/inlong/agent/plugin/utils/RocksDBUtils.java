@@ -21,9 +21,9 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.TaskConstants;
-import org.apache.inlong.agent.db.RocksOffsetStoreImp;
-import org.apache.inlong.agent.db.Store;
-import org.apache.inlong.agent.db.TaskStore;
+import org.apache.inlong.agent.store.RocksStoreImp;
+import org.apache.inlong.agent.store.Store;
+import org.apache.inlong.agent.store.TaskStore;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ public class RocksDBUtils {
 
     public static void main(String[] args) {
         AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
-        Store store = new RocksOffsetStoreImp(
+        Store store = new RocksStoreImp(
                 agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.DEFAULT_AGENT_ROCKS_DB_PATH));
         upgrade(store);
     }

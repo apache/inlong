@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.db;
+package org.apache.inlong.agent.store;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
@@ -41,7 +41,7 @@ public class InstanceStore {
     }
 
     /**
-     * list all instance from db.
+     * list all instance from instance store.
      *
      * @return list of task
      */
@@ -55,7 +55,7 @@ public class InstanceStore {
     }
 
     /**
-     * get instance list from db.
+     * get instance list from instance store.
      *
      * @return list of task
      */

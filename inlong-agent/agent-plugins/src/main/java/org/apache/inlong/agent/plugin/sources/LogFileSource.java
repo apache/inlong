@@ -155,7 +155,7 @@ public class LogFileSource extends AbstractSource {
                         fileName);
                 offset = 0;
             } else {
-                LOGGER.info("getInitLineOffset inode no change taskId {} from db {}, file {}", taskId, offset,
+                LOGGER.info("getInitLineOffset inode no change taskId {} from offset store {}, file {}", taskId, offset,
                         fileName);
             }
         } else {

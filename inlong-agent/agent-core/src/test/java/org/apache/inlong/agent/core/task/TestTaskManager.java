@@ -19,7 +19,7 @@ package org.apache.inlong.agent.core.task;
 
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.core.AgentBaseTestsHelper;
-import org.apache.inlong.agent.db.TaskStore;
+import org.apache.inlong.agent.store.TaskStore;
 import org.apache.inlong.common.enums.TaskStateEnum;
 
 import org.junit.AfterClass;
@@ -55,7 +55,7 @@ public class TestTaskManager {
         String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
         try {
             manager = new TaskManager();
-            TaskStore taskStore = manager.getTaskDb();
+            TaskStore taskStore = manager.getTaskStore();
             for (int i = 1; i <= 10; i++) {
                 TaskProfile taskProfile = helper.getTaskProfile(i, pattern, false, 0L, 0L, TaskStateEnum.RUNNING,
                         "GMT+8:00");

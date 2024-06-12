@@ -18,8 +18,8 @@
 package org.apache.inlong.agent.plugin.task;
 
 import org.apache.inlong.agent.conf.TaskProfile;
-import org.apache.inlong.agent.db.Store;
 import org.apache.inlong.agent.plugin.file.Task;
+import org.apache.inlong.agent.store.Store;
 
 /**
  * Generate job by crontab expression.

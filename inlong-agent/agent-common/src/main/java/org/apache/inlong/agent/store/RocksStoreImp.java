@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.db;
+package org.apache.inlong.agent.store;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
@@ -45,11 +45,11 @@ import java.util.stream.Collectors;
 import static java.util.Objects.requireNonNull;
 
 /**
- * DB implement based on the Rocks DB.
+ * Store implement based on the Rocks DB.
  */
-public class RocksOffsetStoreImp implements Store {
+public class RocksStoreImp implements Store {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RocksOffsetStoreImp.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RocksStoreImp.class);
     private static final Gson GSON = new Gson();
     public static final String SPLITTER = "_";
     public static final String UNIQUE_KEY = "";
@@ -62,7 +62,7 @@ public class RocksOffsetStoreImp implements Store {
     private ConcurrentHashMap<String, ColumnFamilyDescriptor> columnDescriptorMap;
     private String storePath;
 
-    public RocksOffsetStoreImp(String childPath) {
+    public RocksStoreImp(String childPath) {
         // init rocks db
         this.conf = AgentConfiguration.getAgentConf();
         this.db = initEnv(childPath);
@@ -126,7 +126,7 @@ public class RocksOffsetStoreImp implements Store {
         } else {
             LOGGER.info("loading column families :" + existing.stream().map(String::new).collect(Collectors.toList()));
             managedColumnFamilies.addAll(
-                    existing.stream().map(RocksOffsetStoreImp::getColumnFamilyDescriptor).collect(Collectors.toList()));
+                    existing.stream().map(RocksStoreImp::getColumnFamilyDescriptor).collect(Collectors.toList()));
         }
         return managedColumnFamilies;
     }

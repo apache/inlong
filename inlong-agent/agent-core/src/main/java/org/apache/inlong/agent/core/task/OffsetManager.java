@@ -22,11 +22,11 @@ import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.OffsetProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CycleUnitType;
-import org.apache.inlong.agent.db.InstanceStore;
-import org.apache.inlong.agent.db.OffsetStore;
-import org.apache.inlong.agent.db.Store;
-import org.apache.inlong.agent.db.TaskStore;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
+import org.apache.inlong.agent.store.InstanceStore;
+import org.apache.inlong.agent.store.OffsetStore;
+import org.apache.inlong.agent.store.Store;
+import org.apache.inlong.agent.store.TaskStore;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.apache.inlong.agent.constant.TaskConstants.TASK_AUDIT_VERSION;
 
 /**
- * used to store instance offset to db
+ * used to save instance offset to offset store
  * where key is task id + read file name and value is instance offset
  */
 public class OffsetManager extends AbstractDaemon {
@@ -171,7 +171,7 @@ public class OffsetManager extends AbstractDaemon {
                     DB_INSTANCE_EXPIRE_CYCLE_COUNT + instanceFromDb.getCycleUnit());
             if (AgentUtils.getCurrentTime() - instanceFromDb.getModifyTime() > expireTime) {
                 cleanCount.getAndIncrement();
-                LOGGER.info("instance has expired, delete from db dataTime {} taskId {} instanceId {}",
+                LOGGER.info("instance has expired, delete from instance store dataTime {} taskId {} instanceId {}",
                         instanceFromDb.getSourceDataTime(), taskId, instanceId);
                 instanceStore.deleteInstance(taskId, instanceId);
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_DEL_INSTANCE_DB, instanceFromDb.getInlongGroupId(),

@@ -95,8 +95,8 @@ public class TestLogFileTask {
                 return null;
             }).when(task, "addToEvenMap", Mockito.anyString(), Mockito.anyString());
             Assert.assertTrue(task.isProfileValid(taskProfile));
-            manager.getTaskDb().storeTask(taskProfile);
-            task.init(manager, taskProfile, manager.getInstanceBasicDb());
+            manager.getTaskStore().storeTask(taskProfile);
+            task.init(manager, taskProfile, manager.getInstanceBasicStore());
             EXECUTOR_SERVICE.submit(task);
         } catch (Exception e) {
             LOGGER.error("source init error {}", e);

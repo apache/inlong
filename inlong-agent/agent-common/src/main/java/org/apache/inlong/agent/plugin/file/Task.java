@@ -18,8 +18,8 @@
 package org.apache.inlong.agent.plugin.file;
 
 import org.apache.inlong.agent.conf.TaskProfile;
-import org.apache.inlong.agent.db.Store;
 import org.apache.inlong.agent.state.AbstractStateWrapper;
+import org.apache.inlong.agent.store.Store;
 
 import java.io.IOException;
 

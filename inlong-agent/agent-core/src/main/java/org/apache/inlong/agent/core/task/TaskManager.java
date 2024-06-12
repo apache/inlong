@@ -22,11 +22,11 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.db.RocksOffsetStoreImp;
-import org.apache.inlong.agent.db.Store;
-import org.apache.inlong.agent.db.TaskStore;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.file.Task;
+import org.apache.inlong.agent.store.RocksStoreImp;
+import org.apache.inlong.agent.store.Store;
+import org.apache.inlong.agent.store.TaskStore;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.enums.TaskStateEnum;
@@ -50,7 +50,7 @@ import static org.apache.inlong.agent.constant.TaskConstants.TASK_STATE;
 
 /**
  * handle the task config from manager, including add, delete, update etc.
- * the task config is store in both db and memory.
+ * the task config is store in both task store and memory.
  */
 public class TaskManager extends AbstractDaemon {
 
@@ -60,13 +60,13 @@ public class TaskManager extends AbstractDaemon {
     public static final int CORE_THREAD_PRINT_TIME = 10000;
     private static final int ACTION_QUEUE_CAPACITY = 1000;
     private long lastPrintTime = 0;
-    // task basic db
+    // task basic store
     private final Store taskBasicStore;
-    // instance basic db
+    // instance basic store
     private final Store instanceBasicStore;
-    // offset basic db
+    // offset basic store
     private final Store offsetBasicStore;
-    // task in db
+    // task in task store
     private final TaskStore taskStore;
     // task in memory
     private final ConcurrentHashMap<String, Task> taskMap;
@@ -125,13 +125,13 @@ public class TaskManager extends AbstractDaemon {
      */
     public TaskManager() {
         this.agentConf = AgentConfiguration.getAgentConf();
-        taskBasicStore = initDb(
+        taskBasicStore = initStore(
                 agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_TASK));
         taskStore = new TaskStore(taskBasicStore);
-        instanceBasicStore = initDb(
+        instanceBasicStore = initStore(
                 agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE));
         offsetBasicStore =
-                initDb(agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET));
+                initStore(agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET));
         OffsetManager.init(taskBasicStore, instanceBasicStore, offsetBasicStore);
         this.runningPool = new ThreadPoolExecutor(
                 0, Integer.MAX_VALUE,
@@ -145,22 +145,22 @@ public class TaskManager extends AbstractDaemon {
         actionQueue = new LinkedBlockingQueue<>(ACTION_QUEUE_CAPACITY);
     }
 
-    public TaskStore getTaskDb() {
+    public TaskStore getTaskStore() {
         return taskStore;
     }
 
-    public Store getInstanceBasicDb() {
+    public Store getInstanceBasicStore() {
         return instanceBasicStore;
     }
 
     /**
-     * init db by class name
+     * init store by class name
      *
-     * @return db
+     * @return store
      */
-    public static Store initDb(String childPath) {
+    public static Store initStore(String childPath) {
         try {
-            return new RocksOffsetStoreImp(childPath);
+            return new RocksStoreImp(childPath);
         } catch (Exception ex) {
             throw new UnsupportedClassVersionError(ex.getMessage());
         }
@@ -213,13 +213,13 @@ public class TaskManager extends AbstractDaemon {
 
     private void printTaskDetail() {
         if (AgentUtils.getCurrentTime() - lastPrintTime > CORE_THREAD_PRINT_TIME) {
-            List<TaskProfile> tasksInDb = taskStore.getTasks();
+            List<TaskProfile> tasksInStore = taskStore.getTasks();
             TaskPrintStat stat = new TaskPrintStat();
-            for (int i = 0; i < tasksInDb.size(); i++) {
-                TaskProfile task = tasksInDb.get(i);
+            for (int i = 0; i < tasksInStore.size(); i++) {
+                TaskProfile task = tasksInStore.get(i);
                 stat.stat(task.getState());
             }
-            LOGGER.info("taskManager running! mem {} db total {} {} ", taskMap.size(), tasksInDb.size(), stat);
+            LOGGER.info("taskManager running! mem {} total {} {} ", taskMap.size(), tasksInStore.size(), stat);
             lastPrintTime = AgentUtils.getCurrentTime();
         }
     }
@@ -230,7 +230,7 @@ public class TaskManager extends AbstractDaemon {
             return;
         }
         keepPaceWithManager(dataConfigs);
-        keepPaceWithDb();
+        keepPaceWithStore();
     }
 
     private void dealWithActionQueue(BlockingQueue<TaskAction> queue) {
@@ -271,48 +271,48 @@ public class TaskManager extends AbstractDaemon {
                 LOGGER.error("task {} invalid task state {}", profile, state);
             }
         });
-        traverseManagerTasksToDb(tasksFromManager);
-        traverseDbTasksToManager(tasksFromManager);
+        traverseManagerTasksToStore(tasksFromManager);
+        traverseStoreTasksToManager(tasksFromManager);
     }
 
     /**
-     * keep pace with task in db
+     * keep pace with task in task store
      */
-    private void keepPaceWithDb() {
-        traverseDbTasksToMemory();
-        traverseMemoryTasksToDb();
+    private void keepPaceWithStore() {
+        traverseStoreTasksToMemory();
+        traverseMemoryTasksToStore();
     }
 
     /**
-     * keep pace with task in db
+     * keep pace with task in task store
      */
-    private void traverseManagerTasksToDb(Map<String, TaskProfile> tasksFromManager) {
+    private void traverseManagerTasksToStore(Map<String, TaskProfile> tasksFromManager) {
         tasksFromManager.values().forEach((profileFromManager) -> {
-            TaskProfile taskFromDb = taskStore.getTask(profileFromManager.getTaskId());
-            if (taskFromDb == null) {
-                LOGGER.info("traverseManagerTasksToDb task {} not found in db retry {} state {}, add it",
+            TaskProfile taskFromStore = taskStore.getTask(profileFromManager.getTaskId());
+            if (taskFromStore == null) {
+                LOGGER.info("traverseManagerTasksToStore task {} not found in task store retry {} state {}, add it",
                         profileFromManager.getTaskId(),
                         profileFromManager.isRetry(), profileFromManager.getState());
                 addTask(profileFromManager);
             } else {
                 TaskStateEnum managerState = profileFromManager.getState();
-                TaskStateEnum dbState = taskFromDb.getState();
-                if (managerState == dbState) {
+                TaskStateEnum storeState = taskFromStore.getState();
+                if (managerState == storeState) {
                     return;
                 }
-                if (dbState == TaskStateEnum.RETRY_FINISH) {
-                    LOGGER.info("traverseManagerTasksToDb task {} dbState {} retry {}, do nothing",
-                            taskFromDb.getTaskId(), dbState,
-                            taskFromDb.isRetry());
+                if (storeState == TaskStateEnum.RETRY_FINISH) {
+                    LOGGER.info("traverseManagerTasksToStore task {} storeState {} retry {}, do nothing",
+                            taskFromStore.getTaskId(), storeState,
+                            taskFromStore.isRetry());
                     return;
                 }
                 if (managerState == TaskStateEnum.RUNNING) {
-                    LOGGER.info("traverseManagerTasksToDb task {} dbState {} retry {}, active it",
-                            taskFromDb.getTaskId(), dbState, taskFromDb.isRetry());
+                    LOGGER.info("traverseManagerTasksToStore task {} storeState {} retry {}, active it",
+                            taskFromStore.getTaskId(), storeState, taskFromStore.isRetry());
                     activeTask(profileFromManager);
                 } else {
-                    LOGGER.info("traverseManagerTasksToDb task {} dbState {} retry {}, freeze it",
-                            taskFromDb.getTaskId(), dbState, taskFromDb.isRetry());
+                    LOGGER.info("traverseManagerTasksToStore task {} storeState {} retry {}, freeze it",
+                            taskFromStore.getTaskId(), storeState, taskFromStore.isRetry());
                     freezeTask(profileFromManager);
                 }
             }
@@ -320,13 +320,13 @@ public class TaskManager extends AbstractDaemon {
     }
 
     /**
-     * traverse tasks in db, if not found in tasks from manager then delete it
+     * traverse tasks in task store, if not found in tasks from manager then delete it
      */
-    private void traverseDbTasksToManager(Map<String, TaskProfile> tasksFromManager) {
-        taskStore.getTasks().forEach((profileFromDb) -> {
-            if (!tasksFromManager.containsKey(profileFromDb.getTaskId())) {
-                LOGGER.info("traverseDbTasksToManager try to delete task {}", profileFromDb.getTaskId());
-                deleteTask(profileFromDb);
+    private void traverseStoreTasksToManager(Map<String, TaskProfile> tasksFromManager) {
+        taskStore.getTasks().forEach((profileFromStore) -> {
+            if (!tasksFromManager.containsKey(profileFromStore.getTaskId())) {
+                LOGGER.info("traverseStoreTasksToManager try to delete task {}", profileFromStore.getTaskId());
+                deleteTask(profileFromStore);
             }
         });
     }
@@ -335,49 +335,49 @@ public class TaskManager extends AbstractDaemon {
      * manager task state is RUNNING and taskMap not found then add
      * manager task state is FROZE and taskMap found thrn delete
      */
-    private void traverseDbTasksToMemory() {
-        taskStore.getTasks().forEach((profileFromDb) -> {
-            TaskStateEnum dbState = profileFromDb.getState();
-            Task task = taskMap.get(profileFromDb.getTaskId());
-            if (dbState == TaskStateEnum.RUNNING) {
+    private void traverseStoreTasksToMemory() {
+        taskStore.getTasks().forEach((profileFromStore) -> {
+            TaskStateEnum storeState = profileFromStore.getState();
+            Task task = taskMap.get(profileFromStore.getTaskId());
+            if (storeState == TaskStateEnum.RUNNING) {
                 if (task == null) {
-                    LOGGER.info("traverseDbTasksToMemory add task to mem taskId {}", profileFromDb.getTaskId());
-                    addToMemory(profileFromDb);
+                    LOGGER.info("traverseStoreTasksToMemory add task to mem taskId {}", profileFromStore.getTaskId());
+                    addToMemory(profileFromStore);
                 }
-            } else if (dbState == TaskStateEnum.FROZEN) {
+            } else if (storeState == TaskStateEnum.FROZEN) {
                 if (task != null) {
-                    LOGGER.info("traverseDbTasksToMemory delete task from mem taskId {}",
-                            profileFromDb.getTaskId());
-                    deleteFromMemory(profileFromDb.getTaskId());
+                    LOGGER.info("traverseStoreTasksToMemory delete task from mem taskId {}",
+                            profileFromStore.getTaskId());
+                    deleteFromMemory(profileFromStore.getTaskId());
                 }
             } else {
-                if (dbState != TaskStateEnum.RETRY_FINISH) {
-                    LOGGER.error("task {} invalid state {}", profileFromDb.getTaskId(), dbState);
+                if (storeState != TaskStateEnum.RETRY_FINISH) {
+                    LOGGER.error("task {} invalid state {}", profileFromStore.getTaskId(), storeState);
                 }
             }
         });
     }
 
     /**
-     * task in taskMap but not in taskDb then delete
-     * task in taskMap but task state from db is FROZEN then delete
+     * task in taskMap but not in task store then delete
+     * task in taskMap but task state from task store is FROZEN then delete
      */
-    private void traverseMemoryTasksToDb() {
+    private void traverseMemoryTasksToStore() {
         taskMap.values().forEach((task) -> {
-            TaskProfile profileFromDb = taskStore.getTask(task.getTaskId());
-            if (profileFromDb == null) {
+            TaskProfile profileFromStore = taskStore.getTask(task.getTaskId());
+            if (profileFromStore == null) {
                 deleteFromMemory(task.getTaskId());
                 return;
             }
-            TaskStateEnum stateFromDb = profileFromDb.getState();
-            if (stateFromDb != TaskStateEnum.RUNNING) {
+            TaskStateEnum stateFromStore = profileFromStore.getState();
+            if (stateFromStore != TaskStateEnum.RUNNING) {
                 deleteFromMemory(task.getTaskId());
             }
         });
     }
 
     /**
-     * add task profile to db
+     * add task profile to task store
      * if task state is RUNNING then add task to memory
      */
     private void addTask(TaskProfile taskProfile) {
@@ -389,7 +389,7 @@ public class TaskManager extends AbstractDaemon {
             LOGGER.error("task profile invalid {}", taskProfile.toJsonStr());
             return;
         }
-        addToDb(taskProfile);
+        addToStore(taskProfile);
         TaskStateEnum state = TaskStateEnum.getTaskState(taskProfile.getInt(TASK_STATE));
         if (state == TaskStateEnum.RUNNING) {
             addToMemory(taskProfile);
@@ -400,37 +400,37 @@ public class TaskManager extends AbstractDaemon {
     }
 
     private void deleteTask(TaskProfile taskProfile) {
-        deleteFromDb(taskProfile);
+        deleteFromStore(taskProfile);
         deleteFromMemory(taskProfile.getTaskId());
     }
 
     private void freezeTask(TaskProfile taskProfile) {
-        updateToDb(taskProfile);
+        updateToStore(taskProfile);
         deleteFromMemory(taskProfile.getTaskId());
     }
 
     private void finishTask(TaskProfile taskProfile) {
         taskProfile.setState(TaskStateEnum.RETRY_FINISH);
-        updateToDb(taskProfile);
+        updateToStore(taskProfile);
         deleteFromMemory(taskProfile.getTaskId());
     }
 
     private void activeTask(TaskProfile taskProfile) {
-        updateToDb(taskProfile);
+        updateToStore(taskProfile);
         addToMemory(taskProfile);
     }
 
-    private void restoreFromDb() {
-        LOGGER.info("restore from db start");
+    private void restoreFromStore() {
+        LOGGER.info("restore from task store start");
         List<TaskProfile> taskProfileList = taskStore.getTasks();
         taskProfileList.forEach((profile) -> {
             if (profile.getState() == TaskStateEnum.RUNNING) {
-                LOGGER.info("restore from db taskId {}", profile.getTaskId());
+                LOGGER.info("restore from task store taskId {}", profile.getTaskId());
                 profile.setBoolean(RESTORE_FROM_DB, true);
                 addToMemory(profile);
             }
         });
-        LOGGER.info("restore from db end");
+        LOGGER.info("restore from task store end");
     }
 
     private void stopAllTasks() {
@@ -452,26 +452,26 @@ public class TaskManager extends AbstractDaemon {
     }
 
     /**
-     * add task to db, it was expected that there is no record refer the task id.
+     * add task to task store, it was expected that there is no record refer the task id.
      * cause the task id will change if the task content changes, replace the record
-     * if it is found, the memory record will be updated by the db.
+     * if it is found, the memory record will be updated by the task store.
      */
-    private void addToDb(TaskProfile taskProfile) {
+    private void addToStore(TaskProfile taskProfile) {
         if (taskStore.getTask(taskProfile.getTaskId()) != null) {
             LOGGER.error("task {} should not exist", taskProfile.getTaskId());
         }
         taskStore.storeTask(taskProfile);
     }
 
-    private void deleteFromDb(TaskProfile taskProfile) {
+    private void deleteFromStore(TaskProfile taskProfile) {
         if (taskStore.getTask(taskProfile.getTaskId()) == null) {
-            LOGGER.error("try to delete task {} but not found in db", taskProfile);
+            LOGGER.error("try to delete task {} but not found in task store", taskProfile);
             return;
         }
         taskStore.deleteTask(taskProfile.getTaskId());
     }
 
-    private void updateToDb(TaskProfile taskProfile) {
+    private void updateToStore(TaskProfile taskProfile) {
         if (taskStore.getTask(taskProfile.getTaskId()) == null) {
             LOGGER.error("task {} not found, agent may have been reinstalled", taskProfile);
         }
@@ -528,7 +528,7 @@ public class TaskManager extends AbstractDaemon {
 
     @Override
     public void start() throws Exception {
-        restoreFromDb();
+        restoreFromStore();
         submitWorker(coreThread());
         OffsetManager.getInstance().start();
     }

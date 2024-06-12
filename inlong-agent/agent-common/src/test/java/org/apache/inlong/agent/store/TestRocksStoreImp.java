@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.db;
+package org.apache.inlong.agent.store;
 
 import org.apache.inlong.agent.AgentBaseTestsHelper;
 
@@ -26,15 +26,15 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-public class TestRocksOffsetStoreImp {
+public class TestRocksStoreImp {
 
-    private static RocksOffsetStoreImp db;
+    private static RocksStoreImp db;
     private static AgentBaseTestsHelper helper;
 
     @BeforeClass
     public static void setup() throws Exception {
-        helper = new AgentBaseTestsHelper(TestRocksOffsetStoreImp.class.getName()).setupAgentHome();
-        db = new RocksOffsetStoreImp("/localdb");
+        helper = new AgentBaseTestsHelper(TestRocksStoreImp.class.getName()).setupAgentHome();
+        db = new RocksStoreImp("/localdb");
     }
 
     @AfterClass

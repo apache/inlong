@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.db;
+package org.apache.inlong.agent.store;
 
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
@@ -40,7 +40,7 @@ public class TaskStore {
     }
 
     /**
-     * get task list from db.
+     * get task list from task store.
      *
      * @return list of task
      */
