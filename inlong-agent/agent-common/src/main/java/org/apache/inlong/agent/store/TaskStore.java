@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * store for task profile
+ * Store for task profile
  */
 public class TaskStore {
 
