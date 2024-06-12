@@ -27,6 +27,7 @@ import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
+import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
@@ -262,6 +263,13 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
             case TIMESTAMP:
                 metadataKey = "timestamp";
                 break;
+            case AUDIT_DATA_TIME:
+                if (format instanceof InLongMsgFormat) {
+                    metadataKey = INLONG_MSG_AUDIT_TIME;
+                } else {
+                    metadataKey = CONSUME_AUDIT_TIME;
+                }
+                break;
             default:
                 throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
                         this.getClass().getSimpleName(), metaField));
@@ -279,6 +287,7 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
             case PARTITION:
             case OFFSET:
             case TIMESTAMP:
+            case AUDIT_DATA_TIME:
                 return true;
             default:
                 return false;
@@ -291,6 +300,6 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
                 MetaField.SQL_TYPE, MetaField.PK_NAMES, MetaField.TS, MetaField.OP_TS, MetaField.IS_DDL,
                 MetaField.MYSQL_TYPE, MetaField.BATCH_ID, MetaField.UPDATE_BEFORE,
                 MetaField.KEY, MetaField.VALUE, MetaField.PARTITION, MetaField.HEADERS,
-                MetaField.HEADERS_TO_JSON_STR, MetaField.OFFSET, MetaField.TIMESTAMP);
+                MetaField.HEADERS_TO_JSON_STR, MetaField.OFFSET, MetaField.TIMESTAMP, MetaField.AUDIT_DATA_TIME);
     }
 }
