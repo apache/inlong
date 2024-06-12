@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * store for offset
+ * Store for offset
  */
 public class OffsetStore {
 
