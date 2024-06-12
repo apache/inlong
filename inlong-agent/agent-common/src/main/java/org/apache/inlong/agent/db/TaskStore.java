@@ -27,16 +27,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * db interface for task profile.
+ * store for task profile
  */
-public class TaskDb {
+public class TaskStore {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TaskDb.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskStore.class);
 
-    private final OffsetStore offsetStore;
+    private final Store store;
 
-    public TaskDb(OffsetStore offsetStore) {
-        this.offsetStore = offsetStore;
+    public TaskStore(Store store) {
+        this.store = store;
     }
 
     /**
@@ -45,7 +45,7 @@ public class TaskDb {
      * @return list of task
      */
     public List<TaskProfile> getTasks() {
-        List<KeyValueEntity> result = this.offsetStore.findAll(getKey());
+        List<KeyValueEntity> result = this.store.findAll(getKey());
         List<TaskProfile> taskList = new ArrayList<>();
         for (KeyValueEntity entity : result) {
             taskList.add(entity.getAsTaskProfile());
@@ -63,7 +63,7 @@ public class TaskDb {
             String keyName = getKeyByTaskId(task.getTaskId());
             KeyValueEntity entity = new KeyValueEntity(keyName,
                     task.toJsonStr(), "");
-            offsetStore.put(entity);
+            store.put(entity);
         }
     }
 
@@ -73,7 +73,7 @@ public class TaskDb {
      * @param taskId taskId
      */
     public TaskProfile getTask(String taskId) {
-        KeyValueEntity result = this.offsetStore.get(getKeyByTaskId(taskId));
+        KeyValueEntity result = this.store.get(getKeyByTaskId(taskId));
         if (result == null) {
             return null;
         }
@@ -84,18 +84,18 @@ public class TaskDb {
      * delete task by id.
      */
     public void deleteTask(String taskId) {
-        offsetStore.remove(getKeyByTaskId(taskId));
+        store.remove(getKeyByTaskId(taskId));
     }
 
     public String getKey() {
-        if (offsetStore.getUniqueKey().isEmpty()) {
+        if (store.getUniqueKey().isEmpty()) {
             return CommonConstants.TASK_ID_PREFIX;
         } else {
-            return offsetStore.getUniqueKey() + offsetStore.getSplitter() + CommonConstants.TASK_ID_PREFIX;
+            return store.getUniqueKey() + store.getSplitter() + CommonConstants.TASK_ID_PREFIX;
         }
     }
 
     public String getKeyByTaskId(String taskId) {
-        return getKey() + offsetStore.getSplitter() + taskId;
+        return getKey() + store.getSplitter() + taskId;
     }
 }

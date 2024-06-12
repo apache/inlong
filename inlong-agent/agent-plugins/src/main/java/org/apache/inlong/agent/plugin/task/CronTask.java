@@ -18,7 +18,7 @@
 package org.apache.inlong.agent.plugin.task;
 
 import org.apache.inlong.agent.conf.TaskProfile;
-import org.apache.inlong.agent.db.OffsetStore;
+import org.apache.inlong.agent.db.Store;
 import org.apache.inlong.agent.plugin.file.Task;
 
 /**
@@ -27,7 +27,7 @@ import org.apache.inlong.agent.plugin.file.Task;
 public class CronTask extends Task {
 
     @Override
-    public void init(Object srcManager, TaskProfile profile, OffsetStore basicOffsetStore) {
+    public void init(Object srcManager, TaskProfile profile, Store basicStore) {
 
     }
 

@@ -28,16 +28,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * db interface for instance profile.
+ * store for instance profile
  */
-public class InstanceDb {
+public class InstanceStore {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InstanceDb.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InstanceStore.class);
 
-    private final OffsetStore offsetStore;
+    private final Store store;
 
-    public InstanceDb(OffsetStore offsetStore) {
-        this.offsetStore = offsetStore;
+    public InstanceStore(Store store) {
+        this.store = store;
     }
 
     /**
@@ -46,7 +46,7 @@ public class InstanceDb {
      * @return list of task
      */
     public List<InstanceProfile> listAllInstances() {
-        List<KeyValueEntity> result = this.offsetStore.findAll(offsetStore.getUniqueKey());
+        List<KeyValueEntity> result = this.store.findAll(store.getUniqueKey());
         List<InstanceProfile> instanceList = new ArrayList<>();
         for (KeyValueEntity entity : result) {
             instanceList.add(entity.getAsInstanceProfile());
@@ -60,7 +60,7 @@ public class InstanceDb {
      * @return list of task
      */
     public List<InstanceProfile> getInstances(String taskId) {
-        List<KeyValueEntity> result = this.offsetStore.findAll(getKeyByTaskId(taskId));
+        List<KeyValueEntity> result = this.store.findAll(getKeyByTaskId(taskId));
         List<InstanceProfile> instanceList = new ArrayList<>();
         for (KeyValueEntity entity : result) {
             instanceList.add(entity.getAsInstanceProfile());
@@ -79,7 +79,7 @@ public class InstanceDb {
                     instance.get(TaskConstants.INSTANCE_ID));
             KeyValueEntity entity = new KeyValueEntity(keyName,
                     instance.toJsonStr(), instance.get(TaskConstants.INSTANCE_ID));
-            offsetStore.put(entity);
+            store.put(entity);
         } else {
             LOGGER.error("instance profile invalid!");
         }
@@ -92,7 +92,7 @@ public class InstanceDb {
      * @param instanceId it can be file name(file collect), table name(db sync) etc
      */
     public InstanceProfile getInstance(String taskId, String instanceId) {
-        KeyValueEntity result = this.offsetStore.get(getKeyByTaskAndInstanceId(taskId, instanceId));
+        KeyValueEntity result = this.store.get(getKeyByTaskAndInstanceId(taskId, instanceId));
         if (result == null) {
             return null;
         }
@@ -106,15 +106,15 @@ public class InstanceDb {
      * @param instanceId it can be file name(file collect), table name(db sync) etc
      */
     public void deleteInstance(String taskId, String instanceId) {
-        offsetStore.remove(getKeyByTaskAndInstanceId(taskId, instanceId));
+        store.remove(getKeyByTaskAndInstanceId(taskId, instanceId));
     }
 
     public String getKey() {
-        if (offsetStore.getUniqueKey().isEmpty()) {
-            return CommonConstants.INSTANCE_ID_PREFIX + offsetStore.getSplitter();
+        if (store.getUniqueKey().isEmpty()) {
+            return CommonConstants.INSTANCE_ID_PREFIX + store.getSplitter();
         } else {
-            return offsetStore.getUniqueKey() + offsetStore.getSplitter() + CommonConstants.INSTANCE_ID_PREFIX
-                    + offsetStore.getSplitter();
+            return store.getUniqueKey() + store.getSplitter() + CommonConstants.INSTANCE_ID_PREFIX
+                    + store.getSplitter();
         }
     }
 
@@ -123,6 +123,6 @@ public class InstanceDb {
     }
 
     public String getKeyByTaskAndInstanceId(String taskId, String instanceId) {
-        return getKeyByTaskId(taskId) + offsetStore.getSplitter() + offsetStore.replaceKeywords(instanceId);
+        return getKeyByTaskId(taskId) + store.getSplitter() + store.replaceKeywords(instanceId);
     }
 }

@@ -25,7 +25,7 @@ import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.core.task.MemoryManager;
 import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.core.task.TaskManager;
-import org.apache.inlong.agent.db.OffsetStore;
+import org.apache.inlong.agent.db.Store;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.utils.file.FileDataUtils;
@@ -58,20 +58,20 @@ public class TestLogFileSource {
     private static final String[] check = {"hello line-end-symbol aa", "world line-end-symbol",
             "agent line-end-symbol"};
     // task basic db
-    private static OffsetStore taskBasicOffsetStore;
+    private static Store taskBasicStore;
     // instance basic db
-    private static OffsetStore instanceBasicOffsetStore;
+    private static Store instanceBasicStore;
     // offset basic db
-    private static OffsetStore offsetBasicOffsetStore;
+    private static Store offsetBasicStore;
 
     @BeforeClass
     public static void setup() {
         helper = new AgentBaseTestsHelper(TestLogFileSource.class.getName()).setupAgentHome();
-        taskBasicOffsetStore = TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_TASK);
-        instanceBasicOffsetStore = TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE);
-        offsetBasicOffsetStore =
+        taskBasicStore = TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_TASK);
+        instanceBasicStore = TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE);
+        offsetBasicStore =
                 TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET);
-        OffsetManager.init(taskBasicOffsetStore, instanceBasicOffsetStore, offsetBasicOffsetStore);
+        OffsetManager.init(taskBasicStore, instanceBasicStore, offsetBasicStore);
     }
 
     private LogFileSource getSource(int taskId, long offset) {

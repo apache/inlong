@@ -47,7 +47,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * DB implement based on the Rocks DB.
  */
-public class RocksOffsetStoreImp implements OffsetStore {
+public class RocksOffsetStoreImp implements Store {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RocksOffsetStoreImp.class);
     private static final Gson GSON = new Gson();

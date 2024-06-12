@@ -17,43 +17,69 @@
 
 package org.apache.inlong.agent.db;
 
-import java.io.Closeable;
+import org.apache.inlong.agent.conf.OffsetProfile;
+import org.apache.inlong.agent.constant.CommonConstants;
+import org.apache.inlong.agent.constant.TaskConstants;
+import org.apache.inlong.agent.utils.AgentUtils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * offset store
+ * store for offset
  */
-public interface OffsetStore extends Closeable {
+public class OffsetStore {
 
-    KeyValueEntity get(String key);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OffsetStore.class);
+    private final Store store;
 
-    /**
-     * store keyValue, if key has exists, overwrite it.
-     *
-     * @param entity key/value
-     */
-    void put(KeyValueEntity entity);
+    public OffsetStore(Store store) {
+        this.store = store;
+    }
 
-    /**
-     * remove keyValue by key.
-     *
-     * @param key key
-     * @return key/value
-     * @throws NullPointerException key should not be null.
-     */
-    KeyValueEntity remove(String key);
+    public List<OffsetProfile> listAllOffsets() {
+        List<KeyValueEntity> result = this.store.findAll(store.getUniqueKey());
+        List<OffsetProfile> offsetList = new ArrayList<>();
+        for (KeyValueEntity entity : result) {
+            offsetList.add(entity.getAsOffsetProfile());
+        }
+        return offsetList;
+    }
 
-    /**
-     * find all by prefix key.
-     *
-     * @param prefix prefix string
-     * @return list of k/v
-     */
-    List<KeyValueEntity> findAll(String prefix);
+    public OffsetProfile getOffset(String taskId, String instanceId) {
+        KeyValueEntity result = store.get(getKey(taskId, instanceId));
+        if (result == null) {
+            return null;
+        }
+        return result.getAsOffsetProfile();
+    }
 
-    String getSplitter();
+    public void deleteOffset(String taskId, String instanceId) {
+        store.remove(getKey(taskId, instanceId));
+    }
 
-    String getUniqueKey();
+    public void setOffset(OffsetProfile offsetProfile) {
+        offsetProfile.setLastUpdateTime(AgentUtils.getCurrentTime());
+        if (offsetProfile.allRequiredKeyExist()) {
+            String keyName = getKey(offsetProfile.getTaskId(),
+                    offsetProfile.getInstanceId());
+            KeyValueEntity entity = new KeyValueEntity(keyName,
+                    offsetProfile.toJsonStr(), offsetProfile.get(TaskConstants.INSTANCE_ID));
+            store.put(entity);
+        }
+    }
 
-    String replaceKeywords(String source);
+    public String getKey(String taskId, String instanceId) {
+        if (store.getUniqueKey().isEmpty()) {
+            return CommonConstants.OFFSET_ID_PREFIX + store.getSplitter() + taskId
+                    + store.getSplitter() + store.replaceKeywords(instanceId);
+        } else {
+            return store.getUniqueKey() + store.getSplitter() + CommonConstants.OFFSET_ID_PREFIX
+                    + store.getSplitter() + taskId
+                    + store.getSplitter() + store.replaceKeywords(instanceId);
+        }
+    }
 }

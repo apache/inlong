@@ -15,43 +15,45 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.file;
+package org.apache.inlong.agent.db;
 
-import org.apache.inlong.agent.conf.TaskProfile;
-import org.apache.inlong.agent.db.Store;
-import org.apache.inlong.agent.state.AbstractStateWrapper;
-
-import java.io.IOException;
+import java.io.Closeable;
+import java.util.List;
 
 /**
- * Task interface, which generates instance in condition.
+ * store for task, instance and offset info
  */
-public abstract class Task extends AbstractStateWrapper {
+public interface Store extends Closeable {
+
+    KeyValueEntity get(String key);
 
     /**
-     * init task by profile
+     * store keyValue, if key has exists, overwrite it.
      *
-     * @throws IOException
+     * @param entity key/value
      */
-    public abstract void init(Object srcManager, TaskProfile profile, Store basicStore) throws IOException;
+    void put(KeyValueEntity entity);
 
     /**
-     * destroy task.
+     * remove keyValue by key.
+     *
+     * @param key key
+     * @return key/value
+     * @throws NullPointerException key should not be null.
      */
-    public abstract void destroy();
+    KeyValueEntity remove(String key);
 
     /**
-     * get task profile
+     * find all by prefix key.
+     *
+     * @param prefix prefix string
+     * @return list of k/v
      */
-    public abstract TaskProfile getProfile();
+    List<KeyValueEntity> findAll(String prefix);
 
-    /**
-     * get task id
-     */
-    public abstract String getTaskId();
+    String getSplitter();
 
-    /**
-     * is profile valid
-     */
-    public abstract boolean isProfileValid(TaskProfile profile);
+    String getUniqueKey();
+
+    String replaceKeywords(String source);
 }

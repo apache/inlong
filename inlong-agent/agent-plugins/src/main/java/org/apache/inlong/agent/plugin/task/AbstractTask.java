@@ -23,7 +23,7 @@ import org.apache.inlong.agent.core.instance.ActionType;
 import org.apache.inlong.agent.core.instance.InstanceAction;
 import org.apache.inlong.agent.core.instance.InstanceManager;
 import org.apache.inlong.agent.core.task.TaskManager;
-import org.apache.inlong.agent.db.OffsetStore;
+import org.apache.inlong.agent.db.Store;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.file.Task;
 import org.apache.inlong.agent.state.State;
@@ -44,7 +44,7 @@ public abstract class AbstractTask extends Task {
     public static final int CORE_THREAD_PRINT_TIME = 10000;
     protected static final int DEFAULT_INSTANCE_LIMIT = 1;
     protected TaskProfile taskProfile;
-    protected OffsetStore basicOffsetStore;
+    protected Store basicStore;
     protected TaskManager taskManager;
     private InstanceManager instanceManager;
     protected volatile boolean running = false;
@@ -53,13 +53,13 @@ public abstract class AbstractTask extends Task {
     protected long auditVersion;
 
     @Override
-    public void init(Object srcManager, TaskProfile taskProfile, OffsetStore basicOffsetStore) throws IOException {
+    public void init(Object srcManager, TaskProfile taskProfile, Store basicStore) throws IOException {
         taskManager = (TaskManager) srcManager;
         this.taskProfile = taskProfile;
-        this.basicOffsetStore = basicOffsetStore;
+        this.basicStore = basicStore;
         auditVersion = Long.parseLong(taskProfile.get(TASK_AUDIT_VERSION));
         instanceManager = new InstanceManager(taskProfile.getTaskId(), getInstanceLimit(),
-                basicOffsetStore, taskManager.getTaskDb());
+                basicStore, taskManager.getTaskDb());
         try {
             instanceManager.start();
         } catch (Exception e) {
