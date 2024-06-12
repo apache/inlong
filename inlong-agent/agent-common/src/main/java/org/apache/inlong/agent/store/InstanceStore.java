@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * store for instance profile
+ * Store for instance profile
  */
 public class InstanceStore {
 
