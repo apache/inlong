@@ -28,31 +28,31 @@ import java.io.IOException;
 
 public class TestRocksStoreImp {
 
-    private static RocksStoreImp db;
+    private static RocksStoreImp store;
     private static AgentBaseTestsHelper helper;
 
     @BeforeClass
     public static void setup() throws Exception {
         helper = new AgentBaseTestsHelper(TestRocksStoreImp.class.getName()).setupAgentHome();
-        db = new RocksStoreImp("/localdb");
+        store = new RocksStoreImp("/localdb");
     }
 
     @AfterClass
     public static void teardown() throws IOException {
-        db.close();
+        store.close();
         helper.teardownAgentHome();
     }
 
     @Test
     public void testKeyValueDB() {
         KeyValueEntity entity = new KeyValueEntity("test1", "testA", "test");
-        db.put(entity);
-        KeyValueEntity ret = db.get("test1");
+        store.put(entity);
+        KeyValueEntity ret = store.get("test1");
         Assert.assertEquals("test1", ret.getKey());
         Assert.assertEquals("testA", ret.getJsonValue());
 
-        db.remove("test1");
-        ret = db.get("test1");
+        store.remove("test1");
+        ret = store.get("test1");
         Assert.assertNull(ret);
 
         StateSearchKey keys = StateSearchKey.SUCCESS;
@@ -61,17 +61,17 @@ public class TestRocksStoreImp {
         entity1.setStateSearchKey(keys);
 
         entity.setJsonValue("testC");
-        db.put(entity);
-        KeyValueEntity newEntity = db.get("test1");
+        store.put(entity);
+        KeyValueEntity newEntity = store.get("test1");
         Assert.assertEquals("testC", newEntity.getJsonValue());
     }
 
     @Test
     public void testDeleteEntity() {
         KeyValueEntity entity = new KeyValueEntity("searchKey1", "searchResult1", "test");
-        db.put(entity);
-        db.remove("searchKey1");
-        KeyValueEntity entityResult = db.get("searchKey1");
+        store.put(entity);
+        store.remove("searchKey1");
+        KeyValueEntity entityResult = store.get("searchKey1");
         Assert.assertNull(entityResult);
     }
 }
