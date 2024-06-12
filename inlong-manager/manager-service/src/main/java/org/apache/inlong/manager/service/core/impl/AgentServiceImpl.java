@@ -23,6 +23,8 @@ import org.apache.inlong.common.db.CommandEntity;
 import org.apache.inlong.common.enums.PullJobTypeEnum;
 import org.apache.inlong.common.enums.TaskStateEnum;
 import org.apache.inlong.common.enums.TaskTypeEnum;
+import org.apache.inlong.common.pojo.agent.AgentConfigInfo;
+import org.apache.inlong.common.pojo.agent.AgentConfigRequest;
 import org.apache.inlong.common.pojo.agent.CmdConfig;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
@@ -61,6 +63,7 @@ import org.apache.inlong.manager.dao.mapper.ModuleConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.PackageConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
+import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeBindGroupRequest;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeDTO;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
@@ -68,6 +71,7 @@ import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.pojo.module.ModuleDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.source.SourceOperatorFactory;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperator;
@@ -182,6 +186,8 @@ public class AgentServiceImpl implements AgentService {
     private ModuleConfigEntityMapper moduleConfigEntityMapper;
     @Autowired
     private PackageConfigEntityMapper packageConfigEntityMapper;
+    @Autowired
+    private InlongClusterService clusterService;
 
     /**
      * Start the update task
@@ -320,6 +326,34 @@ public class AgentServiceImpl implements AgentService {
             sourceMapper.updateStatus(taskId, nextStatus, false);
             LOGGER.info("task result=[{}], update source status to [{}] for id [{}]", result, nextStatus, taskId);
         }
+    }
+
+    @Override
+    public AgentConfigInfo getAgentConfig(AgentConfigRequest request) {
+        LOGGER.info("begin to get init info for: " + request);
+        AgentConfigInfo agentConfigInfo = new AgentConfigInfo();
+        Set<String> tagSet = new HashSet<>(16);
+        tagSet.addAll(Arrays.asList(request.getClusterTag().split(InlongConstants.COMMA)));
+        List<String> clusterTagList = new ArrayList<>(tagSet);
+        ClusterPageRequest pageRequest = ClusterPageRequest.builder()
+                .type(ClusterType.AGENT_ZK)
+                .clusterTagList(clusterTagList)
+                .build();
+        List<InlongClusterEntity> agentZkCluster = clusterMapper.selectByCondition(pageRequest);
+        if (CollectionUtils.isEmpty(agentZkCluster)) {
+            throw new BusinessException("zk cluster for ha not found for cluster tag=" + request.getClusterTag());
+        }
+        agentConfigInfo.setZkUrl(agentZkCluster.get(0).getUrl());
+
+        AgentClusterInfo clusterInfo = (AgentClusterInfo) clusterService.getOne(
+                null, request.getClusterName(), ClusterType.AGENT);
+        agentConfigInfo.setCluster(AgentConfigInfo.AgentClusterInfo.builder()
+                .parentId(clusterInfo.getId())
+                .clusterName(clusterInfo.getName())
+                .build());
+
+        LOGGER.info("success to get agent config info for: {}, result: {}", request, agentConfigInfo);
+        return agentConfigInfo;
     }
 
     @Override
