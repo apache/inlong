@@ -91,14 +91,13 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
     {
       manual: true,
       onSuccess: result => {
-        let temp = result?.list
+        const temp = result?.list
           ?.filter(item => item.type === 'INSTALLER')
           .map(item => ({
             ...item,
             label: `${item.name} ${item.version}`,
             value: item.id,
           }));
-        console.log('result', temp);
         form.setFieldValue('installer', temp[0].id);
       },
     },
@@ -115,7 +114,6 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
           getAgentInstall();
         }
       }
-      console.log(form.getFieldValue('installer'));
     }
   }, [modalProps.open]);
 

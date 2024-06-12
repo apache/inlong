@@ -239,7 +239,6 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
         }),
         requestParams: {
           formatResult: result => {
-            console.log('result.log', result);
             return result?.list?.map(item => ({
               ...item,
               label: item.name,
