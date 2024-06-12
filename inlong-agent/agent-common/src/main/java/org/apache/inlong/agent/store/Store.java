@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.db;
+package org.apache.inlong.agent.store;
 
 import java.io.Closeable;
 import java.util.List;
 
 /**
- * local storage for key/value.
+ * Store for task, instance and offset info
  */
-public interface Db extends Closeable {
+public interface Store extends Closeable {
 
     KeyValueEntity get(String key);
 
@@ -50,4 +50,10 @@ public interface Db extends Closeable {
      * @return list of k/v
      */
     List<KeyValueEntity> findAll(String prefix);
+
+    String getSplitter();
+
+    String getUniqueKey();
+
+    String replaceKeywords(String source);
 }

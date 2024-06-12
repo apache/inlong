@@ -25,10 +25,10 @@ import org.apache.inlong.agent.constant.TaskConstants;
 import org.apache.inlong.agent.core.task.MemoryManager;
 import org.apache.inlong.agent.core.task.OffsetManager;
 import org.apache.inlong.agent.core.task.TaskManager;
-import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.utils.file.FileDataUtils;
+import org.apache.inlong.agent.store.Store;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.enums.TaskStateEnum;
 
@@ -57,21 +57,21 @@ public class TestLogFileSource {
     private static final Gson GSON = new Gson();
     private static final String[] check = {"hello line-end-symbol aa", "world line-end-symbol",
             "agent line-end-symbol"};
-    // task basic db
-    private static Db taskBasicDb;
-    // instance basic db
-    private static Db instanceBasicDb;
-    // offset basic db
-    private static Db offsetBasicDb;
+    // task basic store
+    private static Store taskBasicStore;
+    // instance basic store
+    private static Store instanceBasicStore;
+    // offset basic store
+    private static Store offsetBasicStore;
 
     @BeforeClass
     public static void setup() {
         helper = new AgentBaseTestsHelper(TestLogFileSource.class.getName()).setupAgentHome();
-        taskBasicDb = TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_TASK);
-        instanceBasicDb = TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE);
-        offsetBasicDb =
-                TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET);
-        OffsetManager.init(taskBasicDb, instanceBasicDb, offsetBasicDb);
+        taskBasicStore = TaskManager.initStore(AgentConstants.AGENT_LOCAL_DB_PATH_TASK);
+        instanceBasicStore = TaskManager.initStore(AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE);
+        offsetBasicStore =
+                TaskManager.initStore(AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET);
+        OffsetManager.init(taskBasicStore, instanceBasicStore, offsetBasicStore);
     }
 
     private LogFileSource getSource(int taskId, long offset) {

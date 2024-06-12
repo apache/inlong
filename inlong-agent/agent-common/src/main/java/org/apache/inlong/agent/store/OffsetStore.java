@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.db;
+package org.apache.inlong.agent.store;
 
 import org.apache.inlong.agent.conf.OffsetProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
@@ -29,32 +29,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * db interface for task profile.
+ * Store for offset
  */
-public class OffsetDb {
+public class OffsetStore {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OffsetDb.class);
-    private final Db db;
+    private static final Logger LOGGER = LoggerFactory.getLogger(OffsetStore.class);
+    private final Store store;
 
-    public OffsetDb(Db db) {
-        this.db = db;
-    }
-
-    /**
-     * init db by class name
-     *
-     * @return db
-     */
-    private Db initDb(String childPath) {
-        try {
-            return new RocksDbImp(childPath);
-        } catch (Exception ex) {
-            throw new UnsupportedClassVersionError(ex.getMessage());
-        }
+    public OffsetStore(Store store) {
+        this.store = store;
     }
 
     public List<OffsetProfile> listAllOffsets() {
-        List<KeyValueEntity> result = this.db.findAll("");
+        List<KeyValueEntity> result = this.store.findAll(store.getUniqueKey());
         List<OffsetProfile> offsetList = new ArrayList<>();
         for (KeyValueEntity entity : result) {
             offsetList.add(entity.getAsOffsetProfile());
@@ -63,7 +50,7 @@ public class OffsetDb {
     }
 
     public OffsetProfile getOffset(String taskId, String instanceId) {
-        KeyValueEntity result = db.get(getKey(taskId, instanceId));
+        KeyValueEntity result = store.get(getKey(taskId, instanceId));
         if (result == null) {
             return null;
         }
@@ -71,7 +58,7 @@ public class OffsetDb {
     }
 
     public void deleteOffset(String taskId, String instanceId) {
-        db.remove(getKey(taskId, instanceId));
+        store.remove(getKey(taskId, instanceId));
     }
 
     public void setOffset(OffsetProfile offsetProfile) {
@@ -81,11 +68,18 @@ public class OffsetDb {
                     offsetProfile.getInstanceId());
             KeyValueEntity entity = new KeyValueEntity(keyName,
                     offsetProfile.toJsonStr(), offsetProfile.get(TaskConstants.INSTANCE_ID));
-            db.put(entity);
+            store.put(entity);
         }
     }
 
-    private String getKey(String taskId, String instanceId) {
-        return CommonConstants.OFFSET_ID_PREFIX + taskId + "_" + instanceId;
+    public String getKey(String taskId, String instanceId) {
+        if (store.getUniqueKey().isEmpty()) {
+            return CommonConstants.OFFSET_ID_PREFIX + store.getSplitter() + taskId
+                    + store.getSplitter() + store.replaceKeywords(instanceId);
+        } else {
+            return store.getUniqueKey() + store.getSplitter() + CommonConstants.OFFSET_ID_PREFIX
+                    + store.getSplitter() + taskId
+                    + store.getSplitter() + store.replaceKeywords(instanceId);
+        }
     }
 }

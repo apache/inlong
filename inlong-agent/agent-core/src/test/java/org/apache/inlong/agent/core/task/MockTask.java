@@ -18,8 +18,8 @@
 package org.apache.inlong.agent.core.task;
 
 import org.apache.inlong.agent.conf.TaskProfile;
-import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.plugin.file.Task;
+import org.apache.inlong.agent.store.Store;
 
 import java.io.IOException;
 
@@ -36,7 +36,7 @@ public class MockTask extends Task {
     private TaskManager manager;
 
     @Override
-    public void init(Object srcManager, TaskProfile profile, Db basicDb) throws IOException {
+    public void init(Object srcManager, TaskProfile profile, Store basicStore) throws IOException {
         manager = (TaskManager) srcManager;
         this.profile = profile;
     }

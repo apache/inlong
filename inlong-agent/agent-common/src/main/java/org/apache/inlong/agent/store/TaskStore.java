@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.db;
+package org.apache.inlong.agent.store;
 
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
@@ -27,25 +27,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * db interface for task profile.
+ * Store for task profile
  */
-public class TaskProfileDb {
+public class TaskStore {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TaskProfileDb.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskStore.class);
 
-    private final Db db;
+    private final Store store;
 
-    public TaskProfileDb(Db db) {
-        this.db = db;
+    public TaskStore(Store store) {
+        this.store = store;
     }
 
     /**
-     * get task list from db.
+     * get task list from task store.
      *
      * @return list of task
      */
     public List<TaskProfile> getTasks() {
-        List<KeyValueEntity> result = this.db.findAll(getKey());
+        List<KeyValueEntity> result = this.store.findAll(getKey());
         List<TaskProfile> taskList = new ArrayList<>();
         for (KeyValueEntity entity : result) {
             taskList.add(entity.getAsTaskProfile());
@@ -63,7 +63,7 @@ public class TaskProfileDb {
             String keyName = getKeyByTaskId(task.getTaskId());
             KeyValueEntity entity = new KeyValueEntity(keyName,
                     task.toJsonStr(), "");
-            db.put(entity);
+            store.put(entity);
         }
     }
 
@@ -73,7 +73,7 @@ public class TaskProfileDb {
      * @param taskId taskId
      */
     public TaskProfile getTask(String taskId) {
-        KeyValueEntity result = this.db.get(getKeyByTaskId(taskId));
+        KeyValueEntity result = this.store.get(getKeyByTaskId(taskId));
         if (result == null) {
             return null;
         }
@@ -84,14 +84,18 @@ public class TaskProfileDb {
      * delete task by id.
      */
     public void deleteTask(String taskId) {
-        db.remove(getKeyByTaskId(taskId));
+        store.remove(getKeyByTaskId(taskId));
     }
 
-    private String getKey() {
-        return CommonConstants.TASK_ID_PREFIX;
+    public String getKey() {
+        if (store.getUniqueKey().isEmpty()) {
+            return CommonConstants.TASK_ID_PREFIX;
+        } else {
+            return store.getUniqueKey() + store.getSplitter() + CommonConstants.TASK_ID_PREFIX;
+        }
     }
 
-    private String getKeyByTaskId(String taskId) {
-        return CommonConstants.TASK_ID_PREFIX + taskId;
+    public String getKeyByTaskId(String taskId) {
+        return getKey() + store.getSplitter() + taskId;
     }
 }

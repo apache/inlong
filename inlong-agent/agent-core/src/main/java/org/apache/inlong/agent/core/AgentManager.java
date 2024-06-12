@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Agent Manager, the bridge for job manager, task manager, db e.t.c it manages agent level operations and communicates
+ * Agent Manager, the bridge for task manager, task store e.t.c it manages agent level operations and communicates
  * with outside system.
  */
 public class AgentManager extends AbstractDaemon {

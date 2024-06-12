@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.db;
+package org.apache.inlong.agent.store;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
@@ -28,25 +28,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * db interface for instance profile.
+ * Store for instance profile
  */
-public class InstanceDb {
+public class InstanceStore {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TaskProfileDb.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InstanceStore.class);
 
-    private final Db db;
+    private final Store store;
 
-    public InstanceDb(Db db) {
-        this.db = db;
+    public InstanceStore(Store store) {
+        this.store = store;
     }
 
     /**
-     * list all instance from db.
+     * list all instance from instance store.
      *
      * @return list of task
      */
     public List<InstanceProfile> listAllInstances() {
-        List<KeyValueEntity> result = this.db.findAll("");
+        List<KeyValueEntity> result = this.store.findAll(store.getUniqueKey());
         List<InstanceProfile> instanceList = new ArrayList<>();
         for (KeyValueEntity entity : result) {
             instanceList.add(entity.getAsInstanceProfile());
@@ -55,12 +55,12 @@ public class InstanceDb {
     }
 
     /**
-     * get instance list from db.
+     * get instance list from instance store.
      *
      * @return list of task
      */
     public List<InstanceProfile> getInstances(String taskId) {
-        List<KeyValueEntity> result = this.db.findAll(getKeyByTaskId(taskId));
+        List<KeyValueEntity> result = this.store.findAll(getKeyByTaskId(taskId));
         List<InstanceProfile> instanceList = new ArrayList<>();
         for (KeyValueEntity entity : result) {
             instanceList.add(entity.getAsInstanceProfile());
@@ -79,7 +79,7 @@ public class InstanceDb {
                     instance.get(TaskConstants.INSTANCE_ID));
             KeyValueEntity entity = new KeyValueEntity(keyName,
                     instance.toJsonStr(), instance.get(TaskConstants.INSTANCE_ID));
-            db.put(entity);
+            store.put(entity);
         } else {
             LOGGER.error("instance profile invalid!");
         }
@@ -92,7 +92,7 @@ public class InstanceDb {
      * @param instanceId it can be file name(file collect), table name(db sync) etc
      */
     public InstanceProfile getInstance(String taskId, String instanceId) {
-        KeyValueEntity result = this.db.get(getKeyByTaskAndInstanceId(taskId, instanceId));
+        KeyValueEntity result = this.store.get(getKeyByTaskAndInstanceId(taskId, instanceId));
         if (result == null) {
             return null;
         }
@@ -106,18 +106,23 @@ public class InstanceDb {
      * @param instanceId it can be file name(file collect), table name(db sync) etc
      */
     public void deleteInstance(String taskId, String instanceId) {
-        db.remove(getKeyByTaskAndInstanceId(taskId, instanceId));
+        store.remove(getKeyByTaskAndInstanceId(taskId, instanceId));
     }
 
-    private String getKey() {
-        return CommonConstants.INSTANCE_ID_PREFIX;
+    public String getKey() {
+        if (store.getUniqueKey().isEmpty()) {
+            return CommonConstants.INSTANCE_ID_PREFIX + store.getSplitter();
+        } else {
+            return store.getUniqueKey() + store.getSplitter() + CommonConstants.INSTANCE_ID_PREFIX
+                    + store.getSplitter();
+        }
     }
 
-    private String getKeyByTaskId(String taskId) {
-        return CommonConstants.INSTANCE_ID_PREFIX + taskId;
+    public String getKeyByTaskId(String taskId) {
+        return getKey() + taskId;
     }
 
-    private String getKeyByTaskAndInstanceId(String taskId, String instanceId) {
-        return CommonConstants.INSTANCE_ID_PREFIX + taskId + "_" + instanceId;
+    public String getKeyByTaskAndInstanceId(String taskId, String instanceId) {
+        return getKeyByTaskId(taskId) + store.getSplitter() + store.replaceKeywords(instanceId);
     }
 }

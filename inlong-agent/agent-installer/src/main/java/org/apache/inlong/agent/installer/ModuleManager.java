@@ -70,8 +70,7 @@ import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MA
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
 
 /**
- * Installer Manager, the bridge for job manager, task manager, db e.t.c it manages agent level operations and
- * communicates with outside system.
+ * module manager, deal with module add, delete and modify
  */
 public class ModuleManager extends AbstractDaemon {
 

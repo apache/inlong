@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.db;
+package org.apache.inlong.agent.store;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
@@ -45,12 +45,14 @@ import java.util.stream.Collectors;
 import static java.util.Objects.requireNonNull;
 
 /**
- * DB implement based on the Rocks DB.
+ * Store implement based on the Rocks DB.
  */
-public class RocksDbImp implements Db {
+public class RocksStoreImp implements Store {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RocksDbImp.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RocksStoreImp.class);
     private static final Gson GSON = new Gson();
+    public static final String SPLITTER = "_";
+    public static final String UNIQUE_KEY = "";
 
     private final AgentConfiguration conf;
     private final RocksDB db;
@@ -60,7 +62,7 @@ public class RocksDbImp implements Db {
     private ConcurrentHashMap<String, ColumnFamilyDescriptor> columnDescriptorMap;
     private String storePath;
 
-    public RocksDbImp(String childPath) {
+    public RocksStoreImp(String childPath) {
         // init rocks db
         this.conf = AgentConfiguration.getAgentConf();
         this.db = initEnv(childPath);
@@ -124,7 +126,7 @@ public class RocksDbImp implements Db {
         } else {
             LOGGER.info("loading column families :" + existing.stream().map(String::new).collect(Collectors.toList()));
             managedColumnFamilies.addAll(
-                    existing.stream().map(RocksDbImp::getColumnFamilyDescriptor).collect(Collectors.toList()));
+                    existing.stream().map(RocksStoreImp::getColumnFamilyDescriptor).collect(Collectors.toList()));
         }
         return managedColumnFamilies;
     }
@@ -196,6 +198,21 @@ public class RocksDbImp implements Db {
             }
         }
         return results;
+    }
+
+    @Override
+    public String getSplitter() {
+        return SPLITTER;
+    }
+
+    @Override
+    public String getUniqueKey() {
+        return UNIQUE_KEY;
+    }
+
+    @Override
+    public String replaceKeywords(String source) {
+        return source;
     }
 
     @Override

@@ -21,9 +21,9 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.TaskConstants;
-import org.apache.inlong.agent.db.Db;
-import org.apache.inlong.agent.db.RocksDbImp;
-import org.apache.inlong.agent.db.TaskProfileDb;
+import org.apache.inlong.agent.store.RocksStoreImp;
+import org.apache.inlong.agent.store.Store;
+import org.apache.inlong.agent.store.TaskStore;
 
 import java.util.List;
 
@@ -31,13 +31,13 @@ public class RocksDBUtils {
 
     public static void main(String[] args) {
         AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
-        Db db = new RocksDbImp(
+        Store store = new RocksStoreImp(
                 agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.DEFAULT_AGENT_ROCKS_DB_PATH));
-        upgrade(db);
+        upgrade(store);
     }
 
-    public static void upgrade(Db db) {
-        TaskProfileDb triggerProfileDb = new TaskProfileDb(db);
+    public static void upgrade(Store store) {
+        TaskStore triggerProfileDb = new TaskStore(store);
         List<TaskProfile> allTaskProfiles = triggerProfileDb.getTasks();
         allTaskProfiles.forEach(triggerProfile -> {
             if (triggerProfile.hasKey(TaskConstants.TASK_DIR_FILTER_PATTERN)) {
@@ -50,6 +50,6 @@ public class RocksDBUtils {
         });
     }
 
-    public static void printTrigger(Db db) {
+    public static void printTrigger(Store store) {
     }
 }

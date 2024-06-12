@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Installer Manager, the bridge for job manager, task manager, db e.t.c it manages agent level operations and
+ * Installer Manager, the bridge for job manager, task manager, store e.t.c it manages agent level operations and
  * communicates with outside system.
  */
 public class Manager extends AbstractDaemon {

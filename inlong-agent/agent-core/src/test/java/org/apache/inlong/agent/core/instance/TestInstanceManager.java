@@ -22,9 +22,9 @@ import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.AgentBaseTestsHelper;
 import org.apache.inlong.agent.core.task.TaskManager;
-import org.apache.inlong.agent.db.Db;
-import org.apache.inlong.agent.db.InstanceDb;
-import org.apache.inlong.agent.db.TaskProfileDb;
+import org.apache.inlong.agent.store.InstanceStore;
+import org.apache.inlong.agent.store.Store;
+import org.apache.inlong.agent.store.TaskStore;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.common.enums.InstanceStateEnum;
@@ -54,12 +54,12 @@ public class TestInstanceManager {
     public static void setup() {
         helper = new AgentBaseTestsHelper(TestInstanceManager.class.getName()).setupAgentHome();
         String pattern = helper.getTestRootDir() + "/YYYYMMDD_[0-9]+.txt";
-        Db basicDb = TaskManager.initDb("/localdb");
+        Store basicStore = TaskManager.initStore("/localdb");
         taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING, "GMT+6:00");
-        Db taskBasicDb = TaskManager.initDb(AgentConstants.AGENT_LOCAL_DB_PATH_TASK);
-        TaskProfileDb taskDb = new TaskProfileDb(taskBasicDb);
-        taskDb.storeTask(taskProfile);
-        manager = new InstanceManager("1", 20, basicDb, taskDb);
+        Store taskBasicStore = TaskManager.initStore(AgentConstants.AGENT_LOCAL_DB_PATH_TASK);
+        TaskStore taskStore = new TaskStore(taskBasicStore);
+        taskStore.storeTask(taskProfile);
+        manager = new InstanceManager("1", 20, basicStore, taskStore);
         manager.CORE_THREAD_SLEEP_TIME_MS = 100;
     }
 
@@ -71,12 +71,12 @@ public class TestInstanceManager {
 
     @Test
     public void testInstanceManager() {
-        InstanceDb instanceDb = manager.getInstanceDb();
+        InstanceStore instanceStore = manager.getInstanceStore();
         for (int i = 1; i <= 10; i++) {
             InstanceProfile profile = taskProfile.createInstanceProfile(MockInstance.class.getCanonicalName(),
                     String.valueOf(i), taskProfile.getCycleUnit(), "2023092710",
                     AgentUtils.getCurrentTime());
-            instanceDb.storeInstance(profile);
+            instanceStore.storeInstance(profile);
         }
         manager.start();
         for (int i = 1; i <= 10; i++) {
