@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.kafka.table;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricsCollector;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
@@ -26,14 +30,10 @@ import org.apache.flink.types.DeserializationException;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricsCollector;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +43,6 @@ import java.util.List;
  * Copy from org.apache.flink:flink-connector-kafka:1.15.4
  * */
 class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<RowData> {
-
-    private static final int METADATA_CONSUME_TIME_INDEX = 0;
 
     private static final long serialVersionUID = 1L;
 
@@ -65,6 +63,9 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
     private final MetricOption metricOption;
 
     private SourceMetricData sourceMetricData;
+
+    private int consumeTimeIndex;
+
     DynamicKafkaDeserializationSchema(
             int physicalArity,
             @Nullable DeserializationSchema<RowData> keyDeserialization,
@@ -106,6 +107,12 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         if (metricOption != null) {
             sourceMetricData = new SourceMetricData(metricOption);
         }
+        for (int i = 0; i < outputCollector.metadataConverters.length; i++) {
+            if (outputCollector.metadataConverters[i]
+                    .equals(KafkaDynamicSource.ReadableMetadata.CONSUME_TIME.converter)) {
+                consumeTimeIndex = i;
+            }
+        }
     }
 
     @Override
@@ -133,15 +140,14 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         if (keyDeserialization != null) {
             keyDeserialization.deserialize(record.key(), keyCollector);
         }
-
         // project output while emitting values
         outputCollector.inputRecord = record;
         outputCollector.physicalKeyRows = keyCollector.buffer;
-        if(sourceMetricData != null) {
+        if (sourceMetricData != null) {
             MetricsCollector<RowData> metricsCollector = new MetricsCollector<>(collector, sourceMetricData);
-            metricsCollector.resetTimestamp((Long) outputCollector.metadataConverters[METADATA_CONSUME_TIME_INDEX].read(record));
+            metricsCollector.resetTimestamp((Long) outputCollector.metadataConverters[consumeTimeIndex].read(record));
             outputCollector.outputCollector = metricsCollector;
-        }else {
+        } else {
             outputCollector.outputCollector = collector;
         }
         if (record.value() == null && upsertMode) {
