@@ -21,7 +21,7 @@ import java.io.Closeable;
 import java.util.List;
 
 /**
- * store for task, instance and offset info
+ * Store for task, instance and offset info
  */
 public interface Store extends Closeable {
 
