@@ -301,6 +301,15 @@ public final class CanalJsonEnhancedDeserializationSchema implements Deserializa
         }
     }
 
+    @Override
+    public void open(InitializationContext context) {
+        try {
+            this.jsonDeserializer.open(context);
+        } catch (Exception e) {
+            throw new RuntimeException("JsonRowDataDeserializationSchema failed to open.", e);
+        }
+    }
+
     private void emitRow(
             GenericRowData rootRow, GenericRowData physicalRow, Collector<RowData> out) {
         // shortcut in case no output projection is required

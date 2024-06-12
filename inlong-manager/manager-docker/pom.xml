@@ -54,27 +54,17 @@
         <!-- copy sort-connectors to the manager-docker/target path -->
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-connector-pulsar</artifactId>
+            <artifactId>sort-connector-pulsar-v1.15</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-connector-kafka</artifactId>
+            <artifactId>sort-connector-kafka-v1.15</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-connector-jdbc</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-connector-hive</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-connector-mysql-cdc</artifactId>
+            <artifactId>sort-connector-mysql-cdc-v1.15</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
@@ -130,8 +120,8 @@
                                 <configuration>
                                     <outputDirectory>target/</outputDirectory>
                                     <includeArtifactIds>manager-web,
-                                        sort-dist,sort-connector-pulsar,sort-connector-kafka,
-                                        sort-connector-jdbc,sort-connector-hive,sort-connector-mysql-cdc</includeArtifactIds>
+                                        sort-dist,sort-connector-pulsar-v1.15,sort-connector-kafka-v1.15,
+                                        sort-connector-mysql-cdc-v1.15</includeArtifactIds>
                                     <excludeTransitive>true</excludeTransitive>
                                 </configuration>
                             </execution>

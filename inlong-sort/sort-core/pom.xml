@@ -99,9 +99,6 @@
     <profiles>
         <profile>
             <id>v1.13</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <dependencies>
                 <!--flink core-->
                 <dependency>
@@ -244,6 +241,9 @@
         </profile>
         <profile>
             <id>v1.15</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <dependencies>
                 <!--flink core-->
                 <dependency>
