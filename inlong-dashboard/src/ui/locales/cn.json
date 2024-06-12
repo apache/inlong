@@ -34,6 +34,7 @@
   "meta.Sources.File.FilePathHelp": "必须是绝对路径，支持正则表达式，多个时以逗号分隔，如：/data/.*log",
   "meta.Sources.File.FileIpHelp": "请选择文件采集节点 IP，若 IP 不固定请选择 All",
   "meta.Sources.File.IpRule": "请输入正确的 IP 地址",
+  "meta.Sources.File.VersionRule": "请输入正确的版本号",
   "meta.Sources.File.TimeOffset": "时间偏移量",
   "meta.Sources.File.TimeOffsetHelp": "从文件的某个时间开始采集，'1m'表示1分钟之后，'-1m'表示1分钟之前，支持m(分钟)，h(小时)，d(天)，空则从当前时间开始采集",
   "meta.Sources.File.TimeOffsetRules": "只能包含数字和字母 m、h、d",
@@ -428,6 +429,7 @@
   "meta.Stream.DataEncoding": "数据编码",
   "meta.Stream.Description": "介绍",
   "meta.Stream.SourceDataField": "源数据字段",
+  "meta.Stream.SourceDataField.Template": "源数据字段模板",
   "meta.Stream.IgnoreParseError": "忽略数据解析错误",
   "meta.Stream.Status.New": "新建",
   "meta.Stream.Status.Pending": "配置中",
@@ -758,6 +760,7 @@
   "pages.Clusters.Node.Port": "端口",
   "pages.Clusters.Node.ProtocolType": "协议类型",
   "pages.Clusters.Node.Agent": "Agent",
+  "pages.Clusters.Node.Agent.Version": "Version",
   "pages.Clusters.Node.AgentInstaller": "Installer",
   "pages.Clusters.Node.IsInstall": "安装方式",
   "pages.Clusters.Node.ManualInstall": "手动安装",
@@ -899,5 +902,12 @@
   "pages.PackageAgent.Config.FileName": "文件名称",
   "pages.PackageAgent.Config.DownloadUrl": "下载地址",
   "pages.PackageAgent.Config.StoragePath": "存储路径",
-  "pages.PackageAgent.Config.Md5": "MD5"
+  "pages.PackageAgent.Config.Md5": "MD5",
+  "pages.GroupDataTemplate.Edit":"编辑模板",
+  "pages.GroupDataTemplate.Create":"新建模板",
+  "pages.GroupDataTemplate.Name":"模板名称",
+  "pages.GroupDataTemplate.TenantList":"租户",
+  "pages.GroupDataTemplate.Version":"版本",
+  "pages.GroupDataTemplate.VisibleRange":"可视范围",
+  "pages.GroupDataTemplate.InChargers":"负责人"
 }
