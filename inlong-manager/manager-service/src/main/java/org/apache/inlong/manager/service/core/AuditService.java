@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.core;
 
 import org.apache.inlong.audit.entity.AuditInformation;
 import org.apache.inlong.common.enums.IndicatorType;
+import org.apache.inlong.manager.pojo.audit.AuditProxyResponse.AuditProxy;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 
@@ -62,5 +63,12 @@ public interface AuditService {
      * @return true if not exception, or false if it has exception
      */
     Boolean refreshBaseItemCache();
+
+    /**
+     * Get audit proxy url by component
+     *
+     * @return audit proxy list
+     */
+    List<AuditProxy> getAuditProxy(String component) throws Exception;
 
 }
