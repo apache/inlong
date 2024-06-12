@@ -75,7 +75,6 @@ const Comp: React.FC = () => {
 
   const onFilter = allValues => {
     for (const key in allValues) {
-      console.log(key);
       if (allValues[key] === '') {
         allValues[key] = null;
       }

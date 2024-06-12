@@ -216,7 +216,6 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
         form={form}
         useMaxWidth
         onValuesChange={(c, values) => {
-          console.log(values, c);
           if (Object.keys(c)[0] === 'streamDataTemplate') {
             getDataTemplateValue(c['streamDataTemplate']);
           }

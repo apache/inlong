@@ -51,7 +51,6 @@ const Comp: React.FC<Props> = ({ id, templateName, ...modalProps }) => {
         inCharges: result.inCharges?.split(','),
       }),
       onSuccess: result => {
-        console.log(result);
         form.setFieldsValue(dataToValues(result));
       },
     },
