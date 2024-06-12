@@ -24,7 +24,7 @@ set cmdTimeout [lindex $argv 3]
 set runCommand [lindex $argv 4]
 set remotePort [lindex $argv 5]
 
-#use public key identify
+# use the public key to identify
 if { $password == "" } {
     spawn ssh -p ${remotePort} -i ~/.ssh/inlong_rsa ${remoteHost} -l ${remoteUser} "${runCommand} && echo \\#SUCCESS\\# || echo \\#fail\\#"
 } else {

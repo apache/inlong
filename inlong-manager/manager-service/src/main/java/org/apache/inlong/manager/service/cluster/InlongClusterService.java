@@ -403,9 +403,9 @@ public interface InlongClusterService {
     /**
      * Obtain the SSH public key from the manager to install the agent.
      *
-     * @return ssh public key
+     * @return the SSH public key
      */
-    String getManagerSshPublicKey();
+    String getManagerSSHPublicKey();
 
     /**
      * Query data proxy nodes by the given inlong group id and protocol type

@@ -93,26 +93,26 @@ public class ShellExecutorImpl implements ShellExecutor {
         return false;
     }
 
-    public void syncExec(String shellPath, boolean keepEmptyParams, String... params) {
-        if (keepEmptyParams) {
+    public void syncExec(String shellPath, boolean includeEmptyParams, String... params) {
+        if (includeEmptyParams) {
             List<String> cmdPath = new ArrayList<>();
             cmdPath.add(shellPath);
             cmdPath.addAll(Arrays.asList(params));
-            syncExecWithCmd(cmdPath.toArray(new String[0]));
+            syncExec(cmdPath.toArray(new String[0]));
         } else {
             syncExec(shellPath, params);
         }
     }
 
     public void syncExec(String shellPath, String... params) {
-        String[] cmds = merge(shellPath, params);
-        syncExecWithCmd(cmds);
+        String[] commands = merge(shellPath, params);
+        syncExec(commands);
     }
 
-    private void syncExecWithCmd(String[] cmds) {
+    private void syncExec(String[] commands) {
         List<String> result = new ArrayList<String>();
         try {
-            Process ps = Runtime.getRuntime().exec(cmds);
+            Process ps = Runtime.getRuntime().exec(commands);
             long pid = getPid(ps);
             tracker.setProcessId(pid);
             BufferedReader br = new BufferedReader(new InputStreamReader(ps.getInputStream()));

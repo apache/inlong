@@ -1213,13 +1213,13 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public String getManagerSshPublicKey() {
+    public String getManagerSSHPublicKey() {
         String homeDirectory = System.getProperty("user.home");
         String publicKeyPath = homeDirectory + "/.ssh/inlong_rsa.pub";
         try {
             Path path = Paths.get(publicKeyPath);
             if (!Files.exists(path)) {
-                commandExecutor.execSshKeyGenerator();
+                commandExecutor.execSSHKeyGeneration();
             }
             return StringUtils.strip(new String(Files.readAllBytes(path)), "\n");
         } catch (Exception e) {

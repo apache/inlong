@@ -55,7 +55,7 @@ public class CommandExecutorImpl implements CommandExecutor {
     }
 
     @Override
-    public CommandResult execSshKeyGenerator() throws Exception {
+    public CommandResult execSSHKeyGeneration() throws Exception {
         String cmdShell = "./conf/ssh_key_cmd.exp";
         ShellTracker shellTracker = new ShellTracker();
         ShellExecutorImpl shellExecutor = new ShellExecutorImpl(shellTracker);
@@ -66,7 +66,7 @@ public class CommandExecutorImpl implements CommandExecutor {
         commandResult.setResult(String.join(InlongConstants.BLANK, shellTracker.getResult()));
         LOG.debug(commandResult.getResult());
         if (commandResult.getCode() != 0) {
-            throw new Exception("generate ssh key exec failed, code = " +
+            throw new Exception("SSH key generation failed, code = " +
                     commandResult.getCode() + ", output = " + commandResult.getResult());
         }
         LOG.debug(commandResult.getResult());
