@@ -75,6 +75,17 @@ public class DataNodeController {
         return Response.success(dataNodeService.get(id, currentUser));
     }
 
+    @PostMapping(value = "/node/getByKey")
+    @ApiOperation(value = "Get data node by key")
+    @OperationLog(operation = OperationType.GET, operationTarget = OperationTarget.NODE)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "name", value = "Data node name", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "type", value = "Data node type", dataTypeClass = String.class, required = true)
+    })
+    public Response<DataNodeInfo> getByKey(@RequestParam String name, @RequestParam String type) {
+        return Response.success(dataNodeService.get(name, type));
+    }
+
     @PostMapping(value = "/node/list")
     @ApiOperation(value = "List data node")
     public Response<PageResult<DataNodeInfo>> list(@RequestBody DataNodePageRequest request) {
