@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.mysql;
 
-import io.debezium.data.Envelope.FieldName;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
@@ -30,6 +29,7 @@ import com.ververica.cdc.debezium.table.DeserializationRuntimeConverterFactory;
 import com.ververica.cdc.debezium.table.MetadataConverter;
 import com.ververica.cdc.debezium.utils.TemporalConversions;
 import io.debezium.data.Envelope;
+import io.debezium.data.Envelope.FieldName;
 import io.debezium.data.SpecialValueDecimal;
 import io.debezium.data.VariableScaleDecimal;
 import io.debezium.time.MicroTime;
@@ -175,7 +175,6 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         }
     }
 
-
     /**
      * Create a metrics collector to collect metrics data and reset timestamp from source record
      * @param record source record
@@ -187,7 +186,6 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         collector.resetTimestamp((Long) ((Struct) record.value()).get(FieldName.TIMESTAMP));
         return collector;
     }
-
 
     /**
      * Initialize the source metric data.

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.sort.mysql.table;
 
 import com.ververica.cdc.debezium.table.MetadataConverter;
@@ -29,76 +28,79 @@ import org.apache.flink.table.types.DataType;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 
-
 /**
  * Metadata that can be read from a MySQL source.
  * Copied from com.ververica:flink-connector-mysql-cdc-2.3.0
  */
 public enum MySqlReadableMetadata {
+
     /** Name of the table that contain the row. */
     TABLE_NAME(
-        "table_name",
-        DataTypes.STRING().notNull(),
-        new MetadataConverter() {
-            private static final long serialVersionUID = 1L;
+            "table_name",
+            DataTypes.STRING().notNull(),
+            new MetadataConverter() {
 
-            @Override
-            public Object read(SourceRecord record) {
-                Struct messageStruct = (Struct) record.value();
-                Struct sourceStruct = messageStruct.getStruct(Envelope.FieldName.SOURCE);
-                return StringData.fromString(
-                    sourceStruct.getString(AbstractSourceInfo.TABLE_NAME_KEY));
-            }
-        }),
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Object read(SourceRecord record) {
+                    Struct messageStruct = (Struct) record.value();
+                    Struct sourceStruct = messageStruct.getStruct(Envelope.FieldName.SOURCE);
+                    return StringData.fromString(
+                            sourceStruct.getString(AbstractSourceInfo.TABLE_NAME_KEY));
+                }
+            }),
 
     /** Name of the database that contain the row. */
     DATABASE_NAME(
-        "database_name",
-        DataTypes.STRING().notNull(),
-        new MetadataConverter() {
-            private static final long serialVersionUID = 1L;
+            "database_name",
+            DataTypes.STRING().notNull(),
+            new MetadataConverter() {
 
-            @Override
-            public Object read(SourceRecord record) {
-                Struct messageStruct = (Struct) record.value();
-                Struct sourceStruct = messageStruct.getStruct(Envelope.FieldName.SOURCE);
-                return StringData.fromString(
-                    sourceStruct.getString(AbstractSourceInfo.DATABASE_NAME_KEY));
-            }
-        }),
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Object read(SourceRecord record) {
+                    Struct messageStruct = (Struct) record.value();
+                    Struct sourceStruct = messageStruct.getStruct(Envelope.FieldName.SOURCE);
+                    return StringData.fromString(
+                            sourceStruct.getString(AbstractSourceInfo.DATABASE_NAME_KEY));
+                }
+            }),
 
     /**
      * It indicates the time that the change was made in the database. If the record is read from
      * snapshot of the table instead of the binlog, the value is always 0.
      */
     OP_TS(
-        "op_ts",
-        DataTypes.TIMESTAMP_LTZ(3).notNull(),
-        new MetadataConverter() {
-            private static final long serialVersionUID = 1L;
+            "op_ts",
+            DataTypes.TIMESTAMP_LTZ(3).notNull(),
+            new MetadataConverter() {
 
-            @Override
-            public Object read(SourceRecord record) {
-                Struct messageStruct = (Struct) record.value();
-                Struct sourceStruct = messageStruct.getStruct(Envelope.FieldName.SOURCE);
-                return TimestampData.fromEpochMillis(
-                    (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY));
-            }
-        }),
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Object read(SourceRecord record) {
+                    Struct messageStruct = (Struct) record.value();
+                    Struct sourceStruct = messageStruct.getStruct(Envelope.FieldName.SOURCE);
+                    return TimestampData.fromEpochMillis(
+                            (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY));
+                }
+            }),
 
     TS(
             "meta.ts",
-        DataTypes.BIGINT(),
+            DataTypes.BIGINT(),
             new MetadataConverter() {
 
-        private static final long serialVersionUID = 1L;
+                private static final long serialVersionUID = 1L;
 
-        @Override
-        public Object read(SourceRecord record) {
-            Struct messageStruct = (Struct) record.value();
-            return messageStruct.get(FieldName.TIMESTAMP);
-        }
-    });
+                @Override
+                public Object read(SourceRecord record) {
+                    Struct messageStruct = (Struct) record.value();
+                    return messageStruct.get(FieldName.TIMESTAMP);
+                }
+            });
 
     private final String key;
 
