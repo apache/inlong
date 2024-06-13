@@ -34,7 +34,7 @@ public class ScheduleEntity implements Serializable {
     // schedule type, support [normal, crontab], 0 for normal and 1 for crontab
     private Integer scheduleType;
     // time unit for offline task schedule interval, support [month, week, day, hour, minute, oneway]
-    // M=month, W=week, D=day, H=hour, M=minute, O=oneway
+    // Y=year, M=month, W=week, D=day, H=hour, I=minute, O=oneway
     private String scheduleUnit;
     private Integer scheduleInterval;
     // schedule start time, long type timestamp
