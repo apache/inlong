@@ -173,6 +173,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         AgentConfigRequest request = new AgentConfigRequest();
         request.setClusterTag(clusterTag);
         request.setClusterName(clusterName);
+        request.setIp(localIp);
         return request;
     }
 

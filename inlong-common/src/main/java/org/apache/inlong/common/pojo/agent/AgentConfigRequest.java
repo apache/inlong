@@ -33,4 +33,5 @@ public class AgentConfigRequest {
 
     private String clusterName;
 
+    private String ip;
 }
