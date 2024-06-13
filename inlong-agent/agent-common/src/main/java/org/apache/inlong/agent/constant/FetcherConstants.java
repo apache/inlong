@@ -36,8 +36,9 @@ public class FetcherConstants {
     public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "/inlong/manager/openapi";
 
     public static final String AGENT_MANAGER_TASK_HTTP_PATH = "agent.manager.task.http.path";
-    public static final String DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH = "/agent/reportAndGetTask";
-    public static final String DEFAULT_AGENT_MANAGER_CONFIG_HTTP_PATH = "/agent/getExistTaskConfig";
+    public static final String DEFAULT_AGENT_MANAGER_EXIST_TASK_HTTP_PATH = "/agent/getExistTaskConfig";
+    public static final String AGENT_MANAGER_CONFIG_HTTP_PATH = "agent.manager.config.http.path";
+    public static final String DEFAULT_AGENT_MANAGER_CONFIG_HTTP_PATH = "/agent/getConfig";
 
     public static final String INSTALLER_MANAGER_CONFIG_HTTP_PATH = "installer.manager.config.http.path";
     public static final String DEFAULT_INSTALLER_MANAGER_CONFIG_HTTP_PATH = "/installer/getConfig";

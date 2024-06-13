@@ -26,8 +26,9 @@ import org.apache.inlong.agent.pojo.FileTask.FileTaskConfig;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.HttpManager;
 import org.apache.inlong.agent.utils.ThreadUtils;
-import org.apache.inlong.common.db.CommandEntity;
 import org.apache.inlong.common.enums.PullJobTypeEnum;
+import org.apache.inlong.common.pojo.agent.AgentConfigInfo;
+import org.apache.inlong.common.pojo.agent.AgentConfigRequest;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
@@ -46,15 +47,17 @@ import java.util.Date;
 import java.util.List;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_UNIQ_ID;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_UNIQ_ID;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_FETCHER_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_ADDR;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_CONFIG_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_RETURN_PARAM_DATA;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_TASK_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_FETCHER_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_CONFIG_HTTP_PATH;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_EXIST_TASK_HTTP_PATH;
 import static org.apache.inlong.agent.plugin.fetcher.ManagerResultFormatter.getResultData;
 import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalIp;
 import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalUuid;
@@ -69,14 +72,15 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     private static final GsonBuilder gsonBuilder = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final Gson GSON = gsonBuilder.create();
     private final String baseManagerUrl;
-    private final String taskConfigUrl;
     private final String staticConfigUrl;
+    private final String agentConfigInfoUrl;
     private final AgentConfiguration conf;
     private final String uniqId;
     private final AgentManager agentManager;
     private final HttpManager httpManager;
     private String localIp;
     private String uuid;
+    private String clusterTag;
     private String clusterName;
 
     public ManagerFetcher(AgentManager agentManager) {
@@ -85,9 +89,10 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         if (requiredKeys(conf)) {
             httpManager = new HttpManager(conf);
             baseManagerUrl = httpManager.getBaseUrl();
-            taskConfigUrl = buildTaskConfigUrl(baseManagerUrl);
             staticConfigUrl = buildStaticConfigUrl(baseManagerUrl);
+            agentConfigInfoUrl = buildAgentConfigInfoUrl(baseManagerUrl);
             uniqId = conf.get(AGENT_UNIQ_ID, DEFAULT_AGENT_UNIQ_ID);
+            clusterTag = conf.get(AGENT_CLUSTER_TAG);
             clusterName = conf.get(AGENT_CLUSTER_NAME);
         } else {
             throw new RuntimeException("init manager error, cannot find required key");
@@ -101,45 +106,27 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * Build task config url for manager according to config
      *
-     * example - http://127.0.0.1:8080/inlong/manager/openapi/fileAgent/getTaskConf
-     */
-    private String buildTaskConfigUrl(String baseUrl) {
-        return baseUrl + conf.get(AGENT_MANAGER_TASK_HTTP_PATH, DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH);
-    }
-
-    /**
-     * Build task config url for manager according to config
-     *
-     * example - http://127.0.0.1:8080/inlong/manager/openapi/fileAgent/getTaskConf
+     * example - http://127.0.0.1:8080/inlong/manager/openapi/agent/getTaskConf
      */
     private String buildStaticConfigUrl(String baseUrl) {
-        return baseUrl + conf.get(AGENT_MANAGER_TASK_HTTP_PATH, DEFAULT_AGENT_MANAGER_CONFIG_HTTP_PATH);
+        return baseUrl + conf.get(AGENT_MANAGER_TASK_HTTP_PATH, DEFAULT_AGENT_MANAGER_EXIST_TASK_HTTP_PATH);
     }
 
     /**
-     * Request manager to get commands, make sure it is not throwing exceptions
+     * Build agent config info url for manager according to config
+     *
+     * example - http://127.0.0.1:8080/inlong/manager/openapi/agent/getConfig
      */
-    public TaskResult fetchTaskConfig() {
-        LOGGER.info("fetchTaskConfig start");
-        String resultStr = httpManager.doSentPost(taskConfigUrl, getFetchRequest(null));
-        JsonObject resultData = getResultData(resultStr);
-        JsonElement element = resultData.get(AGENT_MANAGER_RETURN_PARAM_DATA);
-        LOGGER.info("fetchTaskConfig end");
-        if (element != null) {
-            LOGGER.info("fetchTaskConfig not null {}", resultData);
-            return GSON.fromJson(element.getAsJsonObject(), TaskResult.class);
-        } else {
-            LOGGER.info("fetchTaskConfig nothing to do");
-            return null;
-        }
+    private String buildAgentConfigInfoUrl(String baseUrl) {
+        return baseUrl + conf.get(AGENT_MANAGER_CONFIG_HTTP_PATH, DEFAULT_AGENT_MANAGER_CONFIG_HTTP_PATH);
     }
 
     /**
-     * Request manager to get commands, make sure it is not throwing exceptions
+     * Request manager to get task config, make sure it is not throwing exceptions
      */
     public TaskResult getStaticConfig() {
         LOGGER.info("Get static config start");
-        String resultStr = httpManager.doSentPost(staticConfigUrl, getFetchRequest(null));
+        String resultStr = httpManager.doSentPost(staticConfigUrl, getTaskRequest());
         LOGGER.info("Url to get static config staticConfigUrl {}", staticConfigUrl);
         JsonObject resultData = getResultData(resultStr);
         JsonElement element = resultData.get(AGENT_MANAGER_RETURN_PARAM_DATA);
@@ -154,15 +141,39 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
-     * Form file command fetch request
+     * Request manager to get config, make sure it is not throwing exceptions
      */
-    public TaskRequest getFetchRequest(List<CommandEntity> unackedCommands) {
+    public AgentConfigInfo getAgentConfigInfo() {
+        LOGGER.info("Get agent config info");
+        String resultStr = httpManager.doSentPost(agentConfigInfoUrl, getAgentConfigInfoRequest());
+        LOGGER.info("Url to get agent config agentConfigInfoUrl {}", agentConfigInfoUrl);
+        JsonObject resultData = getResultData(resultStr);
+        JsonElement element = resultData.get(AGENT_MANAGER_RETURN_PARAM_DATA);
+        LOGGER.info("Get agent config end");
+        if (element != null) {
+            LOGGER.info("Get agent config not null {}", resultData);
+            return GSON.fromJson(element.getAsJsonObject(), AgentConfigInfo.class);
+        } else {
+            LOGGER.info("Get agent config nothing to do");
+            return null;
+        }
+    }
+
+    public TaskRequest getTaskRequest() {
         TaskRequest request = new TaskRequest();
         request.setAgentIp(localIp);
         request.setUuid(uuid);
         request.setClusterName(clusterName);
         request.setPullJobType(PullJobTypeEnum.NEW.getType());
-        request.setCommandInfo(unackedCommands);
+        request.setCommandInfo(null);
+        return request;
+    }
+
+    public AgentConfigRequest getAgentConfigInfoRequest() {
+        AgentConfigRequest request = new AgentConfigRequest();
+        request.setClusterTag(clusterTag);
+        request.setClusterName(clusterName);
+        request.setIp(localIp);
         return request;
     }
 
@@ -171,7 +182,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      *
      * @return runnable profile.
      */
-    private Runnable taskConfigFetchThread() {
+    private Runnable configFetchThread() {
         return () -> {
             Thread.currentThread().setName("ManagerFetcher");
             while (isRunnable()) {
@@ -184,6 +195,10 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
                             taskProfiles.add(profile);
                         });
                         agentManager.getTaskManager().submitTaskProfiles(taskProfiles);
+                    }
+                    AgentConfigInfo config = getAgentConfigInfo();
+                    if (config != null) {
+                        agentManager.subNewAgentConfigInfo(config);
                     }
                 } catch (Throwable ex) {
                     LOGGER.warn("exception caught", ex);
@@ -243,7 +258,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         // when agent start, check local ip and fetch manager ip list;
         localIp = fetchLocalIp();
         uuid = fetchLocalUuid();
-        submitWorker(taskConfigFetchThread());
+        submitWorker(configFetchThread());
     }
 
     @Override
