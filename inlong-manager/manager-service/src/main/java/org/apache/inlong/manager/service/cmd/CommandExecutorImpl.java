@@ -92,7 +92,7 @@ public class CommandExecutorImpl implements CommandExecutor {
 
         ShellTracker shellTracker = new ShellTracker();
         ShellExecutorImpl shellExecutor = new ShellExecutorImpl(shellTracker);
-        shellExecutor.syncExec(cmdShell, true, ip, user, password, remoteCommandTimeout, cmd, port);
+        shellExecutor.syncExec(cmdShell, ip, user, password, remoteCommandTimeout, cmd, port);
 
         CommandResult commandResult = new CommandResult();
         commandResult.setCode(shellTracker.getCode());

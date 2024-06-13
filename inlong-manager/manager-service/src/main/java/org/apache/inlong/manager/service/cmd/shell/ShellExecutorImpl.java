@@ -57,15 +57,8 @@ public class ShellExecutorImpl implements ShellExecutor {
     private static String[] merge(String shellPath, String[] paths) {
         List<String> cmds = new ArrayList<String>();
         cmds.add(shellPath);
-        for (String path : paths) {
-            if (StringUtils.isBlank(path)) {
-                continue;
-            }
-            cmds.add(path);
-        }
-        String[] strings = new String[cmds.size()];
-        cmds.toArray(strings);
-        return strings;
+        cmds.addAll(Arrays.asList(paths));
+        return cmds.toArray(new String[0]);
     }
 
     private static String arrayToString(Object[] array, String split) {
@@ -93,26 +86,11 @@ public class ShellExecutorImpl implements ShellExecutor {
         return false;
     }
 
-    public void syncExec(String shellPath, boolean includeEmptyParams, String... params) {
-        if (includeEmptyParams) {
-            List<String> cmdPath = new ArrayList<>();
-            cmdPath.add(shellPath);
-            cmdPath.addAll(Arrays.asList(params));
-            syncExec(cmdPath.toArray(new String[0]));
-        } else {
-            syncExec(shellPath, params);
-        }
-    }
-
     public void syncExec(String shellPath, String... params) {
-        String[] commands = merge(shellPath, params);
-        syncExec(commands);
-    }
-
-    private void syncExec(String[] commands) {
         List<String> result = new ArrayList<String>();
+        String[] cmds = merge(shellPath, params);
         try {
-            Process ps = Runtime.getRuntime().exec(commands);
+            Process ps = Runtime.getRuntime().exec(cmds);
             long pid = getPid(ps);
             tracker.setProcessId(pid);
             BufferedReader br = new BufferedReader(new InputStreamReader(ps.getInputStream()));
