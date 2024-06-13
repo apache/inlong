@@ -55,7 +55,7 @@ export const getColumns = activedName => [
     width: 90,
     render: (text, record) => (
       <Link
-        to={`/process/${activedName}/${text}?inlongGroupMode=${record.showInList[0]?.inlongGroupMode}`}
+        to={`/process/${activedName}/${text}?inlongGroupMode=${record.showInList?.inlongGroupMode}`}
       >
         {text}
       </Link>
@@ -92,7 +92,7 @@ export const getColumns = activedName => [
           />
         );
       }
-      return record?.showInList[0]?.inlongGroupMode === 1 ? (
+      return record.showInList?.inlongGroupMode === 1 ? (
         <StatusTag
           type={'success'}
           icon={<span />}
@@ -131,7 +131,7 @@ export const getColumns = activedName => [
     width: 100,
     render: (text, record) => (
       <Link
-        to={`/process/${activedName}/${record.id}?inlongGroupMode=${record?.showInList[0]?.inlongGroupMode}`}
+        to={`/process/${activedName}/${record.id}?inlongGroupMode=${record.showInList?.inlongGroupMode}`}
       >
         {i18n.t('basic.Detail')}
       </Link>
