@@ -18,7 +18,7 @@ and send them to the ip:port list set by the interface.
 If the ip:port of the AuditProxy is fixed, then this interface needs to be called once. 
 If the AuditProxy changes in real time, then the business program needs to call this interface periodically to update
 ```java
-    HashSet<String> ipPortList=new HashSet<>();
+    HashSet<String> ipPortList = new HashSet<>();
     ipPortList.add("0.0.0.0:54041");
     AuditOperator.getInstance().setAuditProxy(ipPortList);
 ```
@@ -27,11 +27,11 @@ By configuring the InLong Manager's address, module information, and manager cer
 The Audit SDK will automatically fetch the Manager to obtain the address of the Audit Proxy.
 ```java
         String host = "127.0.0.1:8083";
-        String secretId="*****";
-        String secretKey="******";
-        String token="*******";
-        String serviceName="*****";
-        AuthConfig authConfig=new AuthConfig(secretId,secretKey,token,serviceName);
+        String secretId = "*****";
+        String secretKey = "******";
+        String token = "*******";
+        String serviceName = "*****";
+        AuthConfig authConfig = new AuthConfig(secretId,secretKey,token,serviceName);
         AuditOperator.getInstance().setAuditProxy(AGENT,host,authConfig);
 ```
 
