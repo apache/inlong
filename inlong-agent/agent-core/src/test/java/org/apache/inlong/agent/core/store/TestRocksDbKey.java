@@ -58,12 +58,12 @@ public class TestRocksDbKey {
 
     @Test
     public void testDB() {
-        Assert.assertTrue(taskStore.getKey().compareTo("task") == 0);
-        Assert.assertTrue(taskStore.getKeyByTaskId("1").compareTo("task_1") == 0);
-        Assert.assertTrue(instanceStore.getKey().compareTo("ins_") == 0);
-        Assert.assertTrue(instanceStore.getKeyByTaskId("1").compareTo("ins_1") == 0);
-        Assert.assertTrue(instanceStore.getKeyByTaskAndInstanceId("1", "/data/log/123.log")
-                .compareTo("ins_1_/data/log/123.log") == 0);
-        Assert.assertTrue(offsetStore.getKey("1", "/data/log/123.log").compareTo("offset_1_/data/log/123.log") == 0);
+        Assert.assertEquals(0, taskStore.getKey().compareTo("task"));
+        Assert.assertEquals(0, taskStore.getKeyByTaskId("1").compareTo("task_1"));
+        Assert.assertEquals(0, instanceStore.getKey().compareTo("ins_"));
+        Assert.assertEquals(0, instanceStore.getKeyByTaskId("1").compareTo("ins_1"));
+        Assert.assertEquals(0, instanceStore.getKeyByTaskAndInstanceId("1", "/data/log/123.log")
+                .compareTo("ins_1_/data/log/123.log"));
+        Assert.assertEquals(0, offsetStore.getKey("1", "/data/log/123.log").compareTo("offset_1_/data/log/123.log"));
     }
 }
