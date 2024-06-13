@@ -401,9 +401,15 @@ public interface InlongClusterService {
     Boolean deleteNode(Integer id, UserInfo opInfo);
 
     /**
-     * Obtain the SSH public key from the manager to install the agent.
+     * Retrieves the SSH public key from the manager node for agent installation.
      *
-     * @return the SSH public key
+     * <p>To enable SSH key-based authentication, the manager node's public key must be added to the agent node.
+     * This method either generates a new public key or retrieves an existing one.</p>
+     *
+     * <p>After obtaining the SSH public key, add it to the <code>~/.ssh/authorized_keys</code> file on the agent node.
+     * This allows the manager node to execute remote commands on the agent node via SSH.</p>
+     *
+     * @return the SSH public key as a String
      */
     String getManagerSSHPublicKey();
 
