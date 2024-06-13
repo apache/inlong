@@ -200,7 +200,7 @@ public class AuditReporterImpl implements Serializable {
      */
     public void setAuditProxy(AuditComponent component, String managerHost, AuthConfig authConfig) {
         checkInitStatus();
-        ProxyManager.getInstance().setAuditProxy(component, managerHost, authConfig);
+        ProxyManager.getInstance().setManagerConfig(component, managerHost, authConfig);
     }
 
     private synchronized void checkInitStatus() {

@@ -48,6 +48,7 @@ public class ProxyManager {
     private AuthConfig authConfig;
     private String auditProxyApiUrl;
     private AuditComponent component;
+    private volatile boolean timerStarted = false;
 
     private ProxyManager() {
     }
@@ -66,7 +67,7 @@ public class ProxyManager {
         }
     }
 
-    public synchronized void setAuditProxy(AuditComponent component, String managerHost, AuthConfig authConfig) {
+    public synchronized void setManagerConfig(AuditComponent component, String managerHost, AuthConfig authConfig) {
         if (!managerHost.endsWith("/")) {
             managerHost = managerHost + "/";
         }
@@ -79,16 +80,16 @@ public class ProxyManager {
         this.authConfig = authConfig;
         this.component = component;
 
-        requestFromManager();
+        updateAuditProxy();
 
         if (autoUpdateAuditProxy) {
-            updateAuditProxy();
+            startTimer();
             LOGGER.info("Auto Update from manager");
         }
     }
 
-    private void requestFromManager() {
-        String response = HttpUtils.sendGet(component.getComponent(), auditProxyApiUrl, authConfig, timeoutMs);
+    private void updateAuditProxy() {
+        String response = HttpUtils.httpGet(component.getComponent(), auditProxyApiUrl, authConfig, timeoutMs);
         if (response == null) {
             LOGGER.error("Response is null: {} {} {} ", component.getComponent(), auditProxyApiUrl, authConfig);
             return;
@@ -107,11 +108,15 @@ public class ProxyManager {
         LOGGER.info("Get audit proxy from manager: {}", proxyList);
     }
 
-    private void updateAuditProxy() {
-        timer.scheduleWithFixedDelay(this::requestFromManager,
+    private synchronized void startTimer() {
+        if (timerStarted) {
+            return;
+        }
+        timer.scheduleWithFixedDelay(this::updateAuditProxy,
                 0,
                 updateInterval,
                 TimeUnit.MILLISECONDS);
+        timerStarted = true;
     }
 
     public void setManagerTimeout(int timeoutMs) {

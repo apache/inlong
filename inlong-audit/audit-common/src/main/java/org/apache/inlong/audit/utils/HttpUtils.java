@@ -67,7 +67,8 @@ public class HttpUtils {
         }
         return header;
     }
-    public static String sendGet(String component, String url, AuthConfig authConfig, int timeoutMs) {
+
+    public static String httpGet(String component, String url, AuthConfig authConfig, int timeoutMs) {
         if (httpClient == null) {
             LOGGER.error("httpClient is null");
             return null;
