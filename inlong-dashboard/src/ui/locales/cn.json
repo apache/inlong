@@ -760,7 +760,7 @@
   "pages.Clusters.Node.Port": "端口",
   "pages.Clusters.Node.ProtocolType": "协议类型",
   "pages.Clusters.Node.Agent": "Agent",
-  "pages.Clusters.Node.Agent.Version": "Version",
+  "pages.Clusters.Node.Agent.Version": "版本",
   "pages.Clusters.Node.AgentInstaller": "Installer",
   "pages.Clusters.Node.IsInstall": "安装方式",
   "pages.Clusters.Node.ManualInstall": "手动安装",

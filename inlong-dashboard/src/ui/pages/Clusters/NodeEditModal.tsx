@@ -167,25 +167,6 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
       },
       {
         type: 'select',
-        label: i18n.t('pages.Clusters.Node.ProtocolType'),
-        name: 'protocolType',
-        initialValue: 'HTTP',
-        rules: [{ required: true }],
-        props: {
-          options: [
-            {
-              label: 'HTTP',
-              value: 'HTTP',
-            },
-            {
-              label: 'TCP',
-              value: 'TCP',
-            },
-          ],
-        },
-      },
-      {
-        type: 'select',
         label: i18n.t('pages.Clusters.Node.Agent.Version'),
         name: 'moduleIdList',
         hidden: type !== 'AGENT',

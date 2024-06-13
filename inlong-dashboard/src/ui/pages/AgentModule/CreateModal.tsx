@@ -149,7 +149,6 @@ const Comp: React.FC<Props> = ({ id, type, ...modalProps }) => {
           form.setFieldsValue(result);
         }
       },
-      onError: e => {},
     },
   );
 
@@ -177,7 +176,8 @@ const Comp: React.FC<Props> = ({ id, type, ...modalProps }) => {
         getData(id);
       } else {
         setCreate(true);
-        getData(3);
+        // here need a data which id is 1 to init create form
+        getData(1);
       }
     } else {
       form.resetFields();
