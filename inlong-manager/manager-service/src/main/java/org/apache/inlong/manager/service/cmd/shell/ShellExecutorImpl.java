@@ -20,12 +20,12 @@ package org.apache.inlong.manager.service.cmd.shell;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,15 +56,8 @@ public class ShellExecutorImpl implements ShellExecutor {
     private static String[] merge(String shellPath, String[] paths) {
         List<String> cmds = new ArrayList<String>();
         cmds.add(shellPath);
-        for (String path : paths) {
-            if (StringUtils.isBlank(path)) {
-                continue;
-            }
-            cmds.add(path);
-        }
-        String[] strings = new String[cmds.size()];
-        cmds.toArray(strings);
-        return strings;
+        cmds.addAll(Arrays.asList(paths));
+        return cmds.toArray(new String[0]);
     }
 
     private static String arrayToString(Object[] array, String split) {

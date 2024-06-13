@@ -77,6 +77,7 @@ import org.apache.inlong.manager.service.cluster.node.InlongClusterNodeInstallOp
 import org.apache.inlong.manager.service.cluster.node.InlongClusterNodeInstallOperatorFactory;
 import org.apache.inlong.manager.service.cluster.node.InlongClusterNodeOperator;
 import org.apache.inlong.manager.service.cluster.node.InlongClusterNodeOperatorFactory;
+import org.apache.inlong.manager.service.cmd.CommandExecutor;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepositoryV2;
 import org.apache.inlong.manager.service.tenant.InlongTenantService;
@@ -99,6 +100,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -146,6 +150,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     private TenantRoleService tenantRoleService;
     @Autowired
     private InlongClusterNodeInstallOperatorFactory clusterNodeInstallOperatorFactory;
+    @Autowired
+    private CommandExecutor commandExecutor;
 
     @Lazy
     @Autowired
@@ -1204,6 +1210,22 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                             entity.getProtocolType()));
         }
         return true;
+    }
+
+    @Override
+    public String getManagerSSHPublicKey() {
+        String homeDirectory = System.getProperty("user.home");
+        String publicKeyPath = homeDirectory + "/.ssh/inlong_rsa.pub";
+        try {
+            Path path = Paths.get(publicKeyPath);
+            if (!Files.exists(path)) {
+                commandExecutor.execSSHKeyGeneration();
+            }
+            return StringUtils.strip(new String(Files.readAllBytes(path)), "\n");
+        } catch (Exception e) {
+            LOGGER.error("get manager ssh public key error", e);
+            throw new RuntimeException("get manager ssh public key error", e);
+        }
     }
 
     @Override

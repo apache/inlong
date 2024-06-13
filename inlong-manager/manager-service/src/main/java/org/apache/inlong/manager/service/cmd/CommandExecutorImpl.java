@@ -55,6 +55,25 @@ public class CommandExecutorImpl implements CommandExecutor {
     }
 
     @Override
+    public CommandResult execSSHKeyGeneration() throws Exception {
+        String cmdShell = "./conf/ssh_key_cmd.exp";
+        ShellTracker shellTracker = new ShellTracker();
+        ShellExecutorImpl shellExecutor = new ShellExecutorImpl(shellTracker);
+        shellExecutor.syncExec(cmdShell);
+
+        CommandResult commandResult = new CommandResult();
+        commandResult.setCode(shellTracker.getCode());
+        commandResult.setResult(String.join(InlongConstants.BLANK, shellTracker.getResult()));
+        LOG.debug(commandResult.getResult());
+        if (commandResult.getCode() != 0) {
+            throw new Exception("SSH key generation failed, code = " +
+                    commandResult.getCode() + ", output = " + commandResult.getResult());
+        }
+        LOG.debug(commandResult.getResult());
+        return commandResult;
+    }
+
+    @Override
     public CommandResult execRemote(AgentClusterNodeRequest clusterNodeRequest, String cmd) throws Exception {
         String cmdShell = "./conf/exec_cmd.exp";
         String ip = clusterNodeRequest.getIp();
@@ -62,7 +81,10 @@ public class CommandExecutorImpl implements CommandExecutor {
         String user = clusterNodeRequest.getUsername();
         String password = clusterNodeRequest.getPassword();
         String remoteCommandTimeout = "20000";
-
+        // If the password is null, set the password to an empty string, and then use the public key for identification.
+        if (StringUtils.isBlank(password)) {
+            password = "";
+        }
         cmd = "sh -c \"" + cmd + "\"";
         String cmdMsg =
                 String.join(InlongConstants.BLANK, cmdShell, ip, user, password, remoteCommandTimeout, cmd, port);

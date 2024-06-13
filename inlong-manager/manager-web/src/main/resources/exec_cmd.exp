@@ -24,8 +24,12 @@ set cmdTimeout [lindex $argv 3]
 set runCommand [lindex $argv 4]
 set remotePort [lindex $argv 5]
 
-spawn ssh -p ${remotePort} ${remoteHost} -l ${remoteUser} "${runCommand} && echo \\#SUCCESS\\# || echo \\#fail\\#"
-
+# use the public key to identify
+if { $password == "" } {
+    spawn ssh -p ${remotePort} -i ~/.ssh/inlong_rsa ${remoteHost} -l ${remoteUser} "${runCommand} && echo \\#SUCCESS\\# || echo \\#fail\\#"
+} else {
+    spawn ssh -p ${remotePort} ${remoteHost} -l ${remoteUser} "${runCommand} && echo \\#SUCCESS\\# || echo \\#fail\\#"
+}
 set timeout ${cmdTimeout}
 expect {
     "*yes/no)?" {send "yes\n"; exp_continue}
