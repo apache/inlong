@@ -44,7 +44,7 @@ import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
 /**
  * DB implement based on the ZooKeeper.
  */
-public class ZKImp implements Store {
+public class ZooKeeperImp implements Store {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZKImp.class);
     private static final Gson GSON = new Gson();
