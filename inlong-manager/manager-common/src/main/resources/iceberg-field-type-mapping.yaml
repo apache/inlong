@@ -42,7 +42,7 @@ source.type.to.target.type.converter:
     target.type: TIME
 
   - source.type: TIMESTAMP
-    target.type: LOCAL_ZONE_TIMESTAMP
+    target.type: TIMESTAMP
 
   - source.type: TIMESTAMP WITH TIMEZONE
     target.type: LOCAL_ZONE_TIMESTAMP
