@@ -54,9 +54,9 @@ public class TestInstanceManager {
     public static void setup() {
         helper = new AgentBaseTestsHelper(TestInstanceManager.class.getName()).setupAgentHome();
         String pattern = helper.getTestRootDir() + "/YYYYMMDD_[0-9]+.txt";
-        Store basicInstanceStore = TaskManager.initStore(AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE);
+        Store basicInstanceStore = TaskManager.initStore(AgentConstants.AGENT_STORE_PATH_INSTANCE);
         taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING, "GMT+6:00");
-        Store taskBasicStore = TaskManager.initStore(AgentConstants.AGENT_LOCAL_DB_PATH_TASK);
+        Store taskBasicStore = TaskManager.initStore(AgentConstants.AGENT_STORE_PATH_TASK);
         TaskStore taskStore = new TaskStore(taskBasicStore);
         taskStore.storeTask(taskProfile);
         manager = new InstanceManager("1", 20, basicInstanceStore, taskStore);

@@ -45,9 +45,9 @@ public class TestRocksDbKey {
     @BeforeClass
     public static void setup() throws Exception {
         helper = new AgentBaseTestsHelper(TestRocksDbKey.class.getName()).setupAgentHome();
-        taskStore = new TaskStore(TaskManager.initStore(AgentConstants.AGENT_LOCAL_DB_PATH_TASK));
-        instanceStore = new InstanceStore(TaskManager.initStore(AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE));
-        offsetStore = new OffsetStore(TaskManager.initStore(AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET));
+        taskStore = new TaskStore(TaskManager.initStore(AgentConstants.AGENT_STORE_PATH_TASK));
+        instanceStore = new InstanceStore(TaskManager.initStore(AgentConstants.AGENT_STORE_PATH_INSTANCE));
+        offsetStore = new OffsetStore(TaskManager.initStore(AgentConstants.AGENT_STORE_PATH_OFFSET));
 
     }
 

@@ -45,9 +45,9 @@ public class TestStoreKey {
     public static void setup() throws Exception {
         AgentConfiguration.getAgentConf().set(AGENT_LOCAL_IP, "127.0.0.1");
         helper = new AgentBaseTestsHelper(TestStoreKey.class.getName()).setupAgentHome();
-        taskStore = new TaskStore(new ZKImp(AgentConstants.AGENT_LOCAL_DB_PATH_TASK));
-        instanceStore = new InstanceStore(new ZKImp(AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE));
-        offsetStore = new OffsetStore(new ZKImp(AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET));
+        taskStore = new TaskStore(new ZooKeeperImpl(AgentConstants.AGENT_STORE_PATH_TASK));
+        instanceStore = new InstanceStore(new ZooKeeperImpl(AgentConstants.AGENT_STORE_PATH_INSTANCE));
+        offsetStore = new OffsetStore(new ZooKeeperImpl(AgentConstants.AGENT_STORE_PATH_OFFSET));
 
     }
 

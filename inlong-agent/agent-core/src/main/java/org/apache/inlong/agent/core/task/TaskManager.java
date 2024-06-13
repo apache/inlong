@@ -125,12 +125,12 @@ public class TaskManager extends AbstractDaemon {
      */
     public TaskManager() {
         taskBasicStore = initStore(
-                agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_TASK));
+                agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_STORE_PATH_TASK));
         taskStore = new TaskStore(taskBasicStore);
         instanceBasicStore = initStore(
-                agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE));
+                agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_STORE_PATH_INSTANCE));
         offsetBasicStore =
-                initStore(agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET));
+                initStore(agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_STORE_PATH_OFFSET));
         OffsetManager.init(taskBasicStore, instanceBasicStore, offsetBasicStore);
         this.runningPool = new ThreadPoolExecutor(
                 0, Integer.MAX_VALUE,

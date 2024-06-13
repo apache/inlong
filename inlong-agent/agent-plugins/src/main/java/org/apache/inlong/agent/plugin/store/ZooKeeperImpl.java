@@ -42,11 +42,11 @@ import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
 
 /**
- * DB implement based on the ZooKeeper.
+ * Store implement based on the ZooKeeper.
  */
-public class ZooKeeperImp implements Store {
+public class ZooKeeperImpl implements Store {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZKImp.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperImpl.class);
     private static final Gson GSON = new Gson();
     public static final int SLEEP_MS_BETWEEN_RETRIES = 1000 * 10;
     public static final int MAX_RETRIES = 10;
@@ -58,7 +58,7 @@ public class ZooKeeperImp implements Store {
     private static final AgentConfiguration conf = AgentConfiguration.getAgentConf();
     private static final String ZK_PRE = "/agent";
 
-    public ZKImp(String childPath) {
+    public ZooKeeperImpl(String childPath) {
         uniqueKey = ZK_PRE + getSplitter() + conf.get(AGENT_CLUSTER_TAG) + getSplitter() + conf.get(AGENT_CLUSTER_NAME)
                 + getSplitter() + conf.get(AGENT_LOCAL_IP) + getSplitter() + childPath;
     }
@@ -70,7 +70,7 @@ public class ZooKeeperImp implements Store {
      */
     private static CuratorFramework getClient() {
         if (client == null) {
-            synchronized (ZKImp.class) {
+            synchronized (ZooKeeperImpl.class) {
                 if (client == null) {
                     if (AgentManager.getAgentConfigInfo() == null) {
                         throw new RuntimeException("agent config is null");
