@@ -57,7 +57,7 @@ public class TestRocksDbKey {
     }
 
     @Test
-    public void testDB() {
+    public void testStore() {
         Assert.assertEquals(0, taskStore.getKey().compareTo("task"));
         Assert.assertEquals(0, taskStore.getKeyByTaskId("1").compareTo("task_1"));
         Assert.assertEquals(0, instanceStore.getKey().compareTo("ins_"));

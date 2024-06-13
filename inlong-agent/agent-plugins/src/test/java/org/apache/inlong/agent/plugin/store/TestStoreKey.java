@@ -57,7 +57,7 @@ public class TestStoreKey {
     }
 
     @Test
-    public void testDB() {
+    public void testStore() {
         Assert.assertEquals(0,
                 taskStore.getKey().compareTo("/agent/default_tag/default_agent/127.0.0.1/.localdb/task/task"));
         Assert.assertEquals(0, taskStore.getKeyByTaskId("1")
