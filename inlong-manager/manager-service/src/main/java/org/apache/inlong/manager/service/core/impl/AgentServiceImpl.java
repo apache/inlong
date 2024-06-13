@@ -330,7 +330,7 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public AgentConfigInfo getAgentConfig(AgentConfigRequest request) {
-        LOGGER.info("begin to get agent config info for {}", request);
+        LOGGER.debug("begin to get agent config info for {}", request);
         AgentConfigInfo agentConfigInfo = new AgentConfigInfo();
         Set<String> tagSet = new HashSet<>(16);
         tagSet.addAll(Arrays.asList(request.getClusterTag().split(InlongConstants.COMMA)));
@@ -352,7 +352,7 @@ public class AgentServiceImpl implements AgentService {
                 .clusterName(clusterInfo.getName())
                 .build());
 
-        LOGGER.info("success to get agent config info for: {}, result: {}", request, agentConfigInfo);
+        LOGGER.debug("success to get agent config info for: {}, result: {}", request, agentConfigInfo);
         return agentConfigInfo;
     }
 
