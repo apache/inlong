@@ -88,8 +88,8 @@ public enum AuditIdEnum {
     SORT_POSTGRES_INPUT(27, INPUT, POSTGRES, "Received Audit Metrics for Sort Postgres"),
     SORT_POSTGRES_OUTPUT(28, OUTPUT, POSTGRES, "Sent Audit Metrics for Sort Postgres"),
 
-    SORT_BINLOG_INPUT(29, INPUT, BINLOG, "Received Audit Metrics for Sort Binlog"),
-    SORT_BINLOG_OUTPUT(30, OUTPUT, BINLOG, "Sent Audit Metrics for Sort Binlog"),
+    SORT_BINLOG_INPUT(35, INPUT, BINLOG, "Received Audit Metrics for Sort Binlog"),
+    SORT_BINLOG_OUTPUT(36, OUTPUT, BINLOG, "Sent Audit Metrics for Sort Binlog"),
 
     SORT_TUBE_INPUT(33, INPUT, TUBE_MQ, "Received Audit Metrics for Sort Tube"),
     SORT_TUBE_OUTPUT(34, OUTPUT, TUBE_MQ, "Sent Audit Metrics for Sort Tube"),

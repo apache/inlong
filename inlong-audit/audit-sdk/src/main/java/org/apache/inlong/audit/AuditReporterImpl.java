@@ -599,4 +599,17 @@ public class AuditReporterImpl implements Serializable {
     public int getStartAuditIdForMetric() {
         return AuditManagerUtils.getStartAuditIdForMetric();
     }
+
+    public void setManagerTimeout(int timeoutMs) {
+
+        ProxyManager.getInstance().setManagerTimeout(timeoutMs);
+    }
+
+    public void setAutoUpdateAuditProxy(boolean autoUpdateAuditProxy) {
+        ProxyManager.getInstance().setAutoUpdateAuditProxy(autoUpdateAuditProxy);
+    }
+
+    public void setUpdateInterval(int updateInterval) {
+        ProxyManager.getInstance().setUpdateInterval(updateInterval);
+    }
 }

@@ -32,9 +32,9 @@ public enum AuditType {
     DORIS("Doris"),
     KUDU("Kudu"),
     POSTGRES("Postgres"),
-    BINLOG("Binlog"),
-    TUBE_MQ("TUBEMQ"),
-    MYSQL("MySQL"),
+    BINLOG("MYSQL_BINLOG"),
+    TUBE_MQ("TubeMQ"),
+    MYSQL("MYSQL_SQL"),
     HDFS("HDFS");
 
     private final String auditType;

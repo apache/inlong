@@ -84,7 +84,7 @@ public class ProxyManager {
 
         if (autoUpdateAuditProxy) {
             startTimer();
-            LOGGER.info("Auto Update from manager");
+            LOGGER.info("Auto update from manager");
         }
     }
 
