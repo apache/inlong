@@ -41,6 +41,7 @@
         <module>manager-workflow</module>
         <module>manager-web</module>
         <module>manager-docker</module>
+        <module>manager-schedule</module>
     </modules>
 
     <properties>
