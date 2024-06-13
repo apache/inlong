@@ -33,4 +33,13 @@ public enum ScheduleType {
     ScheduleType(int code) {
         this.code = code;
     }
+
+    public static ScheduleType fromCode(int code) {
+        for (ScheduleType type : ScheduleType.values()) {
+            if (type.code == code) {
+                return type;
+            }
+        }
+        return null;
+    }
 }

@@ -53,26 +53,29 @@ public class ScheduleUtils {
         Timestamp startTime = scheduleInfo.getStartTime();
         Timestamp endTime = scheduleInfo.getEndTime();
         int scheduleType = scheduleInfo.getScheduleType();
-        Trigger trigger;
-        if (scheduleType == ScheduleType.NORMAL.getCode()) {
-            trigger = TriggerBuilder.newTrigger()
-                    .withIdentity(key)
-                    .startAt(new Date(startTime.getTime()))
-                    .endAt(new Date(endTime.getTime()))
-                    .withSchedule(genSimpleQuartzScheduleBuilder(scheduleInfo.getScheduleInterval(),
-                            scheduleInfo.getScheduleUnit()))
-                    .forJob(jobDetail).build();
-        } else if (scheduleType == ScheduleType.CRONTAB.getCode()) {
-            trigger = TriggerBuilder.newTrigger()
-                    .withIdentity(key)
-                    .startAt(new Date(startTime.getTime()))
-                    .endAt(new Date(endTime.getTime()))
-                    .withSchedule(genCronQuartzScheduleBuilder(scheduleInfo.getCrontabExpression()))
-                    .forJob(jobDetail).build();
-        } else {
-            throw new QuartzScheduleException("Unknown schedule type: " + scheduleType);
+        ScheduleType type = ScheduleType.fromCode(scheduleType);
+        if (type == null) {
+            throw new QuartzScheduleException("Invalid schedule type: " + scheduleType);
         }
-        return trigger;
+        switch (type) {
+            case NORMAL:
+                return TriggerBuilder.newTrigger()
+                        .withIdentity(key)
+                        .startAt(new Date(startTime.getTime()))
+                        .endAt(new Date(endTime.getTime()))
+                        .withSchedule(genSimpleQuartzScheduleBuilder(scheduleInfo.getScheduleInterval(),
+                                scheduleInfo.getScheduleUnit()))
+                        .forJob(jobDetail).build();
+            case CRONTAB:
+                return TriggerBuilder.newTrigger()
+                        .withIdentity(key)
+                        .startAt(new Date(startTime.getTime()))
+                        .endAt(new Date(endTime.getTime()))
+                        .withSchedule(genCronQuartzScheduleBuilder(scheduleInfo.getCrontabExpression()))
+                        .forJob(jobDetail).build();
+            default :
+                throw new QuartzScheduleException("Unknown schedule type: " + scheduleType);
+        }
     }
 
     // Y=year, M=month, W=week, D=day, H=hour, I=minute, O=oneway
