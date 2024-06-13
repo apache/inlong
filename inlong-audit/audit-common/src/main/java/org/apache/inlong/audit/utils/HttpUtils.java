@@ -17,7 +17,6 @@
 
 package org.apache.inlong.audit.utils;
 
-import org.apache.inlong.audit.entity.AuthConfig;
 import org.apache.inlong.common.util.BasicAuth;
 
 import org.apache.http.client.HttpClient;
@@ -57,18 +56,18 @@ public class HttpUtils {
         }
     }
 
-    public static Map<String, String> getAuthHeader(AuthConfig authConfig) {
+    public static Map<String, String> getAuthHeader(String secretId, String secretKey) {
         Map<String, String> header = new HashMap<>();
         try {
             header.put(BasicAuth.BASIC_AUTH_HEADER,
-                    BasicAuth.genBasicAuthCredential(authConfig.getSecretId(), authConfig.getSecretKey()));
+                    BasicAuth.genBasicAuthCredential(secretId, secretKey));
         } catch (Exception e) {
             LOGGER.error("Get auth header error", e);
         }
         return header;
     }
 
-    public static String httpGet(String component, String url, AuthConfig authConfig, int timeoutMs) {
+    public static String httpGet(String component, String url, String secretId, String secretKey, int timeoutMs) {
         if (httpClient == null) {
             LOGGER.error("httpClient is null");
             return null;
@@ -86,7 +85,7 @@ public class HttpUtils {
             HttpGet request = new HttpGet(finalUrl);
             request.setConfig(requestConfig);
 
-            Map<String, String> authHeaders = getAuthHeader(authConfig);
+            Map<String, String> authHeaders = getAuthHeader(secretId, secretKey);
             for (Map.Entry<String, String> entry : authHeaders.entrySet()) {
                 request.addHeader(entry.getKey(), entry.getValue());
             }

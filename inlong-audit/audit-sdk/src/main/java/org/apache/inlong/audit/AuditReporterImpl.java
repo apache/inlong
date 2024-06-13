@@ -20,7 +20,6 @@ package org.apache.inlong.audit;
 import org.apache.inlong.audit.entity.AuditComponent;
 import org.apache.inlong.audit.entity.AuditInformation;
 import org.apache.inlong.audit.entity.AuditMetric;
-import org.apache.inlong.audit.entity.AuthConfig;
 import org.apache.inlong.audit.entity.FlowType;
 import org.apache.inlong.audit.loader.SocketAddressListLoader;
 import org.apache.inlong.audit.protocol.AuditApi;
@@ -198,9 +197,9 @@ public class AuditReporterImpl implements Serializable {
     /**
      * Set AuditProxy from the manager host
      */
-    public void setAuditProxy(AuditComponent component, String managerHost, AuthConfig authConfig) {
+    public void setAuditProxy(AuditComponent component, String managerHost, String secretId, String secretKey) {
         checkInitStatus();
-        ProxyManager.getInstance().setManagerConfig(component, managerHost, authConfig);
+        ProxyManager.getInstance().setManagerConfig(component, managerHost, secretId, secretKey);
     }
 
     private synchronized void checkInitStatus() {

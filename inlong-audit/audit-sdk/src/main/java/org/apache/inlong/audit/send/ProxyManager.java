@@ -19,7 +19,6 @@ package org.apache.inlong.audit.send;
 
 import org.apache.inlong.audit.entity.AuditComponent;
 import org.apache.inlong.audit.entity.AuditProxy;
-import org.apache.inlong.audit.entity.AuthConfig;
 import org.apache.inlong.audit.entity.CommonResponse;
 import org.apache.inlong.audit.utils.HttpUtils;
 
@@ -45,9 +44,11 @@ public class ProxyManager {
     private int timeoutMs = 10000;
     private boolean autoUpdateAuditProxy = false;
     private int updateInterval = 60000;
-    private AuthConfig authConfig;
+    // private AuthConfig authConfig;
     private String auditProxyApiUrl;
     private AuditComponent component;
+    private String secretId;
+    private String secretKey;
     private volatile boolean timerStarted = false;
 
     private ProxyManager() {
@@ -67,7 +68,8 @@ public class ProxyManager {
         }
     }
 
-    public synchronized void setManagerConfig(AuditComponent component, String managerHost, AuthConfig authConfig) {
+    public synchronized void setManagerConfig(AuditComponent component, String managerHost, String secretId,
+            String secretKey) {
         if (!managerHost.endsWith("/")) {
             managerHost = managerHost + "/";
         }
@@ -77,8 +79,9 @@ public class ProxyManager {
         auditProxyApiUrl = String.format("%s%s", managerHost, GET_AUDIT_PROXY_API_PATH);
         LOGGER.info("Audit Proxy API URL: {}", auditProxyApiUrl);
 
-        this.authConfig = authConfig;
         this.component = component;
+        this.secretId = secretId;
+        this.secretKey = secretKey;
 
         updateAuditProxy();
 
@@ -89,15 +92,17 @@ public class ProxyManager {
     }
 
     private void updateAuditProxy() {
-        String response = HttpUtils.httpGet(component.getComponent(), auditProxyApiUrl, authConfig, timeoutMs);
+        String response = HttpUtils.httpGet(component.getComponent(), auditProxyApiUrl, secretId, secretKey, timeoutMs);
         if (response == null) {
-            LOGGER.error("Response is null: {} {} {} ", component.getComponent(), auditProxyApiUrl, authConfig);
+            LOGGER.error("Response is null: {} {} {} ", component.getComponent(), auditProxyApiUrl, secretId,
+                    secretKey);
             return;
         }
         CommonResponse<AuditProxy> commonResponse =
                 CommonResponse.fromJson(response, AuditProxy.class);
         if (commonResponse == null) {
-            LOGGER.error("No data in the response: {} {} {} ", component.getComponent(), auditProxyApiUrl, authConfig);
+            LOGGER.error("No data in the response: {} {} {} {}", component.getComponent(), auditProxyApiUrl, secretId,
+                    secretKey);
             return;
         }
         HashSet<String> proxyList = new HashSet<>();

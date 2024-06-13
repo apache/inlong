@@ -26,13 +26,38 @@ If the AuditProxy changes in real time, then the business program needs to call 
 By configuring the InLong Manager's address, module information, and manager certification information, 
 The Audit SDK will automatically fetch the Manager to obtain the address of the Audit Proxy.
 ```java
-        String host = "127.0.0.1:8083";
-        String secretId = "*****";
-        String secretKey = "******";
-        String token = "*******";
-        String serviceName = "*****";
-        AuthConfig authConfig = new AuthConfig(secretId,secretKey,token,serviceName);
-        AuditOperator.getInstance().setAuditProxy(AGENT,host,authConfig);
+        String host = "127.0.0.1:8083"; // Host of manager
+        String secretId = "*****"; // Secret id
+        String secretKey = "******";  // Secret key
+        AuditOperator.getInstance().setAuditProxy(AuditComponent,host,secretId,secretKey); 
+```
+- Explain of AuditComponent 
+```java
+public enum AuditComponent {
+
+    AGENT("Agent"), DATAPROXY("DataProxy"), SORT("Sort"), COMMON_AUDIT("Common");
+    private final String component;
+
+    /**
+     * Constructor for the enum.
+     *
+     * @param component the name of the component
+     */
+
+    AuditComponent(String component) {
+        this.component = component;
+    }
+
+    /**
+     * Returns the name of the component.
+     *
+     * @return the name of the component
+     */
+
+    public String getComponent() {
+        return component;
+    }
+}
 ```
 
 ### Add Audit Data
