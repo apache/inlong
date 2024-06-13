@@ -64,7 +64,7 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
 
     private SourceMetricData sourceMetricData;
 
-    private int consumeTimeIndex;
+    private int consumeTimeIndex = -1;
 
     DynamicKafkaDeserializationSchema(
             int physicalArity,
@@ -145,7 +145,12 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         outputCollector.physicalKeyRows = keyCollector.buffer;
         if (sourceMetricData != null) {
             MetricsCollector<RowData> metricsCollector = new MetricsCollector<>(collector, sourceMetricData);
-            metricsCollector.resetTimestamp((Long) outputCollector.metadataConverters[consumeTimeIndex].read(record));
+            if (consumeTimeIndex != -1) {
+                metricsCollector
+                        .resetTimestamp((Long) outputCollector.metadataConverters[consumeTimeIndex].read(record));
+            } else {
+                metricsCollector.resetTimestamp(System.currentTimeMillis());
+            }
             outputCollector.outputCollector = metricsCollector;
         } else {
             outputCollector.outputCollector = collector;
