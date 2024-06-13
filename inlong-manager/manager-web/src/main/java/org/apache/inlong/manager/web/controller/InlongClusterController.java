@@ -299,7 +299,6 @@ public class InlongClusterController {
 
     @RequestMapping(value = "/cluster/node/getManagerSSHPublicKey", method = RequestMethod.GET)
     @ApiOperation(value = "Obtain the SSH public key from the manager to install the agent.")
-    @OperationLog(operation = OperationType.GET, operationTarget = OperationTarget.CLUSTER)
     public Response<String> getManagerSSHPublicKey() {
         return Response.success(clusterService.getManagerSSHPublicKey());
     }
