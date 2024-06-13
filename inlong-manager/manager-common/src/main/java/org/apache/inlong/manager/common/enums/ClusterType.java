@@ -38,6 +38,8 @@ public class ClusterType {
     public static final String SORT_PULSAR = "SORT_PULSAR";
     public static final String SORT_KAFKA = "SORT_KAFKA";
 
+    public static final String AGENT_ZK = "AGENT_ZK";
+
     private static final Set<String> TYPE_SET = new HashSet<String>() {
 
         {

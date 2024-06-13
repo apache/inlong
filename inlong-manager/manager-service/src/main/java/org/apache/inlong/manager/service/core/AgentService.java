@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.core;
 
+import org.apache.inlong.common.pojo.agent.AgentConfigInfo;
+import org.apache.inlong.common.pojo.agent.AgentConfigRequest;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
@@ -43,6 +45,14 @@ public interface AgentService {
      * @param request Result of the task.
      */
     void report(TaskRequest request);
+
+    /**
+     * Agent cluster config.
+     *
+     * @param request Request of the agent config.
+     * @return Agent config info result.
+     */
+    AgentConfigInfo getAgentConfig(AgentConfigRequest request);
 
     /**
      * Agent pull task config.
