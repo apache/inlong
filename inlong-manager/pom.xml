@@ -40,8 +40,8 @@
         <module>manager-service</module>
         <module>manager-workflow</module>
         <module>manager-web</module>
-        <module>manager-docker</module>
         <module>manager-schedule</module>
+        <module>manager-docker</module>
     </modules>
 
     <properties>

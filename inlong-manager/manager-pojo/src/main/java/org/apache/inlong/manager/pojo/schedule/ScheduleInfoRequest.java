@@ -44,7 +44,7 @@ public class ScheduleInfoRequest {
     private Integer scheduleType;
 
     // time unit for offline task schedule interval, support [month, week, day, hour, minute, oneway]
-    // M=month, W=week, D=day, H=hour, M=minute, O=oneway
+    // Y=year, M=month, W=week, D=day, H=hour, I=minute, O=oneway
     @ApiModelProperty("TimeUnit for schedule interval")
     private String scheduleUnit;
 
@@ -67,7 +67,7 @@ public class ScheduleInfoRequest {
     private Integer taskParallelism;
 
     @ApiModelProperty("Schedule task parallelism")
-    private Integer crontabExpression;
+    private String crontabExpression;
 
     @ApiModelProperty(value = "Version number")
     @NotNull(groups = UpdateValidation.class, message = "version cannot be null")
