@@ -145,8 +145,7 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         outputCollector.physicalKeyRows = keyCollector.buffer;
         if (sourceMetricData != null) {
             MetricsCollector<RowData> metricsCollector = new MetricsCollector<>(collector, sourceMetricData);
-            metricsCollector.resetTimestamp(
-                    getRecordTime(consumeTimeIndex, outputCollector.metadataConverters, record));
+            metricsCollector.resetTimestamp(getRecordTime(outputCollector.metadataConverters, record));
             outputCollector.outputCollector = metricsCollector;
         } else {
             outputCollector.outputCollector = collector;
@@ -160,7 +159,7 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         keyCollector.buffer.clear();
     }
 
-    private Long getRecordTime(int consumeTimeIndex, MetadataConverter[] metadataConverters,
+    private Long getRecordTime(MetadataConverter[] metadataConverters,
             ConsumerRecord<byte[], byte[]> record) {
         if (consumeTimeIndex == -1) {
             return System.currentTimeMillis();
