@@ -30,19 +30,19 @@ public interface ScheduleEngine {
     void start();
 
     /**
-     * handle schedule register.
+     * Handle schedule register.
      * @param scheduleInfo schedule info to register
      * */
     boolean handleRegister(ScheduleInfo scheduleInfo);
 
     /**
-     * handle schedule unregister.
+     * Handle schedule unregister.
      * @param scheduleInfo schedule info to unregister
      * */
     boolean handleUnregister(ScheduleInfo scheduleInfo);
 
     /**
-     * handle schedule update.
+     * Handle schedule update.
      * @param scheduleInfo schedule info to update
      * */
     boolean handleUpdate(ScheduleInfo scheduleInfo);

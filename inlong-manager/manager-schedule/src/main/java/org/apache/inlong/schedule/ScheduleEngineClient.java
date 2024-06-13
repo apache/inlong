@@ -25,19 +25,19 @@ import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 public interface ScheduleEngineClient {
 
     /**
-     * register schedule to schedule engine.
+     * Register schedule to schedule engine.
      * @param scheduleInfo schedule info to register
      * */
     boolean register(ScheduleInfo scheduleInfo);
 
     /**
-     * unregister schedule from schedule engine.
+     * Un-register schedule from schedule engine.
      * @param scheduleInfo schedule info to unregister
      * */
     boolean unregister(ScheduleInfo scheduleInfo);
 
     /**
-     * update schedule from schedule engine.
+     * Update schedule from schedule engine.
      * @param scheduleInfo schedule info to update
      * */
     boolean update(ScheduleInfo scheduleInfo);
