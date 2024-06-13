@@ -44,7 +44,6 @@ public class ProxyManager {
     private int timeoutMs = 10000;
     private boolean autoUpdateAuditProxy = false;
     private int updateInterval = 60000;
-    // private AuthConfig authConfig;
     private String auditProxyApiUrl;
     private AuditComponent component;
     private String secretId;
