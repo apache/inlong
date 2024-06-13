@@ -58,21 +58,19 @@ public class TestStoreKey {
 
     @Test
     public void testDB() {
-        Assert.assertTrue(
-                taskStore.getKey().compareTo("/agent/default_tag/default_agent/127.0.0.1/.localdb/task/task") == 0);
-        Assert.assertTrue(
-                taskStore.getKeyByTaskId("1")
-                        .compareTo("/agent/default_tag/default_agent/127.0.0.1/.localdb/task/task/1") == 0);
-        Assert.assertTrue(
-                instanceStore.getKey()
-                        .compareTo("/agent/default_tag/default_agent/127.0.0.1/.localdb/instance/ins/") == 0);
-        Assert.assertTrue(instanceStore.getKeyByTaskId("1")
-                .compareTo("/agent/default_tag/default_agent/127.0.0.1/.localdb/instance/ins/1") == 0);
-        Assert.assertTrue(instanceStore.getKeyByTaskAndInstanceId("1", "/data/log/123.log")
+        Assert.assertEquals(0,
+                taskStore.getKey().compareTo("/agent/default_tag/default_agent/127.0.0.1/.localdb/task/task"));
+        Assert.assertEquals(0, taskStore.getKeyByTaskId("1")
+                .compareTo("/agent/default_tag/default_agent/127.0.0.1/.localdb/task/task/1"));
+        Assert.assertEquals(0, instanceStore.getKey()
+                .compareTo("/agent/default_tag/default_agent/127.0.0.1/.localdb/instance/ins/"));
+        Assert.assertEquals(0, instanceStore.getKeyByTaskId("1")
+                .compareTo("/agent/default_tag/default_agent/127.0.0.1/.localdb/instance/ins/1"));
+        Assert.assertEquals(0, instanceStore.getKeyByTaskAndInstanceId("1", "/data/log/123.log")
                 .compareTo(
-                        "/agent/default_tag/default_agent/127.0.0.1/.localdb/instance/ins/1/#data#log#123.log") == 0);
-        Assert.assertTrue(offsetStore.getKey("1", "/data/log/123.log")
+                        "/agent/default_tag/default_agent/127.0.0.1/.localdb/instance/ins/1/#data#log#123.log"));
+        Assert.assertEquals(0, offsetStore.getKey("1", "/data/log/123.log")
                 .compareTo(
-                        "/agent/default_tag/default_agent/127.0.0.1/.localdb/offset/offset/1/#data#log#123.log") == 0);
+                        "/agent/default_tag/default_agent/127.0.0.1/.localdb/offset/offset/1/#data#log#123.log"));
     }
 }
