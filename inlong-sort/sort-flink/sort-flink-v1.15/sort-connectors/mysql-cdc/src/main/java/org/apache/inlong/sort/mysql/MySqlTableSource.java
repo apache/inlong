@@ -21,7 +21,6 @@ import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.mysql.source.MySqlSource;
 
 import com.ververica.cdc.connectors.mysql.table.MySqlDeserializationConverterFactory;
-import com.ververica.cdc.connectors.mysql.table.MySqlReadableMetadata;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.DebeziumSourceFunction;
@@ -51,6 +50,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.inlong.sort.mysql.table.MySqlReadableMetadata;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
