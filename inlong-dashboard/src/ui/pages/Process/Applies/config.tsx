@@ -55,7 +55,7 @@ export const getColumns = activedName => [
     width: 90,
     render: (text, record) => (
       <Link
-        to={`/process/${activedName}/${text}?inlongGroupMode=${record.showInList?.inlongGroupMode}`}
+        to={`/process/${activedName}/${text}?inlongGroupMode=${record.showInList[0]?.inlongGroupMode}`}
       >
         {text}
       </Link>
