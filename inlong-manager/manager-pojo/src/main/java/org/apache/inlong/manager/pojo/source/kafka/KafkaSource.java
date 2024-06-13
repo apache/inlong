@@ -97,7 +97,7 @@ public class KafkaSource extends StreamSource {
     private String dataEscapeChar;
 
     @ApiModelProperty(value = "The message body wrap  wrap type, including: RAW, INLONG_MSG_V0, INLONG_MSG_V1, etc")
-    private String wrapType = MessageWrapType.INLONG_MSG_V0.getName();
+    private String wrapType;
 
     public KafkaSource() {
         this.setSourceType(SourceType.KAFKA);
