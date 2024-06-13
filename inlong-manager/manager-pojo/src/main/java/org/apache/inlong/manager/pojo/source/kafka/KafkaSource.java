@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.source.kafka;
 
-import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
