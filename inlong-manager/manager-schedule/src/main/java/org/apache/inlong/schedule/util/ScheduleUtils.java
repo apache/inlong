@@ -73,7 +73,7 @@ public class ScheduleUtils {
                         .endAt(new Date(endTime.getTime()))
                         .withSchedule(genCronQuartzScheduleBuilder(scheduleInfo.getCrontabExpression()))
                         .forJob(jobDetail).build();
-            default :
+            default:
                 throw new QuartzScheduleException("Unknown schedule type: " + scheduleType);
         }
     }
