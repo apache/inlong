@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS `schedule_config`
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_group_id`               varchar(256) NOT NULL COMMENT 'Inlong group id, undeleted ones cannot be repeated',
     `schedule_type`          int(4)       NOT NULL DEFAULT '0' COMMENT 'Schedule type, 0 for normal, 1 for crontab',
-    `schedule_unit`          varchar(64)  NOT NULL COMMENT 'Schedule unit,M=month, W=week, D=day, H=hour, M=minute, O=oneway',
+    `schedule_unit`          varchar(64)  NOT NULL COMMENT 'Schedule unit, Y=year, M=month, W=week, D=day, H=hour, I=minute, O=oneway',
     `schedule_interval`      int(11)      DEFAULT '1' COMMENT 'Schedule interval',
     `start_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Start time for schedule',
     `end_time`               timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'End time for schedule',
