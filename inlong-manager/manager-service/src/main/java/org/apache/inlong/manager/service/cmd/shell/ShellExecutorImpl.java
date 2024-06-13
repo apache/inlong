@@ -20,7 +20,6 @@ package org.apache.inlong.manager.service.cmd.shell;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
