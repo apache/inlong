@@ -39,7 +39,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import static org.apache.inlong.audit.entities.AuditComponent.COMMON_AUDIT;
+import static org.apache.inlong.audit.entity.AuditComponent.COMMON_AUDIT;
 
 public class Heartbeat {
 

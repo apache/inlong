@@ -17,32 +17,33 @@
 
 package org.apache.inlong.audit.entity;
 
-public enum AuditType {
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-    SDK("SDK"),
-    AGENT("Agent"),
-    DATAPROXY("DataProxy"),
-    HIVE("Hive"),
-    CLICKHOUSE("ClickHouse"),
-    ELASTICSEARCH("ElasticSearch"),
-    STARROCKS("StarRocks"),
-    HUDI("HuDi"),
-    ICEBERG("Iceberg"),
-    HBASE("HBase"),
-    DORIS("Doris"),
-    KUDU("Kudu"),
-    POSTGRES("Postgres"),
-    BINLOG("Binlog"),
-    TUBE_MQ("TUBEMQ"),
-    MYSQL("MySQL"),
-    HDFS("HDFS");
+/**
+ * Class representing an authentication configuration.
+ */
+@AllArgsConstructor
+@Data
+public class AuthConfig {
 
-    private final String auditType;
+    /**
+     * The secret ID for authentication.
+     */
+    private String secretId;
 
-    AuditType(String auditType) {
-        this.auditType = auditType;
-    }
-    public String value() {
-        return auditType;
-    }
+    /**
+     * The secret key for authentication.
+     */
+    private String secretKey;
+
+    /**
+     * The token for authentication.
+     */
+    private String token;
+
+    /**
+     * The service name for authentication.
+     */
+    private String serviceName;
 }

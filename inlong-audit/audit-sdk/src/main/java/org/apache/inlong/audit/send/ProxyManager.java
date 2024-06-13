@@ -17,6 +17,12 @@
 
 package org.apache.inlong.audit.send;
 
+import org.apache.inlong.audit.entity.AuditComponent;
+import org.apache.inlong.audit.entity.AuditProxy;
+import org.apache.inlong.audit.entity.AuthConfig;
+import org.apache.inlong.audit.entity.CommonResponse;
+import org.apache.inlong.audit.utils.HttpUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,12 +31,23 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ProxyManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyManager.class);
     private static final ProxyManager instance = new ProxyManager();
     private final List<String> currentIpPorts = new CopyOnWriteArrayList<>();
+    private final ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
+    private final static String GET_AUDIT_PROXY_API_PATH = "/inlong/manager/openapi/audit/getAuditProxy";
+    private int timeoutMs = 10000;
+    private boolean autoUpdateAuditProxy = false;
+    private int updateInterval = 60000;
+    private AuthConfig authConfig;
+    private String auditProxyApiUrl;
+    private AuditComponent component;
 
     private ProxyManager() {
     }
@@ -42,11 +59,71 @@ public class ProxyManager {
     /**
      * update config
      */
-    public void setAuditProxy(HashSet<String> ipPortList) {
+    public synchronized void setAuditProxy(HashSet<String> ipPortList) {
         if (!ipPortList.equals(new HashSet<>(currentIpPorts))) {
             currentIpPorts.clear();
             currentIpPorts.addAll(ipPortList);
         }
+    }
+
+    public synchronized void setAuditProxy(AuditComponent component, String managerHost, AuthConfig authConfig) {
+        if (!managerHost.endsWith("/")) {
+            managerHost = managerHost + "/";
+        }
+        if (!(managerHost.startsWith("http://") || managerHost.startsWith("https://"))) {
+            managerHost = "http://" + managerHost;
+        }
+        auditProxyApiUrl = String.format("%s%s", managerHost, GET_AUDIT_PROXY_API_PATH);
+        LOGGER.info("Audit Proxy API URL: {}", auditProxyApiUrl);
+
+        this.authConfig = authConfig;
+        this.component = component;
+
+        requestFromManager();
+
+        if (autoUpdateAuditProxy) {
+            updateAuditProxy();
+            LOGGER.info("Auto Update from manager");
+        }
+    }
+
+    private void requestFromManager() {
+        String response = HttpUtils.sendGet(component.getComponent(), auditProxyApiUrl, authConfig, timeoutMs);
+        if (response == null) {
+            LOGGER.error("Response is null: {} {} {} ", component.getComponent(), auditProxyApiUrl, authConfig);
+            return;
+        }
+        CommonResponse<AuditProxy> commonResponse =
+                CommonResponse.fromJson(response, AuditProxy.class);
+        if (commonResponse == null) {
+            LOGGER.error("No data in the response: {} {} {} ", component.getComponent(), auditProxyApiUrl, authConfig);
+            return;
+        }
+        HashSet<String> proxyList = new HashSet<>();
+        for (AuditProxy auditProxy : commonResponse.getData()) {
+            proxyList.add(auditProxy.toString());
+        }
+        setAuditProxy(proxyList);
+        LOGGER.info("Get audit proxy from manager: {}", proxyList);
+    }
+
+    private void updateAuditProxy() {
+        timer.scheduleWithFixedDelay(this::requestFromManager,
+                0,
+                updateInterval,
+                TimeUnit.MILLISECONDS);
+    }
+
+    public void setManagerTimeout(int timeoutMs) {
+        this.timeoutMs = timeoutMs;
+    }
+
+    public void setAutoUpdateAuditProxy(boolean autoUpdateAuditProxy) {
+        this.autoUpdateAuditProxy = autoUpdateAuditProxy;
+    }
+
+    public void setUpdateInterval(int updateInterval) {
+        this.updateInterval = updateInterval;
     }
 
     public InetSocketAddress getInetSocketAddress() {

@@ -18,8 +18,8 @@
 package org.apache.inlong.audit.cache;
 
 import org.apache.inlong.audit.config.Configuration;
-import org.apache.inlong.audit.entities.AuditProxy;
 import org.apache.inlong.audit.entities.JdbcConfig;
+import org.apache.inlong.audit.entity.AuditProxy;
 import org.apache.inlong.audit.utils.JdbcUtils;
 
 import com.github.benmanes.caffeine.cache.Cache;

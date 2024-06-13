@@ -17,8 +17,10 @@
 
 package org.apache.inlong.audit;
 
+import org.apache.inlong.audit.entity.AuditComponent;
 import org.apache.inlong.audit.entity.AuditInformation;
 import org.apache.inlong.audit.entity.AuditMetric;
+import org.apache.inlong.audit.entity.AuthConfig;
 import org.apache.inlong.audit.entity.FlowType;
 import org.apache.inlong.audit.loader.SocketAddressListLoader;
 import org.apache.inlong.audit.protocol.AuditApi;
@@ -78,7 +80,7 @@ public class AuditReporterImpl implements Serializable {
     private final ScheduledExecutorService timeoutExecutor = Executors.newSingleThreadScheduledExecutor();
     private int packageId = 1;
     private int dataId = 0;
-    private boolean initialized = false;
+    private volatile boolean initialized = false;
     private SenderManager manager;
     private AtomicInteger flushStat = new AtomicInteger(0);
     private AuditConfig auditConfig = null;
@@ -189,18 +191,24 @@ public class AuditReporterImpl implements Serializable {
      * Set AuditProxy from the ip
      */
     public void setAuditProxy(HashSet<String> ipPortList) {
-        try {
-            GLOBAL_LOCK.lockInterruptibly();
-            if (!initialized) {
-                init();
-                initialized = true;
-            }
-            ProxyManager.getInstance().setAuditProxy(ipPortList);
-        } catch (InterruptedException e) {
-            LOGGER.error(e.getMessage());
-        } finally {
-            GLOBAL_LOCK.unlock();
+        checkInitStatus();
+        ProxyManager.getInstance().setAuditProxy(ipPortList);
+    }
+
+    /**
+     * Set AuditProxy from the manager host
+     */
+    public void setAuditProxy(AuditComponent component, String managerHost, AuthConfig authConfig) {
+        checkInitStatus();
+        ProxyManager.getInstance().setAuditProxy(component, managerHost, authConfig);
+    }
+
+    private synchronized void checkInitStatus() {
+        if (initialized) {
+            return;
         }
+        init();
+        initialized = true;
     }
 
     /**

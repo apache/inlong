@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.entities;
+package org.apache.inlong.audit.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +24,23 @@ import lombok.Data;
 @AllArgsConstructor
 public class AuditProxy {
 
+    /**
+     * The host of the audit proxy.
+     */
     private String host;
+
+    /**
+     * The port of the audit proxy.
+     */
     private int port;
+
+    /**
+     * Returns a string representation of the audit proxy.
+     *
+     * @return a string representation of the audit proxy
+     */
+    @Override
+    public String toString() {
+        return String.format("%s:%d", host, port);
+    }
 }
