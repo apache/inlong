@@ -22,14 +22,17 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.ProfileFetcher;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.task.TaskManager;
+import org.apache.inlong.common.pojo.agent.AgentConfigInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Agent Manager, the bridge for task manager, task store e.t.c it manages agent level operations and communicates
@@ -43,6 +46,8 @@ public class AgentManager extends AbstractDaemon {
     private final ProfileFetcher fetcher;
     private final AgentConfiguration conf;
     private final ExecutorService agentConfMonitor;
+    public static final int CONFIG_QUEUE_CAPACITY = 2;
+    private static BlockingQueue<AgentConfigInfo> configQueue = new LinkedBlockingQueue<>(CONFIG_QUEUE_CAPACITY);
 
     public AgentManager() {
         conf = AgentConfiguration.getAgentConf();
@@ -50,6 +55,20 @@ public class AgentManager extends AbstractDaemon {
         taskManager = new TaskManager();
         fetcher = initFetcher(this);
         heartbeatManager = HeartbeatManager.getInstance(this);
+    }
+
+    public static AgentConfigInfo getAgentConfigInfo() {
+        return configQueue.peek();
+    }
+
+    public void subNewAgentConfigInfo(AgentConfigInfo info) {
+        if (info == null) {
+            return;
+        }
+        if (configQueue.size() == CONFIG_QUEUE_CAPACITY) {
+            configQueue.poll();
+        }
+        configQueue.add(info);
     }
 
     /**
