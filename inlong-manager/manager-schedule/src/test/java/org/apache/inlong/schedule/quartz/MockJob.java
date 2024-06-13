@@ -37,12 +37,12 @@ public class MockJob extends QuartzOfflineSyncJob {
         if (countDownLatch.getCount() > 0) {
             countDownLatch.countDown();
         }
-        LOGGER.info("### MockJob executed " + counter.incrementAndGet());
+        LOGGER.info("MockJob executed " + counter.incrementAndGet());
     }
 
     public static void setCount(int count) {
         countDownLatch = new CountDownLatch(count);
         counter.set(0);
-        LOGGER.info("### MockJob has been reset.");
+        LOGGER.info("MockJob has been reset.");
     }
 }
