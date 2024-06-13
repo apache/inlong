@@ -112,6 +112,7 @@ public class KafkaExtractNodeTest extends SerializeBaseTest<KafkaExtractNode> {
         formatMap.put(MetaField.OFFSET, "BIGINT METADATA FROM 'offset' VIRTUAL");
         formatMap.put(MetaField.PARTITION, "BIGINT METADATA FROM 'partition' VIRTUAL");
         formatMap.put(MetaField.TIMESTAMP, "TIMESTAMP_LTZ(3) METADATA FROM 'timestamp' VIRTUAL");
+        formatMap.put(MetaField.AUDIT_DATA_TIME, "BIGINT METADATA FROM 'consume_time' VIRTUAL");
 
         KafkaExtractNode node = getTestObject();
         boolean formatEquals = true;

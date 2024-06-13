@@ -63,6 +63,9 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
     private final MetricOption metricOption;
 
     private SourceMetricData sourceMetricData;
+
+    private int consumeTimeIndex = -1;
+
     DynamicKafkaDeserializationSchema(
             int physicalArity,
             @Nullable DeserializationSchema<RowData> keyDeserialization,
@@ -104,6 +107,12 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         if (metricOption != null) {
             sourceMetricData = new SourceMetricData(metricOption);
         }
+        for (int i = 0; i < outputCollector.metadataConverters.length; i++) {
+            if (outputCollector.metadataConverters[i]
+                    .equals(KafkaDynamicSource.ReadableMetadata.CONSUME_TIME.converter)) {
+                consumeTimeIndex = i;
+            }
+        }
     }
 
     @Override
@@ -131,12 +140,16 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         if (keyDeserialization != null) {
             keyDeserialization.deserialize(record.key(), keyCollector);
         }
-
         // project output while emitting values
         outputCollector.inputRecord = record;
         outputCollector.physicalKeyRows = keyCollector.buffer;
-        outputCollector.outputCollector =
-                sourceMetricData == null ? collector : new MetricsCollector<>(collector, sourceMetricData);
+        if (sourceMetricData != null) {
+            MetricsCollector<RowData> metricsCollector = new MetricsCollector<>(collector, sourceMetricData);
+            metricsCollector.resetTimestamp(getRecordTime(outputCollector.metadataConverters, record));
+            outputCollector.outputCollector = metricsCollector;
+        } else {
+            outputCollector.outputCollector = collector;
+        }
         if (record.value() == null && upsertMode) {
             // collect tombstone messages in upsert mode by hand
             outputCollector.collect(null);
@@ -144,6 +157,14 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
             valueDeserialization.deserialize(record.value(), outputCollector);
         }
         keyCollector.buffer.clear();
+    }
+
+    private Long getRecordTime(MetadataConverter[] metadataConverters,
+            ConsumerRecord<byte[], byte[]> record) {
+        if (consumeTimeIndex == -1) {
+            return System.currentTimeMillis();
+        }
+        return (Long) metadataConverters[consumeTimeIndex].read(record);
     }
 
     @Override

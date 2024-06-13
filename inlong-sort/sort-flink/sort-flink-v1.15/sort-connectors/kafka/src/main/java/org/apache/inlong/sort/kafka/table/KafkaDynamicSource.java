@@ -19,6 +19,7 @@ package org.apache.inlong.sort.kafka.table;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.kafka.table.DynamicKafkaDeserializationSchema.MetadataConverter;
+import org.apache.inlong.sort.protocol.node.ExtractNode;
 
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -619,6 +620,18 @@ public class KafkaDynamicSource
                     @Override
                     public Object read(ConsumerRecord<?, ?> record) {
                         return StringData.fromString(record.timestampType().toString());
+                    }
+                }),
+        CONSUME_TIME(
+                ExtractNode.CONSUME_AUDIT_TIME,
+                DataTypes.BIGINT().notNull(),
+                new MetadataConverter() {
+
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public Object read(ConsumerRecord<?, ?> record) {
+                        return System.currentTimeMillis();
                     }
                 });
 
