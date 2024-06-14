@@ -31,9 +31,9 @@ public class AgentConstants {
     public static final String DEFAULT_AGENT_HOME = System.getProperty("agent.home");
     public static final String AGENT_ROCKS_DB_PATH = "agent.rocks.db.path";
     public static final String DEFAULT_AGENT_ROCKS_DB_PATH = ".rocksdb";
-    public static final String AGENT_LOCAL_DB_PATH_TASK = ".localdb/task";
-    public static final String AGENT_LOCAL_DB_PATH_INSTANCE = ".localdb/instance";
-    public static final String AGENT_LOCAL_DB_PATH_OFFSET = ".localdb/offset";
+    public static final String AGENT_STORE_PATH_TASK = ".localdb/task";
+    public static final String AGENT_STORE_PATH_INSTANCE = ".localdb/instance";
+    public static final String AGENT_STORE_PATH_OFFSET = ".localdb/offset";
     public static final String AGENT_UNIQ_ID = "agent.uniq.id";
     // default is empty.
     public static final String AGENT_FETCHER_CLASSNAME = "agent.fetcher.classname";
@@ -46,6 +46,9 @@ public class AgentConstants {
     public static final String AGENT_LOCAL_IP = "agent.local.ip";
     public static final String DEFAULT_LOCAL_IP = "127.0.0.1";
     public static final String DEFAULT_LOCAL_HOST = "localhost";
+    public static final String AGENT_STORE_CLASSNAME = "agent.store.classname";
+    public static final String DEFAULT_AGENT_STORE_CLASSNAME = "org.apache.inlong.agent.store.RocksDBStoreImpl";
+
     // default use local ip as uniq id for agent.
     public static final String DEFAULT_AGENT_UNIQ_ID = AgentUtils.getLocalIp();
     public static final String CUSTOM_FIXED_IP = "agent.custom.fixed.ip";

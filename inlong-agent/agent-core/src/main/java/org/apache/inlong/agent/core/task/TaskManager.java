@@ -24,7 +24,6 @@ import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.file.Task;
-import org.apache.inlong.agent.store.RocksStoreImp;
 import org.apache.inlong.agent.store.Store;
 import org.apache.inlong.agent.store.TaskStore;
 import org.apache.inlong.agent.utils.AgentUtils;
@@ -34,6 +33,7 @@ import org.apache.inlong.common.enums.TaskStateEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -77,7 +77,7 @@ public class TaskManager extends AbstractDaemon {
     // tasks which are not accepted by running pool.
     private final BlockingQueue<Task> pendingTasks;
     private final int taskMaxLimit;
-    private final AgentConfiguration agentConf;
+    private static final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
     // instance profile queue.
     private final BlockingQueue<TaskAction> actionQueue;
 
@@ -124,14 +124,13 @@ public class TaskManager extends AbstractDaemon {
      * Init task manager.
      */
     public TaskManager() {
-        this.agentConf = AgentConfiguration.getAgentConf();
         taskBasicStore = initStore(
-                agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_TASK));
+                agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_STORE_PATH_TASK));
         taskStore = new TaskStore(taskBasicStore);
         instanceBasicStore = initStore(
-                agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE));
+                agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_STORE_PATH_INSTANCE));
         offsetBasicStore =
-                initStore(agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET));
+                initStore(agentConf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.AGENT_STORE_PATH_OFFSET));
         OffsetManager.init(taskBasicStore, instanceBasicStore, offsetBasicStore);
         this.runningPool = new ThreadPoolExecutor(
                 0, Integer.MAX_VALUE,
@@ -160,7 +159,11 @@ public class TaskManager extends AbstractDaemon {
      */
     public static Store initStore(String childPath) {
         try {
-            return new RocksStoreImp(childPath);
+            Constructor<?> constructor =
+                    Class.forName(agentConf.get(AgentConstants.AGENT_STORE_CLASSNAME,
+                            AgentConstants.DEFAULT_AGENT_STORE_CLASSNAME)).getDeclaredConstructor(String.class);
+            constructor.setAccessible(true);
+            return (Store) constructor.newInstance(childPath);
         } catch (Exception ex) {
             throw new UnsupportedClassVersionError(ex.getMessage());
         }

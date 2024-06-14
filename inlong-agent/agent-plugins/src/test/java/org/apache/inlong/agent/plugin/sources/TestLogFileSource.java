@@ -67,10 +67,10 @@ public class TestLogFileSource {
     @BeforeClass
     public static void setup() {
         helper = new AgentBaseTestsHelper(TestLogFileSource.class.getName()).setupAgentHome();
-        taskBasicStore = TaskManager.initStore(AgentConstants.AGENT_LOCAL_DB_PATH_TASK);
-        instanceBasicStore = TaskManager.initStore(AgentConstants.AGENT_LOCAL_DB_PATH_INSTANCE);
+        taskBasicStore = TaskManager.initStore(AgentConstants.AGENT_STORE_PATH_TASK);
+        instanceBasicStore = TaskManager.initStore(AgentConstants.AGENT_STORE_PATH_INSTANCE);
         offsetBasicStore =
-                TaskManager.initStore(AgentConstants.AGENT_LOCAL_DB_PATH_OFFSET);
+                TaskManager.initStore(AgentConstants.AGENT_STORE_PATH_OFFSET);
         OffsetManager.init(taskBasicStore, instanceBasicStore, offsetBasicStore);
     }
 
