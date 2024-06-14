@@ -23,7 +23,6 @@ If the AuditProxy changes in real time, then the business program needs to call 
     HashSet<String> ipPortList = new HashSet<>();
     ipPortList.add("0.0.0.0:54041");
     AuditOperator.getInstance().setAuditProxy(ipPortList);
-```
 #### Configure Audit Proxy Addresses by InLong Manager
 By configuring the InLong Manager's address, module information, and manager certification information, 
 The Audit SDK will automatically fetch the Manager to obtain the address of the Audit Proxy.
