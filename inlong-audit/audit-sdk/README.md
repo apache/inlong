@@ -27,7 +27,7 @@ If the AuditProxy changes in real time, then the business program needs to call 
 By configuring the InLong Manager's address, module information, and manager certification information, 
 The Audit SDK will automatically fetch the Manager to obtain the address of the Audit Proxy.
 ```java
-        String host = "127.0.0.1:8083"; // Host of manager
+        String host = "127.0.0.1:8083"; // The manager address
         String secretId = "*****"; // Secret id
         String secretKey = "******";  // Secret key
         AuditOperator.getInstance().setAuditProxy(AuditComponent,host,secretId,secretKey); 
