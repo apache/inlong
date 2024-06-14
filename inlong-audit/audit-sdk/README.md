@@ -14,7 +14,8 @@ which can ensure that each module is reconciled in accordance with the unified a
 ### Configure Audit Proxy Addresses
 - The Audit SDK will summarize the results according to the cycle  
 and send them to the ip:port list set by the interface.
-- There are two ways to set the address of the Audit Proxy, namely fixed ip:port and setting the manager address. Please choose one of the methods.
+- There are two ways to set the address of the Audit Proxy, configure the address directly or get the address from the manager. Please choose one of the methods.
+
 #### Configure Audit Proxy Addresses by fixed ip:port
 If the ip:port of the AuditProxy is fixed, then this interface needs to be called once. 
 If the AuditProxy changes in real time, then the business program needs to call this interface periodically to update
