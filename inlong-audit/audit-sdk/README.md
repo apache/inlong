@@ -15,14 +15,14 @@ which can ensure that each module is reconciled in accordance with the unified a
 - The Audit SDK will summarize the results according to the cycle  
 and send them to the ip:port list set by the interface.
 - There are two ways to set the address of the Audit Proxy, configure the address directly or get the address from the manager. Please choose one of the methods.
-
 #### Configure Audit Proxy Addresses by fixed ip:port
 If the ip:port of the AuditProxy is fixed, then this interface needs to be called once. 
-If the AuditProxy changes in real time, then the business program needs to call this interface periodically to update
+If the AuditProxy changes in real time, then the business program needs to call this interface periodically to update.
 ```java
     HashSet<String> ipPortList = new HashSet<>();
     ipPortList.add("0.0.0.0:54041");
     AuditOperator.getInstance().setAuditProxy(ipPortList);
+```
 #### Configure Audit Proxy Addresses by InLong Manager
 By configuring the InLong Manager's address, module information, and manager certification information, 
 The Audit SDK will automatically fetch the Manager to obtain the address of the Audit Proxy.
@@ -65,7 +65,6 @@ public enum AuditComponent {
 Call the add method for statistics, where the auditID parameter uniquely identifies an audit object,
 inlongGroupID,inlongStreamID,logTime are audit dimensions, count is the number of items, size is the size, and logTime
 is milliseconds.
-
 #### Example for Agent to Add Audit Data
 ```java
     AuditOperator.getInstance().add(auditID, auditTag, inlongGroupID, inlongStreamID, logTime,
@@ -78,7 +77,6 @@ The scenario of supplementary recording of agent data, so the version number par
         count, size, auditVersion);
 ```
 The scenario of supplementary recording of DataProxy data, so the version number parameter needs to be passed in.
-
 #### Example for Sort Flink to Add Audit Data
 ```java
     AuditReporterImpl auditReporter=new AuditReporterImpl();
@@ -97,7 +95,6 @@ The scenario of supplementary recording of DataProxy data, so the version number
          logTime, count, size, auditVersion)
 ```
 In order to ensure the accuracy of auditing, each operator needs to create an auditAuditReporterImpl instance.
-
 - Explain of AuditDimensions
 
 | parameter      | description                                                                                          |

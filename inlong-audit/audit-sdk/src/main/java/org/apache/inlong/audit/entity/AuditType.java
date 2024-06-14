@@ -33,7 +33,7 @@ public enum AuditType {
     KUDU("Kudu"),
     POSTGRES("Postgres"),
     BINLOG("MYSQL_BINLOG"),
-    TUBE_MQ("TubeMQ"),
+    TUBEMQ("TubeMQ"),
     MYSQL("MYSQL_SQL"),
     HDFS("HDFS");
 
