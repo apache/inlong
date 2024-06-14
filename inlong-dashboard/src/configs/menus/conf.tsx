@@ -33,18 +33,9 @@ import type { MenuItemType } from '.';
 
 const conf: MenuItemType[] = [
   {
-    name: i18n.t('configs.menus.GroupsManagement'),
+    path: '/group',
+    name: i18n.t('configs.menus.Groups'),
     icon: <ApiOutlined />,
-    children: [
-      {
-        path: '/group',
-        name: i18n.t('configs.menus.Groups'),
-      },
-      {
-        path: '/dataTemplate',
-        name: i18n.t('configs.menus.Groups.Template'),
-      },
-    ],
   },
   {
     path: '/sync',
@@ -98,6 +89,10 @@ const conf: MenuItemType[] = [
         path: '/approval',
         isAdmin: true,
         name: i18n.t('configs.menus.ProcessManagement'),
+      },
+      {
+        path: '/dataTemplate',
+        name: i18n.t('configs.menus.Groups.Template'),
       },
     ],
   },
