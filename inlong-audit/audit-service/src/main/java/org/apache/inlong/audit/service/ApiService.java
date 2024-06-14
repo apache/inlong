@@ -25,10 +25,10 @@ import org.apache.inlong.audit.cache.RealTimeQuery;
 import org.apache.inlong.audit.cache.TenMinutesCache;
 import org.apache.inlong.audit.config.Configuration;
 import org.apache.inlong.audit.entities.ApiType;
-import org.apache.inlong.audit.entities.AuditComponent;
 import org.apache.inlong.audit.entities.AuditCycle;
-import org.apache.inlong.audit.entities.AuditProxy;
 import org.apache.inlong.audit.entities.StatData;
+import org.apache.inlong.audit.entity.AuditComponent;
+import org.apache.inlong.audit.entity.AuditProxy;
 import org.apache.inlong.audit.heartbeat.ProxyHeartbeat;
 
 import com.google.common.util.concurrent.RateLimiter;

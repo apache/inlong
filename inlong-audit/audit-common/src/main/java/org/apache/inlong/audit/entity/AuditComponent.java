@@ -15,16 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.entities;
+package org.apache.inlong.audit.entity;
 
 public enum AuditComponent {
 
     AGENT("Agent"), DATAPROXY("DataProxy"), SORT("Sort"), COMMON_AUDIT("Common");
     private final String component;
 
+    /**
+     * Constructor for the enum.
+     *
+     * @param component the name of the component
+     */
+
     AuditComponent(String component) {
         this.component = component;
     }
+
+    /**
+     * Returns the name of the component.
+     *
+     * @return the name of the component
+     */
 
     public String getComponent() {
         return component;

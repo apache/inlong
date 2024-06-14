@@ -40,7 +40,7 @@ import static org.apache.inlong.audit.entity.AuditType.MYSQL;
 import static org.apache.inlong.audit.entity.AuditType.POSTGRES;
 import static org.apache.inlong.audit.entity.AuditType.SDK;
 import static org.apache.inlong.audit.entity.AuditType.STARROCKS;
-import static org.apache.inlong.audit.entity.AuditType.TUBE;
+import static org.apache.inlong.audit.entity.AuditType.TUBEMQ;
 import static org.apache.inlong.audit.entity.FlowType.INPUT;
 import static org.apache.inlong.audit.entity.FlowType.OUTPUT;
 
@@ -88,11 +88,11 @@ public enum AuditIdEnum {
     SORT_POSTGRES_INPUT(27, INPUT, POSTGRES, "Received Audit Metrics for Sort Postgres"),
     SORT_POSTGRES_OUTPUT(28, OUTPUT, POSTGRES, "Sent Audit Metrics for Sort Postgres"),
 
-    SORT_BINLOG_INPUT(29, INPUT, BINLOG, "Received Audit Metrics for Sort Binlog"),
-    SORT_BINLOG_OUTPUT(30, OUTPUT, BINLOG, "Sent Audit Metrics for Sort Binlog"),
+    SORT_BINLOG_INPUT(35, INPUT, BINLOG, "Received Audit Metrics for Sort Binlog"),
+    SORT_BINLOG_OUTPUT(36, OUTPUT, BINLOG, "Sent Audit Metrics for Sort Binlog"),
 
-    SORT_TUBE_INPUT(33, INPUT, TUBE, "Received Audit Metrics for Sort Tube"),
-    SORT_TUBE_OUTPUT(34, OUTPUT, TUBE, "Sent Audit Metrics for Sort Tube"),
+    SORT_TUBE_INPUT(33, INPUT, TUBEMQ, "Received Audit Metrics for Sort TubeMQ"),
+    SORT_TUBE_OUTPUT(34, OUTPUT, TUBEMQ, "Sent Audit Metrics for Sort TubeMQ"),
 
     SORT_MYSQL_INPUT(35, INPUT, MYSQL, "Received Audit Metrics for Sort MySQL"),
     SORT_MYSQL_OUTPUT(36, OUTPUT, MYSQL, "Sent Audit Metrics for Sort MySQL"),
