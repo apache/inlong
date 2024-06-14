@@ -58,6 +58,14 @@ public class ConfigConstants {
     public static final String KEY_CONFIG_UPDATE_INTERVAL_SECONDS = "config.update.interval.seconds";
     public static final int DEFAULT_CONFIG_UPDATE_INTERVAL_SECONDS = 60;
 
+    public static final String KEY_ENABLE_MANAGE_PARTITIONS = "enable.manage.partitions";
+    public static final boolean DEFAULT_ENABLE_MANAGE_PARTITIONS = true;
+    public static final String KEY_CHECK_PARTITION_INTERVAL_HOURS = "check.partition.interval.hours";
+    public static final int DEFAULT_CHECK_PARTITION_INTERVAL_HOURS = 6;
+
+    public static final String KEY_AUDIT_DATA_TEMP_STORAGE_DAYS = "audit.data.temp.storage.days";
+    public static final int DEFAULT_AUDIT_DATA_TEMP_STORAGE_DAYS = 3;
+
     public static final String KEY_DATASOURCE_POOL_SIZE = "datasource.pool.size";
     public static final int DEFAULT_DATASOURCE_POOL_SIZE = 2;
 

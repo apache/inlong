@@ -225,4 +225,12 @@ public class SqlConstants {
             "replace into audit_proxy_heartbeat (component, host, port)\n" +
                     "values (?, ?, ?)";
 
+    public static final String KEY_AUDIT_DATA_TEMP_ADD_PARTITION_SQL = "audit.data.temp.add.partition.sql";
+    public static final String DEFAULT_AUDIT_DATA_TEMP_ADD_PARTITION_SQL =
+            "ALTER TABLE audit_data_temp ADD PARTITION (PARTITION %s VALUES LESS THAN (TO_DAYS('%s')))";
+
+    public static final String KEY_AUDIT_DATA_TEMP_DELETE_PARTITION_SQL = "audit.data.temp.delete.partition.sql";
+    public static final String DEFAULT_AUDIT_DATA_TEMP_DELETE_PARTITION_SQL =
+            "ALTER TABLE audit_data_temp DROP PARTITION %s";
+
 }
