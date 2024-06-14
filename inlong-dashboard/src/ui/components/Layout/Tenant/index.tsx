@@ -90,7 +90,7 @@ const Comp: React.FC = () => {
     getData(key);
     setLocalStorage({ name: key });
     message.success(t('components.Layout.Tenant.Success'));
-    window.location.reload();
+    window.location.href = '/';
   };
 
   const onFilter = allValues => {

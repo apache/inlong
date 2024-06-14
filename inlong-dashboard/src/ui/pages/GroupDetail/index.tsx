@@ -30,6 +30,7 @@ import Audit from './Audit';
 import ResourceInfo from './ResourceInfo';
 import Delay from './Delay';
 import OperationLog from './OperationLog';
+import { useLocalStorage } from '@/core/utils/localStorage';
 
 const Comp: React.FC = () => {
   const { t } = useTranslation();
@@ -39,6 +40,7 @@ const Comp: React.FC = () => {
 
   const qs = parse(location.search.slice(1));
 
+  const [getLocalStorage, setLocalStorage] = useLocalStorage('tenant');
   const [current, setCurrent] = useState(+qs.step || 0);
   const [, { add: addOpened, has: hasOpened }] = useSet([current]);
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -56,6 +58,19 @@ const Comp: React.FC = () => {
     ready: !!id && !mqType,
     refreshDeps: [id],
     onSuccess: result => setMqType(result.mqType),
+  });
+
+  useRequest(`/group/getTenant/${id}`, {
+    ready: !!id,
+    refreshDeps: [id],
+    onSuccess: result => {
+      console.log('res', result, getLocalStorage('tenant')?.['name']);
+      if (getLocalStorage('tenant')?.['name'] !== result) {
+        setLocalStorage({ name: result });
+        message.success(t('components.Layout.Tenant.Success'));
+        window.location.reload();
+      }
+    },
   });
 
   const isReadonly = useMemo(() => [0, 101, 102].includes(data?.status), [data]);
