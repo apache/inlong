@@ -19,6 +19,7 @@ package org.apache.inlong.sort.standalone.config.loader.v2;
 
 import org.apache.inlong.common.pojo.sort.SortConfig;
 import org.apache.inlong.common.pojo.sort.SortConfigResponse;
+import org.apache.inlong.common.util.Utils;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.ManagerUrlHandler;
 
@@ -88,7 +89,9 @@ public class ManagerSortClusterConfigLoader implements SortConfigLoader {
             }
 
             this.md5 = clusterResponse.getMd5();
-            return objectMapper.readValue(clusterResponse.getData(), SortConfig.class);
+            byte[] decompress = Utils
+                    .gzipDecompress(clusterResponse.getData(), 0, clusterResponse.getData().length);
+            return objectMapper.readValue(decompress, SortConfig.class);
         } catch (Exception ex) {
             log.error("exception caught", ex);
             return null;

@@ -27,6 +27,7 @@ import org.apache.inlong.common.pojo.sort.mq.MqClusterConfig;
 import org.apache.inlong.common.pojo.sort.mq.PulsarClusterConfig;
 import org.apache.inlong.common.pojo.sort.node.NodeConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
+import org.apache.inlong.common.util.Utils;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.plugin.Plugin;
@@ -102,7 +103,7 @@ public class SortServiceImpl implements SortService, PluginBinder {
     /**
      * key 1: sort cluster name, value : sort config
      */
-    private Map<String, String> sortConfigMap = new ConcurrentHashMap<>();
+    private Map<String, byte[]> sortConfigMap = new ConcurrentHashMap<>();
     /**
      * key 1: sort cluster name, value : md5
      */
@@ -265,7 +266,7 @@ public class SortServiceImpl implements SortService, PluginBinder {
 
     private void reloadDataFlowConfig() {
         ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, String> sortConfigs = new HashMap<>();
+        Map<String, byte[]> sortConfigs = new HashMap<>();
         Map<String, String> sortConfigMd5s = new HashMap<>();
         Map<String, List<SortTaskConfig>> temp = new HashMap<>();
         List<SortConfigEntity> sinkConfigEntityList = configLoader.loadAllSortConfigEntity();
@@ -308,7 +309,7 @@ public class SortServiceImpl implements SortService, PluginBinder {
             sortConfig.setTasks(temp.get(sortClusterName));
             try {
                 String configStr = objectMapper.writeValueAsString(sortConfig);
-                sortConfigs.put(sortClusterName, configStr);
+                sortConfigs.put(sortClusterName, Utils.compressGZip(configStr.getBytes()));
                 String md5 = DigestUtils.md5Hex(configStr);
                 sortConfigMd5s.put(sortClusterName, md5);
             } catch (Exception e) {

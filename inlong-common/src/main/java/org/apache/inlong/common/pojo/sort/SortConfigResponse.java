@@ -36,6 +36,6 @@ public class SortConfigResponse {
     String msg;
     int code;
     String md5;
-    String data;
+    byte[] data;
 
 }
