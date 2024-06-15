@@ -127,6 +127,8 @@ public class InlongConstants {
 
     public static final String PULSAR_QUEUE_TYPE_PARALLEL = "PARALLEL";
 
+    public static final String DEFAULT_TASK = "DEFAULT_TASK";
+
     /**
      * Format of the Pulsar topic: "persistent://tenant/namespace/topic
      */

@@ -33,10 +33,12 @@ import org.apache.inlong.manager.dao.mapper.SortConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 
@@ -168,7 +170,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
                 throw new BusinessException(ErrorCodeEnum.SINK_FIELD_UPDATE_NOT_ALLOWED);
             }
             for (int i = 0; i < existsFieldList.size(); i++) {
-                if (!existsFieldList.get(i).getFieldName().equals(fieldRequestList.get(i).getFieldName())) {
+                if (!existsFieldList.get(i).getFieldName().equalsIgnoreCase(fieldRequestList.get(i).getFieldName())) {
                     throw new BusinessException(ErrorCodeEnum.SINK_FIELD_UPDATE_NOT_ALLOWED);
                 }
             }
@@ -288,7 +290,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     }
 
     @Override
-    public SinkConfig getSinkConfig(StreamSink sink) {
+    public SinkConfig getSinkConfig(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, StreamSink sink) {
         throw new BusinessException(String.format("not support get sink config for sink type=%s", sink.getSinkType()));
     }
 

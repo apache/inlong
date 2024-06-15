@@ -22,7 +22,7 @@ package org.apache.inlong.manager.common.consts;
  */
 public class StreamType {
 
-    @SupportSortType(sortType = SortType.SORT_FLINK)
+    @SupportSortType(sortType = SortType.SORT_STANDALONE)
     public static final String KAFKA = "KAFKA";
 
     @SupportSortType(sortType = SortType.SORT_FLINK)

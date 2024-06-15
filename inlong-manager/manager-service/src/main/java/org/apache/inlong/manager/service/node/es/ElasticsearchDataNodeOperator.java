@@ -124,7 +124,9 @@ public class ElasticsearchDataNodeOperator extends AbstractDataNodeOperator {
     @Override
     public NodeConfig getNodeConfig(DataNodeEntity dataNodeEntity) {
         DataNodeInfo dataNodeInfo = this.getFromEntity(dataNodeEntity);
+        ElasticsearchDataNodeDTO dto = ElasticsearchDataNodeDTO.getFromJson(dataNodeInfo.getExtParams());
         EsNodeConfig esNodeConfig = CommonBeanUtils.copyProperties(dataNodeInfo, EsNodeConfig::new);
+        CommonBeanUtils.copyProperties(dto, esNodeConfig);
         esNodeConfig.setNodeName(dataNodeInfo.getName());
         return esNodeConfig;
     }

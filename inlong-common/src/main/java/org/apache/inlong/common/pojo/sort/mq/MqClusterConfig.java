@@ -28,7 +28,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = PulsarClusterConfig.class, name = MQType.PULSAR),
         @JsonSubTypes.Type(value = TubeClusterConfig.class, name = MQType.TUBEMQ)

@@ -17,18 +17,17 @@
 
 package org.apache.inlong.common.pojo.sort.dataflow.sink;
 
-import org.apache.inlong.common.constant.SinkType;
-import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
-
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.inlong.common.constant.SinkType;
+import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
 
 import java.io.Serializable;
 import java.util.List;
 
 @Data
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ClsSinkConfig.class, name = SinkType.CLS),
         @JsonSubTypes.Type(value = EsSinkConfig.class, name = SinkType.ELASTICSEARCH),

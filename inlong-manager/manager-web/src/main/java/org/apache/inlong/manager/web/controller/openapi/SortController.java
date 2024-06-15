@@ -62,7 +62,7 @@ public class SortController {
     @ApiOperation(value = "get sort config")
     public SortConfigResponse getSortConfig(
             @RequestParam String clusterName,
-            @RequestParam String md5) {
+            @RequestParam(required = false) String md5) {
         return sortService.getSortConfig(clusterName, md5);
     }
 

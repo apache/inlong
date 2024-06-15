@@ -28,6 +28,7 @@ import org.apache.inlong.common.pojo.sort.mq.PulsarClusterConfig;
 import org.apache.inlong.common.pojo.sort.node.NodeConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.common.util.Utils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.plugin.Plugin;
@@ -64,6 +65,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -233,6 +235,7 @@ public class SortServiceImpl implements SortService, PluginBinder {
     }
 
     private void reloadMqCluster() {
+        Map<String, List<MqClusterConfig>> tempMqClusterMap = new HashMap<>();
         List<ClusterConfigEntity> clusterConfigEntityList = configLoader.loadAllClusterConfigEntity();
         clusterConfigEntityList.forEach(clusterConfigEntity -> {
             String clusterTag = clusterConfigEntity.getClusterTag();
@@ -241,9 +244,10 @@ public class SortServiceImpl implements SortService, PluginBinder {
                         JsonUtils.parseArray(clusterConfigEntity.getConfigParams(),
                                 PulsarClusterConfig.class);
                 List<MqClusterConfig> list = new ArrayList<>(pulsarClusterConfigs);
-                mqClusterConfigMap.putIfAbsent(clusterTag, list);
+                tempMqClusterMap.putIfAbsent(clusterTag, list);
             }
         });
+        mqClusterConfigMap = tempMqClusterMap;
     }
 
     private void reloadNodeConfig() {
@@ -270,6 +274,11 @@ public class SortServiceImpl implements SortService, PluginBinder {
         Map<String, String> sortConfigMd5s = new HashMap<>();
         Map<String, List<SortTaskConfig>> temp = new HashMap<>();
         List<SortConfigEntity> sinkConfigEntityList = configLoader.loadAllSortConfigEntity();
+        for (SortConfigEntity sortConfigEntity : sinkConfigEntityList) {
+            if (StringUtils.isBlank(sortConfigEntity.getSortTaskName())) {
+                sortConfigEntity.setSortTaskName(InlongConstants.DEFAULT_TASK);
+            }
+        }
         Map<String, Map<String, Map<String, List<SortConfigEntity>>>> cluster2SinkMap = sinkConfigEntityList.stream()
                 .collect(Collectors.groupingBy(SortConfigEntity::getInlongClusterName,
                         Collectors.groupingBy(SortConfigEntity::getSortTaskName,
@@ -296,9 +305,11 @@ public class SortServiceImpl implements SortService, PluginBinder {
                             log.error("parse data flow config error for sinkId={}", v.getSinkId(), e);
                         }
                         return null;
-                    }).filter(Objects::nonNull).collect(Collectors.toList());
+                    }).filter(Objects::nonNull)
+                            .sorted(Comparator.comparingInt(x -> Integer.parseInt(x.getDataflowId())))
+                            .collect(Collectors.toList());
                     SortClusterConfig sortClusterConfig = SortClusterConfig.builder()
-                            .mqClusterConfigs(mqClusterConfigMap.get(clusterTag))
+                            .mqClusterConfigs(mqClusterConfigMap.getOrDefault(clusterTag, new ArrayList<>()))
                             .clusterTag(clusterTag)
                             .dataFlowConfigs(dataFlowConfigs)
                             .build();

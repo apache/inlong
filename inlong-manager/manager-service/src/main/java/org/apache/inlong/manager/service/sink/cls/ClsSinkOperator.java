@@ -32,6 +32,7 @@ import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.cls.ClsDataNodeDTO;
 import org.apache.inlong.manager.pojo.node.cls.ClsDataNodeInfo;
@@ -43,6 +44,7 @@ import org.apache.inlong.manager.pojo.sink.cls.ClsSinkDTO;
 import org.apache.inlong.manager.pojo.sink.cls.ClsSinkRequest;
 import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
 import org.apache.inlong.manager.pojo.stream.InlongStreamExtParam;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -147,8 +149,9 @@ public class ClsSinkOperator extends AbstractSinkOperator {
     }
 
     @Override
-    public SinkConfig getSinkConfig(StreamSink sink) {
-        ClsSinkConfig sinkConfig = CommonBeanUtils.copyProperties(sink, ClsSinkConfig::new);
+    public SinkConfig getSinkConfig(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, StreamSink sink) {
+        ClsSink clsSink = (ClsSink) sink;
+        ClsSinkConfig sinkConfig = CommonBeanUtils.copyProperties(clsSink, ClsSinkConfig::new);
         List<FieldConfig> fields = sinkFieldMapper.selectBySinkId(sink.getId()).stream().map(
                 v -> {
                     FieldConfig fieldConfig = new FieldConfig();

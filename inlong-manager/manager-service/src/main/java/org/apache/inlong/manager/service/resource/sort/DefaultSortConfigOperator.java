@@ -36,6 +36,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.SortConfigEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SortConfigEntityMapper;
@@ -62,6 +63,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,6 +75,10 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultSortConfigOperator.class);
 
     @Autowired
+    public DeserializeOperatorFactory deserializeOperatorFactory;
+    @Autowired
+    public DataTypeOperatorFactory dataTypeOperatorFactory;
+    @Autowired
     private StreamSinkFieldEntityMapper sinkFieldMapper;
     @Autowired
     private InlongClusterEntityMapper clusterMapper;
@@ -80,10 +86,6 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     private SortConfigEntityMapper sortConfigEntityMapper;
     @Autowired
     private InlongGroupEntityMapper groupEntityMapper;
-    @Autowired
-    public DeserializeOperatorFactory deserializeOperatorFactory;
-    @Autowired
-    public DataTypeOperatorFactory dataTypeOperatorFactory;
     @Autowired
     private SinkOperatorFactory operatorFactory;
 
@@ -121,10 +123,8 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         }
         InlongGroupEntity groupEntity = groupEntityMapper.selectByGroupId(groupInfo.getInlongGroupId());
         Preconditions.expectTrue(MQType.PULSAR.equals(groupEntity.getMqType()), "standalone only support pulsar");
-        for (StreamSink sink : streamInfo.getSinkList()) {
-            if (SinkType.SORT_STANDALONE_SINK.contains(sink.getSinkType())) {
-                saveDataFlow(groupInfo, streamInfo, sink);
-            }
+        for (StreamSink sink : sinkList) {
+            saveDataFlow(groupInfo, streamInfo, sink);
         }
 
     }
@@ -139,14 +139,21 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
             if (sortConfigEntity == null) {
                 dataFlowConfig.setVersion(0);
                 sortConfigEntity = CommonBeanUtils.copyProperties(sink, SortConfigEntity::new);
+                sortConfigEntity.setId(null);
+                if (StringUtils.isBlank(sortConfigEntity.getSortTaskName())) {
+                    sortConfigEntity.setSortTaskName(InlongConstants.DEFAULT_TASK);
+                }
                 sortConfigEntity.setSinkId(sink.getId());
                 sortConfigEntity.setConfigParams(objectMapper.writeValueAsString(dataFlowConfig));
                 sortConfigEntity.setInlongClusterTag(clusterTags);
                 sortConfigEntityMapper.insert(sortConfigEntity);
             } else {
-                dataFlowConfig.setVersion(sortConfigEntity.getVersion());
+                dataFlowConfig.setVersion(sortConfigEntity.getVersion() + 1);
                 sortConfigEntity.setConfigParams(objectMapper.writeValueAsString(dataFlowConfig));
                 sortConfigEntity.setInlongClusterTag(clusterTags);
+                if (StringUtils.isBlank(sortConfigEntity.getSortTaskName())) {
+                    sortConfigEntity.setSortTaskName(InlongConstants.DEFAULT_TASK);
+                }
                 sortConfigEntityMapper.updateByIdSelective(sortConfigEntity);
             }
         } catch (Exception e) {
@@ -157,20 +164,23 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     }
 
     private DataFlowConfig getDataFlowConfig(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, StreamSink sink) {
+        HashMap<String, Object> properties = new HashMap<>();
         return DataFlowConfig.builder()
                 .dataflowId(String.valueOf(sink.getId()))
                 .sourceConfig(getSourceConfig(groupInfo, streamInfo, sink))
                 .auditTag(String.valueOf(sink.getId()))
-                .sinkConfig(getSinkConfig(sink))
+                .sinkConfig(getSinkConfig(groupInfo, streamInfo, sink))
                 .inlongGroupId(groupInfo.getInlongGroupId())
                 .inlongStreamId(streamInfo.getInlongStreamId())
+                .properties(properties)
                 .build();
     }
 
-    private SinkConfig getSinkConfig(StreamSink sink) {
+    private SinkConfig getSinkConfig(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, StreamSink sink) {
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(sink.getSinkType());
-        return sinkOperator.getSinkConfig(sink);
+        return sinkOperator.getSinkConfig(groupInfo, streamInfo, sink);
     }
+
     private SourceConfig getSourceConfig(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, StreamSink sink) {
         List<InlongClusterEntity> pulsarClusters =
                 clusterMapper.selectByKey(groupInfo.getInlongClusterTag(), null, MQType.PULSAR);
@@ -206,7 +216,8 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                 dataTypeOperatorFactory.getInstance(DataTypeEnum.forType(streamInfo.getDataType()));
         DataTypeConfig dataTypeConfig = dataTypeOperator.getDataTypeConfig(streamInfo);
         SourceConfig sourceConfig = new SourceConfig();
-        List<FieldConfig> fields = sinkFieldMapper.selectBySinkId(sink.getId()).stream().map(
+        List<StreamSinkFieldEntity> sinkFieldEntities = sinkFieldMapper.selectBySinkId(sink.getId());
+        List<FieldConfig> fields = sinkFieldEntities.stream().map(
                 v -> {
                     FieldConfig fieldConfig = new FieldConfig();
                     FormatInfo formatInfo = FieldInfoUtils.convertFieldFormat(

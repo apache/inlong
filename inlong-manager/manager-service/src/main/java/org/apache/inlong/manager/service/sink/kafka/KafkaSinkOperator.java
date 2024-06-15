@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -34,6 +35,7 @@ import org.apache.inlong.manager.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSinkDTO;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSinkRequest;
 import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -119,8 +121,9 @@ public class KafkaSinkOperator extends AbstractSinkOperator {
     }
 
     @Override
-    public SinkConfig getSinkConfig(StreamSink sink) {
-        KafkaSinkConfig sinkConfig = CommonBeanUtils.copyProperties(sink, KafkaSinkConfig::new);
+    public SinkConfig getSinkConfig(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, StreamSink sink) {
+        KafkaSink kafkaSink = (KafkaSink) sink;
+        KafkaSinkConfig sinkConfig = CommonBeanUtils.copyProperties(kafkaSink, KafkaSinkConfig::new);
         List<FieldConfig> fields = sinkFieldMapper.selectBySinkId(sink.getId()).stream().map(
                 v -> {
                     FieldConfig fieldConfig = new FieldConfig();
