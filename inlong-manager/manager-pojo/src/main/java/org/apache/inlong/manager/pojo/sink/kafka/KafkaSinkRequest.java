@@ -28,8 +28,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.util.Map;
-
 /**
  * Kafka sink request.
  */
@@ -57,8 +55,5 @@ public class KafkaSinkRequest extends SinkRequest {
 
     @ApiModelProperty("Primary key is required when serializationType is json, avro")
     private String primaryKey;
-
-    @ApiModelProperty("Properties for kafka")
-    private Map<String, Object> properties;
 
 }
