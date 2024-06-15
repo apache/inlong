@@ -606,7 +606,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         List<InlongStreamExtInfo> extList = request.getExtList();
         saveOrUpdateExt(groupId, streamId, extList);
         if (request.getSyncField()) {
-            LOGGER.info("test begin sync field={}", request);
             List<StreamSinkEntity> sinkEntityList = sinkMapper.selectByRelatedId(groupId, streamId);
             for (StreamSinkEntity sinkEntity : sinkEntityList) {
                 StreamSinkOperator sinkOperator = sinkOperatorFactory.getInstance(sinkEntity.getSinkType());

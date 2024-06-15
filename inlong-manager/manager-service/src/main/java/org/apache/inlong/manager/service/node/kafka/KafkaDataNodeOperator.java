@@ -125,6 +125,8 @@ public class KafkaDataNodeOperator extends AbstractDataNodeOperator {
     public NodeConfig getNodeConfig(DataNodeEntity dataNodeEntity) {
         DataNodeInfo dataNodeInfo = this.getFromEntity(dataNodeEntity);
         KafkaNodeConfig kafkaNodeConfig = CommonBeanUtils.copyProperties(dataNodeInfo, KafkaNodeConfig::new);
+        // KafkaDataNodeDTO dto = KafkaDataNodeDTO.getFromJson(dataNodeEntity.getExtParams());
+        // CommonBeanUtils.copyProperties(dto, kafkaNodeConfig, true);
         kafkaNodeConfig.setNodeName(dataNodeInfo.getName());
         return kafkaNodeConfig;
     }

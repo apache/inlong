@@ -57,7 +57,6 @@ public class DorisProvider implements LoadNodeProvider {
         List<FieldInfo> fieldInfos = parseSinkFieldInfos(dorisSink.getSinkFieldList(), dorisSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(dorisSink.getSinkFieldList(), constantFieldMap);
         Format format = parsingSinkMultipleFormat(dorisSink.getSinkMultipleEnable(), dorisSink.getSinkMultipleFormat());
-        log.info("Test sink doris pro username ={}", dorisSink);
 
         return new DorisLoadNode(
                 dorisSink.getSinkName(),

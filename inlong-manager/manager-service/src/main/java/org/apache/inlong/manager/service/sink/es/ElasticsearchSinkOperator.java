@@ -30,6 +30,7 @@ import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -40,6 +41,7 @@ import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSinkDTO;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSinkRequest;
 import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
 import org.apache.inlong.manager.pojo.stream.InlongStreamExtParam;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -193,8 +195,12 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
     }
 
     @Override
-    public SinkConfig getSinkConfig(StreamSink sink) {
-        EsSinkConfig sinkConfig = CommonBeanUtils.copyProperties(sink, EsSinkConfig::new);
+    public SinkConfig getSinkConfig(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, StreamSink sink) {
+        ElasticsearchSink elasticsearchSink = (ElasticsearchSink) sink;
+        StreamSinkEntity streamSinkEntity = sinkMapper.selectByPrimaryKey(sink.getId());
+        ElasticsearchSinkDTO elasticsearchSinkDTO = ElasticsearchSinkDTO.getFromJson(streamSinkEntity.getExtParams());
+        EsSinkConfig sinkConfig = CommonBeanUtils.copyProperties(elasticsearchSink, EsSinkConfig::new);
+        CommonBeanUtils.copyProperties(elasticsearchSinkDTO, sinkConfig);
         List<FieldConfig> fields = sinkFieldMapper.selectBySinkId(sink.getId()).stream().map(
                 v -> {
                     FieldConfig fieldConfig = new FieldConfig();
