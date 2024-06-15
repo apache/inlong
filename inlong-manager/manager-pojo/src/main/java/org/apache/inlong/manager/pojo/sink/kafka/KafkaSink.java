@@ -31,8 +31,6 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Map;
-
 /**
  * Kafka sink info
  */
@@ -62,9 +60,6 @@ public class KafkaSink extends StreamSink {
 
     @ApiModelProperty("Primary key is required when serializationType is json, avro")
     private String primaryKey;
-
-    @ApiModelProperty("Properties for kafka")
-    private Map<String, Object> properties;
 
     public KafkaSink() {
         this.setSinkType(SinkType.KAFKA);
