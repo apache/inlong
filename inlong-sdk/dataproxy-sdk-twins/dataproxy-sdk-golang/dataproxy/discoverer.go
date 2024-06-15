@@ -17,6 +17,7 @@
 package dataproxy
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"errors"
@@ -32,8 +33,13 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
+// Auth dataproxy authentication interface
+type Auth interface {
+	GetToken(ctx context.Context, groupID string) (key string, token string, err error)
+}
+
 // NewDiscoverer news a DataProxy discoverer
-func NewDiscoverer(url, groupID string, lookupInterval time.Duration, log logger.Logger) (discoverer.Discoverer, error) {
+func NewDiscoverer(url, groupID string, lookupInterval time.Duration, log logger.Logger, auth Auth) (discoverer.Discoverer, error) {
 	if url == "" {
 		return nil, errors.New("URL is not given")
 	}
@@ -55,6 +61,7 @@ func NewDiscoverer(url, groupID string, lookupInterval time.Duration, log logger
 		endpointListMap: make(map[string]discoverer.Endpoint),
 		eventHandlers:   make(map[discoverer.EventHandler]struct{}),
 		log:             log,
+		auth:            auth,
 	}
 
 	// initial lookup
@@ -74,6 +81,7 @@ type dataProxyDiscoverer struct {
 	eventHandlers   map[discoverer.EventHandler]struct{}
 	closeFunc       func()
 	log             logger.Logger
+	auth            Auth
 }
 
 func (d *dataProxyDiscoverer) GetEndpoints() discoverer.EndpointList {
@@ -189,26 +197,46 @@ func (d *dataProxyDiscoverer) update() {
 func (d *dataProxyDiscoverer) get(retry int) (*cluster, error) {
 	reqURL := fmt.Sprintf("%s/%s?protocolType=tcp", d.url, d.groupID)
 	client := resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+	req := client.R()
+	if d.auth != nil {
+		key, token, err := d.auth.GetToken(context.Background(), d.groupID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get auth token. %w", err)
+		}
+		req = req.SetHeader(key, token)
+	}
 
-	httpRsp, err := client.R().Post(reqURL)
+	httpRsp, err := req.Post(reqURL)
 	if err != nil {
 		d.log.Error("get server endpoint list failed:", err)
 		if retry <= 1 {
-			return nil, err
+			return nil, fmt.Errorf("failed to required dataProxy service endpoint list. %w", err)
 		}
 
 		retry--
 		return d.get(retry)
 	}
 
+	if !httpRsp.IsSuccess() {
+		err := fmt.Errorf("dataProxy response error. http code:%d body:%s", httpRsp.StatusCode(), httpRsp.Body())
+		d.log.Error(err)
+		return nil, err
+	}
+
+	traceID := httpRsp.Header().Get("trace-id")
+
 	rsp := &response{}
 	err = json.Unmarshal(httpRsp.Body(), rsp)
 	if err != nil {
+		err = fmt.Errorf("failed to unmarshal dataProxy service endpoint data. trace-id:%s %w", traceID, err)
+		d.log.Error(err)
 		return nil, err
 	}
 
 	if !rsp.Success {
-		return nil, errors.New(rsp.ErrMsg)
+		err = fmt.Errorf("dataProxy response error. trace-id:%s %s", traceID, rsp.ErrMsg)
+		d.log.Error(err)
+		return nil, err
 	}
 
 	return &rsp.Data, nil
