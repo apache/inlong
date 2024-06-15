@@ -17,8 +17,6 @@
 
 package org.apache.inlong.common.pojo.sort;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.apache.inlong.common.pojo.sort.node.NodeConfig;
 import org.apache.inlong.common.util.SortConfigUtil;
 
