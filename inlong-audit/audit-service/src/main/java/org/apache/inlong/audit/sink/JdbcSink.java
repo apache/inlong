@@ -81,6 +81,9 @@ public class JdbcSink implements AutoCloseable {
     private final SinkConfig sinkConfig;
     private DataSource dataSource;
 
+    private final DateTimeFormatter FORMATTER_YYMMDDHH = DateTimeFormatter.ofPattern("yyyyMMdd");
+    private final DateTimeFormatter FORMATTER_YY_MM_DD_HH = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
     public JdbcSink(DataQueue dataQueue, SinkConfig sinkConfig) {
         this.dataQueue = dataQueue;
         this.sinkConfig = sinkConfig;
@@ -180,12 +183,12 @@ public class JdbcSink implements AutoCloseable {
     }
 
     private String formatPartitionName(LocalDate date) {
-        return "p" + date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        return "p" + date.format(FORMATTER_YYMMDDHH);
     }
 
     private void addPartition() {
         String partitionName = formatPartitionName(LocalDate.now().plusDays(1));
-        String partitionValue = LocalDate.now().plusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String partitionValue = LocalDate.now().plusDays(2).format(FORMATTER_YY_MM_DD_HH);
         String addPartitionSQL = String.format(
                 Configuration.getInstance().get(KEY_AUDIT_DATA_TEMP_ADD_PARTITION_SQL,
                         DEFAULT_AUDIT_DATA_TEMP_ADD_PARTITION_SQL),

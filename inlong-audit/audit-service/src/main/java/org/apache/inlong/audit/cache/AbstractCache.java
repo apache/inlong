@@ -57,6 +57,8 @@ public class AbstractCache {
     // According to the startTime and endTime of the request parameters, the maximum number of cache keys generated.
     private static final int MAX_CACHE_KEY_SIZE = 1440;
 
+    private final DateTimeFormatter FORMATTER_YYMMDDHHMMSS = DateTimeFormatter.ofPattern(DATE_FORMAT);
+
     protected AbstractCache(AuditCycle auditCycle) {
         cache = Caffeine.newBuilder()
                 .maximumSize(Configuration.getInstance().get(KEY_API_CACHE_MAX_SIZE,
@@ -120,9 +122,8 @@ public class AbstractCache {
             String inlongStreamId, String auditId, String auditTag) {
         List<CacheKeyEntity> keyList = new LinkedList<>();
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
-            LocalDateTime startDateTime = LocalDateTime.parse(startTime, formatter);
-            LocalDateTime endDateTime = LocalDateTime.parse(endTime, formatter);
+            LocalDateTime startDateTime = LocalDateTime.parse(startTime, FORMATTER_YYMMDDHHMMSS);
+            LocalDateTime endDateTime = LocalDateTime.parse(endTime, FORMATTER_YYMMDDHHMMSS);
             LocalDateTime nowDateTime = LocalDateTime.now();
             LocalDateTime maxDateTime = endDateTime.isBefore(nowDateTime) ? endDateTime : nowDateTime;
 
@@ -131,11 +132,11 @@ public class AbstractCache {
                 if (!currentDateTime.isBefore(maxDateTime)) {
                     break;
                 }
-                String currentTime = currentDateTime.format(formatter);
+                String currentTime = currentDateTime.format(FORMATTER_YYMMDDHHMMSS);
                 String cacheKey =
                         CacheUtils.buildCacheKey(currentTime, inlongGroupId, inlongStreamId, auditId, auditTag);
                 keyList.add(new CacheKeyEntity(cacheKey, currentTime,
-                        currentDateTime.plusMinutes(auditCycle.getValue()).format(formatter)));
+                        currentDateTime.plusMinutes(auditCycle.getValue()).format(FORMATTER_YYMMDDHHMMSS)));
             }
         } catch (Exception exception) {
             LOGGER.error("It has exception when build cache key list!", exception);
