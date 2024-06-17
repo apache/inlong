@@ -340,10 +340,9 @@ public class AgentServiceImpl implements AgentService {
                 .clusterTagList(clusterTagList)
                 .build();
         List<InlongClusterEntity> agentZkCluster = clusterMapper.selectByCondition(pageRequest);
-        if (CollectionUtils.isEmpty(agentZkCluster)) {
-            throw new BusinessException("zk cluster for ha not found for cluster tag=" + request.getClusterTag());
+        if (CollectionUtils.isNotEmpty(agentZkCluster)) {
+            agentConfigInfo.setZkUrl(agentZkCluster.get(0).getUrl());
         }
-        agentConfigInfo.setZkUrl(agentZkCluster.get(0).getUrl());
 
         AgentClusterInfo clusterInfo = (AgentClusterInfo) clusterService.getOne(
                 null, request.getClusterName(), ClusterType.AGENT);
