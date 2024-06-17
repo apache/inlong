@@ -294,6 +294,7 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
                 metadataKey = "meta.is_ddl";
                 break;
             case TS:
+            case AUDIT_DATA_TIME:
                 metadataKey = "meta.ts";
                 break;
             case SQL_TYPE:
@@ -310,9 +311,6 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
                 break;
             case UPDATE_BEFORE:
                 metadataKey = "meta.update_before";
-                break;
-            case AUDIT_DATA_TIME:
-                metadataKey = "meta.ts";
                 break;
             default:
                 throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
