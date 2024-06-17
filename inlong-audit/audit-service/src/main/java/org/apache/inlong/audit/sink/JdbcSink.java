@@ -31,22 +31,30 @@ import javax.sql.DataSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.audit.config.ConfigConstants.CACHE_PREP_STMTS;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_AUDIT_DATA_TEMP_STORAGE_DAYS;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CACHE_PREP_STMTS;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CHECK_PARTITION_INTERVAL_HOURS;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_CONNECTION_TIMEOUT;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_DATASOURCE_POOL_SIZE;
+import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_ENABLE_MANAGE_PARTITIONS;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_PREP_STMT_CACHE_SQL_LIMIT;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_QUEUE_PULL_TIMEOUT;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SOURCE_DB_SINK_BATCH;
 import static org.apache.inlong.audit.config.ConfigConstants.DEFAULT_SOURCE_DB_SINK_INTERVAL;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_AUDIT_DATA_TEMP_STORAGE_DAYS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_CACHE_PREP_STMTS;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_CHECK_PARTITION_INTERVAL_HOURS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_CONNECTION_TIMEOUT;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_DATASOURCE_POOL_SIZE;
+import static org.apache.inlong.audit.config.ConfigConstants.KEY_ENABLE_MANAGE_PARTITIONS;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_PREP_STMT_CACHE_SQL_LIMIT;
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_QUEUE_PULL_TIMEOUT;
@@ -54,6 +62,10 @@ import static org.apache.inlong.audit.config.ConfigConstants.KEY_SOURCE_DB_SINK_
 import static org.apache.inlong.audit.config.ConfigConstants.KEY_SOURCE_DB_SINK_INTERVAL;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SQL_LIMIT;
+import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_AUDIT_DATA_TEMP_ADD_PARTITION_SQL;
+import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_AUDIT_DATA_TEMP_DELETE_PARTITION_SQL;
+import static org.apache.inlong.audit.config.SqlConstants.KEY_AUDIT_DATA_TEMP_ADD_PARTITION_SQL;
+import static org.apache.inlong.audit.config.SqlConstants.KEY_AUDIT_DATA_TEMP_DELETE_PARTITION_SQL;
 
 /**
  * Jdbc sink
@@ -62,11 +74,15 @@ public class JdbcSink implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JdbcSink.class);
     private final ScheduledExecutorService sinkTimer = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService partitionManagerTimer = Executors.newSingleThreadScheduledExecutor();
     private final DataQueue dataQueue;
     private final int insertBatch;
     private final int pullTimeOut;
     private final SinkConfig sinkConfig;
     private DataSource dataSource;
+
+    private final DateTimeFormatter FORMATTER_YYMMDDHH = DateTimeFormatter.ofPattern("yyyyMMdd");
+    private final DateTimeFormatter FORMATTER_YY_MM_DD_HH = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public JdbcSink(DataQueue dataQueue, SinkConfig sinkConfig) {
         this.dataQueue = dataQueue;
@@ -90,6 +106,14 @@ public class JdbcSink implements AutoCloseable {
                 Configuration.getInstance().get(KEY_SOURCE_DB_SINK_INTERVAL,
                         DEFAULT_SOURCE_DB_SINK_INTERVAL),
                 TimeUnit.MILLISECONDS);
+        if (Configuration.getInstance().get(KEY_ENABLE_MANAGE_PARTITIONS,
+                DEFAULT_ENABLE_MANAGE_PARTITIONS)) {
+            partitionManagerTimer.scheduleWithFixedDelay(this::managePartitions,
+                    0,
+                    Configuration.getInstance().get(KEY_CHECK_PARTITION_INTERVAL_HOURS,
+                            DEFAULT_CHECK_PARTITION_INTERVAL_HOURS),
+                    TimeUnit.HOURS);
+        }
     }
 
     /**
@@ -125,8 +149,8 @@ public class JdbcSink implements AutoCloseable {
                 preparedStatement.executeBatch();
                 preparedStatement.clearBatch();
             }
-        } catch (Exception e) {
-            LOGGER.error("Process exception! {}", e.getMessage());
+        } catch (Exception exception) {
+            LOGGER.error("Process exception!", exception);
         }
     }
 
@@ -151,6 +175,46 @@ public class JdbcSink implements AutoCloseable {
                 Configuration.getInstance().get(KEY_DATASOURCE_POOL_SIZE,
                         DEFAULT_DATASOURCE_POOL_SIZE));
         dataSource = new HikariDataSource(config);
+    }
+
+    private void managePartitions() {
+        addPartition();
+        deletePartition();
+    }
+
+    private String formatPartitionName(LocalDate date) {
+        return "p" + date.format(FORMATTER_YYMMDDHH);
+    }
+
+    private void addPartition() {
+        String partitionName = formatPartitionName(LocalDate.now().plusDays(1));
+        String partitionValue = LocalDate.now().plusDays(2).format(FORMATTER_YY_MM_DD_HH);
+        String addPartitionSQL = String.format(
+                Configuration.getInstance().get(KEY_AUDIT_DATA_TEMP_ADD_PARTITION_SQL,
+                        DEFAULT_AUDIT_DATA_TEMP_ADD_PARTITION_SQL),
+                partitionName, partitionValue);
+        executeUpdate(addPartitionSQL);
+    }
+
+    private void deletePartition() {
+        int daysToSubtract = Configuration.getInstance().get(KEY_AUDIT_DATA_TEMP_STORAGE_DAYS,
+                DEFAULT_AUDIT_DATA_TEMP_STORAGE_DAYS);
+        String partitionName = formatPartitionName(LocalDate.now().minusDays(daysToSubtract));
+        String deletePartitionSQL = String.format(
+                Configuration.getInstance().get(KEY_AUDIT_DATA_TEMP_DELETE_PARTITION_SQL,
+                        DEFAULT_AUDIT_DATA_TEMP_DELETE_PARTITION_SQL),
+                partitionName);
+        executeUpdate(deletePartitionSQL);
+    }
+
+    private void executeUpdate(String updateSQL) {
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(updateSQL)) {
+            preparedStatement.executeUpdate();
+            LOGGER.info("Execute update [{}] success!", updateSQL);
+        } catch (Exception exception) {
+            LOGGER.error("Execute update [{}] has exception!", updateSQL, exception);
+        }
     }
 
     public void destroy() {
