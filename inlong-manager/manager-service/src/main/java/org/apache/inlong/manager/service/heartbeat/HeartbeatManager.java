@@ -254,13 +254,20 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         }
 
         // protocolType may be null, and the protocolTypes' length may be less than ports' length
-        String[] ports = heartbeat.getPort().split(InlongConstants.COMMA);
         String[] ips = heartbeat.getIp().split(InlongConstants.COMMA);
+        String port = heartbeat.getPort();
+        String[] ports = null;
+        if (StringUtils.isNotBlank(port)) {
+            ports = port.split(InlongConstants.COMMA);
+            if (ports.length < ips.length) {
+                ports = null;
+            }
+        }
         String protocolType = heartbeat.getProtocolType();
         String[] protocolTypes = null;
-        if (StringUtils.isNotBlank(protocolType) && ports.length > 1) {
+        if (StringUtils.isNotBlank(protocolType) && ips.length > 1) {
             protocolTypes = protocolType.split(InlongConstants.COMMA);
-            if (protocolTypes.length < ports.length) {
+            if (protocolTypes.length < ips.length) {
                 protocolTypes = null;
             }
         }
@@ -274,11 +281,13 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             return;
         }
 
-        for (int i = 0; i < ports.length; i++) {
+        for (int i = 0; i < ips.length; i++) {
             // deep clone the heartbeat
             HeartbeatMsg heartbeatMsg = JsonUtils.parseObject(JsonUtils.toJsonByte(heartbeat), HeartbeatMsg.class);
             assert heartbeatMsg != null;
-            heartbeatMsg.setPort(ports[i].trim());
+            if (StringUtils.isNotBlank(heartbeat.getPort())) {
+                heartbeatMsg.setPort(ports[i].trim());
+            }
             heartbeatMsg.setIp(ips[i].trim());
             if (protocolTypes != null) {
                 heartbeatMsg.setProtocolType(protocolTypes[i]);
