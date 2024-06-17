@@ -80,10 +80,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * DataProxyConfigRepository
- * This repository was deprecated since version 1.8.0
  */
 @Lazy
-@Deprecated
 @Repository(value = "dataProxyConfigRepository")
 public class DataProxyConfigRepository implements IRepository {
 
