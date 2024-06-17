@@ -294,6 +294,7 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
                 metadataKey = "meta.is_ddl";
                 break;
             case TS:
+            case AUDIT_DATA_TIME:
                 metadataKey = "meta.ts";
                 break;
             case SQL_TYPE:
@@ -329,6 +330,7 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
                 MetaField.DATABASE_NAME, MetaField.OP_TYPE, MetaField.OP_TS, MetaField.IS_DDL,
                 MetaField.TS, MetaField.SQL_TYPE, MetaField.MYSQL_TYPE, MetaField.PK_NAMES,
                 MetaField.BATCH_ID, MetaField.UPDATE_BEFORE, MetaField.DATA_BYTES_DEBEZIUM,
-                MetaField.DATA_DEBEZIUM, MetaField.DATA_BYTES_CANAL, MetaField.DATA, MetaField.DATA_BYTES);
+                MetaField.DATA_DEBEZIUM, MetaField.DATA_BYTES_CANAL, MetaField.DATA, MetaField.DATA_BYTES,
+                MetaField.AUDIT_DATA_TIME);
     }
 }

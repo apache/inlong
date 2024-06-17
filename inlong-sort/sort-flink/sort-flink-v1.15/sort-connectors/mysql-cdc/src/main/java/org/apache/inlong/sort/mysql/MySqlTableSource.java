@@ -19,9 +19,9 @@ package org.apache.inlong.sort.mysql;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.mysql.source.MySqlSource;
+import org.apache.inlong.sort.mysql.table.MySqlReadableMetadata;
 
 import com.ververica.cdc.connectors.mysql.table.MySqlDeserializationConverterFactory;
-import com.ververica.cdc.connectors.mysql.table.MySqlReadableMetadata;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.DebeziumSourceFunction;

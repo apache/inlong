@@ -29,6 +29,7 @@ import com.ververica.cdc.debezium.table.DeserializationRuntimeConverterFactory;
 import com.ververica.cdc.debezium.table.MetadataConverter;
 import com.ververica.cdc.debezium.utils.TemporalConversions;
 import io.debezium.data.Envelope;
+import io.debezium.data.Envelope.FieldName;
 import io.debezium.data.SpecialValueDecimal;
 import io.debezium.data.VariableScaleDecimal;
 import io.debezium.time.MicroTime;
@@ -145,7 +146,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             validator.validate(insert, RowKind.INSERT);
             insert.setRowKind(RowKind.INSERT);
             if (sourceMetricData != null) {
-                out = new MetricsCollector<>(out, sourceMetricData);
+                out = createMetricsCollector(record, out);
             }
             emit(record, insert, out);
         } else if (op == Envelope.Operation.DELETE) {
@@ -153,7 +154,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             validator.validate(delete, RowKind.DELETE);
             delete.setRowKind(RowKind.DELETE);
             if (sourceMetricData != null) {
-                out = new MetricsCollector<>(out, sourceMetricData);
+                out = createMetricsCollector(record, out);
             }
             emit(record, delete, out);
         } else {
@@ -168,10 +169,22 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             validator.validate(after, RowKind.UPDATE_AFTER);
             after.setRowKind(RowKind.UPDATE_AFTER);
             if (sourceMetricData != null) {
-                out = new MetricsCollector<>(out, sourceMetricData);
+                out = createMetricsCollector(record, out);
             }
             emit(record, after, out);
         }
+    }
+
+    /**
+     * Create a metrics collector to collect metrics data and reset timestamp from source record
+     * @param record source record
+     * @param out output collector
+     * @return metrics collector
+     */
+    private Collector<RowData> createMetricsCollector(SourceRecord record, Collector<RowData> out) {
+        MetricsCollector<RowData> collector = new MetricsCollector<>(out, sourceMetricData);
+        collector.resetTimestamp((Long) ((Struct) record.value()).get(FieldName.TIMESTAMP));
+        return collector;
     }
 
     /**

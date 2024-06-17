@@ -66,6 +66,7 @@ public class MySqlExtractNodeTest extends SerializeBaseTest<MySqlExtractNode> {
         formatMap.put(MetaField.DATA_BYTES_CANAL, "BYTES METADATA FROM 'meta.data_canal' VIRTUAL");
         formatMap.put(MetaField.DATA, "STRING METADATA FROM 'meta.data_canal' VIRTUAL");
         formatMap.put(MetaField.DATA_BYTES, "BYTES METADATA FROM 'meta.data_canal' VIRTUAL");
+        formatMap.put(MetaField.AUDIT_DATA_TIME, "BIGINT METADATA FROM 'meta.ts' VIRTUAL");
 
         MySqlExtractNode node = getTestObject();
         boolean formatEquals = true;

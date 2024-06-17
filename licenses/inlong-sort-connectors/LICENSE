@@ -898,6 +898,7 @@ License : https://github.com/ververica/flink-cdc-connectors/blob/master/LICENSE
        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mysql-cdc/src/main/java/org/apache/inlong/sort/mysql/RowDataDebeziumDeserializeSchema.java
        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mysql-cdc/src/main/java/org/apache/inlong/sort/mysql/source/MySqlSourceBuilder.java
        inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mysql-cdc/src/main/java/org/apache/inlong/sort/mysql/source/MySqlSource.java
+       inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/mysql-cdc/src/main/java/org/apache/inlong/sort/mysql/table/MySqlReadableMetadata.java
 Source  : com.ververica:flink-connector-mysql-cdc:2.3.0 (Please note that the software have been modified.)
 License : https://github.com/ververica/flink-cdc-connectors/blob/master/LICENSE
 
