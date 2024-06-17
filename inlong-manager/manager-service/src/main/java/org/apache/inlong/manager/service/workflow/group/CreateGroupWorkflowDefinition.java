@@ -84,6 +84,7 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
         initSortTask.setDisplayName("Group-InitSort");
         initSortTask.setServiceTaskType(ServiceTaskType.INIT_SORT);
         initSortTask.setListenerFactory(groupTaskListenerFactory);
+        process.addTask(initSortTask);
 
         // Init Schedule
         ServiceTask initScheduleTask = new ServiceTask();
