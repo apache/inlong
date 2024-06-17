@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.listener;
 import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.common.plugin.PluginBinder;
 import org.apache.inlong.manager.service.listener.queue.QueueResourceListener;
+import org.apache.inlong.manager.service.listener.schedule.GroupScheduleResourceListener;
 import org.apache.inlong.manager.service.listener.sink.SinkResourceListener;
 import org.apache.inlong.manager.service.listener.sort.SortConfigListener;
 import org.apache.inlong.manager.service.listener.source.SourceDeleteListener;
@@ -29,6 +30,7 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
 import org.apache.inlong.manager.workflow.definition.TaskListenerFactory;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
+import org.apache.inlong.manager.workflow.event.task.ScheduleOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
@@ -57,6 +59,7 @@ public class GroupTaskListenerFactory implements PluginBinder, TaskListenerFacto
     private List<SourceOperateListener> sourceOperateListeners;
     private List<QueueOperateListener> queueOperateListeners;
     private List<SortOperateListener> sortOperateListeners;
+    private List<ScheduleOperateListener> scheduleOperateListeners;
 
     @Autowired
     private SourceStopListener sourceStopListener;
@@ -70,6 +73,8 @@ public class GroupTaskListenerFactory implements PluginBinder, TaskListenerFacto
     private SinkResourceListener sinkResourceListener;
     @Autowired
     private SortConfigListener sortConfigListener;
+    @Autowired
+    private GroupScheduleResourceListener groupScheduleResourceListener;
 
     @PostConstruct
     public void init() {
@@ -81,6 +86,8 @@ public class GroupTaskListenerFactory implements PluginBinder, TaskListenerFacto
         queueOperateListeners.add(queueResourceListener);
         sortOperateListeners = new LinkedList<>();
         sortOperateListeners.add(sortConfigListener);
+        scheduleOperateListeners = new LinkedList<>();
+        scheduleOperateListeners.add(groupScheduleResourceListener);
     }
 
     @Override
@@ -124,6 +131,9 @@ public class GroupTaskListenerFactory implements PluginBinder, TaskListenerFacto
                 return Lists.newArrayList(sourceOperateListeners);
             case INIT_SINK:
                 return Collections.singletonList(sinkResourceListener);
+            case INIT_SCHEDULE:
+                List<ScheduleOperateListener> scheduleOperateListeners = getScheduleOperateListener(workflowContext);
+                return Lists.newArrayList(scheduleOperateListeners);
             default:
                 throw new IllegalArgumentException(String.format("Unsupported ServiceTaskType %s", taskType));
         }
@@ -170,6 +180,16 @@ public class GroupTaskListenerFactory implements PluginBinder, TaskListenerFacto
     public List<SortOperateListener> getSortOperateListener(WorkflowContext context) {
         List<SortOperateListener> listeners = new ArrayList<>();
         for (SortOperateListener listener : sortOperateListeners) {
+            if (listener != null && listener.accept(context)) {
+                listeners.add(listener);
+            }
+        }
+        return listeners;
+    }
+
+    public List<ScheduleOperateListener> getScheduleOperateListener(WorkflowContext context) {
+        List<ScheduleOperateListener> listeners = new ArrayList<>();
+        for (ScheduleOperateListener listener : scheduleOperateListeners) {
             if (listener != null && listener.accept(context)) {
                 listeners.add(listener);
             }

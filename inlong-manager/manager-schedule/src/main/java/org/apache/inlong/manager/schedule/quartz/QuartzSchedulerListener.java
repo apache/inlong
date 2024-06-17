@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.schedule.quartz;
+package org.apache.inlong.manager.schedule.quartz;
 
 import org.quartz.JobDetail;
 import org.quartz.JobKey;

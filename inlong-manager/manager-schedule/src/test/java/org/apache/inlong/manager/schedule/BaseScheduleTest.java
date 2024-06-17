@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.schedule;
+package org.apache.inlong.manager.schedule;
 
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
-import org.apache.inlong.schedule.exception.QuartzScheduleException;
+import org.apache.inlong.manager.schedule.exception.QuartzScheduleException;
 
 import java.sql.Timestamp;
 
-import static org.apache.inlong.schedule.ScheduleUnit.SECOND;
+import static org.apache.inlong.manager.schedule.ScheduleUnit.SECOND;
 
 public class BaseScheduleTest {
 

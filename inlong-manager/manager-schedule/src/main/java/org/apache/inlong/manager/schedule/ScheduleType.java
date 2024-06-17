@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.schedule;
+package org.apache.inlong.manager.schedule;
 
 import lombok.Getter;
 
