@@ -42,6 +42,10 @@ public class SortClusterConfig implements Serializable {
     private List<DataFlowConfig> dataFlowConfigs;
 
     public static SortClusterConfig checkDelete(SortClusterConfig last, SortClusterConfig current) {
+        if (CollectionUtils.isEmpty(current.getMqClusterConfigs())) {
+            return last;
+        }
+
         return check(last, current, MqClusterConfig::batchCheckLast, DataFlowConfig::batchCheckDelete);
     }
 
@@ -50,10 +54,54 @@ public class SortClusterConfig implements Serializable {
     }
 
     public static SortClusterConfig checkUpdate(SortClusterConfig last, SortClusterConfig current) {
-        return check(last, current, MqClusterConfig::batchCheckLatest, DataFlowConfig::batchCheckUpdate);
+        List<MqClusterConfig> updateCluster =
+                MqClusterConfig.batchCheckUpdate(last.getMqClusterConfigs(), current.getMqClusterConfigs());
+
+        List<MqClusterConfig> latestCluster =
+                MqClusterConfig.batchCheckLatest(last.getMqClusterConfigs(), current.getMqClusterConfigs());
+
+        List<MqClusterConfig> deleteCluster =
+                MqClusterConfig.batchCheckDelete(last.getMqClusterConfigs(), current.getMqClusterConfigs());
+
+        List<MqClusterConfig> newCluster =
+                MqClusterConfig.batchCheckNew(last.getMqClusterConfigs(), current.getMqClusterConfigs());
+
+        List<DataFlowConfig> updateDataflows =
+                DataFlowConfig.batchCheckUpdate(last.getDataFlowConfigs(), current.getDataFlowConfigs());
+
+        // if mq cluster update/add/delete, use latest mq and update+noupdate dataflow
+        if (CollectionUtils.isNotEmpty(updateCluster)
+                || CollectionUtils.isNotEmpty(deleteCluster)
+                || CollectionUtils.isNotEmpty(newCluster)) {
+            List<DataFlowConfig> noUpdateDataflows =
+                    DataFlowConfig.batchCheckNoUpdate(last.getDataFlowConfigs(), current.getDataFlowConfigs());
+            noUpdateDataflows.addAll(updateDataflows);
+
+            return SortClusterConfig.builder()
+                    .clusterTag(last.getClusterTag())
+                    .mqClusterConfigs(latestCluster)
+                    .dataFlowConfigs(noUpdateDataflows)
+                    .build();
+        }
+
+        // if data flow no update, return null
+        if (CollectionUtils.isEmpty(updateDataflows)) {
+            return null;
+        }
+
+        // if only dataflow update, use latest mq and update dataflow
+        return SortClusterConfig.builder()
+                .clusterTag(last.getClusterTag())
+                .mqClusterConfigs(latestCluster)
+                .dataFlowConfigs(updateDataflows)
+                .build();
     }
 
     public static SortClusterConfig checkLatest(SortClusterConfig last, SortClusterConfig current) {
+        if (CollectionUtils.isEmpty(current.getMqClusterConfigs())) {
+            return null;
+        }
+
         return check(last, current, MqClusterConfig::batchCheckLatest, DataFlowConfig::batchCheckLatest);
     }
 
