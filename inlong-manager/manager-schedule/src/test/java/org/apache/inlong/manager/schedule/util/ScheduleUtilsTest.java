@@ -19,8 +19,8 @@ package org.apache.inlong.manager.schedule.util;
 
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.schedule.BaseScheduleTest;
-import org.apache.inlong.manager.schedule.quartz.QuartzOfflineSyncJob;
 import org.apache.inlong.manager.schedule.exception.QuartzScheduleException;
+import org.apache.inlong.manager.schedule.quartz.QuartzOfflineSyncJob;
 
 import org.junit.jupiter.api.Test;
 import org.quartz.CronScheduleBuilder;
