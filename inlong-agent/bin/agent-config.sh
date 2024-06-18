@@ -18,19 +18,14 @@
 BASE_DIR=$(cd "$(dirname "$0")"/../../;pwd)
 installerConfigFile=$BASE_DIR/agent-installer/conf/installer.properties
 agentConfigFile=$BASE_DIR/inlong-agent/conf/agent.properties
-installerEnv=$BASE_DIR/agent-installer/bin/installer-env.sh
-agentEnv=$BASE_DIR/inlong-agent/bin/agent-env.sh
 
 managerAddr=$(cat $installerConfigFile|grep -i 'agent.manager.addr'|awk -F = '{print $2}')
 localIp=$(cat $installerConfigFile|grep -i 'agent.local.ip'|awk -F = '{print $2}')
 clusterTag=$(cat $installerConfigFile|grep -i 'agent.cluster.tag'|awk -F = '{print $2}')
 clusterName=$(cat $installerConfigFile|grep -i 'agent.cluster.name'|awk -F = '{print $2}')
-secretId=$(cat $installerConfigFile|grep -i 'agent.manager.auth.secretId'|awk -F = '{print $2}')
-secretKey=$(cat $installerConfigFile|grep -i 'agent.manager.auth.secretKey'|awk -F = '{print $2}')
+tdwSecurityUrl=$(cat $installerConfigFile|grep -i 'tdw.security.url'|awk -F = '{print $2}')
 auditFlag=$(cat $installerConfigFile|grep -i 'audit.enable'|awk -F = '{print $2}')
 auditProxy=$(cat $installerConfigFile|grep -i 'audit.proxys'|awk -F = '{print $2}')
-
-tdwSecurityUrl=$(cat $installerEnv|grep -i 'TDW_SECURITY_URL'|awk -F = '{print $2}')
 
 if [ ${#managerAddr} -gt 0 ]; then
   sed -i "/agent.manager.addr=*/c\agent.manager.addr=$managerAddr" $agentConfigFile
@@ -56,16 +51,10 @@ else
    echo "cluster name empty"
 fi
 
-if [ ${#secretId} -gt 0 ]; then
-  sed -i "/agent.manager.auth.secretId=*/c\agent.manager.auth.secretId=$secretId" $agentConfigFile
+if [ ${#tdwSecurityUrl} -gt 0 ]; then
+  sed -i "/tdw.security.url=*/c\tdw.security.url=$tdwSecurityUrl" $BASE_DIR/inlong-agent/bin/agent-env.sh
 else
-  echo "secretId empty"
-fi
-
-if [ ${#secretKey} -gt 0 ]; then
-  sed -i "/agent.manager.auth.secretKey=*/c\agent.manager.auth.secretKey=$secretKey" $agentConfigFile
-else
-  echo "secretKey empty"
+  echo "tdw security url empty"
 fi
 
 if [ ${#auditFlag} -gt 0 ]; then
@@ -75,14 +64,7 @@ else
 fi
 
 if [ ${#auditProxy} -gt 0 ]; then
-  sed -i "/audit.proxys.null=*/c\audit.proxys=$auditProxy" $agentConfigFile
+  sed -i "/audit.proxys=*/c\audit.proxys=$auditProxy" $agentConfigFile
 else
   echo "audit proxy empty"
-fi
-
-if [ ${#tdwSecurityUrl} -gt 0 ]; then
-  sed -i "/export TDW_SECURITY_URL_NULL/c\export TDW_SECURITY_URL=$tdwSecurityUrl" $agentEnv
-else
-  sed -i "/export TDW_SECURITY_URL_NULL/c\export TDW_SECURITY_URL_NULL" $agentEnv
-  echo "tdw security url empty"
 fi
