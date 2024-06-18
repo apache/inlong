@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.schedule;
 
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +44,8 @@ public class ScheduleClientFactory {
                 scheduleEngineClients.stream().filter(t -> t.accept(scheduleEngineName)).findFirst();
         if (!optScheduleClient.isPresent()) {
             LOGGER.warn("Schedule engine client not found for {} ", scheduleEngineName);
-            return null;
+            throw new BusinessException(ErrorCodeEnum.SCHEDULE_ENGINE_NOT_SUPPORTED,
+                    String.format(ErrorCodeEnum.SCHEDULE_ENGINE_NOT_SUPPORTED.getMessage(), scheduleEngineName));
         }
         LOGGER.info("Get schedule engine client success for {}", scheduleEngineName);
         return optScheduleClient.get();

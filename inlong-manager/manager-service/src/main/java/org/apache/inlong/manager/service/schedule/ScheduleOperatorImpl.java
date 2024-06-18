@@ -115,10 +115,10 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
         }
         // update schedule info
         scheduleService.update(request, operator);
-        LOGGER.info("Update schedule info success for group {}", request.getInlongGroupId());
         // update register to schedule engine
-        boolean res = getScheduleEngineClient().update(scheduleInfo);
         scheduleService.updateStatus(request.getInlongGroupId(), UPDATED, operator);
+        boolean res = getScheduleEngineClient().update(scheduleInfo);
+        scheduleService.updateStatus(request.getInlongGroupId(), REGISTERED, operator);
         LOGGER.info("Update schedule info success for group {}", request.getInlongGroupId());
         return res;
     }
@@ -128,7 +128,7 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
             return false;
         }
         ScheduleInfo existedSchedule = getScheduleInfo(scheduleInfo.getInlongGroupId());
-        return scheduleInfo.equals(existedSchedule);
+        return !scheduleInfo.equals(existedSchedule);
     }
 
     @Override

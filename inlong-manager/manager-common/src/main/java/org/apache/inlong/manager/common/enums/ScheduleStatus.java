@@ -19,14 +19,25 @@ package org.apache.inlong.manager.common.enums;
 
 import lombok.Getter;
 
+/**
+ * Status for schedule info.
+ * This is the transient status of the schedule info.
+ * With specified operations, the status will change to corresponding value.
+ *  Status                Operations
+ *  NEW                   inlong group created with schedule info
+ *  APPROVED              the new inlong group approved by admin
+ *  REGISTERED            schedule info registered to schedule engine
+ *  UPDATED               update schedule info for a group
+ *  DELETED               delete a group
+ * */
 @Getter
 public enum ScheduleStatus {
 
     NEW(100, "new"),
-    APPROVED(101, "approved"),
-    REGISTERED(200, "registered"),
-    UPDATED(300, "updated"),
-    DELETED(400, "deleted");
+    APPROVED(103, "approved"),
+    REGISTERED(130, "registered"),
+    UPDATED(151, "updated"),
+    DELETED(40, "deleted");
 
     private final Integer code;
     private final String description;

@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.springframework.stereotype.Service;
 
 import static org.apache.inlong.manager.schedule.util.ScheduleUtils.genQuartzJobDetail;
 import static org.apache.inlong.manager.schedule.util.ScheduleUtils.genQuartzTrigger;
@@ -44,6 +45,7 @@ import static org.apache.inlong.manager.schedule.util.ScheduleUtils.genQuartzTri
  * the register/unregister/update requests from {@link QuartzScheduleClient}
  * */
 @Getter
+@Service
 public class QuartzScheduleEngine implements ScheduleEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QuartzScheduleEngine.class);

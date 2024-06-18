@@ -20,19 +20,19 @@ package org.apache.inlong.manager.schedule.quartz;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.schedule.ScheduleEngineClient;
 import org.apache.inlong.manager.schedule.ScheduleEngineType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Built-in implementation of schedule engine client corresponding with {@link QuartzScheduleEngine}.
  * QuartzScheduleClient simply invokes the {@link QuartzScheduleEngine} to register/unregister/update
  * schedule info instead of calling a remote schedule service.
  * */
+@Service
 public class QuartzScheduleClient implements ScheduleEngineClient {
 
-    private final QuartzScheduleEngine scheduleEngine;
-
-    public QuartzScheduleClient(QuartzScheduleEngine scheduleEngine) {
-        this.scheduleEngine = scheduleEngine;
-    }
+    @Autowired
+    public QuartzScheduleEngine scheduleEngine;
 
     @Override
     public boolean accept(String engineType) {
