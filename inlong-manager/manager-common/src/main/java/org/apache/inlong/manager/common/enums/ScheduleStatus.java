@@ -34,10 +34,10 @@ import lombok.Getter;
 public enum ScheduleStatus {
 
     NEW(100, "new"),
-    APPROVED(103, "approved"),
-    REGISTERED(130, "registered"),
-    UPDATED(151, "updated"),
-    DELETED(40, "deleted");
+    APPROVED(101, "approved"),
+    REGISTERED(102, "registered"),
+    UPDATED(103, "updated"),
+    DELETED(99, "deleted");
 
     private final Integer code;
     private final String description;
