@@ -266,6 +266,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
                 for (T record : records) {
                     ctx.collect(record);
                 }
+
                 ConsumerResult confirmResult = confirmOffset(consumeResult);
                 if (confirmResult != null && confirmResult.isSuccess()) {
                     currentOffsets.put(confirmResult.getPartitionKey(), confirmResult.getCurrOffset());
@@ -323,7 +324,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
 
     @Override
     public void snapshotState(FunctionSnapshotContext context) throws Exception {
-        deserializationSchema.setNowCheckpointId(context.getCheckpointId());
+        deserializationSchema.setCurrentCheckpointId(context.getCheckpointId());
         // Make sure snapshot all tube partitions' offset to avoid inconsistency. See BUG-124774267 for details.
         Map<String, ConsumeOffsetInfo> curConsumedPartitions = messagePullConsumer.getCurConsumedPartitions();
         for (Map.Entry<String, ConsumeOffsetInfo> consumedPartition : curConsumedPartitions.entrySet()) {
@@ -375,7 +376,8 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
 
     @Override
     public void notifyCheckpointComplete(long checkpointId) throws Exception {
-        deserializationSchema.flushAuditById(checkpointId);
+        deserializationSchema.flushAudit();
+        deserializationSchema.updateLastCheckpointId(checkpointId);
     }
 
     @Override

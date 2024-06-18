@@ -110,15 +110,22 @@ public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDes
     }
 
     @Override
-    public void flushAuditById(long checkpointId) {
+    public void flushAudit() {
         if (sourceMetricData != null) {
-            sourceMetricData.flushAuditById(checkpointId);
+            sourceMetricData.flushAudit();
         }
     }
     @Override
-    public void setNowCheckpointId(long checkpointId) {
+    public void setCurrentCheckpointId(long checkpointId) {
         if (sourceMetricData != null) {
-            sourceMetricData.setNowCheckpointId(checkpointId + 1);
+            sourceMetricData.setCurrentCheckpointId(checkpointId);
+        }
+    }
+
+    @Override
+    public void updateLastCheckpointId(Long checkpointId) {
+        if (sourceMetricData != null) {
+            sourceMetricData.updateLastCheckpointId(checkpointId);
         }
     }
 

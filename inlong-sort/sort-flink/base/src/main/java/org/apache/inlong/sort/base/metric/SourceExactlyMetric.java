@@ -54,7 +54,8 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
     private Meter numBytesInPerSecond;
     private AuditReporterImpl auditReporter;
     private List<Integer> auditKeys;
-    private Long nowCheckpointId = 1L;
+    private Long currentCheckpointId = 0L;
+    private Long lastCheckpointId = 0L;
 
     /**
      * currentFetchEventTimeLag = FetchTime - messageTimestamp, where the FetchTime is the time the
@@ -258,7 +259,7 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
         if (auditReporter != null) {
             for (Integer key : auditKeys) {
                 auditReporter.add(
-                        this.nowCheckpointId,
+                        this.currentCheckpointId,
                         key,
                         DEFAULT_AUDIT_TAG,
                         getGroupId(),
@@ -297,14 +298,21 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
      * flush audit data
      * usually call this method in close method or when checkpointing
      */
-    public void flushAuditById(long checkpointId) {
+    public void flushAudit() {
         if (auditReporter != null) {
-            auditReporter.flush(checkpointId);
+            auditReporter.flush(lastCheckpointId);
         }
     }
 
-    public void setNowCheckpointId(Long nowCheckpointId) {
-        this.nowCheckpointId = nowCheckpointId;
+    public void updateLastCheckpointId(Long checkpointId){
+        lastCheckpointId = checkpointId;
+    }
+    public void setCurrentCheckpointId(Long currentCheckpointId) {
+        this.currentCheckpointId = currentCheckpointId;
+    }
+
+    public Long getLastCheckpointId() {
+        return lastCheckpointId;
     }
 
     @Override

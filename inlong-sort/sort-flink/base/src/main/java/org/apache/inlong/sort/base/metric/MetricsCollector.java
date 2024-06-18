@@ -31,7 +31,7 @@ public class MetricsCollector<T> implements TimestampedCollector<T> {
 
     private long timestampMillis;
 
-    SourceMetricsReporter metricsReporter;
+    private final SourceMetricsReporter metricsReporter;
     public MetricsCollector(Collector<T> collector,
             SourceMetricsReporter sourceMetricData) {
         this.metricsReporter = sourceMetricData;
