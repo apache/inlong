@@ -20,10 +20,10 @@ package org.apache.inlong.manager.service.listener.schedule;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.TaskEvent;
-import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
-import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
-import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.ScheduleOperateListener;
@@ -35,7 +35,7 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class StreamScheduleResourceListener implements ScheduleOperateListener {
+public class GroupScheduleResourceListener implements ScheduleOperateListener {
 
     @Override
     public TaskEvent event() {
@@ -46,48 +46,44 @@ public class StreamScheduleResourceListener implements ScheduleOperateListener {
     public boolean accept(WorkflowContext context) {
         ProcessForm processForm = context.getProcessForm();
         String groupId = processForm.getInlongGroupId();
-        if (!(processForm instanceof StreamResourceProcessForm)) {
-            log.info("not add schedule stream listener, not StreamResourceProcessForm for groupId [{}]", groupId);
+        if (!(processForm instanceof GroupResourceProcessForm)) {
+            log.info("not add schedule group listener, not groupResourceProcessForm for groupId [{}]", groupId);
             return false;
         }
 
-        StreamResourceProcessForm streamProcessForm = (StreamResourceProcessForm) processForm;
-        String streamId = streamProcessForm.getStreamInfo().getInlongStreamId();
-        if (streamProcessForm.getGroupOperateType() != GroupOperateType.INIT) {
-            log.info("not add schedule stream listener, as the operate was not INIT for groupId [{}] streamId [{}]",
-                    groupId, streamId);
+        GroupResourceProcessForm groupProcessForm = (GroupResourceProcessForm) processForm;
+        if (groupProcessForm.getGroupOperateType() != GroupOperateType.INIT) {
+            log.info("not add schedule group listener, as the operate was not INIT for groupId [{}]", groupId);
             return false;
         }
 
-        log.info("add startup stream listener for groupId [{}] streamId [{}]", groupId, streamId);
-        return InlongConstants.DATASYNC_OFFLINE_MODE.equals(streamProcessForm.getGroupInfo().getInlongGroupMode());
+        log.info("add startup group listener for groupId [{}]", groupId);
+        return InlongConstants.DATASYNC_OFFLINE_MODE.equals(groupProcessForm.getGroupInfo().getInlongGroupMode());
     }
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
-        StreamResourceProcessForm form = (StreamResourceProcessForm) context.getProcessForm();
-        InlongStreamInfo streamInfo = form.getStreamInfo();
-        final String groupId = streamInfo.getInlongGroupId();
-        final String streamId = streamInfo.getInlongStreamId();
-        log.info("begin to register schedule info for groupId={}, streamId={}", groupId, streamId);
+        GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
+        InlongGroupInfo groupInfo = form.getGroupInfo();
+        final String groupId = groupInfo.getInlongGroupId();
+        log.info("begin to register schedule info for groupId={}", groupId);
 
         // todo: register schedule info to schedule service
 
-        // after register schedule info successfully, add ext property to stream info
-        saveInfo(streamInfo, InlongConstants.REGISTER_SCHEDULE_STATUS,
-                InlongConstants.REGISTERED, streamInfo.getExtList());
-        log.info("success to register schedule info for group [" + groupId + "] and stream [" + streamId + "]");
+        // after register schedule info successfully, add ext property to group ext info
+        saveInfo(groupInfo, InlongConstants.REGISTER_SCHEDULE_STATUS,
+                InlongConstants.REGISTERED, groupInfo.getExtList());
+        log.info("success to register schedule info for group={}", groupId);
         return ListenerResult.success();
     }
 
     /**
      * Save stream ext info into list.
      */
-    private void saveInfo(InlongStreamInfo streamInfo, String keyName, String keyValue,
-            List<InlongStreamExtInfo> extInfoList) {
-        InlongStreamExtInfo extInfo = new InlongStreamExtInfo();
+    private void saveInfo(InlongGroupInfo streamInfo, String keyName, String keyValue,
+            List<InlongGroupExtInfo> extInfoList) {
+        InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
         extInfo.setInlongGroupId(streamInfo.getInlongGroupId());
-        extInfo.setInlongStreamId(streamInfo.getInlongStreamId());
         extInfo.setKeyName(keyName);
         extInfo.setKeyValue(keyValue);
         extInfoList.add(extInfo);

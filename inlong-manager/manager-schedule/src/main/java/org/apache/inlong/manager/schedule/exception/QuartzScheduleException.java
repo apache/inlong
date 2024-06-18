@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.schedule.exception;
+package org.apache.inlong.manager.schedule.exception;
 
 /**
  * Exceptions occur in the schedule procedure.

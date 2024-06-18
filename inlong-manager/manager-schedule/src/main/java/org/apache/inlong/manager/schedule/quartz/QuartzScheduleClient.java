@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.schedule.quartz;
+package org.apache.inlong.manager.schedule.quartz;
 
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
-import org.apache.inlong.schedule.ScheduleEngineClient;
+import org.apache.inlong.manager.schedule.ScheduleEngineClient;
 
 /**
  * Built-in implementation of schedule engine client corresponding with {@link QuartzScheduleEngine}.

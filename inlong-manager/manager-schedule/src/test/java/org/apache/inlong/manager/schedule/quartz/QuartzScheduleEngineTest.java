@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.schedule.quartz;
+package org.apache.inlong.manager.schedule.quartz;
 
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
-import org.apache.inlong.schedule.BaseScheduleTest;
+import org.apache.inlong.manager.schedule.BaseScheduleTest;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ import org.quartz.JobKey;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.inlong.schedule.ScheduleUnit.SECOND;
+import static org.apache.inlong.manager.schedule.ScheduleUnit.SECOND;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
