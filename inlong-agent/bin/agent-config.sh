@@ -64,7 +64,7 @@ else
 fi
 
 if [ ${#auditProxy} -gt 0 ]; then
-  sed -i "/audit.proxys=*/c\audit.proxys=$auditProxy" $agentConfigFile
+  sed -i "/audit.proxys.default=*/c\audit.proxys=$auditProxy" $agentConfigFile
 else
   echo "audit proxy empty"
 fi
