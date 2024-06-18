@@ -32,10 +32,10 @@ import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.springframework.stereotype.Service;
 
 import static org.apache.inlong.manager.schedule.util.ScheduleUtils.genQuartzJobDetail;
 import static org.apache.inlong.manager.schedule.util.ScheduleUtils.genQuartzTrigger;

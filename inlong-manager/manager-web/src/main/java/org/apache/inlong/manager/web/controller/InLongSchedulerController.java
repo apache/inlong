@@ -51,8 +51,8 @@ public class InLongSchedulerController {
     @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.SCHEDULE)
     @ApiOperation(value = "Save schedule info")
     public Response<Integer> save(@RequestBody ScheduleInfoRequest request) {
-        int result = scheduleOperator.saveOpt(request, LoginUserUtils.getLoginUser().getName());
-        return Response.success(result);
+        int scheduleInfoId = scheduleOperator.saveOpt(request, LoginUserUtils.getLoginUser().getName());
+        return Response.success(scheduleInfoId);
     }
 
     @RequestMapping(value = "/schedule/exist/{groupId}", method = RequestMethod.GET)

@@ -58,11 +58,11 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
     @Override
     public int saveOpt(ScheduleInfoRequest request, String operator) {
         // save schedule info first
-        int res = scheduleService.save(request, operator);
+        int scheduleInfoId = scheduleService.save(request, operator);
         LOGGER.info("Save schedule info success for group {}", request.getInlongGroupId());
         // process new schedule info for approved inlong group
         registerScheduleInfoForApprovedGroup(CommonBeanUtils.copyProperties(request, ScheduleInfo::new), operator);
-        return res;
+        return scheduleInfoId;
     }
 
     /**

@@ -20,6 +20,7 @@ package org.apache.inlong.manager.schedule.quartz;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.schedule.ScheduleEngineClient;
 import org.apache.inlong.manager.schedule.ScheduleEngineType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.schedule;
 
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
+
 import org.springframework.stereotype.Service;
 
 @Service

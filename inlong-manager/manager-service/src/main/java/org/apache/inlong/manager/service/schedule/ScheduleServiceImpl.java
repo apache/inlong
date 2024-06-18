@@ -76,7 +76,8 @@ public class ScheduleServiceImpl implements ScheduleService {
         scheduleEntity.setStatus(ScheduleStatus.NEW.getCode());
         scheduleEntity.setCreator(operator);
         scheduleEntity.setModifier(operator);
-        return scheduleEntityMapper.insert(scheduleEntity);
+        scheduleEntityMapper.insert(scheduleEntity);
+        return scheduleEntity.getId();
     }
 
     @Override
