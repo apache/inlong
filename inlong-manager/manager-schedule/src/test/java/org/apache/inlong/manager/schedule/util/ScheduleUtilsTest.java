@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.schedule.util;
+package org.apache.inlong.manager.schedule.util;
 
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
-import org.apache.inlong.schedule.BaseScheduleTest;
-import org.apache.inlong.schedule.exception.QuartzScheduleException;
-import org.apache.inlong.schedule.quartz.QuartzOfflineSyncJob;
+import org.apache.inlong.manager.schedule.BaseScheduleTest;
+import org.apache.inlong.manager.schedule.exception.QuartzScheduleException;
+import org.apache.inlong.manager.schedule.quartz.QuartzOfflineSyncJob;
 
 import org.junit.jupiter.api.Test;
 import org.quartz.CronScheduleBuilder;
@@ -35,13 +35,13 @@ import org.quartz.TriggerKey;
 
 import java.util.Date;
 
-import static org.apache.inlong.schedule.ScheduleUnit.DAY;
-import static org.apache.inlong.schedule.ScheduleUnit.HOUR;
-import static org.apache.inlong.schedule.ScheduleUnit.MINUTE;
-import static org.apache.inlong.schedule.ScheduleUnit.MONTH;
-import static org.apache.inlong.schedule.ScheduleUnit.ONE_WAY;
-import static org.apache.inlong.schedule.ScheduleUnit.WEEK;
-import static org.apache.inlong.schedule.ScheduleUnit.YEAR;
+import static org.apache.inlong.manager.schedule.ScheduleUnit.DAY;
+import static org.apache.inlong.manager.schedule.ScheduleUnit.HOUR;
+import static org.apache.inlong.manager.schedule.ScheduleUnit.MINUTE;
+import static org.apache.inlong.manager.schedule.ScheduleUnit.MONTH;
+import static org.apache.inlong.manager.schedule.ScheduleUnit.ONE_WAY;
+import static org.apache.inlong.manager.schedule.ScheduleUnit.WEEK;
+import static org.apache.inlong.manager.schedule.ScheduleUnit.YEAR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

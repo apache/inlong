@@ -21,6 +21,7 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.plugin.util.FlinkUtils;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
@@ -76,6 +77,13 @@ public class StartupSortListener implements SortOperateListener {
         }
 
         GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
+        InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
+        // do not build sort config if the group mode is offline
+        if (InlongConstants.DATASYNC_OFFLINE_MODE.equals(groupInfo.getInlongGroupMode())) {
+            log.info("no need to launching sort job for groupId={} as the mode is offline",
+                    groupId);
+            return ListenerResult.success();
+        }
         List<InlongStreamInfo> streamInfos = groupResourceForm.getStreamInfos();
         int sinkCount = streamInfos.stream()
                 .map(s -> s.getSinkList() == null ? 0 : s.getSinkList().size())
