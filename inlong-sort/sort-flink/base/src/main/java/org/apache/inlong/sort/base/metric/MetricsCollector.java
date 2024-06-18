@@ -31,11 +31,10 @@ public class MetricsCollector<T> implements TimestampedCollector<T> {
 
     private long timestampMillis;
 
-    SourceMetricData metricData;
-
+    SourceMetricsReporter metricsReporter;
     public MetricsCollector(Collector<T> collector,
-            SourceMetricData sourceMetricData) {
-        this.metricData = sourceMetricData;
+            SourceMetricsReporter sourceMetricData) {
+        this.metricsReporter = sourceMetricData;
         this.collector = collector;
     }
 
@@ -45,8 +44,8 @@ public class MetricsCollector<T> implements TimestampedCollector<T> {
 
     @Override
     public void collect(T record) {
-        if (metricData != null) {
-            metricData.outputMetricsWithEstimate(record, timestampMillis);
+        if (metricsReporter != null) {
+            metricsReporter.outputMetricsWithEstimate(record, timestampMillis);
         }
         collector.collect(record);
     }

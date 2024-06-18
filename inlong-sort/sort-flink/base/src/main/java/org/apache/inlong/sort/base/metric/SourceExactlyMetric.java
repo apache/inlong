@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.base.metric;
 
-import org.apache.inlong.audit.AuditOperator;
+import org.apache.inlong.audit.AuditReporterImpl;
 
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Gauge;
@@ -29,6 +29,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.inlong.audit.consts.ConfigConstants.DEFAULT_AUDIT_TAG;
+import static org.apache.inlong.common.constant.Constants.DEFAULT_AUDIT_VERSION;
 import static org.apache.inlong.sort.base.Constants.CURRENT_EMIT_EVENT_TIME_LAG;
 import static org.apache.inlong.sort.base.Constants.CURRENT_FETCH_EVENT_TIME_LAG;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
@@ -39,10 +41,7 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_PER_SECOND;
 import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataSize;
 
-/**
- * A collection class for handling metrics
- */
-public class SourceMetricData implements MetricData, Serializable, SourceMetricsReporter {
+public class SourceExactlyMetric implements MetricData, Serializable, SourceMetricsReporter {
 
     private static final long serialVersionUID = 1L;
     private MetricGroup metricGroup;
@@ -53,8 +52,9 @@ public class SourceMetricData implements MetricData, Serializable, SourceMetrics
     private Counter numBytesInForMeter;
     private Meter numRecordsInPerSecond;
     private Meter numBytesInPerSecond;
-    private AuditOperator auditOperator;
+    private AuditReporterImpl auditReporter;
     private List<Integer> auditKeys;
+    private Long nowCheckpointId = 1L;
 
     /**
      * currentFetchEventTimeLag = FetchTime - messageTimestamp, where the FetchTime is the time the
@@ -79,7 +79,7 @@ public class SourceMetricData implements MetricData, Serializable, SourceMetrics
      */
     private volatile long emitDelay = 0L;
 
-    public SourceMetricData(MetricOption option, MetricGroup metricGroup) {
+    public SourceExactlyMetric(MetricOption option, MetricGroup metricGroup) {
         this.metricGroup = metricGroup;
         this.labels = option.getLabels();
 
@@ -101,18 +101,19 @@ public class SourceMetricData implements MetricData, Serializable, SourceMetrics
         }
 
         if (option.getIpPorts().isPresent()) {
-            AuditOperator.getInstance().setAuditProxy(option.getIpPortSet());
-            this.auditOperator = AuditOperator.getInstance();
+            this.auditReporter = new AuditReporterImpl();
+            auditReporter.setAutoFlush(false);
+            auditReporter.setAuditProxy(option.getIpPortSet());
             this.auditKeys = option.getInlongAuditKeys();
         }
     }
 
-    public SourceMetricData(MetricOption option) {
+    public SourceExactlyMetric(MetricOption option) {
         this.labels = option.getLabels();
-
         if (option.getIpPorts().isPresent()) {
-            AuditOperator.getInstance().setAuditProxy(option.getIpPortSet());
-            this.auditOperator = AuditOperator.getInstance();
+            this.auditReporter = new AuditReporterImpl();
+            auditReporter.setAutoFlush(false);
+            auditReporter.setAuditProxy(option.getIpPortSet());
             this.auditKeys = option.getInlongAuditKeys();
         }
     }
@@ -247,66 +248,25 @@ public class SourceMetricData implements MetricData, Serializable, SourceMetrics
         return labels;
     }
 
-    public void outputMetricsWithEstimate(Object data) {
-        outputMetrics(1, getDataSize(data));
-    }
-
-    public void outputMetricsWithEstimate(Object data, long fetchDelay, long emitDelay) {
-        outputMetrics(1, getDataSize(data));
-        this.fetchDelay = fetchDelay;
-        this.emitDelay = emitDelay;
-    }
-
     @Override
     public void outputMetricsWithEstimate(Object data, long dataTime) {
         outputMetrics(1, getDataSize(data), dataTime);
     }
 
-    public void outputMetrics(long rowCountSize, long rowDataSize) {
-        outputDefaultMetrics(rowCountSize, rowDataSize);
-
-        if (auditOperator != null) {
-            for (Integer key : auditKeys) {
-                auditOperator.add(
-                        key,
-                        getGroupId(),
-                        getStreamId(),
-                        System.currentTimeMillis(),
-                        rowCountSize,
-                        rowDataSize);
-            }
-
-        }
-    }
-
-    public void outputMetrics(long rowCountSize, long rowDataSize, long fetchDelay, long emitDelay) {
-        outputDefaultMetrics(rowCountSize, rowDataSize, fetchDelay, emitDelay);
-
-        if (auditOperator != null) {
-            for (Integer key : auditKeys) {
-                auditOperator.add(
-                        key,
-                        getGroupId(),
-                        getStreamId(),
-                        System.currentTimeMillis(),
-                        rowCountSize,
-                        rowDataSize);
-            }
-
-        }
-    }
-
     public void outputMetrics(long rowCountSize, long rowDataSize, long dataTime) {
         outputDefaultMetrics(rowCountSize, rowDataSize);
-        if (auditOperator != null) {
+        if (auditReporter != null) {
             for (Integer key : auditKeys) {
-                auditOperator.add(
+                auditReporter.add(
+                        this.nowCheckpointId,
                         key,
+                        DEFAULT_AUDIT_TAG,
                         getGroupId(),
                         getStreamId(),
-                        getCurrentOrProvidedTime(dataTime),
+                        dataTime,
                         rowCountSize,
-                        rowDataSize);
+                        rowDataSize,
+                        DEFAULT_AUDIT_VERSION);
             }
         }
     }
@@ -337,16 +297,14 @@ public class SourceMetricData implements MetricData, Serializable, SourceMetrics
      * flush audit data
      * usually call this method in close method or when checkpointing
      */
-    public void flushAuditData() {
-        if (auditOperator != null) {
-            auditOperator.flush();
+    public void flushAuditById(long checkpointId) {
+        if (auditReporter != null) {
+            auditReporter.flush(checkpointId);
         }
     }
 
-    private void outputDefaultMetrics(long rowCountSize, long rowDataSize, long fetchDelay, long emitDelay) {
-        outputDefaultMetrics(rowCountSize, rowDataSize);
-        this.fetchDelay = fetchDelay;
-        this.emitDelay = emitDelay;
+    public void setNowCheckpointId(Long nowCheckpointId) {
+        this.nowCheckpointId = nowCheckpointId;
     }
 
     @Override
@@ -362,7 +320,7 @@ public class SourceMetricData implements MetricData, Serializable, SourceMetrics
                 + ", numBytesInPerSecond=" + numBytesInPerSecond.getRate()
                 + ", currentFetchEventTimeLag=" + currentFetchEventTimeLag.getValue()
                 + ", currentEmitEventTimeLag=" + currentEmitEventTimeLag.getValue()
-                + ", auditOperator=" + auditOperator
+                + ", auditReporter=" + auditReporter
                 + '}';
     }
 }

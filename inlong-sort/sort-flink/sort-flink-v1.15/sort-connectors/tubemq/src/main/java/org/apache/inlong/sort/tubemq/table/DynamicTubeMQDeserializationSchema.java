@@ -59,5 +59,7 @@ public interface DynamicTubeMQDeserializationSchema<T> extends Serializable, Res
         }
     }
 
-    void flushAudit();
+    void setNowCheckpointId(long checkpointId);
+
+    void flushAuditById(long checkpointId);
 }

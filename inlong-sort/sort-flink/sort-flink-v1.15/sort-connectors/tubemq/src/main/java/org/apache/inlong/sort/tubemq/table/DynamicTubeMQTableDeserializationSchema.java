@@ -19,7 +19,7 @@ package org.apache.inlong.sort.tubemq.table;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.metric.SourceExactlyMetric;
 import org.apache.inlong.tubemq.corebase.Message;
 
 import com.google.common.base.Objects;
@@ -61,9 +61,9 @@ public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDes
 
     private final boolean innerFormat;
 
-    private SourceMetricData sourceMetricData;
+    private SourceExactlyMetric sourceMetricData;
 
-    private MetricOption metricOption;
+    private final MetricOption metricOption;
 
     public DynamicTubeMQTableDeserializationSchema(
             DeserializationSchema<RowData> schema,
@@ -83,7 +83,7 @@ public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDes
     @Override
     public void open() {
         if (metricOption != null) {
-            sourceMetricData = new SourceMetricData(metricOption);
+            sourceMetricData = new SourceExactlyMetric(metricOption);
         }
     }
 
@@ -110,9 +110,15 @@ public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDes
     }
 
     @Override
-    public void flushAudit() {
+    public void flushAuditById(long checkpointId) {
         if (sourceMetricData != null) {
-            sourceMetricData.flushAuditData();
+            sourceMetricData.flushAuditById(checkpointId);
+        }
+    }
+    @Override
+    public void setNowCheckpointId(long checkpointId) {
+        if (sourceMetricData != null) {
+            sourceMetricData.setNowCheckpointId(checkpointId + 1);
         }
     }
 
