@@ -311,10 +311,6 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
         this.currentCheckpointId = currentCheckpointId;
     }
 
-    public Long getLastCheckpointId() {
-        return lastCheckpointId;
-    }
-
     @Override
     public String toString() {
         return "SourceMetricData{"
