@@ -50,7 +50,7 @@ public class AuditUtils {
     public static void initAudit() {
         if (CommonConfigHolder.getInstance().isEnableAudit()) {
             // AuditProxy
-            if (CommonConfigHolder.getInstance().isAuditObtainProxysFromManager()) {
+            if (CommonConfigHolder.getInstance().isEnableAuditProxysDiscoveryFromManager()) {
                 AuditOperator.getInstance().setAuditProxy(AuditComponent.DATAPROXY,
                         CommonConfigHolder.getInstance().getManagerHosts().get(0),
                         CommonConfigHolder.getInstance().getManagerAuthSecretId(),

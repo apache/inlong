@@ -128,8 +128,8 @@ public class CommonConfigHolder {
     // Audit fields
     private static final String KEY_ENABLE_AUDIT = "audit.enable";
     private static final boolean VAL_DEF_ENABLE_AUDIT = true;
-    private static final String KEY_AUDIT_OBTAIN_PROXYS_FROM_MANAGER = "audit.obtain.proxys.from.manager";
-    private static final boolean VAL_DEF_AUDIT_OBTAIN_PROXYS_FROM_MANAGER = false;
+    private static final String KEY_AUDIT_PROXYS_DISCOVERY_MANAGER_ENABLE = "audit.proxys.discovery.manager.enable";
+    private static final boolean VAL_DEF_AUDIT_PROXYS_DISCOVERY_MANAGER_ENABLE = false;
     private static final String KEY_AUDIT_PROXYS = "audit.proxys";
     @Deprecated
     private static final String KEY_AUDIT_FILE_PATH = "audit.filePath";
@@ -211,7 +211,7 @@ public class CommonConfigHolder {
     private long metaConfigSyncInvlMs = VAL_DEF_CONFIG_SYNC_INTERVAL_MS;
     private long metaConfigWastAlarmMs = VAL_DEF_META_CONFIG_SYNC_WAST_ALARM_MS;
     private boolean enableAudit = VAL_DEF_ENABLE_AUDIT;
-    private boolean auditObtainProxysFromManager = VAL_DEF_AUDIT_OBTAIN_PROXYS_FROM_MANAGER;
+    private boolean enableAuditProxysDiscoveryFromManager = VAL_DEF_AUDIT_PROXYS_DISCOVERY_MANAGER_ENABLE;
     private final HashSet<String> auditProxys = new HashSet<>();
     private String auditFilePath = VAL_DEF_AUDIT_FILE_PATH;
     private int auditMaxCacheRows = VAL_DEF_AUDIT_MAX_CACHE_ROWS;
@@ -340,8 +340,8 @@ public class CommonConfigHolder {
         return enableAudit;
     }
 
-    public boolean isAuditObtainProxysFromManager() {
-        return auditObtainProxysFromManager;
+    public boolean isEnableAuditProxysDiscoveryFromManager() {
+        return enableAuditProxysDiscoveryFromManager;
     }
 
     public boolean isEnableFileMetric() {
@@ -664,10 +664,10 @@ public class CommonConfigHolder {
         if (StringUtils.isNotEmpty(tmpValue)) {
             this.enableAudit = "TRUE".equalsIgnoreCase(tmpValue.trim());
         }
-        // read whether obtain audit proxys from manager
-        tmpValue = this.props.get(KEY_AUDIT_OBTAIN_PROXYS_FROM_MANAGER);
+        // read whether discovery audit proxys from manager
+        tmpValue = this.props.get(KEY_AUDIT_PROXYS_DISCOVERY_MANAGER_ENABLE);
         if (StringUtils.isNotEmpty(tmpValue)) {
-            this.auditObtainProxysFromManager = "TRUE".equalsIgnoreCase(tmpValue.trim());
+            this.enableAuditProxysDiscoveryFromManager = "TRUE".equalsIgnoreCase(tmpValue.trim());
         }
         // read audit proxys
         tmpValue = this.props.get(KEY_AUDIT_PROXYS);
@@ -682,10 +682,10 @@ public class CommonConfigHolder {
         }
         // check auditProxys configure
         if (this.enableAudit) {
-            if (!this.auditObtainProxysFromManager && this.auditProxys.isEmpty()) {
+            if (!this.enableAuditProxysDiscoveryFromManager && this.auditProxys.isEmpty()) {
                 LOG.error("{}'s {} must be configured when {} is true and {} is false, exist!",
                         COMMON_CONFIG_FILE_NAME, KEY_AUDIT_PROXYS, KEY_ENABLE_AUDIT,
-                        KEY_AUDIT_OBTAIN_PROXYS_FROM_MANAGER);
+                        KEY_AUDIT_PROXYS_DISCOVERY_MANAGER_ENABLE);
                 System.exit(2);
             }
         }
@@ -795,7 +795,8 @@ public class CommonConfigHolder {
                 .append("metaConfigSyncInvlMs", metaConfigSyncInvlMs)
                 .append("metaConfigWastAlarmMs", metaConfigWastAlarmMs)
                 .append("enableAudit", enableAudit)
-                .append("auditObtainProxysFromManager", auditObtainProxysFromManager)
+                .append("enableAuditProxysDiscoveryFromManager",
+                        enableAuditProxysDiscoveryFromManager)
                 .append("auditProxys", auditProxys)
                 .append("auditFilePath", auditFilePath)
                 .append("auditMaxCacheRows", auditMaxCacheRows)
