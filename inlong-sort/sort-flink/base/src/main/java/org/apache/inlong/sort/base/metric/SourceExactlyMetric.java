@@ -120,73 +120,45 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
     }
 
     /**
-     * Default counter is {@link SimpleCounter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
+     * Users can custom counter that extends from {@link SimpleCounter}
+     * groupId and streamId and nodeId are label values,
+     * user can use it to filter metric data when using metric reporter Prometheus
+     * The following method is similar
      */
     public void registerMetricsForNumRecordsInForMeter() {
         registerMetricsForNumRecordsInForMeter(new SimpleCounter());
     }
 
     /**
-     * User can use custom counter that extends from {@link Counter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
+     * Users can custom counter that extends from {@link Counter}
+     * groupId and streamId and nodeId are label values,
+     * user can use it to filter metric data when using metric reporter Prometheus
+     * The following method is similar
      */
     public void registerMetricsForNumRecordsInForMeter(Counter counter) {
         numRecordsInForMeter = registerCounter(NUM_RECORDS_IN_FOR_METER, counter);
     }
 
-    /**
-     * Default counter is {@link SimpleCounter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
-     */
     public void registerMetricsForNumBytesInForMeter() {
         registerMetricsForNumBytesInForMeter(new SimpleCounter());
     }
 
-    /**
-     * User can use custom counter that extends from {@link Counter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
-     */
     public void registerMetricsForNumBytesInForMeter(Counter counter) {
         numBytesInForMeter = registerCounter(NUM_BYTES_IN_FOR_METER, counter);
     }
 
-    /**
-     * Default counter is {@link SimpleCounter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
-     */
     public void registerMetricsForNumRecordsIn() {
         registerMetricsForNumRecordsIn(new SimpleCounter());
     }
 
-    /**
-     * User can use custom counter that extends from {@link Counter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
-     */
     public void registerMetricsForNumRecordsIn(Counter counter) {
         numRecordsIn = registerCounter(NUM_RECORDS_IN, counter);
     }
 
-    /**
-     * Default counter is {@link SimpleCounter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
-     */
     public void registerMetricsForNumBytesIn() {
         registerMetricsForNumBytesIn(new SimpleCounter());
     }
 
-    /**
-     * User can use custom counter that extends from {@link Counter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
-     */
     public void registerMetricsForNumBytesIn(Counter counter) {
         numBytesIn = registerCounter(NUM_BYTES_IN, counter);
     }
@@ -270,10 +242,6 @@ public class SourceExactlyMetric implements MetricData, Serializable, SourceMetr
                         DEFAULT_AUDIT_VERSION);
             }
         }
-    }
-
-    private long getCurrentOrProvidedTime(long dataTime) {
-        return dataTime == 0 ? System.currentTimeMillis() : dataTime;
     }
 
     private void outputDefaultMetrics(long rowCountSize, long rowDataSize) {

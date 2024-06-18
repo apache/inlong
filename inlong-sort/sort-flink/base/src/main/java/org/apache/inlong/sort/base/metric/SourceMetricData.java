@@ -42,6 +42,7 @@ import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataS
 /**
  * A collection class for handling metrics
  */
+@Deprecated
 public class SourceMetricData implements MetricData, Serializable, SourceMetricsReporter {
 
     private static final long serialVersionUID = 1L;
