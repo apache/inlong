@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.core.task;
+package org.apache.inlong.agent.plugin.task;
 
 import org.apache.inlong.agent.conf.TaskProfile;
+import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.plugin.file.Task;
 import org.apache.inlong.agent.store.Store;
 

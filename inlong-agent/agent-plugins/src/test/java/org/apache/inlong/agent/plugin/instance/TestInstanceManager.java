@@ -15,13 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.core.instance;
+package org.apache.inlong.agent.plugin.instance;
 
 import org.apache.inlong.agent.conf.InstanceProfile;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.core.AgentBaseTestsHelper;
+import org.apache.inlong.agent.constant.CycleUnitType;
+import org.apache.inlong.agent.core.instance.ActionType;
+import org.apache.inlong.agent.core.instance.InstanceAction;
+import org.apache.inlong.agent.core.instance.InstanceManager;
 import org.apache.inlong.agent.core.task.TaskManager;
+import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.store.InstanceStore;
 import org.apache.inlong.agent.store.Store;
 import org.apache.inlong.agent.store.TaskStore;
@@ -53,9 +57,10 @@ public class TestInstanceManager {
     @BeforeClass
     public static void setup() {
         helper = new AgentBaseTestsHelper(TestInstanceManager.class.getName()).setupAgentHome();
-        String pattern = helper.getTestRootDir() + "/YYYYMMDD_[0-9]+.txt";
+        String pattern = helper.getTestRootDir() + "/YYYYMMDDhh_[0-9]+.txt";
         Store basicInstanceStore = TaskManager.initStore(AgentConstants.AGENT_STORE_PATH_INSTANCE);
-        taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING, "GMT+6:00");
+        taskProfile = helper.getTaskProfile(1, pattern, false, 0L, 0L, TaskStateEnum.RUNNING, CycleUnitType.HOUR,
+                "GMT+6:00");
         Store taskBasicStore = TaskManager.initStore(AgentConstants.AGENT_STORE_PATH_TASK);
         TaskStore taskStore = new TaskStore(taskBasicStore);
         taskStore.storeTask(taskProfile);

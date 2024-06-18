@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.core.store;
+package org.apache.inlong.agent.plugin.store;
 
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.core.AgentBaseTestsHelper;
 import org.apache.inlong.agent.core.task.TaskManager;
+import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.store.InstanceStore;
 import org.apache.inlong.agent.store.OffsetStore;
 import org.apache.inlong.agent.store.TaskStore;

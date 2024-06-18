@@ -21,7 +21,7 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TaskProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.TaskConstants;
-import org.apache.inlong.agent.store.RocksDBStoreImpl;
+import org.apache.inlong.agent.plugin.store.RocksDBStoreImpl;
 import org.apache.inlong.agent.store.Store;
 import org.apache.inlong.agent.store.TaskStore;
 

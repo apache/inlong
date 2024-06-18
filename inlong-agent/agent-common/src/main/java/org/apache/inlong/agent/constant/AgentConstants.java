@@ -47,7 +47,7 @@ public class AgentConstants {
     public static final String DEFAULT_LOCAL_IP = "127.0.0.1";
     public static final String DEFAULT_LOCAL_HOST = "localhost";
     public static final String AGENT_STORE_CLASSNAME = "agent.store.classname";
-    public static final String DEFAULT_AGENT_STORE_CLASSNAME = "org.apache.inlong.agent.store.RocksDBStoreImpl";
+    public static final String DEFAULT_AGENT_STORE_CLASSNAME = "org.apache.inlong.agent.plugin.store.RocksDBStoreImpl";
 
     // default use local ip as uniq id for agent.
     public static final String DEFAULT_AGENT_UNIQ_ID = AgentUtils.getLocalIp();
