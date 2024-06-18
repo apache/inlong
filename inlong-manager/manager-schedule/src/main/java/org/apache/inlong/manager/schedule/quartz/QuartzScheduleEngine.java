@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.schedule.quartz;
+package org.apache.inlong.manager.schedule.quartz;
 
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
-import org.apache.inlong.schedule.ScheduleEngine;
-import org.apache.inlong.schedule.exception.QuartzScheduleException;
+import org.apache.inlong.manager.schedule.ScheduleEngine;
+import org.apache.inlong.manager.schedule.exception.QuartzScheduleException;
 
 import com.google.common.annotations.VisibleForTesting;
 import lombok.Getter;
@@ -35,8 +35,8 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.apache.inlong.schedule.util.ScheduleUtils.genQuartzJobDetail;
-import static org.apache.inlong.schedule.util.ScheduleUtils.genQuartzTrigger;
+import static org.apache.inlong.manager.schedule.util.ScheduleUtils.genQuartzJobDetail;
+import static org.apache.inlong.manager.schedule.util.ScheduleUtils.genQuartzTrigger;
 
 /**
  * The default implementation of schedule engine based on Quartz scheduler. Response for processing

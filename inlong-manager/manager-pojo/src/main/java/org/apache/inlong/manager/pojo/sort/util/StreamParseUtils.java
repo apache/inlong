@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.source.StreamSource;
-import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
-import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.manager.pojo.stream.StreamPipeline;
 import org.apache.inlong.manager.pojo.stream.StreamTransform;
@@ -41,8 +38,6 @@ import org.apache.inlong.manager.pojo.transform.splitter.SplitterDefinition;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Utils of stream parse.
@@ -158,21 +153,4 @@ public class StreamParseUtils {
                 String.format(" should not be null for streamId=%s", inlongStreamId));
         return GSON.fromJson(tempView, StreamPipeline.class);
     }
-
-    public static String getStreamExtProperty(String key, InlongStreamInfo streamInfo) {
-        if (StringUtils.isNotBlank(key) && streamInfo != null && CollectionUtils.isNotEmpty(streamInfo.getExtList())) {
-            for (InlongStreamExtInfo ext : streamInfo.getExtList()) {
-                if (key.equalsIgnoreCase(ext.getKeyName())) {
-                    return ext.getKeyValue();
-                }
-            }
-        }
-        return null;
-    }
-
-    public static boolean isRegisterScheduleSuccess(InlongStreamInfo streamInfo) {
-        return InlongConstants.REGISTERED
-                .equalsIgnoreCase(getStreamExtProperty(InlongConstants.REGISTER_SCHEDULE_STATUS, streamInfo));
-    }
-
 }

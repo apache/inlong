@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.schedule.util;
+package org.apache.inlong.manager.schedule.util;
 
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
-import org.apache.inlong.schedule.ScheduleType;
-import org.apache.inlong.schedule.ScheduleUnit;
-import org.apache.inlong.schedule.exception.QuartzScheduleException;
-import org.apache.inlong.schedule.quartz.QuartzOfflineSyncJob;
+import org.apache.inlong.manager.schedule.ScheduleType;
+import org.apache.inlong.manager.schedule.ScheduleUnit;
+import org.apache.inlong.manager.schedule.exception.QuartzScheduleException;
+import org.apache.inlong.manager.schedule.quartz.QuartzOfflineSyncJob;
 
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.CronScheduleBuilder;
