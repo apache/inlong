@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.group;
 
-import java.sql.Timestamp;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 
@@ -31,6 +30,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 

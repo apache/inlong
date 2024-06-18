@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.group;
 
-import java.sql.Timestamp;
 import org.apache.inlong.manager.common.validation.SaveValidation;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 
@@ -35,6 +34,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
