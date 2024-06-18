@@ -15,31 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.schedule;
+package org.apache.inlong.manager.schedule;
 
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 
 /**
- * Interface for schedule engine client which responses for communicating with schedule engine.
+ * Build-in schedule engine, provides basic schedule capabilities.
  * */
-public interface ScheduleEngineClient {
+public interface ScheduleEngine {
 
     /**
-     * Register schedule to schedule engine.
+     * Start schedule engine.
+     * */
+    void start();
+
+    /**
+     * Handle schedule register.
      * @param scheduleInfo schedule info to register
      * */
-    boolean register(ScheduleInfo scheduleInfo);
+    boolean handleRegister(ScheduleInfo scheduleInfo);
 
     /**
-     * Un-register schedule from schedule engine.
+     * Handle schedule unregister.
      * @param scheduleInfo schedule info to unregister
      * */
-    boolean unregister(ScheduleInfo scheduleInfo);
+    boolean handleUnregister(ScheduleInfo scheduleInfo);
 
     /**
-     * Update schedule from schedule engine.
+     * Handle schedule update.
      * @param scheduleInfo schedule info to update
      * */
-    boolean update(ScheduleInfo scheduleInfo);
+    boolean handleUpdate(ScheduleInfo scheduleInfo);
 
+    /**
+     * Stop schedule engine.
+     * */
+    void stop();
 }

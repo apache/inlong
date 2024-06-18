@@ -102,14 +102,6 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         initSourceTask.setListenerFactory(streamTaskListenerFactory);
         process.addTask(initSourceTask);
 
-        // Init Schedule info
-        ServiceTask initScheduleTask = new ServiceTask();
-        initScheduleTask.setName("InitSchedule");
-        initScheduleTask.setDisplayName("Stream-InitSchedule");
-        initScheduleTask.setServiceTaskType(ServiceTaskType.INIT_SCHEDULE);
-        initScheduleTask.setListenerFactory(streamTaskListenerFactory);
-        process.addTask(initScheduleTask);
-
         // End node
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
@@ -120,8 +112,7 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         initMQTask.addNext(initSinkTask);
         initSinkTask.addNext(initSortTask);
         initSortTask.addNext(initSourceTask);
-        initSourceTask.addNext(initScheduleTask);
-        initScheduleTask.addNext(endEvent);
+        initSourceTask.addNext(endEvent);
 
         return process;
     }

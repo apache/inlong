@@ -15,34 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.schedule;
+package org.apache.inlong.manager.schedule;
 
-import lombok.Getter;
+import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 
-@Getter
-public enum ScheduleUnit {
+/**
+ * Interface for schedule engine client which responses for communicating with schedule engine.
+ * */
+public interface ScheduleEngineClient {
 
-    YEAR("Y"),
-    MONTH("M"),
-    DAY("D"),
-    WEEK("W"),
-    HOUR("H"),
-    MINUTE("I"),
-    SECOND("S"),
-    ONE_WAY("O");
+    /**
+     * Register schedule to schedule engine.
+     * @param scheduleInfo schedule info to register
+     * */
+    boolean register(ScheduleInfo scheduleInfo);
 
-    final String unit;
+    /**
+     * Un-register schedule from schedule engine.
+     * @param scheduleInfo schedule info to unregister
+     * */
+    boolean unregister(ScheduleInfo scheduleInfo);
 
-    ScheduleUnit(String unit) {
-        this.unit = unit;
-    }
+    /**
+     * Update schedule from schedule engine.
+     * @param scheduleInfo schedule info to update
+     * */
+    boolean update(ScheduleInfo scheduleInfo);
 
-    public static ScheduleUnit getScheduleUnit(String unit) {
-        for (ScheduleUnit scheduleUnit : ScheduleUnit.values()) {
-            if (scheduleUnit.unit.equalsIgnoreCase(unit)) {
-                return scheduleUnit;
-            }
-        }
-        return null;
-    }
 }

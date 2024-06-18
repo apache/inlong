@@ -20,14 +20,12 @@ package org.apache.inlong.manager.service.listener;
 import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.common.plugin.PluginBinder;
 import org.apache.inlong.manager.service.listener.queue.StreamQueueResourceListener;
-import org.apache.inlong.manager.service.listener.schedule.StreamScheduleResourceListener;
 import org.apache.inlong.manager.service.listener.sink.StreamSinkResourceListener;
 import org.apache.inlong.manager.service.listener.sort.StreamSortConfigListener;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
 import org.apache.inlong.manager.workflow.definition.TaskListenerFactory;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
-import org.apache.inlong.manager.workflow.event.task.ScheduleOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
@@ -55,7 +53,6 @@ public class StreamTaskListenerFactory implements PluginBinder, TaskListenerFact
     private List<QueueOperateListener> queueOperateListeners;
     private List<SortOperateListener> sortOperateListeners;
     private List<SinkOperateListener> sinkOperateListeners;
-    private List<ScheduleOperateListener> scheduleOperateListeners;
 
     @Autowired
     private StreamQueueResourceListener queueResourceListener;
@@ -63,8 +60,6 @@ public class StreamTaskListenerFactory implements PluginBinder, TaskListenerFact
     private StreamSortConfigListener streamSortConfigListener;
     @Autowired
     private StreamSinkResourceListener sinkResourceListener;
-    @Autowired
-    private StreamScheduleResourceListener scheduleResourceListener;
 
     @PostConstruct
     public void init() {
@@ -75,8 +70,6 @@ public class StreamTaskListenerFactory implements PluginBinder, TaskListenerFact
         sortOperateListeners.add(streamSortConfigListener);
         sinkOperateListeners = new LinkedList<>();
         sinkOperateListeners.add(sinkResourceListener);
-        scheduleOperateListeners = new LinkedList<>();
-        scheduleOperateListeners.add(scheduleResourceListener);
     }
 
     @Override
@@ -100,10 +93,6 @@ public class StreamTaskListenerFactory implements PluginBinder, TaskListenerFact
         List<SinkOperateListener> pluginSinkOperateListeners = processPlugin.createSinkOperateListeners();
         if (CollectionUtils.isNotEmpty(pluginSinkOperateListeners)) {
             sinkOperateListeners.addAll(pluginSinkOperateListeners);
-        }
-        List<ScheduleOperateListener> pluginScheduleOperateListeners = processPlugin.createScheduleOperateListeners();
-        if (CollectionUtils.isNotEmpty(pluginScheduleOperateListeners)) {
-            scheduleOperateListeners.addAll(pluginScheduleOperateListeners);
         }
     }
 
@@ -129,9 +118,6 @@ public class StreamTaskListenerFactory implements PluginBinder, TaskListenerFact
             case INIT_SINK:
                 List<SinkOperateListener> sinkOperateListeners = getSinkOperateListener(workflowContext);
                 return Lists.newArrayList(sinkOperateListeners);
-            case INIT_SCHEDULE:
-                List<ScheduleOperateListener> scheduleOperateListeners = getScheduleOperateListener(workflowContext);
-                return Lists.newArrayList(scheduleOperateListeners);
             default:
                 throw new IllegalArgumentException(String.format("Unsupported ServiceTaskType %s", taskType));
         }
@@ -145,7 +131,6 @@ public class StreamTaskListenerFactory implements PluginBinder, TaskListenerFact
         queueOperateListeners = new LinkedList<>();
         sortOperateListeners = new LinkedList<>();
         sinkOperateListeners = new LinkedList<>();
-        scheduleOperateListeners = new LinkedList<>();
     }
 
     /**
@@ -199,18 +184,4 @@ public class StreamTaskListenerFactory implements PluginBinder, TaskListenerFact
         }
         return listeners;
     }
-
-    /**
-     * Get schedule operate listener list.
-     */
-    private List<ScheduleOperateListener> getScheduleOperateListener(WorkflowContext context) {
-        List<ScheduleOperateListener> listeners = new ArrayList<>();
-        for (ScheduleOperateListener listener : scheduleOperateListeners) {
-            if (listener != null && listener.accept(context)) {
-                listeners.add(listener);
-            }
-        }
-        return listeners;
-    }
-
 }
