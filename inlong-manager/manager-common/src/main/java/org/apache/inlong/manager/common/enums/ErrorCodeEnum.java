@@ -127,6 +127,7 @@ public enum ErrorCodeEnum {
 
     SCHEDULE_NOT_FOUND(1700, "Schedule info not found"),
     SCHEDULE_DUPLICATE(1701, "Schedule info already exist"),
+    SCHEDULE_STATUS_TRANSITION_NOT_ALLOWED(1702, "Schedule status transition is not allowed"),
 
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
     WORKFLOW_APPROVER_NOT_FOUND(4001, "Workflow approver does not exist/no operation authority"),

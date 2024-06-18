@@ -59,6 +59,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
+import org.apache.inlong.manager.pojo.schedule.ScheduleInfoRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf.SortType;
@@ -72,6 +73,7 @@ import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
+import org.apache.inlong.manager.service.schedule.ScheduleOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.SourceOperatorFactory;
 import org.apache.inlong.manager.service.source.StreamSourceOperator;
@@ -111,6 +113,7 @@ import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_CLUSTER_TAG
 import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_MQ_RESOURCE;
 import static org.apache.inlong.common.constant.ClusterSwitch.CLUSTER_SWITCH_TIME;
 import static org.apache.inlong.common.constant.ClusterSwitch.FINISH_SWITCH_INTERVAL_MIN;
+import static org.apache.inlong.manager.common.consts.InlongConstants.DATASYNC_OFFLINE_MODE;
 import static org.apache.inlong.manager.pojo.common.PageRequest.MAX_PAGE_SIZE;
 import static org.apache.inlong.manager.workflow.event.process.ProcessEventListener.EXECUTOR_SERVICE;
 
@@ -157,6 +160,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     private InlongRoleService inlongRoleService;
     @Autowired
     private TenantUserRoleEntityMapper tenantUserRoleEntityMapper;
+
+    @Autowired
+    ScheduleOperator scheduleOperator;
 
     /**
      * Check whether modification is supported under the current group status, and which fields can be modified.
@@ -208,6 +214,15 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // save ext info
         this.saveOrUpdateExt(groupId, request.getExtList());
 
+        // save schedule info for offline group
+        if (DATASYNC_OFFLINE_MODE.equals(request.getInlongGroupMode())) {
+            try {
+                scheduleOperator.saveOpt(CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new), operator);
+            } catch (Exception e) {
+                LOGGER.warn("failed to save schedule info for groupId={}, error msg: {}", groupId, e.getMessage());
+            }
+        }
+
         LOGGER.info("success to save inlong group for groupId={} by user={}", groupId, operator);
         return groupId;
     }
@@ -239,7 +254,18 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         LOGGER.debug("success to check inlong group {}, exist? {}", groupId, entity != null);
-        return entity != null;
+        if (entity == null) {
+            return false;
+        }
+        checkOfflineSyncScheduleExist(entity, groupId);
+        return true;
+    }
+
+    private void checkOfflineSyncScheduleExist(InlongGroupEntity entity, String groupId) {
+        // check schedule info for offline sync
+        if (DATASYNC_OFFLINE_MODE.equals(entity.getInlongGroupMode()) && !scheduleOperator.scheduleInfoExist(groupId)) {
+            LOGGER.warn("Schedule info not found for group={}", groupId);
+        }
     }
 
     @Override
@@ -477,6 +503,15 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // save ext info
         this.saveOrUpdateExt(groupId, request.getExtList());
 
+        // save schedule info for offline group
+        if (DATASYNC_OFFLINE_MODE.equals(request.getInlongGroupMode())) {
+            try {
+                scheduleOperator.updateOpt(CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new), operator);
+            } catch (Exception e) {
+                LOGGER.warn("failed to update schedule info for groupId={}, error msg: {}", groupId, e.getMessage());
+            }
+        }
+
         LOGGER.info("success to update inlong group for groupId={} by user={}", groupId, operator);
         return groupId;
     }
@@ -631,6 +666,15 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // logically delete the associated extension info
         groupExtMapper.logicDeleteAllByGroupId(groupId);
+
+        // remove schedule
+        if (DATASYNC_OFFLINE_MODE.equals(entity.getInlongGroupMode())) {
+            try {
+                scheduleOperator.deleteByGroupIdOpt(entity.getInlongGroupId(), operator);
+            } catch (Exception e) {
+                LOGGER.warn("failed to delete schedule info for groupId={}, error msg: {}", groupId, e.getMessage());
+            }
+        }
 
         LOGGER.info("success to delete group and group ext property for groupId={} by user={}", groupId, operator);
         return true;

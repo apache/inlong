@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.group;
 
+import java.sql.Timestamp;
 import org.apache.inlong.manager.common.validation.SaveValidation;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 
@@ -129,5 +130,35 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @ApiModelProperty(value = "Version number")
     @NotNull(groups = UpdateValidation.class, message = "version cannot be null")
     private Integer version;
+
+    // schedule type, support [normal, crontab], 0 for normal and 1 for crontab
+    @ApiModelProperty("Schedule type")
+    private Integer scheduleType;
+
+    // time unit for offline task schedule interval, support [month, week, day, hour, minute, oneway]
+    // Y=year, M=month, W=week, D=day, H=hour, I=minute, O=oneway
+    @ApiModelProperty("TimeUnit for schedule interval")
+    private String scheduleUnit;
+
+    @ApiModelProperty("Schedule interval")
+    private Integer scheduleInterval;
+
+    @ApiModelProperty("Start time")
+    private Timestamp startTime;
+
+    @ApiModelProperty("End time")
+    private Timestamp endTime;
+
+    @ApiModelProperty("Delay time")
+    private Integer delayTime;
+
+    @ApiModelProperty("Self depend")
+    private Integer selfDepend;
+
+    @ApiModelProperty("Schedule task parallelism")
+    private Integer taskParallelism;
+
+    @ApiModelProperty("Schedule task parallelism")
+    private Integer crontabExpression;
 
 }

@@ -20,7 +20,7 @@ package org.apache.inlong.manager.schedule.util;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.schedule.BaseScheduleTest;
 import org.apache.inlong.manager.schedule.exception.QuartzScheduleException;
-import org.apache.inlong.manager.schedule.quartz.QuartzOfflineSyncJob;
+import org.apache.inlong.manager.schedule.quartz.MockJob;
 
 import org.junit.jupiter.api.Test;
 import org.quartz.CronScheduleBuilder;
@@ -102,7 +102,7 @@ public class ScheduleUtilsTest extends BaseScheduleTest {
     @Test
     public void testGenJobDetail() {
         ScheduleInfo scheduleInfo = genDefaultScheduleInfo();
-        JobDetail jobDetail = ScheduleUtils.genQuartzJobDetail(scheduleInfo, QuartzOfflineSyncJob.class);
+        JobDetail jobDetail = ScheduleUtils.genQuartzJobDetail(scheduleInfo, MockJob.class);
         assertNotNull(jobDetail);
 
         JobKey jobKey = jobDetail.getKey();
@@ -116,7 +116,7 @@ public class ScheduleUtilsTest extends BaseScheduleTest {
     public void testGenCronTrigger() {
         // normal
         ScheduleInfo scheduleInfo = genDefaultScheduleInfo();
-        JobDetail jobDetail = ScheduleUtils.genQuartzJobDetail(scheduleInfo, QuartzOfflineSyncJob.class);
+        JobDetail jobDetail = ScheduleUtils.genQuartzJobDetail(scheduleInfo, MockJob.class);
 
         Trigger trigger = ScheduleUtils.genQuartzTrigger(jobDetail, scheduleInfo);
         assertNotNull(trigger);
@@ -139,7 +139,7 @@ public class ScheduleUtilsTest extends BaseScheduleTest {
 
         // cron
         scheduleInfo = genDefaultCronScheduleInfo();
-        jobDetail = ScheduleUtils.genQuartzJobDetail(scheduleInfo, QuartzOfflineSyncJob.class);
+        jobDetail = ScheduleUtils.genQuartzJobDetail(scheduleInfo, MockJob.class);
 
         trigger = ScheduleUtils.genQuartzTrigger(jobDetail, scheduleInfo);
         assertNotNull(trigger);

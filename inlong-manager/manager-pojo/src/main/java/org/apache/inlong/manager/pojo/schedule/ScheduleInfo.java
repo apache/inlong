@@ -29,6 +29,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotNull;
 
 import java.sql.Timestamp;
+import java.util.Objects;
 
 @Data
 @Builder
@@ -78,5 +79,33 @@ public class ScheduleInfo {
     @ApiModelProperty(value = "Version number")
     @NotNull(groups = UpdateValidation.class, message = "version cannot be null")
     private Integer version;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ScheduleInfo that = (ScheduleInfo) o;
+        return Objects.equals(id, that.id) && Objects.equals(inlongGroupId, that.inlongGroupId)
+                && Objects.equals(scheduleType, that.scheduleType) && Objects.equals(scheduleUnit,
+                        that.scheduleUnit)
+                && Objects.equals(scheduleInterval, that.scheduleInterval)
+                && Objects.equals(startTime, that.startTime) && Objects.equals(endTime, that.endTime)
+                && Objects.equals(delayTime, that.delayTime) && Objects.equals(selfDepend,
+                        that.selfDepend)
+                && Objects.equals(taskParallelism, that.taskParallelism)
+                && Objects.equals(crontabExpression, that.crontabExpression) && Objects.equals(version,
+                        that.version);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, inlongGroupId, scheduleType, scheduleUnit, scheduleInterval, startTime, endTime,
+                delayTime,
+                selfDepend, taskParallelism, crontabExpression, version);
+    }
 
 }

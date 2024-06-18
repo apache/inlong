@@ -15,42 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.schedule.quartz;
+package org.apache.inlong.manager.schedule;
 
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
-import org.apache.inlong.manager.schedule.ScheduleEngineClient;
-import org.apache.inlong.manager.schedule.ScheduleEngineType;
 
-/**
- * Built-in implementation of schedule engine client corresponding with {@link QuartzScheduleEngine}.
- * QuartzScheduleClient simply invokes the {@link QuartzScheduleEngine} to register/unregister/update
- * schedule info instead of calling a remote schedule service.
- * */
-public class QuartzScheduleClient implements ScheduleEngineClient {
-
-    private final QuartzScheduleEngine scheduleEngine;
-
-    public QuartzScheduleClient(QuartzScheduleEngine scheduleEngine) {
-        this.scheduleEngine = scheduleEngine;
-    }
+public class NoopScheduleClient implements ScheduleEngineClient {
 
     @Override
     public boolean accept(String engineType) {
-        return ScheduleEngineType.QUARTZ.getType().equalsIgnoreCase(engineType);
+        return ScheduleEngineType.NONE.getType().equals(engineType);
     }
 
     @Override
     public boolean register(ScheduleInfo scheduleInfo) {
-        return scheduleEngine.handleRegister(scheduleInfo);
+        return true;
     }
 
     @Override
     public boolean unregister(String groupId) {
-        return scheduleEngine.handleUnregister(groupId);
+        return true;
     }
 
     @Override
     public boolean update(ScheduleInfo scheduleInfo) {
-        return scheduleEngine.handleUpdate(scheduleInfo);
+        return true;
     }
 }
