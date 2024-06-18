@@ -61,7 +61,7 @@ public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDes
 
     private final boolean innerFormat;
 
-    private SourceExactlyMetric sourceMetricData;
+    private SourceExactlyMetric sourceExactlyMetric;
 
     private final MetricOption metricOption;
 
@@ -83,7 +83,7 @@ public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDes
     @Override
     public void open() {
         if (metricOption != null) {
-            sourceMetricData = new SourceExactlyMetric(metricOption);
+            sourceExactlyMetric = new SourceExactlyMetric(metricOption);
         }
     }
 
@@ -97,7 +97,7 @@ public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDes
         List<RowData> rows = new ArrayList<>();
 
         MetricsCollector<RowData> metricsCollector =
-                new MetricsCollector<>(new ListCollector<>(rows), sourceMetricData);
+                new MetricsCollector<>(new ListCollector<>(rows), sourceExactlyMetric);
 
         // reset time stamp if the deserialize schema has not inner format
         if (!innerFormat) {
@@ -111,21 +111,21 @@ public class DynamicTubeMQTableDeserializationSchema implements DynamicTubeMQDes
 
     @Override
     public void flushAudit() {
-        if (sourceMetricData != null) {
-            sourceMetricData.flushAudit();
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.flushAudit();
         }
     }
     @Override
     public void setCurrentCheckpointId(long checkpointId) {
-        if (sourceMetricData != null) {
-            sourceMetricData.updateCurrentCheckpointId(checkpointId);
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateCurrentCheckpointId(checkpointId);
         }
     }
 
     @Override
     public void updateLastCheckpointId(Long checkpointId) {
-        if (sourceMetricData != null) {
-            sourceMetricData.updateLastCheckpointId(checkpointId);
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateLastCheckpointId(checkpointId);
         }
     }
 

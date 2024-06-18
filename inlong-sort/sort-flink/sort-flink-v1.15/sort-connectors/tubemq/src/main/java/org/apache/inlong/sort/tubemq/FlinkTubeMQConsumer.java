@@ -325,7 +325,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
     @Override
     public void snapshotState(FunctionSnapshotContext context) throws Exception {
         deserializationSchema.setCurrentCheckpointId(context.getCheckpointId());
-        // Make sure snapshot all tube partitions' offset to avoid inconsistency. See BUG-124774267 for details.
+        // Make sure snapshot all tube partitions' offset to avoid inconsistency.
         Map<String, ConsumeOffsetInfo> curConsumedPartitions = messagePullConsumer.getCurConsumedPartitions();
         for (Map.Entry<String, ConsumeOffsetInfo> consumedPartition : curConsumedPartitions.entrySet()) {
             ConsumeOffsetInfo consumeOffsetInfo = consumedPartition.getValue();
