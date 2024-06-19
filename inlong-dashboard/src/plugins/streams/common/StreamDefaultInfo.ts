@@ -224,11 +224,15 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
   dataSeparator: string;
   @FieldDecorator({
     type: 'select',
+    visible: values => {
+      return !Boolean(values.id);
+    },
     props: values => ({
-      disabled: Boolean(values.id),
-      filterOption: true,
+      showSearch: true,
+      optionFilterProp: 'label',
+      allowClear: true,
       options: {
-        requestTrigger: ['onOpen', 'onSearch'],
+        requestTrigger: ['onOpen'],
         requestService: keyword => ({
           url: '/template/list',
           method: 'POST',
