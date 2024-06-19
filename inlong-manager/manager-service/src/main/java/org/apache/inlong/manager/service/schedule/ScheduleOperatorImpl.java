@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.apache.inlong.manager.common.enums.ScheduleStatus.APPROVED;
 import static org.apache.inlong.manager.common.enums.ScheduleStatus.REGISTERED;
@@ -56,6 +57,7 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
     private ScheduleEngineClient scheduleEngineClient;
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public int saveOpt(ScheduleInfoRequest request, String operator) {
         // save schedule info first
         int scheduleInfoId = scheduleService.save(request, operator);
@@ -101,6 +103,7 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public Boolean updateOpt(ScheduleInfoRequest request, String operator) {
         // if the inlong group exist without schedule info
         // then, save the new schedule info when updating inlong group

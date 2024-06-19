@@ -69,7 +69,7 @@ public class OpenInLongGroupController {
     public Response<InlongGroupInfo> get(@PathVariable String groupId) {
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.INVALID_PARAMETER, "groupId cannot be blank");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(groupService.get(groupId, LoginUserUtils.getLoginUser()));
+        return Response.success(groupService.get(groupId));
     }
 
     @PostMapping(value = "/group/list")

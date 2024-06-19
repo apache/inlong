@@ -59,6 +59,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
+import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfoRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
@@ -216,11 +217,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // save schedule info for offline group
         if (DATASYNC_OFFLINE_MODE.equals(request.getInlongGroupMode())) {
-            try {
-                scheduleOperator.saveOpt(CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new), operator);
-            } catch (Exception e) {
-                LOGGER.warn("failed to save schedule info for groupId={}, error msg: {}", groupId, e.getMessage());
-            }
+            scheduleOperator.saveOpt(CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new), operator);
         }
 
         LOGGER.info("success to save inlong group for groupId={} by user={}", groupId, operator);
@@ -257,15 +254,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         if (entity == null) {
             return false;
         }
-        checkOfflineSyncScheduleExist(entity, groupId);
-        return true;
+        return isScheduleInfoExist(entity);
     }
 
-    private void checkOfflineSyncScheduleExist(InlongGroupEntity entity, String groupId) {
-        // check schedule info for offline sync
-        if (DATASYNC_OFFLINE_MODE.equals(entity.getInlongGroupMode()) && !scheduleOperator.scheduleInfoExist(groupId)) {
-            LOGGER.warn("Schedule info not found for group={}", groupId);
-        }
+    private boolean isScheduleInfoExist(InlongGroupEntity entity) {
+        return DATASYNC_OFFLINE_MODE.equals(entity.getInlongGroupMode())
+                && scheduleOperator.scheduleInfoExist(entity.getInlongGroupId());
     }
 
     @Override
@@ -287,29 +281,25 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         List<InlongStreamExtEntity> streamExtEntities = streamExtMapper.selectByRelatedId(groupId, null);
         BaseSortConf sortConf = buildSortConfig(streamExtEntities);
         groupInfo.setSortConf(sortConf);
-
+        // get schedule info and set into group info
+        addScheduleInfo(entity, groupInfo);
         LOGGER.debug("success to get inlong group for groupId={}", groupId);
         return groupInfo;
     }
 
-    @Override
-    public InlongGroupInfo get(String groupId, UserInfo opInfo) {
-        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
-        if (entity == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
-        }
+    private void addScheduleInfo(InlongGroupEntity entity, InlongGroupInfo groupInfo) {
+        checkOfflineSyncScheduleExist(entity);
+        ScheduleInfo scheduleInfo = scheduleOperator.getScheduleInfo(entity.getInlongGroupId());
+        CommonBeanUtils.copyProperties(scheduleInfo, groupInfo);
+    }
 
-        // query mq information
-        InlongGroupOperator instance = groupOperatorFactory.getInstance(entity.getMqType());
-        InlongGroupInfo groupInfo = instance.getFromEntity(entity);
-        // get all ext info
-        List<InlongGroupExtEntity> extEntityList = groupExtMapper.selectByGroupId(groupId);
-        List<InlongGroupExtInfo> extList = CommonBeanUtils.copyListProperties(extEntityList, InlongGroupExtInfo::new);
-        groupInfo.setExtList(extList);
-        List<InlongStreamExtEntity> streamExtEntities = streamExtMapper.selectByRelatedId(groupId, null);
-        BaseSortConf sortConf = buildSortConfig(streamExtEntities);
-        groupInfo.setSortConf(sortConf);
-        return groupInfo;
+    private void checkOfflineSyncScheduleExist(InlongGroupEntity entity) {
+        // check schedule info for offline sync
+        if (!isScheduleInfoExist(entity)) {
+            String errorMsg = String.format("Schedule info not found for groupId=%s", entity.getInlongGroupId());
+            LOGGER.error(errorMsg);
+            throw new BusinessException(ErrorCodeEnum.SCHEDULE_NOT_FOUND, errorMsg);
+        }
     }
 
     @Override
@@ -505,11 +495,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // save schedule info for offline group
         if (DATASYNC_OFFLINE_MODE.equals(request.getInlongGroupMode())) {
-            try {
-                scheduleOperator.updateOpt(CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new), operator);
-            } catch (Exception e) {
-                LOGGER.warn("failed to update schedule info for groupId={}, error msg: {}", groupId, e.getMessage());
-            }
+            scheduleOperator.updateOpt(CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new), operator);
         }
 
         LOGGER.info("success to update inlong group for groupId={} by user={}", groupId, operator);
