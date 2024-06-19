@@ -495,7 +495,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // save schedule info for offline group
         if (DATASYNC_OFFLINE_MODE.equals(request.getInlongGroupMode())) {
-            scheduleOperator.updateOpt(CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new), operator);
+            scheduleOperator.updateAndRegister(CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new),
+                    operator);
         }
 
         LOGGER.info("success to update inlong group for groupId={} by user={}", groupId, operator);

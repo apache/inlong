@@ -76,6 +76,14 @@ public class InLongSchedulerController {
         return Response.success(scheduleOperator.updateOpt(request, LoginUserUtils.getLoginUser().getName()));
     }
 
+    @RequestMapping(value = "/schedule/updateAndRegister", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.SCHEDULE)
+    @ApiOperation(value = "Update schedule info and register to schedule engine")
+    public Response<Boolean> updateAndRegister(
+            @Validated(UpdateValidation.class) @RequestBody ScheduleInfoRequest request) {
+        return Response.success(scheduleOperator.updateAndRegister(request, LoginUserUtils.getLoginUser().getName()));
+    }
+
     @RequestMapping(value = "/schedule/delete/{groupId}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Delete schedule info")
     @OperationLog(operation = OperationType.DELETE, operationTarget = OperationTarget.SCHEDULE)

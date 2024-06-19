@@ -66,6 +66,14 @@ public interface ScheduleOperator {
     Boolean updateOpt(ScheduleInfoRequest request, String operator);
 
     /**
+     * Register schedule information
+     * @param request schedule request that needs to be modified
+     * @param operator name of operator
+     * @return whether succeed
+     */
+    Boolean updateAndRegister(ScheduleInfoRequest request, String operator);
+
+    /**
      * Delete schedule info for groupId.
      * There are two places may delete schedule info:
      * - 1. delete an inlong group

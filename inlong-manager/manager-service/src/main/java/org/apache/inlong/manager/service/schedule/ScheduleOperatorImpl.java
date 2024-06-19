@@ -78,9 +78,7 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
         if (InlongConstants.REGISTERED.equalsIgnoreCase(scheduleStatusExt.getKeyValue())) {
             // change schedule state to approved
             scheduleService.updateStatus(scheduleInfo.getInlongGroupId(), APPROVED, operator);
-            getScheduleEngineClient().register(scheduleInfo);
-            // change schedule state to registered
-            scheduleService.updateStatus(scheduleInfo.getInlongGroupId(), REGISTERED, operator);
+            registerToScheduleEngine(scheduleInfo, operator, false);
             LOGGER.info("Register schedule info success for group {}", groupId);
         }
     }
@@ -117,12 +115,33 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
             return false;
         }
         // update schedule info
-        scheduleService.update(request, operator);
-        // update register to schedule engine
+        boolean res = scheduleService.update(request, operator);
+        // update status
         scheduleService.updateStatus(request.getInlongGroupId(), UPDATED, operator);
-        boolean res = getScheduleEngineClient().update(scheduleInfo);
-        scheduleService.updateStatus(request.getInlongGroupId(), REGISTERED, operator);
-        LOGGER.info("Update schedule info success for group {}", request.getInlongGroupId());
+        return res;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public Boolean updateAndRegister(ScheduleInfoRequest request, String operator) {
+        updateOpt(request, operator);
+        return registerToScheduleEngine(CommonBeanUtils.copyProperties(request, ScheduleInfo::new), operator, true);
+    }
+
+    /**
+     * There are three places may trigger resister schedule info to schedule engine:
+     * - 1. new group approved with schedule info
+     * - 2. new schedule info for an exist approved inlong group added
+     * - 3. group's schedule info updated
+     * */
+    private Boolean registerToScheduleEngine(ScheduleInfo scheduleInfo, String operator, boolean isUpdate) {
+        // update(un-register and then register) or register
+        boolean res = isUpdate ? getScheduleEngineClient().update(scheduleInfo)
+                : getScheduleEngineClient().register(scheduleInfo);
+        // update status to REGISTERED
+        scheduleService.updateStatus(scheduleInfo.getInlongGroupId(), REGISTERED, operator);
+        LOGGER.info("{} schedule info success for group {}",
+                isUpdate ? "Update" : "Register", scheduleInfo.getInlongGroupId());
         return res;
     }
 
@@ -150,10 +169,7 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
         ScheduleInfo scheduleInfo = getScheduleInfo(groupId);
         // change schedule state to approved
         scheduleService.updateStatus(groupId, APPROVED, null);
-        getScheduleEngineClient().register(scheduleInfo);
-        // change schedule state to registered
-        scheduleService.updateStatus(groupId, REGISTERED, null);
-        return true;
+        return registerToScheduleEngine(scheduleInfo, null, false);
     }
 
 }

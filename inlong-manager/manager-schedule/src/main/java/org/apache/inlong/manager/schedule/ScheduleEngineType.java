@@ -30,13 +30,4 @@ public enum ScheduleEngineType {
     ScheduleEngineType(String type) {
         this.type = type;
     }
-
-    public static ScheduleEngineType fromCode(String type) {
-        for (ScheduleEngineType scheduleEngineType : ScheduleEngineType.values()) {
-            if (scheduleEngineType.type.equalsIgnoreCase(type)) {
-                return scheduleEngineType;
-            }
-        }
-        return null;
-    }
 }
