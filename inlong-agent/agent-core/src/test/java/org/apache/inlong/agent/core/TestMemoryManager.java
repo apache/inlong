@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.core.task;
+package org.apache.inlong.agent.core;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.core.task.MemoryManager;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;

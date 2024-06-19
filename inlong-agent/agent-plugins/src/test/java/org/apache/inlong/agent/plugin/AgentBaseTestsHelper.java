@@ -81,21 +81,21 @@ public class AgentBaseTestsHelper {
     }
 
     public TaskProfile getTaskProfile(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
-            TaskStateEnum state, String cycleUnit) {
-        DataConfig dataConfig = getDataConfig(taskId, pattern, retry, startTime, endTime, state, cycleUnit);
+            TaskStateEnum state, String cycleUnit, String timeZone) {
+        DataConfig dataConfig = getDataConfig(taskId, pattern, retry, startTime, endTime, state, cycleUnit, timeZone);
         TaskProfile profile = TaskProfile.convertToTaskProfile(dataConfig);
         return profile;
     }
 
     private DataConfig getDataConfig(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
-            TaskStateEnum state, String cycleUnit) {
+            TaskStateEnum state, String cycleUnit, String timeZone) {
         DataConfig dataConfig = new DataConfig();
         dataConfig.setInlongGroupId("testGroupId");
         dataConfig.setInlongStreamId("testStreamId");
         dataConfig.setDataReportType(1);
         dataConfig.setTaskType(3);
         dataConfig.setTaskId(taskId);
-        dataConfig.setTimeZone("GMT-8:00");
+        dataConfig.setTimeZone(timeZone);
         dataConfig.setState(state.ordinal());
         FileTaskConfig fileTaskConfig = new FileTaskConfig();
         fileTaskConfig.setPattern(pattern);

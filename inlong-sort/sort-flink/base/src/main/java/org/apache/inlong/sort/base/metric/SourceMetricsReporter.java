@@ -15,15 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.sort.base.metric;
 
-/**
- * Audit query source
- */
-public enum AuditQuerySource {
-    /**
-     * MYSQL source of query
-     */
-    MYSQL,
+public interface SourceMetricsReporter {
+
+    void outputMetricsWithEstimate(Object data, long dataTime);
 
 }

@@ -252,7 +252,7 @@ public abstract class AbstractSource implements Source {
             if (!offerSuc) {
                 MemoryManager.getInstance().release(AGENT_GLOBAL_READER_QUEUE_PERMIT, sourceData.getData().length);
             }
-            LOGGER.debug("Read {} from source {}", sourceData.getData(), inlongGroupId);
+            LOGGER.debug("Put in source queue {} {}", new String(sourceData.getData()), inlongGroupId);
         } catch (InterruptedException e) {
             MemoryManager.getInstance().release(AGENT_GLOBAL_READER_QUEUE_PERMIT, sourceData.getData().length);
             LOGGER.error("fetchData offer failed", e);
@@ -314,8 +314,10 @@ public abstract class AbstractSource implements Source {
             LOGGER.warn("poll {} data get interrupted.", instanceId);
         }
         if (sourceData == null) {
+            LOGGER.debug("Read from source queue null {}", inlongGroupId);
             return null;
         }
+        LOGGER.debug("Read from source queue {} {}", new String(sourceData.getData()), inlongGroupId);
         MemoryManager.getInstance().release(AGENT_GLOBAL_READER_QUEUE_PERMIT, sourceData.getData().length);
         return createMessage(sourceData);
     }

@@ -15,10 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.store;
+package org.apache.inlong.agent.plugin.store;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.store.KeyValueEntity;
+import org.apache.inlong.agent.store.Store;
 
 import com.google.gson.Gson;
 import org.rocksdb.AbstractImmutableNativeReference;

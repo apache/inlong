@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.core.task;
+package org.apache.inlong.agent.plugin.task;
 
 import org.apache.inlong.agent.conf.TaskProfile;
-import org.apache.inlong.agent.core.AgentBaseTestsHelper;
+import org.apache.inlong.agent.core.task.TaskManager;
+import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.store.TaskStore;
 import org.apache.inlong.common.enums.TaskStateEnum;
 
@@ -58,7 +59,7 @@ public class TestTaskManager {
             TaskStore taskStore = manager.getTaskStore();
             for (int i = 1; i <= 10; i++) {
                 TaskProfile taskProfile = helper.getTaskProfile(i, pattern, false, 0L, 0L, TaskStateEnum.RUNNING,
-                        "GMT+8:00");
+                        "D", "GMT+8:00");
                 taskProfile.setTaskClass(MockTask.class.getCanonicalName());
                 taskStore.storeTask(taskProfile);
             }
@@ -74,7 +75,7 @@ public class TestTaskManager {
         }
 
         TaskProfile taskProfile1 = helper.getTaskProfile(100, pattern, false, 0L, 0L, TaskStateEnum.RUNNING,
-                "GMT+8:00");
+                "D", "GMT+8:00");
         String taskId1 = taskProfile1.getTaskId();
         taskProfile1.setTaskClass(MockTask.class.getCanonicalName());
         List<TaskProfile> taskProfiles1 = new ArrayList<>();
@@ -99,7 +100,7 @@ public class TestTaskManager {
 
         // test delete
         TaskProfile taskProfile2 = helper.getTaskProfile(200, pattern, false, 0L, 0L, TaskStateEnum.RUNNING,
-                "GMT+8:00");
+                "D", "GMT+8:00");
         taskProfile2.setTaskClass(MockTask.class.getCanonicalName());
         List<TaskProfile> taskProfiles2 = new ArrayList<>();
         taskProfiles2.add(taskProfile2);

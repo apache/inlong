@@ -173,8 +173,8 @@ func WithMetricsRegistry(reg prometheus.Registerer) Option {
 	}
 }
 
-// WithAtuh sets Atuh
-func WithAtuh(auth Auth) Option {
+// WithAuth sets Auth
+func WithAuth(auth Auth) Option {
 	return func(o *Options) {
 		if auth == nil {
 			return
