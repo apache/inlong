@@ -23,6 +23,7 @@ import org.apache.inlong.manager.schedule.exception.QuartzScheduleException;
 
 import com.google.common.annotations.VisibleForTesting;
 import lombok.Getter;
+import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -31,6 +32,7 @@ import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -43,6 +45,7 @@ import static org.apache.inlong.manager.schedule.util.ScheduleUtils.genQuartzTri
  * the register/unregister/update requests from {@link QuartzScheduleClient}
  * */
 @Getter
+@Service
 public class QuartzScheduleEngine implements ScheduleEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QuartzScheduleEngine.class);
@@ -90,7 +93,7 @@ public class QuartzScheduleEngine implements ScheduleEngine {
     }
 
     @VisibleForTesting
-    public boolean handleRegister(ScheduleInfo scheduleInfo, Class<? extends QuartzOfflineSyncJob> clz) {
+    public boolean handleRegister(ScheduleInfo scheduleInfo, Class<? extends Job> clz) {
         if (scheduledJobSet.contains(scheduleInfo.getInlongGroupId())) {
             throw new QuartzScheduleException("Group " + scheduleInfo.getInlongGroupId() + " is already registered");
         }
@@ -108,19 +111,19 @@ public class QuartzScheduleEngine implements ScheduleEngine {
 
     /**
      * Handle schedule unregister.
-     * @param scheduleInfo schedule info to unregister
+     * @param groupId group to un-register schedule info
      * */
     @Override
-    public boolean handleUnregister(ScheduleInfo scheduleInfo) {
-        if (scheduledJobSet.contains(scheduleInfo.getInlongGroupId())) {
+    public boolean handleUnregister(String groupId) {
+        if (scheduledJobSet.contains(groupId)) {
             try {
-                scheduler.deleteJob(new JobKey(scheduleInfo.getInlongGroupId()));
+                scheduler.deleteJob(new JobKey(groupId));
             } catch (SchedulerException e) {
                 throw new QuartzScheduleException(e.getMessage());
             }
         }
-        scheduledJobSet.remove(scheduleInfo.getInlongGroupId());
-        LOGGER.info("Un-registered schedule info for {}", scheduleInfo.getInlongGroupId());
+        scheduledJobSet.remove(groupId);
+        LOGGER.info("Un-registered schedule info for {}", groupId);
         return true;
     }
 
@@ -134,8 +137,8 @@ public class QuartzScheduleEngine implements ScheduleEngine {
     }
 
     @VisibleForTesting
-    public boolean handleUpdate(ScheduleInfo scheduleInfo, Class<? extends QuartzOfflineSyncJob> clz) {
-        handleUnregister(scheduleInfo);
+    public boolean handleUpdate(ScheduleInfo scheduleInfo, Class<? extends Job> clz) {
+        handleUnregister(scheduleInfo.getInlongGroupId());
         handleRegister(scheduleInfo, clz);
         LOGGER.info("Updated schedule info for {}", scheduleInfo.getInlongGroupId());
         return false;

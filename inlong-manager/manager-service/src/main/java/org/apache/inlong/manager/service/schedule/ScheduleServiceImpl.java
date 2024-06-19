@@ -35,7 +35,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+
+import static org.apache.inlong.manager.common.enums.ScheduleStatus.APPROVED;
+import static org.apache.inlong.manager.common.enums.ScheduleStatus.DELETED;
+import static org.apache.inlong.manager.common.enums.ScheduleStatus.NEW;
+import static org.apache.inlong.manager.common.enums.ScheduleStatus.REGISTERED;
+import static org.apache.inlong.manager.common.enums.ScheduleStatus.UPDATED;
 
 @Service
 public class ScheduleServiceImpl implements ScheduleService {
@@ -46,6 +57,9 @@ public class ScheduleServiceImpl implements ScheduleService {
     private InlongGroupEntityMapper groupMapper;
     @Autowired
     private ScheduleEntityMapper scheduleEntityMapper;
+
+    // finite state machine
+    private Map<ScheduleStatus, Set<ScheduleStatus>> fsm;
 
     @Override
     public int save(ScheduleInfoRequest request, String operator) {
@@ -62,7 +76,8 @@ public class ScheduleServiceImpl implements ScheduleService {
         scheduleEntity.setStatus(ScheduleStatus.NEW.getCode());
         scheduleEntity.setCreator(operator);
         scheduleEntity.setModifier(operator);
-        return scheduleEntityMapper.insert(scheduleEntity);
+        scheduleEntityMapper.insert(scheduleEntity);
+        return scheduleEntity.getId();
     }
 
     @Override
@@ -95,6 +110,43 @@ public class ScheduleServiceImpl implements ScheduleService {
         updateScheduleInfo(entity, errMsg);
         LOGGER.info("success to update schedule info for groupId={}", groupId);
         return true;
+    }
+
+    @Override
+    public Boolean updateStatus(String groupId, ScheduleStatus newStatus, String operator) {
+        LOGGER.debug("begin to update schedule status for groupId={}", groupId);
+        ScheduleEntity entity = getScheduleEntity(groupId);
+        ScheduleStatus preStatus = ScheduleStatus.forCode(entity.getStatus());
+        if (!isAllowedTransition(preStatus, newStatus)) {
+            String errorMsg = String.format("Schedule status transition is not allowed from %s to %s for group %s",
+                    preStatus, newStatus, groupId);
+            LOGGER.error(errorMsg);
+            throw new BusinessException(ErrorCodeEnum.SCHEDULE_STATUS_TRANSITION_NOT_ALLOWED);
+        }
+        entity.setStatus(newStatus.getCode());
+        entity.setModifier(operator);
+        updateScheduleInfo(entity,
+                String.format("update schedule status from %s to %s failed for groupId=%s",
+                        preStatus.getCode(), newStatus.getCode(), entity.getInlongGroupId()));
+        LOGGER.info("success to update schedule status from {} to {} for groupId={}",
+                preStatus.getCode(), newStatus.getCode(), groupId);
+        return true;
+    }
+
+    private void initFSMIfNeed() {
+        if (fsm != null) {
+            return;
+        }
+        fsm = new HashMap<>();
+        fsm.put(NEW, new HashSet<>(Arrays.asList(APPROVED, DELETED)));
+        fsm.put(APPROVED, new HashSet<>(Arrays.asList(REGISTERED, DELETED)));
+        fsm.put(REGISTERED, new HashSet<>(Arrays.asList(UPDATED, DELETED)));
+        fsm.put(UPDATED, new HashSet<>(Arrays.asList(REGISTERED, DELETED)));
+    }
+
+    private boolean isAllowedTransition(ScheduleStatus preStatus, ScheduleStatus newStatus) {
+        initFSMIfNeed();
+        return fsm.get(preStatus).contains(newStatus);
     }
 
     @Override

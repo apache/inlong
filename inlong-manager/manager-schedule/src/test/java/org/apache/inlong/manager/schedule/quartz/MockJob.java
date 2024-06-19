@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.schedule.quartz;
 
+import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -25,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MockJob extends QuartzOfflineSyncJob {
+public class MockJob implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MockJob.class);
 
