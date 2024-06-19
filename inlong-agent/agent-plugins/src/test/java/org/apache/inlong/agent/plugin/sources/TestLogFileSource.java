@@ -77,7 +77,8 @@ public class TestLogFileSource {
     private LogFileSource getSource(int taskId, long offset) {
         try {
             String pattern = helper.getTestRootDir() + "/YYYYMMDD.log_[0-9]+";
-            TaskProfile taskProfile = helper.getTaskProfile(taskId, pattern, false, 0L, 0L, TaskStateEnum.RUNNING, "D");
+            TaskProfile taskProfile = helper.getTaskProfile(taskId, pattern, false, 0L, 0L, TaskStateEnum.RUNNING, "D",
+                    "GMT+8:00");
             String fileName = LOADER.getResource("test/20230928_1.txt").getPath();
             InstanceProfile instanceProfile = taskProfile.createInstanceProfile("",
                     fileName, taskProfile.getCycleUnit(), "20230928", AgentUtils.getCurrentTime());
@@ -123,15 +124,20 @@ public class TestLogFileSource {
             srcLen += check[i].getBytes(StandardCharsets.UTF_8).length;
         }
         LogFileSource source = getSource(1, 0);
-        int cnt = 0;
         Message msg = source.read();
         int readLen = 0;
-        while (msg != null) {
-            readLen += msg.getBody().length;
-            String record = new String(msg.getBody());
-            Assert.assertTrue(record.compareTo(check[cnt]) == 0);
+        int cnt = 0;
+        while (cnt < check.length) {
+            if (msg != null) {
+                readLen += msg.getBody().length;
+                String record = new String(msg.getBody());
+                Assert.assertEquals(0, record.compareTo(check[cnt]));
+                cnt++;
+            } else {
+                AgentUtils.silenceSleepInSeconds(1);
+            }
+            MemoryManager.getInstance().printAll();
             msg = source.read();
-            cnt++;
         }
         await().atMost(30, TimeUnit.SECONDS).until(() -> source.sourceFinish());
         source.destroy();
