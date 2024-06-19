@@ -19,6 +19,7 @@ package org.apache.inlong.dataproxy.metrics.audit;
 
 import org.apache.inlong.audit.AuditIdEnum;
 import org.apache.inlong.audit.AuditOperator;
+import org.apache.inlong.audit.entity.AuditComponent;
 import org.apache.inlong.audit.util.AuditConfig;
 import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.msg.AttributeConstants;
@@ -49,8 +50,15 @@ public class AuditUtils {
     public static void initAudit() {
         if (CommonConfigHolder.getInstance().isEnableAudit()) {
             // AuditProxy
-            AuditOperator.getInstance().setAuditProxy(
-                    CommonConfigHolder.getInstance().getAuditProxys());
+            if (CommonConfigHolder.getInstance().isEnableAuditProxysDiscoveryFromManager()) {
+                AuditOperator.getInstance().setAuditProxy(AuditComponent.DATAPROXY,
+                        CommonConfigHolder.getInstance().getManagerHosts().get(0),
+                        CommonConfigHolder.getInstance().getManagerAuthSecretId(),
+                        CommonConfigHolder.getInstance().getManagerAuthSecretKey());
+            } else {
+                AuditOperator.getInstance().setAuditProxy(
+                        CommonConfigHolder.getInstance().getAuditProxys());
+            }
             // AuditConfig
             AuditConfig auditConfig = new AuditConfig(
                     CommonConfigHolder.getInstance().getAuditFilePath(),
