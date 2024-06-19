@@ -25,7 +25,7 @@ clusterTag=$(cat $installerConfigFile|grep -i 'agent.cluster.tag'|awk -F = '{pri
 clusterName=$(cat $installerConfigFile|grep -i 'agent.cluster.name'|awk -F = '{print $2}')
 tdwSecurityUrl=$(cat $installerConfigFile|grep -i 'tdw.security.url'|awk -F = '{print $2}')
 auditFlag=$(cat $installerConfigFile|grep -i 'audit.enable'|awk -F = '{print $2}')
-auditProxy=$(cat $installerConfigFile|grep -i 'audit.proxys'|awk -F = '{print $2}')
+auditProxy=$(cat $installerConfigFile|grep -i 'audit.proxys'|grep -v '#'|awk -F = '{print $2}')
 
 if [ ${#managerAddr} -gt 0 ]; then
   sed -i "/agent.manager.addr=*/c\agent.manager.addr=$managerAddr" $agentConfigFile
@@ -64,7 +64,8 @@ else
 fi
 
 if [ ${#auditProxy} -gt 0 ]; then
-  sed -i "/audit.proxys.default=*/c\audit.proxys=$auditProxy" $agentConfigFile
+  sed -i "/audit.proxys=*/c\audit.proxys=$auditProxy" $agentConfigFile
 else
+  sed -i "/audit.proxys=*/c\# audit.proxys=$auditProxy" $agentConfigFile
   echo "audit proxy empty"
 fi
