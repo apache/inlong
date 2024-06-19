@@ -21,11 +21,11 @@ import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.schedule.ScheduleType;
 import org.apache.inlong.manager.schedule.ScheduleUnit;
 import org.apache.inlong.manager.schedule.exception.QuartzScheduleException;
-import org.apache.inlong.manager.schedule.quartz.QuartzOfflineSyncJob;
 
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
+import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.ScheduleBuilder;
@@ -42,7 +42,7 @@ import java.util.Date;
  * */
 public class ScheduleUtils {
 
-    public static JobDetail genQuartzJobDetail(ScheduleInfo scheduleInfo, Class<? extends QuartzOfflineSyncJob> clz) {
+    public static JobDetail genQuartzJobDetail(ScheduleInfo scheduleInfo, Class<? extends Job> clz) {
         return JobBuilder.newJob(clz)
                 .withIdentity(scheduleInfo.getInlongGroupId())
                 .build();

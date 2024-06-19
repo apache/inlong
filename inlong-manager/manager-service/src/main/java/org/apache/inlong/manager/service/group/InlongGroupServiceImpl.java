@@ -59,6 +59,8 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
+import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
+import org.apache.inlong.manager.pojo.schedule.ScheduleInfoRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf.SortType;
@@ -72,6 +74,7 @@ import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
+import org.apache.inlong.manager.service.schedule.ScheduleOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.SourceOperatorFactory;
 import org.apache.inlong.manager.service.source.StreamSourceOperator;
@@ -111,6 +114,7 @@ import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_CLUSTER_TAG
 import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_MQ_RESOURCE;
 import static org.apache.inlong.common.constant.ClusterSwitch.CLUSTER_SWITCH_TIME;
 import static org.apache.inlong.common.constant.ClusterSwitch.FINISH_SWITCH_INTERVAL_MIN;
+import static org.apache.inlong.manager.common.consts.InlongConstants.DATASYNC_OFFLINE_MODE;
 import static org.apache.inlong.manager.pojo.common.PageRequest.MAX_PAGE_SIZE;
 import static org.apache.inlong.manager.workflow.event.process.ProcessEventListener.EXECUTOR_SERVICE;
 
@@ -157,6 +161,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     private InlongRoleService inlongRoleService;
     @Autowired
     private TenantUserRoleEntityMapper tenantUserRoleEntityMapper;
+
+    @Autowired
+    ScheduleOperator scheduleOperator;
 
     /**
      * Check whether modification is supported under the current group status, and which fields can be modified.
@@ -208,6 +215,11 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // save ext info
         this.saveOrUpdateExt(groupId, request.getExtList());
 
+        // save schedule info for offline group
+        if (DATASYNC_OFFLINE_MODE.equals(request.getInlongGroupMode())) {
+            scheduleOperator.saveOpt(CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new), operator);
+        }
+
         LOGGER.info("success to save inlong group for groupId={} by user={}", groupId, operator);
         return groupId;
     }
@@ -239,7 +251,15 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         LOGGER.debug("success to check inlong group {}, exist? {}", groupId, entity != null);
-        return entity != null;
+        if (entity == null) {
+            return false;
+        }
+        return isScheduleInfoExist(entity);
+    }
+
+    private boolean isScheduleInfoExist(InlongGroupEntity entity) {
+        return DATASYNC_OFFLINE_MODE.equals(entity.getInlongGroupMode())
+                && scheduleOperator.scheduleInfoExist(entity.getInlongGroupId());
     }
 
     @Override
@@ -261,9 +281,27 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         List<InlongStreamExtEntity> streamExtEntities = streamExtMapper.selectByRelatedId(groupId, null);
         BaseSortConf sortConf = buildSortConfig(streamExtEntities);
         groupInfo.setSortConf(sortConf);
-
+        if (DATASYNC_OFFLINE_MODE.equals(entity.getInlongGroupMode())) {
+            // get schedule info and set into group info
+            addScheduleInfo(entity, groupInfo);
+        }
         LOGGER.debug("success to get inlong group for groupId={}", groupId);
         return groupInfo;
+    }
+
+    private void addScheduleInfo(InlongGroupEntity entity, InlongGroupInfo groupInfo) {
+        checkOfflineSyncScheduleExist(entity);
+        ScheduleInfo scheduleInfo = scheduleOperator.getScheduleInfo(entity.getInlongGroupId());
+        CommonBeanUtils.copyProperties(scheduleInfo, groupInfo);
+    }
+
+    private void checkOfflineSyncScheduleExist(InlongGroupEntity entity) {
+        // check schedule info for offline sync
+        if (!isScheduleInfoExist(entity)) {
+            String errorMsg = String.format("Schedule info not found for groupId=%s", entity.getInlongGroupId());
+            LOGGER.error(errorMsg);
+            throw new BusinessException(ErrorCodeEnum.SCHEDULE_NOT_FOUND, errorMsg);
+        }
     }
 
     @Override
@@ -457,6 +495,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // save ext info
         this.saveOrUpdateExt(groupId, request.getExtList());
 
+        // save schedule info for offline group
+        if (DATASYNC_OFFLINE_MODE.equals(request.getInlongGroupMode())) {
+            scheduleOperator.updateAndRegister(CommonBeanUtils.copyProperties(request, ScheduleInfoRequest::new),
+                    operator);
+        }
+
         LOGGER.info("success to update inlong group for groupId={} by user={}", groupId, operator);
         return groupId;
     }
@@ -611,6 +655,15 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // logically delete the associated extension info
         groupExtMapper.logicDeleteAllByGroupId(groupId);
+
+        // remove schedule
+        if (DATASYNC_OFFLINE_MODE.equals(entity.getInlongGroupMode())) {
+            try {
+                scheduleOperator.deleteByGroupIdOpt(entity.getInlongGroupId(), operator);
+            } catch (Exception e) {
+                LOGGER.warn("failed to delete schedule info for groupId={}, error msg: {}", groupId, e.getMessage());
+            }
+        }
 
         LOGGER.info("success to delete group and group ext property for groupId={} by user={}", groupId, operator);
         return true;
