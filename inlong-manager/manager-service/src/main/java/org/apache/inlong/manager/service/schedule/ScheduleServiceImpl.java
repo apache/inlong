@@ -139,7 +139,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
         fsm = new HashMap<>();
         fsm.put(NEW, new HashSet<>(Arrays.asList(APPROVED, DELETED)));
-        fsm.put(APPROVED, new HashSet<>(Arrays.asList(REGISTERED, UPDATED, DELETED)));
+        fsm.put(APPROVED, new HashSet<>(Arrays.asList(REGISTERED, DELETED)));
         fsm.put(REGISTERED, new HashSet<>(Arrays.asList(UPDATED, DELETED)));
         fsm.put(UPDATED, new HashSet<>(Arrays.asList(REGISTERED, DELETED)));
     }
