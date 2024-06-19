@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.iceberg.sink;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.SinkExactlyMetric;
+
 import com.codahale.metrics.SlidingWindowReservoir;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.dropwizard.metrics.DropwizardHistogramWrapper;
@@ -24,8 +27,6 @@ import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Histogram;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.iceberg.io.WriteResult;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.SinkExactlyMetric;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
