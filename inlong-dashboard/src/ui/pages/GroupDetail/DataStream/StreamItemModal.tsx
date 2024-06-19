@@ -185,8 +185,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
     {
       manual: true,
       onSuccess: result => {
-        savedData.fieldList = result['fieldList'];
-        form.setFieldsValue(dataToValues(savedData));
+        const temp = { ...savedData, fieldList: result.fieldList };
+        form.setFieldsValue(dataToValues(temp));
       },
     },
   );

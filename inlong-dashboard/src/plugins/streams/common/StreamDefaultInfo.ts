@@ -224,7 +224,8 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
   dataSeparator: string;
   @FieldDecorator({
     type: 'select',
-    props: {
+    props: values => ({
+      disabled: Boolean(values.id),
       filterOption: true,
       options: {
         requestTrigger: ['onOpen', 'onSearch'],
@@ -247,7 +248,7 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
           },
         },
       },
-    },
+    }),
     rules: [],
   })
   @I18n('meta.Stream.SourceDataField.Template')
