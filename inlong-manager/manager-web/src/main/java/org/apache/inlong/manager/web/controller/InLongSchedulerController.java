@@ -25,7 +25,7 @@ import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfoRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
-import org.apache.inlong.manager.service.schedule.ScheduleService;
+import org.apache.inlong.manager.service.schedule.ScheduleOperator;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -45,35 +45,43 @@ import org.springframework.web.bind.annotation.RestController;
 public class InLongSchedulerController {
 
     @Autowired
-    private ScheduleService scheduleService;
+    private ScheduleOperator scheduleOperator;
 
     @RequestMapping(value = "/schedule/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE, operationTarget = OperationTarget.SCHEDULE)
     @ApiOperation(value = "Save schedule info")
     public Response<Integer> save(@RequestBody ScheduleInfoRequest request) {
-        int result = scheduleService.save(request, LoginUserUtils.getLoginUser().getName());
-        return Response.success(result);
+        int scheduleInfoId = scheduleOperator.saveOpt(request, LoginUserUtils.getLoginUser().getName());
+        return Response.success(scheduleInfoId);
     }
 
     @RequestMapping(value = "/schedule/exist/{groupId}", method = RequestMethod.GET)
     @ApiOperation(value = "Is the schedule info exists for inlong group")
     @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true)
     public Response<Boolean> exist(@PathVariable String groupId) {
-        return Response.success(scheduleService.exist(groupId));
+        return Response.success(scheduleOperator.scheduleInfoExist(groupId));
     }
 
     @RequestMapping(value = "/schedule/get", method = RequestMethod.GET)
     @ApiOperation(value = "Get schedule info for inlong group")
     @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true)
     public Response<ScheduleInfo> get(@RequestParam String groupId) {
-        return Response.success(scheduleService.get(groupId));
+        return Response.success(scheduleOperator.getScheduleInfo(groupId));
     }
 
     @RequestMapping(value = "/schedule/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.SCHEDULE)
     @ApiOperation(value = "Update schedule info")
     public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody ScheduleInfoRequest request) {
-        return Response.success(scheduleService.update(request, LoginUserUtils.getLoginUser().getName()));
+        return Response.success(scheduleOperator.updateOpt(request, LoginUserUtils.getLoginUser().getName()));
+    }
+
+    @RequestMapping(value = "/schedule/updateAndRegister", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.UPDATE, operationTarget = OperationTarget.SCHEDULE)
+    @ApiOperation(value = "Update schedule info and register to schedule engine")
+    public Response<Boolean> updateAndRegister(
+            @Validated(UpdateValidation.class) @RequestBody ScheduleInfoRequest request) {
+        return Response.success(scheduleOperator.updateAndRegister(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/schedule/delete/{groupId}", method = RequestMethod.DELETE)
@@ -82,7 +90,7 @@ public class InLongSchedulerController {
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
     public Response<Boolean> delete(@PathVariable String groupId) {
         String operator = LoginUserUtils.getLoginUser().getName();
-        return Response.success(scheduleService.deleteByGroupId(groupId, operator));
+        return Response.success(scheduleOperator.deleteByGroupIdOpt(groupId, operator));
     }
 
 }

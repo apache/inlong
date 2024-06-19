@@ -37,9 +37,9 @@ public interface ScheduleEngine {
 
     /**
      * Handle schedule unregister.
-     * @param scheduleInfo schedule info to unregister
+     * @param groupId group to un-register schedule info
      * */
-    boolean handleUnregister(ScheduleInfo scheduleInfo);
+    boolean handleUnregister(String groupId);
 
     /**
      * Handle schedule update.

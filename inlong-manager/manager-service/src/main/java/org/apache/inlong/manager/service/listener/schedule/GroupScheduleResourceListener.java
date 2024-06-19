@@ -24,11 +24,13 @@ import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.service.schedule.ScheduleOperator;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.ScheduleOperateListener;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,6 +38,9 @@ import java.util.List;
 @Service
 @Slf4j
 public class GroupScheduleResourceListener implements ScheduleOperateListener {
+
+    @Autowired
+    private ScheduleOperator scheduleOperator;
 
     @Override
     public TaskEvent event() {
@@ -68,7 +73,8 @@ public class GroupScheduleResourceListener implements ScheduleOperateListener {
         final String groupId = groupInfo.getInlongGroupId();
         log.info("begin to register schedule info for groupId={}", groupId);
 
-        // todo: register schedule info to schedule service
+        // handle schedule info after group approved
+        scheduleOperator.handleGroupApprove(groupId);
 
         // after register schedule info successfully, add ext property to group ext info
         saveInfo(groupInfo, InlongConstants.REGISTER_SCHEDULE_STATUS,

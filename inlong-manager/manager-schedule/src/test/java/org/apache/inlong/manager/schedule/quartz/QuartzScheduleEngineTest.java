@@ -103,7 +103,7 @@ public class QuartzScheduleEngineTest extends BaseScheduleTest {
         MockJob.countDownLatch.await();
 
         // un-register before trigger finalized
-        scheduleEngine.handleUnregister(scheduleInfo);
+        scheduleEngine.handleUnregister(scheduleInfo.getInlongGroupId());
         // not job exist after un-register
         assertEquals(0, scheduleEngine.getScheduledJobSet().size());
         exist = scheduleEngine.getScheduler().checkExists(jobKey);

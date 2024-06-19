@@ -17,35 +17,17 @@
 
 package org.apache.inlong.manager.schedule;
 
-import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
+import lombok.Getter;
 
-/**
- * Interface for schedule engine client which responses for communicating with schedule engine.
- * */
-public interface ScheduleEngineClient {
+@Getter
+public enum ScheduleEngineType {
 
-    /**
-     * Check whether scheduleEngine type is matched.
-     * */
-    boolean accept(String engineType);
+    NONE("None"),
+    QUARTZ("Quartz");
 
-    /**
-     * Register schedule to schedule engine.
-     * @param scheduleInfo schedule info to register
-     * */
-    boolean register(ScheduleInfo scheduleInfo);
+    private final String type;
 
-    /**
-     * Un-register schedule from schedule engine.
-     *
-     * @param groupId schedule info to unregister
-     */
-    boolean unregister(String groupId);
-
-    /**
-     * Update schedule from schedule engine.
-     * @param scheduleInfo schedule info to update
-     * */
-    boolean update(ScheduleInfo scheduleInfo);
-
+    ScheduleEngineType(String type) {
+        this.type = type;
+    }
 }
