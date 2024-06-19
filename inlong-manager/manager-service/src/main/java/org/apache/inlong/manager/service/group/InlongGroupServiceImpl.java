@@ -281,8 +281,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         List<InlongStreamExtEntity> streamExtEntities = streamExtMapper.selectByRelatedId(groupId, null);
         BaseSortConf sortConf = buildSortConfig(streamExtEntities);
         groupInfo.setSortConf(sortConf);
-        // get schedule info and set into group info
-        addScheduleInfo(entity, groupInfo);
+        if (DATASYNC_OFFLINE_MODE.equals(entity.getInlongGroupMode())) {
+            // get schedule info and set into group info
+            addScheduleInfo(entity, groupInfo);
+        }
         LOGGER.debug("success to get inlong group for groupId={}", groupId);
         return groupInfo;
     }

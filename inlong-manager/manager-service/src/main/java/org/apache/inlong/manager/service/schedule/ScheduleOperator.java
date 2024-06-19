@@ -31,7 +31,8 @@ public interface ScheduleOperator {
      * Save schedule info.
      * There are two places may save schedule info:
      * - 1. create new inlong group with schedule info
-     * - 2. create new schedule info directly(inlong group has been already exist)
+     * - 2. create new schedule info directly(inlong group has been already exist), in this situation, we should
+     *      register schedule info to schedule engine if group has been approved.
      * @param request schedule request need to save
      * @param operator name of operator
      * @return schedule info id in backend storage
