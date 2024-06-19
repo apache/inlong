@@ -33,8 +33,8 @@ public class MetricsCollector<T> implements TimestampedCollector<T> {
 
     private final SourceMetricsReporter sourceMetricsReporter;
     public MetricsCollector(Collector<T> collector,
-            SourceMetricsReporter sourceMetricData) {
-        this.sourceMetricsReporter = sourceMetricData;
+            SourceMetricsReporter sourceMetricsReporter) {
+        this.sourceMetricsReporter = sourceMetricsReporter;
         this.collector = collector;
     }
 
