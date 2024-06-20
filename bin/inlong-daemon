@@ -83,10 +83,10 @@ start_inlong_audit() {
   if [ "${mq_type}" = "kafka" ]; then
     bash +x ./bin/proxy-start.sh kafka
   fi
+  wait_port_to_listen audit ${audit_proxy_port}
   echo "start audit store"
   bash +x ./bin/store-start.sh
   # wait to start
-  wait_port_to_listen audit ${audit_proxy_port}
   echo "start audit service"
   bash +x ./bin/service-start.sh
   # wait to start
