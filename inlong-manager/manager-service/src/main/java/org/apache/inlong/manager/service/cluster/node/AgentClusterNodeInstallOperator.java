@@ -58,7 +58,6 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
     public static final String AGENT_MANAGER_ADDR = "agent.manager.addr";
     public static final String AGENT_CLUSTER_NAME = "agent.cluster.name";
     public static final String AGENT_CLUSTER_TAG = "agent.cluster.tag";
-    public static final String AUDIT_PROXYS_URL = "audit.proxys";
     public static final String AGENT_LOCAL_IP = "agent.local.ip";
 
     @Autowired
@@ -72,8 +71,6 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
     @Autowired
     private UserEntityMapper userEntityMapper;
 
-    @Value("${metrics.audit.proxy.hosts:127.0.0.1:10081}")
-    private String auditProxyUrl;
     @Value("${agent.install.path:inlong/inlong-installer/}")
     private String agentInstallPath;
     @Value("${manager.url:127.0.0.1:8083}")
@@ -112,7 +109,6 @@ public class AgentClusterNodeInstallOperator implements InlongClusterNodeInstall
             configMap.put(AGENT_MANAGER_AUTH_SECRET_KEY, secretKey);
             configMap.put(AGENT_CLUSTER_TAG, clusterEntity.getClusterTags());
             configMap.put(AGENT_CLUSTER_NAME, clusterEntity.getName());
-            configMap.put(AUDIT_PROXYS_URL, auditProxyUrl);
             commandExecutor.modifyConfig(request, configMap, confFile);
             String startCmd = agentInstallPath + INSTALLER_START_CMD;
             commandExecutor.execRemote(request, startCmd);

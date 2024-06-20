@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.pojo.audit;
 
-import lombok.AllArgsConstructor;
+import org.apache.inlong.audit.entity.AuditProxy;
+
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -30,12 +30,4 @@ public class AuditProxyResponse {
     private String errMsg;
     private List<AuditProxy> data;
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class AuditProxy {
-
-        private String host;
-        private int port;
-    }
 }
