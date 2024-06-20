@@ -31,6 +31,7 @@ import {
   getTableColumns,
   timeStaticsDimList,
 } from './config';
+import { Table } from 'antd';
 
 type Props = CommonInterface;
 
@@ -92,7 +93,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
   }, [sourceData, query.timeStaticsDim]);
 
   const onSearch = async () => {
-    await form.validateFields();
+    let values = await form.validateFields();
+    if (values.timeStaticsDim == 'MINUTE') {
+      setQuery(prev => ({ ...prev, endDate: prev.startDate }));
+    }
     run();
   };
 
@@ -129,6 +133,18 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
           columns: getTableColumns(sourceData),
           dataSource: toTableData(sourceData, sourceDataMap),
           rowKey: 'logTs',
+          summary: () => (
+            <Table.Summary fixed>
+              <Table.Summary.Row>
+                <Table.Summary.Cell index={0}>总计</Table.Summary.Cell>
+                {sourceData.map((row, index) => (
+                  <Table.Summary.Cell index={index + 1}>
+                    {row.auditSet.reduce((total, item) => total + item.count, 0)}
+                  </Table.Summary.Cell>
+                ))}
+              </Table.Summary.Row>
+            </Table.Summary>
+          ),
         }}
       />
     </>

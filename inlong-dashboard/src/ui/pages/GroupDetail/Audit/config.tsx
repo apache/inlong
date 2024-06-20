@@ -93,13 +93,52 @@ export const toChartData = (source, sourceDataMap) => {
 };
 
 export const toTableData = (source, sourceDataMap) => {
-  return Object.keys(sourceDataMap)
+  const map = Object.keys(sourceDataMap)
     .reverse()
     .map(logTs => ({
       ...sourceDataMap[logTs],
       logTs,
     }));
+  return getSourceDataWithPercent(source, map);
 };
+
+export const getSourceDataWithPercent = (sourceKeys, sourceMap) => {
+  const auditIds = Array.from(
+    new Set(Object.values(sourceKeys).map(({ auditId }) => parseInt(auditId))),
+  );
+  return sourceMap.map(source => {
+    for (const auditId of auditIds) {
+      if (!(auditId in source)) {
+        source[auditId] = 0;
+      }
+    }
+    let newSource = {};
+    const keys = Object.keys(source).filter(key => key !== 'logTs');
+    const firstKey = keys[0];
+    const firstValue = source[firstKey];
+    newSource[firstKey] = firstValue.toString();
+    for (let key of keys.slice(1)) {
+      if (key !== 'logTs') {
+        let diff = getDiff(firstValue, source[key]);
+        newSource[key] = `${source[key]} (${diff})`;
+      }
+    }
+    newSource['logTs'] = source['logTs'];
+    return newSource;
+  });
+};
+
+export const getDiff = (first, current) => {
+  if (first === 0) {
+    return '0%';
+  }
+  let result;
+  const diff = parseFloat(((current / first - 1) * 100).toFixed(3));
+  result = diff > 0 ? '+' + diff + '%' : diff + '%';
+  return result;
+};
+
+let endTimeVisible = true;
 
 export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStreamSuccess) => [
   {
@@ -179,20 +218,43 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
     label: i18n.t('pages.GroupDetail.Audit.EndDate'),
     name: 'endDate',
     initialValue: dayjs(initialValues.endDate),
+    rules: [
+      { required: true },
+      ({ getFieldValue }) => ({
+        validator(_, value) {
+          const dim = initialValues.timeStaticsDim;
+          if (dim === 'MINUTE') {
+            return Promise.resolve();
+          }
+          const timeDiff = value - getFieldValue('startDate');
+          console.log('timeDiff', value, getFieldValue('startDate'), timeDiff);
+          if (timeDiff >= 0) {
+            const isHourDiff = dim === 'HOUR' && timeDiff < 1000 * 60 * 60 * 24 * 3;
+            const isDayDiff = dim === 'DAY' && timeDiff < 1000 * 60 * 60 * 24 * 7;
+            if (isHourDiff || isDayDiff) {
+              return Promise.resolve();
+            }
+          }
+          return Promise.reject(new Error('Out of selectable time range'));
+        },
+      }),
+    ],
     props: {
       allowClear: false,
       format: 'YYYY-MM-DD',
+      disabled: initialValues.timeStaticsDim === 'MINUTE',
       disabledDate: current => {
         const start = dayjs(initialValues.startDate);
         const dim = initialValues.timeStaticsDim;
-        if (dim === 'HOUR' || dim === 'DAY') {
-          const tooLate = current && current <= start.endOf('day');
-          const tooEarly = start && current > start.add(7, 'd').endOf('day');
-          return tooLate || tooEarly;
+        const tooEarly = current < start.add(-1, 'd').endOf('day');
+        let tooLate;
+        if (dim === 'HOUR') {
+          tooLate = current >= start.add(2, 'd').endOf('day');
         }
-        const tooLate = current && current >= start.endOf('day');
-        const tooEarly = start && current < start.add(-1, 'd').endOf('day');
-        return tooLate || tooEarly;
+        if (dim === 'DAY') {
+          tooLate = current >= start.add(6, 'd').endOf('day');
+        }
+        return current && (tooLate || tooEarly);
       },
     },
   },
@@ -248,7 +310,15 @@ export const getTableColumns = source => {
   const data = source.map(item => ({
     title: item.auditName,
     dataIndex: item.auditId,
-    render: text => text || 0,
+    render: text => {
+      let color = 'black';
+      if (text?.includes('+')) {
+        color = 'red';
+      } else if (text?.includes('-')) {
+        color = 'green';
+      }
+      return <span style={{ color: color }}>{text}</span>;
+    },
   }));
   return [
     {
