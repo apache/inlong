@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.inlong.audit.AuditOperator;
 import org.apache.inlong.audit.entity.AuditInformation;
+import org.apache.inlong.audit.entity.AuditProxy;
 import org.apache.inlong.audit.entity.FlowType;
 import org.apache.inlong.common.enums.IndicatorType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -35,7 +36,6 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditProxyResponse;
-import org.apache.inlong.manager.pojo.audit.AuditProxyResponse.AuditProxy;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;

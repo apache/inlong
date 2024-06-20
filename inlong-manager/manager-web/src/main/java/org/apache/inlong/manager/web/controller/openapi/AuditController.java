@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.web.controller.openapi;
 
+import org.apache.inlong.audit.entity.AuditProxy;
 import org.apache.inlong.common.pojo.audit.AuditConfig;
 import org.apache.inlong.common.pojo.audit.AuditConfigRequest;
-import org.apache.inlong.manager.pojo.audit.AuditProxyResponse.AuditProxy;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.common.Response;
