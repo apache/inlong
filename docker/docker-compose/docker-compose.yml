@@ -61,7 +61,6 @@ services:
       - FLINK_HOST=jobmanager
       - FLINK_PORT=8081
       - AUDIT_QUERY_URL=audit:10080
-      - AUDIT_PROXY_URL=audit:10081
 
   dashboard:
     image: inlong/dashboard:${VERSION_TAG}
@@ -84,7 +83,6 @@ services:
     environment:
       - MANAGER_OPENAPI_IP=manager
       - MANAGER_OPENAPI_PORT=8083
-      - AUDIT_PROXY_URL=audit:10081
       # pulsar or kafka
       - MQ_TYPE=pulsar
       - ETH_NAME=eth0
@@ -100,7 +98,6 @@ services:
       - MANAGER_OPENAPI_PORT=8083
       - DATAPROXY_IP=dataproxy
       - DATAPROXY_PORT=46801
-      - AUDIT_PROXY_URL=audit:10081
     volumes:
       - ./collect-data:/data/collect-data
 

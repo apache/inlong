@@ -52,7 +52,6 @@ ADD target/sort-connector-kafka-v1.15-${VERSION}.jar /opt/inlong-sort/connectors
 ADD target/sort-connector-mysql-cdc-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
 # audit
 ENV AUDIT_QUERY_URL=127.0.0.1:10080
-ENV AUDIT_PROXY_URL=127.0.0.1:10081
 ADD manager-docker.sh bin/
 RUN chmod +x bin/manager-docker.sh
 CMD ["bin/manager-docker.sh"]
