@@ -207,7 +207,6 @@ const EditableTable = ({
     }
   };
   const onClearAppend = (fields: RowType[]) => {
-    console.log(fields);
     const newRecord: RecordType[] = fields?.map((field: RowType) => ({
       _etid: Math.random().toString(),
       ...field,
@@ -366,7 +365,6 @@ const EditableTable = ({
         visible={isParseFieldModalVisible}
         onHide={() => {
           setIsParseFieldModalVisible(false);
-          console.log('on hide');
         }}
       />
       <SelectTemplateModal
