@@ -116,7 +116,6 @@ const SelectTemplateModal: React.FC<SelectTemplateModalProps> = ({
 
   return (
     <>
-      {/* eslint-disable-next-line react/jsx-no-undef */}
       <Modal
         width={1000}
         title={i18n.t('components.SelectTemplateModal.SelectDataFromTemplate')}
