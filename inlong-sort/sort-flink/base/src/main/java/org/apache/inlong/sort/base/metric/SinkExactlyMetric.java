@@ -230,7 +230,7 @@ public class SinkExactlyMetric implements MetricData, Serializable {
         invokeDirty(1, getDataSize(o));
     }
 
-    public void invokeWithId(long rowCount, long rowSize, long dataTime) {
+    public void invoke(long rowCount, long rowSize, long dataTime) {
         outputDefaultMetrics(rowCount, rowSize);
         outputAuditMetricsWithId(rowCount, rowSize, dataTime);
     }

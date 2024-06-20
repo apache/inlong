@@ -110,7 +110,7 @@ class IcebergStreamWriterMetrics {
 
     void outputMetricsWithEstimate(int size, long time) {
         if (sinkExactlyMetric != null) {
-            sinkExactlyMetric.invokeWithId(1, size, time);
+            sinkExactlyMetric.invoke(1, size, time);
         }
     }
 
