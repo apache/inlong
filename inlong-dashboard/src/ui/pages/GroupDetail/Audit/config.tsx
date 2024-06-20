@@ -235,7 +235,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
               return Promise.resolve();
             }
           }
-          return Promise.reject(new Error('Out of selectable time range'));
+          return Promise.reject(new Error(i18n.t('pages.GroupDetail.Audit.DatepickerRule')));
         },
       }),
     ],

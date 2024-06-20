@@ -655,6 +655,8 @@
   "pages.GroupDetail.Audit.Hour": "小时",
   "pages.GroupDetail.Audit.Day": "天",
   "pages.GroupDetail.Audit.Sink": "数据目标",
+  "pages.GroupDetail.Audit.Total": "总计",
+  "pages.GroupDetail.Audit.DatepickerRule": "超出可选范围",
   "pages.GroupDetail.Delay.QueryDate": "查询日期",
   "pages.GroupDetail.Delay.AverageTitle": "平均传输时延 (ms)",
   "pages.GroupDetail.Delay.RealTimeTitle": "传输时延 (ms)",

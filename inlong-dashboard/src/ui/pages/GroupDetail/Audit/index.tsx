@@ -32,6 +32,7 @@ import {
   timeStaticsDimList,
 } from './config';
 import { Table } from 'antd';
+import i18n from '@/i18n';
 
 type Props = CommonInterface;
 
@@ -136,7 +137,9 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
           summary: () => (
             <Table.Summary fixed>
               <Table.Summary.Row>
-                <Table.Summary.Cell index={0}>总计</Table.Summary.Cell>
+                <Table.Summary.Cell index={0}>
+                  {i18n.t('pages.GroupDetail.Audit.Min')}
+                </Table.Summary.Cell>
                 {sourceData.map((row, index) => (
                   <Table.Summary.Cell index={index + 1}>
                     {row.auditSet.reduce((total, item) => total + item.count, 0)}
