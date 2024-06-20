@@ -52,7 +52,7 @@ public class ProxyManager {
     private String secretKey;
     private volatile boolean timerStarted = false;
     private static final int MAX_RETRY_TIMES = 1440;
-    private static final int RETRY_INTERVAL_MS = 1000;
+    private static final int RETRY_INTERVAL_MS = 10000;
 
     private ProxyManager() {
     }
@@ -84,11 +84,6 @@ public class ProxyManager {
         this.secretKey = secretKey;
 
         retryAsync();
-
-        if (autoUpdateAuditProxy) {
-            startTimer();
-            LOGGER.info("Auto update from manager");
-        }
     }
 
     private void retryAsync() {
@@ -141,7 +136,7 @@ public class ProxyManager {
             return;
         }
         timer.scheduleWithFixedDelay(this::updateAuditProxy,
-                0,
+                updateInterval,
                 updateInterval,
                 TimeUnit.MILLISECONDS);
         timerStarted = true;
@@ -151,8 +146,9 @@ public class ProxyManager {
         this.timeoutMs = timeoutMs;
     }
 
-    public void setAutoUpdateAuditProxy(boolean autoUpdateAuditProxy) {
-        this.autoUpdateAuditProxy = autoUpdateAuditProxy;
+    public void setAutoUpdateAuditProxy() {
+        startTimer();
+        LOGGER.info("Auto update Audit Proxy info from manager");
     }
 
     public void setUpdateInterval(int updateInterval) {
