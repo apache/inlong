@@ -38,7 +38,7 @@ const Comp: React.FC<Props> = ({ id, templateName, ...modalProps }) => {
 
   const { data: savedData, run: getData } = useRequest(
     () => ({
-      url: `/template/get/`,
+      url: `/template/get`,
       method: 'GET',
       params: {
         templateName: templateName,
