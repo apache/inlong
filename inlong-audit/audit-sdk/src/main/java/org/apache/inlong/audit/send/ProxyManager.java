@@ -44,7 +44,6 @@ public class ProxyManager {
     private final ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
     private final static String GET_AUDIT_PROXY_API_PATH = "/inlong/manager/openapi/audit/getAuditProxy";
     private int timeoutMs = 10000;
-    private boolean autoUpdateAuditProxy = false;
     private int updateInterval = 60000;
     private String auditProxyApiUrl;
     private AuditComponent component;
