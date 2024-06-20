@@ -138,7 +138,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
             <Table.Summary fixed>
               <Table.Summary.Row>
                 <Table.Summary.Cell index={0}>
-                  {i18n.t('pages.GroupDetail.Audit.Min')}
+                  {i18n.t('pages.GroupDetail.Audit.Total')}
                 </Table.Summary.Cell>
                 {sourceData.map((row, index) => (
                   <Table.Summary.Cell index={index + 1}>
