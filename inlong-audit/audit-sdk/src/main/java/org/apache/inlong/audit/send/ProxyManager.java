@@ -96,7 +96,7 @@ public class ProxyManager {
                     }
                     LOGGER.warn("Failed to update audit proxy. Retrying in {} times...", retryTime);
                 } catch (Exception e) {
-                    LOGGER.error("Retry Async has Exception", e);
+                    LOGGER.error("Failed to update audit proxy. Retrying in {} times...", retryTime);
                 } finally {
                     ThreadUtils.sleep(Math.min(retryIntervalMs, updateInterval));
                     retryIntervalMs *= 2;
