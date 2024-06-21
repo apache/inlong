@@ -42,7 +42,7 @@ ENV AUDIT_JDBC_USERNAME=root
 ENV AUDIT_JDBC_PASSWORD=inlong
 
 # Audit Proxy host
-ENV AUDIT_PROXY_HOST=127.0.0.1:10081
+ENV AUDIT_PROXY_ADDRESS=127.0.0.1:10081
 
 # jvm
 ENV AUDIT_JVM_HEAP_OPTS="-XX:+UseContainerSupport -XX:InitialRAMPercentage=40.0 -XX:MaxRAMPercentage=80.0 -XX:-UseAdaptiveSizePolicy"

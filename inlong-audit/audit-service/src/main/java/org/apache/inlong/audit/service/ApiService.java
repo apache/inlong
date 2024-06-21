@@ -97,7 +97,7 @@ public class ApiService {
 
     public void start() {
         if (!AuditProxyCache.getInstance().init()) {
-            LOGGER.error("Audit proxy cache init failed! exit...");
+            LOGGER.error("Audit Proxy cache init failed! exit...");
             System.exit(1);
         }
 

@@ -31,13 +31,13 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.audit.config.ProxyConstants.DEFAULT_AUDIT_PROXY_HOST_LIST_AGENT;
-import static org.apache.inlong.audit.config.ProxyConstants.DEFAULT_AUDIT_PROXY_HOST_LIST_DATAPROXY;
-import static org.apache.inlong.audit.config.ProxyConstants.DEFAULT_AUDIT_PROXY_HOST_LIST_SORT;
+import static org.apache.inlong.audit.config.ProxyConstants.DEFAULT_AUDIT_PROXY_ADDRESS_AGENT;
+import static org.apache.inlong.audit.config.ProxyConstants.DEFAULT_AUDIT_PROXY_ADDRESS_DATAPROXY;
+import static org.apache.inlong.audit.config.ProxyConstants.DEFAULT_AUDIT_PROXY_ADDRESS_SORT;
 import static org.apache.inlong.audit.config.ProxyConstants.IP_PORT_SEPARATOR;
-import static org.apache.inlong.audit.config.ProxyConstants.KEY_AUDIT_PROXY_HOST_LIST_AGENT;
-import static org.apache.inlong.audit.config.ProxyConstants.KEY_AUDIT_PROXY_HOST_LIST_DATAPROXY;
-import static org.apache.inlong.audit.config.ProxyConstants.KEY_AUDIT_PROXY_HOST_LIST_SORT;
+import static org.apache.inlong.audit.config.ProxyConstants.KEY_AUDIT_PROXY_ADDRESS_AGENT;
+import static org.apache.inlong.audit.config.ProxyConstants.KEY_AUDIT_PROXY_ADDRESS_DATAPROXY;
+import static org.apache.inlong.audit.config.ProxyConstants.KEY_AUDIT_PROXY_ADDRESS_SORT;
 import static org.apache.inlong.audit.config.ProxyConstants.PROXY_SEPARATOR;
 import static org.apache.inlong.audit.entity.AuditComponent.AGENT;
 import static org.apache.inlong.audit.entity.AuditComponent.DATAPROXY;
@@ -62,9 +62,10 @@ public class AuditProxyCache {
         proxyConfigs.forEach((component, proxyList) -> {
             List<AuditProxy> auditProxies = createAuditProxySet(proxyList);
             if (auditProxies.isEmpty()) {
-                LOGGER.error("Audit proxy config is invalid for component: {} {}", component, proxyList);
+                LOGGER.error("{} Audit Proxy config = {}, is invalid!", component, proxyList);
                 isSuccess.set(false);
             } else {
+                LOGGER.info("{} Audit Proxy config = {}", component, proxyList);
                 auditProxyCache.put(component, auditProxies);
             }
         });
@@ -76,11 +77,11 @@ public class AuditProxyCache {
         Configuration config = Configuration.getInstance();
         Map<String, String> proxyConfigs = new HashMap<>();
         proxyConfigs.put(AGENT.getComponent(),
-                config.get(KEY_AUDIT_PROXY_HOST_LIST_AGENT, DEFAULT_AUDIT_PROXY_HOST_LIST_AGENT));
+                config.get(KEY_AUDIT_PROXY_ADDRESS_AGENT, DEFAULT_AUDIT_PROXY_ADDRESS_AGENT));
         proxyConfigs.put(DATAPROXY.getComponent(),
-                config.get(KEY_AUDIT_PROXY_HOST_LIST_DATAPROXY, DEFAULT_AUDIT_PROXY_HOST_LIST_DATAPROXY));
+                config.get(KEY_AUDIT_PROXY_ADDRESS_DATAPROXY, DEFAULT_AUDIT_PROXY_ADDRESS_DATAPROXY));
         proxyConfigs.put(SORT.getComponent(),
-                config.get(KEY_AUDIT_PROXY_HOST_LIST_SORT, DEFAULT_AUDIT_PROXY_HOST_LIST_SORT));
+                config.get(KEY_AUDIT_PROXY_ADDRESS_SORT, DEFAULT_AUDIT_PROXY_ADDRESS_SORT));
         return proxyConfigs;
     }
 

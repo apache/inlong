@@ -24,13 +24,13 @@ public class ProxyConstants {
 
     public static final String PROXY_SEPARATOR = ";";
     public static final String IP_PORT_SEPARATOR = ":";
-    public static final String KEY_AUDIT_PROXY_HOST_LIST_AGENT = "audit.proxy.host.list.agent";
-    public static final String DEFAULT_AUDIT_PROXY_HOST_LIST_AGENT = "";
+    public static final String KEY_AUDIT_PROXY_ADDRESS_AGENT = "audit.proxy.address.agent";
+    public static final String DEFAULT_AUDIT_PROXY_ADDRESS_AGENT = "";
 
-    public static final String KEY_AUDIT_PROXY_HOST_LIST_DATAPROXY = "audit.proxy.host.list.dataproxy";
-    public static final String DEFAULT_AUDIT_PROXY_HOST_LIST_DATAPROXY = "";
+    public static final String KEY_AUDIT_PROXY_ADDRESS_DATAPROXY = "audit.proxy.address.dataproxy";
+    public static final String DEFAULT_AUDIT_PROXY_ADDRESS_DATAPROXY = "";
 
-    public static final String KEY_AUDIT_PROXY_HOST_LIST_SORT = "audit.proxy.host.list.sort";
-    public static final String DEFAULT_AUDIT_PROXY_HOST_LIST_SORT = "";
+    public static final String KEY_AUDIT_PROXY_ADDRESS_SORT = "audit.proxy.address.sort";
+    public static final String DEFAULT_AUDIT_PROXY_ADDRESS_SORT = "";
 
 }
