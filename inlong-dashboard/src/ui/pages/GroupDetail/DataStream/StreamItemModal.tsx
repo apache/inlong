@@ -174,23 +174,6 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
     await modalProps?.onOk(values);
     message.success(i18n.t('basic.OperatingSuccess'));
   };
-
-  const { run: getDataTemplateValue } = useRequest(
-    template => ({
-      url: '/template/get',
-      params: {
-        templateName: template,
-      },
-    }),
-    {
-      manual: true,
-      onSuccess: result => {
-        savedData.fieldList = result['fieldList'];
-        form.setFieldsValue(dataToValues(savedData));
-      },
-    },
-  );
-
   useUpdateEffect(() => {
     if (modalProps.open) {
       // open
@@ -215,11 +198,6 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
         content={formContent}
         form={form}
         useMaxWidth
-        onValuesChange={(c, values) => {
-          if (Object.keys(c)[0] === 'streamDataTemplate') {
-            getDataTemplateValue(c['streamDataTemplate']);
-          }
-        }}
       />
     </Modal>
   );
