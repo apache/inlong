@@ -325,7 +325,7 @@ export const getTableColumns = (source, dim) => {
       title: i18n.t('pages.GroupDetail.Audit.Time'),
       dataIndex: 'logTs',
       render: text => {
-        return dim === 'MINUTE' ? dayjs(text).format('HH:mm:ss') : text;
+        return dim === 'MINUTE' ? dayjs(text).format('HH:mm') : text;
       },
     },
   ].concat(data);
