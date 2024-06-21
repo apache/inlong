@@ -133,7 +133,7 @@ export const getDiff = (first, current) => {
     return '0%';
   }
   let result;
-  const diff = parseFloat(((current / first - 1) * 100).toFixed(3));
+  const diff = parseFloat(((current / first - 1) * 100).toFixed(0));
   result = diff > 0 ? '+' + diff + '%' : diff + '%';
   return result;
 };
@@ -306,7 +306,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
   },
 ];
 
-export const getTableColumns = source => {
+export const getTableColumns = (source, dim) => {
   const data = source.map(item => ({
     title: item.auditName,
     dataIndex: item.auditId,
@@ -324,6 +324,9 @@ export const getTableColumns = source => {
     {
       title: i18n.t('pages.GroupDetail.Audit.Time'),
       dataIndex: 'logTs',
+      render: text => {
+        return dim === 'MINUTE' ? dayjs(text).format('HH:mm:ss') : text;
+      },
     },
   ].concat(data);
 };

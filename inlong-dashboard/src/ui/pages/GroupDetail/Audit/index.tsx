@@ -131,7 +131,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
 
       <HighTable
         table={{
-          columns: getTableColumns(sourceData),
+          columns: getTableColumns(sourceData, query.timeStaticsDim),
           dataSource: toTableData(sourceData, sourceDataMap),
           rowKey: 'logTs',
           summary: () => (
