@@ -53,7 +53,6 @@ init_inlong_agent() {
   cd $INLONG_HOME/inlong-agent/conf
   $SED_COMMAND "s|agent.local.ip=.*|agent.local.ip=${local_ip}|g" agent.properties
   $SED_COMMAND "s|agent.manager.addr=.*|agent.manager.addr=http://${manager_server_hostname}:${manager_server_port}|g" agent.properties
-  $SED_COMMAND "s/audit.enable=.*$/audit.enable=true/g" agent.properties
 }
 
 init_inlong_audit() {
@@ -82,7 +81,7 @@ init_inlong_dataproxy() {
   echo "Init dataproxy configuration parameters"
   cd $INLONG_HOME/inlong-dataproxy/conf
   $SED_COMMAND 's/manager.hosts=.*/'''manager.hosts=${manager_server_hostname}:${manager_server_port}'''/g' common.properties
-  $SED_COMMAND "s/audit.enable=.*$/audit.enable=true/g" common.properties
+  $SED_COMMAND "s/audit.proxys.discovery.manager.enable=.*$/audit.proxys.discovery.manager.enable=true/g" common.properties
 }
 
 init_inlong_manager() {
