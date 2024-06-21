@@ -267,26 +267,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    public InlongGroupInfo get(String groupId, UserInfo opInfo) {
-        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
-        if (entity == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
-        }
-
-        // query mq information
-        InlongGroupOperator instance = groupOperatorFactory.getInstance(entity.getMqType());
-        InlongGroupInfo groupInfo = instance.getFromEntity(entity);
-        // get all ext info
-        List<InlongGroupExtEntity> extEntityList = groupExtMapper.selectByGroupId(groupId);
-        List<InlongGroupExtInfo> extList = CommonBeanUtils.copyListProperties(extEntityList, InlongGroupExtInfo::new);
-        groupInfo.setExtList(extList);
-        List<InlongStreamExtEntity> streamExtEntities = streamExtMapper.selectByRelatedId(groupId, null);
-        BaseSortConf sortConf = buildSortConfig(streamExtEntities);
-        groupInfo.setSortConf(sortConf);
-        return groupInfo;
-    }
-
-    @Override
     public String getTenant(String groupId, String operator) {
         InlongGroupEntity groupEntity = groupMapper.selectByGroupIdWithoutTenant(groupId);
         String tenant = groupEntity.getTenant();

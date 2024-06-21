@@ -87,15 +87,6 @@ public interface InlongGroupService {
     String getTenant(String groupId, String operator);
 
     /**
-     * Get inlong group info based on inlong group id
-     *
-     * @param groupId inlong group id
-     * @param opInfo userinfo of operator
-     * @return detail of inlong group
-     */
-    InlongGroupInfo get(String groupId, UserInfo opInfo);
-
-    /**
      * Query the group information of each status of the current user
      *
      * @param operator name of operator

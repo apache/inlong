@@ -63,7 +63,7 @@ public class OpenStreamSourceController {
     public Response<StreamSource> get(@PathVariable Integer id) {
         Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "sourceId cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(sourceService.get(id, LoginUserUtils.getLoginUser()));
+        return Response.success(sourceService.get(id));
     }
 
     @RequestMapping(value = "/source/list", method = RequestMethod.POST)
@@ -80,7 +80,7 @@ public class OpenStreamSourceController {
     public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody SourceRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(sourceService.save(request, LoginUserUtils.getLoginUser()));
+        return Response.success(sourceService.save(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/source/batchSave", method = RequestMethod.POST)
@@ -97,7 +97,7 @@ public class OpenStreamSourceController {
     public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody SourceRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(sourceService.update(request, LoginUserUtils.getLoginUser()));
+        return Response.success(sourceService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/source/delete/{id}", method = RequestMethod.DELETE)
@@ -107,7 +107,7 @@ public class OpenStreamSourceController {
     public Response<Boolean> delete(@PathVariable Integer id) {
         Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "sourceId cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(sourceService.delete(id, LoginUserUtils.getLoginUser()));
+        return Response.success(sourceService.delete(id, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/source/stop/{id}", method = RequestMethod.POST)

@@ -61,15 +61,6 @@ public interface InlongStreamService {
     List<BatchResult> batchSave(List<InlongStreamRequest> requestList, String operator);
 
     /**
-     * Save inlong stream information.
-     *
-     * @param request Inlong stream information.
-     * @param opInfo userinfo of operator
-     * @return Id after successful save.
-     */
-    Integer save(InlongStreamRequest request, UserInfo opInfo);
-
-    /**
      * Query whether the inlong stream ID exists
      *
      * @param groupId inlong group id
@@ -86,16 +77,6 @@ public interface InlongStreamService {
      * @return inlong stream details
      */
     InlongStreamInfo get(String groupId, String streamId);
-
-    /**
-     * Query the details of the specified inlong stream
-     *
-     * @param groupId Inlong group id
-     * @param streamId Inlong stream id
-     * @param opInfo userinfo of operator
-     * @return inlong stream details
-     */
-    InlongStreamInfo get(String groupId, String streamId, UserInfo opInfo);
 
     /**
      * Query the brief of the specified inlong stream
@@ -160,15 +141,6 @@ public interface InlongStreamService {
     Boolean update(InlongStreamRequest request, String operator);
 
     /**
-     * Update the InlongStream info
-     *
-     * @param request inlong stream info that needs to be modified
-     * @param opInfo userinfo of operator
-     * @return whether succeed
-     */
-    Boolean update(InlongStreamRequest request, UserInfo opInfo);
-
-    /**
      * Update the InlongStream - not check the InlongGroup status to which the stream belongs.
      *
      * @param request inlong stream info that needs to be modified
@@ -189,19 +161,6 @@ public interface InlongStreamService {
      * @return whether succeed
      */
     Boolean delete(String groupId, String streamId, String operator);
-
-    /**
-     * Delete the specified inlong stream.
-     * <p/>
-     * When deleting an inlong stream, you need to check whether there are some related
-     * stream_sources or stream_sinks
-     *
-     * @param groupId Inlong group id
-     * @param streamId Inlong stream id
-     * @param opInfo userinfo of operator
-     * @return whether succeed
-     */
-    Boolean delete(String groupId, String streamId, UserInfo opInfo);
 
     /**
      * Logically delete all inlong streams under the specified groupId
