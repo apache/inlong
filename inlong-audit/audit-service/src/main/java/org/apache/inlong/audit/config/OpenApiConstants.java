@@ -35,8 +35,6 @@ public class OpenApiConstants {
     public static final String DEFAULT_API_GET_IDS_PATH = "/audit/query/getIds";
     public static final String KEY_API_GET_AUDIT_PROXY_PATH = "api.get.audit.proxy";
     public static final String DEFAULT_API_GET_AUDIT_PROXY_PATH = "/audit/query/getAuditProxy";
-    public static final String KEY_API_PROXY_HEART_BEAT_PATH = "api.proxy.heartbeat";
-    public static final String DEFAULT_API_PROXY_HEART_BEAT_PATH = "/audit/proxy/heartbeat";
     public static final String KEY_API_THREAD_POOL_SIZE = "api.thread.pool.size";
     public static final int DEFAULT_API_THREAD_POOL_SIZE = 10;
     public static final String KEY_API_BACKLOG_SIZE = "api.backlog.size";
@@ -50,9 +48,6 @@ public class OpenApiConstants {
 
     public static final String KEY_API_CACHE_EXPIRED_HOURS = "api.cache.expired.hours";
     public static final int DEFAULT_API_CACHE_EXPIRED_HOURS = 12;
-
-    public static final String KEY_API_CACHE_EXPIRED_MINUTES = "api.cache.expired.minutes";
-    public static final int DEFAULT_API_CACHE_EXPIRED_MINUTES = 1;
 
     // Http config
     public static final String PARAMS_START_TIME = "startTime";
@@ -72,6 +67,4 @@ public class OpenApiConstants {
     public static final int DEFAULT_HTTP_SERVER_BIND_PORT = 10080;
     public static final int HTTP_RESPOND_CODE = 200;
     public static final String PARAMS_AUDIT_COMPONENT = "component";
-    public static final String PARAMS_AUDIT_HOST = "host";
-    public static final String PARAMS_AUDIT_PORT = "port";
 }

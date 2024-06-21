@@ -163,68 +163,6 @@ public class SqlConstants {
     public static final String DEFAULT_MYSQL_SINK_INSERT_TEMP_SQL =
             "replace into audit_data_temp (log_ts,inlong_group_id, inlong_stream_id, audit_id,audit_tag,count, size, delay) "
                     + " values (?,?,?,?,?,?,?,?)";
-
-    public static final String KEY_AUDIT_PROXY_HOST_QUERY_COMPONENT_SQL = "audit.proxy.host.query.component.sql";
-    public static final String DEFAULT_AUDIT_PROXY_HOST_QUERY_COMPONENT_SQL =
-            "select\n" +
-                    "  host as host,\n" +
-                    "  port as port \n" +
-                    "from\n" +
-                    "  audit_proxy_host\n" +
-                    "where\n" +
-                    "  LOWER(component) = LOWER(?)\n" +
-                    "  and status = 1\n" +
-                    "group by\n" +
-                    "  host,\n" +
-                    "  port";
-
-    public static final String KEY_AUDIT_PROXY_HOST_QUERY_ALL_SQL = "audit.proxy.host.query.all.sql";
-    public static final String DEFAULT_AUDIT_PROXY_HOST_QUERY_ALL_SQL =
-            "select\n" +
-                    "  component,\n" +
-                    "  host as host,\n" +
-                    "  port as port\n" +
-                    "from\n" +
-                    "  audit_proxy_host\n" +
-                    "where\n" +
-                    "  status = 1\n" +
-                    "group by\n" +
-                    "  component,\n" +
-                    "  host,\n" +
-                    "  port";
-
-    public static final String KEY_AUDIT_PROXY_HEARTBEAT_QUERY_COMPONENT_SQL = "audit.proxy.heartbeat.query.sql";
-    public static final String DEFAULT_AUDIT_PROXY_HEARTBEAT_QUERY_COMPONENT_SQL =
-            "select\n" +
-                    "  host,\n" +
-                    "  port\n" +
-                    "from\n" +
-                    "  audit_proxy_heartbeat\n" +
-                    "where\n" +
-                    "  LOWER(component) = LOWER(?)\n" +
-                    "  and update_time > (NOW() - INTERVAL 2 MINUTE)\n" +
-                    "group by\n" +
-                    "  host,\n" +
-                    "  port ";
-
-    public static final String KEY_AUDIT_PROXY_HEARTBEAT_QUERY_ALL_SQL = "audit.proxy.heartbeat.query.all.sql";
-    public static final String DEFAULT_AUDIT_HEARTBEAT_QUERY_ALL_SQL =
-            "select\n" +
-                    "  host,\n" +
-                    "  port\n" +
-                    "from\n" +
-                    "  audit_proxy_heartbeat\n" +
-                    "where\n" +
-                    "  update_time > (NOW() - INTERVAL 2 MINUTE)\n" +
-                    "group by\n" +
-                    "  host,\n" +
-                    "  port";
-
-    public static final String KEY_AUDIT_PROXY_HEARTBEAT_SQL = "audit.proxy.heartbeat.sql";
-    public static final String DEFAULT_AUDIT_PROXY_HEARTBEAT_SQL =
-            "replace into audit_proxy_heartbeat (component, host, port)\n" +
-                    "values (?, ?, ?)";
-
     public static final String KEY_AUDIT_DATA_TEMP_ADD_PARTITION_SQL = "audit.data.temp.add.partition.sql";
     public static final String DEFAULT_AUDIT_DATA_TEMP_ADD_PARTITION_SQL =
             "ALTER TABLE audit_data_temp ADD PARTITION (PARTITION %s VALUES LESS THAN (TO_DAYS('%s')))";
