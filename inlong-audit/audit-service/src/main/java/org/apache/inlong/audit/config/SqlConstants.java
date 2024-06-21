@@ -171,4 +171,7 @@ public class SqlConstants {
     public static final String DEFAULT_AUDIT_DATA_TEMP_DELETE_PARTITION_SQL =
             "ALTER TABLE audit_data_temp DROP PARTITION %s";
 
+    public static final String KEY_AUDIT_DATA_TEMP_CHECK_PARTITION_SQL = "audit.data.temp.check.partition.sql";
+    public static final String DEFAULT_AUDIT_DATA_TEMP_CHECK_PARTITION_SQL =
+            "SELECT COUNT(*) AS count FROM INFORMATION_SCHEMA.PARTITIONS WHERE TABLE_NAME = 'audit_data_temp' and PARTITION_NAME = ?";
 }
