@@ -20,8 +20,6 @@ package org.apache.inlong.manager.plugin.listener;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.TaskEvent;
-import org.apache.inlong.manager.plugin.util.FlinkUtils;
-import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
@@ -32,9 +30,9 @@ import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static org.apache.inlong.manager.plugin.util.FlinkUtils.submitFlinkJobs;
 
 /**
  * Listener of startup sort.
@@ -62,8 +60,7 @@ public class StartupSortListener implements SortOperateListener {
         }
 
         log.info("add startup group listener for groupId [{}]", groupId);
-        return (InlongConstants.DATASYNC_REALTIME_MODE.equals(groupProcessForm.getGroupInfo().getInlongGroupMode())
-                || InlongConstants.DATASYNC_OFFLINE_MODE.equals(groupProcessForm.getGroupInfo().getInlongGroupMode()));
+        return (InlongConstants.DATASYNC_REALTIME_MODE.equals(groupProcessForm.getGroupInfo().getInlongGroupMode()));
     }
 
     @Override
@@ -77,36 +74,9 @@ public class StartupSortListener implements SortOperateListener {
         }
 
         GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
-        InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
-        // do not build sort config if the group mode is offline
-        if (InlongConstants.DATASYNC_OFFLINE_MODE.equals(groupInfo.getInlongGroupMode())) {
-            log.info("no need to launching sort job for groupId={} as the mode is offline",
-                    groupId);
-            return ListenerResult.success();
-        }
         List<InlongStreamInfo> streamInfos = groupResourceForm.getStreamInfos();
-        int sinkCount = streamInfos.stream()
-                .map(s -> s.getSinkList() == null ? 0 : s.getSinkList().size())
-                .reduce(0, Integer::sum);
-        if (sinkCount == 0) {
-            log.warn("not any sink configured for group {}, skip launching sort job", groupId);
-            return ListenerResult.success();
-        }
 
-        List<ListenerResult> listenerResults = new ArrayList<>();
-        for (InlongStreamInfo streamInfo : streamInfos) {
-            listenerResults.add(FlinkUtils.submitFlinkJob(streamInfo,
-                    FlinkUtils.genFlinkJobName(processForm, streamInfo)));
-        }
-
-        // only one stream in group for now
-        // we can return the list of ListenerResult if support multi-stream in the future
-        List<ListenerResult> failedStreams = listenerResults.stream()
-                .filter(t -> !t.isSuccess()).collect(Collectors.toList());
-        if (failedStreams.isEmpty()) {
-            return ListenerResult.success();
-        }
-        return ListenerResult.fail(failedStreams.get(0).getRemark());
+        return submitFlinkJobs(groupId, streamInfos);
     }
 
     /**
