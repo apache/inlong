@@ -38,6 +38,7 @@ public class StarRocksManager {
     private static final String NEW_STARROCKS_REPOSITORY = "inlong-starrocks";
     private static final String NEW_STARROCKS_TAG = "latest";
     private static final String STAR_ROCKS_IMAGE_NAME = "starrocks/allin1-ubi:3.0.4";
+    private static final String DEFAULT_PRIMARY_KEY = "id";
     public static final Logger STAR_ROCKS_LOG = LoggerFactory.getLogger(StarRocksContainer.class);
 
     static {
@@ -62,7 +63,7 @@ public class StarRocksManager {
     }
 
     public static void initializeStarRocksTable(StarRocksContainer STAR_ROCKS) {
-        initializeStarRocksTable(STAR_ROCKS, "id");
+        initializeStarRocksTable(STAR_ROCKS, DEFAULT_PRIMARY_KEY);
     }
     public static void initializeStarRocksTable(StarRocksContainer STAR_ROCKS, String primaryKey) {
         try (Connection conn =
