@@ -64,18 +64,18 @@ public class StarRocksManager {
     public static void initializeStarRocksTable(StarRocksContainer STAR_ROCKS) {
         initializeStarRocksTable(STAR_ROCKS, "id");
     }
-    public static void initializeStarRocksTable(StarRocksContainer STAR_ROCKS, String id) {
+    public static void initializeStarRocksTable(StarRocksContainer STAR_ROCKS, String primaryKey) {
         try (Connection conn =
                 DriverManager.getConnection(STAR_ROCKS.getJdbcUrl(), STAR_ROCKS.getUsername(),
                         STAR_ROCKS.getPassword());
                 Statement stat = conn.createStatement()) {
             stat.execute("CREATE TABLE IF NOT EXISTS test_output1 (\n"
-                    + "       " + id + " INT NOT NULL,\n"
+                    + "       " + primaryKey + " INT NOT NULL,\n"
                     + "       name VARCHAR(255) NOT NULL DEFAULT 'flink',\n"
                     + "       description VARCHAR(512)\n"
                     + ")\n"
-                    + "PRIMARY KEY(" + id + ")\n"
-                    + "DISTRIBUTED by HASH(" + id + ") PROPERTIES (\"replication_num\" = \"1\");");
+                    + "PRIMARY KEY(" + primaryKey + ")\n"
+                    + "DISTRIBUTED by HASH(" + primaryKey + ") PROPERTIES (\"replication_num\" = \"1\");");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
