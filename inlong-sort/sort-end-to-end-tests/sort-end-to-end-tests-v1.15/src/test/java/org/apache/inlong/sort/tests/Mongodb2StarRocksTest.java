@@ -40,6 +40,10 @@ import org.testcontainers.utility.DockerImageName;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,7 +55,6 @@ import static com.mongodb.client.model.Updates.set;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.INTER_CONTAINER_STAR_ROCKS_ALIAS;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.STAR_ROCKS_LOG;
 import static org.apache.inlong.sort.tests.utils.StarRocksManager.getNewStarRocksImageName;
-import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStarRocksTable;
 
 /**
  * End-to-end tests for sort-connector-mongodb-cdc-v1.15 uber jar.
@@ -97,7 +100,24 @@ public class Mongodb2StarRocksTest extends FlinkContainerTestEnvJRE8 {
     @Before
     public void setup() {
         waitUntilJobRunning(Duration.ofSeconds(30));
-        initializeStarRocksTable(STAR_ROCKS);
+        initializeStarRocksTable();
+    }
+
+    public static void initializeStarRocksTable() {
+        try (Connection conn =
+                     DriverManager.getConnection(STAR_ROCKS.getJdbcUrl(), STAR_ROCKS.getUsername(),
+                             STAR_ROCKS.getPassword());
+             Statement stat = conn.createStatement()) {
+            stat.execute("CREATE TABLE IF NOT EXISTS test_output1 (\n"
+                    + "       _id INT NOT NULL,\n"
+                    + "       name VARCHAR(255) NOT NULL DEFAULT 'flink',\n"
+                    + "       description VARCHAR(512)\n"
+                    + ")\n"
+                    + "PRIMARY KEY(_id)\n"
+                    + "DISTRIBUTED by HASH(_id) PROPERTIES (\"replication_num\" = \"1\");");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @AfterClass
