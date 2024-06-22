@@ -48,7 +48,10 @@ import java.util.List;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Updates.combine;
 import static com.mongodb.client.model.Updates.set;
-import static org.apache.inlong.sort.tests.utils.StarRocksManager.*;
+import static org.apache.inlong.sort.tests.utils.StarRocksManager.INTER_CONTAINER_STAR_ROCKS_ALIAS;
+import static org.apache.inlong.sort.tests.utils.StarRocksManager.STAR_ROCKS_LOG;
+import static org.apache.inlong.sort.tests.utils.StarRocksManager.getNewStarRocksImageName;
+import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStarRocksTable;
 
 /**
  * End-to-end tests for sort-connector-mongodb-cdc-v1.15 uber jar.
