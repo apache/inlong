@@ -75,6 +75,9 @@ init_inlong_audit() {
   $SED_COMMAND 's#jdbc:mysql://.*apache_inlong_audit#'''jdbc:mysql://${spring_datasource_hostname}:${spring_datasource_port}/apache_inlong_audit'''#g' audit-service.properties
   $SED_COMMAND 's/mysql.username=.*/'''mysql.username=${spring_datasource_username}'''/g' audit-service.properties
   $SED_COMMAND 's/mysql.password=.*/'''mysql.password=${spring_datasource_password}'''/g' audit-service.properties
+  $SED_COMMAND 's/audit.proxy.address.agent=.*/'''audit.proxy.address.agent=${audit_service_ip}:${audit_proxy_port}'''/g' audit-service.properties
+  $SED_COMMAND 's/audit.proxy.address.dataproxy=.*/'''audit.proxy.address.dataproxy=${audit_service_ip}:${audit_proxy_port}'''/g' audit-service.properties
+  $SED_COMMAND 's/audit.proxy.address.sort=.*/'''audit.proxy.address.sort=${audit_service_ip}:${audit_proxy_port}'''/g' audit-service.properties
 }
 
 init_inlong_dataproxy() {

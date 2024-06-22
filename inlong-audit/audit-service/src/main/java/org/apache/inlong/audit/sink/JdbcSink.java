@@ -31,6 +31,8 @@ import javax.sql.DataSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Executors;
@@ -63,8 +65,10 @@ import static org.apache.inlong.audit.config.ConfigConstants.KEY_SOURCE_DB_SINK_
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SIZE;
 import static org.apache.inlong.audit.config.ConfigConstants.PREP_STMT_CACHE_SQL_LIMIT;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_AUDIT_DATA_TEMP_ADD_PARTITION_SQL;
+import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_AUDIT_DATA_TEMP_CHECK_PARTITION_SQL;
 import static org.apache.inlong.audit.config.SqlConstants.DEFAULT_AUDIT_DATA_TEMP_DELETE_PARTITION_SQL;
 import static org.apache.inlong.audit.config.SqlConstants.KEY_AUDIT_DATA_TEMP_ADD_PARTITION_SQL;
+import static org.apache.inlong.audit.config.SqlConstants.KEY_AUDIT_DATA_TEMP_CHECK_PARTITION_SQL;
 import static org.apache.inlong.audit.config.SqlConstants.KEY_AUDIT_DATA_TEMP_DELETE_PARTITION_SQL;
 
 /**
@@ -83,6 +87,7 @@ public class JdbcSink implements AutoCloseable {
 
     private final DateTimeFormatter FORMATTER_YYMMDDHH = DateTimeFormatter.ofPattern("yyyyMMdd");
     private final DateTimeFormatter FORMATTER_YY_MM_DD_HH = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final String checkPartitionSql;
 
     public JdbcSink(DataQueue dataQueue, SinkConfig sinkConfig) {
         this.dataQueue = dataQueue;
@@ -93,6 +98,9 @@ public class JdbcSink implements AutoCloseable {
 
         pullTimeOut = Configuration.getInstance().get(KEY_QUEUE_PULL_TIMEOUT,
                 DEFAULT_QUEUE_PULL_TIMEOUT);
+        checkPartitionSql = Configuration.getInstance().get(KEY_AUDIT_DATA_TEMP_CHECK_PARTITION_SQL,
+                DEFAULT_AUDIT_DATA_TEMP_CHECK_PARTITION_SQL);
+
     }
 
     /**
@@ -108,6 +116,9 @@ public class JdbcSink implements AutoCloseable {
                 TimeUnit.MILLISECONDS);
         if (Configuration.getInstance().get(KEY_ENABLE_MANAGE_PARTITIONS,
                 DEFAULT_ENABLE_MANAGE_PARTITIONS)) {
+            // Create MySQL data partition of today
+            addPartition(0);
+
             partitionManagerTimer.scheduleWithFixedDelay(this::managePartitions,
                     0,
                     Configuration.getInstance().get(KEY_CHECK_PARTITION_INTERVAL_HOURS,
@@ -178,7 +189,9 @@ public class JdbcSink implements AutoCloseable {
     }
 
     private void managePartitions() {
-        addPartition();
+        // Create MySQL data partition of tomorrow
+        addPartition(1);
+
         deletePartition();
     }
 
@@ -186,9 +199,13 @@ public class JdbcSink implements AutoCloseable {
         return "p" + date.format(FORMATTER_YYMMDDHH);
     }
 
-    private void addPartition() {
-        String partitionName = formatPartitionName(LocalDate.now().plusDays(1));
-        String partitionValue = LocalDate.now().plusDays(2).format(FORMATTER_YY_MM_DD_HH);
+    private void addPartition(long daysToAdd) {
+        String partitionName = formatPartitionName(LocalDate.now().plusDays(daysToAdd));
+        if (isPartitionExists(partitionName)) {
+            LOGGER.info("Partition [{}] is exist, dont`t need add this partition.", partitionName);
+            return;
+        }
+        String partitionValue = LocalDate.now().plusDays(daysToAdd + 1).format(FORMATTER_YY_MM_DD_HH);
         String addPartitionSQL = String.format(
                 Configuration.getInstance().get(KEY_AUDIT_DATA_TEMP_ADD_PARTITION_SQL,
                         DEFAULT_AUDIT_DATA_TEMP_ADD_PARTITION_SQL),
@@ -200,6 +217,10 @@ public class JdbcSink implements AutoCloseable {
         int daysToSubtract = Configuration.getInstance().get(KEY_AUDIT_DATA_TEMP_STORAGE_DAYS,
                 DEFAULT_AUDIT_DATA_TEMP_STORAGE_DAYS);
         String partitionName = formatPartitionName(LocalDate.now().minusDays(daysToSubtract));
+        if (!isPartitionExists(partitionName)) {
+            LOGGER.info("Partition [{}] is not exist, dont`t need delete this partition.", partitionName);
+            return;
+        }
         String deletePartitionSQL = String.format(
                 Configuration.getInstance().get(KEY_AUDIT_DATA_TEMP_DELETE_PARTITION_SQL,
                         DEFAULT_AUDIT_DATA_TEMP_DELETE_PARTITION_SQL),
@@ -215,6 +236,24 @@ public class JdbcSink implements AutoCloseable {
         } catch (Exception exception) {
             LOGGER.error("Execute update [{}] has exception!", updateSQL, exception);
         }
+    }
+
+    private boolean isPartitionExists(String partitionName) {
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(checkPartitionSql)) {
+            statement.setString(1, partitionName);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("count") > 0;
+                }
+            } catch (SQLException sqlException) {
+                LOGGER.error("An error occurred while checking partition [{}] existence:", partitionName, sqlException);
+            }
+        } catch (Exception exception) {
+            LOGGER.error("An exception occurred while checking partition [{}]existence:", partitionName, exception);
+        }
+        return false;
     }
 
     public void destroy() {

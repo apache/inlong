@@ -114,9 +114,11 @@ services:
       - AUDIT_JDBC_PASSWORD=inlong
       - MANAGER_OPENAPI_IP=manager
       - MANAGER_OPENAPI_PORT=8083
+      - AUDIT_PROXY_ADDRESS=audit:10081
       # pulsar or kafka
       - MQ_TYPE=pulsar
     ports:
+      - "10080:10080"
       - "10081:10081"
 
   # flink jobmanager
