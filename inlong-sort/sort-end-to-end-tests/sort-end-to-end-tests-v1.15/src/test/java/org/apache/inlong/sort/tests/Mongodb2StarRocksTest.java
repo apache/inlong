@@ -33,28 +33,25 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.utility.DockerImageName;
-import org.testcontainers.utility.MountableFile;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Updates.*;
+import static com.mongodb.client.model.Updates.combine;
+import static com.mongodb.client.model.Updates.set;
+import static org.apache.inlong.sort.tests.utils.StarRocksManager.INTER_CONTAINER_STAR_ROCKS_ALIAS;
+import static org.apache.inlong.sort.tests.utils.StarRocksManager.STAR_ROCKS_LOG;
+import static org.apache.inlong.sort.tests.utils.StarRocksManager.getNewStarRocksImageName;
+import static org.apache.inlong.sort.tests.utils.StarRocksManager.initializeStarRocksTable;
 
 /**
  * End-to-end tests for sort-connector-mongodb-cdc-v1.15 uber jar.
@@ -68,18 +65,11 @@ public class Mongodb2StarRocksTest extends FlinkContainerTestEnvJRE8 {
     private static final Path jdbcJar = TestUtils.getResource("sort-connector-starrocks.jar");
     private static final Path mysqlJdbcJar = TestUtils.getResource("mysql-driver.jar");
 
-    private static final Logger STAR_ROCKS_LOG = LoggerFactory.getLogger(StarRocksContainer.class);
-
     private static final String sqlFile;
 
     // ----------------------------------------------------------------------------------------
     // StarRocks Variables
     // ----------------------------------------------------------------------------------------
-    private static final String INTER_CONTAINER_STAR_ROCKS_ALIAS = "starrocks";
-    private static final String NEW_STARROCKS_REPOSITORY = "inlong-starrocks";
-    private static final String NEW_STARROCKS_TAG = "latest";
-    private static final String STAR_ROCKS_IMAGE_NAME = "starrocks/allin1-ubi:3.0.4";
-
     static {
         try {
             sqlFile = Paths.get(Postgres2StarRocksTest.class.getResource("/flinkSql/mongodb_test.sql").toURI())
@@ -87,27 +77,6 @@ public class Mongodb2StarRocksTest extends FlinkContainerTestEnvJRE8 {
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private static String getNewStarRocksImageName() {
-        return NEW_STARROCKS_REPOSITORY + ":" + NEW_STARROCKS_TAG;
-    }
-
-    public static void buildStarRocksImage() {
-        GenericContainer oldStarRocks = new GenericContainer(STAR_ROCKS_IMAGE_NAME);
-        Startables.deepStart(Stream.of(oldStarRocks)).join();
-        oldStarRocks.copyFileToContainer(MountableFile.forClasspathResource("/docker/starrocks/start_fe_be.sh"),
-                "/data/deploy/");
-        try {
-            oldStarRocks.execInContainer("chmod", "+x", "/data/deploy/start_fe_be.sh");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        oldStarRocks.getDockerClient()
-                .commitCmd(oldStarRocks.getContainerId())
-                .withRepository(NEW_STARROCKS_REPOSITORY)
-                .withTag(NEW_STARROCKS_TAG).exec();
-        oldStarRocks.stop();
     }
 
     @ClassRule
@@ -128,24 +97,7 @@ public class Mongodb2StarRocksTest extends FlinkContainerTestEnvJRE8 {
     @Before
     public void setup() {
         waitUntilJobRunning(Duration.ofSeconds(30));
-        initializeStarRocksTable();
-    }
-
-    private void initializeStarRocksTable() {
-        try (Connection conn =
-                DriverManager.getConnection(STAR_ROCKS.getJdbcUrl(), STAR_ROCKS.getUsername(),
-                        STAR_ROCKS.getPassword());
-                Statement stat = conn.createStatement()) {
-            stat.execute("CREATE TABLE IF NOT EXISTS test_output1 (\n"
-                    + "       _id INT NOT NULL,\n"
-                    + "       name VARCHAR(255) NOT NULL DEFAULT 'flink',\n"
-                    + "       description VARCHAR(512)\n"
-                    + ")\n"
-                    + "PRIMARY KEY(_id)\n"
-                    + "DISTRIBUTED by HASH(_id) PROPERTIES (\"replication_num\" = \"1\");");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        initializeStarRocksTable(STAR_ROCKS, "_id");
     }
 
     @AfterClass
