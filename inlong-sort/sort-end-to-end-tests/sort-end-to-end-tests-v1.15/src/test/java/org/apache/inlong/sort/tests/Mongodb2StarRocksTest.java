@@ -105,9 +105,9 @@ public class Mongodb2StarRocksTest extends FlinkContainerTestEnvJRE8 {
 
     public static void initializeStarRocksTable() {
         try (Connection conn =
-                     DriverManager.getConnection(STAR_ROCKS.getJdbcUrl(), STAR_ROCKS.getUsername(),
-                             STAR_ROCKS.getPassword());
-             Statement stat = conn.createStatement()) {
+                DriverManager.getConnection(STAR_ROCKS.getJdbcUrl(), STAR_ROCKS.getUsername(),
+                        STAR_ROCKS.getPassword());
+                Statement stat = conn.createStatement()) {
             stat.execute("CREATE TABLE IF NOT EXISTS test_output1 (\n"
                     + "       _id INT NOT NULL,\n"
                     + "       name VARCHAR(255) NOT NULL DEFAULT 'flink',\n"
