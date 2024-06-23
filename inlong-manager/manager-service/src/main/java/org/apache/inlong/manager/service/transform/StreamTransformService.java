@@ -41,15 +41,6 @@ public interface StreamTransformService {
     Integer save(TransformRequest request, String operator);
 
     /**
-     * Save the transform information.
-     *
-     * @param request the transform request
-     * @param opInfo userinfo of operator
-     * @return transform id after saving
-     */
-    Integer save(TransformRequest request, UserInfo opInfo);
-
-    /**
      * Query transform information based on inlong group id and inlong stream id.
      *
      * @param request the transform page request
@@ -76,16 +67,6 @@ public interface StreamTransformService {
     List<TransformResponse> listTransform(String groupId, String streamId);
 
     /**
-     * Query transform information based on inlong group id and inlong stream id.
-     *
-     * @param groupId the inlong group id
-     * @param streamId the inlong stream id
-     * @param opInfo userinfo of operator
-     * @return the transform response
-     */
-    List<TransformResponse> listTransform(String groupId, String streamId, UserInfo opInfo);
-
-    /**
      * Modify data transform information.
      *
      * @param request the transform request
@@ -95,15 +76,6 @@ public interface StreamTransformService {
     Boolean update(TransformRequest request, String operator);
 
     /**
-     * Modify data transform information.
-     *
-     * @param request the transform request
-     * @param opInfo userinfo of operator
-     * @return Whether succeed
-     */
-    Boolean update(TransformRequest request, UserInfo opInfo);
-
-    /**
      * Delete the stream transform by the given id.
      *
      * @param request delete request
@@ -111,14 +83,4 @@ public interface StreamTransformService {
      * @return Whether succeed
      */
     Boolean delete(DeleteTransformRequest request, String operator);
-
-    /**
-     * Delete the stream transform by the given id.
-     *
-     * @param request delete request
-     * @param opInfo userinfo of operator
-     * @return Whether succeed
-     */
-    Boolean delete(DeleteTransformRequest request, UserInfo opInfo);
-
 }

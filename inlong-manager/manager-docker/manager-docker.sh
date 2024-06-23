@@ -41,7 +41,7 @@ sed -i "s/data.cleansing.interval.seconds=.*$/data.cleansing.interval.seconds=${
 sed -i "s/data.cleansing.before.days=.*$/data.cleansing.before.days=${CLEANSING_BEFORE_DAYS}/g" "${conf_file}"
 sed -i "s/data.cleansing.batchSize=.*$/data.cleansing.batchSize=${CLEANSING_BATCHSIZE}/g" "${conf_file}"
 # for audit data
-sed -i "s/metrics.audit.proxy.hosts=.*$/metrics.audit.proxy.hosts=${AUDIT_PROXY_URL}/g" "${conf_file}"
+sed -i "s/audit.query.url=.*$/audit.query.url=${AUDIT_QUERY_URL}/g" "${conf_file}"
 # flink-sort-plugin.properties
 sed -i "s/flink.rest.address=.*$/flink.rest.address=${FLINK_HOST}/g" "${flink_conf_file}"
 sed -i "s/flink.rest.port=.*$/flink.rest.port=${FLINK_PORT}/g" "${flink_conf_file}"

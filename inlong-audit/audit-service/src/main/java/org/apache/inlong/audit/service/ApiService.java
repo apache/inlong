@@ -27,9 +27,7 @@ import org.apache.inlong.audit.config.Configuration;
 import org.apache.inlong.audit.entities.ApiType;
 import org.apache.inlong.audit.entities.AuditCycle;
 import org.apache.inlong.audit.entities.StatData;
-import org.apache.inlong.audit.entity.AuditComponent;
 import org.apache.inlong.audit.entity.AuditProxy;
-import org.apache.inlong.audit.heartbeat.ProxyHeartbeat;
 
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.Gson;
@@ -57,7 +55,6 @@ import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_GET_ID
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_GET_IPS_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_HOUR_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_MINUTES_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_PROXY_HEART_BEAT_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_REAL_LIMITER_QPS;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_API_THREAD_POOL_SIZE;
 import static org.apache.inlong.audit.config.OpenApiConstants.DEFAULT_HTTP_SERVER_BIND_PORT;
@@ -69,7 +66,6 @@ import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_GET_IDS_PA
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_GET_IPS_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_HOUR_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_MINUTES_PATH;
-import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_PROXY_HEART_BEAT_PATH;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_REAL_LIMITER_QPS;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_API_THREAD_POOL_SIZE;
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_BODY_ERR_DATA;
@@ -79,9 +75,7 @@ import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_HEADER_CO
 import static org.apache.inlong.audit.config.OpenApiConstants.KEY_HTTP_SERVER_BIND_PORT;
 import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_AUDIT_COMPONENT;
 import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_AUDIT_CYCLE;
-import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_AUDIT_HOST;
 import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_AUDIT_ID;
-import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_AUDIT_PORT;
 import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_AUDIT_TAG;
 import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_END_TIME;
 import static org.apache.inlong.audit.config.OpenApiConstants.PARAMS_INLONG_GROUP_Id;
@@ -96,13 +90,17 @@ import static org.apache.inlong.audit.entities.ApiType.GET_IDS;
 import static org.apache.inlong.audit.entities.ApiType.GET_IPS;
 import static org.apache.inlong.audit.entities.ApiType.HOUR;
 import static org.apache.inlong.audit.entities.ApiType.MINUTES;
-import static org.apache.inlong.audit.entities.ApiType.PROXY_HEARTBEAT;
 
 public class ApiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiService.class);
 
     public void start() {
+        if (!AuditProxyCache.getInstance().init()) {
+            LOGGER.error("Audit Proxy cache init failed! exit...");
+            System.exit(1);
+        }
+
         initHttpServer();
     }
 
@@ -130,9 +128,6 @@ public class ApiService {
             server.createContext(
                     Configuration.getInstance().get(KEY_API_GET_AUDIT_PROXY_PATH, DEFAULT_API_GET_AUDIT_PROXY_PATH),
                     new AuditHandler(GET_AUDIT_PROXY));
-            server.createContext(
-                    Configuration.getInstance().get(KEY_API_PROXY_HEART_BEAT_PATH, DEFAULT_API_PROXY_HEART_BEAT_PATH),
-                    new AuditHandler(PROXY_HEARTBEAT));
             server.start();
             LOGGER.info("Init http server success. Bind port is: {}", bindPort);
         } catch (Exception e) {
@@ -202,7 +197,6 @@ public class ApiService {
                 }
             }
             params.putIfAbsent(PARAMS_AUDIT_TAG, DEFAULT_AUDIT_TAG);
-            params.putIfAbsent(PARAMS_AUDIT_COMPONENT, AuditComponent.COMMON_AUDIT.getComponent());
             return params;
         }
 
@@ -228,10 +222,8 @@ public class ApiService {
                             && params.containsKey(PARAMS_END_TIME)
                             && params.containsKey(PARAMS_AUDIT_ID)
                             && params.containsKey(PARAMS_IP);
-                case PROXY_HEARTBEAT:
-                    return params.containsKey(PARAMS_AUDIT_HOST) && params.containsKey(PARAMS_AUDIT_PORT);
                 case GET_AUDIT_PROXY:
-                    return true;
+                    return params.containsKey(PARAMS_AUDIT_COMPONENT);
                 default:
                     return false;
             }
@@ -293,11 +285,6 @@ public class ApiService {
                         List<AuditProxy> auditProxy =
                                 AuditProxyCache.getInstance().getData(params.get(PARAMS_AUDIT_COMPONENT));
                         responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(auditProxy));
-                        break;
-                    case PROXY_HEARTBEAT:
-                        ProxyHeartbeat.getInstance().heartbeat(params.get(PARAMS_AUDIT_COMPONENT),
-                                params.get(PARAMS_AUDIT_HOST), Integer.parseInt(params.get(PARAMS_AUDIT_PORT)));
-                        responseJson.add(KEY_HTTP_BODY_ERR_DATA, gson.toJsonTree(new LinkedList<>()));
                         break;
                     default:
                         LOGGER.error("Unsupported interface type! type is {}", apiType);

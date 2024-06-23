@@ -272,6 +272,9 @@ public class InlongTenantServiceImpl implements InlongTenantService {
 
         String newName = copyDataNode(dataNodeName, type, from, to);
         sink.setDataNodeName(newName);
+        if (StringUtils.isNotBlank(sink.getSortTaskName())) {
+            sink.setSortTaskName(newName);
+        }
         return sinkMapper.updateByIdSelective(sink) == InlongConstants.AFFECTED_ONE_ROW;
 
     }

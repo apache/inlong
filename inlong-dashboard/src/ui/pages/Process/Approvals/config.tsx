@@ -43,9 +43,10 @@ export const getFilterFormContent = defaultValues => [
   {
     type: 'select',
     label: i18n.t('basic.Status'),
-    name: 'status',
+    name: 'statusSet',
     initialValue: defaultValues.status,
     props: {
+      mode: 'multiple',
       dropdownMatchSelectWidth: false,
       options: statusList,
       allowClear: true,

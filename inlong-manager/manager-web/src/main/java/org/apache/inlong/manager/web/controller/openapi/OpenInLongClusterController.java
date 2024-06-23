@@ -80,7 +80,7 @@ public class OpenInLongClusterController {
     public Response<ClusterTagResponse> getTag(@PathVariable Integer id) {
         Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "tag id cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(clusterService.getTag(id, LoginUserUtils.getLoginUser()));
+        return Response.success(clusterService.getTag(id, LoginUserUtils.getLoginUser().getName()));
     }
 
     @PostMapping(value = "/cluster/tag/list")
@@ -99,7 +99,7 @@ public class OpenInLongClusterController {
     public Response<Integer> saveTag(@Validated(SaveValidation.class) @RequestBody ClusterTagRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(clusterService.saveTag(request, LoginUserUtils.getLoginUser()));
+        return Response.success(clusterService.saveTag(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @PostMapping(value = "/cluster/tag/update")
@@ -108,7 +108,7 @@ public class OpenInLongClusterController {
     public Response<Boolean> updateTag(@Validated(UpdateValidation.class) @RequestBody ClusterTagRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(clusterService.updateTag(request, LoginUserUtils.getLoginUser()));
+        return Response.success(clusterService.updateTag(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @DeleteMapping(value = "/cluster/tag/delete/{id}")
@@ -118,7 +118,7 @@ public class OpenInLongClusterController {
     public Response<Boolean> deleteTag(@PathVariable Integer id) {
         Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "tag id cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(clusterService.deleteTag(id, LoginUserUtils.getLoginUser()));
+        return Response.success(clusterService.deleteTag(id, LoginUserUtils.getLoginUser().getName()));
     }
 
     @GetMapping(value = "/cluster/get/{id}")
@@ -127,7 +127,7 @@ public class OpenInLongClusterController {
     public Response<ClusterInfo> get(@PathVariable Integer id) {
         Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "cluster id cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(clusterService.get(id, LoginUserUtils.getLoginUser()));
+        return Response.success(clusterService.get(id, LoginUserUtils.getLoginUser().getName()));
     }
 
     @PostMapping(value = "/cluster/list")
@@ -146,7 +146,7 @@ public class OpenInLongClusterController {
     public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody ClusterRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(clusterService.save(request, LoginUserUtils.getLoginUser()));
+        return Response.success(clusterService.save(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @PostMapping(value = "/cluster/update")
@@ -155,7 +155,7 @@ public class OpenInLongClusterController {
     public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody ClusterRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(clusterService.update(request, LoginUserUtils.getLoginUser()));
+        return Response.success(clusterService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @PostMapping(value = "/cluster/bindTag")
@@ -164,7 +164,7 @@ public class OpenInLongClusterController {
     public Response<Boolean> bindTag(@Validated @RequestBody BindTagRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(clusterService.bindTag(request, LoginUserUtils.getLoginUser()));
+        return Response.success(clusterService.bindTag(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @DeleteMapping(value = "/cluster/delete/{id}")
@@ -183,7 +183,7 @@ public class OpenInLongClusterController {
     public Response<ClusterNodeResponse> getNode(@PathVariable Integer id) {
         Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "Cluster node id cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(clusterService.getNode(id, LoginUserUtils.getLoginUser()));
+        return Response.success(clusterService.getNode(id, LoginUserUtils.getLoginUser().getName()));
     }
 
     @PostMapping(value = "/cluster/node/list")
@@ -207,8 +207,7 @@ public class OpenInLongClusterController {
         Preconditions.expectNotBlank(inlongGroupId, ErrorCodeEnum.INVALID_PARAMETER, "inlongGroupId cannot be blank");
         Preconditions.expectNotBlank(clusterType, ErrorCodeEnum.INVALID_PARAMETER, "clusterType cannot be blank");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(clusterService.listNodeByGroupId(inlongGroupId,
-                clusterType, protocolType, LoginUserUtils.getLoginUser()));
+        return Response.success(clusterService.listNodeByGroupId(inlongGroupId, clusterType, protocolType));
     }
 
     @PostMapping(value = "/cluster/node/save")
@@ -217,7 +216,7 @@ public class OpenInLongClusterController {
     public Response<Integer> saveNode(@Validated @RequestBody ClusterNodeRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(clusterService.saveNode(request, LoginUserUtils.getLoginUser()));
+        return Response.success(clusterService.saveNode(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/cluster/node/update", method = RequestMethod.POST)
@@ -226,7 +225,7 @@ public class OpenInLongClusterController {
     public Response<Boolean> updateNode(@Validated(UpdateValidation.class) @RequestBody ClusterNodeRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(clusterService.updateNode(request, LoginUserUtils.getLoginUser()));
+        return Response.success(clusterService.updateNode(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/cluster/node/delete/{id}", method = RequestMethod.DELETE)
@@ -236,7 +235,7 @@ public class OpenInLongClusterController {
     public Response<Boolean> deleteNode(@PathVariable Integer id) {
         Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "cluster id cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
-        return Response.success(clusterService.deleteNode(id, LoginUserUtils.getLoginUser()));
+        return Response.success(clusterService.deleteNode(id, LoginUserUtils.getLoginUser().getName()));
     }
 
     @PostMapping(value = "/cluster/tenant/tag/save")
