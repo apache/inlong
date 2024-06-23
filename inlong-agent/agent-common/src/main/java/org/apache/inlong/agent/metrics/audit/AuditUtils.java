@@ -20,17 +20,9 @@ package org.apache.inlong.agent.metrics.audit;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.audit.AuditOperator;
 import org.apache.inlong.audit.entity.AuditComponent;
-import org.apache.inlong.audit.util.AuditConfig;
-
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Collections;
-import java.util.HashSet;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AUDIT_ENABLE;
-import static org.apache.inlong.agent.constant.AgentConstants.AUDIT_KEY_PROXYS;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AUDIT_ENABLE;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AUDIT_PROXYS;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_ADDR;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
@@ -42,10 +34,6 @@ import static org.apache.inlong.common.constant.Constants.DEFAULT_AUDIT_VERSION;
  */
 public class AuditUtils {
 
-    public static final String AUDIT_KEY_FILE_PATH = "audit.filePath";
-    public static final String AUDIT_DEFAULT_FILE_PATH = "/data/inlong/audit/";
-    public static final String AUDIT_KEY_MAX_CACHE_ROWS = "audit.maxCacheRows";
-    public static final int AUDIT_DEFAULT_MAX_CACHE_ROWS = 2000000;
     public static int AUDIT_ID_AGENT_READ_SUCCESS = 3;
     public static int AUDIT_ID_AGENT_SEND_SUCCESS = 4;
     public static int AUDIT_ID_AGENT_READ_FAILED = 524291;
@@ -79,25 +67,8 @@ public class AuditUtils {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         IS_AUDIT = conf.getBoolean(AUDIT_ENABLE, DEFAULT_AUDIT_ENABLE);
         if (IS_AUDIT) {
-            if (conf.hasKey(AUDIT_KEY_PROXYS)) {
-                // AuditProxy
-                String strIpPorts = conf.get(AUDIT_KEY_PROXYS, DEFAULT_AUDIT_PROXYS);
-                HashSet<String> proxySet = new HashSet<>();
-                if (!StringUtils.isBlank(strIpPorts)) {
-                    String[] ipPorts = strIpPorts.split("\\s+");
-                    Collections.addAll(proxySet, ipPorts);
-                }
-                AuditOperator.getInstance().setAuditProxy(proxySet);
-            } else {
-                AuditOperator.getInstance().setAuditProxy(AuditComponent.AGENT, conf.get(AGENT_MANAGER_ADDR),
-                        conf.get(AGENT_MANAGER_AUTH_SECRET_ID), conf.get(AGENT_MANAGER_AUTH_SECRET_KEY));
-            }
-
-            // AuditConfig
-            String filePath = conf.get(AUDIT_KEY_FILE_PATH, AUDIT_DEFAULT_FILE_PATH);
-            int maxCacheRow = conf.getInt(AUDIT_KEY_MAX_CACHE_ROWS, AUDIT_DEFAULT_MAX_CACHE_ROWS);
-            AuditConfig auditConfig = new AuditConfig(filePath, maxCacheRow);
-            AuditOperator.getInstance().setAuditConfig(auditConfig);
+            AuditOperator.getInstance().setAuditProxy(AuditComponent.AGENT, conf.get(AGENT_MANAGER_ADDR),
+                    conf.get(AGENT_MANAGER_AUTH_SECRET_ID), conf.get(AGENT_MANAGER_AUTH_SECRET_KEY));
         }
     }
 

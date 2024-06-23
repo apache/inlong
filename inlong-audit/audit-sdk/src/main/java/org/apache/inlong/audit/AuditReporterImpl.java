@@ -604,8 +604,8 @@ public class AuditReporterImpl implements Serializable {
         ProxyManager.getInstance().setManagerTimeout(timeoutMs);
     }
 
-    public void setAutoUpdateAuditProxy(boolean autoUpdateAuditProxy) {
-        ProxyManager.getInstance().setAutoUpdateAuditProxy(autoUpdateAuditProxy);
+    public void setAutoUpdateAuditProxy() {
+        ProxyManager.getInstance().setAutoUpdateAuditProxy();
     }
 
     public void setUpdateInterval(int updateInterval) {

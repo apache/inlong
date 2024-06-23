@@ -24,8 +24,6 @@ sed -i "s/agent.local.ip=.*$/agent.local.ip=$local_ip/g" "${file_path}/conf/agen
 sed -i "s/agent.fetcher.interval=.*$/agent.fetcher.interval=$AGENT_FETCH_INTERVAL/g" "${file_path}/conf/agent.properties"
 sed -i "s/agent.heartbeat.interval=.*$/agent.heartbeat.interval=$AGENT_HEARTBEAT_INTERVAL/g" "${file_path}/conf/agent.properties"
 sed -i "s/agent.manager.addr=.*$/agent.manager.addr=http:\/\/$MANAGER_OPENAPI_IP:$MANAGER_OPENAPI_PORT/g" "${file_path}/conf/agent.properties"
-sed -i "s/audit.enable=.*$/audit.enable=$AUDIT_ENABLE/g" "${file_path}/conf/agent.properties"
-sed -i "s/audit.proxys=.*$/audit.proxys=$AUDIT_PROXY_URL/g" "${file_path}/conf/agent.properties"
 sed -i "s/agent.cluster.tag=.*$/agent.cluster.tag=$CLUSTER_TAG/g" "${file_path}/conf/agent.properties"
 sed -i "s/agent.cluster.name=.*$/agent.cluster.name=$CLUSTER_NAME/g" "${file_path}/conf/agent.properties"
 sed -i "s/agent.cluster.inCharges=.*$/agent.cluster.inCharges=$CLUSTER_IN_CHARGES/g" "${file_path}/conf/agent.properties"

@@ -96,6 +96,7 @@ export class GroupDataTemplateInfo implements DataWithBackend, RenderRow, Render
   @FieldDecorator({
     type: 'input',
     initialValue: 0,
+    hidden: true,
     rules: [{ required: true }],
   })
   @I18n('pages.GroupDataTemplate.Version')

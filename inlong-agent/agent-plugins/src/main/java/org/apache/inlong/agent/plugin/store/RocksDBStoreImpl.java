@@ -82,8 +82,6 @@ public class RocksDBStoreImpl implements Store {
         File finalPath = new File(parentPath, childPath);
         storePath = finalPath.getAbsolutePath();
         RocksDB.loadLibrary();
-        final Options options = new Options();
-        options.setCreateIfMissing(true);
         try {
             boolean result = finalPath.mkdirs();
             LOGGER.info("create directory {}, result is {}", finalPath, result);

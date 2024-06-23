@@ -33,12 +33,11 @@ else
 fi
 
 sed -i "s/manager.hosts=.*$/manager.hosts=${MANAGER_OPENAPI_IP}:${MANAGER_OPENAPI_PORT}/g" "${common_conf_file}"
-sed -i "s/audit.enable=.*$/audit.enable=${AUDIT_ENABLE}/g" "${common_conf_file}"
-sed -i "s/audit.proxys=.*$/audit.proxys=${AUDIT_PROXY_URL}/g" "${common_conf_file}"
 sed -i "s/localhost.*$/${local_ip}/g" "${mq_conf_file}"
 sed -i "s/proxy.cluster.tag=.*$/proxy.cluster.tag=${CLUSTER_TAG}/g" "${common_conf_file}"
 sed -i "s/proxy.cluster.name=.*$/proxy.cluster.name=${CLUSTER_NAME}/g" "${common_conf_file}"
 sed -i "s/proxy.cluster.inCharges=.*$/proxy.cluster.inCharges=${CLUSTER_IN_CHARGES}/g" "${common_conf_file}"
+sed -i "s/audit.proxys.discovery.manager.enable=.*$/audit.proxys.discovery.manager.enable=true/g" "${common_conf_file}"
 
 bash +x ./bin/dataproxy-start.sh "${MQ_TYPE}"
 

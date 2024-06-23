@@ -112,7 +112,7 @@ public class InlongStreamController {
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
     public Response<InlongStreamInfo> get(@RequestParam String groupId, @RequestParam String streamId) {
-        return Response.success(streamService.get(groupId, streamId, LoginUserUtils.getLoginUser()));
+        return Response.success(streamService.get(groupId, streamId));
     }
 
     @RequestMapping(value = "/stream/getBrief", method = RequestMethod.GET)
