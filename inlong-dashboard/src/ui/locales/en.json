@@ -659,6 +659,8 @@
   "pages.GroupDetail.Audit.Day": "Day",
   "pages.GroupDetail.Audit.Sink": "Sink",
   "pages.GroupDetail.Audit.Item": "Audit item",
+  "pages.GroupDetail.Audit.Total": "Total",
+  "pages.GroupDetail.Audit.DatepickerRule": "Out of selectable time range",
   "pages.GroupDetail.Delay.QueryDate": "Query date",
   "pages.GroupDetail.Delay.AverageTitle": "Average transmission delay (ms)",
   "pages.GroupDetail.Delay.RealTimeTitle": "Transmission delay (ms)",
