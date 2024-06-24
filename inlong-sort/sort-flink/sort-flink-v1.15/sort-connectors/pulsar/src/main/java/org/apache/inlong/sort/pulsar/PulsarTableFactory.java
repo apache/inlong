@@ -69,6 +69,7 @@ import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SERVICE_URL;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SINK_CUSTOM_TOPIC_ROUTER;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SINK_MESSAGE_DELAY_INTERVAL;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SINK_TOPIC_ROUTING_MODE;
+import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_START_FROM_MESSAGE_ID;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_START_FROM_PUBLISH_TIME;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AFTER_MESSAGE_ID;
 import static org.apache.inlong.sort.pulsar.PulsarTableOptions.SOURCE_STOP_AT_MESSAGE_ID;
@@ -198,6 +199,7 @@ public class PulsarTableFactory implements DynamicTableSourceFactory {
                 SOURCE_SUBSCRIPTION_NAME,
                 SOURCE_SUBSCRIPTION_TYPE,
                 STARTUP_MODE,
+                SOURCE_START_FROM_MESSAGE_ID,
                 SOURCE_START_FROM_PUBLISH_TIME,
                 SOURCE_STOP_AT_MESSAGE_ID,
                 SOURCE_STOP_AFTER_MESSAGE_ID,
