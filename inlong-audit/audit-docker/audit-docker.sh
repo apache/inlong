@@ -61,6 +61,9 @@ sed -i "s/audit.store.jdbc.password=.*$/audit.store.jdbc.password=${AUDIT_JDBC_P
 sed -i "s/mysql.jdbc.url=.*$/mysql.jdbc.url=jdbc:mysql:\/\/${AUDIT_JDBC_URL}\/${AUDIT_DBNAME}/g" "${service_conf_file}"
 sed -i "s/mysql.jdbc.username=.*$/mysql.jdbc.username=${AUDIT_JDBC_USERNAME}/g" "${service_conf_file}"
 sed -i "s/mysql.jdbc.password=.*$/mysql.jdbc.password=${AUDIT_JDBC_PASSWORD}/g" "${service_conf_file}"
+sed -i "s/audit.proxy.address.agent=.*$/audit.proxy.address.agent = ${AUDIT_PROXY_ADDRESS}/g" "${service_conf_file}"
+sed -i "s/audit.proxy.address.dataproxy=.*$/audit.proxy.address.dataproxy = ${AUDIT_PROXY_ADDRESS}/g" "${service_conf_file}"
+sed -i "s/audit.proxy.address.sort=.*$/audit.proxy.address.sort = ${AUDIT_PROXY_ADDRESS}/g" "${service_conf_file}"
 
 # Whether the database table exists. If it does not exist, initialize the database and skip if it exists.
 if [[ "${AUDIT_JDBC_URL}" =~ (.+):([0-9]+) ]]; then

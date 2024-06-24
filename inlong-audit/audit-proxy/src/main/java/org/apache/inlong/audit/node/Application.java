@@ -18,7 +18,6 @@
 package org.apache.inlong.audit.node;
 
 import org.apache.inlong.audit.file.ConfigManager;
-import org.apache.inlong.audit.heartbeat.Heartbeat;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -76,8 +75,6 @@ public class Application {
     private MaterializedConfiguration materializedConfiguration;
     private MonitorService monitorServer;
     private final ReentrantLock lifecycleLock = new ReentrantLock();
-
-    private static final Heartbeat heartbeat = new Heartbeat();
 
     public Application() {
         this(new ArrayList<LifecycleAware>(0));
@@ -337,8 +334,6 @@ public class Application {
                 application = new Application();
                 application.handleConfigurationEvent(configurationProvider.getConfiguration());
             }
-
-            heartbeat.Start();
 
             // start application
             application.start();

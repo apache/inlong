@@ -15,30 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.entity;
+package org.apache.inlong.audit.config;
 
-public enum AuditComponent {
+/**
+ * Proxy constants
+ */
+public class ProxyConstants {
 
-    AGENT("Agent"), DATAPROXY("DataProxy"), SORT("Sort");
-    private final String component;
+    public static final String PROXY_SEPARATOR = ";";
+    public static final String IP_PORT_SEPARATOR = ":";
+    public static final String KEY_AUDIT_PROXY_ADDRESS_AGENT = "audit.proxy.address.agent";
+    public static final String DEFAULT_AUDIT_PROXY_ADDRESS_AGENT = "";
 
-    /**
-     * Constructor for the enum.
-     *
-     * @param component the name of the component
-     */
+    public static final String KEY_AUDIT_PROXY_ADDRESS_DATAPROXY = "audit.proxy.address.dataproxy";
+    public static final String DEFAULT_AUDIT_PROXY_ADDRESS_DATAPROXY = "";
 
-    AuditComponent(String component) {
-        this.component = component;
-    }
+    public static final String KEY_AUDIT_PROXY_ADDRESS_SORT = "audit.proxy.address.sort";
+    public static final String DEFAULT_AUDIT_PROXY_ADDRESS_SORT = "";
 
-    /**
-     * Returns the name of the component.
-     *
-     * @return the name of the component
-     */
-
-    public String getComponent() {
-        return component;
-    }
 }

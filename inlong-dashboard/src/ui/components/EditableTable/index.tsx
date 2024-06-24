@@ -27,6 +27,7 @@ import { useUpdateEffect } from '@/ui/hooks';
 import isEqual from 'lodash/isEqual';
 import styles from './index.module.less';
 import FieldParseModule, { RowType } from '@/ui/components/FieldParseModule';
+import SelectTemplateModal from '@/ui/components/SelectTemplateModal';
 
 // Row data exposed to the outside
 type RowValueType = Record<string, unknown>;
@@ -52,7 +53,9 @@ export interface ColumnsItemProps {
   // The value will be erased when invisible
   visible?: (val: unknown, rowVal: RowValueType) => boolean;
 }
-
+interface exOperationType {
+  templateOperation: Boolean;
+}
 export interface EditableTableProps
   extends Omit<TableProps<any>, 'value' | 'onChange' | 'columns'> {
   // id comes from FormItem, like name
@@ -73,6 +76,7 @@ export interface EditableTableProps
   fieldNameKey?: string;
   fieldTypeKey?: string;
   fieldCommentKey?: string;
+  exOperation?: exOperationType;
 }
 
 const getRowInitialValue = (columns: EditableTableProps['columns']) =>
@@ -202,7 +206,15 @@ const EditableTable = ({
       triggerChange(newData);
     }
   };
-
+  const onClearAppend = (fields: RowType[]) => {
+    const newRecord: RecordType[] = fields?.map((field: RowType) => ({
+      _etid: Math.random().toString(),
+      ...field,
+    }));
+    setData(newRecord);
+    triggerChange(newRecord);
+    setIsTemplateModalVisible(false);
+  };
   const onOverrideByParseField = (fields: RowType[]) => {
     // append empty row if upsertKey not null
     if (upsetByFieldKey) {
@@ -343,7 +355,7 @@ const EditableTable = ({
     } as any);
   }
   const [isParseFieldModalVisible, setIsParseFieldModalVisible] = useState(false);
-
+  const [isTemplateModalVisible, setIsTemplateModalVisible] = useState(false);
   return (
     <>
       <FieldParseModule
@@ -353,7 +365,14 @@ const EditableTable = ({
         visible={isParseFieldModalVisible}
         onHide={() => {
           setIsParseFieldModalVisible(false);
-          console.log('on hide');
+        }}
+      />
+      <SelectTemplateModal
+        key={'select-template-modal'}
+        visible={isTemplateModalVisible}
+        onClearAppend={onClearAppend}
+        onHide={() => {
+          setIsTemplateModalVisible(false);
         }}
       />
       <Table
@@ -391,6 +410,16 @@ const EditableTable = ({
                   >
                     {t('components.EditableTable.DeleteAll')}
                   </Button>
+                  {rest.exOperation?.templateOperation ? (
+                    <Button
+                      key={'select_template'}
+                      type="link"
+                      style={{ padding: 0 }}
+                      onClick={() => setIsTemplateModalVisible(true)}
+                    >
+                      {t('components.EditableTable.TemplateSelect')}
+                    </Button>
+                  ) : null}
                 </>
               )
             : null

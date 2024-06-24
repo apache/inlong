@@ -21,6 +21,7 @@ import org.apache.inlong.audit.entity.AuditComponent;
 import org.apache.inlong.audit.entity.AuditProxy;
 import org.apache.inlong.audit.entity.CommonResponse;
 import org.apache.inlong.audit.utils.HttpUtils;
+import org.apache.inlong.audit.utils.ThreadUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -42,13 +44,14 @@ public class ProxyManager {
     private final ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
     private final static String GET_AUDIT_PROXY_API_PATH = "/inlong/manager/openapi/audit/getAuditProxy";
     private int timeoutMs = 10000;
-    private boolean autoUpdateAuditProxy = false;
     private int updateInterval = 60000;
     private String auditProxyApiUrl;
     private AuditComponent component;
     private String secretId;
     private String secretKey;
     private volatile boolean timerStarted = false;
+    private static final int MAX_RETRY_TIMES = 1440;
+    private static final int RETRY_INTERVAL_MS = 10000;
 
     private ProxyManager() {
     }
@@ -69,9 +72,6 @@ public class ProxyManager {
 
     public synchronized void setManagerConfig(AuditComponent component, String managerHost, String secretId,
             String secretKey) {
-        if (!managerHost.endsWith("/")) {
-            managerHost = managerHost + "/";
-        }
         if (!(managerHost.startsWith("http://") || managerHost.startsWith("https://"))) {
             managerHost = "http://" + managerHost;
         }
@@ -82,34 +82,52 @@ public class ProxyManager {
         this.secretId = secretId;
         this.secretKey = secretKey;
 
-        updateAuditProxy();
-
-        if (autoUpdateAuditProxy) {
-            startTimer();
-            LOGGER.info("Auto update from manager");
-        }
+        retryAsync();
     }
 
-    private void updateAuditProxy() {
+    private void retryAsync() {
+        CompletableFuture.runAsync(() -> {
+            long retryIntervalMs = RETRY_INTERVAL_MS;
+            for (int retryTime = 1; retryTime < MAX_RETRY_TIMES; retryTime++) {
+                try {
+                    if (updateAuditProxy()) {
+                        LOGGER.info("Audit proxy updated successfully");
+                        break;
+                    }
+                    LOGGER.warn("Failed to update audit proxy. Retrying in {} times...", retryTime);
+                } catch (Exception exception) {
+                    LOGGER.error("Failed to update audit proxy. Retrying in {} times...", retryTime, exception);
+                } finally {
+                    ThreadUtils.sleep(Math.min(retryIntervalMs, updateInterval));
+                    retryIntervalMs *= 2;
+                }
+            }
+        });
+    }
+
+    private boolean updateAuditProxy() {
         String response = HttpUtils.httpGet(component.getComponent(), auditProxyApiUrl, secretId, secretKey, timeoutMs);
         if (response == null) {
             LOGGER.error("Response is null: {} {} {} ", component.getComponent(), auditProxyApiUrl, secretId,
                     secretKey);
-            return;
+            return false;
         }
         CommonResponse<AuditProxy> commonResponse =
                 CommonResponse.fromJson(response, AuditProxy.class);
-        if (commonResponse == null) {
+        if (commonResponse == null || commonResponse.getData().isEmpty()) {
             LOGGER.error("No data in the response: {} {} {} {}", component.getComponent(), auditProxyApiUrl, secretId,
                     secretKey);
-            return;
+            return false;
         }
         HashSet<String> proxyList = new HashSet<>();
         for (AuditProxy auditProxy : commonResponse.getData()) {
             proxyList.add(auditProxy.toString());
         }
+
         setAuditProxy(proxyList);
+
         LOGGER.info("Get audit proxy from manager: {}", proxyList);
+        return true;
     }
 
     private synchronized void startTimer() {
@@ -117,7 +135,7 @@ public class ProxyManager {
             return;
         }
         timer.scheduleWithFixedDelay(this::updateAuditProxy,
-                0,
+                updateInterval,
                 updateInterval,
                 TimeUnit.MILLISECONDS);
         timerStarted = true;
@@ -127,8 +145,9 @@ public class ProxyManager {
         this.timeoutMs = timeoutMs;
     }
 
-    public void setAutoUpdateAuditProxy(boolean autoUpdateAuditProxy) {
-        this.autoUpdateAuditProxy = autoUpdateAuditProxy;
+    public void setAutoUpdateAuditProxy() {
+        startTimer();
+        LOGGER.info("Auto update Audit Proxy info from manager");
     }
 
     public void setUpdateInterval(int updateInterval) {

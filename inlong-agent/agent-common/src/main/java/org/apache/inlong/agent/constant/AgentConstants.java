@@ -68,9 +68,6 @@ public class AgentConstants {
     public static final String AUDIT_ENABLE = "audit.enable";
     public static final boolean DEFAULT_AUDIT_ENABLE = true;
 
-    public static final String AUDIT_KEY_PROXYS = "audit.proxys";
-    public static final String DEFAULT_AUDIT_PROXYS = "";
-
     public static final String AGENT_HISTORY_PATH = "agent.history.path";
     public static final String DEFAULT_AGENT_HISTORY_PATH = ".history";
 

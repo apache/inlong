@@ -15,30 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.entity;
+package org.apache.inlong.audit.utils;
 
-public enum AuditComponent {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-    AGENT("Agent"), DATAPROXY("DataProxy"), SORT("Sort");
-    private final String component;
+public class ThreadUtils {
 
-    /**
-     * Constructor for the enum.
-     *
-     * @param component the name of the component
-     */
-
-    AuditComponent(String component) {
-        this.component = component;
-    }
-
-    /**
-     * Returns the name of the component.
-     *
-     * @return the name of the component
-     */
-
-    public String getComponent() {
-        return component;
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpUtils.class);
+    public static void sleep(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            LOGGER.error("Sleep was interrupted", e);
+        }
     }
 }

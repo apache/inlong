@@ -20,7 +20,6 @@ package org.apache.inlong.manager.service.source;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.OperationTarget;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
@@ -28,7 +27,6 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
@@ -124,47 +122,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
-    public Integer save(SourceRequest request, UserInfo opInfo) {
-        // Check if it can be added
-        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(request.getInlongGroupId());
-        if (groupEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
-                    String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
-        }
-        // get stream information
-        InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(
-                request.getInlongGroupId(), request.getInlongStreamId());
-        if (streamEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND,
-                    String.format("InlongStream does not exist with InlongGroupId=%s, InLongStreamId=%s",
-                            request.getInlongGroupId(), request.getInlongStreamId()));
-        }
-        // Check if the record to be added exists
-        List<StreamSourceEntity> existList = sourceMapper.selectByRelatedId(
-                request.getInlongGroupId(), request.getInlongStreamId(), request.getSourceName());
-        if (CollectionUtils.isNotEmpty(existList)) {
-            throw new BusinessException(ErrorCodeEnum.RECORD_DUPLICATE,
-                    String.format("source name=%s already exists with groupId=%s streamId=%s",
-                            request.getSourceName(), request.getInlongGroupId(), request.getInlongStreamId()));
-        }
-        // check inlong group status
-        GroupStatus status = GroupStatus.forCode(groupEntity.getStatus());
-        if (GroupStatus.notAllowedUpdate(status)) {
-            throw new BusinessException(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS,
-                    String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), status));
-        }
-        // According to the source type, save source information
-        StreamSourceOperator sourceOperator = operatorFactory.getInstance(request.getSourceType());
-        // Remove id in sourceField when save
-        List<StreamField> streamFields = request.getFieldList();
-        if (CollectionUtils.isNotEmpty(streamFields)) {
-            streamFields.forEach(streamField -> streamField.setId(null));
-        }
-        return sourceOperator.saveOpt(request, groupEntity.getStatus(), opInfo.getName());
-    }
-
-    @Override
     public List<BatchResult> batchSave(List<SourceRequest> requestList, String operator) {
         List<BatchResult> resultList = new ArrayList<>();
         for (SourceRequest request : requestList) {
@@ -201,21 +158,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         StreamSource streamSource = sourceOperator.getFromEntity(entity);
         LOGGER.debug("success to get source by id={}", id);
         return streamSource;
-    }
-
-    @Override
-    public StreamSource get(Integer id, UserInfo opInfo) {
-        StreamSourceEntity entity = sourceMapper.selectById(id);
-        if (entity == null) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_NOT_FOUND,
-                    String.format("source not found by id=%s", id));
-        }
-        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(entity.getInlongGroupId());
-        if (groupEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
-        }
-        StreamSourceOperator sourceOperator = operatorFactory.getInstance(entity.getSourceType());
-        return sourceOperator.getFromEntity(entity);
     }
 
     @Override
@@ -367,33 +309,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
-    public Boolean update(SourceRequest request, UserInfo opInfo) {
-        // check request parameter
-        chkUnmodifiableParams(request);
-        // Check if it can be update
-        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(request.getInlongGroupId());
-        if (groupEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.ILLEGAL_RECORD_FIELD_VALUE,
-                    String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
-        }
-        // check inlong group status
-        GroupStatus status = GroupStatus.forCode(groupEntity.getStatus());
-        if (GroupStatus.notAllowedUpdate(status)) {
-            throw new BusinessException(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS,
-                    String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), status));
-        }
-        StreamSourceOperator sourceOperator = operatorFactory.getInstance(request.getSourceType());
-        // Remove id in sourceField when save
-        List<StreamField> streamFields = request.getFieldList();
-        if (CollectionUtils.isNotEmpty(streamFields)) {
-            streamFields.forEach(streamField -> streamField.setId(null));
-        }
-        sourceOperator.updateOpt(request, groupEntity.getStatus(), groupEntity.getInlongGroupMode(), opInfo.getName());
-        return true;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean updateStatus(String groupId, String streamId, Integer targetStatus, String operator) {
         sourceMapper.updateStatusByRelatedId(groupId, streamId, targetStatus);
         LOGGER.info("success to update source status={} for groupId={}, streamId={} by {}",
@@ -436,6 +351,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         entity.setPreviousStatus(curStatus.getCode());
         entity.setStatus(nextStatus.getCode());
         entity.setIsDeleted(id);
+        entity.setModifier(operator);
         int rowCount = sourceMapper.updateByPrimaryKeySelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error("source has already updated with groupId={}, streamId={}, name={}, curVersion={}",
@@ -445,50 +361,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         sourceFieldMapper.deleteAll(id);
 
         LOGGER.info("success to delete source for id={} by user={}", id, operator);
-        return true;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
-    public Boolean delete(Integer id, UserInfo opInfo) {
-        StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
-        Preconditions.expectNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND,
-                ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
-
-        // Check if it can be delete
-        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(entity.getInlongGroupId());
-        if (groupEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
-                    String.format("InlongGroup does not exist with InlongGroupId=%s", entity.getInlongGroupId()));
-        }
-        // check record status
-        boolean isTemplateSource = CollectionUtils.isNotEmpty(sourceMapper.selectByTaskMapId(id));
-        SourceStatus curStatus = SourceStatus.forCode(entity.getStatus());
-        SourceStatus nextStatus = SourceStatus.TO_BE_ISSUED_DELETE;
-        // if source is frozen|failed|new, or if it is a template source or auto push source, delete directly
-        if (curStatus == SourceStatus.SOURCE_STOP || curStatus == SourceStatus.SOURCE_FAILED
-                || curStatus == SourceStatus.SOURCE_NEW || isTemplateSource
-                || SourceType.AUTO_PUSH.equals(entity.getSourceType())) {
-            nextStatus = SourceStatus.SOURCE_DISABLE;
-        }
-        if (!SourceStatus.isAllowedTransition(curStatus, nextStatus)) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_OPT_NOT_ALLOWED,
-                    String.format("current source status=%s for id=%s is not allowed to delete", entity.getStatus(),
-                            entity.getId()));
-        }
-        // delete record
-        entity.setPreviousStatus(curStatus.getCode());
-        entity.setStatus(nextStatus.getCode());
-        entity.setIsDeleted(id);
-        entity.setModifier(opInfo.getName());
-        int rowCount = sourceMapper.updateByPrimaryKeySelective(entity);
-        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
-                    String.format("source has already updated with groupId=%s, streamId=%s, name=%s, curVersion=%s",
-                            entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSourceName(),
-                            entity.getVersion()));
-        }
-        sourceFieldMapper.deleteAll(id);
         return true;
     }
 
