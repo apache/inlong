@@ -142,7 +142,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
                 </Table.Summary.Cell>
                 {sourceData.map((row, index) => (
                   <Table.Summary.Cell index={index + 1}>
-                    {row.auditSet.reduce((total, item) => total + item.count, 0)}
+                    {row.auditSet.reduce((total, item) => total + item.count, 0).toLocaleString()}
                   </Table.Summary.Cell>
                 ))}
               </Table.Summary.Row>

@@ -99,7 +99,8 @@ export const toTableData = (source, sourceDataMap) => {
       ...sourceDataMap[logTs],
       logTs,
     }));
-  return getSourceDataWithPercent(source, map);
+  let sourceData = getSourceDataWithPercent(source, map);
+  return getSourceDataWithCommas(sourceData);
 };
 
 export const getSourceDataWithPercent = (sourceKeys, sourceMap) => {
@@ -133,9 +134,25 @@ export const getDiff = (first, current) => {
     return '0%';
   }
   let result;
-  const diff = parseFloat(((current / first - 1) * 100).toFixed(0));
+  const diff = Math.ceil((current / first - 1) * 100);
   result = diff > 0 ? '+' + diff + '%' : diff + '%';
   return result;
+};
+
+export const getSourceDataWithCommas = sourceData => {
+  sourceData.map(source => {
+    for (const key in source) {
+      if (key !== 'logTs') {
+        let parts = source[key].split(' ');
+        let numberPart = parts[0];
+        let percentPart = parts[1] || '';
+        let number = parseInt(numberPart, 10);
+        let formattedNumber = number.toLocaleString();
+        source[key] = formattedNumber + ' ' + percentPart;
+      }
+    }
+  });
+  return sourceData;
 };
 
 let endTimeVisible = true;
