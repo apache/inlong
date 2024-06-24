@@ -35,6 +35,12 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-flink-dependencies-v1.15</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
             <artifactId>sort-connector-base</artifactId>
             <version>${project.version}</version>
         </dependency>
