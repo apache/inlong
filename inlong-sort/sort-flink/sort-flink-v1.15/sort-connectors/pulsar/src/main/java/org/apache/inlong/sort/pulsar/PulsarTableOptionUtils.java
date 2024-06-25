@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.pulsar;
 
+import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
@@ -31,7 +33,6 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.utils.LogicalTypeChecks;
-import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.apache.pulsar.client.api.SubscriptionType;
 import org.apache.pulsar.client.impl.MessageIdImpl;
 
