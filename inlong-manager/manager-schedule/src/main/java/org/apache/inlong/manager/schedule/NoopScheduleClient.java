@@ -26,7 +26,7 @@ public class NoopScheduleClient implements ScheduleEngineClient {
 
     @Override
     public boolean accept(String engineType) {
-        return ScheduleEngineType.NONE.getType().equals(engineType);
+        return ScheduleEngineType.NONE.getType().equalsIgnoreCase(engineType);
     }
 
     @Override

@@ -80,7 +80,7 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
         String groupId = scheduleInfo.getInlongGroupId();
         InlongGroupExtEntity scheduleStatusExt =
                 groupExtMapper.selectByUniqueKey(groupId, InlongConstants.REGISTER_SCHEDULE_STATUS);
-        if (InlongConstants.REGISTERED.equalsIgnoreCase(scheduleStatusExt.getKeyValue())) {
+        if (scheduleStatusExt != null && InlongConstants.REGISTERED.equalsIgnoreCase(scheduleStatusExt.getKeyValue())) {
             // change schedule state to approved
             scheduleService.updateStatus(scheduleInfo.getInlongGroupId(), APPROVED, operator);
             registerToScheduleEngine(scheduleInfo, operator, false);
@@ -129,8 +129,10 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean updateAndRegister(ScheduleInfoRequest request, String operator) {
-        updateOpt(request, operator);
-        return registerToScheduleEngine(CommonBeanUtils.copyProperties(request, ScheduleInfo::new), operator, true);
+        if (updateOpt(request, operator)) {
+            return registerToScheduleEngine(CommonBeanUtils.copyProperties(request, ScheduleInfo::new), operator, true);
+        }
+        return false;
     }
 
     /**
