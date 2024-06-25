@@ -52,10 +52,6 @@ class TableJdbcUpsertOutputFormat
     private JdbcBatchStatementExecutor<Row> deleteExecutor;
     private final StatementExecutorFactory<JdbcBatchStatementExecutor<Row>> deleteStatementExecutorFactory;
 
-    // audit
-    private String inlongMetric;
-    private String auditHostAndPorts;
-    private String auditKeys;
     TableJdbcUpsertOutputFormat(
             JdbcConnectionProvider connectionProvider,
             JdbcDmlOptions dmlOptions,

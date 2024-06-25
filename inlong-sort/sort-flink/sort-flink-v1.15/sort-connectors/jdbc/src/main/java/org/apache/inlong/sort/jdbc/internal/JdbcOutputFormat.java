@@ -287,10 +287,6 @@ public class JdbcOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStatementExe
                 }
             }
         }
-        // audit, flush metrics data
-        // if (sinkMetricData != null) {
-        // sinkMetricData.flushAuditData();
-        // }
     }
 
     protected void attemptFlush() throws SQLException {
