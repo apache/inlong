@@ -240,7 +240,7 @@ public class FlinkUtils {
         List<ListenerResult> failedStreams = listenerResults.stream()
                 .filter(t -> !t.isSuccess()).collect(Collectors.toList());
         if (failedStreams.isEmpty()) {
-            ListenerResult.success();
+            return ListenerResult.success();
         }
         return ListenerResult.fail(failedStreams.get(0).getRemark());
     }

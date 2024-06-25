@@ -20,13 +20,13 @@ package org.apache.inlong.manager.plugin.offline;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.workflow.processor.OfflineJobOperator;
 
-import org.springframework.stereotype.Component;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 import static org.apache.inlong.manager.plugin.util.FlinkUtils.submitFlinkJobs;
 
-@Component
+@NoArgsConstructor
 public class FlinkOfflineJobOperator implements OfflineJobOperator {
 
     @Override

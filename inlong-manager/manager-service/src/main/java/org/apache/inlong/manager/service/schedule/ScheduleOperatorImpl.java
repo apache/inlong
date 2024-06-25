@@ -56,7 +56,6 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
     @Autowired
     private ScheduleClientFactory scheduleClientFactory;
 
-    @Autowired
     private OfflineJobOperator offlineJobOperator;
 
     private ScheduleEngineClient scheduleEngineClient;
@@ -181,6 +180,9 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
 
     @Override
     public Boolean submitOfflineJob(String groupId, List<InlongStreamInfo> streamInfoList) {
+        if (offlineJobOperator == null) {
+            offlineJobOperator = OfflineJobOperatorFactory.getOfflineJobOperator();
+        }
         try {
             offlineJobOperator.submitOfflineJob(groupId, streamInfoList);
             LOGGER.info("Submit offline job for group {} and stream list {} success.", groupId,
