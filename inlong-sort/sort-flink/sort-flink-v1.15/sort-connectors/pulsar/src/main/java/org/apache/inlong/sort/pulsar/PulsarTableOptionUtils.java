@@ -31,6 +31,7 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.utils.LogicalTypeChecks;
+import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.apache.pulsar.client.api.SubscriptionType;
 import org.apache.pulsar.client.impl.MessageIdImpl;
 
@@ -175,7 +176,12 @@ public class PulsarTableOptionUtils {
 
     public static StartCursor getStartCursor(ReadableConfig tableOptions) {
         if (tableOptions.getOptional(STARTUP_MODE).isPresent()) {
-            return parseMessageIdStartCursor(tableOptions.get(STARTUP_MODE));
+            String mode = tableOptions.getOptional(STARTUP_MODE).get();
+            // to keep consistent with pulsar connector in flink 1.13
+            if (mode.equals(PulsarScanStartupMode.EXTERNAL_SUBSCRIPTION.getValue())) {
+                return parseMessageIdStartCursor(tableOptions.get(SOURCE_START_FROM_MESSAGE_ID));
+            }
+            return parseMessageIdStartCursor(mode);
         } else if (tableOptions.getOptional(SOURCE_START_FROM_MESSAGE_ID).isPresent()) {
             return parseMessageIdStartCursor(tableOptions.get(SOURCE_START_FROM_MESSAGE_ID));
         } else if (tableOptions.getOptional(SOURCE_START_FROM_PUBLISH_TIME).isPresent()) {
