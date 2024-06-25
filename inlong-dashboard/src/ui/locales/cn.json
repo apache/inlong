@@ -917,6 +917,6 @@
   "pages.GroupDataTemplate.VisibleRange":"可视范围",
   "pages.GroupDataTemplate.InCharges":"负责人",
   "pages.GroupDataTemplate.VisibleRange.All":"全局",
-  "pages.GroupDataTemplate.VisibleRange.InCharges":"责任人",
+  "pages.GroupDataTemplate.VisibleRange.InCharges":"负责人",
   "pages.GroupDataTemplate.VisibleRange.Tenant":"租户"
 }
