@@ -121,6 +121,7 @@ public final class PulsarTableOptions {
                                             code("earliest"),
                                             code("latest"),
                                             code("ledgerId:entryId:partitionId"),
+                                            code("external-subscription"),
                                             code("12:2:-1"))
                                     .build());
 
