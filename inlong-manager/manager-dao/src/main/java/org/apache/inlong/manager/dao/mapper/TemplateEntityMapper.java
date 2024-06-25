@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.inlong.manager.common.tenant.MultiTenantQuery;
 import org.apache.inlong.manager.dao.entity.TemplateEntity;
 import org.apache.inlong.manager.pojo.stream.TemplatePageRequest;
 
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
+@MultiTenantQuery
 public interface TemplateEntityMapper {
 
     int insert(TemplateEntity record);
