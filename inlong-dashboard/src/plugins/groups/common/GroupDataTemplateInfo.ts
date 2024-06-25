@@ -53,7 +53,7 @@ export class GroupDataTemplateInfo implements DataWithBackend, RenderRow, Render
     },
   })
   @ColumnDecorator()
-  @I18n('pages.GroupDataTemplate.InChargers')
+  @I18n('pages.GroupDataTemplate.InCharges')
   inCharges: string;
 
   @FieldDecorator({
@@ -66,7 +66,7 @@ export class GroupDataTemplateInfo implements DataWithBackend, RenderRow, Render
           value: 'ALL',
         },
         {
-          label: i18n.t('pages.GroupDataTemplate.VisibleRange.InCharger'),
+          label: i18n.t('pages.GroupDataTemplate.VisibleRange.InCharges'),
           value: 'IN_CHARGE',
         },
         {

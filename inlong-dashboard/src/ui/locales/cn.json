@@ -915,8 +915,8 @@
   "pages.GroupDataTemplate.TenantList":"租户",
   "pages.GroupDataTemplate.Version":"版本",
   "pages.GroupDataTemplate.VisibleRange":"可视范围",
-  "pages.GroupDataTemplate.InChargers":"负责人",
-  "pages.GroupDataTemplate.VisibleRange.All":"全局可见",
-  "pages.GroupDataTemplate.VisibleRange.InCharger":"责任人可见",
-  "pages.GroupDataTemplate.VisibleRange.Tenant":"租户可见"
+  "pages.GroupDataTemplate.InCharges":"负责人",
+  "pages.GroupDataTemplate.VisibleRange.All":"全局",
+  "pages.GroupDataTemplate.VisibleRange.InCharges":"责任人",
+  "pages.GroupDataTemplate.VisibleRange.Tenant":"租户"
 }

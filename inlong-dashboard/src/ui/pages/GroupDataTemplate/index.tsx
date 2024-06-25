@@ -116,7 +116,7 @@ const Comp: React.FC = () => {
         width: 100,
       },
       {
-        title: i18n.t('pages.GroupDataTemplate.InChargers'),
+        title: i18n.t('pages.GroupDataTemplate.InCharges'),
         dataIndex: 'inCharges',
         key: 'inCharges',
         width: 100,

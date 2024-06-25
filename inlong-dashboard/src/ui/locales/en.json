@@ -915,8 +915,8 @@
   "pages.GroupDataTemplate.TenantList":"Tenant",
   "pages.GroupDataTemplate.Version":"Version",
   "pages.GroupDataTemplate.VisibleRange":"Visible Range",
-  "pages.GroupDataTemplate.InChargers":"InChargers",
-  "pages.GroupDataTemplate.VisibleRange.All":"Globally Visible",
-  "pages.GroupDataTemplate.VisibleRange.InCharger":"InCharger Visible",
-  "pages.GroupDataTemplate.VisibleRange.Tenant":"Tenants Visible"
+  "pages.GroupDataTemplate.InChargers":"In-Charges",
+  "pages.GroupDataTemplate.VisibleRange.All":"Global",
+  "pages.GroupDataTemplate.VisibleRange.InCharges":"Owner",
+  "pages.GroupDataTemplate.VisibleRange.Tenant":"Tenant"
 }
