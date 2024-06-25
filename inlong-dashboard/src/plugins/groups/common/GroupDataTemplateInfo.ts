@@ -58,6 +58,33 @@ export class GroupDataTemplateInfo implements DataWithBackend, RenderRow, Render
 
   @FieldDecorator({
     type: 'select',
+    initialValue: 'ALL',
+    props: values => ({
+      options: [
+        {
+          label: i18n.t('pages.GroupDataTemplate.VisibleRange.All'),
+          value: 'ALL',
+        },
+        {
+          label: i18n.t('pages.GroupDataTemplate.VisibleRange.InCharger'),
+          value: 'IN_CHARGE',
+        },
+        {
+          label: i18n.t('pages.GroupDataTemplate.VisibleRange.Tenant'),
+          value: 'TENANT',
+        },
+      ],
+    }),
+    rules: [{ required: true }],
+  })
+  @I18n('pages.GroupDataTemplate.VisibleRange')
+  visibleRange: String;
+
+  @FieldDecorator({
+    type: 'select',
+    visible: values => {
+      return values.visibleRange === 'TENANT';
+    },
     props: {
       mode: 'multiple',
       filterOption: true,
@@ -101,14 +128,6 @@ export class GroupDataTemplateInfo implements DataWithBackend, RenderRow, Render
   })
   @I18n('pages.GroupDataTemplate.Version')
   version: number;
-
-  @FieldDecorator({
-    type: 'input',
-    initialValue: '',
-    rules: [{ required: true }],
-  })
-  @I18n('pages.GroupDataTemplate.VisibleRange')
-  visibleRange: String;
 
   @FieldDecorator({
     type: EditableTable,

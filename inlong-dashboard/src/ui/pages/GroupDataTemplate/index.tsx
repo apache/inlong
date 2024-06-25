@@ -132,12 +132,6 @@ const Comp: React.FC = () => {
           </>
         ),
       },
-      {
-        title: i18n.t('pages.GroupDataTemplate.Version'),
-        dataIndex: 'version',
-        key: 'version',
-        width: 200,
-      },
     ];
   }, []);
   const columns = useMemo(() => {
