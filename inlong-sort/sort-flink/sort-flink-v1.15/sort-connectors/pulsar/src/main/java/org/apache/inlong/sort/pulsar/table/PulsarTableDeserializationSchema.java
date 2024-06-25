@@ -19,7 +19,7 @@ package org.apache.inlong.sort.pulsar.table;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.metric.SourceExactlyMetric;
 
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -59,7 +59,7 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
 
     private final boolean innerFormat;
 
-    private SourceMetricData sourceMetricData;
+    private SourceExactlyMetric sourceExactlyMetric;
 
     private MetricOption metricOption;
 
@@ -90,7 +90,7 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
             keyDeserialization.open(context);
         }
         if (metricOption != null) {
-            sourceMetricData = new SourceMetricData(metricOption);
+            sourceExactlyMetric = new SourceExactlyMetric(metricOption);
         }
         valueDeserialization.open(context);
     }
@@ -98,7 +98,6 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
     @Override
     public void deserialize(Message<byte[]> message, Collector<RowData> collector)
             throws IOException {
-
         // Get the key row data
         List<RowData> keyRowData = new ArrayList<>();
         if (keyDeserialization != null) {
@@ -114,7 +113,7 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
         }
 
         MetricsCollector<RowData> metricsCollector =
-                new MetricsCollector<>(new ListCollector<>(valueRowData), sourceMetricData);
+                new MetricsCollector<>(new ListCollector<>(valueRowData), sourceExactlyMetric);
 
         // reset timestamp if the deserialize schema has not inner format
         if (!innerFormat) {
@@ -130,5 +129,23 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
     @Override
     public TypeInformation<RowData> getProducedType() {
         return producedTypeInfo;
+    }
+
+    public void flushAudit() {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.flushAudit();
+        }
+    }
+
+    public void updateCurrentCheckpointId(long checkpointId) {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateCurrentCheckpointId(checkpointId);
+        }
+    }
+
+    public void updateLastCheckpointId(long checkpointId) {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateLastCheckpointId(checkpointId);
+        }
     }
 }
