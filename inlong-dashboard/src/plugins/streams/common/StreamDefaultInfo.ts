@@ -173,11 +173,10 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
   dataEncoding: string;
 
   @FieldDecorator({
-    type: 'select',
-    initialValue: '124',
+    type: 'radio',
     props: values => ({
       disabled: [110].includes(values?.status),
-      dropdownMatchSelectWidth: false,
+      initialValue: '124',
       options: [
         {
           label: i18n.t('meta.Stream.DataSeparator.Space'),
@@ -204,11 +203,6 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
           value: '34',
         },
       ],
-      useInput: true,
-      useInputProps: {
-        placeholder: 'ASCII',
-      },
-      style: { width: 100 },
     }),
     rules: [
       {
