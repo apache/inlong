@@ -81,7 +81,13 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
 
     @Override
     public void snapshotState(StateSnapshotContext context) {
+        writerMetrics.updateCurrentCheckpointId(context.getCheckpointId());
+    }
+
+    @Override
+    public void notifyCheckpointComplete(long checkpointId) {
         writerMetrics.flushAudit();
+        writerMetrics.updateLastCheckpointId(checkpointId);
     }
 
     @Override

@@ -18,7 +18,7 @@
 package org.apache.inlong.sort.iceberg.sink;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.metric.SinkExactlyMetric;
 
 import com.codahale.metrics.SlidingWindowReservoir;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +41,8 @@ class IcebergStreamWriterMetrics {
     // It should also produce good accuracy for histogram distribution (like percentiles).
     private static final int HISTOGRAM_RESERVOIR_SIZE = 1024;
 
-    private MetricGroup metrics;
-    private SourceMetricData sourceMetricData;
+    private final MetricGroup metrics;
+    private SinkExactlyMetric sinkExactlyMetric;
 
     private final Counter flushedDataFiles;
     private final Counter flushedDeleteFiles;
@@ -77,7 +77,7 @@ class IcebergStreamWriterMetrics {
 
     public void registerMetrics(MetricOption metricOption) {
         if (metricOption != null) {
-            sourceMetricData = new SourceMetricData(metricOption, metrics);
+            sinkExactlyMetric = new SinkExactlyMetric(metricOption, metrics);
         } else {
             log.warn("failed to init sourceMetricData since the metricOption is null");
         }
@@ -109,14 +109,26 @@ class IcebergStreamWriterMetrics {
     }
 
     void outputMetricsWithEstimate(int size, long time) {
-        if (sourceMetricData != null) {
-            sourceMetricData.outputMetrics(1, size, time);
+        if (sinkExactlyMetric != null) {
+            sinkExactlyMetric.invoke(1, size, time);
         }
     }
 
     void flushAudit() {
-        if (sourceMetricData != null) {
-            sourceMetricData.flushAuditData();
+        if (sinkExactlyMetric != null) {
+            sinkExactlyMetric.flushAudit();
+        }
+    }
+
+    void updateCurrentCheckpointId(long checkpointId) {
+        if (sinkExactlyMetric != null) {
+            sinkExactlyMetric.updateCurrentCheckpointId(checkpointId);
+        }
+    }
+
+    void updateLastCheckpointId(long checkpointId) {
+        if (sinkExactlyMetric != null) {
+            sinkExactlyMetric.updateLastCheckpointId(checkpointId);
         }
     }
 }
