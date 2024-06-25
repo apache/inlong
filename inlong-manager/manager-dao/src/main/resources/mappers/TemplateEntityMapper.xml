@@ -61,6 +61,7 @@
     <select id="selectByCondition"
             parameterType="org.apache.inlong.manager.pojo.stream.TemplatePageRequest"
             resultType="org.apache.inlong.manager.dao.entity.TemplateEntity">
+        <bind name="_isInlongService" value="LoginUser.InlongService"/>
         select
         <include refid="Base_Column_List"/>
         from template t
