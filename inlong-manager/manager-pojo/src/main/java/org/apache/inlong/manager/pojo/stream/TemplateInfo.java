@@ -19,12 +19,14 @@ package org.apache.inlong.manager.pojo.stream;
 
 import org.apache.inlong.manager.common.validation.SaveValidation;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -52,6 +54,18 @@ public class TemplateInfo {
 
     @ApiModelProperty(value = "Bind tenants")
     private List<String> tenantList;
+
+    @ApiModelProperty(value = "Name of in creator")
+    private String creator;
+
+    @ApiModelProperty(value = "Name of in modifier")
+    private String modifier;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
+    private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
+    private Date modifyTime;
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
