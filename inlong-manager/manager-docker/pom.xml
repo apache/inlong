@@ -67,6 +67,11 @@
             <artifactId>sort-connector-mysql-cdc-v1.15</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-connector-jdbc-v1.15</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -121,7 +126,7 @@
                                     <outputDirectory>target/</outputDirectory>
                                     <includeArtifactIds>manager-web,
                                         sort-dist,sort-connector-pulsar-v1.15,sort-connector-kafka-v1.15,
-                                        sort-connector-mysql-cdc-v1.15</includeArtifactIds>
+                                        sort-connector-mysql-cdc-v1.15,sort-connector-jdbc-v1.15</includeArtifactIds>
                                     <excludeTransitive>true</excludeTransitive>
                                 </configuration>
                             </execution>
