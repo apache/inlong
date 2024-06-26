@@ -125,12 +125,6 @@ public class SortConfigListener implements SortOperateListener {
 
         try {
             for (InlongStreamInfo streamInfo : streamInfos) {
-                // do not build sort config if the group mode is offline
-                if (InlongConstants.DATASYNC_OFFLINE_MODE.equals(groupInfo.getInlongGroupMode())) {
-                    LOGGER.info("no need to build sort config for groupId={} streamId={} as the mode is offline",
-                            groupId, streamInfo.getInlongStreamId());
-                    continue;
-                }
                 List<StreamSink> sinkList = streamInfo.getSinkList();
                 if (CollectionUtils.isEmpty(sinkList)) {
                     continue;
@@ -143,8 +137,8 @@ public class SortConfigListener implements SortOperateListener {
                 }
             }
         } catch (Exception e) {
-            String msg = String.format("failed to build sort config for groupId=%s, ", groupId);
-            LOGGER.error(msg + "streamInfos=" + streamInfos, e);
+            String msg = String.format("Failed to build sort config for group=%s, ", groupId);
+            LOGGER.error("{} streamInfos={}", msg, streamInfos, e);
             throw new WorkflowListenerException(msg + e.getMessage());
         }
 

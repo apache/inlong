@@ -19,6 +19,9 @@ package org.apache.inlong.manager.service.schedule;
 
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfoRequest;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+
+import java.util.List;
 
 /**
  * Operator for schedule. Including:
@@ -92,4 +95,12 @@ public interface ScheduleOperator {
      * @Return whether succeed
      * */
     Boolean handleGroupApprove(String groupId);
+
+    /**
+     * Start offline sync job when the schedule instance callback.
+     * @param groupId groupId to start offline job
+     * @param streamInfoList stream list to start offline job
+     * @Return whether succeed
+     * */
+    Boolean submitOfflineJob(String groupId, List<InlongStreamInfo> streamInfoList);
 }
