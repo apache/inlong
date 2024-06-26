@@ -18,20 +18,25 @@
 package org.apache.inlong.manager.service.schedule;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
-import org.apache.inlong.manager.dao.mapper.ScheduleEntityMapper;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfoRequest;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.schedule.ScheduleClientFactory;
 import org.apache.inlong.manager.schedule.ScheduleEngineClient;
+import org.apache.inlong.manager.workflow.processor.OfflineJobOperator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.common.enums.ScheduleStatus.APPROVED;
 import static org.apache.inlong.manager.common.enums.ScheduleStatus.REGISTERED;
@@ -49,10 +54,9 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
     private InlongGroupExtEntityMapper groupExtMapper;
 
     @Autowired
-    private ScheduleEntityMapper scheduleMapper;
-
-    @Autowired
     private ScheduleClientFactory scheduleClientFactory;
+
+    private OfflineJobOperator offlineJobOperator;
 
     private ScheduleEngineClient scheduleEngineClient;
 
@@ -75,7 +79,7 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
         String groupId = scheduleInfo.getInlongGroupId();
         InlongGroupExtEntity scheduleStatusExt =
                 groupExtMapper.selectByUniqueKey(groupId, InlongConstants.REGISTER_SCHEDULE_STATUS);
-        if (InlongConstants.REGISTERED.equalsIgnoreCase(scheduleStatusExt.getKeyValue())) {
+        if (scheduleStatusExt != null && InlongConstants.REGISTERED.equalsIgnoreCase(scheduleStatusExt.getKeyValue())) {
             // change schedule state to approved
             scheduleService.updateStatus(scheduleInfo.getInlongGroupId(), APPROVED, operator);
             registerToScheduleEngine(scheduleInfo, operator, false);
@@ -124,8 +128,10 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean updateAndRegister(ScheduleInfoRequest request, String operator) {
-        updateOpt(request, operator);
-        return registerToScheduleEngine(CommonBeanUtils.copyProperties(request, ScheduleInfo::new), operator, true);
+        if (updateOpt(request, operator)) {
+            return registerToScheduleEngine(CommonBeanUtils.copyProperties(request, ScheduleInfo::new), operator, true);
+        }
+        return false;
     }
 
     /**
@@ -170,6 +176,23 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
         // change schedule state to approved
         scheduleService.updateStatus(groupId, APPROVED, null);
         return registerToScheduleEngine(scheduleInfo, null, false);
+    }
+
+    @Override
+    public Boolean submitOfflineJob(String groupId, List<InlongStreamInfo> streamInfoList) {
+        if (offlineJobOperator == null) {
+            offlineJobOperator = OfflineJobOperatorFactory.getOfflineJobOperator();
+        }
+        try {
+            offlineJobOperator.submitOfflineJob(groupId, streamInfoList);
+            LOGGER.info("Submit offline job for group {} and stream list {} success.", groupId,
+                    streamInfoList.stream().map(InlongStreamInfo::getName).collect(Collectors.toList()));
+        } catch (Exception e) {
+            String errorMsg = String.format("Submit offline job failed for groupId=%s", groupId);
+            LOGGER.error(errorMsg, e);
+            throw new BusinessException(errorMsg);
+        }
+        return true;
     }
 
 }

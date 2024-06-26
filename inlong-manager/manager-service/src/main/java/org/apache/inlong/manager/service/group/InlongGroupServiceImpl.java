@@ -931,4 +931,22 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         return groupInfoList;
     }
 
+    @Override
+    public Boolean submitOfflineJob(String groupId) {
+        // 1. get stream info list
+        InlongGroupInfo groupInfo = get(groupId);
+        if (groupInfo == null) {
+            String msg = String.format("InLong group not found for group=%s", groupId);
+            LOGGER.error(msg);
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+
+        List<InlongStreamInfo> streamInfoList = streamService.list(groupId);
+        if (CollectionUtils.isEmpty(streamInfoList)) {
+            LOGGER.warn("No stream info found for group {}, skip submit offline job", groupId);
+            return false;
+        }
+        return scheduleOperator.submitOfflineJob(groupId, streamInfoList);
+    }
+
 }

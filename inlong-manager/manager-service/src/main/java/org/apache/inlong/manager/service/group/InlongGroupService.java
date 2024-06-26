@@ -218,4 +218,11 @@ public interface InlongGroupService {
      */
     List<GroupFullInfo> getGroupByBackUpClusterTag(String clusterTag);
 
+    /**
+     * Submitting offline job for the given group.
+     * @param groupId the inlong group to submit offline job
+     *
+     * */
+    Boolean submitOfflineJob(String groupId);
+
 }

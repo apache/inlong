@@ -83,16 +83,16 @@ public class ScheduleInfoRequest {
             return false;
         }
         ScheduleInfoRequest that = (ScheduleInfoRequest) o;
-        return Objects.equals(id, that.id) && Objects.equals(inlongGroupId, that.inlongGroupId)
-                && Objects.equals(scheduleType, that.scheduleType) && Objects.equals(scheduleUnit,
-                        that.scheduleUnit)
+        return Objects.equals(inlongGroupId, that.inlongGroupId)
+                && Objects.equals(scheduleType, that.scheduleType)
+                && Objects.equals(scheduleUnit, that.scheduleUnit)
                 && Objects.equals(scheduleInterval, that.scheduleInterval)
-                && Objects.equals(startTime, that.startTime) && Objects.equals(endTime, that.endTime)
-                && Objects.equals(delayTime, that.delayTime) && Objects.equals(selfDepend,
-                        that.selfDepend)
+                && Objects.equals(startTime, that.startTime)
+                && Objects.equals(endTime, that.endTime)
+                && Objects.equals(delayTime, that.delayTime)
+                && Objects.equals(selfDepend, that.selfDepend)
                 && Objects.equals(taskParallelism, that.taskParallelism)
-                && Objects.equals(crontabExpression, that.crontabExpression) && Objects.equals(version,
-                        that.version);
+                && Objects.equals(crontabExpression, that.crontabExpression);
     }
 
     @Override
