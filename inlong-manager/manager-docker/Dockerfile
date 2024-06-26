@@ -47,10 +47,19 @@ RUN wget -P lib/ ${default_jdbc_connector_url}
 # add sort resource
 ADD target/sort-dist-${VERSION}.jar /opt/inlong-sort/
 RUN wget -P /opt/inlong-sort/connectors/ ${default_jdbc_connector_url}
-ADD target/sort-connector-pulsar-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
-ADD target/sort-connector-kafka-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
-ADD target/sort-connector-mysql-cdc-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-hbase-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-hudi-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-iceberg-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
 ADD target/sort-connector-jdbc-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-kafka-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-mongodb-cdc-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-mysql-cdc-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-postgres-cdc-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-pulsar-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-redis-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-sqlserver-cdc-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+
+
 # audit
 ENV AUDIT_QUERY_URL=127.0.0.1:10080
 ADD manager-docker.sh bin/
