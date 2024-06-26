@@ -321,7 +321,6 @@ public class JdbcOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStatementExe
         checkFlushException();
     }
 
-
     static JdbcBatchStatementExecutor<Row> createSimpleRowExecutor(
             String sql, int[] fieldTypes, boolean objectReuse) {
         return JdbcBatchStatementExecutor.simple(
