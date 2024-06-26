@@ -44,6 +44,7 @@
         <module>hudi</module>
         <module>kafka</module>
         <module>redis</module>
+        <module>jdbc</module>
     </modules>
 
     <properties>
