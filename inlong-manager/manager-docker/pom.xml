@@ -107,6 +107,11 @@
             <artifactId>sort-connector-starrocks-v1.15</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-connector-tubemq-v1.15</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -165,7 +170,8 @@
                                         sort-connector-kafka-v1.15,sort-connector-mongodb-cdc-v1.15,
                                         sort-connector-mysql-cdc-v1.15,sort-connector-postgres-cdc-v1.15,
                                         sort-connector-pulsar-v1.15,sort-connector-redis-v1.15,
-                                        sort-connector-sqlserver-cdc-v1.15,sort-connector-starrocks-v1.15</includeArtifactIds>
+                                        sort-connector-sqlserver-cdc-v1.15,sort-connector-starrocks-v1.15，
+                                        sort-connector-tubemq-v1.15</includeArtifactIds>
                                     <excludeTransitive>true</excludeTransitive>
                                 </configuration>
                             </execution>
