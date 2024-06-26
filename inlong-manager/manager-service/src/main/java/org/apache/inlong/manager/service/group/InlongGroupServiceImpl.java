@@ -936,7 +936,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // 1. get stream info list
         InlongGroupInfo groupInfo = get(groupId);
         if (groupInfo == null) {
-            String msg = String.format("InLong group not found for groupId=%s", groupId);
+            String msg = String.format("InLong group not found for group=%s", groupId);
             LOGGER.error(msg);
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }

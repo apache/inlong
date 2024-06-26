@@ -224,7 +224,7 @@ public class FlinkUtils {
                 .map(s -> s.getSinkList() == null ? 0 : s.getSinkList().size())
                 .reduce(0, Integer::sum);
         if (sinkCount == 0) {
-            log.warn("not any sink configured for group {} and stream list {}, skip launching sort job", groupId,
+            log.warn("Not any sink configured for group {} and stream list {}, skip launching sort job", groupId,
                     streamInfoList.stream()
                             .map(s -> s.getInlongGroupId() + ":" + s.getName()).collect(Collectors.toList()));
             return ListenerResult.success();
