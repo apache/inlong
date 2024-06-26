@@ -50,6 +50,8 @@ import static org.apache.flink.connector.pulsar.common.config.PulsarClientFactor
  *   <li>Failover, Exclusive: We would create {@link PulsarOrderedSourceReader}.
  *   <li>Shared, Key_Shared: We would create {@link PulsarUnorderedSourceReader}.
  * </ol>
+ * copy from {@link org.apache.flink.connector.pulsar.source.reader.PulsarSourceReaderFactory}
+ * not modified
  */
 @Internal
 public final class PulsarSourceReaderFactory {

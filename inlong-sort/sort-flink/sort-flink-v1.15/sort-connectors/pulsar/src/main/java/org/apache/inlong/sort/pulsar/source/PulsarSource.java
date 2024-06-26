@@ -61,6 +61,8 @@ import org.apache.flink.core.io.SimpleVersionedSerializer;
  * <p>See {@link PulsarSourceBuilder} for more details.
  *
  * @param <OUT> The output type of the source.
+ * copy from {@link org.apache.flink.connector.pulsar.source.PulsarSource}
+ * not modified
  */
 @PublicEvolving
 public final class PulsarSource<OUT>

@@ -52,6 +52,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * The source reader for pulsar subscription Shared and Key_Shared, which consumes the unordered
  * messages.
+ * copy from {@link org.apache.flink.connector.pulsar.source.reader.source.PulsarUnorderedSourceReader}
  */
 @Internal
 public class PulsarUnorderedSourceReader<OUT> extends PulsarSourceReaderBase<OUT> {

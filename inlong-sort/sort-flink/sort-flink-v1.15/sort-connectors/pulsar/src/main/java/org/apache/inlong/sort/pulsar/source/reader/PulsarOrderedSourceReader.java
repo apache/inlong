@@ -57,6 +57,7 @@ import java.util.function.Supplier;
 /**
  * The source reader for pulsar subscription Failover and Exclusive, which consumes the ordered
  * messages.
+ * copy from {@link org.apache.flink.connector.pulsar.source.reader.source.PulsarUnorderedSourceReader}
  */
 @Internal
 public class PulsarOrderedSourceReader<OUT> extends PulsarSourceReaderBase<OUT> {

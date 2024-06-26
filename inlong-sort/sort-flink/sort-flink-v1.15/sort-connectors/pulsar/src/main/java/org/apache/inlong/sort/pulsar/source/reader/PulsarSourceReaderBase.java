@@ -34,6 +34,8 @@ import org.apache.pulsar.client.api.PulsarClient;
  * The common pulsar source reader for both ordered & unordered message consuming.
  *
  * @param <OUT> The output message type for flink.
+ * copy from {@link org.apache.flink.connector.pulsar.source.reader.source.PulsarUnorderedSourceReader}
+ * not modified
  */
 abstract class PulsarSourceReaderBase<OUT>
         extends
