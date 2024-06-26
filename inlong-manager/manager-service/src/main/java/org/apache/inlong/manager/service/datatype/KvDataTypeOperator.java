@@ -53,7 +53,7 @@ public class KvDataTypeOperator implements DataTypeOperator {
             }
             for (int i = 0; i < bodys.length; i++) {
                 String body = bodys[i];
-                char kvSeparator = '&';
+                char kvSeparator = '=';
                 if (StringUtils.isNotBlank(streamInfo.getKvSeparator())) {
                     kvSeparator = (char) Integer.parseInt(streamInfo.getKvSeparator());
                 }
