@@ -55,7 +55,6 @@ public class ClusterNodeRequest {
     private String ip;
 
     @ApiModelProperty(value = "Cluster port")
-    @NotNull(message = "port cannot be null")
     private Integer port;
 
     @ApiModelProperty(value = "Username")
