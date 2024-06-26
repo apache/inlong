@@ -58,6 +58,7 @@ ADD target/sort-connector-postgres-cdc-v1.15-${VERSION}.jar /opt/inlong-sort/con
 ADD target/sort-connector-pulsar-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
 ADD target/sort-connector-redis-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
 ADD target/sort-connector-sqlserver-cdc-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-starrocks-v1.15-${VERSION}.jar /opt/inlong-sort/connectors/
 
 
 # audit
