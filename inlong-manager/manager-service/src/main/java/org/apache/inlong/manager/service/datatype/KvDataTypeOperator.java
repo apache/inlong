@@ -47,16 +47,19 @@ public class KvDataTypeOperator implements DataTypeOperator {
             if (StringUtils.isNotBlank(streamInfo.getDataSeparator())) {
                 separator = (char) Integer.parseInt(streamInfo.getDataSeparator());
             }
+            char kvSeparator = '=';
+            if (StringUtils.isNotBlank(streamInfo.getKvSeparator())) {
+                kvSeparator = (char) Integer.parseInt(streamInfo.getKvSeparator());
+            }
             String[] bodys = StringUtils.split(str, separator);
             if (bodys.length != fields.size()) {
+                log.warn(
+                        "The number of reported fields does not match the number of stream fields for groupId={}, streamId={}, reported field size ={}, stream field size ={}",
+                        streamInfo.getInlongGroupId(), streamInfo.getInlongStreamId(), bodys.length, fields.size());
                 return fields;
             }
             for (int i = 0; i < bodys.length; i++) {
                 String body = bodys[i];
-                char kvSeparator = '=';
-                if (StringUtils.isNotBlank(streamInfo.getKvSeparator())) {
-                    kvSeparator = (char) Integer.parseInt(streamInfo.getKvSeparator());
-                }
                 String[] values = StringUtils.split(body, kvSeparator);
                 fields.get(i).setFieldName(values[0]);
                 fields.get(i).setFieldValue(values[1]);
