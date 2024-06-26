@@ -285,7 +285,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             // deep clone the heartbeat
             HeartbeatMsg heartbeatMsg = JsonUtils.parseObject(JsonUtils.toJsonByte(heartbeat), HeartbeatMsg.class);
             assert heartbeatMsg != null;
-            if (StringUtils.isNotBlank(heartbeat.getPort())) {
+            if (StringUtils.isNotBlank(port) && ports != null) {
                 heartbeatMsg.setPort(ports[i].trim());
             }
             heartbeatMsg.setIp(ips[i].trim());
