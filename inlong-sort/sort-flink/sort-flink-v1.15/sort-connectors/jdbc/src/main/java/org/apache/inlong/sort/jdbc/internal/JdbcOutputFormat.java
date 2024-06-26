@@ -22,26 +22,19 @@ import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.util.CalculateObjectSizeUtils;
 
 import org.apache.flink.annotation.Internal;
-import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.io.RichOutputFormat;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.typeutils.InputTypeConfigurable;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
 import org.apache.flink.connector.jdbc.JdbcStatementBuilder;
 import org.apache.flink.connector.jdbc.internal.connection.JdbcConnectionProvider;
-import org.apache.flink.connector.jdbc.internal.connection.SimpleJdbcConnectionProvider;
 import org.apache.flink.connector.jdbc.internal.executor.JdbcBatchStatementExecutor;
-import org.apache.flink.connector.jdbc.internal.options.JdbcConnectorOptions;
-import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
-import org.apache.flink.connector.jdbc.statement.FieldNamedPreparedStatementImpl;
 import org.apache.flink.connector.jdbc.utils.JdbcUtils;
 import org.apache.flink.types.Row;
-import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.concurrent.ExecutorThreadFactory;
 import org.apache.flink.util.function.SerializableFunction;
 import org.slf4j.Logger;
@@ -53,9 +46,7 @@ import javax.annotation.Nullable;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.Serializable;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -330,132 +321,6 @@ public class JdbcOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStatementExe
         checkFlushException();
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /** Builder for a {@link JdbcOutputFormat}. */
-    public static class Builder {
-
-        private JdbcConnectorOptions options;
-        private String[] fieldNames;
-        private String[] keyFields;
-        private int[] fieldTypes;
-        private JdbcExecutionOptions.Builder executionOptionsBuilder =
-                JdbcExecutionOptions.builder();
-        // audit
-        private String inlongMetric;
-        private String auditHostAndPorts;
-        private String auditKeys;
-
-        /** required, jdbc options. */
-        public Builder setOptions(JdbcConnectorOptions options) {
-            this.options = options;
-            return this;
-        }
-
-        /** required, field names of this jdbc sink. */
-        public Builder setFieldNames(String[] fieldNames) {
-            this.fieldNames = fieldNames;
-            return this;
-        }
-
-        /** required, upsert unique keys. */
-        public Builder setKeyFields(String[] keyFields) {
-            this.keyFields = keyFields;
-            return this;
-        }
-
-        /** required, field types of this jdbc sink. */
-        public Builder setFieldTypes(int[] fieldTypes) {
-            this.fieldTypes = fieldTypes;
-            return this;
-        }
-
-        /**
-         * optional, flush max size (includes all append, upsert and delete records), over this
-         * number of records, will flush data.
-         */
-        public Builder setFlushMaxSize(int flushMaxSize) {
-            executionOptionsBuilder.withBatchSize(flushMaxSize);
-            return this;
-        }
-
-        /** optional, flush interval mills, over this time, asynchronous threads will flush data. */
-        public Builder setFlushIntervalMills(long flushIntervalMills) {
-            executionOptionsBuilder.withBatchIntervalMs(flushIntervalMills);
-            return this;
-        }
-
-        /** optional, max retry times for jdbc connector. */
-        public Builder setMaxRetryTimes(int maxRetryTimes) {
-            executionOptionsBuilder.withMaxRetries(maxRetryTimes);
-            return this;
-        }
-
-        public JdbcOutputFormat.Builder setInlongMetric(String inlongMetric) {
-            this.inlongMetric = inlongMetric;
-            return this;
-        }
-
-        public JdbcOutputFormat.Builder setAuditHostAndPorts(String auditHostAndPorts) {
-            this.auditHostAndPorts = auditHostAndPorts;
-            return this;
-        }
-
-        public JdbcOutputFormat.Builder setAuditKeys(String auditKeys) {
-            this.auditKeys = auditKeys;
-            return this;
-        }
-        /**
-         * Finalizes the configuration and checks validity.
-         *
-         * @return Configured JdbcUpsertOutputFormat
-         */
-        public JdbcOutputFormat<Tuple2<Boolean, Row>, Row, JdbcBatchStatementExecutor<Row>> build() {
-            checkNotNull(options, "No options supplied.");
-            checkNotNull(fieldNames, "No fieldNames supplied.");
-            JdbcDmlOptions dml =
-                    JdbcDmlOptions.builder()
-                            .withTableName(options.getTableName())
-                            .withDialect(options.getDialect())
-                            .withFieldNames(fieldNames)
-                            .withKeyFields(keyFields)
-                            .withFieldTypes(fieldTypes)
-                            .build();
-            if (dml.getKeyFields().isPresent() && dml.getKeyFields().get().length > 0) {
-                return new TableJdbcUpsertOutputFormat(
-                        new SimpleJdbcConnectionProvider(options),
-                        dml,
-                        executionOptionsBuilder.build(),
-                        inlongMetric,
-                        auditHostAndPorts,
-                        auditKeys);
-            } else {
-                // warn: don't close over builder fields
-                String sql =
-                        FieldNamedPreparedStatementImpl.parseNamedStatement(
-                                options.getDialect()
-                                        .getInsertIntoStatement(
-                                                dml.getTableName(), dml.getFieldNames()),
-                                new HashMap<>());
-                return new JdbcOutputFormat<>(
-                        new SimpleJdbcConnectionProvider(options),
-                        executionOptionsBuilder.build(),
-                        ctx -> createSimpleRowExecutor(
-                                sql,
-                                dml.getFieldTypes(),
-                                ctx.getExecutionConfig().isObjectReuseEnabled()),
-                        tuple2 -> {
-                            Preconditions.checkArgument(tuple2.f0);
-                            return tuple2.f1;
-                        },
-                        inlongMetric,
-                        auditHostAndPorts,
-                        auditKeys);
-            }
-        }
-    }
 
     static JdbcBatchStatementExecutor<Row> createSimpleRowExecutor(
             String sql, int[] fieldTypes, boolean objectReuse) {
@@ -479,15 +344,5 @@ public class JdbcOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStatementExe
                 reconnect
                         ? connectionProvider.reestablishConnection()
                         : connectionProvider.getConnection());
-    }
-
-    /** Returns configured {@code JdbcExecutionOptions}. */
-    public JdbcExecutionOptions getExecutionOptions() {
-        return executionOptions;
-    }
-
-    @VisibleForTesting
-    public Connection getConnection() {
-        return connectionProvider.getConnection();
     }
 }
