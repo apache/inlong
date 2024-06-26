@@ -23,13 +23,17 @@ import org.quartz.SchedulerException;
 import org.quartz.SchedulerListener;
 import org.quartz.Trigger;
 import org.quartz.TriggerKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation for quartz scheduler listener.
  * */
 public class QuartzSchedulerListener implements SchedulerListener {
 
-    QuartzScheduleEngine quartzScheduleEngine;
+    private static final Logger LOGGER = LoggerFactory.getLogger(QuartzSchedulerListener.class);
+
+    private QuartzScheduleEngine quartzScheduleEngine;
 
     public QuartzSchedulerListener(QuartzScheduleEngine quartzScheduleEngine) {
         this.quartzScheduleEngine = quartzScheduleEngine;
@@ -37,22 +41,24 @@ public class QuartzSchedulerListener implements SchedulerListener {
 
     @Override
     public void jobScheduled(Trigger trigger) {
-
+        LOGGER.info("Quartz job with key {} scheduled", trigger.getKey().getName());
     }
 
     @Override
     public void jobUnscheduled(TriggerKey triggerKey) {
-
+        LOGGER.info("Quartz job with key {} un-scheduled", triggerKey.getName());
     }
 
     @Override
     public void triggerFinalized(Trigger trigger) {
         quartzScheduleEngine.triggerFinalized(trigger);
+        LOGGER.info("Quartz trigger with key {} startTime {} ande endTime {} is finalized",
+                trigger.getKey().getName(), trigger.getStartTime(), trigger.getEndTime());
     }
 
     @Override
     public void triggerPaused(TriggerKey triggerKey) {
-
+        LOGGER.info("Quartz trigger with key {} paused", triggerKey.getName());
     }
 
     @Override
@@ -62,7 +68,7 @@ public class QuartzSchedulerListener implements SchedulerListener {
 
     @Override
     public void triggerResumed(TriggerKey triggerKey) {
-
+        LOGGER.info("Quartz trigger with key {} Resume", triggerKey.getName());
     }
 
     @Override
@@ -72,17 +78,17 @@ public class QuartzSchedulerListener implements SchedulerListener {
 
     @Override
     public void jobAdded(JobDetail jobDetail) {
-
+        LOGGER.info("New quartz job added, name {}", jobDetail.getKey().getName());
     }
 
     @Override
     public void jobDeleted(JobKey jobKey) {
-
+        LOGGER.info("Quartz job deleted, name {}", jobKey.getName());
     }
 
     @Override
     public void jobPaused(JobKey jobKey) {
-
+        LOGGER.info("Quartz job paused, name {}", jobKey.getName());
     }
 
     @Override
@@ -92,7 +98,7 @@ public class QuartzSchedulerListener implements SchedulerListener {
 
     @Override
     public void jobResumed(JobKey jobKey) {
-
+        LOGGER.info("Quartz job resumed, name {}", jobKey.getName());
     }
 
     @Override
@@ -102,7 +108,7 @@ public class QuartzSchedulerListener implements SchedulerListener {
 
     @Override
     public void schedulerError(String msg, SchedulerException cause) {
-
+        LOGGER.warn("Quartz schedule exception, errorMsg {}", msg, cause);
     }
 
     @Override
@@ -112,26 +118,26 @@ public class QuartzSchedulerListener implements SchedulerListener {
 
     @Override
     public void schedulerStarted() {
-
+        LOGGER.warn("Quartz scheduler started");
     }
 
     @Override
     public void schedulerStarting() {
-
+        LOGGER.warn("Quartz scheduler starting");
     }
 
     @Override
     public void schedulerShutdown() {
-
+        LOGGER.warn("Quartz scheduler shutdown");
     }
 
     @Override
     public void schedulerShuttingdown() {
-
+        LOGGER.warn("Quartz scheduler shutting down");
     }
 
     @Override
     public void schedulingDataCleared() {
-
+        LOGGER.warn("Quartz scheduler data cleared");
     }
 }

@@ -98,4 +98,7 @@ public interface InlongGroupApi {
 
     @GET("group/switch/finish/{groupId}")
     Call<Response<Boolean>> finishTagSwitch(@Path("groupId") String groupId);
+
+    @POST("group/submitOfflineJob/{groupId}")
+    Call<Response<Boolean>> submitOfflineJob(@Path("groupId") String groupId);
 }
