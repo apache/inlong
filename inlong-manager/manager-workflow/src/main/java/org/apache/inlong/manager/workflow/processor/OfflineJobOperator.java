@@ -15,32 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.schedule;
+package org.apache.inlong.manager.workflow.processor;
 
-import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
-import org.springframework.stereotype.Service;
+import java.util.List;
 
-@Service
-public class NoopScheduleClient implements ScheduleEngineClient {
+public interface OfflineJobOperator {
 
-    @Override
-    public boolean accept(String engineType) {
-        return ScheduleEngineType.NONE.getType().equalsIgnoreCase(engineType);
-    }
-
-    @Override
-    public boolean register(ScheduleInfo scheduleInfo) {
-        return true;
-    }
-
-    @Override
-    public boolean unregister(String groupId) {
-        return true;
-    }
-
-    @Override
-    public boolean update(ScheduleInfo scheduleInfo) {
-        return true;
-    }
+    void submitOfflineJob(String groupId, List<InlongStreamInfo> streamInfoList) throws Exception;
 }

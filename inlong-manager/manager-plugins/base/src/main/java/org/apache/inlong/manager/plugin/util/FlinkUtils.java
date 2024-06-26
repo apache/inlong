@@ -218,6 +218,33 @@ public class FlinkUtils {
         return flinkConfig;
     }
 
+    public static ListenerResult submitFlinkJobs(String groupId, List<InlongStreamInfo> streamInfoList)
+            throws Exception {
+        int sinkCount = streamInfoList.stream()
+                .map(s -> s.getSinkList() == null ? 0 : s.getSinkList().size())
+                .reduce(0, Integer::sum);
+        if (sinkCount == 0) {
+            log.warn("Not any sink configured for group {} and stream list {}, skip launching sort job", groupId,
+                    streamInfoList.stream()
+                            .map(s -> s.getInlongGroupId() + ":" + s.getName()).collect(Collectors.toList()));
+            return ListenerResult.success();
+        }
+
+        List<ListenerResult> listenerResults = new ArrayList<>();
+        for (InlongStreamInfo streamInfo : streamInfoList) {
+            listenerResults.add(FlinkUtils.submitFlinkJob(streamInfo, FlinkUtils.genFlinkJobName(streamInfo)));
+        }
+
+        // only one stream in group for now
+        // we can return the list of ListenerResult if support multi-stream in the future
+        List<ListenerResult> failedStreams = listenerResults.stream()
+                .filter(t -> !t.isSuccess()).collect(Collectors.toList());
+        if (failedStreams.isEmpty()) {
+            return ListenerResult.success();
+        }
+        return ListenerResult.fail(failedStreams.get(0).getRemark());
+    }
+
     public static ListenerResult submitFlinkJob(InlongStreamInfo streamInfo, String jobName) throws Exception {
         List<StreamSink> sinkList = streamInfo.getSinkList();
         List<String> sinkTypes = sinkList.stream().map(StreamSink::getSinkType).collect(Collectors.toList());
@@ -293,6 +320,11 @@ public class FlinkUtils {
 
     public static String genFlinkJobName(ProcessForm processForm, InlongStreamInfo streamInfo) {
         return Constants.SORT_JOB_NAME_GENERATOR.apply(processForm) + InlongConstants.HYPHEN
+                + streamInfo.getInlongStreamId();
+    }
+
+    public static String genFlinkJobName(InlongStreamInfo streamInfo) {
+        return String.format(Constants.SORT_JOB_NAME_TEMPLATE, streamInfo.getInlongGroupId()) + InlongConstants.HYPHEN
                 + streamInfo.getInlongStreamId();
     }
 }

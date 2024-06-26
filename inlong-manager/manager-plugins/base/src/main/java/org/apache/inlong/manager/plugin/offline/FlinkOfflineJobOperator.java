@@ -15,32 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.schedule;
+package org.apache.inlong.manager.plugin.offline;
 
-import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.workflow.processor.OfflineJobOperator;
 
-import org.springframework.stereotype.Service;
+import lombok.NoArgsConstructor;
 
-@Service
-public class NoopScheduleClient implements ScheduleEngineClient {
+import java.util.List;
 
-    @Override
-    public boolean accept(String engineType) {
-        return ScheduleEngineType.NONE.getType().equalsIgnoreCase(engineType);
-    }
+import static org.apache.inlong.manager.plugin.util.FlinkUtils.submitFlinkJobs;
 
-    @Override
-    public boolean register(ScheduleInfo scheduleInfo) {
-        return true;
-    }
+@NoArgsConstructor
+public class FlinkOfflineJobOperator implements OfflineJobOperator {
 
     @Override
-    public boolean unregister(String groupId) {
-        return true;
-    }
-
-    @Override
-    public boolean update(ScheduleInfo scheduleInfo) {
-        return true;
+    public void submitOfflineJob(String groupId, List<InlongStreamInfo> streamInfoList) throws Exception {
+        submitFlinkJobs(groupId, streamInfoList);
     }
 }
