@@ -45,6 +45,12 @@ public class InlongStreamExtParam implements Serializable {
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value")
     private Boolean ignoreParseError;
 
+    @ApiModelProperty(value = "Kv separator")
+    private String kvSeparator;
+
+    @ApiModelProperty(value = "Line separator")
+    private String lineSeparator;
+
     @ApiModelProperty(value = "If use extended fields")
     private Boolean useExtendedFields = false;
 
