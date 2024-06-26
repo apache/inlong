@@ -255,8 +255,7 @@ public class InlongGroupController {
     @RequestMapping(value = "/group/submitOfflineJob/{groupId}", method = RequestMethod.POST)
     @ApiOperation(value = "Submitting inlong offline job process")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
-    public Response<WorkflowResult> submitOfflineJob(@PathVariable String groupId) {
-        String operator = LoginUserUtils.getLoginUser().getName();
-        return Response.success(groupProcessOperation.restartProcess(groupId, operator));
+    public Response<Boolean> submitOfflineJob(@PathVariable String groupId) {
+        return Response.success(groupService.submitOfflineJob(groupId));
     }
 }
