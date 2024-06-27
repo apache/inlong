@@ -32,6 +32,7 @@ import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -50,6 +51,18 @@ public class QuartzScheduleEngine implements ScheduleEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QuartzScheduleEngine.class);
 
+    @Value("${server.host:127.0.0.1}")
+    private String host;
+
+    @Value("${server.port:8083}")
+    private int port;
+
+    @Value("${inlong.inner.secrete.id:admin}")
+    private String secretId;
+
+    @Value("${inlong.inner.secrete.key:87haw3VYTPqK5fK0}")
+    private String secretKey;
+
     private final Scheduler scheduler;
     private final Set<String> scheduledJobSet = new HashSet<>();
 
@@ -60,6 +73,7 @@ public class QuartzScheduleEngine implements ScheduleEngine {
         } catch (SchedulerException e) {
             throw new QuartzScheduleException("Failed to init quartz scheduler ", e);
         }
+        start();
     }
 
     @Override
@@ -68,7 +82,8 @@ public class QuartzScheduleEngine implements ScheduleEngine {
             // add listener
             scheduler.getListenerManager().addSchedulerListener(new QuartzSchedulerListener(this));
             scheduler.start();
-            LOGGER.info("Quartz scheduler engine started");
+            LOGGER.info("Quartz scheduler engine started, inlong manager host {}, port {}, secretId {}",
+                    host, port, secretId);
         } catch (SchedulerException e) {
             throw new QuartzScheduleException("Failed to start quartz scheduler ", e);
         }
@@ -79,7 +94,7 @@ public class QuartzScheduleEngine implements ScheduleEngine {
      * */
     public boolean triggerFinalized(Trigger trigger) {
         String jobName = trigger.getJobKey().getName();
-        LOGGER.info("Trigger finalized for job {}", jobName);
+        LOGGER.info("Quartz trigger finalized for job {}", jobName);
         return scheduledJobSet.remove(jobName);
     }
 
@@ -97,12 +112,12 @@ public class QuartzScheduleEngine implements ScheduleEngine {
         if (scheduledJobSet.contains(scheduleInfo.getInlongGroupId())) {
             throw new QuartzScheduleException("Group " + scheduleInfo.getInlongGroupId() + " is already registered");
         }
-        JobDetail jobDetail = genQuartzJobDetail(scheduleInfo, clz);
+        JobDetail jobDetail = genQuartzJobDetail(scheduleInfo, clz, host, port, secretId, secretKey);
         Trigger trigger = genQuartzTrigger(jobDetail, scheduleInfo);
         try {
             scheduler.scheduleJob(jobDetail, trigger);
             scheduledJobSet.add(scheduleInfo.getInlongGroupId());
-            LOGGER.info("Registered new schedule info for {}", scheduleInfo.getInlongGroupId());
+            LOGGER.info("Registered new quartz schedule info for {}", scheduleInfo.getInlongGroupId());
         } catch (SchedulerException e) {
             throw new QuartzScheduleException(e.getMessage());
         }
@@ -123,7 +138,7 @@ public class QuartzScheduleEngine implements ScheduleEngine {
             }
         }
         scheduledJobSet.remove(groupId);
-        LOGGER.info("Un-registered schedule info for {}", groupId);
+        LOGGER.info("Un-registered quartz schedule info for {}", groupId);
         return true;
     }
 
@@ -140,7 +155,7 @@ public class QuartzScheduleEngine implements ScheduleEngine {
     public boolean handleUpdate(ScheduleInfo scheduleInfo, Class<? extends Job> clz) {
         handleUnregister(scheduleInfo.getInlongGroupId());
         handleRegister(scheduleInfo, clz);
-        LOGGER.info("Updated schedule info for {}", scheduleInfo.getInlongGroupId());
+        LOGGER.info("Updated quartz schedule info for {}", scheduleInfo.getInlongGroupId());
         return false;
     }
 

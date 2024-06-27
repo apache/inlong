@@ -58,6 +58,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.RUNTIME_EXECUTION_MODE_BATCH;
+import static org.apache.inlong.manager.common.consts.InlongConstants.RUNTIME_EXECUTION_MODE_STREAM;
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.ADDRESS;
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.DRAIN;
 import static org.apache.inlong.manager.plugin.flink.enums.Constants.FLINK_VERSION;
@@ -220,6 +222,11 @@ public class FlinkUtils {
 
     public static ListenerResult submitFlinkJobs(String groupId, List<InlongStreamInfo> streamInfoList)
             throws Exception {
+        return submitFlinkJobs(groupId, streamInfoList, false);
+    }
+
+    public static ListenerResult submitFlinkJobs(String groupId, List<InlongStreamInfo> streamInfoList,
+            boolean isBatchJob) throws Exception {
         int sinkCount = streamInfoList.stream()
                 .map(s -> s.getSinkList() == null ? 0 : s.getSinkList().size())
                 .reduce(0, Integer::sum);
@@ -232,7 +239,8 @@ public class FlinkUtils {
 
         List<ListenerResult> listenerResults = new ArrayList<>();
         for (InlongStreamInfo streamInfo : streamInfoList) {
-            listenerResults.add(FlinkUtils.submitFlinkJob(streamInfo, FlinkUtils.genFlinkJobName(streamInfo)));
+            listenerResults.add(
+                    FlinkUtils.submitFlinkJob(streamInfo, FlinkUtils.genFlinkJobName(streamInfo), isBatchJob));
         }
 
         // only one stream in group for now
@@ -246,6 +254,11 @@ public class FlinkUtils {
     }
 
     public static ListenerResult submitFlinkJob(InlongStreamInfo streamInfo, String jobName) throws Exception {
+        return submitFlinkJob(streamInfo, jobName, false);
+    }
+
+    public static ListenerResult submitFlinkJob(InlongStreamInfo streamInfo, String jobName, boolean isBatchJob)
+            throws Exception {
         List<StreamSink> sinkList = streamInfo.getSinkList();
         List<String> sinkTypes = sinkList.stream().map(StreamSink::getSinkType).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(sinkList) || !SinkType.containSortFlinkSink(sinkTypes)) {
@@ -283,6 +296,11 @@ public class FlinkUtils {
         String sortUrl = kvConf.get(InlongConstants.SORT_URL);
         flinkInfo.setEndpoint(sortUrl);
         flinkInfo.setInlongStreamInfoList(Collections.singletonList(streamInfo));
+        if (isBatchJob) {
+            flinkInfo.setRuntimeExecutionMode(RUNTIME_EXECUTION_MODE_BATCH);
+        } else {
+            flinkInfo.setRuntimeExecutionMode(RUNTIME_EXECUTION_MODE_STREAM);
+        }
         FlinkOperation flinkOperation = FlinkOperation.getInstance();
         try {
             flinkOperation.genPath(flinkInfo, dataflow);

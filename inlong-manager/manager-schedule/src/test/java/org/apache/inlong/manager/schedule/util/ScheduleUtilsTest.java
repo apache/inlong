@@ -102,7 +102,7 @@ public class ScheduleUtilsTest extends BaseScheduleTest {
     @Test
     public void testGenJobDetail() {
         ScheduleInfo scheduleInfo = genDefaultScheduleInfo();
-        JobDetail jobDetail = ScheduleUtils.genQuartzJobDetail(scheduleInfo, MockJob.class);
+        JobDetail jobDetail = ScheduleUtils.genQuartzJobDetail(scheduleInfo, MockJob.class, null, null, null, null);
         assertNotNull(jobDetail);
 
         JobKey jobKey = jobDetail.getKey();
@@ -116,7 +116,7 @@ public class ScheduleUtilsTest extends BaseScheduleTest {
     public void testGenCronTrigger() {
         // normal
         ScheduleInfo scheduleInfo = genDefaultScheduleInfo();
-        JobDetail jobDetail = ScheduleUtils.genQuartzJobDetail(scheduleInfo, MockJob.class);
+        JobDetail jobDetail = ScheduleUtils.genQuartzJobDetail(scheduleInfo, MockJob.class, null, null, null, null);
 
         Trigger trigger = ScheduleUtils.genQuartzTrigger(jobDetail, scheduleInfo);
         assertNotNull(trigger);
@@ -139,7 +139,7 @@ public class ScheduleUtilsTest extends BaseScheduleTest {
 
         // cron
         scheduleInfo = genDefaultCronScheduleInfo();
-        jobDetail = ScheduleUtils.genQuartzJobDetail(scheduleInfo, MockJob.class);
+        jobDetail = ScheduleUtils.genQuartzJobDetail(scheduleInfo, MockJob.class, null, null, null, null);
 
         trigger = ScheduleUtils.genQuartzTrigger(jobDetail, scheduleInfo);
         assertNotNull(trigger);

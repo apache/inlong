@@ -172,10 +172,9 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
             LOGGER.warn("schedule info not exist for group {}", groupId);
             return false;
         }
-        ScheduleInfo scheduleInfo = getScheduleInfo(groupId);
         // change schedule state to approved
         scheduleService.updateStatus(groupId, APPROVED, null);
-        return registerToScheduleEngine(scheduleInfo, null, false);
+        return registerToScheduleEngine(getScheduleInfo(groupId), null, false);
     }
 
     @Override
