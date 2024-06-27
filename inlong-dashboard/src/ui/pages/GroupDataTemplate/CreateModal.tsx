@@ -35,7 +35,7 @@ export interface Props extends ModalProps {
 
 const Comp: React.FC<Props> = ({ id, templateName, ...modalProps }) => {
   const [form] = useForm();
-
+  const [hidden, setHidden] = useState(true);
   const { data: savedData, run: getData } = useRequest(
     () => ({
       url: `/template/get`,
@@ -51,6 +51,11 @@ const Comp: React.FC<Props> = ({ id, templateName, ...modalProps }) => {
         inCharges: result.inCharges?.split(','),
       }),
       onSuccess: result => {
+        if (result.visibleRange === 'TENANT') {
+          setHidden(false);
+        } else {
+          setHidden(true);
+        }
         form.setFieldsValue(dataToValues(result));
       },
     },
@@ -84,12 +89,18 @@ const Comp: React.FC<Props> = ({ id, templateName, ...modalProps }) => {
       }
     } else {
       form.resetFields();
+      setHidden(true);
     }
   }, [modalProps.open]);
 
   const content = useMemo(() => {
-    return new GroupDataTemplateInfo().renderRow();
-  }, []);
+    return new GroupDataTemplateInfo().renderRow().map(item => {
+      if (item.name === 'tenantList') {
+        item = { ...item, hidden: hidden };
+      }
+      return item;
+    });
+  }, [hidden]);
   return (
     <Modal
       width={1000}
@@ -104,7 +115,20 @@ const Comp: React.FC<Props> = ({ id, templateName, ...modalProps }) => {
         </Button>,
       ]}
     >
-      <FormGenerator content={content} form={form} onValuesChange={(c, values) => {}} useMaxWidth />
+      <FormGenerator
+        content={content}
+        form={form}
+        onValuesChange={(c, values) => {
+          if (Object.keys(c)[0] === 'visibleRange') {
+            if (Object.values(c)[0] === 'TENANT') {
+              setHidden(false);
+            } else {
+              setHidden(true);
+            }
+          }
+        }}
+        useMaxWidth
+      />
     </Modal>
   );
 };

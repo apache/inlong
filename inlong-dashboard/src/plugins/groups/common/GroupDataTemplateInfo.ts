@@ -82,9 +82,7 @@ export class GroupDataTemplateInfo implements DataWithBackend, RenderRow, Render
 
   @FieldDecorator({
     type: 'select',
-    visible: values => {
-      return values.visibleRange === 'TENANT';
-    },
+    hidden: true,
     props: {
       mode: 'multiple',
       filterOption: true,
