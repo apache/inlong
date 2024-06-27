@@ -178,6 +178,7 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
 
   @FieldDecorator({
     type: 'select',
+    hidden: true,
     props: {
       allowClear: true,
       dropdownMatchSelectWidth: false,

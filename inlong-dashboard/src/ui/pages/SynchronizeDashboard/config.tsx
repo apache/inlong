@@ -95,6 +95,7 @@ export const useColumns = ({ onDelete, openModal, onRestart, onStop }) => {
     .concat([
       {
         title: i18n.t('basic.Operating'),
+        width: 200,
         dataIndex: 'action',
         render: (text, record) => (
           <>

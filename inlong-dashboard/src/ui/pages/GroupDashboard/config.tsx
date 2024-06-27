@@ -97,6 +97,7 @@ export const useColumns = ({ onDelete, openModal, onRestart, onStop }) => {
       {
         title: i18n.t('basic.Operating'),
         dataIndex: 'action',
+        width: 200,
         render: (text, record) => (
           <>
             <Button type="link">
