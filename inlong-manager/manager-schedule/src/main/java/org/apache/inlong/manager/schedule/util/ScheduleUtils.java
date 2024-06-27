@@ -33,6 +33,8 @@ import org.quartz.SimpleScheduleBuilder;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -42,9 +44,21 @@ import java.util.Date;
  * */
 public class ScheduleUtils {
 
-    public static JobDetail genQuartzJobDetail(ScheduleInfo scheduleInfo, Class<? extends Job> clz) {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleUtils.class);
+
+    public static final String MANAGER_HOST = "HOST";
+    public static final String MANAGER_PORT = "PORT";
+    public static final String SECRETE_ID = "SECRETE_ID";
+    public static final String SECRETE_KEY = "SECRETE_KEY";
+
+    public static JobDetail genQuartzJobDetail(ScheduleInfo scheduleInfo, Class<? extends Job> clz,
+            String host, Integer port, String secreteId, String secreteKey) {
         return JobBuilder.newJob(clz)
                 .withIdentity(scheduleInfo.getInlongGroupId())
+                .usingJobData(MANAGER_HOST, host)
+                .usingJobData(MANAGER_PORT, port)
+                .usingJobData(SECRETE_ID, secreteId)
+                .usingJobData(SECRETE_KEY, secreteKey)
                 .build();
     }
 
@@ -57,6 +71,12 @@ public class ScheduleUtils {
         if (type == null) {
             throw new QuartzScheduleException("Invalid schedule type: " + scheduleType);
         }
+        LOGGER.info("Creating quartz trigger for key : {}, startTime : {}, endTime : {}, scheduleTYpe : {}, "
+                + "scheduleUnit : {}, scheduleInterval : {}, crontabExpression : {}",
+                key, startTime, endTime, type.name(),
+                scheduleInfo.getScheduleUnit(),
+                scheduleInfo.getScheduleInterval(),
+                scheduleInfo.getCrontabExpression());
         switch (type) {
             case NORMAL:
                 return TriggerBuilder.newTrigger()

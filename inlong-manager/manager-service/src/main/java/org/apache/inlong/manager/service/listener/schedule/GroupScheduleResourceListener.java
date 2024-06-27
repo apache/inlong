@@ -71,7 +71,7 @@ public class GroupScheduleResourceListener implements ScheduleOperateListener {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         InlongGroupInfo groupInfo = form.getGroupInfo();
         final String groupId = groupInfo.getInlongGroupId();
-        log.info("begin to register schedule info for groupId={}", groupId);
+        log.info("begin to process schedule resource for groupId={}", groupId);
 
         // handle schedule info after group approved
         scheduleOperator.handleGroupApprove(groupId);
@@ -79,7 +79,7 @@ public class GroupScheduleResourceListener implements ScheduleOperateListener {
         // after register schedule info successfully, add ext property to group ext info
         saveInfo(groupInfo, InlongConstants.REGISTER_SCHEDULE_STATUS,
                 InlongConstants.REGISTERED, groupInfo.getExtList());
-        log.info("success to register schedule info for group={}", groupId);
+        log.info("success to process schedule resource for group={}", groupId);
         return ListenerResult.success();
     }
 

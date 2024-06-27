@@ -320,4 +320,9 @@ public class InlongGroupClient {
         return response.getData();
     }
 
+    public Boolean submitOfflineJob(String groupId) {
+        Response<Boolean> responseBody = ClientUtils.executeHttpCall(inlongGroupApi.submitOfflineJob(groupId));
+        ClientUtils.assertRespSuccess(responseBody);
+        return responseBody.getData();
+    }
 }
