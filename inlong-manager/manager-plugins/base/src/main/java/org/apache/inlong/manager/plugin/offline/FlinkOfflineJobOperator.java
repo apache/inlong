@@ -31,6 +31,6 @@ public class FlinkOfflineJobOperator implements OfflineJobOperator {
 
     @Override
     public void submitOfflineJob(String groupId, List<InlongStreamInfo> streamInfoList) throws Exception {
-        submitFlinkJobs(groupId, streamInfoList);
+        submitFlinkJobs(groupId, streamInfoList, true);
     }
 }
