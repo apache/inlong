@@ -81,6 +81,7 @@ public class InLongPulsarFetcherImplTest {
 
         when(clientContext.getConfig()).thenReturn(sortClientConfig);
         when(sortClientConfig.getSortTaskId()).thenReturn("sortTaskId");
+        when(sortClientConfig.getSubscription()).thenReturn("sortTaskId");
 
     }
 
