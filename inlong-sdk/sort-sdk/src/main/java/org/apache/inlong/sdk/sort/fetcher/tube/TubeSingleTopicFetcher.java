@@ -71,7 +71,7 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
         TubeClientConfig tubeClientConfig = tubeConsumerCreator.getTubeClientConfig();
         try {
             ConsumerConfig consumerConfig = new ConsumerConfig(tubeClientConfig.getMasterInfo(),
-                    context.getConfig().getSortTaskId());
+                    context.getConfig().getSubscription());
 
             messageConsumer = tubeConsumerCreator.getMessageSessionFactory().createPullConsumer(consumerConfig);
             if (messageConsumer != null) {
