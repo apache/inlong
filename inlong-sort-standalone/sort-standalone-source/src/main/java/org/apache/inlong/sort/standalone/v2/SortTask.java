@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.standalone.v2;
 
-import org.apache.inlong.common.pojo.sort.SortTaskConfig;
+import org.apache.inlong.common.pojo.sort.TaskConfig;
 import org.apache.inlong.sort.standalone.PropertiesConfigurationProvider;
 import org.apache.inlong.sort.standalone.config.holder.v2.SortConfigHolder;
 import org.apache.inlong.sort.standalone.utils.v2.FlumeConfigGenerator;
@@ -48,7 +48,7 @@ public class SortTask {
     }
 
     public void start() {
-        SortTaskConfig config = SortConfigHolder.getTaskConfig(taskName);
+        TaskConfig config = SortConfigHolder.getTaskConfig(taskName);
         if (config == null) {
             return;
         }

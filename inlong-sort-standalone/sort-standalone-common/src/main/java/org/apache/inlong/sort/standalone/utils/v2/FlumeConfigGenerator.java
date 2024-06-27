@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.standalone.utils.v2;
 
-import org.apache.inlong.common.pojo.sort.SortTaskConfig;
+import org.apache.inlong.common.pojo.sort.TaskConfig;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 
 import java.util.HashMap;
@@ -36,7 +36,7 @@ public class FlumeConfigGenerator {
     public static final String KEY_ROLLBACK_START_TIME = "rollback.startTime";
     public static final String KEY_ROLLBACK_STOP_TIME = "rollback.stopTime";
 
-    public static Map<String, String> generateFlumeConfiguration(SortTaskConfig taskConfig) {
+    public static Map<String, String> generateFlumeConfiguration(TaskConfig taskConfig) {
         Map<String, String> flumeConf = new HashMap<>();
         String sortTaskName = taskConfig.getSortTaskName();
         appendChannels(flumeConf, sortTaskName);

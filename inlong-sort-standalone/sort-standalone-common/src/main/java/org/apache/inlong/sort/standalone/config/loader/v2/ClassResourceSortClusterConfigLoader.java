@@ -18,7 +18,7 @@
 package org.apache.inlong.sort.standalone.config.loader.v2;
 
 import org.apache.inlong.common.pojo.sort.SortConfig;
-import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigType;
+import org.apache.inlong.sort.standalone.config.holder.v2.SortConfigType;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import org.apache.commons.io.IOUtils;
@@ -36,10 +36,10 @@ public class ClassResourceSortClusterConfigLoader implements SortConfigLoader {
 
     @Override
     public SortConfig load() {
-        String fileName = SortClusterConfigType.DEFAULT_FILE;
+        String fileName = SortConfigType.DEFAULT_FILE;
         try {
             if (context != null) {
-                fileName = context.getString(SortClusterConfigType.KEY_FILE, SortClusterConfigType.DEFAULT_FILE);
+                fileName = context.getString(SortConfigType.KEY_FILE, SortConfigType.DEFAULT_FILE);
             }
             String confString = IOUtils.toString(getClass().getClassLoader().getResource(fileName),
                     Charset.defaultCharset());

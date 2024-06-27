@@ -25,6 +25,7 @@ import org.apache.inlong.common.pojo.sort.node.ClsNodeConfig;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class ClsIdConfig {
 
     private String inlongGroupId;
