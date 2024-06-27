@@ -162,6 +162,8 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                     .join(heartbeat.getAddressInfos().stream().map(AddressInfo::getIp).collect(Collectors.toList())));
             heartbeat.setReportSourceType(Joiner.on(InlongConstants.COMMA).join(heartbeat.getAddressInfos().stream()
                     .map(AddressInfo::getReportSourceType).collect(Collectors.toList())));
+            heartbeat.setProtocolType(Joiner.on(InlongConstants.COMMA).join(heartbeat.getAddressInfos().stream()
+                    .map(AddressInfo::getProtocolType).collect(Collectors.toList())));
         }
 
         // protocolType may be null, and the protocolTypes' length may be less than ports' length
