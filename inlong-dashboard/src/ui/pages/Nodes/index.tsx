@@ -26,6 +26,7 @@ import { defaultSize } from '@/configs/pagination';
 import { dao } from '@/plugins/nodes';
 import { useDefaultMeta, useLoadMeta, NodeMetaType } from '@/plugins';
 import DetailModal from './DetailModal';
+import { timestampFormat } from '@/core/utils';
 
 const { useListNodeDao, useDeleteNodeDao } = dao;
 
@@ -115,10 +116,31 @@ const Comp: React.FC = () => {
 
   const columns = useMemo(() => {
     return entityColumns
-      ?.map(item => ({
-        ...item,
-        ellipsisMulti: 2,
-      }))
+      ?.map(item => {
+        if (item.dataIndex === 'creator') {
+          return {
+            ...item,
+            render: (text, record) => (
+              <>
+                <div>{text}</div>
+                <div>{record.createTime && timestampFormat(record.createTime)}</div>
+              </>
+            ),
+          };
+        }
+        if (item.dataIndex === 'modifier') {
+          return {
+            ...item,
+            render: (text, record) => (
+              <>
+                <div>{text}</div>
+                <div>{record.modifyTime && timestampFormat(record.modifyTime)}</div>
+              </>
+            ),
+          };
+        }
+        return item;
+      })
       .concat([
         {
           title: i18n.t('basic.Operating'),

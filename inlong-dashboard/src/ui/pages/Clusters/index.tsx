@@ -131,41 +131,56 @@ const Comp: React.FC = () => {
   }, [Entity]);
 
   const columns = useMemo(() => {
-    return entityColumns?.concat([
-      {
-        title: i18n.t('pages.Clusters.LastModifier'),
-        dataIndex: 'modifier',
-        width: 150,
-        render: (text, record: any) => (
-          <>
-            <div>{text}</div>
-            <div>{record.modifyTime && timestampFormat(record.modifyTime)}</div>
-          </>
-        ),
-      },
-      {
-        title: i18n.t('basic.Operating'),
-        dataIndex: 'action',
-        width: 200,
-        render: (text, record) => (
-          <>
-            {(record.type === 'DATAPROXY' || record.type === 'AGENT') && (
-              <Link to={`/clusters/node?type=${record.type}&clusterId=${record.id}`}>
-                {i18n.t('pages.Clusters.Node.Name')}
-              </Link>
-            )}
-            {record.type !== 'DATAPROXY' && record.type !== 'AGENT' && (
-              <Button type="link" onClick={() => onEdit(record)}>
-                {i18n.t('basic.Edit')}
+    return entityColumns
+      ?.map(item => {
+        if (item.dataIndex === 'creator') {
+          return {
+            ...item,
+            render: (text, record) => (
+              <>
+                <div>{text}</div>
+                <div>{record.createTime && timestampFormat(record.createTime)}</div>
+              </>
+            ),
+          };
+        }
+        return item;
+      })
+      .concat([
+        {
+          title: i18n.t('pages.Clusters.LastModifier'),
+          dataIndex: 'modifier',
+          width: 150,
+          render: (text, record: any) => (
+            <>
+              <div>{text}</div>
+              <div>{record.modifyTime && timestampFormat(record.modifyTime)}</div>
+            </>
+          ),
+        },
+        {
+          title: i18n.t('basic.Operating'),
+          dataIndex: 'action',
+          width: 200,
+          render: (text, record) => (
+            <>
+              {(record.type === 'DATAPROXY' || record.type === 'AGENT') && (
+                <Link to={`/clusters/node?type=${record.type}&clusterId=${record.id}`}>
+                  {i18n.t('pages.Clusters.Node.Name')}
+                </Link>
+              )}
+              {record.type !== 'DATAPROXY' && record.type !== 'AGENT' && (
+                <Button type="link" onClick={() => onEdit(record)}>
+                  {i18n.t('basic.Edit')}
+                </Button>
+              )}
+              <Button type="link" onClick={() => onDelete(record)}>
+                {i18n.t('basic.Delete')}
               </Button>
-            )}
-            <Button type="link" onClick={() => onDelete(record)}>
-              {i18n.t('basic.Delete')}
-            </Button>
-          </>
-        ),
-      } as any,
-    ]);
+            </>
+          ),
+        } as any,
+      ]);
   }, [entityColumns, onDelete]);
 
   return (
