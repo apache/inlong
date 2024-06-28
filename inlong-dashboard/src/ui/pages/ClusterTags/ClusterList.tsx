@@ -26,6 +26,7 @@ import { useRequest } from '@/ui/hooks';
 import { clusters } from '@/plugins/clusters';
 import ClusterBindModal from './ClusterBindModal';
 import request from '@/core/utils/request';
+import { timestampFormat } from '@/core/utils';
 
 export interface ClusterListProps {
   clusterTag: string;
@@ -149,11 +150,23 @@ const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
         title: i18n.t('basic.Creator'),
         dataIndex: 'creator',
         ellipsisMulti: 2,
+        render: (text, record) => (
+          <>
+            <div>{text}</div>
+            <div>{record.createTime && timestampFormat(record.createTime)}</div>
+          </>
+        ),
       },
       {
         title: i18n.t('basic.Modifier'),
         dataIndex: 'modifier',
         ellipsisMulti: 2,
+        render: (text, record) => (
+          <>
+            <div>{text}</div>
+            <div>{record.modifyTime && timestampFormat(record.modifyTime)}</div>
+          </>
+        ),
       },
     ];
 

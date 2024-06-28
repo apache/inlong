@@ -23,6 +23,7 @@ import { Link } from 'react-router-dom';
 import i18n from '@/i18n';
 import { DashTotal, DashToBeAssigned, DashPending, DashRejected } from '@/ui/components/Icons';
 import { useDefaultMeta, useLoadMeta, ConsumeMetaType } from '@/plugins';
+import { timestampFormat } from '@/core/utils';
 
 export const dashCardList = [
   {
@@ -64,6 +65,28 @@ export const useColumns = ({ onDelete }) => {
     ?.map(item => {
       if (item.dataIndex === 'consumerGroup') {
         return { ...item, render: (text, record) => <Link to={genDetailUrl(record)}>{text}</Link> };
+      }
+      if (item.dataIndex === 'creator') {
+        return {
+          ...item,
+          render: (text, record) => (
+            <>
+              <div>{text}</div>
+              <div>{record.createTime && timestampFormat(record.createTime)}</div>
+            </>
+          ),
+        };
+      }
+      if (item.dataIndex === 'modifier') {
+        return {
+          ...item,
+          render: (text, record) => (
+            <>
+              <div>{text}</div>
+              <div>{record.modifyTime && timestampFormat(record.modifyTime)}</div>
+            </>
+          ),
+        };
       }
       return item;
     })

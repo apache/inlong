@@ -176,21 +176,6 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
   @I18n('pages.ConsumeDashboard.config.RecentConsumeTime')
   readonly lastConsumeTime: string;
 
-  @FieldDecorator({
-    type: 'select',
-    props: {
-      allowClear: true,
-      dropdownMatchSelectWidth: false,
-      options: lastConsumerStatusList,
-    },
-    visible: false,
-  })
-  @ColumnDecorator({
-    render: text => text && genLastConsumerStatusTag(text),
-  })
-  @I18n('pages.ConsumeDashboard.config.OperatingStatus')
-  readonly lastConsumeStatus: string;
-
   @ColumnDecorator()
   @I18n('basic.Creator')
   readonly creator: string;
