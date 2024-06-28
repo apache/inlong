@@ -182,7 +182,7 @@ public class LogFileTask extends AbstractTask {
     }
 
     public void addPathPattern(String originPattern) {
-        ArrayList<String> directories = FilePathUtil.getDirectoryLayers(originPattern);
+        ArrayList<String> directories = FilePathUtil.cutDirectoryByWildcardAndDateExpression(originPattern);
         String basicStaticPath = directories.get(0);
         LOGGER.info("dataName {} watchPath {}", new Object[]{originPattern, basicStaticPath});
         /* Remember the failed watcher creations. */

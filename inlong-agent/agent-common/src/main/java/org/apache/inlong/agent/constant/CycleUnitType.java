@@ -21,5 +21,6 @@ public class CycleUnitType {
 
     public static final String DAY = "D";
     public static final String HOUR = "h";
+    public static final String MINUTE = "m";
     public static final String REAL_TIME = "R";
 }

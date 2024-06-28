@@ -65,11 +65,11 @@ public class WatchEntity {
             String cycleUnit) {
         this.watchService = watchService;
         this.originPattern = originPattern;
-        ArrayList<String> directoryLayers = FilePathUtil.getDirectoryLayers(originPattern);
+        ArrayList<String> directoryLayers = FilePathUtil.cutDirectoryByWildcardAndDateExpression(originPattern);
         this.basicStaticPath = directoryLayers.get(0);
         this.regexPattern = NewDateUtils.replaceDateExpressionWithRegex(originPattern);
         pattern = Pattern.compile(regexPattern, Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE);
-        ArrayList<String> directories = FilePathUtil.cutDirectory(originPattern);
+        ArrayList<String> directories = FilePathUtil.cutDirectoryByWildcard(originPattern);
         this.originPatternWithoutFileName = directories.get(0);
         this.patternWithoutFileName = Pattern
                 .compile(NewDateUtils.replaceDateExpressionWithRegex(originPatternWithoutFileName),
