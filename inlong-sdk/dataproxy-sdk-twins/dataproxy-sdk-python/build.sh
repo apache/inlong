@@ -1,4 +1,3 @@
-#!/bin/bash
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -16,6 +15,8 @@
 # limitations under the License.
 # Initialize the configuration files of inlong components
 #
+
+#!/bin/bash
 
 # Check CMake version
 CMAKE_VERSION=$(cmake --version | head -n 1 | cut -d " " -f 3)

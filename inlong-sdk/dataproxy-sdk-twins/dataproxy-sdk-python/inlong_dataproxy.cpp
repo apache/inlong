@@ -27,19 +27,23 @@ using namespace inlong;
 class PyInLongApi : public InLongApi {
 public:
     int32_t PySend(const char *inlong_group_id, const char *inlong_stream_id, const char *msg, int32_t msg_len, py::function callback_func) {
-        if (callback_func) {
-            py_callback = callback_func;
-            return Send(inlong_group_id, inlong_stream_id, msg, msg_len, &PyInLongApi::CallbackFunc);
-        } else {
-            return Send(inlong_group_id, inlong_stream_id, msg, msg_len, nullptr);
-        }
+        py_callback = callback_func;
+        return Send(inlong_group_id, inlong_stream_id, msg, msg_len, &PyInLongApi::CallbackFunc);
     }
 
 private:
     static py::function py_callback;
 
     static int CallbackFunc(const char *a, const char *b, const char *c, int32_t d, const int64_t e, const char *f) {
-        return py_callback(a, b, c, d, e, f).cast<int>();
+        if (py_callback) {
+            try {
+                return py_callback(a, b, c, d, e, f).cast<int>();
+            } catch (const py::error_already_set &e) {
+                // Handle Python exception
+                return -1;
+            }
+        }
+        return 0;
     }
 };
 
