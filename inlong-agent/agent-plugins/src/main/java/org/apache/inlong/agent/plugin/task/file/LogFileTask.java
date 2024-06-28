@@ -530,7 +530,7 @@ public class LogFileTask extends AbstractTask {
         PathDateExpression dateExpression = entity.getDateExpression();
         if (dateExpression.getLongestDatePattern().length() != 0) {
             String dataTime = getDataTimeFromFileName(newFileName, entity.getOriginPattern(), dateExpression);
-            LOGGER.info("file {} ,fileTime {}", newFileName, dataTime);
+            LOGGER.info("file {}, fileTime {}", newFileName, dataTime);
             if (!NewDateUtils.isValidCreationTime(dataTime, entity.getCycleUnit(),
                     taskProfile.getTimeOffset())) {
                 return false;

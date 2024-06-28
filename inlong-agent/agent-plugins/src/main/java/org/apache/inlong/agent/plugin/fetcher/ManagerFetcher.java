@@ -236,19 +236,19 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     private DataConfig getTestDataConfig(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
             String cycleUnit, int state) {
         DataConfig dataConfig = new DataConfig();
-        dataConfig.setInlongGroupId("devcloud_group_id"); // 老字段 groupId
-        dataConfig.setInlongStreamId("devcloud_stream_id"); // 老字段 streamId
-        dataConfig.setDataReportType(0); // 老字段 reportType
-        dataConfig.setTaskType(3); // 老字段 任务类型，3 代表文件采集
-        dataConfig.setTaskId(taskId); // 老字段 任务 id
-        dataConfig.setState(state); // 新增！ 任务状态 1 正常 2 暂停
+        dataConfig.setInlongGroupId("devcloud_group_id");
+        dataConfig.setInlongStreamId("devcloud_stream_id");
+        dataConfig.setDataReportType(0);
+        dataConfig.setTaskType(3);
+        dataConfig.setTaskId(taskId);
+        dataConfig.setState(state);
         dataConfig.setTimeZone("GMT+8:00");
         FileTaskConfig fileTaskConfig = new FileTaskConfig();
-        fileTaskConfig.setPattern(pattern);// 正则
-        fileTaskConfig.setTimeOffset("0d"); // 老字段 时间偏移 "-1d" 采一天前的 "-2h" 采 2 小时前的
-        fileTaskConfig.setMaxFileCount(100); // 最大文件数
-        fileTaskConfig.setCycleUnit(cycleUnit); // 新增！ 任务周期 "D" 天 "h" 小时
-        fileTaskConfig.setRetry(retry); // 新增！ 是否补录，如果是补录任务则为 true
+        fileTaskConfig.setPattern(pattern);
+        fileTaskConfig.setTimeOffset("0d");
+        fileTaskConfig.setMaxFileCount(100);
+        fileTaskConfig.setCycleUnit(cycleUnit);
+        fileTaskConfig.setRetry(retry);
         fileTaskConfig.setStartTime(startTime);
         fileTaskConfig.setEndTime(endTime);
         fileTaskConfig.setDataContentStyle("CSV");

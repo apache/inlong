@@ -211,7 +211,7 @@ public class NewDateUtils {
             timeInterval = DAY_TIMEOUT_INTERVAL;
         } else if (CycleUnitType.HOUR.equalsIgnoreCase(cycleUnit)) {
             timeInterval = HOUR_TIMEOUT_INTERVAL;
-        } else if (cycleUnit.contains(CycleUnitType.MINUTE)) {
+        } else if (cycleUnit.equals(CycleUnitType.MINUTE)) {
             timeInterval = HOUR_TIMEOUT_INTERVAL;
         } else {
             logger.error("cycleUnit {} can't parse!", cycleUnit);
