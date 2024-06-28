@@ -113,13 +113,13 @@ const Comp: React.FC = () => {
         title: i18n.t('pages.GroupDataTemplate.Name'),
         dataIndex: 'name',
         key: 'name',
-        width: 100,
+        width: 200,
       },
       {
-        title: i18n.t('pages.GroupDataTemplate.InChargers'),
+        title: i18n.t('pages.GroupDataTemplate.InCharges'),
         dataIndex: 'inCharges',
         key: 'inCharges',
-        width: 100,
+        width: 200,
       },
       {
         title: i18n.t('pages.GroupDataTemplate.TenantList'),
@@ -133,10 +133,28 @@ const Comp: React.FC = () => {
         ),
       },
       {
-        title: i18n.t('pages.GroupDataTemplate.Version'),
-        dataIndex: 'version',
-        key: 'version',
+        title: i18n.t('pages.GroupDataTemplate.Creator'),
+        dataIndex: 'creator',
+        key: 'creator',
         width: 200,
+        render: (text, record: any) => (
+          <>
+            <div>{text}</div>
+            <div>{record.createTime && timestampFormat(record.createTime)}</div>
+          </>
+        ),
+      },
+      {
+        title: i18n.t('pages.GroupDataTemplate.Modifier'),
+        dataIndex: 'modifier',
+        key: 'modifier',
+        width: 200,
+        render: (text, record: any) => (
+          <>
+            <div>{text}</div>
+            <div>{record.modifyTime && timestampFormat(record.modifyTime)}</div>
+          </>
+        ),
       },
     ];
   }, []);
@@ -145,7 +163,7 @@ const Comp: React.FC = () => {
       {
         title: i18n.t('basic.Operating'),
         dataIndex: 'action',
-        width: 200,
+        width: 100,
         render: (text, record) => (
           <>
             <Button type="link" onClick={() => onEdit(record)}>
