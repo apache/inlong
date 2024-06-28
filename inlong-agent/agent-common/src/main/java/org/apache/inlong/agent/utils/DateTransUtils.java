@@ -47,7 +47,7 @@ public class DateTransUtils {
             throws ParseException {
         long retTime = 0;
         SimpleDateFormat df = null;
-        if (cycleUnit.equals(CycleUnitType.DAY) && time.length() == 8) {
+        if (cycleUnit.equalsIgnoreCase(CycleUnitType.DAY) && time.length() == 8) {
             df = new SimpleDateFormat("yyyyMMdd");
         } else if (cycleUnit.equalsIgnoreCase(CycleUnitType.HOUR) && time.length() == 10) {
             df = new SimpleDateFormat("yyyyMMddHH");
