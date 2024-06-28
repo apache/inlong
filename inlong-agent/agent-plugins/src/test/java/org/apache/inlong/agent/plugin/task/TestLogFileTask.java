@@ -133,8 +133,8 @@ public class TestLogFileTask {
         await().atMost(10, TimeUnit.SECONDS)
                 .until(() -> fileName.size() == resources.size() && dataTime.size() == resources.size());
         for (int i = 0; i < fileName.size(); i++) {
-            Assert.assertTrue(fileName.get(i).compareTo(resourceName.get(i)) == 0);
-            Assert.assertTrue(dataTime.get(i).compareTo(srcDataTimes.get(i)) == 0);
+            Assert.assertEquals(0, fileName.get(i).compareTo(resourceName.get(i)));
+            Assert.assertEquals(0, dataTime.get(i).compareTo(srcDataTimes.get(i)));
         }
         PowerMockito.verifyPrivate(dayTask, Mockito.times(resources.size()))
                 .invoke("addToEvenMap", Mockito.anyString(), Mockito.anyString());
