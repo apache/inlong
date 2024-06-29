@@ -18,6 +18,8 @@
 
 #!/bin/bash
 
+BASE_DIR=$(pwd)
+
 # Check CMake version
 CMAKE_VERSION=$(cmake --version | head -n 1 | cut -d " " -f 3)
 CMAKE_REQUIRED="3.5"
@@ -37,12 +39,11 @@ fi
 # Clone and build pybind11
 git clone https://github.com/pybind/pybind11.git
 cd pybind11
-mkdir build
-cd build
+mkdir build && cd build
 cmake ..
 cmake --build . --config Release --target check
 make check -j 4
-cd ../..
+cd $BASE_DIR
 
 # Clone and build dataproxy-sdk-cpp
 git clone https://github.com/apache/inlong.git
@@ -51,17 +52,16 @@ rm -r ./inlong
 cd ./dataproxy-sdk-cpp
 chmod +x ./build.sh
 ./build.sh
-cd ..
+cd $BASE_DIR
 
 # Build Python SDK
 if [ -d "./build" ]; then
     rm -r ./build
 fi
-mkdir build
-cd build
+mkdir build && cd build
 cmake ..
 make
-cd ..
+cd $BASE_DIR
 
 # Get Python site-packages directory
 SITE_PACKAGES_DIR=$(python -c "import site; print(site.getsitepackages()[0])")
@@ -70,5 +70,4 @@ SITE_PACKAGES_DIR=$(python -c "import site; print(site.getsitepackages()[0])")
 find ./build -name "*.so" -print0 | xargs -0 -I {} bash -c 'rm -f $0/$1; cp $1 $0' $SITE_PACKAGES_DIR {}
 
 # Clean
-rm -r ./pybind11
-rm -r ./dataproxy-sdk-cpp
+rm -r ./pybind11 ./dataproxy-sdk-cpp
