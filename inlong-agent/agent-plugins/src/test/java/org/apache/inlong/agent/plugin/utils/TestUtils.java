@@ -17,6 +17,8 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
+import org.apache.inlong.agent.plugin.utils.file.FilePathUtil;
+import org.apache.inlong.agent.plugin.utils.file.NewDateUtils;
 import org.apache.inlong.agent.utils.DateTransUtils;
 import org.apache.inlong.common.metric.MetricRegister;
 
@@ -34,7 +36,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -54,37 +59,67 @@ public class TestUtils {
         Assert.assertTrue(DateTransUtils.calcOffset("") == 0);
     }
 
-    public static String getTestTriggerProfile() {
-        return "{\n"
-                + "  \"job\": {\n"
-                + "    \"fileJob\": {\n"
-                + "      \"additionStr\": \"m=15&file=test\",\n"
-                + "      \"trigger\": \"org.apache.inlong.agent.plugin.trigger.DirectoryTrigger\",\n"
-                + "      \"dir\": {\n"
-                + "        \"path\": \"\",\n"
-                + "        \"patterns\": \"/AgentBaseTestsHelper/"
-                + "org.apache.tubemq.inlong.plugin.fetcher.TestTdmFetcher/test.dat\"\n"
-                + "      },\n"
-                + "      \"thread\" : {\n"
-                + "\"running\": {\n"
-                + "\"core\": \"4\"\n"
-                + "}\n"
-                + "} \n"
-                + "    },\n"
-                + "    \"id\": 1,\n"
-                + "    \"op\": 0,\n"
-                + "    \"ip\": \"127.0.0.1\",\n"
-                + "    \"groupId\": \"groupId\",\n"
-                + "    \"streamId\": \"streamId\",\n"
-                + "    \"name\": \"fileAgentTest\",\n"
-                + "    \"source\": \"org.apache.inlong.agent.plugin.sources.TextFileSource\",\n"
-                + "    \"sink\": \"org.apache.inlong.agent.plugin.sinks.MockSink\",\n"
-                + "    \"channel\": \"org.apache.inlong.agent.plugin.channel.MemoryChannel\",\n"
-                + "    \"standalone\": true,\n"
-                + "    \"deliveryTime\": \"1231313\",\n"
-                + "    \"splitter\": \"&\"\n"
-                + "  }\n"
-                + "  }";
+    @Test
+    public void testPattern() throws ParseException {
+        /*
+         * Condition: YYYY(?:.MM|MM)?(?:.DD|DD)?(?:.hh|hh)?(?:.mm|mm)?(?:.ss|ss)? The date expression as a whole must
+         * meet this condition in order to match Need to start with YYYY, and month, day, hour, minute can only be
+         * separated by one character
+         */
+        testReplaceDateExpression("/YYYYMMDDhhmm.log", "/202406251007.log");
+        testReplaceDateExpression("/YYYY.log", "/2024.log");
+        testReplaceDateExpression("/YYYYhhmm.log", "/20241007.log");
+        testReplaceDateExpression("/YYYY/YYYYMMDDhhmm.log", "/2024/202406251007.log");
+        testReplaceDateExpression("/YYYY/MMDD/hhmm.log", "/2024/0625/1007.log");
+        testReplaceDateExpression("/data/YYYYMMDD.hh/mm.log_[0-9]+", "/data/20240625.10/07.log_[0-9]+");
+        // error cases
+        testReplaceDateExpression("/YYY.log", "/YYY.log");
+        testReplaceDateExpression("/MMDDhhmm.log", "/MMDDhhmm.log");
+        testReplaceDateExpression("/MMDD/hhmm.log", "/MMDD/hhmm.log");
+        testReplaceDateExpression("/data/YYYYMMDD..hh/mm.log_[0-9]+", "/data/20240625..hh/mm.log_[0-9]+");
+
+        /*
+         * 1 cut the file name 2 cut the path contains wildcard
+         */
+        testCutDirectoryByWildcard("/data/123/YYYYMMDDhhmm.log",
+                Arrays.asList("/data/123", "", "YYYYMMDDhhmm.log"));
+        testCutDirectoryByWildcard("/data/YYYYMMDDhhmm/test.log",
+                Arrays.asList("/data/YYYYMMDDhhmm", "", "test.log"));
+        testCutDirectoryByWildcard("/data/YYYYMMDDhhmm*/test.log",
+                Arrays.asList("/data", "YYYYMMDDhhmm*", "test.log"));
+        testCutDirectoryByWildcard("/data/log_minute/minute_YYYYMMDDhh*/mm.log_[0-9]+",
+                Arrays.asList("/data/log_minute", "minute_YYYYMMDDhh*", "mm.log_[0-9]+"));
+        testCutDirectoryByWildcard("/data/123+/YYYYMMDDhhmm.log",
+                Arrays.asList("/data", "123+", "YYYYMMDDhhmm.log"));
+
+        /*
+         * 1 cut the file name 2 cut the path contains wildcard or date expression
+         */
+        testCutDirectoryByWildcardAndDateExpression("/data/YYYYMM/YYYaaMM/YYYYMMDDhhmm.log",
+                Arrays.asList("/data", "YYYYMM/YYYaaMM", "YYYYMMDDhhmm.log"));
+        testCutDirectoryByWildcardAndDateExpression("/data/YYYY/test.log",
+                Arrays.asList("/data", "YYYY", "test.log"));
+        testCutDirectoryByWildcardAndDateExpression("/data/123*/MMDD/test.log",
+                Arrays.asList("/data", "123*/MMDD", "test.log"));
+        testCutDirectoryByWildcardAndDateExpression("/data/YYYYMMDD/123*/test.log",
+                Arrays.asList("/data", "YYYYMMDD/123*", "test.log"));
+    }
+
+    private void testReplaceDateExpression(String src, String dst) throws ParseException {
+        Calendar calendar = Calendar.getInstance();
+        Long dataTime = DateTransUtils.timeStrConvertToMillSec("202406251007", "m");
+        calendar.setTimeInMillis(dataTime);
+        Assert.assertEquals(NewDateUtils.replaceDateExpression(calendar, src), dst);
+    }
+
+    private void testCutDirectoryByWildcard(String src, List<String> dst) {
+        ArrayList<String> directories = FilePathUtil.cutDirectoryByWildcard(src);
+        Assert.assertEquals(directories, dst);
+    }
+
+    private void testCutDirectoryByWildcardAndDateExpression(String src, List<String> dst) {
+        ArrayList<String> directoryLayers = FilePathUtil.cutDirectoryByWildcardAndDateExpression(src);
+        Assert.assertEquals(directoryLayers, dst);
     }
 
     public static void createHugeFiles(String fileName, String rootDir, String record) throws Exception {

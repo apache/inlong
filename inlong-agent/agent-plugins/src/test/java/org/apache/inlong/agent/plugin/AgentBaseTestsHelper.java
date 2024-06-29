@@ -108,8 +108,7 @@ public class AgentBaseTestsHelper {
         fileTaskConfig.setEndTime(endTime);
         // mix: login|87601|968|67826|23579 or login|a=b&c=d&x=y&asdf
         fileTaskConfig.setDataContentStyle("mix");
-        // 124 is the ASCII code of '|'
-        fileTaskConfig.setDataSeparator("124");
+        fileTaskConfig.setDataSeparator("|");
         dataConfig.setExtParams(GSON.toJson(fileTaskConfig));
         return dataConfig;
     }

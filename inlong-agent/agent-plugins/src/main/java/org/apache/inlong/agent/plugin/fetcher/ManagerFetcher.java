@@ -21,6 +21,7 @@ import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.ProfileFetcher;
 import org.apache.inlong.agent.conf.TaskProfile;
+import org.apache.inlong.agent.constant.CycleUnitType;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.pojo.FileTask.FileTaskConfig;
 import org.apache.inlong.agent.utils.AgentUtils;
@@ -217,7 +218,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         String endStr = "2023-07-22 00:00:00";
         Long start = 0L;
         Long end = 0L;
-        String normalPattern = testDir + "YYYY/YYYYMMDD_2.log_[0-9]+";
+        String normalPattern = testDir + "YYYY/YYYYMMDDhhmm_2.log_[0-9]+";
         String retryPattern = testDir + "YYYY/YYYYMMDD_1.log_[0-9]+";
         try {
             Date parse = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startStr);
@@ -227,28 +228,31 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        configs.add(getTestDataConfig(normalTaskId, normalPattern, false, start, end, state));
-        configs.add(getTestDataConfig(retryTaskId, retryPattern, true, start, end, state));
+        configs.add(getTestDataConfig(normalTaskId, normalPattern, false, start, end, CycleUnitType.MINUTE, state));
+        configs.add(getTestDataConfig(retryTaskId, retryPattern, true, start, end, CycleUnitType.DAY, state));
         return TaskResult.builder().dataConfigs(configs).build();
     }
 
     private DataConfig getTestDataConfig(int taskId, String pattern, boolean retry, Long startTime, Long endTime,
-            int state) {
+            String cycleUnit, int state) {
         DataConfig dataConfig = new DataConfig();
-        dataConfig.setInlongGroupId("testGroupId"); // 老字段 groupId
-        dataConfig.setInlongStreamId("testStreamId"); // 老字段 streamId
-        dataConfig.setDataReportType(1); // 老字段 reportType
-        dataConfig.setTaskType(3); // 老字段 任务类型，3 代表文件采集
-        dataConfig.setTaskId(taskId); // 老字段 任务 id
-        dataConfig.setState(state); // 新增！ 任务状态 1 正常 2 暂停
+        dataConfig.setInlongGroupId("devcloud_group_id");
+        dataConfig.setInlongStreamId("devcloud_stream_id");
+        dataConfig.setDataReportType(0);
+        dataConfig.setTaskType(3);
+        dataConfig.setTaskId(taskId);
+        dataConfig.setState(state);
+        dataConfig.setTimeZone("GMT+8:00");
         FileTaskConfig fileTaskConfig = new FileTaskConfig();
-        fileTaskConfig.setPattern(pattern);// 正则
-        fileTaskConfig.setTimeOffset("0d"); // 老字段 时间偏移 "-1d" 采一天前的 "-2h" 采 2 小时前的
-        fileTaskConfig.setMaxFileCount(100); // 最大文件数
-        fileTaskConfig.setCycleUnit("D"); // 新增！ 任务周期 "D" 天 "h" 小时
-        fileTaskConfig.setRetry(retry); // 新增！ 是否补录，如果是补录任务则为 true
+        fileTaskConfig.setPattern(pattern);
+        fileTaskConfig.setTimeOffset("0d");
+        fileTaskConfig.setMaxFileCount(100);
+        fileTaskConfig.setCycleUnit(cycleUnit);
+        fileTaskConfig.setRetry(retry);
         fileTaskConfig.setStartTime(startTime);
         fileTaskConfig.setEndTime(endTime);
+        fileTaskConfig.setDataContentStyle("CSV");
+        fileTaskConfig.setDataSeparator("|");
         dataConfig.setExtParams(GSON.toJson(fileTaskConfig));
         return dataConfig;
     }

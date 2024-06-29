@@ -19,7 +19,8 @@ package org.apache.inlong.agent.constant;
 
 public class CycleUnitType {
 
-    public static final String DAY = "D";
-    public static final String HOUR = "h";
+    public static final String DAY = "d";
+    public static final String HOUR = "H";
+    public static final String MINUTE = "m";
     public static final String REAL_TIME = "R";
 }
