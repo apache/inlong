@@ -19,6 +19,7 @@ package org.apache.inlong.sort.standalone;
 
 import org.apache.inlong.common.metric.MetricObserver;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.metrics.SortConfigMetricReporter;
 import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
@@ -47,6 +48,7 @@ public class SortStandaloneApplication {
                     cluster.close();
                 }
             });
+            SortConfigMetricReporter.init(CommonPropertiesHolder.get());
             // start the cluster
             cluster.start();
             // metrics
