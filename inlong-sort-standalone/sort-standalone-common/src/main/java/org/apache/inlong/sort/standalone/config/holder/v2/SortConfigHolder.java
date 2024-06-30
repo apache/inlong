@@ -22,8 +22,8 @@ import org.apache.inlong.common.pojo.sort.SortConfig;
 import org.apache.inlong.common.pojo.sort.TaskConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
-import org.apache.inlong.sort.standalone.config.loader.v2.ClassResourceSortClusterConfigLoader;
-import org.apache.inlong.sort.standalone.config.loader.v2.ManagerSortClusterConfigLoader;
+import org.apache.inlong.sort.standalone.config.loader.v2.ClassResourceSortConfigLoader;
+import org.apache.inlong.sort.standalone.config.loader.v2.ManagerSortConfigLoader;
 import org.apache.inlong.sort.standalone.config.loader.v2.SortConfigLoader;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 
@@ -73,9 +73,9 @@ public class SortConfigHolder {
                     .getString(SortConfigType.KEY_TYPE, SortConfigType.MANAGER.name());
 
             if (SortConfigType.FILE.name().equalsIgnoreCase(loaderType)) {
-                instance.loader = new ClassResourceSortClusterConfigLoader();
+                instance.loader = new ClassResourceSortConfigLoader();
             } else if (SortConfigType.MANAGER.name().equalsIgnoreCase(loaderType)) {
-                instance.loader = new ManagerSortClusterConfigLoader();
+                instance.loader = new ManagerSortConfigLoader();
             } else {
                 // user-defined
                 try {
@@ -89,7 +89,7 @@ public class SortConfigHolder {
                 }
             }
             if (instance.loader == null) {
-                instance.loader = new ClassResourceSortClusterConfigLoader();
+                instance.loader = new ClassResourceSortConfigLoader();
             }
             try {
                 instance.loader.configure(new Context(CommonPropertiesHolder.get()));

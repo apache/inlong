@@ -66,6 +66,10 @@ public class ManagerUrlHandler {
         return get().acquireSortClusterConfigUrl();
     }
 
+    public static String getSortConfigUrl() {
+        return get().acquireSortConfigUrl();
+    }
+
     private static ManagerUrlLoader get() {
         if (instance != null) {
             return instance;

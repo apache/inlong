@@ -28,9 +28,9 @@ import org.slf4j.Logger;
 
 import java.nio.charset.Charset;
 
-public class ClassResourceSortClusterConfigLoader implements SortConfigLoader {
+public class ClassResourceSortConfigLoader implements SortConfigLoader {
 
-    public static final Logger LOG = InlongLoggerFactory.getLogger(ClassResourceSortClusterConfigLoader.class);
+    public static final Logger LOG = InlongLoggerFactory.getLogger(ClassResourceSortConfigLoader.class);
     private Context context;
     private ObjectMapper objectMapper = new ObjectMapper();
 

@@ -38,7 +38,7 @@ import org.apache.http.util.EntityUtils;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class ManagerSortClusterConfigLoader implements SortConfigLoader {
+public class ManagerSortConfigLoader implements SortConfigLoader {
 
     private Context context;
     private CloseableHttpClient httpClient;
@@ -66,7 +66,7 @@ public class ManagerSortClusterConfigLoader implements SortConfigLoader {
         HttpGet httpGet = null;
         try {
             String clusterName = this.context.getString(CommonPropertiesHolder.KEY_CLUSTER_ID);
-            String url = ManagerUrlHandler.getSortClusterConfigUrl() + "?clusterName="
+            String url = ManagerUrlHandler.getSortConfigUrl() + "?clusterName="
                     + clusterName + "&md5=";
             if (StringUtils.isNotBlank(this.md5)) {
                 url += this.md5;
