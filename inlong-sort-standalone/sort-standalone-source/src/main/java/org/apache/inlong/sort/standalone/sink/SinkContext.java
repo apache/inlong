@@ -47,7 +47,6 @@ public class SinkContext {
     public static final String KEY_RELOADINTERVAL = "reloadInterval";
     public static final String KEY_TASK_NAME = "taskName";
     public static final String KEY_MAX_BUFFERQUEUE_SIZE_KB = "maxBufferQueueSizeKb";
-    public static final String KEY_USE_UNIFIED_CONFIGURATION = "useUnifiedConfiguration";
     public static final int DEFAULT_MAX_BUFFERQUEUE_SIZE_KB = 128 * 1024;
     protected final String clusterId;
     protected final String taskName;
@@ -74,7 +73,8 @@ public class SinkContext {
         this.processInterval = sinkContext.getInteger(KEY_PROCESSINTERVAL, 100);
         this.reloadInterval = sinkContext.getLong(KEY_RELOADINTERVAL, 60000L);
         this.metricItemSet = new SortMetricItemSet(sinkName);
-        this.unifiedConfiguration = sinkContext.getBoolean(KEY_USE_UNIFIED_CONFIGURATION, false);
+        this.unifiedConfiguration = sinkContext.getBoolean(CommonPropertiesHolder.KEY_USE_UNIFIED_CONFIGURATION,
+                false);
         MetricRegister.register(this.metricItemSet);
     }
 
