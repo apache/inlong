@@ -116,7 +116,7 @@ public class ClsSinkContext extends SinkContext {
             this.sortTaskConfig = newSortTaskConfig;
 
             Map<String, ClsIdConfig> fromTaskConfig = reloadIdParamsFromTaskConfig(taskConfig, clsNodeConfig);
-            Map<String, ClsIdConfig> fromSortTaskConfig = reloadIdParamsFromTaskConfig(sortTaskConfig);
+            Map<String, ClsIdConfig> fromSortTaskConfig = reloadIdParamsFromSortTaskConfig(sortTaskConfig);
             idConfigMap = unifiedConfiguration ? fromTaskConfig : fromSortTaskConfig;
             this.reloadClients(idConfigMap);
             this.reloadHandler();
@@ -156,15 +156,13 @@ public class ClsSinkContext extends SinkContext {
                         v -> v));
     }
 
-    private Map<String, ClsIdConfig> reloadIdParamsFromTaskConfig(SortTaskConfig sortTaskConfig)
+    private Map<String, ClsIdConfig> reloadIdParamsFromSortTaskConfig(SortTaskConfig sortTaskConfig)
             throws JsonProcessingException {
         if (sortTaskConfig == null) {
             return new HashMap<>();
         }
         List<Map<String, String>> idList = this.sortTaskConfig.getIdParams();
         Map<String, ClsIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         for (Map<String, String> idParam : idList) {
             String inlongGroupId = idParam.get(Constants.INLONG_GROUP_ID);
             String inlongStreamId = idParam.get(Constants.INLONG_STREAM_ID);
