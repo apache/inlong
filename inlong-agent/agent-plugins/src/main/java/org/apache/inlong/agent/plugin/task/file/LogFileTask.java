@@ -425,6 +425,7 @@ public class LogFileTask extends AbstractTask {
             return;
         }
         try {
+            entity.removeDeletedWatchDir();
             /* Get all creation events until all events are consumed. */
             for (int i = 0; i < entity.getTotalPathSize(); i++) {
                 // maybe the watchService is closed ,but we catch this exception!
