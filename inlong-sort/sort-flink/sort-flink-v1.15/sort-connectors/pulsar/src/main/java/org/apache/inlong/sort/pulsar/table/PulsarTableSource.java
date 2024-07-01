@@ -17,8 +17,9 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import org.apache.inlong.sort.pulsar.source.PulsarSource;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.connector.pulsar.source.PulsarSource;
 import org.apache.flink.connector.pulsar.source.enumerator.cursor.StartCursor;
 import org.apache.flink.connector.pulsar.source.enumerator.cursor.StopCursor;
 import org.apache.flink.connector.pulsar.source.reader.deserializer.PulsarDeserializationSchema;
