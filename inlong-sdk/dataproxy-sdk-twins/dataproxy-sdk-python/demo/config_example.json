@@ -1,0 +1,30 @@
+{
+  "init-param": {
+    "inlong_group_ids": "test_pulsar_group",
+    "manager_url": "http://127.0.0.1:8083/inlong/manager/openapi/dataproxy/getIpList",
+    "manager_update_interval": 2,
+    "manager_url_timeout": 5,
+    "msg_type": 7,
+    "max_proxy_num": 8,
+    "per_groupid_thread_nums": 1,
+    "dispatch_interval_zip": 8,
+    "dispatch_interval_send": 10,
+    "recv_buf_size": 10240000,
+    "send_buf_size": 10240000,
+    "enable_pack": true,
+    "pack_size": 409600,
+    "pack_timeout": 3000,
+    "ext_pack_size": 409600,
+    "enable_zip": true,
+    "min_zip_len": 512,
+    "tcp_detection_interval": 60000,
+    "tcp_idle_time": 600000,
+    "log_num": 10,
+    "log_size": 104857600,
+    "log_level": 3,
+    "log_path": "./",
+    "need_auth": false,
+    "auth_id": "",
+    "auth_key": ""
+  }
+}
