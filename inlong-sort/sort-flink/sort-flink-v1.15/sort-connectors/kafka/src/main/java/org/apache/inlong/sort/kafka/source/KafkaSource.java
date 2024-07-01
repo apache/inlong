@@ -80,6 +80,8 @@ import java.util.function.Supplier;
  * <p>See {@link KafkaSourceBuilder} for more details.
  *
  * @param <OUT> the output type of the source.
+ * Copy from org.apache.flink:flink-connector-kafka:1.15.4
+ * Add a variable metricSchema to report audit information
  */
 @PublicEvolving
 public class KafkaSource<OUT>

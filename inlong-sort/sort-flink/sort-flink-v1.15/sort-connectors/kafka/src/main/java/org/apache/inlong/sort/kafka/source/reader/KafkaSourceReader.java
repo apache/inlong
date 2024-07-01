@@ -49,7 +49,10 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-/** The source reader for Kafka partitions. */
+/** The source reader for Kafka partitions.
+ * Copy from org.apache.flink:flink-connector-kafka:1.15.4
+ * Add some method to make report audit information exactly once
+ * */
 @Internal
 public class KafkaSourceReader<T>
         extends
