@@ -73,23 +73,46 @@ Refer to `demo/config_example.json`.
 
 ## Usage
 
-1. First, init dataproxy-sdk:`init_api(config_file)`. Here, `config_file` is the path of your config file, and absolute
-   path is recommended. Note that only once called is needed in one process.
+Follow these steps to use the DataProxy Python SDK:
 
-2. Then, send data: `send(inlong_group_id, inlong_stream_id, msg, msg_len, call_back_func = null)`.
-   If you set `call_back_func`, it will be callbacked if your data failed to send.
+1. **Initialize the SDK**: Before using the SDK, you need to initialize it by calling `init_api(config_file)`. The `config_file` parameter is the path to your configuration file. It is recommended to use an absolute path. Please note that this function only needs to be called once per process.
 
-3. Finally, close sdk if no more data to be sent: `close_api(max_waitms)`. Here, `max_waitms` is the
-   interval of waiting data in memory to be sent.
+   Example:
+   ```python
+   inlong_api = inlong_dataproxy.InLongApi()
+   inlong_api.init_api("path/to/your/config_file.json")
+   ```
 
-4. Note, the above functions return 0 if success, otherwise it means failure.
+2. **Send data**: To send data, use the `send(inlong_group_id, inlong_stream_id, msg, msg_len, call_back_func = null)` function. The parameters are as follows:
+    - `inlong_group_id`: The group ID associated with the data.
+    - `inlong_stream_id`: The stream ID associated with the data.
+    - `msg`: The data message to be sent.
+    - `msg_len`: The length of the data message.
+    - `call_back_func` (optional): A callback function that will be called if your data fails to send.
+
+   Example:
+   ```python
+   inlong_api.send("your_inlong_group_id", "your_inlong_stream_id", "your_message", len("your_message"), call_back_func = your_callback_function)
+   ```
+
+3. **Close the SDK**: Once you have no more data to send, close the SDK by calling `close_api(max_waitms)`. The `max_waitms` parameter is the maximum time interval (in milliseconds) to wait for data in memory to be sent.
+
+   Example:
+   ```python
+   inlong_api.close_api(1000)
+   ```
+
+4. **Function return values**: The functions mentioned above return 0 if they are successful, and a non-zero value indicates failure. Make sure to check the return values to ensure proper execution.
 
 ## Demo
 
-Refer to `/demo/send_demo.py`. Go to the `demo` directory, and run: 
+You can refer to the `/demo/send_demo.py` file. To run this demo, you first need to ensure that the SDK has been built and installed properly. Then, follow these steps:
 
-```bash
-python send_demo.py config_example.json [inlong_group_id] [inlong_stream_id]
-```
+1. Navigate to the `demo` directory in your terminal or command prompt.
+2. Execute the following command, replacing `[inlong_group_id]` and `[inlong_stream_id]` with the appropriate IDs:
 
-Replace `[inlong_group_id]` and `[inlong_stream_id]` in the command with the specific ids, and modify the configuration in `config_example.json` as needed.
+   ```bash
+   python send_demo.py config_example.json [inlong_group_id] [inlong_stream_id]
+   ```
+
+3. Modify the configuration settings in `config_example.json` as needed to match your specific use case.
