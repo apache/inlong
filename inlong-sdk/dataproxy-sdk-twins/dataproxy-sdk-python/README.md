@@ -109,10 +109,9 @@ Follow these steps to use the DataProxy Python SDK:
 You can refer to the `/demo/send_demo.py` file. To run this demo, you first need to ensure that the SDK has been built and installed properly. Then, follow these steps:
 
 1. Navigate to the `demo` directory in your terminal or command prompt.
-2. Execute the following command, replacing `[inlong_group_id]` and `[inlong_stream_id]` with the appropriate IDs:
+2. Modify the configuration settings in `config_example.json` as needed to match your specific use case.
+3. Execute the following command, replacing `[inlong_group_id]` and `[inlong_stream_id]` with the appropriate IDs:
 
    ```bash
    python send_demo.py config_example.json [inlong_group_id] [inlong_stream_id]
    ```
-
-3. Modify the configuration settings in `config_example.json` as needed to match your specific use case.
