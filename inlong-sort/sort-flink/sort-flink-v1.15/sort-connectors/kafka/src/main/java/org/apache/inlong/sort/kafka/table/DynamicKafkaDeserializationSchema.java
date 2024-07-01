@@ -49,8 +49,6 @@ import static org.apache.inlong.sort.kafka.table.KafkaDynamicSource.ReadableMeta
  * */
 public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<RowData> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DynamicKafkaDeserializationSchema.class);
-
     private static final long serialVersionUID = 1L;
 
     private final @Nullable DeserializationSchema<RowData> keyDeserialization;
@@ -140,7 +138,6 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
         if (keyDeserialization == null && !hasMetadata) {
             valueDeserialization.deserialize(record.value(),
                     sourceExactlyMetric == null ? collector : new MetricsCollector<>(collector, sourceExactlyMetric));
-            LOG.info("-------no hasMetadata------");
             return;
         }
         // buffer key(s)
@@ -154,7 +151,6 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
             MetricsCollector<RowData> metricsCollector = new MetricsCollector<>(collector, sourceExactlyMetric);
             outputCollector.outputCollector = metricsCollector;
         } else {
-            LOG.info("-------origin collector------");
             outputCollector.outputCollector = collector;
         }
         if (record.value() == null && upsertMode) {
