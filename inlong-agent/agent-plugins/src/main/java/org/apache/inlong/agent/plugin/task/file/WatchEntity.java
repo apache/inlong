@@ -265,10 +265,11 @@ public class WatchEntity {
     }
 
     public void removeDeletedWatchDir() {
-        if (AgentUtils.getCurrentTime() - lastCheckTime < CHECK_WATCH_DIR_INTERVAL_MS) {
+        long now = AgentUtils.getCurrentTime();
+        if (now - lastCheckTime < CHECK_WATCH_DIR_INTERVAL_MS) {
             return;
         }
-        lastCheckTime = AgentUtils.getCurrentTime();
+        lastCheckTime = now;
         if (pathToKeys.size() < CLEAN_WATCH_DIR_WATER_LVL) {
             logger.info("originPattern {} watch dir size {}", originPattern, pathToKeys.size());
             return;
