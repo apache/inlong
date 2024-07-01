@@ -152,6 +152,9 @@ public class ClsSinkOperator extends AbstractSinkOperator {
     public SinkConfig getSinkConfig(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, StreamSink sink) {
         ClsSink clsSink = (ClsSink) sink;
         ClsSinkConfig sinkConfig = CommonBeanUtils.copyProperties(clsSink, ClsSinkConfig::new);
+        sinkConfig.setSeparator(String.valueOf((char) (Integer.parseInt(streamInfo.getDataSeparator()))));
+        sinkConfig.setFieldOffset(streamInfo.getExtendedFieldSize());
+        sinkConfig.setContentOffset(0);
         List<FieldConfig> fields = sinkFieldMapper.selectBySinkId(sink.getId()).stream().map(
                 v -> {
                     FieldConfig fieldConfig = new FieldConfig();
