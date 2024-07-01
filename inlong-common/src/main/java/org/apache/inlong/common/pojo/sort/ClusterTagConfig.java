@@ -35,13 +35,13 @@ import java.util.function.BiFunction;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SortClusterConfig implements Serializable {
+public class ClusterTagConfig implements Serializable {
 
     private String clusterTag;
     private List<MqClusterConfig> mqClusterConfigs;
     private List<DataFlowConfig> dataFlowConfigs;
 
-    public static SortClusterConfig checkDelete(SortClusterConfig last, SortClusterConfig current) {
+    public static ClusterTagConfig checkDelete(ClusterTagConfig last, ClusterTagConfig current) {
         if (CollectionUtils.isEmpty(current.getMqClusterConfigs())) {
             return last;
         }
@@ -49,11 +49,11 @@ public class SortClusterConfig implements Serializable {
         return check(last, current, MqClusterConfig::batchCheckLast, DataFlowConfig::batchCheckDelete);
     }
 
-    public static SortClusterConfig checkNew(SortClusterConfig last, SortClusterConfig current) {
+    public static ClusterTagConfig checkNew(ClusterTagConfig last, ClusterTagConfig current) {
         return check(last, current, MqClusterConfig::batchCheckLatest, DataFlowConfig::batchCheckNew);
     }
 
-    public static SortClusterConfig checkUpdate(SortClusterConfig last, SortClusterConfig current) {
+    public static ClusterTagConfig checkUpdate(ClusterTagConfig last, ClusterTagConfig current) {
         List<MqClusterConfig> updateCluster =
                 MqClusterConfig.batchCheckUpdate(last.getMqClusterConfigs(), current.getMqClusterConfigs());
 
@@ -77,7 +77,7 @@ public class SortClusterConfig implements Serializable {
                     DataFlowConfig.batchCheckNoUpdate(last.getDataFlowConfigs(), current.getDataFlowConfigs());
             noUpdateDataflows.addAll(updateDataflows);
 
-            return SortClusterConfig.builder()
+            return ClusterTagConfig.builder()
                     .clusterTag(last.getClusterTag())
                     .mqClusterConfigs(latestCluster)
                     .dataFlowConfigs(noUpdateDataflows)
@@ -90,14 +90,14 @@ public class SortClusterConfig implements Serializable {
         }
 
         // if only dataflow update, use latest mq and update dataflow
-        return SortClusterConfig.builder()
+        return ClusterTagConfig.builder()
                 .clusterTag(last.getClusterTag())
                 .mqClusterConfigs(latestCluster)
                 .dataFlowConfigs(updateDataflows)
                 .build();
     }
 
-    public static SortClusterConfig checkLatest(SortClusterConfig last, SortClusterConfig current) {
+    public static ClusterTagConfig checkLatest(ClusterTagConfig last, ClusterTagConfig current) {
         if (CollectionUtils.isEmpty(current.getMqClusterConfigs())) {
             return null;
         }
@@ -105,40 +105,40 @@ public class SortClusterConfig implements Serializable {
         return check(last, current, MqClusterConfig::batchCheckLatest, DataFlowConfig::batchCheckLatest);
     }
 
-    public static List<SortClusterConfig> batchCheckDelete(
-            List<SortClusterConfig> last,
-            List<SortClusterConfig> current) {
+    public static List<ClusterTagConfig> batchCheckDelete(
+            List<ClusterTagConfig> last,
+            List<ClusterTagConfig> current) {
         return SortConfigUtil.batchCheckDeleteRecursive(last, current,
-                SortClusterConfig::getClusterTag, SortClusterConfig::checkDelete);
+                ClusterTagConfig::getClusterTag, ClusterTagConfig::checkDelete);
     }
 
-    public static List<SortClusterConfig> batchCheckNew(
-            List<SortClusterConfig> last,
-            List<SortClusterConfig> current) {
+    public static List<ClusterTagConfig> batchCheckNew(
+            List<ClusterTagConfig> last,
+            List<ClusterTagConfig> current) {
         return SortConfigUtil.batchCheckNewRecursive(last, current,
-                SortClusterConfig::getClusterTag, SortClusterConfig::checkNew);
+                ClusterTagConfig::getClusterTag, ClusterTagConfig::checkNew);
     }
 
-    public static List<SortClusterConfig> batchCheckUpdate(
-            List<SortClusterConfig> last,
-            List<SortClusterConfig> current) {
+    public static List<ClusterTagConfig> batchCheckUpdate(
+            List<ClusterTagConfig> last,
+            List<ClusterTagConfig> current) {
         return SortConfigUtil.batchCheckUpdateRecursive(last, current,
-                SortClusterConfig::getClusterTag, SortClusterConfig::checkUpdate);
+                ClusterTagConfig::getClusterTag, ClusterTagConfig::checkUpdate);
     }
 
-    public static List<SortClusterConfig> batchCheckLatest(
-            List<SortClusterConfig> last,
-            List<SortClusterConfig> current) {
+    public static List<ClusterTagConfig> batchCheckLatest(
+            List<ClusterTagConfig> last,
+            List<ClusterTagConfig> current) {
         return SortConfigUtil.batchCheckLatestRecursive(last, current,
-                SortClusterConfig::getClusterTag, SortClusterConfig::checkLatest);
+                ClusterTagConfig::getClusterTag, ClusterTagConfig::checkLatest);
     }
 
-    public static SortClusterConfig check(
-            SortClusterConfig last, SortClusterConfig current,
+    public static ClusterTagConfig check(
+            ClusterTagConfig last, ClusterTagConfig current,
             BiFunction<List<MqClusterConfig>, List<MqClusterConfig>, List<MqClusterConfig>> mqCheckFunction,
             BiFunction<List<DataFlowConfig>, List<DataFlowConfig>, List<DataFlowConfig>> flowCheckFunction) {
 
-        List<MqClusterConfig> checkCluster = mqCheckFunction
+        List<MqClusterConfig> checkMqCluster = mqCheckFunction
                 .apply(last.getMqClusterConfigs(), current.getMqClusterConfigs());
         List<DataFlowConfig> checkDataflows = flowCheckFunction
                 .apply(last.getDataFlowConfigs(), current.getDataFlowConfigs());
@@ -147,9 +147,9 @@ public class SortClusterConfig implements Serializable {
             return null;
         }
 
-        return SortClusterConfig.builder()
+        return ClusterTagConfig.builder()
                 .clusterTag(last.getClusterTag())
-                .mqClusterConfigs(checkCluster)
+                .mqClusterConfigs(checkMqCluster)
                 .dataFlowConfigs(checkDataflows)
                 .build();
     }

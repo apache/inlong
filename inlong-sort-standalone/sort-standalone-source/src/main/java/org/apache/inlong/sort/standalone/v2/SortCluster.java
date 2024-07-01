@@ -18,7 +18,7 @@
 package org.apache.inlong.sort.standalone.v2;
 
 import org.apache.inlong.common.pojo.sort.SortConfig;
-import org.apache.inlong.common.pojo.sort.SortTaskConfig;
+import org.apache.inlong.common.pojo.sort.TaskConfig;
 import org.apache.inlong.sdk.commons.admin.AdminTask;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.v2.SortConfigHolder;
@@ -92,7 +92,7 @@ public class SortCluster {
                 return;
             }
             // add new task
-            for (SortTaskConfig taskConfig : newConfig.getTasks()) {
+            for (TaskConfig taskConfig : newConfig.getTasks()) {
                 String newTaskName = taskConfig.getSortTaskName();
                 if (taskMap.containsKey(newTaskName)) {
                     continue;
@@ -106,7 +106,7 @@ public class SortCluster {
             for (Map.Entry<String, SortTask> entry : taskMap.entrySet()) {
                 String taskName = entry.getKey();
                 boolean isFound = false;
-                for (SortTaskConfig taskConfig : newConfig.getTasks()) {
+                for (TaskConfig taskConfig : newConfig.getTasks()) {
                     if (taskName.equals(taskConfig.getSortTaskName())) {
                         isFound = true;
                         break;

@@ -15,28 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.standalone.config.loader;
+package org.apache.inlong.sort.standalone.config.holder.v2;
 
-import org.apache.flume.conf.Configurable;
+public enum SortConfigType {
 
-/**
- * Interface of ManagerUrlLoader.
- */
-public interface ManagerUrlLoader extends Configurable {
+    FILE, MANAGER, USER_DEFINED;
 
-    /**
-     * Acquire SortSourceConfigUrl
-     *
-     * @return SortSourceConfigUrl
-     */
-    String acquireSortSourceConfigUrl();
-
-    /**
-     * Acquire SortClusterConfigUrl
-     *
-     * @return SortClusterConfigUrl
-     */
-    String acquireSortClusterConfigUrl();
-
-    String acquireSortConfigUrl();
+    public static final String KEY_TYPE = "sortConfig.type";
+    public static final String KEY_FILE = "sortConfig.file";
+    public static final String DEFAULT_FILE = "SortConfig.conf";
 }

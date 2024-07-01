@@ -17,14 +17,13 @@
 
 package org.apache.inlong.sort.standalone.config.holder.v2;
 
-import org.apache.inlong.common.pojo.sort.SortClusterConfig;
+import org.apache.inlong.common.pojo.sort.ClusterTagConfig;
 import org.apache.inlong.common.pojo.sort.SortConfig;
-import org.apache.inlong.common.pojo.sort.SortTaskConfig;
+import org.apache.inlong.common.pojo.sort.TaskConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
-import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigType;
-import org.apache.inlong.sort.standalone.config.loader.v2.ClassResourceSortClusterConfigLoader;
-import org.apache.inlong.sort.standalone.config.loader.v2.ManagerSortClusterConfigLoader;
+import org.apache.inlong.sort.standalone.config.loader.v2.ClassResourceSortConfigLoader;
+import org.apache.inlong.sort.standalone.config.loader.v2.ManagerSortConfigLoader;
 import org.apache.inlong.sort.standalone.config.loader.v2.SortConfigLoader;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 
@@ -71,12 +70,12 @@ public class SortConfigHolder {
             instance = new SortConfigHolder();
             instance.reloadInterval = CommonPropertiesHolder.getLong(RELOAD_INTERVAL, 60000L);
             String loaderType = CommonPropertiesHolder
-                    .getString(SortClusterConfigType.KEY_TYPE, SortClusterConfigType.MANAGER.name());
+                    .getString(SortConfigType.KEY_TYPE, SortConfigType.MANAGER.name());
 
-            if (SortClusterConfigType.FILE.name().equalsIgnoreCase(loaderType)) {
-                instance.loader = new ClassResourceSortClusterConfigLoader();
-            } else if (SortClusterConfigType.MANAGER.name().equalsIgnoreCase(loaderType)) {
-                instance.loader = new ManagerSortClusterConfigLoader();
+            if (SortConfigType.FILE.name().equalsIgnoreCase(loaderType)) {
+                instance.loader = new ClassResourceSortConfigLoader();
+            } else if (SortConfigType.MANAGER.name().equalsIgnoreCase(loaderType)) {
+                instance.loader = new ManagerSortConfigLoader();
             } else {
                 // user-defined
                 try {
@@ -90,7 +89,7 @@ public class SortConfigHolder {
                 }
             }
             if (instance.loader == null) {
-                instance.loader = new ClassResourceSortClusterConfigLoader();
+                instance.loader = new ClassResourceSortConfigLoader();
             }
             try {
                 instance.loader.configure(new Context(CommonPropertiesHolder.get()));
@@ -125,10 +124,10 @@ public class SortConfigHolder {
             // <SortTaskName, <InlongId, AuditTag>>
             this.auditTagMap = newConfig.getTasks()
                     .stream()
-                    .collect(Collectors.toMap(SortTaskConfig::getSortTaskName,
-                            v -> v.getClusters()
+                    .collect(Collectors.toMap(TaskConfig::getSortTaskName,
+                            v -> v.getClusterTagConfigs()
                                     .stream()
-                                    .map(SortClusterConfig::getDataFlowConfigs)
+                                    .map(ClusterTagConfig::getDataFlowConfigs)
                                     .flatMap(Collection::stream)
                                     .filter(flow -> StringUtils.isNotEmpty(flow.getAuditTag()))
                                     .collect(Collectors.toMap(flow -> InlongId.generateUid(flow.getInlongGroupId(),
@@ -145,10 +144,10 @@ public class SortConfigHolder {
         return get().config;
     }
 
-    public static SortTaskConfig getTaskConfig(String sortTaskName) {
+    public static TaskConfig getTaskConfig(String sortTaskName) {
         SortConfig config = get().config;
         if (config != null && config.getTasks() != null) {
-            for (SortTaskConfig task : config.getTasks()) {
+            for (TaskConfig task : config.getTasks()) {
                 if (StringUtils.equals(sortTaskName, task.getSortTaskName())) {
                     return task;
                 }

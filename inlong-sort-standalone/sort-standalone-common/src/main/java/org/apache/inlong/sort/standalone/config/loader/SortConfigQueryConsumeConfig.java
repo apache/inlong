@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sort.standalone.config.loader;
 
-import org.apache.inlong.common.pojo.sort.SortClusterConfig;
-import org.apache.inlong.common.pojo.sort.SortTaskConfig;
+import org.apache.inlong.common.pojo.sort.ClusterTagConfig;
+import org.apache.inlong.common.pojo.sort.TaskConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
 import org.apache.inlong.common.pojo.sort.mq.MqClusterConfig;
 import org.apache.inlong.common.pojo.sort.mq.PulsarClusterConfig;
@@ -49,8 +49,8 @@ public class SortConfigQueryConsumeConfig implements QueryConsumeConfig {
 
     @Override
     public ConsumeConfig queryCurrentConsumeConfig(String sortTaskId) {
-        SortTaskConfig taskConfig = SortConfigHolder.getTaskConfig(sortTaskId);
-        List<InLongTopic> topics = taskConfig.getClusters()
+        TaskConfig taskConfig = SortConfigHolder.getTaskConfig(sortTaskId);
+        List<InLongTopic> topics = taskConfig.getClusterTagConfigs()
                 .stream()
                 .map(this::parseTopics)
                 .flatMap(Collection::stream)
@@ -59,7 +59,7 @@ public class SortConfigQueryConsumeConfig implements QueryConsumeConfig {
         return new ConsumeConfig(topics);
     }
 
-    public List<InLongTopic> parseTopics(SortClusterConfig clusterConfig) {
+    public List<InLongTopic> parseTopics(ClusterTagConfig clusterConfig) {
         List<InLongTopic> topics = new ArrayList<>();
         List<MqClusterConfig> mqClusterConfigs = clusterConfig.getMqClusterConfigs();
         List<DataFlowConfig> dataFlowConfigs = clusterConfig.getDataFlowConfigs();

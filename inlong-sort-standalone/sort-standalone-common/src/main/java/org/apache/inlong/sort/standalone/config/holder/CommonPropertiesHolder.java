@@ -40,6 +40,7 @@ public class CommonPropertiesHolder {
     public static final String KEY_COMMON_PROPERTIES = "common_properties_loader";
     public static final String KEY_CLUSTER_ID = "clusterId";
     public static final String KEY_SORT_SOURCE_ACKPOLICY = "sortSource.ackPolicy";
+    public static final String KEY_USE_UNIFIED_CONFIGURATION = "useUnifiedConfiguration";
 
     private static Map<String, String> props;
     private static Context context;

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
-import org.apache.inlong.sort.standalone.sink.v2.SinkContext;
+import org.apache.inlong.sort.standalone.sink.SinkContext;
 import org.apache.inlong.sort.standalone.utils.BufferQueue;
 
 import org.apache.flume.Context;

@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
-import org.apache.inlong.common.pojo.sort.SortClusterConfig;
-import org.apache.inlong.common.pojo.sort.SortTaskConfig;
+import org.apache.inlong.common.pojo.sort.ClusterTagConfig;
+import org.apache.inlong.common.pojo.sort.TaskConfig;
 import org.apache.inlong.common.pojo.sort.node.EsNodeConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
@@ -26,7 +26,7 @@ import org.apache.inlong.sort.standalone.config.holder.v2.SortConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
-import org.apache.inlong.sort.standalone.sink.v2.SinkContext;
+import org.apache.inlong.sort.standalone.sink.SinkContext;
 import org.apache.inlong.sort.standalone.utils.BufferQueue;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
@@ -138,23 +138,23 @@ public class EsSinkContext extends SinkContext {
             LOG.info("SortTask:{},dispatchQueue:{},offer:{},take:{},back:{}",
                     taskName, dispatchQueue.size(), offerCounter.getAndSet(0),
                     takeCounter.getAndSet(0), backCounter.getAndSet(0));
-            SortTaskConfig newSortTaskConfig = SortConfigHolder.getTaskConfig(taskName);
-            if (this.sortTaskConfig != null && this.sortTaskConfig.equals(newSortTaskConfig)) {
+            TaskConfig newSortTaskConfig = SortConfigHolder.getTaskConfig(taskName);
+            if (this.taskConfig != null && this.taskConfig.equals(newSortTaskConfig)) {
                 return;
             }
             LOG.info("get new SortTaskConfig:taskName:{}:config:{}", taskName,
                     objectMapper.writeValueAsString(newSortTaskConfig));
-            this.sortTaskConfig = newSortTaskConfig;
-            EsNodeConfig requestNodeConfig = (EsNodeConfig) sortTaskConfig.getNodeConfig();
+            this.taskConfig = newSortTaskConfig;
+            EsNodeConfig requestNodeConfig = (EsNodeConfig) taskConfig.getNodeConfig();
             if (esNodeConfig == null || requestNodeConfig.getVersion() > esNodeConfig.getVersion()) {
                 this.esNodeConfig = requestNodeConfig;
             }
-            Map<String, String> properties = this.sortTaskConfig.getNodeConfig().getProperties();
+            Map<String, String> properties = this.taskConfig.getNodeConfig().getProperties();
             this.sinkContext = new Context(properties != null ? properties : new HashMap<>());
             // change current config
-            this.idConfigMap = this.sortTaskConfig.getClusters()
+            this.idConfigMap = this.taskConfig.getClusterTagConfigs()
                     .stream()
-                    .map(SortClusterConfig::getDataFlowConfigs)
+                    .map(ClusterTagConfig::getDataFlowConfigs)
                     .flatMap(Collection::stream)
                     .map(EsIdConfig::create)
                     .collect(Collectors.toMap(

@@ -17,18 +17,22 @@
 
 package org.apache.inlong.sort.standalone.sink.cls;
 
-import org.apache.inlong.common.pojo.sort.SortClusterConfig;
-import org.apache.inlong.common.pojo.sort.SortTaskConfig;
+import org.apache.inlong.common.pojo.sort.ClusterTagConfig;
+import org.apache.inlong.common.pojo.sort.TaskConfig;
 import org.apache.inlong.common.pojo.sort.node.ClsNodeConfig;
+import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.holder.v2.SortConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
-import org.apache.inlong.sort.standalone.sink.v2.SinkContext;
+import org.apache.inlong.sort.standalone.sink.SinkContext;
+import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tencentcloudapi.cls.producer.AsyncProducerClient;
@@ -97,20 +101,24 @@ public class ClsSinkContext extends SinkContext {
                 }
             });
 
-            SortTaskConfig newSortTaskConfig = SortConfigHolder.getTaskConfig(taskName);
-            if (newSortTaskConfig == null || newSortTaskConfig.equals(sortTaskConfig)) {
+            TaskConfig newTaskConfig = SortConfigHolder.getTaskConfig(taskName);
+            SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
+            if ((newTaskConfig == null || newTaskConfig.equals(taskConfig))
+                    && (newSortTaskConfig == null || newSortTaskConfig.equals(sortTaskConfig))) {
                 return;
             }
-            LOG.info("get new SortTaskConfig:taskName:{}:config:{}", taskName,
-                    objectMapper.writeValueAsString(newSortTaskConfig));
-            this.sortTaskConfig = newSortTaskConfig;
-            ClsNodeConfig requestNodeConfig = (ClsNodeConfig) sortTaskConfig.getNodeConfig();
+            LOG.info("get new SortTaskConfig:taskName:{}", taskName);
+            ClsNodeConfig requestNodeConfig = (ClsNodeConfig) newTaskConfig.getNodeConfig();
             if (clsNodeConfig == null || requestNodeConfig.getVersion() > clsNodeConfig.getVersion()) {
                 this.clsNodeConfig = requestNodeConfig;
             }
-            this.keywordMaxLength = DEFAULT_KEYWORD_MAX_LENGTH;
-            this.reloadIdParams();
-            this.reloadClients();
+            this.taskConfig = newTaskConfig;
+            this.sortTaskConfig = newSortTaskConfig;
+
+            Map<String, ClsIdConfig> fromTaskConfig = reloadIdParamsFromTaskConfig(taskConfig, clsNodeConfig);
+            Map<String, ClsIdConfig> fromSortTaskConfig = reloadIdParamsFromSortTaskConfig(sortTaskConfig);
+            idConfigMap = unifiedConfiguration ? fromTaskConfig : fromSortTaskConfig;
+            this.reloadClients(idConfigMap);
             this.reloadHandler();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -134,10 +142,13 @@ public class ClsSinkContext extends SinkContext {
         }
     }
 
-    private void reloadIdParams() {
-        this.idConfigMap = this.sortTaskConfig.getClusters()
+    private Map<String, ClsIdConfig> reloadIdParamsFromTaskConfig(TaskConfig taskConfig, ClsNodeConfig clsNodeConfig) {
+        if (taskConfig == null) {
+            return new HashMap<>();
+        }
+        return taskConfig.getClusterTagConfigs()
                 .stream()
-                .map(SortClusterConfig::getDataFlowConfigs)
+                .map(ClusterTagConfig::getDataFlowConfigs)
                 .flatMap(Collection::stream)
                 .map(dataFlowConfig -> ClsIdConfig.create(dataFlowConfig, clsNodeConfig))
                 .collect(Collectors.toMap(
@@ -145,7 +156,25 @@ public class ClsSinkContext extends SinkContext {
                         v -> v));
     }
 
-    private void reloadClients() {
+    private Map<String, ClsIdConfig> reloadIdParamsFromSortTaskConfig(SortTaskConfig sortTaskConfig)
+            throws JsonProcessingException {
+        if (sortTaskConfig == null) {
+            return new HashMap<>();
+        }
+        List<Map<String, String>> idList = this.sortTaskConfig.getIdParams();
+        Map<String, ClsIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
+        for (Map<String, String> idParam : idList) {
+            String inlongGroupId = idParam.get(Constants.INLONG_GROUP_ID);
+            String inlongStreamId = idParam.get(Constants.INLONG_STREAM_ID);
+            String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
+            String jsonIdConfig = objectMapper.writeValueAsString(idParam);
+            ClsIdConfig idConfig = objectMapper.readValue(jsonIdConfig, ClsIdConfig.class);
+            newIdConfigMap.put(uid, idConfig);
+        }
+        return newIdConfigMap;
+    }
+
+    private void reloadClients(Map<String, ClsIdConfig> idConfigMap) {
         // get update secretIds
         Map<String, ClsIdConfig> updateConfigMap = idConfigMap.values()
                 .stream()

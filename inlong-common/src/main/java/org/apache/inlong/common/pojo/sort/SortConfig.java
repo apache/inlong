@@ -34,7 +34,7 @@ import java.util.function.BiFunction;
 public class SortConfig implements Serializable {
 
     private String sortClusterName;
-    private List<SortTaskConfig> tasks;
+    private List<TaskConfig> tasks;
 
     public static SortConfig checkLatest(SortConfig last, SortConfig current) {
         if (last == null) {
@@ -45,7 +45,7 @@ public class SortConfig implements Serializable {
         }
         return SortConfig.builder()
                 .sortClusterName(current.getSortClusterName())
-                .tasks(SortTaskConfig.batchCheckLatest(last.getTasks(), current.getTasks()))
+                .tasks(TaskConfig.batchCheckLatest(last.getTasks(), current.getTasks()))
                 .build();
     }
 
@@ -56,14 +56,14 @@ public class SortConfig implements Serializable {
         if (current == null) {
             return last;
         }
-        return check(last, current, SortTaskConfig::batchCheckDelete);
+        return check(last, current, TaskConfig::batchCheckDelete);
     }
 
     public static SortConfig checkUpdate(SortConfig last, SortConfig current) {
         if (last == null || current == null) {
             return null;
         }
-        return check(last, current, SortTaskConfig::batchCheckUpdate);
+        return check(last, current, TaskConfig::batchCheckUpdate);
     }
 
     public static SortConfig checkNew(SortConfig last, SortConfig current) {
@@ -73,17 +73,17 @@ public class SortConfig implements Serializable {
         if (current == null) {
             return null;
         }
-        return check(last, current, SortTaskConfig::batchCheckNew);
+        return check(last, current, TaskConfig::batchCheckNew);
     }
 
     public static SortConfig check(
             SortConfig last, SortConfig current,
-            BiFunction<List<SortTaskConfig>, List<SortTaskConfig>, List<SortTaskConfig>> taskCheckFunction) {
+            BiFunction<List<TaskConfig>, List<TaskConfig>, List<TaskConfig>> taskCheckFunction) {
         if (!last.getSortClusterName().equals(current.getSortClusterName())) {
             return null;
         }
 
-        List<SortTaskConfig> checkTasks = taskCheckFunction.apply(last.getTasks(), current.getTasks());
+        List<TaskConfig> checkTasks = taskCheckFunction.apply(last.getTasks(), current.getTasks());
         if (CollectionUtils.isEmpty(checkTasks)) {
             return null;
         }

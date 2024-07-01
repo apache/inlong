@@ -18,10 +18,10 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
-import org.apache.inlong.common.pojo.sort.SortClusterConfig;
+import org.apache.inlong.common.pojo.sort.ClusterTagConfig;
 import org.apache.inlong.common.pojo.sort.SortConfig;
 import org.apache.inlong.common.pojo.sort.SortConfigResponse;
-import org.apache.inlong.common.pojo.sort.SortTaskConfig;
+import org.apache.inlong.common.pojo.sort.TaskConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
 import org.apache.inlong.common.pojo.sort.mq.MqClusterConfig;
 import org.apache.inlong.common.pojo.sort.mq.PulsarClusterConfig;
@@ -272,7 +272,7 @@ public class SortServiceImpl implements SortService, PluginBinder {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, byte[]> sortConfigs = new HashMap<>();
         Map<String, String> sortConfigMd5s = new HashMap<>();
-        Map<String, List<SortTaskConfig>> temp = new HashMap<>();
+        Map<String, List<TaskConfig>> temp = new HashMap<>();
         List<SortConfigEntity> sinkConfigEntityList = configLoader.loadAllSortConfigEntity();
         for (SortConfigEntity sortConfigEntity : sinkConfigEntityList) {
             if (StringUtils.isBlank(sortConfigEntity.getSortTaskName())) {
@@ -284,16 +284,16 @@ public class SortServiceImpl implements SortService, PluginBinder {
                         Collectors.groupingBy(SortConfigEntity::getSortTaskName,
                                 Collectors.groupingBy(SortConfigEntity::getInlongClusterTag))));
         for (String sortClusterName : cluster2SinkMap.keySet()) {
-            List<SortTaskConfig> map = temp.computeIfAbsent(sortClusterName,
+            List<TaskConfig> map = temp.computeIfAbsent(sortClusterName,
                     v -> new ArrayList<>());
             SortConfig sortConfig = new SortConfig();
             sortConfig.setSortClusterName(sortClusterName);
             Map<String, Map<String, List<SortConfigEntity>>> sortTaskNameMap = cluster2SinkMap.get(sortClusterName);
             for (String sortTaskName : sortTaskNameMap.keySet()) {
                 Map<String, List<SortConfigEntity>> clusterTagMap = sortTaskNameMap.get(sortTaskName);
-                SortTaskConfig sortTaskConfig = SortTaskConfig.builder()
+                TaskConfig sortTaskConfig = TaskConfig.builder()
                         .sortTaskName(sortTaskName)
-                        .clusters(new ArrayList<>())
+                        .clusterTagConfigs(new ArrayList<>())
                         .nodeConfig(nodeInfoMap.get(sortTaskName))
                         .build();
                 for (String clusterTag : clusterTagMap.keySet()) {
@@ -308,12 +308,12 @@ public class SortServiceImpl implements SortService, PluginBinder {
                     }).filter(Objects::nonNull)
                             .sorted(Comparator.comparingInt(x -> Integer.parseInt(x.getDataflowId())))
                             .collect(Collectors.toList());
-                    SortClusterConfig sortClusterConfig = SortClusterConfig.builder()
+                    ClusterTagConfig sortClusterConfig = ClusterTagConfig.builder()
                             .mqClusterConfigs(mqClusterConfigMap.getOrDefault(clusterTag, new ArrayList<>()))
                             .clusterTag(clusterTag)
                             .dataFlowConfigs(dataFlowConfigs)
                             .build();
-                    sortTaskConfig.getClusters().add(sortClusterConfig);
+                    sortTaskConfig.getClusterTagConfigs().add(sortClusterConfig);
                 }
                 map.add(sortTaskConfig);
             }

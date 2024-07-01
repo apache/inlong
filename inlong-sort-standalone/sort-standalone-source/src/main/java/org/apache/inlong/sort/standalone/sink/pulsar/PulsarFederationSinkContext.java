@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
-import org.apache.inlong.common.pojo.sort.SortClusterConfig;
-import org.apache.inlong.common.pojo.sort.SortTaskConfig;
+import org.apache.inlong.common.pojo.sort.ClusterTagConfig;
+import org.apache.inlong.common.pojo.sort.TaskConfig;
 import org.apache.inlong.common.pojo.sort.node.PulsarNodeConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
@@ -26,7 +26,7 @@ import org.apache.inlong.sort.standalone.config.holder.v2.SortConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
-import org.apache.inlong.sort.standalone.sink.v2.SinkContext;
+import org.apache.inlong.sort.standalone.sink.SinkContext;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import org.apache.commons.lang3.ClassUtils;
@@ -53,25 +53,25 @@ public class PulsarFederationSinkContext extends SinkContext {
 
     public void reload() {
         try {
-            SortTaskConfig newSortTaskConfig = SortConfigHolder.getTaskConfig(taskName);
+            TaskConfig newSortTaskConfig = SortConfigHolder.getTaskConfig(taskName);
             if (newSortTaskConfig == null) {
                 LOG.error("newSortTaskConfig is null.");
                 return;
             }
-            if (this.sortTaskConfig != null && this.sortTaskConfig.equals(newSortTaskConfig)) {
+            if (this.taskConfig != null && this.taskConfig.equals(newSortTaskConfig)) {
                 LOG.info("Same sortTaskConfig, do nothing.");
                 return;
             }
-            this.sortTaskConfig = newSortTaskConfig;
+            this.taskConfig = newSortTaskConfig;
 
             PulsarNodeConfig requestNodeConfig = (PulsarNodeConfig) newSortTaskConfig.getNodeConfig();
             if (pulsarNodeConfig == null || requestNodeConfig.getVersion() > pulsarNodeConfig.getVersion()) {
                 this.pulsarNodeConfig = requestNodeConfig;
             }
 
-            this.idConfigMap = this.sortTaskConfig.getClusters()
+            this.idConfigMap = this.taskConfig.getClusterTagConfigs()
                     .stream()
-                    .map(SortClusterConfig::getDataFlowConfigs)
+                    .map(ClusterTagConfig::getDataFlowConfigs)
                     .flatMap(Collection::stream)
                     .map(PulsarIdConfig::create)
                     .collect(Collectors.toMap(
