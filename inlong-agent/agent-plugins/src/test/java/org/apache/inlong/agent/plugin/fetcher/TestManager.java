@@ -46,20 +46,15 @@ public class TestManager {
     }
 
     private void doTest(String retFromManager, int taskNum) {
-        try {
-            TaskResult taskResult = null;
-            JsonObject resultData = getResultData(retFromManager);
-            JsonElement element = resultData.get(AGENT_MANAGER_RETURN_PARAM_DATA);
-            taskResult = GSON.fromJson(element.getAsJsonObject(), TaskResult.class);
-            List<TaskProfile> taskProfiles = new ArrayList<>();
-            taskResult.getDataConfigs().forEach((config) -> {
-                TaskProfile profile = TaskProfile.convertToTaskProfile(config);
-                taskProfiles.add(profile);
-            });
-            Assert.assertEquals(taskProfiles.size(), taskNum);
-        } catch (Throwable ex) {
-            LOGGER.warn("exception caught", ex);
-            Assert.assertTrue(false);
-        }
+        TaskResult taskResult = null;
+        JsonObject resultData = getResultData(retFromManager);
+        JsonElement element = resultData.get(AGENT_MANAGER_RETURN_PARAM_DATA);
+        taskResult = GSON.fromJson(element.getAsJsonObject(), TaskResult.class);
+        List<TaskProfile> taskProfiles = new ArrayList<>();
+        taskResult.getDataConfigs().forEach((config) -> {
+            TaskProfile profile = TaskProfile.convertToTaskProfile(config);
+            taskProfiles.add(profile);
+        });
+        Assert.assertEquals(taskProfiles.size(), taskNum);
     }
 }
