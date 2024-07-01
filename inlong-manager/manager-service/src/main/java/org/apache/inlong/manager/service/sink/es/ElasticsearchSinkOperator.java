@@ -201,6 +201,9 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
         ElasticsearchSinkDTO elasticsearchSinkDTO = ElasticsearchSinkDTO.getFromJson(streamSinkEntity.getExtParams());
         EsSinkConfig sinkConfig = CommonBeanUtils.copyProperties(elasticsearchSink, EsSinkConfig::new);
         CommonBeanUtils.copyProperties(elasticsearchSinkDTO, sinkConfig);
+        sinkConfig.setSeparator(String.valueOf((char) (Integer.parseInt(streamInfo.getDataSeparator()))));
+        sinkConfig.setFieldOffset(streamInfo.getExtendedFieldSize());
+        sinkConfig.setContentOffset(0);
         List<FieldConfig> fields = sinkFieldMapper.selectBySinkId(sink.getId()).stream().map(
                 v -> {
                     FieldConfig fieldConfig = new FieldConfig();
