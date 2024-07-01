@@ -446,7 +446,7 @@ public class TaskProfileDto {
             } else if (mqType.equals(MQType.KAFKA)) {
                 task.setSink(KAFKA_SINK);
             } else {
-                throw new IllegalArgumentException("input dataConfig" + dataConfig + "is invalid please check");
+                throw new IllegalArgumentException("invalid mq type " + mqType + " please check");
             }
         }
         TaskTypeEnum taskType = TaskTypeEnum.getTaskType(dataConfig.getTaskType());
