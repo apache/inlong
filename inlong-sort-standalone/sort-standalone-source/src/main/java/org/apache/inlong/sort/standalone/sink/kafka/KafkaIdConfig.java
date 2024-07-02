@@ -20,28 +20,29 @@ package org.apache.inlong.sort.standalone.sink.kafka;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.sink.KafkaSinkConfig;
+import org.apache.inlong.sort.standalone.config.pojo.IdConfig;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.utils.Constants;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Map;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class KafkaIdConfig {
+@SuperBuilder
+public class KafkaIdConfig extends IdConfig {
 
     public static final String KEY_DATA_TYPE = "dataType";
     public static final String KEY_SEPARATOR = "separator";
     public static final String DEFAULT_SEPARATOR = "|";
 
-    private String inlongGroupId;
-    private String inlongStreamId;
     private String uid;
     private String separator = "|";
     private String topic;

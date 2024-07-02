@@ -26,6 +26,7 @@ import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.holder.v2.SortConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
+import org.apache.inlong.sort.standalone.metrics.SortConfigMetricReporter;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
@@ -83,6 +84,7 @@ public class KafkaFederationSinkContext extends SinkContext {
 
             Map<String, KafkaIdConfig> fromTaskConfig = fromTaskConfig(taskConfig);
             Map<String, KafkaIdConfig> fromSortTaskConfig = fromSortTaskConfig(sortTaskConfig);
+            SortConfigMetricReporter.reportClusterDiff(clusterId, taskName, fromTaskConfig, fromSortTaskConfig);
             this.idConfigMap = unifiedConfiguration ? fromTaskConfig : fromSortTaskConfig;
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
