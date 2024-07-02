@@ -340,9 +340,9 @@ public class StarRocksDynamicSinkFunctionV2<T> extends StarRocksDynamicSinkFunct
 
     @Override
     public void notifyCheckpointComplete(long checkpointId) {
+        commitTransaction(checkpointId);
         flushAudit();
         updateLastCheckpointId(checkpointId);
-        commitTransaction(checkpointId);
     }
 
     private void commitTransaction(long checkpointId) {
