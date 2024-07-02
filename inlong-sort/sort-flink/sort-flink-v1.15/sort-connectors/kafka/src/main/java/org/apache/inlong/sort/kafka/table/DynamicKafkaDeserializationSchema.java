@@ -19,7 +19,7 @@ package org.apache.inlong.sort.kafka.table;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.metric.SourceExactlyMetric;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -38,11 +38,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.apache.inlong.sort.kafka.table.KafkaDynamicSource.ReadableMetadata.CONSUME_TIME;
+
 /** A specific {KafkaSerializationSchema} for {KafkaDynamicSource}.
  * <p>
  * Copy from org.apache.flink:flink-connector-kafka:1.15.4
  * */
-class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<RowData> {
+public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<RowData> {
 
     private static final long serialVersionUID = 1L;
 
@@ -62,9 +64,7 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
 
     private final MetricOption metricOption;
 
-    private SourceMetricData sourceMetricData;
-
-    private int consumeTimeIndex = -1;
+    private SourceExactlyMetric sourceExactlyMetric;
 
     DynamicKafkaDeserializationSchema(
             int physicalArity,
@@ -76,7 +76,8 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
             MetadataConverter[] metadataConverters,
             TypeInformation<RowData> producedTypeInfo,
             boolean upsertMode,
-            MetricOption metricOption) {
+            MetricOption metricOption,
+            List<String> metadataKeys) {
         if (upsertMode) {
             Preconditions.checkArgument(
                     keyDeserialization != null && keyProjection.length > 0,
@@ -92,7 +93,8 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
                         keyProjection,
                         valueProjection,
                         metadataConverters,
-                        upsertMode);
+                        upsertMode,
+                        metadataKeys);
         this.producedTypeInfo = producedTypeInfo;
         this.upsertMode = upsertMode;
         this.metricOption = metricOption;
@@ -105,13 +107,7 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         }
         valueDeserialization.open(context);
         if (metricOption != null) {
-            sourceMetricData = new SourceMetricData(metricOption);
-        }
-        for (int i = 0; i < outputCollector.metadataConverters.length; i++) {
-            if (outputCollector.metadataConverters[i]
-                    .equals(KafkaDynamicSource.ReadableMetadata.CONSUME_TIME.converter)) {
-                consumeTimeIndex = i;
-            }
+            sourceExactlyMetric = new SourceExactlyMetric(metricOption);
         }
     }
 
@@ -121,7 +117,7 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
     }
 
     @Override
-    public RowData deserialize(ConsumerRecord<byte[], byte[]> record) throws Exception {
+    public RowData deserialize(ConsumerRecord<byte[], byte[]> record) {
         throw new IllegalStateException("A collector is required for deserializing.");
     }
 
@@ -132,10 +128,9 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         // also not for a cartesian product with the keys
         if (keyDeserialization == null && !hasMetadata) {
             valueDeserialization.deserialize(record.value(),
-                    sourceMetricData == null ? collector : new MetricsCollector<>(collector, sourceMetricData));
+                    sourceExactlyMetric == null ? collector : new MetricsCollector<>(collector, sourceExactlyMetric));
             return;
         }
-
         // buffer key(s)
         if (keyDeserialization != null) {
             keyDeserialization.deserialize(record.key(), keyCollector);
@@ -143,10 +138,8 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         // project output while emitting values
         outputCollector.inputRecord = record;
         outputCollector.physicalKeyRows = keyCollector.buffer;
-        if (sourceMetricData != null) {
-            MetricsCollector<RowData> metricsCollector = new MetricsCollector<>(collector, sourceMetricData);
-            metricsCollector.resetTimestamp(getRecordTime(outputCollector.metadataConverters, record));
-            outputCollector.outputCollector = metricsCollector;
+        if (sourceExactlyMetric != null) {
+            outputCollector.outputCollector = new MetricsCollector<>(collector, sourceExactlyMetric);
         } else {
             outputCollector.outputCollector = collector;
         }
@@ -157,14 +150,6 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
             valueDeserialization.deserialize(record.value(), outputCollector);
         }
         keyCollector.buffer.clear();
-    }
-
-    private Long getRecordTime(MetadataConverter[] metadataConverters,
-            ConsumerRecord<byte[], byte[]> record) {
-        if (consumeTimeIndex == -1) {
-            return System.currentTimeMillis();
-        }
-        return (Long) metadataConverters[consumeTimeIndex].read(record);
     }
 
     @Override
@@ -195,6 +180,24 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         @Override
         public void close() {
             // nothing to do
+        }
+    }
+
+    public void flushAudit() {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.flushAudit();
+        }
+    }
+
+    public void updateCurrentCheckpointId(long checkpointId) {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateCurrentCheckpointId(checkpointId);
+        }
+    }
+
+    public void updateLastCheckpointId(long checkpointId) {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateLastCheckpointId(checkpointId);
         }
     }
 
@@ -236,30 +239,34 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
 
         private transient Collector<RowData> outputCollector;
 
+        private final List<String> metadataKeys;
+
         OutputProjectionCollector(
                 int physicalArity,
                 int[] keyProjection,
                 int[] valueProjection,
                 MetadataConverter[] metadataConverters,
-                boolean upsertMode) {
+                boolean upsertMode,
+                List<String> metadataKeys) {
             this.physicalArity = physicalArity;
             this.keyProjection = keyProjection;
             this.valueProjection = valueProjection;
             this.metadataConverters = metadataConverters;
             this.upsertMode = upsertMode;
+            this.metadataKeys = metadataKeys;
         }
 
         @Override
         public void collect(RowData physicalValueRow) {
             // no key defined
             if (keyProjection.length == 0) {
-                emitRow(null, (GenericRowData) physicalValueRow);
+                emitRow(null, (GenericRowData) physicalValueRow, metadataKeys);
                 return;
             }
 
             // otherwise emit a value for each key
             for (RowData physicalKeyRow : physicalKeyRows) {
-                emitRow((GenericRowData) physicalKeyRow, (GenericRowData) physicalValueRow);
+                emitRow((GenericRowData) physicalKeyRow, (GenericRowData) physicalValueRow, metadataKeys);
             }
         }
 
@@ -270,7 +277,8 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
 
         private void emitRow(
                 @Nullable GenericRowData physicalKeyRow,
-                @Nullable GenericRowData physicalValueRow) {
+                @Nullable GenericRowData physicalValueRow,
+                List<String> metadataKeys) {
             final RowKind rowKind;
             if (physicalValueRow == null) {
                 if (upsertMode) {
@@ -300,9 +308,14 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
             }
 
             for (int metadataPos = 0; metadataPos < metadataArity; metadataPos++) {
+                Object metadata = metadataConverters[metadataPos].read(inputRecord);
                 producedRow.setField(
                         physicalArity + metadataPos,
-                        metadataConverters[metadataPos].read(inputRecord));
+                        metadata);
+                if (CONSUME_TIME.key.equals(metadataKeys.get(metadataPos)) &&
+                        outputCollector instanceof MetricsCollector) {
+                    ((MetricsCollector<RowData>) outputCollector).resetTimestamp((Long) metadata);
+                }
             }
             outputCollector.collect(producedRow);
         }
