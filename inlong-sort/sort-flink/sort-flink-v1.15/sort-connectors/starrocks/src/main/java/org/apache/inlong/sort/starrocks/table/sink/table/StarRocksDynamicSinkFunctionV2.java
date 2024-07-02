@@ -241,7 +241,7 @@ public class StarRocksDynamicSinkFunctionV2<T> extends StarRocksDynamicSinkFunct
             sinkExactlyMetric = new SinkExactlyMetric(metricOption, getRuntimeContext().getMetricGroup());
         }
 
-        notifyCheckpointComplete(Long.MAX_VALUE);
+        commitTransaction(Long.MAX_VALUE);
         log.info("Open sink function v2. {}", EnvUtils.getGitInformation());
     }
 
@@ -340,11 +340,12 @@ public class StarRocksDynamicSinkFunctionV2<T> extends StarRocksDynamicSinkFunct
 
     @Override
     public void notifyCheckpointComplete(long checkpointId) {
-        if (checkpointId != Long.MAX_VALUE) {
-            flushAudit();
-            updateLastCheckpointId(checkpointId);
-        }
+        flushAudit();
+        updateLastCheckpointId(checkpointId);
+        commitTransaction(checkpointId);
+    }
 
+    private void commitTransaction(long checkpointId) {
         boolean succeed = true;
 
         List<Long> commitCheckpointIds = snapshotMap.keySet().stream()
