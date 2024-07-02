@@ -37,7 +37,6 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import static org.apache.inlong.sort.kafka.table.KafkaDynamicSource.ReadableMetadata.CONSUME_TIME;
 
@@ -66,8 +65,6 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
     private final MetricOption metricOption;
 
     private SourceExactlyMetric sourceExactlyMetric;
-
-    private Random random;
 
     DynamicKafkaDeserializationSchema(
             int physicalArity,
@@ -105,7 +102,6 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
 
     @Override
     public void open(DeserializationSchema.InitializationContext context) throws Exception {
-        random = new Random();
         if (keyDeserialization != null) {
             keyDeserialization.open(context);
         }
@@ -121,16 +117,13 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
     }
 
     @Override
-    public RowData deserialize(ConsumerRecord<byte[], byte[]> record) throws Exception {
+    public RowData deserialize(ConsumerRecord<byte[], byte[]> record) {
         throw new IllegalStateException("A collector is required for deserializing.");
     }
 
     @Override
     public void deserialize(ConsumerRecord<byte[], byte[]> record, Collector<RowData> collector)
             throws Exception {
-        if (random.nextInt(20000000) < 10) {
-            throw new Exception("this is a test exception,--------");
-        }
         // shortcut in case no output projection is required,
         // also not for a cartesian product with the keys
         if (keyDeserialization == null && !hasMetadata) {
@@ -146,8 +139,7 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
         outputCollector.inputRecord = record;
         outputCollector.physicalKeyRows = keyCollector.buffer;
         if (sourceExactlyMetric != null) {
-            MetricsCollector<RowData> metricsCollector = new MetricsCollector<>(collector, sourceExactlyMetric);
-            outputCollector.outputCollector = metricsCollector;
+            outputCollector.outputCollector = new MetricsCollector<>(collector, sourceExactlyMetric);
         } else {
             outputCollector.outputCollector = collector;
         }
@@ -316,14 +308,13 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
             }
 
             for (int metadataPos = 0; metadataPos < metadataArity; metadataPos++) {
-                Object comment = metadataConverters[metadataPos].read(inputRecord);
+                Object metadata = metadataConverters[metadataPos].read(inputRecord);
                 producedRow.setField(
                         physicalArity + metadataPos,
-                        comment);
-                if (CONSUME_TIME.key.equals(metadataKeys.get(metadataPos))) {
-                    if (outputCollector instanceof MetricsCollector) {
-                        ((MetricsCollector<RowData>) outputCollector).resetTimestamp((Long) comment);
-                    }
+                        metadata);
+                if (CONSUME_TIME.key.equals(metadataKeys.get(metadataPos)) &&
+                        outputCollector instanceof MetricsCollector) {
+                    ((MetricsCollector<RowData>) outputCollector).resetTimestamp((Long) metadata);
                 }
             }
             outputCollector.collect(producedRow);
