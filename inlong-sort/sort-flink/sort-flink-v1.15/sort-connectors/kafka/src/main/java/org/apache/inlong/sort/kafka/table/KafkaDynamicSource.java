@@ -444,7 +444,6 @@ public class KafkaDynamicSource
                 .setProperties(properties)
                 .setDeserializer(KafkaRecordDeserializationSchema.of(kafkaDeserializer))
                 .setMetricSchema(kafkaDeserializer);
-        //
         return kafkaSourceBuilder.build();
     }
 
