@@ -119,7 +119,7 @@ public class EsSinkContext extends SinkContext {
     private HttpHost[] httpHosts;
 
     public EsSinkContext(String sinkName, Context context, Channel channel,
-                         BufferQueue<EsIndexRequest> dispatchQueue) {
+            BufferQueue<EsIndexRequest> dispatchQueue) {
         super(sinkName, context, channel);
         this.sinkContext = context;
         this.dispatchQueue = dispatchQueue;
