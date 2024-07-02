@@ -20,8 +20,10 @@ package org.apache.inlong.sort.standalone.sink.kafka;
 import org.apache.inlong.common.pojo.sort.ClusterTagConfig;
 import org.apache.inlong.common.pojo.sort.TaskConfig;
 import org.apache.inlong.common.pojo.sort.node.KafkaNodeConfig;
+import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.holder.v2.SortConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
@@ -36,6 +38,7 @@ import org.slf4j.Logger;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,34 +62,57 @@ public class KafkaFederationSinkContext extends SinkContext {
     public void reload() {
         LOG.info("reload KafkaFederationSinkContext.");
         try {
-            TaskConfig newSortTaskConfig = SortConfigHolder.getTaskConfig(taskName);
-            if (newSortTaskConfig == null) {
+            TaskConfig newTaskConfig = SortConfigHolder.getTaskConfig(taskName);
+            SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
+            if (newTaskConfig == null && newSortTaskConfig == null) {
                 LOG.error("newSortTaskConfig is null.");
                 return;
             }
-            if (this.taskConfig != null && this.taskConfig.equals(newSortTaskConfig)) {
+            if ((this.taskConfig != null && this.taskConfig.equals(newTaskConfig))
+                    && (this.sortTaskConfig != null && this.sortTaskConfig.equals(newSortTaskConfig))) {
                 LOG.info("Same sortTaskConfig, do nothing.");
                 return;
             }
-            this.taskConfig = newSortTaskConfig;
-            KafkaNodeConfig requestNodeConfig = (KafkaNodeConfig) newSortTaskConfig.getNodeConfig();
+            KafkaNodeConfig requestNodeConfig = (KafkaNodeConfig) newTaskConfig.getNodeConfig();
             if (kafkaNodeConfig == null || requestNodeConfig.getVersion() > kafkaNodeConfig.getVersion()) {
                 this.kafkaNodeConfig = requestNodeConfig;
             }
 
-            this.idConfigMap = this.taskConfig.getClusterTagConfigs()
-                    .stream()
-                    .map(ClusterTagConfig::getDataFlowConfigs)
-                    .flatMap(Collection::stream)
-                    .map(KafkaIdConfig::create)
-                    .collect(Collectors.toMap(
-                            config -> InlongId.generateUid(config.getInlongGroupId(), config.getInlongStreamId()),
-                            v -> v,
-                            (flow1, flow2) -> flow1));
+            this.taskConfig = newTaskConfig;
+            this.sortTaskConfig = newSortTaskConfig;
 
+            Map<String, KafkaIdConfig> fromTaskConfig = fromTaskConfig(taskConfig);
+            Map<String, KafkaIdConfig> fromSortTaskConfig = fromSortTaskConfig(sortTaskConfig);
+            this.idConfigMap = unifiedConfiguration ? fromTaskConfig : fromSortTaskConfig;
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
         }
+    }
+
+    public Map<String, KafkaIdConfig> fromTaskConfig(TaskConfig taskConfig) {
+        return taskConfig.getClusterTagConfigs()
+                .stream()
+                .map(ClusterTagConfig::getDataFlowConfigs)
+                .flatMap(Collection::stream)
+                .map(KafkaIdConfig::create)
+                .collect(Collectors.toMap(
+                        config -> InlongId.generateUid(config.getInlongGroupId(), config.getInlongStreamId()),
+                        v -> v,
+                        (flow1, flow2) -> flow1));
+    }
+
+    public Map<String, KafkaIdConfig> fromSortTaskConfig(SortTaskConfig sortTaskConfig) {
+        List<Map<String, String>> idList = sortTaskConfig.getIdParams();
+        Map<String, KafkaIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
+        for (Map<String, String> idParam : idList) {
+            try {
+                KafkaIdConfig idConfig = new KafkaIdConfig(idParam);
+                newIdConfigMap.put(idConfig.getUid(), idConfig);
+            } catch (Exception e) {
+                LOG.error("fail to parse kafka id config", e);
+            }
+        }
+        return newIdConfigMap;
     }
 
     public KafkaNodeConfig getNodeConfig() {
@@ -120,7 +146,7 @@ public class KafkaFederationSinkContext extends SinkContext {
 
     /**
      * addSendMetric
-     * 
+     *
      * @param currentRecord
      * @param topic
      */
@@ -158,7 +184,7 @@ public class KafkaFederationSinkContext extends SinkContext {
 
     /**
      * addSendResultMetric
-     * 
+     *
      * @param currentRecord
      * @param topic
      * @param result
@@ -199,7 +225,7 @@ public class KafkaFederationSinkContext extends SinkContext {
 
     /**
      * create IEvent2ProducerRecordHandler
-     * 
+     *
      * @return IEvent2ProducerRecordHandler
      */
     public IEvent2KafkaRecordHandler createEventHandler() {
