@@ -18,6 +18,8 @@
 package org.apache.inlong.sort.kafka.table;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.kafka.source.KafkaSource;
+import org.apache.inlong.sort.kafka.source.KafkaSourceBuilder;
 import org.apache.inlong.sort.kafka.table.DynamicKafkaDeserializationSchema.MetadataConverter;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 
@@ -26,8 +28,6 @@ import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.connector.source.Boundedness;
-import org.apache.flink.connector.kafka.source.KafkaSource;
-import org.apache.flink.connector.kafka.source.KafkaSourceBuilder;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -442,8 +442,8 @@ public class KafkaDynamicSource
         }
         kafkaSourceBuilder
                 .setProperties(properties)
-                .setDeserializer(KafkaRecordDeserializationSchema.of(kafkaDeserializer));
-
+                .setDeserializer(KafkaRecordDeserializationSchema.of(kafkaDeserializer))
+                .setMetricSchema(kafkaDeserializer);
         return kafkaSourceBuilder.build();
     }
 
@@ -502,7 +502,8 @@ public class KafkaDynamicSource
                 metadataConverters,
                 producedTypeInfo,
                 upsertMode,
-                metricOption);
+                metricOption,
+                metadataKeys);
     }
 
     private @Nullable DeserializationSchema<RowData> createDeserialization(
