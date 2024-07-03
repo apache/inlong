@@ -179,6 +179,14 @@ public class CommonPropertiesHolder {
         return defaultValue;
     }
 
+    public static Boolean getBoolean(String key, Boolean defaultValue) {
+        String value = get().get(key);
+        if (value != null) {
+            return Boolean.valueOf(value.trim());
+        }
+        return defaultValue;
+    }
+
     /**
      * Gets value mapped to key, returning null if unmapped.
      * <p>
@@ -218,6 +226,10 @@ public class CommonPropertiesHolder {
      */
     public static AckPolicy getAckPolicy() {
         return ackPolicy;
+    }
+
+    public static boolean useUnifiedConfiguration() {
+        return getBoolean(KEY_USE_UNIFIED_CONFIGURATION, false);
     }
 
 }

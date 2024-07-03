@@ -41,12 +41,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SortConfigQueryConsumeConfig implements QueryConsumeConfig {
 
-    private List<InLongTopic> subscribedTopic = new ArrayList<>();
-
-    public void reload() {
-
-    }
-
     @Override
     public ConsumeConfig queryCurrentConsumeConfig(String sortTaskId) {
         TaskConfig taskConfig = SortConfigHolder.getTaskConfig(sortTaskId);

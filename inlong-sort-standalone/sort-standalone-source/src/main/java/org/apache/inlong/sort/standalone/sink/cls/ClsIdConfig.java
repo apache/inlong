@@ -21,12 +21,13 @@ import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.sink.ClsSinkConfig;
 import org.apache.inlong.common.pojo.sort.node.ClsNodeConfig;
+import org.apache.inlong.sort.standalone.config.pojo.IdConfig;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,15 +35,13 @@ import java.util.stream.Collectors;
 /**
  * Cls config of each uid.
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
-public class ClsIdConfig {
+@SuperBuilder
+public class ClsIdConfig extends IdConfig {
 
-    private String inlongGroupId;
-    private String inlongStreamId;
     private String separator = "|";
     private String endpoint;
     private String secretId;

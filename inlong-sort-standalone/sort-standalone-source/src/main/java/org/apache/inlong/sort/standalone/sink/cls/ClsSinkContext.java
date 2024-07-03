@@ -26,6 +26,7 @@ import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.holder.v2.SortConfigHolder;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
+import org.apache.inlong.sort.standalone.metrics.SortConfigMetricReporter;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
@@ -117,6 +118,7 @@ public class ClsSinkContext extends SinkContext {
 
             Map<String, ClsIdConfig> fromTaskConfig = reloadIdParamsFromTaskConfig(taskConfig, clsNodeConfig);
             Map<String, ClsIdConfig> fromSortTaskConfig = reloadIdParamsFromSortTaskConfig(sortTaskConfig);
+            SortConfigMetricReporter.reportClusterDiff(clusterId, taskName, fromTaskConfig, fromSortTaskConfig);
             idConfigMap = unifiedConfiguration ? fromTaskConfig : fromSortTaskConfig;
             this.reloadClients(idConfigMap);
             this.reloadHandler();

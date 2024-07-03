@@ -73,8 +73,7 @@ public class SinkContext {
         this.processInterval = sinkContext.getInteger(KEY_PROCESSINTERVAL, 100);
         this.reloadInterval = sinkContext.getLong(KEY_RELOADINTERVAL, 60000L);
         this.metricItemSet = new SortMetricItemSet(sinkName);
-        this.unifiedConfiguration = sinkContext.getBoolean(CommonPropertiesHolder.KEY_USE_UNIFIED_CONFIGURATION,
-                false);
+        this.unifiedConfiguration = CommonPropertiesHolder.useUnifiedConfiguration();
         MetricRegister.register(this.metricItemSet);
     }
 

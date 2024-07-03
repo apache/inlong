@@ -19,8 +19,10 @@ package org.apache.inlong.sort.standalone.metrics;
 
 import org.apache.inlong.common.pojo.sort.SortConfig;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.config.pojo.IdConfig;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
@@ -120,11 +122,57 @@ public class SortConfigMetricReporter {
         listeners.forEach(SortConfigMetricListener::reportRequestUpdate);
     }
 
-    public static void reportMissInSortClusterConfig(Collection<String> dataflows) {
-        listeners.forEach(listener -> listener.reportMissInSortClusterConfig(dataflows));
+    public static void reportClusterDiff(
+            String sortClusterName,
+            String sortTaskName,
+            Map<String, ? extends IdConfig> fromTaskConfig,
+            Map<String, ? extends IdConfig> fromSortTaskConfig) {
+        Collection<String> intersection = CollectionUtils.intersection(fromTaskConfig.keySet(),
+                fromSortTaskConfig.keySet());
+        List<IdConfig> diff = intersection.stream()
+                .filter(k -> !fromTaskConfig.get(k).equals(fromSortTaskConfig.get(k)))
+                .map(fromSortTaskConfig::get)
+                .collect(Collectors.toList());
+        // report diff
+        diff.forEach(idConfig -> {
+            listeners.forEach(listener -> listener.reportClusterDiff(sortClusterName, sortTaskName,
+                    idConfig.getInlongGroupId(), idConfig.getInlongStreamId()));
+        });
+
+        // report miss in sort cluster config
+        fromTaskConfig.forEach((k, v) -> {
+            if (!intersection.contains(k)) {
+                listeners.forEach(listener -> listener.reportMissInSortClusterConfig(sortClusterName, sortTaskName,
+                        v.getInlongGroupId(), v.getInlongStreamId()));
+            }
+        });
+
+        // report miss in sort config
+        fromSortTaskConfig.forEach((k, v) -> {
+            if (!intersection.contains(k)) {
+                listeners.forEach(listener -> listener.reportMissInSortConfig(sortClusterName, sortTaskName,
+                        v.getInlongGroupId(), v.getInlongStreamId()));
+            }
+        });
     }
 
-    public static void reportMissInSortConfig(Collection<String> dataflows) {
-        listeners.forEach(listener -> listener.reportMissInSortConfig(dataflows));
+    public static void reportSourceDiff(
+            String sortClusterName, String sortTaskName,
+            String topic, String mqClusterName) {
+        listeners.forEach(listener -> listener.reportSourceDiff(sortClusterName, sortTaskName, topic, mqClusterName));
+    }
+
+    public static void reportSourceMissInSortClusterConfig(
+            String sortClusterName, String sortTaskName,
+            String topic, String mqClusterName) {
+        listeners.forEach(listener -> listener.reportSourceMissInSortClusterConfig(sortClusterName, sortTaskName, topic,
+                mqClusterName));
+    }
+
+    public static void reportSourceMissInSortConfig(
+            String sortClusterName, String sortTaskName,
+            String topic, String mqClusterName) {
+        listeners.forEach(
+                listener -> listener.reportSourceMissInSortConfig(sortClusterName, sortTaskName, topic, mqClusterName));
     }
 }

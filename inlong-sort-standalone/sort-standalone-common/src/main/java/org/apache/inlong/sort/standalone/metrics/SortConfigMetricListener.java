@@ -21,8 +21,6 @@ import org.apache.inlong.common.pojo.sort.SortConfig;
 
 import org.apache.flume.conf.Configurable;
 
-import java.util.Collection;
-
 public interface SortConfigMetricListener extends Configurable {
 
     void reportOffline(SortConfig sortConfig);
@@ -34,6 +32,11 @@ public interface SortConfigMetricListener extends Configurable {
     void reportCheckFail();
     void reportRequestNoUpdate();
     void reportRequestUpdate();
-    void reportMissInSortClusterConfig(Collection<String> dataflows);
-    void reportMissInSortConfig(Collection<String> dataflows);
+    void reportMissInSortClusterConfig(String cluster, String task, String group, String stream);
+    void reportMissInSortConfig(String cluster, String task, String group, String stream);
+    void reportClusterDiff(String cluster, String task, String group, String stream);
+    void reportSourceDiff(String sortClusterName, String sortTaskName, String topic, String mqClusterName);
+    void reportSourceMissInSortClusterConfig(String sortClusterName, String sortTaskName,
+            String topic, String mqClusterName);
+    void reportSourceMissInSortConfig(String sortClusterName, String sortTaskName, String topic, String mqClusterName);
 }

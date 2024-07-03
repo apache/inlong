@@ -20,22 +20,25 @@ package org.apache.inlong.sort.standalone.sink.elasticsearch;
 import org.apache.inlong.common.pojo.sort.dataflow.DataFlowConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
 import org.apache.inlong.common.pojo.sort.dataflow.sink.EsSinkConfig;
+import org.apache.inlong.sort.standalone.config.pojo.IdConfig;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EsIdConfig {
+@SuperBuilder
+public class EsIdConfig extends IdConfig {
 
     public static final String PATTERN_DAY = "{yyyyMMdd}";
     public static final String PATTERN_HOUR = "{yyyyMMddHH}";
@@ -62,8 +65,6 @@ public class EsIdConfig {
         }
     };
 
-    private String inlongGroupId;
-    private String inlongStreamId;
     private String separator = "|";
     private String indexNamePattern;
     private String fieldNames;
