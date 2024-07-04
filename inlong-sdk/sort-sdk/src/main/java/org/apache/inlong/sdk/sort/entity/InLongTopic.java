@@ -31,6 +31,14 @@ public class InLongTopic {
     private String stopConsumeTime;
     private Map<String, Object> properties;
 
+    public void setStopConsumeTime(String stopConsumeTime) {
+        this.stopConsumeTime = stopConsumeTime;
+    }
+
+    public void setStartConsumeTime(String startConsumeTime) {
+        this.startConsumeTime = startConsumeTime;
+    }
+
     public String getStartConsumeTime() {
         return startConsumeTime;
     }
