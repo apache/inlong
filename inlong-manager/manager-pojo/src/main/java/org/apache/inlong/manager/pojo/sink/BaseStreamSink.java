@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.sink;
 
+import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ApiModel("Base info of stream sink")
 public class BaseStreamSink {
     private String startConsumeTime;
     private String stopConsumeTime;
