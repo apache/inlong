@@ -17,11 +17,12 @@
 
 package org.apache.inlong.common.pojo.agent.installer;
 
+import org.apache.inlong.common.pojo.agent.AgentResponseCode;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.common.pojo.agent.AgentResponseCode;
 
 import java.util.List;
 
