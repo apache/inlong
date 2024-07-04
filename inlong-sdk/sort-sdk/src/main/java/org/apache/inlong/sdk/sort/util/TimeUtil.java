@@ -17,16 +17,15 @@
 
 package org.apache.inlong.sdk.sort.util;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 public class TimeUtil {
 

@@ -18,15 +18,23 @@
 package org.apache.inlong.manager.pojo.sink;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * The base parameter class of StreamSink, support user extend their own business params.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel("Base info of stream sink")
 public class BaseStreamSink {
+
+    @ApiModelProperty("Start consume time, yyyy-MM-dd HH:mm:ss format")
     private String startConsumeTime;
+
+    @ApiModelProperty("Stop consume time, yyyy-MM-dd HH:mm:ss format")
     private String stopConsumeTime;
 }
