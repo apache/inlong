@@ -57,11 +57,11 @@ public class QuartzScheduleEngine implements ScheduleEngine {
     @Value("${server.port:8083}")
     private int port;
 
-    @Value("${inlong.inner.secrete.id:admin}")
-    private String secretId;
+    @Value("${default.admin.user:admin}")
+    private String username;
 
-    @Value("${inlong.inner.secrete.key:87haw3VYTPqK5fK0}")
-    private String secretKey;
+    @Value("${default.admin.password:inlong}")
+    private String password;
 
     private final Scheduler scheduler;
     private final Set<String> scheduledJobSet = new HashSet<>();
@@ -83,7 +83,7 @@ public class QuartzScheduleEngine implements ScheduleEngine {
             scheduler.getListenerManager().addSchedulerListener(new QuartzSchedulerListener(this));
             scheduler.start();
             LOGGER.info("Quartz scheduler engine started, inlong manager host {}, port {}, secretId {}",
-                    host, port, secretId);
+                    host, port, username);
         } catch (SchedulerException e) {
             throw new QuartzScheduleException("Failed to start quartz scheduler ", e);
         }
@@ -112,7 +112,7 @@ public class QuartzScheduleEngine implements ScheduleEngine {
         if (scheduledJobSet.contains(scheduleInfo.getInlongGroupId())) {
             throw new QuartzScheduleException("Group " + scheduleInfo.getInlongGroupId() + " is already registered");
         }
-        JobDetail jobDetail = genQuartzJobDetail(scheduleInfo, clz, host, port, secretId, secretKey);
+        JobDetail jobDetail = genQuartzJobDetail(scheduleInfo, clz, host, port, username, password);
         Trigger trigger = genQuartzTrigger(jobDetail, scheduleInfo);
         try {
             scheduler.scheduleJob(jobDetail, trigger);
