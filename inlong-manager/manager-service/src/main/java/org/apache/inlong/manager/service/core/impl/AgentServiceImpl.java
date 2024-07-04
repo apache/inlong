@@ -32,7 +32,7 @@ import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.common.pojo.agent.installer.ConfigRequest;
 import org.apache.inlong.common.pojo.agent.installer.ConfigResult;
-import org.apache.inlong.common.pojo.agent.installer.InstallerCode;
+import org.apache.inlong.common.pojo.agent.AgentResponseCode;
 import org.apache.inlong.common.pojo.agent.installer.ModuleConfig;
 import org.apache.inlong.common.pojo.agent.installer.PackageConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
@@ -347,7 +347,7 @@ public class AgentServiceImpl implements AgentService {
         LOGGER.debug("success to get agent config info for: {}, result: {}", request, agentConfigInfo);
         return AgentConfigInfo.builder()
                 .md5(agentConfigInfo.getMd5())
-                .code(InstallerCode.NO_UPDATE)
+                .code(AgentResponseCode.NO_UPDATE)
                 .build();
     }
 
@@ -381,7 +381,7 @@ public class AgentServiceImpl implements AgentService {
                 .dataConfigs(new ArrayList<>())
                 .cmdConfigs(new ArrayList<>())
                 .md5(taskResult.getMd5())
-                .code(InstallerCode.NO_UPDATE)
+                .code(AgentResponseCode.NO_UPDATE)
                 .build();
     }
 
@@ -462,7 +462,7 @@ public class AgentServiceImpl implements AgentService {
         if (Objects.equals(request.getMd5(), configResult.getMd5())) {
             return ConfigResult.builder()
                     .md5(configResult.getMd5())
-                    .code(InstallerCode.NO_UPDATE)
+                    .code(AgentResponseCode.NO_UPDATE)
                     .build();
         }
         return configResult;
@@ -852,7 +852,7 @@ public class AgentServiceImpl implements AgentService {
             TaskResult taskResult = TaskResult.builder().dataConfigs(runningTaskConfig).cmdConfigs(cmdConfigs).build();
             String md5 = DigestUtils.md5Hex(GSON.toJson(taskResult));
             taskResult.setMd5(md5);
-            taskResult.setCode(InstallerCode.SUCCESS);
+            taskResult.setCode(AgentResponseCode.SUCCESS);
             return taskResult;
         } catch (Exception e) {
             LOGGER.error("get all exist task failed:", e);
@@ -887,7 +887,7 @@ public class AgentServiceImpl implements AgentService {
         String jsonStr = GSON.toJson(agentConfigInfo);
         String configMd5 = DigestUtils.md5Hex(jsonStr);
         agentConfigInfo.setMd5(configMd5);
-        agentConfigInfo.setCode(InstallerCode.SUCCESS);
+        agentConfigInfo.setCode(AgentResponseCode.SUCCESS);
         LOGGER.debug("success to get agent config info for: {}, result: {}", request, agentConfigInfo);
         return agentConfigInfo;
     }
@@ -909,7 +909,7 @@ public class AgentServiceImpl implements AgentService {
         String configMd5 = DigestUtils.md5Hex(jsonStr);
 
         ConfigResult configResult = ConfigResult.builder().moduleList(configs).md5(configMd5)
-                .code(InstallerCode.SUCCESS)
+                .code(AgentResponseCode.SUCCESS)
                 .build();
         LOGGER.info("success load module config, size = {}", configResult.getModuleList().size());
         return configResult;

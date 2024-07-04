@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent.installer;
+package org.apache.inlong.common.pojo.agent;
 
-public enum InstallerCode {
+public enum AgentResponseCode {
 
     SUCCESS(0, "SUCCESS", "Get module config success"),
     NO_UPDATE(1, "NO_UPDATE", "No update"),
@@ -27,16 +27,16 @@ public enum InstallerCode {
     private final String name;
     private final String desc;
 
-    InstallerCode(int id, String name, String desc) {
+    AgentResponseCode(int id, String name, String desc) {
         this.id = id;
         this.name = name;
         this.desc = desc;
     }
 
-    public static InstallerCode valueOf(int value) {
-        for (InstallerCode installerCode : InstallerCode.values()) {
-            if (installerCode.getId() == value) {
-                return installerCode;
+    public static AgentResponseCode valueOf(int value) {
+        for (AgentResponseCode agentResponseCode : AgentResponseCode.values()) {
+            if (agentResponseCode.getId() == value) {
+                return agentResponseCode;
             }
         }
         return UNKNOWN_ERROR;
