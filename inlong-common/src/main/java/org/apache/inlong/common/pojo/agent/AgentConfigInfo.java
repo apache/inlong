@@ -17,6 +17,8 @@
 
 package org.apache.inlong.common.pojo.agent;
 
+import org.apache.inlong.common.pojo.agent.installer.InstallerCode;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,11 +28,15 @@ import lombok.NoArgsConstructor;
  * The Agent config info.
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AgentConfigInfo {
 
+    InstallerCode code;
     private String zkUrl;
-
     private AgentClusterInfo cluster;
+    private String md5;
 
     @Data
     @Builder

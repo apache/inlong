@@ -17,6 +17,8 @@
 
 package org.apache.inlong.common.pojo.agent;
 
+import org.apache.inlong.common.pojo.agent.installer.InstallerCode;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,5 +37,7 @@ public class TaskResult {
 
     private List<CmdConfig> cmdConfigs;
     private List<DataConfig> dataConfigs;
+    private String md5;
+    InstallerCode code;
 
 }
