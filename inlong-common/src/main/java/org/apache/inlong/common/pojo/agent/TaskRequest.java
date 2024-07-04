@@ -38,6 +38,8 @@ public class TaskRequest {
 
     private int pullJobType;
 
+    private String md5;
+
     private List<CommandEntity> commandInfo = new ArrayList<>();
 
 }
