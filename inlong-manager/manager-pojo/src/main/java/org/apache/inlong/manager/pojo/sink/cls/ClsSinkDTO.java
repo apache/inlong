@@ -28,6 +28,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.pojo.sink.BaseStreamSink;
 
 import javax.validation.constraints.NotNull;
 
@@ -38,7 +39,7 @@ import javax.validation.constraints.NotNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClsSinkDTO {
+public class ClsSinkDTO extends BaseStreamSink {
 
     @ApiModelProperty("Cloud log service topic id")
     private String topicId;

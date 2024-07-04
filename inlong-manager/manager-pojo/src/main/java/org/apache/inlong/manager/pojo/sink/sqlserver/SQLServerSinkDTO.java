@@ -28,6 +28,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.pojo.sink.BaseStreamSink;
 
 import javax.validation.constraints.NotNull;
 
@@ -40,7 +41,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SQLServerSinkDTO {
+public class SQLServerSinkDTO extends BaseStreamSink {
 
     @ApiModelProperty("Username of the SQLServer")
     private String username;

@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.sink.BaseStreamSink;
 import org.apache.inlong.manager.pojo.util.MySQLSensitiveUrlUtils;
 
 import com.google.common.base.Strings;
@@ -48,7 +49,7 @@ import java.util.regex.Pattern;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MySQLSinkDTO {
+public class MySQLSinkDTO extends BaseStreamSink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLSinkDTO.class);
     private static final String MYSQL_JDBC_PREFIX = "jdbc:mysql://";

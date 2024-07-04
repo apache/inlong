@@ -29,6 +29,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.pojo.sink.BaseStreamSink;
 
 import javax.validation.constraints.NotNull;
 
@@ -44,7 +45,7 @@ import java.util.Objects;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClickHouseSinkDTO {
+public class ClickHouseSinkDTO extends BaseStreamSink {
 
     @ApiModelProperty("JDBC URL of the ClickHouse server")
     private String jdbcUrl;

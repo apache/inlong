@@ -29,6 +29,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.pojo.sink.BaseStreamSink;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
@@ -45,7 +46,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostgreSQLSinkDTO {
+public class PostgreSQLSinkDTO extends BaseStreamSink {
 
     @ApiModelProperty("JDBC URL of the PostgreSQL server")
     @Length(max = 512, message = "length must be less than or equal to 512")

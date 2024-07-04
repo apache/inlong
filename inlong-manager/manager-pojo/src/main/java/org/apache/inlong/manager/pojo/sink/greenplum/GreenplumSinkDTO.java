@@ -28,6 +28,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.pojo.sink.BaseStreamSink;
 
 import javax.validation.constraints.NotNull;
 
@@ -41,7 +42,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GreenplumSinkDTO {
+public class GreenplumSinkDTO extends BaseStreamSink {
 
     @ApiModelProperty("JDBC URL of Greenplum server, such as: jdbc:postgresql://host:port/database")
     private String jdbcUrl;

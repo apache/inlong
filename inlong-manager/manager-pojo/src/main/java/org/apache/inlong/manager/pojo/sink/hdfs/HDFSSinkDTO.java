@@ -28,6 +28,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.pojo.sink.BaseStreamSink;
 
 import javax.validation.constraints.NotNull;
 
@@ -41,7 +42,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class HDFSSinkDTO {
+public class HDFSSinkDTO extends BaseStreamSink {
 
     @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
     private String fileFormat;

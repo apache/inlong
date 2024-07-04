@@ -30,6 +30,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.pojo.sink.BaseStreamSink;
 
 import javax.validation.constraints.NotNull;
 
@@ -44,7 +45,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class HiveSinkDTO {
+public class HiveSinkDTO extends BaseStreamSink {
 
     @ApiModelProperty("Hive JDBC URL, such as jdbc:hive2://${ip}:${port}")
     private String jdbcUrl;

@@ -28,6 +28,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.pojo.sink.BaseStreamSink;
 
 import javax.validation.constraints.NotNull;
 
@@ -40,7 +41,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class KafkaSinkDTO {
+public class KafkaSinkDTO extends BaseStreamSink {
 
     @ApiModelProperty("Kafka bootstrap servers")
     private String bootstrapServers;
