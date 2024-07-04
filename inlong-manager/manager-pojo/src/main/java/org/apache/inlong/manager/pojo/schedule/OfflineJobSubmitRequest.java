@@ -15,24 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.plugin.offline;
+package org.apache.inlong.manager.pojo.schedule;
 
-import org.apache.inlong.common.bounded.Boundaries;
-import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.workflow.processor.OfflineJobOperator;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
-import lombok.NoArgsConstructor;
+import javax.validation.constraints.NotNull;
 
-import java.util.List;
+@Data
+public class OfflineJobSubmitRequest {
 
-import static org.apache.inlong.manager.plugin.util.FlinkUtils.submitFlinkJobs;
+    @ApiModelProperty("Inlong Group ID")
+    @NotNull
+    private String groupId;
 
-@NoArgsConstructor
-public class FlinkOfflineJobOperator implements OfflineJobOperator {
+    @ApiModelProperty("Source boundary type, TIME and OFFSET are supported")
+    @NotNull
+    private String boundaryType;
 
-    @Override
-    public void submitOfflineJob(String groupId, List<InlongStreamInfo> streamInfoList, Boundaries boundaries)
-            throws Exception {
-        submitFlinkJobs(groupId, streamInfoList, true, boundaries);
-    }
+    @ApiModelProperty("The lower bound for bounded source")
+    @NotNull
+    private String lowerBoundary;
+
+    @ApiModelProperty("The upper bound for bounded source")
+    @NotNull
+    private String upperBoundary;
 }

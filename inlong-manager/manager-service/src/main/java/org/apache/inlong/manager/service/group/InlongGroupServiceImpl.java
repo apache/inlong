@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.group;
 
+import org.apache.inlong.common.bounded.Boundaries;
+import org.apache.inlong.common.bounded.BoundaryType;
 import org.apache.inlong.manager.common.auth.Authentication.AuthType;
 import org.apache.inlong.manager.common.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -59,6 +61,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
+import org.apache.inlong.manager.pojo.schedule.OfflineJobSubmitRequest;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfoRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -78,6 +81,7 @@ import org.apache.inlong.manager.service.schedule.ScheduleOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.SourceOperatorFactory;
 import org.apache.inlong.manager.service.source.StreamSourceOperator;
+import org.apache.inlong.manager.service.source.bounded.BoundedSourceType;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.tenant.InlongTenantService;
 import org.apache.inlong.manager.service.user.InlongRoleService;
@@ -932,8 +936,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    public Boolean submitOfflineJob(String groupId) {
+    public Boolean submitOfflineJob(OfflineJobSubmitRequest request) {
         // 1. get stream info list
+        String groupId = request.getGroupId();
         InlongGroupInfo groupInfo = get(groupId);
         if (groupInfo == null) {
             String msg = String.format("InLong group not found for group=%s", groupId);
@@ -946,7 +951,40 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             LOGGER.warn("No stream info found for group {}, skip submit offline job", groupId);
             return false;
         }
-        return scheduleOperator.submitOfflineJob(groupId, streamInfoList);
+
+        // check if source type is bounded source
+        streamInfoList.forEach(this::checkBoundedSource);
+
+        // get the source boundaries
+        checkSourceBoundaryType(request.getBoundaryType());
+        BoundaryType boundaryType = BoundaryType.getInstance(request.getBoundaryType());
+        if (boundaryType == null) {
+            throw new BusinessException(ErrorCodeEnum.BOUNDARY_TYPE_NOT_SUPPORTED,
+                    String.format(ErrorCodeEnum.BOUNDARY_TYPE_NOT_SUPPORTED.getMessage(), request.getBoundaryType()));
+        }
+        Boundaries boundaries = new Boundaries(request.getLowerBoundary(), request.getUpperBoundary(), boundaryType);
+
+        LOGGER.info("Check bounded source success, start to submitting offline job for group {}", groupId);
+
+        return scheduleOperator.submitOfflineJob(groupId, streamInfoList, boundaries);
+    }
+
+    private void checkBoundedSource(InlongStreamInfo streamInfo) {
+        streamInfo.getSourceList().forEach(stream -> {
+            if (!BoundedSourceType.isBoundedSource(stream.getSourceType())) {
+                throw new BusinessException(ErrorCodeEnum.BOUNDED_SOURCE_TYPE_NOT_SUPPORTED,
+                        String.format(ErrorCodeEnum.BOUNDED_SOURCE_TYPE_NOT_SUPPORTED.getMessage(),
+                                stream.getSourceType()));
+            }
+        });
+    }
+
+    private void checkSourceBoundaryType(String sourceBoundaryType) {
+        if (!BoundaryType.isSupportBoundaryType(sourceBoundaryType)) {
+            throw new BusinessException(ErrorCodeEnum.BOUNDARY_TYPE_NOT_SUPPORTED,
+                    String.format(ErrorCodeEnum.BOUNDARY_TYPE_NOT_SUPPORTED.getMessage(),
+                            sourceBoundaryType));
+        }
     }
 
 }

@@ -48,17 +48,20 @@ public class ScheduleUtils {
 
     public static final String MANAGER_HOST = "HOST";
     public static final String MANAGER_PORT = "PORT";
-    public static final String SECRETE_ID = "SECRETE_ID";
-    public static final String SECRETE_KEY = "SECRETE_KEY";
+    public static final String USERNAME = "USERNAME";
+    public static final String PASSWORD = "PASSWORD";
+    public static final String END_TIME = "END_TIME";
 
     public static JobDetail genQuartzJobDetail(ScheduleInfo scheduleInfo, Class<? extends Job> clz,
-            String host, Integer port, String secreteId, String secreteKey) {
+            String host, Integer port, String username, String password) {
+
         return JobBuilder.newJob(clz)
                 .withIdentity(scheduleInfo.getInlongGroupId())
                 .usingJobData(MANAGER_HOST, host)
                 .usingJobData(MANAGER_PORT, port)
-                .usingJobData(SECRETE_ID, secreteId)
-                .usingJobData(SECRETE_KEY, secreteKey)
+                .usingJobData(USERNAME, username)
+                .usingJobData(PASSWORD, password)
+                .usingJobData(END_TIME, scheduleInfo.getEndTime().getTime())
                 .build();
     }
 

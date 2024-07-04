@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.schedule;
 
+import org.apache.inlong.common.bounded.Boundaries;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -178,12 +179,12 @@ public class ScheduleOperatorImpl implements ScheduleOperator {
     }
 
     @Override
-    public Boolean submitOfflineJob(String groupId, List<InlongStreamInfo> streamInfoList) {
+    public Boolean submitOfflineJob(String groupId, List<InlongStreamInfo> streamInfoList, Boundaries boundaries) {
         if (offlineJobOperator == null) {
             offlineJobOperator = OfflineJobOperatorFactory.getOfflineJobOperator();
         }
         try {
-            offlineJobOperator.submitOfflineJob(groupId, streamInfoList);
+            offlineJobOperator.submitOfflineJob(groupId, streamInfoList, boundaries);
             LOGGER.info("Submit offline job for group {} and stream list {} success.", groupId,
                     streamInfoList.stream().map(InlongStreamInfo::getName).collect(Collectors.toList()));
         } catch (Exception e) {
