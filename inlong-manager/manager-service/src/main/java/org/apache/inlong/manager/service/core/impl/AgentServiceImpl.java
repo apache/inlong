@@ -862,7 +862,7 @@ public class AgentServiceImpl implements AgentService {
 
     private AgentConfigInfo fetchAgentConfig(AgentConfigRequest request) {
         LOGGER.debug("begin to get agent config info for {}", request);
-        // AgentConfigInfo agentConfigInfo = new AgentConfigInfo();
+        AgentConfigInfo agentConfigInfo = new AgentConfigInfo();
         Set<String> tagSet = new HashSet<>(16);
         tagSet.addAll(Arrays.asList(request.getClusterTag().split(InlongConstants.COMMA)));
         List<String> clusterTagList = new ArrayList<>(tagSet);
@@ -871,19 +871,16 @@ public class AgentServiceImpl implements AgentService {
                 .clusterTagList(clusterTagList)
                 .build();
         List<InlongClusterEntity> agentZkCluster = clusterMapper.selectByCondition(pageRequest);
-        if (CollectionUtils.isEmpty(agentZkCluster)) {
-            throw new BusinessException("zk cluster for ha not found for cluster tag=" + request.getClusterTag());
+        if (CollectionUtils.isNotEmpty(agentZkCluster)) {
+            agentConfigInfo.setZkUrl(agentZkCluster.get(0).getUrl());
         }
+
         AgentClusterInfo clusterInfo = (AgentClusterInfo) clusterService.getOne(
                 null, request.getClusterName(), ClusterType.AGENT);
-
-        AgentConfigInfo agentConfigInfo = AgentConfigInfo.builder()
-                .zkUrl(agentZkCluster.get(0).getUrl())
-                .cluster(AgentConfigInfo.AgentClusterInfo.builder()
-                        .parentId(clusterInfo.getId())
-                        .clusterName(clusterInfo.getName())
-                        .build())
-                .build();
+        agentConfigInfo.setCluster(AgentConfigInfo.AgentClusterInfo.builder()
+                .parentId(clusterInfo.getId())
+                .clusterName(clusterInfo.getName())
+                .build());
         String jsonStr = GSON.toJson(agentConfigInfo);
         String configMd5 = DigestUtils.md5Hex(jsonStr);
         agentConfigInfo.setMd5(configMd5);
