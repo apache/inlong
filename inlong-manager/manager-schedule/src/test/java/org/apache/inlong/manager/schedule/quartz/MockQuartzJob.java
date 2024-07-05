@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MockJob implements Job {
+public class MockQuartzJob implements Job {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MockJob.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MockQuartzJob.class);
 
     public static CountDownLatch countDownLatch;
     private static AtomicInteger counter = new AtomicInteger(0);
@@ -38,7 +38,9 @@ public class MockJob implements Job {
         if (countDownLatch.getCount() > 0) {
             countDownLatch.countDown();
         }
-        LOGGER.info("MockJob executed " + counter.incrementAndGet());
+        LOGGER.info("MockJob executed {} times ", counter.incrementAndGet());
+        LOGGER.info("Fire time: {}, previous fire time: {} next fire time: {}",
+                context.getScheduledFireTime(), context.getPreviousFireTime(), context.getNextFireTime());
     }
 
     public static void setCount(int count) {

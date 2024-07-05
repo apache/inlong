@@ -107,7 +107,7 @@ public class BaseScheduleTest {
                 return timeSpanInMs / 1000 / 60 / interval;
             case SECOND:
                 return timeSpanInMs / 1000 / interval;
-            case ONE_WAY:
+            case ONE_ROUND:
                 return 1;
             default:
                 return 0;

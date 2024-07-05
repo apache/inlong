@@ -98,7 +98,7 @@ public class ScheduleUtils {
         }
     }
 
-    // Y=year, M=month, W=week, D=day, H=hour, I=minute, O=oneway
+    // Y=year, M=month, W=week, D=day, H=hour, I=minute, O=oneround
     public static ScheduleBuilder<SimpleTrigger> genSimpleQuartzScheduleBuilder(int interval, String scheduleUnit) {
         if (StringUtils.isBlank(scheduleUnit)) {
             throw new QuartzScheduleException("Schedule unit cannot be empty");
@@ -143,11 +143,11 @@ public class ScheduleUtils {
                         .simpleSchedule()
                         .withIntervalInSeconds(interval)
                         .repeatForever();
-            case ONE_WAY:
+            case ONE_ROUND:
                 return SimpleScheduleBuilder
                         .simpleSchedule()
                         .withIntervalInSeconds(interval)
-                        .withRepeatCount(1);
+                        .withRepeatCount(0);
             default:
                 throw new QuartzScheduleException("Not supported schedule interval" + scheduleUnit);
         }

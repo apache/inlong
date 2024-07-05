@@ -62,7 +62,7 @@ public class GroupScheduleResourceListener implements ScheduleOperateListener {
             return false;
         }
 
-        log.info("add startup group listener for groupId [{}]", groupId);
+        log.info("add group schedule resource listener for groupId [{}]", groupId);
         return InlongConstants.DATASYNC_OFFLINE_MODE.equals(groupProcessForm.getGroupInfo().getInlongGroupMode());
     }
 

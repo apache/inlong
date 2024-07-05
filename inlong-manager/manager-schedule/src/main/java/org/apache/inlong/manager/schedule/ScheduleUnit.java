@@ -29,7 +29,7 @@ public enum ScheduleUnit {
     HOUR("H"),
     MINUTE("I"),
     SECOND("S"),
-    ONE_WAY("O");
+    ONE_ROUND("O");
 
     final String unit;
 
