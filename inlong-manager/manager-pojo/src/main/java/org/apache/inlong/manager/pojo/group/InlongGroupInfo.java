@@ -142,8 +142,8 @@ public abstract class InlongGroupInfo extends BaseInlongGroup {
     @ApiModelProperty("Schedule type")
     private Integer scheduleType;
 
-    // time unit for offline task schedule interval, support [month, week, day, hour, minute, oneway]
-    // Y=year, M=month, W=week, D=day, H=hour, I=minute, O=oneway
+    // time unit for offline task schedule interval, support [month, week, day, hour, minute, oneround]
+    // Y=year, M=month, W=week, D=day, H=hour, I=minute, O=oneround
     @ApiModelProperty("TimeUnit for schedule interval")
     private String scheduleUnit;
 
@@ -165,8 +165,8 @@ public abstract class InlongGroupInfo extends BaseInlongGroup {
     @ApiModelProperty("Schedule task parallelism")
     private Integer taskParallelism;
 
-    @ApiModelProperty("Schedule task parallelism")
-    private Integer crontabExpression;
+    @ApiModelProperty("Cron expression")
+    private String crontabExpression;
 
     public abstract InlongGroupRequest genRequest();
 

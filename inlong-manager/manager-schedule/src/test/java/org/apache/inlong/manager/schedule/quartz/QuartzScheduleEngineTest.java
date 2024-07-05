@@ -59,15 +59,15 @@ public class QuartzScheduleEngineTest extends BaseScheduleTest {
         // cal total schedule times
         long expectCount = calculateScheduleTimes(scheduleInfo, isCrontab);
         // set countdown latch
-        MockJob.setCount((int) expectCount);
+        MockQuartzJob.setCount((int) expectCount);
         // register schedule info
-        scheduleEngine.handleRegister(scheduleInfo, MockJob.class);
+        scheduleEngine.handleRegister(scheduleInfo, MockQuartzJob.class);
         // check job exist
         assertEquals(1, scheduleEngine.getScheduledJobSet().size());
         JobKey jobKey = new JobKey(scheduleInfo.getInlongGroupId());
         boolean exist = scheduleEngine.getScheduler().checkExists(jobKey);
         assertTrue(exist);
-        MockJob.countDownLatch.await();
+        MockQuartzJob.countDownLatch.await();
 
         // not job exist after scheduled
         await().atMost(3, TimeUnit.SECONDS).untilAsserted(() -> {
@@ -92,15 +92,15 @@ public class QuartzScheduleEngineTest extends BaseScheduleTest {
         // cal total schedule times
         long expectCount = calculateScheduleTimes(scheduleInfo, isCrontab);
 
-        MockJob.setCount((int) (expectCount / 2));
+        MockQuartzJob.setCount((int) (expectCount / 2));
         // register schedule info
-        scheduleEngine.handleRegister(scheduleInfo, MockJob.class);
+        scheduleEngine.handleRegister(scheduleInfo, MockQuartzJob.class);
         // check job exist
         assertEquals(1, scheduleEngine.getScheduledJobSet().size());
         JobKey jobKey = new JobKey(scheduleInfo.getInlongGroupId());
         boolean exist = scheduleEngine.getScheduler().checkExists(jobKey);
         assertTrue(exist);
-        MockJob.countDownLatch.await();
+        MockQuartzJob.countDownLatch.await();
 
         // un-register before trigger finalized
         scheduleEngine.handleUnregister(scheduleInfo.getInlongGroupId());
@@ -130,27 +130,27 @@ public class QuartzScheduleEngineTest extends BaseScheduleTest {
             throws Exception {
         // cal total schedule times
         long expectCount = calculateScheduleTimes(scheduleInfo, isCrontab);
-        MockJob.setCount((int) (expectCount / 2));
+        MockQuartzJob.setCount((int) (expectCount / 2));
         // register schedule info
-        scheduleEngine.handleRegister(scheduleInfo, MockJob.class);
+        scheduleEngine.handleRegister(scheduleInfo, MockQuartzJob.class);
         // check job exist
         assertEquals(1, scheduleEngine.getScheduledJobSet().size());
         JobKey jobKey = new JobKey(scheduleInfo.getInlongGroupId());
         boolean exist = scheduleEngine.getScheduler().checkExists(jobKey);
         assertTrue(exist);
-        MockJob.countDownLatch.await();
+        MockQuartzJob.countDownLatch.await();
 
         // update schedule before trigger finalized
         expectCount = calculateScheduleTimes(scheduleInfoToUpdate, isCrontab);
-        MockJob.setCount((int) expectCount);
-        scheduleEngine.handleUpdate(scheduleInfoToUpdate, MockJob.class);
+        MockQuartzJob.setCount((int) expectCount);
+        scheduleEngine.handleUpdate(scheduleInfoToUpdate, MockQuartzJob.class);
 
         // job scheduled after updated
         assertEquals(1, scheduleEngine.getScheduledJobSet().size());
         exist = scheduleEngine.getScheduler().checkExists(jobKey);
         assertTrue(exist);
 
-        MockJob.countDownLatch.await();
+        MockQuartzJob.countDownLatch.await();
 
         // not job exist after scheduled
         await().atMost(3, TimeUnit.SECONDS).untilAsserted(() -> {
