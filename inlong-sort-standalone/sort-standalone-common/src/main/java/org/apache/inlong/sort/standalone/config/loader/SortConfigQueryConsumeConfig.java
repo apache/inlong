@@ -64,6 +64,8 @@ public class SortConfigQueryConsumeConfig implements QueryConsumeConfig {
                 topic.setTopic(flow.getSourceConfig().getTopic());
                 // only supports pulsar now
                 topic.setTopicType(InlongTopicTypeEnum.PULSAR.getName());
+                topic.setStartConsumeTime(flow.getSourceConfig().getStartConsumeTime());
+                topic.setStopConsumeTime(flow.getSourceConfig().getStopConsumeTime());
                 topic.setProperties(flow.getProperties() != null ? flow.getProperties() : new HashMap<>());
                 topics.add(topic);
             }

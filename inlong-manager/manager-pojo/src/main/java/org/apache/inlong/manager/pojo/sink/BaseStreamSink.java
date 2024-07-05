@@ -15,26 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.sort.dataflow;
+package org.apache.inlong.manager.pojo.sink;
 
-import org.apache.inlong.common.pojo.sort.dataflow.dataType.DataTypeConfig;
-import org.apache.inlong.common.pojo.sort.dataflow.deserialization.DeserializationConfig;
-import org.apache.inlong.common.pojo.sort.dataflow.field.FieldConfig;
-
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-import java.util.List;
-
+/**
+ * The base parameter class of StreamSink, support user extend their own business params.
+ */
 @Data
-public class SourceConfig implements Serializable {
+@AllArgsConstructor
+@NoArgsConstructor
+@ApiModel("Base info of stream sink")
+public class BaseStreamSink {
 
-    private String topic;
-    private String subscription;
+    @ApiModelProperty("Start consume time, yyyy-MM-dd HH:mm:ss format")
     private String startConsumeTime;
+
+    @ApiModelProperty("Stop consume time, yyyy-MM-dd HH:mm:ss format")
     private String stopConsumeTime;
-    private String encodingType;
-    private DeserializationConfig deserializationConfig;
-    private DataTypeConfig dataTypeConfig;
-    private List<FieldConfig> fieldConfigs;
 }

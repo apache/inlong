@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.sink.BaseStreamSink;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -45,7 +46,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostgreSQLSinkDTO {
+public class PostgreSQLSinkDTO extends BaseStreamSink {
 
     @ApiModelProperty("JDBC URL of the PostgreSQL server")
     @Length(max = 512, message = "length must be less than or equal to 512")
