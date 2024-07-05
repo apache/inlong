@@ -20,7 +20,7 @@ package org.apache.inlong.manager.schedule.util;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.schedule.BaseScheduleTest;
 import org.apache.inlong.manager.schedule.exception.QuartzScheduleException;
-import org.apache.inlong.manager.schedule.quartz.MockJob;
+import org.apache.inlong.manager.schedule.quartz.MockQuartzJob;
 
 import org.junit.jupiter.api.Test;
 import org.quartz.CronScheduleBuilder;
@@ -39,7 +39,7 @@ import static org.apache.inlong.manager.schedule.ScheduleUnit.DAY;
 import static org.apache.inlong.manager.schedule.ScheduleUnit.HOUR;
 import static org.apache.inlong.manager.schedule.ScheduleUnit.MINUTE;
 import static org.apache.inlong.manager.schedule.ScheduleUnit.MONTH;
-import static org.apache.inlong.manager.schedule.ScheduleUnit.ONE_WAY;
+import static org.apache.inlong.manager.schedule.ScheduleUnit.ONE_ROUND;
 import static org.apache.inlong.manager.schedule.ScheduleUnit.WEEK;
 import static org.apache.inlong.manager.schedule.ScheduleUnit.YEAR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -76,7 +76,7 @@ public class ScheduleUtilsTest extends BaseScheduleTest {
         assertNotNull(builder);
         assertInstanceOf(SimpleScheduleBuilder.class, builder);
 
-        builder = ScheduleUtils.genSimpleQuartzScheduleBuilder(DEFAULT_INTERVAL, ONE_WAY.getUnit());
+        builder = ScheduleUtils.genSimpleQuartzScheduleBuilder(DEFAULT_INTERVAL, ONE_ROUND.getUnit());
         assertNotNull(builder);
         assertInstanceOf(SimpleScheduleBuilder.class, builder);
 
@@ -102,7 +102,8 @@ public class ScheduleUtilsTest extends BaseScheduleTest {
     @Test
     public void testGenJobDetail() {
         ScheduleInfo scheduleInfo = genDefaultScheduleInfo();
-        JobDetail jobDetail = ScheduleUtils.genQuartzJobDetail(scheduleInfo, MockJob.class, null, null, null, null);
+        JobDetail jobDetail =
+                ScheduleUtils.genQuartzJobDetail(scheduleInfo, MockQuartzJob.class, null, null, null, null);
         assertNotNull(jobDetail);
 
         JobKey jobKey = jobDetail.getKey();
@@ -116,7 +117,8 @@ public class ScheduleUtilsTest extends BaseScheduleTest {
     public void testGenCronTrigger() {
         // normal
         ScheduleInfo scheduleInfo = genDefaultScheduleInfo();
-        JobDetail jobDetail = ScheduleUtils.genQuartzJobDetail(scheduleInfo, MockJob.class, null, null, null, null);
+        JobDetail jobDetail =
+                ScheduleUtils.genQuartzJobDetail(scheduleInfo, MockQuartzJob.class, null, null, null, null);
 
         Trigger trigger = ScheduleUtils.genQuartzTrigger(jobDetail, scheduleInfo);
         assertNotNull(trigger);
@@ -139,7 +141,7 @@ public class ScheduleUtilsTest extends BaseScheduleTest {
 
         // cron
         scheduleInfo = genDefaultCronScheduleInfo();
-        jobDetail = ScheduleUtils.genQuartzJobDetail(scheduleInfo, MockJob.class, null, null, null, null);
+        jobDetail = ScheduleUtils.genQuartzJobDetail(scheduleInfo, MockQuartzJob.class, null, null, null, null);
 
         trigger = ScheduleUtils.genQuartzTrigger(jobDetail, scheduleInfo);
         assertNotNull(trigger);
