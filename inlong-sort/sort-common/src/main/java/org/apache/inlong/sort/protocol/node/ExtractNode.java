@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.protocol.node;
 
+import org.apache.inlong.common.bounded.Boundaries;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.extract.DorisExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.FileSystemExtractNode;
@@ -106,4 +107,10 @@ public abstract class ExtractNode implements Node {
         this.watermarkField = watermarkField;
         this.properties = properties;
     }
+
+    public void fillInBoundaries(Boundaries boundaries) {
+        Preconditions.checkNotNull(boundaries, "boundaries is null");
+        // every single kind of extract node should provide the way to fill in boundaries individually
+    }
+
 }
