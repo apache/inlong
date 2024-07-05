@@ -81,11 +81,13 @@ import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.SINK_CUSTOM
 import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.SINK_MESSAGE_DELAY_INTERVAL;
 import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.SINK_TOPIC_ROUTING_MODE;
 import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.SOURCE_START_FROM_MESSAGE_ID;
+import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.SOURCE_START_FROM_MESSAGE_ID_DEPRECATED;
 import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.SOURCE_START_FROM_PUBLISH_TIME;
 import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.SOURCE_STOP_AFTER_MESSAGE_ID;
 import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.SOURCE_STOP_AT_MESSAGE_ID;
 import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.SOURCE_STOP_AT_PUBLISH_TIME;
 import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.SOURCE_SUBSCRIPTION_NAME;
+import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.SOURCE_SUBSCRIPTION_NAME_DEPRECATED;
 import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.SOURCE_SUBSCRIPTION_TYPE;
 import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.STARTUP_MODE;
 import static org.apache.inlong.sort.pulsar.table.PulsarTableOptions.TOPIC;
@@ -271,8 +273,10 @@ public class PulsarTableFactory implements DynamicTableSourceFactory, DynamicTab
                 ADMIN_URL,
                 STARTUP_MODE,
                 SOURCE_SUBSCRIPTION_NAME,
+                SOURCE_SUBSCRIPTION_NAME_DEPRECATED,
                 SOURCE_SUBSCRIPTION_TYPE,
                 SOURCE_START_FROM_MESSAGE_ID,
+                SOURCE_START_FROM_MESSAGE_ID_DEPRECATED,
                 SOURCE_START_FROM_PUBLISH_TIME,
                 SOURCE_STOP_AT_MESSAGE_ID,
                 SOURCE_STOP_AFTER_MESSAGE_ID,

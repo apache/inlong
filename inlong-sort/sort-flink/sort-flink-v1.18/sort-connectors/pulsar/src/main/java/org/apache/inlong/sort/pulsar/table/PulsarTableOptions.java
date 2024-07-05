@@ -79,6 +79,16 @@ public final class PulsarTableOptions {
      * Copied because we want to have a default value for it.
      */
     public static final ConfigOption<String> SOURCE_SUBSCRIPTION_NAME =
+            ConfigOptions.key("source.subscription-name")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            Description.builder()
+                                    .text(
+                                            "The subscription name of the consumer that is used by the runtime [Pulsar DataStream source connector](https://nightlies.apache.org/flink/flink-docs-master/docs/connectors/datastream/pulsar/#pulsar-source). This argument is required for constructing the consumer.")
+                                    .build());
+
+    public static final ConfigOption<String> SOURCE_SUBSCRIPTION_NAME_DEPRECATED =
             ConfigOptions.key("scan.startup.sub-name")
                     .stringType()
                     .noDefaultValue()
@@ -89,6 +99,24 @@ public final class PulsarTableOptions {
                                     .build());
 
     public static final ConfigOption<String> SOURCE_START_FROM_MESSAGE_ID =
+            ConfigOptions.key("source.start.message-id")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            Description.builder()
+                                    .text(
+                                            "(Optional) Message id that is used to specify a consuming starting "
+                                                    + "point for source. Use %s, %s or pass in a message id "
+                                                    + "representation in %s, "
+                                                    + "such as %s. This option takes precedence over "
+                                                    + "source.start.publish-time.",
+                                            code("earliest"),
+                                            code("latest"),
+                                            code("ledgerId:entryId:partitionId"),
+                                            code("12:2:-1"))
+                                    .build());
+
+    public static final ConfigOption<String> SOURCE_START_FROM_MESSAGE_ID_DEPRECATED =
             ConfigOptions.key("scan.startup.sub-start-offset")
                     .stringType()
                     .noDefaultValue()

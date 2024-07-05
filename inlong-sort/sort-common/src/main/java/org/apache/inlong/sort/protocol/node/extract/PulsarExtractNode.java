@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import org.apache.inlong.common.bounded.Boundaries;
+import org.apache.inlong.common.bounded.BoundaryType;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
@@ -33,13 +35,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
@@ -47,6 +53,7 @@ import java.util.Set;
 @Data
 public class PulsarExtractNode extends ExtractNode implements InlongMetric, Metadata {
 
+    private static final Logger log = LoggerFactory.getLogger(PulsarExtractNode.class);
     private static final long serialVersionUID = 1L;
 
     @Nonnull
@@ -88,6 +95,8 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric, Meta
      */
     @JsonProperty("clientAuthParams")
     private String clientAuthParams;
+
+    Map<String, String> sourceBoundaryOptions = new HashMap<>();
 
     @JsonCreator
     public PulsarExtractNode(@JsonProperty("id") String id,
@@ -146,10 +155,16 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric, Meta
             options.put("scan.startup.sub-name", scanStartupSubName);
             options.put("scan.startup.sub-start-offset", scanStartupSubStartOffset);
         }
+
         if (StringUtils.isNotBlank(clientAuthPluginClassName)
                 && StringUtils.isNotBlank(clientAuthParams)) {
             options.put("pulsar.client.authPluginClassName", clientAuthPluginClassName);
             options.put("pulsar.client.authParams", clientAuthParams);
+        }
+
+        // add boundary options
+        if (!sourceBoundaryOptions.isEmpty()) {
+            options.putAll(sourceBoundaryOptions);
         }
         return options;
     }
@@ -197,4 +212,18 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric, Meta
         return EnumSet.of(MetaField.AUDIT_DATA_TIME);
     }
 
+    @Override
+    public void fillInBoundaries(Boundaries boundaries) {
+        super.fillInBoundaries(boundaries);
+        BoundaryType boundaryType = boundaries.getBoundaryType();
+        String lowerBoundary = boundaries.getLowerBound();
+        String upperBoundary = boundaries.getUpperBound();
+        if (Objects.requireNonNull(boundaryType) == BoundaryType.TIME) {
+            sourceBoundaryOptions.put("source.start.publish-time", lowerBoundary);
+            sourceBoundaryOptions.put("source.stop.at-publish-time", upperBoundary);
+            log.info("Filled in source boundaries options");
+        } else {
+            log.warn("Not supported boundary type: {}", boundaryType);
+        }
+    }
 }
