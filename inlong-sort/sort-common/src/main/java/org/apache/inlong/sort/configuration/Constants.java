@@ -300,6 +300,21 @@ public class Constants {
             .withDescription("The runtime execution mode of Flink, including stream and batch, default is stream");
 
     // ------------------------------------------------------------------------
+    // Source boundary related
+    // ------------------------------------------------------------------------
+    public static final ConfigOption<String> SOURCE_BOUNDARY_TYPE = key("source.boundary.type")
+            .defaultValue("time")
+            .withDescription("The type of source boundary");
+
+    public static final ConfigOption<String> SOURCE_LOWER_BOUNDARY = key("source.lower.boundary")
+            .defaultValue("0")
+            .withDescription("The lower bound of source");
+
+    public static final ConfigOption<String> SOURCE_UPPER_BOUNDARY = key("source.upper.boundary")
+            .defaultValue("0")
+            .withDescription("The upper bound of source");
+
+    // ------------------------------------------------------------------------
     // Metrics related
     // ------------------------------------------------------------------------
     public static final ConfigOption<Boolean> METRICS_ENABLE_OUTPUT =
