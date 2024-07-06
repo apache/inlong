@@ -95,8 +95,6 @@ public class PulsarTableFactory implements DynamicTableSourceFactory {
 
     public static final boolean UPSERT_DISABLED = false;
 
-    public static boolean innerFormat = false;
-
     @Override
     public DynamicTableSource createDynamicTableSource(Context context) {
         FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
@@ -107,7 +105,6 @@ public class PulsarTableFactory implements DynamicTableSourceFactory {
                 getValueDecodingFormat(helper);
         ReadableConfig tableOptions = helper.getOptions();
 
-        innerFormat = ExtractNode.INLONG_MSG.equals(tableOptions.get(FORMAT));
 
         // Validate configs are not conflict; each options is consumed; no unwanted configs
         // PulsarOptions, PulsarSourceOptions and PulsarSinkOptions is not part of the validation.
@@ -160,7 +157,6 @@ public class PulsarTableFactory implements DynamicTableSourceFactory {
                         valueDecodingFormat,
                         valueProjection,
                         UPSERT_DISABLED,
-                        innerFormat,
                         inlongMetric,
                         auditHostAndPorts,
                         auditKeys);

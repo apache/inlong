@@ -25,7 +25,6 @@ import org.apache.flink.util.Collector;
 import org.apache.pulsar.client.api.Message;
 
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.List;
 
@@ -122,7 +121,7 @@ public class PulsarRowDataConverter implements Serializable {
             producedRow.setField(keyProjection[keyPos], physicalKeyRow.getField(keyPos));
         }
 
-        readableMetadata.appendProducedRowWithMetadata(producedRow, physicalArity, message);
+        readableMetadata.appendProducedRowWithMetadata(producedRow, physicalArity, message, collector);
         collector.collect(producedRow);
     }
 
