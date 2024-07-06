@@ -19,7 +19,7 @@ package org.apache.inlong.sort.mysql;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.metric.SourceExactlyMetric;
 
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.table.AppendMetadataCollector;
@@ -74,8 +74,6 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  */
 public final class RowDataDebeziumDeserializeSchema implements DebeziumDeserializationSchema<RowData> {
 
-    private final static Logger LOG = LoggerFactory.getLogger(RowDataDebeziumDeserializeSchema.class);
-
     private static final long serialVersionUID = 2L;
 
     /** Custom validator to validate the row value. */
@@ -106,7 +104,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
 
     /** Changelog Mode to use for encoding changes in Flink internal data structure. */
     private final DebeziumChangelogMode changelogMode;
-    private SourceMetricData sourceMetricData;
+    private SourceExactlyMetric sourceExactlyMetric;
     private final MetricOption metricOption;
 
     /** Returns a builder to build {@link RowDataDebeziumDeserializeSchema}. */
@@ -145,7 +143,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             GenericRowData insert = extractAfterRow(value, valueSchema);
             validator.validate(insert, RowKind.INSERT);
             insert.setRowKind(RowKind.INSERT);
-            if (sourceMetricData != null) {
+            if (sourceExactlyMetric != null) {
                 out = createMetricsCollector(record, out);
             }
             emit(record, insert, out);
@@ -153,7 +151,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             GenericRowData delete = extractBeforeRow(value, valueSchema);
             validator.validate(delete, RowKind.DELETE);
             delete.setRowKind(RowKind.DELETE);
-            if (sourceMetricData != null) {
+            if (sourceExactlyMetric != null) {
                 out = createMetricsCollector(record, out);
             }
             emit(record, delete, out);
@@ -168,7 +166,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             GenericRowData after = extractAfterRow(value, valueSchema);
             validator.validate(after, RowKind.UPDATE_AFTER);
             after.setRowKind(RowKind.UPDATE_AFTER);
-            if (sourceMetricData != null) {
+            if (sourceExactlyMetric != null) {
                 out = createMetricsCollector(record, out);
             }
             emit(record, after, out);
@@ -182,7 +180,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
      * @return metrics collector
      */
     private Collector<RowData> createMetricsCollector(SourceRecord record, Collector<RowData> out) {
-        MetricsCollector<RowData> collector = new MetricsCollector<>(out, sourceMetricData);
+        MetricsCollector<RowData> collector = new MetricsCollector<>(out, sourceExactlyMetric);
         collector.resetTimestamp((Long) ((Struct) record.value()).get(FieldName.TIMESTAMP));
         return collector;
     }
@@ -194,7 +192,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
      */
     public void initSourceMetricData() {
         if (metricOption != null) {
-            this.sourceMetricData = new SourceMetricData(metricOption);
+            this.sourceExactlyMetric = new SourceExactlyMetric(metricOption);
         }
     }
 
@@ -225,6 +223,23 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         return resultTypeInfo;
     }
 
+    public void flushAudit() {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.flushAudit();
+        }
+    }
+
+    public void updateCurrentCheckpointId(long checkpointId) {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateCurrentCheckpointId(checkpointId);
+        }
+    }
+
+    public void updateLastCheckpointId(long checkpointId) {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateLastCheckpointId(checkpointId);
+        }
+    }
     // -------------------------------------------------------------------------------------
     // Builder
     // -------------------------------------------------------------------------------------
