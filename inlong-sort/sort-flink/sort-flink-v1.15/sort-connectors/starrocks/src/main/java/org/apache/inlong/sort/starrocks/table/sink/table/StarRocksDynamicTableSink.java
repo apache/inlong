@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.starrocks.table.sink.table;
 
-import com.starrocks.connector.flink.row.sink.StarRocksTableRowTransformer;
 import com.starrocks.connector.flink.table.sink.StarRocksDynamicSinkFunctionBase;
 import com.starrocks.connector.flink.table.sink.StarRocksSinkOptions;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
