@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import org.apache.inlong.sort.base.metric.MetricsCollector;
+import org.apache.inlong.sort.protocol.node.ExtractNode;
+
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.data.GenericMapData;
 import org.apache.flink.table.data.GenericRowData;
@@ -25,8 +28,6 @@ import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.base.metric.MetricsCollector;
-import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.pulsar.client.api.Message;
 
 import java.io.Serializable;

@@ -47,7 +47,6 @@ import java.util.stream.Stream;
 import static org.apache.flink.connector.pulsar.common.config.PulsarOptions.PULSAR_ADMIN_URL;
 import static org.apache.flink.connector.pulsar.common.config.PulsarOptions.PULSAR_SERVICE_URL;
 import static org.apache.flink.connector.pulsar.source.PulsarSourceOptions.PULSAR_SUBSCRIPTION_NAME;
-import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
 import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
@@ -104,7 +103,6 @@ public class PulsarTableFactory implements DynamicTableSourceFactory {
         final DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat =
                 getValueDecodingFormat(helper);
         ReadableConfig tableOptions = helper.getOptions();
-
 
         // Validate configs are not conflict; each options is consumed; no unwanted configs
         // PulsarOptions, PulsarSourceOptions and PulsarSinkOptions is not part of the validation.
