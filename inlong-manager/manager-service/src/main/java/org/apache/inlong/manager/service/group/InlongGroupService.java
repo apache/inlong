@@ -29,6 +29,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
+import org.apache.inlong.manager.pojo.schedule.OfflineJobSubmitRequest;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
 import javax.validation.Valid;
@@ -219,10 +220,10 @@ public interface InlongGroupService {
     List<GroupFullInfo> getGroupByBackUpClusterTag(String clusterTag);
 
     /**
-     * Submitting offline job for the given group.
-     * @param groupId the inlong group to submit offline job
+     * Submitting offline job.
+     * @param request request to submit offline sync job
      *
      * */
-    Boolean submitOfflineJob(String groupId);
+    Boolean submitOfflineJob(OfflineJobSubmitRequest request);
 
 }

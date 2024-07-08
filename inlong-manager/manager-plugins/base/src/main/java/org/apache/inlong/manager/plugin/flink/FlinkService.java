@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.plugin.flink;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
@@ -258,8 +259,16 @@ public class FlinkService {
         list.add(flinkInfo.getLocalConfPath());
         list.add("-checkpoint.interval");
         list.add("60000");
-        list.add("-runtime.execution.mode");
-        list.add(flinkInfo.getRuntimeExecutionMode());
+        if (InlongConstants.RUNTIME_EXECUTION_MODE_BATCH.equalsIgnoreCase(flinkInfo.getRuntimeExecutionMode())) {
+            list.add("-runtime.execution.mode");
+            list.add(flinkInfo.getRuntimeExecutionMode());
+            list.add("-source.boundary.type");
+            list.add(flinkInfo.getBoundaryType());
+            list.add("-source.lower.boundary");
+            list.add(flinkInfo.getLowerBoundary());
+            list.add("-source.upper.boundary");
+            list.add(flinkInfo.getUpperBoundary());
+        }
         return list.toArray(new String[0]);
     }
 

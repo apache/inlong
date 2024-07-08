@@ -17,11 +17,13 @@
 
 package org.apache.inlong.manager.workflow.processor;
 
+import org.apache.inlong.common.bounded.Boundaries;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
 import java.util.List;
 
 public interface OfflineJobOperator {
 
-    void submitOfflineJob(String groupId, List<InlongStreamInfo> streamInfoList) throws Exception;
+    void submitOfflineJob(String groupId, List<InlongStreamInfo> streamInfoList, Boundaries boundaries)
+            throws Exception;
 }

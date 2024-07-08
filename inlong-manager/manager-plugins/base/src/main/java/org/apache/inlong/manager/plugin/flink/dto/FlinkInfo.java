@@ -54,4 +54,10 @@ public class FlinkInfo {
     private String exceptionMsg;
 
     private String runtimeExecutionMode;
+
+    private String boundaryType;
+
+    private String lowerBoundary;
+
+    private String upperBoundary;
 }

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.schedule;
 
+import org.apache.inlong.common.bounded.Boundaries;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfoRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -100,7 +101,8 @@ public interface ScheduleOperator {
      * Start offline sync job when the schedule instance callback.
      * @param groupId groupId to start offline job
      * @param streamInfoList stream list to start offline job
+     * @param boundaries source boundaries for bounded source
      * @Return whether succeed
      * */
-    Boolean submitOfflineJob(String groupId, List<InlongStreamInfo> streamInfoList);
+    Boolean submitOfflineJob(String groupId, List<InlongStreamInfo> streamInfoList, Boundaries boundaries);
 }
