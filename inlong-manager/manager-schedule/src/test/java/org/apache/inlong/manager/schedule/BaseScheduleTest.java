@@ -22,6 +22,7 @@ import org.apache.inlong.manager.schedule.exception.QuartzScheduleException;
 
 import java.sql.Timestamp;
 
+import static org.apache.inlong.manager.schedule.ScheduleUnit.ONE_ROUND;
 import static org.apache.inlong.manager.schedule.ScheduleUnit.SECOND;
 
 public class BaseScheduleTest {
@@ -40,6 +41,10 @@ public class BaseScheduleTest {
 
     public ScheduleInfo genDefaultScheduleInfo() {
         return genNormalScheduleInfo(GROUP_ID, SECOND.getUnit(), DEFAULT_INTERVAL, DEFAULT_SPAN_IN_MS);
+    }
+
+    public ScheduleInfo genOneroundScheduleInfo() {
+        return genNormalScheduleInfo(GROUP_ID, ONE_ROUND.getUnit(), DEFAULT_INTERVAL, DEFAULT_SPAN_IN_MS);
     }
 
     public ScheduleInfo genNormalScheduleInfo(String groupId, String scheduleUnit, int scheduleInterval,

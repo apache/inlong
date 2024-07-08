@@ -93,6 +93,10 @@ public class InlongConstants {
     public static final String RUNTIME_EXECUTION_MODE_STREAM = "stream";
     public static final String RUNTIME_EXECUTION_MODE_BATCH = "batch";
 
+    public static final String BOUNDARY_TYPE = "BOUNDARY_TYPE";
+    public static final String LOWER_BOUNDARY = "LOWER_BOUNDARY";
+    public static final String UPPER_BOUNDARY = "UPPER_BOUNDARY";
+
     public static final Integer DISABLE_ZK = 0;
     public static final Integer ENABLE_ZK = 1;
 

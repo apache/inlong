@@ -26,6 +26,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
+import org.apache.inlong.manager.pojo.schedule.OfflineJobSubmitRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 
 import retrofit2.Call;
@@ -99,6 +100,6 @@ public interface InlongGroupApi {
     @GET("group/switch/finish/{groupId}")
     Call<Response<Boolean>> finishTagSwitch(@Path("groupId") String groupId);
 
-    @POST("group/submitOfflineJob/{groupId}")
-    Call<Response<Boolean>> submitOfflineJob(@Path("groupId") String groupId);
+    @POST("group/submitOfflineJob")
+    Call<Response<Boolean>> submitOfflineJob(@Body OfflineJobSubmitRequest request);
 }

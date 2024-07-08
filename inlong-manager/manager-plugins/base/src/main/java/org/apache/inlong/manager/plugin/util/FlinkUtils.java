@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.plugin.util;
 
+import org.apache.inlong.common.bounded.Boundaries;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -222,11 +223,11 @@ public class FlinkUtils {
 
     public static ListenerResult submitFlinkJobs(String groupId, List<InlongStreamInfo> streamInfoList)
             throws Exception {
-        return submitFlinkJobs(groupId, streamInfoList, false);
+        return submitFlinkJobs(groupId, streamInfoList, false, null);
     }
 
     public static ListenerResult submitFlinkJobs(String groupId, List<InlongStreamInfo> streamInfoList,
-            boolean isBatchJob) throws Exception {
+            boolean isBatchJob, Boundaries boundaries) throws Exception {
         int sinkCount = streamInfoList.stream()
                 .map(s -> s.getSinkList() == null ? 0 : s.getSinkList().size())
                 .reduce(0, Integer::sum);
@@ -240,7 +241,8 @@ public class FlinkUtils {
         List<ListenerResult> listenerResults = new ArrayList<>();
         for (InlongStreamInfo streamInfo : streamInfoList) {
             listenerResults.add(
-                    FlinkUtils.submitFlinkJob(streamInfo, FlinkUtils.genFlinkJobName(streamInfo), isBatchJob));
+                    FlinkUtils.submitFlinkJob(
+                            streamInfo, FlinkUtils.genFlinkJobName(streamInfo), isBatchJob, boundaries));
         }
 
         // only one stream in group for now
@@ -254,11 +256,11 @@ public class FlinkUtils {
     }
 
     public static ListenerResult submitFlinkJob(InlongStreamInfo streamInfo, String jobName) throws Exception {
-        return submitFlinkJob(streamInfo, jobName, false);
+        return submitFlinkJob(streamInfo, jobName, false, null);
     }
 
-    public static ListenerResult submitFlinkJob(InlongStreamInfo streamInfo, String jobName, boolean isBatchJob)
-            throws Exception {
+    public static ListenerResult submitFlinkJob(InlongStreamInfo streamInfo, String jobName,
+            boolean isBatchJob, Boundaries boundaries) throws Exception {
         List<StreamSink> sinkList = streamInfo.getSinkList();
         List<String> sinkTypes = sinkList.stream().map(StreamSink::getSinkType).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(sinkList) || !SinkType.containSortFlinkSink(sinkTypes)) {
@@ -298,6 +300,9 @@ public class FlinkUtils {
         flinkInfo.setInlongStreamInfoList(Collections.singletonList(streamInfo));
         if (isBatchJob) {
             flinkInfo.setRuntimeExecutionMode(RUNTIME_EXECUTION_MODE_BATCH);
+            flinkInfo.setBoundaryType(boundaries.getBoundaryType().getType());
+            flinkInfo.setLowerBoundary(boundaries.getLowerBound());
+            flinkInfo.setUpperBoundary(boundaries.getUpperBound());
         } else {
             flinkInfo.setRuntimeExecutionMode(RUNTIME_EXECUTION_MODE_STREAM);
         }
