@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
-import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sdk.commons.admin.AdminServiceRegister;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClient;
@@ -26,11 +25,9 @@ import org.apache.inlong.sdk.sort.api.SortClientFactory;
 import org.apache.inlong.sort.standalone.admin.ConsumerServiceMBean;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.ManagerUrlHandler;
-import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigType;
 import org.apache.inlong.sort.standalone.config.holder.SortSourceConfigType;
 import org.apache.inlong.sort.standalone.config.loader.ClassResourceQueryConsumeConfig;
-import org.apache.inlong.sort.standalone.utils.FlumeConfigGenerator;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.flume.Context;
@@ -87,6 +84,7 @@ public final class SortSdkSource extends AbstractSource
     private static final SortClientConfig.ConsumeStrategy defaultStrategy = SortClientConfig.ConsumeStrategy.lastest;
 
     private static final String KEY_SORT_SDK_CLIENT_NUM = "sortSdkClientNum";
+    private static final String KEY_TASK_NAME = "taskName";
     private static final int DEFAULT_SORT_SDK_CLIENT_NUM = 1;
 
     private String taskName;
@@ -149,9 +147,9 @@ public final class SortSdkSource extends AbstractSource
      */
     @Override
     public void configure(Context context) {
-        this.taskName = context.getString(FlumeConfigGenerator.KEY_TASK_NAME);
+        this.taskName = context.getString(KEY_TASK_NAME);
         this.context = new SortSdkSourceContext(getName(), context);
-        this.sortClusterName = SortClusterConfigHolder.getClusterConfig().getClusterName();
+        this.sortClusterName = CommonPropertiesHolder.getClusterId();
         this.reloadInterval = this.context.getReloadInterval();
         this.initReloadExecutor();
         // register
@@ -235,18 +233,8 @@ public final class SortSdkSource extends AbstractSource
      * @return Map
      */
     private Map<String, String> getSortClientConfigParameters() {
-        Map<String, String> sortSdkParams = new HashMap<>();
         Map<String, String> commonParams = CommonPropertiesHolder.getContext().getSubProperties(SORT_SDK_PREFIX);
-        sortSdkParams.putAll(commonParams);
-        SortTaskConfig taskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
-        if (taskConfig != null) {
-            Map<String, String> sinkParams = taskConfig.getSinkParams();
-            if (sinkParams != null) {
-                Context sinkContext = new Context(sinkParams);
-                sortSdkParams.putAll(sinkContext.getSubProperties(SORT_SDK_PREFIX));
-            }
-        }
-        return sortSdkParams;
+        return new HashMap<>(commonParams);
     }
 
     /**
