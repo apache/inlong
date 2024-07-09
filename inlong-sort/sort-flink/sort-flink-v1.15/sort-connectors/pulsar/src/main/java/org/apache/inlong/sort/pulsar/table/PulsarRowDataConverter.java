@@ -122,7 +122,7 @@ public class PulsarRowDataConverter implements Serializable {
             producedRow.setField(keyProjection[keyPos], physicalKeyRow.getField(keyPos));
         }
 
-        readableMetadata.appendProducedRowWithMetadata(producedRow, physicalArity, message);
+        readableMetadata.appendProducedRowWithMetadata(producedRow, physicalArity, message, collector);
         collector.collect(producedRow);
     }
 
