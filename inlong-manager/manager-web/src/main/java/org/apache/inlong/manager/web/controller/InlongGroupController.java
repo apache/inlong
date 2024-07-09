@@ -33,7 +33,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
-import org.apache.inlong.manager.pojo.schedule.OfflineJobSubmitRequest;
+import org.apache.inlong.manager.pojo.schedule.OfflineJobRequest;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.group.InlongGroupProcessService;
@@ -44,8 +44,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -68,7 +66,6 @@ import java.util.Map;
 @Api(tags = "Inlong-Group-API")
 public class InlongGroupController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupController.class);
     @Autowired
     private InlongGroupService groupService;
     @Autowired
@@ -258,8 +255,7 @@ public class InlongGroupController {
 
     @RequestMapping(value = "/group/submitOfflineJob", method = RequestMethod.POST)
     @ApiOperation(value = "Submitting inlong offline job process")
-    public Response<Boolean> submitOfflineJob(@RequestBody OfflineJobSubmitRequest request) {
-        LOGGER.info("Received offline job submit request {}", request);
+    public Response<Boolean> submitOfflineJob(@RequestBody OfflineJobRequest request) {
         return Response.success(groupService.submitOfflineJob(request));
     }
 }

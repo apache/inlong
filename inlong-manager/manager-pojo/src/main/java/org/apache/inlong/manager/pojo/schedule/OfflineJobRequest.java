@@ -23,7 +23,7 @@ import lombok.Data;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class OfflineJobSubmitRequest {
+public class OfflineJobRequest {
 
     @ApiModelProperty("Inlong Group ID")
     @NotNull

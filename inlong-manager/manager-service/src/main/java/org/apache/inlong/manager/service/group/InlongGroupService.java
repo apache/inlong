@@ -29,7 +29,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
-import org.apache.inlong.manager.pojo.schedule.OfflineJobSubmitRequest;
+import org.apache.inlong.manager.pojo.schedule.OfflineJobRequest;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
 import javax.validation.Valid;
@@ -224,6 +224,6 @@ public interface InlongGroupService {
      * @param request request to submit offline sync job
      *
      * */
-    Boolean submitOfflineJob(OfflineJobSubmitRequest request);
+    Boolean submitOfflineJob(OfflineJobRequest request);
 
 }

@@ -61,7 +61,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
-import org.apache.inlong.manager.pojo.schedule.OfflineJobSubmitRequest;
+import org.apache.inlong.manager.pojo.schedule.OfflineJobRequest;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfo;
 import org.apache.inlong.manager.pojo.schedule.ScheduleInfoRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -936,7 +936,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    public Boolean submitOfflineJob(OfflineJobSubmitRequest request) {
+    public Boolean submitOfflineJob(OfflineJobRequest request) {
         // 1. get stream info list
         String groupId = request.getGroupId();
         InlongGroupInfo groupInfo = get(groupId);
