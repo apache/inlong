@@ -27,6 +27,7 @@ import { clusters } from '@/plugins/clusters';
 import ClusterBindModal from './ClusterBindModal';
 import request from '@/core/utils/request';
 import { timestampFormat } from '@/core/utils';
+import CreateModal from '@/ui/pages/Clusters/CreateModal';
 
 export interface ClusterListProps {
   clusterTag: string;
@@ -106,7 +107,12 @@ const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
     },
     [clusterTag, getList],
   );
-
+  const [createModal, setCreateModal] = useState<Record<string, unknown>>({
+    open: false,
+  });
+  function onshowCluster(id, type) {
+    setCreateModal({ open: true, id: id, type: type });
+  }
   const onChange = ({ current: pageNum, pageSize }) => {
     setOptions(prev => ({
       ...prev,
@@ -181,6 +187,9 @@ const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
             <Button type="link" onClick={() => onDelete(record)}>
               {i18n.t('pages.ClusterTags.DelCluster')}
             </Button>
+            <Button type="link" onClick={() => onshowCluster(record.id, record.type)}>
+              {i18n.t('basic.Detail')}
+            </Button>
           </>
         ),
       } as any,
@@ -218,6 +227,16 @@ const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
           setClusterBindModal({ open: false });
         }}
         onCancel={() => setClusterBindModal({ open: false })}
+      />
+      <CreateModal
+        {...createModal}
+        defaultType={options.type}
+        open={createModal.open as boolean}
+        onOk={async () => {
+          await getList();
+          setCreateModal({ open: false });
+        }}
+        onCancel={() => setCreateModal({ open: false })}
       />
     </>
   );
