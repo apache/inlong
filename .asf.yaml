@@ -40,9 +40,9 @@ github:
     # enable squash button:
     squash:  true
     # disable merge button:
-    merge:   false
+    merge:   true
     # disable rebase button:
-    rebase:  false
+    rebase:  true
   # enable the dependabot_alerts
   dependabot_alerts: true
   # disable the dependabot_updates
