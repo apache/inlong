@@ -24,7 +24,7 @@ import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
-import org.apache.inlong.manager.pojo.schedule.OfflineJobSubmitRequest;
+import org.apache.inlong.manager.pojo.schedule.OfflineJobRequest;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -58,13 +58,13 @@ public class QuartzOfflineSyncJob implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
         LOGGER.info("QuartzOfflineSyncJob run once");
         JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
-        initGroupClientIfNeeded(jobDataMap);
+        initGroupClient(jobDataMap);
 
         String inlongGroupId = context.getJobDetail().getKey().getName();
         long lowerBoundary = context.getScheduledFireTime().getTime();
         long upperBoundary = context.getNextFireTime() == null ? endTime : context.getNextFireTime().getTime();
 
-        OfflineJobSubmitRequest request = new OfflineJobSubmitRequest();
+        OfflineJobRequest request = new OfflineJobRequest();
         request.setGroupId(inlongGroupId);
         request.setBoundaryType(BoundaryType.TIME.getType());
         request.setLowerBoundary(String.valueOf(lowerBoundary));
@@ -84,7 +84,7 @@ public class QuartzOfflineSyncJob implements Job {
 
     }
 
-    private void initGroupClientIfNeeded(JobDataMap jobDataMap) {
+    private void initGroupClient(JobDataMap jobDataMap) {
         if (groupClient == null) {
             String host = (String) jobDataMap.get(MANAGER_HOST);
             int port = (int) jobDataMap.get(MANAGER_PORT);
