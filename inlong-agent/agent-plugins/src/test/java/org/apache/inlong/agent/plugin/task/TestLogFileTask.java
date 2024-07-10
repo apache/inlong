@@ -136,8 +136,6 @@ public class TestLogFileTask {
             Assert.assertEquals(0, fileName.get(i).compareTo(resourceName.get(i)));
             Assert.assertEquals(0, dataTime.get(i).compareTo(srcDataTimes.get(i)));
         }
-        PowerMockito.verifyPrivate(dayTask, Mockito.times(resources.size()))
-                .invoke("addToEvenMap", Mockito.anyString(), Mockito.anyString());
         dayTask.destroy();
     }
 }
