@@ -36,6 +36,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Properties;
 
 /** wrapper of kafka producer */
@@ -110,7 +111,7 @@ public class KafkaProducerCluster implements LifecycleAware {
         }
         try {
             Properties props = defaultKafkaProperties();
-            props.putAll(nodeConfig.getProperties());
+            props.putAll(nodeConfig.getProperties() == null ? new HashMap<>() : nodeConfig.getProperties());
             props.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, PartitionerSelector.class.getName());
             props.put(ProducerConfig.ACKS_CONFIG, nodeConfig.getAcks());
             props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, nodeConfig.getBootstrapServers());
