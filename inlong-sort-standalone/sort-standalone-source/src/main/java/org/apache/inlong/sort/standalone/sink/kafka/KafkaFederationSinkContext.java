@@ -76,9 +76,12 @@ public class KafkaFederationSinkContext extends SinkContext {
                 LOG.info("Same sortTaskConfig, do nothing.");
                 return;
             }
-            KafkaNodeConfig requestNodeConfig = (KafkaNodeConfig) newTaskConfig.getNodeConfig();
-            if (kafkaNodeConfig == null || requestNodeConfig.getVersion() > kafkaNodeConfig.getVersion()) {
-                this.kafkaNodeConfig = requestNodeConfig;
+
+            if (newTaskConfig != null) {
+                KafkaNodeConfig requestNodeConfig = (KafkaNodeConfig) newTaskConfig.getNodeConfig();
+                if (kafkaNodeConfig == null || requestNodeConfig.getVersion() > kafkaNodeConfig.getVersion()) {
+                    this.kafkaNodeConfig = requestNodeConfig;
+                }
             }
 
             this.taskConfig = newTaskConfig;
@@ -99,6 +102,9 @@ public class KafkaFederationSinkContext extends SinkContext {
     }
 
     public Map<String, KafkaIdConfig> fromTaskConfig(TaskConfig taskConfig) {
+        if (taskConfig == null) {
+            return new HashMap<>();
+        }
         return taskConfig.getClusterTagConfigs()
                 .stream()
                 .map(ClusterTagConfig::getDataFlowConfigs)
@@ -111,6 +117,10 @@ public class KafkaFederationSinkContext extends SinkContext {
     }
 
     public Map<String, KafkaIdConfig> fromSortTaskConfig(SortTaskConfig sortTaskConfig) {
+        if (sortTaskConfig == null) {
+            return new HashMap<>();
+        }
+
         List<Map<String, String>> idList = sortTaskConfig.getIdParams();
         Map<String, KafkaIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
         for (Map<String, String> idParam : idList) {

@@ -109,10 +109,13 @@ public class ClsSinkContext extends SinkContext {
                 return;
             }
             LOG.info("get new SortTaskConfig:taskName:{}", taskName);
-            ClsNodeConfig requestNodeConfig = (ClsNodeConfig) newTaskConfig.getNodeConfig();
-            if (clsNodeConfig == null || requestNodeConfig.getVersion() > clsNodeConfig.getVersion()) {
-                this.clsNodeConfig = requestNodeConfig;
+            if (newTaskConfig != null) {
+                ClsNodeConfig requestNodeConfig = (ClsNodeConfig) newTaskConfig.getNodeConfig();
+                if (clsNodeConfig == null || requestNodeConfig.getVersion() > clsNodeConfig.getVersion()) {
+                    this.clsNodeConfig = requestNodeConfig;
+                }
             }
+
             this.taskConfig = newTaskConfig;
             this.sortTaskConfig = newSortTaskConfig;
 

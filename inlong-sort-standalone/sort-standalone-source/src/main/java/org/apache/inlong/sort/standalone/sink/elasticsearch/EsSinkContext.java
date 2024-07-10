@@ -143,10 +143,13 @@ public class EsSinkContext extends SinkContext {
             }
             LOG.info("get new SortTaskConfig:taskName:{}", taskName);
 
-            EsNodeConfig requestNodeConfig = (EsNodeConfig) newTaskConfig.getNodeConfig();
-            if (esNodeConfig == null || requestNodeConfig.getVersion() > esNodeConfig.getVersion()) {
-                this.esNodeConfig = requestNodeConfig;
+            if (newTaskConfig != null) {
+                EsNodeConfig requestNodeConfig = (EsNodeConfig) newTaskConfig.getNodeConfig();
+                if (esNodeConfig == null || requestNodeConfig.getVersion() > esNodeConfig.getVersion()) {
+                    this.esNodeConfig = requestNodeConfig;
+                }
             }
+
             this.taskConfig = newTaskConfig;
             this.sortTaskConfig = newSortTaskConfig;
 
