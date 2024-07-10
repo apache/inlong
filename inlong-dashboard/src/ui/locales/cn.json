@@ -920,5 +920,7 @@
   "pages.GroupDataTemplate.Modifier":"修改人",
   "pages.GroupDataTemplate.VisibleRange.All":"全局",
   "pages.GroupDataTemplate.VisibleRange.InCharges":"责任人",
-  "pages.GroupDataTemplate.VisibleRange.Tenant":"租户"
+  "pages.GroupDataTemplate.VisibleRange.Tenant":"租户",
+  "miscellaneous.total": "... 共",
+  "miscellaneous.tenants": "个租户"
 }
