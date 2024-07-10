@@ -66,4 +66,9 @@ export const allDefaultClusters: MetaExportWithBackendList<ClusterMetaType> = [
     value: 'SORT_PULSAR',
     LoadEntity: () => import('./SortPulsar'),
   },
+  {
+    label: 'Sort Kafka',
+    value: 'SORT_KAFKA',
+    LoadEntity: () => import('./SortKafka'),
+  },
 ];
