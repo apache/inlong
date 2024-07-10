@@ -304,14 +304,25 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
           return request('/audit/getAuditBases');
         },
         requestParams: {
-          formatResult: result =>
-            result?.map(item => ({
-              label: item.nameInChinese,
-              value: item.auditId,
-            })) || [],
+          formatResult: result => {
+            return result?.reduce((accumulator, item) => {
+              const existingItem = accumulator.find(
+                (i: { value: any }) => i.value === item.auditId,
+              );
+              if (!existingItem) {
+                accumulator.push({
+                  label: i18n?.language === 'cn' ? item.nameInChinese : item.nameInEnglish,
+                  value: item.auditId,
+                });
+              }
+              return accumulator;
+            }, []);
+          },
         },
       },
-      filterOption: (keyword, option) => option.label.includes(keyword),
+      filterOption: (keyword: string, option: { label: any }) => {
+        return (option?.label ?? '').toLowerCase().includes(keyword.toLowerCase());
+      },
     },
   },
   {
