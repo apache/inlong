@@ -19,6 +19,8 @@ package org.apache.inlong.sort.standalone.sink.kafka;
 
 import org.apache.inlong.common.pojo.sort.node.KafkaNodeConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import com.google.common.base.Preconditions;
@@ -45,6 +47,7 @@ public class KafkaProducerFederation implements Runnable {
     private KafkaNodeConfig nodeConfig;
     private KafkaProducerCluster cluster;
     private KafkaProducerCluster deleteCluster;
+    private CacheClusterConfig cacheClusterConfig;
 
     public KafkaProducerFederation(String workerName, KafkaFederationSinkContext context) {
         this.workerName = Preconditions.checkNotNull(workerName);
@@ -86,13 +89,39 @@ public class KafkaProducerFederation implements Runnable {
             LOG.error("failed to close delete cluster, ex={}", e.getMessage(), e);
         }
 
-        try {
+        if (CommonPropertiesHolder.useUnifiedConfiguration()) {
+            reloadByNodeConfig();
+        } else {
+            reloadByCacheClusterConfig();
+        }
 
+    }
+
+    private void reloadByCacheClusterConfig() {
+        try {
+            if (cacheClusterConfig != null && !cacheClusterConfig.equals(context.getCacheClusterConfig())) {
+                return;
+            }
+            this.cacheClusterConfig = context.getCacheClusterConfig();
+            KafkaProducerCluster updateCluster =
+                    new KafkaProducerCluster(workerName, cacheClusterConfig, nodeConfig, context);
+            updateCluster.start();
+            this.deleteCluster = cluster;
+            this.cluster = updateCluster;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+
+    }
+
+    private void reloadByNodeConfig() {
+        try {
             if (nodeConfig != null && context.getNodeConfig().getVersion() <= nodeConfig.getVersion()) {
                 return;
             }
             this.nodeConfig = context.getNodeConfig();
-            KafkaProducerCluster updateCluster = new KafkaProducerCluster(workerName, nodeConfig, context);
+            KafkaProducerCluster updateCluster =
+                    new KafkaProducerCluster(workerName, cacheClusterConfig, nodeConfig, context);
             updateCluster.start();
             this.deleteCluster = cluster;
             this.cluster = updateCluster;

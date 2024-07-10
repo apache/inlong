@@ -25,6 +25,7 @@ import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.config.holder.v2.SortConfigHolder;
+import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.metrics.SortConfigMetricReporter;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
@@ -50,6 +51,7 @@ public class PulsarFederationSinkContext extends SinkContext {
     public static final String KEY_EVENT_HANDLER = "eventHandler";
     private Map<String, PulsarIdConfig> idConfigMap = new ConcurrentHashMap<>();
     private PulsarNodeConfig pulsarNodeConfig;
+    private CacheClusterConfig cacheClusterConfig;
 
     public PulsarFederationSinkContext(String sinkName, Context context, Channel channel) {
         super(sinkName, context, channel);
@@ -73,6 +75,12 @@ public class PulsarFederationSinkContext extends SinkContext {
             if (pulsarNodeConfig == null || requestNodeConfig.getVersion() > pulsarNodeConfig.getVersion()) {
                 this.pulsarNodeConfig = requestNodeConfig;
             }
+
+            CacheClusterConfig clusterConfig = new CacheClusterConfig();
+            clusterConfig.setClusterName(this.taskName);
+            clusterConfig.setParams(this.sortTaskConfig.getSinkParams());
+            this.cacheClusterConfig = clusterConfig;
+
             this.taskConfig = newTaskConfig;
             this.sortTaskConfig = newSortTaskConfig;
 
