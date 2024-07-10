@@ -148,8 +148,8 @@ const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
         ellipsisMulti: 2,
       },
       {
-        title: i18n.t('pages.Clusters.Description'),
-        dataIndex: 'description',
+        title: i18n.t('pages.Clusters.Type'),
+        dataIndex: 'type',
         ellipsisMulti: 2,
       },
       {
@@ -180,14 +180,18 @@ const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
       {
         title: i18n.t('basic.Operating'),
         dataIndex: 'action',
-        width: 200,
+        width: 150,
         render: (text, record) => (
           <>
             {/* <Button type="link">{i18n.t('basic.Detail')}</Button> */}
             <Button type="link" onClick={() => onDelete(record)}>
               {i18n.t('pages.ClusterTags.DelCluster')}
             </Button>
-            <Button type="link" onClick={() => onshowCluster(record.id, record.type)}>
+            <Button
+              style={{ marginLeft: '20px' }}
+              type="link"
+              onClick={() => onshowCluster(record.id, record.type)}
+            >
               {i18n.t('basic.Detail')}
             </Button>
           </>
