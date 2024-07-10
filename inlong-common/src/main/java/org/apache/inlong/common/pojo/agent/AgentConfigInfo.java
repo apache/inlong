@@ -34,6 +34,7 @@ public class AgentConfigInfo {
     AgentResponseCode code;
     private String zkUrl;
     private AgentClusterInfo cluster;
+    private Integer version;
     private String md5;
 
     @Data
