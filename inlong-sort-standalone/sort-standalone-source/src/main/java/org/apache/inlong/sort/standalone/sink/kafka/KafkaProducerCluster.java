@@ -19,12 +19,12 @@ package org.apache.inlong.sort.standalone.sink.kafka;
 
 import org.apache.inlong.common.pojo.sort.node.KafkaNodeConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import org.apache.flume.Context;
 import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleAware;
 import org.apache.flume.lifecycle.LifecycleState;
@@ -36,6 +36,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Properties;
 
 /** wrapper of kafka producer */
@@ -45,10 +46,9 @@ public class KafkaProducerCluster implements LifecycleAware {
 
     private final String workerName;
     protected final KafkaNodeConfig nodeConfig;
+    protected final CacheClusterConfig cacheClusterConfig;
     private final KafkaFederationSinkContext sinkContext;
-    private final Context context;
 
-    private final String cacheClusterName;
     private LifecycleState state;
     private IEvent2KafkaRecordHandler handler;
 
@@ -56,41 +56,101 @@ public class KafkaProducerCluster implements LifecycleAware {
 
     public KafkaProducerCluster(
             String workerName,
+            CacheClusterConfig cacheClusterConfig,
             KafkaNodeConfig nodeConfig,
             KafkaFederationSinkContext kafkaFederationSinkContext) {
         this.workerName = Preconditions.checkNotNull(workerName);
         this.nodeConfig = nodeConfig;
+        this.cacheClusterConfig = cacheClusterConfig;
         this.sinkContext = Preconditions.checkNotNull(kafkaFederationSinkContext);
-        this.context = new Context(nodeConfig.getProperties() != null ? nodeConfig.getProperties() : Maps.newHashMap());
         this.state = LifecycleState.IDLE;
-        this.cacheClusterName = nodeConfig.getNodeName();
         this.handler = sinkContext.createEventHandler();
     }
 
     /** start and init kafka producer */
     @Override
     public void start() {
+        if (CommonPropertiesHolder.useUnifiedConfiguration()) {
+            startByNodeConfig();
+        } else {
+            startByCacheCluster();
+        }
+    }
+
+    private void startByCacheCluster() {
         this.state = LifecycleState.START;
+        if (cacheClusterConfig == null) {
+            LOG.error("start kafka producer cluster failed, cacheClusterConfig config is null");
+            return;
+        }
         try {
-            Properties props = new Properties();
-            props.putAll(context.getParameters());
-            props.put(
-                    ProducerConfig.PARTITIONER_CLASS_CONFIG,
-                    context.getString(ProducerConfig.PARTITIONER_CLASS_CONFIG, PartitionerSelector.class.getName()));
-            props.put(
-                    ProducerConfig.ACKS_CONFIG,
-                    context.getString(ProducerConfig.ACKS_CONFIG, "all"));
-            props.put(
-                    ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                    nodeConfig.getBootstrapServers());
+            Properties props = defaultKafkaProperties();
+            props.putAll(cacheClusterConfig.getParams());
+            props.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, PartitionerSelector.class.getName());
+            props.put(ProducerConfig.ACKS_CONFIG,
+                    cacheClusterConfig.getParams().getOrDefault(ProducerConfig.ACKS_CONFIG, "all"));
+
+            props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                    cacheClusterConfig.getParams().get(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
+
             props.put(ProducerConfig.CLIENT_ID_CONFIG,
-                    nodeConfig.getClientId() + "-" + workerName);
-            LOG.info("init kafka client info: " + props);
+                    cacheClusterConfig.getParams().get(ProducerConfig.CLIENT_ID_CONFIG) + "-" + workerName);
+            LOG.info("init kafka client by cache cluster info: " + props);
             producer = new KafkaProducer<>(props, new StringSerializer(), new ByteArraySerializer());
             Preconditions.checkNotNull(producer);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
+    }
+
+    private void startByNodeConfig() {
+        this.state = LifecycleState.START;
+        if (nodeConfig == null) {
+            LOG.error("start kafka producer cluster failed, node config is null");
+            return;
+        }
+        try {
+            Properties props = defaultKafkaProperties();
+            props.putAll(nodeConfig.getProperties() == null ? new HashMap<>() : nodeConfig.getProperties());
+            props.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, PartitionerSelector.class.getName());
+            props.put(ProducerConfig.ACKS_CONFIG, nodeConfig.getAcks());
+            props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, nodeConfig.getBootstrapServers());
+            props.put(ProducerConfig.CLIENT_ID_CONFIG, nodeConfig.getClientId() + "-" + workerName);
+            LOG.info("init kafka client by node config info: " + props);
+            producer = new KafkaProducer<>(props, new StringSerializer(), new ByteArraySerializer());
+            Preconditions.checkNotNull(producer);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+    }
+
+    public Properties defaultKafkaProperties() {
+        Properties props = new Properties();
+        props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "false");
+        props.put(ProducerConfig.BATCH_SIZE_CONFIG, "122880");
+        props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, "44740000");
+        props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "gzip");
+        props.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, "86400000");
+        props.put(ProducerConfig.LINGER_MS_CONFIG, "500");
+        props.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "5");
+        props.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, "8388608");
+        props.put(ProducerConfig.METADATA_MAX_AGE_CONFIG, "300000");
+        props.put(ProducerConfig.RECEIVE_BUFFER_CONFIG, "32768");
+        props.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, "30000");
+        props.put(ProducerConfig.RETRIES_CONFIG, "100000");
+        props.put(ProducerConfig.SEND_BUFFER_CONFIG, "524288");
+        props.put("mute.partition.error.max.times", "20");
+        props.put("mute.partition.max.percentage", "20");
+        props.put("rpc.timeout.ms", "30000");
+        props.put("topic.expiry.ms", "86400000");
+        props.put("unmute.partition.interval.ms", "600000");
+        props.put("metadata.retry.backoff.ms", "500");
+        props.put("metadata.fetch.timeout.ms", "1000");
+        props.put("maxThreads", "2");
+        props.put("enable.replace.partition.for.can.retry", "true");
+        props.put("enable.replace.partition.for.not.leader", "true");
+        props.put("enable.topic.partition.circuit.breaker", "true");
+        return props;
     }
 
     /** stop and close kafka producer */
@@ -159,12 +219,4 @@ public class KafkaProducerCluster implements LifecycleAware {
         }
     }
 
-    /**
-     * get cache cluster name
-     *
-     * @return cacheClusterName
-     */
-    public String getCacheClusterName() {
-        return cacheClusterName;
-    }
 }
