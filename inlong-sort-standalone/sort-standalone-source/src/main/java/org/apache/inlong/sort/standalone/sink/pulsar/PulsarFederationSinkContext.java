@@ -76,11 +76,6 @@ public class PulsarFederationSinkContext extends SinkContext {
                 this.pulsarNodeConfig = requestNodeConfig;
             }
 
-            CacheClusterConfig clusterConfig = new CacheClusterConfig();
-            clusterConfig.setClusterName(this.taskName);
-            clusterConfig.setParams(this.sortTaskConfig.getSinkParams());
-            this.cacheClusterConfig = clusterConfig;
-
             this.taskConfig = newTaskConfig;
             this.sortTaskConfig = newSortTaskConfig;
 

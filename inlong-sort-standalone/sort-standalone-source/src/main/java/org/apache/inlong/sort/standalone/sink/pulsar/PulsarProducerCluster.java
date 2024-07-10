@@ -24,7 +24,6 @@ import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
-import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Transaction;
@@ -165,8 +164,7 @@ public class PulsarProducerCluster implements LifecycleAware {
 
     private void initBuilderByNodeConfig(PulsarNodeConfig nodeConfig) {
         this.cacheClusterName = nodeConfig.getNodeName();
-        this.context = new Context(nodeConfig.getProperties() == null ?
-                new HashMap<>() : nodeConfig.getProperties());
+        this.context = new Context(nodeConfig.getProperties() == null ? new HashMap<>() : nodeConfig.getProperties());
 
         clientBuilder = PulsarClient.builder();
         String serviceUrl = nodeConfig.getServiceUrl();
@@ -309,6 +307,5 @@ public class PulsarProducerCluster implements LifecycleAware {
         });
         return true;
     }
-
 
 }
