@@ -145,14 +145,24 @@ export const getFormContent = (initialValues, onSearch) => [
           return request('/audit/getAuditBases');
         },
         requestParams: {
-          formatResult: result =>
-            result?.map(item => ({
-              label: item.nameInChinese,
-              value: item.auditId,
-            })) || [],
+          formatResult: (result: any[]) => {
+            return result?.reduce((accumulator, item) => {
+              const existingItem = accumulator.find(
+                (i: { value: any }) => i.value === item.auditId,
+              );
+              if (!existingItem) {
+                accumulator.push({
+                  label: i18n?.language === 'cn' ? item.nameInChinese : item.nameInEnglish,
+                  value: item.auditId,
+                });
+              }
+              return accumulator;
+            }, []);
+          },
         },
       },
-      filterOption: (keyword, option) => option.label.includes(keyword),
+      filterOption: (keyword: string, option: { label: any }) =>
+        (option?.label ?? '').toLowerCase().includes(keyword.toLowerCase()),
     },
   },
   {
@@ -170,14 +180,24 @@ export const getFormContent = (initialValues, onSearch) => [
           return request('/audit/getAuditBases');
         },
         requestParams: {
-          formatResult: result =>
-            result?.map(item => ({
-              label: item.nameInChinese,
-              value: item.auditId,
-            })) || [],
+          formatResult: (result: any[]) => {
+            return result?.reduce((accumulator, item) => {
+              const existingItem = accumulator.find(
+                (i: { value: any }) => i.value === item.auditId,
+              );
+              if (!existingItem) {
+                accumulator.push({
+                  label: i18n?.language === 'cn' ? item.nameInChinese : item.nameInEnglish,
+                  value: item.auditId,
+                });
+              }
+              return accumulator;
+            }, []);
+          },
         },
       },
-      filterOption: (keyword, option) => option.label.includes(keyword),
+      filterOption: (keyword: string, option: { label: any }) =>
+        (option?.label ?? '').toLowerCase().includes(keyword.toLowerCase()),
     },
   },
   {
