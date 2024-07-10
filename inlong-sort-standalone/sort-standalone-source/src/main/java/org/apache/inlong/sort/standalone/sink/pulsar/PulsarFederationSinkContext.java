@@ -84,6 +84,11 @@ public class PulsarFederationSinkContext extends SinkContext {
             this.taskConfig = newTaskConfig;
             this.sortTaskConfig = newSortTaskConfig;
 
+            CacheClusterConfig clusterConfig = new CacheClusterConfig();
+            clusterConfig.setClusterName(this.taskName);
+            clusterConfig.setParams(this.sortTaskConfig.getSinkParams());
+            this.cacheClusterConfig = clusterConfig;
+
             Map<String, PulsarIdConfig> fromTaskConfig = fromTaskConfig(taskConfig);
             Map<String, PulsarIdConfig> fromSortTaskConfig = fromSortTaskConfig(sortTaskConfig);
             SortConfigMetricReporter.reportClusterDiff(clusterId, taskName, fromTaskConfig, fromSortTaskConfig);
@@ -137,6 +142,10 @@ public class PulsarFederationSinkContext extends SinkContext {
 
     public PulsarNodeConfig getNodeConfig() {
         return pulsarNodeConfig;
+    }
+
+    public CacheClusterConfig getCacheClusterConfig() {
+        return cacheClusterConfig;
     }
 
     public void addSendMetric(ProfileEvent currentRecord, String topic) {

@@ -19,6 +19,8 @@ package org.apache.inlong.sort.standalone.sink.pulsar;
 
 import org.apache.inlong.common.pojo.sort.node.PulsarNodeConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import org.apache.flume.Transaction;
@@ -41,6 +43,7 @@ public class PulsarProducerFederation {
     private final PulsarFederationSinkContext context;
     private Timer reloadTimer;
     private PulsarNodeConfig nodeConfig;
+    private CacheClusterConfig cacheClusterConfig;
     private PulsarProducerCluster cluster;
     private PulsarProducerCluster deleteCluster;
 
@@ -108,12 +111,38 @@ public class PulsarProducerFederation {
             LOG.error("failed to close delete cluster, ex={}", e.getMessage(), e);
         }
 
+        if (CommonPropertiesHolder.useUnifiedConfiguration()) {
+            reloadByNodeConfig();
+        } else {
+            reloadByCacheClusterConfig();
+        }
+
+    }
+
+    private void reloadByNodeConfig() {
         try {
             if (nodeConfig != null && context.getNodeConfig().getVersion() <= nodeConfig.getVersion()) {
                 return;
             }
             this.nodeConfig = context.getNodeConfig();
-            PulsarProducerCluster updateCluster = new PulsarProducerCluster(workerName, nodeConfig, context);
+            PulsarProducerCluster updateCluster =
+                    new PulsarProducerCluster(workerName, cacheClusterConfig, nodeConfig, context);
+            updateCluster.start();
+            this.deleteCluster = cluster;
+            this.cluster = updateCluster;
+        } catch (Throwable e) {
+            LOG.error(e.getMessage(), e);
+        }
+    }
+
+    private void reloadByCacheClusterConfig() {
+        try {
+            if (cacheClusterConfig != null && !cacheClusterConfig.equals(context.getCacheClusterConfig())) {
+                return;
+            }
+            this.cacheClusterConfig = context.getCacheClusterConfig();
+            PulsarProducerCluster updateCluster =
+                    new PulsarProducerCluster(workerName, cacheClusterConfig, nodeConfig, context);
             updateCluster.start();
             this.deleteCluster = cluster;
             this.cluster = updateCluster;
