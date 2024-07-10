@@ -81,13 +81,13 @@ public class KafkaFederationSinkContext extends SinkContext {
                 this.kafkaNodeConfig = requestNodeConfig;
             }
 
+            this.taskConfig = newTaskConfig;
+            this.sortTaskConfig = newSortTaskConfig;
+
             CacheClusterConfig clusterConfig = new CacheClusterConfig();
             clusterConfig.setClusterName(this.taskName);
             clusterConfig.setParams(this.sortTaskConfig.getSinkParams());
             this.cacheClusterConfig = clusterConfig;
-
-            this.taskConfig = newTaskConfig;
-            this.sortTaskConfig = newSortTaskConfig;
 
             Map<String, KafkaIdConfig> fromTaskConfig = fromTaskConfig(taskConfig);
             Map<String, KafkaIdConfig> fromSortTaskConfig = fromSortTaskConfig(sortTaskConfig);

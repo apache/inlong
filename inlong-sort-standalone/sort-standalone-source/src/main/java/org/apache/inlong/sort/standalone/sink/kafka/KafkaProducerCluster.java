@@ -48,7 +48,6 @@ public class KafkaProducerCluster implements LifecycleAware {
     protected final CacheClusterConfig cacheClusterConfig;
     private final KafkaFederationSinkContext sinkContext;
 
-    private final String cacheClusterName;
     private LifecycleState state;
     private IEvent2KafkaRecordHandler handler;
 
@@ -64,7 +63,6 @@ public class KafkaProducerCluster implements LifecycleAware {
         this.cacheClusterConfig = cacheClusterConfig;
         this.sinkContext = Preconditions.checkNotNull(kafkaFederationSinkContext);
         this.state = LifecycleState.IDLE;
-        this.cacheClusterName = nodeConfig.getNodeName();
         this.handler = sinkContext.createEventHandler();
     }
 
@@ -220,12 +218,4 @@ public class KafkaProducerCluster implements LifecycleAware {
         }
     }
 
-    /**
-     * get cache cluster name
-     *
-     * @return cacheClusterName
-     */
-    public String getCacheClusterName() {
-        return cacheClusterName;
-    }
 }
