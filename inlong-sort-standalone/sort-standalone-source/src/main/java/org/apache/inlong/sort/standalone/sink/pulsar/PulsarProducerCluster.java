@@ -19,10 +19,11 @@ package org.apache.inlong.sort.standalone.sink.pulsar;
 
 import org.apache.inlong.common.pojo.sort.node.PulsarNodeConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
-import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Transaction;
@@ -41,6 +42,7 @@ import org.apache.pulsar.client.api.PulsarClientException;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
@@ -75,26 +77,31 @@ public class PulsarProducerCluster implements LifecycleAware {
     private final String workerName;
     private final PulsarFederationSinkContext sinkContext;
     private final PulsarNodeConfig nodeConfig;
-    private final Context context;
-    private final String cacheClusterName;
+    private final CacheClusterConfig cacheClusterConfig;
+    private String cacheClusterName;
+    private Context context;
     private LifecycleState state;
     private IEvent2PulsarRecordHandler handler;
 
     /**
      * pulsar client
      */
+    private ClientBuilder clientBuilder;
     private PulsarClient client;
     private ProducerBuilder<byte[]> baseBuilder;
 
     private Map<String, Producer<byte[]>> producerMap = new ConcurrentHashMap<>();
 
-    public PulsarProducerCluster(String workerName, PulsarNodeConfig nodeConfig, PulsarFederationSinkContext context) {
+    public PulsarProducerCluster(
+            String workerName,
+            CacheClusterConfig cacheClusterConfig,
+            PulsarNodeConfig nodeConfig,
+            PulsarFederationSinkContext context) {
         this.workerName = workerName;
         this.sinkContext = context;
         this.nodeConfig = nodeConfig;
-        this.context = new Context(nodeConfig.getProperties() != null ? nodeConfig.getProperties() : Maps.newHashMap());
+        this.cacheClusterConfig = cacheClusterConfig;
         this.state = LifecycleState.IDLE;
-        this.cacheClusterName = nodeConfig.getNodeName();
         this.handler = sinkContext.createEventHandler();
     }
 
@@ -106,16 +113,10 @@ public class PulsarProducerCluster implements LifecycleAware {
         this.state = LifecycleState.START;
         try {
             // create pulsar client
-            ClientBuilder clientBuilder = PulsarClient.builder();
-            String serviceUrl = nodeConfig.getServiceUrl();
-            if (StringUtils.isBlank(serviceUrl)) {
-                throw new IllegalArgumentException("service url should not be null");
-            }
-
-            clientBuilder.serviceUrl(serviceUrl);
-            String authentication = nodeConfig.getToken();
-            if (StringUtils.isNoneBlank(authentication)) {
-                clientBuilder.authentication(AuthenticationFactory.token(authentication));
+            if (CommonPropertiesHolder.useUnifiedConfiguration()) {
+                initBuilderByNodeConfig(nodeConfig);
+            } else {
+                initBuilderByCacheCluster(cacheClusterConfig);
             }
 
             this.client = clientBuilder
@@ -135,7 +136,7 @@ public class PulsarProducerCluster implements LifecycleAware {
                     .maxPendingMessagesAcrossPartitions(
                             context.getInteger(KEY_MAXPENDINGMESSAGESACROSSPARTITIONS, 50000))
                     .sendTimeout(context.getInteger(KEY_SENDTIMEOUT, 0), TimeUnit.MILLISECONDS)
-                    .compressionType(this.getPulsarCompressionType())
+                    .compressionType(this.getPulsarCompressionType(context.getString(KEY_COMPRESSIONTYPE, "ZLIB")))
                     .blockIfQueueFull(context.getBoolean(KEY_BLOCKIFQUEUEFULL, true))
                     .roundRobinRouterBatchingPartitionSwitchFrequency(
                             context.getInteger(KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY, 10))
@@ -145,13 +146,45 @@ public class PulsarProducerCluster implements LifecycleAware {
         }
     }
 
+    private void initBuilderByCacheCluster(CacheClusterConfig cacheClusterConfig) {
+        this.cacheClusterName = cacheClusterConfig.getClusterName();
+        this.context = new Context(cacheClusterConfig.getParams());
+        clientBuilder = PulsarClient.builder();
+        String serviceUrl = cacheClusterConfig.getParams().get(KEY_SERVICE_URL);
+        if (StringUtils.isBlank(serviceUrl)) {
+            throw new IllegalArgumentException("service url should not be null");
+        }
+
+        clientBuilder.serviceUrl(serviceUrl);
+        String authentication = cacheClusterConfig.getParams().get(KEY_AUTHENTICATION);
+        if (StringUtils.isNoneBlank(authentication)) {
+            clientBuilder.authentication(AuthenticationFactory.token(authentication));
+        }
+    }
+
+    private void initBuilderByNodeConfig(PulsarNodeConfig nodeConfig) {
+        this.cacheClusterName = nodeConfig.getNodeName();
+        this.context = new Context(nodeConfig.getProperties() == null ? new HashMap<>() : nodeConfig.getProperties());
+
+        clientBuilder = PulsarClient.builder();
+        String serviceUrl = nodeConfig.getServiceUrl();
+        if (StringUtils.isBlank(serviceUrl)) {
+            throw new IllegalArgumentException("service url should not be null");
+        }
+
+        clientBuilder.serviceUrl(serviceUrl);
+        String authentication = nodeConfig.getToken();
+        if (StringUtils.isNoneBlank(authentication)) {
+            clientBuilder.authentication(AuthenticationFactory.token(authentication));
+        }
+    }
+
     /**
      * getPulsarCompressionType
      *
      * @return CompressionType
      */
-    private CompressionType getPulsarCompressionType() {
-        String type = nodeConfig.getCompressionType();
+    private CompressionType getPulsarCompressionType(String type) {
         if (type == null) {
             return CompressionType.ZLIB;
         }
@@ -273,15 +306,6 @@ public class PulsarProducerCluster implements LifecycleAware {
             }
         });
         return true;
-    }
-
-    /**
-     * get cacheClusterName
-     *
-     * @return the cacheClusterName
-     */
-    public String getCacheClusterName() {
-        return cacheClusterName;
     }
 
 }
