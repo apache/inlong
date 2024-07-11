@@ -17,18 +17,42 @@
 
 package org.apache.inlong.sdk.transform.process.operator;
 
-import net.sf.jsqlparser.expression.*;
+import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
+import org.apache.inlong.sdk.transform.process.function.NowFunction;
+import org.apache.inlong.sdk.transform.process.function.AbsFunction;
+import org.apache.inlong.sdk.transform.process.function.PowerFunction;
+import org.apache.inlong.sdk.transform.process.function.LnFunction;
+import org.apache.inlong.sdk.transform.process.function.SqrtFunction;
+import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
+import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
+import org.apache.inlong.sdk.transform.process.parser.DivisionParser;
+import org.apache.inlong.sdk.transform.process.parser.LongParser;
+import org.apache.inlong.sdk.transform.process.parser.MultiplicationParser;
+import org.apache.inlong.sdk.transform.process.parser.ParenthesisParser;
+import org.apache.inlong.sdk.transform.process.parser.StringParser;
+import org.apache.inlong.sdk.transform.process.parser.SubtractionParser;
+import org.apache.inlong.sdk.transform.process.parser.ValueParser;
+
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.NotExpression;
+import net.sf.jsqlparser.expression.Parenthesis;
+import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.expression.operators.arithmetic.Division;
 import net.sf.jsqlparser.expression.operators.arithmetic.Multiplication;
 import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.relational.*;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
+import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
+import net.sf.jsqlparser.expression.operators.relational.MinorThan;
+import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
+import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.inlong.sdk.transform.process.function.*;
-import org.apache.inlong.sdk.transform.process.parser.*;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
