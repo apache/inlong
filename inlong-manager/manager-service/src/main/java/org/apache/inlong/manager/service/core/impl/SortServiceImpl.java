@@ -42,8 +42,8 @@ import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
 import org.apache.inlong.manager.pojo.sort.SortStatusRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.service.core.ConfigLoader;
 import org.apache.inlong.manager.service.core.SortClusterService;
-import org.apache.inlong.manager.service.core.SortConfigLoader;
 import org.apache.inlong.manager.service.core.SortService;
 import org.apache.inlong.manager.service.core.SortSourceService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
@@ -99,7 +99,7 @@ public class SortServiceImpl implements SortService, PluginBinder {
     @Autowired
     private InlongStreamService streamService;
     @Autowired
-    private SortConfigLoader configLoader;
+    private ConfigLoader configLoader;
     @Autowired
     private DataNodeOperatorFactory dataNodeOperatorFactory;
     /**
@@ -152,7 +152,7 @@ public class SortServiceImpl implements SortService, PluginBinder {
     private void setReloadTimer() {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         long reloadInterval = 60000L;
-        executorService.scheduleAtFixedRate(this::reload, reloadInterval, reloadInterval, TimeUnit.MILLISECONDS);
+        executorService.scheduleWithFixedDelay(this::reload, reloadInterval, reloadInterval, TimeUnit.MILLISECONDS);
     }
 
     @Override

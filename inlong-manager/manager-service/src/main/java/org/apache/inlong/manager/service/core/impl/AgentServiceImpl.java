@@ -47,6 +47,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.AgentTaskConfigEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -63,7 +64,6 @@ import org.apache.inlong.manager.dao.mapper.ModuleConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.PackageConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
-import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeBindGroupRequest;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeDTO;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
@@ -73,6 +73,7 @@ import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.AgentService;
+import org.apache.inlong.manager.service.core.ConfigLoader;
 import org.apache.inlong.manager.service.source.SourceOperatorFactory;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperator;
 import org.apache.inlong.manager.service.source.StreamSourceOperator;
@@ -107,9 +108,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -144,10 +147,8 @@ public class AgentServiceImpl implements AgentService {
             new ThreadFactoryBuilder().setNameFormat("async-agent-%s").build(),
             new CallerRunsPolicy());
 
-    @Getter
-    private LoadingCache<TaskRequest, TaskResult> taskCache;
-    @Getter
-    private LoadingCache<AgentConfigRequest, AgentConfigInfo> agentConfigCache;
+    private Map<String, TaskResult> taskConfigMap = new ConcurrentHashMap<>();
+    private Map<String, AgentConfigInfo> agentConfigMap = new ConcurrentHashMap<>();
 
     @Getter
     private LoadingCache<ConfigRequest, ConfigResult> moduleConfigCache;
@@ -191,6 +192,8 @@ public class AgentServiceImpl implements AgentService {
     private PackageConfigEntityMapper packageConfigEntityMapper;
     @Autowired
     private InlongClusterService clusterService;
+    @Autowired
+    private ConfigLoader configLoader;
 
     /**
      * Start the update task
@@ -201,12 +204,6 @@ public class AgentServiceImpl implements AgentService {
         // The expiry time of cluster info cache must be greater than taskCache cache
         // because the eviction handler needs to query cluster info cache
         long expireTime = 10 * 5;
-        taskCache = Caffeine.newBuilder()
-                .expireAfterWrite(expireTime * 2L, TimeUnit.SECONDS)
-                .build(this::fetchTask);
-        agentConfigCache = Caffeine.newBuilder()
-                .expireAfterWrite(expireTime * 2L, TimeUnit.SECONDS)
-                .build(this::fetchAgentConfig);
         LOGGER.debug("start to reload config for installer.");
         try {
             moduleConfigCache = Caffeine.newBuilder()
@@ -214,6 +211,12 @@ public class AgentServiceImpl implements AgentService {
                     .build(this::loadModuleConfigs);
         } catch (Throwable t) {
             LOGGER.error("fail to reload all config for installer ", t);
+        }
+        try {
+            reload();
+            setReloadTimer();
+        } catch (Exception e) {
+            LOGGER.error("load agent task config failed", e);
         }
         LOGGER.debug("end to reload config for installer");
         if (updateTaskTimeoutEnabled) {
@@ -266,6 +269,11 @@ public class AgentServiceImpl implements AgentService {
         }
     }
 
+    private void setReloadTimer() {
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.scheduleWithFixedDelay(this::reload, 60000L, 60000L, TimeUnit.MILLISECONDS);
+    }
+
     @Override
     public Boolean reportSnapshot(TaskSnapshotRequest request) {
         return snapshotOperator.snapshot(request);
@@ -291,6 +299,42 @@ public class AgentServiceImpl implements AgentService {
         for (CommandEntity command : request.getCommandInfo()) {
             updateTaskStatus(command);
         }
+    }
+
+    public void reload() {
+        LOGGER.debug("start to reload agent task config.");
+        try {
+            Map<String, TaskResult> newTaskConfigMap = new ConcurrentHashMap<>();
+            Map<String, AgentConfigInfo> newAgentConfigMap = new ConcurrentHashMap<>();
+            List<AgentTaskConfigEntity> agentTaskConfigEntityList = configLoader.loadAllAgentTaskConfigEntity();
+            agentTaskConfigEntityList.forEach(agentTaskConfigEntity -> {
+                try {
+                    String key = agentTaskConfigEntity.getAgentIp() + InlongConstants.UNDERSCORE
+                            + agentTaskConfigEntity.getClusterName();
+                    TaskResult taskResult = JsonUtils.parseObject(agentTaskConfigEntity.getTaskParams(),
+                            TaskResult.class);
+                    if (taskResult != null) {
+                        taskResult.setVersion(agentTaskConfigEntity.getVersion());
+                        newTaskConfigMap.putIfAbsent(key, taskResult);
+                    }
+                    AgentConfigInfo agentConfigInfo = JsonUtils.parseObject(agentTaskConfigEntity.getConfigParams(),
+                            AgentConfigInfo.class);
+                    if (agentConfigInfo != null) {
+                        agentConfigInfo.setVersion(agentTaskConfigEntity.getVersion());
+                        newAgentConfigMap.putIfAbsent(key, agentConfigInfo);
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("failed to get agent task config for agent ip={}, cluster name={}",
+                            agentTaskConfigEntity.getAgentIp(), agentTaskConfigEntity.getClusterName());
+                }
+
+            });
+            taskConfigMap = newTaskConfigMap;
+            agentConfigMap = newAgentConfigMap;
+        } catch (Throwable t) {
+            LOGGER.error("failed to reload all agent task config", t);
+        }
+        LOGGER.debug("end to reload agent task config");
     }
 
     /**
@@ -337,7 +381,8 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public AgentConfigInfo getAgentConfig(AgentConfigRequest request) {
         LOGGER.debug("begin to get agent config info for {}", request);
-        AgentConfigInfo agentConfigInfo = agentConfigCache.get(request);
+        String key = request.getIp() + InlongConstants.UNDERSCORE + request.getClusterName();
+        AgentConfigInfo agentConfigInfo = agentConfigMap.get(key);
         if (agentConfigInfo == null) {
             return null;
         }
@@ -370,7 +415,8 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public TaskResult getExistTaskConfig(TaskRequest request) {
         LOGGER.debug("begin to get all exist task by request={}", request);
-        TaskResult taskResult = taskCache.get(request);
+        String key = request.getAgentIp() + InlongConstants.UNDERSCORE + request.getClusterName();
+        TaskResult taskResult = taskConfigMap.get(key);
         if (taskResult == null) {
             return null;
         }
@@ -823,70 +869,6 @@ public class AgentServiceImpl implements AgentService {
         Set<String> sourceGroups = Stream.of(
                 sourceEntity.getInlongClusterNodeGroup().split(InlongConstants.COMMA)).collect(Collectors.toSet());
         return sourceGroups.stream().anyMatch(clusterNodeGroups::contains);
-    }
-
-    private TaskResult fetchTask(TaskRequest request) {
-        final String clusterName = request.getClusterName();
-        final String ip = request.getAgentIp();
-        final String uuid = request.getUuid();
-        List<StreamSourceEntity> normalSourceEntities = sourceMapper.selectByStatusAndCluster(
-                SourceStatus.NORMAL_STATUS_SET.stream().map(SourceStatus::getCode).collect(Collectors.toList()),
-                clusterName, ip, uuid);
-        List<StreamSourceEntity> taskLists = new ArrayList<>(normalSourceEntities);
-        List<StreamSourceEntity> stopSourceEntities = sourceMapper.selectByStatusAndCluster(
-                SourceStatus.STOP_STATUS_SET.stream().map(SourceStatus::getCode).collect(Collectors.toList()),
-                clusterName, ip, uuid);
-        taskLists.addAll(stopSourceEntities);
-        LOGGER.debug("success to add task : {}", taskLists.size());
-        List<DataConfig> runningTaskConfig = Lists.newArrayList();
-        try {
-            List<CmdConfig> cmdConfigs = getAgentCmdConfigs(request);
-            if (CollectionUtils.isEmpty(taskLists)) {
-                return TaskResult.builder().dataConfigs(runningTaskConfig).cmdConfigs(cmdConfigs).build();
-            }
-            for (StreamSourceEntity sourceEntity : taskLists) {
-                int op = getOp(sourceEntity.getStatus());
-                DataConfig dataConfig = getDataConfig(sourceEntity, op);
-                runningTaskConfig.add(dataConfig);
-            }
-            TaskResult taskResult = TaskResult.builder().dataConfigs(runningTaskConfig).cmdConfigs(cmdConfigs).build();
-            String md5 = DigestUtils.md5Hex(GSON.toJson(taskResult));
-            taskResult.setMd5(md5);
-            taskResult.setCode(AgentResponseCode.SUCCESS);
-            return taskResult;
-        } catch (Exception e) {
-            LOGGER.error("get all exist task failed:", e);
-            throw new BusinessException("get all exist task failed:" + e.getMessage());
-        }
-    }
-
-    private AgentConfigInfo fetchAgentConfig(AgentConfigRequest request) {
-        LOGGER.debug("begin to get agent config info for {}", request);
-        AgentConfigInfo agentConfigInfo = new AgentConfigInfo();
-        Set<String> tagSet = new HashSet<>(16);
-        tagSet.addAll(Arrays.asList(request.getClusterTag().split(InlongConstants.COMMA)));
-        List<String> clusterTagList = new ArrayList<>(tagSet);
-        ClusterPageRequest pageRequest = ClusterPageRequest.builder()
-                .type(ClusterType.AGENT_ZK)
-                .clusterTagList(clusterTagList)
-                .build();
-        List<InlongClusterEntity> agentZkCluster = clusterMapper.selectByCondition(pageRequest);
-        if (CollectionUtils.isNotEmpty(agentZkCluster)) {
-            agentConfigInfo.setZkUrl(agentZkCluster.get(0).getUrl());
-        }
-
-        AgentClusterInfo clusterInfo = (AgentClusterInfo) clusterService.getOne(
-                null, request.getClusterName(), ClusterType.AGENT);
-        agentConfigInfo.setCluster(AgentConfigInfo.AgentClusterInfo.builder()
-                .parentId(clusterInfo.getId())
-                .clusterName(clusterInfo.getName())
-                .build());
-        String jsonStr = GSON.toJson(agentConfigInfo);
-        String configMd5 = DigestUtils.md5Hex(jsonStr);
-        agentConfigInfo.setMd5(configMd5);
-        agentConfigInfo.setCode(AgentResponseCode.SUCCESS);
-        LOGGER.debug("success to get agent config info for: {}, result: {}", request, agentConfigInfo);
-        return agentConfigInfo;
     }
 
     private ConfigResult loadModuleConfigs(ConfigRequest request) {

@@ -33,7 +33,7 @@ import org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceGroupInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamSinkInfo;
-import org.apache.inlong.manager.service.core.SortConfigLoader;
+import org.apache.inlong.manager.service.core.ConfigLoader;
 import org.apache.inlong.manager.service.core.SortSourceService;
 
 import com.google.gson.Gson;
@@ -111,7 +111,7 @@ public class SortSourceServiceImpl implements SortSourceService {
     private Map<String, Map<String, List<SortSourceStreamSinkInfo>>> streamSinkMap;
 
     @Autowired
-    private SortConfigLoader configLoader;
+    private ConfigLoader configLoader;
 
     @PostConstruct
     public void initialize() {
@@ -458,6 +458,6 @@ public class SortSourceServiceImpl implements SortSourceService {
     private void setReloadTimer() {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         long reloadInterval = 60000L;
-        executorService.scheduleAtFixedRate(this::reload, reloadInterval, reloadInterval, TimeUnit.MILLISECONDS);
+        executorService.scheduleWithFixedDelay(this::reload, reloadInterval, reloadInterval, TimeUnit.MILLISECONDS);
     }
 }

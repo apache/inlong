@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core;
 
+import org.apache.inlong.manager.dao.entity.AgentTaskConfigEntity;
 import org.apache.inlong.manager.dao.entity.ClusterConfigEntity;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
@@ -35,7 +36,7 @@ import java.util.List;
 /**
  * Loader for sort service to load configs thought Cursor
  */
-public interface SortConfigLoader {
+public interface ConfigLoader {
 
     /**
      * Load all clusters by cursor
@@ -123,5 +124,12 @@ public interface SortConfigLoader {
      * @return List of cluster config info
      */
     List<ClusterConfigEntity> loadAllClusterConfigEntity();
+
+    /**
+     * Load all agent task config info
+     *
+     * @return List of agent task config info
+     */
+    List<AgentTaskConfigEntity> loadAllAgentTaskConfigEntity();
 
 }

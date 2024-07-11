@@ -17,12 +17,14 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import org.apache.inlong.manager.dao.entity.AgentTaskConfigEntity;
 import org.apache.inlong.manager.dao.entity.ClusterConfigEntity;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
 import org.apache.inlong.manager.dao.entity.SortConfigEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.dao.mapper.AgentTaskConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.ClusterConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
@@ -39,7 +41,7 @@ import org.apache.inlong.manager.pojo.sort.standalone.SortSourceGroupInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamSinkInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortTaskInfo;
-import org.apache.inlong.manager.service.core.SortConfigLoader;
+import org.apache.inlong.manager.service.core.ConfigLoader;
 
 import org.apache.ibatis.cursor.Cursor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +52,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class SortConfigLoaderImpl implements SortConfigLoader {
+public class ConfigLoaderImpl implements ConfigLoader {
 
     @Autowired
     private InlongClusterEntityMapper clusterEntityMapper;
@@ -72,6 +74,8 @@ public class SortConfigLoaderImpl implements SortConfigLoader {
     private SortConfigEntityMapper sortConfigEntityMapper;
     @Autowired
     private ClusterConfigEntityMapper clusterConfigEntityMapper;
+    @Autowired
+    private AgentTaskConfigEntityMapper agentTaskConfigEntityMapper;
 
     @Transactional
     @Override
@@ -179,5 +183,14 @@ public class SortConfigLoaderImpl implements SortConfigLoader {
         List<ClusterConfigEntity> allClusterConfigs = new ArrayList<>();
         cursor.forEach(allClusterConfigs::add);
         return allClusterConfigs;
+    }
+
+    @Transactional
+    @Override
+    public List<AgentTaskConfigEntity> loadAllAgentTaskConfigEntity() {
+        Cursor<AgentTaskConfigEntity> cursor = agentTaskConfigEntityMapper.selectAllAgentTaskConfigs();
+        List<AgentTaskConfigEntity> agentTaskConfigEntityList = new ArrayList<>();
+        cursor.forEach(agentTaskConfigEntityList::add);
+        return agentTaskConfigEntityList;
     }
 }

@@ -15,28 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent;
+package org.apache.inlong.manager.dao.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
- * The task result pulled by the agent from the manager.
+ * Agent task config entity, including agent ip, cluster name, etc.
  */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TaskResult {
+public class AgentTaskConfigEntity implements Serializable {
 
-    private List<CmdConfig> cmdConfigs;
-    private List<DataConfig> dataConfigs;
-    private String md5;
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String clusterName;
+    private String agentIp;
+
+    private String configParams;
+
+    private String taskParams;
+
+    private Integer isDeleted;
+    private String creator;
+    private String modifier;
+    private Date createTime;
+    private Date modifyTime;
     private Integer version;
-    AgentResponseCode code;
 
 }
