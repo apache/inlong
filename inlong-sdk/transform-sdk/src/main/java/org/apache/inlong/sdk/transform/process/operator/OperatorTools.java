@@ -17,11 +17,11 @@
 
 package org.apache.inlong.sdk.transform.process.operator;
 
-import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
-import org.apache.inlong.sdk.transform.process.function.NowFunction;
 import org.apache.inlong.sdk.transform.process.function.AbsFunction;
-import org.apache.inlong.sdk.transform.process.function.PowerFunction;
+import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
 import org.apache.inlong.sdk.transform.process.function.LnFunction;
+import org.apache.inlong.sdk.transform.process.function.NowFunction;
+import org.apache.inlong.sdk.transform.process.function.PowerFunction;
 import org.apache.inlong.sdk.transform.process.function.SqrtFunction;
 import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
@@ -128,7 +128,8 @@ public class OperatorTools {
             } else {
                 // TODO
                 Function func = (Function) expr;
-                java.util.function.Function<Function, ValueParser> valueParserConstructor = functionMap.get(func.getName().toLowerCase());
+                java.util.function.Function<Function, ValueParser> valueParserConstructor =
+                        functionMap.get(func.getName().toLowerCase());
                 if (valueParserConstructor != null) {
                     return valueParserConstructor.apply(func);
                 } else {

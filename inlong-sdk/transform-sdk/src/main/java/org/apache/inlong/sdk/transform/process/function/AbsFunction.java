@@ -17,10 +17,11 @@
 
 package org.apache.inlong.sdk.transform.process.function;
 
-import net.sf.jsqlparser.expression.Function;
 import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
+
+import net.sf.jsqlparser.expression.Function;
 
 import java.math.BigDecimal;
 
@@ -28,7 +29,7 @@ import java.math.BigDecimal;
  * AbsFunction
  * description: abs(numeric)--returns the absolute value of numeric
  */
-public class AbsFunction implements ValueParser{
+public class AbsFunction implements ValueParser {
 
     private ValueParser number;
 

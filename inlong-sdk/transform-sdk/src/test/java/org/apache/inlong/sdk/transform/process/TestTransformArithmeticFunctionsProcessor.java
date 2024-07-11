@@ -23,6 +23,7 @@ import org.apache.inlong.sdk.transform.pojo.KvSinkInfo;
 import org.apache.inlong.sdk.transform.pojo.SinkInfo;
 import org.apache.inlong.sdk.transform.pojo.SourceInfo;
 import org.apache.inlong.sdk.transform.pojo.TransformConfig;
+
 import org.junit.Assert;
 import org.junit.Test;
 
