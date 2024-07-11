@@ -71,9 +71,11 @@ public class PulsarFederationSinkContext extends SinkContext {
                 return;
             }
 
-            PulsarNodeConfig requestNodeConfig = (PulsarNodeConfig) newTaskConfig.getNodeConfig();
-            if (pulsarNodeConfig == null || requestNodeConfig.getVersion() > pulsarNodeConfig.getVersion()) {
-                this.pulsarNodeConfig = requestNodeConfig;
+            if (newTaskConfig != null) {
+                PulsarNodeConfig requestNodeConfig = (PulsarNodeConfig) newTaskConfig.getNodeConfig();
+                if (pulsarNodeConfig == null || requestNodeConfig.getVersion() > pulsarNodeConfig.getVersion()) {
+                    this.pulsarNodeConfig = requestNodeConfig;
+                }
             }
 
             this.taskConfig = newTaskConfig;
@@ -94,6 +96,9 @@ public class PulsarFederationSinkContext extends SinkContext {
     }
 
     public Map<String, PulsarIdConfig> fromTaskConfig(TaskConfig taskConfig) {
+        if (taskConfig == null) {
+            return new HashMap<>();
+        }
         return taskConfig.getClusterTagConfigs()
                 .stream()
                 .map(ClusterTagConfig::getDataFlowConfigs)
@@ -106,6 +111,9 @@ public class PulsarFederationSinkContext extends SinkContext {
     }
 
     public Map<String, PulsarIdConfig> fromSortTaskConfig(SortTaskConfig sortTaskConfig) {
+        if (sortTaskConfig == null) {
+            return new HashMap<>();
+        }
         Map<String, PulsarIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
         List<Map<String, String>> idList = sortTaskConfig.getIdParams();
         for (Map<String, String> idParam : idList) {
