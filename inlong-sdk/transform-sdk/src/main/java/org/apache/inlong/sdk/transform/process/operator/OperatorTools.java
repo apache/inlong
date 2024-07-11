@@ -17,8 +17,12 @@
 
 package org.apache.inlong.sdk.transform.process.operator;
 
+import org.apache.inlong.sdk.transform.process.function.AbsFunction;
 import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
+import org.apache.inlong.sdk.transform.process.function.LnFunction;
 import org.apache.inlong.sdk.transform.process.function.NowFunction;
+import org.apache.inlong.sdk.transform.process.function.PowerFunction;
+import org.apache.inlong.sdk.transform.process.function.SqrtFunction;
 import org.apache.inlong.sdk.transform.process.parser.AdditionParser;
 import org.apache.inlong.sdk.transform.process.parser.ColumnParser;
 import org.apache.inlong.sdk.transform.process.parser.DivisionParser;
@@ -51,6 +55,8 @@ import net.sf.jsqlparser.schema.Column;
 import org.apache.commons.lang.ObjectUtils;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * OperatorTools
@@ -61,6 +67,17 @@ public class OperatorTools {
     public static final String ROOT_KEY = "$root";
 
     public static final String CHILD_KEY = "$child";
+
+    private static final Map<String, java.util.function.Function<Function, ValueParser>> functionMap = new HashMap<>();
+
+    static {
+        functionMap.put("concat", ConcatFunction::new);
+        functionMap.put("now", NowFunction::new);
+        functionMap.put("power", PowerFunction::new);
+        functionMap.put("abs", AbsFunction::new);
+        functionMap.put("sqrt", SqrtFunction::new);
+        functionMap.put("ln", LnFunction::new);
+    }
 
     public static ExpressionOperator buildOperator(Expression expr) {
         if (expr instanceof AndExpression) {
@@ -111,13 +128,12 @@ public class OperatorTools {
             } else {
                 // TODO
                 Function func = (Function) expr;
-                switch (func.getName()) {
-                    case "concat":
-                        return new ConcatFunction(func);
-                    case "now":
-                        return new NowFunction(func);
-                    default:
-                        return new ColumnParser(func);
+                java.util.function.Function<Function, ValueParser> valueParserConstructor =
+                        functionMap.get(func.getName().toLowerCase());
+                if (valueParserConstructor != null) {
+                    return valueParserConstructor.apply(func);
+                } else {
+                    return new ColumnParser(func);
                 }
             }
         }
@@ -139,7 +155,8 @@ public class OperatorTools {
 
     /**
      * compareValue
-     * @param value
+     * @param left
+     * @param right
      * @return
      */
     @SuppressWarnings("rawtypes")
