@@ -162,7 +162,9 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         if (request.getEnableSyncSchema()) {
             syncSourceFieldInfo(request, operator);
         }
-        updateAgentTaskConfig(request, operator);
+        if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
+            updateAgentTaskConfig(request, operator);
+        }
         return entity.getId();
     }
 
@@ -261,8 +263,9 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         }
         updateFieldOpt(entity, request.getFieldList());
         LOGGER.debug("success to update source of type={}", request.getSourceType());
-        updateAgentTaskConfig(request, operator);
-
+        if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
+            updateAgentTaskConfig(request, operator);
+        }
     }
 
     @Override
@@ -404,7 +407,8 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         throw new BusinessException(String.format("not support data add task for type =%s", request.getSourceType()));
     }
 
-    private void updateAgentTaskConfig(SourceRequest request, String operator) {
+    @Override
+    public void updateAgentTaskConfig(SourceRequest request, String operator) {
         try {
             if (SourceType.AUTO_PUSH.equals(request.getSourceType())) {
                 return;
@@ -413,6 +417,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
             final String ip = request.getAgentIp();
             final String uuid = request.getUuid();
             if (StringUtils.isBlank(clusterName) || StringUtils.isBlank(ip)) {
+                LOGGER.warn("skip update agent task config where cluster name or ip is null for request={}", request);
                 return;
             }
             AgentTaskConfigEntity existEntity = agentTaskConfigEntityMapper.selectByIdentifier(ip, clusterName);
@@ -462,11 +467,6 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
 
             LOGGER.debug("begin to get agent config info for {}", request);
             Set<String> tagSet = new HashSet<>(16);
-            List<StreamSourceEntity> sourceEntities =
-                    sourceMapper.selectByAgentIp(agentTaskConfigEntity.getAgentIp()).stream()
-                            .filter(v -> Objects.equals(v.getStatus(), SourceStatus.TO_BE_ISSUED_ADD.getCode()))
-                            .collect(
-                                    Collectors.toList());
             InlongGroupEntity groupEntity =
                     groupMapper.selectByGroupIdWithoutTenant(request.getInlongGroupId());
             String clusterTag = groupEntity.getInlongClusterTag();

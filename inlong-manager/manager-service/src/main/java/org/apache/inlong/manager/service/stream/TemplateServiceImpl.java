@@ -116,7 +116,7 @@ public class TemplateServiceImpl implements TemplateService {
         TemplateEntity templateEntity = templateEntityMapper.selectByName(templateName);
         if (templateEntity == null) {
             LOGGER.error("inlong template not found by template name={}", templateName);
-            throw new BusinessException(ErrorCodeEnum.TEMPLATE_INFO_INCORRECT);
+            throw new BusinessException(ErrorCodeEnum.TENANT_NOT_EXIST);
         }
 
         TemplateInfo templateInfo = CommonBeanUtils.copyProperties(templateEntity, TemplateInfo::new);
@@ -182,7 +182,7 @@ public class TemplateServiceImpl implements TemplateService {
         TemplateEntity templateEntity = templateEntityMapper.selectByName(templateName);
         if (templateEntity == null) {
             LOGGER.error("inlong template not found by template name={}", templateName);
-            throw new BusinessException(ErrorCodeEnum.TEMPLATE_INFO_INCORRECT);
+            throw new BusinessException(ErrorCodeEnum.TENANT_NOT_EXIST);
         }
 
         if (templateEntity.getInCharges().contains(operator)) {

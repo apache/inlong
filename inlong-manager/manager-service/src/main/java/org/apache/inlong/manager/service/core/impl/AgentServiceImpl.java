@@ -271,8 +271,7 @@ public class AgentServiceImpl implements AgentService {
 
     private void setReloadTimer() {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        long reloadInterval = 60000L;
-        executorService.scheduleAtFixedRate(this::reload, reloadInterval, reloadInterval, TimeUnit.MILLISECONDS);
+        executorService.scheduleWithFixedDelay(this::reload, 60000L, 60000L, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -302,12 +301,11 @@ public class AgentServiceImpl implements AgentService {
         }
     }
 
-    @Transactional(rollbackFor = Exception.class)
     public void reload() {
         LOGGER.debug("start to reload agent task config.");
         try {
-            Map<String, TaskResult> tempTaskConfigMap = new ConcurrentHashMap<>();
-            Map<String, AgentConfigInfo> tempAgentConfigMap = new ConcurrentHashMap<>();
+            Map<String, TaskResult> newTaskConfigMap = new ConcurrentHashMap<>();
+            Map<String, AgentConfigInfo> newAgentConfigMap = new ConcurrentHashMap<>();
             List<AgentTaskConfigEntity> agentTaskConfigEntityList = configLoader.loadAllAgentTaskConfigEntity();
             agentTaskConfigEntityList.forEach(agentTaskConfigEntity -> {
                 try {
@@ -317,22 +315,22 @@ public class AgentServiceImpl implements AgentService {
                             TaskResult.class);
                     if (taskResult != null) {
                         taskResult.setVersion(agentTaskConfigEntity.getVersion());
-                        tempTaskConfigMap.putIfAbsent(key, taskResult);
+                        newTaskConfigMap.putIfAbsent(key, taskResult);
                     }
                     AgentConfigInfo agentConfigInfo = JsonUtils.parseObject(agentTaskConfigEntity.getConfigParams(),
                             AgentConfigInfo.class);
                     if (agentConfigInfo != null) {
                         agentConfigInfo.setVersion(agentTaskConfigEntity.getVersion());
-                        tempAgentConfigMap.putIfAbsent(key, agentConfigInfo);
+                        newAgentConfigMap.putIfAbsent(key, agentConfigInfo);
                     }
                 } catch (Exception e) {
-                    LOGGER.error("failed to get agent task confgi for agent ip={}, cluster name={}",
+                    LOGGER.error("failed to get agent task config for agent ip={}, cluster name={}",
                             agentTaskConfigEntity.getAgentIp(), agentTaskConfigEntity.getClusterName());
                 }
 
             });
-            taskConfigMap = tempTaskConfigMap;
-            agentConfigMap = tempAgentConfigMap;
+            taskConfigMap = newTaskConfigMap;
+            agentConfigMap = newAgentConfigMap;
         } catch (Throwable t) {
             LOGGER.error("failed to reload all agent task config", t);
         }
