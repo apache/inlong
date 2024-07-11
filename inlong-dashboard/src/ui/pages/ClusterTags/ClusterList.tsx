@@ -151,6 +151,11 @@ const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
         title: i18n.t('pages.Clusters.Type'),
         dataIndex: 'type',
         ellipsisMulti: 2,
+        render: (text, record) => (
+          <>
+            <div>{text.toLowerCase()}</div>
+          </>
+        ),
       },
       {
         title: i18n.t('basic.Creator'),
