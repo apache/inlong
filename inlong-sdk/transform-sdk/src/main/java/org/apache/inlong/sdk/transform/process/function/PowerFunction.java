@@ -31,16 +31,16 @@ import java.math.BigDecimal;
  */
 public class PowerFunction implements ValueParser {
 
-    private ValueParser base;
-    private ValueParser exponent;
+    private ValueParser baseParser;
+    private ValueParser exponentParser;
 
     /**
      * Constructor
      * @param expr
      */
     public PowerFunction(Function expr) {
-        base = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
-        exponent = OperatorTools.buildParser(expr.getParameters().getExpressions().get(1));
+        baseParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
+        exponentParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(1));
     }
 
     /**
@@ -51,8 +51,8 @@ public class PowerFunction implements ValueParser {
      */
     @Override
     public Object parse(SourceData sourceData, int rowIndex) {
-        Object baseObj = base.parse(sourceData, rowIndex);
-        Object exponentObj = exponent.parse(sourceData, rowIndex);
+        Object baseObj = baseParser.parse(sourceData, rowIndex);
+        Object exponentObj = exponentParser.parse(sourceData, rowIndex);
         BigDecimal baseValue = OperatorTools.parseBigDecimal(baseObj);
         BigDecimal exponentValue = OperatorTools.parseBigDecimal(exponentObj);
         return Math.pow(baseValue.doubleValue(), exponentValue.doubleValue());

@@ -31,14 +31,14 @@ import java.math.BigDecimal;
  */
 public class LnFunction implements ValueParser {
 
-    private ValueParser number;
+    private ValueParser numberParser;
 
     /**
      * Constructor
      * @param expr
      */
     public LnFunction(Function expr) {
-        number = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
+        numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
     /**
@@ -49,7 +49,7 @@ public class LnFunction implements ValueParser {
      */
     @Override
     public Object parse(SourceData sourceData, int rowIndex) {
-        Object numberObj = number.parse(sourceData, rowIndex);
+        Object numberObj = numberParser.parse(sourceData, rowIndex);
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
         return Math.log(numberValue.doubleValue());
     }

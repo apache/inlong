@@ -34,8 +34,8 @@ import java.util.List;
  */
 public class LogFunction implements ValueParser {
 
-    private ValueParser base;
-    private ValueParser number;
+    private ValueParser baseParser;
+    private ValueParser numberParser;
 
     /**
      * Constructor
@@ -45,10 +45,10 @@ public class LogFunction implements ValueParser {
         List<Expression> expressions = expr.getParameters().getExpressions();
         // Determine the number of arguments and build parser
         if (expressions.size() == 1) {
-            number = OperatorTools.buildParser(expressions.get(0));
+            numberParser = OperatorTools.buildParser(expressions.get(0));
         } else {
-            base = OperatorTools.buildParser(expressions.get(0));
-            number = OperatorTools.buildParser(expressions.get(1));
+            baseParser = OperatorTools.buildParser(expressions.get(0));
+            numberParser = OperatorTools.buildParser(expressions.get(1));
         }
     }
 
@@ -60,10 +60,10 @@ public class LogFunction implements ValueParser {
      */
     @Override
     public Object parse(SourceData sourceData, int rowIndex) {
-        Object numberObj = number.parse(sourceData, rowIndex);
+        Object numberObj = numberParser.parse(sourceData, rowIndex);
         BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
-        if (base != null) {
-            Object baseObj = base.parse(sourceData, rowIndex);
+        if (baseParser != null) {
+            Object baseObj = baseParser.parse(sourceData, rowIndex);
             BigDecimal baseValue = OperatorTools.parseBigDecimal(baseObj);
             return Math.log(numberValue.doubleValue()) / Math.log(baseValue.doubleValue());
         } else {
