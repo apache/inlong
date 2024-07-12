@@ -60,7 +60,7 @@ export const getColumns = activedName => [
     dataIndex: 'processId',
     render: (text, record) => (
       <Link
-        to={`/process/${activedName}/${text}?taskId=${record.id}&inlongGroupMode=${record.showInList[0]?.inlongGroupMode}`}
+        to={`/process/${activedName}/${text}?taskId=${record.id}&inlongGroupMode=${record.showInList?.[0]?.inlongGroupMode}`}
       >
         {text}
       </Link>
@@ -106,7 +106,7 @@ export const getColumns = activedName => [
           />
         );
       }
-      return record.showInList[0]?.inlongGroupMode === 1 ? (
+      return record.showInList?.[0]?.inlongGroupMode === 1 ? (
         <StatusTag
           type={'success'}
           icon={<span />}
@@ -136,7 +136,7 @@ export const getColumns = activedName => [
     dataIndex: 'action',
     render: (text, record) => (
       <Link
-        to={`/process/${activedName}/${record.processId}?taskId=${record.id}&inlongGroupMode=${record.showInList[0]?.inlongGroupMode}`}
+        to={`/process/${activedName}/${record.processId}?taskId=${record.id}&inlongGroupMode=${record.showInList?.[0]?.inlongGroupMode}`}
       >
         {i18n.t('pages.Approvals.Approval')}
       </Link>

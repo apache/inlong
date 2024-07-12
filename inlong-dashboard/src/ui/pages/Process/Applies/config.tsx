@@ -55,7 +55,7 @@ export const getColumns = activedName => [
     width: 90,
     render: (text, record) => (
       <Link
-        to={`/process/${activedName}/${text}?inlongGroupMode=${record.showInList[0]?.inlongGroupMode}`}
+        to={`/process/${activedName}/${text}?inlongGroupMode=${record.showInList?.[0]?.inlongGroupMode}`}
       >
         {text}
       </Link>
@@ -70,13 +70,13 @@ export const getColumns = activedName => [
     title: i18n.t('pages.Approvals.GroupId'),
     dataIndex: 'inlongGroupId',
     width: 200,
-    render: (text, record) => record.showInList[0]?.inlongGroupId,
+    render: (text, record) => record.showInList?.[0]?.inlongGroupId,
   },
   {
     title: i18n.t('pages.Approvals.ConsumeName'),
     dataIndex: 'consumerGroup',
     width: 200,
-    render: (text, record) => record.showInList[0]?.consumerGroup,
+    render: (text, record) => record.showInList?.[0]?.consumerGroup,
   },
   {
     title: i18n.t('pages.Approvals.GroupMode'),
@@ -92,7 +92,7 @@ export const getColumns = activedName => [
           />
         );
       }
-      return record.showInList[0]?.inlongGroupMode === 1 ? (
+      return record.showInList?.[0]?.inlongGroupMode === 1 ? (
         <StatusTag
           type={'success'}
           icon={<span />}
@@ -131,7 +131,7 @@ export const getColumns = activedName => [
     width: 100,
     render: (text, record) => (
       <Link
-        to={`/process/${activedName}/${record.id}?inlongGroupMode=${record.showInList[0]?.inlongGroupMode}`}
+        to={`/process/${activedName}/${record.id}?inlongGroupMode=${record.showInList?.[0]?.inlongGroupMode}`}
       >
         {i18n.t('basic.Detail')}
       </Link>
