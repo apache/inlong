@@ -19,7 +19,11 @@ package org.apache.inlong.sdk.transform.process.operator;
 
 import org.apache.inlong.sdk.transform.process.function.AbsFunction;
 import org.apache.inlong.sdk.transform.process.function.ConcatFunction;
+import org.apache.inlong.sdk.transform.process.function.ExpFunction;
 import org.apache.inlong.sdk.transform.process.function.LnFunction;
+import org.apache.inlong.sdk.transform.process.function.Log10Function;
+import org.apache.inlong.sdk.transform.process.function.Log2Function;
+import org.apache.inlong.sdk.transform.process.function.LogFunction;
 import org.apache.inlong.sdk.transform.process.function.NowFunction;
 import org.apache.inlong.sdk.transform.process.function.PowerFunction;
 import org.apache.inlong.sdk.transform.process.function.SqrtFunction;
@@ -77,6 +81,10 @@ public class OperatorTools {
         functionMap.put("abs", AbsFunction::new);
         functionMap.put("sqrt", SqrtFunction::new);
         functionMap.put("ln", LnFunction::new);
+        functionMap.put("log10", Log10Function::new);
+        functionMap.put("log2", Log2Function::new);
+        functionMap.put("log", LogFunction::new);
+        functionMap.put("exp", ExpFunction::new);
     }
 
     public static ExpressionOperator buildOperator(Expression expr) {

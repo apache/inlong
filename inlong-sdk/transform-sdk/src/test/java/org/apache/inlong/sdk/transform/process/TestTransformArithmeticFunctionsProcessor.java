@@ -117,4 +117,72 @@ public class TestTransformArithmeticFunctionsProcessor {
         Assert.assertTrue(output2.size() == 1);
         Assert.assertEquals(output2.get(0), "result=2.302585092994046");
     }
+
+    @Test
+    public void testLog10Function() throws Exception {
+        String transformSql = "select log10(numeric1) from source";
+        TransformConfig config = new TransformConfig(csvSource, kvSink, transformSql);
+        // case1: log10(1)
+        TransformProcessor processor = new TransformProcessor(config);
+        List<String> output1 = processor.transform("1|4|6|8", new HashMap<>());
+        Assert.assertTrue(output1.size() == 1);
+        Assert.assertEquals(output1.get(0), "result=0.0");
+        // case2: log10(1000)
+        List<String> output2 = processor.transform("1000|4|6|8", new HashMap<>());
+        Assert.assertTrue(output2.size() == 1);
+        Assert.assertEquals(output2.get(0), "result=3.0");
+    }
+
+    @Test
+    public void testLog2Function() throws Exception {
+        String transformSql = "select log2(numeric1) from source";
+        TransformConfig config = new TransformConfig(csvSource, kvSink, transformSql);
+        // case1: log2(1)
+        TransformProcessor processor = new TransformProcessor(config);
+        List<String> output1 = processor.transform("1|4|6|8", new HashMap<>());
+        Assert.assertTrue(output1.size() == 1);
+        Assert.assertEquals(output1.get(0), "result=0.0");
+        // case2: log2(32)
+        List<String> output2 = processor.transform("32|4|6|8", new HashMap<>());
+        Assert.assertTrue(output2.size() == 1);
+        Assert.assertEquals(output2.get(0), "result=5.0");
+    }
+
+    @Test
+    public void testLogFunction() throws Exception {
+        String transformSql1 = "select log(numeric1) from source";
+        TransformConfig config1 = new TransformConfig(csvSource, kvSink, transformSql1);
+        // case1: ln(1)
+        TransformProcessor processor1 = new TransformProcessor(config1);
+        List<String> output1 = processor1.transform("1|4|6|8", new HashMap<>());
+        Assert.assertTrue(output1.size() == 1);
+        Assert.assertEquals(output1.get(0), "result=0.0");
+        String transformSql2 = "select log(numeric1, numeric2) from source";
+        TransformConfig config2 = new TransformConfig(csvSource, kvSink, transformSql2);
+        // case2: log2(8)
+        TransformProcessor processor2 = new TransformProcessor(config2);
+        List<String> output2 = processor2.transform("2|8|6|8", new HashMap<>());
+        Assert.assertTrue(output2.size() == 1);
+        Assert.assertEquals(output2.get(0), "result=3.0");
+        // case3: log10(100)
+        TransformProcessor processor3 = new TransformProcessor(config2);
+        List<String> output3 = processor3.transform("10|100|6|8", new HashMap<>());
+        Assert.assertTrue(output3.size() == 1);
+        Assert.assertEquals(output3.get(0), "result=2.0");
+    }
+
+    @Test
+    public void testExpFunction() throws Exception {
+        String transformSql = "select exp(numeric1) from source";
+        TransformConfig config = new TransformConfig(csvSource, kvSink, transformSql);
+        // case1: e^0
+        TransformProcessor processor = new TransformProcessor(config);
+        List<String> output1 = processor.transform("0|4|6|8", new HashMap<>());
+        Assert.assertTrue(output1.size() == 1);
+        Assert.assertEquals(output1.get(0), "result=1.0");
+        // case2: e^2
+        List<String> output2 = processor.transform("2|4|6|8", new HashMap<>());
+        Assert.assertTrue(output2.size() == 1);
+        Assert.assertEquals(output2.get(0), "result=7.38905609893065");
+    }
 }
