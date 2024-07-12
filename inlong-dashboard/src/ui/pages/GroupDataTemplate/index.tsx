@@ -104,12 +104,6 @@ const Comp: React.FC = () => {
   const entityColumns = useMemo(() => {
     return [
       {
-        title: 'id',
-        dataIndex: 'id',
-        key: 'id',
-        width: 100,
-      },
-      {
         title: i18n.t('pages.GroupDataTemplate.Name'),
         dataIndex: 'name',
         key: 'name',
@@ -119,7 +113,7 @@ const Comp: React.FC = () => {
         title: i18n.t('pages.GroupDataTemplate.InCharges'),
         dataIndex: 'inCharges',
         key: 'inCharges',
-        width: 200,
+        width: 300,
       },
       {
         title: i18n.t('pages.GroupDataTemplate.TenantList'),

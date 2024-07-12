@@ -96,7 +96,7 @@ const Comp: React.FC<Props> = ({ id, templateName, ...modalProps }) => {
   const content = useMemo(() => {
     return new GroupDataTemplateInfo().renderRow().map(item => {
       if (item.name === 'tenantList') {
-        item = { ...item, hidden: hidden };
+        item = { ...item, hidden: hidden, rules: [{ required: !hidden }] };
       }
       return item;
     });
