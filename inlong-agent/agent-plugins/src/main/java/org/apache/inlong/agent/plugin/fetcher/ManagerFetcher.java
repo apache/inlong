@@ -85,7 +85,9 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     private String clusterTag;
     private String clusterName;
     private String taskResultMd5;
+    private Integer taskResultVersion = -1;
     private String agentConfigMd5;
+    private Integer agentConfigVersion = -1;
 
     public ManagerFetcher(AgentManager agentManager) {
         this.agentManager = agentManager;
@@ -194,7 +196,8 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             while (isRunnable()) {
                 try {
                     TaskResult taskResult = getStaticConfig();
-                    if (taskResult != null && taskResult.getCode().equals(AgentResponseCode.SUCCESS)) {
+                    if (taskResult != null && taskResult.getCode().equals(AgentResponseCode.SUCCESS)
+                            && taskResultVersion < taskResult.getVersion()) {
                         List<TaskProfile> taskProfiles = new ArrayList<>();
                         taskResult.getDataConfigs().forEach((config) -> {
                             TaskProfile profile = TaskProfile.convertToTaskProfile(config);
@@ -202,11 +205,14 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
                         });
                         agentManager.getTaskManager().submitTaskProfiles(taskProfiles);
                         taskResultMd5 = taskResult.getMd5();
+                        taskResultVersion = taskResult.getVersion();
                     }
                     AgentConfigInfo config = getAgentConfigInfo();
-                    if (config != null && config.getCode().equals(AgentResponseCode.SUCCESS)) {
+                    if (config != null && config.getCode().equals(AgentResponseCode.SUCCESS)
+                            && agentConfigVersion < config.getVersion()) {
                         agentManager.subNewAgentConfigInfo(config);
                         agentConfigMd5 = config.getMd5();
+                        agentConfigVersion = config.getVersion();
                     }
                 } catch (Throwable ex) {
                     LOGGER.warn("exception caught", ex);
