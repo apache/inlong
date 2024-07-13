@@ -21,26 +21,35 @@ import org.apache.inlong.sdk.transform.decode.SourceData;
 import org.apache.inlong.sdk.transform.process.operator.OperatorTools;
 import org.apache.inlong.sdk.transform.process.parser.ValueParser;
 
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
- * PowerFunction
- * description: power(numeric1, numeric2)--returns numeric1.power(numeric2)
+ * LogFunction
+ * description: log(numeric) or log(numeric1, numeric2)--When called with one argument, returns the natural logarithm
+ * of numeric. When called with two arguments, this function returns the logarithm of numeric2 to the base numeric1
  */
-public class PowerFunction implements ValueParser {
+public class LogFunction implements ValueParser {
 
     private ValueParser baseParser;
-    private ValueParser exponentParser;
+    private ValueParser numberParser;
 
     /**
      * Constructor
      * @param expr
      */
-    public PowerFunction(Function expr) {
-        baseParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
-        exponentParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(1));
+    public LogFunction(Function expr) {
+        List<Expression> expressions = expr.getParameters().getExpressions();
+        // Determine the number of arguments and build parser
+        if (expressions.size() == 1) {
+            numberParser = OperatorTools.buildParser(expressions.get(0));
+        } else {
+            baseParser = OperatorTools.buildParser(expressions.get(0));
+            numberParser = OperatorTools.buildParser(expressions.get(1));
+        }
     }
 
     /**
@@ -51,10 +60,14 @@ public class PowerFunction implements ValueParser {
      */
     @Override
     public Object parse(SourceData sourceData, int rowIndex) {
-        Object baseObj = baseParser.parse(sourceData, rowIndex);
-        Object exponentObj = exponentParser.parse(sourceData, rowIndex);
-        BigDecimal baseValue = OperatorTools.parseBigDecimal(baseObj);
-        BigDecimal exponentValue = OperatorTools.parseBigDecimal(exponentObj);
-        return Math.pow(baseValue.doubleValue(), exponentValue.doubleValue());
+        Object numberObj = numberParser.parse(sourceData, rowIndex);
+        BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
+        if (baseParser != null) {
+            Object baseObj = baseParser.parse(sourceData, rowIndex);
+            BigDecimal baseValue = OperatorTools.parseBigDecimal(baseObj);
+            return Math.log(numberValue.doubleValue()) / Math.log(baseValue.doubleValue());
+        } else {
+            return Math.log(numberValue.doubleValue());
+        }
     }
 }

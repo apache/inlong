@@ -26,21 +26,19 @@ import net.sf.jsqlparser.expression.Function;
 import java.math.BigDecimal;
 
 /**
- * PowerFunction
- * description: power(numeric1, numeric2)--returns numeric1.power(numeric2)
+ * ExpFunction
+ * description: exp(numeric)--returns e raised to the power of numeric
  */
-public class PowerFunction implements ValueParser {
+public class ExpFunction implements ValueParser {
 
-    private ValueParser baseParser;
-    private ValueParser exponentParser;
+    private ValueParser numberParser;
 
     /**
      * Constructor
      * @param expr
      */
-    public PowerFunction(Function expr) {
-        baseParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
-        exponentParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(1));
+    public ExpFunction(Function expr) {
+        numberParser = OperatorTools.buildParser(expr.getParameters().getExpressions().get(0));
     }
 
     /**
@@ -51,10 +49,8 @@ public class PowerFunction implements ValueParser {
      */
     @Override
     public Object parse(SourceData sourceData, int rowIndex) {
-        Object baseObj = baseParser.parse(sourceData, rowIndex);
-        Object exponentObj = exponentParser.parse(sourceData, rowIndex);
-        BigDecimal baseValue = OperatorTools.parseBigDecimal(baseObj);
-        BigDecimal exponentValue = OperatorTools.parseBigDecimal(exponentObj);
-        return Math.pow(baseValue.doubleValue(), exponentValue.doubleValue());
+        Object numberObj = numberParser.parse(sourceData, rowIndex);
+        BigDecimal numberValue = OperatorTools.parseBigDecimal(numberObj);
+        return Math.exp(numberValue.doubleValue());
     }
 }
