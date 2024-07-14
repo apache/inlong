@@ -44,6 +44,7 @@ import static org.apache.inlong.sort.pulsar.table.source.PulsarReadableMetadata.
  * fields.
  *
  * <p>Contains list of readable metadata and provide util methods for metadata manipulation.
+ * Modify from  {@link org.apache.flink.connector.pulsar.table.source.PulsarReadableMetadata}
  */
 public class PulsarReadableMetadata implements Serializable {
 

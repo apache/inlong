@@ -32,6 +32,7 @@ import java.util.List;
 /**
  * Contains the projection information needed to map a Pulsar message to proper key fields, value
  * fields and metadata fields.
+ * Modify from  {@link org.apache.flink.connector.pulsar.table.source.PulsarRowDataConverter}
  */
 public class PulsarRowDataConverter implements Serializable {
 
