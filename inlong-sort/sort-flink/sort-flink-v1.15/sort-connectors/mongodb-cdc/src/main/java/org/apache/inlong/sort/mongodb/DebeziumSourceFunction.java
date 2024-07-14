@@ -312,6 +312,19 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             snapshotOffsetState(functionSnapshotContext.getCheckpointId());
             snapshotHistoryRecordsState();
         }
+        if (deserializer instanceof MongoDBConnectorDeserializationSchema) {
+            ((MongoDBConnectorDeserializationSchema) deserializer)
+                    .updateCurrentCheckpointId(functionSnapshotContext.getCheckpointId());
+        }
+    }
+
+    @Override
+    public void notifyCheckpointAborted(long checkpointId) {
+        if (deserializer instanceof  MongoDBConnectorDeserializationSchema) {
+            MongoDBConnectorDeserializationSchema schema = (MongoDBConnectorDeserializationSchema) deserializer;
+            schema.flushAudit();
+            schema.updateLastCheckpointId(checkpointId);
+        }
     }
 
     private void snapshotOffsetState(long checkpointId) throws Exception {
