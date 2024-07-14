@@ -26,7 +26,6 @@ import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.pulsar.source.config.SourceConfiguration;
 import org.apache.flink.connector.pulsar.source.reader.deserializer.PulsarDeserializationSchema;
-import org.apache.flink.connector.pulsar.table.source.PulsarRowDataConverter;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
 import org.apache.pulsar.client.api.Message;
@@ -117,12 +116,14 @@ public class PulsarTableDeserializationSchema implements PulsarDeserializationSc
             rowDataConverter.projectToRowWithNullValueRow(message, keyRowData, collector);
             return;
         }
+        MetricsCollector<RowData> metricsCollector =
+                new MetricsCollector<>(collector, sourceMetricData);
 
-        valueDeserialization.deserialize(message.getData(),
-                new MetricsCollector<>(new ListCollector<>(valueRowData), sourceMetricData));
+        valueDeserialization.deserialize(message.getData(), new ListCollector<>(valueRowData));
 
         rowDataConverter.projectToProducedRowAndCollect(
-                message, keyRowData, valueRowData, collector);
+                message, keyRowData, valueRowData, metricsCollector);
+
     }
 
     @Override
