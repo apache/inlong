@@ -23,8 +23,6 @@ import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.pulsar.source.reader.deserializer.PulsarDeserializationSchema;
-import org.apache.flink.connector.pulsar.table.source.PulsarReadableMetadata;
-import org.apache.flink.connector.pulsar.table.source.PulsarRowDataConverter;
 import org.apache.flink.table.connector.Projection;
 import org.apache.flink.table.connector.format.DecodingFormat;
 import org.apache.flink.table.connector.source.DynamicTableSource;
