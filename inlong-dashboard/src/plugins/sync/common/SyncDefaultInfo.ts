@@ -103,9 +103,6 @@ export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     initialValue: 'NONE',
     hidden: true,
   })
-  @ColumnDecorator({
-    width: 300,
-  })
   @I18n('meta.Group.MQType')
   mqType: string;
 
