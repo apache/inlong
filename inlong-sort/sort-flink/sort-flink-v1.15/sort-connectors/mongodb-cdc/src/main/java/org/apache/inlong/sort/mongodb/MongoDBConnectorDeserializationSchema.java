@@ -19,7 +19,7 @@ package org.apache.inlong.sort.mongodb;
 
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.metric.SourceExactlyMetric;
 
 import com.mongodb.client.model.changestream.OperationType;
 import com.mongodb.internal.HexUtils;
@@ -112,7 +112,7 @@ public class MongoDBConnectorDeserializationSchema implements DebeziumDeserializ
 
     private final MetricOption metricOption;
 
-    private SourceMetricData sourceMetricData;
+    private SourceExactlyMetric sourceExactlyMetric;
 
     public MongoDBConnectorDeserializationSchema(
             RowType physicalDataType,
@@ -131,7 +131,7 @@ public class MongoDBConnectorDeserializationSchema implements DebeziumDeserializ
     @Override
     public void open() {
         if (metricOption != null) {
-            sourceMetricData = new SourceMetricData(metricOption);
+            sourceExactlyMetric = new SourceExactlyMetric(metricOption);
         }
     }
 
@@ -152,12 +152,13 @@ public class MongoDBConnectorDeserializationSchema implements DebeziumDeserializ
                 GenericRowData insert = extractRowData(fullDocument);
                 insert.setRowKind(RowKind.INSERT);
                 emit(record, insert,
-                        sourceMetricData == null ? out : new MetricsCollector<>(out, sourceMetricData));
+                        sourceExactlyMetric == null ? out : new MetricsCollector<>(out, sourceExactlyMetric));
                 break;
             case DELETE:
                 GenericRowData delete = extractRowData(documentKey);
                 delete.setRowKind(RowKind.DELETE);
-                emit(record, delete, sourceMetricData == null ? out : new MetricsCollector<>(out, sourceMetricData));
+                emit(record, delete,
+                        sourceExactlyMetric == null ? out : new MetricsCollector<>(out, sourceExactlyMetric));
                 break;
             case UPDATE:
                 // It’s null if another operation deletes the document
@@ -168,13 +169,13 @@ public class MongoDBConnectorDeserializationSchema implements DebeziumDeserializ
                 GenericRowData updateAfter = extractRowData(fullDocument);
                 updateAfter.setRowKind(RowKind.UPDATE_AFTER);
                 emit(record, updateAfter,
-                        sourceMetricData == null ? out : new MetricsCollector<>(out, sourceMetricData));
+                        sourceExactlyMetric == null ? out : new MetricsCollector<>(out, sourceExactlyMetric));
                 break;
             case REPLACE:
                 GenericRowData replaceAfter = extractRowData(fullDocument);
                 replaceAfter.setRowKind(RowKind.UPDATE_AFTER);
                 emit(record, replaceAfter,
-                        sourceMetricData == null ? out : new MetricsCollector<>(out, sourceMetricData));
+                        sourceExactlyMetric == null ? out : new MetricsCollector<>(out, sourceExactlyMetric));
                 break;
             case INVALIDATE:
             case DROP:
@@ -807,5 +808,23 @@ public class MongoDBConnectorDeserializationSchema implements DebeziumDeserializ
             }
             return converter.convert(docObj);
         };
+    }
+
+    public void flushAudit() {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.flushAudit();
+        }
+    }
+
+    public void updateCurrentCheckpointId(long checkpointId) {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateCurrentCheckpointId(checkpointId);
+        }
+    }
+
+    public void updateLastCheckpointId(long checkpointId) {
+        if (sourceExactlyMetric != null) {
+            sourceExactlyMetric.updateLastCheckpointId(checkpointId);
+        }
     }
 }
