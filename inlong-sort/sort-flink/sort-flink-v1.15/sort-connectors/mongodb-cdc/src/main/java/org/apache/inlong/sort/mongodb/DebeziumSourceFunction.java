@@ -318,15 +318,6 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         }
     }
 
-    @Override
-    public void notifyCheckpointAborted(long checkpointId) {
-        if (deserializer instanceof MongoDBConnectorDeserializationSchema) {
-            MongoDBConnectorDeserializationSchema schema = (MongoDBConnectorDeserializationSchema) deserializer;
-            schema.flushAudit();
-            schema.updateLastCheckpointId(checkpointId);
-        }
-    }
-
     private void snapshotOffsetState(long checkpointId) throws Exception {
         offsetState.clear();
 
@@ -499,6 +490,12 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             DebeziumOffset offset =
                     DebeziumOffsetSerializer.INSTANCE.deserialize(serializedOffsets);
             changeConsumer.commitOffset(offset);
+
+            if (deserializer instanceof MongoDBConnectorDeserializationSchema) {
+                MongoDBConnectorDeserializationSchema schema = (MongoDBConnectorDeserializationSchema) deserializer;
+                schema.flushAudit();
+                schema.updateLastCheckpointId(checkpointId);
+            }
         } catch (Exception e) {
             // ignore exception if we are no longer running
             LOG.warn("Ignore error when committing offset to database.", e);
