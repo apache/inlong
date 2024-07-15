@@ -16,8 +16,7 @@
   ~  See the License for the specific language governing permissions and
   ~  limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -28,7 +27,6 @@
 
     <artifactId>sort-end-to-end-tests-v1.18</artifactId>
     <name>Apache InLong - Sort End to End Tests v1.18</name>
-
 
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
@@ -112,5 +110,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>
