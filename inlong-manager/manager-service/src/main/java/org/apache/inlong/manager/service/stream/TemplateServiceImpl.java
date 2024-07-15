@@ -185,7 +185,7 @@ public class TemplateServiceImpl implements TemplateService {
             throw new BusinessException(ErrorCodeEnum.TEMPLATE_NOT_FOUND);
         }
 
-        if (templateEntity.getInCharges().contains(operator)) {
+        if (!templateEntity.getInCharges().contains(operator)) {
             throw new BusinessException(ErrorCodeEnum.TEMPLATE_PERMISSION_DENIED,
                     String.format("user [%s] has no update privilege for the inlong temlate", operator));
         }
@@ -252,7 +252,7 @@ public class TemplateServiceImpl implements TemplateService {
             throw new BusinessException(ErrorCodeEnum.TEMPLATE_NOT_FOUND);
         }
 
-        if (entity.getInCharges().contains(operator)) {
+        if (!entity.getInCharges().contains(operator)) {
             throw new BusinessException(ErrorCodeEnum.TEMPLATE_PERMISSION_DENIED,
                     String.format("user [%s] has no delete privilege for the inlong template", operator));
         }
@@ -284,7 +284,7 @@ public class TemplateServiceImpl implements TemplateService {
             throw new BusinessException(ErrorCodeEnum.TEMPLATE_NOT_FOUND);
         }
 
-        if (entity.getInCharges().contains(operator)) {
+        if (!entity.getInCharges().contains(operator)) {
             throw new BusinessException(ErrorCodeEnum.TEMPLATE_PERMISSION_DENIED,
                     String.format("user [%s] has no delete privilege for the inlong template", operator));
         }
