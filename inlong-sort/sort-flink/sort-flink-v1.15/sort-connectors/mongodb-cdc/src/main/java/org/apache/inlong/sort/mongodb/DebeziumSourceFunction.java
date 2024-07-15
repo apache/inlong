@@ -320,7 +320,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     @Override
     public void notifyCheckpointAborted(long checkpointId) {
-        if (deserializer instanceof  MongoDBConnectorDeserializationSchema) {
+        if (deserializer instanceof MongoDBConnectorDeserializationSchema) {
             MongoDBConnectorDeserializationSchema schema = (MongoDBConnectorDeserializationSchema) deserializer;
             schema.flushAudit();
             schema.updateLastCheckpointId(checkpointId);

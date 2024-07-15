@@ -20,7 +20,6 @@ package org.apache.inlong.sort.mongodb;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricsCollector;
 import org.apache.inlong.sort.base.metric.SourceExactlyMetric;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
 
 import com.mongodb.client.model.changestream.OperationType;
 import com.mongodb.internal.HexUtils;
@@ -158,7 +157,8 @@ public class MongoDBConnectorDeserializationSchema implements DebeziumDeserializ
             case DELETE:
                 GenericRowData delete = extractRowData(documentKey);
                 delete.setRowKind(RowKind.DELETE);
-                emit(record, delete, sourceExactlyMetric == null ? out : new MetricsCollector<>(out, sourceExactlyMetric));
+                emit(record, delete,
+                        sourceExactlyMetric == null ? out : new MetricsCollector<>(out, sourceExactlyMetric));
                 break;
             case UPDATE:
                 // It’s null if another operation deletes the document
