@@ -776,7 +776,7 @@
   "pages.Clusters.Node.Password": "SSH 密码",
   "pages.Clusters.Node.SSHKey": "SSH 密钥",
   "pages.Clusters.Node.SSHPort": "SSH 端口",
-  "pages.Clusters.Node.SSHKeyHelper": "请将公钥上传至 agent 节点的 ~/.ssh/authorized_keys 文件中",
+  "pages.Clusters.Node.SSHKeyHelper": "请将公钥上传至 Agent 节点的 ~/.ssh/authorized_keys 文件中",
   "pages.Clusters.Node.Status": "状态",
   "pages.Clusters.Node.Status.Normal": "正常",
   "pages.Clusters.Node.Status.Timeout": "心跳超时",
